@@ -1,0 +1,25 @@
+# ── Private working materials — NEVER publish ──────────────────
+# Drafts, planning notes, source docs, Claude guidance. Anything in
+# here stays on Derrick's machine and is excluded from the GitHub push.
+_private/
+
+# ── Node / Vite (added in Phase 1) ─────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
+
+# ── Env / secrets ──────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Personal working notes at repo root (kept local, not published) ──
+run.md
+to-do.md
+CLAUDE.md
+
+# ── OS / editor cruft ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log

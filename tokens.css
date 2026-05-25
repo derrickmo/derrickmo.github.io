@@ -1,0 +1,136 @@
+/* ============================================================
+   Derrick Mo — design tokens
+   Source of truth: DESIGN.md §2
+   ============================================================ */
+
+:root {
+  /* ---------- Dark mode (default) ---------- */
+  --bg-deep:     #050816;
+  --bg-mid:      #0a1428;
+  --bg-card:     #0d1834;
+  --grid-line:   rgba(26, 58, 110, 0.55);
+  --grid-line-soft: rgba(26, 58, 110, 0.22);
+
+  --blue:        #3b82f6;
+  --blue-lt:     #60a5fa;
+  --blue-br:     #93c5fd;
+  --violet:      #a855f7;
+  --violet-lt:   #c084fc;
+
+  --white:       #e0e7ff;
+  --muted:       #94a3b8;
+  --dim:         #475569;
+
+  --border:      rgba(96, 165, 250, 0.28);
+  --border-strong: rgba(96, 165, 250, 0.55);
+  --border-violet: rgba(192, 132, 252, 0.4);
+
+  /* ---------- Paper mode tokens ---------- */
+  --paper:       #f6f7f9;
+  --paper-soft:  #eceff5;
+  --paper-card:  #ffffff;
+  --grid-paper:  rgba(10, 20, 40, 0.08);
+  --grid-paper-soft: rgba(10, 20, 40, 0.04);
+
+  --ink:         #0a1428;
+  --ink-muted:   #475569;
+  --ink-dim:     #94a3b8;
+
+  --blue-paper:   #2563eb;
+  --violet-paper: #7c3aed;
+
+  --border-paper: rgba(37, 99, 235, 0.32);
+  --border-paper-violet: rgba(124, 58, 237, 0.32);
+
+  /* ---------- Type scale ---------- */
+  --t-display: 96px;
+  --t-h1: 60px;
+  --t-h2: 38px;
+  --t-h3: 24px;
+  --t-body: 16px;
+  --t-small: 13px;
+  --t-mono-s: 11px;
+  --t-mono: 13px;
+
+  /* ---------- Fonts ---------- */
+  --f-display: "Space Grotesk", system-ui, sans-serif;
+  --f-body:    "Inter", system-ui, sans-serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---------- Spacing & radius ---------- */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+}
+
+/* ============================================================
+   Surface helpers — apply to any container to inherit a mode
+   ============================================================ */
+
+.surface-dark {
+  background: var(--bg-deep);
+  color: var(--white);
+  font-family: var(--f-body);
+}
+
+.surface-paper {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+}
+
+/* ============================================================
+   Type roles
+   ============================================================ */
+
+.t-display { font-family: var(--f-display); font-weight: 700; font-size: var(--t-display); line-height: 1.0; letter-spacing: -0.025em; }
+.t-h1      { font-family: var(--f-display); font-weight: 700; font-size: var(--t-h1); line-height: 1.05; letter-spacing: -0.02em; }
+.t-h2      { font-family: var(--f-display); font-weight: 600; font-size: var(--t-h2); line-height: 1.15; letter-spacing: -0.015em; }
+.t-h3      { font-family: var(--f-display); font-weight: 600; font-size: var(--t-h3); line-height: 1.3; letter-spacing: -0.01em; }
+.t-body    { font-family: var(--f-body); font-weight: 400; font-size: var(--t-body); line-height: 1.55; }
+.t-small   { font-family: var(--f-body); font-weight: 400; font-size: var(--t-small); line-height: 1.5; }
+.t-mono    { font-family: var(--f-mono); font-weight: 500; font-size: var(--t-mono); letter-spacing: 0.04em; }
+.t-mono-s  { font-family: var(--f-mono); font-weight: 500; font-size: var(--t-mono-s); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* ============================================================
+   Accessibility — focus, skip link
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--blue-lt);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.dm-skip {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 1000;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  color: var(--white);
+  border: 1px solid var(--blue-lt);
+  border-radius: 4px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  text-decoration: none;
+  transition: top .15s;
+}
+.dm-skip:focus { top: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ============================================================
+   Gradient text (hero use only)
+   ============================================================ */
+
+.t-gradient {
+  background: linear-gradient(110deg, var(--blue) 0%, var(--white) 50%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

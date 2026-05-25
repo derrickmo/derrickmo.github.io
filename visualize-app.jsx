@@ -1,0 +1,811 @@
+// visualize-app.jsx — page app for /visualize/index.html (the interactive ML
+// libraries hub). How-it-works intro, demo card grid, "suggest a demo" CTA.
+
+const {
+  HudBrackets, GridOverlay, GlowBlob, MathWatermarks,
+  NeuralNet,
+  Section, Container, TopNav, Footer, MonoLabel, ConstructionBadge, useIsMobile,
+} = window;
+
+// ─── Glyphs (re-used from the landing skeleton) ──────────────
+const GlyphNeuralNet = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[28, 80, 132].map(x => [30, 60, 90].map(y => (
+      <circle key={`${x}-${y}`} cx={x} cy={y} r="3.6"
+        fill={x === 80 ? "#c084fc" : "#60a5fa"} opacity="0.9" />
+    )))}
+    {[30, 60, 90].map(y1 => [30, 60, 90].map(y2 => (
+      <g key={`l-${y1}-${y2}`}>
+        <line x1="28" y1={y1} x2="80" y2={y2} stroke="#60a5fa" strokeWidth="0.5" opacity="0.4" />
+        <line x1="80" y1={y1} x2="132" y2={y2} stroke="#c084fc" strokeWidth="0.5" opacity="0.4" />
+      </g>
+    )))}
+  </svg>
+);
+const GlyphAttention = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 8 }).map((_, i) =>
+      Array.from({ length: 8 }).map((_, j) => {
+        const v = (Math.sin(i * 1.3 + j * 0.7) + 1) / 2;
+        return <rect key={`${i}-${j}`} x={28 + j * 13} y={10 + i * 13} width="11" height="11"
+          fill={v > 0.55 ? "#c084fc" : "#60a5fa"} opacity={0.2 + v * 0.7} />;
+      })
+    )}
+  </svg>
+);
+const GlyphRL = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 6 }).map((_, i) =>
+      Array.from({ length: 6 }).map((_, j) => (
+        <rect key={`${i}-${j}`} x={28 + j * 16} y={14 + i * 16} width="16" height="16"
+          fill="none" stroke="#60a5fa" strokeWidth="0.3" opacity="0.4" />
+      ))
+    )}
+    <path d="M 36 22 L 36 38 L 52 38 L 52 70 L 84 70 L 84 102 L 116 102"
+      stroke="#c084fc" strokeWidth="1.5" fill="none" strokeDasharray="2 2" />
+    <circle cx="116" cy="102" r="4" fill="#c084fc" />
+    <rect x="28" y="14" width="16" height="16" fill="#60a5fa" opacity="0.5" />
+  </svg>
+);
+const GlyphDiffusion = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 5 }).map((_, i) => {
+      const t = i / 4;
+      return (
+        <g key={i}>
+          <rect x={14 + i * 28} y={36} width="22" height="44"
+            fill="none" stroke="#60a5fa" strokeWidth="0.4" />
+          {Array.from({ length: 40 }).map((_, k) => {
+            const sx = 14 + i * 28 + (Math.sin(k * 7.3 + i * 2) + 1) * 11;
+            const sy = 36 + (Math.cos(k * 5.1 + i * 1.5) + 1) * 22;
+            return <circle key={k} cx={sx} cy={sy} r="0.7"
+              fill="#c084fc" opacity={0.2 + t * 0.7} />;
+          })}
+        </g>
+      );
+    })}
+  </svg>
+);
+const GlyphTokenizer = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {["Th", "e", "qu", "ick", "br", "own", "fox"].map((t, i) => {
+      const x = 14 + i * 20;
+      const col = i % 2 ? "#c084fc" : "#60a5fa";
+      return (
+        <g key={i}>
+          <rect x={x} y={48} width="18" height="24" rx="2"
+            fill="none" stroke={col} strokeWidth="0.8" />
+          <text x={x + 9} y={64} textAnchor="middle"
+            fontFamily="JetBrains Mono, monospace" fontSize="8" fill={col}>{t}</text>
+        </g>
+      );
+    })}
+  </svg>
+);
+const GlyphEmbedding = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 28 }).map((_, i) => {
+      const a = (i / 28) * Math.PI * 2;
+      const r = 38 + (i % 3) * 5;
+      const x = 80 + Math.cos(a) * r;
+      const y = 60 + Math.sin(a) * r;
+      return <circle key={i} cx={x} cy={y} r="2.5"
+        fill={i % 3 === 0 ? "#c084fc" : "#60a5fa"} opacity="0.8" />;
+    })}
+    <circle cx="80" cy="60" r="4" fill="#e0e7ff" />
+  </svg>
+);
+const GlyphPath = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 7 }).map((_, i) =>
+      Array.from({ length: 5 }).map((_, j) => (
+        <rect key={`${i}-${j}`} x={20 + i * 18} y={14 + j * 18} width="16" height="16"
+          fill="none" stroke="#60a5fa" strokeWidth="0.3" opacity="0.35" />
+      ))
+    )}
+    <path d="M 28 22 L 28 76 L 82 76 L 82 40 L 136 40" stroke="#c084fc" strokeWidth="2" fill="none" />
+    <rect x="21" y="15" width="14" height="14" fill="#3b82f6" />
+    <rect x="129" y="33" width="14" height="14" fill="#a855f7" />
+    {[[64,32],[100,58],[46,58]].map(([x,y],i)=>(
+      <rect key={i} x={x} y={y} width="14" height="14" fill="#334155" opacity="0.9" />
+    ))}
+  </svg>
+);
+const GlyphKMeans = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[["#60a5fa",40,40],["#c084fc",112,46],["#93c5fd",70,90]].map(([c,cx,cy],k)=>(
+      <g key={k}>
+        {Array.from({length:6}).map((_,i)=>{
+          const a=(i/6)*Math.PI*2, r=10+(i%2)*8;
+          return <circle key={i} cx={cx+Math.cos(a)*r} cy={cy+Math.sin(a)*r} r="2.5" fill={c} opacity="0.8" />;
+        })}
+        <circle cx={cx} cy={cy} r="4" fill="none" stroke={c} strokeWidth="1.5" />
+      </g>
+    ))}
+  </svg>
+);
+const GlyphGradient = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[44,34,24,14].map((r,i)=>(
+      <ellipse key={i} cx="80" cy="60" rx={r*1.4} ry={r} fill="none" stroke="#60a5fa" strokeWidth="0.5" opacity={0.25+i*0.12} />
+    ))}
+    <path d="M 30 30 Q 56 52, 68 56 T 80 60" stroke="#c084fc" strokeWidth="2" fill="none" />
+    <circle cx="30" cy="30" r="3" fill="#c084fc" />
+    <circle cx="80" cy="60" r="4" fill="#e0e7ff" />
+  </svg>
+);
+
+const GlyphCurveFit = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <path d="M 16 92 Q 48 14, 80 70 T 144 36" stroke="#c084fc" strokeWidth="2" fill="none" />
+    {[[28,86],[52,40],[70,74],[96,56],[120,50],[136,40],[40,64],[108,46]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="3" fill="#60a5fa" opacity="0.85" />
+    ))}
+  </svg>
+);
+const GlyphBell = () => {
+  const pts = Array.from({ length: 41 }, (_, i) => { const x = 16 + i * (128 / 40); const t = (i - 20) / 8; return `${x},${100 - 72 * Math.exp(-t * t / 2)}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {[18, 36, 54, 70, 82, 70, 54, 36, 18].map((h, i) => <rect key={i} x={22 + i * 15} y={100 - h} width="12" height={h} fill="#60a5fa" opacity="0.32" />)}
+      <polyline points={pts} stroke="#c084fc" strokeWidth="2" fill="none" />
+    </svg>
+  );
+};
+const GlyphActivation = () => {
+  const sig = Array.from({ length: 41 }, (_, i) => { const x = 16 + i * (128 / 40); const z = (i - 20) / 4; return `${x},${88 - 58 / (1 + Math.exp(-z))}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <line x1="16" y1="88" x2="144" y2="88" stroke="rgba(96,165,250,0.2)" strokeWidth="1" />
+      <polyline points={sig} stroke="#60a5fa" strokeWidth="2" fill="none" />
+      <path d="M 16 78 L 80 78 L 132 28" stroke="#c084fc" strokeWidth="2" fill="none" />
+    </svg>
+  );
+};
+const GlyphKernel = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 3 }).map((_, c) => (
+      <rect key={`${r}-${c}`} x={20 + c * 20} y={30 + r * 20} width="18" height="18" fill={r === 1 && c === 1 ? "#c084fc" : "rgba(96,165,250,0.3)"} stroke="#60a5fa" strokeWidth="0.5" />
+    )))}
+    <line x1="86" y1="58" x2="112" y2="58" stroke="#60a5fa" strokeWidth="1.5" />
+    <polygon points="112,53 121,58 112,63" fill="#60a5fa" />
+    <rect x="126" y="48" width="20" height="20" fill="#c084fc" opacity="0.6" />
+  </svg>
+);
+const GlyphPositional = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
+      const v = Math.sin(col * (0.4 + row * 0.18) + row);
+      return <rect key={`${row}-${col}`} x={16 + col * 8} y={16 + row * 11} width="7" height="10" fill={v > 0 ? "#c084fc" : "#22d3ee"} opacity={0.22 + Math.abs(v) * 0.6} />;
+    }))}
+  </svg>
+);
+const GlyphBandit = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[40, 74, 54, 94, 64].map((h, i) => (
+      <g key={i}>
+        <rect x={24 + i * 26} y={100 - h} width="18" height={h} fill={i === 3 ? "#34d399" : "#60a5fa"} opacity="0.55" />
+        <circle cx={33 + i * 26} cy={100 - h - 8} r="3" fill={i === 3 ? "#34d399" : "#c084fc"} />
+      </g>
+    ))}
+  </svg>
+);
+const GlyphTree = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[80, 28, 46, 62], [80, 28, 114, 62], [46, 62, 30, 96], [46, 62, 62, 96], [114, 62, 98, 96], [114, 62, 130, 96]].map(([x1, y1, x2, y2], i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#60a5fa" strokeWidth="1.2" opacity="0.7" />
+    ))}
+    <circle cx="80" cy="28" r="7" fill="#c084fc" />
+    {[[46, 62], [114, 62]].map(([x, y], i) => <rect key={i} x={x - 6} y={y - 6} width="12" height="12" fill="#60a5fa" />)}
+    {[[30, 96], [62, 96], [98, 96], [130, 96]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" fill={i % 2 ? "#34d399" : "#60a5fa"} opacity="0.8" />)}
+  </svg>
+);
+const GlyphKnn = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="80" cy="60" r="38" fill="none" stroke="#60a5fa" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.6" />
+    {[[60, 42, "#60a5fa"], [100, 48, "#c084fc"], [64, 84, "#60a5fa"], [104, 80, "#c084fc"], [80, 30, "#c084fc"], [50, 66, "#60a5fa"]].map(([x, y, c], i) => (
+      <g key={i}><line x1="80" y1="60" x2={x} y2={y} stroke="rgba(96,165,250,0.3)" strokeWidth="0.8" /><circle cx={x} cy={y} r="3.5" fill={c} /></g>
+    ))}
+    {[[132, 28, "#60a5fa"], [24, 98, "#c084fc"]].map(([x, y, c], i) => <circle key={`o${i}`} cx={x} cy={y} r="3.5" fill={c} opacity="0.5" />)}
+    <circle cx="80" cy="60" r="5" fill="#e0e7ff" />
+  </svg>
+);
+const GlyphMarkov = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <path d="M 43 44 Q 60 64, 71 70" stroke="#60a5fa" strokeWidth="1.2" fill="none" />
+    <path d="M 89 70 Q 108 60, 117 46" stroke="#c084fc" strokeWidth="1.2" fill="none" />
+    <path d="M 80 63 L 80 41" stroke="#60a5fa" strokeWidth="1.2" fill="none" />
+    <path d="M 118 34 Q 100 16, 89 26" stroke="#c084fc" strokeWidth="1.2" fill="none" />
+    {[[34, 40], [80, 72], [126, 40], [80, 30]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="9" fill="#050816" stroke={i % 2 ? "#c084fc" : "#60a5fa"} strokeWidth="1.5" />
+    ))}
+  </svg>
+);
+
+const GlyphWave = () => {
+  const f = (amp, freq) => Array.from({ length: 61 }, (_, i) => { const x = 16 + i * (128 / 60); return `${x},${60 - amp * Math.sin(i * freq)}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <polyline points={f(10, 0.9)} stroke="#60a5fa" strokeWidth="1" fill="none" opacity="0.5" />
+      <polyline points={f(34, 0.3)} stroke="#c084fc" strokeWidth="2" fill="none" />
+    </svg>
+  );
+};
+
+const GlyphPCA = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 24 }).map((_, i) => {
+      const a = (i / 24) * Math.PI * 2, r = 30 + (i % 4) * 6;
+      const x = 80 + Math.cos(0.5) * Math.cos(a) * r * 1.5 - Math.sin(0.5) * Math.sin(a) * r * 0.4;
+      const y = 60 + Math.sin(0.5) * Math.cos(a) * r * 1.5 + Math.cos(0.5) * Math.sin(a) * r * 0.4;
+      return <circle key={i} cx={x} cy={y} r="2.6" fill="#60a5fa" opacity="0.8" />;
+    })}
+    <line x1="80" y1="60" x2={80 + Math.cos(0.5) * 52} y2={60 + Math.sin(0.5) * 52} stroke="#fbbf24" strokeWidth="2.4" />
+    <line x1="80" y1="60" x2={80 - Math.sin(0.5) * 26} y2={60 + Math.cos(0.5) * 26} stroke="#34d399" strokeWidth="2.4" />
+    <circle cx="80" cy="60" r="3.5" fill="#e0e7ff" />
+  </svg>
+);
+
+const GlyphSVM = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="36" y1="14" x2="120" y2="106" stroke="#e0e7ff" strokeWidth="1.6" />
+    <line x1="58" y1="8" x2="142" y2="100" stroke="rgba(224,231,255,0.35)" strokeWidth="1" strokeDasharray="3 3" />
+    <line x1="14" y1="20" x2="98" y2="112" stroke="rgba(224,231,255,0.35)" strokeWidth="1" strokeDasharray="3 3" />
+    {[[40, 36], [30, 60], [52, 80], [44, 100]].map(([x, y], i) => (
+      <circle key={`a${i}`} cx={x} cy={y} r="3.4" fill="#60a5fa" stroke={i < 2 ? "#fbbf24" : "none"} strokeWidth="2" />
+    ))}
+    {[[112, 24], [128, 48], [104, 44], [134, 76]].map(([x, y], i) => (
+      <circle key={`b${i}`} cx={x} cy={y} r="3.4" fill="#c084fc" stroke={i < 2 ? "#fbbf24" : "none"} strokeWidth="2" />
+    ))}
+  </svg>
+);
+
+const GlyphDecoding = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[78, 58, 44, 30, 18, 10].map((h, i) => (
+      <rect key={i} x={20 + i * 23} y={100 - h} width="16" height={h}
+        fill={i < 3 ? "url(#decg)" : "var(--dim)"} opacity={i < 3 ? 0.95 : 0.4} rx="2" />
+    ))}
+    <line x1="14" y1="100" x2="150" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    <defs>
+      <linearGradient id="decg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#3b82f6" /><stop offset="1" stopColor="#a855f7" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const GlyphGMM = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[["#60a5fa", 52, 44, 28, 16, -0.5], ["#c084fc", 108, 52, 30, 14, 0.4], ["#34d399", 78, 92, 22, 18, 0.2]].map(([c, cx, cy, rx, ry, rot], k) => (
+      <g key={k} transform={`rotate(${rot * 57.3} ${cx} ${cy})`}>
+        <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={c} strokeWidth="1.6" opacity="0.9" />
+        <ellipse cx={cx} cy={cy} rx={rx * 0.6} ry={ry * 0.6} fill="none" stroke={c} strokeWidth="1" opacity="0.5" />
+        {Array.from({ length: 5 }).map((_, i) => { const a = (i / 5) * Math.PI * 2; return <circle key={i} cx={cx + Math.cos(a) * rx * 0.55} cy={cy + Math.sin(a) * ry * 0.55} r="2" fill={c} opacity="0.8" />; })}
+      </g>
+    ))}
+  </svg>
+);
+
+const GlyphROC = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <rect x="34" y="16" width="92" height="92" fill="none" stroke="rgba(96,165,250,0.3)" strokeWidth="1" />
+    <line x1="34" y1="108" x2="126" y2="16" stroke="rgba(148,163,184,0.4)" strokeWidth="1" strokeDasharray="3 3" />
+    <path d="M 34 108 Q 40 36, 126 16" stroke="#60a5fa" strokeWidth="2.4" fill="none" />
+    <path d="M 34 108 Q 40 36, 126 16 L 126 108 Z" fill="rgba(96,165,250,0.12)" stroke="none" />
+    <circle cx="58" cy="52" r="4.5" fill="#fbbf24" />
+  </svg>
+);
+
+const GlyphLR = () => {
+  const cos = Array.from({ length: 61 }, (_, i) => { const x = 20 + i * 2; const t = i / 60; const wu = 0.18; const lr = t < wu ? t / wu : 0.5 * (1 + Math.cos(Math.PI * (t - wu) / (1 - wu))); return `${x},${100 - lr * 76}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <line x1="20" y1="100" x2="142" y2="100" stroke="rgba(96,165,250,0.2)" strokeWidth="1" />
+      <polyline points={cos} stroke="#60a5fa" strokeWidth="2.4" fill="none" />
+      <line x1={20 + 0.18 * 120} y1="22" x2={20 + 0.18 * 120} y2="100" stroke="rgba(251,191,36,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+    </svg>
+  );
+};
+
+const GlyphLoRA = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 5 }).map((_, r) => Array.from({ length: 5 }).map((_, c) => (
+      <rect key={`w${r}-${c}`} x={20 + c * 11} y={34 + r * 11} width="10" height="10" fill="rgba(96,165,250,0.3)" />
+    )))}
+    <text x="45" y="30" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#94a3b8">W</text>
+    <text x="84" y="66" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="13" fill="#94a3b8">+</text>
+    {Array.from({ length: 5 }).map((_, r) => (
+      <rect key={`b${r}`} x={98} y={34 + r * 11} width="10" height="10" fill="#c084fc" opacity="0.85" />
+    ))}
+    {Array.from({ length: 5 }).map((_, c) => (
+      <rect key={`a${c}`} x={120 + c * 11} y={34} width="10" height="10" fill="#60a5fa" opacity="0.85" />
+    ))}
+    <text x="103" y="30" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#c084fc">B</text>
+    <text x="142" y="30" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#60a5fa">A</text>
+  </svg>
+);
+
+const GlyphScaling = () => {
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <line x1="24" y1="100" x2="140" y2="100" stroke="rgba(96,165,250,0.2)" strokeWidth="1" />
+      <line x1="24" y1="14" x2="24" y2="100" stroke="rgba(96,165,250,0.2)" strokeWidth="1" />
+      <line x1="30" y1="24" x2="134" y2="92" stroke="#c084fc" strokeWidth="2.4" />
+      {[[30, 24], [56, 41], [82, 58], [108, 75], [134, 92]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="3" fill="#60a5fa" />
+      ))}
+    </svg>
+  );
+};
+
+const GlyphNMS = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[44, 30, 50, 40, false], [52, 38, 50, 40, false], [40, 26, 50, 40, true]].map(([x, y, w, h, keep], i) => (
+      <rect key={`a${i}`} x={x} y={y} width={w} height={h} fill="none"
+        stroke={keep ? "#34d399" : "rgba(248,113,113,0.5)"} strokeWidth={keep ? 2.2 : 1}
+        strokeDasharray={keep ? "0" : "4 3"} />
+    ))}
+    {[[96, 60, 44, 44, false], [104, 52, 44, 44, true], [88, 66, 44, 44, false]].map(([x, y, w, h, keep], i) => (
+      <rect key={`b${i}`} x={x} y={y} width={w} height={h} fill="none"
+        stroke={keep ? "#34d399" : "rgba(248,113,113,0.5)"} strokeWidth={keep ? 2.2 : 1}
+        strokeDasharray={keep ? "0" : "4 3"} />
+    ))}
+  </svg>
+);
+
+const GlyphVectorSearch = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="80" cy="60" r="34" fill="none" stroke="rgba(251,191,36,0.25)" strokeWidth="1" strokeDasharray="3 3" />
+    {[[58, 44, "#60a5fa", 1], [98, 48, "#c084fc", 1], [66, 84, "#60a5fa", 1], [102, 80, "#c084fc", 1], [80, 36, "#34d399", 1]].map(([x, y, c], i) => (
+      <g key={i}><line x1="80" y1="60" x2={x} y2={y} stroke="rgba(251,191,36,0.35)" strokeWidth="0.8" /><circle cx={x} cy={y} r="3.4" fill={c} /><circle cx={x} cy={y} r="5.4" fill="none" stroke="#fbbf24" strokeWidth="0.8" /></g>
+    ))}
+    {[[128, 26, "#c084fc"], [22, 96, "#60a5fa"], [134, 92, "#34d399"]].map(([x, y, c], i) => <circle key={`o${i}`} cx={x} cy={y} r="3" fill={c} opacity="0.4" />)}
+    <circle cx="80" cy="60" r="6" fill="#fbbf24" stroke="#050816" strokeWidth="1.5" />
+  </svg>
+);
+
+const GlyphForecast = () => {
+  const hist = Array.from({ length: 30 }, (_, i) => { const x = 16 + i * 3.0; return `${x},${70 - 14 * Math.sin(i * 0.6) - i * 0.5}`; }).join(" ");
+  const fc = Array.from({ length: 16 }, (_, i) => { const t = 29 + i; const x = 16 + t * 3.0; return `${x},${70 - 14 * Math.sin(t * 0.6) - t * 0.5}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <line x1={16 + 29 * 3.0} y1="14" x2={16 + 29 * 3.0} y2="104" stroke="rgba(251,191,36,0.3)" strokeWidth="1" strokeDasharray="3 3" />
+      <polyline points={hist} stroke="#60a5fa" strokeWidth="2" fill="none" />
+      <polyline points={fc} stroke="#c084fc" strokeWidth="2.2" fill="none" strokeDasharray="4 3" />
+    </svg>
+  );
+};
+
+const GlyphValueIter = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 4 }).map((_, r) => Array.from({ length: 4 }).map((_, c) => {
+      const d = Math.abs(c - 3) + Math.abs(r - 0);
+      const g = Math.max(0, 1 - d / 5);
+      return <rect key={`${r}-${c}`} x={36 + c * 22} y={16 + r * 22} width="20" height="20"
+        fill={`rgba(52,211,153,${0.12 + g * 0.55})`} stroke="rgba(96,165,250,0.18)" strokeWidth="0.5" />;
+    }))}
+    <rect x={36 + 3 * 22 + 1} y={17} width="18" height="18" fill="none" stroke="#34d399" strokeWidth="2" />
+    {[[1, 1], [2, 0], [2, 1], [1, 0]].map(([r, c], i) => (
+      <path key={i} d={`M ${36 + c * 22 + 6} ${16 + r * 22 + 11} L ${36 + c * 22 + 15} ${16 + r * 22 + 11}`} stroke="#fbbf24" strokeWidth="1.6" markerEnd="url(#vah)" />
+    ))}
+    <defs><marker id="vah" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#fbbf24" /></marker></defs>
+  </svg>
+);
+
+const GlyphMultiHead = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[0, 1, 2].map(g => (
+      <g key={g} transform={`translate(${g * 10}, ${g * 8})`} opacity={0.5 + g * 0.22}>
+        {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 3 }).map((_, c) => {
+          const v = (Math.sin(r * 1.7 + c * 0.9 + g * 2) + 1) / 2;
+          return <rect key={`${r}-${c}`} x={28 + c * 16} y={20 + r * 16} width="14" height="14"
+            fill={g === 2 ? "#c084fc" : g === 1 ? "#60a5fa" : "#34d399"} opacity={0.25 + v * 0.7} />;
+        }))}
+      </g>
+    ))}
+  </svg>
+);
+const GlyphVAE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[24, 36], [24, 60], [24, 84]].map(([x, y], i) => <circle key={"i" + i} cx={x} cy={y} r="4" fill="#60a5fa" />)}
+    <circle cx="60" cy="60" r="6" fill="#93c5fd" />
+    <ellipse cx="84" cy="60" rx="9" ry="20" fill="none" stroke="#c084fc" strokeWidth="1.5" strokeDasharray="3 3" />
+    <circle cx="84" cy="52" r="3.5" fill="#c084fc" />
+    <circle cx="108" cy="60" r="6" fill="#93c5fd" />
+    {[[140, 40], [140, 60], [140, 80]].map(([x, y], i) => <circle key={"o" + i} cx={x} cy={y} r="4" fill="#fbbf24" />)}
+    {[[24, 36, 60, 60], [24, 60, 60, 60], [24, 84, 60, 60], [60, 60, 84, 60], [84, 60, 108, 60], [108, 60, 140, 40], [108, 60, 140, 60], [108, 60, 140, 80]].map(([x1, y1, x2, y2], i) => (
+      <line key={"l" + i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(96,165,250,0.3)" strokeWidth="0.7" />
+    ))}
+  </svg>
+);
+
+const GLYPHS = {
+  "pathfinding": <GlyphPath />,
+  "kmeans": <GlyphKMeans />,
+  "gradient-descent": <GlyphGradient />,
+  "overfitting": <GlyphCurveFit />,
+  "decision-tree": <GlyphTree />,
+  "knn": <GlyphKnn />,
+  "svm": <GlyphSVM />,
+  "pca": <GlyphPCA />,
+  "gmm": <GlyphGMM />,
+  "roc": <GlyphROC />,
+  "value-iteration": <GlyphValueIter />,
+  "lr-schedule": <GlyphLR />,
+  "lora": <GlyphLoRA />,
+  "scaling-laws": <GlyphScaling />,
+  "nms": <GlyphNMS />,
+  "vector-search": <GlyphVectorSearch />,
+  "forecasting": <GlyphForecast />,
+  "markov": <GlyphMarkov />,
+  "decoding": <GlyphDecoding />,
+  "activations": <GlyphActivation />,
+  "clt": <GlyphBell />,
+  "fourier": <GlyphWave />,
+  "attention": <GlyphAttention />,
+  "multi-head-attention": <GlyphMultiHead />,
+  "positional-encoding": <GlyphPositional />,
+  "vae": <GlyphVAE />,
+  "tokenizer": <GlyphTokenizer />,
+  "gridworld-rl": <GlyphRL />,
+  "bandit": <GlyphBandit />,
+  "neural-playground": <GlyphNeuralNet />,
+  "convolution": <GlyphKernel />,
+  "diffusion": <GlyphDiffusion />,
+  "embeddings": <GlyphEmbedding />,
+};
+
+// ─── Page hero ────────────────────────────────────────────────
+function PlayHero() {
+  const mobile = useIsMobile();
+  return (
+    <Section id="top" padded={false} style={{ paddingTop: 160, paddingBottom: 80, position: "relative", overflow: "hidden" }}>
+      <GridOverlay mode="dark" spacing={80} opacity={0.4} />
+      <GlowBlob color="blue" size={520} x={"-10%"} y={"-20%"} opacity={0.25} />
+      <GlowBlob color="violet" size={480} x={"70%"} y={"40%"} opacity={0.22} />
+      <MathWatermarks mode="dark" count={5} opacity={0.05} seed={4} />
+      <HudBrackets mode="dark" inset={32} size={32} />
+
+      <Container style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "minmax(0, 1.05fr) minmax(0, 0.95fr)", gap: 56, alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18, position: "relative" }}>
+          <div style={{
+            position: "absolute", left: -18, top: 20, bottom: 70, width: 3,
+            background: "linear-gradient(to bottom, #3b82f6, #a855f7)",
+            boxShadow: "0 0 16px rgba(59,130,246,0.5)",
+          }} />
+          <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+            <MonoLabel>// VISUALIZE · INTERACTIVE ML LIBRARIES</MonoLabel>
+          </div>
+          <h1 style={{
+            fontFamily: "var(--f-display)", fontWeight: 700,
+            fontSize: "clamp(48px, 6vw, 84px)", letterSpacing: "-0.025em",
+            lineHeight: 0.98, margin: 0,
+            background: "linear-gradient(110deg, #3b82f6 0%, #e0e7ff 50%, #a855f7 100%)",
+            WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+          }}>Touch the math.</h1>
+          <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
+            Small, interactive AI demos. Each one ships standalone — drop in, drag a slider, watch a network learn. The fastest way to build intuition is to break something live.
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            <a href="#demos" style={{
+              padding: "12px 22px", border: "1px solid var(--blue)",
+              borderRadius: 4, color: "var(--white)", textDecoration: "none",
+              fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
+              background: "rgba(59,130,246,0.08)",
+              boxShadow: "0 0 24px rgba(59,130,246,0.18)",
+            }}>SEE THE LINEUP</a>
+          </div>
+        </div>
+        {!mobile && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <NeuralNet layers={[3,6,5,4,3]} width={520} height={360} mode="dark" glow={0.85} pulse />
+          </div>
+        )}
+      </Container>
+    </Section>
+  );
+}
+
+// ─── How it works ────────────────────────────────────────────
+function HowItWorks() {
+  const mobile = useIsMobile();
+  const steps = [
+    { n: "01", title: "Pick a concept.", desc: "Backprop. Attention. Q-learning. Whatever you want to feel." },
+    { n: "02", title: "Drag a slider.", desc: "Each demo isolates one knob. Watch the system respond in real time." },
+    { n: "03", title: "Break it.", desc: "Push the input out of distribution. Watch the model fail. That's where the learning is." },
+  ];
+  return (
+    <Section id="how" padded={false} style={{ paddingTop: 24, paddingBottom: 80, scrollMarginTop: 140 }}>
+      <Container>
+        <div style={{ marginBottom: 32 }}>
+          <MonoLabel>// HOW IT WORKS</MonoLabel>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 18 }}>
+          {steps.map(s => (
+            <div key={s.n} style={{
+              padding: "24px 24px",
+              border: "1px solid var(--border)", borderRadius: 6,
+              background: "rgba(13, 24, 52, 0.4)",
+              display: "flex", flexDirection: "column", gap: 10,
+            }}>
+              <div style={{
+                fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 36,
+                color: "var(--blue-lt)", letterSpacing: "-0.02em", lineHeight: 1,
+              }}>{s.n}</div>
+              <h3 style={{
+                fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 22,
+                letterSpacing: "-0.01em", color: "var(--white)", margin: 0,
+              }}>{s.title}</h3>
+              <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.55 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+// ─── Demo card ────────────────────────────────────────────────
+function DemoCard({ title, blurb, glyph, tone = "blue", topic, href, status, foundation }) {
+  const accent = tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
+  const border = tone === "violet" ? "var(--border-violet)" : "var(--border)";
+  const live = status === "LIVE";
+  const Wrap = href ? "a" : "div";
+  const wrapProps = href ? { href } : {};
+  return (
+    <Wrap {...wrapProps} style={{
+      position: "relative", overflow: "hidden",
+      border: `1px solid ${border}`,
+      borderRadius: 6,
+      background: "linear-gradient(180deg, rgba(13, 24, 52, 0.55) 0%, rgba(13, 24, 52, 0.2) 100%)",
+      display: "flex", flexDirection: "column",
+      textDecoration: "none", color: "inherit",
+      cursor: href ? "pointer" : "default",
+      opacity: live ? 1 : 0.92,
+      transition: "transform .25s, border-color .25s, box-shadow .25s",
+    }}
+      onMouseEnter={e => {
+        if (!href) return;
+        e.currentTarget.style.transform = "translateY(-3px)";
+        e.currentTarget.style.borderColor = accent;
+        e.currentTarget.style.boxShadow = `0 0 28px ${tone === "violet" ? "rgba(192,132,252,0.18)" : "rgba(96,165,250,0.18)"}`;
+      }}
+      onMouseLeave={e => {
+        if (!href) return;
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = border;
+        e.currentTarget.style.boxShadow = "none";
+      }}>
+      <HudBrackets mode="dark" inset={8} size={18} />
+      <div style={{
+        height: 200, display: "flex", alignItems: "center", justifyContent: "center",
+        borderBottom: `1px solid ${border}`,
+        background: "rgba(5, 8, 22, 0.5)",
+        filter: live ? "none" : "grayscale(0.35)",
+      }}>{glyph}</div>
+      <div style={{ padding: "20px 22px 22px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span className="t-mono-s" style={{ color: accent, fontSize: 10 }}>{topic}</span>
+          <span className="t-mono-s" style={{
+            color: live ? accent : "var(--muted)", fontSize: 9, letterSpacing: "0.12em",
+            display: "inline-flex", alignItems: "center", gap: 5,
+          }}>
+            {live && <span style={{ width: 5, height: 5, borderRadius: 999, background: accent, boxShadow: `0 0 6px ${accent}` }} />}
+            {live ? "LIVE" : "SOON"}
+          </span>
+        </div>
+        <h3 style={{
+          fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 22,
+          letterSpacing: "-0.01em", color: "var(--white)", margin: 0,
+        }}>{title}</h3>
+        <div className="t-small" style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.55 }}>{blurb}</div>
+        {foundation && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
+            <span style={{ color: accent, fontSize: 9 }}>◆</span>
+            <span className="t-mono-s" style={{ color: "var(--muted)", fontSize: 9, letterSpacing: "0.06em" }}>{foundation}</span>
+          </div>
+        )}
+        {live && <span className="t-mono-s" style={{ color: accent, fontSize: 10, marginTop: 6 }}>OPEN →</span>}
+      </div>
+    </Wrap>
+  );
+}
+
+function Demos() {
+  const reg = window.PLAY_DEMOS || {};
+  const list = reg.demos || [];
+  const cats = reg.categories || [{ name: "All", why: "", slugs: list.map(d => d.slug) }];
+  const BASE = window.__DM_BASE || "../";
+  const liveCount = list.filter(d => d.status === "LIVE").length;
+  const mobile = useIsMobile();
+  return (
+    <Section id="demos">
+      <GridOverlay mode="dark" spacing={80} opacity={0.3} />
+      <Container>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 44 }}>
+          <MonoLabel>// DEMOS · GROUPED BY CONCEPT</MonoLabel>
+          <h2 style={{
+            fontFamily: "var(--f-display)", fontWeight: 700,
+            fontSize: "clamp(36px, 4vw, 52px)", letterSpacing: "-0.02em",
+            color: "var(--white)", margin: 0, lineHeight: 1.05,
+          }}>The lineup.</h2>
+          <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
+            Grouped by what they teach — each one runs in the browser, computes the real
+            algorithm, and links to the matching lesson. Start anywhere.
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 52 }}>
+          {cats.map(cat => {
+            const items = cat.slugs.map(s => reg.findDemo(s)).filter(Boolean);
+            if (!items.length) return null;
+            const cols = mobile ? 1 : Math.min(3, items.length);
+            return (
+              <div key={cat.name} id={"cat-" + vizSlug(cat.name)} style={{ scrollMarginTop: 140 }}>
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                    <h3 style={{
+                      fontFamily: "var(--f-display)", fontWeight: 600, fontSize: "clamp(22px, 2.4vw, 28px)",
+                      letterSpacing: "-0.015em", color: "var(--white)", margin: 0,
+                    }}>{cat.name}</h3>
+                    <span style={{ flex: 1, height: 1, background: "var(--border)", opacity: 0.4 }} />
+                  </div>
+                  {cat.why && (
+                    <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, maxWidth: 820 }}>{cat.why}</div>
+                  )}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 14 }}>
+                  {items.map(d => (
+                    <DemoCard key={d.slug}
+                      topic={d.topic} title={d.title} blurb={d.blurb} tone={d.tone}
+                      glyph={GLYPHS[d.slug] || <GlyphNeuralNet />}
+                      foundation={reg.foundations && reg.foundations[d.slug]}
+                      href={d.status === "LIVE" ? `${BASE}visualize/${d.slug}/` : null}
+                      status={d.status} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+// ─── Suggest CTA ─────────────────────────────────────────────
+function SuggestCta() {
+  const mobile = useIsMobile();
+  return (
+    <Section style={{ paddingTop: 60, paddingBottom: 60 }}>
+      <Container>
+        <div style={{
+          position: "relative", overflow: "hidden",
+          padding: "44px 44px",
+          border: "1px dashed var(--border-violet)", borderRadius: 8,
+          background: "linear-gradient(120deg, rgba(168,85,247,0.06) 0%, rgba(59,130,246,0.06) 100%)",
+          display: "grid", gridTemplateColumns: mobile ? "1fr" : "1.4fr auto", gap: 32, alignItems: "center",
+        }}>
+          <HudBrackets mode="dark" inset={10} size={22} />
+          <div>
+            <MonoLabel color="var(--violet-lt)">// REQUEST.DEMO</MonoLabel>
+            <h3 style={{
+              fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 30,
+              letterSpacing: "-0.02em", color: "var(--white)", margin: "10px 0 12px",
+            }}>Want a specific demo built next?</h3>
+            <div className="t-body" style={{ color: "var(--muted)", maxWidth: 580, fontSize: 15, lineHeight: 1.55 }}>
+              Send a concept I should make tactile. Bonus points for "thing I almost understand but want to feel."
+            </div>
+          </div>
+          <button type="button" onClick={() => window.__dmCopyEmail()} title="Copy email address" style={{
+            padding: "14px 26px", border: "1px solid var(--violet-lt)",
+            borderRadius: 4, color: "var(--white)", textDecoration: "none", cursor: "pointer",
+            fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
+            background: "rgba(168,85,247,0.14)",
+            whiteSpace: "nowrap",
+          }}>SUGGEST A DEMO →</button>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+// ─── Concepts in motion (animated explainers, top of Visualize) ──
+const vizSlug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+function VizConcepts() {
+  const mobile = useIsMobile();
+  const BASE = window.__DM_BASE || "../";
+  const tiles = [
+    { src: "viz/feedforward.html", label: "// FORWARD PASS", name: "Feedforward Net" },
+    { src: "viz/convolution.html", label: "// KERNEL SCAN", name: "Convolution" },
+    { src: "viz/transformer.html", label: "// SELF-ATTENTION", name: "Transformers" },
+    { src: "viz/gradient.html", label: "// OPTIMIZATION", name: "Gradient Descent" },
+    { src: "viz/recurrence.html", label: "// SEQUENCE", name: "Recurrence" },
+    { src: "viz/embeddings.html", label: "// REPRESENTATION", name: "Embeddings" },
+  ];
+  return (
+    <Section id="motion" style={{ position: "relative", overflow: "hidden", paddingTop: 24 }}>
+      <GridOverlay mode="dark" spacing={80} opacity={0.25} />
+      <Container>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+          <MonoLabel color="var(--violet-lt)">// CONCEPTS IN MOTION</MonoLabel>
+          <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(30px, 3.6vw, 44px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>The ideas, animated.</h2>
+          <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
+            Looping visual explainers for the concepts behind the demos below — a preview of the full <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a> gallery.
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 16 }}>
+          {tiles.map(t => (
+            <div key={t.src} style={{ position: "relative", overflow: "hidden", border: "1px solid var(--border)", borderRadius: 8, background: "rgba(5, 8, 22, 0.5)", display: "flex", flexDirection: "column" }}>
+              <HudBrackets mode="dark" inset={8} size={18} />
+              <iframe src={`${BASE}${t.src}`} title={t.name} loading="lazy" scrolling="no" style={{ width: "100%", height: 200, border: "none", background: "transparent", pointerEvents: "none", display: "block" }} />
+              <div style={{ padding: "14px 18px 16px", borderTop: "1px solid var(--border)" }}>
+                <div className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10, marginBottom: 3 }}>{t.label}</div>
+                <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 17, color: "var(--white)" }}>{t.name}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 24 }}>
+          <a href={`${BASE}learn/key-concepts/`} className="t-mono-s" style={{
+            display: "inline-block", padding: "12px 22px", border: "1px solid var(--violet)", borderRadius: 4,
+            color: "var(--white)", textDecoration: "none", letterSpacing: "0.1em", background: "rgba(168,85,247,0.10)",
+          }}>SEE ALL KEY CONCEPTS →</a>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+// ─── Quick jump-nav (sticky; Concepts + demo categories + how-it-works) ──
+function useNavHeight() {
+  const [h, setH] = React.useState(64);
+  React.useEffect(() => {
+    const measure = () => { const n = document.querySelector("nav"); if (n) setH(n.offsetHeight); };
+    measure(); const t = setTimeout(measure, 400);
+    window.addEventListener("resize", measure);
+    return () => { window.removeEventListener("resize", measure); clearTimeout(t); };
+  }, []);
+  return h;
+}
+function VizJump() {
+  const navH = useNavHeight();
+  const reg = window.PLAY_DEMOS || {};
+  const cats = reg.categories || [];
+  const items = [{ href: "#motion", label: "CONCEPTS" }, ...cats.map(c => ({ href: "#cat-" + vizSlug(c.name), label: c.name.toUpperCase() })), { href: "#how", label: "HOW IT WORKS" }];
+  return (
+    <div style={{ position: "sticky", top: navH, zIndex: 40, backdropFilter: "blur(12px)", background: "rgba(5,8,22,0.82)", borderTop: "1px solid rgba(96,165,250,0.12)", borderBottom: "1px solid rgba(96,165,250,0.12)" }}>
+      <Container style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "11px 48px", alignItems: "center" }}>
+        <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10, marginRight: 4 }}>JUMP TO</span>
+        {items.map(it => (
+          <a key={it.href} href={it.href} className="t-mono-s"
+            style={{ padding: "5px 11px", border: "1px solid var(--border)", borderRadius: 999, color: "var(--muted)", textDecoration: "none", fontSize: 10, letterSpacing: "0.06em" }}
+            onMouseEnter={e => { e.currentTarget.style.color = "var(--blue-br)"; e.currentTarget.style.borderColor = "var(--blue-lt)"; }}
+            onMouseLeave={e => { e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}>
+            {it.label}
+          </a>
+        ))}
+      </Container>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <TopNav />
+      <PlayHero />
+      <VizJump />
+      <VizConcepts />
+      <Demos />
+      <HowItWorks />
+      <SuggestCta />
+      <Footer />
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);

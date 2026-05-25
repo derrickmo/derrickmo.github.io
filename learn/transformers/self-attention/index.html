@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>08-01 Self-Attention Mechanism | ML from Scratch | Derrick Mo</title>
+  <meta name="description" content="Self-attention from first principles. Derive scaled dot-product attention, implement it in NumPy, port to PyTorch, train on a copy task." />
+  <link rel="canonical" href="https://derrickmo.github.io/learn/transformers/self-attention/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Derrick Mo" />
+  <meta property="og:title" content="08-01 Self-Attention Mechanism | ML from Scratch | Derrick Mo" />
+  <meta property="og:description" content="Self-attention from first principles. Derive scaled dot-product attention, implement it in NumPy, port to PyTorch, train on a copy task." />
+  <meta property="og:url" content="https://derrickmo.github.io/learn/transformers/self-attention/" />
+  <meta property="og:image" content="https://derrickmo.github.io/og-default.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="08-01 Self-Attention Mechanism | ML from Scratch | Derrick Mo" />
+  <meta name="twitter:description" content="Self-attention from first principles. Derive scaled dot-product attention, implement it in NumPy, port to PyTorch, train on a copy task." />
+  <meta name="twitter:image" content="https://derrickmo.github.io/og-default.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../../tokens.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { margin: 0; padding: 0; background: var(--bg-deep); color: var(--white); font-family: var(--f-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    ::selection { background: rgba(168, 85, 247, 0.5); color: var(--white); }
+    section[id] { scroll-margin-top: 120px; }
+    @keyframes dm-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    code { font-family: var(--f-mono); font-size: 0.92em; padding: 1px 6px; border-radius: 3px; background: rgba(168, 85, 247, 0.08); color: var(--violet-lt); border: 1px solid rgba(168, 85, 247, 0.18); }
+    pre code { background: transparent; border: none; padding: 0; color: inherit; }
+    .katex { color: var(--blue-br); }
+  </style>
+
+  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "transformers"; window.__DM_LESSON_SLUG = "self-attention";</script>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="../../../curriculum.js"></script>
+  <script type="module" src="../../../components/HUD.jsx"></script>
+  <script type="module" src="../../../components/Monogram.jsx"></script>
+  <script type="module" src="../../../components/NeuralNet.jsx"></script>
+  <script type="module" src="../../../components/SignalStack.jsx"></script>
+  <script type="module" src="../../../components/AgentConstellation.jsx"></script>
+  <script type="module" src="../../../components/TransformerBlock.jsx"></script>
+  <script type="module" src="../../../components/LessonStack.jsx"></script>
+  <script type="module" src="../../../chrome.jsx"></script>
+  <script type="module" src="../../../lesson-app.jsx"></script>
+  <script type="module" src="../../../lessons/self-attention.jsx"></script>
+</body>
+</html>

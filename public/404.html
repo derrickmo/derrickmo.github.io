@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>404 - Signal Lost | Derrick Mo</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#050816; --blue:#3b82f6; --blue-lt:#60a5fa; --violet:#a855f7; --white:#e0e7ff; --muted:#94a3b8; --border:rgba(96,165,250,0.28); }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--white);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      overflow: hidden; position: relative; padding: 24px;
+    }
+    .grid { position: absolute; inset: 0; opacity: 0.4; pointer-events: none;
+      background-image: linear-gradient(rgba(26,58,110,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(26,58,110,0.35) 1px, transparent 1px);
+      background-size: 80px 80px; }
+    .glow { position: absolute; width: 520px; height: 520px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.20) 0%, transparent 70%); top: -10%; left: -5%; filter: blur(10px); }
+    .glow2 { position: absolute; width: 480px; height: 480px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%); bottom: -10%; right: -5%; filter: blur(10px); }
+    .wrap { position: relative; z-index: 1; }
+    .code {
+      font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: clamp(80px, 18vw, 180px);
+      line-height: 1; letter-spacing: -0.04em; margin: 0;
+      background: linear-gradient(110deg, #3b82f6 0%, #e0e7ff 50%, #a855f7 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .label { color: var(--blue-lt); letter-spacing: 0.2em; font-size: 13px; text-transform: uppercase; margin: 18px 0 8px; }
+    .msg { color: var(--muted); font-family: "Space Grotesk", sans-serif; font-size: clamp(18px, 3vw, 24px); margin: 0 auto 28px; max-width: 460px; line-height: 1.5; }
+    .home {
+      display: inline-block; padding: 12px 24px; border: 1px solid var(--blue); border-radius: 4px;
+      color: var(--white); text-decoration: none; font-size: 13px; letter-spacing: 0.1em;
+      background: rgba(59,130,246,0.08); box-shadow: 0 0 24px rgba(59,130,246,0.18); transition: background .2s;
+    }
+    .home:hover { background: rgba(59,130,246,0.18); }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+  <div class="wrap">
+    <p class="label">// ERROR 404</p>
+    <h1 class="code">404</h1>
+    <p class="msg">Signal lost. This route doesn't resolve to anything.</p>
+    <a class="home" href="/">RETURN TO BASE &rarr;</a>
+  </div>
+</body>
+</html>

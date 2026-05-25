@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6;
+    --blue-lt: #60a5fa;
+    --blue-br: #93c5fd;
+    --violet: #a855f7;
+    --violet-lt: #c084fc;
+    --rose: #f43f5e;
+    --rose-lt: #fb7185;
+    --emerald: #10b981;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff;
+    --muted: #94a3b8;
+    --dim: #475569;
+    --grid: rgba(96, 165, 250, 0.10);
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --border: rgba(96, 165, 250, 0.30);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg-deep);
+    color: var(--white);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* page bg */
+  .page-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .page-glow {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 800px; height: 800px; border-radius: 50%;
+    top: -300px; right: -200px;
+    background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 60%);
+    filter: blur(40px);
+  }
+  .page-glow-2 {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 700px; height: 700px; border-radius: 50%;
+    bottom: -300px; left: -150px;
+    background: radial-gradient(circle, rgba(168,85,247,0.16) 0%, transparent 60%);
+    filter: blur(40px);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1280px; margin: 0 auto;
+    padding: 112px 32px 80px;
+  }
+
+  /* header */
+  .header { margin-bottom: 48px; }
+  .header .micro {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 13px; letter-spacing: 0.18em;
+    color: var(--blue-lt); text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 11px;
+  }
+  .header .micro .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--blue-lt);
+    box-shadow: 0 0 12px var(--blue-lt);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
+
+  .header h1 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    font-weight: 700; font-size: clamp(40px, 4.5vw, 64px);
+    letter-spacing: -0.025em; line-height: 1.02;
+    margin: 0 0 18px 0; color: #fff;
+  }
+  .header h1 .accent {
+    background: linear-gradient(110deg, var(--blue) 0%, var(--white) 50%, var(--violet) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .header p {
+    font-size: 17px; line-height: 1.55;
+    color: var(--muted); max-width: 720px; margin: 0;
+  }
+  .header p b { color: var(--white); font-weight: 500; }
+
+  /* grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 1080px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  /* card */
+  .card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(13, 24, 52, 0.55) 0%, rgba(13, 24, 52, 0.20) 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 22px 22px;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s, transform .25s;
+  }
+  .card:hover {
+    border-color: rgba(96, 165, 250, 0.55);
+    box-shadow: 0 0 32px rgba(96,165,250,0.12);
+    transform: translateY(-2px);
+  }
+  .card .bracket {
+    position: absolute; width: 16px; height: 16px;
+    border: 1.5px solid var(--blue-lt); opacity: 0.8;
+    pointer-events: none;
+  }
+  .card .bracket.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .card .bracket.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+  .card .bracket.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+  .card .bracket.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+  .card .head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card .label {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.16em;
+    color: var(--blue-lt); text-transform: uppercase;
+  }
+  .card .live {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 9.5px; letter-spacing: 0.18em;
+    color: var(--blue-lt); text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .card .live::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--blue-lt); box-shadow: 0 0 8px var(--blue-lt);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .card h2 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em; line-height: 1.15;
+    margin: 0 0 4px 0; color: #fff;
+  }
+  .card .acro {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.16em;
+    color: var(--violet-lt); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card p {
+    font-size: 13px; line-height: 1.5;
+    color: var(--muted); margin: 0 0 14px 0;
+    min-height: 39px;
+  }
+  .stage {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: radial-gradient(ellipse at center, rgba(13, 24, 52, 0.7) 0%, rgba(5, 8, 22, 0.85) 70%);
+    border-radius: 6px;
+    border: 1px solid rgba(96,165,250,0.18);
+    overflow: hidden;
+  }
+  .stage .stage-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(96,165,250,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96,165,250,0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* shared classes */
+  .node-b { fill: url(#node-b); filter: url(#g-soft); }
+  .node-v { fill: url(#node-v); filter: url(#g-soft); }
+  .node-r { fill: url(#node-r); filter: url(#g-soft); }
+  .node-e { fill: url(#node-e); filter: url(#g-soft); }
+  .core   { fill: #dbeafe; }
+  .core-v { fill: #f5d0fe; }
+  .core-e { fill: #a7f3d0; }
+  .edge   { stroke: rgba(96,165,250,0.25); stroke-width: 1; fill: none; }
+
+  /* ─────────────────── FNN ─────────────────── */
+  @keyframes fnn-col { 0%, 100% { opacity: 0.55; } 50% { opacity: 1.0; } }
+  #fnn-c1 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 0s; }
+  #fnn-c2 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 0.6s; }
+  #fnn-c3 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 1.2s; }
+  #fnn-c4 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 1.8s; }
+  @keyframes fnn-e1 { 0%, 100% { opacity: 0; } 8%, 22% { opacity: 1; } 30% { opacity: 0; } }
+  @keyframes fnn-e2 { 0%, 100% { opacity: 0; } 25%, 40% { opacity: 1; } 48% { opacity: 0; } }
+  @keyframes fnn-e3 { 0%, 100% { opacity: 0; } 42%, 58% { opacity: 1; } 65% { opacity: 0; } }
+  .fnn-e1 { animation: fnn-e1 3.6s linear infinite; }
+  .fnn-e2 { animation: fnn-e2 3.6s linear infinite; }
+  .fnn-e3 { animation: fnn-e3 3.6s linear infinite; }
+
+  /* ─────────────────── CNN ─────────────────── */
+  @keyframes cnn-kernel {
+    0%   { transform: translate(0px, 0px); }
+    16%  { transform: translate(34px, 0px); }
+    33%  { transform: translate(68px, 0px); }
+    50%  { transform: translate(68px, 34px); }
+    66%  { transform: translate(34px, 34px); }
+    83%  { transform: translate(0px, 34px); }
+    100% { transform: translate(0px, 0px); }
+  }
+  #cnn-kernel { animation: cnn-kernel 4.8s steps(6, end) infinite; transform-origin: 0 0; }
+  @keyframes cnn-o-1 { 0%,15%,100% { opacity: 0.15; } 0%,15% { opacity: 1; } }
+  @keyframes cnn-o-2 { 0%,15%,32%,100% { opacity: 0.15; } 16%,32% { opacity: 1; } }
+  @keyframes cnn-o-3 { 0%,32%,49%,100% { opacity: 0.15; } 33%,49% { opacity: 1; } }
+  @keyframes cnn-o-4 { 0%,49%,65%,100% { opacity: 0.15; } 50%,65% { opacity: 1; } }
+  @keyframes cnn-o-5 { 0%,65%,82%,100% { opacity: 0.15; } 66%,82% { opacity: 1; } }
+  @keyframes cnn-o-6 { 0%,82%,100% { opacity: 0.15; } 83%,99% { opacity: 1; } }
+  .cnn-c1 { animation: cnn-o-1 4.8s linear infinite; }
+  .cnn-c2 { animation: cnn-o-2 4.8s linear infinite; }
+  .cnn-c3 { animation: cnn-o-3 4.8s linear infinite; }
+  .cnn-c4 { animation: cnn-o-4 4.8s linear infinite; }
+  .cnn-c5 { animation: cnn-o-5 4.8s linear infinite; }
+  .cnn-c6 { animation: cnn-o-6 4.8s linear infinite; }
+
+  /* ─────────────────── RNN ─────────────────── */
+  @keyframes rnn-s1 { 0%, 100% { opacity: 0.25; } 5%, 22% { opacity: 1; } }
+  @keyframes rnn-s2 { 0%, 100% { opacity: 0.25; } 25%, 42% { opacity: 1; } }
+  @keyframes rnn-s3 { 0%, 100% { opacity: 0.25; } 45%, 62% { opacity: 1; } }
+  @keyframes rnn-s4 { 0%, 100% { opacity: 0.25; } 65%, 82% { opacity: 1; } }
+  .rnn-t1 { animation: rnn-s1 4s linear infinite; }
+  .rnn-t2 { animation: rnn-s2 4s linear infinite; }
+  .rnn-t3 { animation: rnn-s3 4s linear infinite; }
+  .rnn-t4 { animation: rnn-s4 4s linear infinite; }
+
+  /* ─────────────────── Transformer (improved) ─────────────────── */
+  /* 5 query positions; for each, 5 keys get different attention weights, shown as bars */
+  /* attention pattern (q × k):
+       q1 (the): [0.6, 0.2, 0.1, 0.05, 0.05]
+       q2 (cat): [0.3, 0.5, 0.1, 0.05, 0.05]
+       q3 (sat): [0.1, 0.4, 0.4, 0.05, 0.05]
+       q4 (on):  [0.05,0.2, 0.3, 0.4, 0.05]
+       q5 (mat): [0.05,0.1, 0.2, 0.2, 0.45]
+     bar full height = 70px (in svg units); scaling factor = 70 */
+  /* query marker x positions: 60, 120, 180, 240, 300 */
+  @keyframes tx-q {
+    0%, 18%   { transform: translateX(0px); }
+    20%, 38%  { transform: translateX(60px); }
+    40%, 58%  { transform: translateX(120px); }
+    60%, 78%  { transform: translateX(180px); }
+    80%, 98%  { transform: translateX(240px); }
+    100%      { transform: translateX(0px); }
+  }
+  .tx-q-marker { animation: tx-q 6s ease-in-out infinite; }
+
+  /* Each bar (k1..k5) has 5 height keyframes — one per query position */
+  /* k1 attention: 0.6, 0.3, 0.1, 0.05, 0.05 */
+  @keyframes tx-b1 {
+    0%, 18%   { transform: scaleY(0.85); }   /* q1: 0.6/0.7 */
+    20%, 38%  { transform: scaleY(0.43); }
+    40%, 58%  { transform: scaleY(0.14); }
+    60%, 78%  { transform: scaleY(0.07); }
+    80%, 98%  { transform: scaleY(0.07); }
+    100%      { transform: scaleY(0.85); }
+  }
+  /* k2 attention: 0.2, 0.5, 0.4, 0.2, 0.1 */
+  @keyframes tx-b2 {
+    0%, 18%   { transform: scaleY(0.29); }
+    20%, 38%  { transform: scaleY(0.71); }
+    40%, 58%  { transform: scaleY(0.57); }
+    60%, 78%  { transform: scaleY(0.29); }
+    80%, 98%  { transform: scaleY(0.14); }
+    100%      { transform: scaleY(0.29); }
+  }
+  /* k3 attention: 0.1, 0.1, 0.4, 0.3, 0.2 */
+  @keyframes tx-b3 {
+    0%, 18%   { transform: scaleY(0.14); }
+    20%, 38%  { transform: scaleY(0.14); }
+    40%, 58%  { transform: scaleY(0.57); }
+    60%, 78%  { transform: scaleY(0.43); }
+    80%, 98%  { transform: scaleY(0.29); }
+    100%      { transform: scaleY(0.14); }
+  }
+  /* k4 attention: 0.05, 0.05, 0.05, 0.4, 0.2 */
+  @keyframes tx-b4 {
+    0%, 18%   { transform: scaleY(0.07); }
+    20%, 38%  { transform: scaleY(0.07); }
+    40%, 58%  { transform: scaleY(0.07); }
+    60%, 78%  { transform: scaleY(0.57); }
+    80%, 98%  { transform: scaleY(0.29); }
+    100%      { transform: scaleY(0.07); }
+  }
+  /* k5 attention: 0.05, 0.05, 0.05, 0.05, 0.45 */
+  @keyframes tx-b5 {
+    0%, 18%   { transform: scaleY(0.07); }
+    20%, 38%  { transform: scaleY(0.07); }
+    40%, 58%  { transform: scaleY(0.07); }
+    60%, 78%  { transform: scaleY(0.07); }
+    80%, 98%  { transform: scaleY(0.64); }
+    100%      { transform: scaleY(0.07); }
+  }
+  .tx-bar { transform-origin: center bottom; transform-box: fill-box; animation-duration: 6s; animation-iteration-count: infinite; animation-timing-function: ease-out; }
+  .tx-b1 { animation-name: tx-b1; }
+  .tx-b2 { animation-name: tx-b2; }
+  .tx-b3 { animation-name: tx-b3; }
+  .tx-b4 { animation-name: tx-b4; }
+  .tx-b5 { animation-name: tx-b5; }
+
+  /* highlight active token */
+  @keyframes tx-t1 { 0%,18%,100% { opacity: 1; fill: #fff; } 20%,98% { opacity: 0.45; fill: #94a3b8; } }
+  @keyframes tx-t2 { 0%,18%,40%,98%,100% { opacity: 0.45; fill: #94a3b8; } 20%,38% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t3 { 0%,38%,60%,98%,100% { opacity: 0.45; fill: #94a3b8; } 40%,58% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t4 { 0%,58%,80%,98%,100% { opacity: 0.45; fill: #94a3b8; } 60%,78% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t5 { 0%,78%,100% { opacity: 0.45; fill: #94a3b8; } 80%,98% { opacity: 1; fill: #fff; } }
+  .tx-t1 { animation: tx-t1 6s linear infinite; }
+  .tx-t2 { animation: tx-t2 6s linear infinite; }
+  .tx-t3 { animation: tx-t3 6s linear infinite; }
+  .tx-t4 { animation: tx-t4 6s linear infinite; }
+  .tx-t5 { animation: tx-t5 6s linear infinite; }
+
+  /* ─────────────────── Self vs Cross Attention ─────────────────── */
+  /* both diagrams light up alternating edges */
+  @keyframes sca-self {
+    0%, 25%   { opacity: 0.15; }
+    5%, 20%   { opacity: 1; }
+  }
+  @keyframes sca-cross {
+    0%, 100%, 50%, 75% { opacity: 0.15; }
+    55%, 70%           { opacity: 1; }
+  }
+  /* self-attention rotating active node */
+  @keyframes sca-n {
+    0%, 100% { fill-opacity: 0.55; transform: scale(1); }
+    50%      { fill-opacity: 1;    transform: scale(1.2); }
+  }
+  .sca-self-edge { stroke: url(#edge-grad-h); stroke-width: 1.5; fill: none; animation: sca-self 4s ease-in-out infinite; }
+  .sca-cross-edge { stroke: url(#edge-grad-h); stroke-width: 1.5; fill: none; animation: sca-cross 4s ease-in-out infinite; }
+  .sca-active { transform-origin: center; transform-box: fill-box; animation: sca-n 4s ease-in-out infinite; }
+
+  /* ─────────────────── Language Model (next-token) ─────────────────── */
+  /* Show a bar chart of candidate tokens. Top bar wins each round. */
+  @keyframes lm-b1 { 0%, 100% { transform: scaleY(0.2); } 25% { transform: scaleY(0.85); } 50% { transform: scaleY(0.35); } 75% { transform: scaleY(0.55); } }
+  @keyframes lm-b2 { 0%, 100% { transform: scaleY(0.4); } 25% { transform: scaleY(0.35); } 50% { transform: scaleY(0.7); } 75% { transform: scaleY(0.25); } }
+  @keyframes lm-b3 { 0%, 100% { transform: scaleY(0.15); } 25% { transform: scaleY(0.25); } 50% { transform: scaleY(0.15); } 75% { transform: scaleY(0.85); } }
+  @keyframes lm-b4 { 0%, 100% { transform: scaleY(0.8); } 25% { transform: scaleY(0.15); } 50% { transform: scaleY(0.45); } 75% { transform: scaleY(0.2); } }
+  @keyframes lm-b5 { 0%, 100% { transform: scaleY(0.3); } 25% { transform: scaleY(0.45); } 50% { transform: scaleY(0.25); } 75% { transform: scaleY(0.4); } }
+  .lm-bar { transform-origin: center bottom; transform-box: fill-box; animation-duration: 4s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+  .lm-b1 { animation-name: lm-b1; }
+  .lm-b2 { animation-name: lm-b2; }
+  .lm-b3 { animation-name: lm-b3; }
+  .lm-b4 { animation-name: lm-b4; }
+  .lm-b5 { animation-name: lm-b5; }
+
+  /* token label changes per round to reflect the "winning" candidate */
+  @keyframes lm-pick {
+    0%, 100% { opacity: 0; transform: translateY(0); }
+    15%, 23% { opacity: 1; transform: translateY(-8px); }
+    25%      { opacity: 0; transform: translateY(0); }
+    40%, 48% { opacity: 1; transform: translateY(-8px); }
+    50%      { opacity: 0; transform: translateY(0); }
+    65%, 73% { opacity: 1; transform: translateY(-8px); }
+    75%      { opacity: 0; transform: translateY(0); }
+    90%, 98% { opacity: 1; transform: translateY(-8px); }
+  }
+  .lm-pick-marker { animation: lm-pick 4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+
+  /* "winner" highlight color cycles which bar is brightest */
+  @keyframes lm-w-bar4  { 0%, 22%, 100% { fill: #c084fc; } 25%, 100% { fill: #a855f7; opacity: 0.6; } }
+  /* simpler: just animate stroke on each bar */
+
+  /* ─────────────────── Gradient Descent ─────────────────── */
+  /* Ball moves along a path from outer to center of 2D contour */
+  @keyframes gd-ball {
+    0%   { offset-distance: 0%;   opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+  /* contour rings breathe */
+  @keyframes gd-ring { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.55; } }
+  .gd-ring { animation: gd-ring 3s ease-in-out infinite; }
+  .gd-ring-2 { animation-delay: 0.5s; }
+  .gd-ring-3 { animation-delay: 1.0s; }
+
+  /* ─────────────────── Backprop ─────────────────── */
+  @keyframes bp-fwd { 0%, 100% { opacity: 0; } 8%, 20% { opacity: 1; } 30% { opacity: 0; } }
+  @keyframes bp-loss {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    30%, 36% { opacity: 1; transform: scale(1.5); }
+    44%      { opacity: 0; transform: scale(1); }
+  }
+  @keyframes bp-back { 0%, 100% { opacity: 0; } 44%, 60% { opacity: 1; } 72% { opacity: 0; } }
+  @keyframes bp-update {
+    0%, 100% { stroke: rgba(96,165,250,0.25); stroke-width: 1; }
+    44%, 70% { stroke: rgba(244, 63, 94, 0.65); stroke-width: 1.4; }
+    78%      { stroke: rgba(192,132,252,0.45); stroke-width: 1; }
+    90%      { stroke: rgba(96,165,250,0.25); stroke-width: 1; }
+  }
+  .bp-fwd-pulse  { animation: bp-fwd 4.5s linear infinite; }
+  .bp-loss-pulse { animation: bp-loss 4.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  .bp-back-pulse { animation: bp-back 4.5s linear infinite; }
+  .bp-edge       { animation: bp-update 4.5s linear infinite; }
+
+  /* ─────────────────── Embedding Space ─────────────────── */
+  /* clusters glow in turn */
+  @keyframes emb-c1 {
+    0%, 100% { opacity: 0.4; }
+    5%, 28%  { opacity: 1; }
+  }
+  @keyframes emb-c2 {
+    0%, 100% { opacity: 0.4; }
+    35%, 60% { opacity: 1; }
+  }
+  @keyframes emb-c3 {
+    0%, 100% { opacity: 0.4; }
+    66%, 92% { opacity: 1; }
+  }
+  .emb-c1 { animation: emb-c1 6s ease-in-out infinite; }
+  .emb-c2 { animation: emb-c2 6s ease-in-out infinite; }
+  .emb-c3 { animation: emb-c3 6s ease-in-out infinite; }
+  /* analogy arrow appears periodically */
+  @keyframes emb-arrow { 0%, 100% { opacity: 0; } 10%, 25% { opacity: 1; } 30% { opacity: 0; } }
+  .emb-arrow { animation: emb-arrow 6s ease-in-out infinite; }
+
+  /* footer */
+  .foot {
+    margin-top: 60px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .foot b { color: var(--blue-lt); font-weight: 500; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+  }
+
+  html, body { background: transparent !important; margin: 0; overflow: hidden; height: 100%; }
+  .viz-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 6px; box-sizing: border-box; }
+  .viz-wrap svg { width: 100%; height: 100%; }
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="node-b">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="0.4" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#1e3a8a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-v">
+      <stop offset="0" stop-color="#f5d0fe"/>
+      <stop offset="0.4" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#581c87" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-r">
+      <stop offset="0" stop-color="#fecaca"/>
+      <stop offset="0.4" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#7f1d1d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-e">
+      <stop offset="0" stop-color="#a7f3d0"/>
+      <stop offset="0.4" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#064e3b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="edge-grad-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#dbeafe" stop-opacity="1"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edge-grad-back" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#f5d0fe" stop-opacity="1"/>
+      <stop offset="1" stop-color="#f43f5e" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bar-grad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.5"/>
+      <stop offset="0.5" stop-color="#a855f7" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f5d0fe" stop-opacity="1"/>
+    </linearGradient>
+    <filter id="g-soft"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="g-strong"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+</svg>
+<div class="viz-wrap"><svg viewBox="0 0 400 330">
+          <!-- bar chart container labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="20" y="58">ATTENTION WEIGHTS</text>
+            <text x="20" y="245">TOKENS</text>
+          </g>
+
+          <!-- bar baseline -->
+          <line x1="30" y1="170" x2="370" y2="170" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+          <!-- top scale tick -->
+          <line x1="30" y1="80" x2="370" y2="80" stroke="rgba(96,165,250,0.15)" stroke-width="1" stroke-dasharray="2 4"/>
+
+          <!-- 5 bars (one per key) -->
+          <!-- bar full height = 90px (from y=80 to y=170), width 32px, x = 50, 110, 170, 230, 290 -->
+          <g>
+            <rect class="tx-bar tx-b1" x="50"  y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b2" x="110" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b3" x="170" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b4" x="230" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b5" x="290" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+          </g>
+          <!-- bar outlines (always visible) -->
+          <g fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" stroke-dasharray="2 3">
+            <rect x="50"  y="80" width="32" height="90"/>
+            <rect x="110" y="80" width="32" height="90"/>
+            <rect x="170" y="80" width="32" height="90"/>
+            <rect x="230" y="80" width="32" height="90"/>
+            <rect x="290" y="80" width="32" height="90"/>
+          </g>
+
+          <!-- tokens row -->
+          <g font-family="Space Grotesk, sans-serif" font-weight="600" font-size="17" text-anchor="middle">
+            <text class="tx-t1" x="66"  y="210">the</text>
+            <text class="tx-t2" x="126" y="210">cat</text>
+            <text class="tx-t3" x="186" y="210">sat</text>
+            <text class="tx-t4" x="246" y="210">on</text>
+            <text class="tx-t5" x="306" y="210">mat</text>
+          </g>
+
+          <!-- query marker — animated translateX -->
+          <g class="tx-q-marker" transform="translate(0,0)">
+            <g transform="translate(66, 268)">
+              <polygon points="0,-9 -7,2 7,2" fill="#c084fc"/>
+              <circle cx="0" cy="10" r="10" fill="url(#node-v)" opacity="0.85"/>
+              <circle cx="0" cy="10" r="5" fill="#f5d0fe"/>
+            </g>
+          </g>
+          <!-- query label -->
+          <text x="200" y="304" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#c084fc" letter-spacing="1.5">QUERY ▲</text>
+        </svg></div>
+</body></html>

@@ -1,0 +1,109 @@
+// demo-chrome.jsx — shared layout for a single Play demo page.
+// Provides DemoLayout: header + (stage | controls) + explainer, wrapped in the
+// site nav/footer. Loaded after chrome.jsx + controls.jsx, before the demo app.
+
+const {
+  HudBrackets, GridOverlay, GlowBlob,
+  Section, Container, TopNav, Footer, MonoLabel, useIsMobile,
+} = window;
+
+const _BASE = window.__DM_BASE || "../../";
+
+function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concepts, lessonHref, repoHref, tone = "blue", backHref, backLabel = "VISUALIZE" }) {
+  const accent = tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
+  const mobile = useIsMobile();
+  const _backHref = backHref || `${_BASE}visualize/`;
+  return (
+    <>
+      <TopNav />
+      <Section id="top" padded={false} style={{ paddingTop: 132, paddingBottom: 48, position: "relative", overflow: "hidden" }}>
+        <GridOverlay mode="dark" spacing={80} opacity={0.35} />
+        <GlowBlob color={tone} size={460} x={"80%"} y={"-10%"} opacity={0.18} />
+        <HudBrackets mode="dark" inset={28} size={28} />
+        <Container>
+          {/* breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+            <a href={_backHref} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>← {backLabel}</a>
+            <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
+            <MonoLabel color={accent}>{topic}</MonoLabel>
+          </div>
+
+          <h1 style={{
+            fontFamily: "var(--f-display)", fontWeight: 700,
+            fontSize: "clamp(36px, 4.5vw, 60px)", letterSpacing: "-0.025em",
+            lineHeight: 1.0, margin: 0, color: "var(--white)",
+          }}>{title}</h1>
+          {subtitle && (
+            <div className="t-body" style={{ color: "var(--muted)", maxWidth: 680, fontSize: 17, lineHeight: 1.55, marginTop: 14 }}>
+              {subtitle}
+            </div>
+          )}
+
+          {/* stage | controls */}
+          <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "minmax(0, 1fr) 300px", gap: 24, marginTop: 36, alignItems: "start" }}>
+            <div role="group" aria-label={`${title} — interactive visualization`} style={{
+              position: "relative", overflow: "hidden",
+              border: "1px solid var(--border)", borderRadius: 8,
+              background: "rgba(5, 8, 22, 0.6)", padding: 16,
+              display: "flex", alignItems: "center", justifyContent: "center", minHeight: 360,
+            }}>
+              <HudBrackets mode="dark" inset={8} size={18} />
+              {stage}
+            </div>
+            <div style={{
+              border: "1px solid var(--border)", borderRadius: 8,
+              background: "rgba(13, 24, 52, 0.4)", padding: "20px 18px",
+            }}>
+              {controls}
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {explainer && (
+        <Section style={{ paddingTop: 8, paddingBottom: 48 }}>
+          <GridOverlay mode="dark" spacing={80} opacity={0.2} />
+          <Container style={{ maxWidth: 860 }}>
+            <MonoLabel color={accent}>// WHAT'S HAPPENING</MonoLabel>
+            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 14 }}>
+              {explainer}
+            </div>
+            {concepts && (
+              <div style={{ marginTop: 30, paddingTop: 26, borderTop: "1px solid var(--border)" }}>
+                <MonoLabel color={accent}>// CORE CONCEPTS · WHERE THIS SHOWS UP IN ML/DL</MonoLabel>
+                <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 14 }}>
+                  {concepts}
+                </div>
+              </div>
+            )}
+            {(lessonHref || repoHref) && (
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
+                {lessonHref && (
+                  <a href={lessonHref} className="t-mono-s" style={{
+                    padding: "12px 20px", border: `1px solid ${accent}`, borderRadius: 4,
+                    color: "var(--white)", textDecoration: "none", background: "rgba(59,130,246,0.10)",
+                  }}>READ THE LESSON →</a>
+                )}
+                {repoHref && (
+                  <a href={repoHref} target="_blank" rel="noopener" className="t-mono-s" style={{
+                    padding: "12px 20px", border: "1px solid var(--border)", borderRadius: 4,
+                    color: "var(--muted)", textDecoration: "none",
+                  }}>SOURCE ON GITHUB →</a>
+                )}
+              </div>
+            )}
+          </Container>
+        </Section>
+      )}
+
+      <Footer />
+    </>
+  );
+}
+
+// Small helper for explainer paragraphs
+function DemoP({ children }) {
+  return <p className="t-body" style={{ color: "var(--white)", opacity: 0.88, fontSize: 16, lineHeight: 1.65, margin: 0 }}>{children}</p>;
+}
+
+Object.assign(window, { DemoLayout, DemoP });

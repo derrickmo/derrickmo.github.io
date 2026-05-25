@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://derrickmo.github.io/sitemap.xml

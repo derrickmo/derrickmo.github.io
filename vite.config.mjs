@@ -1,0 +1,131 @@
+import { defineConfig } from 'vite'
+
+// Build-only: swap the CDN React from development to production.min (smaller,
+// faster, no warnings) and drop the now-mismatched SRI hashes. Dev keeps the
+// development build for useful warnings while iterating.
+const reactProdInBuild = {
+  name: 'react-prod-in-build',
+  apply: 'build',
+  transformIndexHtml(html) {
+    return html
+      .replace('react@18.3.1/umd/react.development.js', 'react@18.3.1/umd/react.production.min.js')
+      .replace('react-dom@18.3.1/umd/react-dom.development.js', 'react-dom@18.3.1/umd/react-dom.production.min.js')
+      .replace(/ integrity="sha384-hD6[^"]*"/, '')
+      .replace(/ integrity="sha384-u6a[^"]*"/, '')
+  },
+}
+
+// Multi-page static build for GitHub Pages.
+//
+// The site keeps its original "global script" architecture: React + ReactDOM
+// are loaded as UMD globals from a CDN (regular <script> tags in each HTML),
+// and the page's .jsx files run as ES module scripts in source order, talking
+// to each other through `window` side-effects (e.g. window.NeuralNet = ...).
+// Vite/esbuild only needs to (a) transpile JSX using the global React, and
+// (b) bundle + minify those module scripts. So we set classic JSX factory.
+export default defineConfig({
+  appType: 'mpa',
+  base: '/',
+  plugins: [reactProdInBuild],
+  esbuild: {
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
+  },
+  build: {
+    target: 'es2020',
+    outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        home: 'index.html',
+        about: 'about/index.html',
+        work: 'work/index.html',
+        research: 'research/index.html',
+        learn: 'learn/index.html',
+        'learn-ml-from-scratch': 'learn/ml-from-scratch/index.html',
+        'learn-building-with-genai': 'learn/building-with-genai/index.html',
+        'learn-notes': 'learn/notes/index.html',
+        play: 'play/index.html',
+        'play-neuroevolution': 'play/neuroevolution/index.html',
+        'play-tic-tac-toe': 'play/tic-tac-toe/index.html',
+        'play-rps': 'play/rps/index.html',
+        'play-connect-four': 'play/connect-four/index.html',
+        'play-twenty48': 'play/twenty48/index.html',
+        'play-wordle': 'play/wordle/index.html',
+        'play-minesweeper': 'play/minesweeper/index.html',
+        'play-chess': 'play/chess/index.html',
+        'play-snake-dqn': 'play/snake-dqn/index.html',
+        'play-self-driving': 'play/self-driving/index.html',
+        'play-poker': 'play/poker/index.html',
+        'play-go': 'play/go/index.html',
+        visualize: 'visualize/index.html',
+        'visualize-pathfinding': 'visualize/pathfinding/index.html',
+        'visualize-kmeans': 'visualize/kmeans/index.html',
+        'visualize-gradient-descent': 'visualize/gradient-descent/index.html',
+        'visualize-overfitting': 'visualize/overfitting/index.html',
+        'visualize-roc': 'visualize/roc/index.html',
+        'visualize-decision-tree': 'visualize/decision-tree/index.html',
+        'visualize-knn': 'visualize/knn/index.html',
+        'visualize-svm': 'visualize/svm/index.html',
+        'visualize-pca': 'visualize/pca/index.html',
+        'visualize-gmm': 'visualize/gmm/index.html',
+        'visualize-markov': 'visualize/markov/index.html',
+        'visualize-decoding': 'visualize/decoding/index.html',
+        'visualize-activations': 'visualize/activations/index.html',
+        'visualize-clt': 'visualize/clt/index.html',
+        'visualize-fourier': 'visualize/fourier/index.html',
+        'visualize-attention': 'visualize/attention/index.html',
+        'visualize-multi-head-attention': 'visualize/multi-head-attention/index.html',
+        'visualize-positional-encoding': 'visualize/positional-encoding/index.html',
+        'visualize-tokenizer': 'visualize/tokenizer/index.html',
+        'visualize-gridworld-rl': 'visualize/gridworld-rl/index.html',
+        'visualize-bandit': 'visualize/bandit/index.html',
+        'visualize-value-iteration': 'visualize/value-iteration/index.html',
+        'visualize-neural-playground': 'visualize/neural-playground/index.html',
+        'visualize-convolution': 'visualize/convolution/index.html',
+        'visualize-nms': 'visualize/nms/index.html',
+        'visualize-diffusion': 'visualize/diffusion/index.html',
+        'visualize-vae': 'visualize/vae/index.html',
+        'visualize-embeddings': 'visualize/embeddings/index.html',
+        'visualize-vector-search': 'visualize/vector-search/index.html',
+        'visualize-forecasting': 'visualize/forecasting/index.html',
+        'visualize-lr-schedule': 'visualize/lr-schedule/index.html',
+        'visualize-lora': 'visualize/lora/index.html',
+        'visualize-scaling-laws': 'visualize/scaling-laws/index.html',
+        cases: 'cases/index.html',
+        'm-foundations': 'learn/foundations/index.html',
+        'm-supervised-learning': 'learn/supervised-learning/index.html',
+        'm-unsupervised-learning': 'learn/unsupervised-learning/index.html',
+        'm-ml-theory': 'learn/ml-theory/index.html',
+        'm-neural-nets': 'learn/neural-nets/index.html',
+        'm-cnn': 'learn/cnn/index.html',
+        'm-rnn-nlp': 'learn/rnn-nlp/index.html',
+        'm-transformers': 'learn/transformers/index.html',
+        'm-advanced-cv': 'learn/advanced-cv/index.html',
+        'm-advanced-nlp': 'learn/advanced-nlp/index.html',
+        'm-generative': 'learn/generative/index.html',
+        'm-multimodal': 'learn/multimodal/index.html',
+        'm-fine-tuning': 'learn/fine-tuning/index.html',
+        'm-reinforcement-learning': 'learn/reinforcement-learning/index.html',
+        'm-pytorch-internals': 'learn/pytorch-internals/index.html',
+        'm-training-systems': 'learn/training-systems/index.html',
+        'm-llm-systems': 'learn/llm-systems/index.html',
+        'm-rag-agents': 'learn/rag-agents/index.html',
+        'm-ml-applications': 'learn/ml-applications/index.html',
+        'm-mlops': 'learn/mlops/index.html',
+        'learn-self-attention': 'learn/transformers/self-attention/index.html',
+        'kc-core': 'learn/key-concepts/index.html',
+        'kc-agentic': 'learn/key-concepts/agentic/index.html',
+        'kc-applications': 'learn/key-concepts/applications/index.html',
+        'hf-hub': 'learn/huggingface/index.html',
+        'hf-fundamentals': 'learn/huggingface/fundamentals/index.html',
+        'hf-nlp': 'learn/huggingface/nlp/index.html',
+        'hf-computer-vision': 'learn/huggingface/computer-vision/index.html',
+        'hf-audio': 'learn/huggingface/audio/index.html',
+        'hf-multimodal': 'learn/huggingface/multimodal/index.html',
+        'hf-best-practices': 'learn/huggingface/best-practices/index.html',
+        'hf-agentic': 'learn/huggingface/agentic/index.html',
+      },
+    },
+  },
+})

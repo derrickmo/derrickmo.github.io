@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<title>Key Concepts - Core Deep Learning | Learn - Derrick Mo</title>
+<meta name="description" content="Animated visual explainers for the core deep-learning ideas - feedforward, convolution, recurrence, attention, gradient descent, backprop, and embeddings." />
+<link rel="canonical" href="https://derrickmo.github.io/learn/key-concepts/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Derrick Mo" />
+<meta property="og:title" content="Key Concepts - Core Deep Learning | Learn - Derrick Mo" />
+<meta property="og:description" content="Animated visual explainers for the core deep-learning ideas - feedforward, convolution, recurrence, attention, gradient descent, backprop, and embeddings." />
+<meta property="og:url" content="https://derrickmo.github.io/learn/key-concepts/" />
+<meta property="og:image" content="https://derrickmo.github.io/og-default.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Key Concepts - Core Deep Learning | Learn - Derrick Mo" />
+<meta name="twitter:description" content="Animated visual explainers for the core deep-learning ideas - feedforward, convolution, recurrence, attention, gradient descent, backprop, and embeddings." />
+<meta name="twitter:image" content="https://derrickmo.github.io/og-default.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6;
+    --blue-lt: #60a5fa;
+    --blue-br: #93c5fd;
+    --violet: #a855f7;
+    --violet-lt: #c084fc;
+    --rose: #f43f5e;
+    --rose-lt: #fb7185;
+    --emerald: #10b981;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff;
+    --muted: #94a3b8;
+    --dim: #475569;
+    --grid: rgba(96, 165, 250, 0.10);
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --border: rgba(96, 165, 250, 0.30);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg-deep);
+    color: var(--white);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* page bg */
+  .page-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .page-glow {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 800px; height: 800px; border-radius: 50%;
+    top: -300px; right: -200px;
+    background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 60%);
+    filter: blur(40px);
+  }
+  .page-glow-2 {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 700px; height: 700px; border-radius: 50%;
+    bottom: -300px; left: -150px;
+    background: radial-gradient(circle, rgba(168,85,247,0.16) 0%, transparent 60%);
+    filter: blur(40px);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1280px; margin: 0 auto;
+    padding: 112px 32px 80px;
+  }
+
+  /* header */
+  .header { margin-bottom: 48px; }
+  .header .micro {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 13px; letter-spacing: 0.18em;
+    color: var(--blue-lt); text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 11px;
+  }
+  .header .micro .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--blue-lt);
+    box-shadow: 0 0 12px var(--blue-lt);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
+
+  .header h1 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    font-weight: 700; font-size: clamp(40px, 4.5vw, 64px);
+    letter-spacing: -0.025em; line-height: 1.02;
+    margin: 0 0 18px 0; color: #fff;
+  }
+  .header h1 .accent {
+    background: linear-gradient(110deg, var(--blue) 0%, var(--white) 50%, var(--violet) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .header p {
+    font-size: 17px; line-height: 1.55;
+    color: var(--muted); max-width: 720px; margin: 0;
+  }
+  .header p b { color: var(--white); font-weight: 500; }
+
+  /* grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 1080px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  /* card */
+  .card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(13, 24, 52, 0.55) 0%, rgba(13, 24, 52, 0.20) 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 22px 22px;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s, transform .25s;
+  }
+  .card:hover {
+    border-color: rgba(96, 165, 250, 0.55);
+    box-shadow: 0 0 32px rgba(96,165,250,0.12);
+    transform: translateY(-2px);
+  }
+  .card .bracket {
+    position: absolute; width: 16px; height: 16px;
+    border: 1.5px solid var(--blue-lt); opacity: 0.8;
+    pointer-events: none;
+  }
+  .card .bracket.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .card .bracket.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+  .card .bracket.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+  .card .bracket.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+  .card .head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card .label {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.16em;
+    color: var(--blue-lt); text-transform: uppercase;
+  }
+  .card .live {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 9.5px; letter-spacing: 0.18em;
+    color: var(--blue-lt); text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .card .live::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--blue-lt); box-shadow: 0 0 8px var(--blue-lt);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .card h2 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em; line-height: 1.15;
+    margin: 0 0 4px 0; color: #fff;
+  }
+  .card .acro {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.16em;
+    color: var(--violet-lt); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card p {
+    font-size: 13px; line-height: 1.5;
+    color: var(--muted); margin: 0 0 14px 0;
+    min-height: 39px;
+  }
+  .stage {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: radial-gradient(ellipse at center, rgba(13, 24, 52, 0.7) 0%, rgba(5, 8, 22, 0.85) 70%);
+    border-radius: 6px;
+    border: 1px solid rgba(96,165,250,0.18);
+    overflow: hidden;
+  }
+  .stage .stage-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(96,165,250,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96,165,250,0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* shared classes */
+  .node-b { fill: url(#node-b); filter: url(#g-soft); }
+  .node-v { fill: url(#node-v); filter: url(#g-soft); }
+  .node-r { fill: url(#node-r); filter: url(#g-soft); }
+  .node-e { fill: url(#node-e); filter: url(#g-soft); }
+  .core   { fill: #dbeafe; }
+  .core-v { fill: #f5d0fe; }
+  .core-e { fill: #a7f3d0; }
+  .edge   { stroke: rgba(96,165,250,0.25); stroke-width: 1; fill: none; }
+
+  /* ─────────────────── FNN ─────────────────── */
+  @keyframes fnn-col { 0%, 100% { opacity: 0.55; } 50% { opacity: 1.0; } }
+  #fnn-c1 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 0s; }
+  #fnn-c2 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 0.6s; }
+  #fnn-c3 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 1.2s; }
+  #fnn-c4 { animation: fnn-col 3.6s ease-in-out infinite; animation-delay: 1.8s; }
+  @keyframes fnn-e1 { 0%, 100% { opacity: 0; } 8%, 22% { opacity: 1; } 30% { opacity: 0; } }
+  @keyframes fnn-e2 { 0%, 100% { opacity: 0; } 25%, 40% { opacity: 1; } 48% { opacity: 0; } }
+  @keyframes fnn-e3 { 0%, 100% { opacity: 0; } 42%, 58% { opacity: 1; } 65% { opacity: 0; } }
+  .fnn-e1 { animation: fnn-e1 3.6s linear infinite; }
+  .fnn-e2 { animation: fnn-e2 3.6s linear infinite; }
+  .fnn-e3 { animation: fnn-e3 3.6s linear infinite; }
+
+  /* ─────────────────── CNN ─────────────────── */
+  @keyframes cnn-kernel {
+    0%   { transform: translate(0px, 0px); }
+    16%  { transform: translate(34px, 0px); }
+    33%  { transform: translate(68px, 0px); }
+    50%  { transform: translate(68px, 34px); }
+    66%  { transform: translate(34px, 34px); }
+    83%  { transform: translate(0px, 34px); }
+    100% { transform: translate(0px, 0px); }
+  }
+  #cnn-kernel { animation: cnn-kernel 4.8s steps(6, end) infinite; transform-origin: 0 0; }
+  @keyframes cnn-o-1 { 0%,15%,100% { opacity: 0.15; } 0%,15% { opacity: 1; } }
+  @keyframes cnn-o-2 { 0%,15%,32%,100% { opacity: 0.15; } 16%,32% { opacity: 1; } }
+  @keyframes cnn-o-3 { 0%,32%,49%,100% { opacity: 0.15; } 33%,49% { opacity: 1; } }
+  @keyframes cnn-o-4 { 0%,49%,65%,100% { opacity: 0.15; } 50%,65% { opacity: 1; } }
+  @keyframes cnn-o-5 { 0%,65%,82%,100% { opacity: 0.15; } 66%,82% { opacity: 1; } }
+  @keyframes cnn-o-6 { 0%,82%,100% { opacity: 0.15; } 83%,99% { opacity: 1; } }
+  .cnn-c1 { animation: cnn-o-1 4.8s linear infinite; }
+  .cnn-c2 { animation: cnn-o-2 4.8s linear infinite; }
+  .cnn-c3 { animation: cnn-o-3 4.8s linear infinite; }
+  .cnn-c4 { animation: cnn-o-4 4.8s linear infinite; }
+  .cnn-c5 { animation: cnn-o-5 4.8s linear infinite; }
+  .cnn-c6 { animation: cnn-o-6 4.8s linear infinite; }
+
+  /* ─────────────────── RNN ─────────────────── */
+  @keyframes rnn-s1 { 0%, 100% { opacity: 0.25; } 5%, 22% { opacity: 1; } }
+  @keyframes rnn-s2 { 0%, 100% { opacity: 0.25; } 25%, 42% { opacity: 1; } }
+  @keyframes rnn-s3 { 0%, 100% { opacity: 0.25; } 45%, 62% { opacity: 1; } }
+  @keyframes rnn-s4 { 0%, 100% { opacity: 0.25; } 65%, 82% { opacity: 1; } }
+  .rnn-t1 { animation: rnn-s1 4s linear infinite; }
+  .rnn-t2 { animation: rnn-s2 4s linear infinite; }
+  .rnn-t3 { animation: rnn-s3 4s linear infinite; }
+  .rnn-t4 { animation: rnn-s4 4s linear infinite; }
+
+  /* ─────────────────── Transformer (improved) ─────────────────── */
+  /* 5 query positions; for each, 5 keys get different attention weights, shown as bars */
+  /* attention pattern (q × k):
+       q1 (the): [0.6, 0.2, 0.1, 0.05, 0.05]
+       q2 (cat): [0.3, 0.5, 0.1, 0.05, 0.05]
+       q3 (sat): [0.1, 0.4, 0.4, 0.05, 0.05]
+       q4 (on):  [0.05,0.2, 0.3, 0.4, 0.05]
+       q5 (mat): [0.05,0.1, 0.2, 0.2, 0.45]
+     bar full height = 70px (in svg units); scaling factor = 70 */
+  /* query marker x positions: 60, 120, 180, 240, 300 */
+  @keyframes tx-q {
+    0%, 18%   { transform: translateX(0px); }
+    20%, 38%  { transform: translateX(60px); }
+    40%, 58%  { transform: translateX(120px); }
+    60%, 78%  { transform: translateX(180px); }
+    80%, 98%  { transform: translateX(240px); }
+    100%      { transform: translateX(0px); }
+  }
+  .tx-q-marker { animation: tx-q 6s ease-in-out infinite; }
+
+  /* Each bar (k1..k5) has 5 height keyframes — one per query position */
+  /* k1 attention: 0.6, 0.3, 0.1, 0.05, 0.05 */
+  @keyframes tx-b1 {
+    0%, 18%   { transform: scaleY(0.85); }   /* q1: 0.6/0.7 */
+    20%, 38%  { transform: scaleY(0.43); }
+    40%, 58%  { transform: scaleY(0.14); }
+    60%, 78%  { transform: scaleY(0.07); }
+    80%, 98%  { transform: scaleY(0.07); }
+    100%      { transform: scaleY(0.85); }
+  }
+  /* k2 attention: 0.2, 0.5, 0.4, 0.2, 0.1 */
+  @keyframes tx-b2 {
+    0%, 18%   { transform: scaleY(0.29); }
+    20%, 38%  { transform: scaleY(0.71); }
+    40%, 58%  { transform: scaleY(0.57); }
+    60%, 78%  { transform: scaleY(0.29); }
+    80%, 98%  { transform: scaleY(0.14); }
+    100%      { transform: scaleY(0.29); }
+  }
+  /* k3 attention: 0.1, 0.1, 0.4, 0.3, 0.2 */
+  @keyframes tx-b3 {
+    0%, 18%   { transform: scaleY(0.14); }
+    20%, 38%  { transform: scaleY(0.14); }
+    40%, 58%  { transform: scaleY(0.57); }
+    60%, 78%  { transform: scaleY(0.43); }
+    80%, 98%  { transform: scaleY(0.29); }
+    100%      { transform: scaleY(0.14); }
+  }
+  /* k4 attention: 0.05, 0.05, 0.05, 0.4, 0.2 */
+  @keyframes tx-b4 {
+    0%, 18%   { transform: scaleY(0.07); }
+    20%, 38%  { transform: scaleY(0.07); }
+    40%, 58%  { transform: scaleY(0.07); }
+    60%, 78%  { transform: scaleY(0.57); }
+    80%, 98%  { transform: scaleY(0.29); }
+    100%      { transform: scaleY(0.07); }
+  }
+  /* k5 attention: 0.05, 0.05, 0.05, 0.05, 0.45 */
+  @keyframes tx-b5 {
+    0%, 18%   { transform: scaleY(0.07); }
+    20%, 38%  { transform: scaleY(0.07); }
+    40%, 58%  { transform: scaleY(0.07); }
+    60%, 78%  { transform: scaleY(0.07); }
+    80%, 98%  { transform: scaleY(0.64); }
+    100%      { transform: scaleY(0.07); }
+  }
+  .tx-bar { transform-origin: center bottom; transform-box: fill-box; animation-duration: 6s; animation-iteration-count: infinite; animation-timing-function: ease-out; }
+  .tx-b1 { animation-name: tx-b1; }
+  .tx-b2 { animation-name: tx-b2; }
+  .tx-b3 { animation-name: tx-b3; }
+  .tx-b4 { animation-name: tx-b4; }
+  .tx-b5 { animation-name: tx-b5; }
+
+  /* highlight active token */
+  @keyframes tx-t1 { 0%,18%,100% { opacity: 1; fill: #fff; } 20%,98% { opacity: 0.45; fill: #94a3b8; } }
+  @keyframes tx-t2 { 0%,18%,40%,98%,100% { opacity: 0.45; fill: #94a3b8; } 20%,38% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t3 { 0%,38%,60%,98%,100% { opacity: 0.45; fill: #94a3b8; } 40%,58% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t4 { 0%,58%,80%,98%,100% { opacity: 0.45; fill: #94a3b8; } 60%,78% { opacity: 1; fill: #fff; } }
+  @keyframes tx-t5 { 0%,78%,100% { opacity: 0.45; fill: #94a3b8; } 80%,98% { opacity: 1; fill: #fff; } }
+  .tx-t1 { animation: tx-t1 6s linear infinite; }
+  .tx-t2 { animation: tx-t2 6s linear infinite; }
+  .tx-t3 { animation: tx-t3 6s linear infinite; }
+  .tx-t4 { animation: tx-t4 6s linear infinite; }
+  .tx-t5 { animation: tx-t5 6s linear infinite; }
+
+  /* ─────────────────── Self vs Cross Attention ─────────────────── */
+  /* both diagrams light up alternating edges */
+  @keyframes sca-self {
+    0%, 25%   { opacity: 0.15; }
+    5%, 20%   { opacity: 1; }
+  }
+  @keyframes sca-cross {
+    0%, 100%, 50%, 75% { opacity: 0.15; }
+    55%, 70%           { opacity: 1; }
+  }
+  /* self-attention rotating active node */
+  @keyframes sca-n {
+    0%, 100% { fill-opacity: 0.55; transform: scale(1); }
+    50%      { fill-opacity: 1;    transform: scale(1.2); }
+  }
+  .sca-self-edge { stroke: url(#edge-grad-h); stroke-width: 1.5; fill: none; animation: sca-self 4s ease-in-out infinite; }
+  .sca-cross-edge { stroke: url(#edge-grad-h); stroke-width: 1.5; fill: none; animation: sca-cross 4s ease-in-out infinite; }
+  .sca-active { transform-origin: center; transform-box: fill-box; animation: sca-n 4s ease-in-out infinite; }
+
+  /* ─────────────────── Language Model (next-token) ─────────────────── */
+  /* Show a bar chart of candidate tokens. Top bar wins each round. */
+  @keyframes lm-b1 { 0%, 100% { transform: scaleY(0.2); } 25% { transform: scaleY(0.85); } 50% { transform: scaleY(0.35); } 75% { transform: scaleY(0.55); } }
+  @keyframes lm-b2 { 0%, 100% { transform: scaleY(0.4); } 25% { transform: scaleY(0.35); } 50% { transform: scaleY(0.7); } 75% { transform: scaleY(0.25); } }
+  @keyframes lm-b3 { 0%, 100% { transform: scaleY(0.15); } 25% { transform: scaleY(0.25); } 50% { transform: scaleY(0.15); } 75% { transform: scaleY(0.85); } }
+  @keyframes lm-b4 { 0%, 100% { transform: scaleY(0.8); } 25% { transform: scaleY(0.15); } 50% { transform: scaleY(0.45); } 75% { transform: scaleY(0.2); } }
+  @keyframes lm-b5 { 0%, 100% { transform: scaleY(0.3); } 25% { transform: scaleY(0.45); } 50% { transform: scaleY(0.25); } 75% { transform: scaleY(0.4); } }
+  .lm-bar { transform-origin: center bottom; transform-box: fill-box; animation-duration: 4s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+  .lm-b1 { animation-name: lm-b1; }
+  .lm-b2 { animation-name: lm-b2; }
+  .lm-b3 { animation-name: lm-b3; }
+  .lm-b4 { animation-name: lm-b4; }
+  .lm-b5 { animation-name: lm-b5; }
+
+  /* token label changes per round to reflect the "winning" candidate */
+  @keyframes lm-pick {
+    0%, 100% { opacity: 0; transform: translateY(0); }
+    15%, 23% { opacity: 1; transform: translateY(-8px); }
+    25%      { opacity: 0; transform: translateY(0); }
+    40%, 48% { opacity: 1; transform: translateY(-8px); }
+    50%      { opacity: 0; transform: translateY(0); }
+    65%, 73% { opacity: 1; transform: translateY(-8px); }
+    75%      { opacity: 0; transform: translateY(0); }
+    90%, 98% { opacity: 1; transform: translateY(-8px); }
+  }
+  .lm-pick-marker { animation: lm-pick 4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+
+  /* "winner" highlight color cycles which bar is brightest */
+  @keyframes lm-w-bar4  { 0%, 22%, 100% { fill: #c084fc; } 25%, 100% { fill: #a855f7; opacity: 0.6; } }
+  /* simpler: just animate stroke on each bar */
+
+  /* ─────────────────── Gradient Descent ─────────────────── */
+  /* Ball moves along a path from outer to center of 2D contour */
+  @keyframes gd-ball {
+    0%   { offset-distance: 0%;   opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+  /* contour rings breathe */
+  @keyframes gd-ring { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.55; } }
+  .gd-ring { animation: gd-ring 3s ease-in-out infinite; }
+  .gd-ring-2 { animation-delay: 0.5s; }
+  .gd-ring-3 { animation-delay: 1.0s; }
+
+  /* ─────────────────── Backprop ─────────────────── */
+  @keyframes bp-fwd { 0%, 100% { opacity: 0; } 8%, 20% { opacity: 1; } 30% { opacity: 0; } }
+  @keyframes bp-loss {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    30%, 36% { opacity: 1; transform: scale(1.5); }
+    44%      { opacity: 0; transform: scale(1); }
+  }
+  @keyframes bp-back { 0%, 100% { opacity: 0; } 44%, 60% { opacity: 1; } 72% { opacity: 0; } }
+  @keyframes bp-update {
+    0%, 100% { stroke: rgba(96,165,250,0.25); stroke-width: 1; }
+    44%, 70% { stroke: rgba(244, 63, 94, 0.65); stroke-width: 1.4; }
+    78%      { stroke: rgba(192,132,252,0.45); stroke-width: 1; }
+    90%      { stroke: rgba(96,165,250,0.25); stroke-width: 1; }
+  }
+  .bp-fwd-pulse  { animation: bp-fwd 4.5s linear infinite; }
+  .bp-loss-pulse { animation: bp-loss 4.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  .bp-back-pulse { animation: bp-back 4.5s linear infinite; }
+  .bp-edge       { animation: bp-update 4.5s linear infinite; }
+
+  /* ─────────────────── Embedding Space ─────────────────── */
+  /* clusters glow in turn */
+  @keyframes emb-c1 {
+    0%, 100% { opacity: 0.4; }
+    5%, 28%  { opacity: 1; }
+  }
+  @keyframes emb-c2 {
+    0%, 100% { opacity: 0.4; }
+    35%, 60% { opacity: 1; }
+  }
+  @keyframes emb-c3 {
+    0%, 100% { opacity: 0.4; }
+    66%, 92% { opacity: 1; }
+  }
+  .emb-c1 { animation: emb-c1 6s ease-in-out infinite; }
+  .emb-c2 { animation: emb-c2 6s ease-in-out infinite; }
+  .emb-c3 { animation: emb-c3 6s ease-in-out infinite; }
+  /* analogy arrow appears periodically */
+  @keyframes emb-arrow { 0%, 100% { opacity: 0; } 10%, 25% { opacity: 1; } 30% { opacity: 0; } }
+  .emb-arrow { animation: emb-arrow 6s ease-in-out infinite; }
+
+  /* footer */
+  .foot {
+    margin-top: 60px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .foot b { color: var(--blue-lt); font-weight: 500; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+<link rel="stylesheet" href="../../tokens.css" />
+<script>window.__DM_BASE = "../../"; window.__DM_PAGE = "learn";</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="nav-root"></div>
+
+<div class="page-bg"></div>
+<div class="page-glow"></div>
+<div class="page-glow-2"></div>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="node-b">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="0.4" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#1e3a8a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-v">
+      <stop offset="0" stop-color="#f5d0fe"/>
+      <stop offset="0.4" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#581c87" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-r">
+      <stop offset="0" stop-color="#fecaca"/>
+      <stop offset="0.4" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#7f1d1d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-e">
+      <stop offset="0" stop-color="#a7f3d0"/>
+      <stop offset="0.4" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#064e3b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="edge-grad-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#dbeafe" stop-opacity="1"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edge-grad-back" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#f5d0fe" stop-opacity="1"/>
+      <stop offset="1" stop-color="#f43f5e" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bar-grad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.5"/>
+      <stop offset="0.5" stop-color="#a855f7" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f5d0fe" stop-opacity="1"/>
+    </linearGradient>
+    <filter id="g-soft"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="g-strong"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+</svg>
+
+<div class="container">
+
+  <div class="header">
+    <div class="micro"><span class="dot"></span> LEARN · KEY CONCEPTS / CORE</div>
+    <h1>Neural network <span class="accent">in motion.</span></h1>
+    <p>Looping animations of the <b>core deep-learning ideas</b> — feedforward, convolution, recurrence, attention, gradient descent, backprop, and embeddings. Each one moves so the concept clicks at a glance.</p>
+  </div>
+
+  <div style="position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 32px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px;align-items:center;">
+      <a href="../" style="display:inline-block;padding:8px 14px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;color:var(--muted,#94a3b8);">&larr; LEARN</a>
+      <span style="color:var(--dim,#475569);">/</span>
+      <a href="./" style="display:inline-block;padding:8px 14px;border-radius:5px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;border:1px solid var(--blue-lt,#60a5fa);color:#fff;background:rgba(59,130,246,0.14);">Core DL</a>
+      <a href="agentic/" style="display:inline-block;padding:8px 14px;border-radius:5px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;border:1px solid rgba(96,165,250,0.30);color:var(--muted,#94a3b8);background:transparent;">Agentic &amp; LLM</a>
+      <a href="applications/" style="display:inline-block;padding:8px 14px;border-radius:5px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;border:1px solid rgba(96,165,250,0.30);color:var(--muted,#94a3b8);background:transparent;">Applications</a>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- ════════ FNN ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// FORWARD PROPAGATION</span><span class="live">LIVE</span></div>
+      <h2>Feedforward Net</h2>
+      <div class="acro">FNN · MLP</div>
+      <p>A signal travels left → right. Each layer's activations light up in sequence; the output node holds the prediction.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="38"  y="310">INPUT</text>
+            <text x="158" y="310">H₁</text>
+            <text x="278" y="310">H₂</text>
+            <text x="394" y="310">ŷ</text>
+          </g>
+          <g class="edge" opacity="0.45">
+            <line x1="60" y1="110" x2="170" y2="90"/><line x1="60" y1="110" x2="170" y2="165"/><line x1="60" y1="110" x2="170" y2="240"/>
+            <line x1="60" y1="175" x2="170" y2="90"/><line x1="60" y1="175" x2="170" y2="165"/><line x1="60" y1="175" x2="170" y2="240"/>
+            <line x1="60" y1="240" x2="170" y2="90"/><line x1="60" y1="240" x2="170" y2="165"/><line x1="60" y1="240" x2="170" y2="240"/>
+            <line x1="170" y1="90"  x2="280" y2="120"/><line x1="170" y1="90"  x2="280" y2="220"/>
+            <line x1="170" y1="165" x2="280" y2="120"/><line x1="170" y1="165" x2="280" y2="220"/>
+            <line x1="170" y1="240" x2="280" y2="120"/><line x1="170" y1="240" x2="280" y2="220"/>
+            <line x1="280" y1="120" x2="390" y2="170"/><line x1="280" y1="220" x2="390" y2="170"/>
+          </g>
+          <g stroke="url(#edge-grad-h)" stroke-width="1.6" fill="none" class="fnn-e1">
+            <line x1="60" y1="175" x2="170" y2="90"/>
+            <line x1="60" y1="175" x2="170" y2="165"/>
+            <line x1="60" y1="175" x2="170" y2="240"/>
+          </g>
+          <g stroke="url(#edge-grad-h)" stroke-width="1.6" fill="none" class="fnn-e2">
+            <line x1="170" y1="165" x2="280" y2="120"/>
+            <line x1="170" y1="165" x2="280" y2="220"/>
+          </g>
+          <g stroke="url(#edge-grad-h)" stroke-width="1.8" fill="none" class="fnn-e3">
+            <line x1="280" y1="120" x2="390" y2="170"/>
+            <line x1="280" y1="220" x2="390" y2="170"/>
+          </g>
+          <g id="fnn-c1">
+            <circle class="node-b" cx="60" cy="110" r="11"/><circle class="core" cx="60" cy="110" r="4"/>
+            <circle class="node-b" cx="60" cy="175" r="11"/><circle class="core" cx="60" cy="175" r="4"/>
+            <circle class="node-b" cx="60" cy="240" r="11"/><circle class="core" cx="60" cy="240" r="4"/>
+          </g>
+          <g id="fnn-c2">
+            <circle class="node-b" cx="170" cy="90"  r="11"/><circle class="core" cx="170" cy="90" r="4"/>
+            <circle class="node-b" cx="170" cy="165" r="11"/><circle class="core" cx="170" cy="165" r="4"/>
+            <circle class="node-b" cx="170" cy="240" r="11"/><circle class="core" cx="170" cy="240" r="4"/>
+          </g>
+          <g id="fnn-c3">
+            <circle class="node-v" cx="280" cy="120" r="11"/><circle class="core-v" cx="280" cy="120" r="4"/>
+            <circle class="node-v" cx="280" cy="220" r="11"/><circle class="core-v" cx="280" cy="220" r="4"/>
+          </g>
+          <g id="fnn-c4">
+            <circle class="node-v" cx="390" cy="170" r="18" filter="url(#g-strong)" opacity="0.7"/>
+            <circle class="node-v" cx="390" cy="170" r="13"/>
+            <circle class="core-v" cx="390" cy="170" r="5"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ CNN ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// CONVOLUTION</span><span class="live">LIVE</span></div>
+      <h2>Convolutional Net</h2>
+      <div class="acro">CNN · KERNEL SCAN</div>
+      <p>A 3×3 kernel slides across an input grid. Each position produces one cell of the feature map.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <g transform="translate(40, 80)">
+            <text x="0" y="-12" font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">INPUT</text>
+            <g>
+              <rect x="0"   y="0" width="34" height="34" fill="#1e3a8a" opacity="0.18"/><rect x="34"  y="0" width="34" height="34" fill="#1e3a8a" opacity="0.35"/><rect x="68"  y="0" width="34" height="34" fill="#1e3a8a" opacity="0.55"/><rect x="102" y="0" width="34" height="34" fill="#1e3a8a" opacity="0.30"/><rect x="136" y="0" width="34" height="34" fill="#1e3a8a" opacity="0.18"/>
+              <rect x="0"   y="34" width="34" height="34" fill="#1e3a8a" opacity="0.30"/><rect x="34"  y="34" width="34" height="34" fill="#3b82f6" opacity="0.55"/><rect x="68"  y="34" width="34" height="34" fill="#3b82f6" opacity="0.80"/><rect x="102" y="34" width="34" height="34" fill="#3b82f6" opacity="0.65"/><rect x="136" y="34" width="34" height="34" fill="#1e3a8a" opacity="0.30"/>
+              <rect x="0"   y="68" width="34" height="34" fill="#1e3a8a" opacity="0.55"/><rect x="34"  y="68" width="34" height="34" fill="#3b82f6" opacity="0.80"/><rect x="68"  y="68" width="34" height="34" fill="#60a5fa" opacity="0.95"/><rect x="102" y="68" width="34" height="34" fill="#3b82f6" opacity="0.75"/><rect x="136" y="68" width="34" height="34" fill="#1e3a8a" opacity="0.40"/>
+              <rect x="0"   y="102" width="34" height="34" fill="#1e3a8a" opacity="0.30"/><rect x="34"  y="102" width="34" height="34" fill="#3b82f6" opacity="0.50"/><rect x="68"  y="102" width="34" height="34" fill="#3b82f6" opacity="0.70"/><rect x="102" y="102" width="34" height="34" fill="#1e3a8a" opacity="0.50"/><rect x="136" y="102" width="34" height="34" fill="#1e3a8a" opacity="0.25"/>
+              <rect x="0"   y="136" width="34" height="34" fill="#1e3a8a" opacity="0.15"/><rect x="34"  y="136" width="34" height="34" fill="#1e3a8a" opacity="0.25"/><rect x="68"  y="136" width="34" height="34" fill="#1e3a8a" opacity="0.35"/><rect x="102" y="136" width="34" height="34" fill="#1e3a8a" opacity="0.25"/><rect x="136" y="136" width="34" height="34" fill="#1e3a8a" opacity="0.18"/>
+            </g>
+            <g stroke="rgba(96,165,250,0.25)" stroke-width="0.5" fill="none">
+              <line x1="34" y1="0" x2="34" y2="170"/><line x1="68" y1="0" x2="68" y2="170"/><line x1="102" y1="0" x2="102" y2="170"/><line x1="136" y1="0" x2="136" y2="170"/>
+              <line x1="0" y1="34" x2="170" y2="34"/><line x1="0" y1="68" x2="170" y2="68"/><line x1="0" y1="102" x2="170" y2="102"/><line x1="0" y1="136" x2="170" y2="136"/>
+            </g>
+            <g id="cnn-kernel">
+              <rect x="0" y="0" width="102" height="102" fill="rgba(192,132,252,0.20)" stroke="#c084fc" stroke-width="1.5"/>
+              <line x1="34" y1="0" x2="34" y2="102" stroke="#c084fc" stroke-width="0.8"/>
+              <line x1="68" y1="0" x2="68" y2="102" stroke="#c084fc" stroke-width="0.8"/>
+              <line x1="0" y1="34" x2="102" y2="34" stroke="#c084fc" stroke-width="0.8"/>
+              <line x1="0" y1="68" x2="102" y2="68" stroke="#c084fc" stroke-width="0.8"/>
+            </g>
+          </g>
+          <g stroke="#60a5fa" fill="none" stroke-width="1.2">
+            <line x1="230" y1="155" x2="270" y2="155"/>
+            <polyline points="262,148 270,155 262,162"/>
+          </g>
+          <text x="250" y="138" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#60a5fa" letter-spacing="1.5">·∗K</text>
+          <g transform="translate(290, 100)">
+            <text x="0" y="-12" font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">FEATURE_MAP</text>
+            <rect class="cnn-c1" x="0"   y="0"  width="40" height="40" fill="#a855f7"/>
+            <rect class="cnn-c2" x="40"  y="0"  width="40" height="40" fill="#a855f7"/>
+            <rect class="cnn-c3" x="80"  y="0"  width="40" height="40" fill="#a855f7"/>
+            <rect class="cnn-c6" x="0"   y="40" width="40" height="40" fill="#a855f7"/>
+            <rect class="cnn-c5" x="40"  y="40" width="40" height="40" fill="#a855f7"/>
+            <rect class="cnn-c4" x="80"  y="40" width="40" height="40" fill="#a855f7"/>
+            <rect x="0" y="0" width="120" height="80" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="2 4"/>
+            <g stroke="rgba(168,85,247,0.4)" stroke-width="0.5" fill="none">
+              <line x1="40" y1="0" x2="40" y2="80"/><line x1="80" y1="0" x2="80" y2="80"/><line x1="0" y1="40" x2="120" y2="40"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ RNN ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// SEQUENCE</span><span class="live">LIVE</span></div>
+      <h2>Recurrent Net</h2>
+      <div class="acro">RNN · UNROLLED</div>
+      <p>Each timestep takes input xₜ, mixes with the prior hidden state hₜ₋₁, and emits yₜ.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <line x1="40" y1="165" x2="400" y2="165" stroke="rgba(96,165,250,0.35)" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <g>
+            <rect class="rnn-t1" x="50"  y="140" width="40" height="50" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" stroke-width="1.5"/>
+            <rect class="rnn-t2" x="150" y="140" width="40" height="50" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" stroke-width="1.5"/>
+            <rect class="rnn-t3" x="250" y="140" width="40" height="50" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" stroke-width="1.5"/>
+            <rect class="rnn-t4" x="350" y="140" width="40" height="50" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" stroke-width="1.5"/>
+            <g font-family="JetBrains Mono, monospace" font-size="11" fill="#dbeafe">
+              <text x="70" y="172" text-anchor="middle">h₁</text>
+              <text x="170" y="172" text-anchor="middle">h₂</text>
+              <text x="270" y="172" text-anchor="middle">h₃</text>
+              <text x="370" y="172" text-anchor="middle">h₄</text>
+            </g>
+          </g>
+          <g>
+            <line x1="70"  y1="245" x2="70"  y2="195" stroke="rgba(96,165,250,0.4)"/>
+            <line x1="170" y1="245" x2="170" y2="195" stroke="rgba(96,165,250,0.4)"/>
+            <line x1="270" y1="245" x2="270" y2="195" stroke="rgba(96,165,250,0.4)"/>
+            <line x1="370" y1="245" x2="370" y2="195" stroke="rgba(96,165,250,0.4)"/>
+            <circle class="rnn-t1 node-b" cx="70" cy="250" r="8"/>
+            <circle class="rnn-t2 node-b" cx="170" cy="250" r="8"/>
+            <circle class="rnn-t3 node-b" cx="270" cy="250" r="8"/>
+            <circle class="rnn-t4 node-b" cx="370" cy="250" r="8"/>
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">
+              <text x="70"  y="276" text-anchor="middle">x₁</text>
+              <text x="170" y="276" text-anchor="middle">x₂</text>
+              <text x="270" y="276" text-anchor="middle">x₃</text>
+              <text x="370" y="276" text-anchor="middle">x₄</text>
+            </g>
+          </g>
+          <g>
+            <line x1="70"  y1="95" x2="70"  y2="135" stroke="rgba(192,132,252,0.5)"/>
+            <line x1="170" y1="95" x2="170" y2="135" stroke="rgba(192,132,252,0.5)"/>
+            <line x1="270" y1="95" x2="270" y2="135" stroke="rgba(192,132,252,0.5)"/>
+            <line x1="370" y1="95" x2="370" y2="135" stroke="rgba(192,132,252,0.5)"/>
+            <circle class="rnn-t1 node-v" cx="70"  cy="90" r="8"/>
+            <circle class="rnn-t2 node-v" cx="170" cy="90" r="8"/>
+            <circle class="rnn-t3 node-v" cx="270" cy="90" r="8"/>
+            <circle class="rnn-t4 node-v" cx="370" cy="90" r="8"/>
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="#c084fc">
+              <text x="70"  y="68" text-anchor="middle">y₁</text>
+              <text x="170" y="68" text-anchor="middle">y₂</text>
+              <text x="270" y="68" text-anchor="middle">y₃</text>
+              <text x="370" y="68" text-anchor="middle">y₄</text>
+            </g>
+          </g>
+          <circle r="5" fill="#dbeafe" filter="url(#g-soft)">
+            <animateMotion dur="4s" repeatCount="indefinite" path="M40 165 L400 165"/>
+            <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0;1;1;1;0" keyTimes="0;0.1;0.5;0.9;1"/>
+          </circle>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Transformer (improved) ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// SELF-ATTENTION</span><span class="live">LIVE</span></div>
+      <h2>Transformer</h2>
+      <div class="acro">softmax(QKᵀ/√d)·V</div>
+      <p>A query sweeps across the sequence. Bar heights show its attention weight to each key — what the query "looks at."</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 400 330">
+          <!-- bar chart container labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="20" y="58">ATTENTION WEIGHTS</text>
+            <text x="20" y="245">TOKENS</text>
+          </g>
+
+          <!-- bar baseline -->
+          <line x1="30" y1="170" x2="370" y2="170" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+          <!-- top scale tick -->
+          <line x1="30" y1="80" x2="370" y2="80" stroke="rgba(96,165,250,0.15)" stroke-width="1" stroke-dasharray="2 4"/>
+
+          <!-- 5 bars (one per key) -->
+          <!-- bar full height = 90px (from y=80 to y=170), width 32px, x = 50, 110, 170, 230, 290 -->
+          <g>
+            <rect class="tx-bar tx-b1" x="50"  y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b2" x="110" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b3" x="170" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b4" x="230" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+            <rect class="tx-bar tx-b5" x="290" y="80" width="32" height="90" fill="url(#bar-grad)"/>
+          </g>
+          <!-- bar outlines (always visible) -->
+          <g fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" stroke-dasharray="2 3">
+            <rect x="50"  y="80" width="32" height="90"/>
+            <rect x="110" y="80" width="32" height="90"/>
+            <rect x="170" y="80" width="32" height="90"/>
+            <rect x="230" y="80" width="32" height="90"/>
+            <rect x="290" y="80" width="32" height="90"/>
+          </g>
+
+          <!-- tokens row -->
+          <g font-family="Space Grotesk, sans-serif" font-weight="600" font-size="17" text-anchor="middle">
+            <text class="tx-t1" x="66"  y="210">the</text>
+            <text class="tx-t2" x="126" y="210">cat</text>
+            <text class="tx-t3" x="186" y="210">sat</text>
+            <text class="tx-t4" x="246" y="210">on</text>
+            <text class="tx-t5" x="306" y="210">mat</text>
+          </g>
+
+          <!-- query marker — animated translateX -->
+          <g class="tx-q-marker" transform="translate(0,0)">
+            <g transform="translate(66, 268)">
+              <polygon points="0,-9 -7,2 7,2" fill="#c084fc"/>
+              <circle cx="0" cy="10" r="10" fill="url(#node-v)" opacity="0.85"/>
+              <circle cx="0" cy="10" r="5" fill="#f5d0fe"/>
+            </g>
+          </g>
+          <!-- query label -->
+          <text x="200" y="304" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#c084fc" letter-spacing="1.5">QUERY ▲</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Self vs Cross Attention ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// ATTENTION MODES</span><span class="live">LIVE</span></div>
+      <h2>Self vs Cross</h2>
+      <div class="acro">Q·KᵀV — within vs between</div>
+      <p>Self: query, key, value all from the same sequence. Cross: query from one sequence attends to keys/values from another.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <!-- divider line -->
+          <line x1="220" y1="40" x2="220" y2="290" stroke="rgba(96,165,250,0.18)" stroke-width="1" stroke-dasharray="2 4"/>
+
+          <!-- LEFT: SELF -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa" letter-spacing="1.5">
+            <text x="100" y="40" text-anchor="middle">SELF</text>
+          </g>
+          <!-- 4 nodes in a row -->
+          <g>
+            <!-- edges from each node to all others (only render once, both directions implied) -->
+            <g class="sca-self-edge" style="animation-delay: 0s">
+              <path d="M50 170 Q 75 100 100 170"/>
+              <path d="M50 170 Q 100 80 150 170"/>
+              <path d="M50 170 Q 125 70 200 170"/>
+              <circle cx="50" cy="170" r="14" fill="url(#node-v)" class="sca-active" style="animation-delay: 0s"/>
+              <circle cx="50" cy="170" r="6" fill="#f5d0fe"/>
+            </g>
+            <g class="sca-self-edge" style="animation-delay: 1s">
+              <path d="M100 170 Q 75 100 50 170"/>
+              <path d="M100 170 Q 125 100 150 170"/>
+              <path d="M100 170 Q 150 80 200 170"/>
+              <circle cx="100" cy="170" r="14" fill="url(#node-v)" class="sca-active" style="animation-delay: 1s"/>
+              <circle cx="100" cy="170" r="6" fill="#f5d0fe"/>
+            </g>
+            <g class="sca-self-edge" style="animation-delay: 2s">
+              <path d="M150 170 Q 100 80 50 170"/>
+              <path d="M150 170 Q 125 100 100 170"/>
+              <path d="M150 170 Q 175 100 200 170"/>
+              <circle cx="150" cy="170" r="14" fill="url(#node-v)" class="sca-active" style="animation-delay: 2s"/>
+              <circle cx="150" cy="170" r="6" fill="#f5d0fe"/>
+            </g>
+            <g class="sca-self-edge" style="animation-delay: 3s">
+              <path d="M200 170 Q 125 70 50 170"/>
+              <path d="M200 170 Q 150 80 100 170"/>
+              <path d="M200 170 Q 175 100 150 170"/>
+              <circle cx="200" cy="170" r="14" fill="url(#node-v)" class="sca-active" style="animation-delay: 3s"/>
+              <circle cx="200" cy="170" r="6" fill="#f5d0fe"/>
+            </g>
+            <!-- base dim circles -->
+            <g opacity="0.4">
+              <circle cx="50"  cy="170" r="8" class="node-v"/>
+              <circle cx="100" cy="170" r="8" class="node-v"/>
+              <circle cx="150" cy="170" r="8" class="node-v"/>
+              <circle cx="200" cy="170" r="8" class="node-v"/>
+            </g>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#94a3b8" text-anchor="middle">
+            <text x="50"  y="205">t₁</text>
+            <text x="100" y="205">t₂</text>
+            <text x="150" y="205">t₃</text>
+            <text x="200" y="205">t₄</text>
+          </g>
+          <text x="125" y="245" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">Q=K=V · same seq</text>
+
+          <!-- RIGHT: CROSS -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa" letter-spacing="1.5">
+            <text x="340" y="40" text-anchor="middle">CROSS</text>
+          </g>
+          <!-- top row = source (encoder K, V) -->
+          <g opacity="0.85">
+            <circle cx="260" cy="90" r="9" class="node-b"/><circle cx="260" cy="90" r="4" fill="#dbeafe"/>
+            <circle cx="310" cy="90" r="9" class="node-b"/><circle cx="310" cy="90" r="4" fill="#dbeafe"/>
+            <circle cx="370" cy="90" r="9" class="node-b"/><circle cx="370" cy="90" r="4" fill="#dbeafe"/>
+            <circle cx="420" cy="90" r="9" class="node-b"/><circle cx="420" cy="90" r="4" fill="#dbeafe"/>
+          </g>
+          <!-- bottom row = target (decoder Q) -->
+          <g opacity="0.85">
+            <circle cx="280" cy="200" r="9" class="node-v"/><circle cx="280" cy="200" r="4" fill="#f5d0fe"/>
+            <circle cx="340" cy="200" r="9" class="node-v"/><circle cx="340" cy="200" r="4" fill="#f5d0fe"/>
+            <circle cx="400" cy="200" r="9" class="node-v"/><circle cx="400" cy="200" r="4" fill="#f5d0fe"/>
+          </g>
+          <!-- cross arrows: from each Q in bottom up to all K in top -->
+          <g class="sca-cross-edge" style="animation-delay: 0s">
+            <line x1="280" y1="195" x2="260" y2="95"/>
+            <line x1="280" y1="195" x2="310" y2="95"/>
+            <line x1="280" y1="195" x2="370" y2="95"/>
+            <line x1="280" y1="195" x2="420" y2="95"/>
+            <circle cx="280" cy="200" r="13" class="sca-active node-v" style="animation-delay: 0s"/>
+            <circle cx="280" cy="200" r="5" fill="#f5d0fe"/>
+          </g>
+          <g class="sca-cross-edge" style="animation-delay: 1.3s">
+            <line x1="340" y1="195" x2="260" y2="95"/>
+            <line x1="340" y1="195" x2="310" y2="95"/>
+            <line x1="340" y1="195" x2="370" y2="95"/>
+            <line x1="340" y1="195" x2="420" y2="95"/>
+            <circle cx="340" cy="200" r="13" class="sca-active node-v" style="animation-delay: 1.3s"/>
+            <circle cx="340" cy="200" r="5" fill="#f5d0fe"/>
+          </g>
+          <g class="sca-cross-edge" style="animation-delay: 2.6s">
+            <line x1="400" y1="195" x2="260" y2="95"/>
+            <line x1="400" y1="195" x2="310" y2="95"/>
+            <line x1="400" y1="195" x2="370" y2="95"/>
+            <line x1="400" y1="195" x2="420" y2="95"/>
+            <circle cx="400" cy="200" r="13" class="sca-active node-v" style="animation-delay: 2.6s"/>
+            <circle cx="400" cy="200" r="5" fill="#f5d0fe"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#94a3b8" text-anchor="middle">
+            <text x="260" y="76">K,V</text>
+            <text x="280" y="226">Q</text>
+          </g>
+          <text x="340" y="270" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">Q ≠ K,V · two seqs</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Language Model ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// AUTOREGRESSIVE</span><span class="live">LIVE</span></div>
+      <h2>Language Model</h2>
+      <div class="acro">p(xₜ₊₁ | x₁..xₜ)</div>
+      <p>Given a prompt, the model scores all possible next tokens. The highest-probability one is sampled, appended, and the loop repeats.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <!-- prompt -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#475569" letter-spacing="1.5">
+            <text x="30" y="42">CONTEXT</text>
+          </g>
+          <g font-family="Space Grotesk, sans-serif" font-weight="500" font-size="17" fill="#e0e7ff">
+            <text x="30" y="68">The cat sat on the</text>
+            <text x="208" y="68" fill="#c084fc">
+              ▮
+              <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+            </text>
+          </g>
+
+          <!-- divider -->
+          <line x1="30" y1="92" x2="410" y2="92" stroke="rgba(96,165,250,0.18)" stroke-width="1" stroke-dasharray="2 4"/>
+
+          <!-- probability bars -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="30" y="115">P(xₜ₊₁) · TOP-5 LOGITS</text>
+          </g>
+
+          <!-- bars: full height 110px from y=240 up to y=130; width 60; x = 50, 120, 190, 260, 330 -->
+          <g>
+            <rect class="lm-bar lm-b1" x="50"  y="130" width="60" height="110" fill="url(#bar-grad)"/>
+            <rect class="lm-bar lm-b2" x="120" y="130" width="60" height="110" fill="url(#bar-grad)"/>
+            <rect class="lm-bar lm-b3" x="190" y="130" width="60" height="110" fill="url(#bar-grad)"/>
+            <rect class="lm-bar lm-b4" x="260" y="130" width="60" height="110" fill="url(#bar-grad)"/>
+            <rect class="lm-bar lm-b5" x="330" y="130" width="60" height="110" fill="url(#bar-grad)"/>
+          </g>
+          <!-- baselines -->
+          <g fill="none" stroke="rgba(168,85,247,0.35)" stroke-width="1" stroke-dasharray="2 3">
+            <rect x="50"  y="130" width="60" height="110"/>
+            <rect x="120" y="130" width="60" height="110"/>
+            <rect x="190" y="130" width="60" height="110"/>
+            <rect x="260" y="130" width="60" height="110"/>
+            <rect x="330" y="130" width="60" height="110"/>
+          </g>
+          <line x1="50" y1="240" x2="390" y2="240" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+
+          <!-- candidate labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#e0e7ff" text-anchor="middle">
+            <text x="80"  y="262">mat</text>
+            <text x="150" y="262">floor</text>
+            <text x="220" y="262">rug</text>
+            <text x="290" y="262">chair</text>
+            <text x="360" y="262">bed</text>
+          </g>
+
+          <!-- WIN markers — one per token, shown when that token's bar is tallest -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" fill="#f5d0fe" text-anchor="middle">
+            <!-- timing: lm-b4 wins at 0% (mat at x=80 not 260, wait the order: b1=mat,b2=floor,b3=rug,b4=chair,b5=bed.
+                 Looking at keyframes: b1 peaks at 25% (height 0.85), b2 at 50%, b3 at 75%, b4 at 0%/100%, b5 ~ never tallest.
+                 So winners by phase: b4(chair) at 0%, b1(mat) at 25%, b2(floor) at 50%, b3(rug) at 75%. 
+                 Re-do labels for win markers. Actually let me re-engineer: I want "mat" to win first (since prompt = "on the ___" mat is natural).
+                 Easier: re-label the bars so b1="mat", b2="floor", b3="rug", b4="chair", b5="bed", winners cycle.
+                 Currently winners cycle: b4 (chair), b1 (mat), b2 (floor), b3 (rug). 
+                 We'll show the WIN halo on the bar that's currently tallest. -->
+            <!-- WIN halo: a violet ring that moves around the winning bar at each phase -->
+          </g>
+
+          <!-- Animated WIN halo that cycles through the 5 bars -->
+          <g>
+            <rect width="64" height="114" x="-2" y="128" fill="none" stroke="#f5d0fe" stroke-width="1.5">
+              <animate attributeName="x" dur="4s" repeatCount="indefinite"
+                values="258;48;118;188;258"
+                keyTimes="0;0.25;0.5;0.75;1"/>
+            </rect>
+            <text font-family="JetBrains Mono, monospace" font-size="9" fill="#f5d0fe" letter-spacing="1.5" text-anchor="middle">
+              <animate attributeName="x" dur="4s" repeatCount="indefinite"
+                values="290;80;150;220;290"
+                keyTimes="0;0.25;0.5;0.75;1"/>
+              <animate attributeName="y" dur="4s" repeatCount="indefinite"
+                values="124;124;124;124;124"/>
+              ★ WIN
+            </text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Gradient Descent ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// OPTIMIZATION</span><span class="live">LIVE</span></div>
+      <h2>Gradient Descent</h2>
+      <div class="acro">w ← w − η∇L(w)</div>
+      <p>The optimizer steps downhill on the loss surface. Each step is a small move opposite the gradient — toward the minimum.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <!-- axes -->
+          <g stroke="rgba(96,165,250,0.25)" stroke-width="1" fill="none">
+            <line x1="40" y1="290" x2="400" y2="290"/>
+            <line x1="40" y1="40"  x2="40"  y2="290"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="395" y="305" text-anchor="end">w</text>
+            <text x="30" y="50" text-anchor="end">L</text>
+          </g>
+
+          <!-- contour rings around center (220, 165) -->
+          <g fill="none" stroke-width="1.5">
+            <ellipse class="gd-ring gd-ring-1" cx="220" cy="165" rx="170" ry="120" stroke="rgba(59,130,246,0.4)"/>
+            <ellipse class="gd-ring gd-ring-2" cx="220" cy="165" rx="125" ry="90"  stroke="rgba(96,165,250,0.55)"/>
+            <ellipse class="gd-ring gd-ring-3" cx="220" cy="165" rx="80"  ry="58"  stroke="rgba(192,132,252,0.65)"/>
+            <ellipse              cx="220" cy="165" rx="40"  ry="28"  stroke="rgba(245,208,254,0.85)" fill="rgba(168,85,247,0.18)"/>
+          </g>
+          <!-- minimum marker -->
+          <g>
+            <circle cx="220" cy="165" r="6" fill="#f5d0fe"/>
+            <circle cx="220" cy="165" r="14" fill="none" stroke="#f5d0fe" stroke-width="1" opacity="0.4">
+              <animate attributeName="r" values="6;18;6" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+          <text x="220" y="186" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#f5d0fe" letter-spacing="1.5">w*</text>
+
+          <!-- descent path with stops (visible faint) -->
+          <path id="gd-path" d="M85 65 L130 105 L175 135 L210 152 L218 162 L220 165"
+                fill="none" stroke="rgba(96,165,250,0.5)" stroke-width="1.2" stroke-dasharray="3 4"/>
+
+          <!-- step markers along the path -->
+          <g>
+            <circle cx="85"  cy="65"  r="3" fill="#dbeafe" opacity="0.7"/>
+            <circle cx="130" cy="105" r="3" fill="#dbeafe" opacity="0.7"/>
+            <circle cx="175" cy="135" r="3" fill="#dbeafe" opacity="0.7"/>
+            <circle cx="210" cy="152" r="3" fill="#dbeafe" opacity="0.7"/>
+          </g>
+
+          <!-- descending ball -->
+          <circle r="9" fill="url(#node-b)" filter="url(#g-soft)">
+            <animateMotion dur="5s" repeatCount="indefinite"
+              path="M85 65 L130 105 L175 135 L210 152 L218 162 L220 165"
+              keyTimes="0;0.2;0.4;0.6;0.8;1" calcMode="linear"/>
+            <animate attributeName="opacity" dur="5s" repeatCount="indefinite"
+              values="1;1;1;1;1;0;1" keyTimes="0;0.2;0.4;0.6;0.8;0.95;1"/>
+          </circle>
+          <circle r="4" fill="#dbeafe">
+            <animateMotion dur="5s" repeatCount="indefinite"
+              path="M85 65 L130 105 L175 135 L210 152 L218 162 L220 165"
+              keyTimes="0;0.2;0.4;0.6;0.8;1" calcMode="linear"/>
+            <animate attributeName="opacity" dur="5s" repeatCount="indefinite"
+              values="1;1;1;1;1;0;1" keyTimes="0;0.2;0.4;0.6;0.8;0.95;1"/>
+          </circle>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Backprop ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// GRADIENT FLOW</span><span class="live">LIVE</span></div>
+      <h2>Backpropagation</h2>
+      <div class="acro">∂L/∂w · CHAIN RULE</div>
+      <p>Forward pass in blue. Loss spikes at the output. Gradients flow back in violet, nudging every weight against the error.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="38" y="308">INPUT</text>
+            <text x="156" y="308">HIDDEN</text>
+            <text x="396" y="308" text-anchor="end">LOSS</text>
+          </g>
+          <g class="edge bp-edge" opacity="0.5">
+            <line x1="60" y1="110" x2="170" y2="90"/><line x1="60" y1="110" x2="170" y2="165"/><line x1="60" y1="110" x2="170" y2="240"/>
+            <line x1="60" y1="220" x2="170" y2="90"/><line x1="60" y1="220" x2="170" y2="165"/><line x1="60" y1="220" x2="170" y2="240"/>
+            <line x1="170" y1="90" x2="280" y2="120"/><line x1="170" y1="90" x2="280" y2="220"/>
+            <line x1="170" y1="165" x2="280" y2="120"/><line x1="170" y1="165" x2="280" y2="220"/>
+            <line x1="170" y1="240" x2="280" y2="120"/><line x1="170" y1="240" x2="280" y2="220"/>
+            <line x1="280" y1="120" x2="390" y2="170"/><line x1="280" y1="220" x2="390" y2="170"/>
+          </g>
+          <g stroke="url(#edge-grad-h)" stroke-width="1.8" fill="none" class="bp-fwd-pulse">
+            <line x1="60" y1="110" x2="170" y2="165"/><line x1="60" y1="220" x2="170" y2="165"/>
+            <line x1="170" y1="165" x2="280" y2="120"/><line x1="170" y1="165" x2="280" y2="220"/>
+            <line x1="280" y1="120" x2="390" y2="170"/><line x1="280" y1="220" x2="390" y2="170"/>
+          </g>
+          <g stroke="url(#edge-grad-back)" stroke-width="1.8" fill="none" class="bp-back-pulse">
+            <line x1="60" y1="110" x2="170" y2="165"/><line x1="60" y1="220" x2="170" y2="165"/>
+            <line x1="170" y1="165" x2="280" y2="120"/><line x1="170" y1="165" x2="280" y2="220"/>
+            <line x1="280" y1="120" x2="390" y2="170"/><line x1="280" y1="220" x2="390" y2="170"/>
+          </g>
+          <g>
+            <circle class="node-b" cx="60" cy="110" r="11"/><circle class="core" cx="60" cy="110" r="4"/>
+            <circle class="node-b" cx="60" cy="220" r="11"/><circle class="core" cx="60" cy="220" r="4"/>
+            <circle class="node-b" cx="170" cy="90"  r="11"/><circle class="core" cx="170" cy="90" r="4"/>
+            <circle class="node-b" cx="170" cy="165" r="11"/><circle class="core" cx="170" cy="165" r="4"/>
+            <circle class="node-b" cx="170" cy="240" r="11"/><circle class="core" cx="170" cy="240" r="4"/>
+            <circle class="node-b" cx="280" cy="120" r="11"/><circle class="core" cx="280" cy="120" r="4"/>
+            <circle class="node-b" cx="280" cy="220" r="11"/><circle class="core" cx="280" cy="220" r="4"/>
+          </g>
+          <g>
+            <circle class="node-v" cx="390" cy="170" r="16"/><circle class="core-v" cx="390" cy="170" r="6"/>
+            <circle class="bp-loss-pulse node-r" cx="390" cy="170" r="22" opacity="0"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#fb7185" letter-spacing="1">
+            <text class="bp-loss-pulse" x="405" y="143" opacity="0">L↑</text>
+          </g>
+          <g class="bp-back-pulse" font-family="JetBrains Mono, monospace" font-size="11" fill="#f5d0fe" letter-spacing="1.5">
+            <text x="220" y="65" text-anchor="middle">∂L/∂w</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ════════ Embedding Space ════════ -->
+    <div class="card">
+      <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+      <div class="head"><span class="label">// REPRESENTATION</span><span class="live">LIVE</span></div>
+      <h2>Embeddings</h2>
+      <div class="acro">VECTOR SPACE · CLUSTERS</div>
+      <p>Words map to vectors. Similar meanings end up close together. Analogies become arithmetic: king − man + woman ≈ queen.</p>
+      <div class="stage">
+        <div class="stage-grid"></div>
+        <svg viewBox="0 0 440 330">
+          <!-- axes faint -->
+          <g stroke="rgba(96,165,250,0.18)" stroke-width="1" fill="none" stroke-dasharray="2 4">
+            <line x1="40" y1="290" x2="400" y2="290"/>
+            <line x1="40" y1="40" x2="40" y2="290"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#475569" letter-spacing="1.5">
+            <text x="395" y="305" text-anchor="end">dim₁</text>
+            <text x="30" y="50" text-anchor="end">dim₂</text>
+          </g>
+
+          <!-- cluster 1: royalty (top-right, violet) -->
+          <ellipse cx="320" cy="100" rx="65" ry="42" fill="rgba(168,85,247,0.10)" stroke="rgba(192,132,252,0.5)" stroke-width="1" stroke-dasharray="3 3" class="emb-c1"/>
+          <g class="emb-c1">
+            <circle cx="295" cy="90"  r="6" class="node-v"/><circle cx="295" cy="90"  r="3" fill="#f5d0fe"/>
+            <circle cx="340" cy="85"  r="6" class="node-v"/><circle cx="340" cy="85"  r="3" fill="#f5d0fe"/>
+            <circle cx="305" cy="118" r="6" class="node-v"/><circle cx="305" cy="118" r="3" fill="#f5d0fe"/>
+            <circle cx="355" cy="115" r="6" class="node-v"/><circle cx="355" cy="115" r="3" fill="#f5d0fe"/>
+          </g>
+          <g class="emb-c1" font-family="JetBrains Mono, monospace" font-size="10" fill="#e0e7ff">
+            <text x="285" y="80">king</text>
+            <text x="345" y="80">queen</text>
+            <text x="270" y="135">prince</text>
+            <text x="345" y="135">duke</text>
+          </g>
+
+          <!-- analogy arrow: king → queen -->
+          <g class="emb-arrow" stroke="#f5d0fe" stroke-width="1.5" fill="none">
+            <line x1="297" y1="90" x2="335" y2="86"/>
+            <polygon points="332,82 340,86 332,90" fill="#f5d0fe"/>
+            <text x="312" y="73" font-family="JetBrains Mono, monospace" font-size="8" fill="#f5d0fe" text-anchor="middle">−man+woman</text>
+          </g>
+
+          <!-- cluster 2: animals (bottom-left, blue) -->
+          <ellipse cx="110" cy="225" rx="62" ry="38" fill="rgba(59,130,246,0.10)" stroke="rgba(96,165,250,0.5)" stroke-width="1" stroke-dasharray="3 3" class="emb-c2"/>
+          <g class="emb-c2">
+            <circle cx="85" cy="220"  r="6" class="node-b"/><circle cx="85" cy="220" r="3" fill="#dbeafe"/>
+            <circle cx="130" cy="210" r="6" class="node-b"/><circle cx="130" cy="210" r="3" fill="#dbeafe"/>
+            <circle cx="115" cy="240" r="6" class="node-b"/><circle cx="115" cy="240" r="3" fill="#dbeafe"/>
+          </g>
+          <g class="emb-c2" font-family="JetBrains Mono, monospace" font-size="10" fill="#e0e7ff">
+            <text x="60" y="215">dog</text>
+            <text x="138" y="205">cat</text>
+            <text x="118" y="258">puppy</text>
+          </g>
+
+          <!-- cluster 3: tech (top-left, emerald) -->
+          <ellipse cx="125" cy="105" rx="62" ry="38" fill="rgba(16,185,129,0.10)" stroke="rgba(110,231,183,0.5)" stroke-width="1" stroke-dasharray="3 3" class="emb-c3"/>
+          <g class="emb-c3">
+            <circle cx="100" cy="95"  r="6" class="node-e"/><circle cx="100" cy="95"  r="3" fill="#a7f3d0"/>
+            <circle cx="145" cy="100" r="6" class="node-e"/><circle cx="145" cy="100" r="3" fill="#a7f3d0"/>
+            <circle cx="115" cy="125" r="6" class="node-e"/><circle cx="115" cy="125" r="3" fill="#a7f3d0"/>
+          </g>
+          <g class="emb-c3" font-family="JetBrains Mono, monospace" font-size="10" fill="#e0e7ff">
+            <text x="80" y="84">model</text>
+            <text x="130" y="89">tensor</text>
+            <text x="90" y="140">training</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="foot-root"></div>
+
+</div>
+
+<script type="module" src="../../components/HUD.jsx"></script>
+<script type="module" src="../../components/Monogram.jsx"></script>
+<script type="module" src="../../chrome.jsx"></script>
+<script type="module" src="../../kc-mount.jsx"></script>
+</body>
+</html>
