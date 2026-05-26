@@ -76,10 +76,12 @@ window.PLAY_DEMOS = {
       blurb: "SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface — see how each one's mechanics shape its path." },
     { slug: "gan",                topic: "GENERATIVE",    title: "GAN 2-D",               tone: "violet", status: "LIVE",
       blurb: "A real generator and discriminator duel in your browser — fakes drift toward the target as the two networks fight to a draw." },
+    { slug: "backprop",           topic: "FOUNDATIONS",   title: "Backprop Graph",        tone: "blue",   status: "LIVE",
+      blurb: "Step through forward then backward on a tiny computation graph — every value, every gradient, by the chain rule." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "overfitting", "roc", "clt", "bayes", "pathfinding"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "roc", "clt", "bayes", "pathfinding"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
@@ -125,6 +127,7 @@ window.PLAY_DEMOS = {
     "bayes": "conjugate prior × likelihood → posterior",
     "optimizers": "SGD · Momentum · RMSProp · Adam",
     "gan": "generator vs discriminator (BCE)",
+    "backprop": "the chain rule on a computation graph",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

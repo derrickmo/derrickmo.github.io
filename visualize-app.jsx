@@ -420,6 +420,24 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphBackprop = () => (
+  // A tiny computation graph: 2 inputs -> 2 hidden -> 1 output, with one
+  // forward edge highlighted and one backward edge highlighted.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[24, 35], [24, 85], [82, 35], [82, 85], [140, 60]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="9" fill="rgba(15,23,42,0.5)" stroke={i < 2 ? "#60a5fa" : i < 4 ? "#60a5fa" : "#c084fc"} strokeWidth="1.5" />
+    ))}
+    {[[24, 35, 82, 35], [24, 85, 82, 35], [24, 35, 82, 85], [24, 85, 82, 85]].map(([x1, y1, x2, y2], i) => (
+      <line key={`f${i}`} x1={x1 + 9} y1={y1} x2={x2 - 9} y2={y2} stroke="#60a5fa" strokeWidth="1.2" />
+    ))}
+    {[[82, 35, 140, 60], [82, 85, 140, 60]].map(([x1, y1, x2, y2], i) => (
+      <line key={`o${i}`} x1={x1 + 9} y1={y1} x2={x2 - 9} y2={y2} stroke={i === 0 ? "#c084fc" : "#60a5fa"} strokeWidth={i === 0 ? 1.8 : 1.2} />
+    ))}
+    <text x="62" y="22" fontFamily="JetBrains Mono" fontSize="9" fill="#60a5fa">forward</text>
+    <text x="62" y="110" fontFamily="JetBrains Mono" fontSize="9" fill="#c084fc">∂L/∂h</text>
+  </svg>
+);
+
 const GlyphGAN = () => (
   // Two faces (G / D) and a duel of arrows; ring of blue real + drifting violet fakes.
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -503,6 +521,7 @@ const GLYPHS = {
   "bayes": <GlyphBayes />,
   "optimizers": <GlyphOptimizers />,
   "gan": <GlyphGAN />,
+  "backprop": <GlyphBackprop />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
