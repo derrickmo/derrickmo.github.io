@@ -307,6 +307,7 @@ const DM_NAV_INDEX = [
   { label: "GAN 2-D", group: "Demo", href: "/visualize/gan/", kw: "gan generative adversarial network generator discriminator duel" },
   { label: "Backprop Graph", group: "Demo", href: "/visualize/backprop/", kw: "backprop backpropagation chain rule computation graph gradient" },
   { label: "MCTS Tree Search", group: "Demo", href: "/visualize/mcts/", kw: "mcts monte carlo tree search ucb ucb1 alphago rollout backup planning" },
+  { label: "Simulated Annealing", group: "Demo", href: "/visualize/simulated-annealing/", kw: "simulated annealing tsp traveling salesman 2-opt metropolis local search optimization" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
 ];
 

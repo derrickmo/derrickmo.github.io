@@ -267,6 +267,12 @@ const CONCEPTS_INDEX = {
     id: "forecasting", name: "Exponential Smoothing & ARIMA", area: "Time Series",
     summary: "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
   },
+  "simulated-annealing": {
+    id: "simulated-annealing", name: "Simulated Annealing", area: "Foundations",
+    summary: "Local search with a Metropolis acceptance rule — accept worse moves with probability e^{-ΔE/T}, then cool. The general-purpose escape from local minima.",
+    tex: "P(\\text{accept}) = \\exp\\!\\left(-\\frac{\\Delta E}{T}\\right)",
+    prereqs: ["search-astar"], leadsTo: ["neuroevolution"],
+  },
   "entropy": {
     id: "entropy", name: "Entropy & Information Gain", area: "Foundations",
     summary: "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
@@ -315,6 +321,7 @@ const CONCEPT_TAGS = {
     "gan":                  ["gan", "mlp", "cross-entropy"],
     "backprop":             ["backprop", "chain-rule"],
     "mcts":                 ["mcts", "bandit", "minimax"],
+    "simulated-annealing":  ["simulated-annealing", "search-astar"],
     "attention":            ["attention", "softmax", "embeddings"],
     "positional-encoding":  ["positional-encoding", "fourier", "attention"],
     "multi-head-attention": ["multi-head", "attention", "transformer-block"],

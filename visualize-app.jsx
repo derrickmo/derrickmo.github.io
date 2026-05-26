@@ -420,6 +420,21 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphSA = () => (
+  // A tangled vs clean TSP tour, faintly overlapping.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* tangled tour (faint) */}
+    <polyline points="20,40 110,30 50,70 130,52 80,100 24,90 96,68 140,80 64,46 20,40"
+      fill="none" stroke="rgba(168,85,247,0.35)" strokeWidth="1.2" />
+    {/* clean cooled tour */}
+    <polyline points="20,40 64,28 110,30 140,50 130,80 96,98 50,90 24,68 20,40"
+      fill="none" stroke="#c084fc" strokeWidth="1.6" />
+    {[[20, 40], [64, 28], [110, 30], [140, 50], [130, 80], [96, 98], [50, 90], [24, 68]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="2.4" fill="#e0e7ff" />
+    ))}
+  </svg>
+);
+
 const GlyphMCTS = () => (
   // A tree fanning out with one heavily-visited principal branch.
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -541,6 +556,7 @@ const GLYPHS = {
   "gan": <GlyphGAN />,
   "backprop": <GlyphBackprop />,
   "mcts": <GlyphMCTS />,
+  "simulated-annealing": <GlyphSA />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
