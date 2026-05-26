@@ -108,7 +108,8 @@ function LoRADemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Slider label={`// RANK r (of ${D})`} min={1} max={12} value={rank} onChange={setRank} />
+      <Slider label={`// RANK r (of ${D})`} min={1} max={12} value={rank} onChange={setRank}
+        help="The rank of the B·A approximation — how many directions the update is allowed. Higher rank fits ΔW more exactly but uses more parameters (2·d·r vs the full d²)." />
       <DemoButton onClick={() => { seedRef.current += 1; targetRef.current = makeTarget(seedRef.current); draw(); }} primary>NEW UPDATE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="FULL PARAMS" value={stats.full} accent="#c084fc" />
@@ -142,10 +143,30 @@ function LoRADemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        LoRA is the default way to adapt large models on a budget. Instead of fine-tuning
+        billions of weights, you train two thin matrices per layer — often under 1% of the
+        parameters — which means a single GPU instead of a cluster, and tiny per-task
+        adapters (a few MB) you can swap or stack at serving time rather than storing full
+        model copies. <b>QLoRA</b> pushes it further by combining LoRA with a 4-bit
+        quantized base.
+      </DemoP>
+      <DemoP>
+        It works because fine-tuning updates are empirically <i>low-rank</i> — adapting a
+        pretrained model nudges a few directions rather than rewriting everything (the same
+        low-rank/SVD intuition behind PCA and matrix factorization). That insight powers a
+        whole family of parameter-efficient methods (adapters, prefix and prompt tuning),
+        and it's what makes the ecosystem of community fine-tunes and per-customer
+        customization economically possible.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="FINE-TUNING" title="LoRA — Low-Rank Adaptation"
       subtitle="Approximate a full weight update with two thin matrices — most of the change, a fraction of the parameters."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

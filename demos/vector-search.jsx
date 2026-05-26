@@ -104,8 +104,10 @@ function VectorSearchDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// METRIC" value={metric} onChange={setMetric}
-        options={[{ value: "cosine", label: "Cosine" }, { value: "euclidean", label: "Euclidean" }]} />
-      <Slider label="// k (NEIGHBORS)" min={1} max={25} value={k} onChange={setK} />
+        options={[{ value: "cosine", label: "Cosine" }, { value: "euclidean", label: "Euclidean" }]}
+        help="How 'near' is measured. Cosine ranks by the angle between vectors (ignores magnitude — usual for text embeddings); Euclidean ranks by straight-line distance." />
+      <Slider label="// k (NEIGHBORS)" min={1} max={25} value={k} onChange={setK}
+        help="How many nearest neighbors to retrieve. Small k is precise but may miss context; large k casts a wider net (more recall, more noise) — the top-k of a RAG retriever." />
       <DemoButton onClick={() => { dataRef.current = genData(); draw(); }} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="RETRIEVED" value={stats.k} accent="#fbbf24" />
@@ -137,10 +139,30 @@ function VectorSearchDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        This is the literal engine of modern retrieval: semantic search, recommendation,
+        deduplication, and the retrieval step of <b>RAG</b> all embed items as vectors and
+        fetch the k nearest to a query. It's why vector databases (Pinecone, Weaviate,
+        pgvector, FAISS) exist, and why "embed then retrieve" is the default way to give an
+        LLM access to private or up-to-date knowledge.
+      </DemoP>
+      <DemoP>
+        Two practical realities live here. The <b>metric</b> matters — cosine and Euclidean
+        can return different neighbors, and most text embeddings are tuned for cosine. And
+        exact kNN doesn't scale to millions of vectors, so production uses
+        approximate-nearest-neighbor indexes (HNSW graphs, IVF, product quantization) that
+        trade a little recall for orders-of-magnitude speed. Retrieval quality — the right
+        k, good embeddings, optional reranking — is usually what makes or breaks a RAG
+        system, more than the LLM itself.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="RETRIEVAL · RAG" title="Vector Search"
       subtitle="The engine under semantic search and RAG: k-nearest-neighbor retrieval, and how the metric reshapes what counts as similar."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

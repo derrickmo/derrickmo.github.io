@@ -5,6 +5,7 @@ const {
   HudBrackets, GridOverlay, GlowBlob, MathWatermarks,
   TransformerBlock,
   Section, Container, TopNav, Footer, MonoLabel, useIsMobile,
+  Connections,
 } = window;
 
 const HF = window.HF;
@@ -236,6 +237,19 @@ function SectionNav() {
   );
 }
 
+function HFConnections() {
+  const tags = (window.CONCEPT_TAGS && window.CONCEPT_TAGS.hf) || {};
+  const ids = tags[window.__DM_SECTION_SLUG] || [];
+  if (!ids.length || !Connections) return null;
+  return (
+    <Section style={{ paddingTop: 16, paddingBottom: 24 }}>
+      <Container style={{ maxWidth: 860 }}>
+        <Connections ids={ids} />
+      </Container>
+    </Section>
+  );
+}
+
 function App() {
   return (
     <>
@@ -244,6 +258,7 @@ function App() {
       <Takeaways />
       <CodeIllustration />
       <Notebooks />
+      <HFConnections />
       <Formats />
       <SectionNav />
       <Footer />

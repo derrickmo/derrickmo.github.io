@@ -131,7 +131,8 @@ function EmbeddingsDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// MODE" value={mode} onChange={setMode}
-        options={[{ value: "neighbors", label: "Neighbors" }, { value: "analogy", label: "Analogy" }]} />
+        options={[{ value: "neighbors", label: "Neighbors" }, { value: "analogy", label: "Analogy" }]}
+        help="Neighbors finds the words closest to one you pick (similarity = distance); Analogy shows the king−man+woman parallelogram, where directions encode relationships." />
       {mode === "neighbors" ? (
         <>
           <div className="t-mono-s" style={{ color: "var(--muted)" }}>// WORD (click a point too)</div>
@@ -184,12 +185,31 @@ function EmbeddingsDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        Embeddings are the lingua franca of modern AI: every LLM begins by mapping tokens
+        to vectors, and the same idea powers semantic search, recommendation,
+        retrieval-augmented generation, clustering, and de-duplication. "Similar things sit
+        close together" is precisely what lets a model generalize from the words (or
+        images, or users) it saw to the ones it didn't.
+      </DemoP>
+      <DemoP>
+        The directions-have-meaning property on screen (the word2vec analogies) was the
+        first clear sign that learned representations capture structure, not just a lookup
+        table. Today's sentence and document embeddings — and CLIP's shared image-text
+        space — extend it to whole passages and modalities. Cosine similarity over these
+        vectors, backed by approximate-nearest-neighbor indexes, is literally the retrieval
+        step inside RAG systems and vector databases.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="EMBEDDINGS"
       title="Embedding Atlas"
       subtitle="Explore the geometry of word vectors — nearest neighbors and the analogy parallelograms that make king−man+woman≈queen."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/huggingface_tutorials"
       tone="blue"

@@ -155,13 +155,19 @@ function NeuralPlaygroundDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
-        options={[{ value: "xor", label: "XOR" }, { value: "circle", label: "Circle" }, { value: "spiral", label: "Spiral" }, { value: "gauss", label: "Blobs" }]} />
-      <Slider label="// HIDDEN LAYERS" min={0} max={3} value={hidden} onChange={setHidden} tone="violet" />
-      <Slider label="// UNITS / LAYER" min={2} max={9} value={units} onChange={setUnits} />
+        options={[{ value: "xor", label: "XOR" }, { value: "circle", label: "Circle" }, { value: "spiral", label: "Spiral" }, { value: "gauss", label: "Blobs" }]}
+        help="The pattern to separate. Blobs are linearly separable; XOR, Circle, and Spiral are not, so they need hidden layers to solve." />
+      <Slider label="// HIDDEN LAYERS" min={0} max={3} value={hidden} onChange={setHidden} tone="violet"
+        help="Network depth. 0 = plain logistic regression (straight boundary only); adding layers lets the net compose curved, nonlinear boundaries." />
+      <Slider label="// UNITS / LAYER" min={2} max={9} value={units} onChange={setUnits}
+        help="Width — neurons per hidden layer. More units give more capacity to carve fine detail (and more ways to overfit)." />
       <SegmentedControl label="// ACTIVATION" value={actKind} onChange={v => { setRunning(false); setActKind(v); }}
-        options={[{ value: "tanh", label: "tanh" }, { value: "relu", label: "ReLU" }]} />
-      <Slider label="// LEARNING RATE" min={0.01} max={1} step={0.01} value={lr} onChange={setLr} />
-      <Slider label="// EPOCHS / FRAME" min={1} max={20} value={speed} onChange={setSpeed} />
+        options={[{ value: "tanh", label: "tanh" }, { value: "relu", label: "ReLU" }]}
+        help="The per-neuron nonlinearity. tanh is smooth and bounded; ReLU is piecewise-linear — they give the boundary a different texture and train differently." />
+      <Slider label="// LEARNING RATE" min={0.01} max={1} step={0.01} value={lr} onChange={setLr}
+        help="Step size for gradient descent. Too low learns slowly; too high makes the loss thrash and the boundary flicker instead of settling." />
+      <Slider label="// EPOCHS / FRAME" min={1} max={20} value={speed} onChange={setSpeed}
+        help="How many full training passes run per animation frame. Visual pacing — higher just fast-forwards the same training." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={rebuild}>RE-INIT</DemoButton>
@@ -197,12 +203,32 @@ function NeuralPlaygroundDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        This is the entire deep-learning loop in miniature — forward pass, cross-entropy
+        loss, backpropagation, gradient descent — the exact machinery (just far bigger)
+        behind every modern network. The jump from "0 hidden layers fails on XOR" to "one
+        hidden layer solves it" is the <b>universal approximation theorem</b> made visible:
+        depth and nonlinearity let a net <i>build features</i> instead of merely weighting
+        the raw inputs.
+      </DemoP>
+      <DemoP>
+        Every knob maps to a real training decision — depth versus width, activation
+        choice, and the learning rate that makes or breaks convergence. A too-high rate
+        thrashing the loss, or a too-small net underfitting the spiral, is the same
+        diagnostic loop practitioners run on production models. The one thing this toy
+        hides is the validation curve you'd watch there to catch overfitting before it
+        ships.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="NEURAL NETWORKS"
       title="Neural Playground"
       subtitle="Train a small neural net live on 2D data and watch its decision boundary take shape."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="blue"

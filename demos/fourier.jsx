@@ -86,9 +86,12 @@ function FourierDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// TARGET WAVE" value={kind} onChange={setKind}
-        options={[{ value: "square", label: "Square" }, { value: "sawtooth", label: "Sawtooth" }, { value: "triangle", label: "Triangle" }]} />
-      <Slider label="// HARMONICS" min={1} max={30} value={n} onChange={setN} tone="violet" />
-      <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed} />
+        options={[{ value: "square", label: "Square" }, { value: "sawtooth", label: "Sawtooth" }, { value: "triangle", label: "Triangle" }]}
+        help="The periodic signal to rebuild. Each has a known harmonic recipe — square and sawtooth have sharp jumps that need many terms; triangle converges fastest." />
+      <Slider label="// HARMONICS" min={1} max={30} value={n} onChange={setN} tone="violet"
+        help="How many sine waves (rotating circles) are summed. More harmonics sharpen the corners and shrink the error, approaching the exact wave." />
+      <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed}
+        help="How fast the epicycles rotate. Visual only — it does not affect the reconstruction." />
       <StatReadout label="ROTATING TERMS" value={n} accent="var(--violet-lt)" />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Each circle is one sine wave; their sum traces the curve.</div>
     </ControlGroup>
@@ -112,10 +115,29 @@ function FourierDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        The Fourier transform is the backbone of signal processing. Audio codecs like MP3,
+        JPEG image compression, the spectrograms that feed speech-recognition models, and
+        the convolution theorem that makes filtering fast all rest on the same move you're
+        watching: decompose a signal into a sum of frequencies, then keep, drop, or modify
+        them.
+      </DemoP>
+      <DemoP>
+        Frequency-domain thinking is very much alive in modern deep learning. The
+        sinusoidal <i>positional encodings</i> in transformers are literally Fourier
+        features; "Fourier feature" mappings help networks learn high-frequency detail
+        (e.g. in NeRF and implicit image models); and FFT-based layers accelerate
+        long-convolution sequence models. Even the <b>Gibbs overshoot</b> at each jump is a
+        useful caution — finite models approximate sharp discontinuities imperfectly.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="SIGNAL PROCESSING" title="Fourier Series"
       subtitle="Watch rotating circles — one per sine wave — sum into a square, sawtooth, or triangle wave."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       repoHref="https://github.com/derrickmo" tone="violet" />
   );
 }

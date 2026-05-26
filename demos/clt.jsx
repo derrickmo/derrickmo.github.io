@@ -116,9 +116,12 @@ function CLTDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// BASE DISTRIBUTION" value={dist} onChange={setDist}
-        options={[{ value: "uniform", label: "Uniform" }, { value: "exponential", label: "Exponential" }, { value: "bimodal", label: "Bimodal" }]} />
-      <Slider label="// SAMPLE SIZE (n)" min={1} max={50} value={nn} onChange={setNn} tone="violet" />
-      <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /frame" />
+        options={[{ value: "uniform", label: "Uniform" }, { value: "exponential", label: "Exponential" }, { value: "bimodal", label: "Bimodal" }]}
+        help="The raw population each sample is drawn from. Uniform, a skewed exponential, or a two-humped bimodal — the CLT works no matter how non-Gaussian this is." />
+      <Slider label="// SAMPLE SIZE (n)" min={1} max={50} value={nn} onChange={setNn} tone="violet"
+        help="How many draws are averaged into each sample mean. Larger n makes the histogram more bell-shaped and narrower — its spread shrinks as 1/√n." />
+      <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /frame"
+        help="How many sample means are drawn per frame. Visual pacing only — it does not change the statistics." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={reset}>RESET</DemoButton>
@@ -150,10 +153,29 @@ function CLTDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        The Central Limit Theorem is why the Gaussian is the default assumption across
+        statistics and machine learning. The noise model in linear regression, the math
+        behind least squares, Kalman filters, Gaussian processes, and the i.i.d. error
+        assumptions in A/B testing all lean on it — sums and averages of many small random
+        effects tend to a bell curve, so "assume normal" is usually a safe first move.
+      </DemoP>
+      <DemoP>
+        The <i>σ/√n</i> shrinkage law is the quiet reason behind a lot of practice: error
+        bars and confidence intervals on a metric, why a bigger validation set gives a more
+        trustworthy accuracy number, and why estimates only improve with the <i>square
+        root</i> of effort — quadrupling your data halves your uncertainty, not quarters it.
+        The same √n shows up in mini-batch gradient noise, which is why larger batches give
+        smoother (but diminishing-returns) updates.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="PROBABILITY & STATISTICS" title="Central Limit Theorem"
       subtitle="Average samples from any distribution and watch the means pile up into a Gaussian."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

@@ -157,10 +157,14 @@ function GridworldDemo() {
 
   const controls = (
     <ControlGroup>
-      <Slider label="// LEARNING RATE α" min={0.05} max={1} step={0.05} value={alpha} onChange={setAlpha} />
-      <Slider label="// DISCOUNT γ" min={0.5} max={0.99} step={0.01} value={gamma} onChange={setGamma} tone="violet" />
-      <Slider label="// EXPLORATION ε" min={0} max={1} step={0.05} value={eps} onChange={setEps} />
-      <Slider label="// SPEED" min={1} max={60} value={speed} onChange={setSpeed} suffix=" /s" />
+      <Slider label="// LEARNING RATE α" min={0.05} max={1} step={0.05} value={alpha} onChange={setAlpha}
+        help="How fast new experience overwrites old Q-value estimates. High learns quickly but noisily; low is stable but slow to adapt." />
+      <Slider label="// DISCOUNT γ" min={0.5} max={0.99} step={0.01} value={gamma} onChange={setGamma} tone="violet"
+        help="How much future reward is worth versus immediate. Near 1 = far-sighted, plans long routes to the goal; low = short-sighted." />
+      <Slider label="// EXPLORATION ε" min={0} max={1} step={0.05} value={eps} onChange={setEps}
+        help="Fraction of moves taken at random. 0 greedily exploits a half-learned map (can get stuck); high keeps exploring but never commits to the best route." />
+      <Slider label="// SPEED" min={1} max={60} value={speed} onChange={setSpeed} suffix=" /s"
+        help="Q-learning steps per second. Visual pacing only — it does not change what the agent learns." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={() => { if (!running) { stepEnv(); draw(); } }} disabled={running}>STEP</DemoButton>
@@ -199,12 +203,31 @@ function GridworldDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        This is <b>model-free</b> reinforcement learning — the agent learns purely from
+        trial-and-error reward, never told the environment's rules (contrast the
+        value-iteration demo, where the dynamics are known and solved exactly). Learning
+        straight from experience is what lets RL tackle problems too complex to model:
+        game-playing, robotics, recommendation, and the RLHF that aligns LLMs to human
+        preferences.
+      </DemoP>
+      <DemoP>
+        The one-line Q-learning update is a cornerstone algorithm, and its limitation here —
+        a table with one entry per state — is exactly what <b>Deep Q-Networks</b> fixed by
+        replacing the table with a neural network, enabling Atari-from-pixels and beyond.
+        The α/γ/ε knobs are real and finicky: this is where you feel why RL is famously
+        sample-hungry and sensitive to its hyperparameters and reward design.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="REINFORCEMENT LEARNING"
       title="Q-Learning Gridworld"
       subtitle="Watch a tabular Q-learning agent discover a policy — value propagates backward from the goal, one update at a time."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="blue"

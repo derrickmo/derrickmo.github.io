@@ -99,8 +99,10 @@ function NMSDemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Slider label="// IoU THRESHOLD" min={0.1} max={0.9} step={0.05} value={iouT} onChange={setIouT} />
-      <Slider label="// CONFIDENCE THRESHOLD" min={0} max={0.95} step={0.05} value={confT} onChange={setConfT} tone="violet" />
+      <Slider label="// IoU THRESHOLD" min={0.1} max={0.9} step={0.05} value={iouT} onChange={setIouT}
+        help="How much overlap triggers suppression. Low values are aggressive (one box per object); high values let near-duplicate boxes survive." />
+      <Slider label="// CONFIDENCE THRESHOLD" min={0} max={0.95} step={0.05} value={confT} onChange={setConfT} tone="violet"
+        help="Minimum score a box needs to be considered at all. Raising it improves precision (fewer false boxes) but too high drops real, low-confidence detections." />
       <DemoButton onClick={reseed} primary>NEW SCENE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="CANDIDATES" value={stats.cand} />
@@ -131,10 +133,28 @@ function NMSDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        NMS is the universal cleanup step at the end of nearly every object detector — YOLO,
+        Faster R-CNN, and SSD all emit a flood of overlapping boxes and lean on it to reduce
+        them to one per object. It runs in real-world vision everywhere: self-driving
+        perception, retail shelf analytics, medical imaging, and face detection.
+      </DemoP>
+      <DemoP>
+        The IoU metric you're tuning does double duty — it both drives suppression and
+        defines how detection accuracy itself is scored (mAP at various IoU thresholds
+        against ground truth). The greedy algorithm's weakness, wrongly suppressing two
+        genuinely overlapping objects, motivated successors like Soft-NMS and ultimately
+        NMS-free detectors like DETR that learn set prediction end-to-end — a clean example
+        of a hand-coded heuristic being gradually absorbed into the network.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="COMPUTER VISION · DETECTION" title="IoU & Non-Max Suppression"
       subtitle="From a cloud of overlapping detections to one clean box per object — the greedy algorithm every detector ends with."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

@@ -120,10 +120,29 @@ function RPSDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        This is a sequence model in disguise — an order-2 <b>Markov model</b> predicting
+        your next move from your recent pattern, backing off to lower orders when data is
+        thin. It's the same predict-the-next-token machinery as a language model, just with
+        three tokens instead of fifty thousand, and the same back-off smoothing that
+        classical n-gram NLP relied on.
+      </DemoP>
+      <DemoP>
+        It also illustrates a sharp game-theory truth: the Nash-optimal RPS strategy is
+        uniformly random, which guarantees a 1/3 win rate that <i>no</i> predictor can beat.
+        The AI only profits because humans are notoriously bad at being random — the moment
+        you fall into a habit, a model exploits it. That gap between optimal randomness and
+        human predictability is exactly what side-channel attacks and adversarial models
+        prey on.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · SEQUENCE MODEL" title="Rock-Paper-Scissors Mind-Reader"
       subtitle="An AI that learns your habits and predicts your next move. Stay unpredictable — it's harder than it sounds."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );
 }

@@ -96,12 +96,17 @@ function PositionalEncodingDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// ENCODING" value={mode} onChange={setMode}
-        options={[{ value: "sin", label: "Sinusoidal" }, { value: "rope", label: "RoPE" }]} />
+        options={[{ value: "sin", label: "Sinusoidal" }, { value: "rope", label: "RoPE" }]}
+        help="Sinusoidal adds a fixed sine/cosine vector per position; RoPE rotates each query/key slice by an angle set by position, encoding relative distance. Modern LLMs use RoPE." />
       {mode === "sin"
-        ? <Slider label="// SEQUENCE LENGTH" min={8} max={64} value={len} onChange={setLen} />
-        : <Slider label="// POSITION" min={0} max={48} value={pos} onChange={setPos} tone="violet" />}
-      <Slider label="// MODEL DIM (d)" min={8} max={64} step={2} value={dim} onChange={setDim} />
-      <Slider label="// BASE (θ)" min={100} max={20000} step={100} value={base} onChange={setBase} />
+        ? <Slider label="// SEQUENCE LENGTH" min={8} max={64} value={len} onChange={setLen}
+            help="How many token positions to show (rows of the heatmap). Longer sequences reveal the slow low-frequency stripes that encode coarse position." />
+        : <Slider label="// POSITION" min={0} max={48} value={pos} onChange={setPos} tone="violet"
+            help="Which token position to visualize on the RoPE dials. Drag it: low-frequency bands rotate slowly, high-frequency bands fast." />}
+      <Slider label="// MODEL DIM (d)" min={8} max={64} step={2} value={dim} onChange={setDim}
+        help="The size of the encoding vector. Higher dimensions pack more frequency bands, giving finer-grained position information." />
+      <Slider label="// BASE (θ)" min={100} max={20000} step={100} value={base} onChange={setBase}
+        help="The wavelength scale. A larger base stretches frequencies to longer wavelengths — the standard lever (θ/NTK scaling) for extending a model to longer contexts." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="DIM" value={dim} />
         <StatReadout label="BASE" value={base} accent="var(--violet-lt)" />
@@ -135,12 +140,30 @@ function PositionalEncodingDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        Position encoding is the unsung fix for attention's order-blindness — without it,
+        "dog bites man" and "man bites dog" look identical to a transformer. Every
+        transformer needs one, and the choice has real downstream effect: it largely
+        determines how gracefully a model handles sequences longer than it was trained on.
+      </DemoP>
+      <DemoP>
+        This is an active frontier, not settled history. The field moved from fixed
+        sinusoidal to learned to <b>RoPE</b> (rotary) — now standard in Llama, Mistral, and
+        most open LLMs precisely because rotations encode <i>relative</i> position. The
+        base-θ knob you're dragging is the same one behind context-length-extension methods
+        (position interpolation, NTK-aware and YaRN scaling) that stretch a model from a few
+        thousand tokens to hundreds of thousands.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="TRANSFORMERS · POSITION"
       title="Positional Encoding"
       subtitle="See how sinusoidal and rotary encodings give a transformer a sense of order."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="blue"

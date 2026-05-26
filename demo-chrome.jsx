@@ -5,14 +5,34 @@
 const {
   HudBrackets, GridOverlay, GlowBlob,
   Section, Container, TopNav, Footer, MonoLabel, useIsMobile,
+  Connections,
 } = window;
+
+// Resolve concept ids for the current page from its slug + registry tags.
+// Tries demos first, then games — the slug + the back-link tell us which.
+function __resolveAutoConcepts(slug, backHref) {
+  const TAGS = window.CONCEPT_TAGS;
+  if (!TAGS || !slug) return [];
+  const isGame = !!(backHref && /\/play\/?$/.test(backHref));
+  const fromKind = (k) => (TAGS[k] && TAGS[k][slug]) || [];
+  // Prefer the "right" registry, fall back to the other in case the back-link
+  // is set unusually.
+  return isGame ? (fromKind("games").length ? fromKind("games") : fromKind("demos"))
+                : (fromKind("demos").length ? fromKind("demos") : fromKind("games"));
+}
 
 const _BASE = window.__DM_BASE || "../../";
 
-function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concepts, lessonHref, repoHref, tone = "blue", backHref, backLabel = "VISUALIZE" }) {
+function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concepts, relatedConcepts, lessonHref, repoHref, tone = "blue", backHref, backLabel = "VISUALIZE" }) {
   const accent = tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
   const mobile = useIsMobile();
   const _backHref = backHref || `${_BASE}visualize/`;
+  // Auto-derive concept ids from the page slug if the caller didn't pass any.
+  // Demos set window.__DM_DEMO_SLUG so the side-table can find their entry.
+  const _slug = typeof window !== "undefined" ? window.__DM_DEMO_SLUG : null;
+  const _conceptIds = (relatedConcepts && relatedConcepts.length)
+    ? relatedConcepts
+    : __resolveAutoConcepts(_slug, _backHref);
   return (
     <>
       <TopNav />
@@ -75,6 +95,9 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
                   {concepts}
                 </div>
               </div>
+            )}
+            {_conceptIds && _conceptIds.length > 0 && Connections && (
+              <Connections ids={_conceptIds} />
             )}
             {(lessonHref || repoHref) && (
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>

@@ -36,11 +36,183 @@ function useIsMobile(bp = 760) {
   return m;
 }
 
+// ─── KaTeX loader (CDN, static — GitHub-Pages-safe) ──────────────────────────
+// Loaded lazily on the first <TeX/> render so non-math pages pay nothing.
+const __KATEX_VER = "0.16.11";
+const __KATEX_CSS = `https://cdn.jsdelivr.net/npm/katex@${__KATEX_VER}/dist/katex.min.css`;
+const __KATEX_JS  = `https://cdn.jsdelivr.net/npm/katex@${__KATEX_VER}/dist/katex.min.js`;
+let __katexReady = null;
+function __ensureKatex() {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.katex) return Promise.resolve();
+  if (__katexReady) return __katexReady;
+  __katexReady = new Promise((resolve) => {
+    if (!document.querySelector('link[data-katex="1"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet"; link.href = __KATEX_CSS; link.dataset.katex = "1";
+      document.head.appendChild(link);
+    }
+    const existing = document.querySelector('script[data-katex="1"]');
+    if (existing) { const t = () => window.katex ? resolve() : setTimeout(t, 60); t(); return; }
+    const s = document.createElement("script");
+    s.src = __KATEX_JS; s.async = true; s.dataset.katex = "1";
+    s.onload = () => resolve();
+    s.onerror = () => resolve(); // fall back to plaintext on network failure
+    document.head.appendChild(s);
+  });
+  return __katexReady;
+}
+
+// <TeX> — inline math by default, <TeX display>...</TeX> for centered block.
+// Children may be a string OR a fragment of strings (JSX trims/joins them).
+function TeX({ children, display = false, ariaLabel }) {
+  const formula = Array.isArray(children) ? children.join("") : (children == null ? "" : String(children));
+  const [html, setHtml] = __useState(null);
+  __useEffect(() => {
+    let alive = true;
+    __ensureKatex().then(() => {
+      if (!alive || !window.katex) return;
+      try {
+        const out = window.katex.renderToString(formula, {
+          displayMode: !!display, throwOnError: false, output: "html",
+          strict: "ignore",
+        });
+        setHtml(out);
+      } catch (_) { setHtml(null); }
+    });
+    return () => { alive = false; };
+  }, [formula, display]);
+  if (html) {
+    return (
+      <span aria-label={ariaLabel || formula}
+        dangerouslySetInnerHTML={{ __html: html }}
+        style={display
+          ? { display: "block", margin: "12px 0", textAlign: "center", color: "var(--white)" }
+          : { display: "inline-block", color: "var(--white)" }} />
+    );
+  }
+  // Pre-load fallback: render the source so the page is readable even offline.
+  return (
+    <code className="t-mono" style={{
+      color: "var(--blue-lt)", fontSize: 13,
+      ...(display ? { display: "block", margin: "10px 0", textAlign: "center" } : {}),
+    }}>{formula}</code>
+  );
+}
+
+// ─── Concept connections panel ───────────────────────────────────────────────
+// Given an array of concept ids (slugs), looks them up in window.CONCEPTS_INDEX
+// (if present) and scans the demo / game / curriculum / HF registries for every
+// item tagged with one of those ids. Renders a compact "CONNECTIONS" block:
+// the concept summary, then linked chips grouped by surface (Demo / Game /
+// Lesson / Animation). Safe if any registry isn't loaded — those rows just hide.
+function Connections({ ids }) {
+  if (!ids || !ids.length) return null;
+  const BASE = window.__DM_BASE || "";
+  const INDEX = window.CONCEPTS_INDEX || {};
+  const concepts = ids.map(id => INDEX[id]).filter(Boolean);
+  if (!concepts.length) return null;
+
+  // Pull what's available from each registry without exploding if absent.
+  const demos = (window.PLAY_DEMOS && window.PLAY_DEMOS.demos) || [];
+  const games = (window.PLAY_GAMES && window.PLAY_GAMES.games) || [];
+  const modules = (window.CURRICULUM && window.CURRICULUM.modules) || [];
+  const hfSections = (window.HF && window.HF.sections) || [];
+  const findBy = (arr, slug) => arr.find(x => x.slug === slug);
+
+  // Look up tags via the side-table (concepts-index.js), de-dup, exclude self.
+  const REV = window.CONCEPT_REVERSE || {};
+  const selfSlug = (typeof window.__DM_DEMO_SLUG === "string") ? window.__DM_DEMO_SLUG : null;
+  const collect = (kind) => {
+    const seen = new Set();
+    const out = [];
+    for (const id of ids) for (const hit of (REV[id] || [])) {
+      if (hit.kind !== kind) continue;
+      if (selfSlug && hit.slug === selfSlug) continue;
+      if (seen.has(hit.slug)) continue;
+      seen.add(hit.slug); out.push(hit.slug);
+    }
+    return out;
+  };
+  const demoLinks = collect("demo").map(slug => {
+    const e = findBy(demos, slug);
+    return { label: (e && e.title) || slug, href: `${BASE}visualize/${slug}/` };
+  });
+  const gameLinks = collect("game").map(slug => {
+    const e = findBy(games, slug);
+    return { label: (e && e.title) || slug, href: `${BASE}play/${slug}/` };
+  });
+  const lessonLinks = collect("module").map(slug => {
+    const e = findBy(modules, slug);
+    return { label: (e && e.title) || slug, href: `${BASE}learn/${slug}/` };
+  });
+  const hfLinks = collect("hf").map(slug => {
+    const e = findBy(hfSections, slug);
+    return { label: "HF · " + ((e && e.title) || slug), href: `${BASE}learn/huggingface/${slug}/` };
+  });
+  const groups = [
+    { tone: "violet", title: "INTERACTIVE DEMOS", items: demoLinks },
+    { tone: "blue",   title: "GAMES",             items: gameLinks  },
+    { tone: "blue",   title: "LESSONS",           items: lessonLinks.concat(hfLinks) },
+  ].filter(g => g.items.length);
+
+  // Hub chip for each concept.
+  const hubs = concepts.map(c => ({
+    label: c.name, href: `${BASE}concepts/${c.id}/`,
+  }));
+
+  return (
+    <div style={{ marginTop: 30, paddingTop: 26, borderTop: "1px solid var(--border)" }}>
+      <span className="t-mono-s" style={{ color: "var(--violet-lt)", letterSpacing: "0.14em" }}>
+        // CONNECTIONS · CONCEPT GRAPH
+      </span>
+      <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 16 }}>
+        {concepts.map(c => (
+          <div key={c.id} className="t-body" style={{ color: "var(--white)", opacity: 0.85, fontSize: 15, lineHeight: 1.6 }}>
+            <a href={`${BASE}concepts/${c.id}/`} style={{ color: "var(--blue-br)", textDecoration: "none", fontWeight: 600 }}>{c.name}</a>
+            <span style={{ color: "var(--dim)" }}> · {c.area}</span>
+            {c.summary ? <span style={{ color: "var(--muted)" }}> — {c.summary}</span> : null}
+          </div>
+        ))}
+        {groups.map(g => (
+          <div key={g.title}>
+            <span className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10, letterSpacing: "0.1em" }}>{g.title}</span>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+              {g.items.map(it => {
+                const accent = g.tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
+                return (
+                  <a key={it.href} href={it.href} className="t-mono-s" style={{
+                    padding: "6px 11px", borderRadius: 999, border: "1px solid var(--border)",
+                    color: accent, background: "rgba(13,24,52,0.5)",
+                    textDecoration: "none", fontSize: 11, letterSpacing: "0.06em",
+                  }}>{it.label}</a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <div>
+          <span className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10, letterSpacing: "0.1em" }}>CONCEPT HUBS</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+            {hubs.map(it => (
+              <a key={it.href} href={it.href} className="t-mono-s" style={{
+                padding: "6px 11px", borderRadius: 4, border: "1px solid var(--violet)",
+                color: "var(--white)", background: "rgba(168,85,247,0.08)",
+                textDecoration: "none", fontSize: 11, letterSpacing: "0.06em",
+              }}>{it.label} →</a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Command palette index (absolute paths; site is served from root) ─────────
 const DM_NAV_INDEX = [
   { label: "Home", group: "Page", href: "/", kw: "start landing" },
   { label: "About", group: "Page", href: "/about/", kw: "bio experience education" },
-  { label: "Work", group: "Page", href: "/work/", kw: "projects portfolio selected research teaching" },
+  { label: "Selected Work (on home)", group: "Page", href: "/#work", kw: "projects portfolio selected research teaching learning slm mentalnet huggingface" },
   { label: "Research", group: "Page", href: "/research/", kw: "papers patents slm survey publications" },
   { label: "Build", group: "Page", href: "/cases/", kw: "consulting build how i work hire engagement collaborate" },
   { label: "Learn", group: "Page", href: "/learn/", kw: "curriculum teaching courses ml dl" },
@@ -130,13 +302,30 @@ const DM_NAV_INDEX = [
   { label: "HF: Multimodal", group: "HF Section", href: "/learn/huggingface/multimodal/", kw: "blip diffusion captioning" },
   { label: "HF: Best Practices", group: "HF Section", href: "/learn/huggingface/best-practices/", kw: "quantization gradio trainer" },
   { label: "HF: Agentic Workflows", group: "HF Section", href: "/learn/huggingface/agentic/", kw: "mcp rag agents" },
+  { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
 ];
 
+// Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
+// on the current page. Concept pages aren't loaded on most pages, so this stays
+// empty until you're on a page that includes concepts-index.js.
+function __conceptEntries() {
+  const idx = (typeof window !== "undefined") ? window.CONCEPTS_INDEX : null;
+  if (!idx) return [];
+  return Object.keys(idx).map(id => {
+    const c = idx[id];
+    return {
+      label: c.name, group: "Concept", href: `/concepts/${id}/`,
+      kw: `${id} ${c.area || ""} ${c.summary || ""}`.toLowerCase(),
+    };
+  });
+}
+
 function paletteFilter(q) {
+  const all = DM_NAV_INDEX.concat(__conceptEntries());
   const s = q.trim().toLowerCase();
-  if (!s) return DM_NAV_INDEX;
+  if (!s) return all;
   const scored = [];
-  for (const it of DM_NAV_INDEX) {
+  for (const it of all) {
     const hay = (it.label + " " + it.group + " " + (it.kw || "")).toLowerCase();
     const i = hay.indexOf(s);
     if (i >= 0) scored.push({ it, score: (it.label.toLowerCase().startsWith(s) ? 0 : 1000) + i });
@@ -310,7 +499,6 @@ function TopNav() {
 
   const links = [
     { key: "home",      label: "Main",       href: homeHref },
-    { key: "work",      label: "Work",       href: `${__DM_BASE}work/` },
     { key: "research",  label: "Research",   href: `${__DM_BASE}research/` },
     { key: "learn",     label: "Learn",      href: `${__DM_BASE}learn/` },
     { key: "visualize", label: "Visualize",  href: `${__DM_BASE}visualize/` },
@@ -515,4 +703,5 @@ function Footer() {
 Object.assign(window, {
   Section, Container, TopNav, Footer, MonoLabel, ConstructionBadge,
   NavIcon, IconMail, IconGit, IconProfile, useIsMobile,
+  TeX, Connections,
 });

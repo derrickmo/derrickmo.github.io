@@ -85,12 +85,16 @@ function KnnDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
-        options={[{ value: "blobs", label: "Blobs" }, { value: "moons", label: "Moons" }, { value: "xor", label: "XOR" }]} />
-      <Slider label="// NEIGHBORS (k)" min={1} max={25} value={k} onChange={setK} tone="violet" />
+        options={[{ value: "blobs", label: "Blobs" }, { value: "moons", label: "Moons" }, { value: "xor", label: "XOR" }]}
+        help="The shape of the classes. Blobs are easy; moons and XOR are non-linear, so a straight-line classifier fails but local neighbor-voting still works." />
+      <Slider label="// NEIGHBORS (k)" min={1} max={25} value={k} onChange={setK} tone="violet"
+        help="How many nearest points vote on each label. k=1 hugs every point (jagged, overfits noise); larger k smooths the boundary (more bias). The core bias-variance dial." />
       <SegmentedControl label="// DISTANCE" value={metric} onChange={setMetric}
-        options={[{ value: "euclidean", label: "Euclidean" }, { value: "manhattan", label: "Manhattan" }]} />
+        options={[{ value: "euclidean", label: "Euclidean" }, { value: "manhattan", label: "Manhattan" }]}
+        help="How 'nearest' is measured. Euclidean is straight-line distance; Manhattan sums per-axis distances and tends toward axis-aligned boundaries." />
       <SegmentedControl label="// ADD-POINT CLASS" value={cls} onChange={setCls}
-        options={COLORS.slice(0, classCount).map((c, i) => ({ value: i, label: "Class " + i }))} />
+        options={COLORS.slice(0, classCount).map((c, i) => ({ value: i, label: "Class " + i }))}
+        help="Which class label the points you click on the canvas get. Drop a few and watch the decision regions redraw instantly." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       </div>
@@ -117,10 +121,29 @@ function KnnDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        kNN is the textbook lazy, instance-based learner — there's no training, the data
+        <i> is</i> the model — and its core idea drives a surprising amount of modern AI.
+        Semantic / <b>vector search</b> and RAG are kNN at scale: embed everything, then
+        retrieve the k closest vectors. Recommenders ("users like you"), de-duplication,
+        and few-shot example selection all do the same nearest-neighbor lookup over learned
+        embeddings.
+      </DemoP>
+      <DemoP>
+        It also crystallizes two ideas you reuse everywhere: the bias-variance tradeoff as
+        a single knob (k), and the <b>curse of dimensionality</b> — distances grow
+        meaningless as dimensions pile up. That's why production kNN runs over compact
+        learned embeddings with approximate-nearest-neighbor indexes (HNSW, IVF) instead of
+        raw features, trading a little accuracy for huge speed.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="CLASSICAL ML" title="k-Nearest Neighbors"
       subtitle="The simplest classifier — vote among the k closest points. Watch k trade a jagged boundary for a smooth one."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

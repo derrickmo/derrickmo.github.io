@@ -120,7 +120,8 @@ function ConvolutionDemo() {
           ))}
         </div>
       </div>
-      <Toggle label="// NORMALIZE (÷ sum)" checked={norm} onChange={setNorm} tone="violet" />
+      <Toggle label="// NORMALIZE (÷ sum)" checked={norm} onChange={setNorm} tone="violet"
+        help="Divide the kernel by the sum of its weights so overall brightness is preserved (good for blurs). Edge/derivative kernels sum to zero and instead get a +128 offset." />
       <StatReadout label="KERNEL SUM" value={kSum} accent={kSum === 0 ? "var(--violet-lt)" : "var(--blue-lt)"} />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Sum 0 → edge filter (output offset by 128). Edit any cell to go Custom.</div>
     </ControlGroup>
@@ -147,12 +148,32 @@ function ConvolutionDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        Convolution is the core operation of the CNN era — image classification, object
+        detection, segmentation, medical imaging, and the encoders inside many generative
+        and multimodal models all stack learned convolutional filters. The key idea is
+        <b> weight sharing</b>: one small kernel scans the entire image, giving
+        translation-invariance and dramatically fewer parameters than a fully-connected
+        layer.
+      </DemoP>
+      <DemoP>
+        What you type by hand here, a CNN <i>learns</i> by backprop — and early layers
+        reliably converge to edge and texture detectors that look a lot like Sobel, while
+        deeper layers compose them into parts and whole objects (a hierarchy you can
+        literally visualize). The same sliding-window, local-receptive-field idea reappears
+        in 1-D audio convolutions, and even a Vision Transformer's patch embedding is just
+        a strided convolution.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="COMPUTER VISION"
       title="Convolution Lab"
       subtitle="Slide a 3×3 kernel over an image and see what each filter detects — the core operation inside every CNN."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="violet"

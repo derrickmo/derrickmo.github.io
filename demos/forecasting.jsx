@@ -123,9 +123,12 @@ function ForecastDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// METHOD" value={method} onChange={setMethod}
-        options={[{ value: "ma", label: "Moving Avg" }, { value: "ses", label: "SES" }, { value: "holt", label: "Holt" }, { value: "holt-winters", label: "Holt-Winters" }]} />
-      {showAlpha && <Slider label="// α (level)" min={0.02} max={0.95} step={0.02} value={alpha} onChange={setAlpha} />}
-      {showBeta && <Slider label="// β (trend)" min={0.0} max={0.6} step={0.02} value={beta} onChange={setBeta} tone="violet" />}
+        options={[{ value: "ma", label: "Moving Avg" }, { value: "ses", label: "SES" }, { value: "holt", label: "Holt" }, { value: "holt-winters", label: "Holt-Winters" }]}
+        help="The forecasting model. Moving Avg and SES predict a flat line; Holt adds a sloping trend; Holt-Winters adds a repeating seasonal cycle — the only one that tracks the wave." />
+      {showAlpha && <Slider label="// α (level)" min={0.02} max={0.95} step={0.02} value={alpha} onChange={setAlpha}
+        help="How fast the level adapts to recent observations. High reacts quickly (and to noise); low is smooth and sluggish." />}
+      {showBeta && <Slider label="// β (trend)" min={0.0} max={0.6} step={0.02} value={beta} onChange={setBeta} tone="violet"
+        help="How fast the trend (slope) adapts. High lets the forecast re-aim quickly; low holds a steady slope — too high chases noise into wild extrapolation." />}
       <DemoButton onClick={reseed} primary>NEW SERIES</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
         <StatReadout label="HOLDOUT MAE (lower is better)" value={stats.mae.toFixed(2)} accent="#fbbf24" />
@@ -155,10 +158,29 @@ function ForecastDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Time-series forecasting is one of the most commercially deployed forms of ML:
+        demand and inventory planning, capacity and staffing, energy load, finance, and
+        anomaly detection on operational metrics all run on it. Exponential smoothing and
+        ARIMA are decades old and still the backbone of tools like Prophet — cheap,
+        interpretable, and genuinely hard to beat on many real series.
+      </DemoP>
+      <DemoP>
+        The level/trend/seasonality decomposition you're toggling is the mental model
+        behind the whole field, including modern neural forecasters (DeepAR, N-BEATS,
+        Temporal Fusion Transformers) that <i>learn</i> those components instead of
+        hand-specifying them. Two field-specific lessons surface here: you must validate on
+        the <b>held-out future</b> (never shuffle time-series data), and these classical
+        models are the baseline any fancier method has to justify beating.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="TIME SERIES · FORECASTING" title="Time-Series Forecasting"
       subtitle="Level, trend, and seasonality: classic exponential smoothing fit on history and scored on a held-out future."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-applications/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

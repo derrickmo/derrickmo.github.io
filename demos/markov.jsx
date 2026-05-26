@@ -81,10 +81,14 @@ function MarkovDemo() {
     <ControlGroup>
       <TextField label="// CORPUS (learn from this)" value={corpus} onChange={setCorpus} rows={5} tone="violet" />
       <SegmentedControl label="// LEVEL" value={mode} onChange={setMode}
-        options={[{ value: "char", label: "Character" }, { value: "word", label: "Word" }]} />
-      <Slider label={`// ORDER (n)${mode === "word" ? " · max 3" : ""}`} min={1} max={mode === "word" ? 3 : 6} value={mode === "word" ? Math.min(order, 3) : order} onChange={setOrder} tone="violet" />
-      <Slider label="// TEMPERATURE" min={0.1} max={1.5} step={0.05} value={temp} onChange={setTemp} />
-      <Slider label="// LENGTH" min={40} max={400} value={len} onChange={setLen} />
+        options={[{ value: "char", label: "Character" }, { value: "word", label: "Word" }]}
+        help="Whether tokens are characters or words. Character-level learns spelling and morphology; word-level needs far more text to sound coherent." />
+      <Slider label={`// ORDER (n)${mode === "word" ? " · max 3" : ""}`} min={1} max={mode === "word" ? 3 : 6} value={mode === "word" ? Math.min(order, 3) : order} onChange={setOrder} tone="violet"
+        help="How many previous tokens condition the next one. Higher order is more coherent but, on a small corpus, just memorizes and replays the source verbatim." />
+      <Slider label="// TEMPERATURE" min={0.1} max={1.5} step={0.05} value={temp} onChange={setTemp}
+        help="Sampling randomness. Low picks the most likely next token (safe, repetitive); high flattens the distribution (surprising, often incoherent) — the same knob as on a real LLM." />
+      <Slider label="// LENGTH" min={40} max={400} value={len} onChange={setLen}
+        help="How many tokens to generate. Output length only — it does not change the model." />
       <DemoButton onClick={generate} primary>GENERATE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="STATES" value={info.states} />
@@ -114,10 +118,30 @@ function MarkovDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        This counting-based n-gram model is the literal ancestor of today's LLMs: the
+        objective — predict the next token from the previous ones — is identical, and
+        n-grams powered production speech recognition, autocomplete, and machine
+        translation for decades. What changed is the function approximator — a transformer
+        replaces the lookup table, so context can be thousands of tokens instead of n, and
+        <i> similar</i> contexts share statistics instead of being memorized separately.
+      </DemoP>
+      <DemoP>
+        The two knobs transfer directly. <b>Temperature</b> is the exact sampling control
+        you set on any generative model, and the <b>order</b>-versus-overfitting tradeoff —
+        too much context on too little data just regurgitates training text — is a tiny,
+        transparent version of LLM memorization. Markov chains also underpin MCMC,
+        PageRank, and the MDPs of reinforcement learning, so the "next state depends only on
+        the current one" assumption is worth internalizing on its own.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="NLP · LANGUAGE MODELS" title="Markov Text Generator"
       subtitle="The simplest language model — count which token follows which, then sample. The ancestor of every LLM."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rnn-nlp/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

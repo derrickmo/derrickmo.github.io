@@ -125,9 +125,12 @@ function ROCDemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Slider label="// CLASS SEPARATION" min={0.3} max={4} step={0.1} value={sep} onChange={setSep} />
-      <Slider label="// THRESHOLD" min={-4} max={4} step={0.1} value={thr} onChange={setThr} tone="violet" />
-      <Slider label="// POSITIVE PRIOR" min={0.05} max={0.95} step={0.05} value={prior} onChange={setPrior} />
+      <Slider label="// CLASS SEPARATION" min={0.3} max={4} step={0.1} value={sep} onChange={setSep}
+        help="How far apart the two score distributions sit — i.e., how good the classifier is. More separation bows the ROC toward the perfect top-left corner and raises AUC." />
+      <Slider label="// THRESHOLD" min={-4} max={4} step={0.1} value={thr} onChange={setThr} tone="violet"
+        help="The score cutoff that turns a probability into a yes/no call. Lower catches more positives (higher recall) but raises false alarms — this is your operating point." />
+      <Slider label="// POSITIVE PRIOR" min={0.05} max={0.95} step={0.05} value={prior} onChange={setPrior}
+        help="How common the positive class is. ROC ignores this, but precision and the PR curve collapse as positives get rare — the key gotcha for imbalanced problems." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="TPR / RECALL" value={(stats.tpr * 100).toFixed(0) + "%"} accent="#60a5fa" />
         <StatReadout label="FPR" value={(stats.fpr * 100).toFixed(0) + "%"} accent="#c084fc" />
@@ -160,10 +163,30 @@ function ROCDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Choosing a threshold is a daily production decision: fraud detection, medical
+        screening, spam filters, and content moderation all ship a probability model
+        <i> plus</i> a chosen cutoff, tuned to the relative cost of a false positive versus
+        a missed case. <b>AUC</b> is the standard way to compare models precisely because
+        it's threshold-independent — it's the probability the model ranks a random positive
+        above a random negative.
+      </DemoP>
+      <DemoP>
+        The ROC-vs-PR distinction is one of the most common evaluation mistakes in applied
+        ML. On the heavily imbalanced data that's normal in fraud, disease, and anomaly
+        detection, a great-looking ROC AUC can hide terrible precision — most things above
+        the cutoff are false alarms. Knowing to report PR, F1, or a cost-weighted metric
+        there, and to <i>calibrate</i> probabilities before thresholding, is what separates
+        a careful evaluation from a misleading one.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="ML THEORY · EVALUATION" title="ROC, PR & Thresholds"
       subtitle="One score, many decisions: move the threshold and watch precision, recall, ROC, and PR trade off."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

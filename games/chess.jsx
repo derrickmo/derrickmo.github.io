@@ -185,7 +185,8 @@ function ChessDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DIFFICULTY (search depth)" value={diff} onChange={setDiff}
-        options={[{ value: "easy", label: "Easy" }, { value: "medium", label: "Medium" }, { value: "hard", label: "Hard" }]} />
+        options={[{ value: "easy", label: "Easy" }, { value: "medium", label: "Medium" }, { value: "hard", label: "Hard" }]}
+        help="The engine's search depth in plies. Deeper sees further tactics but pauses longer to think — 'Hard' (4-ply) can take a moment per move." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="YOU PLAY" value="White" accent="#60a5fa" />
         <StatReadout label="EVAL (centipawns)" value={(evaluate(s.board) / 100).toFixed(1)} accent="#c084fc" />
@@ -215,10 +216,29 @@ function ChessDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Chess is the historic proving ground for AI search — Shannon's 1950 blueprint,
+        "search the tree, evaluate the leaves," defines this engine and ran all the way to
+        Deep Blue beating Kasparov in 1997. What you're playing is that classical paradigm:
+        negamax (minimax's symmetric form) with alpha-beta pruning, a depth cutoff, and a
+        handcrafted evaluation of material plus piece position.
+      </DemoP>
+      <DemoP>
+        It also marks where the field turned. Engines like Stockfish layered decades of
+        refinements on this base — transposition tables, quiescence search, opening books,
+        and now small neural-net evaluations (NNUE). AlphaZero then showed a different route
+        entirely: replace handcrafted eval and brute-force search with a learned
+        policy/value network guided by Monte-Carlo Tree Search, learning superhuman chess
+        from self-play alone — a story that starts from exactly this demo.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · NEGAMAX + ALPHA-BETA" title="Chess"
       subtitle="Full-rules chess against a real search engine — material + piece-square evaluation, a few plies deep."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

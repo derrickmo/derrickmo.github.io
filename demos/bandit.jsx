@@ -160,10 +160,14 @@ function BanditDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// STRATEGY" value={strategy} onChange={v => { setRunning(false); setStrategy(v); }}
-        options={[{ value: "egreedy", label: "ε-Greedy" }, { value: "ucb", label: "UCB" }, { value: "thompson", label: "Thompson" }]} />
-      {strategy === "egreedy" && <Slider label="// EXPLORATION ε" min={0} max={1} step={0.02} value={eps} onChange={setEps} />}
-      <Slider label="// ARMS" min={3} max={10} value={k} onChange={setK} tone="violet" />
-      <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /s" />
+        options={[{ value: "egreedy", label: "ε-Greedy" }, { value: "ucb", label: "UCB" }, { value: "thompson", label: "Thompson" }]}
+        help="The explore/exploit rule. ε-Greedy exploits the best estimate but explores at random; UCB adds an optimism bonus for under-tried arms; Thompson samples from a Beta belief (usually strongest)." />
+      {strategy === "egreedy" && <Slider label="// EXPLORATION ε" min={0} max={1} step={0.02} value={eps} onChange={setEps}
+        help="Fraction of pulls spent on a random arm. 0 = pure greedy (can lock onto a wrong arm forever); higher explores more but wastes pulls once the best arm is clear." />}
+      <Slider label="// ARMS" min={3} max={10} value={k} onChange={setK} tone="violet"
+        help="How many slot machines to choose among. More arms means more to explore, so regret grows and the choice of strategy matters more." />
+      <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /s"
+        help="Pulls per second. Visual pacing only — it does not change the strategy or the outcome." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={() => { if (!running) { pull(); draw(); setTick(v => v + 1); } }} disabled={running}>PULL</DemoButton>
@@ -202,12 +206,31 @@ function BanditDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        The multi-armed bandit is the cleanest statement of the explore/exploit dilemma,
+        and it's deployed wherever decisions must be made online with feedback: A/B testing
+        (bandits beat fixed splits by shifting traffic to winners sooner), ad and content
+        selection, recommendation, clinical-trial design, and hyperparameter search.
+        Thompson sampling and UCB in particular are production-grade methods, not toys.
+      </DemoP>
+      <DemoP>
+        It's also the simplest reinforcement-learning problem — one state, immediate reward
+        — so the machinery here scales up directly. ε-greedy is the standard exploration
+        rule in Q-learning and DQN, UCB-style bonuses power the tree search in AlphaZero
+        (PUCT), and "minimize cumulative <b>regret</b>" is the yardstick for online learning
+        broadly. Learn to read the regret curve and you have the core metric of the whole
+        field.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="REINFORCEMENT LEARNING"
       title="Multi-Armed Bandit"
       subtitle="Explore vs exploit: pit ε-greedy, UCB, and Thompson sampling against the same slot machines."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="violet"

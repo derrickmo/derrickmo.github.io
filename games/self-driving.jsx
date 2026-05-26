@@ -118,8 +118,10 @@ function SelfDrivingDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// SPEED" value={String(speed)} onChange={v => { const n = parseInt(v); setSpeed(n); stepsRef.current = n; }}
-        options={[{ value: "1", label: "1x" }, { value: "3", label: "3x" }, { value: "6", label: "6x" }]} />
-      <Slider label="// MUTATION RATE" min={0.01} max={0.4} step={0.01} value={rate} onChange={v => { setRate(v); rateRef.current = v; }} tone="violet" />
+        options={[{ value: "1", label: "1x" }, { value: "3", label: "3x" }, { value: "6", label: "6x" }]}
+        help="Simulation speed multiplier. Higher fast-forwards the generations so evolution converges sooner — it doesn't change what's learned." />
+      <Slider label="// MUTATION RATE" min={0.01} max={0.4} step={0.01} value={rate} onChange={v => { setRate(v); rateRef.current = v; }} tone="violet"
+        help="Chance each weight is perturbed when breeding the next generation. Too low stalls progress; too high is noisy and forgets good driving." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => (running ? stop() : start())} primary tone="violet">{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={reset}>RESET</DemoButton>
@@ -154,10 +156,29 @@ function SelfDrivingDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        This is continuous sensorimotor control learned from reward alone — five range
+        sensors in, a steering angle out, improved by evolution rather than backprop or any
+        labeled "correct" steering. It's the toy version of how learned controllers are
+        trained for robots, drones, and vehicles when the right action can't be supervised
+        directly, only scored after the fact (here, distance travelled).
+      </DemoP>
+      <DemoP>
+        The ray-sensor setup is a deliberate <b>state representation</b> choice — compress
+        raw geometry into a few meaningful distances so a tiny network can act on it, the
+        same feature-vs-end-to-end tradeoff real autonomy stacks face. And training entirely
+        in simulation surfaces the field's central practical problem, <i>sim-to-real
+        transfer</i>: a policy that aces the simulator still has to survive the messier real
+        world.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="NEUROEVOLUTION · CONTROL" title="Evolving Drivers"
       subtitle="Cars with five sensors and a tiny neural net evolve to take the track — no rules, just survival of the furthest."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );
 }

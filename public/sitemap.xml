@@ -3,6 +3,53 @@
   <url><loc>https://derrickmo.github.io/</loc><priority>1.0</priority></url>
   <url><loc>https://derrickmo.github.io/about/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/cases/</loc><priority>0.8</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/</loc><priority>0.8</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/activations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/adam/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/attention/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/backprop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/bandit/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/bias-variance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/cfr/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/chain-rule/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/clt/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/cnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/cross-entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/decision-tree/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/diffusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/forecasting/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/fourier/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/gmm-em/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/gradient-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/iou-nms/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/kmeans/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/lora/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/lr-schedule/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/markov/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/mcts/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/mdp-bellman/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/minimax/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/mlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/multi-head/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/neuroevolution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/pca/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/q-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/regularization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/roc/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/scaling-laws/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/search-astar/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/softmax/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/svm/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/tokenization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/transformer-block/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/vae/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>

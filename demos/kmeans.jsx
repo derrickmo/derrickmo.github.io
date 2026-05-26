@@ -164,10 +164,13 @@ function KMeansDemo() {
 
   const controls = (
     <ControlGroup>
-      <Slider label="// CLUSTERS (k)" min={2} max={6} value={k} onChange={v => { setRunning(false); setK(v); }} />
+      <Slider label="// CLUSTERS (k)" min={2} max={6} value={k} onChange={v => { setRunning(false); setK(v); }}
+        help="How many cluster centers to fit. K-Means makes you choose k up front — too few merges groups, too many splits them; the inertia readout helps you judge." />
       <SegmentedControl label="// INITIALIZATION" tone="violet" value={initM} onChange={v => { setRunning(false); setInitM(v); }}
-        options={[{ value: "kpp", label: "K-Means++" }, { value: "random", label: "Random" }]} />
-      <Slider label="// SPEED" min={1} max={10} value={speed} onChange={setSpeed} suffix=" /s" />
+        options={[{ value: "kpp", label: "K-Means++" }, { value: "random", label: "Random" }]}
+        help="How the starting centroids are placed. K-Means++ spreads them apart for faster, better convergence; Random can drop two in one blob and get stuck in a poor solution." />
+      <Slider label="// SPEED" min={1} max={10} value={speed} onChange={setSpeed} suffix=" /s"
+        help="Assign/update steps per second. Visual pacing only — it does not change where the clusters end up." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={handleRun} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={handleStep} disabled={running}>STEP</DemoButton>
@@ -209,12 +212,31 @@ function KMeansDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        K-Means is the default first pass for unsupervised grouping: customer and market
+        segmentation, image color quantization, grouping documents or embeddings into
+        topics, and as a cheap way to compress data or initialize a heavier model. It's
+        also the canonical example of the <i>alternate-and-converge</i> (EM-style) loop —
+        guess assignments, refit parameters, repeat — that reappears throughout ML.
+      </DemoP>
+      <DemoP>
+        Its limitations teach the field's nuance. K-Means assumes round, similar-size
+        clusters and a chosen k, which is exactly what <b>Gaussian mixtures</b> (soft,
+        elliptical clusters), <b>DBSCAN</b> (density-based, arbitrary shapes), and the
+        elbow/silhouette methods for picking k were built to address. And the "result
+        depends on initialization" lesson — with <b>k-means++</b> as the standard fix — is
+        the same trap you face in any non-convex optimization.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="UNSUPERVISED LEARNING"
       title="K-Means Clustering"
       subtitle="Lloyd's algorithm, live. Watch centroids and assignments alternate until the clusters lock in."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="violet"

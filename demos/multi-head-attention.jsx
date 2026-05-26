@@ -86,7 +86,8 @@ function MultiHeadAttentionDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// VIEW" value={sel} onChange={setSel}
-        options={[{ value: "0", label: "H1" }, { value: "1", label: "H2" }, { value: "2", label: "H3" }, { value: "3", label: "H4" }, { value: "avg", label: "AVG" }]} />
+        options={[{ value: "0", label: "H1" }, { value: "1", label: "H2" }, { value: "2", label: "H3" }, { value: "3", label: "H4" }, { value: "avg", label: "AVG" }]}
+        help="Which head's attention map to show (H1–H4), or AVG to blend all four. Each head has its own projection and highlights a different relationship; AVG is what feeds the next layer." />
       <DemoButton onClick={() => { seedRef.current = (seedRef.current * 7 + 13) >>> 0; headsRef.current = computeHeads(seedRef.current); setTick(t => t + 1); }} primary>NEW HEADS</DemoButton>
       <Legend items={[{ color: "#60a5fa", label: "HEAD 1" }, { color: "#c084fc", label: "HEAD 2" }, { color: "#34d399", label: "HEAD 3" }, { color: "#fbbf24", label: "HEAD 4" }]} />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Each row sums to 1: it's a probability distribution over which tokens that query attends to. Switch heads to see different patterns.</div>
@@ -114,10 +115,30 @@ function MultiHeadAttentionDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Multi-head attention is why a single transformer layer can juggle several
+        relationships at once — one head tracking syntax, another coreference, another local
+        position — instead of being squeezed into one pattern. It's a near-free upgrade:
+        split the model dimension across heads, run attention in parallel, then
+        concatenate, so heads cost little extra while sharply increasing what a layer can
+        express.
+      </DemoP>
+      <DemoP>
+        This is the literal core of every transformer block in GPT, BERT, Llama, and
+        Claude, and a focus of both research and systems work. Heads are where
+        interpretability finds specialized circuits — the <i>induction heads</i> that drive
+        in-context learning — and they're the target of efficiency tricks like Multi-Query
+        and Grouped-Query Attention, which let heads share keys/values to shrink the KV
+        cache and speed up inference.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="TRANSFORMERS · ATTENTION" title="Multi-Head Attention"
       subtitle="Several attention patterns in parallel — each head free to specialize, then blended back together."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

@@ -164,7 +164,8 @@ function GMMDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// COMPONENTS (K)" value={String(K)} onChange={v => setK(parseInt(v))}
-        options={[{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]} />
+        options={[{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]}
+        help="How many Gaussians to fit. Match it to the true number of blobs — too few merges clusters, too many splits one cluster into overlapping pieces." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => { stopRun(); step(); }} primary>STEP EM</DemoButton>
         <DemoButton onClick={toggleRun} tone="violet">{running ? "PAUSE" : "RUN"}</DemoButton>
@@ -203,10 +204,28 @@ function GMMDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        GMMs are the canonical soft-clustering and density-estimation model: speaker and
+        audio clustering, background subtraction in vision, anomaly detection (low-density
+        points are the outliers), and as a flexible distribution you can sample from.
+        Because each component carries a full <i>covariance</i>, GMMs capture elongated,
+        correlated, rotated clusters that k-means — with its round, hard cells — cannot.
+      </DemoP>
+      <DemoP>
+        The deeper prize is <b>EM</b> itself: alternating between soft assignments
+        (E-step) and parameter updates (M-step) to maximize a likelihood you can't optimize
+        directly. That exact pattern — and the "responsibility / latent variable" framing —
+        is the conceptual ancestor of variational inference and the ELBO objective that
+        trains VAEs and other modern latent-variable generative models.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="UNSUPERVISED LEARNING" title="Gaussian Mixtures & EM"
       subtitle="Soft clustering: fit overlapping Gaussians with Expectation-Maximization and watch the log-likelihood climb."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

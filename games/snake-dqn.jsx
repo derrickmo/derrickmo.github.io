@@ -121,7 +121,8 @@ function SnakeDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// SPEED" value={String(speed)} onChange={v => { const n = parseInt(v); setSpeed(n); speedRef.current = n; }}
-        options={[{ value: "1", label: "1x" }, { value: "10", label: "10x" }, { value: "100", label: "100x" }]} />
+        options={[{ value: "1", label: "1x" }, { value: "10", label: "10x" }, { value: "100", label: "100x" }]}
+        help="Training speed multiplier (1x/10x/100x). Higher fast-forwards through episodes so the policy converges faster — it doesn't change what's learned." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => (running ? stop() : start())} primary tone="violet">{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={resetAll}>RESET</DemoButton>
@@ -159,10 +160,30 @@ function SnakeDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Snake is a compact, complete reinforcement-learning loop: state → action → reward →
+        temporal-difference update — the same Q-learning at the core of the gridworld and
+        value-iteration demos, but driving a game you can watch improve. The crucial design
+        move is the <b>state representation</b>: collapsing the whole board into 11 relevant
+        features (nearby dangers, food direction, heading) so a small table can generalize
+        instead of memorizing every configuration.
+      </DemoP>
+      <DemoP>
+        That representation choice is exactly the wall tabular RL hits — and exactly what
+        <b> Deep Q-Networks</b> solved by replacing the table with a neural network that
+        learns its own features from raw input (Atari straight from pixels). The
+        explore-then-exploit arc you watch as ε decays, and learning from delayed reward, is
+        the same machinery that scales up to game-playing agents and the RLHF step used to
+        align modern LLMs.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="REINFORCEMENT LEARNING" title="Snake: Self-Taught"
       subtitle="A snake that learns to feed itself from reward alone — real Q-learning, sharpening episode by episode."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );
 }

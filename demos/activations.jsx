@@ -86,8 +86,10 @@ function ActivationsDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// HIGHLIGHT" value={focus} onChange={setFocus}
-        options={[{ value: "All", label: "All" }].concat(NAMES.map(n => ({ value: n, label: n })))} />
-      <Toggle label="// SHOW DERIVATIVES (dashed)" checked={showD} onChange={setShowD} tone="violet" />
+        options={[{ value: "All", label: "All" }].concat(NAMES.map(n => ({ value: n, label: n })))}
+        help="Spotlight one activation (dimming the rest) or show all at once. Use it to compare a single function's shape and gradient against the family." />
+      <Toggle label="// SHOW DERIVATIVES (dashed)" checked={showD} onChange={setShowD} tone="violet"
+        help="Overlay each function's gradient as a dashed curve. The gradient is what flows backward in training — flat regions mean vanishing gradients that stall learning." />
       <Legend items={NAMES.map(n => ({ color: FNS[n].color, label: n.toUpperCase() }))} />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Hover the plot to read values + gradients at any x.</div>
     </ControlGroup>
@@ -112,10 +114,29 @@ function ActivationsDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Activation choice is a real architecture decision with measurable consequences.
+        Sigmoid/tanh saturation caused the vanishing-gradient problem that kept networks
+        shallow for decades; <b>ReLU</b>'s constant positive-side gradient is much of why
+        deep learning took off. Modern transformers and LLMs default to smooth variants —
+        <b> GELU</b> in BERT/GPT, <b>SiLU</b>/SwiGLU in Llama-style models — for slightly
+        better gradients and accuracy.
+      </DemoP>
+      <DemoP>
+        The deeper lesson is that <i>gradients</i>, not outputs, govern training. The same
+        "is the gradient alive here?" question drives weight initialization, normalization
+        layers (BatchNorm, LayerNorm), and residual connections — all of which exist to
+        keep gradients flowing through deep stacks. Read an activation by its derivative and
+        you're reading it the way the optimizer does.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="NEURAL NETWORKS" title="Activation Functions"
       subtitle="The nonlinearities that make deep learning deep — and the gradients that decide whether it trains."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

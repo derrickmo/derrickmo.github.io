@@ -111,8 +111,10 @@ function MinesweeperDemo() {
   );
   const controls = (
     <ControlGroup>
-      <Toggle label="// FLAG MODE (tap to flag)" checked={flagMode} onChange={setFlagMode} tone="violet" />
-      <Toggle label="// SHOW AI PROBABILITIES" checked={showProb} onChange={setShowProb} />
+      <Toggle label="// FLAG MODE (tap to flag)" checked={flagMode} onChange={setFlagMode} tone="violet"
+        help="Switch taps from reveal to flag, so you can mark suspected mines. Off = clicking reveals a cell." />
+      <Toggle label="// SHOW AI PROBABILITIES" checked={showProb} onChange={setShowProb}
+        help="Overlay the AI's mine estimate on each frontier cell — green provably safe, red provably mined, amber a risky guess with its odds." />
       <DemoButton onClick={aiHint} primary>AI: SAFEST MOVE</DemoButton>
       <DemoButton onClick={aiFlag} tone="violet">AI: FLAG CERTAIN MINES</DemoButton>
       <Legend items={[{ color: "rgba(52,211,153,0.6)", label: "PROVABLY SAFE" }, { color: "rgba(248,113,113,0.6)", label: "PROVABLY MINE" }, { color: "rgba(251,191,36,0.6)", label: "RISKY (%)" }]} />
@@ -139,10 +141,28 @@ function MinesweeperDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Minesweeper is a clean, playable instance of <b>constraint satisfaction</b> — each
+        revealed number is a constraint over its hidden neighbors, and the solver's two
+        logic rules are exactly the unit-propagation / forced-move reasoning used in SAT
+        solvers, scheduling, and Sudoku. When deduction is possible, no guessing is needed
+        at all.
+      </DemoP>
+      <DemoP>
+        Where logic runs out, it switches to <b>probabilistic inference</b> — estimating
+        each cell's mine probability and taking the least-bad guess. That deduce-then-
+        estimate split mirrors how real systems combine hard logical constraints with
+        Bayesian reasoning under uncertainty, and "minimize expected loss when you must act
+        without certainty" is the same principle behind decision-making across AI.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · CONSTRAINT + PROBABILITY" title="Minesweeper Oracle"
       subtitle="An AI that proves which cells are safe, flags the certain mines, and plays the odds on the rest."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );
 }

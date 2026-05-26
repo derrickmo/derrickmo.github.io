@@ -100,9 +100,12 @@ function LRScheduleDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// SCHEDULE" value={sched} onChange={setSched}
-        options={Object.keys(SCHEDULES).map(k => ({ value: k, label: LABELS[k] }))} />
-      <Slider label="// WARMUP STEPS" min={0} max={200} value={warmup} onChange={setWarmup} tone="violet" />
-      <Slider label="// PEAK LR" min={0.05} max={2.2} step={0.05} value={peak} onChange={setPeak} />
+        options={Object.keys(SCHEDULES).map(k => ({ value: k, label: LABELS[k] }))}
+        help="The shape of the learning-rate curve over training — constant, step decay, exponential, cosine-with-warmup, or warmup-then-linear. The loss panel shows how each fares." />
+      <Slider label="// WARMUP STEPS" min={0} max={200} value={warmup} onChange={setWarmup} tone="violet"
+        help="How long the rate ramps up from zero at the start. Warmup keeps the first noisy gradients from blowing up a fresh model and lets you use a higher peak safely." />
+      <Slider label="// PEAK LR" min={0.05} max={2.2} step={0.05} value={peak} onChange={setPeak}
+        help="The maximum learning rate the schedule reaches. Push it too high and the loss diverges (this quadratic is stable only below 2) — the classic 'loss went to NaN'." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="PEAK LR" value={stats.peak.toFixed(2)} />
         <StatReadout label="FINAL LR" value={stats.final.toFixed(3)} accent="var(--violet-lt)" />
@@ -132,10 +135,29 @@ function LRScheduleDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Learning-rate scheduling is standard practice in every serious training run, not an
+        optional polish. The <b>cosine-with-warmup</b> curve shown here is the de-facto
+        default for training transformers and LLMs; step decay long ruled computer vision.
+        Getting the schedule right is frequently the difference between a model that
+        converges cleanly and one that diverges or stalls.
+      </DemoP>
+      <DemoP>
+        The two failure modes you can trigger — divergence from too-high a peak, and the
+        unstable start that warmup fixes — explain a lot of real training lore: why warmup
+        pairs with large-batch training, why even adaptive optimizers like Adam still want a
+        schedule, and why practitioners sweep the learning rate before any other
+        hyperparameter. It's the same "the learning rate is everything" lesson as the
+        gradient-descent demo, now over a whole training run.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="TRAINING · OPTIMIZATION" title="Learning-Rate Schedules"
       subtitle="Warmup, decay, and why the same optimizer converges or diverges depending on the curve you feed it."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

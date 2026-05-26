@@ -141,10 +141,29 @@ function Game2048() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        2048 is a single-agent decision problem against chance, so it calls for
+        <b> expectimax</b> — minimax's variant that, instead of a hostile opponent, averages
+        over random outcomes (here the 90/10 spawn of a 2 or 4). That "max over my actions,
+        expectation over the world's randomness" structure is the same one behind backgammon
+        engines and the Bellman expectation used throughout decision-making under
+        uncertainty.
+      </DemoP>
+      <DemoP>
+        The corner-hoarding strategy you watch the bot adopt isn't programmed in — it
+        emerges from a heuristic that rewards empty cells and monotonic rows. That's a small
+        lesson in <b>reward/heuristic design</b>: shape the evaluation well and sophisticated
+        behavior falls out of plain search — the same principle, and the same reward-hacking
+        risk, that governs reinforcement-learning agents.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · EXPECTIMAX" title="2048 + AI Assist"
       subtitle="Play with arrow keys — or hand it to an expectimax AI that searches against the random spawns."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

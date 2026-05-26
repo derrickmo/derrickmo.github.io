@@ -125,11 +125,16 @@ function OverfittingDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// TRUE FUNCTION" value={fn} onChange={setFn}
-        options={[{ value: "sine", label: "Sine" }, { value: "cubic", label: "Cubic" }, { value: "step", label: "Step" }]} />
-      <Slider label="// POLYNOMIAL DEGREE" min={0} max={15} value={degree} onChange={setDegree} tone="violet" />
-      <Slider label="// DATA POINTS" min={8} max={80} value={n} onChange={setN} />
-      <Slider label="// NOISE" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise} />
-      <Slider label="// RIDGE λ" min={0} max={0.1} step={0.002} value={lambda} onChange={setLambda} tone="violet" />
+        options={[{ value: "sine", label: "Sine" }, { value: "cubic", label: "Cubic" }, { value: "step", label: "Step" }]}
+        help="The hidden function the model tries to recover from noisy samples. Sine and cubic are smooth; the step is discontinuous and hard for a polynomial to fit cleanly." />
+      <Slider label="// POLYNOMIAL DEGREE" min={0} max={15} value={degree} onChange={setDegree} tone="violet"
+        help="Model capacity. Low degree is too rigid (underfit); very high degree can bend through every training point and memorize the noise (overfit)." />
+      <Slider label="// DATA POINTS" min={8} max={80} value={n} onChange={setN}
+        help="How many samples are drawn. More data makes overfitting harder to trigger at the same degree — the curve has more constraints to satisfy." />
+      <Slider label="// NOISE" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise}
+        help="Random scatter added to each sample. More noise gives a high-capacity model more spurious wiggle to chase and memorize." />
+      <Slider label="// RIDGE λ" min={0} max={0.1} step={0.002} value={lambda} onChange={setLambda} tone="violet"
+        help="L2 regularization strength. It penalizes large coefficients, shrinking the wild high-degree wiggles toward a smoother, more general fit." />
       <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="TRAIN RMSE" value={stats.tr} />
@@ -162,12 +167,34 @@ function OverfittingDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        The bias-variance tradeoff you're watching is the central tension of all
+        supervised learning, not a polynomial quirk. The gap between <b>train</b> and
+        <b> test</b> error — the <i>generalization gap</i> — is the number every
+        practitioner actually monitors, and it's why real projects hold out validation
+        and test sets, use <i>early stopping</i>, and never trust training accuracy alone.
+        A model that aces training and fails on new data is the most common way ML quietly
+        ships broken.
+      </DemoP>
+      <DemoP>
+        Every lever here has a deep-learning counterpart. <b>Ridge λ</b> is L2
+        regularization — the same <i>weight decay</i> you set on every neural network;
+        its cousins are dropout and data augmentation. <b>Degree</b> is model capacity —
+        the same reason giant models demand giant datasets to avoid memorizing. And more
+        <b> data points</b> is the oldest fix of all. Once you can read this plot, "my
+        model overfits" becomes a problem with a menu of known answers.
+      </DemoP>
+    </>
+  );
+
   return (
     <DemoLayout
       topic="ML THEORY"
       title="Overfitting Lab"
       subtitle="Fit a polynomial to noisy data and watch the bias-variance tradeoff play out in real time."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="violet"

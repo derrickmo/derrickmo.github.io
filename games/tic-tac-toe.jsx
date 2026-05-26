@@ -94,8 +94,10 @@ function TicTacToeDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DIFFICULTY" value={diff} onChange={setDiff}
-        options={[{ value: "easy", label: "Easy" }, { value: "hard", label: "Hard" }, { value: "perfect", label: "Perfect" }]} />
-      <Toggle label="// AI MOVES FIRST" checked={aiStarts} onChange={v => { setAiStarts(v); reset(v); }} tone="violet" />
+        options={[{ value: "easy", label: "Easy" }, { value: "hard", label: "Hard" }, { value: "perfect", label: "Perfect" }]}
+        help="How often the AI plays optimally. Perfect searches the whole game tree (unbeatable); Easy and Hard inject random mistakes that give you a chance to win." />
+      <Toggle label="// AI MOVES FIRST" checked={aiStarts} onChange={v => { setAiStarts(v); reset(v); }} tone="violet"
+        help="Let the AI take the opening move (the center is strongest). Moving first is a real advantage in tic-tac-toe." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="YOU" value={tally.w} accent="#60a5fa" />
         <StatReadout label="DRAWS" value={tally.d} />
@@ -123,10 +125,28 @@ function TicTacToeDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Minimax is the foundational algorithm of adversarial game AI — assume a perfectly
+        rational opponent, then choose the move with the best worst-case outcome. Because
+        tic-tac-toe's tree is tiny it can be solved exactly, which is why <b>Perfect</b> is
+        provably unbeatable; the same logic, just truncated, drives chess and checkers
+        engines.
+      </DemoP>
+      <DemoP>
+        The two ideas that scale up are here in miniature. The depth-aware scoring (prefer
+        faster wins, slower losses) is a tiny <i>evaluation function</i>, and the only thing
+        that changes for big games is that you can't reach the leaves — so you cut the
+        search off early and estimate the position. That's the whole leap from solved games
+        to heuristic engines, and eventually to learned evaluations like AlphaZero's.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · MINIMAX" title="Tic-Tac-Toe"
       subtitle="Take on a minimax engine that searches the whole game tree. Crank it to Perfect and the best you can do is a draw."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

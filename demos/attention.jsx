@@ -167,9 +167,12 @@ function AttentionDemo() {
       <TextField label="// INPUT TEXT" value={text} onChange={setText} rows={3} tone="violet"
         placeholder="type a short sentence…" />
       <SegmentedControl label="// HEAD" tone="violet" value={head} onChange={setHead}
-        options={[0, 1, 2, 3].map(h => ({ value: h, label: "H" + (h + 1) }))} />
-      <Toggle label="// CAUSAL MASK" checked={causal} onChange={setCausal} />
-      <Toggle label="// SCALE BY √dₖ" checked={scale} onChange={setScale} />
+        options={[0, 1, 2, 3].map(h => ({ value: h, label: "H" + (h + 1) }))}
+        help="Which attention head to view. Each head uses its own query/key projection, so each produces a different pattern — real transformers run many in parallel." />
+      <Toggle label="// CAUSAL MASK" checked={causal} onChange={setCausal}
+        help="Block each token from attending to later ones (the upper triangle goes dark). This is what makes left-to-right generation possible in GPT-style decoders." />
+      <Toggle label="// SCALE BY √dₖ" checked={scale} onChange={setScale}
+        help="Divide scores by √dₖ before softmax. Without it, large dot products saturate the softmax into near one-hot weights and gradients vanish — why the scale factor exists." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="TOKENS" value={tokenCount} />
         <StatReadout label="HEAD" value={"H" + (head + 1)} accent="var(--violet-lt)" />
@@ -203,12 +206,32 @@ function AttentionDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        Scaled dot-product attention is the single operation the entire transformer era is
+        built on — GPT, BERT, Llama, Claude, plus vision (ViT), audio, and multimodal
+        models all stack it. Its superpower over RNNs is that every token can look at every
+        other token in one step (full context, fully parallelizable), which is what made
+        training on internet-scale data practical.
+      </DemoP>
+      <DemoP>
+        The mechanics you're toggling are load-bearing in production. The √dₖ scaling keeps
+        gradients healthy; the causal mask is what separates <b>decoder</b> (generation)
+        from <b>encoder</b> (understanding) models; and "every token attends to all others"
+        is also attention's cost — <i>O(n²)</i> in sequence length, the bottleneck that
+        FlashAttention, KV-caching, and sparse/linear-attention variants all attack.
+        Interpretability researchers read these very heatmaps to find induction and other
+        circuits.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout
       topic="TRANSFORMERS · ATTENTION"
       title="Attention Heatmap"
       subtitle="Type a sentence and watch scaled dot-product self-attention decide which tokens look at which."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/self-attention/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="violet"

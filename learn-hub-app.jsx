@@ -101,9 +101,27 @@ function Sections() {
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 18 }}>
           {SECTIONS.map(s => <SectionCard key={s.href} s={s} />)}
         </div>
-        <a href="notes/" style={{
+        <a href={(window.__DM_BASE || "../") + "concepts/"} style={{
           position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
           alignItems: "center", gap: 20, flexWrap: "wrap", marginTop: 18,
+          padding: "22px 28px", border: "1px solid var(--border-violet)", borderRadius: 8,
+          background: "linear-gradient(120deg, rgba(168,85,247,0.10) 0%, rgba(59,130,246,0.06) 100%)",
+          textDecoration: "none", color: "inherit",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(192,132,252,0.18)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-violet)"; e.currentTarget.style.boxShadow = "none"; }}>
+          <HudBrackets mode="dark" inset={8} size={16} />
+          <div>
+            <MonoLabel color="var(--violet-lt)">// CONCEPT GRAPH · ONE PLACE PER IDEA</MonoLabel>
+            <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 20, color: "var(--white)", marginTop: 8 }}>
+              The core ML/DL concepts, each linked to every demo, game, lesson, and animation that touches it.
+            </div>
+          </div>
+          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>OPEN THE GRAPH →</span>
+        </a>
+        <a href="notes/" style={{
+          position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
+          alignItems: "center", gap: 20, flexWrap: "wrap", marginTop: 14,
           padding: "22px 28px", border: "1px solid var(--border)", borderRadius: 8,
           background: "rgba(13,24,52,0.4)", textDecoration: "none", color: "inherit",
         }}

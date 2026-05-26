@@ -9,6 +9,7 @@ const {
   HudBrackets, GridOverlay, GlowBlob, MathWatermarks,
   NeuralNet, TransformerBlock, LessonStack,
   Section, Container, TopNav, Footer, MonoLabel, useIsMobile,
+  Connections,
 } = window;
 
 const CURR = window.CURRICULUM;
@@ -321,6 +322,19 @@ function ModuleNav() {
   );
 }
 
+function ModuleConnections() {
+  const tags = (window.CONCEPT_TAGS && window.CONCEPT_TAGS.modules) || {};
+  const ids = tags[window.__DM_MODULE_SLUG] || [];
+  if (!ids.length || !Connections) return null;
+  return (
+    <Section style={{ paddingTop: 16, paddingBottom: 24 }}>
+      <Container style={{ maxWidth: 860 }}>
+        <Connections ids={ids} />
+      </Container>
+    </Section>
+  );
+}
+
 function App() {
   return (
     <>
@@ -330,6 +344,7 @@ function App() {
       <CodeIllustration />
       <Flagship />
       <Notebooks />
+      <ModuleConnections />
       <Formats />
       <ModuleNav />
       <Footer />

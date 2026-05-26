@@ -153,10 +153,29 @@ function PokerDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Poker is the canonical <b>imperfect-information</b> game — you can't see the
+        opponent's cards, so minimax doesn't apply and good play <i>requires</i> randomized
+        bluffing. <b>Counterfactual Regret Minimization (CFR)</b>, the self-play algorithm
+        here, is the breakthrough that made it tractable: minimize regret over many
+        iterations and the average strategy provably converges to a Nash equilibrium.
+      </DemoP>
+      <DemoP>
+        This is real game theory, not a heuristic. The same CFR family — scaled massively,
+        with state abstraction and deep nets — produced Libratus and Pluribus, the bots that
+        beat professionals at no-limit hold'em. The regret-matching idea connects to online
+        learning and the explore/exploit problems elsewhere in the lab, and "play an
+        unexploitable mixed strategy" is a principle that reaches into security and
+        adversarial ML.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · GAME THEORY (CFR)" title="Heads-Up Poker"
       subtitle="A poker AI that trained itself to a Nash equilibrium with counterfactual regret — bluffs and all."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

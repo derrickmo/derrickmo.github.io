@@ -115,8 +115,10 @@ function PCADemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
-        options={[{ value: "correlated", label: "Correlated" }, { value: "clusters", label: "Clusters" }, { value: "ring", label: "Ring" }]} />
-      <Toggle label="// PROJECT ONTO PC1" checked={project} onChange={setProject} tone="violet" />
+        options={[{ value: "correlated", label: "Correlated" }, { value: "clusters", label: "Clusters" }, { value: "ring", label: "Ring" }]}
+        help="The data shape. 'Correlated' has one dominant direction so PCA compresses it well; 'Ring' spreads variance every way, which PCA can't reduce cleanly." />
+      <Toggle label="// PROJECT ONTO PC1" checked={project} onChange={setProject} tone="violet"
+        help="Collapse every point onto the top principal axis — the dimensionality reduction itself. Notice how little is lost when PC2 carries little variance." />
       <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="PC1 VARIANCE" value={stats.pc1 + "%"} accent="#fbbf24" />
@@ -146,10 +148,29 @@ function PCADemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        PCA is the default tool for dimensionality reduction, visualization, and
+        decorrelation — compressing high-dimensional features, denoising, speeding up
+        downstream models, and giving a quick 2-D look at data you otherwise can't plot.
+        Under the hood it's an eigen-decomposition of the covariance matrix, the same
+        linear-algebra machinery behind whitening, spectral methods, and the matrix
+        factorization in recommender systems.
+      </DemoP>
+      <DemoP>
+        The "variance explained" idea is the intuition behind much of modern
+        representation learning: embeddings, autoencoders, and latent spaces all chase a
+        compact code that keeps the meaningful directions and discards noise. PCA's
+        <i> linearity</i> is also its limit — which is precisely why nonlinear methods like
+        t-SNE, UMAP, and autoencoders exist for data that doesn't lie near a flat subspace.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="UNSUPERVISED LEARNING" title="Principal Component Analysis"
       subtitle="Find the axes of greatest variance — then project onto them. Dimensionality reduction, made visible."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

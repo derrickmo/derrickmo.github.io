@@ -102,8 +102,10 @@ function DecisionTreeDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
-        options={[{ value: "blobs", label: "Blobs" }, { value: "xor", label: "XOR" }, { value: "circles", label: "Circles" }]} />
-      <Slider label="// MAX DEPTH" min={1} max={8} value={maxDepth} onChange={setMaxDepth} tone="violet" />
+        options={[{ value: "blobs", label: "Blobs" }, { value: "xor", label: "XOR" }, { value: "circles", label: "Circles" }]}
+        help="The class shape. Trees split one axis at a time, so they nail XOR but only staircase-approximate the smooth circular boundary." />
+      <Slider label="// MAX DEPTH" min={1} max={8} value={maxDepth} onChange={setMaxDepth} tone="violet"
+        help="How many times the tree may keep splitting. Deeper trees fit finer detail and push train accuracy toward 100% — straight into overfitting." />
       <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="LEAVES" value={stats.leaves} />
@@ -132,10 +134,29 @@ function DecisionTreeDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Decision trees are the building block of the most dependable workhorses in tabular
+        ML: <b>random forests</b> and gradient-boosted trees (XGBoost, LightGBM) routinely
+        win on structured, business-style data where deep nets struggle. The greedy
+        "pick the split that most reduces impurity" rule you're watching is the same idea
+        whether the impurity is Gini or entropy / information gain.
+      </DemoP>
+      <DemoP>
+        Trees are also prized for <b>interpretability</b> — every prediction is a readable
+        chain of if/else rules, which matters in regulated domains like credit and
+        healthcare. The overfitting-with-depth on screen is exactly why we prune, cap depth
+        and min-samples, and above all <i>ensemble</i>: averaging many decorrelated trees
+        (bagging) or sequentially correcting their residuals (boosting) keeps the accuracy
+        while taming the variance.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="CLASSICAL ML" title="Decision Tree"
       subtitle="Watch a CART tree carve the plane into axis-aligned regions — and overfit as it deepens."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

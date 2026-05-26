@@ -255,6 +255,95 @@ function Services() {
 
 // (Tech stack moved to the About page — kept off the portfolio front door.)
 
+// ─── Selected Work (consolidated from /work/ — research left, learn right) ────
+function SelectedWorkCard({ id, title, role, status, tech, description, diagram, href }) {
+  const external = href && /^https?:/.test(href);
+  const wrapProps = href ? (external ? { href, target: "_blank", rel: "noopener" } : { href }) : {};
+  return (
+    <a {...wrapProps} style={{
+      position: "relative", border: "1px solid var(--border)", borderRadius: 6,
+      background: "linear-gradient(180deg, rgba(13, 24, 52, 0.6) 0%, rgba(13, 24, 52, 0.25) 100%)",
+      overflow: "hidden", transition: "transform .25s, border-color .25s, box-shadow .25s",
+      textDecoration: "none", color: "inherit", display: "block",
+    }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(59, 130, 246, 0.15)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}>
+      <HudBrackets mode="dark" inset={10} size={22} />
+      <GridOverlay mode="dark" spacing={50} opacity={0.2} />
+      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: "1px solid var(--border)" }}>
+        <MonoLabel>// {id}</MonoLabel>
+        <StatusPill status={status} mode="dark" />
+      </div>
+      <div style={{ position: "relative", height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>{diagram}</div>
+      <div style={{ position: "relative", padding: "20px 22px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 24, letterSpacing: "-0.015em", color: "var(--white)", margin: 0 }}>{title}</h3>
+        <MonoLabel>{role}</MonoLabel>
+        <div className="t-body" style={{ color: "var(--muted)", marginTop: 4, fontSize: 14, lineHeight: 1.55 }}>{description}</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
+          {tech.map(t => <TechChip key={t} tone="violet" mode="dark">{t}</TechChip>)}
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function SelectedWork() {
+  const mobile = useIsMobile();
+  // RESEARCH on the left, LEARN on the right — row-major fill.
+  const projects = [
+    {
+      id: "RESEARCH", title: "Small Language Models Survey", role: "// RESEARCH · ACM TIST · CO-AUTHOR", status: "RESEARCH",
+      description: "Co-author on a comprehensive survey of small language models in the era of LLMs — architectures, training, compression, and deployment. Accepted by ACM TIST.",
+      tech: ["NLP", "LLM", "SURVEY"], href: "research/",
+      diagram: <TransformerBlock width={320} height={200} mode="dark" inputLabel="SLM" blockLabel="SURVEY" headLabel="TIST" />,
+    },
+    {
+      id: "LEARN", title: "ML from Scratch", role: "// LEARN · PYTHON, NUMPY, PYTORCH", status: "LEARN",
+      description: "200 notebooks across 20 modules — every algorithm built in NumPy first, from linear regression through transformers, RL, and LLM systems. Condensed on-site; full notebooks on GitHub.",
+      tech: ["PYTHON", "PYTORCH", "NUMPY"], href: "https://github.com/derrickmo/machine_learning_tutorials",
+      diagram: <LessonStack count={7} width={340} height={200} mode="dark" />,
+    },
+    {
+      id: "RESEARCH", title: "MentalNet", role: "// RESEARCH · AMIA · FIRST AUTHOR", status: "RESEARCH",
+      description: "First-author AMIA podium paper — BERT-based detection of mental disease from clinical text, with downstream work on Beck's cognitive patterns.",
+      tech: ["BERT", "NLP", "CLINICAL"], href: "research/",
+      diagram: <TransformerBlock width={320} height={200} mode="dark" inputLabel="TEXT" blockLabel="BERT" headLabel="DX" />,
+    },
+    {
+      id: "LEARN", title: "Hugging Face Tutorials", role: "// LEARN · TRANSFORMERS, AGENTS, RAG", status: "LEARN",
+      description: "38 hands-on notebooks across 7 sections — NLP, vision, audio, multimodal, production, and agentic workflows (MCP, RAG, structured output). Each a complete, runnable walkthrough.",
+      tech: ["HUGGINGFACE", "TRANSFORMERS", "AGENTS"], href: "learn/huggingface/",
+      diagram: <TransformerBlock width={320} height={200} mode="dark" inputLabel="HF" blockLabel="MODEL" headLabel="HUB" />,
+    },
+  ];
+  return (
+    <Section id="work">
+      <GridOverlay mode="dark" spacing={80} opacity={0.25} />
+      <GlowBlob color="blue" size={460} x={"-10%"} y={"30%"} opacity={0.14} />
+      <Container>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 36 }}>
+          <MonoLabel>// SELECTED WORK</MonoLabel>
+          <h2 style={{
+            fontFamily: "var(--f-display)", fontWeight: 700,
+            fontSize: "clamp(32px, 4vw, 48px)", letterSpacing: "-0.02em",
+            color: "var(--white)", margin: 0, lineHeight: 1.05,
+          }}>The public proof.</h2>
+          <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
+            Peer-reviewed research on the left, open teaching work on the right.
+            Each links to the full thing.
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 18 }}>
+          {projects.map((p, i) => <SelectedWorkCard key={i} {...p} />)}
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <MonoLabel color="var(--muted)">// RESEARCH · LEFT      // LEARN · RIGHT      // MORE TO COME</MonoLabel>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
 // ─── Lab preview — links to subpages ──────────────────────────
 function LabPreview() {
   const mobile = useIsMobile();
@@ -442,6 +531,7 @@ function SectionJump() {
   const items = [
     { href: "#motion", label: "IDEAS, ANIMATED" },
     { href: "#lab", label: "LEARN & PLAY" },
+    { href: "#work", label: "SELECTED WORK" },
     { href: "#services", label: "WORK WITH ME" },
     { href: "#about", label: "ABOUT" },
   ];
@@ -475,6 +565,7 @@ function App() {
       <SectionJump />
       <ConceptsInMotion />
       <LabPreview />
+      <SelectedWork />
       <Services />
       <About />
       <Footer />

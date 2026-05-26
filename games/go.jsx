@@ -140,10 +140,28 @@ function GoDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Go is the landmark where classical AI hit a wall and a new paradigm broke through.
+        Its branching factor and the lack of any simple board evaluation made alpha-beta
+        hopeless, so the field turned to <b>Monte-Carlo Tree Search</b> — estimate a
+        position by random playouts rather than a formula — exactly what this AI does, using
+        UCB to spend its rollouts where they matter most.
+      </DemoP>
+      <DemoP>
+        That MCTS core, fused with deep policy and value networks, became <b>AlphaGo</b>
+        (which beat Lee Sedol in 2016) and then <b>AlphaZero</b>, which learned Go, chess,
+        and shogi from self-play with no human games at all. The selection rule here
+        (UCB/UCT) is the same explore-exploit math as the multi-armed bandit, and MCTS now
+        guides reasoning and planning well beyond board games.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · MONTE-CARLO SEARCH" title="Go 7x7"
       subtitle="Real Go on a small board against a Monte-Carlo rollout AI — the idea that, scaled up, became AlphaGo."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );
 }

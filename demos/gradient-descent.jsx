@@ -217,11 +217,15 @@ function GradientDescentDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// LOSS SURFACE" value={surf} onChange={v => { setRunning(false); setSurf(v); }}
-        options={Object.entries(SURFACES).map(([k, v]) => ({ value: k, label: v.label }))} />
+        options={Object.entries(SURFACES).map(([k, v]) => ({ value: k, label: v.label }))}
+        help="The error landscape to descend. Each is a classic stress test: a stretched ravine, a saddle, Rosenbrock's banana valley, and a bumpy surface with many local minima." />
       <SegmentedControl label="// OPTIMIZER" tone="violet" value={opt} onChange={v => { setRunning(false); setOpt(v); }}
-        options={[{ value: "sgd", label: "SGD" }, { value: "momentum", label: "Momentum" }, { value: "rmsprop", label: "RMSProp" }, { value: "adam", label: "Adam" }]} />
-      <Slider label="// LEARNING RATE" min={0.001} max={0.3} step={0.001} value={lr} onChange={setLr} />
-      <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed} suffix=" /frame" />
+        options={[{ value: "sgd", label: "SGD" }, { value: "momentum", label: "Momentum" }, { value: "rmsprop", label: "RMSProp" }, { value: "adam", label: "Adam" }]}
+        help="The update rule. SGD steps along the raw gradient; Momentum builds velocity; RMSProp rescales each direction by its recent gradient; Adam combines momentum with per-direction scaling." />
+      <Slider label="// LEARNING RATE" min={0.001} max={0.3} step={0.001} value={lr} onChange={setLr}
+        help="How big each step is. Too small crawls; too large overshoots and can diverge — watch the loss blow up." />
+      <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed} suffix=" /frame"
+        help="How many optimizer steps run per animation frame. Purely visual pacing — it does not change the math." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={handleRun} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={handleStep} disabled={running}>STEP</DemoButton>
@@ -259,12 +263,34 @@ function GradientDescentDemo() {
     </>
   );
 
+  const concepts = (
+    <>
+      <DemoP>
+        Gradient descent is the engine of essentially all of modern ML: every neural
+        network — from a tiny MLP to a frontier LLM — is trained by some variant of what
+        you're watching, following the loss gradient over millions or billions of
+        parameters. <b>Adam</b> is the de-facto default for training transformers; SGD
+        with momentum still wins for many vision models. The pathologies on screen are
+        the real ones engineers fight: ravines (ill-conditioned curvature), saddle points
+        (which dominate high-dimensional landscapes), and local minima.
+      </DemoP>
+      <DemoP>
+        The <b>learning rate</b> is the single most consequential hyperparameter in deep
+        learning — too high and training diverges into NaNs, too low and it never
+        finishes. That fragility is exactly why <i>learning-rate schedules</i> (warmup
+        then cosine decay) exist, and why adaptive optimizers that auto-scale each
+        direction took over. Build the intuition here for "why is my model not training"
+        and a huge fraction of practical deep-learning debugging stops being mysterious.
+      </DemoP>
+    </>
+  );
+
   return (
     <DemoLayout
       topic="OPTIMIZATION"
       title="Gradient Descent"
       subtitle="Drop a point on a loss surface and race four optimizers to the bottom."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"
       tone="blue"

@@ -156,8 +156,10 @@ function VAEDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
-        options={[{ value: "ring", label: "Ring" }, { value: "clusters", label: "Clusters" }, { value: "spiral", label: "Spiral" }]} />
-      <Slider label="// β (KL weight)" min={0} max={3} step={0.1} value={beta} onChange={v => { setBeta(v); betaRef.current = v; }} tone="violet" />
+        options={[{ value: "ring", label: "Ring" }, { value: "clusters", label: "Clusters" }, { value: "spiral", label: "Spiral" }]}
+        help="The data distribution to learn. Ring, clusters, and spiral each test how well a 2-D latent space can organize and regenerate the shape." />
+      <Slider label="// β (KL weight)" min={0} max={3} step={0.1} value={beta} onChange={v => { setBeta(v); betaRef.current = v; }} tone="violet"
+        help="How hard the KL term pulls encodings toward the Gaussian prior. Too low fragments the latent space (sharp reconstructions, poor samples); too high collapses it (clean prior, blurry output)." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => { stop(); step(); }} primary>STEP</DemoButton>
         <DemoButton onClick={run} tone="violet">{running ? "PAUSE" : "TRAIN"}</DemoButton>
@@ -196,10 +198,30 @@ function VAEDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        VAEs were the first deep generative models to give a smooth, sampleable latent
+        space, and that idea is now everywhere: the latent space Stable Diffusion denoises
+        in is a VAE's, VQ-VAE tokenizes images and audio so transformers can generate them,
+        and latent-variable thinking underlies much of representation learning. The
+        <b> reparameterization trick</b> — making sampling differentiable — is a broadly
+        reusable tool for backprop through stochastic nodes.
+      </DemoP>
+      <DemoP>
+        The β knob is a small window onto deep tensions in generative modeling: the
+        reconstruction-versus-regularization tradeoff (β-VAE turns it up to encourage
+        disentangled, interpretable factors), and the <i>posterior collapse</i> failure
+        where too-strong a prior leaves the latent code unused. The evidence-lower-bound
+        (ELBO) objective you're optimizing here is the same variational-inference machinery
+        behind the EM updates in the Gaussian-mixtures demo.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GENERATIVE · VAE" title="Variational Autoencoder"
       subtitle="Encode to a distribution, sample with the reparameterization trick, and let KL shape a latent space you can generate from."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/generative/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
   );

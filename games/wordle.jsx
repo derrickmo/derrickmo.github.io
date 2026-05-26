@@ -133,10 +133,28 @@ function WordleDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Wordle is a clean demonstration of <b>information theory</b> in action: the best
+        guess maximizes expected <i>entropy</i> — it splits the remaining answers into the
+        most even buckets, eliminating the most candidates on average no matter the hidden
+        word. Measuring "how much will this tell me?" in bits is the same idea behind data
+        compression, coding, and the cross-entropy loss every classifier minimizes.
+      </DemoP>
+      <DemoP>
+        The very same expected-information-gain criterion chooses splits in <b>decision
+        trees</b> and picks the most informative examples to label in <b>active learning</b>.
+        It reframes good decision-making as a search for information rather than for an
+        immediate answer — the instinct behind well-designed experiments and the exploration
+        bonuses used in reinforcement learning.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · INFORMATION THEORY" title="Wordle Solver Duel"
       subtitle="Race an entropy-maximizing solver. The best guess is the one that learns the most, not the one that looks smartest."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

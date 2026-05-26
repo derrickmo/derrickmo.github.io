@@ -94,7 +94,8 @@ function ScalingLawsDemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Slider label={`// COMPUTE BUDGET · 1e${logC.toFixed(1)} FLOPs`} min={17} max={24} step={0.25} value={logC} onChange={setLogC} tone="violet" />
+      <Slider label={`// COMPUTE BUDGET · 1e${logC.toFixed(1)} FLOPs`} min={17} max={24} step={0.25} value={logC} onChange={setLogC} tone="violet"
+        help="Total training FLOPs to spend (compute ≈ 6 · params · tokens). Slide it and the compute-optimal split between model size and data shifts along the frontier." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="OPTIMAL PARAMS" value={fmt(stats.N)} accent="#60a5fa" />
         <StatReadout label="OPTIMAL TOKENS" value={fmt(stats.D)} accent="#c084fc" />
@@ -127,10 +128,29 @@ function ScalingLawsDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Scaling laws turned model training from guesswork into budgeting. Because loss falls
+        as a predictable power law in parameters, data, and compute, labs can forecast a
+        large model's performance from small-scale runs and decide how to spend a GPU budget
+        <i> before</i> committing it. This is the planning tool behind essentially every
+        frontier model.
+      </DemoP>
+      <DemoP>
+        The Chinchilla result you can rediscover here — roughly <b>20 tokens per
+        parameter</b> is compute-optimal — reshaped the field: it showed earlier giants like
+        GPT-3 were oversized for their data, and it's why recent models train on far more
+        tokens relative to their size. The same curves frame today's live debates: running
+        out of high-quality data, the training-vs-inference compute tradeoff, and where
+        emergent capabilities show up.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="LLM SYSTEMS · SCALING" title="Neural Scaling Laws"
       subtitle="Spend compute wisely: the power-law frontier and the compute-optimal balance of parameters and data."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );

@@ -105,8 +105,10 @@ function ConnectFourDemo() {
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// DIFFICULTY" value={diff} onChange={setDiff}
-        options={[{ value: "easy", label: "Easy" }, { value: "hard", label: "Hard" }, { value: "expert", label: "Expert" }]} />
-      <Toggle label="// AI MOVES FIRST" checked={aiStarts} onChange={v => { setAiStarts(v); reset(v); }} tone="violet" />
+        options={[{ value: "easy", label: "Easy" }, { value: "hard", label: "Hard" }, { value: "expert", label: "Expert" }]}
+        help="Search depth in plies (Easy 2, Hard 4, Expert 6). Deeper look-ahead spots forced wins and threats further out, but costs more time per move." />
+      <Toggle label="// AI MOVES FIRST" checked={aiStarts} onChange={v => { setAiStarts(v); reset(v); }} tone="violet"
+        help="Let the AI open in the center column — a known first-player advantage (Connect Four is a first-player win with perfect play)." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="YOU" value={tally.w} accent="#60a5fa" />
         <StatReadout label="DRAWS" value={tally.d} />
@@ -136,10 +138,29 @@ function ConnectFourDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Connect Four is the step up from tic-tac-toe where the game tree is too large to
+        solve live, so it shows the two pillars of real game engines: a depth-limited search
+        plus a hand-crafted <b>evaluation function</b> that scores non-terminal positions
+        (here, who's closer to four-in-a-row, plus center control). Every classic chess and
+        checkers engine is this same recipe run deeper.
+      </DemoP>
+      <DemoP>
+        <b>Alpha-beta pruning</b> is the workhorse optimization on display — proving a
+        branch is worse than one already found lets you skip it entirely, and with good move
+        ordering (center-out here) it roughly doubles the depth reachable for the same
+        compute. The upgrades from here — transposition tables, iterative deepening,
+        quiescence search, and ultimately learned evaluation — are exactly how engines
+        climbed from amateur to superhuman.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="GAME · MINIMAX + ALPHA-BETA" title="Connect Four vs AI"
       subtitle="A real game-tree search with alpha-beta pruning. Tune the depth and try to force a win."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );
 }

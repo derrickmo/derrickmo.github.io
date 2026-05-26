@@ -124,9 +124,12 @@ function ValueIterationDemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Slider label="// DISCOUNT γ" min={0.1} max={0.99} step={0.01} value={gamma} onChange={setGamma} />
-      <Slider label="// TRANSITION NOISE" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise} tone="violet" />
-      <Slider label="// LIVING REWARD" min={-1} max={0.05} step={0.01} value={living} onChange={setLiving} />
+      <Slider label="// DISCOUNT γ" min={0.1} max={0.99} step={0.01} value={gamma} onChange={setGamma}
+        help="How much future reward is worth versus immediate. Near 1 = far-sighted, plans long routes; low = short-sighted, chases only nearby reward." />
+      <Slider label="// TRANSITION NOISE" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise} tone="violet"
+        help="Chance the agent slips sideways instead of moving as intended. Higher noise makes the optimal policy steer wide of the pit to stay safe." />
+      <Slider label="// LIVING REWARD" min={-1} max={0.05} step={0.01} value={living} onChange={setLiving}
+        help="Reward (usually a cost) for each non-terminal step. Strongly negative makes the agent rush to exit, even risking the pit; near zero lets it take the safe long way." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => { stopRun(); sweep(); }} primary>SWEEP</DemoButton>
         <DemoButton onClick={toggleRun} tone="violet">{running ? "PAUSE" : "RUN"}</DemoButton>
@@ -165,10 +168,29 @@ function ValueIterationDemo() {
       </DemoP>
     </>
   );
+  const concepts = (
+    <>
+      <DemoP>
+        Markov Decision Processes are the formal backbone of sequential decision-making,
+        and the <b>Bellman optimality</b> backup you're iterating is the equation underneath
+        nearly all of reinforcement learning. Value iteration itself solves real planning
+        problems — robot navigation, inventory and resource control, game AI — whenever the
+        environment's dynamics are known.
+      </DemoP>
+      <DemoP>
+        When the dynamics aren't known, the same backup becomes <i>learning</i>: Q-learning
+        and SARSA sample the Bellman update from experience, and Deep Q-Networks swap the
+        value table for a neural net to scale to huge state spaces (Atari, robotics). The
+        knobs here — discount, stochastic transitions, reward shaping — are exactly the
+        design choices that make or break a real RL system, including the reward-hacking
+        risk of getting the living reward wrong.
+      </DemoP>
+    </>
+  );
   return (
     <DemoLayout topic="REINFORCEMENT LEARNING" title="MDP Value Iteration"
       subtitle="Solve a gridworld exactly: Bellman backups propagate value out from the goal, inducing the optimal policy."
-      stage={stage} controls={controls} explainer={explainer}
+      stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />
   );
