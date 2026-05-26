@@ -272,6 +272,12 @@ const CONCEPTS_INDEX = {
     summary: "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     tex: "H(p) = -\\sum_i p_i \\log p_i",
   },
+  "bayes": {
+    id: "bayes", name: "Bayes' Rule (Conjugate Updating)", area: "Foundations",
+    summary: "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    tex: "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
+    prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -292,6 +298,7 @@ const CONCEPT_TAGS = {
     "pca":                  ["pca", "embeddings"],
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],
+    "bayes":                ["bayes", "cross-entropy"],
     "attention":            ["attention", "softmax", "embeddings"],
     "positional-encoding":  ["positional-encoding", "fourier", "attention"],
     "multi-head-attention": ["multi-head", "attention", "transformer-block"],
@@ -346,7 +353,7 @@ const CONCEPT_TAGS = {
     "ml-applications":       ["forecasting"],
     "supervised-learning":   ["svm", "knn", "decision-tree", "roc"],
     "unsupervised-learning": ["kmeans", "gmm-em", "pca"],
-    "foundations":           ["clt", "gradient-descent", "chain-rule", "entropy"],
+    "foundations":           ["clt", "gradient-descent", "chain-rule", "entropy", "bayes"],
     "ml-theory":             ["bias-variance", "regularization"],
     "advanced-cv":           ["iou-nms"],
   },

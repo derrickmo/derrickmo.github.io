@@ -302,6 +302,7 @@ const DM_NAV_INDEX = [
   { label: "HF: Multimodal", group: "HF Section", href: "/learn/huggingface/multimodal/", kw: "blip diffusion captioning" },
   { label: "HF: Best Practices", group: "HF Section", href: "/learn/huggingface/best-practices/", kw: "quantization gradio trainer" },
   { label: "HF: Agentic Workflows", group: "HF Section", href: "/learn/huggingface/agentic/", kw: "mcp rag agents" },
+  { label: "Bayes Updater", group: "Demo", href: "/visualize/bayes/", kw: "bayes beta bernoulli prior posterior thompson sampling conjugate foundations probability" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
 ];
 

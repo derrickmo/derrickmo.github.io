@@ -420,6 +420,18 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphBayes = () => (
+  // Two Beta curves: a wider violet prior under a tighter blue posterior.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="14" y1="100" x2="150" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    <path d="M 16 96 Q 50 70 80 60 Q 110 50 144 96" fill="none" stroke="#c084fc" strokeWidth="2" opacity="0.85" />
+    <path d="M 16 100 L 16 96 Q 50 70 80 60 Q 110 50 144 96 L 144 100 Z" fill="#a855f7" opacity="0.10" />
+    <path d="M 36 98 Q 70 30 96 22 Q 122 30 134 98" fill="none" stroke="#60a5fa" strokeWidth="2" />
+    <path d="M 36 100 L 36 98 Q 70 30 96 22 Q 122 30 134 98 L 134 100 Z" fill="#60a5fa" opacity="0.14" />
+    <line x1="96" y1="14" x2="96" y2="100" stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 3" />
+  </svg>
+);
+
 const GLYPHS = {
   "pathfinding": <GlyphPath />,
   "kmeans": <GlyphKMeans />,
@@ -454,6 +466,7 @@ const GLYPHS = {
   "convolution": <GlyphKernel />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
+  "bayes": <GlyphBayes />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

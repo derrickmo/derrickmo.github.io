@@ -70,10 +70,12 @@ window.PLAY_DEMOS = {
       blurb: "Approximate a full weight update with two thin matrices via real truncated SVD — most of the change, a fraction of the params." },
     { slug: "scaling-laws",       topic: "SCALING",       title: "Neural Scaling Laws",   tone: "blue",   status: "LIVE",
       blurb: "The power-law loss frontier and the compute-optimal balance of model size and data (Chinchilla)." },
+    { slug: "bayes",              topic: "FOUNDATIONS",   title: "Bayes Updater",         tone: "violet", status: "LIVE",
+      blurb: "A Beta prior meets Bernoulli flips: drag your prior, watch the posterior tighten on the truth, learn conjugate updating by feel." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "overfitting", "roc", "clt", "pathfinding"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "overfitting", "roc", "clt", "bayes", "pathfinding"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "convolution", "nms"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
@@ -116,6 +118,7 @@ window.PLAY_DEMOS = {
     "convolution": "the convolution kernel",
     "diffusion": "denoising (score / DDIM)",
     "fourier": "a sum of sines",
+    "bayes": "conjugate prior × likelihood → posterior",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };
