@@ -284,6 +284,12 @@ const CONCEPTS_INDEX = {
     tex: "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     prereqs: ["gradient-descent"], leadsTo: ["lr-schedule"],
   },
+  "gan": {
+    id: "gan", name: "Generative Adversarial Network", area: "Generative",
+    summary: "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
+    tex: "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
+    prereqs: ["mlp", "cross-entropy"], leadsTo: ["diffusion"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -306,6 +312,7 @@ const CONCEPT_TAGS = {
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
+    "gan":                  ["gan", "mlp", "cross-entropy"],
     "attention":            ["attention", "softmax", "embeddings"],
     "positional-encoding":  ["positional-encoding", "fourier", "attention"],
     "multi-head-attention": ["multi-head", "attention", "transformer-block"],
@@ -351,7 +358,7 @@ const CONCEPT_TAGS = {
     "rnn-nlp":               ["rnn", "markov", "embeddings", "tokenization"],
     "transformers":          ["attention", "multi-head", "transformer-block", "positional-encoding"],
     "advanced-nlp":          ["decoding", "transformer-block"],
-    "generative":            ["vae", "diffusion"],
+    "generative":            ["vae", "gan", "diffusion"],
     "fine-tuning":           ["lora"],
     "reinforcement-learning":["q-learning", "mdp-bellman", "bandit"],
     "training-systems":      ["lr-schedule", "scaling-laws", "adam"],

@@ -74,6 +74,8 @@ window.PLAY_DEMOS = {
       blurb: "A Beta prior meets Bernoulli flips: drag your prior, watch the posterior tighten on the truth, learn conjugate updating by feel." },
     { slug: "optimizers",         topic: "OPTIMIZATION",  title: "Optimizer Shootout",    tone: "blue",   status: "LIVE",
       blurb: "SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface — see how each one's mechanics shape its path." },
+    { slug: "gan",                topic: "GENERATIVE",    title: "GAN 2-D",               tone: "violet", status: "LIVE",
+      blurb: "A real generator and discriminator duel in your browser — fakes drift toward the target as the two networks fight to a draw." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -83,7 +85,7 @@ window.PLAY_DEMOS = {
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, and the Bellman backups that plan optimal behavior — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit"] },
-    { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "fourier", "forecasting"] },
+    { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -122,6 +124,7 @@ window.PLAY_DEMOS = {
     "fourier": "a sum of sines",
     "bayes": "conjugate prior × likelihood → posterior",
     "optimizers": "SGD · Momentum · RMSProp · Adam",
+    "gan": "generator vs discriminator (BCE)",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

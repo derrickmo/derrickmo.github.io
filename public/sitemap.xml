@@ -24,6 +24,7 @@
   <url><loc>https://derrickmo.github.io/concepts/entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/fourier/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gmm-em/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/iou-nms/</loc><priority>0.6</priority></url>
@@ -116,6 +117,7 @@
   <url><loc>https://derrickmo.github.io/visualize/embeddings/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fourier/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gmm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gridworld-rl/</loc><priority>0.6</priority></url>

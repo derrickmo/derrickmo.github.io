@@ -94,6 +94,7 @@ export default defineConfig({
         'visualize-scaling-laws': 'visualize/scaling-laws/index.html',
         'visualize-bayes': 'visualize/bayes/index.html',
         'visualize-optimizers': 'visualize/optimizers/index.html',
+        'visualize-gan': 'visualize/gan/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -178,6 +179,7 @@ export default defineConfig({
         'concept-entropy': 'concepts/entropy/index.html',
         'concept-bayes': 'concepts/bayes/index.html',
         'concept-optimizers': 'concepts/optimizers/index.html',
+        'concept-gan': 'concepts/gan/index.html',
         // <<< generated:concepts
       },
     },

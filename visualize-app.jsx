@@ -420,6 +420,26 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphGAN = () => (
+  // Two faces (G / D) and a duel of arrows; ring of blue real + drifting violet fakes.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* real ring */}
+    <circle cx="80" cy="60" r="34" fill="none" stroke="#60a5fa" strokeWidth="1.4" opacity="0.6" />
+    {[0, 0.7, 1.4, 2.1, 2.8, 3.5, 4.2, 4.9, 5.6].map((a, i) => (
+      <circle key={`r${i}`} cx={80 + Math.cos(a) * 34} cy={60 + Math.sin(a) * 34} r="2.5" fill="#60a5fa" />
+    ))}
+    {/* fake samples drifting toward ring */}
+    {[[44, 78], [108, 38], [62, 32], [104, 88], [60, 80]].map(([x, y], i) => (
+      <circle key={`f${i}`} cx={x} cy={y} r="2.5" fill="#c084fc" />
+    ))}
+    {/* G and D labels */}
+    <text x="8" y="20" fontFamily="JetBrains Mono" fontSize="11" fill="#c084fc">G</text>
+    <text x="142" y="106" fontFamily="JetBrains Mono" fontSize="11" fill="#fbbf24">D</text>
+    <line x1="16" y1="22" x2="48" y2="56" stroke="#c084fc" strokeWidth="1" strokeDasharray="3 3" />
+    <line x1="138" y1="98" x2="106" y2="74" stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 3" />
+  </svg>
+);
+
 const GlyphOptimizers = () => (
   // Four colored trails descending toward a common basin.
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -482,6 +502,7 @@ const GLYPHS = {
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
   "optimizers": <GlyphOptimizers />,
+  "gan": <GlyphGAN />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

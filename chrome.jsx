@@ -304,6 +304,7 @@ const DM_NAV_INDEX = [
   { label: "HF: Agentic Workflows", group: "HF Section", href: "/learn/huggingface/agentic/", kw: "mcp rag agents" },
   { label: "Bayes Updater", group: "Demo", href: "/visualize/bayes/", kw: "bayes beta bernoulli prior posterior thompson sampling conjugate foundations probability" },
   { label: "Optimizer Shootout", group: "Demo", href: "/visualize/optimizers/", kw: "sgd momentum rmsprop adam optimizer training loss landscape" },
+  { label: "GAN 2-D", group: "Demo", href: "/visualize/gan/", kw: "gan generative adversarial network generator discriminator duel" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
 ];
 
