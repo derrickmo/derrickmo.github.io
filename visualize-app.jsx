@@ -420,6 +420,20 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphOptimizers = () => (
+  // Four colored trails descending toward a common basin.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="14" y1="100" x2="150" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    <ellipse cx="100" cy="92" rx="38" ry="16" fill="rgba(168,85,247,0.18)" />
+    <path d="M 22 28 Q 60 60 100 92" fill="none" stroke="#60a5fa" strokeWidth="1.8" />
+    <path d="M 22 28 Q 50 70 100 92" fill="none" stroke="#c084fc" strokeWidth="1.8" />
+    <path d="M 22 28 Q 80 50 100 92" fill="none" stroke="#fbbf24" strokeWidth="1.8" />
+    <path d="M 22 28 Q 70 40 100 92" fill="none" stroke="#34d399" strokeWidth="1.8" />
+    <circle cx="22" cy="28" r="3" fill="#e0e7ff" />
+    <circle cx="100" cy="92" r="3" fill="#e0e7ff" />
+  </svg>
+);
+
 const GlyphBayes = () => (
   // Two Beta curves: a wider violet prior under a tighter blue posterior.
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -467,6 +481,7 @@ const GLYPHS = {
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
+  "optimizers": <GlyphOptimizers />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

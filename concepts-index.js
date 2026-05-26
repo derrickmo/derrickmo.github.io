@@ -278,6 +278,12 @@ const CONCEPTS_INDEX = {
     tex: "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae"],
   },
+  "optimizers": {
+    id: "optimizers", name: "Adaptive Optimizers (Momentum / RMSProp / Adam)", area: "Foundations",
+    summary: "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
+    tex: "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
+    prereqs: ["gradient-descent"], leadsTo: ["lr-schedule"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -299,6 +305,7 @@ const CONCEPT_TAGS = {
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
+    "optimizers":           ["optimizers", "gradient-descent", "adam"],
     "attention":            ["attention", "softmax", "embeddings"],
     "positional-encoding":  ["positional-encoding", "fourier", "attention"],
     "multi-head-attention": ["multi-head", "attention", "transformer-block"],
@@ -339,7 +346,7 @@ const CONCEPT_TAGS = {
   },
   // ML-from-scratch curriculum modules — slugs match curriculum.js
   modules: {
-    "neural-nets":           ["mlp", "backprop", "activations"],
+    "neural-nets":           ["mlp", "backprop", "activations", "optimizers"],
     "cnn":                   ["cnn", "convolution"],
     "rnn-nlp":               ["rnn", "markov", "embeddings", "tokenization"],
     "transformers":          ["attention", "multi-head", "transformer-block", "positional-encoding"],

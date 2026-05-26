@@ -93,6 +93,7 @@ export default defineConfig({
         'visualize-lora': 'visualize/lora/index.html',
         'visualize-scaling-laws': 'visualize/scaling-laws/index.html',
         'visualize-bayes': 'visualize/bayes/index.html',
+        'visualize-optimizers': 'visualize/optimizers/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -176,6 +177,7 @@ export default defineConfig({
         'concept-forecasting': 'concepts/forecasting/index.html',
         'concept-entropy': 'concepts/entropy/index.html',
         'concept-bayes': 'concepts/bayes/index.html',
+        'concept-optimizers': 'concepts/optimizers/index.html',
         // <<< generated:concepts
       },
     },

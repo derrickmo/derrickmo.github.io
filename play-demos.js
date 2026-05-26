@@ -72,12 +72,14 @@ window.PLAY_DEMOS = {
       blurb: "The power-law loss frontier and the compute-optimal balance of model size and data (Chinchilla)." },
     { slug: "bayes",              topic: "FOUNDATIONS",   title: "Bayes Updater",         tone: "violet", status: "LIVE",
       blurb: "A Beta prior meets Bernoulli flips: drag your prior, watch the posterior tighten on the truth, learn conjugate updating by feel." },
+    { slug: "optimizers",         topic: "OPTIMIZATION",  title: "Optimizer Shootout",    tone: "blue",   status: "LIVE",
+      blurb: "SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface — see how each one's mechanics shape its path." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "overfitting", "roc", "clt", "bayes", "pathfinding"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
-    { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "convolution", "nms"] },
+    { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, and the Bellman backups that plan optimal behavior — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit"] },
@@ -119,6 +121,7 @@ window.PLAY_DEMOS = {
     "diffusion": "denoising (score / DDIM)",
     "fourier": "a sum of sines",
     "bayes": "conjugate prior × likelihood → posterior",
+    "optimizers": "SGD · Momentum · RMSProp · Adam",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };
