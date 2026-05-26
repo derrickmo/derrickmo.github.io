@@ -127,6 +127,7 @@
   <url><loc>https://derrickmo.github.io/visualize/lora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/mcts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/multi-head-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/neural-playground/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/nms/</loc><priority>0.6</priority></url>

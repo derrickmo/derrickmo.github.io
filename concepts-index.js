@@ -314,6 +314,7 @@ const CONCEPT_TAGS = {
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
     "gan":                  ["gan", "mlp", "cross-entropy"],
     "backprop":             ["backprop", "chain-rule"],
+    "mcts":                 ["mcts", "bandit", "minimax"],
     "attention":            ["attention", "softmax", "embeddings"],
     "positional-encoding":  ["positional-encoding", "fourier", "attention"],
     "multi-head-attention": ["multi-head", "attention", "transformer-block"],

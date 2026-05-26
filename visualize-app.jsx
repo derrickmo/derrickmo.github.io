@@ -420,6 +420,24 @@ const GlyphVAE = () => (
   </svg>
 );
 
+const GlyphMCTS = () => (
+  // A tree fanning out with one heavily-visited principal branch.
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[80, 22], [44, 50], [80, 50], [116, 50], [28, 86], [60, 86], [76, 86], [96, 86], [132, 86]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r={i === 0 ? 7 : i === 2 || i === 6 ? 6 : 4} fill="rgba(15,23,42,0.6)"
+        stroke={i === 0 ? "#fbbf24" : i === 2 || i === 6 ? "#fbbf24" : "rgba(148,163,184,0.4)"} strokeWidth="1.5" />
+    ))}
+    {[[80, 22, 44, 50], [80, 22, 80, 50], [80, 22, 116, 50],
+      [44, 50, 28, 86], [44, 50, 60, 86],
+      [80, 50, 76, 86], [80, 50, 96, 86],
+      [116, 50, 132, 86]].map(([x1, y1, x2, y2], i) => (
+      <line key={`e${i}`} x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={(i === 1 || i === 5) ? "#fbbf24" : "rgba(148,163,184,0.3)"}
+        strokeWidth={(i === 1 || i === 5) ? 2 : 1} />
+    ))}
+  </svg>
+);
+
 const GlyphBackprop = () => (
   // A tiny computation graph: 2 inputs -> 2 hidden -> 1 output, with one
   // forward edge highlighted and one backward edge highlighted.
@@ -522,6 +540,7 @@ const GLYPHS = {
   "optimizers": <GlyphOptimizers />,
   "gan": <GlyphGAN />,
   "backprop": <GlyphBackprop />,
+  "mcts": <GlyphMCTS />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

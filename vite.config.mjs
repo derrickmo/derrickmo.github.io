@@ -96,6 +96,7 @@ export default defineConfig({
         'visualize-optimizers': 'visualize/optimizers/index.html',
         'visualize-gan': 'visualize/gan/index.html',
         'visualize-backprop': 'visualize/backprop/index.html',
+        'visualize-mcts': 'visualize/mcts/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
