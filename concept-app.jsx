@@ -62,6 +62,21 @@ function Hero() {
             {C.summary}
           </p>
         )}
+        {C.animation && (
+          <div style={{
+            marginTop: 28, position: "relative", overflow: "hidden",
+            border: "1px solid var(--border-violet)", borderRadius: 8,
+            background: "rgba(5, 8, 22, 0.55)",
+          }}>
+            <HudBrackets mode="dark" inset={8} size={16} />
+            <div style={{ padding: "12px 18px 8px", borderBottom: "1px solid var(--border)" }}>
+              <MonoLabel color="var(--violet-lt)">// CONCEPT · IN MOTION</MonoLabel>
+            </div>
+            <iframe src={`${BASE}${C.animation}`} title={`${C.name} animation`}
+              loading="lazy"
+              style={{ width: "100%", height: 420, border: 0, display: "block", background: "transparent" }} />
+          </div>
+        )}
         {C.tex && TeX && (
           <div style={{
             marginTop: 28, padding: "22px 24px",

@@ -16,6 +16,8 @@
 //   prereqs — optional [id...] of concepts that build into this one
 //   leadsTo — optional [id...] of concepts that build on this one
 //   refs    — optional [{ label, href }] canonical references
+//   animation — optional path to a sandboxed SVG/CSS loop (public/viz/*.html);
+//               embedded as the hero of the concept page via <iframe>.
 
 const CONCEPTS_INDEX = {
   // ── Foundations & math ────────────────────────────────────────
@@ -24,11 +26,18 @@ const CONCEPTS_INDEX = {
     summary: "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
     tex: "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     prereqs: ["chain-rule"], leadsTo: ["backprop", "lr-schedule", "adam"],
+    animation: "viz/gradient.html",
   },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
     prereqs: ["chain-rule", "gradient-descent"], leadsTo: ["activations"],
+  },
+  "rnn": {
+    id: "rnn", name: "Recurrent Neural Network", area: "NLP",
+    summary: "A neural net with a hidden state that carries information across a sequence — the pre-transformer way to model order.",
+    prereqs: ["mlp"], leadsTo: ["attention"],
+    animation: "viz/recurrence.html",
   },
   "chain-rule": {
     id: "chain-rule", name: "Chain Rule", area: "Foundations",
@@ -126,10 +135,12 @@ const CONCEPTS_INDEX = {
     id: "mlp", name: "Multilayer Perceptron", area: "Neural Networks",
     summary: "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
     prereqs: ["activations", "backprop"], leadsTo: ["cnn", "rnn", "transformer-block"],
+    animation: "viz/feedforward.html",
   },
   "convolution": {
     id: "convolution", name: "Convolution (CNN)", area: "Computer Vision",
     summary: "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    animation: "viz/convolution.html",
   },
   "cnn": {
     id: "cnn", name: "Convolutional Neural Network", area: "Computer Vision",
@@ -155,6 +166,7 @@ const CONCEPTS_INDEX = {
     id: "embeddings", name: "Embeddings", area: "NLP",
     summary: "Map tokens (or items) to vectors so that distance and direction encode meaning.",
     leadsTo: ["vector-search", "attention"],
+    animation: "viz/embeddings.html",
   },
   "attention": {
     id: "attention", name: "Self-Attention", area: "Transformers",
@@ -176,6 +188,7 @@ const CONCEPTS_INDEX = {
     id: "transformer-block", name: "Transformer Block", area: "Transformers",
     summary: "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
     prereqs: ["attention", "multi-head"],
+    animation: "viz/transformer.html",
   },
   "decoding": {
     id: "decoding", name: "Decoding Strategies", area: "NLP",
@@ -321,7 +334,7 @@ const CONCEPT_TAGS = {
   modules: {
     "neural-nets":           ["mlp", "backprop", "activations"],
     "cnn":                   ["cnn", "convolution"],
-    "rnn-nlp":               ["markov", "embeddings", "tokenization"],
+    "rnn-nlp":               ["rnn", "markov", "embeddings", "tokenization"],
     "transformers":          ["attention", "multi-head", "transformer-block", "positional-encoding"],
     "advanced-nlp":          ["decoding", "transformer-block"],
     "generative":            ["vae", "diffusion"],

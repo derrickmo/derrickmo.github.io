@@ -129,6 +129,7 @@ export default defineConfig({
         'concepts': 'concepts/index.html',
         'concept-gradient-descent': 'concepts/gradient-descent/index.html',
         'concept-backprop': 'concepts/backprop/index.html',
+        'concept-rnn': 'concepts/rnn/index.html',
         'concept-chain-rule': 'concepts/chain-rule/index.html',
         'concept-lr-schedule': 'concepts/lr-schedule/index.html',
         'concept-adam': 'concepts/adam/index.html',
