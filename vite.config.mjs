@@ -45,6 +45,7 @@ export default defineConfig({
         'learn-ml-from-scratch': 'learn/ml-from-scratch/index.html',
         'learn-building-with-genai': 'learn/building-with-genai/index.html',
         'learn-notes': 'learn/notes/index.html',
+        'learn-field-notes': 'learn/field-notes/index.html',
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',
         'play-tic-tac-toe': 'play/tic-tac-toe/index.html',

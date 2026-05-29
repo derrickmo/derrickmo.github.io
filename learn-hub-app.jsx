@@ -136,6 +136,23 @@ function Sections() {
           </div>
           <span className="t-mono-s" style={{ color: "var(--blue-lt)", whiteSpace: "nowrap" }}>READ THE NOTES →</span>
         </a>
+        <a href="field-notes/" style={{
+          position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
+          alignItems: "center", gap: 20, flexWrap: "wrap", marginTop: 14,
+          padding: "22px 28px", border: "1px solid var(--border)", borderRadius: 8,
+          background: "rgba(13,24,52,0.4)", textDecoration: "none", color: "inherit",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(192,132,252,0.16)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}>
+          <HudBrackets mode="dark" inset={8} size={16} />
+          <div>
+            <MonoLabel color="var(--violet-lt)">// FIELD NOTES · WHAT CHANGED THIS WEEK</MonoLabel>
+            <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 20, color: "var(--white)", marginTop: 8 }}>
+              A weekly digest of practitioner-grade ML developments.
+            </div>
+          </div>
+          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ THE NOTES →</span>
+        </a>
       </Container>
     </Section>
   );
