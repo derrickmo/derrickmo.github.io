@@ -324,6 +324,12 @@ const CONCEPTS_INDEX = {
     summary: "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
     prereqs: ["attention"],
   },
+  "gnn": {
+    id: "gnn", name: "Graph Neural Network", area: "Applications",
+    summary: "Update each node's feature by aggregating from its neighbors. Stack a few layers and the network smooths cluster structure; stack too many and features over-smooth.",
+    tex: "h_v^{(\\ell+1)} = \\sigma\\!\\left(W \\cdot \\mathrm{mean}_{u \\in N(v) \\cup \\{v\\}} h_u^{(\\ell)}\\right)",
+    prereqs: ["mlp"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -376,6 +382,7 @@ const CONCEPT_TAGS = {
     "rnn-gates":            ["lstm-gates", "rnn"],
     "beam-search":          ["beam-search", "decoding"],
     "kv-cache":             ["kv-cache", "attention"],
+    "gnn":                  ["gnn", "mlp"],
   },
   // Play games — slugs match play-games.js
   games: {

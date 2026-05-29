@@ -103,6 +103,7 @@ export default defineConfig({
         'visualize-rnn-gates': 'visualize/rnn-gates/index.html',
         'visualize-beam-search': 'visualize/beam-search/index.html',
         'visualize-kv-cache': 'visualize/kv-cache/index.html',
+        'visualize-gnn': 'visualize/gnn/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',

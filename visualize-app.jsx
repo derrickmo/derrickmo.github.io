@@ -517,6 +517,21 @@ const GlyphBayes = () => (
   </svg>
 );
 
+const GlyphGNN = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[40, 32, "#60a5fa"], [60, 40, "#60a5fa"], [44, 56, "#60a5fa"],
+      [98, 30, "#c084fc"], [118, 42, "#c084fc"], [108, 58, "#c084fc"],
+      [60, 86, "#34d399"], [82, 96, "#34d399"], [104, 84, "#34d399"]].map(([x, y, c], i) => (
+      <circle key={i} cx={x} cy={y} r="5" fill={c} opacity="0.85" />
+    ))}
+    {[[40, 32, 60, 40], [60, 40, 44, 56], [40, 32, 44, 56],
+      [98, 30, 118, 42], [118, 42, 108, 58], [98, 30, 108, 58],
+      [60, 86, 82, 96], [82, 96, 104, 84], [60, 86, 104, 84],
+      [44, 56, 60, 86], [108, 58, 104, 84]].map(([x1, y1, x2, y2], i) => (
+      <line key={"e" + i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(96,165,250,0.45)" strokeWidth="0.9" />
+    ))}
+  </svg>
+);
 const GlyphKVCache = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 6 }).map((_, r) => Array.from({ length: 4 }).map((_, c) => {
@@ -615,6 +630,7 @@ const GLYPHS = {
   "rnn-gates": <GlyphLSTM />,
   "beam-search": <GlyphBeam />,
   "kv-cache": <GlyphKVCache />,
+  "gnn": <GlyphGNN />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

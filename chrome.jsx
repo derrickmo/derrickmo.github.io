@@ -313,6 +313,7 @@ const DM_NAV_INDEX = [
   { label: "LSTM Gates", group: "Demo", href: "/visualize/rnn-gates/", kw: "lstm rnn gru gates forget input output cell recurrent memory" },
   { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
   { label: "KV Cache", group: "Demo", href: "/visualize/kv-cache/", kw: "kv cache key value autoregressive transformer inference attention prefix" },
+  { label: "GNN Message Passing", group: "Demo", href: "/visualize/gnn/", kw: "gnn graph neural network gcn message passing over-smoothing graphsage gat" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
