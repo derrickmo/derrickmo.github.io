@@ -319,6 +319,11 @@ const CONCEPTS_INDEX = {
     summary: "Keep the top-K partial sequences by total log-probability at every decoding step. Greedy is K=1; bigger K finds higher-probability sentences at multiplied cost.",
     prereqs: ["decoding"],
   },
+  "kv-cache": {
+    id: "kv-cache", name: "KV Cache", area: "Transformers",
+    summary: "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    prereqs: ["attention"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -370,6 +375,7 @@ const CONCEPT_TAGS = {
     "regression":           ["linear-regression", "logistic-regression", "cross-entropy", "gradient-descent"],
     "rnn-gates":            ["lstm-gates", "rnn"],
     "beam-search":          ["beam-search", "decoding"],
+    "kv-cache":             ["kv-cache", "attention"],
   },
   // Play games — slugs match play-games.js
   games: {

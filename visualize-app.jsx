@@ -517,6 +517,22 @@ const GlyphBayes = () => (
   </svg>
 );
 
+const GlyphKVCache = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 6 }).map((_, r) => Array.from({ length: 4 }).map((_, c) => {
+      const filled = r < 4;
+      return <rect key={`k-${r}-${c}`} x={20 + c * 12} y={18 + r * 14} width="10" height="12"
+        fill={filled ? "#60a5fa" : "rgba(96,165,250,0.15)"} opacity={filled ? 0.4 + (3 - r) * 0.2 : 0.3} />;
+    }))}
+    {Array.from({ length: 6 }).map((_, r) => Array.from({ length: 4 }).map((_, c) => {
+      const filled = r < 4;
+      return <rect key={`v-${r}-${c}`} x={86 + c * 12} y={18 + r * 14} width="10" height="12"
+        fill={filled ? "#34d399" : "rgba(52,211,153,0.15)"} opacity={filled ? 0.4 + (3 - r) * 0.2 : 0.3} />;
+    }))}
+    <text x="38" y="14" fontFamily="JetBrains Mono" fontSize="9" fill="#60a5fa">K</text>
+    <text x="104" y="14" fontFamily="JetBrains Mono" fontSize="9" fill="#34d399">V</text>
+  </svg>
+);
 const GlyphBeam = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[80, 18, 40, 50], [80, 18, 80, 50], [80, 18, 120, 50],
@@ -598,6 +614,7 @@ const GLYPHS = {
   "regression": <GlyphRegression />,
   "rnn-gates": <GlyphLSTM />,
   "beam-search": <GlyphBeam />,
+  "kv-cache": <GlyphKVCache />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

@@ -312,6 +312,7 @@ const DM_NAV_INDEX = [
   { label: "Linear & Logistic Regression", group: "Demo", href: "/visualize/regression/", kw: "linear logistic regression least squares ols sigmoid bce supervised classical" },
   { label: "LSTM Gates", group: "Demo", href: "/visualize/rnn-gates/", kw: "lstm rnn gru gates forget input output cell recurrent memory" },
   { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
+  { label: "KV Cache", group: "Demo", href: "/visualize/kv-cache/", kw: "kv cache key value autoregressive transformer inference attention prefix" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
