@@ -309,6 +309,7 @@ const DM_NAV_INDEX = [
   { label: "MCTS Tree Search", group: "Demo", href: "/visualize/mcts/", kw: "mcts monte carlo tree search ucb ucb1 alphago rollout backup planning" },
   { label: "Simulated Annealing", group: "Demo", href: "/visualize/simulated-annealing/", kw: "simulated annealing tsp traveling salesman 2-opt metropolis local search optimization" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
+  { label: "Linear & Logistic Regression", group: "Demo", href: "/visualize/regression/", kw: "linear logistic regression least squares ols sigmoid bce supervised classical" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

@@ -82,11 +82,13 @@ window.PLAY_DEMOS = {
       blurb: "Monte-Carlo Tree Search iteration by iteration — select, expand, rollout, backup — the search that powered AlphaGo." },
     { slug: "simulated-annealing", topic: "OPTIMIZATION", title: "Simulated Annealing",  tone: "violet", status: "LIVE",
       blurb: "Cool a tangled traveling-salesman tour into a clean one — Metropolis acceptance, geometric cooling, real 2-opt moves." },
+    { slug: "regression",         topic: "CLASSICAL ML",  title: "Linear & Logistic Regression", tone: "blue", status: "LIVE",
+      blurb: "Click to scatter points and watch the closed-form line of best fit, or train a sigmoid boundary with real gradient descent on BCE." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "roc", "clt", "bayes", "pathfinding", "simulated-annealing"] },
-    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
+    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
@@ -134,6 +136,7 @@ window.PLAY_DEMOS = {
     "backprop": "the chain rule on a computation graph",
     "mcts": "UCB tree search + rollouts",
     "simulated-annealing": "Metropolis acceptance + cooling",
+    "regression": "least squares & cross-entropy",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

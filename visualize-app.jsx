@@ -517,6 +517,20 @@ const GlyphBayes = () => (
   </svg>
 );
 
+const GlyphRegression = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="16" y1="100" x2="144" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    <line x1="16" y1="16" x2="16" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    <line x1="22" y1="90" x2="140" y2="28" stroke="#fbbf24" strokeWidth="2.2" />
+    {[[28, 84], [44, 76], [60, 70], [76, 62], [92, 50], [108, 44], [124, 32]].map(([x, y], i) => (
+      <g key={i}>
+        <line x1={x} y1={y} x2={x} y2={22 + 90 - (x - 22) * (62 / 118)} stroke="rgba(192,132,252,0.55)" strokeWidth="0.8" />
+        <circle cx={x} cy={y} r="3" fill="#60a5fa" />
+      </g>
+    ))}
+  </svg>
+);
+
 const GLYPHS = {
   "pathfinding": <GlyphPath />,
   "kmeans": <GlyphKMeans />,
@@ -557,6 +571,7 @@ const GLYPHS = {
   "backprop": <GlyphBackprop />,
   "mcts": <GlyphMCTS />,
   "simulated-annealing": <GlyphSA />,
+  "regression": <GlyphRegression />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

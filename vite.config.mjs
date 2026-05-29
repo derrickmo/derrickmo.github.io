@@ -99,6 +99,7 @@ export default defineConfig({
         'visualize-backprop': 'visualize/backprop/index.html',
         'visualize-mcts': 'visualize/mcts/index.html',
         'visualize-simulated-annealing': 'visualize/simulated-annealing/index.html',
+        'visualize-regression': 'visualize/regression/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',

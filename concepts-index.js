@@ -296,6 +296,18 @@ const CONCEPTS_INDEX = {
     tex: "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
     prereqs: ["mlp", "cross-entropy"], leadsTo: ["diffusion"],
   },
+  "linear-regression": {
+    id: "linear-regression", name: "Linear Regression", area: "Classical ML",
+    summary: "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    tex: "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
+    leadsTo: ["logistic-regression", "pca"],
+  },
+  "logistic-regression": {
+    id: "logistic-regression", name: "Logistic Regression", area: "Classical ML",
+    summary: "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    tex: "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
+    prereqs: ["linear-regression", "cross-entropy"], leadsTo: ["mlp"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -344,6 +356,7 @@ const CONCEPT_TAGS = {
     "gridworld-rl":         ["q-learning", "mdp-bellman"],
     "value-iteration":      ["mdp-bellman", "q-learning"],
     "fourier":              ["fourier", "positional-encoding"],
+    "regression":           ["linear-regression", "logistic-regression", "cross-entropy", "gradient-descent"],
   },
   // Play games — slugs match play-games.js
   games: {
