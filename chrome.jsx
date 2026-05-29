@@ -1,6 +1,7 @@
 // chrome.jsx — shared chrome (TopNav, Footer, helpers) for every page.
-// Each page sets `window.__DM_PAGE` ("home" | "learn" | "play" | "cases")
-// and `window.__DM_BASE` ("" for landing, "../" for subdirectory pages)
+// Each page sets `window.__DM_PAGE` ("home" | "research" | "learn" |
+// "weekly-insights" | "visualize" | "play" | "cases" | "about") and
+// `window.__DM_BASE` ("" for landing, "../" for subdirectory pages)
 // BEFORE this script runs, so the nav can highlight the active page and
 // emit correct relative links.
 
@@ -309,6 +310,7 @@ const DM_NAV_INDEX = [
   { label: "MCTS Tree Search", group: "Demo", href: "/visualize/mcts/", kw: "mcts monte carlo tree search ucb ucb1 alphago rollout backup planning" },
   { label: "Simulated Annealing", group: "Demo", href: "/visualize/simulated-annealing/", kw: "simulated annealing tsp traveling salesman 2-opt metropolis local search optimization" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
+  { label: "Weekly Insights", group: "Page", href: "/weekly-insights/", kw: "weekly insights digest news ml field notes practitioner rl quantization agents inference" },
   { label: "Linear & Logistic Regression", group: "Demo", href: "/visualize/regression/", kw: "linear logistic regression least squares ols sigmoid bce supervised classical" },
   { label: "LSTM Gates", group: "Demo", href: "/visualize/rnn-gates/", kw: "lstm rnn gru gates forget input output cell recurrent memory" },
   { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
@@ -512,6 +514,7 @@ function TopNav() {
     { key: "home",      label: "Main",       href: homeHref },
     { key: "research",  label: "Research",   href: `${__DM_BASE}research/` },
     { key: "learn",     label: "Learn",      href: `${__DM_BASE}learn/` },
+    { key: "weekly-insights", label: "Insights", href: `${__DM_BASE}weekly-insights/` },
     { key: "visualize", label: "Visualize",  href: `${__DM_BASE}visualize/` },
     { key: "play",      label: "Play",       href: `${__DM_BASE}play/` },
     { key: "cases",     label: "Build",      href: `${__DM_BASE}cases/` },

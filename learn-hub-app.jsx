@@ -136,7 +136,7 @@ function Sections() {
           </div>
           <span className="t-mono-s" style={{ color: "var(--blue-lt)", whiteSpace: "nowrap" }}>READ THE NOTES →</span>
         </a>
-        <a href="field-notes/" style={{
+        <a href={(window.__DM_BASE || "../") + "weekly-insights/"} style={{
           position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
           alignItems: "center", gap: 20, flexWrap: "wrap", marginTop: 14,
           padding: "22px 28px", border: "1px solid var(--border)", borderRadius: 8,
@@ -146,12 +146,12 @@ function Sections() {
           onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}>
           <HudBrackets mode="dark" inset={8} size={16} />
           <div>
-            <MonoLabel color="var(--violet-lt)">// FIELD NOTES · WHAT CHANGED THIS WEEK</MonoLabel>
+            <MonoLabel color="var(--violet-lt)">// WEEKLY INSIGHTS · WHAT CHANGED THIS WEEK</MonoLabel>
             <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 20, color: "var(--white)", marginTop: 8 }}>
               A weekly digest of practitioner-grade ML developments.
             </div>
           </div>
-          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ THE NOTES →</span>
+          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ THE DIGEST →</span>
         </a>
       </Container>
     </Section>
