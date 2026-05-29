@@ -190,6 +190,12 @@ export default defineConfig({
         'concept-bayes': 'concepts/bayes/index.html',
         'concept-optimizers': 'concepts/optimizers/index.html',
         'concept-gan': 'concepts/gan/index.html',
+        'concept-linear-regression': 'concepts/linear-regression/index.html',
+        'concept-logistic-regression': 'concepts/logistic-regression/index.html',
+        'concept-lstm-gates': 'concepts/lstm-gates/index.html',
+        'concept-beam-search': 'concepts/beam-search/index.html',
+        'concept-kv-cache': 'concepts/kv-cache/index.html',
+        'concept-gnn': 'concepts/gnn/index.html',
         // <<< generated:concepts
       },
     },

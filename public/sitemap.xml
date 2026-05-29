@@ -10,6 +10,7 @@
   <url><loc>https://derrickmo.github.io/concepts/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bandit/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bayes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bias-variance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cfr/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/chain-rule/</loc><priority>0.6</priority></url>
@@ -26,12 +27,17 @@
   <url><loc>https://derrickmo.github.io/concepts/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gmm-em/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/iou-nms/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/kv-cache/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/linear-regression/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/logistic-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lr-schedule/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/lstm-gates/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mcts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mdp-bellman/</loc><priority>0.6</priority></url>
@@ -60,6 +66,7 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/field-notes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
@@ -111,6 +118,7 @@
   <url><loc>https://derrickmo.github.io/visualize/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bandit/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bayes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/clt/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/decision-tree/</loc><priority>0.6</priority></url>
@@ -121,10 +129,12 @@
   <url><loc>https://derrickmo.github.io/visualize/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gmm/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gridworld-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/kv-cache/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
@@ -137,6 +147,8 @@
   <url><loc>https://derrickmo.github.io/visualize/pathfinding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/regression/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/rnn-gates/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/roc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/scaling-laws/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/simulated-annealing/</loc><priority>0.6</priority></url>
