@@ -314,6 +314,11 @@ const CONCEPTS_INDEX = {
     tex: "c_t = f_t \\odot c_{t-1} + i_t \\odot g_t",
     prereqs: ["rnn"], leadsTo: ["attention"],
   },
+  "beam-search": {
+    id: "beam-search", name: "Beam Search", area: "NLP",
+    summary: "Keep the top-K partial sequences by total log-probability at every decoding step. Greedy is K=1; bigger K finds higher-probability sentences at multiplied cost.",
+    prereqs: ["decoding"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -364,6 +369,7 @@ const CONCEPT_TAGS = {
     "fourier":              ["fourier", "positional-encoding"],
     "regression":           ["linear-regression", "logistic-regression", "cross-entropy", "gradient-descent"],
     "rnn-gates":            ["lstm-gates", "rnn"],
+    "beam-search":          ["beam-search", "decoding"],
   },
   // Play games — slugs match play-games.js
   games: {

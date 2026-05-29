@@ -86,13 +86,15 @@ window.PLAY_DEMOS = {
       blurb: "Click to scatter points and watch the closed-form line of best fit, or train a sigmoid boundary with real gradient descent on BCE." },
     { slug: "rnn-gates",          topic: "RNN / NLP",     title: "LSTM Gates",            tone: "violet", status: "LIVE",
       blurb: "Feed a sequence into a tiny LSTM and watch the forget, input, and output gates open and close — a live look at gated memory." },
+    { slug: "beam-search",        topic: "NLP / DECODING", title: "Beam Search Tree",     tone: "blue",   status: "LIVE",
+      blurb: "Greedy vs beam vs sampling on a toy language model — see the search frontier branch, prune, and find the high-probability sentence." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "roc", "clt", "bayes", "pathfinding", "simulated-annealing"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "knn", "svm", "pca", "gmm"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms", "rnn-gates"] },
-    { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
+    { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
@@ -140,6 +142,7 @@ window.PLAY_DEMOS = {
     "simulated-annealing": "Metropolis acceptance + cooling",
     "regression": "least squares & cross-entropy",
     "rnn-gates": "gated recurrent memory",
+    "beam-search": "log-probability tree search",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

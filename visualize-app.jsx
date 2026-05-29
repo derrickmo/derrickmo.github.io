@@ -517,6 +517,22 @@ const GlyphBayes = () => (
   </svg>
 );
 
+const GlyphBeam = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[80, 18, 40, 50], [80, 18, 80, 50], [80, 18, 120, 50],
+      [40, 50, 24, 86], [40, 50, 56, 86],
+      [80, 50, 76, 86], [80, 50, 96, 86],
+      [120, 50, 132, 86]].map(([x1, y1, x2, y2], i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={(i === 1 || i === 5) ? "#fbbf24" : "rgba(96,165,250,0.4)"}
+        strokeWidth={(i === 1 || i === 5) ? 2 : 1} />
+    ))}
+    {[[80, 18, "#fbbf24"], [40, 50, "#60a5fa"], [80, 50, "#fbbf24"], [120, 50, "#60a5fa"],
+      [24, 86, "#94a3b8"], [56, 86, "#60a5fa"], [76, 86, "#fbbf24"], [96, 86, "#34d399"], [132, 86, "#94a3b8"]].map(([x, y, c], i) => (
+      <circle key={"n" + i} cx={x} cy={y} r="5.5" fill="#0f172a" stroke={c} strokeWidth="1.5" />
+    ))}
+  </svg>
+);
 const GlyphLSTM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 6 }).map((_, r) => Array.from({ length: 8 }).map((_, c) => {
@@ -581,6 +597,7 @@ const GLYPHS = {
   "simulated-annealing": <GlyphSA />,
   "regression": <GlyphRegression />,
   "rnn-gates": <GlyphLSTM />,
+  "beam-search": <GlyphBeam />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

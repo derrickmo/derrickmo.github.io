@@ -311,6 +311,7 @@ const DM_NAV_INDEX = [
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
   { label: "Linear & Logistic Regression", group: "Demo", href: "/visualize/regression/", kw: "linear logistic regression least squares ols sigmoid bce supervised classical" },
   { label: "LSTM Gates", group: "Demo", href: "/visualize/rnn-gates/", kw: "lstm rnn gru gates forget input output cell recurrent memory" },
+  { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

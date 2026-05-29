@@ -101,6 +101,7 @@ export default defineConfig({
         'visualize-simulated-annealing': 'visualize/simulated-annealing/index.html',
         'visualize-regression': 'visualize/regression/index.html',
         'visualize-rnn-gates': 'visualize/rnn-gates/index.html',
+        'visualize-beam-search': 'visualize/beam-search/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
