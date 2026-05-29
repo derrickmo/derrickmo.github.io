@@ -517,6 +517,14 @@ const GlyphBayes = () => (
   </svg>
 );
 
+const GlyphLSTM = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({ length: 6 }).map((_, r) => Array.from({ length: 8 }).map((_, c) => {
+      const v = (Math.sin(r * 1.3 + c * 0.9) + 1) / 2;
+      return <rect key={`${r}-${c}`} x={20 + c * 16} y={20 + r * 12} width="14" height="10" fill="#fbbf24" opacity={0.15 + v * 0.7} />;
+    }))}
+  </svg>
+);
 const GlyphRegression = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="16" y1="100" x2="144" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
@@ -572,6 +580,7 @@ const GLYPHS = {
   "mcts": <GlyphMCTS />,
   "simulated-annealing": <GlyphSA />,
   "regression": <GlyphRegression />,
+  "rnn-gates": <GlyphLSTM />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

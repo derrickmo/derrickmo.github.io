@@ -308,6 +308,12 @@ const CONCEPTS_INDEX = {
     tex: "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     prereqs: ["linear-regression", "cross-entropy"], leadsTo: ["mlp"],
   },
+  "lstm-gates": {
+    id: "lstm-gates", name: "LSTM Gates", area: "NLP",
+    summary: "Gated recurrent cell with input/forget/output gates over a cell state — the additive memory channel that beat plain RNNs and inspired ResNet skip connections.",
+    tex: "c_t = f_t \\odot c_{t-1} + i_t \\odot g_t",
+    prereqs: ["rnn"], leadsTo: ["attention"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -357,6 +363,7 @@ const CONCEPT_TAGS = {
     "value-iteration":      ["mdp-bellman", "q-learning"],
     "fourier":              ["fourier", "positional-encoding"],
     "regression":           ["linear-regression", "logistic-regression", "cross-entropy", "gradient-descent"],
+    "rnn-gates":            ["lstm-gates", "rnn"],
   },
   // Play games — slugs match play-games.js
   games: {
