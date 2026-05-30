@@ -131,6 +131,7 @@ export default defineConfig({
         'visualize-pruning': 'visualize/pruning/index.html',
         'visualize-distillation': 'visualize/distillation/index.html',
         'visualize-moe': 'visualize/moe/index.html',
+        'visualize-simpsons-paradox': 'visualize/simpsons-paradox/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -249,6 +250,7 @@ export default defineConfig({
         'concept-pruning': 'concepts/pruning/index.html',
         'concept-distillation': 'concepts/distillation/index.html',
         'concept-moe': 'concepts/moe/index.html',
+        'concept-simpsons-paradox': 'concepts/simpsons-paradox/index.html',
         // <<< generated:concepts
       },
     },

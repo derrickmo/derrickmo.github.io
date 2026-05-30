@@ -343,6 +343,7 @@ const DM_NAV_INDEX = [
   { label: "Pruning & Sparsity", group: "Demo", href: "/visualize/pruning/", kw: "pruning sparsity magnitude lottery ticket compression structured unstructured weights accuracy efficiency model size" },
   { label: "Knowledge Distillation", group: "Demo", href: "/visualize/distillation/", kw: "knowledge distillation teacher student soft labels dark knowledge temperature hinton distilbert compression efficiency" },
   { label: "Mixture of Experts (MoE)", group: "Demo", href: "/visualize/moe/", kw: "mixture of experts moe routing gating top-k sparse switch transformer mixtral conditional computation load balancing experts" },
+  { label: "Simpson's Paradox", group: "Demo", href: "/visualize/simpsons-paradox/", kw: "simpsons paradox confounding causal inference correlation causation subgroup aggregation berkeley reversal statistics" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

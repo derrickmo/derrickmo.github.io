@@ -623,6 +623,18 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphSimpsons = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two subgroups each trending up, pooled trending down */}
+    {[[34, 80], [44, 72], [54, 66], [64, 58]].map(([x, y], i) => <circle key={`a${i}`} cx={x} cy={y} r="3" fill="#60a5fa" />)}
+    {[[96, 56], [106, 48], [116, 42], [126, 34]].map(([x, y], i) => <circle key={`b${i}`} cx={x} cy={y} r="3" fill="#a855f7" />)}
+    <line x1="32" y1="84" x2="66" y2="56" stroke="#60a5fa" strokeWidth="2" />
+    <line x1="94" y1="58" x2="128" y2="32" stroke="#a855f7" strokeWidth="2" />
+    {/* pooled (down) */}
+    <line x1="30" y1="44" x2="130" y2="78" stroke="#e2e8f0" strokeWidth="2.5" strokeDasharray="5 3" />
+    <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">trend reverses</text>
+  </svg>
+);
 const GlyphMoE = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token routes to 2 of 5 experts */}
@@ -1080,6 +1092,7 @@ const GLYPHS = {
   "pruning": <GlyphPruning />,
   "distillation": <GlyphDistillation />,
   "moe": <GlyphMoE />,
+  "simpsons-paradox": <GlyphSimpsons />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

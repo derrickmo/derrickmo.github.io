@@ -474,6 +474,11 @@ const CONCEPTS_INDEX = {
     tex: "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     prereqs: ["attention", "scaling-laws"],
   },
+  "simpsons-paradox": {
+    id: "simpsons-paradox", name: "Simpson's Paradox & Confounding", area: "Foundations",
+    summary: "A trend present in every subgroup can reverse when the groups are pooled, because a confounder correlates with both X and Y. The most vivid demonstration that correlation is not causation: the correct estimate depends on which variables you condition on, which is decided by the causal structure, not the data alone. Motivates stratification, regression controls, and randomization.",
+    prereqs: ["linear-regression", "bayes"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -554,6 +559,7 @@ const CONCEPT_TAGS = {
     "pruning":              ["pruning", "backprop"],
     "distillation":         ["distillation", "calibration"],
     "moe":                  ["moe", "attention", "scaling-laws"],
+    "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
   },
   // Play games — slugs match play-games.js
   games: {
