@@ -512,9 +512,9 @@ function TopNav() {
 
   const links = [
     { key: "home",      label: "Main",       href: homeHref },
+    { key: "weekly-insights", label: "Insights", href: `${__DM_BASE}weekly-insights/` },
     { key: "research",  label: "Research",   href: `${__DM_BASE}research/` },
     { key: "learn",     label: "Learn",      href: `${__DM_BASE}learn/` },
-    { key: "weekly-insights", label: "Insights", href: `${__DM_BASE}weekly-insights/` },
     { key: "visualize", label: "Visualize",  href: `${__DM_BASE}visualize/` },
     { key: "play",      label: "Play",       href: `${__DM_BASE}play/` },
     { key: "cases",     label: "Build",      href: `${__DM_BASE}cases/` },
