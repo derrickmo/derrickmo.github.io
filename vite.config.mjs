@@ -121,6 +121,7 @@ export default defineConfig({
         'visualize-react-agent': 'visualize/react-agent/index.html',
         'visualize-calibration': 'visualize/calibration/index.html',
         'visualize-shap': 'visualize/shap/index.html',
+        'visualize-conformal': 'visualize/conformal/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -230,6 +231,7 @@ export default defineConfig({
         'concept-react-agent': 'concepts/react-agent/index.html',
         'concept-calibration': 'concepts/calibration/index.html',
         'concept-shap': 'concepts/shap/index.html',
+        'concept-conformal': 'concepts/conformal/index.html',
         // <<< generated:concepts
       },
     },

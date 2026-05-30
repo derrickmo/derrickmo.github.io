@@ -623,6 +623,20 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphConformal = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a prediction set: some classes included (blue), true class ringed green */}
+    {[0, 1, 2, 3, 4].map(i => {
+      const inSet = i === 1 || i === 2 || i === 4;
+      const x = 28 + i * 22;
+      return <rect key={i} x={x} y={40} width="16" height="40"
+        fill={inSet ? "rgba(96,165,250,0.7)" : "rgba(148,163,184,0.15)"}
+        stroke={i === 2 ? "#34d399" : "transparent"} strokeWidth="2.5" />;
+    })}
+    <text x="30" y="32" fontFamily="monospace" fontSize="9" fill="#94a3b8">prediction set</text>
+    <text x="30" y="100" fontFamily="monospace" fontSize="10" fill="#34d399">cover ≥ 1−α</text>
+  </svg>
+);
 const GlyphSHAP = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* waterfall bars stepping from base to prediction */}
@@ -918,6 +932,7 @@ const GLYPHS = {
   "react-agent": <GlyphReactAgent />,
   "calibration": <GlyphCalibration />,
   "shap": <GlyphSHAP />,
+  "conformal": <GlyphConformal />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

@@ -333,6 +333,7 @@ const DM_NAV_INDEX = [
   { label: "ReAct — Reason + Act", group: "Demo", href: "/visualize/react-agent/", kw: "react agent reason act tool use function calling thought action observation langchain yao tool routing reasoning trace" },
   { label: "Model Calibration", group: "Demo", href: "/visualize/calibration/", kw: "calibration reliability diagram ece expected calibration error temperature scaling overconfidence guo trustworthy confidence brier platt" },
   { label: "Feature Attribution (SHAP)", group: "Demo", href: "/visualize/shap/", kw: "shap shapley values feature attribution explainability xai interpretability waterfall lundberg lime credit decision" },
+  { label: "Conformal Prediction", group: "Demo", href: "/visualize/conformal/", kw: "conformal prediction uncertainty coverage guarantee prediction sets distribution-free quantile angelopoulos vovk aps trustworthy" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

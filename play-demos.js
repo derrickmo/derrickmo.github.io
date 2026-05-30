@@ -126,6 +126,8 @@ window.PLAY_DEMOS = {
       blurb: "A '90% confident' model should be right 90% of the time. See overconfidence on a reliability diagram, measure ECE, and fix it with one temperature knob." },
     { slug: "shap",               topic: "TRUSTWORTHY ML", title: "Feature Attribution (SHAP)", tone: "blue", status: "LIVE",
       blurb: "Why did the model decide that? Exact Shapley values credit each feature's contribution — including the interaction — as a waterfall from base to prediction." },
+    { slug: "conformal",          topic: "TRUSTWORTHY ML", title: "Conformal Prediction", tone: "blue", status: "LIVE",
+      blurb: "Output a label set guaranteed to contain the truth (1−α) of the time — for any model. Coverage holds even as the model worsens; only set size suffers." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -137,7 +139,7 @@ window.PLAY_DEMOS = {
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic", "dqn", "reward-model", "dpo"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
     { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "react-agent", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
-    { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap"] },
+    { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "conformal"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -202,6 +204,7 @@ window.PLAY_DEMOS = {
     "react-agent": "thought → action → observation",
     "calibration": "reliability diagram + temperature",
     "shap": "Shapley values over feature coalitions",
+    "conformal": "calibrated sets with coverage guarantee",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

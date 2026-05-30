@@ -425,6 +425,12 @@ const CONCEPTS_INDEX = {
     tex: "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     prereqs: ["logistic-regression"],
   },
+  "conformal": {
+    id: "conformal", name: "Conformal Prediction", area: "Foundations",
+    summary: "Wrap any model to output a prediction SET with a finite-sample, distribution-free coverage guarantee: P(y ∈ set) ≥ 1−α. Calibrate a nonconformity-score quantile q̂ on held-out data; the guarantee holds regardless of model quality (a worse model just yields larger sets). Assumes exchangeability; coverage is marginal, not conditional.",
+    tex: "\\hat q = \\mathrm{Quantile}\\bigl( \\{s_i\\}, \\tfrac{\\lceil (n+1)(1-\\alpha) \\rceil}{n} \\bigr)",
+    prereqs: ["calibration", "roc"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -495,6 +501,7 @@ const CONCEPT_TAGS = {
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
+    "conformal":            ["conformal", "calibration", "roc"],
   },
   // Play games — slugs match play-games.js
   games: {
