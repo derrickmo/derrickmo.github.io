@@ -110,6 +110,8 @@ window.PLAY_DEMOS = {
       blurb: "Chunk size, overlap, and strategy decide whether the answer survives retrieval. Real TF-IDF cosine over the chunks — watch the retrieval verdict flip." },
     { slug: "self-consistency",   topic: "AGENTS / LLM OPS", title: "Self-Consistency", tone: "violet", status: "LIVE",
       blurb: "Sample many chains of thought and majority-vote the answer. See why it lifts accuracy — and why correlated errors quietly defeat it." },
+    { slug: "constrained-decoding", topic: "AGENTS / LLM OPS", title: "Constrained Decoding", tone: "violet", status: "LIVE",
+      blurb: "Mask the grammar-invalid tokens at every step and structured output becomes guaranteed, not hoped-for. Raw vs constrained JSON generation, side by side." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -120,7 +122,7 @@ window.PLAY_DEMOS = {
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic", "dqn", "reward-model", "dpo"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
-    { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, and the reliability patterns — sampling-and-voting, verification, reflection — that make stochastic models dependable. The engineering layer on top of the weights.", slugs: ["rag-chunking", "self-consistency"] },
+    { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "self-consistency", "constrained-decoding"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -177,6 +179,7 @@ window.PLAY_DEMOS = {
     "dpo": "implicit reward = β·log(π/π_ref)",
     "rag-chunking": "chunk → retrieve → ground",
     "self-consistency": "sample N → majority vote",
+    "constrained-decoding": "mask invalid tokens per step",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

@@ -382,6 +382,12 @@ const CONCEPTS_INDEX = {
     tex: "\\hat{y} = \\arg\\max_{y} \\sum_{i=1}^{N} \\mathbb{1}\\!\\left[ y_i = y \\right]",
     prereqs: ["decoding", "clt"],
   },
+  "constrained-decoding": {
+    id: "constrained-decoding", name: "Constrained Decoding", area: "NLP",
+    summary: "Guarantee structured output (JSON mode, function calling) by intersecting the model's next-token distribution with the tokens a grammar permits at each step, then sampling from the survivors. A schema/regex/CFG compiled to a finite-state machine supplies the per-step token mask.",
+    tex: "\\tilde{p}(t) \\propto p_\\theta(t) \\cdot \\mathbb{1}\\!\\left[ t \\in \\mathrm{valid}(\\text{state}) \\right]",
+    prereqs: ["decoding", "tokenizer"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -444,6 +450,7 @@ const CONCEPT_TAGS = {
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
+    "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
   },
   // Play games — slugs match play-games.js
   games: {

@@ -623,6 +623,26 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphConstrainedDecoding = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* token distribution row: some allowed (green), some masked (struck) */}
+    {[0, 1, 2, 3, 4, 5].map(i => {
+      const ok = i === 1 || i === 3 || i === 4;
+      const h = [18, 34, 12, 40, 26, 16][i];
+      const x = 20 + i * 21;
+      return (
+        <g key={i}>
+          <rect x={x} y={70 - h} width="14" height={h} fill={ok ? "#34d399" : "rgba(148,163,184,0.3)"} />
+          {!ok && <line x1={x - 1} y1="70" x2={x + 15} y2={70 - h} stroke="#f87171" strokeWidth="1.5" />}
+        </g>
+      );
+    })}
+    <line x1="16" y1="70" x2="144" y2="70" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    {/* resulting structured token */}
+    <text x="40" y="98" fontFamily="monospace" fontSize="13" fill="#60a5fa">{"{ \"k\":"}</text>
+    <text x="104" y="98" fontFamily="monospace" fontSize="13" fill="#34d399">{"42 }"}</text>
+  </svg>
+);
 const GlyphSelfConsistency = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* sampled chains: chips, most green (correct), some red/orange (wrong) */}
@@ -785,6 +805,7 @@ const GLYPHS = {
   "dpo": <GlyphDPO />,
   "rag-chunking": <GlyphRagChunking />,
   "self-consistency": <GlyphSelfConsistency />,
+  "constrained-decoding": <GlyphConstrainedDecoding />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

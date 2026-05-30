@@ -325,6 +325,7 @@ const DM_NAV_INDEX = [
   { label: "DPO vs RLHF", group: "Demo", href: "/visualize/dpo/", kw: "dpo direct preference optimization rlhf ppo kl reference policy alignment ipo kto orpo bradley terry" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
+  { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
