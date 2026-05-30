@@ -111,6 +111,7 @@ export default defineConfig({
         'visualize-dqn': 'visualize/dqn/index.html',
         'visualize-reward-model': 'visualize/reward-model/index.html',
         'visualize-dpo': 'visualize/dpo/index.html',
+        'visualize-rag-chunking': 'visualize/rag-chunking/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -210,6 +211,7 @@ export default defineConfig({
         'concept-dqn': 'concepts/dqn/index.html',
         'concept-reward-model': 'concepts/reward-model/index.html',
         'concept-dpo': 'concepts/dpo/index.html',
+        'concept-rag-chunking': 'concepts/rag-chunking/index.html',
         // <<< generated:concepts
       },
     },

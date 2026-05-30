@@ -371,6 +371,11 @@ const CONCEPTS_INDEX = {
     tex: "L = -\\log \\sigma\\Bigl( \\beta \\log \\tfrac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)} - \\beta \\log \\tfrac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)} \\Bigr)",
     prereqs: ["reward-model", "policy-gradient"],
   },
+  "rag-chunking": {
+    id: "rag-chunking", name: "RAG Chunking", area: "NLP",
+    summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
+    prereqs: ["embeddings", "vector-search"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -431,6 +436,7 @@ const CONCEPT_TAGS = {
     "dqn":                  ["dqn", "mdp-bellman", "mlp"],
     "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
+    "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
   },
   // Play games — slugs match play-games.js
   games: {

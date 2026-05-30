@@ -323,6 +323,7 @@ const DM_NAV_INDEX = [
   { label: "Deep Q-Network (DQN)", group: "Demo", href: "/visualize/dqn/", kw: "dqn deep q network replay buffer target network atari mnih value rl bootstrapping" },
   { label: "Reward Model (RLHF)", group: "Demo", href: "/visualize/reward-model/", kw: "reward model rlhf bradley terry preference pairs dpo ppo human feedback alignment reward hacking" },
   { label: "DPO vs RLHF", group: "Demo", href: "/visualize/dpo/", kw: "dpo direct preference optimization rlhf ppo kl reference policy alignment ipo kto orpo bradley terry" },
+  { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

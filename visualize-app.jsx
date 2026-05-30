@@ -623,6 +623,21 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphRagChunking = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* document split into chunks; one chunk retrieved (green) */}
+    {[28, 46, 64, 82].map((y, i) => (
+      <rect key={i} x="20" y={y} width="60" height="13"
+        fill={i === 2 ? "rgba(52,211,153,0.85)" : "rgba(96,165,250,0.45)"}
+        stroke={i === 2 ? "#34d399" : "transparent"} strokeWidth="1.5" />
+    ))}
+    {/* query node + retrieval arrow */}
+    <circle cx="128" cy="44" r="11" fill="#c084fc" opacity="0.85" />
+    <text x="123" y="48" fontFamily="monospace" fontSize="11" fill="#0b1220">q</text>
+    <line x1="117" y1="50" x2="84" y2="69" stroke="#34d399" strokeWidth="2" />
+    <polygon points="84,69 92,66 90,73" fill="#34d399" />
+  </svg>
+);
 const GlyphDPO = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two policies (bar charts) converging to the same shape */}
@@ -752,6 +767,7 @@ const GLYPHS = {
   "dqn": <GlyphDQN />,
   "reward-model": <GlyphRewardModel />,
   "dpo": <GlyphDPO />,
+  "rag-chunking": <GlyphRagChunking />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
