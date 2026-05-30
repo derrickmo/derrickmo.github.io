@@ -603,6 +603,26 @@ const GlyphPolicyGradient = () => {
     </svg>
   );
 };
+const GlyphActorCritic = () => {
+  const fills = ["#1e3a8a", "#4c3a9e", "#7a4fb8", "#a855f7"];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* critic: value heatmap (left) */}
+      {[0, 1].map(r => [0, 1].map(c => (
+        <rect key={`${r}-${c}`} x={20 + c * 26} y={32 + r * 26} width="24" height="24"
+          fill={fills[r * 2 + c]} opacity="0.85" />
+      )))}
+      {/* actor: policy arrows (right) */}
+      {[[0, 0, 1, 0], [1, 0, 0, 1], [0, 1, 0, -1], [1, 1, 1, 0]].map(([c, r, dx, dy], i) => {
+        const cx = 104 + c * 26, cy = 44 + r * 26;
+        return <line key={i} x1={cx} y1={cy} x2={cx + dx * 11} y2={cy + dy * 11}
+          stroke="#fbbf24" strokeWidth="2" />;
+      })}
+      <text x="22" y="92" fontFamily="monospace" fontSize="9" fill="#94a3b8">CRITIC</text>
+      <text x="100" y="92" fontFamily="monospace" fontSize="9" fill="#94a3b8">ACTOR</text>
+    </svg>
+  );
+};
 const GlyphDBSCAN = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[40, 36, "#60a5fa"], [56, 28, "#60a5fa"], [50, 50, "#60a5fa"], [36, 52, "#60a5fa"], [42, 40, "#e0e7ff"],
@@ -677,6 +697,7 @@ const GLYPHS = {
   "rope": <GlyphRope />,
   "dbscan": <GlyphDBSCAN />,
   "policy-gradient": <GlyphPolicyGradient />,
+  "actor-critic": <GlyphActorCritic />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

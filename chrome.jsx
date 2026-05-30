@@ -319,6 +319,7 @@ const DM_NAV_INDEX = [
   { label: "RoPE Explorer", group: "Demo", href: "/visualize/rope/", kw: "rope rotary position embedding transformer attention long context llama" },
   { label: "DBSCAN", group: "Demo", href: "/visualize/dbscan/", kw: "dbscan density clustering eps min_pts moons rings noise unsupervised" },
   { label: "Policy Gradient — REINFORCE", group: "Demo", href: "/visualize/policy-gradient/", kw: "policy gradient reinforce ppo grpo rlhf continuous action gaussian rl baseline" },
+  { label: "Actor-Critic", group: "Demo", href: "/visualize/actor-critic/", kw: "actor critic a2c a3c ppo td error value function advantage baseline gridworld rl" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

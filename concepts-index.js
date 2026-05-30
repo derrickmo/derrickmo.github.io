@@ -347,6 +347,12 @@ const CONCEPTS_INDEX = {
     tex: "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     prereqs: ["mdp-bellman", "gradient-descent"],
   },
+  "actor-critic": {
+    id: "actor-critic", name: "Actor-Critic", area: "Reinforcement Learning",
+    summary: "Train a value function (critic) and a policy (actor) together: the critic's bootstrapped TD error is the low-variance advantage that drives the policy gradient. The workhorse behind A2C, A3C, PPO, and RLHF.",
+    tex: "\\delta_t = r_t + \\gamma V(s_{t+1}) - V(s_t); \\quad \\theta \\leftarrow \\theta + \\alpha\\, \\delta_t\\, \\nabla_\\theta \\log \\pi_\\theta(a_t \\mid s_t)",
+    prereqs: ["policy-gradient", "mdp-bellman"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -403,6 +409,7 @@ const CONCEPT_TAGS = {
     "rope":                 ["rope", "positional-encoding", "attention"],
     "dbscan":               ["dbscan", "knn"],
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
+    "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
   },
   // Play games — slugs match play-games.js
   games: {

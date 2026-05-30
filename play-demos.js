@@ -98,6 +98,8 @@ window.PLAY_DEMOS = {
       blurb: "Density-based clustering — no k to pick, just two knobs that define what counts as dense. Watch moons, rings, and blobs cluster cleanly while noise stays gray." },
     { slug: "policy-gradient",    topic: "REINFORCEMENT LEARNING", title: "Policy Gradient — REINFORCE", tone: "violet", status: "LIVE",
       blurb: "A Gaussian policy finds a hidden target by sampling, scoring, and ascending log-prob times reward. The simplest RL — parent of PPO, GRPO, and RLHF." },
+    { slug: "actor-critic",       topic: "REINFORCEMENT LEARNING", title: "Actor-Critic", tone: "violet", status: "LIVE",
+      blurb: "A critic learns each state's value while an actor learns the policy — one shared TD error trains both. The learned baseline behind A2C, PPO, and RLHF." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -106,7 +108,7 @@ window.PLAY_DEMOS = {
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
-    { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient"] },
+    { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
@@ -158,6 +160,7 @@ window.PLAY_DEMOS = {
     "rope": "rotate-by-position, score by relative",
     "dbscan": "density reachability + noise",
     "policy-gradient": "log-prob × reward",
+    "actor-critic": "TD error trains actor + critic",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };
