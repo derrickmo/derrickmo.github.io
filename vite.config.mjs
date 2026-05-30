@@ -124,6 +124,7 @@ export default defineConfig({
         'visualize-conformal': 'visualize/conformal/index.html',
         'visualize-active-learning': 'visualize/active-learning/index.html',
         'visualize-fairness': 'visualize/fairness/index.html',
+        'visualize-n-queens': 'visualize/n-queens/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -236,6 +237,7 @@ export default defineConfig({
         'concept-conformal': 'concepts/conformal/index.html',
         'concept-active-learning': 'concepts/active-learning/index.html',
         'concept-fairness': 'concepts/fairness/index.html',
+        'concept-backtracking': 'concepts/backtracking/index.html',
         // <<< generated:concepts
       },
     },

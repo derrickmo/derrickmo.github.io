@@ -132,6 +132,8 @@ window.PLAY_DEMOS = {
       blurb: "Labels are expensive — let the model pick what to label. Uncertainty sampling races random labeling and hits high accuracy with far fewer labels." },
     { slug: "fairness",           topic: "TRUSTWORTHY ML", title: "Fairness & Group Metrics", tone: "blue", status: "LIVE",
       blurb: "Equal qualification, biased scores. See how one threshold creates unequal outcomes — and why you can't satisfy every fairness metric at once." },
+    { slug: "n-queens",           topic: "SEARCH / CSP", title: "N-Queens (Backtracking)", tone: "blue", status: "LIVE",
+      blurb: "Place N non-attacking queens by depth-first backtracking. Toggle forward checking and watch constraint propagation prune the search tree." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -144,6 +146,7 @@ window.PLAY_DEMOS = {
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
     { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "react-agent", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
     { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "conformal", "active-learning", "fairness"] },
+    { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["n-queens"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -211,6 +214,7 @@ window.PLAY_DEMOS = {
     "conformal": "calibrated sets with coverage guarantee",
     "active-learning": "label the most uncertain points",
     "fairness": "group metrics & the threshold tradeoff",
+    "n-queens": "backtracking + forward checking",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

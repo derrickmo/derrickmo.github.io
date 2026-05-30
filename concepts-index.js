@@ -441,6 +441,11 @@ const CONCEPTS_INDEX = {
     summary: "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     prereqs: ["roc", "calibration"],
   },
+  "backtracking": {
+    id: "backtracking", name: "Backtracking & CSP", area: "Foundations",
+    summary: "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
+    prereqs: ["pathfinding"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -514,6 +519,7 @@ const CONCEPT_TAGS = {
     "conformal":            ["conformal", "calibration", "roc"],
     "active-learning":      ["active-learning", "logistic-regression"],
     "fairness":             ["fairness", "roc", "calibration"],
+    "n-queens":             ["backtracking", "pathfinding"],
   },
   // Play games — slugs match play-games.js
   games: {

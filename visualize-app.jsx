@@ -623,6 +623,20 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphNQueens = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* 4x4 board with queens placed on a diagonal-ish non-attacking pattern */}
+    {[0, 1, 2, 3].map(c => [0, 1, 2, 3].map(r => (
+      <rect key={`${c}-${r}`} x={48 + c * 18} y={24 + r * 18} width="17" height="17"
+        fill={(c + r) % 2 === 0 ? "rgba(96,165,250,0.12)" : "rgba(15,23,42,0.6)"} />
+    )))}
+    {[[0, 1], [1, 3], [2, 0], [3, 2]].map(([c, r], i) => (
+      <circle key={i} cx={48 + c * 18 + 8.5} cy={24 + r * 18 + 8.5} r="5.5" fill="#a855f7" />
+    ))}
+    <rect x={48 + 3 * 18} y={24} width="17" height="72" fill="none" stroke="#fbbf24" strokeWidth="1.5" />
+    <text x="52" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">backtracking</text>
+  </svg>
+);
 const GlyphFairness = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* a balance scale: two unequal groups */}
@@ -968,6 +982,7 @@ const GLYPHS = {
   "conformal": <GlyphConformal />,
   "active-learning": <GlyphActiveLearning />,
   "fairness": <GlyphFairness />,
+  "n-queens": <GlyphNQueens />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
