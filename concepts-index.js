@@ -365,6 +365,12 @@ const CONCEPTS_INDEX = {
     tex: "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     prereqs: ["logistic-regression", "policy-gradient"],
   },
+  "dpo": {
+    id: "dpo", name: "Direct Preference Optimization (DPO)", area: "Reinforcement Learning",
+    summary: "Align a policy directly from preference pairs without a separate reward model or RL loop: the policy implicitly defines the reward r(y)=β·log(π(y)/π_ref(y)), turning the RLHF objective into one supervised-style loss. Reaches the same KL-regularized optimum as RLHF.",
+    tex: "L = -\\log \\sigma\\Bigl( \\beta \\log \\tfrac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)} - \\beta \\log \\tfrac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)} \\Bigr)",
+    prereqs: ["reward-model", "policy-gradient"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -424,6 +430,7 @@ const CONCEPT_TAGS = {
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
     "dqn":                  ["dqn", "mdp-bellman", "mlp"],
     "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
+    "dpo":                  ["dpo", "reward-model", "policy-gradient"],
   },
   // Play games — slugs match play-games.js
   games: {

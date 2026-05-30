@@ -322,6 +322,7 @@ const DM_NAV_INDEX = [
   { label: "Actor-Critic", group: "Demo", href: "/visualize/actor-critic/", kw: "actor critic a2c a3c ppo td error value function advantage baseline gridworld rl" },
   { label: "Deep Q-Network (DQN)", group: "Demo", href: "/visualize/dqn/", kw: "dqn deep q network replay buffer target network atari mnih value rl bootstrapping" },
   { label: "Reward Model (RLHF)", group: "Demo", href: "/visualize/reward-model/", kw: "reward model rlhf bradley terry preference pairs dpo ppo human feedback alignment reward hacking" },
+  { label: "DPO vs RLHF", group: "Demo", href: "/visualize/dpo/", kw: "dpo direct preference optimization rlhf ppo kl reference policy alignment ipo kto orpo bradley terry" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphDPO = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two policies (bar charts) converging to the same shape */}
+    {[18, 30, 42, 54].map((x, i) => {
+      const hgt = [14, 30, 46, 22][i];
+      return <rect key={`l${i}`} x={x} y={92 - hgt} width="9" height={hgt} fill="#60a5fa" opacity="0.85" />;
+    })}
+    {[100, 112, 124, 136].map((x, i) => {
+      const hgt = [16, 28, 48, 20][i];
+      return <rect key={`r${i}`} x={x} y={92 - hgt} width="9" height={hgt} fill="#c084fc" opacity="0.85" />;
+    })}
+    <text x="22" y="106" fontFamily="monospace" fontSize="9" fill="#60a5fa">RLHF</text>
+    <text x="106" y="106" fontFamily="monospace" fontSize="9" fill="#c084fc">DPO</text>
+    <text x="74" y="52" fontFamily="monospace" fontSize="14" fill="#94a3b8">{"≈"}</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -735,6 +751,7 @@ const GLYPHS = {
   "actor-critic": <GlyphActorCritic />,
   "dqn": <GlyphDQN />,
   "reward-model": <GlyphRewardModel />,
+  "dpo": <GlyphDPO />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

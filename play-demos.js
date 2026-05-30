@@ -104,6 +104,8 @@ window.PLAY_DEMOS = {
       blurb: "A neural net learns Q(s, a) on a continuous state. Toggle experience replay and the target network to see why deep RL needs both to stay stable." },
     { slug: "reward-model",       topic: "REINFORCEMENT LEARNING", title: "Reward Model (RLHF)", tone: "violet", status: "LIVE",
       blurb: "Learn a scalar reward from pairwise human preferences with Bradley-Terry — the signal PPO maximizes in RLHF. Watch the learned field reconstruct the hidden one." },
+    { slug: "dpo",                topic: "REINFORCEMENT LEARNING", title: "DPO vs RLHF", tone: "violet", status: "LIVE",
+      blurb: "Align a policy from the same human preferences two ways — RLHF's reward model + RL loop vs DPO's direct update — and watch them converge to the same policy." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -112,7 +114,7 @@ window.PLAY_DEMOS = {
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
-    { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic", "dqn", "reward-model"] },
+    { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic", "dqn", "reward-model", "dpo"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
@@ -167,6 +169,7 @@ window.PLAY_DEMOS = {
     "actor-critic": "TD error trains actor + critic",
     "dqn": "replay + target net stabilize Q",
     "reward-model": "Bradley-Terry from preferences",
+    "dpo": "implicit reward = β·log(π/π_ref)",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

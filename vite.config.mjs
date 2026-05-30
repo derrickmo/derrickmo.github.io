@@ -110,6 +110,7 @@ export default defineConfig({
         'visualize-actor-critic': 'visualize/actor-critic/index.html',
         'visualize-dqn': 'visualize/dqn/index.html',
         'visualize-reward-model': 'visualize/reward-model/index.html',
+        'visualize-dpo': 'visualize/dpo/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -208,6 +209,7 @@ export default defineConfig({
         'concept-actor-critic': 'concepts/actor-critic/index.html',
         'concept-dqn': 'concepts/dqn/index.html',
         'concept-reward-model': 'concepts/reward-model/index.html',
+        'concept-dpo': 'concepts/dpo/index.html',
         // <<< generated:concepts
       },
     },
