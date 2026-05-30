@@ -126,6 +126,7 @@ export default defineConfig({
         'visualize-fairness': 'visualize/fairness/index.html',
         'visualize-n-queens': 'visualize/n-queens/index.html',
         'visualize-graph-coloring': 'visualize/graph-coloring/index.html',
+        'visualize-sudoku': 'visualize/sudoku/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',

@@ -526,6 +526,7 @@ const CONCEPT_TAGS = {
     "fairness":             ["fairness", "roc", "calibration"],
     "n-queens":             ["backtracking", "pathfinding"],
     "graph-coloring":       ["arc-consistency", "backtracking"],
+    "sudoku":               ["backtracking", "arc-consistency"],
   },
   // Play games — slugs match play-games.js
   games: {

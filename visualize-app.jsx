@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphSudoku = () => {
+  const digits = { "0-0": "5", "1-1": "3", "2-2": "8", "0-2": "9", "2-0": "6" };
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {[0, 1, 2].map(r => [0, 1, 2].map(c => (
+        <rect key={`${r}-${c}`} x={52 + c * 18} y={24 + r * 18} width="17" height="17" fill="rgba(15,23,42,0.5)" stroke="rgba(96,165,250,0.4)" strokeWidth="0.5" />
+      )))}
+      {Object.entries(digits).map(([k, v]) => {
+        const [r, c] = k.split("-").map(Number);
+        return <text key={k} x={52 + c * 18 + 8.5} y={24 + r * 18 + 12} fontFamily="monospace" fontSize="11" fill={v === "9" || v === "6" ? "#60a5fa" : "#e2e8f0"} textAnchor="middle">{v}</text>;
+      })}
+      <rect x={52} y={24} width="54" height="54" fill="none" stroke="rgba(96,165,250,0.7)" strokeWidth="1.5" />
+      <text x="50" y="98" fontFamily="monospace" fontSize="9" fill="#94a3b8">propagate + search</text>
+    </svg>
+  );
+};
 const GlyphGraphColoring = () => {
   const nodes = [[44, 34, "#f87171"], [110, 30, "#34d399"], [76, 64, "#60a5fa"], [40, 92, "#34d399"], [116, 92, "#f87171"]];
   const edges = [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4], [0, 3], [1, 4]];
@@ -998,6 +1014,7 @@ const GLYPHS = {
   "fairness": <GlyphFairness />,
   "n-queens": <GlyphNQueens />,
   "graph-coloring": <GlyphGraphColoring />,
+  "sudoku": <GlyphSudoku />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
