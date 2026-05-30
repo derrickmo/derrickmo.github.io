@@ -623,6 +623,20 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphGraphColoring = () => {
+  const nodes = [[44, 34, "#f87171"], [110, 30, "#34d399"], [76, 64, "#60a5fa"], [40, 92, "#34d399"], [116, 92, "#f87171"]];
+  const edges = [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4], [0, 3], [1, 4]];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {edges.map(([a, b], i) => (
+        <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="rgba(148,163,184,0.4)" strokeWidth="1.5" />
+      ))}
+      {nodes.map(([x, y, c], i) => (
+        <circle key={i} cx={x} cy={y} r="10" fill={c} stroke="rgba(226,232,240,0.5)" strokeWidth="1" />
+      ))}
+    </svg>
+  );
+};
 const GlyphNQueens = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* 4x4 board with queens placed on a diagonal-ish non-attacking pattern */}
@@ -983,6 +997,7 @@ const GLYPHS = {
   "active-learning": <GlyphActiveLearning />,
   "fairness": <GlyphFairness />,
   "n-queens": <GlyphNQueens />,
+  "graph-coloring": <GlyphGraphColoring />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

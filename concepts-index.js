@@ -446,6 +446,11 @@ const CONCEPTS_INDEX = {
     summary: "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
     prereqs: ["pathfinding"],
   },
+  "arc-consistency": {
+    id: "arc-consistency", name: "Arc Consistency (AC-3)", area: "Foundations",
+    summary: "The standard constraint-propagation algorithm for CSPs: repeatedly enforce that for every value in a variable's domain there exists a compatible value in each neighbor's domain, deleting unsupported values and cascading until a fixpoint. Run after each assignment in backtracking, it prunes doomed branches early; with MRV/LCV ordering it's the textbook recipe for practical CSP solving.",
+    prereqs: ["backtracking"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -520,6 +525,7 @@ const CONCEPT_TAGS = {
     "active-learning":      ["active-learning", "logistic-regression"],
     "fairness":             ["fairness", "roc", "calibration"],
     "n-queens":             ["backtracking", "pathfinding"],
+    "graph-coloring":       ["arc-consistency", "backtracking"],
   },
   // Play games — slugs match play-games.js
   games: {

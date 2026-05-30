@@ -125,6 +125,7 @@ export default defineConfig({
         'visualize-active-learning': 'visualize/active-learning/index.html',
         'visualize-fairness': 'visualize/fairness/index.html',
         'visualize-n-queens': 'visualize/n-queens/index.html',
+        'visualize-graph-coloring': 'visualize/graph-coloring/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -238,6 +239,7 @@ export default defineConfig({
         'concept-active-learning': 'concepts/active-learning/index.html',
         'concept-fairness': 'concepts/fairness/index.html',
         'concept-backtracking': 'concepts/backtracking/index.html',
+        'concept-arc-consistency': 'concepts/arc-consistency/index.html',
         // <<< generated:concepts
       },
     },

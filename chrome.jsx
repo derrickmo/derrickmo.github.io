@@ -337,6 +337,7 @@ const DM_NAV_INDEX = [
   { label: "Active Learning", group: "Demo", href: "/visualize/active-learning/", kw: "active learning uncertainty sampling query labeling data-centric annotation human-in-the-loop margin entropy pool" },
   { label: "Fairness & Group Metrics", group: "Demo", href: "/visualize/fairness/", kw: "fairness bias demographic parity equal opportunity equalized odds group threshold impossibility responsible ml disparate impact" },
   { label: "N-Queens (Backtracking)", group: "Demo", href: "/visualize/n-queens/", kw: "n-queens backtracking constraint satisfaction csp forward checking search ac-3 chessboard pruning depth-first" },
+  { label: "Graph Coloring (AC-3)", group: "Demo", href: "/visualize/graph-coloring/", kw: "graph coloring map csp ac-3 arc consistency backtracking mrv australia register allocation scheduling propagation" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
