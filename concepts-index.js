@@ -388,6 +388,11 @@ const CONCEPTS_INDEX = {
     tex: "\\tilde{p}(t) \\propto p_\\theta(t) \\cdot \\mathbb{1}\\!\\left[ t \\in \\mathrm{valid}(\\text{state}) \\right]",
     prereqs: ["decoding", "tokenizer"],
   },
+  "guardrails": {
+    id: "guardrails", name: "Guardrails", area: "NLP",
+    summary: "The layered input/output safety pipeline wrapped around an LLM: redact PII, catch prompt injection and disallowed topics on the way in, and validate/filter the response (PII leakage, toxicity, schema, grounding) on the way out. Fail-closed defense-in-depth for production LLM systems.",
+    prereqs: ["constrained-decoding"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -451,6 +456,7 @@ const CONCEPT_TAGS = {
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
+    "guardrails":           ["guardrails", "constrained-decoding"],
   },
   // Play games — slugs match play-games.js
   games: {

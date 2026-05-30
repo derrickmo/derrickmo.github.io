@@ -114,6 +114,7 @@ export default defineConfig({
         'visualize-rag-chunking': 'visualize/rag-chunking/index.html',
         'visualize-self-consistency': 'visualize/self-consistency/index.html',
         'visualize-constrained-decoding': 'visualize/constrained-decoding/index.html',
+        'visualize-guardrails': 'visualize/guardrails/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -216,6 +217,7 @@ export default defineConfig({
         'concept-rag-chunking': 'concepts/rag-chunking/index.html',
         'concept-self-consistency': 'concepts/self-consistency/index.html',
         'concept-constrained-decoding': 'concepts/constrained-decoding/index.html',
+        'concept-guardrails': 'concepts/guardrails/index.html',
         // <<< generated:concepts
       },
     },

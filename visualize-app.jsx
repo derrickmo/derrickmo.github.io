@@ -623,6 +623,20 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphGuardrails = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* shield / filter gate: one request blocked, one passes */}
+    <rect x="66" y="22" width="28" height="76" rx="4" fill="none" stroke="#a855f7" strokeWidth="2" />
+    {/* blocked request (red, stops at gate) */}
+    <line x1="20" y1="42" x2="62" y2="42" stroke="#f87171" strokeWidth="2" />
+    <line x1="58" y1="36" x2="66" y2="48" stroke="#f87171" strokeWidth="2" />
+    <line x1="66" y1="36" x2="58" y2="48" stroke="#f87171" strokeWidth="2" />
+    {/* passing request (green, goes through) */}
+    <line x1="20" y1="78" x2="140" y2="78" stroke="#34d399" strokeWidth="2" />
+    <polygon points="140,78 132,74 132,82" fill="#34d399" />
+    <text x="70" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">guard</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -806,6 +820,7 @@ const GLYPHS = {
   "rag-chunking": <GlyphRagChunking />,
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
+  "guardrails": <GlyphGuardrails />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
