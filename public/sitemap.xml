@@ -42,6 +42,7 @@
   <url><loc>https://derrickmo.github.io/concepts/linear-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/logistic-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lora/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/lost-in-the-middle/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lstm-gates/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/markov/</loc><priority>0.6</priority></url>
@@ -152,6 +153,7 @@
   <url><loc>https://derrickmo.github.io/visualize/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kv-cache/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lora/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/lost-in-the-middle/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mcts/</loc><priority>0.6</priority></url>
