@@ -359,6 +359,12 @@ const CONCEPTS_INDEX = {
     tex: "L(\\theta) = \\mathbb{E}\\Bigl[ \\bigl( r + \\gamma \\max_{a'} Q_{\\theta^-}(s',a') - Q_\\theta(s,a) \\bigr)^2 \\Bigr]",
     prereqs: ["mdp-bellman", "backprop"],
   },
+  "reward-model": {
+    id: "reward-model", name: "Reward Model (RLHF)", area: "Reinforcement Learning",
+    summary: "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    tex: "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
+    prereqs: ["logistic-regression", "policy-gradient"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -417,6 +423,7 @@ const CONCEPT_TAGS = {
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
     "dqn":                  ["dqn", "mdp-bellman", "mlp"],
+    "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
   },
   // Play games — slugs match play-games.js
   games: {

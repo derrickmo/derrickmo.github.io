@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphRewardModel = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two responses being compared */}
+    <circle cx="46" cy="44" r="13" fill="#34d399" opacity="0.85" />
+    <circle cx="114" cy="44" r="13" fill="rgba(96,165,250,0.5)" />
+    <text x="40" y="48" fontFamily="monospace" fontSize="12" fill="#0b1220">A</text>
+    <text x="108" y="48" fontFamily="monospace" fontSize="12" fill="#e2e8f0">B</text>
+    {/* preference: A > B */}
+    <text x="72" y="49" fontFamily="monospace" fontSize="16" fill="#fbbf24">{"≻"}</text>
+    {/* learned scalar reward bars */}
+    <rect x="34" y="76" width="24" height="30" fill="#a855f7" opacity="0.85" />
+    <rect x="102" y="90" width="24" height="16" fill="#60a5fa" opacity="0.6" />
+    <line x1="20" y1="106" x2="140" y2="106" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    <text x="60" y="100" fontFamily="monospace" fontSize="9" fill="#94a3b8">r(x)</text>
+  </svg>
+);
 const GlyphDQN = () => {
   const pts = Array.from({ length: 41 }, (_, i) => {
     const x = 16 + i * (128 / 40);
@@ -718,6 +734,7 @@ const GLYPHS = {
   "policy-gradient": <GlyphPolicyGradient />,
   "actor-critic": <GlyphActorCritic />,
   "dqn": <GlyphDQN />,
+  "reward-model": <GlyphRewardModel />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

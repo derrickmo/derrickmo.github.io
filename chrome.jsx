@@ -321,6 +321,7 @@ const DM_NAV_INDEX = [
   { label: "Policy Gradient — REINFORCE", group: "Demo", href: "/visualize/policy-gradient/", kw: "policy gradient reinforce ppo grpo rlhf continuous action gaussian rl baseline" },
   { label: "Actor-Critic", group: "Demo", href: "/visualize/actor-critic/", kw: "actor critic a2c a3c ppo td error value function advantage baseline gridworld rl" },
   { label: "Deep Q-Network (DQN)", group: "Demo", href: "/visualize/dqn/", kw: "dqn deep q network replay buffer target network atari mnih value rl bootstrapping" },
+  { label: "Reward Model (RLHF)", group: "Demo", href: "/visualize/reward-model/", kw: "reward model rlhf bradley terry preference pairs dpo ppo human feedback alignment reward hacking" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
