@@ -106,6 +106,7 @@ export default defineConfig({
         'visualize-gnn': 'visualize/gnn/index.html',
         'visualize-rope': 'visualize/rope/index.html',
         'visualize-dbscan': 'visualize/dbscan/index.html',
+        'visualize-policy-gradient': 'visualize/policy-gradient/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -198,6 +199,9 @@ export default defineConfig({
         'concept-beam-search': 'concepts/beam-search/index.html',
         'concept-kv-cache': 'concepts/kv-cache/index.html',
         'concept-gnn': 'concepts/gnn/index.html',
+        'concept-rope': 'concepts/rope/index.html',
+        'concept-dbscan': 'concepts/dbscan/index.html',
+        'concept-policy-gradient': 'concepts/policy-gradient/index.html',
         // <<< generated:concepts
       },
     },

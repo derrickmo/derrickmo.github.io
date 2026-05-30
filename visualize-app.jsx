@@ -586,6 +586,23 @@ const GlyphRegression = () => (
   </svg>
 );
 
+const GlyphPolicyGradient = () => {
+  const bell = Array.from({ length: 41 }, (_, i) => {
+    const x = 16 + i * (128 / 40);
+    const t = (i - 20) / 6;
+    return `${x},${100 - 70 * Math.exp(-t * t / 2)}`;
+  }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <line x1="16" y1="100" x2="144" y2="100" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+      {[24, 40, 56, 72, 88, 104, 120, 136].map((x, i) => (
+        <circle key={i} cx={x} cy={90 + (i % 3 - 1) * 4} r="2.5" fill="#60a5fa" opacity="0.85" />
+      ))}
+      <polyline points={bell} fill="rgba(251,191,36,0.18)" stroke="#fbbf24" strokeWidth="2" />
+      <line x1="86" y1="14" x2="86" y2="100" stroke="#34d399" strokeWidth="1.5" strokeDasharray="3 3" />
+    </svg>
+  );
+};
 const GlyphDBSCAN = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[40, 36, "#60a5fa"], [56, 28, "#60a5fa"], [50, 50, "#60a5fa"], [36, 52, "#60a5fa"], [42, 40, "#e0e7ff"],
@@ -659,6 +676,7 @@ const GLYPHS = {
   "gnn": <GlyphGNN />,
   "rope": <GlyphRope />,
   "dbscan": <GlyphDBSCAN />,
+  "policy-gradient": <GlyphPolicyGradient />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
