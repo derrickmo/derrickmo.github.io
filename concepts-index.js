@@ -393,6 +393,11 @@ const CONCEPTS_INDEX = {
     summary: "The layered input/output safety pipeline wrapped around an LLM: redact PII, catch prompt injection and disallowed topics on the way in, and validate/filter the response (PII leakage, toxicity, schema, grounding) on the way out. Fail-closed defense-in-depth for production LLM systems.",
     prereqs: ["constrained-decoding"],
   },
+  "lost-in-the-middle": {
+    id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
+    summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
+    prereqs: ["attention", "rag-chunking"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -457,6 +462,7 @@ const CONCEPT_TAGS = {
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
     "guardrails":           ["guardrails", "constrained-decoding"],
+    "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
   },
   // Play games — slugs match play-games.js
   games: {

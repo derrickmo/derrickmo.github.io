@@ -623,6 +623,23 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphLostMiddle = () => {
+  const pts = Array.from({ length: 41 }, (_, i) => {
+    const x = 16 + i * (128 / 40);
+    const t = (i - 20) / 20;                 // -1..1
+    return `${x},${34 + 50 * (1 - t * t)}`;  // U-curve (low in middle)
+  }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <polyline points={pts} fill="none" stroke="#a855f7" strokeWidth="2" />
+      <circle cx="16" cy="84" r="3.5" fill="#34d399" />
+      <circle cx="144" cy="84" r="3.5" fill="#34d399" />
+      <circle cx="80" cy="34" r="3.5" fill="#f87171" />
+      <text x="68" y="28" fontFamily="monospace" fontSize="9" fill="#f87171">lost</text>
+      <line x1="16" y1="98" x2="144" y2="98" stroke="rgba(148,163,184,0.3)" strokeWidth="1" />
+    </svg>
+  );
+};
 const GlyphGuardrails = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* shield / filter gate: one request blocked, one passes */}
@@ -821,6 +838,7 @@ const GLYPHS = {
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
+  "lost-in-the-middle": <GlyphLostMiddle />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

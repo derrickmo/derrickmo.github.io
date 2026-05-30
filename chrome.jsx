@@ -327,6 +327,7 @@ const DM_NAV_INDEX = [
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
   { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },
   { label: "Guardrails", group: "Demo", href: "/visualize/guardrails/", kw: "guardrails pii redaction prompt injection jailbreak toxicity moderation llama guard nemo safety pipeline input output filter llm ops" },
+  { label: "Lost in the Middle", group: "Demo", href: "/visualize/lost-in-the-middle/", kw: "lost in the middle context window position bias long context reranking rag ordering recency primacy attention liu" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
