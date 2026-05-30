@@ -413,6 +413,12 @@ const CONCEPTS_INDEX = {
     summary: "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
     prereqs: ["reflection", "rag-chunking"],
   },
+  "calibration": {
+    id: "calibration", name: "Model Calibration", area: "Foundations",
+    summary: "Whether a model's confidence scores are honest: a calibrated classifier that says 90% is right 90% of the time. Measured by the reliability diagram and Expected Calibration Error (ECE); modern nets are overconfident, and temperature scaling (divide logits by T) is the standard one-parameter post-hoc fix that leaves predictions unchanged.",
+    tex: "\\mathrm{ECE} = \\sum_{b} \\frac{n_b}{N} \\,\\bigl| \\mathrm{acc}(b) - \\mathrm{conf}(b) \\bigr|",
+    prereqs: ["logistic-regression", "roc"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -481,6 +487,7 @@ const CONCEPT_TAGS = {
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
+    "calibration":          ["calibration", "logistic-regression", "roc"],
   },
   // Play games — slugs match play-games.js
   games: {

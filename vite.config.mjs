@@ -119,6 +119,7 @@ export default defineConfig({
         'visualize-hyde': 'visualize/hyde/index.html',
         'visualize-reflection': 'visualize/reflection/index.html',
         'visualize-react-agent': 'visualize/react-agent/index.html',
+        'visualize-calibration': 'visualize/calibration/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -226,6 +227,7 @@ export default defineConfig({
         'concept-hyde': 'concepts/hyde/index.html',
         'concept-reflection': 'concepts/reflection/index.html',
         'concept-react-agent': 'concepts/react-agent/index.html',
+        'concept-calibration': 'concepts/calibration/index.html',
         // <<< generated:concepts
       },
     },

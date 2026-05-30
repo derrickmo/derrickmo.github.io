@@ -331,6 +331,7 @@ const DM_NAV_INDEX = [
   { label: "HyDE — Hypothetical Embeddings", group: "Demo", href: "/visualize/hyde/", kw: "hyde hypothetical document embeddings retrieval query transformation rag dense asymmetry gao multi-query rag-fusion" },
   { label: "Self-Correction (Reflection)", group: "Demo", href: "/visualize/reflection/", kw: "reflection reflexion self correction critique revise verifier critic agent loop self-refine iterate test-time compute" },
   { label: "ReAct — Reason + Act", group: "Demo", href: "/visualize/react-agent/", kw: "react agent reason act tool use function calling thought action observation langchain yao tool routing reasoning trace" },
+  { label: "Model Calibration", group: "Demo", href: "/visualize/calibration/", kw: "calibration reliability diagram ece expected calibration error temperature scaling overconfidence guo trustworthy confidence brier platt" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

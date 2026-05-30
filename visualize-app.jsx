@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphCalibration = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* reliability diagram: diagonal + overconfident points below it */}
+    <line x1="28" y1="100" x2="120" y2="20" stroke="rgba(148,163,184,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+    {[[44, 92], [64, 84], [84, 74], [104, 60]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="4" fill="#f87171" />
+    ))}
+    {/* corrected points on the diagonal (faint green) */}
+    {[[44, 84], [64, 64], [84, 44], [104, 24]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="3" fill="#34d399" opacity="0.7" />
+    ))}
+    <line x1="28" y1="20" x2="28" y2="100" stroke="rgba(96,165,250,0.3)" strokeWidth="1" />
+    <line x1="28" y1="100" x2="124" y2="100" stroke="rgba(96,165,250,0.3)" strokeWidth="1" />
+    <text x="30" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">conf → acc</text>
+  </svg>
+);
 const GlyphReactAgent = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* thought -> action -> observation loop nodes */}
@@ -889,6 +905,7 @@ const GLYPHS = {
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,
   "react-agent": <GlyphReactAgent />,
+  "calibration": <GlyphCalibration />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
