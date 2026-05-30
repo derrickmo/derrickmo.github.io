@@ -63,6 +63,7 @@
   <url><loc>https://derrickmo.github.io/concepts/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/q-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/quantization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/rag-chunking/</loc><priority>0.6</priority></url>
@@ -184,6 +185,7 @@
   <url><loc>https://derrickmo.github.io/visualize/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/quantization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/rag-chunking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/react-agent/</loc><priority>0.6</priority></url>
