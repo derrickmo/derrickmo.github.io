@@ -623,6 +623,19 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphPruning = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* weight grid: most pruned (gray X), a few kept (blue) */}
+    {[0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => {
+      const kept = (r === 1 && c === 2) || (r === 2 && c === 0) || (r === 0 && c === 3) || (r === 3 && c === 1);
+      const x = 50 + c * 16, y = 30 + r * 16;
+      return kept
+        ? <rect key={`${r}${c}`} x={x} y={y} width="13" height="13" fill="#60a5fa" />
+        : <g key={`${r}${c}`}><rect x={x} y={y} width="13" height="13" fill="rgba(148,163,184,0.12)" /><line x1={x + 2} y1={y + 2} x2={x + 11} y2={y + 11} stroke="rgba(148,163,184,0.5)" strokeWidth="1" /></g>;
+    }))}
+    <text x="46" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">keep the big ones</text>
+  </svg>
+);
 const GlyphQuantization = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* quantization grid levels */}
@@ -1034,6 +1047,7 @@ const GLYPHS = {
   "graph-coloring": <GlyphGraphColoring />,
   "sudoku": <GlyphSudoku />,
   "quantization": <GlyphQuantization />,
+  "pruning": <GlyphPruning />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

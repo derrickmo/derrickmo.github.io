@@ -340,6 +340,7 @@ const DM_NAV_INDEX = [
   { label: "Graph Coloring (AC-3)", group: "Demo", href: "/visualize/graph-coloring/", kw: "graph coloring map csp ac-3 arc consistency backtracking mrv australia register allocation scheduling propagation" },
   { label: "Sudoku Solver", group: "Demo", href: "/visualize/sudoku/", kw: "sudoku solver backtracking constraint propagation naked singles csp mrv puzzle 9x9 search" },
   { label: "Quantization", group: "Demo", href: "/visualize/quantization/", kw: "quantization int8 int4 weights efficiency compression gptq awq qlora nf4 outliers post-training bits scale model size" },
+  { label: "Pruning & Sparsity", group: "Demo", href: "/visualize/pruning/", kw: "pruning sparsity magnitude lottery ticket compression structured unstructured weights accuracy efficiency model size" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

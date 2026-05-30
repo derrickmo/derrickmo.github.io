@@ -128,6 +128,7 @@ export default defineConfig({
         'visualize-graph-coloring': 'visualize/graph-coloring/index.html',
         'visualize-sudoku': 'visualize/sudoku/index.html',
         'visualize-quantization': 'visualize/quantization/index.html',
+        'visualize-pruning': 'visualize/pruning/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -243,6 +244,7 @@ export default defineConfig({
         'concept-backtracking': 'concepts/backtracking/index.html',
         'concept-arc-consistency': 'concepts/arc-consistency/index.html',
         'concept-quantization': 'concepts/quantization/index.html',
+        'concept-pruning': 'concepts/pruning/index.html',
         // <<< generated:concepts
       },
     },

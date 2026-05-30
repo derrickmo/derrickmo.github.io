@@ -457,6 +457,11 @@ const CONCEPTS_INDEX = {
     tex: "q = \\mathrm{clamp}\\!\\left( \\mathrm{round}\\!\\left( \\tfrac{w}{s} \\right),\\, -2^{b-1},\\, 2^{b-1}-1 \\right),\\quad s = \\tfrac{\\max|w|}{2^{b-1}-1}",
     prereqs: ["lora"],
   },
+  "pruning": {
+    id: "pruning", name: "Pruning & Sparsity", area: "Training Systems",
+    summary: "Compress a network by removing weights. Magnitude pruning zeros the smallest weights; accuracy is nearly flat until a sparsity cliff because trained nets are heavily over-parameterized. Unstructured pruning needs sparse kernels to speed up; structured pruning (whole neurons/channels/heads) gives real speedups. Iterative prune-then-finetune pushes the cliff far right; lottery-ticket sub-networks can retrain from scratch.",
+    prereqs: ["backprop", "quantization"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -534,6 +539,7 @@ const CONCEPT_TAGS = {
     "graph-coloring":       ["arc-consistency", "backtracking"],
     "sudoku":               ["backtracking", "arc-consistency"],
     "quantization":         ["quantization", "lora"],
+    "pruning":              ["pruning", "backprop"],
   },
   // Play games — slugs match play-games.js
   games: {
