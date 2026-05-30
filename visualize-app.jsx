@@ -623,6 +623,23 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphFairness = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a balance scale: two unequal groups */}
+    <line x1="80" y1="22" x2="80" y2="40" stroke="rgba(148,163,184,0.6)" strokeWidth="2" />
+    <line x1="40" y1="40" x2="120" y2="48" stroke="rgba(148,163,184,0.6)" strokeWidth="2" />
+    <circle cx="40" cy="40" r="3" fill="#60a5fa" />
+    <circle cx="120" cy="48" r="3" fill="#a855f7" />
+    {/* group A pan (higher) */}
+    <rect x="26" y="52" width="28" height="14" rx="2" fill="#60a5fa" opacity="0.8" />
+    {/* group B pan (lower, lighter share) */}
+    <rect x="106" y="62" width="28" height="9" rx="2" fill="#a855f7" opacity="0.8" />
+    <line x1="80" y1="22" x2="80" y2="100" stroke="rgba(148,163,184,0.3)" strokeWidth="1" />
+    <text x="30" y="86" fontFamily="monospace" fontSize="9" fill="#60a5fa">A</text>
+    <text x="116" y="86" fontFamily="monospace" fontSize="9" fill="#a855f7">B</text>
+    <text x="46" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">parity vs TPR</text>
+  </svg>
+);
 const GlyphActiveLearning = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two classes split by a boundary; the next pick (ring) sits on the boundary */}
@@ -950,6 +967,7 @@ const GLYPHS = {
   "shap": <GlyphSHAP />,
   "conformal": <GlyphConformal />,
   "active-learning": <GlyphActiveLearning />,
+  "fairness": <GlyphFairness />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

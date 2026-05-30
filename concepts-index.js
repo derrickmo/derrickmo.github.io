@@ -436,6 +436,11 @@ const CONCEPTS_INDEX = {
     summary: "Cut labeling cost by letting the model choose what to label next. Uncertainty sampling queries the unlabeled point nearest the decision boundary (most uncertain); refitting on those informative points reaches high accuracy with far fewer labels than random. The core loop of data-centric ML and human-in-the-loop annotation.",
     prereqs: ["logistic-regression", "calibration"],
   },
+  "fairness": {
+    id: "fairness", name: "Fairness & Group Metrics", area: "Foundations",
+    summary: "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    prereqs: ["roc", "calibration"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -508,6 +513,7 @@ const CONCEPT_TAGS = {
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],
     "active-learning":      ["active-learning", "logistic-regression"],
+    "fairness":             ["fairness", "roc", "calibration"],
   },
   // Play games — slugs match play-games.js
   games: {

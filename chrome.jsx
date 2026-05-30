@@ -335,6 +335,7 @@ const DM_NAV_INDEX = [
   { label: "Feature Attribution (SHAP)", group: "Demo", href: "/visualize/shap/", kw: "shap shapley values feature attribution explainability xai interpretability waterfall lundberg lime credit decision" },
   { label: "Conformal Prediction", group: "Demo", href: "/visualize/conformal/", kw: "conformal prediction uncertainty coverage guarantee prediction sets distribution-free quantile angelopoulos vovk aps trustworthy" },
   { label: "Active Learning", group: "Demo", href: "/visualize/active-learning/", kw: "active learning uncertainty sampling query labeling data-centric annotation human-in-the-loop margin entropy pool" },
+  { label: "Fairness & Group Metrics", group: "Demo", href: "/visualize/fairness/", kw: "fairness bias demographic parity equal opportunity equalized odds group threshold impossibility responsible ml disparate impact" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
