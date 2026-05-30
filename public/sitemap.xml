@@ -5,6 +5,7 @@
   <url><loc>https://derrickmo.github.io/cases/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/activations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/actor-critic/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/adam/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/backprop/</loc><priority>0.6</priority></url>
@@ -116,6 +117,7 @@
   <url><loc>https://derrickmo.github.io/research/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/activations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/actor-critic/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bandit/</loc><priority>0.6</priority></url>
