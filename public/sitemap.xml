@@ -31,6 +31,7 @@
   <url><loc>https://derrickmo.github.io/concepts/dqn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/embeddings/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gan/</loc><priority>0.6</priority></url>
@@ -151,6 +152,7 @@
   <url><loc>https://derrickmo.github.io/visualize/dpo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dqn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gan/</loc><priority>0.6</priority></url>
