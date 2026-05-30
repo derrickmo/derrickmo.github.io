@@ -403,6 +403,11 @@ const CONCEPTS_INDEX = {
     summary: "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
     prereqs: ["embeddings", "vector-search"],
   },
+  "reflection": {
+    id: "reflection", name: "Self-Correction (Reflection)", area: "NLP",
+    summary: "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    prereqs: ["reward-model", "self-consistency"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -469,6 +474,7 @@ const CONCEPT_TAGS = {
     "guardrails":           ["guardrails", "constrained-decoding"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
+    "reflection":           ["reflection", "reward-model", "self-consistency"],
   },
   // Play games — slugs match play-games.js
   games: {

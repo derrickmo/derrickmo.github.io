@@ -623,6 +623,19 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphReflection = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* quality climbing across revisions toward the bar */}
+    <line x1="20" y1="40" x2="140" y2="40" stroke="rgba(52,211,153,0.4)" strokeWidth="1.5" strokeDasharray="4 3" />
+    <polyline points="24,92 56,74 88,58 120,42" fill="none" stroke="#a855f7" strokeWidth="2" />
+    <circle cx="24" cy="92" r="4" fill="#f87171" />
+    <circle cx="56" cy="74" r="4" fill="#f87171" />
+    <circle cx="88" cy="58" r="4" fill="#f87171" />
+    <circle cx="120" cy="42" r="4.5" fill="#34d399" />
+    <text x="96" y="34" fontFamily="monospace" fontSize="9" fill="#34d399">pass</text>
+    <line x1="20" y1="100" x2="140" y2="100" stroke="rgba(148,163,184,0.3)" strokeWidth="1" />
+  </svg>
+);
 const GlyphHyDE = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* relevant doc cluster (green) */}
@@ -856,6 +869,7 @@ const GLYPHS = {
   "guardrails": <GlyphGuardrails />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
+  "reflection": <GlyphReflection />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
