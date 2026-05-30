@@ -336,6 +336,11 @@ const CONCEPTS_INDEX = {
     tex: "\\theta_i(m) = m \\cdot 10000^{-2i/d}",
     prereqs: ["positional-encoding", "attention"],
   },
+  "dbscan": {
+    id: "dbscan", name: "DBSCAN", area: "Classical ML",
+    summary: "Density-based clustering: declare any point with at least MIN_PTS neighbors within EPS a core point, link cores into clusters, sweep up reachable borders, label the rest as noise.",
+    prereqs: ["knn"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -390,6 +395,7 @@ const CONCEPT_TAGS = {
     "kv-cache":             ["kv-cache", "attention"],
     "gnn":                  ["gnn", "mlp"],
     "rope":                 ["rope", "positional-encoding", "attention"],
+    "dbscan":               ["dbscan", "knn"],
   },
   // Play games — slugs match play-games.js
   games: {

@@ -317,6 +317,7 @@ const DM_NAV_INDEX = [
   { label: "KV Cache", group: "Demo", href: "/visualize/kv-cache/", kw: "kv cache key value autoregressive transformer inference attention prefix" },
   { label: "GNN Message Passing", group: "Demo", href: "/visualize/gnn/", kw: "gnn graph neural network gcn message passing over-smoothing graphsage gat" },
   { label: "RoPE Explorer", group: "Demo", href: "/visualize/rope/", kw: "rope rotary position embedding transformer attention long context llama" },
+  { label: "DBSCAN", group: "Demo", href: "/visualize/dbscan/", kw: "dbscan density clustering eps min_pts moons rings noise unsupervised" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

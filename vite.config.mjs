@@ -105,6 +105,7 @@ export default defineConfig({
         'visualize-kv-cache': 'visualize/kv-cache/index.html',
         'visualize-gnn': 'visualize/gnn/index.html',
         'visualize-rope': 'visualize/rope/index.html',
+        'visualize-dbscan': 'visualize/dbscan/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',

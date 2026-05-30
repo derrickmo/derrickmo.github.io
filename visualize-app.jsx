@@ -586,6 +586,16 @@ const GlyphRegression = () => (
   </svg>
 );
 
+const GlyphDBSCAN = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[40, 36, "#60a5fa"], [56, 28, "#60a5fa"], [50, 50, "#60a5fa"], [36, 52, "#60a5fa"], [42, 40, "#e0e7ff"],
+      [108, 38, "#c084fc"], [120, 50, "#c084fc"], [114, 62, "#c084fc"], [98, 50, "#c084fc"], [112, 48, "#e0e7ff"],
+      [70, 88, "#fbbf24"], [82, 96, "#fbbf24"], [90, 84, "#fbbf24"], [78, 90, "#e0e7ff"],
+      [22, 14, "#475569"], [144, 18, "#475569"], [16, 102, "#475569"], [136, 104, "#475569"]].map(([x, y, c], i) => (
+      <circle key={i} cx={x} cy={y} r={c === "#e0e7ff" ? 4 : c === "#475569" ? 2 : 3} fill={c} stroke={c === "#e0e7ff" ? "#60a5fa" : "none"} strokeWidth="1" />
+    ))}
+  </svg>
+);
 const GlyphRope = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="80" cy="60" r="38" fill="none" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
@@ -648,6 +658,7 @@ const GLYPHS = {
   "kv-cache": <GlyphKVCache />,
   "gnn": <GlyphGNN />,
   "rope": <GlyphRope />,
+  "dbscan": <GlyphDBSCAN />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
