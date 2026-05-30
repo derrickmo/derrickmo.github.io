@@ -8,25 +8,34 @@
 # Manual run:  powershell -NoProfile -File C:\...\tools\auto-push.ps1
 # Inspect log: Get-Content tools/auto-push.log -Tail 40
 #
-# SSH key must be usable non-interactively (OpenSSH agent unlocked, or a
-# passphraseless deploy key on the `github-personal` host alias). Verify with
+# SSH key must be usable non-interactively: the OpenSSH Authentication Agent
+# service must be running and have the GitHub key cached (`ssh-add` once after
+# reboot or after agent restart). Git must be configured to use the Windows
+# OpenSSH (not Git Bash's bundled MinGW ssh) — see core.sshCommand in
+# git config --global. Verify the whole chain with:
 #   ssh -o BatchMode=yes -T git@github-personal
 
 $ErrorActionPreference = 'Continue'
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location -Path $repo
 
-$stamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'
-"`n========== $stamp ==========`n" | Out-File -Append -Encoding utf8 -FilePath "$PSScriptRoot\auto-push.log"
+$logPath = Join-Path $PSScriptRoot 'auto-push.log'
+function Log([string]$line) { Add-Content -Path $logPath -Value $line -Encoding utf8 }
 
-# Show the current state (branch, ahead-by, last commit) before the push.
-& git status --branch --short *>> "$PSScriptRoot\auto-push.log"
-& git log -1 --oneline *>> "$PSScriptRoot\auto-push.log"
+Log ""
+Log "========== $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz') =========="
 
-# The push itself. -v gives a one-line summary per ref so the log shows
-# exactly what (if anything) went to GitHub.
-& git push -v origin main *>> "$PSScriptRoot\auto-push.log" 2>&1
+# Capture each native-exe call as a single string and append it.
+# `2>&1 | Out-String` keeps git's stdout AND stderr together as plain UTF-8
+# text (not the UTF-16 ErrorRecord soup `*>>` produces in PS 5.1).
+$status = (& git status --branch --short 2>&1 | Out-String).TrimEnd()
+$head   = (& git log -1 --oneline 2>&1 | Out-String).TrimEnd()
+Log $status
+Log $head
+
+$pushOut = (& git push -v origin main 2>&1 | Out-String).TrimEnd()
 $code = $LASTEXITCODE
+Log $pushOut
+Log "exit_code=$code"
 
-"exit_code=$code" | Out-File -Append -Encoding utf8 -FilePath "$PSScriptRoot\auto-push.log"
 exit $code
