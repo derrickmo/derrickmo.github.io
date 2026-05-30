@@ -462,6 +462,12 @@ const CONCEPTS_INDEX = {
     summary: "Compress a network by removing weights. Magnitude pruning zeros the smallest weights; accuracy is nearly flat until a sparsity cliff because trained nets are heavily over-parameterized. Unstructured pruning needs sparse kernels to speed up; structured pruning (whole neurons/channels/heads) gives real speedups. Iterative prune-then-finetune pushes the cliff far right; lottery-ticket sub-networks can retrain from scratch.",
     prereqs: ["backprop", "quantization"],
   },
+  "distillation": {
+    id: "distillation", name: "Knowledge Distillation", area: "Training Systems",
+    summary: "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's 'dark knowledge' — the relative probabilities of runner-up classes, exposed by a temperature on the softmax — is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
+    tex: "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
+    prereqs: ["calibration", "quantization"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -540,6 +546,7 @@ const CONCEPT_TAGS = {
     "sudoku":               ["backtracking", "arc-consistency"],
     "quantization":         ["quantization", "lora"],
     "pruning":              ["pruning", "backprop"],
+    "distillation":         ["distillation", "calibration"],
   },
   // Play games — slugs match play-games.js
   games: {

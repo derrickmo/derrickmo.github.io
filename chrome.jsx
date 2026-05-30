@@ -341,6 +341,7 @@ const DM_NAV_INDEX = [
   { label: "Sudoku Solver", group: "Demo", href: "/visualize/sudoku/", kw: "sudoku solver backtracking constraint propagation naked singles csp mrv puzzle 9x9 search" },
   { label: "Quantization", group: "Demo", href: "/visualize/quantization/", kw: "quantization int8 int4 weights efficiency compression gptq awq qlora nf4 outliers post-training bits scale model size" },
   { label: "Pruning & Sparsity", group: "Demo", href: "/visualize/pruning/", kw: "pruning sparsity magnitude lottery ticket compression structured unstructured weights accuracy efficiency model size" },
+  { label: "Knowledge Distillation", group: "Demo", href: "/visualize/distillation/", kw: "knowledge distillation teacher student soft labels dark knowledge temperature hinton distilbert compression efficiency" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

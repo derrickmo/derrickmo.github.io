@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphDistillation = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* big teacher -> small student */}
+    <circle cx="44" cy="56" r="22" fill="none" stroke="#a855f7" strokeWidth="2.5" />
+    <text x="34" y="60" fontFamily="monospace" fontSize="11" fill="#a855f7">T</text>
+    <circle cx="116" cy="56" r="13" fill="none" stroke="#60a5fa" strokeWidth="2" />
+    <text x="111" y="60" fontFamily="monospace" fontSize="10" fill="#60a5fa">S</text>
+    {/* soft-label transfer arrow with 3 small bars */}
+    <line x1="68" y1="56" x2="100" y2="56" stroke="#fbbf24" strokeWidth="2" />
+    <polygon points="100,56 92,52 92,60" fill="#fbbf24" />
+    <rect x="74" y="34" width="5" height="10" fill="#60a5fa" />
+    <rect x="81" y="38" width="5" height="6" fill="#a855f7" />
+    <rect x="88" y="41" width="5" height="3" fill="#fbbf24" />
+    <text x="46" y="100" fontFamily="monospace" fontSize="9" fill="#94a3b8">soft labels</text>
+  </svg>
+);
 const GlyphPruning = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* weight grid: most pruned (gray X), a few kept (blue) */}
@@ -1048,6 +1064,7 @@ const GLYPHS = {
   "sudoku": <GlyphSudoku />,
   "quantization": <GlyphQuantization />,
   "pruning": <GlyphPruning />,
+  "distillation": <GlyphDistillation />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
