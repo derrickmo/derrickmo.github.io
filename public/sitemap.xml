@@ -58,6 +58,7 @@
   <url><loc>https://derrickmo.github.io/concepts/mdp-bellman/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/minimax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/multi-head/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/neuroevolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/optimizers/</loc><priority>0.6</priority></url>
@@ -177,6 +178,7 @@
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mcts/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/multi-head-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/n-queens/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/neural-playground/</loc><priority>0.6</priority></url>
