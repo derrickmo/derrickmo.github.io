@@ -468,6 +468,12 @@ const CONCEPTS_INDEX = {
     tex: "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
     prereqs: ["calibration", "quantization"],
   },
+  "moe": {
+    id: "moe", name: "Mixture of Experts (MoE)", area: "Training Systems",
+    summary: "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    tex: "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
+    prereqs: ["attention", "scaling-laws"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -547,6 +553,7 @@ const CONCEPT_TAGS = {
     "quantization":         ["quantization", "lora"],
     "pruning":              ["pruning", "backprop"],
     "distillation":         ["distillation", "calibration"],
+    "moe":                  ["moe", "attention", "scaling-laws"],
   },
   // Play games — slugs match play-games.js
   games: {

@@ -130,6 +130,7 @@ export default defineConfig({
         'visualize-quantization': 'visualize/quantization/index.html',
         'visualize-pruning': 'visualize/pruning/index.html',
         'visualize-distillation': 'visualize/distillation/index.html',
+        'visualize-moe': 'visualize/moe/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -247,6 +248,7 @@ export default defineConfig({
         'concept-quantization': 'concepts/quantization/index.html',
         'concept-pruning': 'concepts/pruning/index.html',
         'concept-distillation': 'concepts/distillation/index.html',
+        'concept-moe': 'concepts/moe/index.html',
         // <<< generated:concepts
       },
     },

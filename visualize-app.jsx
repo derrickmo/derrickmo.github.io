@@ -623,6 +623,20 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphMoE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* token routes to 2 of 5 experts */}
+    <circle cx="28" cy="60" r="7" fill="#fbbf24" />
+    {[0, 1, 2, 3, 4].map(i => {
+      const x = 70 + (i % 3) * 30, y = 34 + Math.floor(i / 3) * 44;
+      const active = i === 1 || i === 3;
+      return <rect key={i} x={x} y={y} width="22" height="20" rx="3" fill={active ? "#34d399" : "rgba(96,165,250,0.3)"} stroke={active ? "#34d399" : "transparent"} strokeWidth="1.5" />;
+    })}
+    <line x1="35" y1="58" x2="100" y2="44" stroke="#fbbf24" strokeWidth="1.5" opacity="0.7" />
+    <line x1="35" y1="62" x2="70" y2="98" stroke="#fbbf24" strokeWidth="1.5" opacity="0.7" />
+    <text x="56" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">top-2 of N</text>
+  </svg>
+);
 const GlyphDistillation = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* big teacher -> small student */}
@@ -1065,6 +1079,7 @@ const GLYPHS = {
   "quantization": <GlyphQuantization />,
   "pruning": <GlyphPruning />,
   "distillation": <GlyphDistillation />,
+  "moe": <GlyphMoE />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

@@ -342,6 +342,7 @@ const DM_NAV_INDEX = [
   { label: "Quantization", group: "Demo", href: "/visualize/quantization/", kw: "quantization int8 int4 weights efficiency compression gptq awq qlora nf4 outliers post-training bits scale model size" },
   { label: "Pruning & Sparsity", group: "Demo", href: "/visualize/pruning/", kw: "pruning sparsity magnitude lottery ticket compression structured unstructured weights accuracy efficiency model size" },
   { label: "Knowledge Distillation", group: "Demo", href: "/visualize/distillation/", kw: "knowledge distillation teacher student soft labels dark knowledge temperature hinton distilbert compression efficiency" },
+  { label: "Mixture of Experts (MoE)", group: "Demo", href: "/visualize/moe/", kw: "mixture of experts moe routing gating top-k sparse switch transformer mixtral conditional computation load balancing experts" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
