@@ -431,6 +431,11 @@ const CONCEPTS_INDEX = {
     tex: "\\hat q = \\mathrm{Quantile}\\bigl( \\{s_i\\}, \\tfrac{\\lceil (n+1)(1-\\alpha) \\rceil}{n} \\bigr)",
     prereqs: ["calibration", "roc"],
   },
+  "active-learning": {
+    id: "active-learning", name: "Active Learning", area: "Foundations",
+    summary: "Cut labeling cost by letting the model choose what to label next. Uncertainty sampling queries the unlabeled point nearest the decision boundary (most uncertain); refitting on those informative points reaches high accuracy with far fewer labels than random. The core loop of data-centric ML and human-in-the-loop annotation.",
+    prereqs: ["logistic-regression", "calibration"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -502,6 +507,7 @@ const CONCEPT_TAGS = {
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],
+    "active-learning":      ["active-learning", "logistic-regression"],
   },
   // Play games — slugs match play-games.js
   games: {

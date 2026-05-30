@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphActiveLearning = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two classes split by a boundary; the next pick (ring) sits on the boundary */}
+    <line x1="80" y1="20" x2="80" y2="100" stroke="rgba(226,232,240,0.5)" strokeWidth="1.5" />
+    {[[40, 36], [52, 56], [36, 72], [60, 40], [46, 86]].map(([x, y], i) => (
+      <circle key={`a${i}`} cx={x} cy={y} r="3.5" fill="#60a5fa" opacity="0.7" />
+    ))}
+    {[[120, 40], [108, 60], [124, 76], [100, 50], [114, 88]].map(([x, y], i) => (
+      <circle key={`b${i}`} cx={x} cy={y} r="3.5" fill="#a855f7" opacity="0.7" />
+    ))}
+    {/* most-uncertain point near the boundary, ringed */}
+    <circle cx="78" cy="64" r="4" fill="#cbd5e1" />
+    <circle cx="78" cy="64" r="9" fill="none" stroke="#fbbf24" strokeWidth="2" />
+    <text x="56" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">label the unsure</text>
+  </svg>
+);
 const GlyphConformal = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* a prediction set: some classes included (blue), true class ringed green */}
@@ -933,6 +949,7 @@ const GLYPHS = {
   "calibration": <GlyphCalibration />,
   "shap": <GlyphSHAP />,
   "conformal": <GlyphConformal />,
+  "active-learning": <GlyphActiveLearning />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

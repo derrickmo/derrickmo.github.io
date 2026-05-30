@@ -122,6 +122,7 @@ export default defineConfig({
         'visualize-calibration': 'visualize/calibration/index.html',
         'visualize-shap': 'visualize/shap/index.html',
         'visualize-conformal': 'visualize/conformal/index.html',
+        'visualize-active-learning': 'visualize/active-learning/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -232,6 +233,7 @@ export default defineConfig({
         'concept-calibration': 'concepts/calibration/index.html',
         'concept-shap': 'concepts/shap/index.html',
         'concept-conformal': 'concepts/conformal/index.html',
+        'concept-active-learning': 'concepts/active-learning/index.html',
         // <<< generated:concepts
       },
     },
