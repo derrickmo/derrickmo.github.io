@@ -324,6 +324,7 @@ const DM_NAV_INDEX = [
   { label: "Reward Model (RLHF)", group: "Demo", href: "/visualize/reward-model/", kw: "reward model rlhf bradley terry preference pairs dpo ppo human feedback alignment reward hacking" },
   { label: "DPO vs RLHF", group: "Demo", href: "/visualize/dpo/", kw: "dpo direct preference optimization rlhf ppo kl reference policy alignment ipo kto orpo bradley terry" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
+  { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

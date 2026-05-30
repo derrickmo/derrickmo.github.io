@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphSelfConsistency = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* sampled chains: chips, most green (correct), some red/orange (wrong) */}
+    {[["#34d399", 0], ["#f87171", 1], ["#34d399", 2], ["#fb923c", 3], ["#34d399", 4], ["#34d399", 5]].map(([col, i], k) => (
+      <rect key={k} x={20 + i * 21} y="30" width="15" height="15" rx="2" fill={col} opacity="0.85" />
+    ))}
+    {/* vote arrows converging */}
+    {[26, 47, 68, 89, 110, 131].map((x, i) => (
+      <line key={i} x1={x + 7} y1="48" x2="80" y2="74" stroke="rgba(96,165,250,0.4)" strokeWidth="1" />
+    ))}
+    {/* winning answer */}
+    <rect x="68" y="76" width="24" height="22" rx="3" fill="#34d399" />
+    <text x="75" y="92" fontFamily="monospace" fontSize="13" fill="#0b1220">A</text>
+    <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">majority vote</text>
+  </svg>
+);
 const GlyphRagChunking = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* document split into chunks; one chunk retrieved (green) */}
@@ -768,6 +784,7 @@ const GLYPHS = {
   "reward-model": <GlyphRewardModel />,
   "dpo": <GlyphDPO />,
   "rag-chunking": <GlyphRagChunking />,
+  "self-consistency": <GlyphSelfConsistency />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

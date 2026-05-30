@@ -376,6 +376,12 @@ const CONCEPTS_INDEX = {
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
     prereqs: ["embeddings", "vector-search"],
   },
+  "self-consistency": {
+    id: "self-consistency", name: "Self-Consistency", area: "NLP",
+    summary: "Sample several chains of thought at nonzero temperature and majority-vote the final answer. When errors are independent, voting concentrates on the single correct answer (a Condorcet effect) and lifts accuracy for the cost of N samples; correlated errors form a false consensus it can't fix.",
+    tex: "\\hat{y} = \\arg\\max_{y} \\sum_{i=1}^{N} \\mathbb{1}\\!\\left[ y_i = y \\right]",
+    prereqs: ["decoding", "clt"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -437,6 +443,7 @@ const CONCEPT_TAGS = {
     "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
+    "self-consistency":     ["self-consistency", "decoding"],
   },
   // Play games — slugs match play-games.js
   games: {
