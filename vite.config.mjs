@@ -116,6 +116,7 @@ export default defineConfig({
         'visualize-constrained-decoding': 'visualize/constrained-decoding/index.html',
         'visualize-guardrails': 'visualize/guardrails/index.html',
         'visualize-lost-in-the-middle': 'visualize/lost-in-the-middle/index.html',
+        'visualize-hyde': 'visualize/hyde/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -220,6 +221,7 @@ export default defineConfig({
         'concept-constrained-decoding': 'concepts/constrained-decoding/index.html',
         'concept-guardrails': 'concepts/guardrails/index.html',
         'concept-lost-in-the-middle': 'concepts/lost-in-the-middle/index.html',
+        'concept-hyde': 'concepts/hyde/index.html',
         // <<< generated:concepts
       },
     },

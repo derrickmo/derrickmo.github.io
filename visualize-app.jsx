@@ -623,6 +623,22 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphHyDE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* relevant doc cluster (green) */}
+    {[[104, 36], [116, 30], [110, 46], [122, 42], [98, 44]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="4" fill="#34d399" opacity="0.85" />
+    ))}
+    {/* query far from cluster */}
+    <polygon points="34,84 41,77 48,84 41,91" fill="#a855f7" />
+    <text x="22" y="104" fontFamily="monospace" fontSize="9" fill="#a855f7">query</text>
+    {/* HyDE point near cluster */}
+    <circle cx="110" cy="40" r="7" fill="none" stroke="#fbbf24" strokeWidth="2" />
+    {/* arrow: query -> hypothetical region */}
+    <line x1="48" y1="82" x2="100" y2="46" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 3" />
+    <polygon points="100,46 92,48 96,53" fill="#fbbf24" />
+  </svg>
+);
 const GlyphLostMiddle = () => {
   const pts = Array.from({ length: 41 }, (_, i) => {
     const x = 16 + i * (128 / 40);
@@ -839,6 +855,7 @@ const GLYPHS = {
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
   "lost-in-the-middle": <GlyphLostMiddle />,
+  "hyde": <GlyphHyDE />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

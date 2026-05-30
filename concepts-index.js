@@ -398,6 +398,11 @@ const CONCEPTS_INDEX = {
     summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
     prereqs: ["attention", "rag-chunking"],
   },
+  "hyde": {
+    id: "hyde", name: "HyDE (Hypothetical Document Embeddings)", area: "NLP",
+    summary: "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
+    prereqs: ["embeddings", "vector-search"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -463,6 +468,7 @@ const CONCEPT_TAGS = {
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
     "guardrails":           ["guardrails", "constrained-decoding"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
+    "hyde":                 ["hyde", "embeddings", "vector-search"],
   },
   // Play games — slugs match play-games.js
   games: {
