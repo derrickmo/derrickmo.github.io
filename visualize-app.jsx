@@ -623,6 +623,25 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphDQN = () => {
+  const pts = Array.from({ length: 41 }, (_, i) => {
+    const x = 16 + i * (128 / 40);
+    const t = (i - 20) / 20;            // -1..1
+    return `${x},${36 + 56 * t * t}`;   // tent / V-shape value curve
+  }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* replay buffer cells */}
+      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+        <rect key={i} x={20 + i * 16} y={98} width="13" height="12"
+          fill={i === 3 || i === 6 ? "#34d399" : "rgba(96,165,250,0.5)"} />
+      ))}
+      {/* Q value curve */}
+      <polyline points={pts} fill="none" stroke="#fbbf24" strokeWidth="2" />
+      <line x1="80" y1="20" x2="80" y2="92" stroke="rgba(52,211,153,0.5)" strokeWidth="6" />
+    </svg>
+  );
+};
 const GlyphDBSCAN = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[40, 36, "#60a5fa"], [56, 28, "#60a5fa"], [50, 50, "#60a5fa"], [36, 52, "#60a5fa"], [42, 40, "#e0e7ff"],
@@ -698,6 +717,7 @@ const GLYPHS = {
   "dbscan": <GlyphDBSCAN />,
   "policy-gradient": <GlyphPolicyGradient />,
   "actor-critic": <GlyphActorCritic />,
+  "dqn": <GlyphDQN />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

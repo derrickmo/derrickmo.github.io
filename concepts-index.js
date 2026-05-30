@@ -353,6 +353,12 @@ const CONCEPTS_INDEX = {
     tex: "\\delta_t = r_t + \\gamma V(s_{t+1}) - V(s_t); \\quad \\theta \\leftarrow \\theta + \\alpha\\, \\delta_t\\, \\nabla_\\theta \\log \\pi_\\theta(a_t \\mid s_t)",
     prereqs: ["policy-gradient", "mdp-bellman"],
   },
+  "dqn": {
+    id: "dqn", name: "Deep Q-Network (DQN)", area: "Reinforcement Learning",
+    summary: "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks — an experience replay buffer (decorrelate samples) and a periodically synced target network (a fixed bootstrap target). The algorithm that learned Atari from pixels.",
+    tex: "L(\\theta) = \\mathbb{E}\\Bigl[ \\bigl( r + \\gamma \\max_{a'} Q_{\\theta^-}(s',a') - Q_\\theta(s,a) \\bigr)^2 \\Bigr]",
+    prereqs: ["mdp-bellman", "backprop"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -410,6 +416,7 @@ const CONCEPT_TAGS = {
     "dbscan":               ["dbscan", "knn"],
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
+    "dqn":                  ["dqn", "mdp-bellman", "mlp"],
   },
   // Play games — slugs match play-games.js
   games: {

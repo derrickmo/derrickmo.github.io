@@ -108,6 +108,7 @@ export default defineConfig({
         'visualize-dbscan': 'visualize/dbscan/index.html',
         'visualize-policy-gradient': 'visualize/policy-gradient/index.html',
         'visualize-actor-critic': 'visualize/actor-critic/index.html',
+        'visualize-dqn': 'visualize/dqn/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -204,6 +205,7 @@ export default defineConfig({
         'concept-dbscan': 'concepts/dbscan/index.html',
         'concept-policy-gradient': 'concepts/policy-gradient/index.html',
         'concept-actor-critic': 'concepts/actor-critic/index.html',
+        'concept-dqn': 'concepts/dqn/index.html',
         // <<< generated:concepts
       },
     },
