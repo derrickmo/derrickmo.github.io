@@ -623,6 +623,24 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphReactAgent = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* thought -> action -> observation loop nodes */}
+    <circle cx="40" cy="40" r="13" fill="none" stroke="#a855f7" strokeWidth="2" />
+    <text x="34" y="44" fontFamily="monospace" fontSize="11" fill="#a855f7">T</text>
+    <circle cx="120" cy="40" r="13" fill="none" stroke="#60a5fa" strokeWidth="2" />
+    <text x="115" y="44" fontFamily="monospace" fontSize="11" fill="#60a5fa">A</text>
+    <circle cx="80" cy="92" r="13" fill="none" stroke="#34d399" strokeWidth="2" />
+    <text x="75" y="96" fontFamily="monospace" fontSize="11" fill="#34d399">O</text>
+    {/* arrows around the loop */}
+    <line x1="54" y1="40" x2="105" y2="40" stroke="rgba(148,163,184,0.6)" strokeWidth="1.5" />
+    <polygon points="105,40 97,36 97,44" fill="rgba(148,163,184,0.6)" />
+    <line x1="114" y1="52" x2="90" y2="82" stroke="rgba(148,163,184,0.6)" strokeWidth="1.5" />
+    <polygon points="90,82 98,80 92,74" fill="rgba(148,163,184,0.6)" />
+    <line x1="70" y1="84" x2="46" y2="52" stroke="rgba(148,163,184,0.6)" strokeWidth="1.5" />
+    <polygon points="46,52 54,56 48,60" fill="rgba(148,163,184,0.6)" />
+  </svg>
+);
 const GlyphReflection = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* quality climbing across revisions toward the bar */}
@@ -870,6 +888,7 @@ const GLYPHS = {
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,
+  "react-agent": <GlyphReactAgent />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

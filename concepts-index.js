@@ -408,6 +408,11 @@ const CONCEPTS_INDEX = {
     summary: "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
     prereqs: ["reward-model", "self-consistency"],
   },
+  "react-agent": {
+    id: "react-agent", name: "ReAct (Reason + Act)", area: "NLP",
+    summary: "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
+    prereqs: ["reflection", "rag-chunking"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -475,6 +480,7 @@ const CONCEPT_TAGS = {
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
+    "react-agent":          ["react-agent", "reflection", "rag-chunking"],
   },
   // Play games — slugs match play-games.js
   games: {

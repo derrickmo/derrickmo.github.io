@@ -120,6 +120,8 @@ window.PLAY_DEMOS = {
       blurb: "Questions embed away from their answers. Draft a hypothetical answer, embed that instead, and retrieval lands on the right documents." },
     { slug: "reflection",         topic: "AGENTS / LLM OPS", title: "Self-Correction (Reflection)", tone: "violet", status: "LIVE",
       blurb: "Draft, critique, revise, repeat. Watch quality climb to the bar — then weaken the critic and see reflection stall, ship garbage, or burn the budget." },
+    { slug: "react-agent",        topic: "AGENTS / LLM OPS", title: "ReAct — Reason + Act", tone: "violet", status: "LIVE",
+      blurb: "The tool-using agent loop: Thought → Action → Observation, repeat. Watch a worked trace — then drop the reliability and see errors compound." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -130,7 +132,7 @@ window.PLAY_DEMOS = {
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "lora", "scaling-laws"] },
     { name: "Reinforcement Learning", why: "Learning from delayed reward instead of labels, the explore-vs-exploit tradeoff, the Bellman backups that plan optimal behavior, and the tree search that scales planning to large games — the foundations of agents that act, not just predict.", slugs: ["gridworld-rl", "value-iteration", "bandit", "mcts", "policy-gradient", "actor-critic", "dqn", "reward-model", "dpo"] },
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
-    { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
+    { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "react-agent", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -192,6 +194,7 @@ window.PLAY_DEMOS = {
     "lost-in-the-middle": "U-shaped context position bias",
     "hyde": "embed a drafted answer, not the query",
     "reflection": "draft → critique → revise loop",
+    "react-agent": "thought → action → observation",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

@@ -330,6 +330,7 @@ const DM_NAV_INDEX = [
   { label: "Lost in the Middle", group: "Demo", href: "/visualize/lost-in-the-middle/", kw: "lost in the middle context window position bias long context reranking rag ordering recency primacy attention liu" },
   { label: "HyDE — Hypothetical Embeddings", group: "Demo", href: "/visualize/hyde/", kw: "hyde hypothetical document embeddings retrieval query transformation rag dense asymmetry gao multi-query rag-fusion" },
   { label: "Self-Correction (Reflection)", group: "Demo", href: "/visualize/reflection/", kw: "reflection reflexion self correction critique revise verifier critic agent loop self-refine iterate test-time compute" },
+  { label: "ReAct — Reason + Act", group: "Demo", href: "/visualize/react-agent/", kw: "react agent reason act tool use function calling thought action observation langchain yao tool routing reasoning trace" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
