@@ -419,6 +419,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{ECE} = \\sum_{b} \\frac{n_b}{N} \\,\\bigl| \\mathrm{acc}(b) - \\mathrm{conf}(b) \\bigr|",
     prereqs: ["logistic-regression", "roc"],
   },
+  "shap": {
+    id: "shap", name: "Feature Attribution (SHAP)", area: "Foundations",
+    summary: "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    tex: "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
+    prereqs: ["logistic-regression"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -488,6 +494,7 @@ const CONCEPT_TAGS = {
     "reflection":           ["reflection", "reward-model", "self-consistency"],
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
+    "shap":                 ["shap", "logistic-regression"],
   },
   // Play games — slugs match play-games.js
   games: {

@@ -623,6 +623,17 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphSHAP = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* waterfall bars stepping from base to prediction */}
+    {[[40, 26, 36, "#34d399"], [60, 40, 28, "#34d399"], [54, 56, 38, "#f87171"], [70, 72, 30, "#34d399"], [62, 88, 34, "#f87171"]].map(([x, y, w, c], i) => (
+      <rect key={i} x={x} y={y} width={w} height="11" fill={c} opacity="0.85" />
+    ))}
+    <line x1="40" y1="20" x2="40" y2="104" stroke="rgba(148,163,184,0.4)" strokeWidth="1" strokeDasharray="3 3" />
+    <line x1="104" y1="20" x2="104" y2="104" stroke="#60a5fa" strokeWidth="1.5" />
+    <text x="22" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">base → φ → pred</text>
+  </svg>
+);
 const GlyphCalibration = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* reliability diagram: diagonal + overconfident points below it */}
@@ -906,6 +917,7 @@ const GLYPHS = {
   "reflection": <GlyphReflection />,
   "react-agent": <GlyphReactAgent />,
   "calibration": <GlyphCalibration />,
+  "shap": <GlyphSHAP />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
