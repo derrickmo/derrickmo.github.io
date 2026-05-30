@@ -451,6 +451,12 @@ const CONCEPTS_INDEX = {
     summary: "The standard constraint-propagation algorithm for CSPs: repeatedly enforce that for every value in a variable's domain there exists a compatible value in each neighbor's domain, deleting unsupported values and cascading until a fixpoint. Run after each assignment in backtracking, it prunes doomed branches early; with MRV/LCV ordering it's the textbook recipe for practical CSP solving.",
     prereqs: ["backtracking"],
   },
+  "quantization": {
+    id: "quantization", name: "Quantization", area: "Training Systems",
+    summary: "Shrink a model by storing weights (and activations) in low-bit integers instead of 32-bit floats. A scale maps floats to a small grid of levels; fewer bits = smaller/faster but coarser. Outliers stretch the scale and dominate the error, which is why LLM quantization (GPTQ, AWQ, QLoRA's NF4) is outlier-aware and often per-channel.",
+    tex: "q = \\mathrm{clamp}\\!\\left( \\mathrm{round}\\!\\left( \\tfrac{w}{s} \\right),\\, -2^{b-1},\\, 2^{b-1}-1 \\right),\\quad s = \\tfrac{\\max|w|}{2^{b-1}-1}",
+    prereqs: ["lora"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -527,6 +533,7 @@ const CONCEPT_TAGS = {
     "n-queens":             ["backtracking", "pathfinding"],
     "graph-coloring":       ["arc-consistency", "backtracking"],
     "sudoku":               ["backtracking", "arc-consistency"],
+    "quantization":         ["quantization", "lora"],
   },
   // Play games — slugs match play-games.js
   games: {

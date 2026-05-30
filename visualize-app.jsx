@@ -623,6 +623,24 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphQuantization = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* quantization grid levels */}
+    {[28, 52, 76, 100, 124].map((x, i) => (
+      <line key={i} x1={x} y1="34" x2={x} y2="86" stroke="rgba(96,165,250,0.35)" strokeWidth="1" />
+    ))}
+    <line x1="20" y1="86" x2="140" y2="86" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    {/* weights snapping to levels */}
+    {[[40, 48, 52], [64, 60, 52], [70, 66, 76], [92, 54, 100], [110, 70, 100]].map(([x1, y, x2], i) => (
+      <g key={i}>
+        <line x1={x1} y1={y} x2={x2} y2={y} stroke="#34d399" strokeWidth="1.5" opacity="0.7" />
+        <circle cx={x1} cy={y} r="2.5" fill="#e2e8f0" />
+        <circle cx={x2} cy={y} r="3" fill="#34d399" />
+      </g>
+    ))}
+    <text x="34" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">fp32 → int4</text>
+  </svg>
+);
 const GlyphSudoku = () => {
   const digits = { "0-0": "5", "1-1": "3", "2-2": "8", "0-2": "9", "2-0": "6" };
   return (
@@ -1015,6 +1033,7 @@ const GLYPHS = {
   "n-queens": <GlyphNQueens />,
   "graph-coloring": <GlyphGraphColoring />,
   "sudoku": <GlyphSudoku />,
+  "quantization": <GlyphQuantization />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
