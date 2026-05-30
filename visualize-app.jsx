@@ -586,6 +586,22 @@ const GlyphRegression = () => (
   </svg>
 );
 
+const GlyphRope = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="80" cy="60" r="38" fill="none" stroke="rgba(96,165,250,0.25)" strokeWidth="1" />
+    {[0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6, 4.2, 4.8, 5.4].map((a, i) => {
+      const x = 80 + Math.cos(a) * 38;
+      const y = 60 + Math.sin(a) * 38;
+      return <g key={i}>
+        <line x1="80" y1="60" x2={x} y2={y} stroke={i === 4 ? "#fbbf24" : "rgba(192,132,252,0.4)"} strokeWidth={i === 4 ? 2 : 1} />
+        <circle cx={x} cy={y} r="2.5" fill={i === 4 ? "#fbbf24" : "#c084fc"} opacity="0.85" />
+      </g>;
+    })}
+    <line x1="80" y1="60" x2={80 + 50} y2="60" stroke="#60a5fa" strokeWidth="2.4" />
+    <circle cx={130} cy="60" r="3.5" fill="#60a5fa" />
+  </svg>
+);
+
 const GLYPHS = {
   "pathfinding": <GlyphPath />,
   "kmeans": <GlyphKMeans />,
@@ -631,6 +647,7 @@ const GLYPHS = {
   "beam-search": <GlyphBeam />,
   "kv-cache": <GlyphKVCache />,
   "gnn": <GlyphGNN />,
+  "rope": <GlyphRope />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

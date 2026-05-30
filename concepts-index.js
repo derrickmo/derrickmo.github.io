@@ -330,6 +330,12 @@ const CONCEPTS_INDEX = {
     tex: "h_v^{(\\ell+1)} = \\sigma\\!\\left(W \\cdot \\mathrm{mean}_{u \\in N(v) \\cup \\{v\\}} h_u^{(\\ell)}\\right)",
     prereqs: ["mlp"],
   },
+  "rope": {
+    id: "rope", name: "Rotary Position Embedding (RoPE)", area: "Transformers",
+    summary: "Encode position by rotating Q and K in 2-D pair-blocks by an angle that grows linearly with position; the attention score then depends only on the relative offset (m-n).",
+    tex: "\\theta_i(m) = m \\cdot 10000^{-2i/d}",
+    prereqs: ["positional-encoding", "attention"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -383,6 +389,7 @@ const CONCEPT_TAGS = {
     "beam-search":          ["beam-search", "decoding"],
     "kv-cache":             ["kv-cache", "attention"],
     "gnn":                  ["gnn", "mlp"],
+    "rope":                 ["rope", "positional-encoding", "attention"],
   },
   // Play games — slugs match play-games.js
   games: {

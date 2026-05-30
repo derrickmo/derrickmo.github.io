@@ -316,6 +316,7 @@ const DM_NAV_INDEX = [
   { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
   { label: "KV Cache", group: "Demo", href: "/visualize/kv-cache/", kw: "kv cache key value autoregressive transformer inference attention prefix" },
   { label: "GNN Message Passing", group: "Demo", href: "/visualize/gnn/", kw: "gnn graph neural network gcn message passing over-smoothing graphsage gat" },
+  { label: "RoPE Explorer", group: "Demo", href: "/visualize/rope/", kw: "rope rotary position embedding transformer attention long context llama" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
