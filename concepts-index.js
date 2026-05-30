@@ -479,6 +479,12 @@ const CONCEPTS_INDEX = {
     summary: "A trend present in every subgroup can reverse when the groups are pooled, because a confounder correlates with both X and Y. The most vivid demonstration that correlation is not causation: the correct estimate depends on which variables you condition on, which is decided by the causal structure, not the data alone. Motivates stratification, regression controls, and randomization.",
     prereqs: ["linear-regression", "bayes"],
   },
+  "dynamic-programming": {
+    id: "dynamic-programming", name: "Dynamic Programming", area: "Foundations",
+    summary: "Solve a problem by combining optimal answers to overlapping subproblems, computed once and reused (memoized). Requires optimal substructure; turns exponential brute force into polynomial table-filling. The 0/1 knapsack table is canonical; the same idea drives edit distance, shortest paths, the Bellman equation, and Viterbi/CTC decoding.",
+    tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
+    prereqs: ["mdp-bellman"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -560,6 +566,7 @@ const CONCEPT_TAGS = {
     "distillation":         ["distillation", "calibration"],
     "moe":                  ["moe", "attention", "scaling-laws"],
     "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
+    "knapsack":             ["dynamic-programming", "mdp-bellman"],
   },
   // Play games — slugs match play-games.js
   games: {

@@ -623,6 +623,18 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphKnapsack = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* DP table cells, gradient fill + a backtrack path */}
+    {[0, 1, 2, 3].map(r => [0, 1, 2, 3, 4].map(c => {
+      const path = (r === 0 && c === 4) || (r === 1 && c === 4) || (r === 2 && c === 2) || (r === 3 && c === 2);
+      const t = (r + c) / 7;
+      return <rect key={`${r}${c}`} x={40 + c * 18} y={28 + r * 18} width="17" height="17"
+        fill={`rgba(96,165,250,${0.12 + 0.5 * t})`} stroke={path ? "#fbbf24" : "transparent"} strokeWidth="1.5" />;
+    }))}
+    <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
+  </svg>
+);
 const GlyphSimpsons = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two subgroups each trending up, pooled trending down */}
@@ -1093,6 +1105,7 @@ const GLYPHS = {
   "distillation": <GlyphDistillation />,
   "moe": <GlyphMoE />,
   "simpsons-paradox": <GlyphSimpsons />,
+  "knapsack": <GlyphKnapsack />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
