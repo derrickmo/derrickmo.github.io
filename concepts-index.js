@@ -72,7 +72,13 @@ const CONCEPTS_INDEX = {
   "bias-variance": {
     id: "bias-variance", name: "Bias-Variance Tradeoff", area: "Foundations",
     summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
-    leadsTo: ["regularization"],
+    leadsTo: ["regularization", "double-descent"],
+  },
+  "double-descent": {
+    id: "double-descent", name: "Double Descent", area: "Foundations",
+    summary: "Test error is NOT a simple U in model capacity. As you add parameters it falls, then spikes at the interpolation threshold (#params ≈ #train points, where the model can just barely fit the data), then falls AGAIN in the over-parameterized regime. The peak is noise-driven and tied to ill-conditioning at P≈N; the second descent relies on a benign implicit bias (minimum-norm / SGD). Optimal regularization or early stopping removes the peak. Reconciles classical bias-variance with why huge networks generalize.",
+    tex: "\\text{risk}(P) \\text{ peaks at } P/N = 1, \\text{ then decreases for } P \\gg N",
+    prereqs: ["bias-variance", "regularization"],
   },
   "regularization": {
     id: "regularization", name: "Regularization (L2 / weight decay)", area: "Foundations",
@@ -599,6 +605,7 @@ const CONCEPT_TAGS = {
     "kmeans":               ["kmeans", "gmm-em"],
     "gradient-descent":     ["gradient-descent", "adam", "lr-schedule"],
     "overfitting":          ["bias-variance", "regularization"],
+    "double-descent":       ["double-descent", "bias-variance", "regularization"],
     "roc":                  ["roc", "cross-entropy"],
     "decision-tree":        ["decision-tree", "entropy"],
     "knn":                  ["knn", "bias-variance"],

@@ -243,6 +243,7 @@ const DM_NAV_INDEX = [
   { label: "K-Means Clustering", group: "Demo", href: "/visualize/kmeans/", kw: "unsupervised clusters" },
   { label: "Gradient Descent", group: "Demo", href: "/visualize/gradient-descent/", kw: "optimizer sgd adam" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
+  { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
   { label: "Decision Tree", group: "Demo", href: "/visualize/decision-tree/", kw: "cart gini splits classical ml" },
   { label: "k-Nearest Neighbors", group: "Demo", href: "/visualize/knn/", kw: "knn classifier classical ml" },
   { label: "SVM - Margins & Kernels", group: "Demo", href: "/visualize/svm/", kw: "support vector machine margin kernel rbf classical ml" },

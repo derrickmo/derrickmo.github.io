@@ -143,6 +143,17 @@ const GlyphCurveFit = () => (
     ))}
   </svg>
 );
+const GlyphDoubleDescent = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* the double-descent risk curve: dip, spike at P/N=1, dip again */}
+    <line x1="78" y1="18" x2="78" y2="104" stroke="#fbbf24" strokeWidth="1.4" strokeDasharray="4 3" />
+    <path d="M 16 64 Q 40 84, 60 78 Q 74 74, 78 30 Q 82 74, 100 70 Q 124 64, 144 56"
+      stroke="#a855f7" strokeWidth="2.4" fill="none" />
+    <path d="M 16 72 Q 50 88, 78 96 L 144 96" stroke="#34d399" strokeWidth="1.8" fill="none" opacity="0.85" />
+    <text x="58" y="14" fontFamily="monospace" fontSize="9" fill="#fbbf24">P/N=1</text>
+    <text x="14" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">capacity →</text>
+  </svg>
+);
 const GlyphBell = () => {
   const pts = Array.from({ length: 41 }, (_, i) => { const x = 16 + i * (128 / 40); const t = (i - 20) / 8; return `${x},${100 - 72 * Math.exp(-t * t / 2)}`; }).join(" ");
   return (
@@ -1296,6 +1307,7 @@ const GLYPHS = {
   "kmeans": <GlyphKMeans />,
   "gradient-descent": <GlyphGradient />,
   "overfitting": <GlyphCurveFit />,
+  "double-descent": <GlyphDoubleDescent />,
   "decision-tree": <GlyphTree />,
   "knn": <GlyphKnn />,
   "svm": <GlyphSVM />,
