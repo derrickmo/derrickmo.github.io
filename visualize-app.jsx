@@ -959,6 +959,21 @@ const GlyphCoreset = () => (
     <text x="30" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">tiny weighted subset</text>
   </svg>
 );
+const GlyphDatasetDistillation = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a cloud of real points distilled into a few synthetic squares + arrow */}
+    {[[24,40],[34,54],[28,68],[42,46],[20,58],[40,72],[30,82]].map(([x,y],i)=>(
+      <circle key={`r${i}`} cx={x} cy={y} r="3" fill={i%2? "rgba(168,85,247,0.35)":"rgba(96,165,250,0.35)"} />
+    ))}
+    <line x1="62" y1="58" x2="92" y2="58" stroke="#94a3b8" strokeWidth="2" /><polygon points="94,58 86,54 86,62" fill="#94a3b8" />
+    <text x="60" y="44" fontFamily="monospace" fontSize="9" fill="#94a3b8">distill</text>
+    {/* synthetic squares */}
+    <rect x="108" y="40" width="13" height="13" fill="#60a5fa" stroke="#e2e8f0" strokeWidth="1.4" />
+    <rect x="126" y="56" width="13" height="13" fill="#a855f7" stroke="#e2e8f0" strokeWidth="1.4" />
+    <rect x="110" y="70" width="13" height="13" fill="#a855f7" stroke="#e2e8f0" strokeWidth="1.4" />
+    <text x="100" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">synthetic teachers</text>
+  </svg>
+);
 const GlyphConformal = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* a prediction set: some classes included (blue), true class ringed green */}
@@ -1346,6 +1361,7 @@ const GLYPHS = {
   "conformal-regression": <GlyphConformalRegression />,
   "active-learning": <GlyphActiveLearning />,
   "coreset": <GlyphCoreset />,
+  "dataset-distillation": <GlyphDatasetDistillation />,
   "fairness": <GlyphFairness />,
   "n-queens": <GlyphNQueens />,
   "graph-coloring": <GlyphGraphColoring />,

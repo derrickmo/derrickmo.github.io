@@ -448,6 +448,12 @@ const CONCEPTS_INDEX = {
     tex: "q_i = \\tfrac{1}{2N} + \\tfrac{1}{2}\\,\\frac{d(x_i,\\mu)^2}{\\sum_j d(x_j,\\mu)^2}, \\quad w_i = \\tfrac{1}{m\\,q_i}",
     prereqs: ["kmeans", "active-learning"],
   },
+  "dataset-distillation": {
+    id: "dataset-distillation", name: "Dataset Distillation", area: "Foundations",
+    summary: "Synthesize a tiny set of training examples on which a model trained from scratch generalizes almost as well as on the full data. Unlike coresets (which select real points), the synthetic points are learned by differentiating the downstream loss back into the data — via a closed-form inner learner (KIP / kernel ridge), unrolled training, or gradient/trajectory matching. The learned points rarely look realistic; they're optimized to teach. Used for fast NAS, continual-learning replay, and privacy-preserving release.",
+    tex: "S^\\star = \\arg\\min_S \\; \\mathcal{L}_{\\text{real}}\\bigl(\\theta^\\star(S)\\bigr), \\quad \\theta^\\star(S) = \\arg\\min_\\theta \\mathcal{L}(\\theta; S)",
+    prereqs: ["coreset", "distillation"],
+  },
   "fairness": {
     id: "fairness", name: "Fairness & Group Metrics", area: "Foundations",
     summary: "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
@@ -658,6 +664,7 @@ const CONCEPT_TAGS = {
     "conformal-regression": ["conformal-regression", "conformal", "linear-regression"],
     "active-learning":      ["active-learning", "logistic-regression"],
     "coreset":              ["coreset", "kmeans", "active-learning"],
+    "dataset-distillation": ["dataset-distillation", "coreset", "distillation"],
     "fairness":             ["fairness", "roc", "calibration"],
     "n-queens":             ["backtracking", "pathfinding"],
     "graph-coloring":       ["arc-consistency", "backtracking"],
