@@ -23,6 +23,7 @@
   <url><loc>https://derrickmo.github.io/concepts/chain-rule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/clt/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/constrained-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
@@ -166,6 +167,7 @@
   <url><loc>https://derrickmo.github.io/visualize/bfs-dfs-astar/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/clt/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/constrained-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
