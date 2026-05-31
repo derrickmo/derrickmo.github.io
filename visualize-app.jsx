@@ -922,6 +922,19 @@ const GlyphConformal = () => (
     <text x="30" y="100" fontFamily="monospace" fontSize="10" fill="#34d399">cover ≥ 1−α</text>
   </svg>
 );
+const GlyphConformalRegression = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a regression curve wrapped in an adaptive prediction band */}
+    <path d="M20 70 Q55 30 90 58 T140 46 L140 70 Q105 92 70 74 T20 92 Z" fill="rgba(96,165,250,0.18)" />
+    <path d="M20 81 Q55 48 90 66 T140 58" fill="none" stroke="#a855f7" strokeWidth="2.4" />
+    {[[34,70],[58,52],[82,68],[106,55],[128,60]].map(([x,y],i)=>(
+      <circle key={i} cx={x} cy={y} r="2.4" fill="rgba(148,163,184,0.7)" />
+    ))}
+    <circle cx="118" cy="40" r="2.6" fill="#f87171" />
+    <text x="22" y="26" fontFamily="monospace" fontSize="9" fill="#94a3b8">interval</text>
+    <text x="22" y="108" fontFamily="monospace" fontSize="10" fill="#60a5fa">f̂(x) ± q̂·σ̂(x)</text>
+  </svg>
+);
 const GlyphSHAP = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* waterfall bars stepping from base to prediction */}
@@ -1279,6 +1292,7 @@ const GLYPHS = {
   "calibration": <GlyphCalibration />,
   "shap": <GlyphSHAP />,
   "conformal": <GlyphConformal />,
+  "conformal-regression": <GlyphConformalRegression />,
   "active-learning": <GlyphActiveLearning />,
   "fairness": <GlyphFairness />,
   "n-queens": <GlyphNQueens />,

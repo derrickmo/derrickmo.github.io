@@ -334,6 +334,7 @@ const DM_NAV_INDEX = [
   { label: "Model Calibration", group: "Demo", href: "/visualize/calibration/", kw: "calibration reliability diagram ece expected calibration error temperature scaling overconfidence guo trustworthy confidence brier platt" },
   { label: "Feature Attribution (SHAP)", group: "Demo", href: "/visualize/shap/", kw: "shap shapley values feature attribution explainability xai interpretability waterfall lundberg lime credit decision" },
   { label: "Conformal Prediction", group: "Demo", href: "/visualize/conformal/", kw: "conformal prediction uncertainty coverage guarantee prediction sets distribution-free quantile angelopoulos vovk aps trustworthy" },
+  { label: "Conformal Regression", group: "Demo", href: "/visualize/conformal-regression/", kw: "conformal regression prediction interval coverage guarantee quantile cqr conformalized adaptive heteroscedastic distribution-free uncertainty band trustworthy" },
   { label: "Active Learning", group: "Demo", href: "/visualize/active-learning/", kw: "active learning uncertainty sampling query labeling data-centric annotation human-in-the-loop margin entropy pool" },
   { label: "Fairness & Group Metrics", group: "Demo", href: "/visualize/fairness/", kw: "fairness bias demographic parity equal opportunity equalized odds group threshold impossibility responsible ml disparate impact" },
   { label: "N-Queens (Backtracking)", group: "Demo", href: "/visualize/n-queens/", kw: "n-queens backtracking constraint satisfaction csp forward checking search ac-3 chessboard pruning depth-first" },
