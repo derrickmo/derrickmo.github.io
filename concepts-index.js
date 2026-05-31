@@ -535,6 +535,11 @@ const CONCEPTS_INDEX = {
     summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
     prereqs: ["overfitting"],
   },
+  "paged-attention": {
+    id: "paged-attention", name: "PagedAttention", area: "Training Systems",
+    summary: "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    prereqs: ["kv-cache"],
+  },
   "mixed-precision": {
     id: "mixed-precision", name: "Mixed-Precision Training", area: "Training Systems",
     summary: "Train in 16-bit (fp16/bf16) for speed and memory while keeping an fp32 master copy of weights. fp16's narrow exponent range makes small gradients underflow and large ones overflow, so loss scaling multiplies the loss (and gradients) into the representable window and unscales before the step. bf16 keeps fp32's range (no scaling) at the cost of mantissa bits.",
@@ -642,6 +647,7 @@ const CONCEPT_TAGS = {
     "edit-distance":        ["dynamic-programming"],
     "mixed-precision":      ["mixed-precision", "quantization"],
     "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],
+    "paged-attention":      ["paged-attention", "kv-cache"],
     "label-noise":          ["label-noise", "overfitting"],
     "mc-dropout":           ["mc-dropout", "calibration"],
     "saliency":             ["saliency", "shap", "backprop"],

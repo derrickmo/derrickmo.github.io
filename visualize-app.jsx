@@ -749,6 +749,14 @@ const GlyphSpeculative = () => (
     <text x="60" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">verify in 1 pass</text>
   </svg>
 );
+const GlyphPagedAttention = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* memory grid: some blocks used (colored), some wasted (hatched), packed */}
+    {[0, 1, 2, 3, 4, 5, 6, 7].map(i => { const c = i % 4, r = (i / 4) | 0; const col = ["#60a5fa", "#a855f7", "#34d399", "#fbbf24"][i % 4]; return <rect key={`u${i}`} x={30 + c * 22} y={36 + r * 20} width="20" height="18" fill={col} opacity="0.85" />; })}
+    {[8, 9, 10, 11].map(i => { const c = i % 4, r = (i / 4) | 0; return <g key={`w${i}`}><rect x={30 + c * 22} y={36 + r * 20} width="20" height="18" fill="rgba(248,113,113,0.15)" /><line x1={32 + c * 22} y1={36 + r * 20 + 16} x2={48 + c * 22} y2={36 + r * 20 + 2} stroke="rgba(248,113,113,0.5)" strokeWidth="1" /></g>; })}
+    <text x="34" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">blocks on demand</text>
+  </svg>
+);
 const GlyphMixedPrecision = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* fp16 window band, gradient histogram shifted into it */}
@@ -1281,6 +1289,7 @@ const GLYPHS = {
   "distillation": <GlyphDistillation />,
   "moe": <GlyphMoE />,
   "mixed-precision": <GlyphMixedPrecision />,
+  "paged-attention": <GlyphPagedAttention />,
   "speculative-decoding": <GlyphSpeculative />,
   "label-noise": <GlyphLabelNoise />,
   "mc-dropout": <GlyphMCDropout />,

@@ -166,6 +166,8 @@ window.PLAY_DEMOS = {
       blurb: "fp16's narrow range makes small gradients vanish and big ones blow up. Slide loss scaling to rescue them — or switch to bf16 and trade precision for range." },
     { slug: "speculative-decoding", topic: "EFFICIENCY", title: "Speculative Decoding", tone: "violet", status: "LIVE",
       blurb: "A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step — a lossless speedup set by draft agreement and lookahead." },
+    { slug: "paged-attention",    topic: "EFFICIENCY", title: "PagedAttention", tone: "violet", status: "LIVE",
+      blurb: "Contiguous KV-cache reservations waste memory on every half-finished sequence; paging packs fixed blocks on demand and fits far more streams in the same GPU." },
     { slug: "simpsons-paradox",   topic: "CAUSAL INFERENCE", title: "Simpson's Paradox", tone: "blue", status: "LIVE",
       blurb: "Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it." },
     { slug: "do-intervention",    topic: "CAUSAL INFERENCE", title: "do() & Backdoor Adjustment", tone: "blue", status: "LIVE",
@@ -189,7 +191,7 @@ window.PLAY_DEMOS = {
     { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "multi-query", "rag-reranker", "lost-in-the-middle", "react-agent", "agent-router", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
     { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "saliency", "conformal", "mc-dropout", "active-learning", "label-noise", "drift-detection", "fairness"] },
     { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "edit-distance"] },
-    { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding"] },
+    { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -274,6 +276,7 @@ window.PLAY_DEMOS = {
     "moe": "route tokens to top-k experts",
     "mixed-precision": "loss scaling into fp16's range",
     "speculative-decoding": "draft proposes, target verifies",
+    "paged-attention": "KV cache in on-demand blocks",
     "simpsons-paradox": "confounding reverses the trend",
     "do-intervention": "observe vs do(); backdoor adjust",
     "knapsack": "fill the table, backtrack the choice",
