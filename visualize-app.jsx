@@ -173,6 +173,23 @@ const GlyphActivation = () => {
     </svg>
   );
 };
+const GlyphBatchNorm = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* widening (unnormalized) cloud vs re-standardized columns across depth */}
+    {[0,1,2,3,4].map(l => {
+      const x = 26 + l * 28, spread = 8 + l * 7; // grows with depth
+      return <g key={`u${l}`}>
+        <rect x={x-5} y={60-spread} width="10" height={2*spread} fill="rgba(248,113,113,0.18)" />
+      </g>;
+    })}
+    {[0,1,2,3,4].map(l => {
+      const x = 26 + l * 28; // BN keeps spread flat
+      return <rect key={`n${l}`} x={x-3} y={48} width="6" height="24" fill="rgba(52,211,153,0.55)" />;
+    })}
+    <line x1="16" y1="60" x2="150" y2="60" stroke="rgba(148,163,184,0.3)" strokeWidth="1" />
+    <text x="16" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">flat std across depth</text>
+  </svg>
+);
 const GlyphKernel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 3 }).map((_, c) => (
@@ -1338,6 +1355,7 @@ const GLYPHS = {
   "markov": <GlyphMarkov />,
   "decoding": <GlyphDecoding />,
   "activations": <GlyphActivation />,
+  "batch-norm": <GlyphBatchNorm />,
   "clt": <GlyphBell />,
   "fourier": <GlyphWave />,
   "attention": <GlyphAttention />,

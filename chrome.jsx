@@ -254,6 +254,7 @@ const DM_NAV_INDEX = [
   { label: "Markov Text Generator", group: "Demo", href: "/visualize/markov/", kw: "ngram language model nlp text" },
   { label: "Decoding Strategies", group: "Demo", href: "/visualize/decoding/", kw: "temperature top-k top-p nucleus sampling llm nlp" },
   { label: "Activation Functions", group: "Demo", href: "/visualize/activations/", kw: "relu sigmoid tanh gelu gradient neural" },
+  { label: "Batch Normalization", group: "Demo", href: "/visualize/batch-norm/", kw: "batch normalization batchnorm layernorm rmsnorm internal covariate shift activation distribution variance saturation exploding ioffe szegedy gamma beta deep training stability" },
   { label: "Central Limit Theorem", group: "Demo", href: "/visualize/clt/", kw: "probability gaussian sampling statistics" },
   { label: "Fourier Series", group: "Demo", href: "/visualize/fourier/", kw: "signal epicycles sine wave dsp" },
   { label: "Attention Heatmap", group: "Demo", href: "/visualize/attention/", kw: "transformer softmax qkv" },
