@@ -485,6 +485,11 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "label-noise": {
+    id: "label-noise", name: "Label Noise & Memorization", area: "Foundations",
+    summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
+    prereqs: ["overfitting"],
+  },
   "mixed-precision": {
     id: "mixed-precision", name: "Mixed-Precision Training", area: "Training Systems",
     summary: "Train in 16-bit (fp16/bf16) for speed and memory while keeping an fp32 master copy of weights. fp16's narrow exponent range makes small gradients underflow and large ones overflow, so loss scaling multiplies the loss (and gradients) into the representable window and unscales before the step. bf16 keeps fp32's range (no scaling) at the cost of mantissa bits.",
@@ -587,6 +592,7 @@ const CONCEPT_TAGS = {
     "edit-distance":        ["dynamic-programming"],
     "mixed-precision":      ["mixed-precision", "quantization"],
     "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],
+    "label-noise":          ["label-noise", "overfitting"],
   },
   // Play games — slugs match play-games.js
   games: {

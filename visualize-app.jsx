@@ -663,6 +663,17 @@ const GlyphKnapsack = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
   </svg>
 );
+const GlyphLabelNoise = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="80" y1="24" x2="80" y2="96" stroke="rgba(226,232,240,0.4)" strokeWidth="1.5" />
+    {[[44, 40], [54, 60], [38, 76], [60, 50]].map(([x, y], i) => <circle key={`a${i}`} cx={x} cy={y} r="3.5" fill="#60a5fa" />)}
+    {[[112, 44], [102, 64], [120, 78], [98, 52]].map(([x, y], i) => <circle key={`b${i}`} cx={x} cy={y} r="3.5" fill="#a855f7" />)}
+    {/* flipped points on the wrong side, ringed red */}
+    <circle cx="100" cy="42" r="3.5" fill="#60a5fa" /><circle cx="100" cy="42" r="6.5" fill="none" stroke="#f87171" strokeWidth="1.5" />
+    <circle cx="58" cy="70" r="3.5" fill="#a855f7" /><circle cx="58" cy="70" r="6.5" fill="none" stroke="#f87171" strokeWidth="1.5" />
+    <text x="40" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">flipped labels</text>
+  </svg>
+);
 const GlyphSimpsons = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two subgroups each trending up, pooled trending down */}
@@ -1161,6 +1172,7 @@ const GLYPHS = {
   "moe": <GlyphMoE />,
   "mixed-precision": <GlyphMixedPrecision />,
   "speculative-decoding": <GlyphSpeculative />,
+  "label-noise": <GlyphLabelNoise />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

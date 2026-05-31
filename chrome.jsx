@@ -349,6 +349,7 @@ const DM_NAV_INDEX = [
   { label: "Edit Distance", group: "Demo", href: "/visualize/edit-distance/", kw: "edit distance levenshtein dynamic programming string alignment diff spellcheck needleman wunsch sequence dp table" },
   { label: "Mixed Precision", group: "Demo", href: "/visualize/mixed-precision/", kw: "mixed precision fp16 bf16 fp32 loss scaling underflow overflow dynamic range amp training efficiency tensor core fp8" },
   { label: "Speculative Decoding", group: "Demo", href: "/visualize/speculative-decoding/", kw: "speculative decoding draft target verify accept reject lookahead llm inference latency leviathan medusa eagle lossless speedup" },
+  { label: "Label Noise", group: "Demo", href: "/visualize/label-noise/", kw: "label noise mislabeled memorization robust loss early stopping data-centric flipped labels generalization trustworthy" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
