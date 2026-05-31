@@ -334,6 +334,18 @@ const GlyphPCA = () => (
     <circle cx="80" cy="60" r="3.5" fill="#e0e7ff" />
   </svg>
 );
+const GlyphTSNE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* three well-separated colored clusters of points */}
+    {[[44, 42, "#60a5fa"], [116, 40, "#a855f7"], [78, 88, "#34d399"]].map(([cx, cy, col], c) => (
+      Array.from({ length: 7 }).map((_, i) => {
+        const a = (i / 7) * Math.PI * 2, r = 6 + (i % 3) * 5;
+        return <circle key={`${c}-${i}`} cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r="2.6" fill={col} opacity="0.85" />;
+      })
+    ))}
+    <text x="20" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">neighbors → clusters</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1406,6 +1418,7 @@ const GLYPHS = {
   "knn": <GlyphKnn />,
   "svm": <GlyphSVM />,
   "pca": <GlyphPCA />,
+  "tsne": <GlyphTSNE />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

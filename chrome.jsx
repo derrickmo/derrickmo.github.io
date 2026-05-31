@@ -251,6 +251,7 @@ const DM_NAV_INDEX = [
   { label: "k-Nearest Neighbors", group: "Demo", href: "/visualize/knn/", kw: "knn classifier classical ml" },
   { label: "SVM - Margins & Kernels", group: "Demo", href: "/visualize/svm/", kw: "support vector machine margin kernel rbf classical ml" },
   { label: "Principal Component Analysis", group: "Demo", href: "/visualize/pca/", kw: "pca projection dimensionality reduction eigenvectors unsupervised" },
+  { label: "t-SNE", group: "Demo", href: "/visualize/tsne/", kw: "t-sne tsne umap dimensionality reduction visualization perplexity kl divergence student-t neighbor embedding high-dimensional manifold van der maaten hinton" },
   { label: "Gaussian Mixtures & EM", group: "Demo", href: "/visualize/gmm/", kw: "gmm expectation maximization soft clustering unsupervised mixture" },
   { label: "ROC, PR & Thresholds", group: "Demo", href: "/visualize/roc/", kw: "roc auc precision recall confusion matrix evaluation threshold theory" },
   { label: "MDP Value Iteration", group: "Demo", href: "/visualize/value-iteration/", kw: "mdp bellman dynamic programming policy gridworld reinforcement rl" },
