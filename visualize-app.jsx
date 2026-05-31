@@ -675,6 +675,19 @@ const GlyphSimpsons = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">trend reverses</text>
   </svg>
 );
+const GlyphMixedPrecision = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* fp16 window band, gradient histogram shifted into it */}
+    <rect x="56" y="30" width="60" height="56" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)" strokeWidth="1.5" />
+    {[20, 34, 48, 62, 76, 90, 104, 118].map((x, i) => {
+      const inBand = x >= 56 && x <= 116;
+      const h = [10, 18, 30, 42, 36, 22, 12, 6][i];
+      return <rect key={i} x={x} y={86 - h} width="10" height={h} fill={inBand ? "#60a5fa" : "#f87171"} />;
+    })}
+    <line x1="16" y1="86" x2="144" y2="86" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    <text x="40" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">loss-scale → fp16</text>
+  </svg>
+);
 const GlyphMoE = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token routes to 2 of 5 experts */}
@@ -1132,6 +1145,7 @@ const GLYPHS = {
   "pruning": <GlyphPruning />,
   "distillation": <GlyphDistillation />,
   "moe": <GlyphMoE />,
+  "mixed-precision": <GlyphMixedPrecision />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

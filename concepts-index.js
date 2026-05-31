@@ -485,6 +485,11 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "mixed-precision": {
+    id: "mixed-precision", name: "Mixed-Precision Training", area: "Training Systems",
+    summary: "Train in 16-bit (fp16/bf16) for speed and memory while keeping an fp32 master copy of weights. fp16's narrow exponent range makes small gradients underflow and large ones overflow, so loss scaling multiplies the loss (and gradients) into the representable window and unscales before the step. bf16 keeps fp32's range (no scaling) at the cost of mantissa bits.",
+    prereqs: ["backprop", "quantization"],
+  },
   "graph-search": {
     id: "graph-search", name: "Graph Search (BFS / DFS / A*)", area: "Foundations",
     summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
@@ -574,6 +579,7 @@ const CONCEPT_TAGS = {
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
     "edit-distance":        ["dynamic-programming"],
+    "mixed-precision":      ["mixed-precision", "quantization"],
   },
   // Play games — slugs match play-games.js
   games: {

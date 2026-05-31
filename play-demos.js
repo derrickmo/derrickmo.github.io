@@ -146,6 +146,8 @@ window.PLAY_DEMOS = {
       blurb: "Train a small student to match a teacher's soft labels, not just its answers. Turn up temperature and soft-weight to transfer the teacher's dark knowledge." },
     { slug: "moe",                topic: "EFFICIENCY", title: "Mixture of Experts (MoE)", tone: "violet", status: "LIVE",
       blurb: "Route each token to a few of many experts — scale parameters, not per-token compute. Watch specialization emerge and fight the load-imbalance failure." },
+    { slug: "mixed-precision",    topic: "EFFICIENCY", title: "Mixed Precision", tone: "violet", status: "LIVE",
+      blurb: "fp16's narrow range makes small gradients vanish and big ones blow up. Slide loss scaling to rescue them — or switch to bf16 and trade precision for range." },
     { slug: "simpsons-paradox",   topic: "CAUSAL INFERENCE", title: "Simpson's Paradox", tone: "blue", status: "LIVE",
       blurb: "Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it." },
     { slug: "knapsack",           topic: "DYNAMIC PROGRAMMING", title: "Knapsack (DP)", tone: "blue", status: "LIVE",
@@ -167,7 +169,7 @@ window.PLAY_DEMOS = {
     { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "react-agent", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
     { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "conformal", "active-learning", "fairness"] },
     { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "edit-distance"] },
-    { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe"] },
+    { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -242,6 +244,7 @@ window.PLAY_DEMOS = {
     "pruning": "zero small weights, keep accuracy",
     "distillation": "match the teacher's soft labels",
     "moe": "route tokens to top-k experts",
+    "mixed-precision": "loss scaling into fp16's range",
     "simpsons-paradox": "confounding reverses the trend",
     "knapsack": "fill the table, backtrack the choice",
     "bfs-dfs-astar": "uninformed vs informed search",
