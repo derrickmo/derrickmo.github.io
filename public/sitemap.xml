@@ -49,6 +49,7 @@
   <url><loc>https://derrickmo.github.io/concepts/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kv-cache/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/linear-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/logistic-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lora/</loc><priority>0.6</priority></url>
@@ -181,6 +182,7 @@
   <url><loc>https://derrickmo.github.io/visualize/knapsack/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kv-cache/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lost-in-the-middle/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
