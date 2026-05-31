@@ -65,6 +65,12 @@ const CONCEPTS_INDEX = {
     tex: "\\hat z = \\frac{z - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}, \\quad y = \\gamma\\hat z + \\beta",
     prereqs: ["activations", "mlp"],
   },
+  "weight-init": {
+    id: "weight-init", name: "Weight Initialization", area: "Neural Networks",
+    summary: "The variance weights are drawn from controls whether the forward signal (and backward gradient) stays at unit scale through depth or diverges exponentially. Xavier/Glorot uses Var(W)=1/fan_in (correct for linear/tanh); He/Kaiming uses 2/fan_in to compensate for ReLU zeroing half the variance. Wrong scale → exploding (saturation/NaN) or vanishing (dead) signal. The matching scheme keeps std≈1 across all layers, which is what makes deep nets trainable from scratch.",
+    tex: "\\mathrm{Var}(W) = \\frac{1}{\\text{fan\\_in}}\\ (\\text{Xavier}), \\quad \\frac{2}{\\text{fan\\_in}}\\ (\\text{He})",
+    prereqs: ["activations", "mlp"],
+  },
   "softmax": {
     id: "softmax", name: "Softmax", area: "Foundations",
     summary: "Turn a vector of logits into a probability distribution; the workhorse output and attention nonlinearity.",
@@ -640,6 +646,7 @@ const CONCEPT_TAGS = {
     "embeddings":           ["embeddings", "vector-search"],
     "activations":          ["activations", "backprop"],
     "batch-norm":           ["batch-norm", "activations", "mlp"],
+    "weight-init":          ["weight-init", "activations", "mlp"],
     "convolution":          ["convolution", "cnn"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

@@ -190,6 +190,17 @@ const GlyphBatchNorm = () => (
     <text x="16" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">flat std across depth</text>
   </svg>
 );
+const GlyphWeightInit = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* three std-vs-depth curves: explode (red), flat (blue), vanish hinted */}
+    <line x1="20" y1="60" x2="146" y2="60" stroke="rgba(251,191,36,0.6)" strokeWidth="1.2" strokeDasharray="3 3" />
+    <path d="M 22 60 L 50 50 L 78 30 L 106 16 L 134 8" stroke="#f87171" strokeWidth="2" fill="none" />
+    <path d="M 22 60 L 50 58 L 78 61 L 106 59 L 134 60" stroke="#60a5fa" strokeWidth="2.4" fill="none" />
+    <path d="M 22 60 L 50 74 L 78 90 L 106 100 L 134 106" stroke="#34d399" strokeWidth="1.6" fill="none" opacity="0.7" />
+    <text x="92" y="74" fontFamily="monospace" fontSize="8" fill="#fbbf24">std=1</text>
+    <text x="18" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">init scale vs depth</text>
+  </svg>
+);
 const GlyphKernel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 3 }).map((_, c) => (
@@ -1356,6 +1367,7 @@ const GLYPHS = {
   "decoding": <GlyphDecoding />,
   "activations": <GlyphActivation />,
   "batch-norm": <GlyphBatchNorm />,
+  "weight-init": <GlyphWeightInit />,
   "clt": <GlyphBell />,
   "fourier": <GlyphWave />,
   "attention": <GlyphAttention />,
