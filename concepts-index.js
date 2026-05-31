@@ -485,6 +485,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "drift-detection": {
+    id: "drift-detection", name: "Data Drift Detection", area: "Training Systems",
+    summary: "Monitor a deployed model for distribution shift, since accuracy silently decays as the world moves away from training data. Compare a live window to a reference with the Population Stability Index (PSI=Σ(cur−ref)·ln(cur/ref)), KL divergence, or two-sample tests, and alarm past a threshold. Covers covariate shift P(X), label shift P(Y), and concept drift P(Y|X).",
+    tex: "\\mathrm{PSI} = \\sum_b (c_b - r_b)\\,\\ln\\!\\frac{c_b}{r_b}",
+    prereqs: ["clt", "calibration"],
+  },
   "saliency": {
     id: "saliency", name: "Saliency Maps", area: "Computer Vision",
     summary: "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
@@ -620,6 +626,7 @@ const CONCEPT_TAGS = {
     "label-noise":          ["label-noise", "overfitting"],
     "mc-dropout":           ["mc-dropout", "calibration"],
     "saliency":             ["saliency", "shap", "backprop"],
+    "drift-detection":      ["drift-detection", "clt"],
   },
   // Play games — slugs match play-games.js
   games: {

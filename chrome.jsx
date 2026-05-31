@@ -354,6 +354,7 @@ const DM_NAV_INDEX = [
   { label: "do() & Backdoor Adjustment", group: "Demo", href: "/visualize/do-intervention/", kw: "do operator causal inference backdoor adjustment confounder intervention pearl correlation causation randomized control" },
   { label: "Multi-Query & RAG-Fusion", group: "Demo", href: "/visualize/multi-query/", kw: "multi-query rag fusion reciprocal rank fusion rrf query expansion retrieval hybrid search recall variants" },
   { label: "Saliency Maps", group: "Demo", href: "/visualize/saliency/", kw: "saliency map input gradient explainability xai grad-cam integrated gradients smoothgrad attribution pixels vision interpretability" },
+  { label: "Data Drift Detection", group: "Demo", href: "/visualize/drift-detection/", kw: "data drift covariate shift psi population stability index monitoring mlops kl divergence retrain alarm concept drift" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

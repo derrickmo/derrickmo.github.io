@@ -663,6 +663,15 @@ const GlyphKnapsack = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
   </svg>
 );
+const GlyphDriftDetection = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* reference bump (outline) and drifted bump (filled) + alarm */}
+    <polyline points="24,84 40,84 52,50 64,40 76,50 88,84 110,84" fill="none" stroke="rgba(226,232,240,0.6)" strokeWidth="1.5" />
+    <polygon points="60,84 76,84 88,52 100,42 112,52 124,84 136,84" fill="rgba(248,113,113,0.45)" stroke="#f87171" strokeWidth="1.5" />
+    <line x1="16" y1="84" x2="144" y2="84" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    <text x="22" y="104" fontFamily="monospace" fontSize="9" fill="#f87171">drift → alarm</text>
+  </svg>
+);
 const GlyphSaliency = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* a 5x5 saliency heatmap with a bright vertical bar */}
@@ -1232,6 +1241,7 @@ const GLYPHS = {
   "label-noise": <GlyphLabelNoise />,
   "mc-dropout": <GlyphMCDropout />,
   "saliency": <GlyphSaliency />,
+  "drift-detection": <GlyphDriftDetection />,
   "do-intervention": <GlyphDoIntervention />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
