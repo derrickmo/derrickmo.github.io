@@ -256,6 +256,7 @@ const DM_NAV_INDEX = [
   { label: "Activation Functions", group: "Demo", href: "/visualize/activations/", kw: "relu sigmoid tanh gelu gradient neural" },
   { label: "Batch Normalization", group: "Demo", href: "/visualize/batch-norm/", kw: "batch normalization batchnorm layernorm rmsnorm internal covariate shift activation distribution variance saturation exploding ioffe szegedy gamma beta deep training stability" },
   { label: "Weight Initialization", group: "Demo", href: "/visualize/weight-init/", kw: "weight initialization xavier glorot he kaiming init variance fan-in fan-out exploding vanishing activation deep network scale gain relu tanh" },
+  { label: "Contrastive Learning", group: "Demo", href: "/visualize/contrastive-learning/", kw: "contrastive learning simclr moco clip nt-xent infonce self-supervised representation embedding alignment uniformity positive negative temperature augmentation byol" },
   { label: "Central Limit Theorem", group: "Demo", href: "/visualize/clt/", kw: "probability gaussian sampling statistics" },
   { label: "Fourier Series", group: "Demo", href: "/visualize/fourier/", kw: "signal epicycles sine wave dsp" },
   { label: "Attention Heatmap", group: "Demo", href: "/visualize/attention/", kw: "transformer softmax qkv" },

@@ -201,6 +201,22 @@ const GlyphWeightInit = () => (
     <text x="18" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">init scale vs depth</text>
   </svg>
 );
+const GlyphContrastive = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* embeddings on a circle: paired positives close, items spread apart */}
+    <circle cx="80" cy="58" r="40" fill="none" stroke="rgba(148,163,184,0.3)" strokeWidth="1.4" />
+    {[
+      [18, "#60a5fa"], [30, "#60a5fa"], [150, "#a855f7"], [162, "#a855f7"],
+      [262, "#34d399"], [274, "#34d399"], [330, "#fbbf24"], [342, "#fbbf24"],
+    ].map(([deg, col], i) => {
+      const t = deg * Math.PI / 180, x = 80 + 40 * Math.cos(t), y = 58 - 40 * Math.sin(t);
+      return <circle key={i} cx={x} cy={y} r="4.5" fill={col} />;
+    })}
+    {/* a short link for one positive pair */}
+    <path d="M 118 46 A 40 40 0 0 1 114 38" stroke="rgba(226,232,240,0.4)" strokeWidth="1.5" fill="none" />
+    <text x="18" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">align + uniformity</text>
+  </svg>
+);
 const GlyphKernel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 3 }).map((_, c) => (
@@ -1368,6 +1384,7 @@ const GLYPHS = {
   "activations": <GlyphActivation />,
   "batch-norm": <GlyphBatchNorm />,
   "weight-init": <GlyphWeightInit />,
+  "contrastive-learning": <GlyphContrastive />,
   "clt": <GlyphBell />,
   "fourier": <GlyphWave />,
   "attention": <GlyphAttention />,

@@ -71,6 +71,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{Var}(W) = \\frac{1}{\\text{fan\\_in}}\\ (\\text{Xavier}), \\quad \\frac{2}{\\text{fan\\_in}}\\ (\\text{He})",
     prereqs: ["activations", "mlp"],
   },
+  "contrastive-learning": {
+    id: "contrastive-learning", name: "Contrastive Learning", area: "Neural Networks",
+    summary: "Self-supervised representation learning: make two augmented views of the same item agree in embedding space (positives) while separating all other items (negatives), via the NT-Xent/InfoNCE loss with temperature τ. Minimizing it yields alignment (positives collapse) + uniformity (items spread evenly), the basis of SimCLR, MoCo, and CLIP. Needs many negatives (large batches/queues) and good augmentations; non-contrastive variants (BYOL, VICReg) avoid the collapse problem differently.",
+    tex: "\\ell_i = -\\log\\frac{\\exp(\\mathrm{sim}(z_i,z_i^+)/\\tau)}{\\sum_{k\\neq i}\\exp(\\mathrm{sim}(z_i,z_k)/\\tau)}",
+    prereqs: ["embeddings", "softmax"],
+  },
   "softmax": {
     id: "softmax", name: "Softmax", area: "Foundations",
     summary: "Turn a vector of logits into a probability distribution; the workhorse output and attention nonlinearity.",
@@ -647,6 +653,7 @@ const CONCEPT_TAGS = {
     "activations":          ["activations", "backprop"],
     "batch-norm":           ["batch-norm", "activations", "mlp"],
     "weight-init":          ["weight-init", "activations", "mlp"],
+    "contrastive-learning": ["contrastive-learning", "embeddings", "softmax"],
     "convolution":          ["convolution", "cnn"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
