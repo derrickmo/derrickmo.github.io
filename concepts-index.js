@@ -502,6 +502,11 @@ const CONCEPTS_INDEX = {
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
     prereqs: ["calibration"],
   },
+  "tool-routing": {
+    id: "tool-routing", name: "Tool Routing & Dispatch", area: "NLP",
+    summary: "The dispatch decision in front of an agent: classify a query and send it to the right tool (or expert/model), routing to the top match only above a confidence threshold and otherwise falling back to the general model. Implemented as the model's function-calling, an intent classifier over embeddings, or a cheap LLM selector. Precision (don't fire the wrong tool) vs coverage (handle more) is the core tradeoff.",
+    prereqs: ["react-agent"],
+  },
   "reranking": {
     id: "reranking", name: "Reranking (cross-encoder)", area: "NLP",
     summary: "The second stage of retrieval. A cheap bi-encoder/BM25 first stage maximizes recall over the whole corpus by scoring queries and docs independently; a slow cross-encoder then reads each (query, doc) pair jointly to score true relevance precisely and reorders the shortlist. Splits recall (stage 1) from precision (stage 2); the reranker is bounded by what the pool retrieved.",
@@ -610,6 +615,7 @@ const CONCEPT_TAGS = {
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
     "multi-query":          ["rag-fusion", "rag-chunking", "vector-search"],
     "rag-reranker":         ["reranking", "vector-search", "rag-chunking"],
+    "agent-router":         ["tool-routing", "react-agent"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],

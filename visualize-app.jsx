@@ -1055,6 +1055,20 @@ const GlyphSelfConsistency = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">majority vote</text>
   </svg>
 );
+const GlyphAgentRouter = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* query routes to one of several tools */}
+    <circle cx="28" cy="60" r="9" fill="#fbbf24" opacity="0.85" />
+    {[30, 50, 70, 90].map((y, i) => {
+      const chosen = i === 1;
+      return <g key={i}>
+        <line x1="37" y1="60" x2="104" y2={y + 6} stroke={chosen ? "#34d399" : "rgba(148,163,184,0.3)"} strokeWidth={chosen ? 2 : 1} />
+        <rect x="106" y={y} width="34" height="12" rx="2" fill={chosen ? "#34d399" : "rgba(96,165,250,0.4)"} opacity="0.85" />
+      </g>;
+    })}
+    <text x="34" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">route to a tool</text>
+  </svg>
+);
 const GlyphRagReranker = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* left: retrieved order (gold buried); right: reranked (gold on top) */}
@@ -1228,6 +1242,7 @@ const GLYPHS = {
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
+  "agent-router": <GlyphAgentRouter />,
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
