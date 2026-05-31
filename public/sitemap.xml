@@ -44,6 +44,7 @@
   <url><loc>https://derrickmo.github.io/concepts/drift-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/dynamic-programming/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/ensembles/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/forecasting/</loc><priority>0.6</priority></url>
@@ -170,6 +171,7 @@
   <url><loc>https://derrickmo.github.io/visualize/attention-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/backprop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/bagging-boosting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bandit/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bayes/</loc><priority>0.6</priority></url>
