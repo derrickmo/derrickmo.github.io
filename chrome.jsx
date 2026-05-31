@@ -271,6 +271,7 @@ const DM_NAV_INDEX = [
   { label: "Vector Search", group: "Demo", href: "/visualize/vector-search/", kw: "nearest neighbor retrieval rag semantic search cosine embedding knn" },
   { label: "Time-Series Forecasting", group: "Demo", href: "/visualize/forecasting/", kw: "forecast exponential smoothing holt winters seasonality arima time series" },
   { label: "Learning-Rate Schedules", group: "Demo", href: "/visualize/lr-schedule/", kw: "warmup cosine decay training optimization sgd schedule" },
+  { label: "Gradient Clipping", group: "Demo", href: "/visualize/gradient-clipping/", kw: "gradient clipping exploding gradients clip by norm value cliff pascanu rnn lstm transformer training stability global norm threshold" },
   { label: "LoRA - Low-Rank Adaptation", group: "Demo", href: "/visualize/lora/", kw: "lora low rank fine-tuning svd peft adapter parameter efficient" },
   { label: "Neural Scaling Laws", group: "Demo", href: "/visualize/scaling-laws/", kw: "scaling laws chinchilla compute optimal power law llm training" },
 

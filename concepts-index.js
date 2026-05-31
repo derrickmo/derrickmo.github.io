@@ -296,6 +296,12 @@ const CONCEPTS_INDEX = {
     tex: "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     prereqs: ["gradient-descent"], leadsTo: ["lr-schedule"],
   },
+  "gradient-clipping": {
+    id: "gradient-clipping", name: "Gradient Clipping", area: "Training Systems",
+    summary: "Bounds the update when a sharp region of the loss (a 'cliff', common in RNNs and deep transformers) produces an exploding gradient. Clip-by-norm rescales the whole gradient to a maximum length τ, preserving direction; clip-by-value caps each coordinate. A standard stability rail (often global-norm 1.0) paired with warmup. Biases the step when active, so it's tuned as a safety mechanism, not a primary regularizer.",
+    tex: "g \\leftarrow g\\cdot\\min\\!\\Bigl(1,\\ \\tfrac{\\tau}{\\lVert g\\rVert}\\Bigr)",
+    prereqs: ["gradient-descent", "rnn"],
+  },
   "gan": {
     id: "gan", name: "Generative Adversarial Network", area: "Generative",
     summary: "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
@@ -630,6 +636,7 @@ const CONCEPT_TAGS = {
     "convolution":          ["convolution", "cnn"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
+    "gradient-clipping":    ["gradient-clipping", "gradient-descent", "rnn"],
     "lora":                 ["lora", "pca"],
     "scaling-laws":         ["scaling-laws"],
     "nms":                  ["iou-nms", "cnn"],

@@ -319,6 +319,19 @@ const GlyphLR = () => {
   );
 };
 
+const GlyphGradientClipping = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a cliff edge; unclipped path flung off (red), clipped path eased over (green) */}
+    <path d="M 20 40 L 78 40 L 82 96 L 142 96" stroke="rgba(148,163,184,0.4)" strokeWidth="2" fill="none" />
+    {/* unclipped: overshoots wildly */}
+    <path d="M 30 36 L 74 38 L 132 70 L 60 92 L 140 50" stroke="#f87171" strokeWidth="2" fill="none" />
+    <circle cx="140" cy="50" r="3" fill="#f87171" />
+    {/* clipped: smooth descent */}
+    <path d="M 30 44 L 72 44 L 84 70 L 110 90 L 136 94" stroke="#34d399" strokeWidth="2.2" fill="none" />
+    <circle cx="136" cy="94" r="3" fill="#34d399" />
+    <text x="22" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">cap ‖g‖ at the cliff</text>
+  </svg>
+);
 const GlyphLoRA = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 5 }).map((_, r) => Array.from({ length: 5 }).map((_, c) => (
@@ -1316,6 +1329,7 @@ const GLYPHS = {
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
   "lr-schedule": <GlyphLR />,
+  "gradient-clipping": <GlyphGradientClipping />,
   "lora": <GlyphLoRA />,
   "scaling-laws": <GlyphScaling />,
   "nms": <GlyphNMS />,
