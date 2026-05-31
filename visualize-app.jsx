@@ -1034,6 +1034,22 @@ const GlyphSelfConsistency = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">majority vote</text>
   </svg>
 );
+const GlyphMultiQuery = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* three query variants feeding into one fused list */}
+    {[34, 56, 78].map((y, i) => (
+      <g key={i}>
+        <rect x="20" y={y - 6} width="14" height="12" rx="2" fill="#a855f7" opacity="0.8" />
+        <line x1="36" y1={y} x2="78" y2="56" stroke="rgba(148,163,184,0.4)" strokeWidth="1.2" />
+      </g>
+    ))}
+    {/* fused ranked list */}
+    {[40, 52, 64, 76].map((y, i) => (
+      <rect key={i} x="86" y={y - 5} width="48" height="9" rx="2" fill={i < 3 ? "#34d399" : "rgba(96,165,250,0.4)"} opacity="0.85" />
+    ))}
+    <text x="20" y="100" fontFamily="monospace" fontSize="9" fill="#94a3b8">variants → RRF</text>
+  </svg>
+);
 const GlyphRagChunking = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* document split into chunks; one chunk retrieved (green) */}
@@ -1179,6 +1195,7 @@ const GLYPHS = {
   "reward-model": <GlyphRewardModel />,
   "dpo": <GlyphDPO />,
   "rag-chunking": <GlyphRagChunking />,
+  "multi-query": <GlyphMultiQuery />,
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,

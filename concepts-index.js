@@ -490,6 +490,12 @@ const CONCEPTS_INDEX = {
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
     prereqs: ["calibration"],
   },
+  "rag-fusion": {
+    id: "rag-fusion", name: "Multi-Query & RAG-Fusion", area: "NLP",
+    summary: "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion — RRF(d)=Σ 1/(K+rank). Score-agnostic, so it combines dense, sparse, and multi-phrasing rankings; surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls + a reranker.",
+    tex: "\\mathrm{RRF}(d) = \\sum_{v} \\frac{1}{K + \\mathrm{rank}_v(d)}",
+    prereqs: ["rag-chunking", "vector-search"],
+  },
   "causal-inference": {
     id: "causal-inference", name: "Causal Inference (do-operator)", area: "Foundations",
     summary: "P(Y|X) — what you observe — is not P(Y|do(X)) — what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you can't experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data; condition on the wrong one (collider/mediator) and you add bias.",
@@ -585,6 +591,7 @@ const CONCEPT_TAGS = {
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
+    "multi-query":          ["rag-fusion", "rag-chunking", "vector-search"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],
