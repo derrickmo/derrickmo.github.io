@@ -723,6 +723,23 @@ const GlyphDoIntervention = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">do(X) cuts Z→X</text>
   </svg>
 );
+const GlyphInstrumentalVariables = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* IV DAG: Z -> X -> Y, with hidden U -> X and U -> Y (dashed) */}
+    <circle cx="22" cy="62" r="12" fill="none" stroke="#fbbf24" strokeWidth="2" /><text x="17" y="66" fontFamily="monospace" fontSize="11" fill="#fbbf24">Z</text>
+    <circle cx="76" cy="62" r="12" fill="none" stroke="#60a5fa" strokeWidth="2" /><text x="71" y="66" fontFamily="monospace" fontSize="11" fill="#60a5fa">X</text>
+    <circle cx="132" cy="62" r="12" fill="none" stroke="#a855f7" strokeWidth="2" /><text x="127" y="66" fontFamily="monospace" fontSize="11" fill="#a855f7">Y</text>
+    <circle cx="104" cy="20" r="11" fill="none" stroke="#f87171" strokeWidth="1.6" strokeDasharray="3 2" /><text x="100" y="24" fontFamily="monospace" fontSize="10" fill="#f87171">U</text>
+    {/* Z->X */}
+    <line x1="34" y1="62" x2="62" y2="62" stroke="#fbbf24" strokeWidth="2" /><polygon points="64,62 56,58 56,66" fill="#fbbf24" />
+    {/* X->Y */}
+    <line x1="88" y1="62" x2="118" y2="62" stroke="#34d399" strokeWidth="2" /><polygon points="120,62 112,58 112,66" fill="#34d399" />
+    {/* U->X and U->Y dashed (confounding) */}
+    <line x1="98" y1="28" x2="82" y2="52" stroke="#f87171" strokeWidth="1.6" strokeDasharray="3 2" />
+    <line x1="110" y1="28" x2="128" y2="52" stroke="#f87171" strokeWidth="1.6" strokeDasharray="3 2" />
+    <text x="14" y="100" fontFamily="monospace" fontSize="9" fill="#94a3b8">instrument Z avoids U</text>
+  </svg>
+);
 const GlyphSimpsons = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two subgroups each trending up, pooled trending down */}
@@ -1310,6 +1327,7 @@ const GLYPHS = {
   "saliency": <GlyphSaliency />,
   "drift-detection": <GlyphDriftDetection />,
   "do-intervention": <GlyphDoIntervention />,
+  "instrumental-variables": <GlyphInstrumentalVariables />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

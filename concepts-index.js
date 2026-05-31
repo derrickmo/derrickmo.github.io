@@ -536,6 +536,12 @@ const CONCEPTS_INDEX = {
     tex: "P(Y \\mid do(X)) = \\sum_{z} P(Y \\mid X, z)\\, P(z)",
     prereqs: ["simpsons-paradox"],
   },
+  "instrumental-variables": {
+    id: "instrumental-variables", name: "Instrumental Variables", area: "Foundations",
+    summary: "When a confounder is unobserved so back-door adjustment fails, an instrument Z recovers the causal effect of X on Y. Z must satisfy relevance (it moves X) and exclusion (it affects Y only through X). Two-stage least squares regresses X on Z, then Y on the fitted X̂; equivalently β̂ = Cov(Z,Y)/Cov(Z,X). Weak instruments (low first-stage F) inflate variance; exclusion violations reintroduce bias. Under heterogeneity it estimates a local effect (LATE).",
+    tex: "\\hat\\beta_{IV} = \\frac{\\mathrm{Cov}(Z,Y)}{\\mathrm{Cov}(Z,X)}",
+    prereqs: ["causal-inference", "linear-regression"],
+  },
   "label-noise": {
     id: "label-noise", name: "Label Noise & Memorization", area: "Foundations",
     summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
@@ -649,6 +655,7 @@ const CONCEPT_TAGS = {
     "moe":                  ["moe", "attention", "scaling-laws"],
     "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
     "do-intervention":      ["causal-inference", "simpsons-paradox"],
+    "instrumental-variables": ["instrumental-variables", "causal-inference", "linear-regression"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
     "edit-distance":        ["dynamic-programming"],
