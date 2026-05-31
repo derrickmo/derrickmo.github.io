@@ -389,6 +389,12 @@ const CONCEPTS_INDEX = {
     summary: "Density-based clustering: declare any point with at least MIN_PTS neighbors within EPS a core point, link cores into clusters, sweep up reachable borders, label the rest as noise.",
     prereqs: ["knn"],
   },
+  "spectral-clustering": {
+    id: "spectral-clustering", name: "Spectral Clustering", area: "Classical ML",
+    summary: "Cluster by graph connectivity rather than Euclidean distance. Build a similarity graph (RBF or k-NN weights W), form the normalized Laplacian L = I − D^{−1/2}WD^{−1/2}, take its K smallest eigenvectors as an embedding, and run k-means there. A relaxation of the normalized-cut objective; the eigenvectors separate connected components, so it clusters non-convex shapes (rings, moons) that centroid methods cut through. Needs K and a good similarity graph; exact eigendecomposition is O(n³).",
+    tex: "L = I - D^{-1/2} W D^{-1/2}, \\quad \\text{cluster on bottom-}K\\text{ eigenvectors}",
+    prereqs: ["kmeans", "pca"],
+  },
   "policy-gradient": {
     id: "policy-gradient", name: "Policy Gradient (REINFORCE)", area: "Reinforcement Learning",
     summary: "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
@@ -698,6 +704,7 @@ const CONCEPT_TAGS = {
     "gnn":                  ["gnn", "mlp"],
     "rope":                 ["rope", "positional-encoding", "attention"],
     "dbscan":               ["dbscan", "knn"],
+    "spectral-clustering":  ["spectral-clustering", "kmeans", "pca"],
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
     "dqn":                  ["dqn", "mdp-bellman", "mlp"],

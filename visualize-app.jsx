@@ -346,6 +346,15 @@ const GlyphTSNE = () => (
     <text x="20" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">neighbors → clusters</text>
   </svg>
 );
+const GlyphSpectral = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two concentric rings, colored as separate clusters + a few edges */}
+    {Array.from({ length: 14 }).map((_, i) => { const a = (i / 14) * Math.PI * 2; return <circle key={`o${i}`} cx={80 + 44 * Math.cos(a)} cy={60 + 38 * Math.sin(a)} r="3" fill="#a855f7" opacity="0.85" />; })}
+    {Array.from({ length: 9 }).map((_, i) => { const a = (i / 9) * Math.PI * 2; return <circle key={`i${i}`} cx={80 + 18 * Math.cos(a)} cy={60 + 16 * Math.sin(a)} r="3" fill="#60a5fa" opacity="0.85" />; })}
+    {Array.from({ length: 6 }).map((_, i) => { const a = (i / 6) * Math.PI * 2; return <line key={`e${i}`} x1={80 + 44 * Math.cos(a)} y1={60 + 38 * Math.sin(a)} x2={80 + 44 * Math.cos(a + 0.45)} y2={60 + 38 * Math.sin(a + 0.45)} stroke="rgba(148,163,184,0.3)" strokeWidth="1" />; })}
+    <text x="22" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">connectivity clusters</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1419,6 +1428,7 @@ const GLYPHS = {
   "svm": <GlyphSVM />,
   "pca": <GlyphPCA />,
   "tsne": <GlyphTSNE />,
+  "spectral-clustering": <GlyphSpectral />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
