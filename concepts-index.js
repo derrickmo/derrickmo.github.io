@@ -502,6 +502,11 @@ const CONCEPTS_INDEX = {
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
     prereqs: ["calibration"],
   },
+  "reranking": {
+    id: "reranking", name: "Reranking (cross-encoder)", area: "NLP",
+    summary: "The second stage of retrieval. A cheap bi-encoder/BM25 first stage maximizes recall over the whole corpus by scoring queries and docs independently; a slow cross-encoder then reads each (query, doc) pair jointly to score true relevance precisely and reorders the shortlist. Splits recall (stage 1) from precision (stage 2); the reranker is bounded by what the pool retrieved.",
+    prereqs: ["vector-search", "rag-chunking"],
+  },
   "rag-fusion": {
     id: "rag-fusion", name: "Multi-Query & RAG-Fusion", area: "NLP",
     summary: "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion — RRF(d)=Σ 1/(K+rank). Score-agnostic, so it combines dense, sparse, and multi-phrasing rankings; surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls + a reranker.",
@@ -604,6 +609,7 @@ const CONCEPT_TAGS = {
     "reflection":           ["reflection", "reward-model", "self-consistency"],
     "react-agent":          ["react-agent", "reflection", "rag-chunking"],
     "multi-query":          ["rag-fusion", "rag-chunking", "vector-search"],
+    "rag-reranker":         ["reranking", "vector-search", "rag-chunking"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],

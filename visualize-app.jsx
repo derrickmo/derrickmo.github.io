@@ -1055,6 +1055,16 @@ const GlyphSelfConsistency = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">majority vote</text>
   </svg>
 );
+const GlyphRagReranker = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* left: retrieved order (gold buried); right: reranked (gold on top) */}
+    {[0, 1, 2, 3].map(i => { const gold = i === 2; return <rect key={`l${i}`} x="24" y={30 + i * 16} width="44" height="12" rx="2" fill={gold ? "#34d399" : "rgba(148,163,184,0.4)"} opacity="0.85" />; })}
+    {[0, 1, 2, 3].map(i => { const gold = i === 0; return <rect key={`r${i}`} x="92" y={30 + i * 16} width="44" height="12" rx="2" fill={gold ? "#34d399" : "rgba(148,163,184,0.4)"} opacity="0.85" />; })}
+    <line x1="70" y1="62" x2="90" y2="36" stroke="#fbbf24" strokeWidth="1.5" />
+    <polygon points="90,36 82,37 85,43" fill="#fbbf24" />
+    <text x="22" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">retrieve → rerank</text>
+  </svg>
+);
 const GlyphMultiQuery = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* three query variants feeding into one fused list */}
@@ -1217,6 +1227,7 @@ const GLYPHS = {
   "dpo": <GlyphDPO />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
+  "rag-reranker": <GlyphRagReranker />,
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
