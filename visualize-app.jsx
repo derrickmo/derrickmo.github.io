@@ -1055,6 +1055,23 @@ const GlyphSelfConsistency = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">majority vote</text>
   </svg>
 );
+const GlyphAttentionRollout = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* layered attention matrices composing into a heatmap */}
+    {[0, 1, 2].map(L => (
+      <g key={L} opacity={0.5 + 0.18 * L}>
+        {[0, 1, 2].map(r => [0, 1, 2].map(c => (
+          <rect key={`${r}${c}`} x={28 + L * 10 + c * 9} y={30 + L * 10 + r * 9} width="8" height="8" fill={`rgba(168,85,247,${0.25 + 0.2 * ((r + c) % 3)})`} />
+        )))}
+      </g>
+    ))}
+    <text x="100" y="60" fontFamily="monospace" fontSize="16" fill="#94a3b8">{"∏"}</text>
+    {[0, 1, 2].map(r => [0, 1, 2].map(c => (
+      <rect key={`R${r}${c}`} x={116 + c * 10} y={42 + r * 10} width="9" height="9" fill={`rgba(168,85,247,${r === c ? 0.9 : 0.2 + 0.2 * c})`} />
+    )))}
+    <text x="34" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">layers → attribution</text>
+  </svg>
+);
 const GlyphAgentRouter = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* query routes to one of several tools */}
@@ -1243,6 +1260,7 @@ const GLYPHS = {
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
   "agent-router": <GlyphAgentRouter />,
+  "attention-rollout": <GlyphAttentionRollout />,
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,

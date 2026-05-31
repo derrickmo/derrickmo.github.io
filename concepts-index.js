@@ -502,6 +502,12 @@ const CONCEPTS_INDEX = {
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
     prereqs: ["calibration"],
   },
+  "attention-rollout": {
+    id: "attention-rollout", name: "Attention Rollout", area: "NLP",
+    summary: "Turn a stack of attention maps into one input-token attribution by composing them across layers, accounting for residual connections: Â=0.5A+0.5I, R=Â_L···Â_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar & Zuidema, 2020) — but attention isn't a faithful explanation by itself; it ignores values/MLPs and averages heads.",
+    tex: "R = \\prod_{l=L}^{1} \\bigl( 0.5\\,A_l + 0.5\\,I \\bigr)",
+    prereqs: ["attention", "multi-head-attention"],
+  },
   "tool-routing": {
     id: "tool-routing", name: "Tool Routing & Dispatch", area: "NLP",
     summary: "The dispatch decision in front of an agent: classify a query and send it to the right tool (or expert/model), routing to the top match only above a confidence threshold and otherwise falling back to the general model. Implemented as the model's function-calling, an intent classifier over embeddings, or a cheap LLM selector. Precision (don't fire the wrong tool) vs coverage (handle more) is the core tradeoff.",
@@ -616,6 +622,7 @@ const CONCEPT_TAGS = {
     "multi-query":          ["rag-fusion", "rag-chunking", "vector-search"],
     "rag-reranker":         ["reranking", "vector-search", "rag-chunking"],
     "agent-router":         ["tool-routing", "react-agent"],
+    "attention-rollout":    ["attention-rollout", "attention", "multi-head-attention"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],

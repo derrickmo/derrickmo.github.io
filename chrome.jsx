@@ -355,6 +355,7 @@ const DM_NAV_INDEX = [
   { label: "Multi-Query & RAG-Fusion", group: "Demo", href: "/visualize/multi-query/", kw: "multi-query rag fusion reciprocal rank fusion rrf query expansion retrieval hybrid search recall variants" },
   { label: "RAG Reranker", group: "Demo", href: "/visualize/rag-reranker/", kw: "reranker cross-encoder bi-encoder two-stage retrieval ndcg precision recall rag colbert cohere rerank shortlist" },
   { label: "Agent Tool Router", group: "Demo", href: "/visualize/agent-router/", kw: "agent router tool routing dispatch function calling intent classifier fallback confidence plan execute model routing skill" },
+  { label: "Attention Rollout", group: "Demo", href: "/visualize/attention-rollout/", kw: "attention rollout interpretability transformer abnar zuidema attribution attention flow vit bert explainability residual" },
   { label: "Saliency Maps", group: "Demo", href: "/visualize/saliency/", kw: "saliency map input gradient explainability xai grad-cam integrated gradients smoothgrad attribution pixels vision interpretability" },
   { label: "Data Drift Detection", group: "Demo", href: "/visualize/drift-detection/", kw: "data drift covariate shift psi population stability index monitoring mlops kl divergence retrain alarm concept drift" },
 ];
