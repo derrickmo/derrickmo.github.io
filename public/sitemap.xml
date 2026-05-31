@@ -50,6 +50,7 @@
   <url><loc>https://derrickmo.github.io/concepts/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gan/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/gaussian-process/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gmm-em/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/gradient-clipping/</loc><priority>0.6</priority></url>
@@ -204,6 +205,7 @@
   <url><loc>https://derrickmo.github.io/visualize/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gan/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/gaussian-process/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gmm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-clipping/</loc><priority>0.6</priority></url>
