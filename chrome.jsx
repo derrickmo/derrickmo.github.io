@@ -247,6 +247,7 @@ const DM_NAV_INDEX = [
   { label: "Bias-Variance Decomposition", group: "Demo", href: "/visualize/bias-variance-decomp/", kw: "bias variance decomposition tradeoff irreducible noise ensemble resampling polynomial complexity u-curve generalization error expected" },
   { label: "Decision Tree", group: "Demo", href: "/visualize/decision-tree/", kw: "cart gini splits classical ml" },
   { label: "Bagging vs Boosting", group: "Demo", href: "/visualize/bagging-boosting/", kw: "bagging boosting ensemble random forest gradient boosting xgboost lightgbm bootstrap aggregating variance bias residual weak learner adaboost trees tabular" },
+  { label: "Gaussian Processes", group: "Demo", href: "/visualize/gaussian-process/", kw: "gaussian process gp regression kernel rbf posterior uncertainty bayesian optimization kriging surrogate lengthscale covariance bands nonparametric" },
   { label: "k-Nearest Neighbors", group: "Demo", href: "/visualize/knn/", kw: "knn classifier classical ml" },
   { label: "SVM - Margins & Kernels", group: "Demo", href: "/visualize/svm/", kw: "support vector machine margin kernel rbf classical ml" },
   { label: "Principal Component Analysis", group: "Demo", href: "/visualize/pca/", kw: "pca projection dimensionality reduction eigenvectors unsupervised" },

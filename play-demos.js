@@ -22,6 +22,8 @@ window.PLAY_DEMOS = {
       blurb: "Watch a CART tree carve the plane into axis-aligned regions — and overfit as it deepens." },
     { slug: "bagging-boosting",   topic: "CLASSICAL ML",  title: "Bagging vs Boosting",   tone: "violet", status: "LIVE",
       blurb: "Bagging averages bootstrap-trained deep trees to cut variance; boosting stacks shallow trees on the residual to cut bias. Tune depth, count, and noise to see each shine and fail." },
+    { slug: "gaussian-process",   topic: "CLASSICAL ML",  title: "Gaussian Processes",    tone: "violet", status: "LIVE",
+      blurb: "A distribution over functions with closed-form uncertainty. Click to add points and watch the posterior mean bend and the ±2σ band pinch shut at data, flare open where you have none." },
     { slug: "knn",                topic: "CLASSICAL ML",  title: "k-Nearest Neighbors",   tone: "blue",   status: "LIVE",
       blurb: "Vote among the k closest points; tune k to trade a jagged boundary for a smooth one." },
     { slug: "svm",                topic: "CLASSICAL ML",  title: "SVM - Margins & Kernels", tone: "blue", status: "LIVE",
@@ -206,7 +208,7 @@ window.PLAY_DEMOS = {
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
-    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "pca", "gmm", "dbscan"] },
+    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "gaussian-process", "pca", "gmm", "dbscan"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "gradient-clipping", "lora", "scaling-laws"] },
@@ -228,6 +230,7 @@ window.PLAY_DEMOS = {
     "clt": "the √n law",
     "decision-tree": "recursive Gini splits",
     "bagging-boosting": "average to cut variance, stack to cut bias",
+    "gaussian-process": "distribution over functions + uncertainty",
     "knn": "distance-weighted voting",
     "svm": "max-margin + the kernel trick",
     "pca": "covariance eigenvectors",

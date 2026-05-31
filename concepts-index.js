@@ -143,7 +143,13 @@ const CONCEPTS_INDEX = {
     id: "svm", name: "SVM (Max-Margin + Kernels)", area: "Classical ML",
     summary: "Find the widest-margin separating boundary; bend it nonlinearly with the kernel trick.",
     tex: "\\min_w \\tfrac{1}{2}\\lVert w \\rVert^2 + C \\sum_i \\xi_i",
-    leadsTo: ["attention"],
+    leadsTo: ["attention", "gaussian-process"],
+  },
+  "gaussian-process": {
+    id: "gaussian-process", name: "Gaussian Processes", area: "Classical ML",
+    summary: "A distribution over functions defined by a kernel: any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior — mean k*ᵀ(K+σ²I)⁻¹y and variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n³) (matrix inverse), the basis of Bayesian optimization and kriging; sparse/inducing-point methods scale it up.",
+    tex: "\\mu(x_*)=k_*^\\top(K+\\sigma_n^2 I)^{-1}y,\\quad \\sigma^2(x_*)=k_{**}-k_*^\\top(K+\\sigma_n^2 I)^{-1}k_*",
+    prereqs: ["bayes", "svm"],
   },
   "pca": {
     id: "pca", name: "PCA / SVD", area: "Classical ML",
@@ -638,6 +644,7 @@ const CONCEPT_TAGS = {
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
     "bias-variance-decomp": ["bias-variance", "regularization", "double-descent"],
     "bagging-boosting":     ["ensembles", "decision-tree", "bias-variance"],
+    "gaussian-process":     ["gaussian-process", "bayes", "svm"],
     "roc":                  ["roc", "cross-entropy"],
     "decision-tree":        ["decision-tree", "entropy"],
     "knn":                  ["knn", "bias-variance"],

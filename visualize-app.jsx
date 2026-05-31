@@ -277,6 +277,18 @@ const GlyphBaggingBoosting = () => (
     <text x="18" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">average vs stack trees</text>
   </svg>
 );
+const GlyphGaussianProcess = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* posterior mean with an uncertainty band that pinches at data points */}
+    <path d="M 16 60 C 40 30, 50 30, 60 58 C 72 86, 96 30, 110 56 C 124 80, 140 50, 146 56
+             L 146 64 C 140 70, 124 92, 110 68 C 96 46, 72 100, 60 70 C 50 44, 40 44, 16 72 Z"
+      fill="rgba(96,165,250,0.18)" />
+    <path d="M 16 66 C 40 37, 50 37, 60 64 C 72 92, 96 38, 110 62 C 124 86, 140 50, 146 60"
+      stroke="#60a5fa" strokeWidth="2.2" fill="none" />
+    {[[60, 64], [110, 62]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4" fill="#e2e8f0" />)}
+    <text x="18" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">mean ± uncertainty</text>
+  </svg>
+);
 const GlyphKnn = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="80" cy="60" r="38" fill="none" stroke="#60a5fa" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.6" />
@@ -1390,6 +1402,7 @@ const GLYPHS = {
   "bias-variance-decomp": <GlyphBiasVariance />,
   "decision-tree": <GlyphTree />,
   "bagging-boosting": <GlyphBaggingBoosting />,
+  "gaussian-process": <GlyphGaussianProcess />,
   "knn": <GlyphKnn />,
   "svm": <GlyphSVM />,
   "pca": <GlyphPCA />,
