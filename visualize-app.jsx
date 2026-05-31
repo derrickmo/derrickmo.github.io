@@ -663,6 +663,18 @@ const GlyphKnapsack = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
   </svg>
 );
+const GlyphSaliency = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a 5x5 saliency heatmap with a bright vertical bar */}
+    {[0, 1, 2, 3, 4].map(r => [0, 1, 2, 3, 4].map(c => {
+      const hot = c === 2;
+      const t = hot ? 0.9 : 0.12 + 0.1 * Math.random();
+      return <rect key={`${r}${c}`} x={48 + c * 14} y={28 + r * 14} width="13" height="13"
+        fill={`rgb(${30 + 225 * t},${Math.max(0, 80 - 60 * t)},${Math.max(0, 138 - 110 * t)})`} />;
+    }))}
+    <text x="44" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">∂out/∂pixels</text>
+  </svg>
+);
 const GlyphMCDropout = () => {
   const mean = Array.from({ length: 33 }, (_, i) => { const x = 16 + i * 4; return `${x},${60 + 18 * Math.sin((i - 16) / 5)}`; }).join(" ");
   const band = (s) => Array.from({ length: 33 }, (_, i) => { const x = 16 + i * 4; const w = 4 + 16 * (Math.abs(i - 16) / 16); return `${x},${60 + 18 * Math.sin((i - 16) / 5) + s * w}`; }).join(" ");
@@ -1219,6 +1231,7 @@ const GLYPHS = {
   "speculative-decoding": <GlyphSpeculative />,
   "label-noise": <GlyphLabelNoise />,
   "mc-dropout": <GlyphMCDropout />,
+  "saliency": <GlyphSaliency />,
   "do-intervention": <GlyphDoIntervention />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,

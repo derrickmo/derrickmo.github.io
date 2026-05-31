@@ -485,6 +485,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "saliency": {
+    id: "saliency", name: "Saliency Maps", area: "Computer Vision",
+    summary: "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    tex: "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
+    prereqs: ["backprop", "shap"],
+  },
   "mc-dropout": {
     id: "mc-dropout", name: "MC Dropout (Bayesian uncertainty)", area: "Foundations",
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
@@ -613,6 +619,7 @@ const CONCEPT_TAGS = {
     "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],
     "label-noise":          ["label-noise", "overfitting"],
     "mc-dropout":           ["mc-dropout", "calibration"],
+    "saliency":             ["saliency", "shap", "backprop"],
   },
   // Play games — slugs match play-games.js
   games: {
