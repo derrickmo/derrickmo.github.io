@@ -490,6 +490,12 @@ const CONCEPTS_INDEX = {
     summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
     prereqs: ["calibration"],
   },
+  "causal-inference": {
+    id: "causal-inference", name: "Causal Inference (do-operator)", area: "Foundations",
+    summary: "P(Y|X) — what you observe — is not P(Y|do(X)) — what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you can't experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data; condition on the wrong one (collider/mediator) and you add bias.",
+    tex: "P(Y \\mid do(X)) = \\sum_{z} P(Y \\mid X, z)\\, P(z)",
+    prereqs: ["simpsons-paradox"],
+  },
   "label-noise": {
     id: "label-noise", name: "Label Noise & Memorization", area: "Foundations",
     summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
@@ -592,6 +598,7 @@ const CONCEPT_TAGS = {
     "distillation":         ["distillation", "calibration"],
     "moe":                  ["moe", "attention", "scaling-laws"],
     "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
+    "do-intervention":      ["causal-inference", "simpsons-paradox"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
     "edit-distance":        ["dynamic-programming"],

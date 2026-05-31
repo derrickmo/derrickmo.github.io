@@ -686,6 +686,22 @@ const GlyphLabelNoise = () => (
     <text x="40" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">flipped labels</text>
   </svg>
 );
+const GlyphDoIntervention = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* causal DAG Z->X (cut), Z->Y, X->Y */}
+    <circle cx="80" cy="32" r="13" fill="none" stroke="#fbbf24" strokeWidth="2" /><text x="75" y="36" fontFamily="monospace" fontSize="11" fill="#fbbf24">Z</text>
+    <circle cx="48" cy="88" r="13" fill="none" stroke="#60a5fa" strokeWidth="2" /><text x="43" y="92" fontFamily="monospace" fontSize="11" fill="#60a5fa">X</text>
+    <circle cx="116" cy="88" r="13" fill="none" stroke="#a855f7" strokeWidth="2" /><text x="110" y="92" fontFamily="monospace" fontSize="11" fill="#a855f7">Y</text>
+    {/* Z->X cut */}
+    <line x1="72" y1="42" x2="56" y2="76" stroke="#f87171" strokeWidth="2" strokeDasharray="4 3" />
+    <text x="56" y="64" fontFamily="monospace" fontSize="11" fill="#f87171">{"✂"}</text>
+    {/* Z->Y, X->Y */}
+    <line x1="88" y1="42" x2="110" y2="76" stroke="#fbbf24" strokeWidth="2" />
+    <line x1="61" y1="88" x2="101" y2="88" stroke="#34d399" strokeWidth="2" />
+    <polygon points="101,88 93,84 93,92" fill="#34d399" />
+    <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">do(X) cuts Z→X</text>
+  </svg>
+);
 const GlyphSimpsons = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two subgroups each trending up, pooled trending down */}
@@ -1186,6 +1202,7 @@ const GLYPHS = {
   "speculative-decoding": <GlyphSpeculative />,
   "label-noise": <GlyphLabelNoise />,
   "mc-dropout": <GlyphMCDropout />,
+  "do-intervention": <GlyphDoIntervention />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

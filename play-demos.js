@@ -156,6 +156,8 @@ window.PLAY_DEMOS = {
       blurb: "A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step — a lossless speedup set by draft agreement and lookahead." },
     { slug: "simpsons-paradox",   topic: "CAUSAL INFERENCE", title: "Simpson's Paradox", tone: "blue", status: "LIVE",
       blurb: "Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it." },
+    { slug: "do-intervention",    topic: "CAUSAL INFERENCE", title: "do() & Backdoor Adjustment", tone: "blue", status: "LIVE",
+      blurb: "Observing X is not setting X. A confounder biases the naive estimate; cut its arrow with do(X), or adjust for it, to recover the true causal effect." },
     { slug: "knapsack",           topic: "DYNAMIC PROGRAMMING", title: "Knapsack (DP)", tone: "blue", status: "LIVE",
       blurb: "Pack the most value into a weight budget. Watch the DP table fill from its sub-answers, then backtrack to recover which items to take." },
     { slug: "bfs-dfs-astar",      topic: "SEARCH / CSP", title: "BFS vs DFS vs A*", tone: "blue", status: "LIVE",
@@ -165,7 +167,7 @@ window.PLAY_DEMOS = {
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "roc", "clt", "bayes", "simpsons-paradox", "pathfinding", "simulated-annealing"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "roc", "clt", "bayes", "simpsons-paradox", "do-intervention", "pathfinding", "simulated-annealing"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "knn", "svm", "pca", "gmm", "dbscan"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["neural-playground", "activations", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "vector-search", "attention", "multi-head-attention", "positional-encoding", "rope", "kv-cache"] },
@@ -255,6 +257,7 @@ window.PLAY_DEMOS = {
     "mixed-precision": "loss scaling into fp16's range",
     "speculative-decoding": "draft proposes, target verifies",
     "simpsons-paradox": "confounding reverses the trend",
+    "do-intervention": "observe vs do(); backdoor adjust",
     "knapsack": "fill the table, backtrack the choice",
     "bfs-dfs-astar": "uninformed vs informed search",
     "edit-distance": "string alignment DP",

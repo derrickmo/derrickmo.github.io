@@ -351,6 +351,7 @@ const DM_NAV_INDEX = [
   { label: "Speculative Decoding", group: "Demo", href: "/visualize/speculative-decoding/", kw: "speculative decoding draft target verify accept reject lookahead llm inference latency leviathan medusa eagle lossless speedup" },
   { label: "Label Noise", group: "Demo", href: "/visualize/label-noise/", kw: "label noise mislabeled memorization robust loss early stopping data-centric flipped labels generalization trustworthy" },
   { label: "MC Dropout", group: "Demo", href: "/visualize/mc-dropout/", kw: "mc dropout monte carlo uncertainty bayesian epistemic gal ghahramani ensemble predictive variance out-of-distribution trustworthy" },
+  { label: "do() & Backdoor Adjustment", group: "Demo", href: "/visualize/do-intervention/", kw: "do operator causal inference backdoor adjustment confounder intervention pearl correlation causation randomized control" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
