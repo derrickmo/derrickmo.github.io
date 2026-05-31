@@ -943,6 +943,22 @@ const GlyphActiveLearning = () => (
     <text x="56" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">label the unsure</text>
   </svg>
 );
+const GlyphCoreset = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a cloud of faint points; a few bold weighted ones + a centroid X */}
+    {[[40,40],[52,52],[44,64],[60,46],[36,56],[120,44],[108,58],[124,70],[100,52],[114,80],[72,90],[88,86]].map(([x,y],i)=>(
+      <circle key={`f${i}`} cx={x} cy={y} r="3" fill="rgba(96,165,250,0.18)" />
+    ))}
+    {/* coreset points sized by weight */}
+    <circle cx="44" cy="50" r="6" fill="#e2e8f0" />
+    <circle cx="116" cy="62" r="5" fill="#e2e8f0" />
+    <circle cx="80" cy="88" r="7" fill="#e2e8f0" />
+    {/* centroids: full (green ring) vs coreset (purple X) overlapping */}
+    <circle cx="58" cy="52" r="8" fill="none" stroke="#34d399" strokeWidth="2" />
+    <line x1="54" y1="48" x2="62" y2="56" stroke="#a855f7" strokeWidth="2.2" /><line x1="62" y1="48" x2="54" y2="56" stroke="#a855f7" strokeWidth="2.2" />
+    <text x="30" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">tiny weighted subset</text>
+  </svg>
+);
 const GlyphConformal = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* a prediction set: some classes included (blue), true class ringed green */}
@@ -1329,6 +1345,7 @@ const GLYPHS = {
   "conformal": <GlyphConformal />,
   "conformal-regression": <GlyphConformalRegression />,
   "active-learning": <GlyphActiveLearning />,
+  "coreset": <GlyphCoreset />,
   "fairness": <GlyphFairness />,
   "n-queens": <GlyphNQueens />,
   "graph-coloring": <GlyphGraphColoring />,
