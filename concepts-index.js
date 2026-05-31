@@ -491,6 +491,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "branch-and-bound": {
+    id: "branch-and-bound", name: "Branch & Bound", area: "Foundations",
+    summary: "Exact search over a combinatorial decision tree that prunes provably-hopeless subtrees. At each node compute an optimistic bound (e.g. the LP / fractional relaxation for knapsack); if it can't beat the best complete solution found so far (the incumbent), discard the subtree unopened. Still worst-case exponential, but bound tightness and branching order decide how much it prunes in practice. The engine inside integer-programming solvers (branch-and-cut) and game-tree alpha-beta.",
+    tex: "\\text{prune if } \\mathrm{bound}(node) \\le \\text{incumbent}",
+    prereqs: ["dynamic-programming", "graph-search"],
+  },
   "drift-detection": {
     id: "drift-detection", name: "Data Drift Detection", area: "Training Systems",
     summary: "Monitor a deployed model for distribution shift, since accuracy silently decays as the world moves away from training data. Compare a live window to a reference with the Population Stability Index (PSI=Σ(cur−ref)·ln(cur/ref)), KL divergence, or two-sample tests, and alarm past a threshold. Covers covariate shift P(X), label shift P(Y), and concept drift P(Y|X).",
@@ -657,6 +663,7 @@ const CONCEPT_TAGS = {
     "do-intervention":      ["causal-inference", "simpsons-paradox"],
     "instrumental-variables": ["instrumental-variables", "causal-inference", "linear-regression"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
+    "branch-and-bound":     ["branch-and-bound", "dynamic-programming", "graph-search"],
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
     "edit-distance":        ["dynamic-programming"],
     "mixed-precision":      ["mixed-precision", "quantization"],

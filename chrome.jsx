@@ -346,6 +346,7 @@ const DM_NAV_INDEX = [
   { label: "Mixture of Experts (MoE)", group: "Demo", href: "/visualize/moe/", kw: "mixture of experts moe routing gating top-k sparse switch transformer mixtral conditional computation load balancing experts" },
   { label: "Simpson's Paradox", group: "Demo", href: "/visualize/simpsons-paradox/", kw: "simpsons paradox confounding causal inference correlation causation subgroup aggregation berkeley reversal statistics" },
   { label: "Knapsack (DP)", group: "Demo", href: "/visualize/knapsack/", kw: "knapsack dynamic programming dp table memoization optimal substructure backtrack items weight value np-hard pseudo-polynomial" },
+  { label: "Branch & Bound", group: "Demo", href: "/visualize/branch-and-bound/", kw: "branch and bound pruning optimistic upper bound lp relaxation knapsack integer programming exact search decision tree incumbent alpha-beta combinatorial optimization" },
   { label: "BFS vs DFS vs A*", group: "Demo", href: "/visualize/bfs-dfs-astar/", kw: "bfs dfs a-star astar search maze graph uninformed informed heuristic dijkstra frontier shortest path optimal" },
   { label: "Edit Distance", group: "Demo", href: "/visualize/edit-distance/", kw: "edit distance levenshtein dynamic programming string alignment diff spellcheck needleman wunsch sequence dp table" },
   { label: "Mixed Precision", group: "Demo", href: "/visualize/mixed-precision/", kw: "mixed precision fp16 bf16 fp32 loss scaling underflow overflow dynamic range amp training efficiency tensor core fp8" },

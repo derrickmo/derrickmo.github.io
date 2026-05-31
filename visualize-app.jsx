@@ -663,6 +663,24 @@ const GlyphKnapsack = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
   </svg>
 );
+const GlyphBranchAndBound = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a binary search tree with one pruned (red, cut) subtree */}
+    <line x1="80" y1="26" x2="48" y2="58" stroke="rgba(148,163,184,0.55)" strokeWidth="1.6" />
+    <line x1="80" y1="26" x2="112" y2="58" stroke="rgba(148,163,184,0.55)" strokeWidth="1.6" />
+    <line x1="48" y1="58" x2="30" y2="90" stroke="rgba(148,163,184,0.55)" strokeWidth="1.6" />
+    <line x1="48" y1="58" x2="66" y2="90" stroke="rgba(148,163,184,0.55)" strokeWidth="1.6" />
+    <circle cx="80" cy="26" r="6" fill="#60a5fa" />
+    <circle cx="48" cy="58" r="5" fill="#60a5fa" />
+    <circle cx="30" cy="90" r="5" fill="#34d399" />
+    <circle cx="66" cy="90" r="4.5" fill="rgba(148,163,184,0.7)" />
+    {/* pruned right subtree */}
+    <circle cx="112" cy="58" r="6" fill="#f87171" />
+    <line x1="105" y1="68" x2="119" y2="68" stroke="#f87171" strokeWidth="1.8" />
+    <text x="118" y="58" fontFamily="monospace" fontSize="11" fill="#f87171">{"✂"}</text>
+    <text x="24" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">bound &amp; prune</text>
+  </svg>
+);
 const GlyphDriftDetection = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* reference bump (outline) and drifted bump (filled) + alarm */}
@@ -1330,6 +1348,7 @@ const GLYPHS = {
   "instrumental-variables": <GlyphInstrumentalVariables />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
+  "branch-and-bound": <GlyphBranchAndBound />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,
   "edit-distance": <GlyphEditDistance />,
 };
