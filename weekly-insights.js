@@ -21,6 +21,46 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-05-31",
+    range: "May 24 to May 31, 2026",
+    tldr: [
+      "EAGLE 3.1 landed (EAGLE team / vLLM / TorchSpec). It traces long-context spec-decode degradation to attention drift and fixes it with FC normalization plus post-norm hidden-state feedback. Up to 2x longer acceptance length on long context, config-driven, backward compatible with EAGLE 3 checkpoints. Ships in vLLM v0.22.0.",
+      "Claude Opus 4.8 shipped May 28: 88.6% SWE-bench Verified, 69.2% SWE-bench Pro, GDPval-AA 1890 (+121 Elo over GPT-5.5). Price unchanged at $5/$25 per Mtok; new Fast mode is 3x cheaper than Opus 4.7's. Dynamic workflows fan out hundreds of parallel subagents and verify against your test suite.",
+      "llama.cpp merged Multi-Token Prediction (PR #22673). Qwen 3.6 27B dense gets ~2x single-stream throughput, but the 35B-A3B MoE shows no net speedup at batch=1 on consumer GPUs because the verifier loads the expert union. MTP is not a free win on local MoE.",
+      "MLX on M5 unlocks the Neural Accelerators path: up to 4x faster TTFT and 3.8x faster FLUX vs M4. Requires macOS 26.2 and MLX 0.30+, otherwise you only get the +19-27% memory-bandwidth gain.",
+    ],
+    sections: [
+      {
+        header: "// INFERENCE, QUANTIZATION & LOCAL",
+        items: [
+          { text: "EAGLE 3.1 fixes attention drift, where the drafter shifts attention off sink tokens as speculation depth grows and acceptance craters under long context, unusual chat templates, and OOD system prompts. The fix is FC normalization after each target hidden state plus feeding post-norm hidden states forward, so drafting behaves like recursive invocation. Up to 2x longer acceptance vs EAGLE 3. On Kimi-K2.6-NVFP4 (vLLM, TP=4, GB200): 2.03x per-user throughput at C=1, 1.71x at C=4, 1.66x at C=16. Config-driven, backward compatible, ships in v0.22.0. If you run EAGLE 3, it is a drop-in drafter upgrade.", source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-05-26-eagle-3-1" } },
+          { text: "llama.cpp merged MTP speculative decoding (PR #22673) against Qwen 3.6 MTP heads. Dense 27B gets ~2x single-user throughput. The 35B-A3B MoE is the gotcha: at batch=1 every drafted token can pull a different expert slice, the verifier loads the union, and multiple RTX 3090 benchmarks show no net speedup over the autoregressive baseline. Production servers amortize via batching; solo MoE users should measure before assuming a win.", source: { label: "Codersera", url: "https://codersera.com/blog/local-ai-runtimes-may-2026-update/" } },
+          { text: "TurboQuant (ICLR 2026, Zandieh et al.) is being tracked into llama.cpp (discussion #20969) with a working CPU implementation passing 18/18 tests, MSE within 1% of paper. TQ3 gives 4.9x compression vs FP16, TQ4 gives 3.8x. Community forks bundling it with Gemma 4 MTP and Qwen 3.6 NextN drafting report +30-50% throughput. A next-gen sub-4-bit path to watch.", source: { label: "Codersera", url: "https://codersera.com/blog/local-ai-runtimes-may-2026-update/" } },
+          { text: "MLX on M5: every M5 GPU core now has dedicated matmul hardware (Neural Accelerators), and MLX is the only framework that targets them. Up to 4x faster TTFT, 3.8x faster 1024x1024 FLUX-dev-4bit, 30-60% across most workloads vs M4. Hard requirement: macOS 26.2 and MLX 0.30+. Ollama and LM Studio both lean harder on MLX as their Apple-Silicon backend, so you run it regardless of wrapper.", source: { label: "Codersera", url: "https://codersera.com/blog/local-ai-runtimes-may-2026-update/" } },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS & EVAL",
+        items: [
+          { text: "Claude Opus 4.8 dynamic workflows: Claude Code plans a large task, fans out hundreds of parallel subagents, then verifies their outputs against your test suite. Pitched for hundreds-of-thousands-of-LoC refactors, with effort control (Low/Medium/High/xHigh/Max) across claude.ai, Cowork, and Claude Code. Anthropic reports it is ~4x less likely than 4.7 to let a flaw in its own code pass unflagged, which matters more for autonomous multi-agent runs than a headline benchmark point.", source: { label: "Codersera", url: "https://codersera.com/blog/claude-opus-4-8-launch-guide-2026/" } },
+          { text: "Qwen WebWorld (8B/14B/32B, Apache 2.0) is an open-weight web world model: predict the next browser state given current state plus action, so you can train web agents in simulation instead of the live web. Trained on 1.06M real interaction trajectories. WebWorld-32B hits 71.0% average Factuality vs Claude-Opus-4.1 at 71.3%; Qwen3-14B trained on its synthesized trajectories improves +9.2% on WebArena. A usable open simulator and dataset for browser-agent RL.", source: { label: "arXiv", url: "https://arxiv.org/abs/2602.14721" } },
+          { text: "Agent benchmark reality check from this week's roundups: scaffold dominates the score. The same base model swings widely on Terminal-Bench depending on harness (Terminus vs ForgeCode), so a single leaderboard number is near meaningless without the scaffold. If you compare agents, fix the scaffold or report it.", source: { label: "Codersera", url: "https://codersera.com/blog/ai-agent-benchmarks-state-of-leaderboard-may-2026/" } },
+        ],
+      },
+      {
+        header: "// BROADER FIELD",
+        items: [
+          { text: "Claude Opus 4.8 (May 28): 88.6% SWE-bench Verified, 69.2% SWE-bench Pro, 74.6% Terminal-Bench 2.1, 93.6% GPQA Diamond, GDPval-AA 1890 (+121 Elo over GPT-5.5). Pricing held at $5 in / $25 out per Mtok; new Fast mode is 3x cheaper than Opus 4.7's at $10/$50. The pricing-flat, capability-up release is the pattern to budget around.", source: { label: "llm-stats", url: "https://llm-stats.com/blog/research/claude-opus-4-8-launch" } },
+          { text: "vLLM v0.21.0 (May 15) if you deploy on Blackwell: new TOKENSPEED_MLA attention backend for DeepSeek-R1 / Kimi-K2.5 prefill+decode, spec decode now respects reasoning/thinking budgets (a prior quiet correctness bug), KV Offload integrates with the Hybrid Memory Allocator. Breaking: C++20 required, Transformers v4 deprecated.", source: { label: "Codersera", url: "https://codersera.com/blog/local-ai-runtimes-may-2026-update/" } },
+        ],
+      },
+    ],
+    watching: [
+      { text: "EAGLE 3.1's headline numbers are on Kimi-K2.6-NVFP4 with MLA on GB200. Acceptance behavior on dense, non-MLA models and consumer GPUs is the open question before assuming the 2x carries to your stack.", source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-05-26-eagle-3-1" } },
+      { text: "TurboQuant upstreaming into llama.cpp mainline. If TQ3/TQ4 land in master with the reported +30-50% throughput, sub-4-bit on CPU/edge gets a real default. Track discussion #20969.", source: { label: "Codersera", url: "https://codersera.com/blog/local-ai-runtimes-may-2026-update/" } },
+    ],
+  },
+  {
     date: "2026-05-29",
     range: "May 22 – May 29, 2026",
     tldr: [

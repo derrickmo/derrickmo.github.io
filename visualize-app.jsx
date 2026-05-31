@@ -265,6 +265,18 @@ const GlyphTree = () => (
     {[[30, 96], [62, 96], [98, 96], [130, 96]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" fill={i % 2 ? "#34d399" : "#60a5fa"} opacity="0.8" />)}
   </svg>
 );
+const GlyphBaggingBoosting = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* many faint stepwise tree fits averaging/summing into one bold curve */}
+    {[0,1,2,3].map(k => (
+      <path key={k} d={`M 16 ${70-k*4} L 52 ${52+k*6} L 52 ${52+k*6} L 92 ${66-k*5} L 92 ${66-k*5} L 144 ${40+k*3}`}
+        stroke="rgba(248,113,113,0.25)" strokeWidth="1.2" fill="none" />
+    ))}
+    <path d="M 16 66 L 52 50 L 92 60 L 144 38" stroke="#a855f7" strokeWidth="2.6" fill="none" />
+    <path d="M 16 60 Q 60 44, 144 44" stroke="rgba(52,211,153,0.55)" strokeWidth="1.6" fill="none" strokeDasharray="5 4" />
+    <text x="18" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">average vs stack trees</text>
+  </svg>
+);
 const GlyphKnn = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="80" cy="60" r="38" fill="none" stroke="#60a5fa" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.6" />
@@ -1377,6 +1389,7 @@ const GLYPHS = {
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
   "decision-tree": <GlyphTree />,
+  "bagging-boosting": <GlyphBaggingBoosting />,
   "knn": <GlyphKnn />,
   "svm": <GlyphSVM />,
   "pca": <GlyphPCA />,
