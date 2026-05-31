@@ -30,6 +30,7 @@
   <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/coreset/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/dbscan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/decoding/</loc><priority>0.6</priority></url>
@@ -176,6 +177,7 @@
   <url><loc>https://derrickmo.github.io/visualize/constrained-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/coreset/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dbscan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/decoding/</loc><priority>0.6</priority></url>
