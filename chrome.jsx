@@ -345,6 +345,7 @@ const DM_NAV_INDEX = [
   { label: "Mixture of Experts (MoE)", group: "Demo", href: "/visualize/moe/", kw: "mixture of experts moe routing gating top-k sparse switch transformer mixtral conditional computation load balancing experts" },
   { label: "Simpson's Paradox", group: "Demo", href: "/visualize/simpsons-paradox/", kw: "simpsons paradox confounding causal inference correlation causation subgroup aggregation berkeley reversal statistics" },
   { label: "Knapsack (DP)", group: "Demo", href: "/visualize/knapsack/", kw: "knapsack dynamic programming dp table memoization optimal substructure backtrack items weight value np-hard pseudo-polynomial" },
+  { label: "BFS vs DFS vs A*", group: "Demo", href: "/visualize/bfs-dfs-astar/", kw: "bfs dfs a-star astar search maze graph uninformed informed heuristic dijkstra frontier shortest path optimal" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

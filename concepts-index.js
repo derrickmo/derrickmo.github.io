@@ -485,6 +485,11 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "graph-search": {
+    id: "graph-search", name: "Graph Search (BFS / DFS / A*)", area: "Foundations",
+    summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+    prereqs: ["pathfinding"],
+  },
 };
 
 // ── Side-table: which surfaces cover each concept ─────────────
@@ -567,6 +572,7 @@ const CONCEPT_TAGS = {
     "moe":                  ["moe", "attention", "scaling-laws"],
     "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
+    "bfs-dfs-astar":        ["graph-search", "pathfinding"],
   },
   // Play games — slugs match play-games.js
   games: {

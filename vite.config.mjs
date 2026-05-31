@@ -133,6 +133,7 @@ export default defineConfig({
         'visualize-moe': 'visualize/moe/index.html',
         'visualize-simpsons-paradox': 'visualize/simpsons-paradox/index.html',
         'visualize-knapsack': 'visualize/knapsack/index.html',
+        'visualize-bfs-dfs-astar': 'visualize/bfs-dfs-astar/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -253,6 +254,7 @@ export default defineConfig({
         'concept-moe': 'concepts/moe/index.html',
         'concept-simpsons-paradox': 'concepts/simpsons-paradox/index.html',
         'concept-dynamic-programming': 'concepts/dynamic-programming/index.html',
+        'concept-graph-search': 'concepts/graph-search/index.html',
         // <<< generated:concepts
       },
     },

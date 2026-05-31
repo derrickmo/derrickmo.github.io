@@ -623,6 +623,21 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphBfsDfsAstar = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* start, goal, and an A*-style beeline through a grid hint */}
+    {[0, 1, 2, 3, 4].map(c => [0, 1, 2].map(r => (
+      <rect key={`${c}${r}`} x={36 + c * 18} y={30 + r * 18} width="16" height="16" fill="rgba(96,165,250,0.12)" />
+    )))}
+    {/* expanded cells along a diagonal corridor */}
+    {[[0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 0], [4, 0]].map(([c, r], i) => (
+      <rect key={i} x={36 + c * 18} y={30 + r * 18} width="16" height="16" fill="rgba(96,165,250,0.6)" />
+    ))}
+    <circle cx={36 + 8} cy={30 + 2 * 18 + 8} r="5" fill="#34d399" />
+    <circle cx={36 + 4 * 18 + 8} cy={30 + 8} r="5" fill="#a855f7" />
+    <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">search the maze</text>
+  </svg>
+);
 const GlyphKnapsack = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* DP table cells, gradient fill + a backtrack path */}
@@ -1106,6 +1121,7 @@ const GLYPHS = {
   "moe": <GlyphMoE />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
+  "bfs-dfs-astar": <GlyphBfsDfsAstar />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────
