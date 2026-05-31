@@ -573,6 +573,7 @@ const CONCEPT_TAGS = {
     "simpsons-paradox":     ["simpsons-paradox", "linear-regression"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
+    "edit-distance":        ["dynamic-programming"],
   },
   // Play games — slugs match play-games.js
   games: {

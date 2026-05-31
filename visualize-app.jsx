@@ -623,6 +623,19 @@ const GlyphActorCritic = () => {
     </svg>
   );
 };
+const GlyphEditDistance = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* small DP grid with a diagonal backtrack path */}
+    {[0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => {
+      const path = (r === c) || (r === 3 && c === 3);
+      return <rect key={`${r}${c}`} x={48 + c * 17} y={26 + r * 17} width="15" height="15"
+        fill={`rgba(96,165,250,${0.14 + 0.4 * (r + c) / 6})`} stroke={path ? "#fbbf24" : "transparent"} strokeWidth="1.5" />;
+    }))}
+    {/* aligned letters */}
+    <text x="46" y="106" fontFamily="monospace" fontSize="11" fill="#34d399">k i t</text>
+    <text x="96" y="106" fontFamily="monospace" fontSize="11" fill="#fbbf24">s i t</text>
+  </svg>
+);
 const GlyphBfsDfsAstar = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* start, goal, and an A*-style beeline through a grid hint */}
@@ -1122,6 +1135,7 @@ const GLYPHS = {
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,
+  "edit-distance": <GlyphEditDistance />,
 };
 
 // ─── Page hero ────────────────────────────────────────────────

@@ -152,6 +152,8 @@ window.PLAY_DEMOS = {
       blurb: "Pack the most value into a weight budget. Watch the DP table fill from its sub-answers, then backtrack to recover which items to take." },
     { slug: "bfs-dfs-astar",      topic: "SEARCH / CSP", title: "BFS vs DFS vs A*", tone: "blue", status: "LIVE",
       blurb: "Three searches, one maze. Watch uninformed rings and dives versus A*'s heuristic beeline — and compare nodes expanded and path optimality." },
+    { slug: "edit-distance",      topic: "DYNAMIC PROGRAMMING", title: "Edit Distance", tone: "blue", status: "LIVE",
+      blurb: "The fewest insert/delete/substitute edits between two strings. Watch the DP table fill from its neighbors, then backtrack the character alignment." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -164,7 +166,7 @@ window.PLAY_DEMOS = {
     { name: "Generative & Signal", why: "Creating new data rather than labeling it, plus the frequency-domain and sequence views that underpin audio, images, forecasting, and the diffusion models reshaping generative AI.", slugs: ["diffusion", "vae", "gan", "fourier", "forecasting"] },
     { name: "Agents & LLM Systems", why: "What it takes to turn a raw model into a reliable system: grounding answers in retrieved context, the reliability patterns — sampling-and-voting, verification — that make stochastic models dependable, and the decoding constraints that guarantee structured output. The engineering layer on top of the weights.", slugs: ["rag-chunking", "hyde", "lost-in-the-middle", "react-agent", "self-consistency", "reflection", "constrained-decoding", "guardrails"] },
     { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "conformal", "active-learning", "fairness"] },
-    { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack"] },
+    { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "edit-distance"] },
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
@@ -243,6 +245,7 @@ window.PLAY_DEMOS = {
     "simpsons-paradox": "confounding reverses the trend",
     "knapsack": "fill the table, backtrack the choice",
     "bfs-dfs-astar": "uninformed vs informed search",
+    "edit-distance": "string alignment DP",
   },
   findDemo(slug) { return this.demos.find(d => d.slug === slug); },
 };

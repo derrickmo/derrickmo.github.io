@@ -346,6 +346,7 @@ const DM_NAV_INDEX = [
   { label: "Simpson's Paradox", group: "Demo", href: "/visualize/simpsons-paradox/", kw: "simpsons paradox confounding causal inference correlation causation subgroup aggregation berkeley reversal statistics" },
   { label: "Knapsack (DP)", group: "Demo", href: "/visualize/knapsack/", kw: "knapsack dynamic programming dp table memoization optimal substructure backtrack items weight value np-hard pseudo-polynomial" },
   { label: "BFS vs DFS vs A*", group: "Demo", href: "/visualize/bfs-dfs-astar/", kw: "bfs dfs a-star astar search maze graph uninformed informed heuristic dijkstra frontier shortest path optimal" },
+  { label: "Edit Distance", group: "Demo", href: "/visualize/edit-distance/", kw: "edit distance levenshtein dynamic programming string alignment diff spellcheck needleman wunsch sequence dp table" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded

@@ -134,6 +134,7 @@ export default defineConfig({
         'visualize-simpsons-paradox': 'visualize/simpsons-paradox/index.html',
         'visualize-knapsack': 'visualize/knapsack/index.html',
         'visualize-bfs-dfs-astar': 'visualize/bfs-dfs-astar/index.html',
+        'visualize-edit-distance': 'visualize/edit-distance/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
