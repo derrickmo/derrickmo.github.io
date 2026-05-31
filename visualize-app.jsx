@@ -154,6 +154,16 @@ const GlyphDoubleDescent = () => (
     <text x="14" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">capacity →</text>
   </svg>
 );
+const GlyphBiasVariance = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* bias falling, variance rising, total U-curve */}
+    <path d="M 18 28 Q 60 40, 142 92" stroke="#60a5fa" strokeWidth="2" fill="none" />
+    <path d="M 18 96 Q 70 88, 142 24" stroke="#f87171" strokeWidth="2" fill="none" />
+    <path d="M 18 50 Q 80 78, 142 50" stroke="#a855f7" strokeWidth="2.6" fill="none" />
+    <circle cx="80" cy="71" r="3.5" fill="#a855f7" />
+    <text x="20" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">bias² + variance</text>
+  </svg>
+);
 const GlyphBell = () => {
   const pts = Array.from({ length: 41 }, (_, i) => { const x = 16 + i * (128 / 40); const t = (i - 20) / 8; return `${x},${100 - 72 * Math.exp(-t * t / 2)}`; }).join(" ");
   return (
@@ -1365,6 +1375,7 @@ const GLYPHS = {
   "gradient-descent": <GlyphGradient />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
+  "bias-variance-decomp": <GlyphBiasVariance />,
   "decision-tree": <GlyphTree />,
   "knn": <GlyphKnn />,
   "svm": <GlyphSVM />,

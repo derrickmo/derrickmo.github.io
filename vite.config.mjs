@@ -65,6 +65,7 @@ export default defineConfig({
         'visualize-gradient-descent': 'visualize/gradient-descent/index.html',
         'visualize-overfitting': 'visualize/overfitting/index.html',
         'visualize-double-descent': 'visualize/double-descent/index.html',
+        'visualize-bias-variance-decomp': 'visualize/bias-variance-decomp/index.html',
         'visualize-roc': 'visualize/roc/index.html',
         'visualize-decision-tree': 'visualize/decision-tree/index.html',
         'visualize-knn': 'visualize/knn/index.html',

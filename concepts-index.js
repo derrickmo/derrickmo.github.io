@@ -630,6 +630,7 @@ const CONCEPT_TAGS = {
     "gradient-descent":     ["gradient-descent", "adam", "lr-schedule"],
     "overfitting":          ["bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
+    "bias-variance-decomp": ["bias-variance", "regularization", "double-descent"],
     "roc":                  ["roc", "cross-entropy"],
     "decision-tree":        ["decision-tree", "entropy"],
     "knn":                  ["knn", "bias-variance"],
