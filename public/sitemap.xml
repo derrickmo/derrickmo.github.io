@@ -14,6 +14,7 @@
   <url><loc>https://derrickmo.github.io/concepts/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/backtracking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bandit/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bias-variance/</loc><priority>0.6</priority></url>
@@ -168,6 +169,7 @@
   <url><loc>https://derrickmo.github.io/visualize/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bandit/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bfs-dfs-astar/</loc><priority>0.6</priority></url>
