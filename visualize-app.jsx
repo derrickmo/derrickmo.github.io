@@ -675,6 +675,20 @@ const GlyphSimpsons = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">trend reverses</text>
   </svg>
 );
+const GlyphSpeculative = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a run of accepted draft tokens then a target token */}
+    {[0, 1, 2, 3].map(i => (
+      <rect key={i} x={28 + i * 20} y={40} width="16" height="16" fill="#34d399" />
+    ))}
+    <rect x={28 + 4 * 20} y={40} width="16" height="16" fill="#a855f7" />
+    {/* draft (small) and target (big) model glyphs */}
+    <circle cx="22" cy="80" r="6" fill="none" stroke="#34d399" strokeWidth="2" />
+    <text x="34" y="84" fontFamily="monospace" fontSize="8" fill="#34d399">draft k=4</text>
+    <circle cx="118" cy="80" r="10" fill="none" stroke="#a855f7" strokeWidth="2" />
+    <text x="60" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">verify in 1 pass</text>
+  </svg>
+);
 const GlyphMixedPrecision = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* fp16 window band, gradient histogram shifted into it */}
@@ -1146,6 +1160,7 @@ const GLYPHS = {
   "distillation": <GlyphDistillation />,
   "moe": <GlyphMoE />,
   "mixed-precision": <GlyphMixedPrecision />,
+  "speculative-decoding": <GlyphSpeculative />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

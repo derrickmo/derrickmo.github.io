@@ -136,6 +136,7 @@ export default defineConfig({
         'visualize-bfs-dfs-astar': 'visualize/bfs-dfs-astar/index.html',
         'visualize-edit-distance': 'visualize/edit-distance/index.html',
         'visualize-mixed-precision': 'visualize/mixed-precision/index.html',
+        'visualize-speculative-decoding': 'visualize/speculative-decoding/index.html',
         cases: 'cases/index.html',
         'm-foundations': 'learn/foundations/index.html',
         'm-supervised-learning': 'learn/supervised-learning/index.html',
@@ -257,6 +258,7 @@ export default defineConfig({
         'concept-simpsons-paradox': 'concepts/simpsons-paradox/index.html',
         'concept-dynamic-programming': 'concepts/dynamic-programming/index.html',
         'concept-mixed-precision': 'concepts/mixed-precision/index.html',
+        'concept-speculative-decoding': 'concepts/speculative-decoding/index.html',
         'concept-graph-search': 'concepts/graph-search/index.html',
         // <<< generated:concepts
       },

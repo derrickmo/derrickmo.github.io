@@ -490,6 +490,12 @@ const CONCEPTS_INDEX = {
     summary: "Train in 16-bit (fp16/bf16) for speed and memory while keeping an fp32 master copy of weights. fp16's narrow exponent range makes small gradients underflow and large ones overflow, so loss scaling multiplies the loss (and gradients) into the representable window and unscales before the step. bf16 keeps fp32's range (no scaling) at the cost of mantissa bits.",
     prereqs: ["backprop", "quantization"],
   },
+  "speculative-decoding": {
+    id: "speculative-decoding", name: "Speculative Decoding", area: "Training Systems",
+    summary: "Speed up LLM generation losslessly: a small draft model proposes k tokens, the big target verifies them in one parallel pass, accepting the longest prefix it agrees with and resampling the first miss from its own distribution. Emits accepted+1 tokens per expensive pass; speedup ≈ (1−p^{k+1})/(1−p) for acceptance p. Output distribution is identical to the target alone.",
+    tex: "\\mathbb{E}[\\text{tokens/pass}] = \\frac{1 - p^{\\,k+1}}{1 - p}",
+    prereqs: ["decoding", "kv-cache"],
+  },
   "graph-search": {
     id: "graph-search", name: "Graph Search (BFS / DFS / A*)", area: "Foundations",
     summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
@@ -580,6 +586,7 @@ const CONCEPT_TAGS = {
     "bfs-dfs-astar":        ["graph-search", "pathfinding"],
     "edit-distance":        ["dynamic-programming"],
     "mixed-precision":      ["mixed-precision", "quantization"],
+    "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],
   },
   // Play games — slugs match play-games.js
   games: {

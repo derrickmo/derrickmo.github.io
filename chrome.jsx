@@ -348,6 +348,7 @@ const DM_NAV_INDEX = [
   { label: "BFS vs DFS vs A*", group: "Demo", href: "/visualize/bfs-dfs-astar/", kw: "bfs dfs a-star astar search maze graph uninformed informed heuristic dijkstra frontier shortest path optimal" },
   { label: "Edit Distance", group: "Demo", href: "/visualize/edit-distance/", kw: "edit distance levenshtein dynamic programming string alignment diff spellcheck needleman wunsch sequence dp table" },
   { label: "Mixed Precision", group: "Demo", href: "/visualize/mixed-precision/", kw: "mixed precision fp16 bf16 fp32 loss scaling underflow overflow dynamic range amp training efficiency tensor core fp8" },
+  { label: "Speculative Decoding", group: "Demo", href: "/visualize/speculative-decoding/", kw: "speculative decoding draft target verify accept reject lookahead llm inference latency leviathan medusa eagle lossless speedup" },
 ];
 
 // Lazy: derive a palette entry per concept from window.CONCEPTS_INDEX if loaded
