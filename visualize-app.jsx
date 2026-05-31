@@ -663,6 +663,18 @@ const GlyphKnapsack = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">fill → backtrack</text>
   </svg>
 );
+const GlyphMCDropout = () => {
+  const mean = Array.from({ length: 33 }, (_, i) => { const x = 16 + i * 4; return `${x},${60 + 18 * Math.sin((i - 16) / 5)}`; }).join(" ");
+  const band = (s) => Array.from({ length: 33 }, (_, i) => { const x = 16 + i * 4; const w = 4 + 16 * (Math.abs(i - 16) / 16); return `${x},${60 + 18 * Math.sin((i - 16) / 5) + s * w}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <polygon points={band(1) + " " + band(-1).split(" ").reverse().join(" ")} fill="rgba(168,85,247,0.2)" />
+      <polyline points={mean} fill="none" stroke="#a855f7" strokeWidth="2" />
+      {[40, 56, 100, 116].map((x, i) => <circle key={i} cx={x} cy={60 + 18 * Math.sin((x - 80) / 20)} r="2.5" fill="#e2e8f0" />)}
+      <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">uncertainty band</text>
+    </svg>
+  );
+};
 const GlyphLabelNoise = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="80" y1="24" x2="80" y2="96" stroke="rgba(226,232,240,0.4)" strokeWidth="1.5" />
@@ -1173,6 +1185,7 @@ const GLYPHS = {
   "mixed-precision": <GlyphMixedPrecision />,
   "speculative-decoding": <GlyphSpeculative />,
   "label-noise": <GlyphLabelNoise />,
+  "mc-dropout": <GlyphMCDropout />,
   "simpsons-paradox": <GlyphSimpsons />,
   "knapsack": <GlyphKnapsack />,
   "bfs-dfs-astar": <GlyphBfsDfsAstar />,

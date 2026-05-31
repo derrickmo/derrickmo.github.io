@@ -485,6 +485,11 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{dp}[i][c] = \\max\\bigl( \\mathrm{dp}[i{-}1][c],\\; \\mathrm{dp}[i{-}1][c - w_i] + v_i \\bigr)",
     prereqs: ["mdp-bellman"],
   },
+  "mc-dropout": {
+    id: "mc-dropout", name: "MC Dropout (Bayesian uncertainty)", area: "Foundations",
+    summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
+    prereqs: ["calibration"],
+  },
   "label-noise": {
     id: "label-noise", name: "Label Noise & Memorization", area: "Foundations",
     summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
@@ -593,6 +598,7 @@ const CONCEPT_TAGS = {
     "mixed-precision":      ["mixed-precision", "quantization"],
     "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],
     "label-noise":          ["label-noise", "overfitting"],
+    "mc-dropout":           ["mc-dropout", "calibration"],
   },
   // Play games — slugs match play-games.js
   games: {
