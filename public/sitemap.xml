@@ -31,6 +31,7 @@
   <url><loc>https://derrickmo.github.io/concepts/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/coreset/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/dataset-distillation/</loc><priority>0.6</priority></url>
@@ -204,6 +205,7 @@
   <url><loc>https://derrickmo.github.io/visualize/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/coreset/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dbscan/</loc><priority>0.6</priority></url>

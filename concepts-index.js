@@ -380,6 +380,12 @@ const CONCEPTS_INDEX = {
     tex: "\\Pr[\\text{keep item } i] = \\frac{k}{i}\\ (i>k); \\quad \\Pr[\\text{in final sample}]=\\frac{k}{n}",
     prereqs: ["clt"],
   },
+  "count-min-sketch": {
+    id: "count-min-sketch", name: "Count-Min Sketch", area: "Foundations",
+    summary: "A probabilistic data structure for approximate frequency counts over a stream in sublinear memory: a d×w table of counters with d independent hash functions. Each item increments one counter per row; a query returns the MINIMUM of its d counters. Collisions only add, so it never underestimates — error ≤ ε·N with prob 1−δ for w≈e/ε, d≈ln(1/δ). Heavy hitters are estimated accurately; rare keys are noisy. Used for traffic monitoring, top-k/trending, frequency capping. Siblings: reservoir sampling (samples), Bloom filters (membership), HyperLogLog (distinct counts).",
+    tex: "\\hat f(x) = \\min_{r} \\; \\mathrm{CMS}[r][h_r(x)] \\;\\ge\\; f(x)",
+    prereqs: ["reservoir-sampling"],
+  },
   "kalman-filter": {
     id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
     summary: "Optimal recursive state estimation for a linear-Gaussian system: keep a Gaussian belief (mean + covariance) over hidden state and alternately predict it forward through a motion model and update it toward each noisy measurement. The Kalman gain optimally blends model trust (process noise Q) against sensor trust (measurement noise R). It's exact recursive Bayesian filtering, the workhorse behind GPS/IMU sensor fusion, robotics/SLAM, and object tracking; nonlinear systems use the Extended/Unscented variants or particle filters.",
@@ -757,6 +763,7 @@ const CONCEPT_TAGS = {
     "mcmc":                 ["mcmc", "bayes", "clt"],
     "importance-sampling":  ["importance-sampling", "mcmc", "clt"],
     "reservoir-sampling":   ["reservoir-sampling", "clt"],
+    "count-min-sketch":     ["count-min-sketch", "reservoir-sampling"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],

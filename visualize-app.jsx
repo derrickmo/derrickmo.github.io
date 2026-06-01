@@ -587,6 +587,23 @@ const GlyphReservoir = () => (
     <text x="26" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">uniform from a stream</text>
   </svg>
 );
+const GlyphCountMin = () => {
+  const cols = 7, rows = 3, cw = 16, ch = 16, x0 = 30, y0 = 30;
+  const hit = [[0, 2], [1, 5], [2, 3]]; // one hashed cell per row
+  const fills = [[1, 3, 4], [0, 2, 6], [1, 4, 5]];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {Array.from({ length: rows }).map((_, r) => Array.from({ length: cols }).map((_, c) => {
+        const isHit = hit.some(h => h[0] === r && h[1] === c);
+        const filled = fills[r].includes(c) || isHit;
+        return <rect key={`${r}-${c}`} x={x0 + c * (cw + 2)} y={y0 + r * (ch + 2)} width={cw} height={ch} rx="2"
+          fill={filled ? `rgba(168,85,247,${isHit ? 0.85 : 0.4})` : "rgba(148,163,184,0.12)"}
+          stroke={isHit ? "#fbbf24" : "none"} strokeWidth="1.6" />;
+      }))}
+      <text x="22" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">query the min</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1675,6 +1692,7 @@ const GLYPHS = {
   "isomap": <GlyphIsomap />,
   "hierarchical-clustering": <GlyphHier />,
   "reservoir-sampling": <GlyphReservoir />,
+  "count-min-sketch": <GlyphCountMin />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
