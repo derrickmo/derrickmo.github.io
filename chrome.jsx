@@ -323,6 +323,7 @@ const DM_NAV_INDEX = [
   { label: "Bayes Updater", group: "Demo", href: "/visualize/bayes/", kw: "bayes beta bernoulli prior posterior thompson sampling conjugate foundations probability" },
   { label: "MCMC (Metropolis)", group: "Demo", href: "/visualize/mcmc/", kw: "mcmc markov chain monte carlo metropolis hastings sampling posterior bayesian inference proposal acceptance burn-in mixing autocorrelation stan pymc hamiltonian nuts" },
   { label: "Importance Sampling", group: "Demo", href: "/visualize/importance-sampling/", kw: "importance sampling monte carlo rare event tail probability proposal weights effective sample size ess variance reduction off-policy particle filter reweighting" },
+  { label: "Reservoir Sampling", group: "Demo", href: "/visualize/reservoir-sampling/", kw: "reservoir sampling algorithm r vitter streaming online one pass uniform random sample unbounded stream big data constant memory k/n" },
   { label: "Kalman Filter", group: "Demo", href: "/visualize/kalman-filter/", kw: "kalman filter state estimation predict update sensor fusion tracking covariance gain process noise measurement recursive bayes gaussian denoise" },
   { label: "HMM & Viterbi", group: "Demo", href: "/visualize/hmm-viterbi/", kw: "hmm hidden markov model viterbi algorithm dynamic programming trellis decode sequence regime pos tagging speech forward backward baum welch dna" },
   { label: "Optimizer Shootout", group: "Demo", href: "/visualize/optimizers/", kw: "sgd momentum rmsprop adam optimizer training loss landscape" },

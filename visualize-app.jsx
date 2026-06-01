@@ -574,6 +574,19 @@ const GlyphHier = () => {
     </svg>
   );
 };
+const GlyphReservoir = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* incoming stream items */}
+    {[18, 34, 50].map((x, i) => <rect key={i} x={x} y="22" width="12" height="12" rx="2" fill="rgba(96,165,250,0.5)" />)}
+    <text x="66" y="32" fontFamily="monospace" fontSize="10" fill="#64748b">→</text>
+    {/* reservoir of 4 slots */}
+    {[80, 98, 116, 134].map((x, i) => <rect key={i} x={x} y="20" width="14" height="16" rx="2" fill="rgba(168,85,247,0.25)" stroke="#a855f7" strokeWidth="1.2" />)}
+    {/* flat histogram */}
+    {Array.from({ length: 14 }).map((_, i) => <rect key={i} x={14 + i * 10} y="74" width="8" height="22" fill="rgba(168,85,247,0.75)" />)}
+    <line x1="10" y1="74" x2="150" y2="74" stroke="#34d399" strokeWidth="1.4" strokeDasharray="4 3" />
+    <text x="26" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">uniform from a stream</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1661,6 +1674,7 @@ const GLYPHS = {
   "label-propagation": <GlyphLabelProp />,
   "isomap": <GlyphIsomap />,
   "hierarchical-clustering": <GlyphHier />,
+  "reservoir-sampling": <GlyphReservoir />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

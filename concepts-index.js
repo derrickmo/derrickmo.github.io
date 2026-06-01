@@ -374,6 +374,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathbb{E}_p[f] = \\mathbb{E}_q\\!\\left[\\tfrac{p(x)}{q(x)} f(x)\\right],\\quad \\mathrm{ESS}=\\tfrac{(\\sum w_i)^2}{\\sum w_i^2}",
     prereqs: ["mcmc", "clt"],
   },
+  "reservoir-sampling": {
+    id: "reservoir-sampling", name: "Reservoir Sampling", area: "Foundations",
+    summary: "Draw a uniform random sample of fixed size k from a stream of unknown/unbounded length in a single pass with O(k) memory. Vitter's Algorithm R: keep the first k, then accept item i (i>k) with probability k/i, evicting a uniformly random slot — so when the stream ends every item has probability k/n of being kept, independent of arrival order. The standard tool for sampling logs, events, and rows too big to store; Algorithm L skips faster, and A-Res/A-ExpJ handle weighted sampling. Unweighted, without replacement, fixed size.",
+    tex: "\\Pr[\\text{keep item } i] = \\frac{k}{i}\\ (i>k); \\quad \\Pr[\\text{in final sample}]=\\frac{k}{n}",
+    prereqs: ["clt"],
+  },
   "kalman-filter": {
     id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
     summary: "Optimal recursive state estimation for a linear-Gaussian system: keep a Gaussian belief (mean + covariance) over hidden state and alternately predict it forward through a motion model and update it toward each noisy measurement. The Kalman gain optimally blends model trust (process noise Q) against sensor trust (measurement noise R). It's exact recursive Bayesian filtering, the workhorse behind GPS/IMU sensor fusion, robotics/SLAM, and object tracking; nonlinear systems use the Extended/Unscented variants or particle filters.",
@@ -750,6 +756,7 @@ const CONCEPT_TAGS = {
     "bayes":                ["bayes", "cross-entropy"],
     "mcmc":                 ["mcmc", "bayes", "clt"],
     "importance-sampling":  ["importance-sampling", "mcmc", "clt"],
+    "reservoir-sampling":   ["reservoir-sampling", "clt"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
