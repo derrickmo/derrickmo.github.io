@@ -506,6 +506,22 @@ const GlyphCrossVal = () => {
     </svg>
   );
 };
+const GlyphImportance = () => {
+  const bell = (mu, s, amp) => Array.from({ length: 41 }, (_, i) => { const x = i / 40 * 140 + 10; const t = (x - 10 - mu) / s; return `${x},${90 - amp * Math.exp(-0.5 * t * t)}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* target p (centered) */}
+      <polyline points={bell(56, 22, 56)} fill="none" stroke="#a855f7" strokeWidth="2" />
+      {/* proposal q (shifted toward tail) */}
+      <polyline points={bell(104, 20, 50)} fill="none" stroke="#22d3ee" strokeWidth="1.8" strokeDasharray="4 3" />
+      {/* threshold */}
+      <line x1="112" y1="22" x2="112" y2="90" stroke="#fbbf24" strokeWidth="1.4" />
+      {/* tail samples */}
+      {[[104, 3], [114, 4], [120, 3], [126, 2.4], [109, 3.4]].map(([x, r], i) => <circle key={i} cx={x} cy={86} r={r} fill="rgba(251,191,36,0.85)" />)}
+      <text x="22" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">reweight the tail</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1589,6 +1605,7 @@ const GLYPHS = {
   "naive-bayes": <GlyphNaiveBayes />,
   "ica": <GlyphICA />,
   "cross-validation": <GlyphCrossVal />,
+  "importance-sampling": <GlyphImportance />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

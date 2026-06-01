@@ -108,6 +108,8 @@ window.PLAY_DEMOS = {
       blurb: "Watch real Viterbi dynamic programming decode the most-likely hidden regime path from a noisy observation stream — tune persistence and emission noise to make it easy or near-impossible." },
     { slug: "mcmc",               topic: "FOUNDATIONS",   title: "MCMC (Metropolis)",     tone: "violet", status: "LIVE",
       blurb: "Sample a distribution you can only evaluate up to a constant via a random walk that visits it in proportion to its density. Tune the proposal step to feel the mixing-vs-acceptance tradeoff." },
+    { slug: "importance-sampling", topic: "FOUNDATIONS",  title: "Importance Sampling",   tone: "violet", status: "LIVE",
+      blurb: "Estimate a rare-event probability naive Monte Carlo never reaches by sampling a steered proposal and reweighting by p/q. Misplace the proposal and watch the effective sample size collapse." },
     { slug: "optimizers",         topic: "OPTIMIZATION",  title: "Optimizer Shootout",    tone: "blue",   status: "LIVE",
       blurb: "SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface — see how each one's mechanics shape its path." },
     { slug: "gan",                topic: "GENERATIVE",    title: "GAN 2-D",               tone: "violet", status: "LIVE",
@@ -229,7 +231,7 @@ window.PLAY_DEMOS = {
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "gmm", "dbscan", "spectral-clustering", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
@@ -293,6 +295,7 @@ window.PLAY_DEMOS = {
     "ica": "unmix by maximizing non-Gaussianity",
     "bayes": "conjugate prior × likelihood → posterior",
     "mcmc": "sample by random walk; proportional to density",
+    "importance-sampling": "reweight a proposal by p/q",
     "kalman-filter": "predict then update; optimal denoising",
     "hmm-viterbi": "DP for the best hidden path",
     "optimizers": "SGD · Momentum · RMSProp · Adam",

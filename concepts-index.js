@@ -362,6 +362,12 @@ const CONCEPTS_INDEX = {
     tex: "\\alpha = \\min\\!\\left(1, \\dfrac{p(x')}{p(x)}\\right)",
     prereqs: ["bayes", "clt"],
   },
+  "importance-sampling": {
+    id: "importance-sampling", name: "Importance Sampling", area: "Foundations",
+    summary: "Estimate an expectation under a target p by sampling an easier proposal q and reweighting by w=p/q: E_p[f]=E_q[w·f]. Lets you hit rare events (tail probabilities) that naive Monte Carlo misses, and underlies off-policy RL evaluation and particle-filter resampling. Quality lives and dies by the proposal — if q has lighter tails than p the weights have infinite variance, so monitor the Effective Sample Size ESS=(Σw)²/Σw². Self-normalized IS needs the target only up to a constant. Degrades in high dimensions; fixes are adaptive/annealed IS and SMC.",
+    tex: "\\mathbb{E}_p[f] = \\mathbb{E}_q\\!\\left[\\tfrac{p(x)}{q(x)} f(x)\\right],\\quad \\mathrm{ESS}=\\tfrac{(\\sum w_i)^2}{\\sum w_i^2}",
+    prereqs: ["mcmc", "clt"],
+  },
   "kalman-filter": {
     id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
     summary: "Optimal recursive state estimation for a linear-Gaussian system: keep a Gaussian belief (mean + covariance) over hidden state and alternately predict it forward through a motion model and update it toward each noisy measurement. The Kalman gain optimally blends model trust (process noise Q) against sensor trust (measurement noise R). It's exact recursive Bayesian filtering, the workhorse behind GPS/IMU sensor fusion, robotics/SLAM, and object tracking; nonlinear systems use the Extended/Unscented variants or particle filters.",
@@ -724,6 +730,7 @@ const CONCEPT_TAGS = {
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
     "mcmc":                 ["mcmc", "bayes", "clt"],
+    "importance-sampling":  ["importance-sampling", "mcmc", "clt"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
