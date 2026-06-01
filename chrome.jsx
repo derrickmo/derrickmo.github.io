@@ -270,6 +270,7 @@ const DM_NAV_INDEX = [
   { label: "Tokenizer Lab", group: "Demo", href: "/visualize/tokenizer/", kw: "bpe subword nlp" },
   { label: "Q-Learning Gridworld", group: "Demo", href: "/visualize/gridworld-rl/", kw: "reinforcement rl" },
   { label: "Multi-Armed Bandit", group: "Demo", href: "/visualize/bandit/", kw: "explore exploit ucb thompson rl" },
+  { label: "The Perceptron", group: "Demo", href: "/visualize/perceptron/", kw: "perceptron rosenblatt linear classifier online learning mistake bound convergence theorem weight update decision boundary single neuron threshold xor minsky" },
   { label: "Neural Playground", group: "Demo", href: "/visualize/neural-playground/", kw: "mlp backprop boundary" },
   { label: "Convolution Lab", group: "Demo", href: "/visualize/convolution/", kw: "cnn kernel filter vision" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },

@@ -439,6 +439,23 @@ const GlyphMCMC = () => {
     </svg>
   );
 };
+const GlyphPerceptron = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* separating line */}
+    <line x1="36" y1="100" x2="128" y2="20" stroke="#e2e8f0" strokeWidth="2" />
+    {/* normal weight vector */}
+    <line x1="80" y1="60" x2="104" y2="88" stroke="#fbbf24" strokeWidth="2" />
+    <text x="106" y="92" fontFamily="monospace" fontSize="9" fill="#fbbf24">w</text>
+    {/* class +1 (blue, lower-left side) */}
+    {[[44, 86], [58, 92], [50, 70], [66, 80]].map(([x, y], i) => <circle key={`a${i}`} cx={x} cy={y} r="3.4" fill="#60a5fa" />)}
+    {/* class -1 (red, upper-right side) */}
+    {[[96, 34], [110, 46], [88, 46], [116, 30]].map(([x, y], i) => <circle key={`b${i}`} cx={x} cy={y} r="3.4" fill="#f87171" />)}
+    {/* one misclassified */}
+    <circle cx="84" cy="74" r="3.4" fill="#60a5fa" />
+    <circle cx="84" cy="74" r="6.5" fill="none" stroke="#fbbf24" strokeWidth="1.6" />
+    <text x="30" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">nudge on mistakes</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1518,6 +1535,7 @@ const GLYPHS = {
   "hmm-viterbi": <GlyphHMM />,
   "kernel-density": <GlyphKDE />,
   "mcmc": <GlyphMCMC />,
+  "perceptron": <GlyphPerceptron />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

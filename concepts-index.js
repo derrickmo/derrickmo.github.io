@@ -176,8 +176,14 @@ const CONCEPTS_INDEX = {
   "mlp": {
     id: "mlp", name: "Multilayer Perceptron", area: "Neural Networks",
     summary: "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
-    prereqs: ["activations", "backprop"], leadsTo: ["cnn", "rnn", "transformer-block"],
+    prereqs: ["perceptron", "activations", "backprop"], leadsTo: ["cnn", "rnn", "transformer-block"],
     animation: "viz/feedforward.html",
+  },
+  "perceptron": {
+    id: "perceptron", name: "The Perceptron", area: "Neural Networks",
+    summary: "A single linear threshold unit, ŷ=sign(w·x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w←w+η·y·x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts (Minsky & Papert's XOR critique). The historical seed of neural nets — smooth the step activation and train by gradient descent to get the MLP; add a max margin to get the SVM.",
+    tex: "\\text{if } y(w\\cdot x + b) \\le 0:\\; w \\leftarrow w + \\eta\\, y\\, x",
+    prereqs: ["linear-regression"], leadsTo: ["mlp", "svm"],
   },
   "convolution": {
     id: "convolution", name: "Convolution (CNN)", area: "Computer Vision",
@@ -717,6 +723,7 @@ const CONCEPT_TAGS = {
     "weight-init":          ["weight-init", "activations", "mlp"],
     "contrastive-learning": ["contrastive-learning", "embeddings", "softmax"],
     "convolution":          ["convolution", "cnn"],
+    "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
     "gradient-clipping":    ["gradient-clipping", "gradient-descent", "rnn"],
