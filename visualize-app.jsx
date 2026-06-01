@@ -355,6 +355,20 @@ const GlyphSpectral = () => (
     <text x="22" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">connectivity clusters</text>
   </svg>
 );
+const GlyphWord2Vec = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* three small topic clusters of word vectors pulled together */}
+    {[[40, 38, "#60a5fa"], [120, 44, "#a855f7"], [74, 92, "#34d399"]].map(([cx, cy, col], c) => (
+      Array.from({ length: 4 }).map((_, i) => {
+        const a = (i / 4) * Math.PI * 2 + c, r = 11;
+        return <circle key={`${c}-${i}`} cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r="2.8" fill={col} opacity="0.9" />;
+      })
+    ))}
+    <text x="30" y="20" fontFamily="monospace" fontSize="9" fill="#60a5fa">cat</text>
+    <text x="118" y="26" fontFamily="monospace" fontSize="9" fill="#a855f7">red</text>
+    <text x="62" y="116" fontFamily="monospace" fontSize="9" fill="#34d399">run</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1429,6 +1443,7 @@ const GLYPHS = {
   "pca": <GlyphPCA />,
   "tsne": <GlyphTSNE />,
   "spectral-clustering": <GlyphSpectral />,
+  "word2vec": <GlyphWord2Vec />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

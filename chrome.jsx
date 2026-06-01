@@ -276,6 +276,7 @@ const DM_NAV_INDEX = [
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },
   { label: "Embedding Atlas", group: "Demo", href: "/visualize/embeddings/", kw: "word vectors analogy" },
+  { label: "word2vec (Skip-gram)", group: "Demo", href: "/visualize/word2vec/", kw: "word2vec skip-gram cbow negative sampling glove word embeddings distributional semantics co-occurrence mikolov softmax context nlp vectors analogy" },
   { label: "Vector Search", group: "Demo", href: "/visualize/vector-search/", kw: "nearest neighbor retrieval rag semantic search cosine embedding knn" },
   { label: "Time-Series Forecasting", group: "Demo", href: "/visualize/forecasting/", kw: "forecast exponential smoothing holt winters seasonality arima time series" },
   { label: "Learning-Rate Schedules", group: "Demo", href: "/visualize/lr-schedule/", kw: "warmup cosine decay training optimization sgd schedule" },

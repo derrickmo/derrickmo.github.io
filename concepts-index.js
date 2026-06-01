@@ -207,8 +207,14 @@ const CONCEPTS_INDEX = {
   "embeddings": {
     id: "embeddings", name: "Embeddings", area: "NLP",
     summary: "Map tokens (or items) to vectors so that distance and direction encode meaning.",
-    leadsTo: ["vector-search", "attention"],
+    leadsTo: ["vector-search", "attention", "word2vec"],
     animation: "viz/embeddings.html",
+  },
+  "word2vec": {
+    id: "word2vec", name: "word2vec (Skip-gram)", area: "NLP",
+    summary: "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax / negative sampling over co-occurrences. Embodies the distributional hypothesis — words in similar contexts get similar vectors — and yields the famous linear analogy structure (king−man+woman≈queen). The static-embedding ancestor of contextual transformer embeddings; one vector per word, so it can't disambiguate senses and inherits corpus bias.",
+    tex: "P(o\\mid c) = \\frac{\\exp(u_o^\\top v_c)}{\\sum_w \\exp(u_w^\\top v_c)}",
+    prereqs: ["embeddings", "softmax"],
   },
   "attention": {
     id: "attention", name: "Self-Attention", area: "Transformers",
@@ -663,6 +669,7 @@ const CONCEPT_TAGS = {
     "svm":                  ["svm", "regularization", "attention"],
     "pca":                  ["pca", "embeddings"],
     "tsne":                 ["tsne", "pca", "embeddings"],
+    "word2vec":             ["word2vec", "embeddings", "softmax"],
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],

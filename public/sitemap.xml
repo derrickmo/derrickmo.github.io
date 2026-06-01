@@ -116,6 +116,7 @@
   <url><loc>https://derrickmo.github.io/concepts/vae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/weight-init/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>
@@ -269,6 +270,7 @@
   <url><loc>https://derrickmo.github.io/visualize/value-iteration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/weight-init/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/weekly-insights/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/work/</loc><priority>0.8</priority></url>
 </urlset>
