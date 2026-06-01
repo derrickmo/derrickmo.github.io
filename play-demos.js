@@ -36,6 +36,8 @@ window.PLAY_DEMOS = {
       blurb: "Find the axes of greatest variance via a real covariance eigen-decomposition, then project onto them." },
     { slug: "tsne",               topic: "UNSUPERVISED",  title: "t-SNE",                 tone: "violet", status: "LIVE",
       blurb: "Watch real KL-divergence gradient descent pull high-dimensional clusters apart in 2D. Tune perplexity and learning rate to see t-SNE work — and the ways it famously misleads." },
+    { slug: "isomap",             topic: "UNSUPERVISED",  title: "Isomap",                tone: "violet", status: "LIVE",
+      blurb: "Nonlinear manifold learning: unroll a curved shape by geodesic (graph) distance, recovering an order that straight-line PCA folds and scrambles. Tune k to see the short-circuit failure." },
     { slug: "gmm",                topic: "UNSUPERVISED",  title: "Gaussian Mixtures & EM", tone: "violet", status: "LIVE",
       blurb: "Soft clustering by Expectation-Maximization — fit overlapping Gaussians and watch the log-likelihood climb." },
     { slug: "spectral-clustering", topic: "UNSUPERVISED", title: "Spectral Clustering",   tone: "violet", status: "LIVE",
@@ -234,7 +236,7 @@ window.PLAY_DEMOS = {
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
-    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "gmm", "dbscan", "spectral-clustering", "label-propagation", "kernel-density"] },
+    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "spectral-clustering", "label-propagation", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "gradient-clipping", "lora", "scaling-laws"] },
@@ -259,6 +261,7 @@ window.PLAY_DEMOS = {
     "bagging-boosting": "average to cut variance, stack to cut bias",
     "gaussian-process": "distribution over functions + uncertainty",
     "tsne": "preserve neighbors from high-D to 2D",
+    "isomap": "unroll by geodesic distance",
     "spectral-clustering": "cluster the graph Laplacian's eigenvectors",
     "label-propagation": "a few labels spread through the graph",
     "knn": "distance-weighted voting",

@@ -180,6 +180,12 @@ const CONCEPTS_INDEX = {
     tex: "q_{ij} = \\frac{(1+\\lVert y_i-y_j\\rVert^2)^{-1}}{\\sum_{k\\neq l}(1+\\lVert y_k-y_l\\rVert^2)^{-1}}",
     prereqs: ["pca", "embeddings"],
   },
+  "manifold-learning": {
+    id: "manifold-learning", name: "Manifold Learning (Isomap)", area: "Classical ML",
+    summary: "Nonlinear dimensionality reduction that assumes data lies on a low-dimensional manifold curved through a high-D space. Isomap measures GEODESIC distance (shortest path through a k-NN graph) instead of straight-line distance, then runs classical MDS (double-center the squared-distance matrix, take top eigenvectors) to embed while preserving global geometry. Unrolls swiss-roll-like structure that PCA folds. Hinges on the neighborhood graph: too-large k or noise creates short-circuit edges, too-small k disconnects it. Cousin of LLE, Laplacian eigenmaps, and spectral methods; t-SNE/UMAP instead preserve local neighborhoods.",
+    tex: "B = -\\tfrac{1}{2} J D_{geo}^2 J,\\quad Y = \\text{top eigenvectors}(B)",
+    prereqs: ["pca", "spectral-clustering"],
+  },
   "gmm-em": {
     id: "gmm-em", name: "Gaussian Mixtures & EM", area: "Classical ML",
     summary: "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
@@ -731,6 +737,7 @@ const CONCEPT_TAGS = {
     "pca":                  ["pca", "embeddings"],
     "ica":                  ["ica", "pca", "clt"],
     "tsne":                 ["tsne", "pca", "embeddings"],
+    "isomap":               ["manifold-learning", "pca", "spectral-clustering"],
     "word2vec":             ["word2vec", "embeddings", "softmax"],
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],

@@ -538,6 +538,20 @@ const GlyphLabelProp = () => {
     </svg>
   );
 };
+const GlyphIsomap = () => {
+  const pts = Array.from({ length: 26 }, (_, i) => { const t = i / 25; const r = 8 + 34 * t, a = t * 3 * Math.PI; return [80 + r * Math.cos(a), 56 + r * Math.sin(a), t]; });
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* geodesic spiral path */}
+      <polyline points={pts.map(p => `${p[0]},${p[1]}`).join(" ")} fill="none" stroke="#34d399" strokeWidth="1.6" opacity="0.7" />
+      {/* straight-line shortcut */}
+      <line x1={pts[0][0]} y1={pts[0][1]} x2={pts[25][0]} y2={pts[25][1]} stroke="#f87171" strokeWidth="1.3" strokeDasharray="3 3" />
+      {pts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="2.6" fill={hslGlyph(p[2])} />)}
+      <text x="22" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">unroll the manifold</text>
+    </svg>
+  );
+};
+function hslGlyph(t) { const h = (1 - t) * 235; return `hsl(${h},70%,58%)`; }
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1623,6 +1637,7 @@ const GLYPHS = {
   "cross-validation": <GlyphCrossVal />,
   "importance-sampling": <GlyphImportance />,
   "label-propagation": <GlyphLabelProp />,
+  "isomap": <GlyphIsomap />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

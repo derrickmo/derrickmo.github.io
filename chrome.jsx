@@ -254,6 +254,7 @@ const DM_NAV_INDEX = [
   { label: "SVM - Margins & Kernels", group: "Demo", href: "/visualize/svm/", kw: "support vector machine margin kernel rbf classical ml" },
   { label: "Principal Component Analysis", group: "Demo", href: "/visualize/pca/", kw: "pca projection dimensionality reduction eigenvectors unsupervised" },
   { label: "t-SNE", group: "Demo", href: "/visualize/tsne/", kw: "t-sne tsne umap dimensionality reduction visualization perplexity kl divergence student-t neighbor embedding high-dimensional manifold van der maaten hinton" },
+  { label: "Isomap", group: "Demo", href: "/visualize/isomap/", kw: "isomap manifold learning geodesic distance nonlinear dimensionality reduction mds multidimensional scaling swiss roll knn graph shortest path tenenbaum lle unroll" },
   { label: "Gaussian Mixtures & EM", group: "Demo", href: "/visualize/gmm/", kw: "gmm expectation maximization soft clustering unsupervised mixture" },
   { label: "Spectral Clustering", group: "Demo", href: "/visualize/spectral-clustering/", kw: "spectral clustering graph laplacian eigenvectors normalized cut fiedler vector affinity similarity rings moons non-convex connectivity ng jordan weiss manifold" },
   { label: "Label Propagation", group: "Demo", href: "/visualize/label-propagation/", kw: "label propagation spreading semi-supervised learning graph transductive few labels unlabeled rbf affinity manifold cluster assumption pseudo-label pagerank" },

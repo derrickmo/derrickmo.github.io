@@ -77,6 +77,7 @@
   <url><loc>https://derrickmo.github.io/concepts/lost-in-the-middle/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/lstm-gates/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/manifold-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mc-dropout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mcmc/</loc><priority>0.6</priority></url>
@@ -232,6 +233,7 @@
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/isomap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kalman-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kernel-density/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kmeans/</loc><priority>0.6</priority></url>
