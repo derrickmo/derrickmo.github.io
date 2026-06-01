@@ -522,6 +522,22 @@ const GlyphImportance = () => {
     </svg>
   );
 };
+const GlyphLabelProp = () => {
+  const nodes = [[34, 40, "#60a5fa", true], [54, 30, "#60a5fa", false], [50, 56, "#60a5fa", false], [72, 44, "#64748b", false], [90, 38, "#64748b", false], [110, 50, "#f87171", false], [124, 38, "#f87171", true], [106, 70, "#f87171", false], [70, 70, "#64748b", false]];
+  const edges = [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [4, 5], [5, 6], [5, 7], [3, 8], [7, 8]];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {edges.map(([a, b], i) => <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="rgba(148,163,184,0.25)" strokeWidth="1" />)}
+      {nodes.map(([x, y, c, seed], i) => (
+        <g key={i}>
+          <circle cx={x} cy={y} r={seed ? 5.5 : 3.6} fill={c} opacity={c === "#64748b" ? 0.6 : 0.9} />
+          {seed && <circle cx={x} cy={y} r="8" fill="none" stroke="#e2e8f0" strokeWidth="1.6" />}
+        </g>
+      ))}
+      <text x="22" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">labels spread</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1606,6 +1622,7 @@ const GLYPHS = {
   "ica": <GlyphICA />,
   "cross-validation": <GlyphCrossVal />,
   "importance-sampling": <GlyphImportance />,
+  "label-propagation": <GlyphLabelProp />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

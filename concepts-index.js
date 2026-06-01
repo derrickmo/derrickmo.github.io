@@ -449,6 +449,12 @@ const CONCEPTS_INDEX = {
     tex: "L = I - D^{-1/2} W D^{-1/2}, \\quad \\text{cluster on bottom-}K\\text{ eigenvectors}",
     prereqs: ["kmeans", "pca"],
   },
+  "label-propagation": {
+    id: "label-propagation", name: "Label Propagation", area: "Classical ML",
+    summary: "Graph-based semi-supervised learning: build a similarity graph over labeled + unlabeled points, seed the labeled nodes, and iterate F←D⁻¹W·F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption — points linked through high-density regions share a label. Same random-walk/graph-Laplacian machinery as spectral clustering and PageRank. Transductive (labels this set, not a reusable model) and very sensitive to graph construction; a bad graph confidently spreads errors.",
+    tex: "F \\leftarrow D^{-1} W\\, F, \\quad \\text{clamp labeled rows}",
+    prereqs: ["knn", "spectral-clustering"],
+  },
   "kernel-density": {
     id: "kernel-density", name: "Kernel Density Estimation", area: "Classical ML",
     summary: "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f̂(x)=1/(Nh)·ΣK((x−x_i)/h). The bandwidth h is a pure bias/variance knob — too small overfits into spikes, too large oversmooths and merges modes. The smooth upgrade to a histogram; underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection, and violin plots. Suffers the curse of dimensionality and leaks mass past hard boundaries; bandwidth choice (CV / Silverman's rule) is the whole game.",
@@ -772,6 +778,7 @@ const CONCEPT_TAGS = {
     "gnn":                  ["gnn", "mlp"],
     "rope":                 ["rope", "positional-encoding", "attention"],
     "dbscan":               ["dbscan", "knn"],
+    "label-propagation":    ["label-propagation", "spectral-clustering", "knn"],
     "kernel-density":       ["kernel-density", "clt", "knn"],
     "naive-bayes":          ["naive-bayes", "bayes", "gmm-em"],
     "spectral-clustering":  ["spectral-clustering", "kmeans", "pca"],

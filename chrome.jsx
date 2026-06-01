@@ -256,6 +256,7 @@ const DM_NAV_INDEX = [
   { label: "t-SNE", group: "Demo", href: "/visualize/tsne/", kw: "t-sne tsne umap dimensionality reduction visualization perplexity kl divergence student-t neighbor embedding high-dimensional manifold van der maaten hinton" },
   { label: "Gaussian Mixtures & EM", group: "Demo", href: "/visualize/gmm/", kw: "gmm expectation maximization soft clustering unsupervised mixture" },
   { label: "Spectral Clustering", group: "Demo", href: "/visualize/spectral-clustering/", kw: "spectral clustering graph laplacian eigenvectors normalized cut fiedler vector affinity similarity rings moons non-convex connectivity ng jordan weiss manifold" },
+  { label: "Label Propagation", group: "Demo", href: "/visualize/label-propagation/", kw: "label propagation spreading semi-supervised learning graph transductive few labels unlabeled rbf affinity manifold cluster assumption pseudo-label pagerank" },
   { label: "ROC, PR & Thresholds", group: "Demo", href: "/visualize/roc/", kw: "roc auc precision recall confusion matrix evaluation threshold theory" },
   { label: "MDP Value Iteration", group: "Demo", href: "/visualize/value-iteration/", kw: "mdp bellman dynamic programming policy gridworld reinforcement rl" },
   { label: "Markov Text Generator", group: "Demo", href: "/visualize/markov/", kw: "ngram language model nlp text" },
