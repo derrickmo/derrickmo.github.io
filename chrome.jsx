@@ -243,6 +243,7 @@ const DM_NAV_INDEX = [
   { label: "K-Means Clustering", group: "Demo", href: "/visualize/kmeans/", kw: "unsupervised clusters" },
   { label: "Gradient Descent", group: "Demo", href: "/visualize/gradient-descent/", kw: "optimizer sgd adam" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
+  { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
   { label: "Bias-Variance Decomposition", group: "Demo", href: "/visualize/bias-variance-decomp/", kw: "bias variance decomposition tradeoff irreducible noise ensemble resampling polynomial complexity u-curve generalization error expected" },
   { label: "Decision Tree", group: "Demo", href: "/visualize/decision-tree/", kw: "cart gini splits classical ml" },

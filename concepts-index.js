@@ -90,7 +90,13 @@ const CONCEPTS_INDEX = {
   "bias-variance": {
     id: "bias-variance", name: "Bias-Variance Tradeoff", area: "Foundations",
     summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
-    leadsTo: ["regularization", "double-descent"],
+    leadsTo: ["regularization", "double-descent", "cross-validation"],
+  },
+  "cross-validation": {
+    id: "cross-validation", name: "Cross-Validation", area: "Foundations",
+    summary: "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k−1 and score on the held-out one, average over all k. Train error falls monotonically with capacity and can't pick a model; the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5/10 are typical (k=N is leave-one-out). Watch for leakage — use grouped/stratified/time-series splits, and nested CV when selecting AND scoring.",
+    tex: "\\mathrm{CV} = \\tfrac{1}{k}\\sum_{f=1}^{k} \\mathrm{err}\\big(\\text{model}_{-f},\\, \\text{fold}_f\\big)",
+    prereqs: ["bias-variance"],
   },
   "double-descent": {
     id: "double-descent", name: "Double Descent", area: "Foundations",
@@ -701,6 +707,7 @@ const CONCEPT_TAGS = {
     "kmeans":               ["kmeans", "gmm-em"],
     "gradient-descent":     ["gradient-descent", "adam", "lr-schedule"],
     "overfitting":          ["bias-variance", "regularization"],
+    "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
     "bias-variance-decomp": ["bias-variance", "regularization", "double-descent"],
     "bagging-boosting":     ["ensembles", "decision-tree", "bias-variance"],

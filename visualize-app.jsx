@@ -487,6 +487,25 @@ const GlyphICA = () => {
     </svg>
   );
 };
+const GlyphCrossVal = () => {
+  const u = (t) => 70 - 90 * (t - 0.45) * (t - 0.45) * 4 + 0; // approx U (inverted for canvas y)
+  const uy = (t) => 30 + 70 * (t - 0.5) * (t - 0.5) * 4;       // U: high at ends, low middle
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* k-fold strip, one fold highlighted */}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <rect key={i} x={16 + i * 26} y="14" width="24" height="14" rx="2"
+          fill={i === 2 ? "#fbbf24" : "rgba(96,165,250,0.5)"} />
+      ))}
+      {/* train error (falling) */}
+      <polyline points={Array.from({ length: 21 }, (_, i) => { const t = i / 20; return `${16 + t * 128},${90 - t * 36}`; }).join(" ")} fill="none" stroke="#34d399" strokeWidth="1.8" />
+      {/* CV error (U) */}
+      <polyline points={Array.from({ length: 21 }, (_, i) => { const t = i / 20; return `${16 + t * 128},${44 + uy(t)}`; }).join(" ")} fill="none" stroke="#a855f7" strokeWidth="2" />
+      <circle cx="80" cy={44 + uy(0.5)} r="3.5" fill="none" stroke="#34d399" strokeWidth="1.6" />
+      <text x="24" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">folds pick the model</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1569,6 +1588,7 @@ const GLYPHS = {
   "perceptron": <GlyphPerceptron />,
   "naive-bayes": <GlyphNaiveBayes />,
   "ica": <GlyphICA />,
+  "cross-validation": <GlyphCrossVal />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
