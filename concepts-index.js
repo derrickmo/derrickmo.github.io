@@ -330,7 +330,13 @@ const CONCEPTS_INDEX = {
     id: "bayes", name: "Bayes' Rule (Conjugate Updating)", area: "Foundations",
     summary: "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
     tex: "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
-    prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae", "kalman-filter"],
+    prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae", "kalman-filter", "mcmc"],
+  },
+  "mcmc": {
+    id: "mcmc", name: "MCMC (Metropolis-Hastings)", area: "Foundations",
+    summary: "Sample from a distribution known only up to a constant by simulating a Markov chain whose stationary distribution is the target. Random-walk Metropolis proposes x'=x+N(0,σ²I) and accepts with prob min(1, p(x')/p(x)); the visited points (after burn-in) are correlated samples from p. The engine of practical Bayesian inference (Stan, PyMC) when the posterior has no closed form. Proposal scale trades acceptance against mixing; high dimensions and separated modes need gradient-based samplers (HMC/NUTS).",
+    tex: "\\alpha = \\min\\!\\left(1, \\dfrac{p(x')}{p(x)}\\right)",
+    prereqs: ["bayes", "clt"],
   },
   "kalman-filter": {
     id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
@@ -691,6 +697,7 @@ const CONCEPT_TAGS = {
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
+    "mcmc":                 ["mcmc", "bayes", "clt"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],

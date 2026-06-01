@@ -422,6 +422,23 @@ const GlyphKDE = () => {
     </svg>
   );
 };
+const GlyphMCMC = () => {
+  const walk = [[44, 80], [52, 66], [48, 54], [60, 50], [58, 38], [70, 42], [82, 34], [78, 50], [92, 56], [100, 46], [112, 40]];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* two density blobs */}
+      <circle cx="58" cy="46" r="26" fill="rgba(168,85,247,0.28)" />
+      <circle cx="58" cy="46" r="14" fill="rgba(168,85,247,0.45)" />
+      <circle cx="104" cy="44" r="22" fill="rgba(168,85,247,0.24)" />
+      <circle cx="104" cy="44" r="11" fill="rgba(168,85,247,0.42)" />
+      {/* random-walk trail */}
+      <polyline points={walk.map(p => p.join(",")).join(" ")} fill="none" stroke="#34d399" strokeWidth="1.6" />
+      {walk.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="1.6" fill="#e2e8f0" />)}
+      <circle cx={walk[walk.length - 1][0]} cy={walk[walk.length - 1][1]} r="3.4" fill="#34d399" />
+      <text x="22" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">sample by walking</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1500,6 +1517,7 @@ const GLYPHS = {
   "kalman-filter": <GlyphKalman />,
   "hmm-viterbi": <GlyphHMM />,
   "kernel-density": <GlyphKDE />,
+  "mcmc": <GlyphMCMC />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
