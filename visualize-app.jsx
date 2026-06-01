@@ -388,6 +388,26 @@ const GlyphKalman = () => {
     </svg>
   );
 };
+const GlyphHMM = () => {
+  const cols = [22, 56, 90, 124], rows = [30, 60, 90];
+  const cc = ["#34d399", "#fbbf24", "#f87171"];
+  const path = [0, 1, 1, 2]; // chosen state per column
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* faint trellis edges */}
+      {cols.slice(0, -1).map((x, t) => rows.map((y1, a) => rows.map((y2, b) => (
+        <line key={`${t}-${a}-${b}`} x1={x} y1={y1} x2={cols[t + 1]} y2={y2} stroke="rgba(148,163,184,0.15)" strokeWidth="1" />
+      ))))}
+      {/* viterbi path */}
+      <polyline points={cols.map((x, t) => `${x},${rows[path[t]]}`).join(" ")} fill="none" stroke="#a855f7" strokeWidth="2.4" />
+      {/* nodes */}
+      {cols.map((x, t) => rows.map((y, k) => (
+        <circle key={`${t}-${k}`} cx={x} cy={y} r={path[t] === k ? 5 : 3.2} fill={cc[k]} opacity={path[t] === k ? 0.95 : 0.4} />
+      )))}
+      <text x="20" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">best hidden path</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1464,6 +1484,7 @@ const GLYPHS = {
   "spectral-clustering": <GlyphSpectral />,
   "word2vec": <GlyphWord2Vec />,
   "kalman-filter": <GlyphKalman />,
+  "hmm-viterbi": <GlyphHMM />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

@@ -338,6 +338,12 @@ const CONCEPTS_INDEX = {
     tex: "K = P^- H^\\top (H P^- H^\\top + R)^{-1}",
     prereqs: ["bayes", "clt"],
   },
+  "hmm-viterbi": {
+    id: "hmm-viterbi", name: "HMM & the Viterbi Algorithm", area: "Foundations",
+    summary: "A hidden Markov model has latent states that transition over time (Markov) and emit observations; Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It's exact MAP sequence decoding — the discrete-state sibling of the Kalman filter — and powered classical speech recognition, POS tagging, gene finding, and regime detection. Forward-backward gives per-step marginals; Baum-Welch (EM) learns the parameters.",
+    tex: "\\delta_t(k) = \\max_j\\,[\\delta_{t-1}(j) + \\log A_{j,k}] + \\log B_k(o_t)",
+    prereqs: ["markov", "bayes"],
+  },
   "optimizers": {
     id: "optimizers", name: "Adaptive Optimizers (Momentum / RMSProp / Adam)", area: "Foundations",
     summary: "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
@@ -680,6 +686,7 @@ const CONCEPT_TAGS = {
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
+    "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
     "gan":                  ["gan", "mlp", "cross-entropy"],
     "backprop":             ["backprop", "chain-rule"],

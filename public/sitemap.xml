@@ -57,6 +57,7 @@
   <url><loc>https://derrickmo.github.io/concepts/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/guardrails/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/hmm-viterbi/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/iou-nms/</loc><priority>0.6</priority></url>
@@ -217,6 +218,7 @@
   <url><loc>https://derrickmo.github.io/visualize/graph-coloring/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gridworld-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/guardrails/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/hmm-viterbi/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kalman-filter/</loc><priority>0.6</priority></url>
