@@ -118,6 +118,8 @@ window.PLAY_DEMOS = {
       blurb: "Keep a uniform random sample of k items from an unbounded stream in one pass, O(k) memory. A Monte-Carlo histogram proves every position survives with equal probability k/N." },
     { slug: "count-min-sketch",   topic: "FOUNDATIONS",   title: "Count-Min Sketch",      tone: "violet", status: "LIVE",
       blurb: "Estimate item frequencies in a massive stream with a tiny d x w table of hashed counters. Query takes the min, so collisions only ever overestimate — heavy hitters are nailed in sublinear memory." },
+    { slug: "bloom-filter",       topic: "FOUNDATIONS",   title: "Bloom Filter",          tone: "violet", status: "LIVE",
+      blurb: "Probabilistic set membership in a tiny bit array: never a false negative, only tunable false positives. Watch the FP rate climb as the array fills and find the optimal hash count." },
     { slug: "optimizers",         topic: "OPTIMIZATION",  title: "Optimizer Shootout",    tone: "blue",   status: "LIVE",
       blurb: "SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface — see how each one's mechanics shape its path." },
     { slug: "gan",                topic: "GENERATIVE",    title: "GAN 2-D",               tone: "violet", status: "LIVE",
@@ -241,7 +243,7 @@ window.PLAY_DEMOS = {
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "bloom-filter", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "hierarchical-clustering", "spectral-clustering", "label-propagation", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
@@ -310,6 +312,7 @@ window.PLAY_DEMOS = {
     "importance-sampling": "reweight a proposal by p/q",
     "reservoir-sampling": "uniform sample of a stream in one pass",
     "count-min-sketch": "hashed counters; query the min",
+    "bloom-filter": "k hashes; no false negatives",
     "kalman-filter": "predict then update; optimal denoising",
     "hmm-viterbi": "DP for the best hidden path",
     "optimizers": "SGD · Momentum · RMSProp · Adam",

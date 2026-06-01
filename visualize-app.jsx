@@ -604,6 +604,23 @@ const GlyphCountMin = () => {
     </svg>
   );
 };
+const GlyphBloom = () => {
+  const set = new Set([1, 4, 5, 8, 11, 12]);
+  const hit = new Set([4, 8, 12]);
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* hash arrows */}
+      {[4, 8, 12].map((c, i) => <line key={i} x1="80" y1="34" x2={14 + c * 10.5 + 4} y2="58" stroke="#fbbf24" strokeWidth="1.2" />)}
+      <circle cx="80" cy="30" r="6" fill="rgba(96,165,250,0.6)" />
+      {/* bit array */}
+      {Array.from({ length: 14 }).map((_, i) => (
+        <rect key={i} x={14 + i * 10.5} y="62" width="8" height="16" rx="1.5"
+          fill={hit.has(i) ? "#fbbf24" : (set.has(i) ? "rgba(168,85,247,0.8)" : "rgba(148,163,184,0.15)")} />
+      ))}
+      <text x="22" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">maybe present?</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1693,6 +1710,7 @@ const GLYPHS = {
   "hierarchical-clustering": <GlyphHier />,
   "reservoir-sampling": <GlyphReservoir />,
   "count-min-sketch": <GlyphCountMin />,
+  "bloom-filter": <GlyphBloom />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

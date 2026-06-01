@@ -386,6 +386,12 @@ const CONCEPTS_INDEX = {
     tex: "\\hat f(x) = \\min_{r} \\; \\mathrm{CMS}[r][h_r(x)] \\;\\ge\\; f(x)",
     prereqs: ["reservoir-sampling"],
   },
+  "bloom-filter": {
+    id: "bloom-filter", name: "Bloom Filter", area: "Foundations",
+    summary: "A space-efficient probabilistic set: an m-bit array and k hash functions. Insert sets the k hashed bits; query passes only if all k are set. No false negatives ever (insertion only sets bits), but false positives occur when other keys happened to set a query's bits, at rate ≈(1−e^{−kn/m})^k, minimized at k=(m/n)·ln2. Used as a 'definitely-not-here' gate in databases, caches, crawlers, and CDNs to skip expensive lookups. Can't delete or enumerate (counting/cuckoo variants fix that); must be sized for the expected load.",
+    tex: "\\Pr[\\text{false positive}] \\approx \\left(1 - e^{-kn/m}\\right)^k",
+    prereqs: ["count-min-sketch"],
+  },
   "kalman-filter": {
     id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
     summary: "Optimal recursive state estimation for a linear-Gaussian system: keep a Gaussian belief (mean + covariance) over hidden state and alternately predict it forward through a motion model and update it toward each noisy measurement. The Kalman gain optimally blends model trust (process noise Q) against sensor trust (measurement noise R). It's exact recursive Bayesian filtering, the workhorse behind GPS/IMU sensor fusion, robotics/SLAM, and object tracking; nonlinear systems use the Extended/Unscented variants or particle filters.",
@@ -764,6 +770,7 @@ const CONCEPT_TAGS = {
     "importance-sampling":  ["importance-sampling", "mcmc", "clt"],
     "reservoir-sampling":   ["reservoir-sampling", "clt"],
     "count-min-sketch":     ["count-min-sketch", "reservoir-sampling"],
+    "bloom-filter":         ["bloom-filter", "count-min-sketch"],
     "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "hmm-viterbi":          ["hmm-viterbi", "markov", "bayes"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],

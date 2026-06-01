@@ -18,6 +18,7 @@
   <url><loc>https://derrickmo.github.io/concepts/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/bias-variance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/bloom-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/causal-inference/</loc><priority>0.6</priority></url>
@@ -196,6 +197,7 @@
   <url><loc>https://derrickmo.github.io/visualize/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bfs-dfs-astar/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bias-variance-decomp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/bloom-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/clt/</loc><priority>0.6</priority></url>
