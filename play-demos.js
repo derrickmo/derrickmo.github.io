@@ -140,6 +140,8 @@ window.PLAY_DEMOS = {
       blurb: "Rotary position embeddings, live — see why the attention score depends only on relative position, the trick behind every long-context LLM." },
     { slug: "dbscan",             topic: "UNSUPERVISED",  title: "DBSCAN",                tone: "blue",   status: "LIVE",
       blurb: "Density-based clustering — no k to pick, just two knobs that define what counts as dense. Watch moons, rings, and blobs cluster cleanly while noise stays gray." },
+    { slug: "hierarchical-clustering", topic: "UNSUPERVISED", title: "Hierarchical Clustering", tone: "violet", status: "LIVE",
+      blurb: "Merge the closest clusters into a tree, then slide a cut across the dendrogram to read off any number of clusters from one structure. Switch linkage for compact, chained, or Ward clusters." },
     { slug: "kernel-density",     topic: "UNSUPERVISED",  title: "Kernel Density Estimation", tone: "violet", status: "LIVE",
       blurb: "Drop a kernel on every point and sum them into a smooth, assumption-free density. Drag the bandwidth to watch the bias/variance tradeoff: spiky at small h, oversmoothed at large h." },
     { slug: "policy-gradient",    topic: "REINFORCEMENT LEARNING", title: "Policy Gradient — REINFORCE", tone: "violet", status: "LIVE",
@@ -236,7 +238,7 @@ window.PLAY_DEMOS = {
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
-    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "spectral-clustering", "label-propagation", "kernel-density"] },
+    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "hierarchical-clustering", "spectral-clustering", "label-propagation", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "gradient-clipping", "lora", "scaling-laws"] },
@@ -316,6 +318,7 @@ window.PLAY_DEMOS = {
     "gnn": "neighborhood message passing",
     "rope": "rotate-by-position, score by relative",
     "dbscan": "density reachability + noise",
+    "hierarchical-clustering": "merge into a dendrogram, cut for k",
     "kernel-density": "sum of kernels; bandwidth = bias/variance",
     "policy-gradient": "log-prob × reward",
     "actor-critic": "TD error trains actor + critic",

@@ -552,6 +552,28 @@ const GlyphIsomap = () => {
   );
 };
 function hslGlyph(t) { const h = (1 - t) * 235; return `hsl(${h},70%,58%)`; }
+const GlyphHier = () => {
+  const leaves = [20, 38, 56, 78, 100, 122, 140];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* dendrogram */}
+      {/* leaf merges */}
+      <path d="M20,86 V70 H38 V86" fill="none" stroke="#60a5fa" strokeWidth="1.6" />
+      <path d="M56,86 V64 H78 V86" fill="none" stroke="#f87171" strokeWidth="1.6" />
+      <path d="M100,86 V72 H122 V86" fill="none" stroke="#34d399" strokeWidth="1.6" />
+      {/* mid merges */}
+      <path d="M29,70 V50 H67 V64" fill="none" stroke="#a855f7" strokeWidth="1.6" />
+      <path d="M111,72 V58 H140 V86" fill="none" stroke="#a855f7" strokeWidth="1.6" />
+      {/* root */}
+      <path d="M48,50 V34 H125 V58" fill="none" stroke="#cbd5e1" strokeWidth="1.6" />
+      {/* leaves */}
+      {leaves.map((x, i) => <circle key={i} cx={x} cy={88} r="2.4" fill="#94a3b8" />)}
+      {/* cut line */}
+      <line x1="10" y1="60" x2="150" y2="60" stroke="#fbbf24" strokeWidth="1.3" strokeDasharray="4 3" />
+      <text x="26" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">cut the tree</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1638,6 +1660,7 @@ const GLYPHS = {
   "importance-sampling": <GlyphImportance />,
   "label-propagation": <GlyphLabelProp />,
   "isomap": <GlyphIsomap />,
+  "hierarchical-clustering": <GlyphHier />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
