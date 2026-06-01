@@ -468,6 +468,25 @@ const GlyphNaiveBayes = () => (
     <text x="30" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">independent features</text>
   </svg>
 );
+const GlyphICA = () => {
+  const wave = (cy, f, fn) => Array.from({ length: 41 }, (_, i) => { const x = 12 + i * 3; return `${x},${cy + fn(i / 40, f)}`; }).join(" ");
+  const sine = (t) => 9 * Math.sin(t * Math.PI * 2 * 2.2);
+  const sq = (t) => 8 * Math.sign(Math.sin(t * Math.PI * 2 * 1.3));
+  const mix = (t) => 0.6 * sine(t) + 0.7 * sq(t);
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* mixed (top, amber/red) */}
+      <polyline points={wave(26, 1, mix)} fill="none" stroke="#f59e0b" strokeWidth="1.4" />
+      <polyline points={wave(44, 1, (t) => 0.7 * sine(t) - 0.5 * sq(t))} fill="none" stroke="#f87171" strokeWidth="1.4" />
+      <text x="118" y="22" fontFamily="monospace" fontSize="8" fill="#64748b">mixed</text>
+      {/* recovered (bottom, green/cyan) */}
+      <polyline points={wave(82, 1, sine)} fill="none" stroke="#34d399" strokeWidth="1.4" />
+      <polyline points={wave(100, 1, sq)} fill="none" stroke="#22d3ee" strokeWidth="1.4" />
+      <text x="104" y="78" fontFamily="monospace" fontSize="8" fill="#64748b">recovered</text>
+      <text x="22" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">unmix the signals</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1549,6 +1568,7 @@ const GLYPHS = {
   "mcmc": <GlyphMCMC />,
   "perceptron": <GlyphPerceptron />,
   "naive-bayes": <GlyphNaiveBayes />,
+  "ica": <GlyphICA />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

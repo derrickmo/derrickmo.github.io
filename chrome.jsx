@@ -265,6 +265,7 @@ const DM_NAV_INDEX = [
   { label: "Contrastive Learning", group: "Demo", href: "/visualize/contrastive-learning/", kw: "contrastive learning simclr moco clip nt-xent infonce self-supervised representation embedding alignment uniformity positive negative temperature augmentation byol" },
   { label: "Central Limit Theorem", group: "Demo", href: "/visualize/clt/", kw: "probability gaussian sampling statistics" },
   { label: "Fourier Series", group: "Demo", href: "/visualize/fourier/", kw: "signal epicycles sine wave dsp" },
+  { label: "ICA (Cocktail Party)", group: "Demo", href: "/visualize/ica/", kw: "ica independent component analysis blind source separation cocktail party fastica unmixing non-gaussian whitening eeg signal demixing kurtosis negentropy" },
   { label: "Attention Heatmap", group: "Demo", href: "/visualize/attention/", kw: "transformer softmax qkv" },
   { label: "Multi-Head Attention", group: "Demo", href: "/visualize/multi-head-attention/", kw: "transformer heads parallel attention qkv specialize" },
   { label: "Positional Encoding", group: "Demo", href: "/visualize/positional-encoding/", kw: "rope sinusoidal" },
