@@ -330,7 +330,13 @@ const CONCEPTS_INDEX = {
     id: "bayes", name: "Bayes' Rule (Conjugate Updating)", area: "Foundations",
     summary: "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
     tex: "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
-    prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae"],
+    prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae", "kalman-filter"],
+  },
+  "kalman-filter": {
+    id: "kalman-filter", name: "Kalman Filter", area: "Foundations",
+    summary: "Optimal recursive state estimation for a linear-Gaussian system: keep a Gaussian belief (mean + covariance) over hidden state and alternately predict it forward through a motion model and update it toward each noisy measurement. The Kalman gain optimally blends model trust (process noise Q) against sensor trust (measurement noise R). It's exact recursive Bayesian filtering, the workhorse behind GPS/IMU sensor fusion, robotics/SLAM, and object tracking; nonlinear systems use the Extended/Unscented variants or particle filters.",
+    tex: "K = P^- H^\\top (H P^- H^\\top + R)^{-1}",
+    prereqs: ["bayes", "clt"],
   },
   "optimizers": {
     id: "optimizers", name: "Adaptive Optimizers (Momentum / RMSProp / Adam)", area: "Foundations",
@@ -673,6 +679,7 @@ const CONCEPT_TAGS = {
     "gmm":                  ["gmm-em", "kmeans"],
     "clt":                  ["clt"],
     "bayes":                ["bayes", "cross-entropy"],
+    "kalman-filter":        ["kalman-filter", "bayes", "clt"],
     "optimizers":           ["optimizers", "gradient-descent", "adam"],
     "gan":                  ["gan", "mlp", "cross-entropy"],
     "backprop":             ["backprop", "chain-rule"],

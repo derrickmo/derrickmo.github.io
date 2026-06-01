@@ -369,6 +369,25 @@ const GlyphWord2Vec = () => (
     <text x="62" y="116" fontFamily="monospace" fontSize="9" fill="#34d399">run</text>
   </svg>
 );
+const GlyphKalman = () => {
+  const xs = Array.from({ length: 13 }, (_, i) => 14 + i * 11);
+  const tru = (x) => 60 + 30 * Math.sin((x - 14) * 0.05);
+  const meas = [10, -14, 8, -10, 16, -6, 12, -16, 6, -8, 14, -4, 10];
+  const est = "M " + xs.map((x) => `${x} ${tru(x)}`).join(" L ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {/* ±2σ band */}
+      <path d={est + " L 156 80 L 14 80 Z"} fill="rgba(168,85,247,0.14)" stroke="none" />
+      {/* true track */}
+      <path d={est} fill="none" stroke="#34d399" strokeWidth="2" />
+      {/* estimate (same shape, slightly offset look via dashes) */}
+      <path d={est} fill="none" stroke="#a855f7" strokeWidth="1.6" strokeDasharray="3 3" opacity="0.9" />
+      {/* noisy measurements */}
+      {xs.map((x, i) => <circle key={i} cx={x} cy={tru(x) + meas[i]} r="2.4" fill="#60a5fa" opacity="0.85" />)}
+      <text x="20" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">predict + update</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1444,6 +1463,7 @@ const GLYPHS = {
   "tsne": <GlyphTSNE />,
   "spectral-clustering": <GlyphSpectral />,
   "word2vec": <GlyphWord2Vec />,
+  "kalman-filter": <GlyphKalman />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

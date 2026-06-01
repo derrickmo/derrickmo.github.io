@@ -315,6 +315,7 @@ const DM_NAV_INDEX = [
   { label: "HF: Best Practices", group: "HF Section", href: "/learn/huggingface/best-practices/", kw: "quantization gradio trainer" },
   { label: "HF: Agentic Workflows", group: "HF Section", href: "/learn/huggingface/agentic/", kw: "mcp rag agents" },
   { label: "Bayes Updater", group: "Demo", href: "/visualize/bayes/", kw: "bayes beta bernoulli prior posterior thompson sampling conjugate foundations probability" },
+  { label: "Kalman Filter", group: "Demo", href: "/visualize/kalman-filter/", kw: "kalman filter state estimation predict update sensor fusion tracking covariance gain process noise measurement recursive bayes gaussian denoise" },
   { label: "Optimizer Shootout", group: "Demo", href: "/visualize/optimizers/", kw: "sgd momentum rmsprop adam optimizer training loss landscape" },
   { label: "GAN 2-D", group: "Demo", href: "/visualize/gan/", kw: "gan generative adversarial network generator discriminator duel" },
   { label: "Backprop Graph", group: "Demo", href: "/visualize/backprop/", kw: "backprop backpropagation chain rule computation graph gradient" },
