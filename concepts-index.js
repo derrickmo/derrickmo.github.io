@@ -413,6 +413,12 @@ const CONCEPTS_INDEX = {
     tex: "L = I - D^{-1/2} W D^{-1/2}, \\quad \\text{cluster on bottom-}K\\text{ eigenvectors}",
     prereqs: ["kmeans", "pca"],
   },
+  "kernel-density": {
+    id: "kernel-density", name: "Kernel Density Estimation", area: "Classical ML",
+    summary: "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f̂(x)=1/(Nh)·ΣK((x−x_i)/h). The bandwidth h is a pure bias/variance knob — too small overfits into spikes, too large oversmooths and merges modes. The smooth upgrade to a histogram; underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection, and violin plots. Suffers the curse of dimensionality and leaks mass past hard boundaries; bandwidth choice (CV / Silverman's rule) is the whole game.",
+    tex: "\\hat f(x) = \\frac{1}{Nh}\\sum_{i=1}^{N} K\\!\\left(\\frac{x - x_i}{h}\\right)",
+    prereqs: ["clt", "knn"],
+  },
   "policy-gradient": {
     id: "policy-gradient", name: "Policy Gradient (REINFORCE)", area: "Reinforcement Learning",
     summary: "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
@@ -725,6 +731,7 @@ const CONCEPT_TAGS = {
     "gnn":                  ["gnn", "mlp"],
     "rope":                 ["rope", "positional-encoding", "attention"],
     "dbscan":               ["dbscan", "knn"],
+    "kernel-density":       ["kernel-density", "clt", "knn"],
     "spectral-clustering":  ["spectral-clustering", "kmeans", "pca"],
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],

@@ -331,6 +331,7 @@ const DM_NAV_INDEX = [
   { label: "GNN Message Passing", group: "Demo", href: "/visualize/gnn/", kw: "gnn graph neural network gcn message passing over-smoothing graphsage gat" },
   { label: "RoPE Explorer", group: "Demo", href: "/visualize/rope/", kw: "rope rotary position embedding transformer attention long context llama" },
   { label: "DBSCAN", group: "Demo", href: "/visualize/dbscan/", kw: "dbscan density clustering eps min_pts moons rings noise unsupervised" },
+  { label: "Kernel Density Estimation", group: "Demo", href: "/visualize/kernel-density/", kw: "kde kernel density estimation bandwidth nonparametric histogram smoothing silverman gaussian epanechnikov bias variance distribution" },
   { label: "Policy Gradient — REINFORCE", group: "Demo", href: "/visualize/policy-gradient/", kw: "policy gradient reinforce ppo grpo rlhf continuous action gaussian rl baseline" },
   { label: "Actor-Critic", group: "Demo", href: "/visualize/actor-critic/", kw: "actor critic a2c a3c ppo td error value function advantage baseline gridworld rl" },
   { label: "Deep Q-Network (DQN)", group: "Demo", href: "/visualize/dqn/", kw: "dqn deep q network replay buffer target network atari mnih value rl bootstrapping" },

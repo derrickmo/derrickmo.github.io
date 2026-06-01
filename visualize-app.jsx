@@ -408,6 +408,20 @@ const GlyphHMM = () => {
     </svg>
   );
 };
+const GlyphKDE = () => {
+  const pts = [38, 54, 66, 92, 104, 118];
+  const bump = (c) => Array.from({ length: 21 }, (_, i) => { const x = c - 20 + i * 2; const y = 92 - 22 * Math.exp(-((x - c) ** 2) / 120); return `${x},${y}`; }).join(" ");
+  const sumY = (x) => 92 - pts.reduce((s, c) => s + 26 * Math.exp(-((x - c) ** 2) / 140), 0);
+  const sum = Array.from({ length: 76 }, (_, i) => { const x = 22 + i * 2; return `${x},${Math.max(20, sumY(x))}`; }).join(" ");
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {pts.map((c, i) => <polyline key={i} points={bump(c)} fill="none" stroke="rgba(96,165,250,0.4)" strokeWidth="1" />)}
+      <polyline points={sum} fill="none" stroke="#a855f7" strokeWidth="2.4" />
+      {pts.map((c, i) => <line key={`t${i}`} x1={c} y1={92} x2={c} y2={98} stroke="#e2e8f0" strokeWidth="1" />)}
+      <text x="22" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">kernels → density</text>
+    </svg>
+  );
+};
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1485,6 +1499,7 @@ const GLYPHS = {
   "word2vec": <GlyphWord2Vec />,
   "kalman-filter": <GlyphKalman />,
   "hmm-viterbi": <GlyphHMM />,
+  "kernel-density": <GlyphKDE />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,
