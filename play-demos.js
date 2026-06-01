@@ -26,6 +26,8 @@ window.PLAY_DEMOS = {
       blurb: "A distribution over functions with closed-form uncertainty. Click to add points and watch the posterior mean bend and the ±2σ band pinch shut at data, flare open where you have none." },
     { slug: "knn",                topic: "CLASSICAL ML",  title: "k-Nearest Neighbors",   tone: "blue",   status: "LIVE",
       blurb: "Vote among the k closest points; tune k to trade a jagged boundary for a smooth one." },
+    { slug: "naive-bayes",        topic: "CLASSICAL ML",  title: "Gaussian Naive Bayes",  tone: "violet", status: "LIVE",
+      blurb: "Classify by Bayes' rule assuming features are independent within each class. Tilt the data so features correlate to see what the naive diagonal-covariance assumption costs versus full QDA." },
     { slug: "svm",                topic: "CLASSICAL ML",  title: "SVM - Margins & Kernels", tone: "blue", status: "LIVE",
       blurb: "Find the widest-margin boundary, see the support vectors that define it, then bend it with the kernel trick." },
     { slug: "pca",                topic: "UNSUPERVISED",  title: "Principal Component Analysis", tone: "violet", status: "LIVE",
@@ -224,7 +226,7 @@ window.PLAY_DEMOS = {
   // Display order + the "why it matters / foundations" line per category.
   categories: [
     { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
-    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "gaussian-process", "pca", "tsne", "gmm", "dbscan", "spectral-clustering", "kernel-density"] },
+    { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "gmm", "dbscan", "spectral-clustering", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
     { name: "Training & Scaling", why: "How large models actually get trained, adapted, and scaled — the practical engineering behind the headline results: the learning-rate schedules that keep training stable, the low-rank tricks that make fine-tuning cheap, and the scaling laws that decide how to spend compute.", slugs: ["lr-schedule", "gradient-clipping", "lora", "scaling-laws"] },
@@ -250,6 +252,7 @@ window.PLAY_DEMOS = {
     "tsne": "preserve neighbors from high-D to 2D",
     "spectral-clustering": "cluster the graph Laplacian's eigenvectors",
     "knn": "distance-weighted voting",
+    "naive-bayes": "Bayes rule + feature independence",
     "svm": "max-margin + the kernel trick",
     "pca": "covariance eigenvectors",
     "gmm": "EM soft clustering",

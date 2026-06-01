@@ -456,6 +456,18 @@ const GlyphPerceptron = () => (
     <text x="30" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">nudge on mistakes</text>
   </svg>
 );
+const GlyphNaiveBayes = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two axis-aligned class ellipses (the naive assumption) */}
+    <ellipse cx="56" cy="56" rx="26" ry="13" fill="rgba(96,165,250,0.2)" stroke="#60a5fa" strokeWidth="1.6" />
+    <ellipse cx="104" cy="60" rx="26" ry="13" fill="rgba(248,113,113,0.2)" stroke="#f87171" strokeWidth="1.6" />
+    {[[44, 52], [60, 60], [52, 48], [66, 58]].map(([x, y], i) => <circle key={`a${i}`} cx={x} cy={y} r="2.6" fill="#60a5fa" />)}
+    {[[96, 56], [112, 64], [104, 52], [116, 62]].map(([x, y], i) => <circle key={`b${i}`} cx={x} cy={y} r="2.6" fill="#f87171" />)}
+    {/* boundary */}
+    <line x1="80" y1="22" x2="80" y2="94" stroke="#e2e8f0" strokeWidth="1.6" strokeDasharray="4 3" />
+    <text x="30" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">independent features</text>
+  </svg>
+);
 
 const GlyphSVM = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
@@ -1536,6 +1548,7 @@ const GLYPHS = {
   "kernel-density": <GlyphKDE />,
   "mcmc": <GlyphMCMC />,
   "perceptron": <GlyphPerceptron />,
+  "naive-bayes": <GlyphNaiveBayes />,
   "gmm": <GlyphGMM />,
   "roc": <GlyphROC />,
   "value-iteration": <GlyphValueIter />,

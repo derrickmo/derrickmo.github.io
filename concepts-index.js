@@ -128,6 +128,12 @@ const CONCEPTS_INDEX = {
     summary: "Label by majority vote of the k closest training points — no training, the data is the model.",
     leadsTo: ["vector-search"],
   },
+  "naive-bayes": {
+    id: "naive-bayes", name: "Naive Bayes", area: "Classical ML",
+    summary: "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data, high-dimensional-friendly — the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared); the independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident/poorly calibrated.",
+    tex: "\\hat y = \\arg\\max_c\\; P(c)\\prod_{j} P(x_j \\mid c)",
+    prereqs: ["bayes"], leadsTo: ["svm"],
+  },
   "decision-tree": {
     id: "decision-tree", name: "Decision Tree", area: "Classical ML",
     summary: "Split feature space greedily by the cut that most reduces impurity; the building block of forests and boosting.",
@@ -746,6 +752,7 @@ const CONCEPT_TAGS = {
     "rope":                 ["rope", "positional-encoding", "attention"],
     "dbscan":               ["dbscan", "knn"],
     "kernel-density":       ["kernel-density", "clt", "knn"],
+    "naive-bayes":          ["naive-bayes", "bayes", "gmm-em"],
     "spectral-clustering":  ["spectral-clustering", "kmeans", "pca"],
     "policy-gradient":      ["policy-gradient", "mdp-bellman", "gradient-descent"],
     "actor-critic":         ["actor-critic", "policy-gradient", "mdp-bellman"],
