@@ -247,6 +247,16 @@ const GlyphEdge = () => (
     <circle cx="129" cy="60" r="20" fill="none" stroke="#fff" strokeWidth="1.6" strokeDasharray="3 2" />
   </svg>
 );
+const GlyphHough = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <rect x="18" y="20" width="124" height="80" rx="4" fill="rgba(13,24,52,0.5)" stroke="#60a5fa" strokeWidth="0.5" />
+    {[0, 1, 2].map((i) => (
+      <path key={i} d={`M22 ${42 + i * 14} Q ${56 + i * 8} ${20 + i * 18} 138 ${56 - i * 10}`} fill="none" stroke="rgba(96,165,250,0.55)" strokeWidth="1" />
+    ))}
+    <circle cx="92" cy="50" r="6" fill="#a855f7" opacity="0.9" />
+    <circle cx="92" cy="50" r="11" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.6" />
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1749,6 +1759,7 @@ const GLYPHS = {
   "neural-playground": <GlyphNeuralNet />,
   "convolution": <GlyphKernel />,
   "edge-detection": <GlyphEdge />,
+  "hough-transform": <GlyphHough />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

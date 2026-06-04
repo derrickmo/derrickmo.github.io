@@ -228,6 +228,11 @@ const CONCEPTS_INDEX = {
     id: "iou-nms", name: "IoU & Non-Max Suppression", area: "Computer Vision",
     summary: "Score box overlap with IoU; greedily suppress duplicates — the cleanup step every detector ends with.",
   },
+  "hough-transform": {
+    id: "hough-transform", name: "Hough Transform", area: "Computer Vision",
+    summary: "Detect parametric shapes (lines, circles) by voting in parameter space. Each edge point votes for every shape that could pass through it — a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak; reading peaks back out recovers the lines. Robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes; the voting-for-consensus idea is shared with RANSAC.",
+    prereqs: ["edge-detection"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -796,6 +801,7 @@ const CONCEPT_TAGS = {
     "contrastive-learning": ["contrastive-learning", "embeddings", "softmax"],
     "convolution":          ["convolution", "cnn"],
     "edge-detection":       ["edge-detection", "convolution"],
+    "hough-transform":      ["hough-transform", "edge-detection"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
