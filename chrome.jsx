@@ -288,6 +288,7 @@ const DM_NAV_INDEX = [
   { label: "Dynamic Batching", group: "Demo", href: "/visualize/batching/", kw: "batching throughput latency serving inference queue mlops vllm triton utilization little law gpu" },
   { label: "Model Cascade (Early-Exit)", group: "Demo", href: "/visualize/model-cascade/", kw: "cascade early exit routing defer confidence cheap expensive model serving mlops cost accuracy viola jones" },
   { label: "Autoscaling", group: "Demo", href: "/visualize/autoscaling/", kw: "autoscaling replicas hpa kubernetes cold start slo utilization capacity serving mlops scaling load" },
+  { label: "Canary Rollout", group: "Demo", href: "/visualize/canary-rollout/", kw: "canary rollout progressive delivery blue green deploy guard rollback ab test traffic split mlops blast radius" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },

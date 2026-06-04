@@ -756,6 +756,11 @@ const CONCEPTS_INDEX = {
     tex: "L = \\lambda W,\\quad \\text{capacity} = \\frac{B}{\\text{base} + \\text{slope}\\cdot B}",
     prereqs: ["paged-attention"],
   },
+  "canary-rollout": {
+    id: "canary-rollout", name: "Canary Rollout & Progressive Delivery", area: "Training Systems",
+    summary: "Deploy a new model (or code) safely by exposing it to a small slice of live traffic first and widening only if a health metric stays good: 5% -> 25% -> 50% -> 100%, with an automated guard at each stage. The guard is a statistical test (here a one-sided two-proportion z-test of the canary's error vs the stable baseline) — significantly worse triggers an automatic rollback, capping the blast radius to the few users the canary touched versus a full deploy. Guard sensitivity is a detection tradeoff: too tight rolls back good releases on noise (false alarms), too loose lets a worse model through; and at low canary traffic, small regressions are hard to distinguish from noise (low statistical power). Generalizes to blue/green, feature flags, shadow traffic, and A/B + bandit rollouts.",
+    prereqs: ["model-serving"],
+  },
   "autoscaling": {
     id: "autoscaling", name: "Autoscaling", area: "Training Systems",
     summary: "Match serving capacity to a time-varying load by adjusting the replica pool. A reactive controller (Kubernetes HPA style) sizes the fleet to keep utilization near a target: desired = ceil(load / (target * per-replica capacity)). The hard part is the cold-start lag — a new replica must pull an image and load weights before it serves, so on a demand spike capacity can't rise fast enough and the SLO breaches until warming replicas come online. Lower target utilization carries spare headroom that absorbs spikes (fewer breaches) at higher idle cost; this headroom-vs-cost dial plus the cold-start tax is the core of capacity management. Refinements: predictive scaling, scale-in cooldowns to avoid flapping, warm pools / provisioned concurrency (why scale-to-zero is hard for big models), and load shedding when even max replicas aren't enough.",
@@ -851,6 +856,7 @@ const CONCEPT_TAGS = {
     "batching":             ["model-serving", "paged-attention"],
     "model-cascade":        ["model-cascade", "calibration", "moe"],
     "autoscaling":          ["autoscaling", "model-serving"],
+    "canary-rollout":       ["canary-rollout", "model-serving", "drift-detection"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

@@ -387,6 +387,23 @@ const GlyphAutoscale = () => {
     </svg>
   );
 };
+const GlyphCanary = () => (
+  // widening canary slice across stages, with a guard check
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[0.1, 0.3, 0.55, 0.9].map((f, i) => {
+      const x = 18 + i * 34, w = 26, h = 56, y = 34;
+      return (
+        <g key={i}>
+          <rect x={x} y={y} width={w} height={h * (1 - f)} fill="rgba(96,165,250,0.45)" />
+          <rect x={x} y={y + h * (1 - f)} width={w} height={h * f} fill="rgba(168,85,247,0.6)" />
+          <rect x={x} y={y} width={w} height={h} fill="none" stroke="rgba(148,163,184,0.25)" strokeWidth="0.6" />
+          <text x={x + w / 2} y={y + h + 11} fontSize="8" fill="rgba(148,163,184,0.7)" textAnchor="middle" fontFamily="monospace">{Math.round(f * 100)}%</text>
+        </g>
+      );
+    })}
+    <path d="M128 22 l4 5 l8 -11" stroke="#4ade80" strokeWidth="2" fill="none" strokeLinecap="round" />
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1898,6 +1915,7 @@ const GLYPHS = {
   "batching": <GlyphBatching />,
   "model-cascade": <GlyphCascade />,
   "autoscaling": <GlyphAutoscale />,
+  "canary-rollout": <GlyphCanary />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
