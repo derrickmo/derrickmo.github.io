@@ -756,6 +756,11 @@ const CONCEPTS_INDEX = {
     tex: "L = \\lambda W,\\quad \\text{capacity} = \\frac{B}{\\text{base} + \\text{slope}\\cdot B}",
     prereqs: ["paged-attention"],
   },
+  "model-cascade": {
+    id: "model-cascade", name: "Model Cascade & Early-Exit", area: "Training Systems",
+    summary: "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+    prereqs: ["calibration", "model-serving"],
+  },
   "paged-attention": {
     id: "paged-attention", name: "PagedAttention", area: "Training Systems",
     summary: "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
@@ -839,6 +844,7 @@ const CONCEPT_TAGS = {
     "image-augmentation":   ["data-augmentation", "regularization", "convolution"],
     "watershed":            ["image-segmentation", "edge-detection"],
     "batching":             ["model-serving", "paged-attention"],
+    "model-cascade":        ["model-cascade", "calibration", "moe"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

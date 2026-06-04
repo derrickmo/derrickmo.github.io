@@ -357,6 +357,22 @@ const GlyphBatching = () => {
     </svg>
   );
 };
+const GlyphCascade = () => (
+  // inputs hit a cheap stage; most exit, a few escalate to an expensive stage
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[34, 50, 66, 82].map((y, i) => <circle key={i} cx="14" cy={y} r="3.2" fill="#60a5fa" />)}
+    <rect x="34" y="40" width="30" height="38" rx="3" fill="rgba(96,165,250,0.16)" stroke="#60a5fa" strokeWidth="1.2" />
+    <text x="49" y="63" fontSize="9" fill="#93c5fd" textAnchor="middle" fontFamily="monospace">$</text>
+    {/* easy inputs exit right */}
+    <path d="M64 52 L150 40" stroke="#60a5fa" strokeWidth="1.3" fill="none" opacity="0.8" />
+    <path d="M64 60 L150 64" stroke="#60a5fa" strokeWidth="1.3" fill="none" opacity="0.8" />
+    {/* uncertain escalate down to expensive stage */}
+    <path d="M64 70 L92 96" stroke="#a855f7" strokeWidth="1.3" fill="none" />
+    <rect x="96" y="82" width="30" height="28" rx="3" fill="rgba(168,85,247,0.18)" stroke="#a855f7" strokeWidth="1.2" />
+    <text x="111" y="100" fontSize="9" fill="#e9d5ff" textAnchor="middle" fontFamily="monospace">$$$</text>
+    <path d="M126 96 L150 92" stroke="#a855f7" strokeWidth="1.3" fill="none" />
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1866,6 +1882,7 @@ const GLYPHS = {
   "image-augmentation": <GlyphAugment />,
   "watershed": <GlyphWatershed />,
   "batching": <GlyphBatching />,
+  "model-cascade": <GlyphCascade />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

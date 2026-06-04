@@ -286,6 +286,7 @@ const DM_NAV_INDEX = [
   { label: "Data Augmentation", group: "Demo", href: "/visualize/image-augmentation/", kw: "data augmentation flip rotate crop color jitter cutout regularization vision invariance training mixup" },
   { label: "Watershed Segmentation", group: "Demo", href: "/visualize/watershed/", kw: "watershed segmentation distance transform markers flooding regions touching objects vision instance" },
   { label: "Dynamic Batching", group: "Demo", href: "/visualize/batching/", kw: "batching throughput latency serving inference queue mlops vllm triton utilization little law gpu" },
+  { label: "Model Cascade (Early-Exit)", group: "Demo", href: "/visualize/model-cascade/", kw: "cascade early exit routing defer confidence cheap expensive model serving mlops cost accuracy viola jones" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },
