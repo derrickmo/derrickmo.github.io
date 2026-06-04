@@ -373,6 +373,20 @@ const GlyphCascade = () => (
     <path d="M126 96 L150 92" stroke="#a855f7" strokeWidth="1.3" fill="none" />
   </svg>
 );
+const GlyphAutoscale = () => {
+  // demand curve (amber) chased by a capacity staircase (blue)
+  const pts = Array.from({ length: 16 }, (_, i) => 60 - 28 * Math.sin(i * 0.5) - (i === 8 ? 18 : 0));
+  const dPath = pts.map((y, i) => `${i ? "L" : "M"}${12 + i * 9} ${y}`).join(" ");
+  let cap = 60, capPath = "M12 60";
+  pts.forEach((y, i) => { const x = 12 + i * 9; if (y < cap - 6) cap -= 12; else if (y > cap + 10) cap += 12; capPath += ` L${x} ${cap}`; });
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <path d={capPath} stroke="#60a5fa" strokeWidth="1.6" fill="none" />
+      <path d={dPath} stroke="#fbbf24" strokeWidth="1.6" fill="none" />
+      {[0, 1, 2, 3, 4].map(i => <rect key={i} x={12 + i * 9} y="92" width="7" height="8" fill={i < 3 ? "#60a5fa" : "rgba(168,85,247,0.7)"} />)}
+    </svg>
+  );
+};
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1883,6 +1897,7 @@ const GLYPHS = {
   "watershed": <GlyphWatershed />,
   "batching": <GlyphBatching />,
   "model-cascade": <GlyphCascade />,
+  "autoscaling": <GlyphAutoscale />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
