@@ -319,6 +319,27 @@ const GlyphAugment = () => {
     </svg>
   );
 };
+const GlyphWatershed = () => {
+  // three basins meeting at white ridge lines (watershed cuts)
+  const basins = [
+    { cx: 50, cy: 44, r: 26, h: "#3b82f6" },
+    { cx: 104, cy: 40, r: 24, h: "#a855f7" },
+    { cx: 78, cy: 84, r: 24, h: "#ec4899" },
+  ];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {basins.map((b, i) => (
+        <circle key={i} cx={b.cx} cy={b.cy} r={b.r} fill={b.h} opacity="0.35" />
+      ))}
+      {basins.map((b, i) => (
+        <circle key={"c" + i} cx={b.cx} cy={b.cy} r="3" fill={b.h} />
+      ))}
+      <path d="M77 22 L77 60" stroke="#eef2ff" strokeWidth="1.6" fill="none" opacity="0.9" />
+      <path d="M77 60 L52 82" stroke="#eef2ff" strokeWidth="1.6" fill="none" opacity="0.9" />
+      <path d="M77 60 L104 80" stroke="#eef2ff" strokeWidth="1.6" fill="none" opacity="0.9" />
+    </svg>
+  );
+};
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1826,6 +1847,7 @@ const GLYPHS = {
   "optical-flow": <GlyphFlow />,
   "hog": <GlyphHog />,
   "image-augmentation": <GlyphAugment />,
+  "watershed": <GlyphWatershed />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

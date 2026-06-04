@@ -253,6 +253,11 @@ const CONCEPTS_INDEX = {
     summary: "Synthesize new training examples by applying random transforms that change the input but not the label — horizontal flip, rotation, random-resized-crop, color/brightness jitter, and cutout/random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels — one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption (flipping a digit can change its label), so the augmentation set is task-specific. The idea generalizes to token masking/synonym swaps in NLP and time/frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
     prereqs: ["convolution", "regularization"],
   },
+  "image-segmentation": {
+    id: "image-segmentation", name: "Image Segmentation (Watershed)", area: "Computer Vision",
+    summary: "Partition an image into regions. Watershed treats intensity (or the distance transform) as a topographic surface and floods it from markers: water rises from each seed basin and a dam — the watershed line — is built where two basins meet, giving the boundary between touching objects that a plain threshold would merge. Marker-controlled watershed seeds the basins at the regional maxima of the distance map to avoid the method's notorious over-segmentation from noisy gradients; too few markers under-segments (objects fuse), too many over-segments (objects shatter). The grow-from-seeds-and-cut-on-collision idea connects to region growing, graph cuts, and superpixels, and prefigures the object-vs-object boundaries learned by modern instance-segmentation networks.",
+    prereqs: ["edge-detection"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -826,6 +831,7 @@ const CONCEPT_TAGS = {
     "optical-flow":         ["optical-flow", "harris-corners"],
     "hog":                  ["hog", "edge-detection"],
     "image-augmentation":   ["data-augmentation", "regularization", "convolution"],
+    "watershed":            ["image-segmentation", "edge-detection"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
