@@ -61,6 +61,7 @@
   <url><loc>https://derrickmo.github.io/concepts/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/guardrails/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/harris-corners/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hmm-viterbi/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hough-transform/</loc><priority>0.6</priority></url>
@@ -237,6 +238,7 @@
   <url><loc>https://derrickmo.github.io/visualize/graph-coloring/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gridworld-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/guardrails/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/harris-corners/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hmm-viterbi/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hough-transform/</loc><priority>0.6</priority></url>

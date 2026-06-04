@@ -257,6 +257,15 @@ const GlyphHough = () => (
     <circle cx="92" cy="50" r="11" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.6" />
   </svg>
 );
+const GlyphHarris = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <rect x="38" y="28" width="64" height="64" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" strokeWidth="1" />
+    <polygon points="92,92 132,92 112,52" fill="rgba(168,85,247,0.2)" stroke="#a855f7" strokeWidth="0.8" />
+    {[[38, 28], [102, 28], [38, 92], [102, 92], [92, 92], [132, 92], [112, 52]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="4.5" fill="none" stroke="#c084fc" strokeWidth="1.4" />
+    ))}
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1760,6 +1769,7 @@ const GLYPHS = {
   "convolution": <GlyphKernel />,
   "edge-detection": <GlyphEdge />,
   "hough-transform": <GlyphHough />,
+  "harris-corners": <GlyphHarris />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

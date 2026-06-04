@@ -233,6 +233,11 @@ const CONCEPTS_INDEX = {
     summary: "Detect parametric shapes (lines, circles) by voting in parameter space. Each edge point votes for every shape that could pass through it — a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak; reading peaks back out recovers the lines. Robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes; the voting-for-consensus idea is shared with RANSAC.",
     prereqs: ["edge-detection"],
   },
+  "harris-corners": {
+    id: "harris-corners", name: "Harris Corner Detector", area: "Computer Vision",
+    summary: "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    prereqs: ["edge-detection", "pca"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -802,6 +807,7 @@ const CONCEPT_TAGS = {
     "convolution":          ["convolution", "cnn"],
     "edge-detection":       ["edge-detection", "convolution"],
     "hough-transform":      ["hough-transform", "edge-detection"],
+    "harris-corners":       ["harris-corners", "edge-detection"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],
