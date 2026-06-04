@@ -64,6 +64,7 @@
   <url><loc>https://derrickmo.github.io/concepts/harris-corners/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hmm-viterbi/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/hog/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/ica/</loc><priority>0.6</priority></url>
@@ -242,6 +243,7 @@
   <url><loc>https://derrickmo.github.io/visualize/harris-corners/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hmm-viterbi/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/hog/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>

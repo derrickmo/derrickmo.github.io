@@ -279,6 +279,24 @@ const GlyphFlow = () => (
     )))}
   </svg>
 );
+const GlyphHog = () => {
+  const cells = [[44, 38], [80, 38], [116, 38], [44, 72], [80, 72], [116, 72]];
+  const angs = [0, 30, 60, 90, 120, 150];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {cells.map(([cx, cy], i) => (
+        <g key={i}>
+          <rect x={cx - 15} y={cy - 15} width="30" height="30" fill="none" stroke="rgba(96,165,250,0.18)" strokeWidth="0.5" />
+          {angs.map((a, j) => {
+            const r = (3 + ((i + j) % 4) * 3);
+            const rad = a * Math.PI / 180, dx = Math.cos(rad) * r, dy = Math.sin(rad) * r;
+            return <line key={j} x1={cx - dx} y1={cy - dy} x2={cx + dx} y2={cy + dy} stroke="#a855f7" strokeWidth="1" opacity={0.4 + ((i + j) % 4) * 0.2} />;
+          })}
+        </g>
+      ))}
+    </svg>
+  );
+};
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1784,6 +1802,7 @@ const GLYPHS = {
   "hough-transform": <GlyphHough />,
   "harris-corners": <GlyphHarris />,
   "optical-flow": <GlyphFlow />,
+  "hog": <GlyphHog />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

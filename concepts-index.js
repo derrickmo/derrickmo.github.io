@@ -243,6 +243,11 @@ const CONCEPTS_INDEX = {
     summary: "Estimate the per-pixel motion field between two frames. Assume brightness constancy — a moving point keeps its intensity — and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous (the aperture problem, where you only recover motion normal to an edge). Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system (the same structure-tensor matrix as Harris, now with a temporal term). Only valid for small motion because brightness is linearized; coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry/SLAM, and action recognition.",
     prereqs: ["harris-corners", "edge-detection"],
   },
+  "hog": {
+    id: "hog", name: "Histogram of Oriented Gradients", area: "Computer Vision",
+    summary: "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude + orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize (L2 over overlapping cell blocks) so only the SHAPE of the orientation distribution survives — giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG + a linear SVM (Dalal-Triggs 2005) was the leading pedestrian/object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
+    prereqs: ["edge-detection", "convolution"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -814,6 +819,7 @@ const CONCEPT_TAGS = {
     "hough-transform":      ["hough-transform", "edge-detection"],
     "harris-corners":       ["harris-corners", "edge-detection"],
     "optical-flow":         ["optical-flow", "harris-corners"],
+    "hog":                  ["hog", "edge-detection"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

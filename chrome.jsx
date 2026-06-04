@@ -282,6 +282,7 @@ const DM_NAV_INDEX = [
   { label: "Hough Transform", group: "Demo", href: "/visualize/hough-transform/", kw: "hough line detection accumulator voting vision ransac" },
   { label: "Harris Corner Detector", group: "Demo", href: "/visualize/harris-corners/", kw: "harris corner keypoint structure tensor feature vision slam tracking" },
   { label: "Optical Flow (Lucas-Kanade)", group: "Demo", href: "/visualize/optical-flow/", kw: "optical flow lucas kanade motion aperture tracking vision brightness constancy" },
+  { label: "Histogram of Oriented Gradients", group: "Demo", href: "/visualize/hog/", kw: "hog histogram oriented gradients descriptor feature pedestrian detection vision svm" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },
