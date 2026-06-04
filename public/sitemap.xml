@@ -96,6 +96,7 @@
   <url><loc>https://derrickmo.github.io/concepts/multi-head/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/naive-bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/neuroevolution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/optical-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/paged-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/pca/</loc><priority>0.6</priority></url>
@@ -270,6 +271,7 @@
   <url><loc>https://derrickmo.github.io/visualize/naive-bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/neural-playground/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/nms/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/optical-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/overfitting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/paged-attention/</loc><priority>0.6</priority></url>

@@ -238,6 +238,11 @@ const CONCEPTS_INDEX = {
     summary: "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     prereqs: ["edge-detection", "pca"],
   },
+  "optical-flow": {
+    id: "optical-flow", name: "Optical Flow (Lucas-Kanade)", area: "Computer Vision",
+    summary: "Estimate the per-pixel motion field between two frames. Assume brightness constancy — a moving point keeps its intensity — and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous (the aperture problem, where you only recover motion normal to an edge). Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system (the same structure-tensor matrix as Harris, now with a temporal term). Only valid for small motion because brightness is linearized; coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry/SLAM, and action recognition.",
+    prereqs: ["harris-corners", "edge-detection"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -808,6 +813,7 @@ const CONCEPT_TAGS = {
     "edge-detection":       ["edge-detection", "convolution"],
     "hough-transform":      ["hough-transform", "edge-detection"],
     "harris-corners":       ["harris-corners", "edge-detection"],
+    "optical-flow":         ["optical-flow", "harris-corners"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

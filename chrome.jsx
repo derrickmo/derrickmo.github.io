@@ -281,6 +281,7 @@ const DM_NAV_INDEX = [
   { label: "Canny Edge Detection", group: "Demo", href: "/visualize/edge-detection/", kw: "canny sobel gradient edges vision hysteresis" },
   { label: "Hough Transform", group: "Demo", href: "/visualize/hough-transform/", kw: "hough line detection accumulator voting vision ransac" },
   { label: "Harris Corner Detector", group: "Demo", href: "/visualize/harris-corners/", kw: "harris corner keypoint structure tensor feature vision slam tracking" },
+  { label: "Optical Flow (Lucas-Kanade)", group: "Demo", href: "/visualize/optical-flow/", kw: "optical flow lucas kanade motion aperture tracking vision brightness constancy" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },

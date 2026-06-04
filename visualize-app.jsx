@@ -266,6 +266,19 @@ const GlyphHarris = () => (
     ))}
   </svg>
 );
+const GlyphFlow = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <defs>
+      <marker id="flowArrow" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 z" fill="#a855f7" />
+      </marker>
+    </defs>
+    {[0, 1, 2].map((r) => [0, 1, 2, 3].map((cc) => (
+      <line key={`${r}-${cc}`} x1={28 + cc * 30} y1={34 + r * 26} x2={28 + cc * 30 + 16} y2={34 + r * 26 + 7}
+        stroke="#a855f7" strokeWidth="1.6" markerEnd="url(#flowArrow)" opacity="0.85" />
+    )))}
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1770,6 +1783,7 @@ const GLYPHS = {
   "edge-detection": <GlyphEdge />,
   "hough-transform": <GlyphHough />,
   "harris-corners": <GlyphHarris />,
+  "optical-flow": <GlyphFlow />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
