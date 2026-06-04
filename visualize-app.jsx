@@ -340,6 +340,23 @@ const GlyphWatershed = () => {
     </svg>
   );
 };
+const GlyphBatching = () => {
+  // a queue of requests feeding into a batch box, throughput arrow out
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {[0, 1, 2, 3, 4].map(i => (
+        <circle key={i} cx={16 + i * 11} cy={60} r="4" fill="#60a5fa" opacity={0.4 + i * 0.12} />
+      ))}
+      <rect x="78" y="42" width="44" height="36" rx="3" fill="rgba(168,85,247,0.18)" stroke="#a855f7" strokeWidth="1.2" />
+      {[0, 1, 2, 3].map(i => (
+        <circle key={"b" + i} cx={88 + (i % 2) * 18} cy={52 + Math.floor(i / 2) * 16} r="4" fill="#a855f7" />
+      ))}
+      <path d="M126 60 L150 60" stroke="#eef2ff" strokeWidth="1.6" fill="none" />
+      <path d="M144 55 L150 60 L144 65" stroke="#eef2ff" strokeWidth="1.6" fill="none" />
+      <line x1="48" y1="60" x2="76" y2="60" stroke="rgba(96,165,250,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+    </svg>
+  );
+};
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1848,6 +1865,7 @@ const GLYPHS = {
   "hog": <GlyphHog />,
   "image-augmentation": <GlyphAugment />,
   "watershed": <GlyphWatershed />,
+  "batching": <GlyphBatching />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

@@ -285,6 +285,7 @@ const DM_NAV_INDEX = [
   { label: "Histogram of Oriented Gradients", group: "Demo", href: "/visualize/hog/", kw: "hog histogram oriented gradients descriptor feature pedestrian detection vision svm" },
   { label: "Data Augmentation", group: "Demo", href: "/visualize/image-augmentation/", kw: "data augmentation flip rotate crop color jitter cutout regularization vision invariance training mixup" },
   { label: "Watershed Segmentation", group: "Demo", href: "/visualize/watershed/", kw: "watershed segmentation distance transform markers flooding regions touching objects vision instance" },
+  { label: "Dynamic Batching", group: "Demo", href: "/visualize/batching/", kw: "batching throughput latency serving inference queue mlops vllm triton utilization little law gpu" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },

@@ -240,6 +240,8 @@ window.PLAY_DEMOS = {
       blurb: "A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step — a lossless speedup set by draft agreement and lookahead." },
     { slug: "paged-attention",    topic: "EFFICIENCY", title: "PagedAttention", tone: "violet", status: "LIVE",
       blurb: "Contiguous KV-cache reservations waste memory on every half-finished sequence; paging packs fixed blocks on demand and fits far more streams in the same GPU." },
+    { slug: "batching",           topic: "MLOPS", title: "Dynamic Batching", tone: "blue", status: "LIVE",
+      blurb: "Live inference-server simulation: batch requests to amortize GPU overhead and watch throughput climb while tail latency grows — and the queue blow up the instant arrivals outrun capacity." },
     { slug: "simpsons-paradox",   topic: "CAUSAL INFERENCE", title: "Simpson's Paradox", tone: "blue", status: "LIVE",
       blurb: "Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it." },
     { slug: "do-intervention",    topic: "CAUSAL INFERENCE", title: "do() & Backdoor Adjustment", tone: "blue", status: "LIVE",
@@ -268,6 +270,7 @@ window.PLAY_DEMOS = {
     { name: "Trustworthy & Explainable ML", why: "Whether you can actually trust what a model outputs: are its confidence scores honest, and can you explain why it decided what it did? The layer that turns a black-box predictor into something you'd deploy where the stakes are real.", slugs: ["calibration", "shap", "saliency", "conformal", "conformal-regression", "mc-dropout", "active-learning", "coreset", "dataset-distillation", "label-noise", "drift-detection", "fairness"] },
     { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "branch-and-bound", "edit-distance"] },
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
+    { name: "MLOps & Serving", why: "What happens after training: keeping a model fast, cheap, and reliable under real traffic. The queueing and batching that trade latency for throughput, the routing that spends compute only where it's needed, and the rollout discipline that ships a new model without taking the service down.", slugs: ["batching"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -325,6 +328,7 @@ window.PLAY_DEMOS = {
     "hog": "per-cell orientation histograms",
     "image-augmentation": "label-preserving random transforms",
     "watershed": "flood the distance map from markers",
+    "batching": "amortize overhead; trade latency for throughput",
     "diffusion": "denoising (score / DDIM)",
     "fourier": "a sum of sines",
     "ica": "unmix by maximizing non-Gaussianity",
