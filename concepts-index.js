@@ -219,6 +219,11 @@ const CONCEPTS_INDEX = {
     summary: "Stacks of convolutions and pooling that build a feature hierarchy from edges to objects.",
     prereqs: ["convolution"],
   },
+  "edge-detection": {
+    id: "edge-detection", name: "Edge Detection (Canny)", area: "Computer Vision",
+    summary: "Find where image brightness changes sharply. The Canny pipeline: Gaussian blur (denoise) -> Sobel gradient (magnitude + direction) -> non-maximum suppression (thin ridges to 1px along the gradient) -> double threshold (strong vs weak pixels) -> hysteresis (keep weak pixels connected to strong ones). The high-bar-to-start / low-bar-to-continue hysteresis rule links broken contours while rejecting isolated noise. Still a standard preprocessor before Hough line/circle detection and a building block of HOG/SIFT-style features.",
+    prereqs: ["convolution"],
+  },
   "iou-nms": {
     id: "iou-nms", name: "IoU & Non-Max Suppression", area: "Computer Vision",
     summary: "Score box overlap with IoU; greedily suppress duplicates — the cleanup step every detector ends with.",
@@ -790,6 +795,7 @@ const CONCEPT_TAGS = {
     "weight-init":          ["weight-init", "activations", "mlp"],
     "contrastive-learning": ["contrastive-learning", "embeddings", "softmax"],
     "convolution":          ["convolution", "cnn"],
+    "edge-detection":       ["edge-detection", "convolution"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

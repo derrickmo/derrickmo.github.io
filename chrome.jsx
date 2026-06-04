@@ -278,6 +278,7 @@ const DM_NAV_INDEX = [
   { label: "The Perceptron", group: "Demo", href: "/visualize/perceptron/", kw: "perceptron rosenblatt linear classifier online learning mistake bound convergence theorem weight update decision boundary single neuron threshold xor minsky" },
   { label: "Neural Playground", group: "Demo", href: "/visualize/neural-playground/", kw: "mlp backprop boundary" },
   { label: "Convolution Lab", group: "Demo", href: "/visualize/convolution/", kw: "cnn kernel filter vision" },
+  { label: "Canny Edge Detection", group: "Demo", href: "/visualize/edge-detection/", kw: "canny sobel gradient edges vision hysteresis" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },

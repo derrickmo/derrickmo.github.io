@@ -237,6 +237,16 @@ const GlyphKernel = () => (
     <rect x="126" y="48" width="20" height="20" fill="#c084fc" opacity="0.6" />
   </svg>
 );
+const GlyphEdge = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <rect x="20" y="24" width="52" height="72" rx="4" fill="rgba(96,165,250,0.18)" stroke="#60a5fa" strokeWidth="0.6" />
+    <circle cx="46" cy="60" r="20" fill="rgba(168,85,247,0.35)" />
+    <line x1="86" y1="60" x2="104" y2="60" stroke="#60a5fa" strokeWidth="1.5" />
+    <polygon points="104,55 113,60 104,65" fill="#60a5fa" />
+    <rect x="118" y="24" width="22" height="72" rx="4" fill="#05060f" stroke="#a855f7" strokeWidth="0.6" />
+    <circle cx="129" cy="60" r="20" fill="none" stroke="#fff" strokeWidth="1.6" strokeDasharray="3 2" />
+  </svg>
+);
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1738,6 +1748,7 @@ const GLYPHS = {
   "bandit": <GlyphBandit />,
   "neural-playground": <GlyphNeuralNet />,
   "convolution": <GlyphKernel />,
+  "edge-detection": <GlyphEdge />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,
