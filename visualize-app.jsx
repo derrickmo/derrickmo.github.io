@@ -297,6 +297,28 @@ const GlyphHog = () => {
     </svg>
   );
 };
+const GlyphAugment = () => {
+  // one source tile + a grid of transformed copies (flip / rotate / shift)
+  const tiles = [
+    { x: 56, y: 18, rot: 0, flip: 1, o: 1 },
+    { x: 96, y: 18, rot: 14, flip: 1, o: 0.7 },
+    { x: 16, y: 60, rot: -10, flip: -1, o: 0.6 },
+    { x: 56, y: 60, rot: 8, flip: 1, o: 0.8 },
+    { x: 96, y: 60, rot: -16, flip: -1, o: 0.55 },
+    { x: 136, y: 60, rot: 6, flip: 1, o: 0.5 },
+  ];
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      {tiles.map((t, i) => (
+        <g key={i} transform={`translate(${t.x} ${t.y}) rotate(${t.rot}) scale(${t.flip} 1)`} opacity={t.o}>
+          <rect x="-13" y="-13" width="26" height="26" rx="2" fill="none" stroke={i === 0 ? "#60a5fa" : "rgba(168,85,247,0.6)"} strokeWidth={i === 0 ? 1.4 : 1} />
+          <polygon points="0,-8 5,4 -5,4" fill="#a855f7" opacity="0.85" />
+          <circle cx="0" cy="-2" r="2" fill="#60a5fa" />
+        </g>
+      ))}
+    </svg>
+  );
+};
 const GlyphPositional = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({ length: 8 }).map((_, row) => Array.from({ length: 16 }).map((_, col) => {
@@ -1803,6 +1825,7 @@ const GLYPHS = {
   "harris-corners": <GlyphHarris />,
   "optical-flow": <GlyphFlow />,
   "hog": <GlyphHog />,
+  "image-augmentation": <GlyphAugment />,
   "diffusion": <GlyphDiffusion />,
   "embeddings": <GlyphEmbedding />,
   "bayes": <GlyphBayes />,

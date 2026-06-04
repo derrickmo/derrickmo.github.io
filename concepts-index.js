@@ -248,6 +248,11 @@ const CONCEPTS_INDEX = {
     summary: "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude + orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize (L2 over overlapping cell blocks) so only the SHAPE of the orientation distribution survives — giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG + a linear SVM (Dalal-Triggs 2005) was the leading pedestrian/object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
     prereqs: ["edge-detection", "convolution"],
   },
+  "data-augmentation": {
+    id: "data-augmentation", name: "Data Augmentation", area: "Computer Vision",
+    summary: "Synthesize new training examples by applying random transforms that change the input but not the label — horizontal flip, rotation, random-resized-crop, color/brightness jitter, and cutout/random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels — one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption (flipping a digit can change its label), so the augmentation set is task-specific. The idea generalizes to token masking/synonym swaps in NLP and time/frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
+    prereqs: ["convolution", "regularization"],
+  },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
@@ -820,6 +825,7 @@ const CONCEPT_TAGS = {
     "harris-corners":       ["harris-corners", "edge-detection"],
     "optical-flow":         ["optical-flow", "harris-corners"],
     "hog":                  ["hog", "edge-detection"],
+    "image-augmentation":   ["data-augmentation", "regularization", "convolution"],
     "perceptron":           ["perceptron", "linear-regression", "svm"],
     "neural-playground":    ["mlp", "backprop", "activations"],
     "lr-schedule":          ["lr-schedule", "gradient-descent"],

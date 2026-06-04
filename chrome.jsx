@@ -283,6 +283,7 @@ const DM_NAV_INDEX = [
   { label: "Harris Corner Detector", group: "Demo", href: "/visualize/harris-corners/", kw: "harris corner keypoint structure tensor feature vision slam tracking" },
   { label: "Optical Flow (Lucas-Kanade)", group: "Demo", href: "/visualize/optical-flow/", kw: "optical flow lucas kanade motion aperture tracking vision brightness constancy" },
   { label: "Histogram of Oriented Gradients", group: "Demo", href: "/visualize/hog/", kw: "hog histogram oriented gradients descriptor feature pedestrian detection vision svm" },
+  { label: "Data Augmentation", group: "Demo", href: "/visualize/image-augmentation/", kw: "data augmentation flip rotate crop color jitter cutout regularization vision invariance training mixup" },
   { label: "IoU & Non-Max Suppression", group: "Demo", href: "/visualize/nms/", kw: "nms iou object detection bounding box vision map" },
   { label: "Diffusion Sampler", group: "Demo", href: "/visualize/diffusion/", kw: "ddpm generative denoise" },
   { label: "Variational Autoencoder", group: "Demo", href: "/visualize/vae/", kw: "vae latent reparameterization kl generative encoder decoder" },

@@ -35,6 +35,7 @@
   <url><loc>https://derrickmo.github.io/concepts/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-validation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/data-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/dbscan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/decision-tree/</loc><priority>0.6</priority></url>
@@ -247,6 +248,7 @@
   <url><loc>https://derrickmo.github.io/visualize/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/image-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/isomap/</loc><priority>0.6</priority></url>
