@@ -31,6 +31,7 @@
   <url><loc>https://derrickmo.github.io/concepts/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/constrained-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/context-extension/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/coreset/</loc><priority>0.6</priority></url>
@@ -222,6 +223,7 @@
   <url><loc>https://derrickmo.github.io/visualize/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/constrained-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/context-extension/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/coreset/</loc><priority>0.6</priority></url>
