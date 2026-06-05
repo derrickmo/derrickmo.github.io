@@ -361,6 +361,7 @@ const DM_NAV_INDEX = [
   { label: "Reward Model (RLHF)", group: "Demo", href: "/visualize/reward-model/", kw: "reward model rlhf bradley terry preference pairs dpo ppo human feedback alignment reward hacking" },
   { label: "DPO vs RLHF", group: "Demo", href: "/visualize/dpo/", kw: "dpo direct preference optimization rlhf ppo kl reference policy alignment ipo kto orpo bradley terry" },
   { label: "SARSA vs Q-Learning", group: "Demo", href: "/visualize/sarsa-vs-qlearning/", kw: "sarsa q-learning on-policy off-policy td control cliff walking gridworld temporal difference exploration epsilon greedy sutton barto bootstrap reinforcement learning" },
+  { label: "TD(λ) & Eligibility Traces", group: "Demo", href: "/visualize/td-lambda/", kw: "td lambda eligibility traces temporal difference monte carlo random walk credit assignment lambda return n-step backward view gae sutton barto reinforcement learning" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
   { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },

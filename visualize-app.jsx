@@ -1878,6 +1878,20 @@ const GlyphSarsaVsQ = () => (
     <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">safe vs optimal</text>
   </svg>
 );
+
+const GlyphTDLambda = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* true linear value line */}
+    <line x1="24" y1="86" x2="136" y2="30" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3" />
+    {/* estimate approaching it */}
+    <path d="M24 86 L46 80 L68 66 L90 56 L112 42 L136 32" fill="none" stroke="#a855f7" strokeWidth="2.5" />
+    {/* eligibility-trace halos fading back along the path */}
+    <circle cx="112" cy="42" r="8" fill="rgba(251,191,36,0.55)" />
+    <circle cx="90" cy="56" r="6" fill="rgba(251,191,36,0.38)" />
+    <circle cx="68" cy="66" r="4.5" fill="rgba(251,191,36,0.24)" />
+    <text x="44" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">trace decay λ</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2029,6 +2043,7 @@ const GLYPHS = {
   "reward-model": <GlyphRewardModel />,
   "dpo": <GlyphDPO />,
   "sarsa-vs-qlearning": <GlyphSarsaVsQ />,
+  "td-lambda": <GlyphTDLambda />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

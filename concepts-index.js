@@ -562,6 +562,12 @@ const CONCEPTS_INDEX = {
     tex: "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\,[\\,r + \\gamma\\,Q(s',a') - Q(s,a)\\,]",
     prereqs: ["q-learning", "mdp-bellman"],
   },
+  "td-lambda": {
+    id: "td-lambda", name: "TD(λ) & Eligibility Traces", area: "Reinforcement Learning",
+    summary: "A single mechanism that interpolates between one-step TD(0) and Monte-Carlo returns. An eligibility trace marks recently visited states (e(s) += 1, decaying by γλ each step); when a TD error δ occurs, every marked state is updated in proportion to its trace, spreading credit backward along the trajectory in one online pass. λ=0 is TD(0), λ=1 is Monte Carlo; intermediate λ usually learns fastest. The backward view equals the forward λ-return; GAE is its modern advantage-estimation descendant.",
+    tex: "\\delta_t = r_{t+1} + \\gamma V(s_{t+1}) - V(s_t);\\quad V(s) \\mathrel{+}= \\alpha\\,\\delta_t\\, e(s)",
+    prereqs: ["q-learning", "mdp-bellman"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -921,6 +927,7 @@ const CONCEPT_TAGS = {
     "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
     "sarsa-vs-qlearning":   ["sarsa", "q-learning", "mdp-bellman"],
+    "td-lambda":            ["td-lambda", "q-learning", "mdp-bellman"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
