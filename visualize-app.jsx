@@ -1678,6 +1678,22 @@ const GlyphPromptInjection = () => (
     <text x="52" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">injection</text>
   </svg>
 );
+
+const GlyphSemanticCaching = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* cached entries clustered, an incoming query hitting the near one */}
+    <circle cx="60" cy="40" r="6" fill="#60a5fa" />
+    <circle cx="78" cy="50" r="6" fill="#60a5fa" />
+    <circle cx="104" cy="78" r="6" fill="#a855f7" />
+    {/* incoming query near the blue cluster -> green hit line */}
+    <line x1="30" y1="22" x2="60" y2="40" stroke="#34d399" strokeWidth="2" />
+    <circle cx="30" cy="22" r="5" fill="#34d399" />
+    {/* a far query -> miss (gray, dashed to model) */}
+    <line x1="128" y1="98" x2="104" y2="78" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="3 3" />
+    <circle cx="128" cy="98" r="5" fill="#94a3b8" />
+    <text x="40" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">cache hit / miss</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -1961,6 +1977,7 @@ const GLYPHS = {
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
   "prompt-injection": <GlyphPromptInjection />,
+  "semantic-caching": <GlyphSemanticCaching />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,

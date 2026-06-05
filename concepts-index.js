@@ -583,6 +583,11 @@ const CONCEPTS_INDEX = {
     summary: "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content (a user turn, a retrieved page, a tool result) can pose as a new instruction. Attack shapes include direct override, INDIRECT injection (payload hidden in fetched content), jailbreaks, and data exfiltration. Defenses — delimiting/spotlighting, the trained instruction hierarchy, input classifiers, output exfil filters — are layered and partial; none reaches zero.",
     prereqs: ["guardrails"],
   },
+  "semantic-caching": {
+    id: "semantic-caching", name: "Semantic Caching", area: "NLP",
+    summary: "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. Collapses paraphrases of one intent into a single call. The threshold trades hit rate / cost savings against FALSE HITS — serving a stale or wrong answer for a query that was close in embedding space but semantically different.",
+    prereqs: ["embeddings", "vector-search"],
+  },
   "lost-in-the-middle": {
     id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
     summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
@@ -899,6 +904,7 @@ const CONCEPT_TAGS = {
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
     "guardrails":           ["guardrails", "constrained-decoding"],
     "prompt-injection":     ["prompt-injection", "guardrails", "react-agent"],
+    "semantic-caching":     ["semantic-caching", "embeddings", "vector-search"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
