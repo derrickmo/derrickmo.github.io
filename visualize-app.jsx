@@ -1694,6 +1694,24 @@ const GlyphSemanticCaching = () => (
     <text x="40" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">cache hit / miss</text>
   </svg>
 );
+
+const GlyphKVCacheEviction = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* token bars: kept (violet) and evicted (gray); sinks at the front are tall+kept */}
+    {[
+      [22, 30, "#a855f7"], [32, 26, "#a855f7"], [42, 60, "#64748b"], [52, 52, "#64748b"],
+      [62, 40, "#64748b"], [72, 70, "#a855f7"], [82, 44, "#64748b"], [92, 58, "#64748b"],
+      [102, 34, "#a855f7"], [112, 48, "#a855f7"], [122, 62, "#a855f7"], [132, 50, "#a855f7"],
+    ].map(([x, h, c], i) => (
+      <rect key={i} x={x} y={92 - h} width="8" height={h} fill={c} />
+    ))}
+    <line x1="16" y1="92" x2="144" y2="92" stroke="#94a3b8" strokeWidth="1" />
+    {/* sink ticks */}
+    <rect x="22" y="94" width="8" height="3" fill="#60a5fa" />
+    <rect x="32" y="94" width="8" height="3" fill="#60a5fa" />
+    <text x="40" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">keep / evict</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -1978,6 +1996,7 @@ const GLYPHS = {
   "guardrails": <GlyphGuardrails />,
   "prompt-injection": <GlyphPromptInjection />,
   "semantic-caching": <GlyphSemanticCaching />,
+  "kv-cache-eviction": <GlyphKVCacheEviction />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,
