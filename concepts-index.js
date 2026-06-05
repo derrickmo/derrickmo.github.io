@@ -598,6 +598,11 @@ const CONCEPTS_INDEX = {
     summary: "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
     prereqs: ["moe", "transformer-block"],
   },
+  "context-extension": {
+    id: "context-extension", name: "Context-Length Extension", area: "NLP",
+    summary: "Running a RoPE model beyond its training length puts far tokens at unseen rotation angles, so naive extrapolation makes perplexity explode just past L_train. Fixes rescale how inference positions map onto the trained rotary range: Position Interpolation linearly compresses positions (bounded, uniform cost), NTK-aware scaling rescales the RoPE base by frequency (keeps local resolution), and YaRN combines per-frequency NTK with attention scaling (best). How 4k/8k models become 128k+ without retraining.",
+    prereqs: ["rope", "positional-encoding"],
+  },
   "lost-in-the-middle": {
     id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
     summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
@@ -917,6 +922,7 @@ const CONCEPT_TAGS = {
     "semantic-caching":     ["semantic-caching", "embeddings", "vector-search"],
     "kv-cache-eviction":    ["kv-cache-eviction", "kv-cache", "paged-attention"],
     "mixture-of-depths":    ["mixture-of-depths", "moe", "transformer-block"],
+    "context-extension":    ["context-extension", "rope", "positional-encoding"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],

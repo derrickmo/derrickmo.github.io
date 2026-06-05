@@ -1726,6 +1726,19 @@ const GlyphMixtureOfDepths = () => (
     <text x="44" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">route by depth</text>
   </svg>
 );
+
+const GlyphContextExtension = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* L_train boundary */}
+    <line x1="74" y1="20" x2="74" y2="92" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3 3" />
+    {/* extrapolate: flat then explodes up (red) */}
+    <path d="M20 84 L74 82 L96 64 L120 30 L138 16" fill="none" stroke="#f87171" strokeWidth="2" />
+    {/* yarn: stays low (green) */}
+    <path d="M20 84 L74 82 L110 78 L138 72" fill="none" stroke="#34d399" strokeWidth="2" />
+    <line x1="18" y1="92" x2="142" y2="92" stroke="#94a3b8" strokeWidth="1" />
+    <text x="38" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">ppl vs length</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -2012,6 +2025,7 @@ const GLYPHS = {
   "semantic-caching": <GlyphSemanticCaching />,
   "kv-cache-eviction": <GlyphKVCacheEviction />,
   "mixture-of-depths": <GlyphMixtureOfDepths />,
+  "context-extension": <GlyphContextExtension />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,
