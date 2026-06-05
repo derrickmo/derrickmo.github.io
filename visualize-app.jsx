@@ -1906,6 +1906,21 @@ const GlyphPPO = () => (
     <text x="50" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">clip 1±ε</text>
   </svg>
 );
+
+const GlyphDynaQ = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* mini maze grid with value flooding from goal */}
+    {[0, 1, 2, 3].map(r => [0, 1, 2, 3, 4].map(c => {
+      const d = Math.abs(c - 4) + Math.abs(r - 0);
+      const v = Math.max(0, 1 - d / 7);
+      return <rect key={r + "-" + c} x={36 + c * 18} y={24 + r * 18} width="16" height="16" rx="2" fill={`rgba(168,85,247,${0.12 + 0.7 * v})`} />;
+    }))}
+    {/* goal + planning "thought" loop arrow */}
+    <circle cx="116" cy="32" r="4" fill="#34d399" />
+    <circle cx="44" cy="86" r="4" fill="#fbbf24" />
+    <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">plan from model</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2059,6 +2074,7 @@ const GLYPHS = {
   "sarsa-vs-qlearning": <GlyphSarsaVsQ />,
   "td-lambda": <GlyphTDLambda />,
   "ppo": <GlyphPPO />,
+  "dyna-q": <GlyphDynaQ />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

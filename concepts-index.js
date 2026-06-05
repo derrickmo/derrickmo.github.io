@@ -574,6 +574,11 @@ const CONCEPTS_INDEX = {
     tex: "L^{CLIP} = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t,1-\\epsilon,1+\\epsilon) A_t)\\big]",
     prereqs: ["policy-gradient", "actor-critic"],
   },
+  "dyna-q": {
+    id: "dyna-q", name: "Dyna-Q & Model-Based RL", area: "Reinforcement Learning",
+    summary: "Integrates learning, planning, and acting: the agent does ordinary Q-learning from real steps AND learns a one-step model (remembering (s,a)->(r,s')), then performs n planning updates per real step by replaying remembered transitions through the model. Planning propagates value across the state space without extra real experience, so Dyna-Q is far more sample-efficient than model-free Q-learning. The bridge between learning from experience and planning with a known model; experience replay is the same idea, and World Models / MuZero / Dreamer are its modern descendants. Risk: planning inside a wrong model learns the wrong thing.",
+    prereqs: ["q-learning", "mdp-bellman"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -935,6 +940,7 @@ const CONCEPT_TAGS = {
     "sarsa-vs-qlearning":   ["sarsa", "q-learning", "mdp-bellman"],
     "td-lambda":            ["td-lambda", "q-learning", "mdp-bellman"],
     "ppo":                  ["ppo", "policy-gradient", "actor-critic"],
+    "dyna-q":               ["dyna-q", "q-learning", "mdp-bellman"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
