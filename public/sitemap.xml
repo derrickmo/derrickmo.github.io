@@ -113,6 +113,7 @@
   <url><loc>https://derrickmo.github.io/concepts/perceptron/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/prompt-injection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/q-learning/</loc><priority>0.6</priority></url>
@@ -303,6 +304,7 @@
   <url><loc>https://derrickmo.github.io/visualize/perceptron/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/prompt-injection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/quantization/</loc><priority>0.6</priority></url>
