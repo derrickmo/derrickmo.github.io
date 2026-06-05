@@ -1921,6 +1921,20 @@ const GlyphDynaQ = () => (
     <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">plan from model</text>
   </svg>
 );
+
+const GlyphDoubleQ = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* true value line at 0 (optimal) */}
+    <line x1="24" y1="56" x2="136" y2="56" stroke="rgba(255,255,255,0.35)" strokeWidth="1" />
+    {/* Q-learning overestimate (red, above true) */}
+    <path d="M24 40 L60 34 L96 36 L136 38" fill="none" stroke="#f87171" strokeWidth="2.5" />
+    {/* double-Q hugging true (green) */}
+    <path d="M24 58 L60 57 L96 56 L136 57" fill="none" stroke="#34d399" strokeWidth="2.5" />
+    <text x="100" y="30" fontFamily="monospace" fontSize="8" fill="#f87171">biased</text>
+    <text x="98" y="72" fontFamily="monospace" fontSize="8" fill="#34d399">unbiased</text>
+    <text x="40" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">max bias fix</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2075,6 +2089,7 @@ const GLYPHS = {
   "td-lambda": <GlyphTDLambda />,
   "ppo": <GlyphPPO />,
   "dyna-q": <GlyphDynaQ />,
+  "double-q-learning": <GlyphDoubleQ />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

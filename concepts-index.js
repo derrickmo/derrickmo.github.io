@@ -579,6 +579,11 @@ const CONCEPTS_INDEX = {
     summary: "Integrates learning, planning, and acting: the agent does ordinary Q-learning from real steps AND learns a one-step model (remembering (s,a)->(r,s')), then performs n planning updates per real step by replaying remembered transitions through the model. Planning propagates value across the state space without extra real experience, so Dyna-Q is far more sample-efficient than model-free Q-learning. The bridge between learning from experience and planning with a known model; experience replay is the same idea, and World Models / MuZero / Dreamer are its modern descendants. Risk: planning inside a wrong model learns the wrong thing.",
     prereqs: ["q-learning", "mdp-bellman"],
   },
+  "double-q-learning": {
+    id: "double-q-learning", name: "Double Q-Learning & Maximization Bias", area: "Reinforcement Learning",
+    summary: "Q-learning bootstraps off max_a Q(s',a); because the estimates are noisy and you both SELECT and EVALUATE with the same max, E[max] is biased high — it systematically overestimates action values and can prefer a worse action. Double Q-learning keeps two value tables and uses one to pick the maximizing action and the other to evaluate it; since their noise is independent, the bias cancels. The deep-RL version is Double DQN (online net selects, target net evaluates). A specific case of the 'optimizer's curse' that also haunts model selection.",
+    prereqs: ["q-learning", "sarsa"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -941,6 +946,7 @@ const CONCEPT_TAGS = {
     "td-lambda":            ["td-lambda", "q-learning", "mdp-bellman"],
     "ppo":                  ["ppo", "policy-gradient", "actor-critic"],
     "dyna-q":               ["dyna-q", "q-learning", "mdp-bellman"],
+    "double-q-learning":    ["double-q-learning", "q-learning", "sarsa"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
