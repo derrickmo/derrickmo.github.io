@@ -1712,6 +1712,20 @@ const GlyphKVCacheEviction = () => (
     <text x="40" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">keep / evict</text>
   </svg>
 );
+
+const GlyphMixtureOfDepths = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* layers x tokens grid: some cells processed (violet), some skipped */}
+    {[0, 1, 2, 3].map(r => (
+      [0, 1, 2, 3, 4, 5].map(c => {
+        const on = (r + c) % 3 === 0 || (c === 2 && r < 3);
+        return <rect key={r + "-" + c} x={34 + c * 16} y={28 + r * 16} width="13" height="13" rx="2"
+          fill={on ? "#a855f7" : "rgba(100,116,139,0.3)"} />;
+      })
+    ))}
+    <text x="44" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">route by depth</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -1997,6 +2011,7 @@ const GLYPHS = {
   "prompt-injection": <GlyphPromptInjection />,
   "semantic-caching": <GlyphSemanticCaching />,
   "kv-cache-eviction": <GlyphKVCacheEviction />,
+  "mixture-of-depths": <GlyphMixtureOfDepths />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,

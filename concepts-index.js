@@ -593,6 +593,11 @@ const CONCEPTS_INDEX = {
     summary: "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory — and which tokens you drop decides whether quality survives. Sliding-window discards the early 'attention sink' tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks + a recent window recovers it; H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem (LRU/LFU) transplanted into attention.",
     prereqs: ["kv-cache", "attention"],
   },
+  "mixture-of-depths": {
+    id: "mixture-of-depths", name: "Mixture-of-Depths", area: "NLP",
+    summary: "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
+    prereqs: ["moe", "transformer-block"],
+  },
   "lost-in-the-middle": {
     id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
     summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
@@ -911,6 +916,7 @@ const CONCEPT_TAGS = {
     "prompt-injection":     ["prompt-injection", "guardrails", "react-agent"],
     "semantic-caching":     ["semantic-caching", "embeddings", "vector-search"],
     "kv-cache-eviction":    ["kv-cache-eviction", "kv-cache", "paged-attention"],
+    "mixture-of-depths":    ["mixture-of-depths", "moe", "transformer-block"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
