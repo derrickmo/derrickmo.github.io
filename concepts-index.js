@@ -568,6 +568,12 @@ const CONCEPTS_INDEX = {
     tex: "\\delta_t = r_{t+1} + \\gamma V(s_{t+1}) - V(s_t);\\quad V(s) \\mathrel{+}= \\alpha\\,\\delta_t\\, e(s)",
     prereqs: ["q-learning", "mdp-bellman"],
   },
+  "ppo": {
+    id: "ppo", name: "Proximal Policy Optimization (PPO)", area: "Reinforcement Learning",
+    summary: "A stable, first-order policy-gradient method: maximize a clipped surrogate of the importance-weighted advantage, min(r·A, clip(r,1-ε,1+ε)·A) where r=π_θ/π_old. The clip flattens the objective outside a trust region [1-ε,1+ε], zeroing the gradient so an update can't push the policy too far off-policy — which lets PPO safely reuse one batch for several epochs. A cheap stand-in for TRPO's hard KL constraint; the workhorse of RLHF.",
+    tex: "L^{CLIP} = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t,1-\\epsilon,1+\\epsilon) A_t)\\big]",
+    prereqs: ["policy-gradient", "actor-critic"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -928,6 +934,7 @@ const CONCEPT_TAGS = {
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
     "sarsa-vs-qlearning":   ["sarsa", "q-learning", "mdp-bellman"],
     "td-lambda":            ["td-lambda", "q-learning", "mdp-bellman"],
+    "ppo":                  ["ppo", "policy-gradient", "actor-critic"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

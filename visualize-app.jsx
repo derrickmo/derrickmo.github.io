@@ -1892,6 +1892,20 @@ const GlyphTDLambda = () => (
     <text x="44" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">trace decay λ</text>
   </svg>
 );
+
+const GlyphPPO = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* clip band */}
+    <rect x="64" y="24" width="40" height="64" fill="rgba(52,211,153,0.10)" />
+    <line x1="64" y1="24" x2="64" y2="88" stroke="rgba(52,211,153,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+    <line x1="104" y1="24" x2="104" y2="88" stroke="rgba(52,211,153,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+    {/* unclipped line keeps rising */}
+    <line x1="24" y1="86" x2="136" y2="30" stroke="rgba(148,163,184,0.6)" strokeWidth="1.5" strokeDasharray="4 3" />
+    {/* clipped objective: rises then flat */}
+    <path d="M24 86 L64 64 L104 44 L136 44" fill="none" stroke="#a855f7" strokeWidth="2.5" />
+    <text x="50" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">clip 1±ε</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2044,6 +2058,7 @@ const GLYPHS = {
   "dpo": <GlyphDPO />,
   "sarsa-vs-qlearning": <GlyphSarsaVsQ />,
   "td-lambda": <GlyphTDLambda />,
+  "ppo": <GlyphPPO />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
