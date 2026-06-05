@@ -79,6 +79,7 @@
   <url><loc>https://derrickmo.github.io/concepts/kernel-density/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/kv-cache-eviction/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kv-cache/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/label-propagation/</loc><priority>0.6</priority></url>
@@ -267,6 +268,7 @@
   <url><loc>https://derrickmo.github.io/visualize/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/knapsack/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/kv-cache-eviction/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kv-cache/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/label-propagation/</loc><priority>0.6</priority></url>
