@@ -1863,6 +1863,21 @@ const GlyphDPO = () => (
     <text x="74" y="52" fontFamily="monospace" fontSize="14" fill="#94a3b8">{"≈"}</text>
   </svg>
 );
+
+const GlyphSarsaVsQ = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* cliff edge along the bottom */}
+    <rect x="28" y="84" width="104" height="10" fill="rgba(248,113,113,0.45)" />
+    {/* start + goal */}
+    <circle cx="30" cy="89" r="4" fill="#fbbf24" />
+    <circle cx="130" cy="89" r="4" fill="#34d399" />
+    {/* SARSA safe path: up and over */}
+    <path d="M30 89 L30 58 L130 58 L130 89" fill="none" stroke="#34d399" strokeWidth="2.5" />
+    {/* Q-learning optimal path: hug the edge */}
+    <path d="M30 89 L30 76 L130 76 L130 89" fill="none" stroke="#a855f7" strokeWidth="2.5" />
+    <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">safe vs optimal</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2013,6 +2028,7 @@ const GLYPHS = {
   "dqn": <GlyphDQN />,
   "reward-model": <GlyphRewardModel />,
   "dpo": <GlyphDPO />,
+  "sarsa-vs-qlearning": <GlyphSarsaVsQ />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

@@ -556,6 +556,12 @@ const CONCEPTS_INDEX = {
     tex: "L = -\\log \\sigma\\Bigl( \\beta \\log \\tfrac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)} - \\beta \\log \\tfrac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)} \\Bigr)",
     prereqs: ["reward-model", "policy-gradient"],
   },
+  "sarsa": {
+    id: "sarsa", name: "SARSA & On-policy vs Off-policy TD", area: "Reinforcement Learning",
+    summary: "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy — it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy — it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
+    tex: "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\,[\\,r + \\gamma\\,Q(s',a') - Q(s,a)\\,]",
+    prereqs: ["q-learning", "mdp-bellman"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -914,6 +920,7 @@ const CONCEPT_TAGS = {
     "dqn":                  ["dqn", "mdp-bellman", "mlp"],
     "reward-model":         ["reward-model", "logistic-regression", "policy-gradient"],
     "dpo":                  ["dpo", "reward-model", "policy-gradient"],
+    "sarsa-vs-qlearning":   ["sarsa", "q-learning", "mdp-bellman"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
