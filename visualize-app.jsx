@@ -1662,6 +1662,22 @@ const GlyphGuardrails = () => (
     <text x="70" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">guard</text>
   </svg>
 );
+
+const GlyphPromptInjection = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* trusted region (green) and untrusted region (red), divided by a boundary */}
+    <rect x="18" y="24" width="124" height="30" rx="4" fill="rgba(52,211,153,0.10)" stroke="#34d399" strokeWidth="1.5" />
+    <rect x="18" y="66" width="124" height="30" rx="4" fill="rgba(248,113,113,0.10)" stroke="#f87171" strokeWidth="1.5" />
+    <text x="24" y="43" fontFamily="monospace" fontSize="8" fill="#34d399">SYSTEM</text>
+    <text x="24" y="85" fontFamily="monospace" fontSize="8" fill="#f87171">UNTRUSTED</text>
+    {/* injected instruction breaking upward across the boundary */}
+    <line x1="112" y1="84" x2="112" y2="40" stroke="#f87171" strokeWidth="2.5" />
+    <polygon points="112,32 106,44 118,44" fill="#f87171" />
+    {/* dashed trust boundary */}
+    <line x1="18" y1="60" x2="142" y2="60" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3" />
+    <text x="52" y="114" fontFamily="monospace" fontSize="9" fill="#94a3b8">injection</text>
+  </svg>
+);
 const GlyphConstrainedDecoding = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* token distribution row: some allowed (green), some masked (struck) */}
@@ -1944,6 +1960,7 @@ const GLYPHS = {
   "self-consistency": <GlyphSelfConsistency />,
   "constrained-decoding": <GlyphConstrainedDecoding />,
   "guardrails": <GlyphGuardrails />,
+  "prompt-injection": <GlyphPromptInjection />,
   "lost-in-the-middle": <GlyphLostMiddle />,
   "hyde": <GlyphHyDE />,
   "reflection": <GlyphReflection />,

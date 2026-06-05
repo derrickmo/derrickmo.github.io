@@ -578,6 +578,11 @@ const CONCEPTS_INDEX = {
     summary: "The layered input/output safety pipeline wrapped around an LLM: redact PII, catch prompt injection and disallowed topics on the way in, and validate/filter the response (PII leakage, toxicity, schema, grounding) on the way out. Fail-closed defense-in-depth for production LLM systems.",
     prereqs: ["constrained-decoding"],
   },
+  "prompt-injection": {
+    id: "prompt-injection", name: "Prompt Injection", area: "NLP",
+    summary: "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content (a user turn, a retrieved page, a tool result) can pose as a new instruction. Attack shapes include direct override, INDIRECT injection (payload hidden in fetched content), jailbreaks, and data exfiltration. Defenses — delimiting/spotlighting, the trained instruction hierarchy, input classifiers, output exfil filters — are layered and partial; none reaches zero.",
+    prereqs: ["guardrails"],
+  },
   "lost-in-the-middle": {
     id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
     summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
@@ -893,6 +898,7 @@ const CONCEPT_TAGS = {
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
     "guardrails":           ["guardrails", "constrained-decoding"],
+    "prompt-injection":     ["prompt-injection", "guardrails", "react-agent"],
     "lost-in-the-middle":   ["lost-in-the-middle", "attention", "rag-chunking"],
     "hyde":                 ["hyde", "embeddings", "vector-search"],
     "reflection":           ["reflection", "reward-model", "self-consistency"],
