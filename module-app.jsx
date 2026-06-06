@@ -322,6 +322,52 @@ function ModuleNav() {
   );
 }
 
+// ─── Concept-by-concept breakdown (taught sub-lessons) ────────
+function ConceptBreakdown() {
+  const mobile = useIsMobile();
+  const sub = (window.SUB_LESSONS || {})[window.__DM_MODULE_SLUG];
+  if (!sub) return null;
+  const order = sub.order || Object.keys(sub.lessons);
+  if (!order.length) return null;
+  return (
+    <Section style={{ paddingTop: 24, paddingBottom: 16 }}>
+      <Container>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+          <MonoLabel color="var(--violet-lt)">// CONCEPT BY CONCEPT</MonoLabel>
+          <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(26px, 3vw, 38px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.08 }}>
+            Break it down.
+          </h2>
+          {sub.intro && <p className="t-body" style={{ color: "var(--muted)", maxWidth: 760, fontSize: 16, lineHeight: 1.6, margin: 0 }}>{sub.intro}</p>}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 12 }}>
+          {order.map((cid, i) => {
+            const L = sub.lessons[cid];
+            if (!L) return null;
+            return (
+              <a key={cid} href={`${BASE}learn/${window.__DM_MODULE_SLUG}/${cid}/`} style={{
+                position: "relative", overflow: "hidden", display: "flex", gap: 14, alignItems: "flex-start",
+                padding: "18px 20px", border: "1px solid var(--border)", borderRadius: 8,
+                background: "rgba(13, 24, 52, 0.4)", textDecoration: "none", color: "inherit",
+                transition: "border-color .2s, transform .15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+                <HudBrackets mode="dark" inset={6} size={12} />
+                <span style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 22, color: "var(--violet-lt)", lineHeight: 1, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+                <span style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                  <span style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 17, color: "var(--white)", letterSpacing: "-0.01em" }}>{L.title}</span>
+                  <span className="t-body" style={{ color: "var(--muted)", fontSize: 13.5, lineHeight: 1.5 }}>{L.oneLine}</span>
+                  <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10, marginTop: 2 }}>READ LESSON →</span>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
 function ModuleConnections() {
   const tags = (window.CONCEPT_TAGS && window.CONCEPT_TAGS.modules) || {};
   const ids = tags[window.__DM_MODULE_SLUG] || [];
@@ -341,6 +387,7 @@ function App() {
       <TopNav />
       <ModuleHero />
       <Takeaways />
+      <ConceptBreakdown />
       <CodeIllustration />
       <Flagship />
       <Notebooks />

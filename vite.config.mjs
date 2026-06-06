@@ -60,6 +60,15 @@ export default defineConfig({
         'paths-llm-internals': 'paths/llm-internals/index.html',
         'concept-map': 'concept-map/index.html',
         'playground': 'playground/index.html',
+        // >>> generated:sublessons
+        'sublesson-transformers-tokenization': 'learn/transformers/tokenization/index.html',
+        'sublesson-transformers-embeddings': 'learn/transformers/embeddings/index.html',
+        'sublesson-transformers-positional-encoding': 'learn/transformers/positional-encoding/index.html',
+        'sublesson-transformers-attention': 'learn/transformers/attention/index.html',
+        'sublesson-transformers-multi-head': 'learn/transformers/multi-head/index.html',
+        'sublesson-transformers-transformer-block': 'learn/transformers/transformer-block/index.html',
+        'sublesson-transformers-decoding': 'learn/transformers/decoding/index.html',
+        // <<< generated:sublessons
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',
         'play-tic-tac-toe': 'play/tic-tac-toe/index.html',

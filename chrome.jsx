@@ -347,6 +347,15 @@ const DM_NAV_INDEX = [
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
   { label: "Concept Map (interactive)", group: "Page", href: "/concept-map/", kw: "concept map interactive force directed graph visualization prerequisites dag explore network nodes edges" },
   { label: "Build a Classifier (playground)", group: "Page", href: "/playground/", kw: "playground build a model classifier capstone pipeline data features train evaluate decision boundary knn logistic tree mlp end to end" },
+  // >>> generated:sublessons
+  { label: "Tokenization - Transformers", group: "Lesson", href: "/learn/transformers/tokenization/", kw: "tokenization transformers tokenization sub lesson concept turn raw text into the discrete tokens a model actually consumes" },
+  { label: "Embeddings - Transformers", group: "Lesson", href: "/learn/transformers/embeddings/", kw: "embeddings transformers embeddings sub lesson concept map each token id to a dense vector whose geometry carries meaning" },
+  { label: "Positional Encoding - Transformers", group: "Lesson", href: "/learn/transformers/positional-encoding/", kw: "positional encoding transformers positional encoding sub lesson concept inject order into a model that otherwise treats its input as a set" },
+  { label: "Attention - Transformers", group: "Lesson", href: "/learn/transformers/attention/", kw: "attention transformers attention sub lesson concept weight every token by how relevant it is to the one you are computing" },
+  { label: "Multi-Head Attention - Transformers", group: "Lesson", href: "/learn/transformers/multi-head/", kw: "multi head attention transformers multi head sub lesson concept run several attention patterns in parallel then combine them" },
+  { label: "The Transformer Block - Transformers", group: "Lesson", href: "/learn/transformers/transformer-block/", kw: "the transformer block transformers transformer block sub lesson concept stack attention and an mlp with residuals and normalization into one repeatable unit" },
+  { label: "Decoding - Transformers", group: "Lesson", href: "/learn/transformers/decoding/", kw: "decoding transformers decoding sub lesson concept turn the model s next token distribution into actual generated text" },
+  // <<< generated:sublessons
   { label: "Weekly Insights", group: "Page", href: "/weekly-insights/", kw: "weekly insights digest news ml field notes practitioner rl quantization agents inference" },
   { label: "Guided Learning Paths", group: "Page", href: "/paths/", kw: "paths tracks guided learning course curriculum journey roadmap sequence progress" },
   { label: "Path: ML Foundations", group: "Path", href: "/paths/ml-foundations/", kw: "path ml foundations beginner gradient descent overfitting knn svm kmeans pca" },

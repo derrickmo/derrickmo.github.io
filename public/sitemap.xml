@@ -203,7 +203,14 @@
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/attention/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/multi-head/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/positional-encoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/self-attention/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/tokenization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/audio-ml/</loc><priority>0.6</priority></url>
