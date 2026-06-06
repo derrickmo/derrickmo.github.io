@@ -298,6 +298,8 @@ window.PLAY_DEMOS = {
       blurb: "Turn a sound into a dozen numbers. Spectrum → perceptual mel bands → log → DCT — the feature that named phonemes for decades of speech recognition." },
     { slug: "pitch-detection",    topic: "AUDIO / SIGNAL", title: "Pitch Detection", tone: "violet", status: "LIVE",
       blurb: "Find the note in a sound. A periodic signal autocorrelates to a peak at its period — f0 = sample rate / peak lag — and noise is what makes it hard." },
+    { slug: "dtw",                topic: "AUDIO / SIGNAL", title: "Dynamic Time Warping", tone: "violet", status: "LIVE",
+      blurb: "Align two series at different speeds. DTW finds the cheapest nonlinear warp between them — where rigid Euclidean distance fails on the smallest time shift." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -313,7 +315,7 @@ window.PLAY_DEMOS = {
     { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "branch-and-bound", "edit-distance"] },
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
     { name: "MLOps & Serving", why: "What happens after training: keeping a model fast, cheap, and reliable under real traffic. The queueing and batching that trade latency for throughput, the routing that spends compute only where it's needed, and the rollout discipline that ships a new model without taking the service down.", slugs: ["batching", "model-cascade", "autoscaling", "canary-rollout"] },
-    { name: "Audio & Signal", why: "How a continuous waveform becomes something a model can learn from: the time-frequency views that turn sound into an image, the features that compress it, and the sampling and alignment subtleties that bite if you ignore them. The front end of every speech and audio system.", slugs: ["spectrogram", "mfcc", "pitch-detection"] },
+    { name: "Audio & Signal", why: "How a continuous waveform becomes something a model can learn from: the time-frequency views that turn sound into an image, the features that compress it, and the sampling and alignment subtleties that bite if you ignore them. The front end of every speech and audio system.", slugs: ["spectrogram", "mfcc", "pitch-detection", "dtw"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -418,6 +420,7 @@ window.PLAY_DEMOS = {
     "spectrogram": "STFT time-frequency image",
     "mfcc": "mel filterbank + log + DCT features",
     "pitch-detection": "autocorrelation peak = fundamental",
+    "dtw": "elastic alignment of two series",
     "rag-chunking": "chunk → retrieve → ground",
     "self-consistency": "sample N → majority vote",
     "constrained-decoding": "mask invalid tokens per step",

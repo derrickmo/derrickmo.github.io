@@ -2040,6 +2040,16 @@ const GlyphPitchDetection = () => (
     <text x="36" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">autocorr peak</text>
   </svg>
 );
+
+const GlyphDTW = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* cost-matrix box with diagonal + bent warping path */}
+    <rect x="44" y="20" width="76" height="76" fill="rgba(96,165,250,0.08)" stroke="rgba(148,163,184,0.4)" strokeWidth="1" />
+    <line x1="44" y1="96" x2="120" y2="20" stroke="rgba(148,163,184,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+    <path d="M44 96 L60 86 L66 66 L86 52 L96 36 L120 20" fill="none" stroke="#fbbf24" strokeWidth="2.5" />
+    <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">warping path</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2203,6 +2213,7 @@ const GLYPHS = {
   "spectrogram": <GlyphSpectrogram />,
   "mfcc": <GlyphMFCC />,
   "pitch-detection": <GlyphPitchDetection />,
+  "dtw": <GlyphDTW />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

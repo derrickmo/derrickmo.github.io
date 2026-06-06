@@ -373,6 +373,7 @@ const DM_NAV_INDEX = [
   { label: "Spectrogram (STFT)", group: "Demo", href: "/visualize/spectrogram/", kw: "spectrogram stft short time fourier transform audio signal time frequency window hann resolution uncertainty speech sound fft" },
   { label: "Mel Filterbank & MFCC", group: "Demo", href: "/visualize/mfcc/", kw: "mfcc mel filterbank cepstral coefficients dct log spectrum speech recognition vowel formant feature audio signal cepstrum" },
   { label: "Pitch Detection", group: "Demo", href: "/visualize/pitch-detection/", kw: "pitch detection autocorrelation fundamental frequency f0 yin tuner note octave error wiener khinchin audio signal acf" },
+  { label: "Dynamic Time Warping", group: "Demo", href: "/visualize/dtw/", kw: "dynamic time warping dtw alignment time series elastic distance sakoe chiba band warping path speech gesture ecg dp audio signal" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
   { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },
