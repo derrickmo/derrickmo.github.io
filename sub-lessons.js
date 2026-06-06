@@ -893,6 +893,240 @@ window.SUB_LESSONS = {
     },
   },
 
+  "reinforcement-learning": {
+    title: "Reinforcement Learning",
+    intro: "Learning from reward, built up in order: balance exploration, solve known MDPs with Bellman backups, learn values from experience, then optimize policies directly and with deep function approximators.",
+    order: ["bandit", "mdp-bellman", "q-learning", "policy-gradient", "actor-critic", "ppo", "dqn"],
+    lessons: {
+      bandit: {
+        title: "Multi-Armed Bandits",
+        oneLine: "The simplest RL problem: balance exploring options against exploiting the best.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A bandit faces several actions with unknown payoffs and must learn which is best while earning reward. Pull the current best too eagerly and you may never discover a better one; explore too much and you waste pulls. Strategies like epsilon-greedy and UCB formalize this explore-exploit trade-off - the heart of all RL.",
+          ] },
+          { h: "The math", paras: ["UCB picks the arm with the best optimistic estimate, favoring uncertain arms:"],
+            tex: "a_t = \\arg\\max_a\\; \\hat{\\mu}_a + c\\sqrt{\\tfrac{\\ln t}{N_a}}", texNote: "The bonus term shrinks as an arm is tried more, so exploration self-regulates." },
+          { h: "In code", code: "import numpy as np\n\ndef ucb(mu, N, t, c=2.0):\n    return np.argmax(mu + c * np.sqrt(np.log(t + 1) / (N + 1e-9)))", caption: "Optimism in the face of uncertainty." },
+        ],
+        takeaways: ["Bandits isolate the explore-exploit trade-off.", "Epsilon-greedy explores at random; UCB explores by uncertainty.", "Every RL method inherits this tension."],
+        demo: "bandit",
+      },
+      "mdp-bellman": {
+        title: "MDPs and the Bellman Equation",
+        oneLine: "Frame sequential decisions, and solve them with a recursive value identity.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A Markov decision process is states, actions, rewards, and transitions. The value of a state is the best total reward you can expect from it. The Bellman equation makes this recursive: a state's value is the immediate reward plus the discounted value of where you land next - which value iteration solves by repeated backups.",
+          ] },
+          { h: "The math", paras: ["The optimal value satisfies the Bellman optimality equation:"],
+            tex: "V^*(s) = \\max_a \\sum_{s'} P(s'\\mid s,a)\\big[r + \\gamma V^*(s')\\big]", texNote: "gamma discounts the future; iterating this backup converges to V*." },
+          { h: "In code", code: "import numpy as np\n\ndef value_iteration(P, R, gamma=0.9, iters=100):\n    V = np.zeros(nS)\n    for _ in range(iters):\n        V = np.max(R + gamma * P @ V, axis=1)   # Bellman backup\n    return V", caption: "Repeated backups converge to the optimal values." },
+        ],
+        takeaways: ["MDPs formalize sequential decision-making.", "Bellman makes value recursive: reward now plus discounted value next.", "Value iteration solves a known MDP by repeated backups."],
+        demo: "value-iteration",
+      },
+      "q-learning": {
+        title: "Q-Learning",
+        oneLine: "Learn action-values from experience, without knowing the environment.",
+        sections: [
+          { h: "The intuition", paras: [
+            "When you do not know the transition model, you learn from samples. Q-learning estimates the value of each action in each state, nudging its estimate toward the observed reward plus the best next-state value. It is off-policy: it learns the optimal policy even while exploring with a different one.",
+          ] },
+          { h: "The math", paras: ["The temporal-difference update on the action-value Q:"],
+            tex: "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\big[r + \\gamma\\max_{a'}Q(s',a') - Q(s,a)\\big]", texNote: "The bracket is the TD error - the surprise that drives learning." },
+          { h: "In code", code: "td = r + gamma * Q[s2].max() - Q[s, a]\nQ[s, a] += alpha * td", caption: "Move the estimate toward reward plus best next value." },
+        ],
+        takeaways: ["Q-learning is model-free, off-policy value learning.", "The TD error is the learning signal.", "max over next actions makes it learn the greedy optimum."],
+        demo: "gridworld-rl",
+      },
+      "policy-gradient": {
+        title: "Policy Gradients",
+        oneLine: "Optimize the policy directly by following the gradient of expected reward.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Instead of learning values and acting greedily, policy gradients adjust the policy's parameters to make high-reward actions more likely. REINFORCE nudges the log-probability of each action by the return that followed it. It handles continuous actions naturally but can be high-variance.",
+          ] },
+          { h: "The math", paras: ["The policy-gradient theorem weights each action's log-prob gradient by its return:"],
+            tex: "\\nabla J = \\mathbb{E}\\big[\\nabla_\\theta \\log \\pi_\\theta(a\\mid s)\\,G_t\\big]", texNote: "Subtracting a baseline from G_t cuts variance without adding bias." },
+          { h: "In code", code: "# REINFORCE update over a trajectory\nfor (s, a, G) in trajectory:\n    grad = score(s, a)             # d log pi(a|s)/d theta\n    theta += lr * grad * (G - baseline)", caption: "Make actions that led to high return more likely." },
+        ],
+        takeaways: ["Policy gradients optimize the policy directly.", "REINFORCE scales each log-prob gradient by its return.", "A baseline reduces variance without bias."],
+        demo: "policy-gradient",
+      },
+      "actor-critic": {
+        title: "Actor-Critic",
+        oneLine: "Pair a policy (actor) with a learned value baseline (critic).",
+        sections: [
+          { h: "The intuition", paras: [
+            "Pure policy gradients are noisy because returns are noisy. Actor-critic adds a critic that learns the value function and supplies a low-variance baseline, so the actor updates on the advantage - how much better an action was than expected - instead of the raw return. It is the template behind A2C, PPO, and SAC.",
+          ] },
+          { h: "The math", paras: ["The actor updates on the advantage, estimated by the critic's TD error:"],
+            tex: "A_t = r + \\gamma V(s') - V(s)", texNote: "The critic learns V; the actor ascends grad log-pi times A." },
+          { h: "In code", code: "delta = r + gamma * V[s2] - V[s]      # TD error = advantage\nV[s]   += lr_v * delta                # critic\ntheta  += lr_a * score(s, a) * delta  # actor", caption: "One TD error trains both the critic and the actor." },
+        ],
+        takeaways: ["Actor-critic combines a policy with a learned value baseline.", "Updating on advantage cuts variance.", "It underlies A2C, PPO, and SAC."],
+        demo: "actor-critic",
+      },
+      ppo: {
+        title: "Proximal Policy Optimization",
+        oneLine: "Take the biggest safe policy step by clipping the update.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Big policy-gradient steps can collapse a policy. PPO lets you reuse a batch for several updates but clips the change in action probabilities, so the new policy never strays too far from the old one. This simple clip makes training stable and sample-efficient - it is the default for RLHF.",
+          ] },
+          { h: "The math", paras: ["Clip the probability ratio so the surrogate objective cannot reward going too far:"],
+            tex: "L = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t, 1-\\epsilon, 1+\\epsilon)A_t)\\big]", texNote: "r_t is the new/old probability ratio; outside the band the gradient is zero." },
+          { h: "In code", code: "ratio = np.exp(logp_new - logp_old)\nclip = np.clip(ratio, 1 - eps, 1 + eps)\nloss = -np.minimum(ratio * A, clip * A).mean()", caption: "The clip parks the ratio inside a trust region." },
+        ],
+        takeaways: ["PPO clips the policy update into a trust region.", "It allows several epochs per batch, stably.", "It is the workhorse of modern RL and RLHF."],
+        demo: "ppo",
+      },
+      dqn: {
+        title: "Deep Q-Networks",
+        oneLine: "Replace the Q-table with a network - stabilized by replay and a target net.",
+        sections: [
+          { h: "The intuition", paras: [
+            "When states are too many to tabulate (pixels, say), approximate Q with a neural network. Two tricks keep it from diverging: a replay buffer that breaks the correlation between consecutive samples, and a slowly-updated target network that provides a stable regression goal. Together they made deep RL work on Atari.",
+          ] },
+          { h: "The math", paras: ["Regress the network Q toward a target built from a frozen copy:"],
+            tex: "y = r + \\gamma\\max_{a'} Q_{\\theta^-}(s', a'),\\quad \\mathcal{L} = (y - Q_\\theta(s,a))^2", texNote: "theta^- is the target network, copied from theta every so often." },
+          { h: "In code", code: "# sample a minibatch from replay, regress to the target net\ny = r + gamma * Q_target(s2).max(1) * (1 - done)\nloss = ((y - Q(s).gather(a)) ** 2).mean()", caption: "Replay decorrelates data; the target net stabilizes the goal." },
+        ],
+        takeaways: ["DQN approximates Q with a neural network.", "Experience replay breaks sample correlation.", "A target network gives a stable regression target."],
+        demo: "dqn",
+      },
+    },
+  },
+
+  "training-systems": {
+    title: "Training at Scale",
+    intro: "Keeping large training runs stable and efficient: schedule the learning rate, tame exploding gradients, train in low precision, and predict returns with scaling laws.",
+    order: ["lr-schedule", "gradient-clipping", "mixed-precision", "scaling-laws"],
+    lessons: {
+      "lr-schedule": {
+        title: "Learning-Rate Schedules",
+        oneLine: "Vary the step size over training - warm up, then decay.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A fixed learning rate is a compromise. Schedules do better: a short warmup avoids early instability while statistics settle, then a decay (cosine or linear) lets the model settle into a good minimum. The right schedule can matter as much as the optimizer.",
+          ] },
+          { h: "The math", paras: ["A cosine schedule decays smoothly from the peak rate to near zero:"],
+            tex: "\\eta_t = \\tfrac12\\eta_{\\max}\\big(1 + \\cos(\\pi\\,t/T)\\big)", texNote: "Often preceded by a linear warmup over the first few percent of steps." },
+          { h: "In code", code: "import numpy as np\n\ndef lr(t, T, warm=500, peak=3e-4):\n    if t < warm: return peak * t / warm        # warmup\n    return 0.5 * peak * (1 + np.cos(np.pi * (t - warm) / (T - warm)))", caption: "Warm up, then cosine-decay to near zero." },
+        ],
+        takeaways: ["Schedules beat a single fixed learning rate.", "Warmup avoids early divergence; decay sharpens the minimum.", "Cosine decay is a strong default."],
+        demo: "lr-schedule",
+      },
+      "gradient-clipping": {
+        title: "Gradient Clipping",
+        oneLine: "Cap the gradient norm so a bad batch cannot blow up training.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Occasionally a batch produces a huge gradient that sends the weights flying and the loss to NaN - common in RNNs and transformers. Clipping rescales the gradient when its norm exceeds a threshold, preserving direction but bounding the step. Cheap insurance against rare instabilities.",
+          ] },
+          { h: "The math", paras: ["Rescale the gradient if its norm exceeds the threshold c:"],
+            tex: "g \\leftarrow g \\cdot \\min\\!\\Big(1,\\ \\tfrac{c}{\\|g\\|}\\Big)", texNote: "Direction is preserved; only the magnitude is capped." },
+          { h: "In code", code: "import numpy as np\n\ndef clip(g, c=1.0):\n    norm = np.linalg.norm(g)\n    return g * min(1.0, c / (norm + 1e-9))", caption: "Keep the direction, bound the magnitude." },
+        ],
+        takeaways: ["Clipping bounds the update from a rare huge gradient.", "It preserves direction, only scaling magnitude.", "Standard practice for RNNs and transformers."],
+        demo: "gradient-clipping",
+      },
+      "mixed-precision": {
+        title: "Mixed Precision",
+        oneLine: "Train in 16-bit for speed and memory, with safeguards for accuracy.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Half-precision (fp16 / bf16) halves memory and runs far faster on modern hardware, but fp16's narrow range can underflow small gradients to zero. Mixed precision keeps a master copy of the weights in fp32 and scales the loss up before the backward pass so gradients stay representable, then scales them back down.",
+          ] },
+          { h: "The math", paras: ["Loss scaling shifts gradients into fp16's representable range:"],
+            tex: "g = \\tfrac{1}{S}\\,\\nabla(S\\cdot\\mathcal{L})", texNote: "Scale up by S before backward, unscale by S after - bf16's wider range often skips this." },
+          { h: "In code", code: "scaled_loss = loss * S            # S ~ 2^14\nscaled_loss.backward()\ngrads = [g / S for g in grads]    # unscale before the step", caption: "Compute in 16-bit, accumulate the master weights in 32-bit." },
+        ],
+        takeaways: ["fp16 / bf16 cut memory and speed up training.", "Loss scaling stops fp16 gradients underflowing.", "An fp32 master copy preserves accuracy."],
+        demo: "mixed-precision",
+      },
+      "scaling-laws": {
+        title: "Scaling Laws",
+        oneLine: "Loss falls as a predictable power law in compute, data, and parameters.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Model quality improves smoothly and predictably with scale. Empirically, test loss drops as a power law in parameters, data, and compute - straight lines on a log-log plot. These curves let you forecast a big model's loss from small runs and allocate a compute budget optimally between size and data.",
+          ] },
+          { h: "The math", paras: ["Loss versus a scale factor N follows a power law:"],
+            tex: "L(N) \\approx L_\\infty + \\Big(\\tfrac{N_c}{N}\\Big)^{\\alpha}", texNote: "Compute-optimal training (Chinchilla) balances N and data D for a fixed budget." },
+          { h: "In code", code: "import numpy as np\n# fit a power law to small-scale runs, extrapolate\nlogL = np.log(losses); logN = np.log(sizes)\nslope, intercept = np.polyfit(logN, logL, 1)   # slope = -alpha", caption: "A line on a log-log plot predicts the next scale." },
+        ],
+        takeaways: ["Loss is a power law in compute, data, and parameters.", "Small runs forecast large ones.", "Compute-optimal training balances model size against data."],
+        demo: "scaling-laws",
+      },
+    },
+  },
+
+  "llm-systems": {
+    title: "LLM Systems and Efficiency",
+    intro: "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
+    order: ["quantization", "speculative-decoding", "paged-attention", "moe"],
+    lessons: {
+      quantization: {
+        title: "Quantization",
+        oneLine: "Store and compute weights in fewer bits with minimal accuracy loss.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A model in 16-bit floats is mostly empty precision. Quantization maps weights to low-bit integers (8-bit, even 4-bit), shrinking memory and speeding up math. The trick is choosing a scale per group of weights so the rounding error stays small, and handling outliers that would otherwise stretch the scale.",
+          ] },
+          { h: "The math", paras: ["Symmetric quantization rounds to a grid set by a per-group scale s:"],
+            tex: "q = \\mathrm{round}(w/s),\\qquad \\hat{w} = s\\cdot q", texNote: "Smaller groups and outlier handling keep the reconstruction error low." },
+          { h: "In code", code: "import numpy as np\n\ndef quantize(w, bits=8):\n    s = np.abs(w).max() / (2**(bits-1) - 1)\n    q = np.round(w / s).clip(-(2**(bits-1)), 2**(bits-1)-1)\n    return q, s          # store q (int) + s (scale)", caption: "Round to a grid; dequantize by multiplying back." },
+        ],
+        takeaways: ["Quantization trades precision for memory and speed.", "Per-group scales keep rounding error small.", "Outliers are the main accuracy challenge."],
+        demo: "quantization",
+      },
+      "speculative-decoding": {
+        title: "Speculative Decoding",
+        oneLine: "Draft several tokens with a small model, verify them with the big one.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Generation is slow because the big model runs once per token. Speculative decoding has a cheap draft model propose several tokens at once; the big model then checks them all in a single parallel pass and accepts the longest correct prefix. It is exactly as accurate as the big model, just faster.",
+          ] },
+          { h: "The math", paras: ["Accept a drafted token with a probability that preserves the target distribution:"],
+            tex: "p_{\\text{accept}} = \\min\\!\\Big(1,\\ \\tfrac{p_{\\text{target}}(x)}{p_{\\text{draft}}(x)}\\Big)", texNote: "A correction step on rejection makes the output identical in distribution to the target." },
+          { h: "In code", code: "draft = small.generate(ctx, k=4)           # propose k tokens\np = big.logprobs(ctx, draft)               # verify in one pass\naccept = longest_prefix_where(p_ratio >= u) # keep correct prefix", caption: "Propose cheaply, verify in parallel, keep the correct prefix." },
+        ],
+        takeaways: ["Speculative decoding drafts cheap, verifies expensive.", "Output is identical in distribution to the big model.", "Speedup depends on how often drafts are accepted."],
+        demo: "speculative-decoding",
+      },
+      "paged-attention": {
+        title: "Paged Attention",
+        oneLine: "Manage the KV cache like virtual memory to kill fragmentation.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Serving many requests with different lengths fragments the KV-cache memory, wasting much of the GPU. Paged attention borrows the OS idea of paging: store the cache in fixed-size blocks allocated on demand, so memory is packed tightly and sequences can share blocks. It is what lets servers batch far more requests.",
+          ] },
+          { h: "The math", paras: ["A logical token position maps to a physical block and offset:"],
+            tex: "(\\text{block},\\ \\text{offset}) = \\big(\\lfloor i/B\\rfloor,\\ i \\bmod B\\big)", texNote: "Non-contiguous blocks via an indirection table - just like OS page tables." },
+          { h: "In code", code: "# a block table maps logical positions to physical blocks\nblock = block_table[seq][i // B]\nk = kv_blocks[block][i % B]            # gather K/V by page", caption: "Fixed-size pages, allocated on demand, packed tight." },
+        ],
+        takeaways: ["Paged attention pages the KV cache like virtual memory.", "It removes fragmentation and packs more requests per GPU.", "It is the core idea behind high-throughput servers like vLLM."],
+        demo: "paged-attention",
+      },
+      moe: {
+        title: "Mixture of Experts",
+        oneLine: "Route each token to a few specialist sub-networks, not all of them.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A dense layer runs every parameter on every token. A mixture of experts has many expert sub-networks and a router that sends each token to just the top few. The model holds enormous total capacity, but each token only activates a slice of it - so quality scales with parameters while compute stays roughly fixed.",
+          ] },
+          { h: "The math", paras: ["A router picks the top-k experts per token and mixes their outputs by gate weight:"],
+            tex: "y = \\sum_{e\\in\\text{top-}k} g_e(x)\\,E_e(x)", texNote: "A load-balancing loss keeps the router from collapsing onto a few experts." },
+          { h: "In code", code: "gate = softmax(router @ x)           # scores over experts\ntopk = gate.argsort()[-k:]           # pick k experts\ny = sum(gate[e] * expert[e](x) for e in topk)", caption: "Only the top-k experts run per token." },
+        ],
+        takeaways: ["MoE activates only a few experts per token.", "Total capacity grows while per-token compute stays fixed.", "Load balancing prevents router collapse."],
+        demo: "moe",
+      },
+    },
+  },
+
 };
 
 // resolve a sub-lesson + its module context; null if missing.
