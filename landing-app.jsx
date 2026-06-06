@@ -459,6 +459,27 @@ function LabPreview() {
             );
           })}
         </div>
+        <a href="paths/" style={{
+          position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
+          alignItems: "center", gap: 20, flexWrap: "wrap", marginTop: 16,
+          padding: "24px 30px", border: "1px solid var(--border-violet)", borderRadius: 8,
+          background: "linear-gradient(120deg, rgba(168,85,247,0.12) 0%, rgba(59,130,246,0.06) 100%)",
+          textDecoration: "none", color: "inherit",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(192,132,252,0.18)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-violet)"; e.currentTarget.style.boxShadow = "none"; }}>
+          <HudBrackets mode="dark" inset={8} size={16} />
+          <div>
+            <MonoLabel color="var(--violet-lt)">// GUIDED PATHS · NOT SURE WHERE TO START?</MonoLabel>
+            <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 22, color: "var(--white)", marginTop: 8 }}>
+              Follow a curated track — from "Zero to Transformer" to "RL from Scratch" — in the order that builds understanding.
+            </div>
+            <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, marginTop: 6 }}>
+              11 paths through the demos, concepts, and lessons. Progress saves as you go.
+            </div>
+          </div>
+          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>BROWSE PATHS →</span>
+        </a>
       </Container>
     </Section>
   );

@@ -54,7 +54,12 @@ function App() {
         <Container>
           <a href="../" className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>← ALL PATHS</a>
           <div style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 760, marginTop: 14 }}>
-            <span className="t-mono-s" style={{ color: LEVEL_COLOR[path.level] || accent }}>// {path.level.toUpperCase()} · {total} STEPS · ~{path.estMinutes} MIN</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span className="t-mono-s" style={{ color: LEVEL_COLOR[path.level] || accent }}>// {path.level.toUpperCase()} · {total} STEPS · ~{path.estMinutes} MIN</span>
+              {done >= total && total > 0 && (
+                <span className="t-mono-s" style={{ color: "#34d399", border: "1px solid #34d399", borderRadius: 999, padding: "2px 10px", fontSize: 10 }}>✓ COMPLETE</span>
+              )}
+            </span>
             <h1 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(34px, 4.5vw, 60px)", letterSpacing: "-0.02em", lineHeight: 1.02, margin: 0, color: "var(--white)" }}>{path.title}</h1>
             <div className="t-body" style={{ color: "var(--muted)", fontSize: 17, lineHeight: 1.6 }}>{path.tagline}</div>
           </div>

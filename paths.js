@@ -380,6 +380,18 @@ window.DM_PATH_RESOLVE = function (step) {
 window.DM_PATH_FIND = id => (window.LEARNING_PATHS || []).find(p => p.id === id);
 window.DM_PATH_TOTAL = p => p.stages.reduce((a, s) => a + s.steps.length, 0);
 
+// reverse index: which paths include a given step (kind + ref)?
+// Used by demo/concept pages to show a "part of these paths" callout.
+window.DM_PATHS_FOR = function (kind, ref) {
+  const out = [];
+  for (const p of (window.LEARNING_PATHS || [])) {
+    if (p.stages.some(s => s.steps.some(st => st.kind === kind && st.ref === ref))) {
+      out.push({ id: p.id, title: p.title, accent: p.accent });
+    }
+  }
+  return out;
+};
+
 // ── localStorage progress (graceful if storage is unavailable) ───────
 (function () {
   const KEY = "dm_paths_v1";

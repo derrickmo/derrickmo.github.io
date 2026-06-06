@@ -43,8 +43,8 @@ function PathCard({ p }) {
           <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 23, letterSpacing: "-0.015em", color: "var(--white)", margin: 0 }}>{p.title}</h3>
         </div>
         <div style={{ position: "relative", flexShrink: 0 }}>
-          <Ring pct={pct} accent={accent} />
-          <span className="t-mono-s" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: accent }}>{Math.round(pct * 100)}%</span>
+          <Ring pct={pct} accent={pct >= 1 ? "#34d399" : accent} />
+          <span className="t-mono-s" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: pct >= 1 ? 13 : 9, color: pct >= 1 ? "#34d399" : accent }}>{pct >= 1 ? "✓" : Math.round(pct * 100) + "%"}</span>
         </div>
       </div>
       <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.55, marginTop: 10 }}>{p.tagline}</div>

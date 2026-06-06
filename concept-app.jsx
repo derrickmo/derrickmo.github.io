@@ -12,6 +12,42 @@ const {
 const BASE = window.__DM_BASE || "../../";
 const INDEX = window.CONCEPTS_INDEX || {};
 const C = INDEX[window.__DM_CONCEPT_ID] || null;
+const { useState: _useState, useEffect: _useEffect } = React;
+
+// "Part of these learning paths" — lazy-load paths.js, then list paths that
+// include this concept as a step.
+function PathsForConcept() {
+  const [, setTick] = _useState(0);
+  _useEffect(() => {
+    if (window.LEARNING_PATHS) return;
+    if (document.querySelector("script[data-dm-paths]")) return;
+    const s = document.createElement("script");
+    s.type = "module"; s.src = BASE + "paths.js"; s.setAttribute("data-dm-paths", "1");
+    s.onload = () => setTick(t => t + 1);
+    document.body.appendChild(s);
+  }, []);
+  const list = (window.DM_PATHS_FOR && C) ? window.DM_PATHS_FOR("concept", C.id) : [];
+  if (!list.length) return null;
+  return (
+    <Section style={{ paddingTop: 8, paddingBottom: 40 }}>
+      <Container style={{ maxWidth: 860 }}>
+        <MonoLabel color="var(--violet-lt)">// PART OF THESE LEARNING PATHS</MonoLabel>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+          {list.map(p => {
+            const a = p.accent === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
+            const bg = p.accent === "violet" ? "rgba(168,85,247,0.08)" : "rgba(96,165,250,0.08)";
+            return (
+              <a key={p.id} href={BASE + "paths/" + p.id + "/"} className="t-mono-s"
+                style={{ textDecoration: "none", color: a, border: `1px solid ${a}`, background: bg, borderRadius: 999, padding: "6px 13px" }}>
+                {p.title} →
+              </a>
+            );
+          })}
+        </div>
+      </Container>
+    </Section>
+  );
+}
 
 function NotFound() {
   return (
@@ -161,6 +197,7 @@ function App() {
       <Hero />
       <PrereqStrip />
       <Surfaces />
+      <PathsForConcept />
       <Refs />
       <Footer />
     </>

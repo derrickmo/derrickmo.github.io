@@ -22,6 +22,41 @@ function __resolveAutoConcepts(slug, backHref) {
 }
 
 const _BASE = window.__DM_BASE || "../../";
+const { useState: _useState, useEffect: _useEffect } = React;
+
+// "Part of these learning paths" callout. paths.js isn't loaded on demo pages by
+// default, so lazy-inject it once, then render the paths that include this item.
+function PathsCallout({ kind, refId, accent }) {
+  const [, setTick] = _useState(0);
+  _useEffect(() => {
+    if (window.LEARNING_PATHS || !refId) return;
+    if (document.querySelector("script[data-dm-paths]")) return;
+    const s = document.createElement("script");
+    s.type = "module"; s.src = (window.__DM_BASE || "../../") + "paths.js"; s.setAttribute("data-dm-paths", "1");
+    s.onload = () => setTick(t => t + 1);
+    document.body.appendChild(s);
+  }, [refId]);
+  const list = (window.DM_PATHS_FOR && refId) ? window.DM_PATHS_FOR(kind, refId) : [];
+  if (!list.length) return null;
+  const BASE = window.__DM_BASE || "../../";
+  return (
+    <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
+      <MonoLabel color={accent}>// PART OF THESE LEARNING PATHS</MonoLabel>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+        {list.map(p => {
+          const a = p.accent === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
+          const bg = p.accent === "violet" ? "rgba(168,85,247,0.08)" : "rgba(96,165,250,0.08)";
+          return (
+            <a key={p.id} href={BASE + "paths/" + p.id + "/"} className="t-mono-s"
+              style={{ textDecoration: "none", color: a, border: `1px solid ${a}`, background: bg, borderRadius: 999, padding: "6px 13px" }}>
+              {p.title} →
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concepts, relatedConcepts, lessonHref, repoHref, tone = "blue", backHref, backLabel = "VISUALIZE" }) {
   const accent = tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
@@ -99,6 +134,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
             {_conceptIds && _conceptIds.length > 0 && Connections && (
               <Connections ids={_conceptIds} />
             )}
+            {_slug && <PathsCallout kind="demo" refId={_slug} accent={accent} />}
             {(lessonHref || repoHref) && (
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
                 {lessonHref && (
