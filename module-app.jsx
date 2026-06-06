@@ -207,34 +207,42 @@ function Formats() {
   );
 }
 
-// ─── Flagship on-site lesson callout ──────────────────────────
+// flagships for this module: support a `flagships:[...]` array, or a single `flagship`.
+const FLAGSHIPS = LEC ? (LEC.flagships || (LEC.flagship ? [LEC.flagship] : [])) : [];
+
+// ─── Flagship on-site lesson callout(s) ───────────────────────
 function Flagship() {
-  if (!LEC || !LEC.flagship) return null;
-  const f = LEC.flagship;
+  if (!FLAGSHIPS.length) return null;
+  const many = FLAGSHIPS.length > 1;
   return (
     <Section style={{ paddingTop: 24, paddingBottom: 8 }}>
       <Container>
-        <a href={BASE + f.href} style={{
-          position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
-          alignItems: "center", gap: 24, flexWrap: "wrap",
-          padding: "26px 30px", border: "1px solid var(--border-violet)", borderRadius: 8,
-          background: "linear-gradient(120deg, rgba(168,85,247,0.12) 0%, rgba(59,130,246,0.08) 100%)",
-          textDecoration: "none", color: "inherit",
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(192,132,252,0.2)"; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-violet)"; e.currentTarget.style.boxShadow = "none"; }}>
-          <HudBrackets mode="dark" inset={10} size={20} />
-          <div>
-            <MonoLabel color="var(--violet-lt)">// FEATURED LESSON · FULL WALKTHROUGH ON-SITE</MonoLabel>
-            <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 24, color: "var(--white)", marginTop: 8 }}>
-              {f.n} · {f.label}
-            </div>
-            <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, marginTop: 4 }}>
-              Read this one in full here — derivation, NumPy, PyTorch, and a trained example.
-            </div>
-          </div>
-          <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ LESSON →</span>
-        </a>
+        {many && <div style={{ marginBottom: 14 }}><MonoLabel color="var(--violet-lt)">// FEATURED LESSONS · FULL WALKTHROUGHS ON-SITE</MonoLabel></div>}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {FLAGSHIPS.map(f => (
+            <a key={f.href} href={BASE + f.href} style={{
+              position: "relative", overflow: "hidden", display: "flex", justifyContent: "space-between",
+              alignItems: "center", gap: 24, flexWrap: "wrap",
+              padding: "26px 30px", border: "1px solid var(--border-violet)", borderRadius: 8,
+              background: "linear-gradient(120deg, rgba(168,85,247,0.12) 0%, rgba(59,130,246,0.08) 100%)",
+              textDecoration: "none", color: "inherit",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--violet-lt)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(192,132,252,0.2)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-violet)"; e.currentTarget.style.boxShadow = "none"; }}>
+              <HudBrackets mode="dark" inset={10} size={20} />
+              <div>
+                {!many && <MonoLabel color="var(--violet-lt)">// FEATURED LESSON · FULL WALKTHROUGH ON-SITE</MonoLabel>}
+                <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 24, color: "var(--white)", marginTop: many ? 0 : 8 }}>
+                  {f.n} · {f.label}
+                </div>
+                <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, marginTop: 4 }}>
+                  Read this one in full here — derivation, NumPy, PyTorch, and a trained example.
+                </div>
+              </div>
+              <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ LESSON →</span>
+            </a>
+          ))}
+        </div>
       </Container>
     </Section>
   );
@@ -243,7 +251,7 @@ function Flagship() {
 // ─── Notebooks list ───────────────────────────────────────────
 function Notebooks() {
   if (!LEC) return null;
-  const flagN = LEC.flagship ? LEC.flagship.n : null;
+  const flagBy = {}; FLAGSHIPS.forEach(f => { flagBy[f.n] = f; });
   return (
     <Section id="notebooks">
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
@@ -260,7 +268,7 @@ function Notebooks() {
         </div>
         <div style={{ border: "1px solid var(--border)", borderRadius: 6, background: "rgba(13, 24, 52, 0.35)", overflow: "hidden" }}>
           {LEC.notebooks.map((nb, i) => {
-            const isFlag = nb.n === flagN;
+            const isFlag = !!flagBy[nb.n];
             const row = (
               <>
                 <span className="t-mono" style={{ color: isFlag ? "var(--violet-lt)" : "var(--blue-lt)", fontSize: 13, fontWeight: 600 }}>{nb.n}</span>
@@ -277,7 +285,7 @@ function Notebooks() {
               textDecoration: "none", color: "inherit",
             };
             if (isFlag) {
-              return <a key={nb.n} href={BASE + LEC.flagship.href} style={{ ...style, background: "rgba(168,85,247,0.06)" }}>{row}</a>;
+              return <a key={nb.n} href={BASE + flagBy[nb.n].href} style={{ ...style, background: "rgba(168,85,247,0.06)" }}>{row}</a>;
             }
             return <div key={nb.n} style={style}>{row}</div>;
           })}

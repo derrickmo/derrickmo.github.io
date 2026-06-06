@@ -111,7 +111,10 @@ window.LECTURES = {
       "Activations, losses, initialization, and regularization — and how each shapes training.",
       "Why optimizers (SGD → Adam) matter, then assemble a complete training pipeline.",
     ],
-    flagship: { n: "05-06", label: "Backpropagation from Scratch", href: "learn/neural-nets/forward-pass/" },
+    flagships: [
+      { n: "05-06", label: "Backpropagation from Scratch", href: "learn/neural-nets/forward-pass/" },
+      { n: "05-04", label: "Loss Functions Deep Dive", href: "learn/neural-nets/loss-functions/" },
+    ],
     notebooks: [
       { n: "05-01", t: "The Perceptron", d: "MNIST + make_moons", m: "15 min" },
       { n: "05-02", t: "Multilayer Perceptrons", d: "FashionMNIST + make_moons", m: "20 min" },
@@ -136,7 +139,10 @@ window.LECTURES = {
       "The architectural arc LeNet → AlexNet → VGG → ResNet, and what skip connections fix.",
       "Transfer learning, batch norm, augmentation, and efficient convolutions for real vision.",
     ],
-    flagship: { n: "06-03", label: "CNN Architectures: LeNet to ResNet", href: "learn/cnn/cnn-architectures/" },
+    flagships: [
+      { n: "06-03", label: "CNN Architectures: LeNet to ResNet", href: "learn/cnn/cnn-architectures/" },
+      { n: "06-06", label: "Transfer Learning and Fine-Tuning", href: "learn/cnn/transfer-learning/" },
+    ],
     notebooks: [
       { n: "06-01", t: "Convolution from Scratch", d: "MNIST", m: "20 min" },
       { n: "06-02", t: "Pooling & Receptive Fields", d: "MNIST", m: "15 min" },
@@ -258,7 +264,10 @@ window.LECTURES = {
       "Diffusion models: forward/reverse process, noise schedules, sampling and guidance.",
       "Normalizing flows, score/flow matching, and autoregressive image models.",
     ],
-    flagship: { n: "11-04", label: "Denoising Diffusion (DDPM) from Scratch", href: "learn/generative/ddpm/" },
+    flagships: [
+      { n: "11-04", label: "Denoising Diffusion (DDPM) from Scratch", href: "learn/generative/ddpm/" },
+      { n: "11-06", label: "Normalizing Flows (RealNVP)", href: "learn/generative/flows/" },
+    ],
     notebooks: [
       { n: "11-01", t: "Variational Autoencoder (VAE)", d: "MNIST", m: "25 min" },
       { n: "11-02", t: "GAN Foundations (DCGAN)", d: "FashionMNIST", m: "25 min" },

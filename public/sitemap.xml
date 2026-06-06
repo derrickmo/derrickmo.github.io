@@ -188,6 +188,7 @@
   <url><loc>https://derrickmo.github.io/learn/cnn/cnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/data-augmentation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/transfer-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/dpo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/lora/</loc><priority>0.6</priority></url>
@@ -204,6 +205,7 @@
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/ddpm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/diffusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/generative/flows/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/vae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/huggingface/</loc><priority>0.6</priority></url>
@@ -249,6 +251,7 @@
   <url><loc>https://derrickmo.github.io/learn/neural-nets/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/forward-pass/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/loss-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/mlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/weight-init/</loc><priority>0.6</priority></url>
