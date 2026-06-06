@@ -117,6 +117,7 @@
   <url><loc>https://derrickmo.github.io/concepts/paged-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/perceptron/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/pitch-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/positional-encoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/ppo/</loc><priority>0.6</priority></url>
@@ -317,6 +318,7 @@
   <url><loc>https://derrickmo.github.io/visualize/pathfinding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/perceptron/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/pitch-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/positional-encoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/ppo/</loc><priority>0.6</priority></url>
