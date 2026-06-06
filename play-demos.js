@@ -310,6 +310,8 @@ window.PLAY_DEMOS = {
       blurb: "Connect everything for the least total weight. Prim's greedily adds the cheapest edge crossing out of the growing tree — the cut property says that's always safe." },
     { slug: "louvain",            topic: "GRAPHS / NETWORKS", title: "Community Detection", tone: "violet", status: "LIVE",
       blurb: "Find the groups in a network. Greedily move nodes to maximize modularity and the colors merge into communities — until too many cross-edges blur them away." },
+    { slug: "max-flow",           topic: "GRAPHS / NETWORKS", title: "Max Flow / Min Cut", tone: "blue", status: "LIVE",
+      blurb: "Push as much as the network allows from source to sink. Augmenting paths find the maximum flow — and reveal the bottleneck cut that exactly equals it." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -326,7 +328,7 @@ window.PLAY_DEMOS = {
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
     { name: "MLOps & Serving", why: "What happens after training: keeping a model fast, cheap, and reliable under real traffic. The queueing and batching that trade latency for throughput, the routing that spends compute only where it's needed, and the rollout discipline that ships a new model without taking the service down.", slugs: ["batching", "model-cascade", "autoscaling", "canary-rollout"] },
     { name: "Audio & Signal", why: "How a continuous waveform becomes something a model can learn from: the time-frequency views that turn sound into an image, the features that compress it, and the sampling and alignment subtleties that bite if you ignore them. The front end of every speech and audio system.", slugs: ["spectrogram", "mfcc", "pitch-detection", "dtw", "aliasing"] },
-    { name: "Graphs & Networks", why: "The algorithms for data shaped like a network — webs, maps, social graphs, dependencies. Ranking nodes by who points at them, finding shortest routes and cheapest spanning structures, carving out communities, and pushing maximum flow through a capacitated network. The classical backbone under graph ML.", slugs: ["pagerank", "dijkstra", "mst", "louvain"] },
+    { name: "Graphs & Networks", why: "The algorithms for data shaped like a network — webs, maps, social graphs, dependencies. Ranking nodes by who points at them, finding shortest routes and cheapest spanning structures, carving out communities, and pushing maximum flow through a capacitated network. The classical backbone under graph ML.", slugs: ["pagerank", "dijkstra", "mst", "louvain", "max-flow"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -437,6 +439,7 @@ window.PLAY_DEMOS = {
     "dijkstra": "settle nearest, relax neighbors",
     "mst": "cheapest edges that connect everything",
     "louvain": "maximize modularity to find communities",
+    "max-flow": "augmenting paths; max flow = min cut",
     "rag-chunking": "chunk → retrieve → ground",
     "self-consistency": "sample N → majority vote",
     "constrained-decoding": "mask invalid tokens per step",

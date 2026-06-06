@@ -2125,6 +2125,22 @@ const GlyphLouvain = () => (
     <text x="40" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">modularity</text>
   </svg>
 );
+
+const GlyphMaxFlow = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* S -> middle -> T with flow thickness; a red dashed cut */}
+    <line x1="28" y1="56" x2="74" y2="36" stroke="#34d399" strokeWidth="4" />
+    <line x1="28" y1="56" x2="74" y2="76" stroke="#34d399" strokeWidth="2" />
+    <line x1="74" y1="36" x2="124" y2="56" stroke="#34d399" strokeWidth="3" />
+    <line x1="74" y1="76" x2="124" y2="56" stroke="#34d399" strokeWidth="2" />
+    <line x1="99" y1="18" x2="99" y2="94" stroke="#f87171" strokeWidth="2" strokeDasharray="4 3" />
+    <circle cx="28" cy="56" r="10" fill="#34d399" />
+    <circle cx="74" cy="36" r="7" fill="#475569" />
+    <circle cx="74" cy="76" r="7" fill="#475569" />
+    <circle cx="124" cy="56" r="10" fill="#f472b6" />
+    <text x="44" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">flow = cut</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2294,6 +2310,7 @@ const GLYPHS = {
   "dijkstra": <GlyphDijkstra />,
   "mst": <GlyphMST />,
   "louvain": <GlyphLouvain />,
+  "max-flow": <GlyphMaxFlow />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
