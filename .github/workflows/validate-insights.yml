@@ -1,0 +1,20 @@
+# Schema-gates the Weekly Insights data file. Runs on every push and PR.
+# Dependency-free (pure Node), so it is fast and cannot be broken by a bad
+# entry slipping into weekly-insights.js. The deploy workflow also runs this
+# implicitly via the `prebuild` npm script, so an invalid entry blocks deploy.
+name: Validate Weekly Insights
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node validate-insights.mjs

@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "validate": "node validate-insights.mjs",
+    "prebuild": "node validate-insights.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

@@ -48,7 +48,40 @@ function SourceLink({ source }) {
   );
 }
 
+// Section items follow a fixed three-part pattern: what's new, how it works,
+// impact. tldr/watching items are plain { text } and fall through to the
+// legacy single-line bullet.
+function PatternRow({ label, body, mobile, source }) {
+  if (!body) return null;
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <span className="t-mono-s" style={{ color: "var(--blue-lt)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", marginRight: 8 }}>{label}</span>
+      <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 14 : 15, lineHeight: 1.6 }}>
+        {body}{source ? <> <SourceLink source={source} /></> : null}
+      </span>
+    </div>
+  );
+}
+
 function Bullet({ item, mobile }) {
+  const structured = item.whatsNew || item.howItWorks || item.impact;
+  if (structured) {
+    return (
+      <li style={{ marginBottom: 18, listStyle: "none", borderLeft: "2px solid var(--border-violet)", paddingLeft: 14 }}>
+        {item.title && (
+          <div className="t-body" style={{ fontWeight: 600, color: "var(--white)", fontSize: mobile ? 15 : 16, lineHeight: 1.4, marginBottom: 7 }}>
+            {item.title}
+          </div>
+        )}
+        <PatternRow label="What's new" body={item.whatsNew} mobile={mobile} />
+        <PatternRow label="How it works" body={item.howItWorks} mobile={mobile} />
+        <PatternRow label="Impact" body={item.impact} mobile={mobile} source={item.source} />
+        {!item.impact && item.source && (
+          <div><SourceLink source={item.source} /></div>
+        )}
+      </li>
+    );
+  }
   return (
     <li style={{ marginBottom: 12, listStyle: "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
       <span style={{ color: "var(--violet-lt)", marginTop: 3, fontSize: 12 }}>▸</span>
