@@ -204,6 +204,13 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/self-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/classic-cs/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/computer-vision/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/ml-foundations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/rag-and-agents/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/rl-from-scratch/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/paths/zero-to-transformer/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/play/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/play/chess/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/play/connect-four/</loc><priority>0.6</priority></url>

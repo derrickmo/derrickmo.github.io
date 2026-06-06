@@ -9,6 +9,12 @@ const {
 
 const SECTIONS = [
   {
+    href: "../paths/", tag: "// GUIDED · TRACKS", title: "Guided Paths", tone: "violet",
+    blurb: "Curated routes through the demos, concepts, and lessons — taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
+    stat: "6 paths · saved progress · start anywhere",
+    diagram: <AgentConstellation width={280} height={170} mode="dark" />,
+  },
+  {
     href: "ml-from-scratch/", tag: "// COURSE · FROM SCRATCH", title: "ML from Scratch", tone: "blue",
     blurb: "A 20-module program covering machine learning and deep learning from first principles. Every algorithm built in NumPy first — derive the math, implement it, then graduate to PyTorch.",
     stat: "20 modules · 200 notebooks · NumPy → PyTorch",
@@ -96,7 +102,7 @@ function Sections() {
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
       <Container>
         <div style={{ marginBottom: 28 }}>
-          <MonoLabel color="var(--violet-lt)">// FOUR WAYS IN</MonoLabel>
+          <MonoLabel color="var(--violet-lt)">// FIVE WAYS IN</MonoLabel>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 18 }}>
           {SECTIONS.map(s => <SectionCard key={s.href} s={s} />)}

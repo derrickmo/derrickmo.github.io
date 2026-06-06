@@ -1,5 +1,5 @@
 // chrome.jsx — shared chrome (TopNav, Footer, helpers) for every page.
-// Each page sets `window.__DM_PAGE` ("home" | "research" | "learn" |
+// Each page sets `window.__DM_PAGE` ("home" | "research" | "learn" | "paths" |
 // "weekly-insights" | "visualize" | "play" | "cases" | "about") and
 // `window.__DM_BASE` ("" for landing, "../" for subdirectory pages)
 // BEFORE this script runs, so the nav can highlight the active page and
@@ -346,6 +346,13 @@ const DM_NAV_INDEX = [
   { label: "Simulated Annealing", group: "Demo", href: "/visualize/simulated-annealing/", kw: "simulated annealing tsp traveling salesman 2-opt metropolis local search optimization" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
   { label: "Weekly Insights", group: "Page", href: "/weekly-insights/", kw: "weekly insights digest news ml field notes practitioner rl quantization agents inference" },
+  { label: "Guided Learning Paths", group: "Page", href: "/paths/", kw: "paths tracks guided learning course curriculum journey roadmap sequence progress" },
+  { label: "Path: ML Foundations", group: "Path", href: "/paths/ml-foundations/", kw: "path ml foundations beginner gradient descent overfitting knn svm kmeans pca" },
+  { label: "Path: Zero to Transformer", group: "Path", href: "/paths/zero-to-transformer/", kw: "path zero to transformer attention embeddings tokenizer positional encoding decoding" },
+  { label: "Path: Reinforcement Learning from Scratch", group: "Path", href: "/paths/rl-from-scratch/", kw: "path reinforcement learning rl bandit q-learning policy gradient ppo dqn rlhf" },
+  { label: "Path: LLM Systems - RAG & Agents", group: "Path", href: "/paths/rag-and-agents/", kw: "path rag agents retrieval llm systems guardrails react reranker hyde serving" },
+  { label: "Path: Computer Vision", group: "Path", href: "/paths/computer-vision/", kw: "path computer vision convolution edges features optical flow segmentation detection" },
+  { label: "Path: Classic CS Algorithms", group: "Path", href: "/paths/classic-cs/", kw: "path classic cs algorithms search dynamic programming constraints graphs dijkstra max flow" },
   { label: "Linear & Logistic Regression", group: "Demo", href: "/visualize/regression/", kw: "linear logistic regression least squares ols sigmoid bce supervised classical" },
   { label: "LSTM Gates", group: "Demo", href: "/visualize/rnn-gates/", kw: "lstm rnn gru gates forget input output cell recurrent memory" },
   { label: "Beam Search Tree", group: "Demo", href: "/visualize/beam-search/", kw: "beam search greedy sampling decoding language model tree frontier" },
@@ -625,6 +632,7 @@ function TopNav() {
     { key: "weekly-insights", label: "Insights", href: `${__DM_BASE}weekly-insights/` },
     { key: "research",  label: "Research",   href: `${__DM_BASE}research/` },
     { key: "learn",     label: "Learn",      href: `${__DM_BASE}learn/` },
+    { key: "paths",     label: "Paths",      href: `${__DM_BASE}paths/` },
     { key: "visualize", label: "Visualize",  href: `${__DM_BASE}visualize/` },
     { key: "play",      label: "Play",       href: `${__DM_BASE}play/` },
     { key: "cases",     label: "Build",      href: `${__DM_BASE}cases/` },
