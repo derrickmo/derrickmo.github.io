@@ -1127,6 +1127,234 @@ window.SUB_LESSONS = {
     },
   },
 
+  "pytorch-internals": {
+    title: "PyTorch Internals",
+    intro: "What a deep-learning framework actually does for you: record a computation graph, differentiate it automatically, and drive the standard train loop.",
+    order: ["backprop", "optimizers", "gradient-descent"],
+    lessons: {
+      backprop: {
+        title: "Autograd and the Computational Graph",
+        oneLine: "How a framework records operations and replays them backward for gradients.",
+        sections: [
+          { h: "The intuition", paras: [
+            "PyTorch's autograd builds a graph as you compute: every tensor operation records its inputs and how to backpropagate through it. Calling .backward() walks that graph in reverse, applying the chain rule at each node, and deposits a gradient on every leaf tensor. You never write a derivative by hand.",
+          ] },
+          { h: "The math", paras: ["Reverse-mode autodiff accumulates the gradient through each recorded op:"],
+            tex: "\\bar{x} = \\sum_{j}\\bar{y}_j\\,\\frac{\\partial y_j}{\\partial x}", texNote: "Each op knows its local Jacobian-vector product; autograd chains them." },
+          { h: "In code", code: "x = torch.tensor([2.0], requires_grad=True)\ny = (x ** 2 + 3 * x).sum()\ny.backward()          # walks the graph in reverse\nprint(x.grad)         # dy/dx = 2x + 3 = 7", caption: "Build the graph forward; differentiate it backward, automatically." },
+        ],
+        takeaways: ["Autograd records a graph of operations as you compute.", ".backward() applies the chain rule in reverse over that graph.", "Frameworks free you from writing derivatives by hand."],
+        demo: "backprop",
+      },
+      optimizers: {
+        title: "The Optimizer Step",
+        oneLine: "How torch.optim turns accumulated gradients into a weight update.",
+        sections: [
+          { h: "The intuition", paras: [
+            "After backward fills in the gradients, an optimizer object applies the update rule. It holds the parameters and any per-parameter state (like Adam's moment estimates), and .step() applies the rule while .zero_grad() clears the gradients for the next iteration. Swapping SGD for Adam is a one-line change.",
+          ] },
+          { h: "The math", paras: ["The optimizer applies its update rule to each parameter using its stored state:"],
+            tex: "\\theta \\leftarrow \\theta - \\eta\\,u(g,\\,\\text{state})", texNote: "u is the rule (SGD, Adam, ...); state carries momentum and scale across steps." },
+          { h: "In code", code: "opt = torch.optim.Adam(model.parameters(), lr=3e-4)\n# each iteration:\nopt.zero_grad()       # clear old grads\nloss.backward()       # fill grads\nopt.step()            # apply the update rule", caption: "zero_grad, backward, step - the same three calls every iteration." },
+        ],
+        takeaways: ["The optimizer owns the parameters and their update state.", ".step() applies the rule; .zero_grad() resets gradients.", "Changing optimizers is a one-line swap."],
+        demo: "optimizers",
+      },
+      "gradient-descent": {
+        title: "The Training Loop",
+        oneLine: "The five-line skeleton at the heart of every training script.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Strip away the abstractions and every PyTorch training run is the same loop: get a batch, run the forward pass, compute the loss, backpropagate, and step the optimizer. Everything else - schedulers, logging, checkpoints, mixed precision - hangs off this skeleton.",
+          ] },
+          { h: "The math", paras: ["Each iteration is one minibatch gradient-descent step:"],
+            tex: "\\theta_{t+1} = \\theta_t - \\eta\\,\\nabla_\\theta\\,\\tfrac{1}{|B|}\\sum_{i\\in B}\\ell_i(\\theta_t)", texNote: "The minibatch B gives a noisy but cheap gradient estimate." },
+          { h: "In code", code: "for x, y in loader:\n    opt.zero_grad()\n    loss = criterion(model(x), y)   # forward + loss\n    loss.backward()                 # gradients\n    opt.step()                      # update", caption: "Batch, forward, loss, backward, step - repeat." },
+        ],
+        takeaways: ["Every training script is this five-line loop.", "Minibatches give cheap, noisy gradient estimates.", "Schedulers, logging, and checkpoints decorate this skeleton."],
+        demo: "gradient-descent",
+      },
+    },
+  },
+
+  "rag-agents": {
+    title: "RAG and Agents",
+    intro: "Turning a raw model into a grounded, reliable, safe system: chunk and retrieve the right context, rerank it, let the model act in a loop, and guard the edges.",
+    order: ["rag-chunking", "reranking", "react-agent", "guardrails"],
+    lessons: {
+      "rag-chunking": {
+        title: "Chunking for Retrieval",
+        oneLine: "Split documents so the answer survives retrieval intact.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Retrieval-augmented generation grounds a model in your documents - but only if the right passage is retrievable. Chunking decides how documents are split into embeddable units. Too large and a chunk dilutes the relevant sentence; too small and it loses context. Overlap and sentence-aware boundaries keep answers from being cut in half.",
+          ] },
+          { h: "The math", paras: ["Retrieve the top chunks by similarity to the query embedding:"],
+            tex: "\\mathrm{top\\text{-}k}\\;\\arg\\max_{c}\\;\\mathrm{sim}\\big(e(q),\\,e(c)\\big)", texNote: "Chunk size and overlap control whether the answer span lands inside one retrieved chunk." },
+          { h: "In code", code: "def chunk(text, size=400, overlap=80):\n    out, i = [], 0\n    while i < len(text):\n        out.append(text[i:i+size])\n        i += size - overlap        # slide with overlap\n    return out", caption: "Sliding windows with overlap keep answer spans whole." },
+        ],
+        takeaways: ["Chunking sets what retrieval can actually find.", "Size and overlap trade context against precision.", "Sentence-aware splits avoid cutting answers in half."],
+        demo: "rag-chunking",
+      },
+      reranking: {
+        title: "Reranking",
+        oneLine: "Re-score the top retrieved hits with a more careful model.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Fast vector search uses a bi-encoder that embeds query and document separately - cheap but coarse. A reranker is a cross-encoder that reads the query and a candidate together, scoring relevance far more accurately. You retrieve many cheaply, then rerank the top few expensively: the best of both.",
+          ] },
+          { h: "The math", paras: ["A cross-encoder scores the query-document pair jointly:"],
+            tex: "s(q,d) = f_\\theta\\big(\\,[\\,q\\,;\\,d\\,]\\,\\big)", texNote: "Joint encoding captures interactions a separate-embedding bi-encoder misses." },
+          { h: "In code", code: "cands = vector_search(q, k=50)          # cheap recall\nscores = [cross_encoder(q, d) for d in cands]\ntop = [cands[i] for i in argsort(scores)[::-1][:5]]", caption: "Retrieve broadly, rerank the shortlist precisely." },
+        ],
+        takeaways: ["Bi-encoders retrieve fast; cross-encoders rerank accurately.", "Retrieve many, rerank a few - the standard two-stage pipeline.", "Reranking sharply improves the final context quality."],
+        demo: "rag-reranker",
+      },
+      "react-agent": {
+        title: "The ReAct Agent Loop",
+        oneLine: "Interleave reasoning with tool calls in a thought-action-observation loop.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A ReAct agent alternates thinking and acting: it reasons about what to do, calls a tool, observes the result, and repeats until it can answer. Tools (search, a calculator, code) let it ground its reasoning in real results instead of hallucinating - but every step is a chance to go off the rails, so reliability compounds.",
+          ] },
+          { h: "The math", paras: ["End-to-end success is the product of per-step reliability:"],
+            tex: "P(\\text{success}) \\approx \\prod_{t=1}^{T} p_t", texNote: "Many steps at 0.9 each still fail often - hence verification and retries." },
+          { h: "In code", code: "while not done:\n    thought = model(scratchpad)            # reason\n    action, arg = parse_tool(thought)      # act\n    obs = tools[action](arg)               # observe\n    scratchpad += f'{thought}\\n{obs}\\n'", caption: "Thought, action, observation - loop until answered." },
+        ],
+        takeaways: ["ReAct interleaves reasoning with grounded tool calls.", "Tools curb hallucination by injecting real results.", "Per-step error compounds, so reliability is the hard part."],
+        demo: "react-agent",
+      },
+      guardrails: {
+        title: "Guardrails",
+        oneLine: "Filter inputs and outputs to keep an LLM system safe.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A deployed model needs a safety pipeline around it. Input guards strip or flag prompt injection and sensitive data; output guards catch unsafe content, leaked secrets, or off-policy responses before they reach the user. Each guard is a focused check; turning one off lets the matching threat through.",
+          ] },
+          { h: "The math", paras: ["The system passes only if every guard passes:"],
+            tex: "\\text{allow} = \\bigwedge_{g\\in G} g(\\text{text})", texNote: "Layered, independent checks - defense in depth, not a single classifier." },
+          { h: "In code", code: "def guarded(prompt):\n    if injection(prompt) or has_pii(prompt): return BLOCK\n    out = model(sanitize(prompt))\n    if toxic(out) or leaks_secret(out): return BLOCK\n    return out", caption: "Check the input, generate, then check the output." },
+        ],
+        takeaways: ["Guardrails wrap the model with input and output checks.", "Layered, independent guards give defense in depth.", "Removing a guard exposes exactly its threat class."],
+        demo: "guardrails",
+      },
+    },
+  },
+
+  "ml-applications": {
+    title: "Applied Machine Learning",
+    intro: "Putting models to work responsibly: forecast the future, make confidence scores trustworthy, and explain what drove a prediction.",
+    order: ["forecasting", "calibration", "shap"],
+    lessons: {
+      forecasting: {
+        title: "Time-Series Forecasting",
+        oneLine: "Predict future values from the patterns in past observations.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Forecasting exploits structure in time: trend, seasonality, and autocorrelation. Classical methods decompose the series and extrapolate; modern ones learn the patterns directly. The cardinal rule is to respect time when you evaluate - never let the model peek at the future, and backtest on rolling windows.",
+          ] },
+          { h: "The math", paras: ["A series is often modeled as trend plus seasonality plus noise:"],
+            tex: "y_t = T_t + S_t + \\varepsilon_t", texNote: "Validate with rolling-origin backtests, never a random split." },
+          { h: "In code", code: "import numpy as np\n# simple seasonal-naive baseline: repeat last season\ndef seasonal_naive(y, m, h):\n    return np.array([y[-m + (i % m)] for i in range(h)])", caption: "Beat this baseline before trusting anything fancier." },
+        ],
+        takeaways: ["Forecasting models trend, seasonality, and autocorrelation.", "Evaluate with rolling backtests, never a random split.", "Always compare against a seasonal-naive baseline."],
+        demo: "forecasting",
+      },
+      calibration: {
+        title: "Calibration",
+        oneLine: "Make a model's confidence match its real accuracy.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A trustworthy classifier that says 90% should be right about 90% of the time. Modern networks are often overconfident. Calibration fixes the scores without changing the ranking - temperature scaling divides the logits by a single learned constant so the confidences line up with observed accuracy.",
+          ] },
+          { h: "The math", paras: ["Temperature scaling softens the logits by a learned scalar T:"],
+            tex: "\\hat{p} = \\mathrm{softmax}(z / T)", texNote: "T > 1 reduces overconfidence; it is fit on validation data and leaves the argmax unchanged." },
+          { h: "In code", code: "# fit T to minimize validation NLL; predictions unchanged in rank\np = softmax(logits / T)\nece = expected_calibration_error(p, labels)", caption: "One scalar recalibrates every confidence." },
+        ],
+        takeaways: ["Calibration aligns confidence with actual accuracy.", "Temperature scaling fixes it with a single constant.", "It changes confidences but not the predicted class."],
+        demo: "calibration",
+      },
+      shap: {
+        title: "Explainability with SHAP",
+        oneLine: "Attribute a prediction fairly across its input features.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Why did the model decide this? SHAP answers by borrowing from game theory: treat features as players and the prediction as a payout, then give each feature its Shapley value - its average marginal contribution across all orderings. It is the unique attribution that is fair and adds up to the prediction.",
+          ] },
+          { h: "The math", paras: ["The Shapley value averages a feature's marginal contribution over all coalitions:"],
+            tex: "\\phi_i = \\sum_{S} \\frac{|S|!\\,(n-|S|-1)!}{n!}\\big[v(S\\cup\\{i\\}) - v(S)\\big]", texNote: "The contributions sum exactly to the prediction minus the baseline." },
+          { h: "In code", code: "# exact Shapley by enumerating coalitions (small feature sets)\nfrom itertools import combinations\n# phi_i = average of f(S + i) - f(S) over all subsets S not containing i", caption: "Average marginal contribution over every feature ordering." },
+        ],
+        takeaways: ["SHAP gives each feature its fair share of the prediction.", "Attributions sum to the prediction minus a baseline.", "It is the game-theoretic standard for local explanations."],
+        demo: "shap",
+      },
+    },
+  },
+
+  mlops: {
+    title: "MLOps and Serving",
+    intro: "Running models in production: serve them efficiently, scale with demand, ship new versions safely, and notice when the world shifts under them.",
+    order: ["model-serving", "autoscaling", "canary-rollout", "drift-detection"],
+    lessons: {
+      "model-serving": {
+        title: "Serving and Batching",
+        oneLine: "Trade a little latency for far more throughput by batching requests.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A served model spends most of its time idle between requests. Dynamic batching waits a few milliseconds to gather several requests and runs them together, amortizing the fixed cost and multiplying throughput. The knob is the batch window: bigger batches mean higher throughput but more tail latency.",
+          ] },
+          { h: "The math", paras: ["By Little's law, queue length ties throughput to latency:"],
+            tex: "L = \\lambda\\,W", texNote: "Push arrival rate lambda past capacity and the queue - and latency W - runs away." },
+          { h: "In code", code: "# accumulate until full or the window elapses, then run once\nbatch = collect(max_size=32, max_wait_ms=5)\nresults = model(batch)        # one padded forward for many requests", caption: "Wait briefly, batch, run once - amortize the fixed cost." },
+        ],
+        takeaways: ["Batching amortizes fixed cost into higher throughput.", "The batch window trades throughput against tail latency.", "Arrivals past capacity make the queue run away."],
+        demo: "batching",
+      },
+      autoscaling: {
+        title: "Autoscaling",
+        oneLine: "Track demand by adding and removing replicas automatically.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Traffic rises and falls; a fixed fleet either wastes money or breaks under load. An autoscaler watches a signal like utilization and adjusts the replica count toward a target. The catch is cold starts: new replicas take time to warm up, so spikes can breach the SLO before capacity catches up.",
+          ] },
+          { h: "The math", paras: ["The desired replica count chases the load toward a target utilization:"],
+            tex: "N_{\\text{desired}} = \\Big\\lceil \\frac{\\text{load}}{\\text{target}\\times\\text{capacity}} \\Big\\rceil", texNote: "Lower target utilization buys headroom for spikes, at higher cost." },
+          { h: "In code", code: "desired = ceil(load / (target_util * cap_per_replica))\nreplicas = clamp(desired, min_r, max_r)   # cold start adds lag", caption: "Scale toward a utilization target, bounded by limits." },
+        ],
+        takeaways: ["Autoscaling matches replicas to demand.", "Target utilization trades headroom against cost.", "Cold starts cause SLO breaches on sudden spikes."],
+        demo: "autoscaling",
+      },
+      "canary-rollout": {
+        title: "Canary Rollouts",
+        oneLine: "Ship a new model to a slice of traffic, watch, then ramp or roll back.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Deploying a new model to everyone at once is risky. A canary sends a small fraction of traffic to the new version, compares its error rate against the old one with a statistical test, and only ramps up if it passes. A regression hits a few percent of users instead of all of them, and rolls back automatically.",
+          ] },
+          { h: "The math", paras: ["A one-sided test gates each ramp stage on the error-rate difference:"],
+            tex: "z = \\frac{\\hat{p}_{\\text{new}} - \\hat{p}_{\\text{old}}}{\\sqrt{\\hat{p}(1-\\hat{p})(1/n_1 + 1/n_2)}}", texNote: "Pass the guard, ramp the traffic split; fail, roll back." },
+          { h: "In code", code: "for split in [0.05, 0.25, 0.5, 1.0]:\n    route(new_version, split)\n    if error_rate(new) > error_rate(old) + margin:\n        rollback(); break        # guard tripped", caption: "Ramp the split only while the guard holds." },
+        ],
+        takeaways: ["Canaries limit a bad deploy's blast radius.", "A statistical guard decides ramp versus rollback.", "Progressive traffic shifting makes releases safe."],
+        demo: "canary-rollout",
+      },
+      "drift-detection": {
+        title: "Drift Detection",
+        oneLine: "Notice when production data has shifted away from training.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Models silently decay when the world changes - new user behavior, a shifted input distribution, a broken upstream feature. Drift detection compares the live input distribution against a training reference and raises an alarm when they diverge, so you retrain before accuracy quietly collapses.",
+          ] },
+          { h: "The math", paras: ["The population stability index sums the binned distribution shift:"],
+            tex: "\\mathrm{PSI} = \\sum_b (p_b - q_b)\\,\\ln\\frac{p_b}{q_b}", texNote: "PSI above ~0.2 flags a meaningful shift worth investigating." },
+          { h: "In code", code: "import numpy as np\n\ndef psi(expected, actual, bins=10):\n    e, _ = np.histogram(expected, bins); a, _ = np.histogram(actual, bins)\n    e = e/e.sum()+1e-6; a = a/a.sum()+1e-6\n    return np.sum((a - e) * np.log(a / e))", caption: "Bin both distributions; sum the divergence." },
+        ],
+        takeaways: ["Drift detection compares live data to a training reference.", "PSI quantifies distribution shift; ~0.2 is a common alarm.", "Catching drift early triggers retraining before accuracy falls."],
+        demo: "drift-detection",
+      },
+    },
+  },
+
 };
 
 // resolve a sub-lesson + its module context; null if missing.

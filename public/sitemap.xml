@@ -216,6 +216,9 @@
   <url><loc>https://derrickmo.github.io/learn/llm-systems/quantization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/speculative-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/calibration/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/forecasting/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/shap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
@@ -223,6 +226,10 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/canary-rollout/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/drift-detection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/model-serving/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vector-search/</loc><priority>0.6</priority></url>
@@ -235,7 +242,14 @@
   <url><loc>https://derrickmo.github.io/learn/neural-nets/weight-init/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/notes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/backprop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/gradient-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/guardrails/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-chunking/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/react-agent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/reranking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/actor-critic/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/bandit/</loc><priority>0.6</priority></url>
