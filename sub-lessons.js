@@ -679,6 +679,220 @@ window.SUB_LESSONS = {
     },
   },
 
+  "advanced-cv": {
+    title: "Advanced Computer Vision",
+    intro: "Classic vision beyond convolution: find edges and corners, track motion, segment regions, and clean up overlapping detections.",
+    order: ["edge-detection", "harris-corners", "optical-flow", "image-segmentation", "iou-nms"],
+    lessons: {
+      "edge-detection": {
+        title: "Edge Detection",
+        oneLine: "Find boundaries where image intensity changes sharply.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Edges are where brightness changes fast - the outlines that carry most of an image's structure. Gradient operators like Sobel estimate that change; the Canny pipeline then thins the response and links strong, connected edges while suppressing noise. It is the front end of countless vision algorithms.",
+          ] },
+          { h: "The math", paras: ["Edge strength is the gradient magnitude:"],
+            tex: "\\|\\nabla I\\| = \\sqrt{I_x^2 + I_y^2}", texNote: "Canny adds non-max suppression and hysteresis thresholding on top of this." },
+          { h: "In code", code: "import numpy as np\n\nSx = np.array([[-1,0,1],[-2,0,2],[-1,0,1]])\nGx = conv2d(I, Sx); Gy = conv2d(I, Sx.T)\nmag = np.hypot(Gx, Gy)            # edge strength", caption: "Sobel gradients give magnitude and direction." },
+        ],
+        takeaways: ["Edges are gradient maxima in intensity.", "Sobel estimates the gradient; Canny refines it.", "Edge maps front-end detection, matching, and segmentation."],
+        demo: "edge-detection",
+      },
+      "harris-corners": {
+        title: "Corner Detection",
+        oneLine: "Find points where intensity changes in every direction.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Corners are the most distinctive local features - unlike a smooth region or a straight edge, a corner shifts in appearance whichever way you move. The Harris detector measures this with the structure tensor of local gradients; large change in two directions means a corner worth tracking across frames.",
+          ] },
+          { h: "The math", paras: ["The Harris response from the structure tensor M:"],
+            tex: "R = \\det(M) - k\\,\\mathrm{tr}(M)^2", texNote: "Large positive R means two strong gradient directions - a corner." },
+          { h: "In code", code: "Ix, Iy = grad(I)\nM = [[smooth(Ix*Ix), smooth(Ix*Iy)],\n     [smooth(Ix*Iy), smooth(Iy*Iy)]]\nR = det(M) - 0.04 * trace(M)**2      # corners where R is large", caption: "Two strong gradient directions = a trackable corner." },
+        ],
+        takeaways: ["Corners change in all directions - the best local features.", "The structure tensor's eigenvalues reveal them.", "They anchor tracking, matching, and motion estimation."],
+        demo: "harris-corners",
+      },
+      "optical-flow": {
+        title: "Optical Flow",
+        oneLine: "Estimate the per-pixel motion between two frames.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Optical flow asks: where did each pixel go between frames? Assuming brightness is conserved as things move, the Lucas-Kanade method solves a small least-squares system in each neighborhood to recover the local motion vector. It powers tracking, stabilization, and motion-based segmentation.",
+          ] },
+          { h: "The math", paras: ["The brightness-constancy constraint relates spatial and temporal gradients:"],
+            tex: "I_x u + I_y v + I_t = 0", texNote: "One equation, two unknowns - Lucas-Kanade adds neighbors to solve it." },
+          { h: "In code", code: "# Lucas-Kanade in a window: solve A [u v]^T = b\nA = np.stack([Ix[win], Iy[win]], 1)\nb = -It[win]\nuv = np.linalg.lstsq(A, b, rcond=None)[0]", caption: "Least-squares over a patch gives the local flow." },
+        ],
+        takeaways: ["Optical flow recovers per-pixel motion between frames.", "Brightness constancy plus a local window makes it solvable.", "It only works for small motions - hence coarse-to-fine pyramids."],
+        demo: "optical-flow",
+      },
+      "image-segmentation": {
+        title: "Image Segmentation",
+        oneLine: "Partition an image into coherent regions or objects.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Segmentation labels every pixel, grouping them into regions that belong together. Classical watershed treats intensity as a landscape and floods basins from markers, with boundaries forming where basins meet. It is how you separate touching objects before counting or measuring them.",
+          ] },
+          { h: "The math", paras: ["Watershed floods from markers; ridges between catchment basins become boundaries:"],
+            tex: "\\partial = \\{\\,x : \\text{two basins meet at } x\\,\\}", texNote: "Marker placement controls over- versus under-segmentation." },
+          { h: "In code", code: "# marker-controlled watershed (sketch)\ndist = distance_transform(binary)\nmarkers = local_maxima(dist)\nlabels = watershed(-dist, markers)     # basins flood from markers", caption: "Flood from markers; boundaries form where basins collide." },
+        ],
+        takeaways: ["Segmentation assigns every pixel to a region.", "Watershed floods basins from markers to split touching objects.", "Modern deep segmentation learns the regions end-to-end."],
+        demo: "watershed",
+      },
+      "iou-nms": {
+        title: "IoU and Non-Max Suppression",
+        oneLine: "Collapse many overlapping detections into clean, single boxes.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A detector fires many overlapping boxes around each object. Non-max suppression keeps the highest-scoring box and discards others that overlap it too much, where overlap is measured by intersection-over-union. The same IoU metric also scores how well a predicted box matches the ground truth.",
+          ] },
+          { h: "The math", paras: ["IoU is overlap area over union area:"],
+            tex: "\\mathrm{IoU}(A,B) = \\frac{|A\\cap B|}{|A\\cup B|}", texNote: "NMS removes any box with IoU above a threshold against a higher-scoring one." },
+          { h: "In code", code: "def nms(boxes, scores, thr=0.5):\n    keep, order = [], scores.argsort()[::-1]\n    while len(order):\n        i = order[0]; keep.append(i)\n        order = [j for j in order[1:] if iou(boxes[i], boxes[j]) < thr]\n    return keep", caption: "Keep the best box, drop its high-overlap neighbors, repeat." },
+        ],
+        takeaways: ["IoU measures box overlap quality.", "NMS deduplicates overlapping detections by score.", "The IoU threshold trades duplicates against missed objects."],
+        demo: "nms",
+      },
+    },
+  },
+
+  generative: {
+    title: "Generative Models",
+    intro: "Three ways to learn to create data: encode and sample through a latent space, train a generator against a critic, or add noise and learn to reverse it.",
+    order: ["vae", "gan", "diffusion"],
+    lessons: {
+      vae: {
+        title: "Variational Autoencoders",
+        oneLine: "Encode data to a distribution, sample, and decode to generate.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A VAE learns a smooth latent space you can sample from. The encoder maps each input to a distribution (a mean and spread), you sample a latent code, and the decoder reconstructs the input. A regularizer keeps the latent space close to a standard Gaussian, so sampling it produces plausible new data.",
+          ] },
+          { h: "The math", paras: ["Maximize the evidence lower bound: reconstruction minus a latent KL penalty:"],
+            tex: "\\mathcal{L} = \\mathbb{E}_{q}[\\log p(x\\mid z)] - D_{KL}\\!\\big(q(z\\mid x)\\,\\|\\,p(z)\\big)", texNote: "The reparameterization trick z = mu + sigma * eps lets gradients flow through sampling." },
+          { h: "In code", code: "mu, logvar = encoder(x)\nz = mu + np.exp(0.5*logvar) * np.random.randn(*mu.shape)\nrecon = decoder(z)\nkl = -0.5 * np.sum(1 + logvar - mu**2 - np.exp(logvar))", caption: "Encode to a distribution, sample, decode; KL keeps it regular." },
+        ],
+        takeaways: ["A VAE learns a continuous, sampleable latent space.", "The ELBO balances reconstruction against a latent prior.", "The reparameterization trick makes sampling differentiable."],
+        demo: "vae",
+      },
+      gan: {
+        title: "Generative Adversarial Networks",
+        oneLine: "Train a generator against a discriminator in a minimax game.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A GAN pits two networks against each other: a generator turns noise into fake samples, a discriminator tries to tell fake from real. As the discriminator improves, it pushes the generator toward more realistic output. At equilibrium the fakes are indistinguishable from real data.",
+          ] },
+          { h: "The math", paras: ["The two networks play a minimax game over the discriminator's accuracy:"],
+            tex: "\\min_G \\max_D\\; \\mathbb{E}[\\log D(x)] + \\mathbb{E}[\\log(1 - D(G(z)))]", texNote: "Training is a delicate balance - if either network wins too fast, learning stalls." },
+          { h: "In code", code: "# alternate two updates\nd_loss = -(log(D(real)) + log(1 - D(G(z)))).mean()   # train D\ng_loss = -log(D(G(z))).mean()                       # train G\n# step D, then step G", caption: "Discriminator learns to judge; generator learns to fool it." },
+        ],
+        takeaways: ["A GAN is a generator-vs-discriminator minimax game.", "Adversarial pressure drives realistic samples.", "Training instability is the central challenge."],
+        demo: "gan",
+      },
+      diffusion: {
+        title: "Diffusion Models",
+        oneLine: "Add noise to data, then train a network to reverse it step by step.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A diffusion model learns to denoise. The forward process gradually corrupts data into pure noise; the model learns the reverse, removing a little noise at each step. To generate, start from random noise and run the learned denoiser repeatedly until a clean sample emerges. It is the engine behind modern image generators.",
+          ] },
+          { h: "The math", paras: ["The network predicts the noise added at each step, trained by a simple regression:"],
+            tex: "\\mathcal{L} = \\mathbb{E}_{t,\\epsilon}\\big[\\,\\|\\epsilon - \\epsilon_\\theta(x_t, t)\\|^2\\,\\big]", texNote: "Sampling reverses the chain: subtract the predicted noise, repeat over many steps." },
+          { h: "In code", code: "# training step: predict the noise you added\nt = np.random.randint(T)\nnoise = np.random.randn(*x.shape)\nx_t = sqrt_acp[t]*x + sqrt_1macp[t]*noise\nloss = ((noise - model(x_t, t))**2).mean()", caption: "Learn to predict the noise; sampling denoises from scratch." },
+        ],
+        takeaways: ["Diffusion learns to reverse a gradual noising process.", "The objective is simple noise-prediction regression.", "Generation iteratively denoises from pure noise."],
+        demo: "diffusion",
+      },
+    },
+  },
+
+  multimodal: {
+    title: "Multimodal Learning",
+    intro: "Tying modalities together through a shared embedding space, and searching that space at scale.",
+    order: ["contrastive-learning", "vector-search"],
+    lessons: {
+      "contrastive-learning": {
+        title: "Contrastive Learning",
+        oneLine: "Pull matching pairs together and push mismatches apart in embedding space.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Contrastive learning shapes an embedding space by example: matching pairs (two crops of an image, or an image and its caption) should land close together; everything else should be far apart. This is how CLIP aligns images and text into one space, enabling zero-shot recognition and cross-modal search.",
+          ] },
+          { h: "The math", paras: ["The InfoNCE loss makes the positive pair win a softmax over negatives:"],
+            tex: "\\mathcal{L} = -\\log\\frac{\\exp(\\mathrm{sim}(z_i, z_j)/\\tau)}{\\sum_k \\exp(\\mathrm{sim}(z_i, z_k)/\\tau)}", texNote: "tau is a temperature; the negatives are the other items in the batch." },
+          { h: "In code", code: "# in-batch contrastive (CLIP-style)\nlogits = (Z_img @ Z_txt.T) / tau\nlabels = np.arange(len(Z_img))      # i-th image matches i-th text\nloss = cross_entropy(logits, labels)", caption: "The diagonal pairs are positives; everything off-diagonal is negative." },
+        ],
+        takeaways: ["Contrastive learning aligns matching pairs in embedding space.", "InfoNCE turns it into a softmax over in-batch negatives.", "It powers CLIP and self-supervised representations."],
+        demo: "contrastive-learning",
+      },
+      "vector-search": {
+        title: "Vector Search",
+        oneLine: "Find the nearest embeddings to a query, fast, at scale.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Once everything is an embedding, retrieval becomes nearest-neighbor search: find the stored vectors closest to a query vector. Exact search is too slow at scale, so approximate methods (HNSW graphs, IVF, product quantization) trade a little accuracy for orders-of-magnitude speed. It is the backbone of RAG and semantic search.",
+          ] },
+          { h: "The math", paras: ["Retrieve the top-k by similarity, usually cosine:"],
+            tex: "\\mathrm{top\\text{-}k}\\;\\arg\\max_i\\;\\frac{q^{\\top} v_i}{\\|q\\|\\,\\|v_i\\|}", texNote: "Approximate indexes return near-neighbors in sublinear time." },
+          { h: "In code", code: "import numpy as np\n\ndef search(q, V, k=5):\n    sims = V @ q / (np.linalg.norm(V, axis=1) * np.linalg.norm(q))\n    return np.argsort(sims)[::-1][:k]", caption: "Brute force shown; real systems use ANN indexes." },
+        ],
+        takeaways: ["Retrieval over embeddings is nearest-neighbor search.", "Approximate indexes trade slight accuracy for big speedups.", "It is the retrieval half of RAG."],
+        demo: "vector-search",
+      },
+    },
+  },
+
+  "fine-tuning": {
+    title: "Fine-Tuning and Alignment",
+    intro: "Adapting a pretrained model cheaply, and steering it toward human preferences.",
+    order: ["lora", "reward-model", "dpo"],
+    lessons: {
+      lora: {
+        title: "LoRA",
+        oneLine: "Fine-tune with a tiny low-rank update instead of all the weights.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Full fine-tuning updates every weight - expensive to train and store. LoRA freezes the pretrained weights and learns a small low-rank correction alongside them. A few million extra parameters can specialize a giant model, and you can swap adapters per task without touching the base.",
+          ] },
+          { h: "The math", paras: ["Add a rank-r update B A to the frozen weight W:"],
+            tex: "W' = W + B A,\\qquad B\\in\\mathbb{R}^{d\\times r},\\; A\\in\\mathbb{R}^{r\\times k},\\; r\\ll d", texNote: "Only A and B are trained; W stays frozen. Tiny, swappable, and mergeable." },
+          { h: "In code", code: "# only A, B are trainable; W is frozen\nA = np.random.randn(r, k) * 0.01\nB = np.zeros((d, r))\ny = x @ (W + B @ A).T          # forward uses W + BA", caption: "A few million low-rank parameters specialize a frozen model." },
+        ],
+        takeaways: ["LoRA learns a low-rank correction to frozen weights.", "It cuts trainable parameters and memory by orders of magnitude.", "Adapters are swappable and mergeable per task."],
+        demo: "lora",
+      },
+      "reward-model": {
+        title: "Reward Modeling",
+        oneLine: "Learn a scalar reward from human preference comparisons.",
+        sections: [
+          { h: "The intuition", paras: [
+            "You cannot write down a loss for 'a helpful answer', but people can compare two answers and say which is better. A reward model learns a scalar score from many such comparisons, so that preferred responses score higher. That learned reward is what RLHF then optimizes the policy against.",
+          ] },
+          { h: "The math", paras: ["The Bradley-Terry model turns score differences into preference probabilities:"],
+            tex: "P(a \\succ b) = \\sigma\\!\\big(r(a) - r(b)\\big)", texNote: "Train r by maximizing the log-likelihood of the observed preferences." },
+          { h: "In code", code: "# pairwise preference loss (chosen > rejected)\nloss = -np.log(sigmoid(r(chosen) - r(rejected))).mean()", caption: "Push the chosen response's score above the rejected one's." },
+        ],
+        takeaways: ["Reward models learn from pairwise preferences, not absolute labels.", "Bradley-Terry links score gaps to preference probabilities.", "Goodhart risk: optimizing a proxy reward invites reward hacking."],
+        demo: "reward-model",
+      },
+      dpo: {
+        title: "Direct Preference Optimization",
+        oneLine: "Optimize a model on preferences directly, skipping the RL loop.",
+        sections: [
+          { h: "The intuition", paras: [
+            "RLHF trains a reward model, then runs reinforcement learning against it - powerful but finicky. DPO shows you can skip the middle step: a clever reparameterization turns the preference objective into a simple classification loss on the policy itself, tied to a frozen reference model, with no sampling or reward model needed.",
+          ] },
+          { h: "The math", paras: ["DPO raises the implicit reward of chosen over rejected, anchored to a reference policy:"],
+            tex: "\\mathcal{L} = -\\log\\sigma\\!\\Big(\\beta\\log\\tfrac{\\pi(y_w)}{\\pi_{\\text{ref}}(y_w)} - \\beta\\log\\tfrac{\\pi(y_l)}{\\pi_{\\text{ref}}(y_l)}\\Big)", texNote: "beta controls how far the policy may drift from the reference." },
+          { h: "In code", code: "# DPO loss: chosen y_w over rejected y_l vs a frozen reference\ndw = beta * (logp(pi, y_w) - logp(ref, y_w))\ndl = beta * (logp(pi, y_l) - logp(ref, y_l))\nloss = -np.log(sigmoid(dw - dl)).mean()", caption: "A single classification loss - no reward model, no RL rollout." },
+        ],
+        takeaways: ["DPO optimizes preferences directly as a classification loss.", "It removes the separate reward model and RL loop.", "beta and the reference policy keep it from drifting."],
+        demo: "dpo",
+      },
+    },
+  },
+
 };
 
 // resolve a sub-lesson + its module context; null if missing.
