@@ -622,6 +622,11 @@ const CONCEPTS_INDEX = {
     summary: "The classic speech feature: take a frame's power spectrum, pool it through triangular filters spaced on the perceptual mel scale, take the log (loudness compression), then a DCT to decorrelate the bands into a handful of cepstral coefficients. The first ~13 capture the spectral envelope (the phoneme / vocal-tract shape) while discarding pitch and noise. Dominated speech recognition (with GMM-HMMs) for decades; modern systems often feed log-mel spectrograms straight to a CNN/transformer instead.",
     prereqs: ["spectrogram", "fourier"],
   },
+  "pitch-detection": {
+    id: "pitch-detection", name: "Pitch Detection (Autocorrelation)", area: "Signal",
+    summary: "Estimate the fundamental frequency f0 of a periodic sound by autocorrelation: r(lag) peaks when the signal is shifted by a whole period, so f0 = sample_rate / first_strong_peak_lag. Timbre-independent (works on sines or rich tones); the main failure is octave error, picking 2x or 1/2 the true lag, which noise worsens. Basis of music tuners and the YIN/pYIN trackers. By Wiener-Khinchin, autocorrelation is the inverse transform of the power spectrum — the time-domain twin of reading f0 off the Fourier spectrum.",
+    prereqs: ["fourier"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -992,6 +997,7 @@ const CONCEPT_TAGS = {
     "max-entropy-rl":       ["max-entropy-rl", "mdp-bellman", "policy-gradient"],
     "spectrogram":          ["spectrogram", "fourier"],
     "mfcc":                 ["mfcc", "spectrogram", "fourier"],
+    "pitch-detection":      ["pitch-detection", "fourier", "forecasting"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

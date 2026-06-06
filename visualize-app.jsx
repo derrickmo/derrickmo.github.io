@@ -2027,6 +2027,19 @@ const GlyphMFCC = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">mel → DCT</text>
   </svg>
 );
+
+const GlyphPitchDetection = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a decaying oscillating autocorrelation with a marked peak */}
+    <line x1="16" y1="58" x2="148" y2="58" stroke="#94a3b8" strokeWidth="1" />
+    <path d="M20 30 C 36 90, 52 90, 64 58 C 76 40, 88 40, 96 54 C 108 70, 120 70, 128 60"
+      fill="none" stroke="#a855f7" strokeWidth="2" />
+    {/* peak marker at the first strong lag */}
+    <line x1="80" y1="24" x2="80" y2="92" stroke="#fbbf24" strokeWidth="1.5" />
+    <circle cx="80" cy="44" r="3" fill="#fbbf24" />
+    <text x="36" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">autocorr peak</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2189,6 +2202,7 @@ const GLYPHS = {
   "max-entropy-rl": <GlyphMaxEntropy />,
   "spectrogram": <GlyphSpectrogram />,
   "mfcc": <GlyphMFCC />,
+  "pitch-detection": <GlyphPitchDetection />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
