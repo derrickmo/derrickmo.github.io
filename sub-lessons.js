@@ -423,6 +423,262 @@ window.SUB_LESSONS = {
     },
   },
 
+  "neural-nets": {
+    title: "Neural Networks from Scratch",
+    intro: "The deep-learning core: stack linear maps and nonlinearities into a network, get gradients with backprop, keep training stable with the right activations, initialization, normalization, and optimizer.",
+    order: ["mlp", "backprop", "activations", "optimizers", "batch-norm", "weight-init"],
+    lessons: {
+      mlp: {
+        title: "The Multilayer Perceptron",
+        oneLine: "Stack linear layers and nonlinearities into a universal function approximator.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A multilayer perceptron alternates two operations: a linear map (weights and a bias) and a per-neuron nonlinearity. Without the nonlinearity, stacking layers collapses to a single linear map; with it, a wide-enough network can approximate any continuous function.",
+          ] },
+          { h: "The math", paras: ["Each layer applies a weight matrix, a bias, and an activation:"],
+            tex: "h^{(l)} = \\sigma\\!\\big(W^{(l)} h^{(l-1)} + b^{(l)}\\big)", texNote: "Depth composes simple features into complex ones; the nonlinearity is what makes depth matter." },
+          { h: "In code", code: "import numpy as np\n\ndef mlp(x, layers):\n    for W, b in layers[:-1]:\n        x = np.maximum(0, W @ x + b)   # ReLU\n    W, b = layers[-1]\n    return W @ x + b                   # linear head", caption: "Linear, nonlinear, repeat - then a final linear head." },
+        ],
+        takeaways: ["An MLP is alternating linear maps and nonlinearities.", "The nonlinearity is what makes depth more than one big linear layer.", "Wide enough, it can approximate any continuous function."],
+        demo: "neural-playground",
+      },
+      backprop: {
+        title: "Backpropagation",
+        oneLine: "Get the gradient for every parameter in one backward pass.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Backprop is the chain rule run efficiently over the whole network. A forward pass computes the output and caches intermediate values; a backward pass sends the error signal from the loss back through each layer, accumulating the gradient of the loss with respect to every weight in a single sweep.",
+          ] },
+          { h: "The math", paras: ["The error signal at a layer propagates through the local Jacobian:"],
+            tex: "\\delta^{(l)} = \\big(W^{(l+1)\\top}\\delta^{(l+1)}\\big)\\odot\\sigma'\\!\\big(z^{(l)}\\big)", texNote: "Then the weight gradient is delta times the layer's input - reuse, not recompute." },
+          { h: "In code", code: "# backward through one ReLU layer\ndZ = dA * (Z > 0)            # gradient through ReLU\ndW = dZ @ A_prev.T           # weight gradient\ndA_prev = W.T @ dZ           # pass the signal down", caption: "One backward sweep yields every gradient at once." },
+        ],
+        takeaways: ["Backprop is reverse-mode automatic differentiation.", "One forward + one backward pass gives all gradients.", "It reuses cached activations instead of recomputing."],
+        demo: "backprop",
+      },
+      activations: {
+        title: "Activation Functions",
+        oneLine: "The per-neuron nonlinearity that gives a network its expressive power.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Activations decide whether and how strongly a neuron fires. ReLU is the default - cheap, and it avoids the vanishing gradients that crippled deep sigmoid networks. Variants (LeakyReLU, GELU, SiLU) tweak the behavior near zero. The choice affects how easily gradients flow through depth.",
+          ] },
+          { h: "The math", paras: ["ReLU passes positives and zeroes negatives:"],
+            tex: "\\mathrm{ReLU}(x) = \\max(0, x)", texNote: "Its gradient is 1 for positive inputs - no shrinking signal as depth grows." },
+          { h: "In code", code: "import numpy as np\nrelu  = lambda x: np.maximum(0, x)\ngelu  = lambda x: 0.5 * x * (1 + np.tanh(0.797 * (x + 0.044 * x**3)))\nsilu  = lambda x: x / (1 + np.exp(-x))", caption: "Different shapes near zero, same job: inject nonlinearity." },
+        ],
+        takeaways: ["Activations make a deep stack more than one linear layer.", "ReLU keeps gradients alive through depth.", "GELU/SiLU are smooth variants common in transformers."],
+        demo: "activations",
+      },
+      optimizers: {
+        title: "Optimizers: SGD to Adam",
+        oneLine: "Turn raw gradients into stable, fast parameter updates.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Plain SGD takes a fixed step against the gradient. Momentum smooths the path by accumulating a velocity; Adam goes further, keeping per-parameter running averages of the gradient and its square so each weight gets its own adaptive step size. Adam is the default for most deep learning.",
+          ] },
+          { h: "The math", paras: ["Adam rescales each step by a running estimate of the gradient and its magnitude:"],
+            tex: "\\theta \\leftarrow \\theta - \\eta\\,\\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t}+\\epsilon}", texNote: "m is the momentum (first moment), v the per-parameter scale (second moment)." },
+          { h: "In code", code: "m = beta1*m + (1-beta1)*g\nv = beta2*v + (1-beta2)*g*g\nmh, vh = m/(1-beta1**t), v/(1-beta2**t)\ntheta -= lr * mh / (np.sqrt(vh) + 1e-8)", caption: "Momentum plus per-parameter scaling - the Adam update." },
+        ],
+        takeaways: ["Momentum smooths noisy gradients into a steadier path.", "Adam gives each parameter its own adaptive step size.", "It is the safe default for most deep networks."],
+        demo: "optimizers",
+      },
+      "batch-norm": {
+        title: "Batch Normalization",
+        oneLine: "Normalize activations across the batch to stabilize training.",
+        sections: [
+          { h: "The intuition", paras: [
+            "As signals pass through layers, their scale can drift and stall learning. Batch norm renormalizes each feature to zero mean and unit variance over the mini-batch, then lets the network rescale with learned parameters. It smooths the loss landscape, allows higher learning rates, and adds a little regularizing noise.",
+          ] },
+          { h: "The math", paras: ["Standardize over the batch, then shift and scale:"],
+            tex: "\\hat{x} = \\frac{x-\\mu_B}{\\sqrt{\\sigma_B^2+\\epsilon}},\\quad y = \\gamma\\hat{x}+\\beta", texNote: "gamma and beta are learned; at inference, running statistics replace the batch ones." },
+          { h: "In code", code: "mu = x.mean(0); var = x.var(0)\nxhat = (x - mu) / np.sqrt(var + 1e-5)\ny = gamma * xhat + beta", caption: "Standardize per feature, then let the net rescale." },
+        ],
+        takeaways: ["Batch norm keeps activation statistics stable across depth.", "It enables higher learning rates and faster convergence.", "Layer norm is the batch-free variant used in transformers."],
+        demo: "batch-norm",
+      },
+      "weight-init": {
+        title: "Weight Initialization",
+        oneLine: "Start with the right variance so signals neither vanish nor explode.",
+        sections: [
+          { h: "The intuition", paras: [
+            "If initial weights are too small, activations shrink to nothing through depth; too large, and they blow up. Good initialization sets the variance so the signal's scale is preserved layer to layer. Xavier targets this for tanh, He for ReLU.",
+          ] },
+          { h: "The math", paras: ["He initialization scales by the fan-in for ReLU networks:"],
+            tex: "W \\sim \\mathcal{N}\\!\\Big(0,\\ \\tfrac{2}{n_{\\text{in}}}\\Big)", texNote: "The 2 compensates for ReLU zeroing half the activations." },
+          { h: "In code", code: "import numpy as np\n# He init for a ReLU layer\nW = np.random.randn(n_out, n_in) * np.sqrt(2.0 / n_in)", caption: "Set the variance to keep signal scale constant through depth." },
+        ],
+        takeaways: ["Initialization controls whether deep signals vanish or explode.", "Xavier suits tanh; He suits ReLU.", "It matters most before normalization layers are added."],
+        demo: "weight-init",
+      },
+    },
+  },
+
+  cnn: {
+    title: "Convolutional Neural Networks",
+    intro: "Vision-shaped networks: slide learnable filters over the image, share weights for translation equivariance, and regularize with augmentation.",
+    order: ["convolution", "cnn", "data-augmentation"],
+    lessons: {
+      convolution: {
+        title: "Convolution",
+        oneLine: "Slide a small learnable kernel over the input to detect local patterns.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A convolution slides a small filter across the image, computing a weighted sum at every position. Because the same weights are reused everywhere, the layer detects a pattern (an edge, a texture) wherever it appears, with far fewer parameters than a dense layer. Stacking convolutions builds from edges to objects.",
+          ] },
+          { h: "The math", paras: ["Each output pixel is a dot product of the kernel with a local patch:"],
+            tex: "(I * K)(i,j) = \\sum_{m,n} I(i+m,\\,j+n)\\,K(m,n)", texNote: "Weight sharing gives translation equivariance and parameter efficiency." },
+          { h: "In code", code: "import numpy as np\n\ndef conv2d(I, K):\n    kh, kw = K.shape\n    out = np.zeros((I.shape[0]-kh+1, I.shape[1]-kw+1))\n    for i in range(out.shape[0]):\n        for j in range(out.shape[1]):\n            out[i, j] = (I[i:i+kh, j:j+kw] * K).sum()\n    return out", caption: "One kernel, reused at every position." },
+        ],
+        takeaways: ["Convolution applies a shared filter across all positions.", "Weight sharing gives translation equivariance and few parameters.", "Stacked convolutions grow from edges to objects."],
+        demo: "convolution",
+      },
+      cnn: {
+        title: "Convolutional Networks",
+        oneLine: "Stack convolutions and pooling into a hierarchy of visual features.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A CNN interleaves convolutions (detect features) with pooling (shrink and gain invariance), building a hierarchy from edges to textures to object parts. The final feature map feeds a classifier or a detector head. This inductive bias - locality and weight sharing - is what makes vision models data-efficient.",
+          ] },
+          { h: "The math", paras: ["Pooling downsamples a region to one value, e.g. the max:"],
+            tex: "y_{i,j} = \\max_{(m,n)\\in R_{i,j}} x_{m,n}", texNote: "Each conv-pool stage widens the receptive field and adds translation invariance." },
+          { h: "In code", code: "def max_pool(x, k=2):\n    h, w = x.shape\n    return x[:h//k*k, :w//k*k].reshape(h//k, k, w//k, k).max((1, 3))", caption: "Conv to detect, pool to summarize - repeat, then classify." },
+        ],
+        takeaways: ["CNNs build a feature hierarchy via conv + pool stages.", "Locality and weight sharing make them data-efficient on images.", "Detection and segmentation reuse the same backbone."],
+        demo: "nms",
+      },
+      "data-augmentation": {
+        title: "Data Augmentation",
+        oneLine: "Manufacture label-preserving variety to regularize a vision model.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A flipped, rotated, or cropped cat is still a cat. Augmentation applies these label-preserving transforms during training so the model sees far more variety than the raw dataset holds, teaching invariance to nuisance factors and curbing overfitting - the cheapest regularizer in vision.",
+          ] },
+          { h: "The math", paras: ["Train on transformed inputs whose label is unchanged:"],
+            tex: "(x, y) \\;\\longrightarrow\\; (T(x),\\, y),\\quad T \\sim \\mathcal{T}", texNote: "T is sampled fresh each epoch; the family T encodes which variations should not change the label." },
+          { h: "In code", code: "import numpy as np\n\ndef augment(img):\n    if np.random.rand() < 0.5: img = img[:, ::-1]      # h-flip\n    img = np.roll(img, np.random.randint(-3, 4), axis=0) # shift\n    return img", caption: "Fresh random transforms each epoch multiply the effective data." },
+        ],
+        takeaways: ["Augmentation adds label-preserving variety for free.", "It teaches invariance and reduces overfitting.", "Strong augmentation underpins modern self-supervised vision."],
+        demo: "image-augmentation",
+      },
+    },
+  },
+
+  "rnn-nlp": {
+    title: "Sequence Models and NLP",
+    intro: "Modeling order before transformers: Markov chains, learned word vectors, recurrent state, and the gates that made it trainable.",
+    order: ["markov", "word2vec", "rnn", "lstm-gates"],
+    lessons: {
+      markov: {
+        title: "Markov Chains",
+        oneLine: "Model a sequence where the next step depends only on the current state.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A Markov chain assumes the future depends on the present, not the full past. n-gram language models are exactly this: predict the next token from the last few. It is a weak assumption that is still a surprisingly strong baseline - and the conceptual ancestor of every sequence model.",
+          ] },
+          { h: "The math", paras: ["The Markov property drops all but the current state:"],
+            tex: "P(x_t \\mid x_{<t}) = P(x_t \\mid x_{t-1})", texNote: "Transition probabilities are just normalized counts of observed pairs." },
+          { h: "In code", code: "from collections import Counter, defaultdict\n\ndef fit_bigram(tokens):\n    trans = defaultdict(Counter)\n    for a, b in zip(tokens, tokens[1:]):\n        trans[a][b] += 1\n    return trans            # sample next token from trans[current]", caption: "Count pairs, normalize, sample - an n-gram model." },
+        ],
+        takeaways: ["Markov models condition only on the current state.", "n-gram language models are Markov chains over tokens.", "They are a strong, simple baseline for sequences."],
+        demo: "markov",
+      },
+      word2vec: {
+        title: "Word2Vec",
+        oneLine: "Learn word vectors by predicting a word from its context.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Words that appear in similar contexts should have similar vectors. Skip-gram trains embeddings by pushing a word's vector toward the words around it and away from random negatives. The result is the famous geometry where king - man + woman lands near queen.",
+          ] },
+          { h: "The math", paras: ["Skip-gram maximizes the probability of context given the center word:"],
+            tex: "P(c\\mid w) = \\frac{\\exp(v_c^{\\top} v_w)}{\\sum_{c'}\\exp(v_{c'}^{\\top} v_w)}", texNote: "Negative sampling approximates the costly denominator with a few random words." },
+          { h: "In code", code: "# one skip-gram step with negative sampling\nscore = v_center @ v_context\ngrad = (sigmoid(score) - label) * v_center   # label 1 for true ctx, 0 for neg\nv_context -= lr * grad", caption: "Pull true context together, push negatives apart." },
+        ],
+        takeaways: ["Distributional meaning: context predicts the embedding.", "Negative sampling makes training cheap.", "It produces vectors with linear analogy structure."],
+        demo: "word2vec",
+      },
+      rnn: {
+        title: "Recurrent Networks",
+        oneLine: "Carry a hidden state across time to model sequences of any length.",
+        sections: [
+          { h: "The intuition", paras: [
+            "An RNN reads a sequence one step at a time, updating a hidden state that summarizes everything seen so far. The same weights apply at every step, so it handles arbitrary lengths. It was the pre-transformer way to model order - but long-range dependencies are hard because gradients vanish through time.",
+          ] },
+          { h: "The math", paras: ["The hidden state recurs through a shared cell:"],
+            tex: "h_t = \\tanh\\!\\big(W_h h_{t-1} + W_x x_t + b\\big)", texNote: "Trained by backprop through time; repeated multiplication makes gradients vanish or explode." },
+          { h: "In code", code: "import numpy as np\n\ndef rnn(xs, h, Wh, Wx, b):\n    for x in xs:\n        h = np.tanh(Wh @ h + Wx @ x + b)\n    return h            # summary of the whole sequence", caption: "One shared cell, unrolled over the sequence." },
+        ],
+        takeaways: ["RNNs maintain a running summary in a hidden state.", "Shared weights handle variable-length input.", "Vanishing gradients limit their memory - which LSTMs address."],
+        demo: "rnn-gates",
+      },
+      "lstm-gates": {
+        title: "LSTM Gates",
+        oneLine: "Gates let a recurrent net keep or forget information over long spans.",
+        sections: [
+          { h: "The intuition", paras: [
+            "The LSTM adds a cell state that information can travel along nearly untouched, controlled by gates: a forget gate decides what to drop, an input gate what to add, an output gate what to expose. This gated highway keeps gradients alive far longer than a plain RNN.",
+          ] },
+          { h: "The math", paras: ["Each gate is a learned sigmoid; the cell is updated additively:"],
+            tex: "c_t = f_t \\odot c_{t-1} + i_t \\odot \\tilde{c}_t", texNote: "The additive update is what preserves gradient flow across many steps." },
+          { h: "In code", code: "f = sigmoid(Wf @ z)    # forget\ni = sigmoid(Wi @ z)    # input\no = sigmoid(Wo @ z)    # output\nc = f * c + i * np.tanh(Wc @ z)\nh = o * np.tanh(c)", caption: "Gates throttle what the cell keeps, adds, and reveals." },
+        ],
+        takeaways: ["LSTM gates control keep / add / expose for the cell state.", "The additive cell update fights vanishing gradients.", "GRUs are a lighter, two-gate variant."],
+        demo: "rnn-gates",
+      },
+    },
+  },
+
+  "advanced-nlp": {
+    title: "Advanced NLP and Generation",
+    intro: "Beyond a single forward pass: search for better continuations, encode position efficiently, and cache computation so generation is fast.",
+    order: ["beam-search", "rope", "kv-cache"],
+    lessons: {
+      "beam-search": {
+        title: "Beam Search",
+        oneLine: "Keep several candidate continuations instead of committing greedily.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Greedy decoding picks the single best next token and can paint itself into a corner. Beam search keeps the B most probable partial sequences at each step, expanding all of them and pruning back to B. It finds higher-probability sequences than greedy at B times the cost.",
+          ] },
+          { h: "The math", paras: ["Score a sequence by its summed log-probability and keep the top B:"],
+            tex: "s(y_{1:t}) = \\sum_{k=1}^{t} \\log P(y_k \\mid y_{<k})", texNote: "Length-normalize the score, or beam search favors short sequences." },
+          { h: "In code", code: "def expand(beams, logp):\n    cand = []\n    for seq, s in beams:\n        for tok, lp in logp(seq):\n            cand.append((seq + [tok], s + lp))\n    return sorted(cand, key=lambda x: -x[1])[:B]", caption: "Expand every beam, keep the top B by score." },
+        ],
+        takeaways: ["Beam search tracks the top-B partial sequences.", "It beats greedy on sequence probability at B times the cost.", "Length normalization stops it preferring short outputs."],
+        demo: "beam-search",
+      },
+      rope: {
+        title: "Rotary Position Embeddings",
+        oneLine: "Encode position by rotating query and key vectors.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Instead of adding a position signal, RoPE rotates each query and key by an angle proportional to its position. Because a dot product of two rotated vectors depends only on their angle difference, attention naturally sees relative position - and it extrapolates to longer contexts better than learned absolute embeddings.",
+          ] },
+          { h: "The math", paras: ["Rotate by a position-dependent angle so dot products encode relative offset:"],
+            tex: "\\langle R_{\\theta m} q,\\ R_{\\theta n} k\\rangle = g(q, k,\\ m-n)", texNote: "The result depends on m - n, the relative position, not the absolute indices." },
+          { h: "In code", code: "import numpy as np\n\ndef rope(x, pos, base=10000):\n    d = x.shape[-1]; i = np.arange(0, d, 2)\n    theta = pos / base ** (i / d)\n    c, s = np.cos(theta), np.sin(theta)\n    return np.stack([x[..., ::2]*c - x[..., 1::2]*s,\n                     x[..., ::2]*s + x[..., 1::2]*c], -1).reshape(x.shape)", caption: "Rotate pairs of dimensions by a position-scaled angle." },
+        ],
+        takeaways: ["RoPE encodes position by rotating Q and K.", "Attention then sees relative position for free.", "It extends to longer contexts better than absolute encodings."],
+        demo: "rope",
+      },
+      "kv-cache": {
+        title: "The KV Cache",
+        oneLine: "Cache past keys and values so each new token is cheap to generate.",
+        sections: [
+          { h: "The intuition", paras: [
+            "When generating text token by token, the keys and values for all previous tokens never change. Recomputing them every step is wasteful. The KV cache stores them, so producing the next token only computes one new query against the cached keys and values - turning quadratic regeneration into linear growth.",
+          ] },
+          { h: "The math", paras: ["Step t attends a single new query against all cached keys and values:"],
+            tex: "o_t = \\mathrm{softmax}\\!\\Big(\\tfrac{q_t K_{1:t}^{\\top}}{\\sqrt{d}}\\Big) V_{1:t}", texNote: "Only q_t is new each step; K and V are appended to and reused from the cache." },
+          { h: "In code", code: "# generation loop with a growing cache\nK_cache, V_cache = [], []\nfor step in range(max_len):\n    q, k, v = project(next_token)\n    K_cache.append(k); V_cache.append(v)\n    out = attend(q, np.array(K_cache), np.array(V_cache))", caption: "Append the new key/value; reuse all the old ones." },
+        ],
+        takeaways: ["The KV cache stores past keys and values across steps.", "It makes per-token generation cost grow linearly, not quadratically.", "Its memory cost motivates cache eviction and paging."],
+        demo: "kv-cache",
+      },
+    },
+  },
+
 };
 
 // resolve a sub-lesson + its module context; null if missing.
