@@ -170,8 +170,35 @@ window.SUB_LESSONS = {
   foundations: {
     title: "Mathematical and Programming Foundations",
     intro: "The handful of mathematical ideas the rest of the course quietly assumes: how derivatives compose, how a model learns by descending a loss, how to reason about uncertainty, and why averages become bell curves.",
-    order: ["chain-rule", "gradient-descent", "bayes", "entropy", "clt"],
+    order: ["chain-rule", "gradient-descent", "softmax", "cross-entropy", "bayes", "entropy", "clt"],
     lessons: {
+      softmax: {
+        title: "Softmax",
+        oneLine: "Turn a vector of scores into a probability distribution.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Softmax converts arbitrary real-valued scores (logits) into positive numbers that sum to one - a probability distribution. It is the output layer of nearly every classifier and the normalizer inside attention. The largest logit gets the most mass, but everything keeps a share, so it stays differentiable.",
+          ] },
+          { h: "The math", paras: ["Exponentiate, then normalize:"],
+            tex: "\\mathrm{softmax}(z)_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}", texNote: "Subtract the max before exponentiating for numerical stability." },
+          { h: "In code", code: "import numpy as np\n\ndef softmax(z):\n    z = z - z.max()          # stability\n    e = np.exp(z)\n    return e / e.sum()", caption: "Shift, exponentiate, normalize." },
+        ],
+        takeaways: ["Softmax maps logits to a probability distribution.", "It is the classifier head and the attention normalizer.", "Subtract the max for numerical stability."],
+        demo: "decoding",
+      },
+      "cross-entropy": {
+        title: "Cross-Entropy Loss",
+        oneLine: "Measure how far a predicted distribution is from the true label.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Cross-entropy is the standard classification loss. It rewards putting probability mass on the correct class and punishes confident wrong answers harshly. Paired with softmax, its gradient is beautifully simple - just predicted minus actual - which is why the combination is everywhere.",
+          ] },
+          { h: "The math", paras: ["Negative log-likelihood of the true class under the predicted distribution:"],
+            tex: "\\mathcal{L} = -\\sum_i y_i \\log \\hat{p}_i", texNote: "For a one-hot label this is just -log of the predicted probability of the right class." },
+          { h: "In code", code: "import numpy as np\n\ndef cross_entropy(p, y):       # y is the true class index\n    return -np.log(p[y] + 1e-12)\n# softmax + cross-entropy gradient is simply (p - onehot(y))", caption: "Punishes confident mistakes; trivial gradient with softmax." },
+        ],
+        takeaways: ["Cross-entropy is negative log-likelihood of the true class.", "It penalizes confident wrong predictions sharply.", "With softmax, the gradient is predicted minus actual."],
+      },
       "chain-rule": {
         title: "The Chain Rule",
         oneLine: "Compose derivatives through a graph - the calculus identity that makes backprop possible.",
@@ -248,8 +275,36 @@ window.SUB_LESSONS = {
   "supervised-learning": {
     title: "Supervised Learning",
     intro: "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
-    order: ["knn", "decision-tree", "svm", "roc"],
+    order: ["linear-regression", "logistic-regression", "knn", "naive-bayes", "decision-tree", "svm", "roc"],
     lessons: {
+      "linear-regression": {
+        title: "Linear Regression",
+        oneLine: "Fit a line (or hyperplane) by minimizing squared error.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Linear regression predicts a number as a weighted sum of features. Training finds the weights that minimize the squared gap between predictions and truth - geometrically, the line that sits closest to all the points. It is the simplest supervised model and the foundation everything else builds on.",
+          ] },
+          { h: "The math", paras: ["The least-squares solution has a closed form (the normal equations):"],
+            tex: "\\hat{\\theta} = (X^{\\top}X)^{-1}X^{\\top}y", texNote: "Or fit by gradient descent when X is large or you want regularization." },
+          { h: "In code", code: "import numpy as np\n\ndef fit(X, y):\n    return np.linalg.solve(X.T @ X, X.T @ y)   # normal equations", caption: "Closed-form for small problems; gradient descent at scale." },
+        ],
+        takeaways: ["Linear regression minimizes squared error.", "It has a closed-form least-squares solution.", "It is the base case for logistic regression and beyond."],
+        demo: "regression",
+      },
+      "logistic-regression": {
+        title: "Logistic Regression",
+        oneLine: "A linear model squashed through a sigmoid for classification.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Logistic regression turns a linear score into a probability by passing it through a sigmoid, then thresholds it to classify. Despite the name it is a classifier, trained by minimizing cross-entropy. It is the workhorse linear baseline and the single-neuron building block of neural nets.",
+          ] },
+          { h: "The math", paras: ["A sigmoid maps the linear score to a probability:"],
+            tex: "P(y=1\\mid x) = \\sigma(w^{\\top}x + b) = \\frac{1}{1+e^{-(w^{\\top}x+b)}}", texNote: "Trained by gradient descent on cross-entropy; the boundary is linear." },
+          { h: "In code", code: "import numpy as np\nsigmoid = lambda z: 1 / (1 + np.exp(-z))\n# gradient of cross-entropy is simply (sigmoid(Xw) - y)\ngrad = X.T @ (sigmoid(X @ w) - y) / len(y)", caption: "Linear score, sigmoid, cross-entropy - a clean gradient." },
+        ],
+        takeaways: ["Logistic regression is a linear classifier via the sigmoid.", "It is trained with cross-entropy, not squared error.", "It is one neuron - the atom of a neural network."],
+        demo: "regression",
+      },
       knn: {
         title: "k-Nearest Neighbors",
         oneLine: "Classify a point by the majority vote of its closest neighbors.",
@@ -263,6 +318,20 @@ window.SUB_LESSONS = {
         ],
         takeaways: ["kNN is lazy: it stores the data and votes at query time.", "k trades a jagged boundary (low k) for a smooth one (high k).", "Distances need scaled features to be meaningful."],
         demo: "knn",
+      },
+      "naive-bayes": {
+        title: "Naive Bayes",
+        oneLine: "A probabilistic classifier that assumes features are independent.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Naive Bayes applies Bayes' rule with one bold simplification: assume every feature is independent given the class. That 'naive' assumption is usually false, yet the classifier is fast, needs little data, and is a famously strong baseline for text. It picks the class with the highest posterior.",
+          ] },
+          { h: "The math", paras: ["The independence assumption turns the joint likelihood into a product:"],
+            tex: "\\hat{y} = \\arg\\max_y\\; P(y)\\prod_i P(x_i \\mid y)", texNote: "Work in log-space to avoid underflow when multiplying many probabilities." },
+          { h: "In code", code: "import numpy as np\n# Gaussian NB: per-class feature mean/var, then log-posterior\nlogpost = np.log(prior) + log_gaussian(x, mean, var).sum(axis=1)\nyhat = logpost.argmax()", caption: "Multiply (or sum log) per-feature likelihoods, pick the best class." },
+        ],
+        takeaways: ["Naive Bayes assumes conditional feature independence.", "It is fast, data-efficient, and strong on text.", "The independence assumption is wrong but often harmless."],
+        demo: "naive-bayes",
       },
       "decision-tree": {
         title: "Decision Trees",
@@ -312,8 +381,36 @@ window.SUB_LESSONS = {
   "unsupervised-learning": {
     title: "Unsupervised Learning",
     intro: "Finding structure with no labels at all: group points that belong together, and find the directions that carry the information.",
-    order: ["kmeans", "gmm-em", "pca"],
+    order: ["kmeans", "gmm-em", "dbscan", "hierarchical-clustering", "pca", "tsne"],
     lessons: {
+      dbscan: {
+        title: "DBSCAN",
+        oneLine: "Find dense clusters of any shape, and label the rest as noise.",
+        sections: [
+          { h: "The intuition", paras: [
+            "k-means assumes round, similarly sized blobs. DBSCAN instead grows clusters from dense regions: a point with enough neighbors within a radius is a core point, and clusters expand through chains of core points. It finds arbitrarily shaped clusters, needs no k, and marks sparse outliers as noise.",
+          ] },
+          { h: "The math", paras: ["A point is core if its eps-neighborhood holds at least minPts points:"],
+            tex: "|\\{x' : \\|x - x'\\| \\le \\varepsilon\\}| \\ge \\text{minPts}", texNote: "eps and minPts set the density threshold; non-reachable points become noise." },
+          { h: "In code", code: "# region query + expansion (sketch)\nneighbors = [j for j in range(n) if dist(i, j) <= eps]\nif len(neighbors) >= min_pts:\n    expand_cluster(i, neighbors)      # flood through dense points", caption: "Grow clusters through dense, connected regions." },
+        ],
+        takeaways: ["DBSCAN clusters by density, not distance to a center.", "It finds arbitrary shapes and needs no k.", "Sparse points are labeled noise rather than forced into a cluster."],
+        demo: "dbscan",
+      },
+      "hierarchical-clustering": {
+        title: "Hierarchical Clustering",
+        oneLine: "Build a tree of merges and cut it at the height you want.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Agglomerative clustering starts with every point its own cluster and repeatedly merges the two closest, recording the whole history as a dendrogram. You do not pick k up front - you cut the tree at whatever height gives the structure you want. Linkage (single, complete, average, Ward) defines 'closest'.",
+          ] },
+          { h: "The math", paras: ["Each step merges the two clusters minimizing the linkage distance:"],
+            tex: "(A,B) = \\arg\\min_{A,B}\\; d_{\\text{link}}(A, B)", texNote: "Ward merges the pair that least increases within-cluster variance." },
+          { h: "In code", code: "# repeatedly merge the closest pair, record the merge\nwhile len(clusters) > 1:\n    a, b = closest_pair(clusters, linkage)\n    merge(a, b)             # height = d(a, b) -> dendrogram", caption: "Merge upward; cut the dendrogram to choose k after the fact." },
+        ],
+        takeaways: ["Agglomerative clustering merges nearest clusters into a tree.", "The dendrogram lets you choose k after seeing the structure.", "Linkage choice changes the cluster shapes."],
+        demo: "hierarchical-clustering",
+      },
       kmeans: {
         title: "K-Means Clustering",
         oneLine: "Group points around k centers by alternating assignment and update.",
@@ -355,6 +452,20 @@ window.SUB_LESSONS = {
         ],
         takeaways: ["PCA keeps the directions of greatest variance.", "It is computed from the covariance eigenvectors (or an SVD).", "Used for compression, denoising, and 2D visualization."],
         demo: "pca",
+      },
+      tsne: {
+        title: "t-SNE",
+        oneLine: "Lay out high-dimensional data in 2D so neighborhoods are preserved.",
+        sections: [
+          { h: "The intuition", paras: [
+            "PCA is linear and can flatten interesting structure. t-SNE is built for visualization: it places points in 2D so that near neighbors in the original space stay near, revealing clusters. It distorts global distances to do so, so read cluster membership, not the gaps between clusters.",
+          ] },
+          { h: "The math", paras: ["It minimizes the KL divergence between neighbor distributions in high and low dimensions:"],
+            tex: "\\mathrm{KL}(P\\,\\|\\,Q) = \\sum_{i\\ne j} p_{ij}\\log\\frac{p_{ij}}{q_{ij}}", texNote: "Perplexity sets the neighborhood size; the low-D q uses a heavy-tailed Student-t." },
+          { h: "In code", code: "# gradient-descend the 2D points Y to match neighbor probabilities\nP = joint_neighbor_probs(X, perplexity=30)\nfor _ in range(1000):\n    Q = student_t_affinities(Y)\n    Y -= lr * kl_gradient(P, Q, Y)", caption: "Match neighborhood probabilities; trust clusters, not distances." },
+        ],
+        takeaways: ["t-SNE preserves local neighborhoods for visualization.", "It distorts global distances - read clusters, not gaps.", "Perplexity controls the neighborhood scale."],
+        demo: "tsne",
       },
     },
   },
@@ -682,8 +793,36 @@ window.SUB_LESSONS = {
   "advanced-cv": {
     title: "Advanced Computer Vision",
     intro: "Classic vision beyond convolution: find edges and corners, track motion, segment regions, and clean up overlapping detections.",
-    order: ["edge-detection", "harris-corners", "optical-flow", "image-segmentation", "iou-nms"],
+    order: ["edge-detection", "hough-transform", "harris-corners", "hog", "optical-flow", "image-segmentation", "iou-nms"],
     lessons: {
+      "hough-transform": {
+        title: "The Hough Transform",
+        oneLine: "Detect lines by having edge points vote in parameter space.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Once you have edges, how do you find straight lines? Each edge point votes for every line that could pass through it, in a (rho, theta) accumulator. Real lines collect many votes and show up as bright peaks. It is a robust, global way to find shapes even with gaps and noise.",
+          ] },
+          { h: "The math", paras: ["Each point (x, y) maps to a sinusoid of lines through it:"],
+            tex: "\\rho = x\\cos\\theta + y\\sin\\theta", texNote: "Collinear points share a (rho, theta) cell - the peak is their common line." },
+          { h: "In code", code: "import numpy as np\n\nfor (x, y) in edge_points:\n    for ti, theta in enumerate(thetas):\n        rho = int(x*np.cos(theta) + y*np.sin(theta))\n        acc[rho, ti] += 1            # vote; peaks = lines", caption: "Edge points vote; accumulator peaks are the lines." },
+        ],
+        takeaways: ["The Hough transform detects shapes by voting.", "Collinear edges peak at one (rho, theta) cell.", "It is robust to gaps and noise; it extends to circles."],
+        demo: "hough-transform",
+      },
+      "hog": {
+        title: "HOG Features",
+        oneLine: "Describe shape by the histogram of gradient orientations in each cell.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Before deep nets, HOG was the go-to descriptor for object shape, especially pedestrians. Split the image into small cells, build a histogram of gradient orientations in each, then normalize over blocks for lighting invariance. The result is a compact vector capturing local edge structure.",
+          ] },
+          { h: "The math", paras: ["Each pixel votes into orientation bins weighted by gradient magnitude:"],
+            tex: "\\theta = \\operatorname{atan2}(G_y, G_x),\\qquad \\text{vote weight} = \\|G\\|", texNote: "Block normalization across neighboring cells gives robustness to illumination." },
+          { h: "In code", code: "import numpy as np\nmag = np.hypot(Gx, Gy)\nori = (np.degrees(np.arctan2(Gy, Gx)) % 180)\nbins = (ori / 20).astype(int)            # 9 orientation bins per cell\n# accumulate mag into per-cell histograms, then block-normalize", caption: "Orientation histograms per cell, normalized per block." },
+        ],
+        takeaways: ["HOG encodes shape as per-cell gradient-orientation histograms.", "Block normalization adds lighting invariance.", "It powered classical detection before CNNs."],
+        demo: "hog",
+      },
       "edge-detection": {
         title: "Edge Detection",
         oneLine: "Find boundaries where image intensity changes sharply.",
