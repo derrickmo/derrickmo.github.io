@@ -2050,6 +2050,19 @@ const GlyphDTW = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">warping path</text>
   </svg>
 );
+
+const GlyphAliasing = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* fast true sine (violet, faint) */}
+    <path d="M16 56 Q26 26 36 56 T56 56 T76 56 T96 56 T116 56 T136 56" fill="none" stroke="rgba(168,85,247,0.45)" strokeWidth="1.5" />
+    {/* slow alias (green) */}
+    <path d="M16 56 C 52 18, 92 94, 136 40" fill="none" stroke="#34d399" strokeWidth="2.5" />
+    {/* sample dots on shared crossings */}
+    {[16, 56, 96, 136].map((x, i) => <circle key={i} cx={x} cy={56} r="3.5" fill="#fbbf24" />)}
+    <line x1="12" y1="56" x2="144" y2="56" stroke="rgba(148,163,184,0.3)" strokeWidth="1" />
+    <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">phantom freq</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2214,6 +2227,7 @@ const GLYPHS = {
   "mfcc": <GlyphMFCC />,
   "pitch-detection": <GlyphPitchDetection />,
   "dtw": <GlyphDTW />,
+  "aliasing": <GlyphAliasing />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

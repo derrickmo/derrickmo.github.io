@@ -632,6 +632,11 @@ const CONCEPTS_INDEX = {
     summary: "An elastic distance between two sequences that may run at different speeds. DTW finds the cheapest monotonic alignment via a DP cost matrix, D[i][j] = (A_i-B_j)² + min(D[i-1][j], D[i][j-1], D[i-1][j-1]), then backtracks the warping path; a Sakoe-Chiba band limits how far the path strays from the diagonal. Unlike point-by-point Euclidean distance, a small time shift doesn't wreck the comparison. The standard elastic metric for speech, gesture, ECG, and signature matching, and the continuous sibling of edit distance.",
     prereqs: ["dynamic-programming"],
   },
+  "aliasing": {
+    id: "aliasing", name: "Aliasing & the Nyquist Limit", area: "Signal",
+    summary: "The Nyquist-Shannon theorem: a signal is captured faithfully only if sampled faster than twice its highest frequency (the Nyquist rate). Sample too slowly and high frequencies FOLD back as lower-frequency aliases, f_alias = |f - fs·round(f/fs)|, indistinguishable from real low frequencies in the samples. The fix is always to band-limit (anti-alias low-pass filter) before sampling. Shows up as the wagon-wheel effect, image moire, and downsampling artifacts in CNNs.",
+    prereqs: ["fourier"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -1004,6 +1009,7 @@ const CONCEPT_TAGS = {
     "mfcc":                 ["mfcc", "spectrogram", "fourier"],
     "pitch-detection":      ["pitch-detection", "fourier", "forecasting"],
     "dtw":                  ["dtw", "dynamic-programming"],
+    "aliasing":             ["aliasing", "fourier"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
