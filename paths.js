@@ -380,6 +380,22 @@ window.DM_PATH_RESOLVE = function (step) {
 window.DM_PATH_FIND = id => (window.LEARNING_PATHS || []).find(p => p.id === id);
 window.DM_PATH_TOTAL = p => p.stages.reduce((a, s) => a + s.steps.length, 0);
 
+// the first not-yet-done step in a path (or null when complete), with its
+// stepKey + resolved title/href — used by the hub dashboard's "continue" rows.
+window.DM_PATH_NEXT = function (p) {
+  if (!window.DM_PATHS) return null;
+  for (let si = 0; si < p.stages.length; si++) {
+    for (let ti = 0; ti < p.stages[si].steps.length; ti++) {
+      const key = si + "." + ti;
+      if (!window.DM_PATHS.isDone(p.id, key)) {
+        const step = p.stages[si].steps[ti];
+        return { step, key, stageIdx: si, stepIdx: ti, stageName: p.stages[si].name, resolved: window.DM_PATH_RESOLVE(step) };
+      }
+    }
+  }
+  return null; // every step done
+};
+
 // reverse index: which paths include a given step (kind + ref)?
 // Used by demo/concept pages to show a "part of these paths" callout.
 window.DM_PATHS_FOR = function (kind, ref) {

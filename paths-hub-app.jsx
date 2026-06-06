@@ -56,6 +56,113 @@ function PathCard({ p }) {
   );
 }
 
+// ── Stage 4: cross-path progress dashboard ──────────────────────────
+function StatTile({ value, label, accent }) {
+  return (
+    <div style={{
+      flex: "1 1 0", minWidth: 0, padding: "14px 16px", borderRadius: 8,
+      border: "1px solid var(--border)", background: "rgba(13,24,52,0.4)",
+      display: "flex", flexDirection: "column", gap: 4,
+    }}>
+      <span style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 28, lineHeight: 1, color: accent || "var(--white)" }}>{value}</span>
+      <span className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10, letterSpacing: "0.04em" }}>{label}</span>
+    </div>
+  );
+}
+
+function ContinueRow({ entry }) {
+  const { p, next } = entry;
+  const accent = ACCENT(p.accent);
+  const total = window.DM_PATH_TOTAL(p);
+  const done = window.DM_PATHS.doneCount(p.id);
+  const pct = total ? Math.min(done, total) / total : 0;
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 8,
+      border: "1px solid var(--border)", background: "rgba(13,24,52,0.35)", flexWrap: "wrap",
+    }}>
+      <div style={{ position: "relative", flexShrink: 0 }}>
+        <Ring pct={pct} size={38} accent={accent} />
+        <span className="t-mono-s" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: accent }}>{Math.round(pct * 100)}%</span>
+      </div>
+      <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+        <a href={p.id + "/"} style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 16, color: "var(--white)", textDecoration: "none" }}>{p.title}</a>
+        <div className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          NEXT: {next ? next.resolved.title : "—"}
+        </div>
+      </div>
+      {next && (
+        <a href={next.resolved.href} style={{
+          flexShrink: 0, textDecoration: "none", border: `1px solid ${accent}`, borderRadius: 6,
+          padding: "7px 12px", color: accent, fontFamily: "var(--f-mono)", fontSize: 10, letterSpacing: "0.06em",
+        }}>OPEN NEXT →</a>
+      )}
+    </div>
+  );
+}
+
+function Dashboard({ paths, mobile }) {
+  if (!window.DM_PATHS) return null;
+  let totalSteps = 0, doneSteps = 0, startedCount = 0, completeCount = 0;
+  const inProgress = [], complete = [];
+  for (const p of paths) {
+    const total = window.DM_PATH_TOTAL(p);
+    const done = Math.min(window.DM_PATHS.doneCount(p.id), total);
+    totalSteps += total; doneSteps += done;
+    if (done <= 0) continue;
+    startedCount++;
+    const ts = (window.DM_PATHS.get(p.id).ts) || 0;
+    if (done >= total) { completeCount++; complete.push({ p, ts }); }
+    else { inProgress.push({ p, ts, next: window.DM_PATH_NEXT(p) }); }
+  }
+  if (startedCount === 0) return null; // nothing started yet — just show the grid
+  inProgress.sort((a, b) => b.ts - a.ts);
+  complete.sort((a, b) => b.ts - a.ts);
+  const overall = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
+
+  return (
+    <div style={{
+      marginBottom: 28, padding: "22px 24px", borderRadius: 10, position: "relative", overflow: "hidden",
+      border: "1px solid var(--border-violet)",
+      background: "linear-gradient(125deg, rgba(168,85,247,0.10) 0%, rgba(59,130,246,0.06) 55%, rgba(13,24,52,0.2) 100%)",
+    }}>
+      <HudBrackets mode="dark" inset={10} size={18} />
+      <MonoLabel color="var(--violet-lt)">// YOUR PROGRESS</MonoLabel>
+      <div style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
+        <StatTile value={overall + "%"} label="OVERALL COMPLETION" accent="var(--violet-lt)" />
+        <StatTile value={doneSteps + " / " + totalSteps} label="STEPS DONE" />
+        <StatTile value={startedCount} label="PATHS STARTED" />
+        <StatTile value={completeCount} label="PATHS COMPLETE" accent={completeCount > 0 ? "#34d399" : null} />
+      </div>
+      <div style={{ marginTop: 14, height: 6, borderRadius: 3, background: "rgba(148,163,184,0.18)", overflow: "hidden" }}>
+        <div style={{ width: overall + "%", height: "100%", borderRadius: 3, background: "linear-gradient(90deg, #a855f7, #3b82f6)", transition: "width .4s" }} />
+      </div>
+
+      {inProgress.length > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <div className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10, marginBottom: 10 }}>// PICK UP WHERE YOU LEFT OFF</div>
+          <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 10 }}>
+            {inProgress.map(e => <ContinueRow key={e.p.id} entry={e} />)}
+          </div>
+        </div>
+      )}
+
+      {complete.length > 0 && (
+        <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+          <span className="t-mono-s" style={{ color: "#34d399", fontSize: 10 }}>// COMPLETED</span>
+          {complete.map(({ p }) => (
+            <a key={p.id} href={p.id + "/"} style={{
+              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+              border: "1px solid rgba(52,211,153,0.4)", borderRadius: 20, padding: "5px 12px",
+              color: "#34d399", fontFamily: "var(--f-mono)", fontSize: 11,
+            }}>✓ {p.title}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Hero() {
   return (
     <Section id="top" padded={false} style={{ paddingTop: 160, paddingBottom: 48, position: "relative", overflow: "hidden" }}>
@@ -86,9 +193,6 @@ function Hero() {
 function App() {
   const mobile = useIsMobile();
   const paths = window.LEARNING_PATHS || [];
-  // resume strip: the most recently touched started path
-  let resume = null;
-  if (window.DM_PATHS) { for (const p of paths) { if (window.DM_PATHS.started(p.id)) { const g = window.DM_PATHS.get(p.id); if (!resume || (g.ts || 0) > resume.ts) resume = { p, ts: g.ts || 0 }; } } }
   return (
     <>
       <TopNav />
@@ -96,17 +200,7 @@ function App() {
       <Section style={{ paddingTop: 8 }}>
         <GridOverlay mode="dark" spacing={80} opacity={0.3} />
         <Container>
-          {resume && (
-            <a href={resume.p.id + "/"} style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap",
-              marginBottom: 22, padding: "16px 22px", border: "1px solid var(--border-violet)", borderRadius: 8,
-              background: "linear-gradient(120deg, rgba(168,85,247,0.10) 0%, rgba(59,130,246,0.06) 100%)", textDecoration: "none", color: "inherit",
-            }}>
-              <div><MonoLabel color="var(--violet-lt)">// PICK UP WHERE YOU LEFT OFF</MonoLabel>
-                <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 19, color: "var(--white)", marginTop: 6 }}>{resume.p.title}</div></div>
-              <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>CONTINUE →</span>
-            </a>
-          )}
+          <Dashboard paths={paths} mobile={mobile} />
           <div style={{ marginBottom: 22 }}><MonoLabel color="var(--violet-lt)">// {paths.length} PATHS</MonoLabel></div>
           <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 18 }}>
             {paths.map(p => <PathCard key={p.id} p={p} />)}
