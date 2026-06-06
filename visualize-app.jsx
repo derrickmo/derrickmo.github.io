@@ -1935,6 +1935,18 @@ const GlyphDoubleQ = () => (
     <text x="40" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">max bias fix</text>
   </svg>
 );
+
+const GlyphGAE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* U-shaped MSE with min in the middle */}
+    <path d="M28 36 L52 64 L80 76 L108 64 L132 36" fill="none" stroke="#a855f7" strokeWidth="2.5" />
+    {/* bias (down-right) and variance (up-right) crossing */}
+    <line x1="28" y1="78" x2="132" y2="44" stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="3 3" />
+    <line x1="28" y1="44" x2="132" y2="78" stroke="#f87171" strokeWidth="1.5" strokeDasharray="3 3" />
+    <circle cx="80" cy="76" r="3.5" fill="#34d399" />
+    <text x="44" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">bias / variance</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2090,6 +2102,7 @@ const GLYPHS = {
   "ppo": <GlyphPPO />,
   "dyna-q": <GlyphDynaQ />,
   "double-q-learning": <GlyphDoubleQ />,
+  "gae": <GlyphGAE />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

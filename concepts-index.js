@@ -584,6 +584,12 @@ const CONCEPTS_INDEX = {
     summary: "Q-learning bootstraps off max_a Q(s',a); because the estimates are noisy and you both SELECT and EVALUATE with the same max, E[max] is biased high — it systematically overestimates action values and can prefer a worse action. Double Q-learning keeps two value tables and uses one to pick the maximizing action and the other to evaluate it; since their noise is independent, the bias cancels. The deep-RL version is Double DQN (online net selects, target net evaluates). A specific case of the 'optimizer's curse' that also haunts model selection.",
     prereqs: ["q-learning", "sarsa"],
   },
+  "gae": {
+    id: "gae", name: "Generalized Advantage Estimation", area: "Reinforcement Learning",
+    summary: "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, Â_t = Σ_l (γλ)^l δ_{t+l}. λ is a bias/variance dial — λ=0 is the one-step TD advantage (low variance, biased through an imperfect critic), λ=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal λ toward 1; more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (λ≈0.95) inside PPO.",
+    tex: "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\, \\delta_{t+l},\\quad \\delta_l = r_l + \\gamma V(s_{l+1}) - V(s_l)",
+    prereqs: ["td-lambda", "actor-critic"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -947,6 +953,7 @@ const CONCEPT_TAGS = {
     "ppo":                  ["ppo", "policy-gradient", "actor-critic"],
     "dyna-q":               ["dyna-q", "q-learning", "mdp-bellman"],
     "double-q-learning":    ["double-q-learning", "q-learning", "sarsa"],
+    "gae":                  ["gae", "td-lambda", "actor-critic"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
