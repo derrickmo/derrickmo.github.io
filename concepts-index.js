@@ -643,6 +643,11 @@ const CONCEPTS_INDEX = {
     tex: "PR_i = \\frac{1-d}{N} + d \\sum_{j \\to i} \\frac{PR_j}{\\mathrm{outdeg}(j)}",
     prereqs: ["markov"],
   },
+  "dijkstra": {
+    id: "dijkstra", name: "Dijkstra's Shortest Path", area: "Graphs",
+    summary: "Single-source shortest paths on a graph with non-negative edge weights. Repeatedly settle the unsettled node with the smallest tentative distance and relax its edges (dist[v] = min(dist[v], dist[u]+w)); because weights are non-negative, a settled node's distance is final, so the greedy order is optimal. O(E log V) with a binary heap. The weighted generalization of BFS and the parent of A* (Dijkstra plus an admissible heuristic). Negative edges require Bellman-Ford instead.",
+    prereqs: ["graph-search"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -1017,6 +1022,7 @@ const CONCEPT_TAGS = {
     "dtw":                  ["dtw", "dynamic-programming"],
     "aliasing":             ["aliasing", "fourier"],
     "pagerank":             ["pagerank", "markov", "pca"],
+    "dijkstra":             ["dijkstra", "graph-search"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

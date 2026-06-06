@@ -2079,6 +2079,23 @@ const GlyphPageRank = () => (
     <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">rank = size</text>
   </svg>
 );
+
+const GlyphDijkstra = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* nodes with a gold shortest path through them */}
+    <line x1="26" y1="60" x2="64" y2="34" stroke="#fbbf24" strokeWidth="3" />
+    <line x1="64" y1="34" x2="104" y2="62" stroke="#fbbf24" strokeWidth="3" />
+    <line x1="104" y1="62" x2="134" y2="40" stroke="#fbbf24" strokeWidth="3" />
+    <line x1="64" y1="34" x2="70" y2="88" stroke="rgba(148,163,184,0.4)" strokeWidth="1.5" />
+    <line x1="70" y1="88" x2="104" y2="62" stroke="rgba(148,163,184,0.4)" strokeWidth="1.5" />
+    <circle cx="26" cy="60" r="9" fill="#34d399" />
+    <circle cx="64" cy="34" r="8" fill="#60a5fa" />
+    <circle cx="104" cy="62" r="8" fill="#60a5fa" />
+    <circle cx="70" cy="88" r="7" fill="#475569" />
+    <circle cx="134" cy="40" r="9" fill="#f472b6" />
+    <text x="34" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">shortest path</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2245,6 +2262,7 @@ const GLYPHS = {
   "dtw": <GlyphDTW />,
   "aliasing": <GlyphAliasing />,
   "pagerank": <GlyphPageRank />,
+  "dijkstra": <GlyphDijkstra />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
