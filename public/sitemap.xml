@@ -176,6 +176,11 @@
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/chain-rule/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/clt/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/huggingface/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/huggingface/agentic/</loc><priority>0.6</priority></url>
@@ -192,6 +197,10 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/cross-validation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/</loc><priority>0.6</priority></url>
@@ -201,6 +210,10 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/decision-tree/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/knn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/roc/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/svm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/attention/</loc><priority>0.6</priority></url>
@@ -212,6 +225,9 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/tokenization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/gmm-em/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kmeans/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/audio-ml/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/classic-cs/</loc><priority>0.6</priority></url>

@@ -167,6 +167,262 @@ window.SUB_LESSONS = {
       },
     },
   },
+  foundations: {
+    title: "Mathematical and Programming Foundations",
+    intro: "The handful of mathematical ideas the rest of the course quietly assumes: how derivatives compose, how a model learns by descending a loss, how to reason about uncertainty, and why averages become bell curves.",
+    order: ["chain-rule", "gradient-descent", "bayes", "entropy", "clt"],
+    lessons: {
+      "chain-rule": {
+        title: "The Chain Rule",
+        oneLine: "Compose derivatives through a graph - the calculus identity that makes backprop possible.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A neural network is a long composition of functions. To train it you need the derivative of the final loss with respect to every parameter buried inside that composition. The chain rule is the one rule that lets you get there: the sensitivity of an output to a distant input is the product of the local sensitivities along the path between them.",
+          ] },
+          { h: "The math", paras: ["For a composition L(y(x)), the derivative multiplies the local pieces:"],
+            tex: "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\,\\frac{\\partial y}{\\partial x}", texNote: "Chained across many layers, this product is exactly what backpropagation computes." },
+          { h: "In code", code: "# d/dx of L = (y - t)^2 where y = w*x\n# dL/dy = 2(y - t);  dy/dw = x  ->  dL/dw = 2(y - t) * x\ndef grad_w(x, w, t):\n    y = w * x\n    return 2 * (y - t) * x", caption: "Every autograd engine is this rule applied over a graph." },
+        ],
+        takeaways: ["Gradients of compositions are products of local gradients.", "It is the mathematical engine inside backprop and every autograd library."],
+        demo: "backprop",
+      },
+      "gradient-descent": {
+        title: "Gradient Descent",
+        oneLine: "Follow the negative gradient downhill to minimize a loss.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Most models are trained by minimizing a loss function you cannot solve in closed form. Gradient descent is the universal fallback: stand on the loss surface, look at the slope, and take a small step in the steepest downhill direction. Repeat until you stop improving.",
+          ] },
+          { h: "The math", paras: ["Each step moves the parameters against the gradient, scaled by a learning rate eta:"],
+            tex: "\\theta_{t+1} = \\theta_t - \\eta\\,\\nabla_\\theta\\,\\mathcal{L}(\\theta_t)", texNote: "Too large an eta overshoots; too small crawls. The learning-rate schedule manages this." },
+          { h: "In code", code: "def gradient_descent(grad, theta, eta=0.1, steps=100):\n    for _ in range(steps):\n        theta = theta - eta * grad(theta)\n    return theta", caption: "The same three lines train a line fit or a billion-parameter model." },
+        ],
+        takeaways: ["Gradient descent turns 'minimize this loss' into a simple iterative rule.", "The learning rate is the single most important knob.", "Adam and friends are gradient descent with adaptive per-parameter steps."],
+        demo: "gradient-descent",
+      },
+      bayes: {
+        title: "Bayes' Rule",
+        oneLine: "Update what you believe in light of new evidence.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Bayes' rule is how a rational agent revises a belief when data arrives. You start with a prior, see some evidence, and end with a posterior that blends the two - leaning on the prior when data is scarce and on the data when it is plentiful. It underlies Naive Bayes, Kalman filters, and probabilistic modeling generally.",
+          ] },
+          { h: "The math", paras: ["The posterior is the likelihood times the prior, normalized:"],
+            tex: "P(H\\mid E) = \\frac{P(E\\mid H)\\,P(H)}{P(E)}", texNote: "Posterior is proportional to likelihood times prior; the denominator just makes it sum to one." },
+          { h: "In code", code: "def posterior(prior, likelihood):\n    # prior, likelihood: dict over hypotheses\n    joint = {h: prior[h] * likelihood[h] for h in prior}\n    z = sum(joint.values())\n    return {h: joint[h] / z for h in joint}", caption: "Multiply prior by likelihood, then normalize." },
+        ],
+        takeaways: ["Bayes' rule is the calculus of updating beliefs with evidence.", "Priors dominate when data is scarce; data dominates when it is plentiful."],
+        demo: "bayes",
+      },
+      entropy: {
+        title: "Entropy and Information",
+        oneLine: "Measure how much uncertainty a distribution carries, in bits.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Entropy quantifies surprise. A fair coin is maximally uncertain (1 bit); a loaded one carries less. It is the currency behind decision-tree splits (which question removes the most uncertainty?), cross-entropy loss, and compression.",
+          ] },
+          { h: "The math", paras: ["Entropy is the expected number of bits to encode an outcome:"],
+            tex: "H(p) = -\\sum_i p_i \\log_2 p_i", texNote: "Maximized by the uniform distribution; zero when one outcome is certain." },
+          { h: "In code", code: "import numpy as np\n\ndef entropy(p):\n    p = np.asarray(p)\n    p = p[p > 0]\n    return -np.sum(p * np.log2(p))", caption: "A decision tree picks the split that drops this the most." },
+        ],
+        takeaways: ["Entropy measures uncertainty in bits.", "Information gain (entropy drop) drives decision-tree splits.", "Cross-entropy, the workhorse classification loss, is built from it."],
+        demo: "decision-tree",
+      },
+      clt: {
+        title: "The Central Limit Theorem",
+        oneLine: "Sums of many independent random draws look Gaussian, whatever the source.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Average enough independent random quantities and the distribution of the average becomes a bell curve - even if each piece is wildly non-Gaussian. This is why noise is so often modeled as Gaussian, why error bars shrink as 1/sqrt(n), and why the normal distribution is everywhere.",
+          ] },
+          { h: "The math", paras: ["The standardized sample mean converges to a standard normal:"],
+            tex: "\\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\;\\xrightarrow{d}\\; \\mathcal{N}(0,1)", texNote: "The spread of the mean shrinks like 1/sqrt(n) - quadruple the data to halve the error." },
+          { h: "In code", code: "import numpy as np\n\n# means of uniform samples become Gaussian\nmeans = [np.random.rand(50).mean() for _ in range(10000)]\n# histogram of `means` is a tight bell curve around 0.5", caption: "Sum anything independent enough times and a bell curve appears." },
+        ],
+        takeaways: ["Averages of independent variables tend to a Gaussian.", "Estimation error shrinks like 1/sqrt(n).", "It justifies Gaussian noise assumptions across ML."],
+        demo: "clt",
+      },
+    },
+  },
+
+  "supervised-learning": {
+    title: "Supervised Learning",
+    intro: "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
+    order: ["knn", "decision-tree", "svm", "roc"],
+    lessons: {
+      knn: {
+        title: "k-Nearest Neighbors",
+        oneLine: "Classify a point by the majority vote of its closest neighbors.",
+        sections: [
+          { h: "The intuition", paras: [
+            "kNN is the simplest idea that actually works: to label a new point, find the k closest labeled points and let them vote. There is no training - the data is the model. Small k gives a jagged, high-variance boundary; large k smooths it toward the majority class.",
+          ] },
+          { h: "The math", paras: ["Predict the most common label among the k nearest by some distance d:"],
+            tex: "\\hat{y}(x) = \\text{mode}\\,\\{\\, y_i : x_i \\in \\mathcal{N}_k(x) \\,\\}", texNote: "Distance choice and feature scaling matter enormously - standardize first." },
+          { h: "In code", code: "import numpy as np\n\ndef knn_predict(X, y, x, k=5):\n    d = np.linalg.norm(X - x, axis=1)\n    nn = np.argsort(d)[:k]\n    return np.bincount(y[nn]).argmax()", caption: "No fit step - prediction does all the work." },
+        ],
+        takeaways: ["kNN is lazy: it stores the data and votes at query time.", "k trades a jagged boundary (low k) for a smooth one (high k).", "Distances need scaled features to be meaningful."],
+        demo: "knn",
+      },
+      "decision-tree": {
+        title: "Decision Trees",
+        oneLine: "Carve the feature space with a sequence of axis-aligned questions.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A decision tree asks one yes/no question at a time, splitting the data into ever-purer groups. Each split is chosen to reduce impurity the most. Trees are interpretable and handle mixed feature types, but a deep tree overfits - which is why we average many of them in forests and boosting.",
+          ] },
+          { h: "The math", paras: ["Each node picks the feature and threshold that most reduce impurity (e.g. Gini):"],
+            tex: "G = 1 - \\sum_c p_c^2", texNote: "The split maximizing the weighted impurity drop wins; recurse until pure or capped." },
+          { h: "In code", code: "import numpy as np\n\ndef gini(y):\n    _, counts = np.unique(y, return_counts=True)\n    p = counts / counts.sum()\n    return 1 - np.sum(p ** 2)\n# best split = argmin over (feature, threshold) of weighted child gini", caption: "Greedy, recursive, and the building block of forests and boosting." },
+        ],
+        takeaways: ["Trees split on the question that most purifies the labels.", "They are interpretable but overfit when deep.", "Ensembles (bagging, boosting) turn weak trees into strong models."],
+        demo: "decision-tree",
+      },
+      svm: {
+        title: "Support Vector Machines",
+        oneLine: "Separate the classes with the widest possible margin.",
+        sections: [
+          { h: "The intuition", paras: [
+            "An SVM does not just find a separating line - it finds the one with the largest buffer between the classes, defined by a few critical points called support vectors. The kernel trick lets the same idea draw curved boundaries by measuring similarity in a richer space without ever building it.",
+          ] },
+          { h: "The math", paras: ["Maximize the margin, i.e. minimize the weight norm subject to correct, confident classification:"],
+            tex: "\\min_{w,b}\\;\\tfrac12\\|w\\|^2 \\quad \\text{s.t.}\\quad y_i(w^{\\top}x_i + b) \\ge 1", texNote: "The soft-margin version adds slack so a few points may violate the margin." },
+          { h: "In code", code: "# hinge-loss SVM via subgradient descent\ndef step(w, b, x, y, lr=0.01, C=1.0):\n    if y * (w @ x + b) < 1:\n        w = w - lr * (w - C * y * x); b = b + lr * C * y\n    else:\n        w = w - lr * w\n    return w, b", caption: "Only the margin-violating points (support vectors) drive the update." },
+        ],
+        takeaways: ["SVMs maximize the margin, set by a few support vectors.", "Kernels give nonlinear boundaries cheaply.", "The C parameter trades margin width against training errors."],
+        demo: "svm",
+      },
+      roc: {
+        title: "ROC and Thresholds",
+        oneLine: "Score a classifier honestly across every decision threshold.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Accuracy hides the trade-off between catching positives and raising false alarms - and collapses on imbalanced data. The ROC curve sweeps the decision threshold and plots true-positive rate against false-positive rate, and the area under it (AUC) summarizes ranking quality independent of any single threshold.",
+          ] },
+          { h: "The math", paras: ["The curve plots, over all thresholds t, the two rates:"],
+            tex: "\\text{TPR} = \\frac{TP}{TP+FN},\\qquad \\text{FPR} = \\frac{FP}{FP+TN}", texNote: "AUC is the probability a random positive is ranked above a random negative." },
+          { h: "In code", code: "import numpy as np\n\ndef roc_points(scores, y):\n    for t in np.sort(scores)[::-1]:\n        pred = scores >= t\n        tpr = (pred & (y == 1)).sum() / max((y == 1).sum(), 1)\n        fpr = (pred & (y == 0)).sum() / max((y == 0).sum(), 1)\n        yield fpr, tpr", caption: "Sweep the threshold, trace the curve, integrate for AUC." },
+        ],
+        takeaways: ["ROC separates ranking quality from the choice of threshold.", "AUC is threshold-free and robust to class imbalance.", "Pick the operating threshold from the curve, by the cost of each error."],
+        demo: "roc",
+      },
+    },
+  },
+
+  "unsupervised-learning": {
+    title: "Unsupervised Learning",
+    intro: "Finding structure with no labels at all: group points that belong together, and find the directions that carry the information.",
+    order: ["kmeans", "gmm-em", "pca"],
+    lessons: {
+      kmeans: {
+        title: "K-Means Clustering",
+        oneLine: "Group points around k centers by alternating assignment and update.",
+        sections: [
+          { h: "The intuition", paras: [
+            "K-means partitions data into k groups by repeating two steps: assign each point to its nearest center, then move each center to the mean of its points. It is fast and intuitive but assumes round, similarly sized clusters and needs k chosen up front.",
+          ] },
+          { h: "The math", paras: ["It minimizes within-cluster squared distance to the centers:"],
+            tex: "\\min_{\\{\\mu_k\\}}\\;\\sum_i \\min_k \\|x_i - \\mu_k\\|^2", texNote: "Each iteration cannot increase this objective, so it converges - but to a local optimum." },
+          { h: "In code", code: "import numpy as np\n\ndef kmeans_step(X, mu):\n    a = np.argmin(((X[:, None] - mu) ** 2).sum(-1), axis=1)\n    mu = np.array([X[a == k].mean(0) for k in range(len(mu))])\n    return a, mu", caption: "Assign, update, repeat - Lloyd's algorithm." },
+        ],
+        takeaways: ["K-means alternates nearest-center assignment with mean updates.", "It assumes round clusters and needs k chosen in advance.", "GMMs generalize it to soft, elliptical clusters."],
+        demo: "kmeans",
+      },
+      "gmm-em": {
+        title: "Gaussian Mixtures and EM",
+        oneLine: "Model data as a blend of Gaussians, fit by soft assignments.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A Gaussian mixture says the data came from several Gaussian blobs with unknown parameters. Expectation-Maximization fits it by alternating: the E-step computes each point's soft membership in every blob; the M-step re-estimates each blob from those weighted points. It is k-means with probabilities and elliptical clusters.",
+          ] },
+          { h: "The math", paras: ["The E-step responsibility of component k for point i:"],
+            tex: "\\gamma_{ik} = \\frac{\\pi_k\\,\\mathcal{N}(x_i\\mid \\mu_k,\\Sigma_k)}{\\sum_j \\pi_j\\,\\mathcal{N}(x_i\\mid \\mu_j,\\Sigma_j)}", texNote: "The M-step updates each mean, covariance, and weight from responsibility-weighted data." },
+          { h: "In code", code: "# E-step: soft assignments; M-step: weighted moments\ngamma = (pi * gaussian(X, mu, Sigma))      # (n, k)\ngamma /= gamma.sum(1, keepdims=True)\nNk = gamma.sum(0)\nmu = (gamma.T @ X) / Nk[:, None]           # weighted means", caption: "Soft k-means: every point partly belongs to every cluster." },
+        ],
+        takeaways: ["GMMs model data as a weighted blend of Gaussians.", "EM alternates soft assignment (E) with re-estimation (M).", "It generalizes k-means to elliptical, overlapping clusters."],
+        demo: "gmm",
+      },
+      pca: {
+        title: "Principal Component Analysis",
+        oneLine: "Find the orthogonal directions that capture the most variance.",
+        sections: [
+          { h: "The intuition", paras: [
+            "PCA rotates the data to new axes ordered by how much variance they explain, then keeps the top few. It compresses, denoises, and visualizes high-dimensional data by projecting onto the directions that matter most. Those directions are the leading eigenvectors of the covariance matrix.",
+          ] },
+          { h: "The math", paras: ["The principal directions are the top eigenvectors of the covariance:"],
+            tex: "\\Sigma = \\tfrac1n X^{\\top}X = U\\Lambda U^{\\top}", texNote: "Project onto the top-k columns of U; the eigenvalues say how much variance each keeps." },
+          { h: "In code", code: "import numpy as np\n\ndef pca(X, k):\n    X = X - X.mean(0)\n    U, S, Vt = np.linalg.svd(X, full_matrices=False)\n    return X @ Vt[:k].T          # top-k projection", caption: "Center, take the SVD, project onto the leading directions." },
+        ],
+        takeaways: ["PCA keeps the directions of greatest variance.", "It is computed from the covariance eigenvectors (or an SVD).", "Used for compression, denoising, and 2D visualization."],
+        demo: "pca",
+      },
+    },
+  },
+
+  "ml-theory": {
+    title: "Machine Learning Theory",
+    intro: "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
+    order: ["bias-variance", "regularization", "cross-validation", "double-descent"],
+    lessons: {
+      "bias-variance": {
+        title: "The Bias-Variance Trade-off",
+        oneLine: "Generalization error splits into bias, variance, and irreducible noise.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Too simple a model misses the pattern (high bias); too flexible a model chases the noise and changes wildly with the training set (high variance). Test error is the sum of both plus the noise floor, and model selection is the search for their sweet spot.",
+          ] },
+          { h: "The math", paras: ["Expected squared error decomposes cleanly:"],
+            tex: "\\mathbb{E}[(y-\\hat{f})^2] = \\text{Bias}^2 + \\text{Var} + \\sigma^2", texNote: "More capacity lowers bias but raises variance; the irreducible noise sigma^2 cannot be removed." },
+          { h: "In code", code: "import numpy as np\n\n# fit many models on resampled data, then:\nbias2 = (preds.mean(0) - truth) ** 2\nvar = preds.var(0)\n# test_err ~ bias2.mean() + var.mean() + noise", caption: "Average predictions give bias; their spread gives variance." },
+        ],
+        takeaways: ["Error = bias^2 + variance + irreducible noise.", "Capacity trades bias for variance.", "The goal is the minimum-total-error sweet spot, not zero training error."],
+        demo: "bias-variance-decomp",
+      },
+      regularization: {
+        title: "Regularization",
+        oneLine: "Penalize complexity to trade a little bias for much less variance.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Regularization discourages the model from fitting noise by adding a penalty on the size of its weights. L2 (weight decay) shrinks weights smoothly; L1 drives some to exactly zero, selecting features. Either way you accept slightly more bias for a big drop in variance.",
+          ] },
+          { h: "The math", paras: ["Add a penalty term to the loss, weighted by lambda:"],
+            tex: "\\mathcal{L}_{\\text{reg}} = \\mathcal{L}(\\theta) + \\lambda\\,\\|\\theta\\|_2^2", texNote: "Larger lambda means simpler models; it is tuned on validation data." },
+          { h: "In code", code: "# L2 adds a constant pull toward zero to every gradient step\ngrad = data_grad(theta) + 2 * lam * theta\ntheta = theta - eta * grad      # 'weight decay'", caption: "A constant shrink toward the origin each update." },
+        ],
+        takeaways: ["Regularization penalizes complexity to cut variance.", "L2 shrinks smoothly; L1 induces sparsity.", "lambda is chosen by cross-validation."],
+        demo: "overfitting",
+      },
+      "cross-validation": {
+        title: "Cross-Validation",
+        oneLine: "Estimate true performance without ever touching the test set.",
+        sections: [
+          { h: "The intuition", paras: [
+            "You cannot judge generalization on the data you trained on, and you must not tune on the test set. k-fold cross-validation rotates: train on k-1 folds, validate on the held-out one, repeat, and average. It gives an honest, low-variance estimate to pick hyperparameters.",
+          ] },
+          { h: "The math", paras: ["The CV estimate averages the held-out error across folds:"],
+            tex: "\\text{CV} = \\frac1k \\sum_{j=1}^{k} \\mathcal{L}\\big(\\text{fold}_j;\\ \\text{model trained without } \\text{fold}_j\\big)", texNote: "More folds means less bias but more compute; k=5 or 10 is standard." },
+          { h: "In code", code: "import numpy as np\n\ndef kfold(n, k=5):\n    idx = np.random.permutation(n)\n    return np.array_split(idx, k)   # each chunk is a validation fold", caption: "Rotate the held-out fold; average the scores." },
+        ],
+        takeaways: ["CV estimates generalization using only training data.", "It is the standard way to choose hyperparameters.", "Keep a final untouched test set for the last, honest number."],
+        demo: "cross-validation",
+      },
+      "double-descent": {
+        title: "Double Descent",
+        oneLine: "Past the interpolation threshold, more parameters can help again.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Classical theory says test error is U-shaped in model size. Modern overparameterized models show a second descent: error rises to a peak right where the model can exactly fit the training data, then falls again as you add even more capacity. It is why huge networks generalize despite zero training error.",
+          ] },
+          { h: "The math", paras: ["Error peaks near the interpolation threshold where parameters P match samples N:"],
+            tex: "P \\approx N \\;\\Rightarrow\\; \\text{test error peaks, then descends again}", texNote: "Implicit regularization from SGD picks low-norm solutions in the overparameterized regime." },
+          { h: "In code", code: "# sweep model width and record test error\nfor width in widths:\n    model = fit(width)\n    err.append(test_error(model))\n# err first dips, spikes near width ~ n_samples, then dips again", caption: "The second dip is the modern, overparameterized regime." },
+        ],
+        takeaways: ["Test error can be double-descent shaped, not just U-shaped.", "The peak sits at the interpolation threshold (params ~ samples).", "Overparameterization plus SGD's implicit bias explains big-model success."],
+        demo: "double-descent",
+      },
+    },
+  },
+
 };
 
 // resolve a sub-lesson + its module context; null if missing.
