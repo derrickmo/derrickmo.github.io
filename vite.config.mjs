@@ -356,6 +356,8 @@ export default defineConfig({
         'm-ml-applications': 'learn/ml-applications/index.html',
         'm-mlops': 'learn/mlops/index.html',
         'learn-self-attention': 'learn/transformers/self-attention/index.html',
+        'learn-forward-pass': 'learn/neural-nets/forward-pass/index.html',
+        'learn-linear-algebra': 'learn/foundations/linear-algebra/index.html',
         'kc-core': 'learn/key-concepts/index.html',
         'kc-agentic': 'learn/key-concepts/agentic/index.html',
         'kc-applications': 'learn/key-concepts/applications/index.html',

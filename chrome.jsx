@@ -302,6 +302,8 @@ const DM_NAV_INDEX = [
   { label: "Neural Scaling Laws", group: "Demo", href: "/visualize/scaling-laws/", kw: "scaling laws chinchilla compute optimal power law llm training" },
 
   { label: "Self-Attention (full lesson)", group: "Lesson", href: "/learn/transformers/self-attention/", kw: "attention notebook" },
+  { label: "Forward Pass and Backprop (full lesson)", group: "Lesson", href: "/learn/neural-nets/forward-pass/", kw: "forward pass computational graph backpropagation backprop chain rule numpy autograd from scratch flagship lesson" },
+  { label: "Linear Algebra for ML (full lesson)", group: "Lesson", href: "/learn/foundations/linear-algebra/", kw: "linear algebra vectors matrices dot product matmul eigenvalues svd norm projection flagship lesson" },
 
   { label: "Mathematical & Programming Foundations", group: "ML Module", href: "/learn/foundations/", kw: "numpy math 01" },
   { label: "Supervised Learning", group: "ML Module", href: "/learn/supervised-learning/", kw: "regression trees 02" },

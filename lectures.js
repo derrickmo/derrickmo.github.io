@@ -14,6 +14,7 @@ window.LECTURES = {
       "The linear algebra, calculus, probability, and information theory that every later module quietly assumes.",
       "Load, explore, and visualize real data with pandas, matplotlib, and PyTorch DataLoaders.",
     ],
+    flagship: { n: "01-06", label: "Linear Algebra for Machine Learning", href: "learn/foundations/linear-algebra/" },
     notebooks: [
       { n: "01-01", t: "Python, NumPy & Tensor Speed", d: "Synthetic", m: "15 min" },
       { n: "01-02", t: "Advanced NumPy & PyTorch Operations", d: "Synthetic", m: "20 min" },
@@ -110,6 +111,7 @@ window.LECTURES = {
       "Activations, losses, initialization, and regularization — and how each shapes training.",
       "Why optimizers (SGD → Adam) matter, then assemble a complete training pipeline.",
     ],
+    flagship: { n: "05-06", label: "Backpropagation from Scratch", href: "learn/neural-nets/forward-pass/" },
     notebooks: [
       { n: "05-01", t: "The Perceptron", d: "MNIST + make_moons", m: "15 min" },
       { n: "05-02", t: "Multilayer Perceptrons", d: "FashionMNIST + make_moons", m: "20 min" },
