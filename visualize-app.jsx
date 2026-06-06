@@ -2000,6 +2000,18 @@ const GlyphMaxEntropy = () => (
     <text x="34" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">softmax(Q/α)</text>
   </svg>
 );
+
+const GlyphSpectrogram = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* time-frequency heatmap with a rising chirp diagonal */}
+    {Array.from({ length: 8 }).map((_, c) => Array.from({ length: 6 }).map((__, r) => {
+      const onDiag = Math.abs((5 - r) - c * 0.7) < 1.1;
+      return <rect key={c + "-" + r} x={28 + c * 13} y={24 + r * 12} width="12" height="11"
+        fill={onDiag ? "#a855f7" : "rgba(96,165,250,0.12)"} />;
+    }))}
+    <text x="40" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">time × freq</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2160,6 +2172,7 @@ const GLYPHS = {
   "distributional-rl": <GlyphDistributionalRL />,
   "successor-representation": <GlyphSuccessorRep />,
   "max-entropy-rl": <GlyphMaxEntropy />,
+  "spectrogram": <GlyphSpectrogram />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

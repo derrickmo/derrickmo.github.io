@@ -612,6 +612,11 @@ const CONCEPTS_INDEX = {
     tex: "V(s) = \\alpha \\log \\textstyle\\sum_a \\exp\\!\\big(Q(s,a)/\\alpha\\big)",
     prereqs: ["mdp-bellman", "policy-gradient"],
   },
+  "spectrogram": {
+    id: "spectrogram", name: "Spectrogram (STFT)", area: "Signal",
+    summary: "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image — the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time (the time-frequency uncertainty principle). It is the standard front end for speech and audio models, usually feeding a mel/MFCC stage or a CNN.",
+    prereqs: ["fourier"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -980,6 +985,7 @@ const CONCEPT_TAGS = {
     "distributional-rl":    ["distributional-rl", "q-learning", "mdp-bellman"],
     "successor-representation": ["successor-representation", "mdp-bellman", "markov"],
     "max-entropy-rl":       ["max-entropy-rl", "mdp-bellman", "policy-gradient"],
+    "spectrogram":          ["spectrogram", "fourier"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

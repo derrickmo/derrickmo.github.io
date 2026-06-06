@@ -292,6 +292,8 @@ window.PLAY_DEMOS = {
       blurb: "Three searches, one maze. Watch uninformed rings and dives versus A*'s heuristic beeline — and compare nodes expanded and path optimality." },
     { slug: "edit-distance",      topic: "DYNAMIC PROGRAMMING", title: "Edit Distance", tone: "blue", status: "LIVE",
       blurb: "The fewest insert/delete/substitute edits between two strings. Watch the DP table fill from its neighbors, then backtrack the character alignment." },
+    { slug: "spectrogram",        topic: "AUDIO / SIGNAL", title: "Spectrogram (STFT)", tone: "violet", status: "LIVE",
+      blurb: "See frequency change over time. The STFT windows a signal and FFTs each chunk — and the window length forces a tradeoff between time and frequency resolution." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -307,6 +309,7 @@ window.PLAY_DEMOS = {
     { name: "Search & Constraint Solving", why: "The classic computer-science core under so much of AI: systematically searching enormous discrete spaces, and using constraints to prune them. Complete methods that guarantee a solution if one exists — the counterpoint to the gradient-based learning everywhere else here.", slugs: ["bfs-dfs-astar", "n-queens", "graph-coloring", "sudoku", "knapsack", "branch-and-bound", "edit-distance"] },
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
     { name: "MLOps & Serving", why: "What happens after training: keeping a model fast, cheap, and reliable under real traffic. The queueing and batching that trade latency for throughput, the routing that spends compute only where it's needed, and the rollout discipline that ships a new model without taking the service down.", slugs: ["batching", "model-cascade", "autoscaling", "canary-rollout"] },
+    { name: "Audio & Signal", why: "How a continuous waveform becomes something a model can learn from: the time-frequency views that turn sound into an image, the features that compress it, and the sampling and alignment subtleties that bite if you ignore them. The front end of every speech and audio system.", slugs: ["spectrogram"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -408,6 +411,7 @@ window.PLAY_DEMOS = {
     "distributional-rl": "learn the return distribution, not its mean",
     "successor-representation": "V = M·R, dynamics split from reward",
     "max-entropy-rl": "reward + entropy; soft Bellman, SAC",
+    "spectrogram": "STFT time-frequency image",
     "rag-chunking": "chunk → retrieve → ground",
     "self-consistency": "sample N → majority vote",
     "constrained-decoding": "mask invalid tokens per step",
