@@ -136,6 +136,7 @@ window.LECTURES = {
       "The architectural arc LeNet → AlexNet → VGG → ResNet, and what skip connections fix.",
       "Transfer learning, batch norm, augmentation, and efficient convolutions for real vision.",
     ],
+    flagship: { n: "06-03", label: "CNN Architectures: LeNet to ResNet", href: "learn/cnn/cnn-architectures/" },
     notebooks: [
       { n: "06-01", t: "Convolution from Scratch", d: "MNIST", m: "20 min" },
       { n: "06-02", t: "Pooling & Receptive Fields", d: "MNIST", m: "15 min" },
@@ -257,6 +258,7 @@ window.LECTURES = {
       "Diffusion models: forward/reverse process, noise schedules, sampling and guidance.",
       "Normalizing flows, score/flow matching, and autoregressive image models.",
     ],
+    flagship: { n: "11-04", label: "Denoising Diffusion (DDPM) from Scratch", href: "learn/generative/ddpm/" },
     notebooks: [
       { n: "11-01", t: "Variational Autoencoder (VAE)", d: "MNIST", m: "25 min" },
       { n: "11-02", t: "GAN Foundations (DCGAN)", d: "FashionMNIST", m: "25 min" },
@@ -329,6 +331,7 @@ window.LECTURES = {
       "Deep RL: DQN and variants, REINFORCE, Actor-Critic/A2C, and PPO.",
       "Model-based RL concepts — all on gridworld and CartPole built in NumPy.",
     ],
+    flagship: { n: "14-03", label: "Temporal-Difference Learning", href: "learn/reinforcement-learning/mc-td/" },
     notebooks: [
       { n: "14-01", t: "MDP & Dynamic Programming", d: "Gridworld", m: "25 min" },
       { n: "14-02", t: "Monte Carlo Methods", d: "Gridworld / Blackjack", m: "25 min" },

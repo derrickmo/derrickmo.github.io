@@ -304,6 +304,9 @@ const DM_NAV_INDEX = [
   { label: "Self-Attention (full lesson)", group: "Lesson", href: "/learn/transformers/self-attention/", kw: "attention notebook" },
   { label: "Forward Pass and Backprop (full lesson)", group: "Lesson", href: "/learn/neural-nets/forward-pass/", kw: "forward pass computational graph backpropagation backprop chain rule numpy autograd from scratch flagship lesson" },
   { label: "Linear Algebra for ML (full lesson)", group: "Lesson", href: "/learn/foundations/linear-algebra/", kw: "linear algebra vectors matrices dot product matmul eigenvalues svd norm projection flagship lesson" },
+  { label: "DDPM Diffusion from Scratch (full lesson)", group: "Lesson", href: "/learn/generative/ddpm/", kw: "diffusion ddpm denoising generative noise schedule sampling from scratch flagship lesson" },
+  { label: "CNN Architectures LeNet to ResNet (full lesson)", group: "Lesson", href: "/learn/cnn/cnn-architectures/", kw: "cnn architectures lenet vgg resnet residual skip connection convolution depth flagship lesson" },
+  { label: "Monte Carlo and TD Learning (full lesson)", group: "Lesson", href: "/learn/reinforcement-learning/mc-td/", kw: "monte carlo temporal difference td learning bootstrapping td error value reinforcement learning flagship lesson" },
 
   { label: "Mathematical & Programming Foundations", group: "ML Module", href: "/learn/foundations/", kw: "numpy math 01" },
   { label: "Supervised Learning", group: "ML Module", href: "/learn/supervised-learning/", kw: "regression trees 02" },

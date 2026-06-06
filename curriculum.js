@@ -113,7 +113,7 @@ window.CURRICULUM = {
       lessons: [
         { n: "06-01", slug: "fc-for-images", title: "Fully Connected Networks for Images", status: "PENDING" },
         { n: "06-02", slug: "convolution", title: "Convolution from Scratch", status: "PENDING" },
-        { n: "06-03", slug: "cnn-architectures", title: "CNN Architectures — LeNet to ResNet", status: "PENDING" },
+        { n: "06-03", slug: "cnn-architectures", title: "CNN Architectures — LeNet to ResNet", status: "LIVE" },
         { n: "06-04", slug: "transfer-learning", title: "Transfer Learning & Fine-Tuning", status: "PENDING" },
         { n: "06-05", slug: "unet", title: "U-Net & Encoder-Decoder Architecture", status: "PENDING" },
         { n: "06-06", slug: "efficient-cnns", title: "Depthwise Separable Convolutions & Efficient Architectures", status: "PENDING" },
@@ -210,7 +210,7 @@ window.CURRICULUM = {
         { n: "11-02", slug: "vae", title: "Variational Autoencoders (VAEs)", status: "PENDING" },
         { n: "11-03", slug: "gan", title: "GANs — DCGAN & WGAN", status: "PENDING" },
         { n: "11-04", slug: "conditional-generation", title: "Conditional Generation", status: "PENDING" },
-        { n: "11-05", slug: "ddpm", title: "DDPM Diffusion from Scratch", status: "PENDING" },
+        { n: "11-05", slug: "ddpm", title: "DDPM Diffusion from Scratch", status: "LIVE" },
         { n: "11-06", slug: "latent-diffusion", title: "Latent Diffusion Models", status: "PENDING" },
         { n: "11-07", slug: "diffusion-guidance", title: "Diffusion Guidance & Evaluation", status: "PENDING" },
         { n: "11-08", slug: "flows", title: "Normalizing Flows & Flow Matching", status: "PENDING" },
@@ -264,7 +264,7 @@ window.CURRICULUM = {
       status: "LIVE",
       lessons: [
         { n: "14-01", slug: "mdp-bellman", title: "MDPs, Bellman Equations & Value/Policy Iteration", status: "PENDING" },
-        { n: "14-02", slug: "mc-td", title: "Monte Carlo & TD Learning", status: "PENDING" },
+        { n: "14-02", slug: "mc-td", title: "Monte Carlo & TD Learning", status: "LIVE" },
         { n: "14-03", slug: "q-learning", title: "Q-Learning & SARSA", status: "PENDING" },
         { n: "14-04", slug: "bandits", title: "Exploration, Bandits & UCB", status: "PENDING" },
         { n: "14-05", slug: "dqn", title: "Deep Q-Networks (DQN)", status: "PENDING" },

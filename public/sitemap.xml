@@ -184,6 +184,7 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/rope/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/cnn-architectures/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/cnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/data-augmentation/</loc><priority>0.6</priority></url>
@@ -201,6 +202,7 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/linear-algebra/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/softmax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/generative/ddpm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/diffusion/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/gan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/vae/</loc><priority>0.6</priority></url>
@@ -271,6 +273,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/dqn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/dyna-q/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/gae/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mc-td/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mdp-bellman/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/ppo/</loc><priority>0.6</priority></url>
