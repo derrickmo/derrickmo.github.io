@@ -2012,6 +2012,21 @@ const GlyphSpectrogram = () => (
     <text x="40" y="110" fontFamily="monospace" fontSize="9" fill="#94a3b8">time × freq</text>
   </svg>
 );
+
+const GlyphMFCC = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* triangular mel filters */}
+    {[0, 1, 2, 3, 4].map(i => (
+      <polyline key={i} points={`${24 + i * 24},78 ${36 + i * 24},58 ${48 + i * 24},78`} fill="none" stroke="#60a5fa" strokeWidth="1.5" opacity="0.7" />
+    ))}
+    <line x1="20" y1="78" x2="148" y2="78" stroke="#94a3b8" strokeWidth="1" />
+    {/* a few output coefficient bars */}
+    {[14, 9, 6, 4, 3].map((h, i) => (
+      <rect key={"c" + i} x={40 + i * 16} y={96 - h} width="11" height={h} fill="#34d399" />
+    ))}
+    <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">mel → DCT</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2173,6 +2188,7 @@ const GLYPHS = {
   "successor-representation": <GlyphSuccessorRep />,
   "max-entropy-rl": <GlyphMaxEntropy />,
   "spectrogram": <GlyphSpectrogram />,
+  "mfcc": <GlyphMFCC />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

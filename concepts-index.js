@@ -617,6 +617,11 @@ const CONCEPTS_INDEX = {
     summary: "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image — the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time (the time-frequency uncertainty principle). It is the standard front end for speech and audio models, usually feeding a mel/MFCC stage or a CNN.",
     prereqs: ["fourier"],
   },
+  "mfcc": {
+    id: "mfcc", name: "Mel Filterbank & MFCC", area: "Signal",
+    summary: "The classic speech feature: take a frame's power spectrum, pool it through triangular filters spaced on the perceptual mel scale, take the log (loudness compression), then a DCT to decorrelate the bands into a handful of cepstral coefficients. The first ~13 capture the spectral envelope (the phoneme / vocal-tract shape) while discarding pitch and noise. Dominated speech recognition (with GMM-HMMs) for decades; modern systems often feed log-mel spectrograms straight to a CNN/transformer instead.",
+    prereqs: ["spectrogram", "fourier"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -986,6 +991,7 @@ const CONCEPT_TAGS = {
     "successor-representation": ["successor-representation", "mdp-bellman", "markov"],
     "max-entropy-rl":       ["max-entropy-rl", "mdp-bellman", "policy-gradient"],
     "spectrogram":          ["spectrogram", "fourier"],
+    "mfcc":                 ["mfcc", "spectrogram", "fourier"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
