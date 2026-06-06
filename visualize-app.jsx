@@ -1986,6 +1986,20 @@ const GlyphSuccessorRep = () => (
     <text x="42" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">V = M·R</text>
   </svg>
 );
+
+const GlyphMaxEntropy = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a node fanning out into multiple weighted action arrows (stochastic policy) */}
+    <circle cx="48" cy="60" r="6" fill="#fbbf24" />
+    {[[120, 28, 2.8], [128, 52, 2.0], [122, 78, 1.3], [108, 96, 0.8]].map(([x, y, w], i) => (
+      <line key={i} x1="48" y1="60" x2={x} y2={y} stroke="#e0e7ff" strokeWidth={w} opacity={0.4 + 0.15 * i} />
+    ))}
+    {[[120, 28], [128, 52], [122, 78], [108, 96]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="3.5" fill="#a855f7" />
+    ))}
+    <text x="34" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">softmax(Q/α)</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2145,6 +2159,7 @@ const GLYPHS = {
   "prioritized-replay": <GlyphPrioritizedReplay />,
   "distributional-rl": <GlyphDistributionalRL />,
   "successor-representation": <GlyphSuccessorRep />,
+  "max-entropy-rl": <GlyphMaxEntropy />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

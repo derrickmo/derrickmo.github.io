@@ -606,6 +606,12 @@ const CONCEPTS_INDEX = {
     tex: "M = (I - \\gamma P)^{-1},\\qquad V = M R",
     prereqs: ["mdp-bellman", "markov"],
   },
+  "max-entropy-rl": {
+    id: "max-entropy-rl", name: "Maximum-Entropy RL (Soft Value Iteration)", area: "Reinforcement Learning",
+    summary: "Maximize expected reward PLUS policy entropy, weighted by a temperature α. This replaces the hard max in the Bellman equation with a soft log-sum-exp, V(s)=α·logΣ exp(Q(s,a)/α), and makes the optimal policy a Boltzmann distribution π(a|s)=softmax(Q(s,a)/α). The entropy bonus keeps exploration alive and yields robust policies; α→0 recovers ordinary value iteration and a greedy policy. The framework behind Soft Actor-Critic (SAC) and soft Q-learning, and kin to the KL-regularized objective of PPO/RLHF.",
+    tex: "V(s) = \\alpha \\log \\textstyle\\sum_a \\exp\\!\\big(Q(s,a)/\\alpha\\big)",
+    prereqs: ["mdp-bellman", "policy-gradient"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -973,6 +979,7 @@ const CONCEPT_TAGS = {
     "prioritized-replay":   ["prioritized-replay", "dqn", "importance-sampling"],
     "distributional-rl":    ["distributional-rl", "q-learning", "mdp-bellman"],
     "successor-representation": ["successor-representation", "mdp-bellman", "markov"],
+    "max-entropy-rl":       ["max-entropy-rl", "mdp-bellman", "policy-gradient"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
