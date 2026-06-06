@@ -2390,7 +2390,7 @@ function PlayHero() {
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
             Small, interactive AI demos. Each one ships standalone — drop in, drag a slider, watch a network learn. The fastest way to build intuition is to break something live.
           </div>
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
             <a href="#demos" style={{
               padding: "12px 22px", border: "1px solid var(--blue)",
               borderRadius: 4, color: "var(--white)", textDecoration: "none",
@@ -2398,6 +2398,13 @@ function PlayHero() {
               background: "rgba(59,130,246,0.08)",
               boxShadow: "0 0 24px rgba(59,130,246,0.18)",
             }}>SEE THE LINEUP</a>
+            <a href={`${window.__DM_BASE || "../"}playground/`} style={{
+              padding: "12px 22px", border: "1px solid var(--violet)",
+              borderRadius: 4, color: "var(--white)", textDecoration: "none",
+              fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
+              background: "rgba(168,85,247,0.08)",
+              boxShadow: "0 0 24px rgba(168,85,247,0.18)",
+            }}>BUILD A CLASSIFIER →</a>
           </div>
         </div>
         {!mobile && (

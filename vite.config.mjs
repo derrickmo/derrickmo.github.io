@@ -59,6 +59,7 @@ export default defineConfig({
         'paths-efficiency-and-serving': 'paths/efficiency-and-serving/index.html',
         'paths-llm-internals': 'paths/llm-internals/index.html',
         'concept-map': 'concept-map/index.html',
+        'playground': 'playground/index.html',
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',
         'play-tic-tac-toe': 'play/tic-tac-toe/index.html',

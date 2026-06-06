@@ -346,6 +346,7 @@ const DM_NAV_INDEX = [
   { label: "Simulated Annealing", group: "Demo", href: "/visualize/simulated-annealing/", kw: "simulated annealing tsp traveling salesman 2-opt metropolis local search optimization" },
   { label: "Concept Graph (hub)", group: "Page", href: "/concepts/", kw: "concepts graph index hub taxonomy map of ml ideas connections" },
   { label: "Concept Map (interactive)", group: "Page", href: "/concept-map/", kw: "concept map interactive force directed graph visualization prerequisites dag explore network nodes edges" },
+  { label: "Build a Classifier (playground)", group: "Page", href: "/playground/", kw: "playground build a model classifier capstone pipeline data features train evaluate decision boundary knn logistic tree mlp end to end" },
   { label: "Weekly Insights", group: "Page", href: "/weekly-insights/", kw: "weekly insights digest news ml field notes practitioner rl quantization agents inference" },
   { label: "Guided Learning Paths", group: "Page", href: "/paths/", kw: "paths tracks guided learning course curriculum journey roadmap sequence progress" },
   { label: "Path: ML Foundations", group: "Path", href: "/paths/ml-foundations/", kw: "path ml foundations beginner gradient descent overfitting knn svm kmeans pca" },
