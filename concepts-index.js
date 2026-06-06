@@ -648,6 +648,11 @@ const CONCEPTS_INDEX = {
     summary: "Single-source shortest paths on a graph with non-negative edge weights. Repeatedly settle the unsettled node with the smallest tentative distance and relax its edges (dist[v] = min(dist[v], dist[u]+w)); because weights are non-negative, a settled node's distance is final, so the greedy order is optimal. O(E log V) with a binary heap. The weighted generalization of BFS and the parent of A* (Dijkstra plus an admissible heuristic). Negative edges require Bellman-Ford instead.",
     prereqs: ["graph-search"],
   },
+  "mst": {
+    id: "mst", name: "Minimum Spanning Tree", area: "Graphs",
+    summary: "The cheapest set of edges that connects every node without cycles. Prim's grows one tree, repeatedly adding the lightest edge crossing from the tree to the outside; Kruskal's adds globally-cheapest edges that don't create a cycle (using union-find). Both are greedy and correct by the cut property: the lightest edge across any cut of the nodes belongs to some MST. Used for network/circuit layout, single-link clustering, and TSP approximation.",
+    prereqs: ["dijkstra"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -1023,6 +1028,7 @@ const CONCEPT_TAGS = {
     "aliasing":             ["aliasing", "fourier"],
     "pagerank":             ["pagerank", "markov", "pca"],
     "dijkstra":             ["dijkstra", "graph-search"],
+    "mst":                  ["mst", "dijkstra", "hierarchical-clustering"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
