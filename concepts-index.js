@@ -590,6 +590,11 @@ const CONCEPTS_INDEX = {
     tex: "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\, \\delta_{t+l},\\quad \\delta_l = r_l + \\gamma V(s_{l+1}) - V(s_l)",
     prereqs: ["td-lambda", "actor-critic"],
   },
+  "prioritized-replay": {
+    id: "prioritized-replay", name: "Prioritized Experience Replay", area: "Reinforcement Learning",
+    summary: "Replace uniform sampling from the replay buffer with sampling ∝ |TD error|^α, so surprising transitions are revisited more often. On sparse-reward tasks this produces a backward sweep of value from the goal and learns in far fewer updates. Because non-uniform sampling biases the expected update, correct it with importance-sampling weights w=(N·P)^(-β), annealing β toward 1. A standard upgrade to DQN; the data-side counterpart to Dyna-Q's planning.",
+    prereqs: ["dqn", "importance-sampling"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -954,6 +959,7 @@ const CONCEPT_TAGS = {
     "dyna-q":               ["dyna-q", "q-learning", "mdp-bellman"],
     "double-q-learning":    ["double-q-learning", "q-learning", "sarsa"],
     "gae":                  ["gae", "td-lambda", "actor-critic"],
+    "prioritized-replay":   ["prioritized-replay", "dqn", "importance-sampling"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

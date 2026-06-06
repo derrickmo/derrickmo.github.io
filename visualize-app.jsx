@@ -1947,6 +1947,18 @@ const GlyphGAE = () => (
     <text x="44" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">bias / variance</text>
   </svg>
 );
+
+const GlyphPrioritizedReplay = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* buffer bars of varying priority, one highlighted (sampled) */}
+    {[18, 18, 70, 30, 24, 50, 90, 22].map((h, i) => (
+      <rect key={i} x={20 + i * 16} y={88 - h} width="12" height={h}
+        fill={i === 6 ? "#fbbf24" : "#60a5fa"} opacity={i === 6 ? 1 : 0.8} />
+    ))}
+    <line x1="16" y1="88" x2="148" y2="88" stroke="#94a3b8" strokeWidth="1" />
+    <text x="34" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">replay by error</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2103,6 +2115,7 @@ const GLYPHS = {
   "dyna-q": <GlyphDynaQ />,
   "double-q-learning": <GlyphDoubleQ />,
   "gae": <GlyphGAE />,
+  "prioritized-replay": <GlyphPrioritizedReplay />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
