@@ -56,6 +56,14 @@ function Hero() {
         <p className="t-body" style={{ color: "var(--muted)", maxWidth: 720, fontSize: 17, lineHeight: 1.6, marginTop: 14 }}>
           {total} core ML/DL concepts, each with its equation, where it sits in the curriculum, and every interactive demo, game, lesson, and animation on this site that touches it. Lessons, animations, demos, and games linked together as one graph.
         </p>
+        <a href={`${BASE}concept-map/`} style={{
+          display: "inline-flex", alignItems: "center", gap: 9, marginTop: 22, textDecoration: "none",
+          border: "1px solid var(--border-violet)", borderRadius: 8, padding: "11px 18px",
+          background: "linear-gradient(120deg, rgba(168,85,247,0.12) 0%, rgba(59,130,246,0.07) 100%)",
+          color: "var(--white)", fontFamily: "var(--f-mono)", fontSize: 12, letterSpacing: "0.04em",
+        }}>
+          <span style={{ color: "var(--violet-lt)" }}>◉</span> EXPLORE THE INTERACTIVE MAP →
+        </a>
       </Container>
     </Section>
   );

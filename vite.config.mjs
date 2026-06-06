@@ -58,6 +58,7 @@ export default defineConfig({
         'paths-audio-ml': 'paths/audio-ml/index.html',
         'paths-efficiency-and-serving': 'paths/efficiency-and-serving/index.html',
         'paths-llm-internals': 'paths/llm-internals/index.html',
+        'concept-map': 'concept-map/index.html',
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',
         'play-tic-tac-toe': 'play/tic-tac-toe/index.html',

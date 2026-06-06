@@ -73,6 +73,11 @@ function WeekCard({ week, mobile }) {
       {(week.sections || []).map((s) => (
         <div key={s.header} style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border)", paddingTop: 16 }}>
           <MonoLabel color="var(--blue-lt)">{s.header}</MonoLabel>
+          {s.intro && (
+            <div className="t-body" style={{ color: "var(--muted)", fontSize: mobile ? 13 : 14, lineHeight: 1.55, opacity: 0.92, marginTop: -2, maxWidth: 760 }}>
+              {s.intro}
+            </div>
+          )}
           <ul style={{ margin: 0, padding: 0 }}>
             {s.items.map((it, i) => <Bullet key={i} item={it} mobile={mobile} />)}
           </ul>
