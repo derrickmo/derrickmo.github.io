@@ -600,6 +600,12 @@ const CONCEPTS_INDEX = {
     summary: "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + γZ(s'), projecting the shifted/scaled target back onto the atom support. Stochastic rewards make returns multimodal — a shape the scalar value (the mean) hides — enabling more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
     prereqs: ["q-learning", "mdp-bellman"],
   },
+  "successor-representation": {
+    id: "successor-representation", name: "Successor Representation", area: "Reinforcement Learning",
+    summary: "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy — equal to (I−γP)⁻¹. It factorizes value into dynamics and reward, V(s)=Σ_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M·R with no relearning of dynamics. Learned by TD just like a value function but bootstrapping one-hot occupancy. Sits between model-free and model-based RL; the deep version (successor features) enables transfer across reward functions, and predictive maps like it appear in hippocampal place/grid cells.",
+    tex: "M = (I - \\gamma P)^{-1},\\qquad V = M R",
+    prereqs: ["mdp-bellman", "markov"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -966,6 +972,7 @@ const CONCEPT_TAGS = {
     "gae":                  ["gae", "td-lambda", "actor-critic"],
     "prioritized-replay":   ["prioritized-replay", "dqn", "importance-sampling"],
     "distributional-rl":    ["distributional-rl", "q-learning", "mdp-bellman"],
+    "successor-representation": ["successor-representation", "mdp-bellman", "markov"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

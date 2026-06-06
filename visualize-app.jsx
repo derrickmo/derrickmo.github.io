@@ -1972,6 +1972,20 @@ const GlyphDistributionalRL = () => (
     <text x="38" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">return dist</text>
   </svg>
 );
+
+const GlyphSuccessorRep = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* a small grid with a radial occupancy gradient from a source cell */}
+    {[0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => {
+      const d = Math.abs(c - 1) + Math.abs(r - 1);
+      const v = Math.max(0, 1 - d / 5);
+      return <rect key={r + "-" + c} x={40 + c * 20} y={24 + r * 20} width="18" height="18" rx="2" fill={`rgba(168,85,247,${0.12 + 0.7 * v})`} />;
+    }))}
+    <rect x="40" y="44" width="18" height="18" rx="2" fill="none" stroke="#fbbf24" strokeWidth="2" />
+    <rect x="100" y="24" width="18" height="18" rx="2" fill="rgba(52,211,153,0.85)" />
+    <text x="42" y="116" fontFamily="monospace" fontSize="9" fill="#94a3b8">V = M·R</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2130,6 +2144,7 @@ const GLYPHS = {
   "gae": <GlyphGAE />,
   "prioritized-replay": <GlyphPrioritizedReplay />,
   "distributional-rl": <GlyphDistributionalRL />,
+  "successor-representation": <GlyphSuccessorRep />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
