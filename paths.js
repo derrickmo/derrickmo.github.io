@@ -218,6 +218,148 @@ window.LEARNING_PATHS = [
       ] },
     ],
   },
+
+  {
+    id: "trustworthy-ml", title: "Trustworthy & Responsible ML", level: "Intermediate", accent: "blue", estMinutes: 140,
+    tagline: "Models you can actually deploy — honest, explainable, robust, and fair.",
+    outcomes: [
+      "Tell whether a model's confidence scores are honest",
+      "Explain a prediction and attribute it to features",
+      "Give predictions with guaranteed coverage",
+      "Spot bias, drift, and bad labels before they bite",
+    ],
+    stages: [
+      { name: "Honest confidence", steps: [
+        { kind: "demo", ref: "calibration", note: "Are 90%-confident predictions right 90% of the time?" },
+        { kind: "demo", ref: "conformal", note: "Prediction sets with guaranteed coverage." },
+        { kind: "demo", ref: "conformal-regression", note: "Calibrated intervals on a regression curve." },
+        { kind: "demo", ref: "mc-dropout", note: "Turn dropout into an uncertainty estimate." },
+      ] },
+      { name: "Explain", steps: [
+        { kind: "demo", ref: "shap", note: "Exact Shapley attribution of a prediction." },
+        { kind: "demo", ref: "saliency", note: "Which inputs moved the output." },
+      ] },
+      { name: "Fair & robust", steps: [
+        { kind: "demo", ref: "fairness", note: "Group fairness metrics and their tradeoffs." },
+        { kind: "demo", ref: "drift-detection", note: "Catch covariate shift in production." },
+      ] },
+      { name: "Data quality", steps: [
+        { kind: "demo", ref: "label-noise", note: "How flipped labels corrupt a model." },
+        { kind: "demo", ref: "active-learning", note: "Label the points that matter most." },
+        { kind: "demo", ref: "coreset", note: "A tiny subset that preserves the model." },
+      ] },
+    ],
+  },
+
+  {
+    id: "generative-models", title: "Generative Models", level: "Intermediate", accent: "violet", estMinutes: 95,
+    tagline: "Three ways to learn to create data — latent, adversarial, and iterative.",
+    outcomes: [
+      "Encode and sample data through a latent space",
+      "Train a generator against a discriminator",
+      "Understand diffusion's noise-and-denoise process",
+    ],
+    stages: [
+      { name: "Latent variables", steps: [
+        { kind: "demo", ref: "embeddings", note: "Representations to generate from." },
+        { kind: "demo", ref: "vae", note: "Encode to a distribution, sample, decode." },
+      ] },
+      { name: "Adversarial", steps: [
+        { kind: "demo", ref: "gan", note: "A generator and discriminator in a duel." },
+      ] },
+      { name: "Iterative refinement", steps: [
+        { kind: "demo", ref: "diffusion", note: "Add noise, then learn to reverse it." },
+      ] },
+      { name: "Go deeper", steps: [
+        { kind: "module", ref: "generative", note: "The full generative-models module." },
+      ] },
+    ],
+  },
+
+  {
+    id: "audio-ml", title: "Audio ML", level: "Intermediate", accent: "violet", estMinutes: 90,
+    tagline: "How a waveform becomes something a model can learn from.",
+    outcomes: [
+      "Avoid aliasing when you sample a signal",
+      "Read a spectrogram and the time-frequency tradeoff",
+      "Compute the classic speech feature (MFCC) and detect pitch",
+      "Align two recordings at different speeds",
+    ],
+    stages: [
+      { name: "Sampling & spectra", steps: [
+        { kind: "demo", ref: "aliasing", note: "Sample too slowly and a phantom frequency appears." },
+        { kind: "demo", ref: "fourier", note: "Decompose a signal into frequencies." },
+      ] },
+      { name: "Time-frequency & features", steps: [
+        { kind: "demo", ref: "spectrogram", note: "Frequency over time, with a resolution tradeoff." },
+        { kind: "demo", ref: "mfcc", note: "The mel/log/DCT speech feature." },
+        { kind: "demo", ref: "pitch-detection", note: "Find the fundamental by autocorrelation." },
+      ] },
+      { name: "Alignment", steps: [
+        { kind: "demo", ref: "dtw", note: "Elastic alignment of two series at different speeds." },
+      ] },
+    ],
+  },
+
+  {
+    id: "efficiency-and-serving", title: "Efficiency & Serving", level: "Intermediate", accent: "blue", estMinutes: 150,
+    tagline: "Make a trained model cheap and reliable enough to actually ship.",
+    outcomes: [
+      "Shrink a model with quantization, pruning, and distillation",
+      "Speed up inference without losing accuracy",
+      "Serve under real traffic with batching, scaling, and safe rollouts",
+    ],
+    stages: [
+      { name: "Shrink the model", steps: [
+        { kind: "demo", ref: "quantization", note: "Fewer bits per weight." },
+        { kind: "demo", ref: "pruning", note: "Drop the weights that don't matter." },
+        { kind: "demo", ref: "distillation", note: "A small student learns from a big teacher." },
+        { kind: "demo", ref: "moe", note: "Route each token to a few experts." },
+      ] },
+      { name: "Faster inference", steps: [
+        { kind: "demo", ref: "mixed-precision", note: "fp16/bf16 with loss scaling." },
+        { kind: "demo", ref: "kv-cache", note: "Cache keys and values to skip recompute." },
+        { kind: "demo", ref: "speculative-decoding", note: "Draft fast, verify exactly." },
+        { kind: "demo", ref: "paged-attention", note: "Page the KV cache to kill fragmentation." },
+      ] },
+      { name: "Serve under load", steps: [
+        { kind: "demo", ref: "batching", note: "Trade latency for throughput." },
+        { kind: "demo", ref: "model-cascade", note: "Escalate only the hard inputs." },
+        { kind: "demo", ref: "autoscaling", note: "Track demand without breaking the SLO." },
+        { kind: "demo", ref: "canary-rollout", note: "Ship a new model safely." },
+      ] },
+    ],
+  },
+
+  {
+    id: "llm-internals", title: "Modern LLM Internals", level: "Advanced", accent: "violet", estMinutes: 150,
+    tagline: "What actually makes large language models scale, stretch, and stay fast.",
+    outcomes: [
+      "Reason about scaling laws and parameter-efficient tuning",
+      "Extend context length and understand RoPE",
+      "Manage the KV cache for long contexts",
+      "Peek inside attention for interpretability",
+    ],
+    stages: [
+      { name: "Scale & adapt", steps: [
+        { kind: "demo", ref: "scaling-laws", note: "Loss vs compute, data, and parameters." },
+        { kind: "demo", ref: "lora", note: "Fine-tune with a tiny low-rank update." },
+      ] },
+      { name: "Long context", steps: [
+        { kind: "demo", ref: "rope", note: "Rotary position embeddings." },
+        { kind: "demo", ref: "context-extension", note: "Stretch past the training length (PI/NTK/YaRN)." },
+        { kind: "demo", ref: "lost-in-the-middle", note: "Position bias in long contexts." },
+      ] },
+      { name: "Efficient attention", steps: [
+        { kind: "demo", ref: "kv-cache-eviction", note: "Bound the cache without wrecking quality." },
+        { kind: "demo", ref: "mixture-of-depths", note: "Per-token dynamic compute." },
+      ] },
+      { name: "Look inside", steps: [
+        { kind: "demo", ref: "attention-rollout", note: "Compose attention across layers." },
+        { kind: "module", ref: "fine-tuning", note: "The full fine-tuning module." },
+      ] },
+    ],
+  },
 ];
 
 // ── step resolution against the existing registries ──────────────────

@@ -11,7 +11,7 @@ const SECTIONS = [
   {
     href: "../paths/", tag: "// GUIDED · TRACKS", title: "Guided Paths", tone: "violet",
     blurb: "Curated routes through the demos, concepts, and lessons — taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
-    stat: "6 paths · saved progress · start anywhere",
+    stat: "11 paths · saved progress · start anywhere",
     diagram: <AgentConstellation width={280} height={170} mode="dark" />,
   },
   {
