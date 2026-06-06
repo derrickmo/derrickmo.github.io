@@ -378,6 +378,7 @@ const DM_NAV_INDEX = [
   { label: "PageRank", group: "Demo", href: "/visualize/pagerank/", kw: "pagerank power iteration random surfer damping teleport eigenvector stationary distribution google link analysis graph network markov" },
   { label: "Dijkstra's Shortest Path", group: "Demo", href: "/visualize/dijkstra/", kw: "dijkstra shortest path weighted graph relaxation priority queue frontier settled routing astar bellman ford network graph" },
   { label: "Minimum Spanning Tree", group: "Demo", href: "/visualize/mst/", kw: "minimum spanning tree mst prim kruskal cut property greedy weighted graph network backbone clustering union find" },
+  { label: "Community Detection", group: "Demo", href: "/visualize/louvain/", kw: "community detection louvain leiden modularity graph clustering network social communities resolution limit spectral" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
   { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },

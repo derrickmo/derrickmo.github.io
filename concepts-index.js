@@ -653,6 +653,11 @@ const CONCEPTS_INDEX = {
     summary: "The cheapest set of edges that connects every node without cycles. Prim's grows one tree, repeatedly adding the lightest edge crossing from the tree to the outside; Kruskal's adds globally-cheapest edges that don't create a cycle (using union-find). Both are greedy and correct by the cut property: the lightest edge across any cut of the nodes belongs to some MST. Used for network/circuit layout, single-link clustering, and TSP approximation.",
     prereqs: ["dijkstra"],
   },
+  "community-detection": {
+    id: "community-detection", name: "Community Detection (Louvain)", area: "Graphs",
+    summary: "Partition a network into densely-connected groups by maximizing modularity Q = Σ_c [ in_c/2m − (tot_c/2m)² ] — how many more edges fall inside communities than chance predicts. Louvain's local-moving phase greedily relocates each node to the neighbor community that most raises Q, then collapses communities into super-nodes and repeats. Fast and widely used (Leiden is the improved successor), but Q has many near-equal optima and a resolution limit that can merge small real communities. The graph analogue of clustering.",
+    prereqs: ["pagerank"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -1029,6 +1034,7 @@ const CONCEPT_TAGS = {
     "pagerank":             ["pagerank", "markov", "pca"],
     "dijkstra":             ["dijkstra", "graph-search"],
     "mst":                  ["mst", "dijkstra", "hierarchical-clustering"],
+    "louvain":              ["community-detection", "pagerank", "spectral-clustering"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

@@ -2111,6 +2111,20 @@ const GlyphMST = () => (
     <text x="42" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">min total weight</text>
   </svg>
 );
+
+const GlyphLouvain = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* two colored communities with a thin bridge */}
+    {[[40, 34, "#60a5fa"], [56, 50, "#60a5fa"], [34, 56, "#60a5fa"]].map(([x, y, c], i) => <circle key={"a" + i} cx={x} cy={y} r="7" fill={c} />)}
+    {[[110, 40, "#a855f7"], [124, 62, "#a855f7"], [104, 70, "#a855f7"]].map(([x, y, c], i) => <circle key={"b" + i} cx={x} cy={y} r="7" fill={c} />)}
+    <line x1="40" y1="34" x2="56" y2="50" stroke="#60a5fa" strokeWidth="2" />
+    <line x1="56" y1="50" x2="34" y2="56" stroke="#60a5fa" strokeWidth="2" />
+    <line x1="110" y1="40" x2="124" y2="62" stroke="#a855f7" strokeWidth="2" />
+    <line x1="124" y1="62" x2="104" y2="70" stroke="#a855f7" strokeWidth="2" />
+    <line x1="56" y1="50" x2="104" y2="70" stroke="rgba(148,163,184,0.4)" strokeWidth="1" strokeDasharray="3 3" />
+    <text x="40" y="104" fontFamily="monospace" fontSize="9" fill="#94a3b8">modularity</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2279,6 +2293,7 @@ const GLYPHS = {
   "pagerank": <GlyphPageRank />,
   "dijkstra": <GlyphDijkstra />,
   "mst": <GlyphMST />,
+  "louvain": <GlyphLouvain />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,
