@@ -101,6 +101,7 @@
   <url><loc>https://derrickmo.github.io/concepts/manifold-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/max-entropy-rl/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/max-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mc-dropout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mcmc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mcts/</loc><priority>0.6</priority></url>
@@ -307,6 +308,7 @@
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/max-entropy-rl/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/max-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mc-dropout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mcmc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mcts/</loc><priority>0.6</priority></url>
