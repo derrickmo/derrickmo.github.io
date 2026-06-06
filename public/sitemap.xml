@@ -146,6 +146,7 @@
   <url><loc>https://derrickmo.github.io/concepts/softmax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/spectral-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/speculative-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/successor-representation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/svm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/td-lambda/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/tokenization/</loc><priority>0.6</priority></url>
@@ -338,6 +339,7 @@
   <url><loc>https://derrickmo.github.io/visualize/simulated-annealing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/spectral-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/speculative-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/successor-representation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/sudoku/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/svm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/td-lambda/</loc><priority>0.6</priority></url>
