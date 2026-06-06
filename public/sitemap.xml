@@ -45,6 +45,7 @@
   <url><loc>https://derrickmo.github.io/concepts/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/diffusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/dijkstra/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/distributional-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/double-descent/</loc><priority>0.6</priority></url>
@@ -251,6 +252,7 @@
   <url><loc>https://derrickmo.github.io/visualize/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/diffusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/dijkstra/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/distributional-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/do-intervention/</loc><priority>0.6</priority></url>
