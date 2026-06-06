@@ -302,6 +302,8 @@ window.PLAY_DEMOS = {
       blurb: "Align two series at different speeds. DTW finds the cheapest nonlinear warp between them — where rigid Euclidean distance fails on the smallest time shift." },
     { slug: "aliasing",           topic: "AUDIO / SIGNAL", title: "Aliasing & Nyquist", tone: "violet", status: "LIVE",
       blurb: "Sample a sine too slowly and a phantom lower frequency appears. The Nyquist-Shannon theorem says why — and why every digitizer filters before it samples." },
+    { slug: "pagerank",           topic: "GRAPHS / NETWORKS", title: "PageRank", tone: "blue", status: "LIVE",
+      blurb: "Importance flows along links. Power iteration converges to the random surfer's stationary distribution — and the damping factor keeps it well-defined." },
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
@@ -318,6 +320,7 @@ window.PLAY_DEMOS = {
     { name: "Efficiency & Systems", why: "Trained models are huge; this is how you make them cheap enough to actually ship — shrinking the bits, the weights, and the compute without giving back the accuracy. The engineering that turns a research checkpoint into something that runs on your hardware.", slugs: ["quantization", "pruning", "distillation", "moe", "mixed-precision", "speculative-decoding", "paged-attention"] },
     { name: "MLOps & Serving", why: "What happens after training: keeping a model fast, cheap, and reliable under real traffic. The queueing and batching that trade latency for throughput, the routing that spends compute only where it's needed, and the rollout discipline that ships a new model without taking the service down.", slugs: ["batching", "model-cascade", "autoscaling", "canary-rollout"] },
     { name: "Audio & Signal", why: "How a continuous waveform becomes something a model can learn from: the time-frequency views that turn sound into an image, the features that compress it, and the sampling and alignment subtleties that bite if you ignore them. The front end of every speech and audio system.", slugs: ["spectrogram", "mfcc", "pitch-detection", "dtw", "aliasing"] },
+    { name: "Graphs & Networks", why: "The algorithms for data shaped like a network — webs, maps, social graphs, dependencies. Ranking nodes by who points at them, finding shortest routes and cheapest spanning structures, carving out communities, and pushing maximum flow through a capacitated network. The classical backbone under graph ML.", slugs: ["pagerank"] },
   ],
   // The single concept each demo rests on — shown as a "foundation" tag.
   foundations: {
@@ -424,6 +427,7 @@ window.PLAY_DEMOS = {
     "pitch-detection": "autocorrelation peak = fundamental",
     "dtw": "elastic alignment of two series",
     "aliasing": "sample below Nyquist, get a phantom freq",
+    "pagerank": "importance from the link structure",
     "rag-chunking": "chunk → retrieve → ground",
     "self-consistency": "sample N → majority vote",
     "constrained-decoding": "mask invalid tokens per step",

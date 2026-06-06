@@ -637,6 +637,12 @@ const CONCEPTS_INDEX = {
     summary: "The Nyquist-Shannon theorem: a signal is captured faithfully only if sampled faster than twice its highest frequency (the Nyquist rate). Sample too slowly and high frequencies FOLD back as lower-frequency aliases, f_alias = |f - fs·round(f/fs)|, indistinguishable from real low frequencies in the samples. The fix is always to band-limit (anti-alias low-pass filter) before sampling. Shows up as the wagon-wheel effect, image moire, and downsampling artifacts in CNNs.",
     prereqs: ["fourier"],
   },
+  "pagerank": {
+    id: "pagerank", name: "PageRank", area: "Graphs",
+    summary: "Rank nodes by the importance of the nodes linking to them, resolved by power iteration: PR_i = (1-d)/N + d·Σ_{j→i} PR_j/outdeg_j (plus dangling mass). It is the stationary distribution of a random surfer who follows a link with probability d and teleports otherwise — the teleport makes the chain ergodic so a unique answer exists. Mathematically the dominant eigenvector of the damped transition matrix. Launched Google; reused for citation ranking, recommendation, spam detection, and TextRank.",
+    tex: "PR_i = \\frac{1-d}{N} + d \\sum_{j \\to i} \\frac{PR_j}{\\mathrm{outdeg}(j)}",
+    prereqs: ["markov"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -1010,6 +1016,7 @@ const CONCEPT_TAGS = {
     "pitch-detection":      ["pitch-detection", "fourier", "forecasting"],
     "dtw":                  ["dtw", "dynamic-programming"],
     "aliasing":             ["aliasing", "fourier"],
+    "pagerank":             ["pagerank", "markov", "pca"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],

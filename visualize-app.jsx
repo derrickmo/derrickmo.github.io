@@ -2063,6 +2063,22 @@ const GlyphAliasing = () => (
     <text x="40" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">phantom freq</text>
   </svg>
 );
+
+const GlyphPageRank = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* small directed graph with one big hub */}
+    <line x1="36" y1="34" x2="84" y2="58" stroke="rgba(148,163,184,0.5)" strokeWidth="1.5" />
+    <line x1="36" y1="86" x2="84" y2="58" stroke="rgba(148,163,184,0.5)" strokeWidth="1.5" />
+    <line x1="124" y1="32" x2="84" y2="58" stroke="rgba(148,163,184,0.5)" strokeWidth="1.5" />
+    <line x1="124" y1="90" x2="84" y2="58" stroke="rgba(148,163,184,0.5)" strokeWidth="1.5" />
+    <circle cx="36" cy="34" r="7" fill="#a855f7" />
+    <circle cx="36" cy="86" r="7" fill="#a855f7" />
+    <circle cx="124" cy="32" r="6" fill="#a855f7" />
+    <circle cx="124" cy="90" r="6" fill="#a855f7" />
+    <circle cx="84" cy="58" r="16" fill="#34d399" />
+    <text x="40" y="112" fontFamily="monospace" fontSize="9" fill="#94a3b8">rank = size</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2228,6 +2244,7 @@ const GLYPHS = {
   "pitch-detection": <GlyphPitchDetection />,
   "dtw": <GlyphDTW />,
   "aliasing": <GlyphAliasing />,
+  "pagerank": <GlyphPageRank />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

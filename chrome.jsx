@@ -375,6 +375,7 @@ const DM_NAV_INDEX = [
   { label: "Pitch Detection", group: "Demo", href: "/visualize/pitch-detection/", kw: "pitch detection autocorrelation fundamental frequency f0 yin tuner note octave error wiener khinchin audio signal acf" },
   { label: "Dynamic Time Warping", group: "Demo", href: "/visualize/dtw/", kw: "dynamic time warping dtw alignment time series elastic distance sakoe chiba band warping path speech gesture ecg dp audio signal" },
   { label: "Aliasing & Nyquist", group: "Demo", href: "/visualize/aliasing/", kw: "aliasing nyquist shannon sampling theorem sample rate fold frequency anti-aliasing wagon wheel moire adc audio signal" },
+  { label: "PageRank", group: "Demo", href: "/visualize/pagerank/", kw: "pagerank power iteration random surfer damping teleport eigenvector stationary distribution google link analysis graph network markov" },
   { label: "RAG Chunking", group: "Demo", href: "/visualize/rag-chunking/", kw: "rag chunking retrieval augmented generation chunk size overlap tf-idf cosine context window vector search recall" },
   { label: "Self-Consistency", group: "Demo", href: "/visualize/self-consistency/", kw: "self consistency sample vote majority chain of thought reasoning best-of-n condorcet test time compute reliability llm ops" },
   { label: "Constrained Decoding", group: "Demo", href: "/visualize/constrained-decoding/", kw: "constrained decoding json mode function calling structured output grammar regex fsm outlines guidance xgrammar tool use mask" },
