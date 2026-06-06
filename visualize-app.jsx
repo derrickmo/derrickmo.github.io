@@ -1959,6 +1959,19 @@ const GlyphPrioritizedReplay = () => (
     <text x="34" y="108" fontFamily="monospace" fontSize="9" fill="#94a3b8">replay by error</text>
   </svg>
 );
+
+const GlyphDistributionalRL = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {/* bimodal return distribution as atom bars */}
+    {[6, 10, 22, 40, 30, 14, 8, 6, 8, 16, 34, 44, 26, 12, 6].map((h, i) => (
+      <rect key={i} x={20 + i * 8} y={88 - h} width="6" height={h} fill="#a855f7" opacity="0.85" />
+    ))}
+    <line x1="16" y1="88" x2="146" y2="88" stroke="#94a3b8" strokeWidth="1" />
+    {/* mean marker (between the two modes) */}
+    <line x1="81" y1="30" x2="81" y2="88" stroke="#fbbf24" strokeWidth="1.5" />
+    <text x="38" y="106" fontFamily="monospace" fontSize="9" fill="#94a3b8">return dist</text>
+  </svg>
+);
 const GlyphRewardModel = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {/* two responses being compared */}
@@ -2116,6 +2129,7 @@ const GLYPHS = {
   "double-q-learning": <GlyphDoubleQ />,
   "gae": <GlyphGAE />,
   "prioritized-replay": <GlyphPrioritizedReplay />,
+  "distributional-rl": <GlyphDistributionalRL />,
   "rag-chunking": <GlyphRagChunking />,
   "multi-query": <GlyphMultiQuery />,
   "rag-reranker": <GlyphRagReranker />,

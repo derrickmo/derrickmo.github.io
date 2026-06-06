@@ -595,6 +595,11 @@ const CONCEPTS_INDEX = {
     summary: "Replace uniform sampling from the replay buffer with sampling ∝ |TD error|^α, so surprising transitions are revisited more often. On sparse-reward tasks this produces a backward sweep of value from the goal and learns in far fewer updates. Because non-uniform sampling biases the expected update, correct it with importance-sampling weights w=(N·P)^(-β), annealing β toward 1. A standard upgrade to DQN; the data-side counterpart to Dyna-Q's planning.",
     prereqs: ["dqn", "importance-sampling"],
   },
+  "distributional-rl": {
+    id: "distributional-rl", name: "Distributional RL (C51)", area: "Reinforcement Learning",
+    summary: "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + γZ(s'), projecting the shifted/scaled target back onto the atom support. Stochastic rewards make returns multimodal — a shape the scalar value (the mean) hides — enabling more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
+    prereqs: ["q-learning", "mdp-bellman"],
+  },
   "rag-chunking": {
     id: "rag-chunking", name: "RAG Chunking", area: "NLP",
     summary: "How a corpus is split into chunks before embedding decides what retrieval can find. Chunk size trades dilution (too large) against splitting a fact across boundaries (too small); overlap and sentence-aware splitting keep answer spans intact. The cheapest lever on retrieval recall.",
@@ -960,6 +965,7 @@ const CONCEPT_TAGS = {
     "double-q-learning":    ["double-q-learning", "q-learning", "sarsa"],
     "gae":                  ["gae", "td-lambda", "actor-critic"],
     "prioritized-replay":   ["prioritized-replay", "dqn", "importance-sampling"],
+    "distributional-rl":    ["distributional-rl", "q-learning", "mdp-bellman"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
     "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
