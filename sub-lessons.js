@@ -1035,8 +1035,78 @@ window.SUB_LESSONS = {
   "reinforcement-learning": {
     title: "Reinforcement Learning",
     intro: "Learning from reward, built up in order: balance exploration, solve known MDPs with Bellman backups, learn values from experience, then optimize policies directly and with deep function approximators.",
-    order: ["bandit", "mdp-bellman", "q-learning", "policy-gradient", "actor-critic", "ppo", "dqn"],
+    order: ["bandit", "mdp-bellman", "q-learning", "sarsa", "td-lambda", "double-q-learning", "policy-gradient", "actor-critic", "gae", "ppo", "dqn", "dyna-q"],
     lessons: {
+      sarsa: {
+        title: "SARSA",
+        oneLine: "On-policy control: update toward the action you actually took.",
+        sections: [
+          { h: "The intuition", paras: [
+            "SARSA is Q-learning's on-policy twin. Where Q-learning bootstraps from the best next action, SARSA bootstraps from the action its policy actually chose next - so it learns the value of the policy it is following, exploration and all. On a cliff-edge task it learns the safe path; Q-learning learns the risky optimal one.",
+          ] },
+          { h: "The math", paras: ["The target uses the next action a' sampled from the current policy:"],
+            tex: "Q(s,a)\\leftarrow Q(s,a)+\\alpha\\big[r+\\gamma Q(s',a')-Q(s,a)\\big]", texNote: "Replace Q(s',a') with max over a' and you are back to Q-learning." },
+          { h: "In code", code: "a2 = policy(s2)                       # on-policy: sample next action\nQ[s, a] += alpha * (r + gamma * Q[s2, a2] - Q[s, a])", caption: "Bootstrap from the action the policy really takes." },
+        ],
+        takeaways: ["SARSA is on-policy: it values the policy it follows.", "Q-learning is off-policy: it values the greedy optimum.", "On-policy learning is safer under exploration."],
+        demo: "sarsa-vs-qlearning",
+      },
+      "td-lambda": {
+        title: "TD(lambda) and Eligibility Traces",
+        oneLine: "Dial smoothly between one-step TD and full Monte Carlo.",
+        sections: [
+          { h: "The intuition", paras: [
+            "One-step TD updates from the very next reward (low variance, biased); Monte Carlo waits for the full return (unbiased, high variance). TD(lambda) blends them with eligibility traces - a fading memory of recently visited states - so one update credits a whole trajectory. Intermediate lambda often learns fastest.",
+          ] },
+          { h: "The math", paras: ["The trace decays by gamma*lambda and gates how much each state is updated:"],
+            tex: "e_t(s) = \\gamma\\lambda\\,e_{t-1}(s) + \\mathbb{1}[s_t = s]", texNote: "lambda = 0 is one-step TD; lambda = 1 is Monte Carlo." },
+          { h: "In code", code: "delta = r + gamma * V[s2] - V[s]\ne[s] += 1                              # mark visited\nV += alpha * delta * e                 # update all eligible states\ne *= gamma * lam                       # decay the trace", caption: "One TD error updates every recently-seen state." },
+        ],
+        takeaways: ["Eligibility traces credit a whole trajectory per step.", "lambda interpolates TD(0) and Monte Carlo.", "Intermediate lambda usually learns fastest."],
+        demo: "td-lambda",
+      },
+      "double-q-learning": {
+        title: "Double Q-Learning",
+        oneLine: "Cancel the optimistic bias that fools plain Q-learning.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Taking a max over noisy action-value estimates systematically overestimates - the maximization bias. Double Q-learning keeps two value tables and uses one to pick the best action and the other to evaluate it, decoupling selection from evaluation so the noise no longer inflates the estimate.",
+          ] },
+          { h: "The math", paras: ["Select with one estimator, evaluate with the other:"],
+            tex: "Q_A(s,a)\\leftarrow Q_A(s,a)+\\alpha\\big[r+\\gamma Q_B\\big(s',\\arg\\max_{a'}Q_A(s',a')\\big)-Q_A(s,a)\\big]", texNote: "Randomly update A or B each step; the cross-evaluation removes the upward bias." },
+          { h: "In code", code: "if np.random.rand() < 0.5:\n    a_star = Q_A[s2].argmax()\n    Q_A[s, a] += alpha * (r + gamma * Q_B[s2, a_star] - Q_A[s, a])\n# else symmetric: pick with B, evaluate with A", caption: "Decouple action selection from action evaluation." },
+        ],
+        takeaways: ["max over noisy estimates overestimates values.", "Double Q-learning decouples selection from evaluation.", "It is the idea behind Double DQN."],
+        demo: "double-q-learning",
+      },
+      gae: {
+        title: "Generalized Advantage Estimation",
+        oneLine: "Tune the bias-variance trade-off of the advantage signal.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Policy gradients need an advantage estimate: how much better was an action than expected? Use one-step TD and it is low-variance but biased by the critic; use the full return and it is unbiased but noisy. GAE blends all horizons with a decay lambda, giving a single knob to trade bias against variance.",
+          ] },
+          { h: "The math", paras: ["An exponentially-weighted sum of TD residuals:"],
+            tex: "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\,\\delta_{t+l},\\quad \\delta_t = r_t + \\gamma V(s_{t+1}) - V(s_t)", texNote: "lambda = 0 is one-step TD advantage; lambda = 1 is the Monte Carlo advantage." },
+          { h: "In code", code: "adv, gae = np.zeros(T), 0.0\nfor t in reversed(range(T)):\n    delta = r[t] + gamma * V[t+1] - V[t]\n    gae = delta + gamma * lam * gae\n    adv[t] = gae", caption: "A backward pass blends every horizon's TD error." },
+        ],
+        takeaways: ["GAE trades advantage bias against variance with lambda.", "It is computed in one backward pass over a trajectory.", "It is the standard advantage estimator inside PPO."],
+        demo: "gae",
+      },
+      "dyna-q": {
+        title: "Dyna-Q",
+        oneLine: "Learn a model of the world and plan inside it between real steps.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Real experience is expensive. Dyna-Q learns a one-step model from the transitions it sees, then between real steps it replays imagined transitions through that model, running extra Q-updates for free. A handful of planning steps per real step can slash the experience needed to solve a maze.",
+          ] },
+          { h: "The math", paras: ["Each real step is followed by n planning updates on remembered transitions:"],
+            tex: "\\text{for } n \\text{ times: } (s,a)\\sim\\text{model},\\; Q(s,a)\\mathrel{+}=\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]", texNote: "More planning steps means faster learning - until the model's errors dominate." },
+          { h: "In code", code: "model[s, a] = (r, s2)                  # learn the model\nfor _ in range(n):                    # plan\n    (sp, ap), (rp, s2p) = sample(model)\n    Q[sp, ap] += alpha * (rp + gamma * Q[s2p].max() - Q[sp, ap])", caption: "Act once, then imagine n more transitions." },
+        ],
+        takeaways: ["Dyna-Q mixes model-free learning with model-based planning.", "Planning updates reuse a learned one-step model.", "It is far more sample-efficient than model-free alone."],
+        demo: "dyna-q",
+      },
       bandit: {
         title: "Multi-Armed Bandits",
         oneLine: "The simplest RL problem: balance exploring options against exploiting the best.",
@@ -1205,8 +1275,36 @@ window.SUB_LESSONS = {
   "llm-systems": {
     title: "LLM Systems and Efficiency",
     intro: "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
-    order: ["quantization", "speculative-decoding", "paged-attention", "moe"],
+    order: ["quantization", "pruning", "distillation", "speculative-decoding", "paged-attention", "moe"],
     lessons: {
+      pruning: {
+        title: "Pruning",
+        oneLine: "Remove the weights that barely matter to shrink the model.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Most weights in a trained network contribute little. Magnitude pruning zeros the smallest ones, and a brief retrain lets the survivors compensate. Accuracy holds steady as sparsity rises, then falls off a cliff - the trick is finding that edge. Structured pruning removes whole channels for real speedups.",
+          ] },
+          { h: "The math", paras: ["Keep only weights above a magnitude threshold:"],
+            tex: "w_i \\leftarrow w_i \\cdot \\mathbb{1}\\big[|w_i| > \\tau\\big]", texNote: "tau is set to hit a target sparsity; retrain after pruning to recover accuracy." },
+          { h: "In code", code: "import numpy as np\nthr = np.quantile(np.abs(W), sparsity)   # e.g. 0.8 -> drop 80%\nW = W * (np.abs(W) > thr)                 # then fine-tune", caption: "Zero the small weights, retrain the rest." },
+        ],
+        takeaways: ["Pruning removes low-magnitude weights.", "Accuracy holds then drops sharply past a sparsity edge.", "Structured pruning yields real hardware speedups."],
+        demo: "pruning",
+      },
+      distillation: {
+        title: "Knowledge Distillation",
+        oneLine: "Train a small student to mimic a big teacher's soft predictions.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A big model's full probability distribution carries more information than a hard label - the relative scores of the wrong classes encode 'dark knowledge'. Distillation trains a small student to match the teacher's softened outputs, transferring much of the teacher's skill into a fraction of the size.",
+          ] },
+          { h: "The math", paras: ["Match softened teacher and student distributions at temperature T:"],
+            tex: "\\mathcal{L} = (1-\\alpha)\\,\\mathrm{CE}(y,\\hat{y}) + \\alpha T^2\\,\\mathrm{KL}\\big(p_T^{\\text{tea}}\\,\\|\\,p_T^{\\text{stu}}\\big)", texNote: "High T exposes the dark knowledge in the teacher's non-top classes." },
+          { h: "In code", code: "soft_t = softmax(teacher_logits / T)\nsoft_s = softmax(student_logits / T)\nloss = (1-a)*ce(y, student_logits) + a*T*T*kl(soft_t, soft_s)", caption: "Learn from the teacher's whole distribution, not just the label." },
+        ],
+        takeaways: ["Distillation transfers a teacher's soft predictions to a student.", "Dark knowledge lives in the non-top class probabilities.", "Temperature controls how much of it is exposed."],
+        demo: "distillation",
+      },
       quantization: {
         title: "Quantization",
         oneLine: "Store and compute weights in fewer bits with minimal accuracy loss.",
@@ -1319,8 +1417,64 @@ window.SUB_LESSONS = {
   "rag-agents": {
     title: "RAG and Agents",
     intro: "Turning a raw model into a grounded, reliable, safe system: chunk and retrieve the right context, rerank it, let the model act in a loop, and guard the edges.",
-    order: ["rag-chunking", "reranking", "react-agent", "guardrails"],
+    order: ["rag-chunking", "hyde", "reranking", "react-agent", "self-consistency", "reflection", "guardrails", "prompt-injection"],
     lessons: {
+      hyde: {
+        title: "HyDE",
+        oneLine: "Retrieve with a hypothetical answer instead of the raw question.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A question and its answer often look different in embedding space, so querying with the question can miss the right passage. HyDE first has the model write a hypothetical answer, embeds that, and retrieves with it - because a guessed answer, even if imperfect, sits much closer to the real supporting documents.",
+          ] },
+          { h: "The math", paras: ["Retrieve against the embedding of a generated answer h, not the query q:"],
+            tex: "\\mathrm{top\\text{-}k}\\;\\arg\\max_{d}\\;\\mathrm{sim}\\big(e(h),\\,e(d)\\big),\\quad h = \\mathrm{LLM}(q)", texNote: "Averaging several hypothetical answers smooths out any single bad guess." },
+          { h: "In code", code: "h = llm(f'Write a passage answering: {q}')   # hypothetical doc\nhits = vector_search(embed(h), k=5)          # retrieve with it", caption: "Guess an answer, retrieve what supports it." },
+        ],
+        takeaways: ["HyDE bridges the query-document embedding gap.", "It retrieves with a generated answer, not the question.", "Averaging multiple drafts reduces variance."],
+        demo: "hyde",
+      },
+      "self-consistency": {
+        title: "Self-Consistency",
+        oneLine: "Sample several reasoning paths and take the majority answer.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A single chain of reasoning can go wrong by chance. Self-consistency samples several independent chains at nonzero temperature and votes on the final answer. When errors are independent, the majority is far more reliable than any one path - a Condorcet-style lift. It fails when the errors are correlated.",
+          ] },
+          { h: "The math", paras: ["With independent per-sample accuracy p, the majority of N improves sharply:"],
+            tex: "P(\\text{majority correct}) = \\sum_{k>N/2}\\binom{N}{k}p^k(1-p)^{N-k}", texNote: "Correlated errors break the independence this relies on." },
+          { h: "In code", code: "from collections import Counter\nanswers = [extract(llm(prompt, temperature=0.7)) for _ in range(N)]\nfinal = Counter(answers).most_common(1)[0][0]   # vote", caption: "Many samples, one vote - reliability from diversity." },
+        ],
+        takeaways: ["Self-consistency votes over multiple reasoning samples.", "Independent errors make the majority much more reliable.", "Correlated errors defeat it."],
+        demo: "self-consistency",
+      },
+      reflection: {
+        title: "Reflection",
+        oneLine: "Draft, critique, and revise toward a quality bar.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A model can often improve its own output if asked to critique it. Reflection loops draft -> critique -> revise until a quality bar is met. The catch: self-correction is only as good as the critic. A sharp critic converges fast; a weak or miscalibrated one can pass bad answers or reject good ones.",
+          ] },
+          { h: "The math", paras: ["Quality improves only when the critic carries real signal:"],
+            tex: "q_{t+1} = q_t + \\eta\\,(\\,\\text{critic informativeness}\\,)", texNote: "Bounded by the verifier: a useless critic yields no gain." },
+          { h: "In code", code: "draft = llm(task)\nfor _ in range(max_iters):\n    critique = llm(f'Critique: {draft}')\n    if passes(critique): break\n    draft = llm(f'Revise given: {critique}\\n{draft}')", caption: "Iterate until the critic is satisfied - or you give up." },
+        ],
+        takeaways: ["Reflection is a draft-critique-revise loop.", "Its ceiling is the quality of the critic.", "It is the sequential cousin of self-consistency."],
+        demo: "reflection",
+      },
+      "prompt-injection": {
+        title: "Prompt Injection",
+        oneLine: "The attacks that hijack an LLM, and the layered defenses against them.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Because an LLM cannot fully separate instructions from data, attacker-controlled text - in a prompt, a retrieved document, or a tool result - can override your instructions. Defenses layer up: delimit and spotlight untrusted content, assert an instruction hierarchy, classify inputs, and filter outputs for exfiltration. No single layer is sufficient.",
+          ] },
+          { h: "The math", paras: ["Residual risk is what survives every defense layer:"],
+            tex: "\\text{ASR} = \\prod_{\\ell} (1 - d_\\ell)", texNote: "ASR is attack success rate; each defense d_l catches some fraction, none all." },
+          { h: "In code", code: "# spotlighting: clearly fence untrusted content\nprompt = (system + '\\n<<UNTRUSTED>>\\n' + retrieved + '\\n<<END>>')\n# plus an output filter that blocks secret/exfiltration patterns", caption: "Defense in depth - delimit, prioritize, classify, filter." },
+        ],
+        takeaways: ["Injection exploits the instruction-vs-data ambiguity.", "Untrusted text can arrive via documents and tool results.", "Layered defenses reduce, but never zero, the attack surface."],
+        demo: "prompt-injection",
+      },
       "rag-chunking": {
         title: "Chunking for Retrieval",
         oneLine: "Split documents so the answer survives retrieval intact.",
@@ -1383,8 +1537,36 @@ window.SUB_LESSONS = {
   "ml-applications": {
     title: "Applied Machine Learning",
     intro: "Putting models to work responsibly: forecast the future, make confidence scores trustworthy, and explain what drove a prediction.",
-    order: ["forecasting", "calibration", "shap"],
+    order: ["forecasting", "calibration", "conformal", "fairness", "shap"],
     lessons: {
+      conformal: {
+        title: "Conformal Prediction",
+        oneLine: "Output prediction sets with a guaranteed coverage rate.",
+        sections: [
+          { h: "The intuition", paras: [
+            "Instead of one guess, conformal prediction returns a set that contains the truth with a chosen probability - say 90% - and that guarantee holds for any model, with no distributional assumptions. When the model is unsure the set is large; when it is confident the set shrinks. It turns any predictor into one with honest uncertainty.",
+          ] },
+          { h: "The math", paras: ["Use a calibration quantile of nonconformity scores to build the set:"],
+            tex: "C(x) = \\{\\,y : s(x,y) \\le \\hat{q}_{1-\\alpha}\\,\\}", texNote: "Coverage of at least 1 - alpha holds marginally; set size grows as the model weakens." },
+          { h: "In code", code: "import numpy as np\nscores = nonconformity(calib_X, calib_y)\nqhat = np.quantile(scores, 1 - alpha)        # threshold\npred_set = [y for y in classes if score(x, y) <= qhat]", caption: "Calibrate a threshold; include every plausible label." },
+        ],
+        takeaways: ["Conformal sets guarantee coverage for any model.", "Set size grows when the model is uncertain.", "Coverage is distribution-free and finite-sample valid."],
+        demo: "conformal",
+      },
+      fairness: {
+        title: "Fairness Metrics",
+        oneLine: "Measure group disparities - and confront their impossibility.",
+        sections: [
+          { h: "The intuition", paras: [
+            "A model can be accurate yet unfair across groups. Different metrics formalize fairness: demographic parity (equal positive rates), equal opportunity (equal true-positive rates), equalized odds (both error rates equal). The uncomfortable result is that, when base rates differ, you cannot satisfy them all at once - fairness requires a choice.",
+          ] },
+          { h: "The math", paras: ["Equal opportunity demands matched true-positive rates across groups:"],
+            tex: "P(\\hat{y}=1\\mid y=1, A=a) = P(\\hat{y}=1\\mid y=1, A=b)", texNote: "Demographic parity and calibration generally cannot hold simultaneously with this." },
+          { h: "In code", code: "tpr = lambda g: ((pred==1) & (y==1) & (A==g)).sum() / ((y==1)&(A==g)).sum()\neo_gap = abs(tpr('a') - tpr('b'))      # equal-opportunity gap", caption: "Compute per-group rates; the gaps are the disparities." },
+        ],
+        takeaways: ["Fairness has several incompatible definitions.", "With unequal base rates you cannot satisfy them all.", "Choosing a metric is a value judgment, not a technicality."],
+        demo: "fairness",
+      },
       forecasting: {
         title: "Time-Series Forecasting",
         oneLine: "Predict future values from the patterns in past observations.",

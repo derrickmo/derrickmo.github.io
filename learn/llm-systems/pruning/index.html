@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Pruning - LLM Systems and Efficiency | ML from Scratch | Derrick Mo</title>
+  <meta name="description" content="Remove the weights that barely matter to shrink the model." />
+  <link rel="canonical" href="https://derrickmo.github.io/learn/llm-systems/pruning/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Derrick Mo" />
+  <meta property="og:title" content="Pruning - LLM Systems and Efficiency | ML from Scratch | Derrick Mo" />
+  <meta property="og:description" content="Remove the weights that barely matter to shrink the model." />
+  <meta property="og:url" content="https://derrickmo.github.io/learn/llm-systems/pruning/" />
+  <meta property="og:image" content="https://derrickmo.github.io/og-default.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pruning - LLM Systems and Efficiency | ML from Scratch | Derrick Mo" />
+  <meta name="twitter:description" content="Remove the weights that barely matter to shrink the model." />
+  <meta name="twitter:image" content="https://derrickmo.github.io/og-default.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../../tokens.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous" />
+  <style>
+    html { scroll-behavior: smooth; }
+    body { margin: 0; padding: 0; background: var(--bg-deep); color: var(--white); font-family: var(--f-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    ::selection { background: rgba(168, 85, 247, 0.5); color: var(--white); }
+    section[id] { scroll-margin-top: 110px; }
+    .katex { color: var(--blue-br); }
+  </style>
+
+  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "llm-systems"; window.__DM_CONCEPT_SLUG = "pruning";</script>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="../../../curriculum.js"></script>
+  <script type="module" src="../../../concepts-index.js"></script>
+  <script type="module" src="../../../play-demos.js"></script>
+  <script type="module" src="../../../components/HUD.jsx"></script>
+  <script type="module" src="../../../components/Monogram.jsx"></script>
+  <script type="module" src="../../../chrome.jsx"></script>
+  <script type="module" src="../../../sub-lessons.js"></script>
+  <script type="module" src="../../../concept-lesson-app.jsx"></script>
+</body>
+</html>
