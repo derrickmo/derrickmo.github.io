@@ -978,6 +978,7 @@ const CONCEPT_TAGS = {
     "l-bfgs":               ["quasi-newton", "newtons-method", "gradient-descent"],
     "bayesian-linear-regression": ["bayesian-linear-regression", "bayes", "linear-regression", "gaussian-process"],
     "variational-inference": ["variational-inference", "bayes", "vae"],
+    "thompson-vs-ucb":      ["bandit", "bayes"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

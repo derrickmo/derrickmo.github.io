@@ -147,6 +147,18 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphThompson = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[30,0.9,42],[58,1.0,30],[86,1.0,58],[114,0.95,20]].map((b,i)=>{
+      const cx=b[0], peak=b[1], w=b[2];
+      return <path key={i} d={`M ${cx-14} 96 Q ${cx} ${96-w}, ${cx+14} 96 Z`} fill="rgba(34,211,238,0.3)" stroke="#22d3ee" strokeWidth="1.2" />;
+    })}
+    {[[30,70],[58,84],[86,40],[114,90]].map((p,i)=>(
+      <line key={i} x1={p[0]+18} y1={p[1]} x2={p[0]+18} y2={p[1]-16} stroke="#fbbf24" strokeWidth="1.6" />
+    ))}
+  </svg>
+);
+
 const GlyphVI = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[46,33,21].map((r,i)=>(
@@ -2277,6 +2289,7 @@ const GLYPHS = {
   "l-bfgs": <GlyphLbfgs />,
   "bayesian-linear-regression": <GlyphBayesReg />,
   "variational-inference": <GlyphVI />,
+  "thompson-vs-ucb": <GlyphThompson />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
