@@ -181,6 +181,7 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/optical-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/beam-search/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-nlp/gpt/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/kv-cache/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/rope/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
@@ -223,6 +224,7 @@
   <url><loc>https://derrickmo.github.io/learn/key-concepts/applications/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/distillation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/long-context/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/paged-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/pruning/</loc><priority>0.6</priority></url>
@@ -281,6 +283,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/gae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mc-td/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mdp-bellman/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/model-based-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/q-learning/</loc><priority>0.6</priority></url>
@@ -310,6 +313,7 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/full-transformer/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/multi-head/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/positional-encoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/self-attention/</loc><priority>0.6</priority></url>
@@ -320,6 +324,7 @@
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/gmm-em/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kmeans/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/matrix-factorization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/pca/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/tsne/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>

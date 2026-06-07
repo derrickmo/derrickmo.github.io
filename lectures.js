@@ -63,6 +63,7 @@ window.LECTURES = {
       "The EM algorithm and Gaussian mixtures — the conceptual bridge to VAEs.",
       "Kernel methods, matrix factorization, and Bayesian inference as recurring ML primitives.",
     ],
+    flagship: { n: "03-09", label: "Matrix Factorization and SVD", href: "learn/unsupervised-learning/matrix-factorization/" },
     notebooks: [
       { n: "03-01", t: "K-Means Clustering", d: "make_blobs + Iris", m: "20 min" },
       { n: "03-02", t: "Hierarchical & Density-Based Clustering", d: "make_moons + make_blobs", m: "20 min" },
@@ -192,7 +193,10 @@ window.LECTURES = {
       "Positional encoding, encoder/decoder blocks, and the full transformer stack.",
       "GPT-style generation and BERT-style pretraining — the backbone of modern NLP.",
     ],
-    flagship: { n: "08-01", label: "Scaled Dot-Product Attention", href: "learn/transformers/self-attention/" },
+    flagships: [
+      { n: "08-01", label: "Scaled Dot-Product Attention", href: "learn/transformers/self-attention/" },
+      { n: "08-05", label: "The Full Transformer (Encoder-Decoder)", href: "learn/transformers/full-transformer/" },
+    ],
     notebooks: [
       { n: "08-01", t: "Scaled Dot-Product Attention", d: "Synthetic", m: "20 min" },
       { n: "08-02", t: "Multi-Head Attention", d: "Synthetic", m: "20 min" },
@@ -242,6 +246,7 @@ window.LECTURES = {
       "Generation evaluation (BLEU/ROUGE/BERTScore), RAG-lite, and LoRA-style efficient tuning.",
       "In-context learning and probing — what pretrained models actually know.",
     ],
+    flagship: { n: "10-01", label: "GPT from Scratch", href: "learn/advanced-nlp/gpt/" },
     notebooks: [
       { n: "10-01", t: "GPT Fine-tuning", d: "WikiText-2", m: "25 min" },
       { n: "10-02", t: "BERT Fine-tuning for Classification", d: "AG_NEWS + WikiText-2", m: "25 min" },
@@ -343,7 +348,10 @@ window.LECTURES = {
       "Deep RL: DQN and variants, REINFORCE, Actor-Critic/A2C, and PPO.",
       "Model-based RL concepts — all on gridworld and CartPole built in NumPy.",
     ],
-    flagship: { n: "14-03", label: "Temporal-Difference Learning", href: "learn/reinforcement-learning/mc-td/" },
+    flagships: [
+      { n: "14-03", label: "Temporal-Difference Learning", href: "learn/reinforcement-learning/mc-td/" },
+      { n: "14-09", label: "Model-Based RL and MCTS", href: "learn/reinforcement-learning/model-based-rl/" },
+    ],
     notebooks: [
       { n: "14-01", t: "MDP & Dynamic Programming", d: "Gridworld", m: "25 min" },
       { n: "14-02", t: "Monte Carlo Methods", d: "Gridworld / Blackjack", m: "25 min" },
@@ -417,6 +425,7 @@ window.LECTURES = {
       "Quantization (INT8/INT4/GPTQ/QLoRA), speculative decoding, and long-context (RoPE/ALiBi).",
       "Mixture-of-experts, LLM evaluation, and inference optimization (continuous batching, PagedAttention).",
     ],
+    flagship: { n: "17-06", label: "Long-Context Techniques", href: "learn/llm-systems/long-context/" },
     notebooks: [
       { n: "17-01", t: "Scaling Laws & Emergent Abilities", d: "Synthetic", m: "25 min" },
       { n: "17-02", t: "Transformer Efficiency — Attention Variants", d: "Synthetic", m: "25 min" },

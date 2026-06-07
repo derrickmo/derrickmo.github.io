@@ -315,6 +315,11 @@ const DM_NAV_INDEX = [
   { label: "RLHF with PPO (full lesson)", group: "Lesson", href: "/learn/fine-tuning/rlhf-ppo/", kw: "rlhf ppo reward model kl penalty alignment reward hacking sft preference reinforcement learning human feedback flagship lesson" },
   { label: "Distributed Data Parallel (full lesson)", group: "Lesson", href: "/learn/training-systems/ddp/", kw: "ddp distributed data parallel all-reduce ring gradient sync gpu scaling fsdp zero nccl flagship lesson" },
   { label: "RAG Pipeline End-to-End (full lesson)", group: "Lesson", href: "/learn/rag-agents/rag-pipeline/", kw: "rag pipeline retrieval augmented generation chunk embed index retrieve rerank generate citation grounded flagship lesson" },
+  { label: "The Full Transformer (full lesson)", group: "Lesson", href: "/learn/transformers/full-transformer/", kw: "full transformer encoder decoder cross attention masked causal mask bert gpt seq2seq flagship lesson" },
+  { label: "Model-Based RL and MCTS (full lesson)", group: "Lesson", href: "/learn/reinforcement-learning/model-based-rl/", kw: "model based rl mcts monte carlo tree search dyna planning uct alphazero alphago flagship lesson" },
+  { label: "Matrix Factorization and SVD (full lesson)", group: "Lesson", href: "/learn/unsupervised-learning/matrix-factorization/", kw: "matrix factorization svd singular value decomposition low rank recommender pca lsa lora flagship lesson" },
+  { label: "Long Context (full lesson)", group: "Lesson", href: "/learn/llm-systems/long-context/", kw: "long context rope scaling position interpolation ntk yarn sliding window attention sink streamingllm kv cache flagship lesson" },
+  { label: "GPT from Scratch (full lesson)", group: "Lesson", href: "/learn/advanced-nlp/gpt/", kw: "gpt autoregressive language model next token prediction decoder only causal mask nanogpt generation flagship lesson" },
 
   { label: "Mathematical & Programming Foundations", group: "ML Module", href: "/learn/foundations/", kw: "numpy math 01" },
   { label: "Supervised Learning", group: "ML Module", href: "/learn/supervised-learning/", kw: "regression trees 02" },
