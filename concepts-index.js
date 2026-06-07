@@ -52,6 +52,12 @@ const CONCEPTS_INDEX = {
     tex: "d_k = -H_k\\,\\nabla f(x_k),\\quad H_k \\approx (\\nabla^2 f)^{-1}\\ \\text{from } \\{s_i,y_i\\}",
     prereqs: ["newtons-method", "gradient-descent"], leadsTo: [],
   },
+  "bayesian-linear-regression": {
+    id: "bayesian-linear-regression", name: "Bayesian Linear Regression", area: "Foundations",
+    summary: "Place a Gaussian prior on the weights and infer a Gaussian posterior in closed form, yielding a full predictive distribution with calibrated error bars. The MAP estimate is exactly ridge regression; the infinite-basis limit is a Gaussian process.",
+    tex: "S_N^{-1} = \\alpha I + \\beta\\Phi^{\\top}\\Phi,\\quad m_N = \\beta S_N \\Phi^{\\top} t",
+    prereqs: ["linear-regression", "bayes"], leadsTo: ["gaussian-process"],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -964,6 +970,7 @@ const CONCEPT_TAGS = {
     "coordinate-descent":   ["coordinate-descent", "gradient-descent"],
     "ista":                 ["proximal-gradient", "regularization", "linear-regression"],
     "l-bfgs":               ["quasi-newton", "newtons-method", "gradient-descent"],
+    "bayesian-linear-regression": ["bayesian-linear-regression", "bayes", "linear-regression", "gaussian-process"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
