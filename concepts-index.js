@@ -28,6 +28,12 @@ const CONCEPTS_INDEX = {
     prereqs: ["chain-rule"], leadsTo: ["backprop", "lr-schedule", "adam"],
     animation: "viz/gradient.html",
   },
+  "newtons-method": {
+    id: "newtons-method", name: "Newton's Method (Second-Order Optimization)", area: "Foundations",
+    summary: "Use curvature (the Hessian) to jump to the minimum of the local quadratic model — one step on a true quadratic, but attracted to any stationary point, including saddles. The conceptual root of L-BFGS and natural-gradient methods.",
+    tex: "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla f(\\theta_t)",
+    prereqs: ["gradient-descent"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -936,6 +942,7 @@ const CONCEPT_TAGS = {
     "pathfinding":          ["search-astar"],
     "kmeans":               ["kmeans", "gmm-em"],
     "gradient-descent":     ["gradient-descent", "adam", "lr-schedule"],
+    "newton-vs-gradient":   ["newtons-method", "gradient-descent"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

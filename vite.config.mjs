@@ -183,6 +183,7 @@ export default defineConfig({
         'visualize-pathfinding': 'visualize/pathfinding/index.html',
         'visualize-kmeans': 'visualize/kmeans/index.html',
         'visualize-gradient-descent': 'visualize/gradient-descent/index.html',
+        'visualize-newton-vs-gradient': 'visualize/newton-vs-gradient/index.html',
         'visualize-overfitting': 'visualize/overfitting/index.html',
         'visualize-double-descent': 'visualize/double-descent/index.html',
         'visualize-bias-variance-decomp': 'visualize/bias-variance-decomp/index.html',
@@ -394,6 +395,7 @@ export default defineConfig({
 // >>> generated:concepts
         'concepts': 'concepts/index.html',
         'concept-gradient-descent': 'concepts/gradient-descent/index.html',
+        'concept-newtons-method': 'concepts/newtons-method/index.html',
         'concept-backprop': 'concepts/backprop/index.html',
         'concept-rnn': 'concepts/rnn/index.html',
         'concept-chain-rule': 'concepts/chain-rule/index.html',

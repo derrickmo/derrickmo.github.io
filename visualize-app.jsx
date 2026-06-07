@@ -135,6 +135,18 @@ const GlyphGradient = () => (
   </svg>
 );
 
+const GlyphNewton = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[44,32,20,10].map((r,i)=>(
+      <ellipse key={i} cx="92" cy="62" rx={r*1.5} ry={r} fill="none" stroke="#60a5fa" strokeWidth="0.5" opacity={0.22+i*0.12} />
+    ))}
+    <path d="M 22 22 L 40 50 L 30 60 L 52 70 L 46 78 L 92 62" stroke="#fbbf24" strokeWidth="1.6" fill="none" />
+    <path d="M 22 22 L 92 62" stroke="#c084fc" strokeWidth="2" strokeDasharray="5 4" fill="none" />
+    <circle cx="22" cy="22" r="3" fill="#e0e7ff" />
+    <circle cx="92" cy="62" r="4" fill="#34d399" />
+  </svg>
+);
+
 const GlyphCurveFit = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 16 92 Q 48 14, 80 70 T 144 36" stroke="#c084fc" strokeWidth="2" fill="none" />
@@ -2206,6 +2218,7 @@ const GLYPHS = {
   "pathfinding": <GlyphPath />,
   "kmeans": <GlyphKMeans />,
   "gradient-descent": <GlyphGradient />,
+  "newton-vs-gradient": <GlyphNewton />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
