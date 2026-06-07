@@ -190,6 +190,7 @@ export default defineConfig({
         'visualize-bayesian-linear-regression': 'visualize/bayesian-linear-regression/index.html',
         'visualize-variational-inference': 'visualize/variational-inference/index.html',
         'visualize-thompson-vs-ucb': 'visualize/thompson-vs-ucb/index.html',
+        'visualize-conjugate-updating': 'visualize/conjugate-updating/index.html',
         'visualize-overfitting': 'visualize/overfitting/index.html',
         'visualize-double-descent': 'visualize/double-descent/index.html',
         'visualize-bias-variance-decomp': 'visualize/bias-variance-decomp/index.html',

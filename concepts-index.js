@@ -979,6 +979,7 @@ const CONCEPT_TAGS = {
     "bayesian-linear-regression": ["bayesian-linear-regression", "bayes", "linear-regression", "gaussian-process"],
     "variational-inference": ["variational-inference", "bayes", "vae"],
     "thompson-vs-ucb":      ["bandit", "bayes"],
+    "conjugate-updating":   ["bayes", "bayesian-linear-regression"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

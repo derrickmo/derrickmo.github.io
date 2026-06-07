@@ -147,6 +147,14 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphConjugate = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <path d="M 16 96 C 50 92, 64 60, 80 60 C 96 60, 110 92, 144 96" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="5 4" fill="none" />
+    <path d="M 40 96 C 70 94, 82 18, 92 18 C 102 18, 114 94, 140 96 Z" fill="rgba(168,85,247,0.22)" stroke="#c084fc" strokeWidth="2" />
+    <line x1="92" y1="14" x2="92" y2="100" stroke="#34d399" strokeWidth="1.6" />
+  </svg>
+);
+
 const GlyphThompson = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[30,0.9,42],[58,1.0,30],[86,1.0,58],[114,0.95,20]].map((b,i)=>{
@@ -2290,6 +2298,7 @@ const GLYPHS = {
   "bayesian-linear-regression": <GlyphBayesReg />,
   "variational-inference": <GlyphVI />,
   "thompson-vs-ucb": <GlyphThompson />,
+  "conjugate-updating": <GlyphConjugate />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

@@ -249,6 +249,7 @@ const DM_NAV_INDEX = [
   { label: "Bayesian Linear Regression", group: "Demo", href: "/visualize/bayesian-linear-regression/", kw: "bayesian linear regression posterior predictive uncertainty gaussian prior rbf ridge probabilistic" },
   { label: "Variational Inference (ELBO)", group: "Demo", href: "/visualize/variational-inference/", kw: "variational inference elbo kl divergence mean field reparameterization mode seeking vae probabilistic" },
   { label: "Thompson Sampling vs UCB", group: "Demo", href: "/visualize/thompson-vs-ucb/", kw: "thompson sampling ucb bandit explore exploit beta posterior regret bayesian optimization ab test" },
+  { label: "Conjugate Prior Updating", group: "Demo", href: "/visualize/conjugate-updating/", kw: "conjugate prior posterior bayes update beta bernoulli normal gamma poisson belief probabilistic" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
