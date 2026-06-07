@@ -46,6 +46,12 @@ const CONCEPTS_INDEX = {
     tex: "x_{t+1} = \\mathrm{prox}_{t\\lambda}\\!\\big(x_t - t\\,\\nabla g(x_t)\\big)",
     prereqs: ["gradient-descent", "regularization"], leadsTo: [],
   },
+  "quasi-newton": {
+    id: "quasi-newton", name: "Quasi-Newton Methods (BFGS / L-BFGS)", area: "Foundations",
+    summary: "Approximate the inverse Hessian from successive gradient differences instead of computing it. L-BFGS keeps only the last m pairs (O(mn) memory) and rebuilds the search direction with the two-loop recursion — the default optimizer for smooth, deterministic, mid-scale problems.",
+    tex: "d_k = -H_k\\,\\nabla f(x_k),\\quad H_k \\approx (\\nabla^2 f)^{-1}\\ \\text{from } \\{s_i,y_i\\}",
+    prereqs: ["newtons-method", "gradient-descent"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -957,6 +963,7 @@ const CONCEPT_TAGS = {
     "newton-vs-gradient":   ["newtons-method", "gradient-descent"],
     "coordinate-descent":   ["coordinate-descent", "gradient-descent"],
     "ista":                 ["proximal-gradient", "regularization", "linear-regression"],
+    "l-bfgs":               ["quasi-newton", "newtons-method", "gradient-descent"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
