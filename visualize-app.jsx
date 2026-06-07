@@ -147,6 +147,30 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphIsta = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="20" y1="62" x2="140" y2="62" stroke="#ffffff" strokeWidth="0.5" opacity="0.25" />
+    {[
+      {x:30,h:0},{x:46,h:34},{x:62,h:0},{x:78,h:0},{x:94,h:-22},{x:110,h:0},{x:126,h:14},{x:142,h:0}
+    ].map((b,i)=>(
+      <rect key={i} x={b.x-5} y={b.h>=0?62-b.h:62} width="10" height={Math.max(Math.abs(b.h),2)}
+        fill={b.h===0?"rgba(168,85,247,0.18)":"#c084fc"} />
+    ))}
+    <path d="M 20 92 H 70 L 90 32 H 140" stroke="#60a5fa" strokeWidth="1.6" fill="none" opacity="0.7" />
+  </svg>
+);
+
+const GlyphCoordDescent = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[46,33,20,9].map((r,i)=>(
+      <ellipse key={i} cx="92" cy="62" rx={r*1.5} ry={r} fill="none" stroke="#60a5fa" strokeWidth="0.5" opacity={0.22+i*0.12} transform="rotate(28 92 62)" />
+    ))}
+    <path d="M 26 24 H 64 V 44 H 80 V 56 H 88 V 62 H 92 V 62" stroke="#c084fc" strokeWidth="2" fill="none" strokeLinejoin="round" />
+    <circle cx="26" cy="24" r="3" fill="#e0e7ff" />
+    <circle cx="92" cy="62" r="4" fill="#34d399" />
+  </svg>
+);
+
 const GlyphCurveFit = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 16 92 Q 48 14, 80 70 T 144 36" stroke="#c084fc" strokeWidth="2" fill="none" />
@@ -2219,6 +2243,8 @@ const GLYPHS = {
   "kmeans": <GlyphKMeans />,
   "gradient-descent": <GlyphGradient />,
   "newton-vs-gradient": <GlyphNewton />,
+  "coordinate-descent": <GlyphCoordDescent />,
+  "ista": <GlyphIsta />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

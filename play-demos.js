@@ -12,6 +12,10 @@ window.PLAY_DEMOS = {
       blurb: "Drop a ball on a loss surface and race SGD, Momentum, RMSProp, and Adam down to the minimum." },
     { slug: "newton-vs-gradient", topic: "OPTIMIZATION",  title: "Newton vs Gradient Descent", tone: "blue", status: "LIVE",
       blurb: "Race a first-order step against Newton's second-order step that uses curvature to jump to the minimum - one step on a quadratic, trapped on a saddle." },
+    { slug: "coordinate-descent", topic: "OPTIMIZATION",  title: "Coordinate Descent",      tone: "violet", status: "LIVE",
+      blurb: "Minimize one variable at a time with exact line searches - fast when the axes align, a long staircase when the coordinates are correlated." },
+    { slug: "ista",               topic: "OPTIMIZATION",  title: "ISTA / Proximal Gradient (L1)", tone: "violet", status: "LIVE",
+      blurb: "Recover a sparse model with soft-thresholding - the proximal step that snaps small coefficients to exactly zero, with ISTA vs FISTA acceleration." },
     { slug: "overfitting",        topic: "ML THEORY",     title: "Overfitting Lab",       tone: "violet", status: "LIVE",
       blurb: "Fit a polynomial to noisy data and watch the bias-variance tradeoff and overfitting play out." },
     { slug: "cross-validation",   topic: "ML THEORY",     title: "Cross-Validation",      tone: "violet", status: "LIVE",
@@ -317,7 +321,7 @@ window.PLAY_DEMOS = {
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "newton-vs-gradient", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "bloom-filter", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "newton-vs-gradient", "coordinate-descent", "ista", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "bloom-filter", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "hierarchical-clustering", "spectral-clustering", "label-propagation", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "edge-detection", "hough-transform", "harris-corners", "optical-flow", "hog", "image-augmentation", "watershed", "nms", "rnn-gates", "gnn"] },
     { name: "Transformers & NLP", why: "The path from counting which word follows which to the scaled dot-product attention behind every modern LLM — tokenization, embeddings, position, attention itself, how you sample the output, and how retrieval grounds it.", slugs: ["tokenizer", "markov", "decoding", "beam-search", "embeddings", "word2vec", "vector-search", "attention", "multi-head-attention", "attention-rollout", "positional-encoding", "rope", "kv-cache"] },
@@ -338,6 +342,8 @@ window.PLAY_DEMOS = {
     "kmeans": "Lloyd's algorithm",
     "gradient-descent": "following the gradient",
     "newton-vs-gradient": "curvature: the Hessian",
+    "coordinate-descent": "one variable at a time",
+    "ista": "soft-threshold prox - L1 sparsity",
     "overfitting": "the bias-variance tradeoff",
     "cross-validation": "held-out folds pick the model",
     "double-descent": "error peaks then falls past interpolation",

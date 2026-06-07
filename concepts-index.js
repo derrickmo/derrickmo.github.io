@@ -34,6 +34,18 @@ const CONCEPTS_INDEX = {
     tex: "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla f(\\theta_t)",
     prereqs: ["gradient-descent"], leadsTo: [],
   },
+  "coordinate-descent": {
+    id: "coordinate-descent", name: "Coordinate Descent", area: "Foundations",
+    summary: "Minimize one coordinate at a time, holding the rest fixed — cheap closed-form updates that power Lasso/glmnet, but slow to converge when features are correlated.",
+    tex: "x_i \\leftarrow \\arg\\min_{u}\\ f(x_1,\\dots,u,\\dots,x_n)",
+    prereqs: ["gradient-descent"], leadsTo: [],
+  },
+  "proximal-gradient": {
+    id: "proximal-gradient", name: "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)", area: "Foundations",
+    summary: "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity — the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k²).",
+    tex: "x_{t+1} = \\mathrm{prox}_{t\\lambda}\\!\\big(x_t - t\\,\\nabla g(x_t)\\big)",
+    prereqs: ["gradient-descent", "regularization"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -943,6 +955,8 @@ const CONCEPT_TAGS = {
     "kmeans":               ["kmeans", "gmm-em"],
     "gradient-descent":     ["gradient-descent", "adam", "lr-schedule"],
     "newton-vs-gradient":   ["newtons-method", "gradient-descent"],
+    "coordinate-descent":   ["coordinate-descent", "gradient-descent"],
+    "ista":                 ["proximal-gradient", "regularization", "linear-regression"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

@@ -243,6 +243,8 @@ const DM_NAV_INDEX = [
   { label: "K-Means Clustering", group: "Demo", href: "/visualize/kmeans/", kw: "unsupervised clusters" },
   { label: "Gradient Descent", group: "Demo", href: "/visualize/gradient-descent/", kw: "optimizer sgd adam" },
   { label: "Newton vs Gradient Descent", group: "Demo", href: "/visualize/newton-vs-gradient/", kw: "newton second order hessian curvature quasi-newton optimization saddle" },
+  { label: "Coordinate Descent", group: "Demo", href: "/visualize/coordinate-descent/", kw: "coordinate descent lasso glmnet axis correlated features line search optimization" },
+  { label: "ISTA / Proximal Gradient (L1)", group: "Demo", href: "/visualize/ista/", kw: "ista fista proximal gradient soft threshold lasso l1 sparse compressed sensing optimization" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
