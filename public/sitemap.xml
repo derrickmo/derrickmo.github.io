@@ -137,6 +137,7 @@
   <url><loc>https://derrickmo.github.io/concepts/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/q-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/quantization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/quasi-newton/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/rag-chunking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/rag-fusion/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/react-agent/</loc><priority>0.6</priority></url>
@@ -447,6 +448,7 @@
   <url><loc>https://derrickmo.github.io/visualize/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kv-cache-eviction/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kv-cache/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/l-bfgs/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/label-propagation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lora/</loc><priority>0.6</priority></url>
