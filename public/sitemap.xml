@@ -37,6 +37,7 @@
   <url><loc>https://derrickmo.github.io/concepts/context-extension/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/convolution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/coordinate-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/coreset/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cross-entropy/</loc><priority>0.6</priority></url>
@@ -132,6 +133,7 @@
   <url><loc>https://derrickmo.github.io/concepts/ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/prioritized-replay/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/prompt-injection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/proximal-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/q-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/quantization/</loc><priority>0.6</priority></url>
@@ -390,6 +392,7 @@
   <url><loc>https://derrickmo.github.io/visualize/context-extension/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/convolution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/coordinate-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/coreset/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/cross-validation/</loc><priority>0.6</priority></url>
@@ -436,6 +439,7 @@
   <url><loc>https://derrickmo.github.io/visualize/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/isomap/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/ista/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kalman-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kernel-density/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/kmeans/</loc><priority>0.6</priority></url>
