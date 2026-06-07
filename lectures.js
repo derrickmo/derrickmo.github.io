@@ -167,6 +167,7 @@ window.LECTURES = {
       "RNNs, LSTMs/GRUs, and seq2seq with attention — sequential modeling before transformers.",
       "Language modeling, perplexity, and text classification, end to end.",
     ],
+    flagship: { n: "07-05", label: "Sequence-to-Sequence with Attention", href: "learn/rnn-nlp/seq2seq-attention/" },
     notebooks: [
       { n: "07-01", t: "Tokenization & BPE", d: "WikiText-2", m: "20 min" },
       { n: "07-02", t: "Word Embeddings", d: "WikiText-2", m: "25 min" },
@@ -216,6 +217,7 @@ window.LECTURES = {
       "Vision Transformers from scratch, plus OCR (CRNN) and optical flow.",
       "Transfer learning and augmentation for production-grade vision.",
     ],
+    flagship: { n: "09-01", label: "Object Detection Fundamentals", href: "learn/advanced-cv/object-detection/" },
     notebooks: [
       { n: "09-01", t: "Object Detection Foundations", d: "Synthetic boxes", m: "25 min" },
       { n: "09-02", t: "Single-Stage Detector (SSD-style)", d: "Synthetic", m: "25 min" },
@@ -316,6 +318,7 @@ window.LECTURES = {
       "The RLHF stack: reward modeling, PPO, and DPO — plus constitutional-AI concepts.",
       "Catastrophic forgetting, continual learning, and alignment evaluation & safety.",
     ],
+    flagship: { n: "13-04", label: "RLHF with PPO", href: "learn/fine-tuning/rlhf-ppo/" },
     notebooks: [
       { n: "13-01", t: "LoRA & PEFT", d: "AG_NEWS", m: "25 min" },
       { n: "13-02", t: "Supervised Fine-Tuning (SFT)", d: "Synthetic instructions", m: "25 min" },
@@ -389,6 +392,7 @@ window.LECTURES = {
       "Data-pipeline optimization and profiling (torch.profiler, roofline analysis).",
       "Distributed training concepts (DDP, FSDP) and hyperparameter optimization.",
     ],
+    flagship: { n: "16-06", label: "Distributed Data Parallel", href: "learn/training-systems/ddp/" },
     notebooks: [
       { n: "16-01", t: "Learning Rate Schedulers", d: "CIFAR-10", m: "25 min" },
       { n: "16-02", t: "Advanced Optimisers", d: "CIFAR-10", m: "25 min" },
@@ -437,6 +441,7 @@ window.LECTURES = {
       "Query rewriting (HyDE), reranking, and RAG evaluation (RAGAS-style).",
       "Tool-using agents (ReAct), memory systems, and multi-agent orchestration.",
     ],
+    flagship: { n: "18-03", label: "RAG Pipeline End-to-End", href: "learn/rag-agents/rag-pipeline/" },
     notebooks: [
       { n: "18-01", t: "Dense Retrieval & Bi-Encoders", d: "Synthetic Q&A", m: "25 min" },
       { n: "18-02", t: "Vector Indexing & Similarity Search", d: "Synthetic embeddings", m: "20 min" },

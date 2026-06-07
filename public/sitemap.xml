@@ -177,6 +177,7 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/image-segmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/iou-nms/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/object-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/optical-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/beam-search/</loc><priority>0.6</priority></url>
@@ -193,6 +194,7 @@
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/dpo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/lora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/reward-model/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/rlhf-ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/chain-rule/</loc><priority>0.6</priority></url>
@@ -265,6 +267,7 @@
   <url><loc>https://derrickmo.github.io/learn/rag-agents/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/prompt-injection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-chunking/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-pipeline/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/react-agent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/reflection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/reranking/</loc><priority>0.6</priority></url>
@@ -287,6 +290,7 @@
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/lstm-gates/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/rnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/seq2seq-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/decision-tree/</loc><priority>0.6</priority></url>
@@ -297,6 +301,7 @@
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/roc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/svm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/ddp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/gradient-clipping/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/mixed-precision/</loc><priority>0.6</priority></url>

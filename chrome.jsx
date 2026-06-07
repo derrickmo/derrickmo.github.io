@@ -310,6 +310,11 @@ const DM_NAV_INDEX = [
   { label: "Transfer Learning and Fine-Tuning (full lesson)", group: "Lesson", href: "/learn/cnn/transfer-learning/", kw: "transfer learning fine-tuning pretrained backbone feature extraction freeze resnet imagenet flagship lesson" },
   { label: "Normalizing Flows (full lesson)", group: "Lesson", href: "/learn/generative/flows/", kw: "normalizing flows realnvp coupling change of variables jacobian exact likelihood generative flow matching flagship lesson" },
   { label: "Loss Functions Deep Dive (full lesson)", group: "Lesson", href: "/learn/neural-nets/loss-functions/", kw: "loss functions mse mae huber cross entropy hinge focal regression classification gradient flagship lesson" },
+  { label: "Seq2Seq with Attention (full lesson)", group: "Lesson", href: "/learn/rnn-nlp/seq2seq-attention/", kw: "seq2seq sequence to sequence encoder decoder bahdanau attention alignment rnn translation transformer flagship lesson" },
+  { label: "Object Detection (full lesson)", group: "Lesson", href: "/learn/advanced-cv/object-detection/", kw: "object detection anchors iou bounding box nms yolo ssd localization detector flagship lesson" },
+  { label: "RLHF with PPO (full lesson)", group: "Lesson", href: "/learn/fine-tuning/rlhf-ppo/", kw: "rlhf ppo reward model kl penalty alignment reward hacking sft preference reinforcement learning human feedback flagship lesson" },
+  { label: "Distributed Data Parallel (full lesson)", group: "Lesson", href: "/learn/training-systems/ddp/", kw: "ddp distributed data parallel all-reduce ring gradient sync gpu scaling fsdp zero nccl flagship lesson" },
+  { label: "RAG Pipeline End-to-End (full lesson)", group: "Lesson", href: "/learn/rag-agents/rag-pipeline/", kw: "rag pipeline retrieval augmented generation chunk embed index retrieve rerank generate citation grounded flagship lesson" },
 
   { label: "Mathematical & Programming Foundations", group: "ML Module", href: "/learn/foundations/", kw: "numpy math 01" },
   { label: "Supervised Learning", group: "ML Module", href: "/learn/supervised-learning/", kw: "regression trees 02" },
