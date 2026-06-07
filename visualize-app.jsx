@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphVI = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[46,33,21].map((r,i)=>(
+      <ellipse key={i} cx="86" cy="60" rx={r*1.5} ry={r} fill="none" stroke="#a855f7" strokeWidth="0.6" opacity={0.25+i*0.14} transform="rotate(32 86 60)" />
+    ))}
+    <ellipse cx="86" cy="60" rx="30" ry="20" fill="none" stroke="#22d3ee" strokeWidth="2" transform="rotate(32 86 60)" />
+    <circle cx="86" cy="60" r="3" fill="#22d3ee" />
+  </svg>
+);
+
 const GlyphBayesReg = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 16 64 C 50 30, 70 44, 100 70 C 120 88, 134 78, 146 70 L 146 96 C 134 110, 120 118, 100 100 C 70 70, 50 56, 16 96 Z" fill="rgba(96,165,250,0.18)" />
@@ -2266,6 +2276,7 @@ const GLYPHS = {
   "ista": <GlyphIsta />,
   "l-bfgs": <GlyphLbfgs />,
   "bayesian-linear-regression": <GlyphBayesReg />,
+  "variational-inference": <GlyphVI />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

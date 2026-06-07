@@ -58,6 +58,12 @@ const CONCEPTS_INDEX = {
     tex: "S_N^{-1} = \\alpha I + \\beta\\Phi^{\\top}\\Phi,\\quad m_N = \\beta S_N \\Phi^{\\top} t",
     prereqs: ["linear-regression", "bayes"], leadsTo: ["gaussian-process"],
   },
+  "variational-inference": {
+    id: "variational-inference", name: "Variational Inference (ELBO)", area: "Foundations",
+    summary: "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO (minimize reverse KL). Fast but biased — mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
+    tex: "\\mathcal{L}(q) = \\mathbb{E}_q[\\log p(x,z)] - \\mathbb{E}_q[\\log q(z)] \\le \\log p(x)",
+    prereqs: ["bayes", "gradient-descent"], leadsTo: ["vae"],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -971,6 +977,7 @@ const CONCEPT_TAGS = {
     "ista":                 ["proximal-gradient", "regularization", "linear-regression"],
     "l-bfgs":               ["quasi-newton", "newtons-method", "gradient-descent"],
     "bayesian-linear-regression": ["bayesian-linear-regression", "bayes", "linear-regression", "gaussian-process"],
+    "variational-inference": ["variational-inference", "bayes", "vae"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
