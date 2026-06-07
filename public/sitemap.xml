@@ -235,19 +235,23 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/forecasting/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/recommenders-cf/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/shap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/learning-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/canary-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/drift-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/model-serving/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/system-design/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/clip/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/</loc><priority>0.6</priority></url>
@@ -262,6 +266,7 @@
   <url><loc>https://derrickmo.github.io/learn/notes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/backprop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/custom-autograd/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/</loc><priority>0.6</priority></url>
@@ -296,6 +301,7 @@
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/seq2seq-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/boosting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/linear-regression/</loc><priority>0.6</priority></url>

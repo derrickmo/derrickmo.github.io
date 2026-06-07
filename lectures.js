@@ -39,6 +39,7 @@ window.LECTURES = {
       "The decision-boundary and bias/variance intuition behind each family of models.",
       "How to compare algorithms and pick the right one for a given problem.",
     ],
+    flagship: { n: "02-04", label: "Gradient Boosting and AdaBoost", href: "learn/supervised-learning/boosting/" },
     notebooks: [
       { n: "02-01", t: "Linear Regression", d: "California Housing", m: "20 min" },
       { n: "02-02", t: "Logistic Regression & Binary Classification", d: "make_moons + make_blobs", m: "20 min" },
@@ -88,6 +89,7 @@ window.LECTURES = {
       "Bias-variance, VC dimension, and PAC learning — why models generalize, or don't.",
       "Calibration, uncertainty quantification, and the convex-optimization backbone of training.",
     ],
+    flagship: { n: "04-06", label: "Learning Theory - VC Dimension and PAC", href: "learn/ml-theory/learning-theory/" },
     notebooks: [
       { n: "04-01", t: "Evaluation Metrics Deep Dive", d: "Digits + California Housing", m: "20 min" },
       { n: "04-02", t: "Cross-Validation & Hyperparameter Tuning", d: "Digits", m: "25 min" },
@@ -299,6 +301,7 @@ window.LECTURES = {
       "Image captioning and visual question answering (CNN + Transformer).",
       "Multimodal fusion strategies — and how to evaluate them honestly.",
     ],
+    flagship: { n: "12-01", label: "CLIP - Contrastive Image-Text Pretraining", href: "learn/multimodal/clip/" },
     notebooks: [
       { n: "12-01", t: "Contrastive Image-Text Learning (CLIP)", d: "Synthetic image-caption pairs", m: "25 min" },
       { n: "12-02", t: "Cross-Modal Retrieval", d: "MNIST + captions", m: "20 min" },
@@ -376,6 +379,7 @@ window.LECTURES = {
       "Hooks, memory management, and debugging real models.",
       "Mixed-precision training and gradient checkpointing for speed and memory.",
     ],
+    flagship: { n: "15-01", label: "Custom Autograd - Build the Engine", href: "learn/pytorch-internals/custom-autograd/" },
     notebooks: [
       { n: "15-01", t: "Custom Autograd Functions", d: "Synthetic", m: "25 min" },
       { n: "15-02", t: "Dynamic Computation Graphs", d: "Synthetic", m: "20 min" },
@@ -475,6 +479,7 @@ window.LECTURES = {
       "Graph neural networks, medical imaging, and NLP for code.",
       "Fairness/bias, semi-supervised, and multi-task learning on domain problems.",
     ],
+    flagship: { n: "19-04", label: "Recommender Systems - Collaborative Filtering", href: "learn/ml-applications/recommenders-cf/" },
     notebooks: [
       { n: "19-01", t: "Time Series Forecasting", d: "Synthetic time series", m: "25 min" },
       { n: "19-02", t: "Anomaly Detection", d: "Synthetic anomalies", m: "25 min" },
@@ -499,6 +504,7 @@ window.LECTURES = {
       "Docker and Kubernetes for deployment; data-drift monitoring and ML testing.",
       "Online A/B experimentation and an end-to-end production pipeline.",
     ],
+    flagship: { n: "20-10", label: "ML System Design Patterns", href: "learn/mlops/system-design/" },
     notebooks: [
       { n: "20-01", t: "ML Strategy & Evaluation Pipeline", d: "FashionMNIST", m: "25 min" },
       { n: "20-02", t: "Experiment Tracking with MLflow", d: "FashionMNIST", m: "30 min" },

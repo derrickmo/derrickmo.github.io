@@ -320,6 +320,12 @@ const DM_NAV_INDEX = [
   { label: "Matrix Factorization and SVD (full lesson)", group: "Lesson", href: "/learn/unsupervised-learning/matrix-factorization/", kw: "matrix factorization svd singular value decomposition low rank recommender pca lsa lora flagship lesson" },
   { label: "Long Context (full lesson)", group: "Lesson", href: "/learn/llm-systems/long-context/", kw: "long context rope scaling position interpolation ntk yarn sliding window attention sink streamingllm kv cache flagship lesson" },
   { label: "GPT from Scratch (full lesson)", group: "Lesson", href: "/learn/advanced-nlp/gpt/", kw: "gpt autoregressive language model next token prediction decoder only causal mask nanogpt generation flagship lesson" },
+  { label: "Gradient Boosting and AdaBoost (full lesson)", group: "Lesson", href: "/learn/supervised-learning/boosting/", kw: "gradient boosting adaboost xgboost residuals weak learner ensemble trees shrinkage function space flagship lesson" },
+  { label: "Learning Theory VC and PAC (full lesson)", group: "Lesson", href: "/learn/ml-theory/learning-theory/", kw: "learning theory vc dimension pac generalization bound hoeffding capacity shattering bias complexity flagship lesson" },
+  { label: "CLIP Contrastive Image-Text (full lesson)", group: "Lesson", href: "/learn/multimodal/clip/", kw: "clip contrastive image text multimodal zero shot infonce dual encoder embedding space flagship lesson" },
+  { label: "Custom Autograd Engine (full lesson)", group: "Lesson", href: "/learn/pytorch-internals/custom-autograd/", kw: "custom autograd micrograd reverse mode autodiff backward computational graph value node from scratch flagship lesson" },
+  { label: "Recommender Systems (full lesson)", group: "Lesson", href: "/learn/ml-applications/recommenders-cf/", kw: "recommender systems collaborative filtering matrix factorization latent factors implicit feedback cold start ranking flagship lesson" },
+  { label: "ML System Design (full lesson)", group: "Lesson", href: "/learn/mlops/system-design/", kw: "ml system design patterns training serving skew feature store batch online inference monitoring retraining flagship lesson" },
 
   { label: "Mathematical & Programming Foundations", group: "ML Module", href: "/learn/foundations/", kw: "numpy math 01" },
   { label: "Supervised Learning", group: "ML Module", href: "/learn/supervised-learning/", kw: "regression trees 02" },
