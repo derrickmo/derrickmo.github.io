@@ -89,6 +89,7 @@
   <url><loc>https://derrickmo.github.io/concepts/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/iou-nms/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/iterated-prisoners-dilemma/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kalman-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kernel-density/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/kmeans/</loc><priority>0.6</priority></url>
@@ -494,6 +495,7 @@
   <url><loc>https://derrickmo.github.io/visualize/pagerank/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pathfinding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pca/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/pd-tournament/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/perceptron/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/pitch-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/policy-gradient/</loc><priority>0.6</priority></url>
