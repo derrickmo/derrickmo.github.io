@@ -5,6 +5,7 @@
   <url><loc>https://derrickmo.github.io/cases/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/concept-map/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/</loc><priority>0.8</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/activation-patching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/activations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/active-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/actor-critic/</loc><priority>0.6</priority></url>
@@ -370,6 +371,7 @@
   <url><loc>https://derrickmo.github.io/playground/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/research/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/</loc><priority>0.8</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/activation-patching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/activations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/active-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/actor-critic/</loc><priority>0.6</priority></url>
