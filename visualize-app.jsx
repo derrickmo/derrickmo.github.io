@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphRegret = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="20" y1="64" x2="140" y2="64" stroke="rgba(52,211,153,0.6)" strokeWidth="1.4" strokeDasharray="4 4" />
+    {[[40,"#60a5fa",46],[64,"#a855f7",62],[96,"#60a5fa",70],[120,"#a855f7",60]].map((b,i)=>(
+      <rect key={i} x={b[0]-9} y={100-b[2]} width="18" height={b[2]} fill={b[1]} opacity="0.85" />
+    ))}
+    <path d="M 20 92 C 50 70, 70 68, 140 66" stroke="#34d399" strokeWidth="1.6" fill="none" />
+  </svg>
+);
+
 const GlyphSuperpos = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="80" cy="60" r="38" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
@@ -2354,6 +2364,7 @@ const GLYPHS = {
   "probing-classifier": <GlyphProbe />,
   "activation-patching": <GlyphPatch />,
   "superposition": <GlyphSuperpos />,
+  "regret-matching": <GlyphRegret />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

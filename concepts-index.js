@@ -94,6 +94,12 @@ const CONCEPTS_INDEX = {
     tex: "x \\approx \\mathrm{ReLU}(W^{\\top} W x + b),\\quad W \\in \\mathbb{R}^{d\\times f},\\ d < f",
     prereqs: ["activations"], leadsTo: ["sparse-autoencoder"],
   },
+  "regret-matching": {
+    id: "regret-matching", name: "Regret Matching & Nash Equilibrium", area: "Reinforcement Learning",
+    summary: "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium — the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
+    tex: "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
+    prereqs: ["bandit"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1015,6 +1021,7 @@ const CONCEPT_TAGS = {
     "probing-classifier":   ["probing-classifier", "mlp", "logistic-regression"],
     "activation-patching":  ["activation-patching", "probing-classifier", "do-intervention"],
     "superposition":        ["superposition", "sparse-autoencoder", "activations"],
+    "regret-matching":      ["regret-matching", "bandit"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
