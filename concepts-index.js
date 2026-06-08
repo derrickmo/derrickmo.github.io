@@ -136,6 +136,12 @@ const CONCEPTS_INDEX = {
     tex: "F_\\beta = (1+\\beta^2)\\,\\frac{P\\cdot R}{\\beta^2 P + R}",
     prereqs: ["roc"], leadsTo: [],
   },
+  "adversarial-examples": {
+    id: "adversarial-examples", name: "Adversarial Examples & Robustness", area: "Neural Networks",
+    summary: "Worst-case input perturbations, found by climbing the gradient of the loss w.r.t. the INPUT, that flip a confident prediction while staying imperceptibly small. FGSM (one step) and PGD (iterated) are the standard attacks; adversarial training is the strongest general defense, at a cost to clean accuracy.",
+    tex: "x_{adv} = x + \\epsilon\\,\\mathrm{sign}\\big(\\nabla_x \\mathcal{L}(x,y)\\big)",
+    prereqs: ["gradient-descent", "saliency"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1064,6 +1070,7 @@ const CONCEPT_TAGS = {
     "channel-capacity":     ["channel-capacity", "mutual-information", "entropy"],
     "huffman-coding":       ["huffman-coding", "entropy", "cross-entropy"],
     "classification-metrics": ["classification-metrics", "roc"],
+    "adversarial-examples": ["adversarial-examples", "gradient-descent", "saliency"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
