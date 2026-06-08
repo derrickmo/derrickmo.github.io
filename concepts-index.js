@@ -106,6 +106,12 @@ const CONCEPTS_INDEX = {
     tex: "\\dot{x}_i = x_i\\big( (Ax)_i - x^{\\top}Ax \\big)",
     prereqs: ["regret-matching"], leadsTo: [],
   },
+  "iterated-prisoners-dilemma": {
+    id: "iterated-prisoners-dilemma", name: "Iterated Prisoner's Dilemma", area: "Reinforcement Learning",
+    summary: "Repeating a game changes what's rational: defection dominates one-shot, but with a long enough horizon reciprocal strategies (TitForTat) win and cooperation emerges. The canonical model for the evolution of cooperation and robust multi-agent strategy design.",
+    tex: "\\text{R}=3,\\ \\text{T}=5,\\ \\text{S}=0,\\ \\text{P}=1\\ \\ (T>R>P>S)",
+    prereqs: ["regret-matching"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1029,6 +1035,7 @@ const CONCEPT_TAGS = {
     "superposition":        ["superposition", "sparse-autoencoder", "activations"],
     "regret-matching":      ["regret-matching", "bandit"],
     "replicator-dynamics":  ["replicator-dynamics", "regret-matching"],
+    "pd-tournament":        ["iterated-prisoners-dilemma", "regret-matching", "replicator-dynamics"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

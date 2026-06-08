@@ -147,6 +147,15 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphPdTourney = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="24" y1="100" x2="140" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+    {[["#34d399",62],["#f472b6",48],["#22d3ee",40],["#a855f7",30],["#fb923c",18]].map((b,i)=>(
+      <rect key={i} x={30+i*22} y={100-b[1]} width="16" height={b[1]} fill={b[0]} />
+    ))}
+  </svg>
+);
+
 const GlyphReplicator = () => {
   const cx = 80, cy = 68, pts = [];
   for (let i = 0; i < 60; i++) { const a = i * 0.42, r = 30 - i * 0.42; pts.push(`${cx + Math.cos(a) * r},${cy + Math.sin(a) * r}`); }
@@ -2378,6 +2387,7 @@ const GLYPHS = {
   "superposition": <GlyphSuperpos />,
   "regret-matching": <GlyphRegret />,
   "replicator-dynamics": <GlyphReplicator />,
+  "pd-tournament": <GlyphPdTourney />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
