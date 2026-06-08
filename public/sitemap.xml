@@ -122,6 +122,7 @@
   <url><loc>https://derrickmo.github.io/concepts/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/mst/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/multi-head/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/mutual-information/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/naive-bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/neuroevolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/newtons-method/</loc><priority>0.6</priority></url>
@@ -483,6 +484,7 @@
   <url><loc>https://derrickmo.github.io/visualize/mst/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/multi-head-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/multi-query/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/mutual-information/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/n-queens/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/naive-bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/neural-playground/</loc><priority>0.6</priority></url>
