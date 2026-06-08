@@ -88,6 +88,12 @@ const CONCEPTS_INDEX = {
     tex: "\\Delta_c = \\frac{m(\\text{patch}_c) - m(\\text{corrupt})}{m(\\text{clean}) - m(\\text{corrupt})}",
     prereqs: ["mlp", "probing-classifier"], leadsTo: [],
   },
+  "superposition": {
+    id: "superposition", name: "Superposition", area: "Neural Networks",
+    summary: "Networks represent more features than they have neurons by packing them into overlapping directions, tolerating interference because features are sparse. Driven by sparsity and feature importance; the reason neurons are polysemantic and the problem sparse autoencoders solve.",
+    tex: "x \\approx \\mathrm{ReLU}(W^{\\top} W x + b),\\quad W \\in \\mathbb{R}^{d\\times f},\\ d < f",
+    prereqs: ["activations"], leadsTo: ["sparse-autoencoder"],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1008,6 +1014,7 @@ const CONCEPT_TAGS = {
     "sparse-autoencoder":   ["sparse-autoencoder", "activations", "regularization"],
     "probing-classifier":   ["probing-classifier", "mlp", "logistic-regression"],
     "activation-patching":  ["activation-patching", "probing-classifier", "do-intervention"],
+    "superposition":        ["superposition", "sparse-autoencoder", "activations"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

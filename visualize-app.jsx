@@ -147,6 +147,14 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphSuperpos = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="80" cy="60" r="38" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+    {Array.from({length:7}).map((_,i)=>{const a=(i/7)*Math.PI*2 - Math.PI/2;const t=1-i/9;return <line key={i} x1="80" y1="60" x2={80+Math.cos(a)*38} y2={60+Math.sin(a)*38} stroke={`rgb(${Math.round(80+t*120)},${Math.round(60+t*80)},${Math.round(160+t*87)})`} strokeWidth="2" />;})}
+    <circle cx="80" cy="60" r="3" fill="#fff" />
+  </svg>
+);
+
 const GlyphPatch = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {Array.from({length:2}).map((_,r)=>Array.from({length:5}).map((__,c)=>{
@@ -2345,6 +2353,7 @@ const GLYPHS = {
   "sparse-autoencoder": <GlyphSAE />,
   "probing-classifier": <GlyphProbe />,
   "activation-patching": <GlyphPatch />,
+  "superposition": <GlyphSuperpos />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
