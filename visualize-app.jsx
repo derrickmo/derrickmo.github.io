@@ -147,6 +147,14 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphCertified = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="80" cy="60" r="34" fill="rgba(52,211,153,0.08)" stroke="#34d399" strokeWidth="2" />
+    {Array.from({length:16}).map((_,i)=>{const a=i*2.39,r=8+(i%4)*6;return <circle key={i} cx={80+Math.cos(a)*r} cy={60+Math.sin(a)*r} r="1.6" fill="rgba(96,165,250,0.6)" />;})}
+    <circle cx="80" cy="60" r="5" fill="#fff" stroke="#0a0e1a" strokeWidth="1.5" />
+  </svg>
+);
+
 const GlyphAdversarial = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 90 10 L 60 110" stroke="rgba(255,255,255,0.25)" strokeWidth="1.4" />
@@ -2445,6 +2453,7 @@ const GLYPHS = {
   "huffman-coding": <GlyphHuffman />,
   "classification-metrics": <GlyphMetrics />,
   "adversarial-examples": <GlyphAdversarial />,
+  "certified-robustness": <GlyphCertified />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

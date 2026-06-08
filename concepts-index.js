@@ -142,6 +142,12 @@ const CONCEPTS_INDEX = {
     tex: "x_{adv} = x + \\epsilon\\,\\mathrm{sign}\\big(\\nabla_x \\mathcal{L}(x,y)\\big)",
     prereqs: ["gradient-descent", "saliency"], leadsTo: [],
   },
+  "certified-robustness": {
+    id: "certified-robustness", name: "Certified Robustness (Randomized Smoothing)", area: "Neural Networks",
+    summary: "A provable defense: classify by majority vote of the base net under Gaussian noise. If the top class wins fraction pA>1/2 of votes, the smoothed prediction is constant within a certified L2 radius R = sigma*Phi^-1(pA). The rigorous counterpart to empirical adversarial training; sigma trades radius vs clean accuracy.",
+    tex: "R = \\sigma\\,\\Phi^{-1}(p_A),\\quad p_A > \\tfrac12",
+    prereqs: ["adversarial-examples", "conformal"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1071,6 +1077,7 @@ const CONCEPT_TAGS = {
     "huffman-coding":       ["huffman-coding", "entropy", "cross-entropy"],
     "classification-metrics": ["classification-metrics", "roc"],
     "adversarial-examples": ["adversarial-examples", "gradient-descent", "saliency"],
+    "certified-robustness": ["certified-robustness", "adversarial-examples", "conformal"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
