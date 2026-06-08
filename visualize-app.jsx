@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphChannel = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="44" y1="40" x2="116" y2="40" stroke="#60a5fa" strokeWidth="2.5" />
+    <line x1="44" y1="80" x2="116" y2="80" stroke="#60a5fa" strokeWidth="2.5" />
+    <line x1="44" y1="40" x2="116" y2="80" stroke="#f87171" strokeWidth="1.4" />
+    <line x1="44" y1="80" x2="116" y2="40" stroke="#f87171" strokeWidth="1.4" />
+    {[[44,40],[44,80],[116,40],[116,80]].map((p,i)=>(<circle key={i} cx={p[0]} cy={p[1]} r="9" fill="#0a0e1a" stroke={i<2?"#a855f7":"#94a3b8"} strokeWidth="2" />))}
+  </svg>
+);
+
 const GlyphMutInfo = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="66" cy="60" r="34" fill="rgba(96,165,250,0.22)" stroke="#60a5fa" strokeWidth="1.6" />
@@ -2399,6 +2409,7 @@ const GLYPHS = {
   "replicator-dynamics": <GlyphReplicator />,
   "pd-tournament": <GlyphPdTourney />,
   "mutual-information": <GlyphMutInfo />,
+  "channel-capacity": <GlyphChannel />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

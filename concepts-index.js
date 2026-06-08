@@ -118,6 +118,12 @@ const CONCEPTS_INDEX = {
     tex: "I(X;Y) = \\sum_{x,y} p(x,y)\\,\\log\\frac{p(x,y)}{p(x)\\,p(y)}",
     prereqs: ["entropy"], leadsTo: [],
   },
+  "channel-capacity": {
+    id: "channel-capacity", name: "Channel Capacity", area: "Foundations",
+    summary: "The maximum rate at which information can be sent reliably over a noisy channel: C = max over inputs of I(X;Y). For the binary symmetric channel C = 1 − H(p). Shannon's coding theorem says any rate below C is achievable with vanishing error, and nothing above it.",
+    tex: "C = \\max_{p(x)} I(X;Y) = 1 - H(p)\\ \\text{(BSC)}",
+    prereqs: ["entropy", "mutual-information"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1043,6 +1049,7 @@ const CONCEPT_TAGS = {
     "replicator-dynamics":  ["replicator-dynamics", "regret-matching"],
     "pd-tournament":        ["iterated-prisoners-dilemma", "regret-matching", "replicator-dynamics"],
     "mutual-information":   ["mutual-information", "entropy"],
+    "channel-capacity":     ["channel-capacity", "mutual-information", "entropy"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
