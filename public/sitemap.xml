@@ -161,6 +161,7 @@
   <url><loc>https://derrickmo.github.io/concepts/simpsons-paradox/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/simulated-annealing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/softmax/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/sparse-autoencoder/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/spectral-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/spectrogram/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/speculative-decoding/</loc><priority>0.6</priority></url>
@@ -514,6 +515,7 @@
   <url><loc>https://derrickmo.github.io/visualize/shap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/simpsons-paradox/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/simulated-annealing/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/sparse-autoencoder/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/spectral-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/spectrogram/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/speculative-decoding/</loc><priority>0.6</priority></url>
