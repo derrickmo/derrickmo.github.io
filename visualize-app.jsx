@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphBayesOpt = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <path d="M 16 56 C 44 30, 60 52, 84 40 C 108 28, 124 50, 144 44 L 144 70 C 124 78, 108 56, 84 66 C 60 78, 44 60, 16 80 Z" fill="rgba(96,165,250,0.18)" />
+    <path d="M 16 68 C 44 45, 60 56, 84 53 C 108 50, 124 64, 144 57" stroke="#60a5fa" strokeWidth="2" fill="none" />
+    {[[34,60],[84,53],[120,62]].map((p,i)=>(<circle key={i} cx={p[0]} cy={p[1]} r="3" fill="#fff" stroke="#0a0e1a" strokeWidth="1" />))}
+    <path d="M 16 104 C 50 102, 60 90, 72 90 C 84 90, 92 104, 144 104" stroke="#c084fc" strokeWidth="1.6" fill="none" />
+    <line x1="72" y1="30" x2="72" y2="108" stroke="#fbbf24" strokeWidth="1.4" strokeDasharray="3 3" />
+  </svg>
+);
+
 const GlyphConjugate = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 16 96 C 50 92, 64 60, 80 60 C 96 60, 110 92, 144 96" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="5 4" fill="none" />
@@ -2299,6 +2309,7 @@ const GLYPHS = {
   "variational-inference": <GlyphVI />,
   "thompson-vs-ucb": <GlyphThompson />,
   "conjugate-updating": <GlyphConjugate />,
+  "bayesian-optimization": <GlyphBayesOpt />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

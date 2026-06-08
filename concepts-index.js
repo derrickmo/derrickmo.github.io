@@ -64,6 +64,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathcal{L}(q) = \\mathbb{E}_q[\\log p(x,z)] - \\mathbb{E}_q[\\log q(z)] \\le \\log p(x)",
     prereqs: ["bayes", "gradient-descent"], leadsTo: ["vae"],
   },
+  "bayesian-optimization": {
+    id: "bayesian-optimization", name: "Bayesian Optimization", area: "Foundations",
+    summary: "Optimize an expensive black-box function with few evaluations: fit a GP surrogate, then sample where an acquisition function (Expected Improvement / UCB / PI) maximizes expected payoff — the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
+    tex: "x_{t+1} = \\arg\\max_x\\ \\alpha\\big(x \\mid \\mathcal{D}_t\\big)",
+    prereqs: ["gaussian-process", "bandit"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -980,6 +986,7 @@ const CONCEPT_TAGS = {
     "variational-inference": ["variational-inference", "bayes", "vae"],
     "thompson-vs-ucb":      ["bandit", "bayes"],
     "conjugate-updating":   ["bayes", "bayesian-linear-regression"],
+    "bayesian-optimization": ["bayesian-optimization", "gaussian-process", "bandit"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
