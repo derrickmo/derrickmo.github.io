@@ -258,6 +258,7 @@ const DM_NAV_INDEX = [
   { label: "Regret Matching to Nash", group: "Demo", href: "/visualize/regret-matching/", kw: "regret matching nash equilibrium cfr counterfactual game theory poker no-regret self-play rock paper scissors" },
   { label: "Replicator Dynamics", group: "Demo", href: "/visualize/replicator-dynamics/", kw: "replicator dynamics evolutionary game theory simplex ess nash cycle rock paper scissors population" },
   { label: "Iterated Prisoner's Dilemma Tournament", group: "Demo", href: "/visualize/pd-tournament/", kw: "prisoners dilemma axelrod tournament tit for tat cooperation game theory iterated reciprocity grim pavlov" },
+  { label: "Mutual Information vs Correlation", group: "Demo", href: "/visualize/mutual-information/", kw: "mutual information correlation entropy information theory dependence nonlinear infonce feature selection" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },

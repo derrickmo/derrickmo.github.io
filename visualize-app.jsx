@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphMutInfo = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <circle cx="66" cy="60" r="34" fill="rgba(96,165,250,0.22)" stroke="#60a5fa" strokeWidth="1.6" />
+    <circle cx="100" cy="60" r="34" fill="rgba(168,85,247,0.22)" stroke="#a855f7" strokeWidth="1.6" />
+    <clipPath id="miclip"><circle cx="66" cy="60" r="34" /></clipPath>
+    <circle cx="100" cy="60" r="34" fill="rgba(52,211,153,0.5)" clipPath="url(#miclip)" />
+    <text x="83" y="64" textAnchor="middle" fontSize="11" fill="#e0ffe9" fontFamily="JetBrains Mono">I</text>
+  </svg>
+);
+
 const GlyphPdTourney = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="24" y1="100" x2="140" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
@@ -2388,6 +2398,7 @@ const GLYPHS = {
   "regret-matching": <GlyphRegret />,
   "replicator-dynamics": <GlyphReplicator />,
   "pd-tournament": <GlyphPdTourney />,
+  "mutual-information": <GlyphMutInfo />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

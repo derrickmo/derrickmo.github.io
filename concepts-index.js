@@ -112,6 +112,12 @@ const CONCEPTS_INDEX = {
     tex: "\\text{R}=3,\\ \\text{T}=5,\\ \\text{S}=0,\\ \\text{P}=1\\ \\ (T>R>P>S)",
     prereqs: ["regret-matching"], leadsTo: [],
   },
+  "mutual-information": {
+    id: "mutual-information", name: "Mutual Information", area: "Foundations",
+    summary: "How much knowing one variable reduces uncertainty about another — dependence of ANY kind, not just linear correlation. MI = H(X)+H(Y)−H(X,Y); zero iff independent. The objective behind InfoNCE/contrastive learning and the information-bottleneck view of deep nets; brutal to estimate in high dimensions.",
+    tex: "I(X;Y) = \\sum_{x,y} p(x,y)\\,\\log\\frac{p(x,y)}{p(x)\\,p(y)}",
+    prereqs: ["entropy"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1036,6 +1042,7 @@ const CONCEPT_TAGS = {
     "regret-matching":      ["regret-matching", "bandit"],
     "replicator-dynamics":  ["replicator-dynamics", "regret-matching"],
     "pd-tournament":        ["iterated-prisoners-dilemma", "regret-matching", "replicator-dynamics"],
+    "mutual-information":   ["mutual-information", "entropy"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
