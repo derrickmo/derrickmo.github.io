@@ -100,6 +100,12 @@ const CONCEPTS_INDEX = {
     tex: "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
     prereqs: ["bandit"], leadsTo: [],
   },
+  "replicator-dynamics": {
+    id: "replicator-dynamics", name: "Replicator Dynamics", area: "Reinforcement Learning",
+    summary: "Evolutionary game theory: each strategy's population share grows with how much its payoff beats the average. Fixed points are Nash equilibria; adds evolutionarily-stable strategies. Zero-sum games like RPS produce perpetual orbits — the continuous-time cousin of no-regret learning, and a cautionary tale for multi-agent learning.",
+    tex: "\\dot{x}_i = x_i\\big( (Ax)_i - x^{\\top}Ax \\big)",
+    prereqs: ["regret-matching"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1022,6 +1028,7 @@ const CONCEPT_TAGS = {
     "activation-patching":  ["activation-patching", "probing-classifier", "do-intervention"],
     "superposition":        ["superposition", "sparse-autoencoder", "activations"],
     "regret-matching":      ["regret-matching", "bandit"],
+    "replicator-dynamics":  ["replicator-dynamics", "regret-matching"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

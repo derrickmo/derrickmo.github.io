@@ -147,6 +147,18 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphReplicator = () => {
+  const cx = 80, cy = 68, pts = [];
+  for (let i = 0; i < 60; i++) { const a = i * 0.42, r = 30 - i * 0.42; pts.push(`${cx + Math.cos(a) * r},${cy + Math.sin(a) * r}`); }
+  return (
+    <svg width="160" height="120" viewBox="0 0 160 120">
+      <polygon points="80,22 36,98 124,98" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.4" />
+      <polyline points={pts.join(" ")} fill="none" stroke="#c084fc" strokeWidth="1.6" />
+      <circle cx={cx} cy={cy} r="2.5" fill="#34d399" />
+    </svg>
+  );
+};
+
 const GlyphRegret = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="20" y1="64" x2="140" y2="64" stroke="rgba(52,211,153,0.6)" strokeWidth="1.4" strokeDasharray="4 4" />
@@ -2365,6 +2377,7 @@ const GLYPHS = {
   "activation-patching": <GlyphPatch />,
   "superposition": <GlyphSuperpos />,
   "regret-matching": <GlyphRegret />,
+  "replicator-dynamics": <GlyphReplicator />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

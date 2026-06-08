@@ -256,6 +256,7 @@ const DM_NAV_INDEX = [
   { label: "Activation Patching (Causal Tracing)", group: "Demo", href: "/visualize/activation-patching/", kw: "activation patching causal tracing interchange intervention rome circuit mechanistic interpretability ablation" },
   { label: "Toy Model of Superposition", group: "Demo", href: "/visualize/superposition/", kw: "superposition toy model polysemantic features dimensions interference anthropic mechanistic interpretability" },
   { label: "Regret Matching to Nash", group: "Demo", href: "/visualize/regret-matching/", kw: "regret matching nash equilibrium cfr counterfactual game theory poker no-regret self-play rock paper scissors" },
+  { label: "Replicator Dynamics", group: "Demo", href: "/visualize/replicator-dynamics/", kw: "replicator dynamics evolutionary game theory simplex ess nash cycle rock paper scissors population" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
