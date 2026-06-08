@@ -154,6 +154,12 @@ const CONCEPTS_INDEX = {
     tex: "(A \\ominus B),\\ (A \\oplus B),\\ A\\circ B = (A\\ominus B)\\oplus B",
     prereqs: ["convolution"], leadsTo: [],
   },
+  "template-matching": {
+    id: "template-matching", name: "Template Matching (Cross-Correlation)", area: "Computer Vision",
+    summary: "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive; normalized cross-correlation (NCC) subtracts the mean and divides by the norm to match the pattern invariant to brightness/contrast. It IS convolution with the template as the kernel — but fails under scale/rotation.",
+    tex: "\\mathrm{NCC} = \\frac{\\sum (I-\\bar I)(T-\\bar T)}{\\sqrt{\\sum (I-\\bar I)^2 \\sum (T-\\bar T)^2}}",
+    prereqs: ["convolution"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1085,6 +1091,7 @@ const CONCEPT_TAGS = {
     "adversarial-examples": ["adversarial-examples", "gradient-descent", "saliency"],
     "certified-robustness": ["certified-robustness", "adversarial-examples", "conformal"],
     "morphological-ops":    ["morphological-operations", "convolution"],
+    "template-matching":    ["template-matching", "convolution", "harris-corners"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
