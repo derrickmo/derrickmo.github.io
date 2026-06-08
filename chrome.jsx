@@ -266,6 +266,7 @@ const DM_NAV_INDEX = [
   { label: "Certified Robustness (Randomized Smoothing)", group: "Demo", href: "/visualize/certified-robustness/", kw: "certified robustness randomized smoothing provable guarantee radius cohen kolter smoothing trustworthy defense" },
   { label: "Morphological Operations", group: "Demo", href: "/visualize/morphological-ops/", kw: "morphological operations erosion dilation opening closing gradient binary image computer vision structuring element" },
   { label: "Template Matching (NCC)", group: "Demo", href: "/visualize/template-matching/", kw: "template matching ncc normalized cross correlation ssd computer vision sliding window detection ocr" },
+  { label: "Histogram Equalization", group: "Demo", href: "/visualize/histogram-equalization/", kw: "histogram equalization clahe contrast cdf transfer image enhancement computer vision preprocessing probability integral transform" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },

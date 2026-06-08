@@ -160,6 +160,12 @@ const CONCEPTS_INDEX = {
     tex: "\\mathrm{NCC} = \\frac{\\sum (I-\\bar I)(T-\\bar T)}{\\sqrt{\\sum (I-\\bar I)^2 \\sum (T-\\bar T)^2}}",
     prereqs: ["convolution"], leadsTo: [],
   },
+  "histogram-equalization": {
+    id: "histogram-equalization", name: "Histogram Equalization", area: "Computer Vision",
+    summary: "Enhance contrast by remapping pixel intensities through the image's own CDF, making the output histogram roughly uniform. It's the probability integral transform applied to pixels; CLAHE clips tall bins first to avoid amplifying noise. A standard preprocessing step.",
+    tex: "s = T(r) = (L-1)\\!\\int_0^r p_r(w)\\,dw",
+    prereqs: [], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1092,6 +1098,7 @@ const CONCEPT_TAGS = {
     "certified-robustness": ["certified-robustness", "adversarial-examples", "conformal"],
     "morphological-ops":    ["morphological-operations", "convolution"],
     "template-matching":    ["template-matching", "convolution", "harris-corners"],
+    "histogram-equalization": ["histogram-equalization"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
