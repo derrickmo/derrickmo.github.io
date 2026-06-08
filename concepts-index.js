@@ -124,6 +124,12 @@ const CONCEPTS_INDEX = {
     tex: "C = \\max_{p(x)} I(X;Y) = 1 - H(p)\\ \\text{(BSC)}",
     prereqs: ["entropy", "mutual-information"], leadsTo: [],
   },
+  "huffman-coding": {
+    id: "huffman-coding", name: "Huffman Coding & Source Coding", area: "Foundations",
+    summary: "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H ≤ L < H+1 — entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
+    tex: "H(X) \\le L < H(X) + 1",
+    prereqs: ["entropy"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1050,6 +1056,7 @@ const CONCEPT_TAGS = {
     "pd-tournament":        ["iterated-prisoners-dilemma", "regret-matching", "replicator-dynamics"],
     "mutual-information":   ["mutual-information", "entropy"],
     "channel-capacity":     ["channel-capacity", "mutual-information", "entropy"],
+    "huffman-coding":       ["huffman-coding", "entropy", "cross-entropy"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

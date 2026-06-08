@@ -46,6 +46,8 @@ window.PLAY_DEMOS = {
       blurb: "Correlation only sees straight lines - mutual information detects any dependence, including a parabola and a ring where correlation is zero." },
     { slug: "channel-capacity",     topic: "INFORMATION THEORY", title: "Channel Capacity", tone: "blue", status: "LIVE",
       blurb: "How much information survives a noisy channel - Shannon's binary symmetric channel and the capacity C = 1 - H(p) that no code can beat." },
+    { slug: "huffman-coding",       topic: "INFORMATION THEORY", title: "Huffman Coding & Entropy", tone: "blue", status: "LIVE",
+      blurb: "Build the optimal compression code and watch its average length hug the entropy limit H <= L < H+1 - why entropy is the floor of lossless compression." },
     { slug: "overfitting",        topic: "ML THEORY",     title: "Overfitting Lab",       tone: "violet", status: "LIVE",
       blurb: "Fit a polynomial to noisy data and watch the bias-variance tradeoff and overfitting play out." },
     { slug: "cross-validation",   topic: "ML THEORY",     title: "Cross-Validation",      tone: "violet", status: "LIVE",
@@ -351,7 +353,8 @@ window.PLAY_DEMOS = {
   ],
   // Display order + the "why it matters / foundations" line per category.
   categories: [
-    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "newton-vs-gradient", "coordinate-descent", "ista", "l-bfgs", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "bloom-filter", "cross-validation", "kalman-filter", "hmm-viterbi", "mutual-information", "channel-capacity", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
+    { name: "Foundations", why: "The optimization, probability, evaluation, and search that sit under every model. Get these in your hands and the rest of ML stops looking like magic — it's gradient descent, generalization, the Gaussian, thresholds, and informed search, all the way down.", slugs: ["gradient-descent", "newton-vs-gradient", "coordinate-descent", "ista", "l-bfgs", "backprop", "overfitting", "double-descent", "bias-variance-decomp", "roc", "clt", "bayes", "mcmc", "importance-sampling", "reservoir-sampling", "count-min-sketch", "bloom-filter", "cross-validation", "kalman-filter", "hmm-viterbi", "simpsons-paradox", "do-intervention", "instrumental-variables", "pathfinding", "simulated-annealing"] },
+    { name: "Information Theory", why: "The mathematics of information itself: how much a signal carries, how much survives noise, and how few bits can store it. Entropy is the common currency - it sets the limit on compression, bounds reliable communication, and is exactly the cross-entropy loss a model is trained to minimize.", slugs: ["mutual-information", "channel-capacity", "huffman-coding"] },
     { name: "Probabilistic & Bayesian", why: "Reasoning about what you don't know. Instead of one best guess, carry a whole distribution over the answer, update it as evidence arrives, and let calibrated uncertainty drive the next decision. The toolkit behind A/B tests, Bayesian optimization, and trustworthy predictions.", slugs: ["bayesian-linear-regression", "conjugate-updating", "variational-inference", "thompson-vs-ucb", "bayesian-optimization"] },
     { name: "Classical Machine Learning", why: "Interpretable algorithms that still win on tabular data — and that build the geometric intuition (distance, splits, clusters, margins, projections, mixtures) deep learning quietly assumes you already have.", slugs: ["regression", "kmeans", "decision-tree", "bagging-boosting", "knn", "svm", "naive-bayes", "gaussian-process", "pca", "tsne", "isomap", "gmm", "dbscan", "hierarchical-clustering", "spectral-clustering", "label-propagation", "kernel-density"] },
     { name: "Neural Networks", why: "Where deep learning begins: how a network bends space to separate classes, why the choice of nonlinearity decides whether it trains, how convolution turns raw pixels into features, how optimizers actually move through a loss landscape, and how detectors turn those features into boxes.", slugs: ["perceptron", "neural-playground", "activations", "batch-norm", "weight-init", "contrastive-learning", "optimizers", "convolution", "edge-detection", "hough-transform", "harris-corners", "optical-flow", "hog", "image-augmentation", "watershed", "nms", "rnn-gates", "gnn"] },
@@ -392,6 +395,7 @@ window.PLAY_DEMOS = {
     "pd-tournament": "cooperation from repetition",
     "mutual-information": "dependence beyond correlation",
     "channel-capacity": "the limit on reliable comms",
+    "huffman-coding": "entropy = compression limit",
     "overfitting": "the bias-variance tradeoff",
     "cross-validation": "held-out folds pick the model",
     "double-descent": "error peaks then falls past interpolation",
