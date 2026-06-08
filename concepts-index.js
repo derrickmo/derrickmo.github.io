@@ -70,6 +70,12 @@ const CONCEPTS_INDEX = {
     tex: "x_{t+1} = \\arg\\max_x\\ \\alpha\\big(x \\mid \\mathcal{D}_t\\big)",
     prereqs: ["gaussian-process", "bandit"], leadsTo: [],
   },
+  "sparse-autoencoder": {
+    id: "sparse-autoencoder", name: "Sparse Autoencoders (Superposition)", area: "Neural Networks",
+    summary: "Disentangle polysemantic neurons into monosemantic features. Networks store more concepts than dimensions (superposition); an overcomplete autoencoder with an L1-sparse code recovers an interpretable feature dictionary. The leading tool of mechanistic interpretability.",
+    tex: "\\min_{W}\\ \\lVert x - W_d\\,\\mathrm{ReLU}(W_e x)\\rVert^2 + \\lambda\\lVert \\mathrm{ReLU}(W_e x)\\rVert_1",
+    prereqs: ["activations", "regularization"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -987,6 +993,7 @@ const CONCEPT_TAGS = {
     "thompson-vs-ucb":      ["bandit", "bayes"],
     "conjugate-updating":   ["bayes", "bayesian-linear-regression"],
     "bayesian-optimization": ["bayesian-optimization", "gaussian-process", "bandit"],
+    "sparse-autoencoder":   ["sparse-autoencoder", "activations", "regularization"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

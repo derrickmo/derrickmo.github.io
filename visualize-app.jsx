@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphSAE = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {[[0.95,"#60a5fa"],[2.0,"#a855f7"],[3.5,"#34d399"],[4.7,"#fbbf24"],[5.6,"#f472b6"]].map((a,i)=>(
+      <line key={i} x1="80" y1="60" x2={80+Math.cos(a[0])*40} y2={60+Math.sin(a[0])*40} stroke={a[1]} strokeWidth="2.4" />
+    ))}
+    {Array.from({length:22}).map((_,i)=>{const a=(i*2.399);const r=14+(i%5)*5;return <circle key={"p"+i} cx={80+Math.cos(a)*r} cy={60+Math.sin(a)*r} r="1.6" fill="rgba(255,255,255,0.45)" />;})}
+    <circle cx="80" cy="60" r="3" fill="#fff" />
+  </svg>
+);
+
 const GlyphBayesOpt = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <path d="M 16 56 C 44 30, 60 52, 84 40 C 108 28, 124 50, 144 44 L 144 70 C 124 78, 108 56, 84 66 C 60 78, 44 60, 16 80 Z" fill="rgba(96,165,250,0.18)" />
@@ -2310,6 +2320,7 @@ const GLYPHS = {
   "thompson-vs-ucb": <GlyphThompson />,
   "conjugate-updating": <GlyphConjugate />,
   "bayesian-optimization": <GlyphBayesOpt />,
+  "sparse-autoencoder": <GlyphSAE />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
