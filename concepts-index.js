@@ -130,6 +130,12 @@ const CONCEPTS_INDEX = {
     tex: "H(X) \\le L < H(X) + 1",
     prereqs: ["entropy"], leadsTo: [],
   },
+  "classification-metrics": {
+    id: "classification-metrics", name: "Classification Metrics", area: "Foundations",
+    summary: "Everything read off the confusion matrix: precision, recall, F1, and the macro/micro/weighted averagings plus F-beta. Accuracy and micro-F1 are dominated by the majority class; macro-F1 exposes weak minority classes. Choosing the metric that matches each error's cost is half of responsible ML.",
+    tex: "F_\\beta = (1+\\beta^2)\\,\\frac{P\\cdot R}{\\beta^2 P + R}",
+    prereqs: ["roc"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1057,6 +1063,7 @@ const CONCEPT_TAGS = {
     "mutual-information":   ["mutual-information", "entropy"],
     "channel-capacity":     ["channel-capacity", "mutual-information", "entropy"],
     "huffman-coding":       ["huffman-coding", "entropy", "cross-entropy"],
+    "classification-metrics": ["classification-metrics", "roc"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

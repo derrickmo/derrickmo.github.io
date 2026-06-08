@@ -261,6 +261,7 @@ const DM_NAV_INDEX = [
   { label: "Mutual Information vs Correlation", group: "Demo", href: "/visualize/mutual-information/", kw: "mutual information correlation entropy information theory dependence nonlinear infonce feature selection" },
   { label: "Channel Capacity", group: "Demo", href: "/visualize/channel-capacity/", kw: "channel capacity shannon binary symmetric channel information theory noise entropy coding theorem error correction" },
   { label: "Huffman Coding & Entropy", group: "Demo", href: "/visualize/huffman-coding/", kw: "huffman coding entropy compression prefix code lossless information theory source coding zip jpeg cross entropy" },
+  { label: "Classification Metrics", group: "Demo", href: "/visualize/classification-metrics/", kw: "classification metrics confusion matrix accuracy precision recall f1 macro micro weighted f-beta imbalance evaluation" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },

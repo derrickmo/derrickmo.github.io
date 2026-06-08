@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphMetrics = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({length:3}).map((_,r)=>Array.from({length:3}).map((__,c)=>{
+      const diag=r===c;
+      return <rect key={r+"-"+c} x={52+c*20} y={32+r*20} width="18" height="18"
+        fill={diag?"rgba(52,211,153,0.85)":"rgba(248,113,113,0.3)"} />;
+    }))}
+  </svg>
+);
+
 const GlyphHuffman = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="80" y1="26" x2="48" y2="58" stroke="#60a5fa" strokeWidth="1.6" />
@@ -2423,6 +2433,7 @@ const GLYPHS = {
   "mutual-information": <GlyphMutInfo />,
   "channel-capacity": <GlyphChannel />,
   "huffman-coding": <GlyphHuffman />,
+  "classification-metrics": <GlyphMetrics />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
