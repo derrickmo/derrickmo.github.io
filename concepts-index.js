@@ -82,6 +82,12 @@ const CONCEPTS_INDEX = {
     tex: "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
     prereqs: ["mlp", "logistic-regression"], leadsTo: [],
   },
+  "activation-patching": {
+    id: "activation-patching", name: "Activation Patching (Causal Tracing)", area: "Neural Networks",
+    summary: "Localize what a network uses by intervention: copy an activation from a clean run into a corrupted run and measure how much the output is restored. Unlike probing or saliency it makes a causal claim — the basis of circuit-level mechanistic interpretability (ROME, IOI, induction heads).",
+    tex: "\\Delta_c = \\frac{m(\\text{patch}_c) - m(\\text{corrupt})}{m(\\text{clean}) - m(\\text{corrupt})}",
+    prereqs: ["mlp", "probing-classifier"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1001,6 +1007,7 @@ const CONCEPT_TAGS = {
     "bayesian-optimization": ["bayesian-optimization", "gaussian-process", "bandit"],
     "sparse-autoencoder":   ["sparse-autoencoder", "activations", "regularization"],
     "probing-classifier":   ["probing-classifier", "mlp", "logistic-regression"],
+    "activation-patching":  ["activation-patching", "probing-classifier", "do-intervention"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

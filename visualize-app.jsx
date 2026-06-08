@@ -147,6 +147,18 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphPatch = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    {Array.from({length:2}).map((_,r)=>Array.from({length:5}).map((__,c)=>{
+      const bright = (r===0&&c===2);
+      return <rect key={r+"-"+c} x={34+c*20} y={44+r*24} width="16" height="16" rx="2"
+        fill={bright?"#34d399":"rgba(96,165,250,0.18)"} stroke={bright?"#fbbf24":"rgba(255,255,255,0.12)"} strokeWidth={bright?2:1} />;
+    }))}
+    <path d="M 42 24 L 76 44" stroke="#fbbf24" strokeWidth="1.6" fill="none" markerEnd="url(#a)" />
+    <circle cx="42" cy="24" r="3" fill="#fff" />
+  </svg>
+);
+
 const GlyphProbe = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <line x1="20" y1="100" x2="140" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
@@ -2332,6 +2344,7 @@ const GLYPHS = {
   "bayesian-optimization": <GlyphBayesOpt />,
   "sparse-autoencoder": <GlyphSAE />,
   "probing-classifier": <GlyphProbe />,
+  "activation-patching": <GlyphPatch />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,
