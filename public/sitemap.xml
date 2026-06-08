@@ -30,6 +30,7 @@
   <url><loc>https://derrickmo.github.io/concepts/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/canary-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/causal-inference/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/concepts/certified-robustness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/cfr/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/chain-rule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/concepts/channel-capacity/</loc><priority>0.6</priority></url>
@@ -405,6 +406,7 @@
   <url><loc>https://derrickmo.github.io/visualize/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/canary-rollout/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/certified-robustness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/channel-capacity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/classification-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/clt/</loc><priority>0.6</priority></url>
