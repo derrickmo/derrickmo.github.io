@@ -147,6 +147,14 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphMorphology = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <rect x="56" y="36" width="48" height="48" rx="3" fill="none" stroke="#a855f7" strokeWidth="1.6" strokeDasharray="4 3" />
+    <rect x="64" y="44" width="32" height="32" rx="2" fill="#60a5fa" />
+    {[[44,30],[112,30],[44,86],[112,86]].map((p,i)=>(<rect key={i} x={p[0]} y={p[1]} width="5" height="5" fill="rgba(168,85,247,0.5)" />))}
+  </svg>
+);
+
 const GlyphCertified = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     <circle cx="80" cy="60" r="34" fill="rgba(52,211,153,0.08)" stroke="#34d399" strokeWidth="2" />
@@ -2454,6 +2462,7 @@ const GLYPHS = {
   "classification-metrics": <GlyphMetrics />,
   "adversarial-examples": <GlyphAdversarial />,
   "certified-robustness": <GlyphCertified />,
+  "morphological-ops": <GlyphMorphology />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

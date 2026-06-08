@@ -264,6 +264,7 @@ const DM_NAV_INDEX = [
   { label: "Classification Metrics", group: "Demo", href: "/visualize/classification-metrics/", kw: "classification metrics confusion matrix accuracy precision recall f1 macro micro weighted f-beta imbalance evaluation" },
   { label: "Adversarial Examples (FGSM / PGD)", group: "Demo", href: "/visualize/adversarial-examples/", kw: "adversarial examples fgsm pgd robustness attack perturbation epsilon adversarial training madry security" },
   { label: "Certified Robustness (Randomized Smoothing)", group: "Demo", href: "/visualize/certified-robustness/", kw: "certified robustness randomized smoothing provable guarantee radius cohen kolter smoothing trustworthy defense" },
+  { label: "Morphological Operations", group: "Demo", href: "/visualize/morphological-ops/", kw: "morphological operations erosion dilation opening closing gradient binary image computer vision structuring element" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },

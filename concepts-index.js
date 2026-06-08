@@ -148,6 +148,12 @@ const CONCEPTS_INDEX = {
     tex: "R = \\sigma\\,\\Phi^{-1}(p_A),\\quad p_A > \\tfrac12",
     prereqs: ["adversarial-examples", "conformal"], leadsTo: [],
   },
+  "morphological-operations": {
+    id: "morphological-operations", name: "Morphological Operations", area: "Computer Vision",
+    summary: "Set-based reshaping of binary (or grayscale) images by probing with a structuring element. Erosion/dilation are min/max neighborhood filters; opening removes specks, closing fills holes, gradient extracts boundaries. The cleanup stage after thresholding/segmentation.",
+    tex: "(A \\ominus B),\\ (A \\oplus B),\\ A\\circ B = (A\\ominus B)\\oplus B",
+    prereqs: ["convolution"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -1078,6 +1084,7 @@ const CONCEPT_TAGS = {
     "classification-metrics": ["classification-metrics", "roc"],
     "adversarial-examples": ["adversarial-examples", "gradient-descent", "saliency"],
     "certified-robustness": ["certified-robustness", "adversarial-examples", "conformal"],
+    "morphological-ops":    ["morphological-operations", "convolution"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
