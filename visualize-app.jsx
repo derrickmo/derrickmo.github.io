@@ -147,6 +147,16 @@ const GlyphNewton = () => (
   </svg>
 );
 
+const GlyphProbe = () => (
+  <svg width="160" height="120" viewBox="0 0 160 120">
+    <line x1="20" y1="100" x2="140" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+    {[["#475569",30],["#60a5fa",54],["#a855f7",74],["#34d399",84]].map((b,i)=>(
+      <rect key={i} x={28+i*30} y={100-b[1]} width="20" height={b[1]} fill={b[0]} />
+    ))}
+    <line x1="20" y1="58" x2="140" y2="58" stroke="rgba(248,113,113,0.5)" strokeWidth="1" strokeDasharray="3 3" />
+  </svg>
+);
+
 const GlyphSAE = () => (
   <svg width="160" height="120" viewBox="0 0 160 120">
     {[[0.95,"#60a5fa"],[2.0,"#a855f7"],[3.5,"#34d399"],[4.7,"#fbbf24"],[5.6,"#f472b6"]].map((a,i)=>(
@@ -2321,6 +2331,7 @@ const GLYPHS = {
   "conjugate-updating": <GlyphConjugate />,
   "bayesian-optimization": <GlyphBayesOpt />,
   "sparse-autoencoder": <GlyphSAE />,
+  "probing-classifier": <GlyphProbe />,
   "overfitting": <GlyphCurveFit />,
   "double-descent": <GlyphDoubleDescent />,
   "bias-variance-decomp": <GlyphBiasVariance />,

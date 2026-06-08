@@ -76,6 +76,12 @@ const CONCEPTS_INDEX = {
     tex: "\\min_{W}\\ \\lVert x - W_d\\,\\mathrm{ReLU}(W_e x)\\rVert^2 + \\lambda\\lVert \\mathrm{ReLU}(W_e x)\\rVert_1",
     prereqs: ["activations", "regularization"], leadsTo: [],
   },
+  "probing-classifier": {
+    id: "probing-classifier", name: "Linear Probing", area: "Neural Networks",
+    summary: "Test what a layer represents by fitting the simplest possible readout — a linear classifier — to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
+    tex: "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
+    prereqs: ["mlp", "logistic-regression"], leadsTo: [],
+  },
   "backprop": {
     id: "backprop", name: "Backpropagation", area: "Foundations",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
@@ -994,6 +1000,7 @@ const CONCEPT_TAGS = {
     "conjugate-updating":   ["bayes", "bayesian-linear-regression"],
     "bayesian-optimization": ["bayesian-optimization", "gaussian-process", "bandit"],
     "sparse-autoencoder":   ["sparse-autoencoder", "activations", "regularization"],
+    "probing-classifier":   ["probing-classifier", "mlp", "logistic-regression"],
     "overfitting":          ["bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],

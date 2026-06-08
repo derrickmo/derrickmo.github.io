@@ -252,6 +252,7 @@ const DM_NAV_INDEX = [
   { label: "Conjugate Prior Updating", group: "Demo", href: "/visualize/conjugate-updating/", kw: "conjugate prior posterior bayes update beta bernoulli normal gamma poisson belief probabilistic" },
   { label: "Bayesian Optimization", group: "Demo", href: "/visualize/bayesian-optimization/", kw: "bayesian optimization gaussian process acquisition expected improvement ucb hyperparameter automl surrogate" },
   { label: "Sparse Autoencoders (Superposition)", group: "Demo", href: "/visualize/sparse-autoencoder/", kw: "sparse autoencoder superposition monosemantic polysemantic feature dictionary mechanistic interpretability sae" },
+  { label: "Linear Probing by Layer", group: "Demo", href: "/visualize/probing-classifier/", kw: "linear probe probing classifier layer representation interpretability decodable separability bertology" },
   { label: "Overfitting Lab", group: "Demo", href: "/visualize/overfitting/", kw: "bias variance polynomial regression ridge theory" },
   { label: "Cross-Validation", group: "Demo", href: "/visualize/cross-validation/", kw: "cross validation k-fold model selection hyperparameter tuning held-out validation generalization leave one out train test split bias variance overfitting" },
   { label: "Double Descent", group: "Demo", href: "/visualize/double-descent/", kw: "double descent interpolation threshold over-parameterization bias variance test error peak random features min-norm benign overfitting belkin nakkiran capacity generalization" },
