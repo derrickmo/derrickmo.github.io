@@ -1,0 +1,36 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "21",
+  "slug": "agentic-ai",
+  "title": "Agentic AI Systems & MCP",
+  "category": "LLMs & Agents",
+  "blurb": "Build production agents from first principles: the agent loop, tool calling, MCP servers, planning, memory, multi-agent orchestration, evaluation, and guardrails.",
+  "status": "PENDING",
+  "lecture": {
+    "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
+    "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
+    "takeaways": [
+      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat — and you can build one from scratch.",
+      "MCP standardizes how models reach tools and data; write your own servers and clients in Python.",
+      "Agents fail in new ways — prompt injection, runaway loops, silent cost blowups — so evaluation, tracing, and guardrails are part of the build, not an afterthought."
+    ],
+    "notebooks": [
+      { "n": "21-01", "t": "The Agent Loop: Perceive, Reason, Act", "d": "Synthetic tasks", "m": "25 min" },
+      { "n": "21-02", "t": "Tool Calling & Function Calling", "d": "Tool APIs", "m": "25 min" },
+      { "n": "21-03", "t": "MCP: Protocol, Clients & Servers", "d": "Local MCP server", "m": "30 min" },
+      { "n": "21-04", "t": "ReAct, Planning & Task Decomposition", "d": "Reasoning tasks", "m": "25 min" },
+      { "n": "21-05", "t": "Agent Memory & Context Management", "d": "Conversation logs", "m": "25 min" },
+      { "n": "21-06", "t": "Multi-Agent Orchestration", "d": "Synthetic tasks", "m": "30 min" },
+      { "n": "21-07", "t": "Agent Evaluation: Tasks & Trajectories", "d": "Task suites", "m": "25 min" },
+      { "n": "21-08", "t": "Observability, Tracing & Cost Control", "d": "Trace logs", "m": "25 min" },
+      { "n": "21-09", "t": "Guardrails & Agent Security", "d": "Injection corpus", "m": "25 min" },
+      { "n": "21-10", "t": "Capstone: Build a Production Agent", "d": "End-to-end", "m": "40 min" }
+    ]
+  },
+  "snippet": {
+    "caption": "An agent is a loop: reason, act, observe, repeat.",
+    "code": "while not done:\n    thought = llm(context)                 # reason about the goal\n    result = tools[thought.tool](thought.args)   # act\n    context += observe(result)             # fold the result back in"
+  },
+  "updatedAt": "2026-06-10"
+}
