@@ -275,7 +275,10 @@ function LessonHero() {
     );
   }
   const ipynb = CURR.notebookUrl(MODULE_SLUG, LESSON_SLUG);
-  const colab = ipynb.replace("github.com", "colab.research.google.com/github");
+  // Colab only makes sense for a direct .ipynb link; notebookUrl may point at the
+  // module folder until notebook filenames are aligned with the curriculum.
+  const isNotebookFile = ipynb.endsWith(".ipynb");
+  const colab = isNotebookFile ? ipynb.replace("github.com", "colab.research.google.com/github") : null;
   const isLive = LESSON.status === "LIVE";
 
   return (
@@ -326,12 +329,12 @@ function LessonHero() {
               fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
               background: "rgba(59,130,246,0.08)",
               boxShadow: "0 0 24px rgba(59,130,246,0.18)",
-            }}>↓ DOWNLOAD NOTEBOOK</a>
-            <a href={colab} target="_blank" rel="noopener" style={{
+            }}>{isNotebookFile ? "↓ DOWNLOAD NOTEBOOK" : "NOTEBOOKS ON GITHUB →"}</a>
+            {colab && <a href={colab} target="_blank" rel="noopener" style={{
               padding: "12px 22px", border: "1px solid var(--border-violet)",
               borderRadius: 4, color: "var(--violet-lt)", textDecoration: "none",
               fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
-            }}>OPEN IN COLAB →</a>
+            }}>OPEN IN COLAB →</a>}
           </div>
         </div>
       </Container>

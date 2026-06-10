@@ -1796,17 +1796,12 @@ window.CURRICULUM = {
   // Repo URL helpers
   repo: "https://github.com/derrickmo/machine_learning_tutorials",
   notebookUrl(moduleSlug, lessonSlug) {
+    // Interim (until plan.md B2 renames notebooks to match the curriculum):
+    // link the MODULE FOLDER — always resolves; per-lesson deep links return in B4
+    // once filenames are aligned (the old title-derived scheme 404'd repo-wide).
     const m = this.findModule(moduleSlug);
     if (!m) return this.repo;
-    const lesson = m.lessons.find(l => l.slug === lessonSlug);
-    if (!lesson) return this.repo;
-    const folderName = `module_${m.n}_${m.slug.replace(/-/g, "_")}`;
-    // Their notebook filenames use snake_case of the title (e.g. "08-01_self_attention_mechanism.ipynb")
-    const fileTitle = lesson.title.toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/_+/g, "_")
-      .replace(/^_|_$/g, "");
-    return `${this.repo}/blob/main/${folderName}/${lesson.n}_${fileTitle}.ipynb`;
+    return `${this.repo}/tree/main/modules/module_${m.n}`;
   },
   colabUrl(moduleSlug, lessonSlug) {
     return this.notebookUrl(moduleSlug, lessonSlug)
