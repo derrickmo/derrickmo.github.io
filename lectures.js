@@ -1,4 +1,4 @@
-// lectures.js — condensed on-site lectures for the 20 ML-from-Scratch modules.
+// lectures.js — condensed on-site lectures for the 25 ML-from-Scratch modules.
 // Each is a high-level distillation; the full runnable notebooks live on GitHub.
 // Consumed by module-app.jsx. Keyed by the curriculum slug (see curriculum.js).
 // notebook fields: n=number, t=topic, d=dataset, m=time.
@@ -518,6 +518,126 @@ window.LECTURES = {
       { n: "20-10", t: "MLOps Capstone", d: "FashionMNIST", m: "35 min" },
     ],
   },
+
+  "agentic-ai": {
+    n: "21",
+    title: "Agentic AI Systems & MCP",
+    summary: "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
+    prereqs: "Modules 17–18 (LLM systems, RAG & agents).",
+    takeaways: [
+      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat — and you can build one from scratch.",
+      "MCP standardizes how models reach tools and data; write your own servers and clients in Python.",
+      "Agents fail in new ways — prompt injection, runaway loops, silent cost blowups — so evaluation, tracing, and guardrails are part of the build, not an afterthought.",
+    ],
+    notebooks: [
+      { n: "21-01", t: "The Agent Loop: Perceive, Reason, Act", d: "Synthetic tasks", m: "25 min" },
+      { n: "21-02", t: "Tool Calling & Function Calling", d: "Tool APIs", m: "25 min" },
+      { n: "21-03", t: "MCP: Protocol, Clients & Servers", d: "Local MCP server", m: "30 min" },
+      { n: "21-04", t: "ReAct, Planning & Task Decomposition", d: "Reasoning tasks", m: "25 min" },
+      { n: "21-05", t: "Agent Memory & Context Management", d: "Conversation logs", m: "25 min" },
+      { n: "21-06", t: "Multi-Agent Orchestration", d: "Synthetic tasks", m: "30 min" },
+      { n: "21-07", t: "Agent Evaluation: Tasks & Trajectories", d: "Task suites", m: "25 min" },
+      { n: "21-08", t: "Observability, Tracing & Cost Control", d: "Trace logs", m: "25 min" },
+      { n: "21-09", t: "Guardrails & Agent Security", d: "Injection corpus", m: "25 min" },
+      { n: "21-10", t: "Capstone: Build a Production Agent", d: "End-to-end", m: "40 min" },
+    ],
+  },
+
+  "frontier-frameworks": {
+    n: "22",
+    title: "Frontier Models & Modern Frameworks",
+    summary: "The modern toolchain beyond core PyTorch — JAX and Flax, the open-weight model landscape, vLLM and inference engines, torch.compile and Triton, ONNX export, provider APIs, modern fine-tuning stacks, and evaluation harnesses. Principle-first so it dates slowly.",
+    prereqs: "Modules 15–17 (PyTorch internals, training systems, LLM systems).",
+    takeaways: [
+      "JAX's jit/grad/vmap are the same autodiff and vectorization ideas you already know, expressed functionally.",
+      "Serving is its own discipline: paged attention, continuous batching, and quantized runtimes decide real-world cost and latency.",
+      "Frameworks change; the principles underneath them don't — learn to read a release and map it onto what you already understand.",
+    ],
+    notebooks: [
+      { n: "22-01", t: "JAX & Functional ML: jit, grad, vmap", d: "Synthetic", m: "25 min" },
+      { n: "22-02", t: "Training in JAX with Flax & Optax", d: "FashionMNIST", m: "30 min" },
+      { n: "22-03", t: "The Open-Weight Model Landscape", d: "Model cards", m: "20 min" },
+      { n: "22-04", t: "Inference Engines: vLLM & Paged Attention", d: "Open-weight LLM", m: "30 min" },
+      { n: "22-05", t: "torch.compile & GPU Kernels with Triton", d: "Synthetic", m: "30 min" },
+      { n: "22-06", t: "Model Export: ONNX & Quantized Runtimes", d: "FashionMNIST", m: "25 min" },
+      { n: "22-07", t: "Provider APIs in Production", d: "API patterns", m: "25 min" },
+      { n: "22-08", t: "Modern Fine-Tuning Stacks", d: "Open-weight LLM", m: "30 min" },
+      { n: "22-09", t: "Evaluation Harnesses & Custom Evals", d: "Eval suites", m: "25 min" },
+      { n: "22-10", t: "Staying Current: Releases, Benchmarks & Changelogs", d: "Walkthrough", m: "20 min" },
+    ],
+  },
+
+  "causal-inference": {
+    n: "23",
+    title: "Causal Inference & Advanced Statistics",
+    summary: "From correlation to causation — potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
+    prereqs: "Modules 01 (probability) and 04 (evaluation).",
+    takeaways: [
+      "Prediction and causation are different questions — a great predictor can be a terrible guide to intervention.",
+      "Confounding is the central enemy; graphs, randomization, instruments, and matching are the weapons.",
+      "Experimentation at scale is an engineering discipline: power, sequential testing, and the traps of peeking.",
+    ],
+    notebooks: [
+      { n: "23-01", t: "Potential Outcomes & Treatment Effects", d: "Synthetic", m: "25 min" },
+      { n: "23-02", t: "Causal Graphs & do-Calculus", d: "Synthetic DAGs", m: "25 min" },
+      { n: "23-03", t: "Confounding & Simpson's Paradox", d: "Classic cases", m: "20 min" },
+      { n: "23-04", t: "Instrumental Variables", d: "Econometric data", m: "25 min" },
+      { n: "23-05", t: "Propensity Scores & Matching", d: "Observational data", m: "25 min" },
+      { n: "23-06", t: "Uplift Modeling", d: "Marketing data", m: "25 min" },
+      { n: "23-07", t: "A/B Testing & Experimentation at Scale", d: "Synthetic experiments", m: "30 min" },
+      { n: "23-08", t: "Bootstrap, Permutation & Resampling", d: "Synthetic", m: "20 min" },
+      { n: "23-09", t: "The Bayesian Workflow", d: "Synthetic", m: "30 min" },
+      { n: "23-10", t: "Time-Series Causality & Synthetic Control", d: "Panel data", m: "25 min" },
+    ],
+  },
+
+  "trustworthy-ai": {
+    n: "24",
+    title: "Trustworthy, Safe & Interpretable AI",
+    summary: "Make models you can trust — calibration and conformal prediction, fairness metrics and their trade-offs, attribution methods, mechanistic interpretability (superposition, SAEs, activation patching), adversarial robustness, drift detection, red-teaming, and alignment.",
+    prereqs: "Modules 04–05; module 08 for the interpretability lessons.",
+    takeaways: [
+      "A confident wrong answer is worse than an honest 'maybe' — calibration and conformal prediction quantify what a model knows it doesn't know.",
+      "Interpretability has gone mechanistic: features as directions, superposition, and causal interventions on activations.",
+      "Robustness, fairness, and drift aren't compliance checkboxes — they're failure modes you can measure and engineer against.",
+    ],
+    notebooks: [
+      { n: "24-01", t: "Calibration & Temperature Scaling", d: "CIFAR-10", m: "25 min" },
+      { n: "24-02", t: "Conformal Prediction", d: "CIFAR-10", m: "25 min" },
+      { n: "24-03", t: "Fairness Metrics & Trade-offs", d: "Adult income", m: "25 min" },
+      { n: "24-04", t: "Attribution: SHAP, Saliency & Attention Rollout", d: "Tabular + images", m: "30 min" },
+      { n: "24-05", t: "Mechanistic Interpretability I: Superposition & SAEs", d: "Toy models", m: "30 min" },
+      { n: "24-06", t: "Mechanistic Interpretability II: Probing & Activation Patching", d: "Small LM", m: "30 min" },
+      { n: "24-07", t: "Adversarial Robustness & Certified Defenses", d: "MNIST + CIFAR", m: "30 min" },
+      { n: "24-08", t: "Distribution Shift & Drift Detection", d: "Shifted datasets", m: "25 min" },
+      { n: "24-09", t: "Red-Teaming & Model Auditing", d: "Prompt suites", m: "25 min" },
+      { n: "24-10", t: "Alignment & Governance Overview", d: "Walkthrough", m: "20 min" },
+    ],
+  },
+
+  "interview-capstone": {
+    n: "25",
+    title: "ML Interview & System Design Capstone",
+    summary: "Turn the whole curriculum into interview readiness — the ML system design framework, classic design cases (recommender, search & ads, fraud, LLM products), coding patterns, classical CS algorithms, rapid-fire breadth drills, deep derivations, and a portfolio capstone.",
+    prereqs: "The rest of the curriculum — this module is the integration test.",
+    takeaways: [
+      "ML system design has a repeatable framework: clarify, frame, data, features, model, serving, metrics, iteration.",
+      "Most interview questions trace back to a small set of derivations and trade-offs you can drill deliberately.",
+      "A portfolio project you can defend end-to-end beats a long list of frameworks on a resume.",
+    ],
+    notebooks: [
+      { n: "25-01", t: "The ML Interview Landscape & Strategy", d: "Walkthrough", m: "20 min" },
+      { n: "25-02", t: "ML System Design Framework", d: "Case studies", m: "30 min" },
+      { n: "25-03", t: "Design Case: Recommender & Feed", d: "MovieLens", m: "30 min" },
+      { n: "25-04", t: "Design Case: Search & Ads", d: "Synthetic queries", m: "30 min" },
+      { n: "25-05", t: "Design Case: Fraud Detection & LLM Products", d: "Imbalanced data", m: "30 min" },
+      { n: "25-06", t: "Coding Patterns for ML Interviews", d: "NumPy + pandas drills", m: "30 min" },
+      { n: "25-07", t: "Classical CS Algorithms Review", d: "Algorithm drills", m: "30 min" },
+      { n: "25-08", t: "ML Breadth Rapid-Fire", d: "Cross-module Q&A", m: "25 min" },
+      { n: "25-09", t: "Deep-Dive Derivations", d: "Pen + NumPy", m: "30 min" },
+      { n: "25-10", t: "Take-Homes, Storytelling & Portfolio Capstone", d: "Your project", m: "40 min" },
+    ],
+  },
 };
 
 // Minimal code illustration per module — the one idea, in a few lines.
@@ -613,6 +733,30 @@ h_v = relu(W @ mean([h_u for u in neighbors(v)] + [h_v]))
 def predict(req: Input):
     x = torch.tensor(req.features)
     return {"y": int(model(x).argmax())}      # from notebook to service` },
+  "agentic-ai": { caption: "An agent is a loop: reason, act, observe, repeat.", code:
+`while not done:
+    thought = llm(context)                 # reason about the goal
+    result = tools[thought.tool](thought.args)   # act
+    context += observe(result)             # fold the result back in` },
+  "frontier-frameworks": { caption: "JAX: gradients as a function transformation.", code:
+`import jax
+loss = lambda w, x, y: ((x @ w - y) ** 2).mean()
+grad_fn = jax.jit(jax.grad(loss))   # compile the gradient itself
+w -= lr * grad_fn(w, x, y)          # same idea, new toolchain` },
+  "causal-inference": { caption: "Intervening is not the same as observing.", code:
+`p_obs = df[df.treated == 1].outcome.mean()       # P(Y | T=1)
+# do(T=1): break the arrows INTO treatment, then average
+p_do = sum(p(y, do_t=1, z=z) * p(z) for z in confounders)
+# the gap between the two IS confounding` },
+  "trustworthy-ai": { caption: "Calibration: confidence should mean what it says.", code:
+`conf, correct = probs.max(1)
+ece = sum(abs(conf[bin].mean() - correct[bin].mean()) * len(bin) / n
+          for bin in confidence_bins)   # 90% sure should be right 90% of the time` },
+  "interview-capstone": { caption: "Every design case walks the same skeleton.", code:
+`steps = ["clarify goal", "frame as ML task", "data & labels",
+         "features", "model choice", "serving & latency",
+         "metrics & monitoring", "iterate"]
+# the content changes; the skeleton never does` },
 };
 
 window.LECTURES_REPO = "https://github.com/derrickmo/machine_learning_tutorials";

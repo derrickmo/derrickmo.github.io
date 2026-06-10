@@ -16,8 +16,8 @@ const SECTIONS = [
   },
   {
     href: "ml-from-scratch/", tag: "// COURSE · FROM SCRATCH", title: "ML from Scratch", tone: "blue",
-    blurb: "A 20-module program covering machine learning and deep learning from first principles. Every algorithm built in NumPy first — derive the math, implement it, then graduate to PyTorch.",
-    stat: "20 modules · 200 notebooks · NumPy → PyTorch",
+    blurb: "A 25-module program covering machine learning and deep learning from first principles. Every algorithm built in NumPy first — derive the math, implement it, then graduate to PyTorch.",
+    stat: "25 modules · 250 notebooks · NumPy → PyTorch",
     diagram: <LessonStack count={7} width={300} height={170} mode="dark" />,
   },
   {

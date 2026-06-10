@@ -52,7 +52,7 @@ const PROJECTS = [
   },
   {
     id: "LEARN", title: "ML from Scratch", role: "// LEARN · PYTHON, NUMPY, PYTORCH", status: "LEARN",
-    description: "200 notebooks across 20 modules — every algorithm built in NumPy first, from linear regression through transformers, RL, and LLM systems. Condensed on-site; full notebooks on GitHub.",
+    description: "250 notebooks across 25 modules — every algorithm built in NumPy first, from linear regression through transformers, RL, agents, and LLM systems. Condensed on-site; notebooks on GitHub.",
     tech: ["PYTHON", "PYTORCH", "NUMPY"], href: "https://github.com/derrickmo/machine_learning_tutorials",
     diagram: <LessonStack count={7} width={380} height={210} mode="dark" />,
   },

@@ -1,5 +1,5 @@
 // learn-app.jsx — Learn hub page.
-// Shows all 20 modules grouped by category. Each module card links to /learn/<slug>/.
+// Shows all 25 modules grouped by category. Each module card links to /learn/<slug>/.
 // Module status: PENDING (dim) / DRAFT (active link, blue) / LIVE (active link, bright).
 
 const {
@@ -65,7 +65,7 @@ function LearnHero() {
               padding: "12px 22px", border: "1px solid var(--border)",
               borderRadius: 4, color: "var(--muted)", textDecoration: "none",
               fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
-            }}>SEE THE 20 MODULES</a>
+            }}>SEE THE 25 MODULES</a>
           </div>
         </div>
         {!mobile && (
@@ -83,10 +83,10 @@ function LearnHero() {
           background: "rgba(13, 24, 52, 0.4)",
         }}>
           {[
-            { label: "MODULES",         value: "20",  sub: "on-site lectures" },
-            { label: "NOTEBOOKS",       value: "200", sub: "planned" },
+            { label: "MODULES",         value: "25",  sub: "on-site lectures" },
+            { label: "NOTEBOOKS",       value: "250", sub: "planned" },
             { label: "VIDEO TUTORIALS", value: "—",   sub: "planned" },
-            { label: "TRACKS",          value: "10",  sub: "domains" },
+            { label: "TRACKS",          value: "12",  sub: "domains" },
             { label: "STACK",           value: "NumPy → PyTorch", sub: "from scratch" },
           ].map((c, i, arr) => (
             <div key={c.label} style={{
@@ -175,6 +175,7 @@ const GROUP_ICONS = {
   "Advanced Deep Learning": <svg width="20" height="20" viewBox="0 0 20 20" fill="none">{[3, 7, 11].map((y, i) => <rect key={i} x={4 + i} y={y} width={12 - i * 2} height="3" rx="1" fill="#c084fc" opacity={0.5 + i * 0.2} />)}</svg>,
   "Adaptation, RL & Systems": <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="6" stroke="#c084fc" strokeWidth="1.4" /><circle cx="10" cy="10" r="2" fill="#c084fc" /><path d="M10 1 L10 4 M10 16 L10 19 M1 10 L4 10 M16 10 L19 10" stroke="#c084fc" strokeWidth="1.4" /></svg>,
   "LLMs, Applications & Production": <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="9" rx="2" stroke="#c084fc" strokeWidth="1.3" /><path d="M7 13 L7 16 L10 13" fill="#c084fc" /><path d="M6 7 H14 M6 10 H11" stroke="#c084fc" strokeWidth="1.2" strokeLinecap="round" /></svg>,
+  "Agents, Trust & Career": <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#c084fc" strokeWidth="1.3" /><path d="M10 5 L11.4 8.6 L15 10 L11.4 11.4 L10 15 L8.6 11.4 L5 10 L8.6 8.6 Z" fill="#c084fc" opacity="0.9" /></svg>,
 };
 const ROW_GROUPS = [
   { name: "Foundations & Classical ML", lo: 1, hi: 4 },
@@ -182,6 +183,7 @@ const ROW_GROUPS = [
   { name: "Advanced Deep Learning", lo: 9, hi: 12 },
   { name: "Adaptation, RL & Systems", lo: 13, hi: 16 },
   { name: "LLMs, Applications & Production", lo: 17, hi: 20 },
+  { name: "Agents, Trust & Career", lo: 21, hi: 25 },
 ];
 
 function ModulesGrid() {
@@ -192,7 +194,7 @@ function ModulesGrid() {
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
       <Container>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
-          <MonoLabel>// CURRICULUM · 20 MODULES · 200 LESSONS</MonoLabel>
+          <MonoLabel>// CURRICULUM · 25 MODULES · 250 LESSONS</MonoLabel>
           <h2 style={{
             fontFamily: "var(--f-display)", fontWeight: 700,
             fontSize: "clamp(36px, 4vw, 52px)", letterSpacing: "-0.02em",
@@ -331,7 +333,7 @@ function LearnCta() {
               letterSpacing: "-0.02em", color: "var(--white)", margin: "10px 0 12px",
             }}>Self-guided notebooks, free and updated.</h3>
             <div className="t-body" style={{ color: "var(--muted)", maxWidth: 600, fontSize: 15, lineHeight: 1.55 }}>
-              All 200 notebooks are on GitHub — each self-contained and runnable end-to-end. Video walkthroughs and applied case studies are planned.
+              The notebooks live on GitHub — each self-contained and runnable end-to-end, with new modules landing over time. Video walkthroughs and applied case studies are planned.
             </div>
           </div>
           <a href={REPO} target="_blank" rel="noopener" style={{
