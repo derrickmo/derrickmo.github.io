@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "23-02",
+  "slug": "causal-graphs",
+  "module": "causal-inference",
+  "title": "Causal Graphs & do-Calculus",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

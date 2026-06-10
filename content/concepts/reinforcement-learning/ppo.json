@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "ppo",
+  "module": "reinforcement-learning",
+  "title": "Proximal Policy Optimization",
+  "oneLine": "Take the biggest safe policy step by clipping the update.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Big policy-gradient steps can collapse a policy. PPO lets you reuse a batch for several updates but clips the change in action probabilities, so the new policy never strays too far from the old one. This simple clip makes training stable and sample-efficient - it is the default for RLHF."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Clip the probability ratio so the surrogate objective cannot reward going too far:"
+      ],
+      "tex": "L = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t, 1-\\epsilon, 1+\\epsilon)A_t)\\big]",
+      "texNote": "r_t is the new/old probability ratio; outside the band the gradient is zero."
+    },
+    {
+      "h": "In code",
+      "code": "ratio = np.exp(logp_new - logp_old)\nclip = np.clip(ratio, 1 - eps, 1 + eps)\nloss = -np.minimum(ratio * A, clip * A).mean()",
+      "caption": "The clip parks the ratio inside a trust region."
+    }
+  ],
+  "takeaways": [
+    "PPO clips the policy update into a trust region.",
+    "It allows several epochs per batch, stably.",
+    "It is the workhorse of modern RL and RLHF."
+  ],
+  "demo": "ppo",
+  "updatedAt": "2026-06-10"
+}

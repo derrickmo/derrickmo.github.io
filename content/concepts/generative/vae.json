@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "vae",
+  "module": "generative",
+  "title": "Variational Autoencoders",
+  "oneLine": "Encode data to a distribution, sample, and decode to generate.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A VAE learns a smooth latent space you can sample from. The encoder maps each input to a distribution (a mean and spread), you sample a latent code, and the decoder reconstructs the input. A regularizer keeps the latent space close to a standard Gaussian, so sampling it produces plausible new data."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Maximize the evidence lower bound: reconstruction minus a latent KL penalty:"
+      ],
+      "tex": "\\mathcal{L} = \\mathbb{E}_{q}[\\log p(x\\mid z)] - D_{KL}\\!\\big(q(z\\mid x)\\,\\|\\,p(z)\\big)",
+      "texNote": "The reparameterization trick z = mu + sigma * eps lets gradients flow through sampling."
+    },
+    {
+      "h": "In code",
+      "code": "mu, logvar = encoder(x)\nz = mu + np.exp(0.5*logvar) * np.random.randn(*mu.shape)\nrecon = decoder(z)\nkl = -0.5 * np.sum(1 + logvar - mu**2 - np.exp(logvar))",
+      "caption": "Encode to a distribution, sample, decode; KL keeps it regular."
+    }
+  ],
+  "takeaways": [
+    "A VAE learns a continuous, sampleable latent space.",
+    "The ELBO balances reconstruction against a latent prior.",
+    "The reparameterization trick makes sampling differentiable."
+  ],
+  "demo": "vae",
+  "updatedAt": "2026-06-10"
+}

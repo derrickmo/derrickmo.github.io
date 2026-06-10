@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "markov",
+  "module": "rnn-nlp",
+  "title": "Markov Chains",
+  "oneLine": "Model a sequence where the next step depends only on the current state.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A Markov chain assumes the future depends on the present, not the full past. n-gram language models are exactly this: predict the next token from the last few. It is a weak assumption that is still a surprisingly strong baseline - and the conceptual ancestor of every sequence model."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The Markov property drops all but the current state:"
+      ],
+      "tex": "P(x_t \\mid x_{<t}) = P(x_t \\mid x_{t-1})",
+      "texNote": "Transition probabilities are just normalized counts of observed pairs."
+    },
+    {
+      "h": "In code",
+      "code": "from collections import Counter, defaultdict\n\ndef fit_bigram(tokens):\n    trans = defaultdict(Counter)\n    for a, b in zip(tokens, tokens[1:]):\n        trans[a][b] += 1\n    return trans            # sample next token from trans[current]",
+      "caption": "Count pairs, normalize, sample - an n-gram model."
+    }
+  ],
+  "takeaways": [
+    "Markov models condition only on the current state.",
+    "n-gram language models are Markov chains over tokens.",
+    "They are a strong, simple baseline for sequences."
+  ],
+  "demo": "markov",
+  "updatedAt": "2026-06-10"
+}

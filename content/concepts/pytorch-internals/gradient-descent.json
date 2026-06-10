@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "gradient-descent",
+  "module": "pytorch-internals",
+  "title": "The Training Loop",
+  "oneLine": "The five-line skeleton at the heart of every training script.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Strip away the abstractions and every PyTorch training run is the same loop: get a batch, run the forward pass, compute the loss, backpropagate, and step the optimizer. Everything else - schedulers, logging, checkpoints, mixed precision - hangs off this skeleton."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each iteration is one minibatch gradient-descent step:"
+      ],
+      "tex": "\\theta_{t+1} = \\theta_t - \\eta\\,\\nabla_\\theta\\,\\tfrac{1}{|B|}\\sum_{i\\in B}\\ell_i(\\theta_t)",
+      "texNote": "The minibatch B gives a noisy but cheap gradient estimate."
+    },
+    {
+      "h": "In code",
+      "code": "for x, y in loader:\n    opt.zero_grad()\n    loss = criterion(model(x), y)   # forward + loss\n    loss.backward()                 # gradients\n    opt.step()                      # update",
+      "caption": "Batch, forward, loss, backward, step - repeat."
+    }
+  ],
+  "takeaways": [
+    "Every training script is this five-line loop.",
+    "Minibatches give cheap, noisy gradient estimates.",
+    "Schedulers, logging, and checkpoints decorate this skeleton."
+  ],
+  "demo": "gradient-descent",
+  "updatedAt": "2026-06-10"
+}

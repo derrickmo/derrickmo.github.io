@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "mlp",
+  "module": "neural-nets",
+  "title": "The Multilayer Perceptron",
+  "oneLine": "Stack linear layers and nonlinearities into a universal function approximator.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A multilayer perceptron alternates two operations: a linear map (weights and a bias) and a per-neuron nonlinearity. Without the nonlinearity, stacking layers collapses to a single linear map; with it, a wide-enough network can approximate any continuous function."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each layer applies a weight matrix, a bias, and an activation:"
+      ],
+      "tex": "h^{(l)} = \\sigma\\!\\big(W^{(l)} h^{(l-1)} + b^{(l)}\\big)",
+      "texNote": "Depth composes simple features into complex ones; the nonlinearity is what makes depth matter."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef mlp(x, layers):\n    for W, b in layers[:-1]:\n        x = np.maximum(0, W @ x + b)   # ReLU\n    W, b = layers[-1]\n    return W @ x + b                   # linear head",
+      "caption": "Linear, nonlinear, repeat - then a final linear head."
+    }
+  ],
+  "takeaways": [
+    "An MLP is alternating linear maps and nonlinearities.",
+    "The nonlinearity is what makes depth more than one big linear layer.",
+    "Wide enough, it can approximate any continuous function."
+  ],
+  "demo": "neural-playground",
+  "updatedAt": "2026-06-10"
+}

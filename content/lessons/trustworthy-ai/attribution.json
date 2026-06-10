@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "24-04",
+  "slug": "attribution",
+  "module": "trustworthy-ai",
+  "title": "Attribution: SHAP, Saliency & Attention Rollout",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

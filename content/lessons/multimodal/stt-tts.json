@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "12-09",
+  "slug": "stt-tts",
+  "module": "multimodal",
+  "title": "STT & TTS Foundations",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

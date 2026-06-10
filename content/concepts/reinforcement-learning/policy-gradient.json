@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "policy-gradient",
+  "module": "reinforcement-learning",
+  "title": "Policy Gradients",
+  "oneLine": "Optimize the policy directly by following the gradient of expected reward.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Instead of learning values and acting greedily, policy gradients adjust the policy's parameters to make high-reward actions more likely. REINFORCE nudges the log-probability of each action by the return that followed it. It handles continuous actions naturally but can be high-variance."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The policy-gradient theorem weights each action's log-prob gradient by its return:"
+      ],
+      "tex": "\\nabla J = \\mathbb{E}\\big[\\nabla_\\theta \\log \\pi_\\theta(a\\mid s)\\,G_t\\big]",
+      "texNote": "Subtracting a baseline from G_t cuts variance without adding bias."
+    },
+    {
+      "h": "In code",
+      "code": "# REINFORCE update over a trajectory\nfor (s, a, G) in trajectory:\n    grad = score(s, a)             # d log pi(a|s)/d theta\n    theta += lr * grad * (G - baseline)",
+      "caption": "Make actions that led to high return more likely."
+    }
+  ],
+  "takeaways": [
+    "Policy gradients optimize the policy directly.",
+    "REINFORCE scales each log-prob gradient by its return.",
+    "A baseline reduces variance without bias."
+  ],
+  "demo": "policy-gradient",
+  "updatedAt": "2026-06-10"
+}

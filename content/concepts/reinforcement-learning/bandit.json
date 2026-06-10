@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "bandit",
+  "module": "reinforcement-learning",
+  "title": "Multi-Armed Bandits",
+  "oneLine": "The simplest RL problem: balance exploring options against exploiting the best.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A bandit faces several actions with unknown payoffs and must learn which is best while earning reward. Pull the current best too eagerly and you may never discover a better one; explore too much and you waste pulls. Strategies like epsilon-greedy and UCB formalize this explore-exploit trade-off - the heart of all RL."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "UCB picks the arm with the best optimistic estimate, favoring uncertain arms:"
+      ],
+      "tex": "a_t = \\arg\\max_a\\; \\hat{\\mu}_a + c\\sqrt{\\tfrac{\\ln t}{N_a}}",
+      "texNote": "The bonus term shrinks as an arm is tried more, so exploration self-regulates."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef ucb(mu, N, t, c=2.0):\n    return np.argmax(mu + c * np.sqrt(np.log(t + 1) / (N + 1e-9)))",
+      "caption": "Optimism in the face of uncertainty."
+    }
+  ],
+  "takeaways": [
+    "Bandits isolate the explore-exploit trade-off.",
+    "Epsilon-greedy explores at random; UCB explores by uncertainty.",
+    "Every RL method inherits this tension."
+  ],
+  "demo": "bandit",
+  "updatedAt": "2026-06-10"
+}

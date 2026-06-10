@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "03-04",
+  "slug": "tsne-umap",
+  "module": "unsupervised-learning",
+  "title": "t-SNE, UMAP & Manifold Learning",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

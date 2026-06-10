@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "08-09",
+  "slug": "flash-attention",
+  "module": "transformers",
+  "title": "Flash Attention — Algorithm & Concepts",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

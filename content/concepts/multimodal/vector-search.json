@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "vector-search",
+  "module": "multimodal",
+  "title": "Vector Search",
+  "oneLine": "Find the nearest embeddings to a query, fast, at scale.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Once everything is an embedding, retrieval becomes nearest-neighbor search: find the stored vectors closest to a query vector. Exact search is too slow at scale, so approximate methods (HNSW graphs, IVF, product quantization) trade a little accuracy for orders-of-magnitude speed. It is the backbone of RAG and semantic search."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Retrieve the top-k by similarity, usually cosine:"
+      ],
+      "tex": "\\mathrm{top\\text{-}k}\\;\\arg\\max_i\\;\\frac{q^{\\top} v_i}{\\|q\\|\\,\\|v_i\\|}",
+      "texNote": "Approximate indexes return near-neighbors in sublinear time."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef search(q, V, k=5):\n    sims = V @ q / (np.linalg.norm(V, axis=1) * np.linalg.norm(q))\n    return np.argsort(sims)[::-1][:k]",
+      "caption": "Brute force shown; real systems use ANN indexes."
+    }
+  ],
+  "takeaways": [
+    "Retrieval over embeddings is nearest-neighbor search.",
+    "Approximate indexes trade slight accuracy for big speedups.",
+    "It is the retrieval half of RAG."
+  ],
+  "demo": "vector-search",
+  "updatedAt": "2026-06-10"
+}

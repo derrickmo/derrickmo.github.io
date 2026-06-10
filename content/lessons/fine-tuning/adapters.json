@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "13-04",
+  "slug": "adapters",
+  "module": "fine-tuning",
+  "title": "Adapter Methods Comparison",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

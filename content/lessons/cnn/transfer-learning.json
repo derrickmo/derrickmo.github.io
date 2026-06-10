@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "06-04",
+  "slug": "transfer-learning",
+  "module": "cnn",
+  "title": "Transfer Learning & Fine-Tuning",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/cnn/transfer-learning/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

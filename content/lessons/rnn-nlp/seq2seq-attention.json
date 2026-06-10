@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "07-05",
+  "slug": "seq2seq-attention",
+  "module": "rnn-nlp",
+  "title": "Sequence-to-Sequence with Attention",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/rnn-nlp/seq2seq-attention/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

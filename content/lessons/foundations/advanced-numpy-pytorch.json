@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "01-02",
+  "slug": "advanced-numpy-pytorch",
+  "module": "foundations",
+  "title": "Advanced NumPy & PyTorch Operations",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

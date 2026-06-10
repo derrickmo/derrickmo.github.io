@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "lr-schedule",
+  "module": "training-systems",
+  "title": "Learning-Rate Schedules",
+  "oneLine": "Vary the step size over training - warm up, then decay.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A fixed learning rate is a compromise. Schedules do better: a short warmup avoids early instability while statistics settle, then a decay (cosine or linear) lets the model settle into a good minimum. The right schedule can matter as much as the optimizer."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A cosine schedule decays smoothly from the peak rate to near zero:"
+      ],
+      "tex": "\\eta_t = \\tfrac12\\eta_{\\max}\\big(1 + \\cos(\\pi\\,t/T)\\big)",
+      "texNote": "Often preceded by a linear warmup over the first few percent of steps."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef lr(t, T, warm=500, peak=3e-4):\n    if t < warm: return peak * t / warm        # warmup\n    return 0.5 * peak * (1 + np.cos(np.pi * (t - warm) / (T - warm)))",
+      "caption": "Warm up, then cosine-decay to near zero."
+    }
+  ],
+  "takeaways": [
+    "Schedules beat a single fixed learning rate.",
+    "Warmup avoids early divergence; decay sharpens the minimum.",
+    "Cosine decay is a strong default."
+  ],
+  "demo": "lr-schedule",
+  "updatedAt": "2026-06-10"
+}

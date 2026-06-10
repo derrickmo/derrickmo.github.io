@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "decision-tree",
+  "module": "supervised-learning",
+  "title": "Decision Trees",
+  "oneLine": "Carve the feature space with a sequence of axis-aligned questions.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A decision tree asks one yes/no question at a time, splitting the data into ever-purer groups. Each split is chosen to reduce impurity the most. Trees are interpretable and handle mixed feature types, but a deep tree overfits - which is why we average many of them in forests and boosting."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each node picks the feature and threshold that most reduce impurity (e.g. Gini):"
+      ],
+      "tex": "G = 1 - \\sum_c p_c^2",
+      "texNote": "The split maximizing the weighted impurity drop wins; recurse until pure or capped."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef gini(y):\n    _, counts = np.unique(y, return_counts=True)\n    p = counts / counts.sum()\n    return 1 - np.sum(p ** 2)\n# best split = argmin over (feature, threshold) of weighted child gini",
+      "caption": "Greedy, recursive, and the building block of forests and boosting."
+    }
+  ],
+  "takeaways": [
+    "Trees split on the question that most purifies the labels.",
+    "They are interpretable but overfit when deep.",
+    "Ensembles (bagging, boosting) turn weak trees into strong models."
+  ],
+  "demo": "decision-tree",
+  "updatedAt": "2026-06-10"
+}

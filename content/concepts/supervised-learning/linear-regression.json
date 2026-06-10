@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "linear-regression",
+  "module": "supervised-learning",
+  "title": "Linear Regression",
+  "oneLine": "Fit a line (or hyperplane) by minimizing squared error.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Linear regression predicts a number as a weighted sum of features. Training finds the weights that minimize the squared gap between predictions and truth - geometrically, the line that sits closest to all the points. It is the simplest supervised model and the foundation everything else builds on."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The least-squares solution has a closed form (the normal equations):"
+      ],
+      "tex": "\\hat{\\theta} = (X^{\\top}X)^{-1}X^{\\top}y",
+      "texNote": "Or fit by gradient descent when X is large or you want regularization."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef fit(X, y):\n    return np.linalg.solve(X.T @ X, X.T @ y)   # normal equations",
+      "caption": "Closed-form for small problems; gradient descent at scale."
+    }
+  ],
+  "takeaways": [
+    "Linear regression minimizes squared error.",
+    "It has a closed-form least-squares solution.",
+    "It is the base case for logistic regression and beyond."
+  ],
+  "demo": "regression",
+  "updatedAt": "2026-06-10"
+}

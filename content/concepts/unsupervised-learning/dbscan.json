@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "dbscan",
+  "module": "unsupervised-learning",
+  "title": "DBSCAN",
+  "oneLine": "Find dense clusters of any shape, and label the rest as noise.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "k-means assumes round, similarly sized blobs. DBSCAN instead grows clusters from dense regions: a point with enough neighbors within a radius is a core point, and clusters expand through chains of core points. It finds arbitrarily shaped clusters, needs no k, and marks sparse outliers as noise."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A point is core if its eps-neighborhood holds at least minPts points:"
+      ],
+      "tex": "|\\{x' : \\|x - x'\\| \\le \\varepsilon\\}| \\ge \\text{minPts}",
+      "texNote": "eps and minPts set the density threshold; non-reachable points become noise."
+    },
+    {
+      "h": "In code",
+      "code": "# region query + expansion (sketch)\nneighbors = [j for j in range(n) if dist(i, j) <= eps]\nif len(neighbors) >= min_pts:\n    expand_cluster(i, neighbors)      # flood through dense points",
+      "caption": "Grow clusters through dense, connected regions."
+    }
+  ],
+  "takeaways": [
+    "DBSCAN clusters by density, not distance to a center.",
+    "It finds arbitrary shapes and needs no k.",
+    "Sparse points are labeled noise rather than forced into a cluster."
+  ],
+  "demo": "dbscan",
+  "updatedAt": "2026-06-10"
+}

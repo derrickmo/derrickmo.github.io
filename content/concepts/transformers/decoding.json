@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "decoding",
+  "module": "transformers",
+  "title": "Decoding",
+  "oneLine": "Turn the model's next-token distribution into actual generated text.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one — and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
+        "Temperature sharpens or flattens the distribution; top-k and top-p (nucleus) clip the long tail so you sample only from plausible tokens; beam search keeps several candidate continuations at once."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Temperature T rescales the logits before the softmax — low T concentrates probability on the top tokens, high T spreads it out:"
+      ],
+      "tex": "p_i = \\frac{\\exp(z_i / T)}{\\sum_j \\exp(z_j / T)}",
+      "texNote": "T -> 0 recovers greedy argmax; T = 1 is the model's raw distribution."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef sample(logits, T=1.0, top_p=0.9):\n    z = logits / T\n    p = np.exp(z - z.max()); p /= p.sum()\n    order = np.argsort(p)[::-1]                 # nucleus: keep smallest\n    keep = order[np.cumsum(p[order]) <= top_p]  # set with mass >= top_p\n    if len(keep) == 0: keep = order[:1]\n    p2 = p[keep] / p[keep].sum()\n    return np.random.choice(keep, p=p2)",
+      "caption": "Temperature reshapes the distribution; top-p trims the tail before sampling."
+    }
+  ],
+  "takeaways": [
+    "Decoding is a separate policy on top of the model's distribution — it controls the style of the output.",
+    "Temperature trades determinism for diversity; top-k / top-p remove implausible tokens.",
+    "Greedy is just temperature -> 0; beam search searches several continuations at once."
+  ],
+  "demo": "decoding",
+  "updatedAt": "2026-06-10"
+}

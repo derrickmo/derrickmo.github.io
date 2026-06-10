@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "svm",
+  "module": "supervised-learning",
+  "title": "Support Vector Machines",
+  "oneLine": "Separate the classes with the widest possible margin.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "An SVM does not just find a separating line - it finds the one with the largest buffer between the classes, defined by a few critical points called support vectors. The kernel trick lets the same idea draw curved boundaries by measuring similarity in a richer space without ever building it."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Maximize the margin, i.e. minimize the weight norm subject to correct, confident classification:"
+      ],
+      "tex": "\\min_{w,b}\\;\\tfrac12\\|w\\|^2 \\quad \\text{s.t.}\\quad y_i(w^{\\top}x_i + b) \\ge 1",
+      "texNote": "The soft-margin version adds slack so a few points may violate the margin."
+    },
+    {
+      "h": "In code",
+      "code": "# hinge-loss SVM via subgradient descent\ndef step(w, b, x, y, lr=0.01, C=1.0):\n    if y * (w @ x + b) < 1:\n        w = w - lr * (w - C * y * x); b = b + lr * C * y\n    else:\n        w = w - lr * w\n    return w, b",
+      "caption": "Only the margin-violating points (support vectors) drive the update."
+    }
+  ],
+  "takeaways": [
+    "SVMs maximize the margin, set by a few support vectors.",
+    "Kernels give nonlinear boundaries cheaply.",
+    "The C parameter trades margin width against training errors."
+  ],
+  "demo": "svm",
+  "updatedAt": "2026-06-10"
+}

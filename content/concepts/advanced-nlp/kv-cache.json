@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "kv-cache",
+  "module": "advanced-nlp",
+  "title": "The KV Cache",
+  "oneLine": "Cache past keys and values so each new token is cheap to generate.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "When generating text token by token, the keys and values for all previous tokens never change. Recomputing them every step is wasteful. The KV cache stores them, so producing the next token only computes one new query against the cached keys and values - turning quadratic regeneration into linear growth."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Step t attends a single new query against all cached keys and values:"
+      ],
+      "tex": "o_t = \\mathrm{softmax}\\!\\Big(\\tfrac{q_t K_{1:t}^{\\top}}{\\sqrt{d}}\\Big) V_{1:t}",
+      "texNote": "Only q_t is new each step; K and V are appended to and reused from the cache."
+    },
+    {
+      "h": "In code",
+      "code": "# generation loop with a growing cache\nK_cache, V_cache = [], []\nfor step in range(max_len):\n    q, k, v = project(next_token)\n    K_cache.append(k); V_cache.append(v)\n    out = attend(q, np.array(K_cache), np.array(V_cache))",
+      "caption": "Append the new key/value; reuse all the old ones."
+    }
+  ],
+  "takeaways": [
+    "The KV cache stores past keys and values across steps.",
+    "It makes per-token generation cost grow linearly, not quadratically.",
+    "Its memory cost motivates cache eviction and paging."
+  ],
+  "demo": "kv-cache",
+  "updatedAt": "2026-06-10"
+}

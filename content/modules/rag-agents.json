@@ -1,0 +1,107 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "18",
+  "slug": "rag-agents",
+  "title": "RAG & Agentic AI Systems",
+  "category": "LLMs & Agents",
+  "blurb": "Embeddings, retrieval, RAG pipelines, agent loops, multi-agent orchestration, voice agents, guardrails.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build retrieval-augmented generation and agentic AI from scratch — dense retrieval (bi-encoders), vector indexing, RAG pipelines (retrieve-then-generate), query rewriting (HyDE), reranking, RAG evaluation, tool-using agents (ReAct), memory systems, and multi-agent orchestration — all without external API keys.",
+    "prereqs": "Modules 08, 10, 13, 17.",
+    "takeaways": [
+      "Dense retrieval, vector indexing, and retrieve-then-generate RAG pipelines.",
+      "Query rewriting (HyDE), reranking, and RAG evaluation (RAGAS-style).",
+      "Tool-using agents (ReAct), memory systems, and multi-agent orchestration."
+    ],
+    "flagships": [
+      {
+        "n": "18-03",
+        "label": "RAG Pipeline End-to-End",
+        "href": "learn/rag-agents/rag-pipeline/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "18-01",
+        "t": "Dense Retrieval & Bi-Encoders",
+        "d": "Synthetic Q&A",
+        "m": "25 min"
+      },
+      {
+        "n": "18-02",
+        "t": "Vector Indexing & Similarity Search",
+        "d": "Synthetic embeddings",
+        "m": "20 min"
+      },
+      {
+        "n": "18-03",
+        "t": "RAG Pipeline — Retrieve-then-Generate",
+        "d": "Synthetic docs + Q&A",
+        "m": "25 min"
+      },
+      {
+        "n": "18-04",
+        "t": "Query Rewriting & HyDE",
+        "d": "Synthetic Q&A",
+        "m": "20 min"
+      },
+      {
+        "n": "18-05",
+        "t": "Reranking & Fusion",
+        "d": "Synthetic Q&A",
+        "m": "20 min"
+      },
+      {
+        "n": "18-06",
+        "t": "RAG Evaluation (RAGAS-style)",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "18-07",
+        "t": "Tool-Using Agents (ReAct)",
+        "d": "Synthetic tool-use",
+        "m": "25 min"
+      },
+      {
+        "n": "18-08",
+        "t": "Agent Memory Systems",
+        "d": "Synthetic conversations",
+        "m": "20 min"
+      },
+      {
+        "n": "18-09",
+        "t": "Multi-Agent Orchestration",
+        "d": "Synthetic multi-step",
+        "m": "20 min"
+      },
+      {
+        "n": "18-10",
+        "t": "Agentic RAG Capstone",
+        "d": "Synthetic docs + Q&A",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "RAG: retrieve first, then condition generation on it.",
+    "code": "docs = index.search(embed(query), k=5)        # find relevant context\nanswer = llm(prompt(query, context=docs))     # ground the answer in facts"
+  },
+  "subLessons": {
+    "title": "RAG and Agents",
+    "intro": "Turning a raw model into a grounded, reliable, safe system: chunk and retrieve the right context, rerank it, let the model act in a loop, and guard the edges.",
+    "order": [
+      "rag-chunking",
+      "hyde",
+      "reranking",
+      "react-agent",
+      "self-consistency",
+      "reflection",
+      "guardrails",
+      "prompt-injection"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

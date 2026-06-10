@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "22-09",
+  "slug": "eval-harnesses",
+  "module": "frontier-frameworks",
+  "title": "Evaluation Harnesses & Custom Evals",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

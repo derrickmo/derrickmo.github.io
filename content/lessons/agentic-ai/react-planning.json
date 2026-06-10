@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "21-04",
+  "slug": "react-planning",
+  "module": "agentic-ai",
+  "title": "ReAct, Planning & Task Decomposition",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

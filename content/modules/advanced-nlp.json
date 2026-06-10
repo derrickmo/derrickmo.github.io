@@ -1,0 +1,102 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "10",
+  "slug": "advanced-nlp",
+  "title": "Advanced NLP — Pretrained Language Models",
+  "category": "Advanced Deep Learning",
+  "blurb": "GPT, BERT, fine-tuning, NER, NLI, QA, chain-of-thought, and mechanistic interpretability.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master the pretrained language model paradigm — GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning — on WikiText-2, AG_NEWS, and synthetic tasks.",
+    "prereqs": "Modules 07, 08.",
+    "takeaways": [
+      "Fine-tune GPT and BERT for generation, classification, and token labeling.",
+      "Generation evaluation (BLEU/ROUGE/BERTScore), RAG-lite, and LoRA-style efficient tuning.",
+      "In-context learning and probing — what pretrained models actually know."
+    ],
+    "flagships": [
+      {
+        "n": "10-01",
+        "label": "GPT from Scratch",
+        "href": "learn/advanced-nlp/gpt/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "10-01",
+        "t": "GPT Fine-tuning",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "10-02",
+        "t": "BERT Fine-tuning for Classification",
+        "d": "AG_NEWS + WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "10-03",
+        "t": "Token Classification (NER-style)",
+        "d": "Synthetic NER",
+        "m": "20 min"
+      },
+      {
+        "n": "10-04",
+        "t": "Sequence-to-Sequence Fine-tuning",
+        "d": "Synthetic summarisation",
+        "m": "25 min"
+      },
+      {
+        "n": "10-05",
+        "t": "Text Generation Evaluation",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "10-06",
+        "t": "Retrieval-Augmented Generation (Lite)",
+        "d": "Synthetic QA",
+        "m": "20 min"
+      },
+      {
+        "n": "10-07",
+        "t": "Efficient Fine-tuning (LoRA-style)",
+        "d": "AG_NEWS + WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "10-08",
+        "t": "NLP Evaluation Pipeline",
+        "d": "AG_NEWS + WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "10-09",
+        "t": "In-Context Learning & Probing",
+        "d": "WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "10-10",
+        "t": "NLP Capstone",
+        "d": "AG_NEWS + WikiText-2",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Fine-tuning: reuse the pretrained body, train a small head.",
+    "code": "for p in model.encoder.parameters():\n    p.requires_grad = False             # freeze what's already learned\nlogits = head(model.encoder(tokens))    # adapt, don't retrain"
+  },
+  "subLessons": {
+    "title": "Advanced NLP and Generation",
+    "intro": "Beyond a single forward pass: search for better continuations, encode position efficiently, and cache computation so generation is fast.",
+    "order": [
+      "beam-search",
+      "rope",
+      "kv-cache"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "attention",
+  "module": "transformers",
+  "title": "Attention",
+  "oneLine": "Weight every token by how relevant it is to the one you are computing.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Attention lets each token pull in information from every other token, weighted by relevance. Each token emits a query (what am I looking for?), a key (what do I offer?), and a value (what I'll pass along). A token's output is a relevance-weighted average of everyone's values.",
+        "This is the operation that replaced recurrence: instead of passing a state step by step, every token talks to every other token in one parallel step."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Scaled dot-product attention scores each query against every key, softmax-normalizes the scores into weights, and mixes the values. The 1/sqrt(d_k) keeps the dot products from saturating the softmax:"
+      ],
+      "tex": "\\mathrm{Attention}(Q,K,V) = \\mathrm{softmax}\\!\\Big(\\tfrac{QK^{\\top}}{\\sqrt{d_k}}\\Big)V",
+      "texNote": "Q, K, V are linear projections of the input. See the full derivation in the on-site Self-Attention lesson."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef attention(Q, K, V):\n    dk = Q.shape[-1]\n    scores = Q @ K.T / np.sqrt(dk)     # (n, n) relevance\n    scores -= scores.max(-1, keepdims=True)\n    w = np.exp(scores)\n    w /= w.sum(-1, keepdims=True)      # softmax over keys\n    return w @ V                       # weighted mix of values",
+      "caption": "Three matmuls and a softmax — the core of every transformer."
+    }
+  ],
+  "takeaways": [
+    "Attention is a content-based, weighted average of values — no recurrence required.",
+    "Queries and keys decide the weights; values carry the information.",
+    "The sqrt(d_k) scaling keeps gradients healthy as the dimension grows."
+  ],
+  "demo": "attention",
+  "updatedAt": "2026-06-10"
+}

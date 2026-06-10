@@ -9,7 +9,7 @@
   "surfaces": {
     "notebook": false,
     "flagship": null,
-    "demos": ["react-agent"],
+    "demos": [],
     "concepts": []
   },
   "updatedAt": "2026-06-10"

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "weight-init",
+  "module": "neural-nets",
+  "title": "Weight Initialization",
+  "oneLine": "Start with the right variance so signals neither vanish nor explode.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "If initial weights are too small, activations shrink to nothing through depth; too large, and they blow up. Good initialization sets the variance so the signal's scale is preserved layer to layer. Xavier targets this for tanh, He for ReLU."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "He initialization scales by the fan-in for ReLU networks:"
+      ],
+      "tex": "W \\sim \\mathcal{N}\\!\\Big(0,\\ \\tfrac{2}{n_{\\text{in}}}\\Big)",
+      "texNote": "The 2 compensates for ReLU zeroing half the activations."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n# He init for a ReLU layer\nW = np.random.randn(n_out, n_in) * np.sqrt(2.0 / n_in)",
+      "caption": "Set the variance to keep signal scale constant through depth."
+    }
+  ],
+  "takeaways": [
+    "Initialization controls whether deep signals vanish or explode.",
+    "Xavier suits tanh; He suits ReLU.",
+    "It matters most before normalization layers are added."
+  ],
+  "demo": "weight-init",
+  "updatedAt": "2026-06-10"
+}

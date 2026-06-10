@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "21-08",
+  "slug": "observability",
+  "module": "agentic-ai",
+  "title": "Observability, Tracing & Cost Control",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

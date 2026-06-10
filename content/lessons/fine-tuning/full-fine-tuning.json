@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "13-01",
+  "slug": "full-fine-tuning",
+  "module": "fine-tuning",
+  "title": "Full Fine-Tuning vs Feature Extraction",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

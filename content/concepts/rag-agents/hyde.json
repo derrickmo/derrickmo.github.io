@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "hyde",
+  "module": "rag-agents",
+  "title": "HyDE",
+  "oneLine": "Retrieve with a hypothetical answer instead of the raw question.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A question and its answer often look different in embedding space, so querying with the question can miss the right passage. HyDE first has the model write a hypothetical answer, embeds that, and retrieves with it - because a guessed answer, even if imperfect, sits much closer to the real supporting documents."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Retrieve against the embedding of a generated answer h, not the query q:"
+      ],
+      "tex": "\\mathrm{top\\text{-}k}\\;\\arg\\max_{d}\\;\\mathrm{sim}\\big(e(h),\\,e(d)\\big),\\quad h = \\mathrm{LLM}(q)",
+      "texNote": "Averaging several hypothetical answers smooths out any single bad guess."
+    },
+    {
+      "h": "In code",
+      "code": "h = llm(f'Write a passage answering: {q}')   # hypothetical doc\nhits = vector_search(embed(h), k=5)          # retrieve with it",
+      "caption": "Guess an answer, retrieve what supports it."
+    }
+  ],
+  "takeaways": [
+    "HyDE bridges the query-document embedding gap.",
+    "It retrieves with a generated answer, not the question.",
+    "Averaging multiple drafts reduces variance."
+  ],
+  "demo": "hyde",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,105 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "03",
+  "slug": "unsupervised-learning",
+  "title": "Unsupervised & Statistical Learning",
+  "category": "Classical ML",
+  "blurb": "Discover structure in unlabeled data. EM connects to VAEs, kernel methods connect to attention, matrix factorization connects to recommenders and LoRA.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Discover structure in unlabeled data — from clustering and dimensionality reduction to probabilistic models, kernel methods, and Bayesian inference — bridging classical statistics to the generative deep learning of Modules 11–12.",
+    "prereqs": "Modules 01–02.",
+    "takeaways": [
+      "Find structure without labels: k-means, hierarchical & density clustering, PCA, t-SNE, UMAP.",
+      "The EM algorithm and Gaussian mixtures — the conceptual bridge to VAEs.",
+      "Kernel methods, matrix factorization, and Bayesian inference as recurring ML primitives."
+    ],
+    "flagships": [
+      {
+        "n": "03-09",
+        "label": "Matrix Factorization and SVD",
+        "href": "learn/unsupervised-learning/matrix-factorization/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "03-01",
+        "t": "K-Means Clustering",
+        "d": "make_blobs + Iris",
+        "m": "20 min"
+      },
+      {
+        "n": "03-02",
+        "t": "Hierarchical & Density-Based Clustering",
+        "d": "make_moons + make_blobs",
+        "m": "20 min"
+      },
+      {
+        "n": "03-03",
+        "t": "Principal Component Analysis",
+        "d": "Digits + MNIST",
+        "m": "20 min"
+      },
+      {
+        "n": "03-04",
+        "t": "t-SNE, UMAP & Manifold Learning",
+        "d": "MNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "03-05",
+        "t": "Independent Component Analysis",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "03-06",
+        "t": "Gaussian Mixture Models & EM Algorithm",
+        "d": "make_blobs + Iris",
+        "m": "25 min"
+      },
+      {
+        "n": "03-07",
+        "t": "Anomaly Detection",
+        "d": "make_blobs + anomalies",
+        "m": "20 min"
+      },
+      {
+        "n": "03-08",
+        "t": "Kernel Methods & Feature Maps",
+        "d": "make_moons + Digits",
+        "m": "20 min"
+      },
+      {
+        "n": "03-09",
+        "t": "Matrix Factorization & Decomposition",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "03-10",
+        "t": "Bayesian Inference & Probabilistic Thinking",
+        "d": "Synthetic",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "K-means in two steps: assign, then move centroids.",
+    "code": "for _ in range(iters):\n    labels = np.argmin(((X[:, None] - C) ** 2).sum(-1), axis=1)  # assign\n    C = np.array([X[labels == k].mean(0) for k in range(K)])     # update"
+  },
+  "subLessons": {
+    "title": "Unsupervised Learning",
+    "intro": "Finding structure with no labels at all: group points that belong together, and find the directions that carry the information.",
+    "order": [
+      "kmeans",
+      "gmm-em",
+      "dbscan",
+      "hierarchical-clustering",
+      "pca",
+      "tsne"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "edge-detection",
+  "module": "advanced-cv",
+  "title": "Edge Detection",
+  "oneLine": "Find boundaries where image intensity changes sharply.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Edges are where brightness changes fast - the outlines that carry most of an image's structure. Gradient operators like Sobel estimate that change; the Canny pipeline then thins the response and links strong, connected edges while suppressing noise. It is the front end of countless vision algorithms."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Edge strength is the gradient magnitude:"
+      ],
+      "tex": "\\|\\nabla I\\| = \\sqrt{I_x^2 + I_y^2}",
+      "texNote": "Canny adds non-max suppression and hysteresis thresholding on top of this."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\nSx = np.array([[-1,0,1],[-2,0,2],[-1,0,1]])\nGx = conv2d(I, Sx); Gy = conv2d(I, Sx.T)\nmag = np.hypot(Gx, Gy)            # edge strength",
+      "caption": "Sobel gradients give magnitude and direction."
+    }
+  ],
+  "takeaways": [
+    "Edges are gradient maxima in intensity.",
+    "Sobel estimates the gradient; Canny refines it.",
+    "Edge maps front-end detection, matching, and segmentation."
+  ],
+  "demo": "edge-detection",
+  "updatedAt": "2026-06-10"
+}

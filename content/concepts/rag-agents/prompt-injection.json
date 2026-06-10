@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "prompt-injection",
+  "module": "rag-agents",
+  "title": "Prompt Injection",
+  "oneLine": "The attacks that hijack an LLM, and the layered defenses against them.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Because an LLM cannot fully separate instructions from data, attacker-controlled text - in a prompt, a retrieved document, or a tool result - can override your instructions. Defenses layer up: delimit and spotlight untrusted content, assert an instruction hierarchy, classify inputs, and filter outputs for exfiltration. No single layer is sufficient."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Residual risk is what survives every defense layer:"
+      ],
+      "tex": "\\text{ASR} = \\prod_{\\ell} (1 - d_\\ell)",
+      "texNote": "ASR is attack success rate; each defense d_l catches some fraction, none all."
+    },
+    {
+      "h": "In code",
+      "code": "# spotlighting: clearly fence untrusted content\nprompt = (system + '\\n<<UNTRUSTED>>\\n' + retrieved + '\\n<<END>>')\n# plus an output filter that blocks secret/exfiltration patterns",
+      "caption": "Defense in depth - delimit, prioritize, classify, filter."
+    }
+  ],
+  "takeaways": [
+    "Injection exploits the instruction-vs-data ambiguity.",
+    "Untrusted text can arrive via documents and tool results.",
+    "Layered defenses reduce, but never zero, the attack surface."
+  ],
+  "demo": "prompt-injection",
+  "updatedAt": "2026-06-10"
+}

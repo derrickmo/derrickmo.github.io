@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "hierarchical-clustering",
+  "module": "unsupervised-learning",
+  "title": "Hierarchical Clustering",
+  "oneLine": "Build a tree of merges and cut it at the height you want.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Agglomerative clustering starts with every point its own cluster and repeatedly merges the two closest, recording the whole history as a dendrogram. You do not pick k up front - you cut the tree at whatever height gives the structure you want. Linkage (single, complete, average, Ward) defines 'closest'."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each step merges the two clusters minimizing the linkage distance:"
+      ],
+      "tex": "(A,B) = \\arg\\min_{A,B}\\; d_{\\text{link}}(A, B)",
+      "texNote": "Ward merges the pair that least increases within-cluster variance."
+    },
+    {
+      "h": "In code",
+      "code": "# repeatedly merge the closest pair, record the merge\nwhile len(clusters) > 1:\n    a, b = closest_pair(clusters, linkage)\n    merge(a, b)             # height = d(a, b) -> dendrogram",
+      "caption": "Merge upward; cut the dendrogram to choose k after the fact."
+    }
+  ],
+  "takeaways": [
+    "Agglomerative clustering merges nearest clusters into a tree.",
+    "The dendrogram lets you choose k after seeing the structure.",
+    "Linkage choice changes the cluster shapes."
+  ],
+  "demo": "hierarchical-clustering",
+  "updatedAt": "2026-06-10"
+}

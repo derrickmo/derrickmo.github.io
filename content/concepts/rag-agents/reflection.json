@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "reflection",
+  "module": "rag-agents",
+  "title": "Reflection",
+  "oneLine": "Draft, critique, and revise toward a quality bar.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A model can often improve its own output if asked to critique it. Reflection loops draft -> critique -> revise until a quality bar is met. The catch: self-correction is only as good as the critic. A sharp critic converges fast; a weak or miscalibrated one can pass bad answers or reject good ones."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Quality improves only when the critic carries real signal:"
+      ],
+      "tex": "q_{t+1} = q_t + \\eta\\,(\\,\\text{critic informativeness}\\,)",
+      "texNote": "Bounded by the verifier: a useless critic yields no gain."
+    },
+    {
+      "h": "In code",
+      "code": "draft = llm(task)\nfor _ in range(max_iters):\n    critique = llm(f'Critique: {draft}')\n    if passes(critique): break\n    draft = llm(f'Revise given: {critique}\\n{draft}')",
+      "caption": "Iterate until the critic is satisfied - or you give up."
+    }
+  ],
+  "takeaways": [
+    "Reflection is a draft-critique-revise loop.",
+    "Its ceiling is the quality of the critic.",
+    "It is the sequential cousin of self-consistency."
+  ],
+  "demo": "reflection",
+  "updatedAt": "2026-06-10"
+}

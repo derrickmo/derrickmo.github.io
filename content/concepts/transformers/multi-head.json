@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "multi-head",
+  "module": "transformers",
+  "title": "Multi-Head Attention",
+  "oneLine": "Run several attention patterns in parallel, then combine them.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "One attention map forces every token to mix information in a single way. Real language needs several relationships at once — syntactic agreement, coreference, local phrasing. Multi-head attention splits the model width into h smaller subspaces, runs attention independently in each, and concatenates the results.",
+        "Each head is cheap (it works in d/h dimensions), and together they let the layer attend to different things in different subspaces simultaneously."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each head projects Q, K, V into its own subspace, attends there, and the outputs are concatenated and mixed by a final projection W^O:"
+      ],
+      "tex": "\\mathrm{MultiHead}(X) = \\mathrm{Concat}(\\mathrm{head}_1,\\dots,\\mathrm{head}_h)\\,W^{O}",
+      "texNote": "head_i = Attention(XW_i^Q, XW_i^K, XW_i^V); the heads run fully in parallel."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef multi_head(X, Wq, Wk, Wv, Wo, h):\n    n, d = X.shape\n    dk = d // h\n    outs = []\n    for i in range(h):                 # each head sees a d/h slice\n        sl = slice(i * dk, (i + 1) * dk)\n        outs.append(attention(X @ Wq[:, sl], X @ Wk[:, sl], X @ Wv[:, sl]))\n    return np.concatenate(outs, axis=-1) @ Wo",
+      "caption": "Heads are independent; the final W^O lets them interact."
+    }
+  ],
+  "takeaways": [
+    "Multiple heads capture multiple relationships in parallel subspaces.",
+    "Splitting the width keeps the total cost the same as single-head attention.",
+    "The output projection W^O lets the heads' results recombine."
+  ],
+  "demo": "multi-head-attention",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "14-01",
+  "slug": "mdp-bellman",
+  "module": "reinforcement-learning",
+  "title": "MDPs, Bellman Equations & Value/Policy Iteration",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "autoscaling",
+  "module": "mlops",
+  "title": "Autoscaling",
+  "oneLine": "Track demand by adding and removing replicas automatically.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Traffic rises and falls; a fixed fleet either wastes money or breaks under load. An autoscaler watches a signal like utilization and adjusts the replica count toward a target. The catch is cold starts: new replicas take time to warm up, so spikes can breach the SLO before capacity catches up."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The desired replica count chases the load toward a target utilization:"
+      ],
+      "tex": "N_{\\text{desired}} = \\Big\\lceil \\frac{\\text{load}}{\\text{target}\\times\\text{capacity}} \\Big\\rceil",
+      "texNote": "Lower target utilization buys headroom for spikes, at higher cost."
+    },
+    {
+      "h": "In code",
+      "code": "desired = ceil(load / (target_util * cap_per_replica))\nreplicas = clamp(desired, min_r, max_r)   # cold start adds lag",
+      "caption": "Scale toward a utilization target, bounded by limits."
+    }
+  ],
+  "takeaways": [
+    "Autoscaling matches replicas to demand.",
+    "Target utilization trades headroom against cost.",
+    "Cold starts cause SLO breaches on sudden spikes."
+  ],
+  "demo": "autoscaling",
+  "updatedAt": "2026-06-10"
+}

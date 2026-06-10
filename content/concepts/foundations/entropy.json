@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "entropy",
+  "module": "foundations",
+  "title": "Entropy and Information",
+  "oneLine": "Measure how much uncertainty a distribution carries, in bits.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Entropy quantifies surprise. A fair coin is maximally uncertain (1 bit); a loaded one carries less. It is the currency behind decision-tree splits (which question removes the most uncertainty?), cross-entropy loss, and compression."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Entropy is the expected number of bits to encode an outcome:"
+      ],
+      "tex": "H(p) = -\\sum_i p_i \\log_2 p_i",
+      "texNote": "Maximized by the uniform distribution; zero when one outcome is certain."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef entropy(p):\n    p = np.asarray(p)\n    p = p[p > 0]\n    return -np.sum(p * np.log2(p))",
+      "caption": "A decision tree picks the split that drops this the most."
+    }
+  ],
+  "takeaways": [
+    "Entropy measures uncertainty in bits.",
+    "Information gain (entropy drop) drives decision-tree splits.",
+    "Cross-entropy, the workhorse classification loss, is built from it."
+  ],
+  "demo": "decision-tree",
+  "updatedAt": "2026-06-10"
+}

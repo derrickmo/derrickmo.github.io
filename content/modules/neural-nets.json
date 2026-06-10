@@ -1,0 +1,110 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "05",
+  "slug": "neural-nets",
+  "title": "Neural Network Foundations",
+  "category": "Deep Learning Core",
+  "blurb": "Build neural networks from first principles in NumPy, implement backprop by hand, master the optimization toolkit, then transition to PyTorch.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build every core neural-network primitive from scratch — perceptron to full MLP — with PyTorch, developing an intuition for gradients, activations, and training dynamics.",
+    "prereqs": "Modules 01–02.",
+    "takeaways": [
+      "Build a neural net from the perceptron up to a full MLP, with backpropagation derived by hand.",
+      "Activations, losses, initialization, and regularization — and how each shapes training.",
+      "Why optimizers (SGD → Adam) matter, then assemble a complete training pipeline."
+    ],
+    "flagships": [
+      {
+        "n": "05-06",
+        "label": "Backpropagation from Scratch",
+        "href": "learn/neural-nets/forward-pass/"
+      },
+      {
+        "n": "05-04",
+        "label": "Loss Functions Deep Dive",
+        "href": "learn/neural-nets/loss-functions/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "05-01",
+        "t": "The Perceptron",
+        "d": "MNIST + make_moons",
+        "m": "15 min"
+      },
+      {
+        "n": "05-02",
+        "t": "Multilayer Perceptrons",
+        "d": "FashionMNIST + make_moons",
+        "m": "20 min"
+      },
+      {
+        "n": "05-03",
+        "t": "Activation Functions",
+        "d": "make_moons + FashionMNIST",
+        "m": "15 min"
+      },
+      {
+        "n": "05-04",
+        "t": "Loss Functions",
+        "d": "MNIST",
+        "m": "15 min"
+      },
+      {
+        "n": "05-05",
+        "t": "Regularisation",
+        "d": "FashionMNIST",
+        "m": "15 min"
+      },
+      {
+        "n": "05-06",
+        "t": "Backpropagation",
+        "d": "Synthetic regression",
+        "m": "20 min"
+      },
+      {
+        "n": "05-07",
+        "t": "PyTorch Autograd",
+        "d": "Synthetic",
+        "m": "15 min"
+      },
+      {
+        "n": "05-08",
+        "t": "Weight Initialisation",
+        "d": "MNIST",
+        "m": "10 min"
+      },
+      {
+        "n": "05-09",
+        "t": "Optimisers",
+        "d": "FashionMNIST",
+        "m": "15 min"
+      },
+      {
+        "n": "05-10",
+        "t": "Complete MLP Pipeline",
+        "d": "FashionMNIST",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Backprop is just the chain rule, carefully bookkept.",
+    "code": "z = X @ W + b\na = relu(z)\n# backward\ndz = dA * (z > 0)        # relu'(z)\ndW = X.T @ dz\ndb = dz.sum(0)"
+  },
+  "subLessons": {
+    "title": "Neural Networks from Scratch",
+    "intro": "The deep-learning core: stack linear maps and nonlinearities into a network, get gradients with backprop, keep training stable with the right activations, initialization, normalization, and optimizer.",
+    "order": [
+      "mlp",
+      "backprop",
+      "activations",
+      "optimizers",
+      "batch-norm",
+      "weight-init"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

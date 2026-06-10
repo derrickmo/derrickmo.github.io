@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "activations",
+  "module": "neural-nets",
+  "title": "Activation Functions",
+  "oneLine": "The per-neuron nonlinearity that gives a network its expressive power.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Activations decide whether and how strongly a neuron fires. ReLU is the default - cheap, and it avoids the vanishing gradients that crippled deep sigmoid networks. Variants (LeakyReLU, GELU, SiLU) tweak the behavior near zero. The choice affects how easily gradients flow through depth."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "ReLU passes positives and zeroes negatives:"
+      ],
+      "tex": "\\mathrm{ReLU}(x) = \\max(0, x)",
+      "texNote": "Its gradient is 1 for positive inputs - no shrinking signal as depth grows."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\nrelu  = lambda x: np.maximum(0, x)\ngelu  = lambda x: 0.5 * x * (1 + np.tanh(0.797 * (x + 0.044 * x**3)))\nsilu  = lambda x: x / (1 + np.exp(-x))",
+      "caption": "Different shapes near zero, same job: inject nonlinearity."
+    }
+  ],
+  "takeaways": [
+    "Activations make a deep stack more than one linear layer.",
+    "ReLU keeps gradients alive through depth.",
+    "GELU/SiLU are smooth variants common in transformers."
+  ],
+  "demo": "activations",
+  "updatedAt": "2026-06-10"
+}

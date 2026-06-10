@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "05-04",
+  "slug": "loss-functions",
+  "module": "neural-nets",
+  "title": "Loss Functions Deep Dive",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/neural-nets/loss-functions/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

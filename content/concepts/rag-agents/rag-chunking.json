@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "rag-chunking",
+  "module": "rag-agents",
+  "title": "Chunking for Retrieval",
+  "oneLine": "Split documents so the answer survives retrieval intact.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Retrieval-augmented generation grounds a model in your documents - but only if the right passage is retrievable. Chunking decides how documents are split into embeddable units. Too large and a chunk dilutes the relevant sentence; too small and it loses context. Overlap and sentence-aware boundaries keep answers from being cut in half."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Retrieve the top chunks by similarity to the query embedding:"
+      ],
+      "tex": "\\mathrm{top\\text{-}k}\\;\\arg\\max_{c}\\;\\mathrm{sim}\\big(e(q),\\,e(c)\\big)",
+      "texNote": "Chunk size and overlap control whether the answer span lands inside one retrieved chunk."
+    },
+    {
+      "h": "In code",
+      "code": "def chunk(text, size=400, overlap=80):\n    out, i = [], 0\n    while i < len(text):\n        out.append(text[i:i+size])\n        i += size - overlap        # slide with overlap\n    return out",
+      "caption": "Sliding windows with overlap keep answer spans whole."
+    }
+  ],
+  "takeaways": [
+    "Chunking sets what retrieval can actually find.",
+    "Size and overlap trade context against precision.",
+    "Sentence-aware splits avoid cutting answers in half."
+  ],
+  "demo": "rag-chunking",
+  "updatedAt": "2026-06-10"
+}

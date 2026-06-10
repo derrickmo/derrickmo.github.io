@@ -1,0 +1,103 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "07",
+  "slug": "rnn-nlp",
+  "title": "Recurrent Networks & NLP Foundations",
+  "category": "Deep Learning Core",
+  "blurb": "Tokenization, word vectors, RNNs, LSTMs, attention, parsing, and CRFs — the building blocks that lead to transformers.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build the complete NLP foundation stack from scratch — BPE tokenization, Word2Vec embeddings, vanilla RNNs, LSTMs, and seq2seq models — developing sequential intuition for language on WikiText-2 and AG_NEWS.",
+    "prereqs": "Modules 01, 05.",
+    "takeaways": [
+      "Tokenization (BPE) and word embeddings — turning text into vectors machines can learn from.",
+      "RNNs, LSTMs/GRUs, and seq2seq with attention — sequential modeling before transformers.",
+      "Language modeling, perplexity, and text classification, end to end."
+    ],
+    "flagships": [
+      {
+        "n": "07-05",
+        "label": "Sequence-to-Sequence with Attention",
+        "href": "learn/rnn-nlp/seq2seq-attention/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "07-01",
+        "t": "Tokenization & BPE",
+        "d": "WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "07-02",
+        "t": "Word Embeddings",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "07-03",
+        "t": "Recurrent Neural Networks",
+        "d": "WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "07-04",
+        "t": "LSTM & GRU",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "07-05",
+        "t": "Seq2Seq & Bahdanau Attention",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "07-06",
+        "t": "Language Modeling (Practical)",
+        "d": "WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "07-07",
+        "t": "Perplexity & LM Evaluation",
+        "d": "WikiText-2",
+        "m": "15 min"
+      },
+      {
+        "n": "07-08",
+        "t": "Text Classification",
+        "d": "AG_NEWS",
+        "m": "20 min"
+      },
+      {
+        "n": "07-09",
+        "t": "Sequence Labeling & BiLSTM-CRF",
+        "d": "CoNLL-2000",
+        "m": "25 min"
+      },
+      {
+        "n": "07-10",
+        "t": "NLP Pipeline Capstone",
+        "d": "AG_NEWS",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "An RNN carries a hidden state across the sequence.",
+    "code": "h = torch.zeros(hidden)\nfor x_t in sequence:\n    h = torch.tanh(Wx @ x_t + Wh @ h + b)   # memory through a loop"
+  },
+  "subLessons": {
+    "title": "Sequence Models and NLP",
+    "intro": "Modeling order before transformers: Markov chains, learned word vectors, recurrent state, and the gates that made it trainable.",
+    "order": [
+      "markov",
+      "word2vec",
+      "rnn",
+      "lstm-gates"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

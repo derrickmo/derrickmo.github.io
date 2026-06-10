@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "sarsa",
+  "module": "reinforcement-learning",
+  "title": "SARSA",
+  "oneLine": "On-policy control: update toward the action you actually took.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "SARSA is Q-learning's on-policy twin. Where Q-learning bootstraps from the best next action, SARSA bootstraps from the action its policy actually chose next - so it learns the value of the policy it is following, exploration and all. On a cliff-edge task it learns the safe path; Q-learning learns the risky optimal one."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The target uses the next action a' sampled from the current policy:"
+      ],
+      "tex": "Q(s,a)\\leftarrow Q(s,a)+\\alpha\\big[r+\\gamma Q(s',a')-Q(s,a)\\big]",
+      "texNote": "Replace Q(s',a') with max over a' and you are back to Q-learning."
+    },
+    {
+      "h": "In code",
+      "code": "a2 = policy(s2)                       # on-policy: sample next action\nQ[s, a] += alpha * (r + gamma * Q[s2, a2] - Q[s, a])",
+      "caption": "Bootstrap from the action the policy really takes."
+    }
+  ],
+  "takeaways": [
+    "SARSA is on-policy: it values the policy it follows.",
+    "Q-learning is off-policy: it values the greedy optimum.",
+    "On-policy learning is safer under exploration."
+  ],
+  "demo": "sarsa-vs-qlearning",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "19-01",
+  "slug": "recommenders-cf",
+  "module": "ml-applications",
+  "title": "Recommender Systems — Collaborative Filtering",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/ml-applications/recommenders-cf/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

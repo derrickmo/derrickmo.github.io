@@ -1,0 +1,103 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "16",
+  "slug": "training-systems",
+  "title": "Training Optimization & Distributed Systems",
+  "category": "Systems & Engineering",
+  "blurb": "Mixed precision, torch.compile, gradient checkpointing, DDP, FSDP, end-to-end optimized training.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master advanced training techniques — learning-rate schedulers, optimiser variants (AdaGrad → Lion), batch-size scaling laws, data-pipeline optimisation, distributed training concepts (DDP, FSDP), gradient compression, profiling (torch.profiler, roofline), and hyperparameter optimisation — on MNIST, CIFAR-10, and synthetic benchmarks.",
+    "prereqs": "Modules 05, 06, 15.",
+    "takeaways": [
+      "LR schedulers, advanced optimizers, and the batch-size linear-scaling rule.",
+      "Data-pipeline optimization and profiling (torch.profiler, roofline analysis).",
+      "Distributed training concepts (DDP, FSDP) and hyperparameter optimization."
+    ],
+    "flagships": [
+      {
+        "n": "16-06",
+        "label": "Distributed Data Parallel",
+        "href": "learn/training-systems/ddp/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "16-01",
+        "t": "Learning Rate Schedulers",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "16-02",
+        "t": "Advanced Optimisers",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "16-03",
+        "t": "Regularisation Techniques",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "16-04",
+        "t": "Batch Size Scaling & Linear Scaling Rule",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "16-05",
+        "t": "Data Pipeline Optimisation",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "16-06",
+        "t": "Distributed Training Concepts",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "16-07",
+        "t": "Profiling with torch.profiler",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "16-08",
+        "t": "Gradient Compression & Communication",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "16-09",
+        "t": "Hyperparameter Optimisation",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "16-10",
+        "t": "Training Optimisation Capstone",
+        "d": "CIFAR-10",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Mixed precision: fp16 math, fp32 stability.",
+    "code": "with torch.autocast(\"cuda\"):\n    loss = model(x).loss\nscaler.scale(loss).backward()           # train bigger + faster\nscaler.step(opt); scaler.update()"
+  },
+  "subLessons": {
+    "title": "Training at Scale",
+    "intro": "Keeping large training runs stable and efficient: schedule the learning rate, tame exploding gradients, train in low precision, and predict returns with scaling laws.",
+    "order": [
+      "lr-schedule",
+      "gradient-clipping",
+      "mixed-precision",
+      "scaling-laws"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

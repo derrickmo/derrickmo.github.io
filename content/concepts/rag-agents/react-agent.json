@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "react-agent",
+  "module": "rag-agents",
+  "title": "The ReAct Agent Loop",
+  "oneLine": "Interleave reasoning with tool calls in a thought-action-observation loop.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A ReAct agent alternates thinking and acting: it reasons about what to do, calls a tool, observes the result, and repeats until it can answer. Tools (search, a calculator, code) let it ground its reasoning in real results instead of hallucinating - but every step is a chance to go off the rails, so reliability compounds."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "End-to-end success is the product of per-step reliability:"
+      ],
+      "tex": "P(\\text{success}) \\approx \\prod_{t=1}^{T} p_t",
+      "texNote": "Many steps at 0.9 each still fail often - hence verification and retries."
+    },
+    {
+      "h": "In code",
+      "code": "while not done:\n    thought = model(scratchpad)            # reason\n    action, arg = parse_tool(thought)      # act\n    obs = tools[action](arg)               # observe\n    scratchpad += f'{thought}\\n{obs}\\n'",
+      "caption": "Thought, action, observation - loop until answered."
+    }
+  ],
+  "takeaways": [
+    "ReAct interleaves reasoning with grounded tool calls.",
+    "Tools curb hallucination by injecting real results.",
+    "Per-step error compounds, so reliability is the hard part."
+  ],
+  "demo": "react-agent",
+  "updatedAt": "2026-06-10"
+}

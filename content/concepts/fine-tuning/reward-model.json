@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "reward-model",
+  "module": "fine-tuning",
+  "title": "Reward Modeling",
+  "oneLine": "Learn a scalar reward from human preference comparisons.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "You cannot write down a loss for 'a helpful answer', but people can compare two answers and say which is better. A reward model learns a scalar score from many such comparisons, so that preferred responses score higher. That learned reward is what RLHF then optimizes the policy against."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The Bradley-Terry model turns score differences into preference probabilities:"
+      ],
+      "tex": "P(a \\succ b) = \\sigma\\!\\big(r(a) - r(b)\\big)",
+      "texNote": "Train r by maximizing the log-likelihood of the observed preferences."
+    },
+    {
+      "h": "In code",
+      "code": "# pairwise preference loss (chosen > rejected)\nloss = -np.log(sigmoid(r(chosen) - r(rejected))).mean()",
+      "caption": "Push the chosen response's score above the rejected one's."
+    }
+  ],
+  "takeaways": [
+    "Reward models learn from pairwise preferences, not absolute labels.",
+    "Bradley-Terry links score gaps to preference probabilities.",
+    "Goodhart risk: optimizing a proxy reward invites reward hacking."
+  ],
+  "demo": "reward-model",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "13",
+  "slug": "fine-tuning",
+  "title": "Fine-Tuning & Alignment",
+  "category": "Adaptation & Alignment",
+  "blurb": "LoRA, QLoRA, instruction tuning, reward modeling, RLHF, DPO, efficient fine-tuning with Unsloth.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master the full spectrum of model adaptation and alignment — LoRA/PEFT, supervised fine-tuning (SFT), reward modelling, PPO-based RLHF, DPO, constitutional-AI concepts, prompt tuning, and continual learning — applied to the Transformer language models built in Modules 08 and 10.",
+    "prereqs": "Modules 05, 08, 10.",
+    "takeaways": [
+      "Parameter-efficient fine-tuning (LoRA/PEFT) and supervised fine-tuning (SFT).",
+      "The RLHF stack: reward modeling, PPO, and DPO — plus constitutional-AI concepts.",
+      "Catastrophic forgetting, continual learning, and alignment evaluation & safety."
+    ],
+    "flagships": [
+      {
+        "n": "13-04",
+        "label": "RLHF with PPO",
+        "href": "learn/fine-tuning/rlhf-ppo/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "13-01",
+        "t": "LoRA & PEFT",
+        "d": "AG_NEWS",
+        "m": "25 min"
+      },
+      {
+        "n": "13-02",
+        "t": "Supervised Fine-Tuning (SFT)",
+        "d": "Synthetic instructions",
+        "m": "25 min"
+      },
+      {
+        "n": "13-03",
+        "t": "Reward Modelling",
+        "d": "Synthetic preference pairs",
+        "m": "25 min"
+      },
+      {
+        "n": "13-04",
+        "t": "PPO for RLHF",
+        "d": "Synthetic",
+        "m": "30 min"
+      },
+      {
+        "n": "13-05",
+        "t": "Direct Preference Optimisation (DPO)",
+        "d": "Synthetic preference pairs",
+        "m": "25 min"
+      },
+      {
+        "n": "13-06",
+        "t": "Constitutional AI & RLAIF Concepts",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "13-07",
+        "t": "Prompt Tuning & Soft Prompts",
+        "d": "AG_NEWS",
+        "m": "20 min"
+      },
+      {
+        "n": "13-08",
+        "t": "Catastrophic Forgetting & Continual Learning",
+        "d": "MNIST (sequential)",
+        "m": "25 min"
+      },
+      {
+        "n": "13-09",
+        "t": "Fine-Tuning Evaluation & Safety",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "13-10",
+        "t": "Alignment Capstone",
+        "d": "WikiText-2 + Synthetic",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "LoRA: freeze W, learn a tiny low-rank update.",
+    "code": "# A: d->r, B: r->d, with r << d  (a few % of the params)\ndelta = (x @ A) @ B\ny = x @ W_frozen + alpha * delta"
+  },
+  "subLessons": {
+    "title": "Fine-Tuning and Alignment",
+    "intro": "Adapting a pretrained model cheaply, and steering it toward human preferences.",
+    "order": [
+      "lora",
+      "reward-model",
+      "dpo"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

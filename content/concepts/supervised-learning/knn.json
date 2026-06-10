@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "knn",
+  "module": "supervised-learning",
+  "title": "k-Nearest Neighbors",
+  "oneLine": "Classify a point by the majority vote of its closest neighbors.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "kNN is the simplest idea that actually works: to label a new point, find the k closest labeled points and let them vote. There is no training - the data is the model. Small k gives a jagged, high-variance boundary; large k smooths it toward the majority class."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Predict the most common label among the k nearest by some distance d:"
+      ],
+      "tex": "\\hat{y}(x) = \\text{mode}\\,\\{\\, y_i : x_i \\in \\mathcal{N}_k(x) \\,\\}",
+      "texNote": "Distance choice and feature scaling matter enormously - standardize first."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef knn_predict(X, y, x, k=5):\n    d = np.linalg.norm(X - x, axis=1)\n    nn = np.argsort(d)[:k]\n    return np.bincount(y[nn]).argmax()",
+      "caption": "No fit step - prediction does all the work."
+    }
+  ],
+  "takeaways": [
+    "kNN is lazy: it stores the data and votes at query time.",
+    "k trades a jagged boundary (low k) for a smooth one (high k).",
+    "Distances need scaled features to be meaningful."
+  ],
+  "demo": "knn",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "15",
+  "slug": "pytorch-internals",
+  "title": "Advanced PyTorch Internals",
+  "category": "Systems & Engineering",
+  "blurb": "Custom autograd, advanced data pipelines, state_dict surgery, TorchScript, torch.fx, CUDA memory, distributed primitives, profiling.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Go deep into PyTorch's machinery — custom autograd functions, dynamic computation graphs, TorchScript (JIT), hooks and callbacks, memory management and profiling, mixed-precision training, and gradient checkpointing — building tools that make models faster, smaller, and more debuggable.",
+    "prereqs": "Modules 05, 06.",
+    "takeaways": [
+      "Custom autograd functions, dynamic graphs, and TorchScript JIT compilation.",
+      "Hooks, memory management, and debugging real models.",
+      "Mixed-precision training and gradient checkpointing for speed and memory."
+    ],
+    "flagships": [
+      {
+        "n": "15-01",
+        "label": "Custom Autograd - Build the Engine",
+        "href": "learn/pytorch-internals/custom-autograd/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "15-01",
+        "t": "Custom Autograd Functions",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "15-02",
+        "t": "Dynamic Computation Graphs",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "15-03",
+        "t": "TorchScript — JIT Tracing & Scripting",
+        "d": "MNIST",
+        "m": "20 min"
+      },
+      {
+        "n": "15-04",
+        "t": "Custom nn.Module Patterns",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "15-05",
+        "t": "Hooks, Callbacks & Gradient Analysis",
+        "d": "MNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "15-06",
+        "t": "Memory Management",
+        "d": "MNIST / CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "15-07",
+        "t": "Mixed-Precision Training (AMP)",
+        "d": "MNIST / CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "15-08",
+        "t": "Gradient Checkpointing",
+        "d": "Synthetic deep MLP",
+        "m": "20 min"
+      },
+      {
+        "n": "15-09",
+        "t": "Debugging PyTorch Models",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "15-10",
+        "t": "PyTorch Internals Capstone",
+        "d": "MNIST",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Define your own gradient when you need to.",
+    "code": "class Square(torch.autograd.Function):\n    @staticmethod\n    def forward(ctx, x): ctx.save_for_backward(x); return x * x\n    @staticmethod\n    def backward(ctx, g): (x,) = ctx.saved_tensors; return g * 2 * x"
+  },
+  "subLessons": {
+    "title": "PyTorch Internals",
+    "intro": "What a deep-learning framework actually does for you: record a computation graph, differentiate it automatically, and drive the standard train loop.",
+    "order": [
+      "backprop",
+      "optimizers",
+      "gradient-descent"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "dpo",
+  "module": "fine-tuning",
+  "title": "Direct Preference Optimization",
+  "oneLine": "Optimize a model on preferences directly, skipping the RL loop.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "RLHF trains a reward model, then runs reinforcement learning against it - powerful but finicky. DPO shows you can skip the middle step: a clever reparameterization turns the preference objective into a simple classification loss on the policy itself, tied to a frozen reference model, with no sampling or reward model needed."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "DPO raises the implicit reward of chosen over rejected, anchored to a reference policy:"
+      ],
+      "tex": "\\mathcal{L} = -\\log\\sigma\\!\\Big(\\beta\\log\\tfrac{\\pi(y_w)}{\\pi_{\\text{ref}}(y_w)} - \\beta\\log\\tfrac{\\pi(y_l)}{\\pi_{\\text{ref}}(y_l)}\\Big)",
+      "texNote": "beta controls how far the policy may drift from the reference."
+    },
+    {
+      "h": "In code",
+      "code": "# DPO loss: chosen y_w over rejected y_l vs a frozen reference\ndw = beta * (logp(pi, y_w) - logp(ref, y_w))\ndl = beta * (logp(pi, y_l) - logp(ref, y_l))\nloss = -np.log(sigmoid(dw - dl)).mean()",
+      "caption": "A single classification loss - no reward model, no RL rollout."
+    }
+  ],
+  "takeaways": [
+    "DPO optimizes preferences directly as a classification loss.",
+    "It removes the separate reward model and RL loop.",
+    "beta and the reference policy keep it from drifting."
+  ],
+  "demo": "dpo",
+  "updatedAt": "2026-06-10"
+}

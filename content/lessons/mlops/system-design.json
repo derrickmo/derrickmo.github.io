@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "20-10",
+  "slug": "system-design",
+  "module": "mlops",
+  "title": "ML System Design Patterns",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/mlops/system-design/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

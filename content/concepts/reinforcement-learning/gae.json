@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "gae",
+  "module": "reinforcement-learning",
+  "title": "Generalized Advantage Estimation",
+  "oneLine": "Tune the bias-variance trade-off of the advantage signal.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Policy gradients need an advantage estimate: how much better was an action than expected? Use one-step TD and it is low-variance but biased by the critic; use the full return and it is unbiased but noisy. GAE blends all horizons with a decay lambda, giving a single knob to trade bias against variance."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "An exponentially-weighted sum of TD residuals:"
+      ],
+      "tex": "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\,\\delta_{t+l},\\quad \\delta_t = r_t + \\gamma V(s_{t+1}) - V(s_t)",
+      "texNote": "lambda = 0 is one-step TD advantage; lambda = 1 is the Monte Carlo advantage."
+    },
+    {
+      "h": "In code",
+      "code": "adv, gae = np.zeros(T), 0.0\nfor t in reversed(range(T)):\n    delta = r[t] + gamma * V[t+1] - V[t]\n    gae = delta + gamma * lam * gae\n    adv[t] = gae",
+      "caption": "A backward pass blends every horizon's TD error."
+    }
+  ],
+  "takeaways": [
+    "GAE trades advantage bias against variance with lambda.",
+    "It is computed in one backward pass over a trajectory.",
+    "It is the standard advantage estimator inside PPO."
+  ],
+  "demo": "gae",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "07-02",
+  "slug": "word-vectors",
+  "module": "rnn-nlp",
+  "title": "Word Vectors — Word2Vec, GloVe & FastText",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

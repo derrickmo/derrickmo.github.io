@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "canary-rollout",
+  "module": "mlops",
+  "title": "Canary Rollouts",
+  "oneLine": "Ship a new model to a slice of traffic, watch, then ramp or roll back.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Deploying a new model to everyone at once is risky. A canary sends a small fraction of traffic to the new version, compares its error rate against the old one with a statistical test, and only ramps up if it passes. A regression hits a few percent of users instead of all of them, and rolls back automatically."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A one-sided test gates each ramp stage on the error-rate difference:"
+      ],
+      "tex": "z = \\frac{\\hat{p}_{\\text{new}} - \\hat{p}_{\\text{old}}}{\\sqrt{\\hat{p}(1-\\hat{p})(1/n_1 + 1/n_2)}}",
+      "texNote": "Pass the guard, ramp the traffic split; fail, roll back."
+    },
+    {
+      "h": "In code",
+      "code": "for split in [0.05, 0.25, 0.5, 1.0]:\n    route(new_version, split)\n    if error_rate(new) > error_rate(old) + margin:\n        rollback(); break        # guard tripped",
+      "caption": "Ramp the split only while the guard holds."
+    }
+  ],
+  "takeaways": [
+    "Canaries limit a bad deploy's blast radius.",
+    "A statistical guard decides ramp versus rollback.",
+    "Progressive traffic shifting makes releases safe."
+  ],
+  "demo": "canary-rollout",
+  "updatedAt": "2026-06-10"
+}

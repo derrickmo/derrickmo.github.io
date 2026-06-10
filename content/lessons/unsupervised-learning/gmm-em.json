@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "03-06",
+  "slug": "gmm-em",
+  "module": "unsupervised-learning",
+  "title": "Gaussian Mixture Models & EM Algorithm",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

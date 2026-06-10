@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "gradient-descent",
+  "module": "foundations",
+  "title": "Gradient Descent",
+  "oneLine": "Follow the negative gradient downhill to minimize a loss.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Most models are trained by minimizing a loss function you cannot solve in closed form. Gradient descent is the universal fallback: stand on the loss surface, look at the slope, and take a small step in the steepest downhill direction. Repeat until you stop improving."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each step moves the parameters against the gradient, scaled by a learning rate eta:"
+      ],
+      "tex": "\\theta_{t+1} = \\theta_t - \\eta\\,\\nabla_\\theta\\,\\mathcal{L}(\\theta_t)",
+      "texNote": "Too large an eta overshoots; too small crawls. The learning-rate schedule manages this."
+    },
+    {
+      "h": "In code",
+      "code": "def gradient_descent(grad, theta, eta=0.1, steps=100):\n    for _ in range(steps):\n        theta = theta - eta * grad(theta)\n    return theta",
+      "caption": "The same three lines train a line fit or a billion-parameter model."
+    }
+  ],
+  "takeaways": [
+    "Gradient descent turns 'minimize this loss' into a simple iterative rule.",
+    "The learning rate is the single most important knob.",
+    "Adam and friends are gradient descent with adaptive per-parameter steps."
+  ],
+  "demo": "gradient-descent",
+  "updatedAt": "2026-06-10"
+}

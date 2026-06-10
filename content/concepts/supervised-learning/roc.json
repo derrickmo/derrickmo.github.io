@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "roc",
+  "module": "supervised-learning",
+  "title": "ROC and Thresholds",
+  "oneLine": "Score a classifier honestly across every decision threshold.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Accuracy hides the trade-off between catching positives and raising false alarms - and collapses on imbalanced data. The ROC curve sweeps the decision threshold and plots true-positive rate against false-positive rate, and the area under it (AUC) summarizes ranking quality independent of any single threshold."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The curve plots, over all thresholds t, the two rates:"
+      ],
+      "tex": "\\text{TPR} = \\frac{TP}{TP+FN},\\qquad \\text{FPR} = \\frac{FP}{FP+TN}",
+      "texNote": "AUC is the probability a random positive is ranked above a random negative."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef roc_points(scores, y):\n    for t in np.sort(scores)[::-1]:\n        pred = scores >= t\n        tpr = (pred & (y == 1)).sum() / max((y == 1).sum(), 1)\n        fpr = (pred & (y == 0)).sum() / max((y == 0).sum(), 1)\n        yield fpr, tpr",
+      "caption": "Sweep the threshold, trace the curve, integrate for AUC."
+    }
+  ],
+  "takeaways": [
+    "ROC separates ranking quality from the choice of threshold.",
+    "AUC is threshold-free and robust to class imbalance.",
+    "Pick the operating threshold from the curve, by the cost of each error."
+  ],
+  "demo": "roc",
+  "updatedAt": "2026-06-10"
+}

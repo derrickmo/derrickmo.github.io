@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "hough-transform",
+  "module": "advanced-cv",
+  "title": "The Hough Transform",
+  "oneLine": "Detect lines by having edge points vote in parameter space.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Once you have edges, how do you find straight lines? Each edge point votes for every line that could pass through it, in a (rho, theta) accumulator. Real lines collect many votes and show up as bright peaks. It is a robust, global way to find shapes even with gaps and noise."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each point (x, y) maps to a sinusoid of lines through it:"
+      ],
+      "tex": "\\rho = x\\cos\\theta + y\\sin\\theta",
+      "texNote": "Collinear points share a (rho, theta) cell - the peak is their common line."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\nfor (x, y) in edge_points:\n    for ti, theta in enumerate(thetas):\n        rho = int(x*np.cos(theta) + y*np.sin(theta))\n        acc[rho, ti] += 1            # vote; peaks = lines",
+      "caption": "Edge points vote; accumulator peaks are the lines."
+    }
+  ],
+  "takeaways": [
+    "The Hough transform detects shapes by voting.",
+    "Collinear edges peak at one (rho, theta) cell.",
+    "It is robust to gaps and noise; it extends to circles."
+  ],
+  "demo": "hough-transform",
+  "updatedAt": "2026-06-10"
+}

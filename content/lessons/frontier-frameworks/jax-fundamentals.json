@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "22-01",
+  "slug": "jax-fundamentals",
+  "module": "frontier-frameworks",
+  "title": "JAX & Functional ML: jit, grad, vmap",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

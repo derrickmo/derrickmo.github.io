@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "tokenization",
+  "module": "transformers",
+  "title": "Tokenization",
+  "oneLine": "Turn raw text into the discrete tokens a model actually consumes.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A language model never sees characters or words — it sees a sequence of integer token ids drawn from a fixed vocabulary. Tokenization is the step that converts a string into that sequence, and back.",
+        "Word-level vocabularies explode and choke on typos and rare words; character-level keeps the vocabulary tiny but makes sequences painfully long. Subword tokenization (BPE, WordPiece, Unigram) is the compromise everyone uses: common words stay whole, rare ones split into reusable pieces, and nothing is ever out-of-vocabulary."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Byte-Pair Encoding learns its vocabulary greedily. Start from single characters, then repeatedly merge the adjacent pair with the highest frequency across the corpus until you hit the target vocabulary size:"
+      ],
+      "tex": "(a,b)^\\star = \\arg\\max_{(a,b)}\\; \\mathrm{count}(a,b)",
+      "texNote": "Each chosen pair becomes a new token; the merge list, applied in order, is the tokenizer."
+    },
+    {
+      "h": "In code",
+      "code": "from collections import Counter\n\n# greedy BPE merge step over a corpus of symbol-lists\ndef best_pair(corpus):\n    pairs = Counter()\n    for word in corpus:                # word = ['l','o','w','</w>']\n        for a, b in zip(word, word[1:]):\n            pairs[(a, b)] += 1\n    return pairs.most_common(1)[0][0]  # the pair to merge next\n\ndef merge(corpus, pair):\n    a, b = pair\n    return [_join(word, a, b) for word in corpus]",
+      "caption": "Run best_pair -> merge in a loop until the vocabulary reaches the size you want."
+    }
+  ],
+  "takeaways": [
+    "Models operate on token ids, not text — tokenization defines what a 'unit' even is.",
+    "Subword tokenizers trade vocabulary size against sequence length and eliminate out-of-vocabulary words.",
+    "BPE is just: merge the most frequent adjacent pair, repeat."
+  ],
+  "demo": "tokenizer",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "word2vec",
+  "module": "rnn-nlp",
+  "title": "Word2Vec",
+  "oneLine": "Learn word vectors by predicting a word from its context.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Words that appear in similar contexts should have similar vectors. Skip-gram trains embeddings by pushing a word's vector toward the words around it and away from random negatives. The result is the famous geometry where king - man + woman lands near queen."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Skip-gram maximizes the probability of context given the center word:"
+      ],
+      "tex": "P(c\\mid w) = \\frac{\\exp(v_c^{\\top} v_w)}{\\sum_{c'}\\exp(v_{c'}^{\\top} v_w)}",
+      "texNote": "Negative sampling approximates the costly denominator with a few random words."
+    },
+    {
+      "h": "In code",
+      "code": "# one skip-gram step with negative sampling\nscore = v_center @ v_context\ngrad = (sigmoid(score) - label) * v_center   # label 1 for true ctx, 0 for neg\nv_context -= lr * grad",
+      "caption": "Pull true context together, push negatives apart."
+    }
+  ],
+  "takeaways": [
+    "Distributional meaning: context predicts the embedding.",
+    "Negative sampling makes training cheap.",
+    "It produces vectors with linear analogy structure."
+  ],
+  "demo": "word2vec",
+  "updatedAt": "2026-06-10"
+}

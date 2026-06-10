@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "quantization",
+  "module": "llm-systems",
+  "title": "Quantization",
+  "oneLine": "Store and compute weights in fewer bits with minimal accuracy loss.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A model in 16-bit floats is mostly empty precision. Quantization maps weights to low-bit integers (8-bit, even 4-bit), shrinking memory and speeding up math. The trick is choosing a scale per group of weights so the rounding error stays small, and handling outliers that would otherwise stretch the scale."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Symmetric quantization rounds to a grid set by a per-group scale s:"
+      ],
+      "tex": "q = \\mathrm{round}(w/s),\\qquad \\hat{w} = s\\cdot q",
+      "texNote": "Smaller groups and outlier handling keep the reconstruction error low."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef quantize(w, bits=8):\n    s = np.abs(w).max() / (2**(bits-1) - 1)\n    q = np.round(w / s).clip(-(2**(bits-1)), 2**(bits-1)-1)\n    return q, s          # store q (int) + s (scale)",
+      "caption": "Round to a grid; dequantize by multiplying back."
+    }
+  ],
+  "takeaways": [
+    "Quantization trades precision for memory and speed.",
+    "Per-group scales keep rounding error small.",
+    "Outliers are the main accuracy challenge."
+  ],
+  "demo": "quantization",
+  "updatedAt": "2026-06-10"
+}

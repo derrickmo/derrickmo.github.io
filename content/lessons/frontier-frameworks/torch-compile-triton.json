@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "22-05",
+  "slug": "torch-compile-triton",
+  "module": "frontier-frameworks",
+  "title": "torch.compile & GPU Kernels with Triton",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": false,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

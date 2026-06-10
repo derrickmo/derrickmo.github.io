@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "optical-flow",
+  "module": "advanced-cv",
+  "title": "Optical Flow",
+  "oneLine": "Estimate the per-pixel motion between two frames.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Optical flow asks: where did each pixel go between frames? Assuming brightness is conserved as things move, the Lucas-Kanade method solves a small least-squares system in each neighborhood to recover the local motion vector. It powers tracking, stabilization, and motion-based segmentation."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The brightness-constancy constraint relates spatial and temporal gradients:"
+      ],
+      "tex": "I_x u + I_y v + I_t = 0",
+      "texNote": "One equation, two unknowns - Lucas-Kanade adds neighbors to solve it."
+    },
+    {
+      "h": "In code",
+      "code": "# Lucas-Kanade in a window: solve A [u v]^T = b\nA = np.stack([Ix[win], Iy[win]], 1)\nb = -It[win]\nuv = np.linalg.lstsq(A, b, rcond=None)[0]",
+      "caption": "Least-squares over a patch gives the local flow."
+    }
+  ],
+  "takeaways": [
+    "Optical flow recovers per-pixel motion between frames.",
+    "Brightness constancy plus a local window makes it solvable.",
+    "It only works for small motions - hence coarse-to-fine pyramids."
+  ],
+  "demo": "optical-flow",
+  "updatedAt": "2026-06-10"
+}

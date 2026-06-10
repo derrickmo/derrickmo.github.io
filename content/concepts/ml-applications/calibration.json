@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "calibration",
+  "module": "ml-applications",
+  "title": "Calibration",
+  "oneLine": "Make a model's confidence match its real accuracy.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A trustworthy classifier that says 90% should be right about 90% of the time. Modern networks are often overconfident. Calibration fixes the scores without changing the ranking - temperature scaling divides the logits by a single learned constant so the confidences line up with observed accuracy."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Temperature scaling softens the logits by a learned scalar T:"
+      ],
+      "tex": "\\hat{p} = \\mathrm{softmax}(z / T)",
+      "texNote": "T > 1 reduces overconfidence; it is fit on validation data and leaves the argmax unchanged."
+    },
+    {
+      "h": "In code",
+      "code": "# fit T to minimize validation NLL; predictions unchanged in rank\np = softmax(logits / T)\nece = expected_calibration_error(p, labels)",
+      "caption": "One scalar recalibrates every confidence."
+    }
+  ],
+  "takeaways": [
+    "Calibration aligns confidence with actual accuracy.",
+    "Temperature scaling fixes it with a single constant.",
+    "It changes confidences but not the predicted class."
+  ],
+  "demo": "calibration",
+  "updatedAt": "2026-06-10"
+}

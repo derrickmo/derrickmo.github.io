@@ -1,0 +1,86 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "23",
+  "slug": "causal-inference",
+  "title": "Causal Inference & Advanced Statistics",
+  "category": "Classical ML",
+  "blurb": "From correlation to causation: potential outcomes, causal graphs, confounding, instrumental variables, A/B testing at scale, resampling, and the Bayesian workflow.",
+  "status": "PENDING",
+  "lecture": {
+    "summary": "From correlation to causation — potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
+    "prereqs": "Modules 01 (probability) and 04 (evaluation).",
+    "takeaways": [
+      "Prediction and causation are different questions — a great predictor can be a terrible guide to intervention.",
+      "Confounding is the central enemy; graphs, randomization, instruments, and matching are the weapons.",
+      "Experimentation at scale is an engineering discipline: power, sequential testing, and the traps of peeking."
+    ],
+    "notebooks": [
+      {
+        "n": "23-01",
+        "t": "Potential Outcomes & Treatment Effects",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "23-02",
+        "t": "Causal Graphs & do-Calculus",
+        "d": "Synthetic DAGs",
+        "m": "25 min"
+      },
+      {
+        "n": "23-03",
+        "t": "Confounding & Simpson's Paradox",
+        "d": "Classic cases",
+        "m": "20 min"
+      },
+      {
+        "n": "23-04",
+        "t": "Instrumental Variables",
+        "d": "Econometric data",
+        "m": "25 min"
+      },
+      {
+        "n": "23-05",
+        "t": "Propensity Scores & Matching",
+        "d": "Observational data",
+        "m": "25 min"
+      },
+      {
+        "n": "23-06",
+        "t": "Uplift Modeling",
+        "d": "Marketing data",
+        "m": "25 min"
+      },
+      {
+        "n": "23-07",
+        "t": "A/B Testing & Experimentation at Scale",
+        "d": "Synthetic experiments",
+        "m": "30 min"
+      },
+      {
+        "n": "23-08",
+        "t": "Bootstrap, Permutation & Resampling",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "23-09",
+        "t": "The Bayesian Workflow",
+        "d": "Synthetic",
+        "m": "30 min"
+      },
+      {
+        "n": "23-10",
+        "t": "Time-Series Causality & Synthetic Control",
+        "d": "Panel data",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Intervening is not the same as observing.",
+    "code": "p_obs = df[df.treated == 1].outcome.mean()       # P(Y | T=1)\n# do(T=1): break the arrows INTO treatment, then average\np_do = sum(p(y, do_t=1, z=z) * p(z) for z in confounders)\n# the gap between the two IS confounding"
+  },
+  "updatedAt": "2026-06-10"
+}

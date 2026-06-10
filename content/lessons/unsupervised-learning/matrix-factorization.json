@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "03-09",
+  "slug": "matrix-factorization",
+  "module": "unsupervised-learning",
+  "title": "Matrix Factorization & Decomposition",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/unsupervised-learning/matrix-factorization/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "gradient-clipping",
+  "module": "training-systems",
+  "title": "Gradient Clipping",
+  "oneLine": "Cap the gradient norm so a bad batch cannot blow up training.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Occasionally a batch produces a huge gradient that sends the weights flying and the loss to NaN - common in RNNs and transformers. Clipping rescales the gradient when its norm exceeds a threshold, preserving direction but bounding the step. Cheap insurance against rare instabilities."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Rescale the gradient if its norm exceeds the threshold c:"
+      ],
+      "tex": "g \\leftarrow g \\cdot \\min\\!\\Big(1,\\ \\tfrac{c}{\\|g\\|}\\Big)",
+      "texNote": "Direction is preserved; only the magnitude is capped."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef clip(g, c=1.0):\n    norm = np.linalg.norm(g)\n    return g * min(1.0, c / (norm + 1e-9))",
+      "caption": "Keep the direction, bound the magnitude."
+    }
+  ],
+  "takeaways": [
+    "Clipping bounds the update from a rare huge gradient.",
+    "It preserves direction, only scaling magnitude.",
+    "Standard practice for RNNs and transformers."
+  ],
+  "demo": "gradient-clipping",
+  "updatedAt": "2026-06-10"
+}

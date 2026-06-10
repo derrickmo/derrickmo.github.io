@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "harris-corners",
+  "module": "advanced-cv",
+  "title": "Corner Detection",
+  "oneLine": "Find points where intensity changes in every direction.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Corners are the most distinctive local features - unlike a smooth region or a straight edge, a corner shifts in appearance whichever way you move. The Harris detector measures this with the structure tensor of local gradients; large change in two directions means a corner worth tracking across frames."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The Harris response from the structure tensor M:"
+      ],
+      "tex": "R = \\det(M) - k\\,\\mathrm{tr}(M)^2",
+      "texNote": "Large positive R means two strong gradient directions - a corner."
+    },
+    {
+      "h": "In code",
+      "code": "Ix, Iy = grad(I)\nM = [[smooth(Ix*Ix), smooth(Ix*Iy)],\n     [smooth(Ix*Iy), smooth(Iy*Iy)]]\nR = det(M) - 0.04 * trace(M)**2      # corners where R is large",
+      "caption": "Two strong gradient directions = a trackable corner."
+    }
+  ],
+  "takeaways": [
+    "Corners change in all directions - the best local features.",
+    "The structure tensor's eigenvalues reveal them.",
+    "They anchor tracking, matching, and motion estimation."
+  ],
+  "demo": "harris-corners",
+  "updatedAt": "2026-06-10"
+}

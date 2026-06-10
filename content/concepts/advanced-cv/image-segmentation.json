@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "image-segmentation",
+  "module": "advanced-cv",
+  "title": "Image Segmentation",
+  "oneLine": "Partition an image into coherent regions or objects.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Segmentation labels every pixel, grouping them into regions that belong together. Classical watershed treats intensity as a landscape and floods basins from markers, with boundaries forming where basins meet. It is how you separate touching objects before counting or measuring them."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Watershed floods from markers; ridges between catchment basins become boundaries:"
+      ],
+      "tex": "\\partial = \\{\\,x : \\text{two basins meet at } x\\,\\}",
+      "texNote": "Marker placement controls over- versus under-segmentation."
+    },
+    {
+      "h": "In code",
+      "code": "# marker-controlled watershed (sketch)\ndist = distance_transform(binary)\nmarkers = local_maxima(dist)\nlabels = watershed(-dist, markers)     # basins flood from markers",
+      "caption": "Flood from markers; boundaries form where basins collide."
+    }
+  ],
+  "takeaways": [
+    "Segmentation assigns every pixel to a region.",
+    "Watershed floods basins from markers to split touching objects.",
+    "Modern deep segmentation learns the regions end-to-end."
+  ],
+  "demo": "watershed",
+  "updatedAt": "2026-06-10"
+}

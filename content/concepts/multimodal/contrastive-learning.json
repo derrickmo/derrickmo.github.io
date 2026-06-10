@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "contrastive-learning",
+  "module": "multimodal",
+  "title": "Contrastive Learning",
+  "oneLine": "Pull matching pairs together and push mismatches apart in embedding space.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Contrastive learning shapes an embedding space by example: matching pairs (two crops of an image, or an image and its caption) should land close together; everything else should be far apart. This is how CLIP aligns images and text into one space, enabling zero-shot recognition and cross-modal search."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The InfoNCE loss makes the positive pair win a softmax over negatives:"
+      ],
+      "tex": "\\mathcal{L} = -\\log\\frac{\\exp(\\mathrm{sim}(z_i, z_j)/\\tau)}{\\sum_k \\exp(\\mathrm{sim}(z_i, z_k)/\\tau)}",
+      "texNote": "tau is a temperature; the negatives are the other items in the batch."
+    },
+    {
+      "h": "In code",
+      "code": "# in-batch contrastive (CLIP-style)\nlogits = (Z_img @ Z_txt.T) / tau\nlabels = np.arange(len(Z_img))      # i-th image matches i-th text\nloss = cross_entropy(logits, labels)",
+      "caption": "The diagonal pairs are positives; everything off-diagonal is negative."
+    }
+  ],
+  "takeaways": [
+    "Contrastive learning aligns matching pairs in embedding space.",
+    "InfoNCE turns it into a softmax over in-batch negatives.",
+    "It powers CLIP and self-supervised representations."
+  ],
+  "demo": "contrastive-learning",
+  "updatedAt": "2026-06-10"
+}

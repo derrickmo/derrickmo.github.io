@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "dqn",
+  "module": "reinforcement-learning",
+  "title": "Deep Q-Networks",
+  "oneLine": "Replace the Q-table with a network - stabilized by replay and a target net.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "When states are too many to tabulate (pixels, say), approximate Q with a neural network. Two tricks keep it from diverging: a replay buffer that breaks the correlation between consecutive samples, and a slowly-updated target network that provides a stable regression goal. Together they made deep RL work on Atari."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Regress the network Q toward a target built from a frozen copy:"
+      ],
+      "tex": "y = r + \\gamma\\max_{a'} Q_{\\theta^-}(s', a'),\\quad \\mathcal{L} = (y - Q_\\theta(s,a))^2",
+      "texNote": "theta^- is the target network, copied from theta every so often."
+    },
+    {
+      "h": "In code",
+      "code": "# sample a minibatch from replay, regress to the target net\ny = r + gamma * Q_target(s2).max(1) * (1 - done)\nloss = ((y - Q(s).gather(a)) ** 2).mean()",
+      "caption": "Replay decorrelates data; the target net stabilizes the goal."
+    }
+  ],
+  "takeaways": [
+    "DQN approximates Q with a neural network.",
+    "Experience replay breaks sample correlation.",
+    "A target network gives a stable regression target."
+  ],
+  "demo": "dqn",
+  "updatedAt": "2026-06-10"
+}

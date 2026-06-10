@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "tsne",
+  "module": "unsupervised-learning",
+  "title": "t-SNE",
+  "oneLine": "Lay out high-dimensional data in 2D so neighborhoods are preserved.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "PCA is linear and can flatten interesting structure. t-SNE is built for visualization: it places points in 2D so that near neighbors in the original space stay near, revealing clusters. It distorts global distances to do so, so read cluster membership, not the gaps between clusters."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "It minimizes the KL divergence between neighbor distributions in high and low dimensions:"
+      ],
+      "tex": "\\mathrm{KL}(P\\,\\|\\,Q) = \\sum_{i\\ne j} p_{ij}\\log\\frac{p_{ij}}{q_{ij}}",
+      "texNote": "Perplexity sets the neighborhood size; the low-D q uses a heavy-tailed Student-t."
+    },
+    {
+      "h": "In code",
+      "code": "# gradient-descend the 2D points Y to match neighbor probabilities\nP = joint_neighbor_probs(X, perplexity=30)\nfor _ in range(1000):\n    Q = student_t_affinities(Y)\n    Y -= lr * kl_gradient(P, Q, Y)",
+      "caption": "Match neighborhood probabilities; trust clusters, not distances."
+    }
+  ],
+  "takeaways": [
+    "t-SNE preserves local neighborhoods for visualization.",
+    "It distorts global distances - read clusters, not gaps.",
+    "Perplexity controls the neighborhood scale."
+  ],
+  "demo": "tsne",
+  "updatedAt": "2026-06-10"
+}

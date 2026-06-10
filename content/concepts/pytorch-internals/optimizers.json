@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "optimizers",
+  "module": "pytorch-internals",
+  "title": "The Optimizer Step",
+  "oneLine": "How torch.optim turns accumulated gradients into a weight update.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "After backward fills in the gradients, an optimizer object applies the update rule. It holds the parameters and any per-parameter state (like Adam's moment estimates), and .step() applies the rule while .zero_grad() clears the gradients for the next iteration. Swapping SGD for Adam is a one-line change."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The optimizer applies its update rule to each parameter using its stored state:"
+      ],
+      "tex": "\\theta \\leftarrow \\theta - \\eta\\,u(g,\\,\\text{state})",
+      "texNote": "u is the rule (SGD, Adam, ...); state carries momentum and scale across steps."
+    },
+    {
+      "h": "In code",
+      "code": "opt = torch.optim.Adam(model.parameters(), lr=3e-4)\n# each iteration:\nopt.zero_grad()       # clear old grads\nloss.backward()       # fill grads\nopt.step()            # apply the update rule",
+      "caption": "zero_grad, backward, step - the same three calls every iteration."
+    }
+  ],
+  "takeaways": [
+    "The optimizer owns the parameters and their update state.",
+    ".step() applies the rule; .zero_grad() resets gradients.",
+    "Changing optimizers is a one-line swap."
+  ],
+  "demo": "optimizers",
+  "updatedAt": "2026-06-10"
+}

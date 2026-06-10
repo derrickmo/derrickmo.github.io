@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "drift-detection",
+  "module": "mlops",
+  "title": "Drift Detection",
+  "oneLine": "Notice when production data has shifted away from training.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Models silently decay when the world changes - new user behavior, a shifted input distribution, a broken upstream feature. Drift detection compares the live input distribution against a training reference and raises an alarm when they diverge, so you retrain before accuracy quietly collapses."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The population stability index sums the binned distribution shift:"
+      ],
+      "tex": "\\mathrm{PSI} = \\sum_b (p_b - q_b)\\,\\ln\\frac{p_b}{q_b}",
+      "texNote": "PSI above ~0.2 flags a meaningful shift worth investigating."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef psi(expected, actual, bins=10):\n    e, _ = np.histogram(expected, bins); a, _ = np.histogram(actual, bins)\n    e = e/e.sum()+1e-6; a = a/a.sum()+1e-6\n    return np.sum((a - e) * np.log(a / e))",
+      "caption": "Bin both distributions; sum the divergence."
+    }
+  ],
+  "takeaways": [
+    "Drift detection compares live data to a training reference.",
+    "PSI quantifies distribution shift; ~0.2 is a common alarm.",
+    "Catching drift early triggers retraining before accuracy falls."
+  ],
+  "demo": "drift-detection",
+  "updatedAt": "2026-06-10"
+}

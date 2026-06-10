@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "transformer-block",
+  "module": "transformers",
+  "title": "The Transformer Block",
+  "oneLine": "Stack attention and an MLP with residuals and normalization into one repeatable unit.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A transformer is just the same block stacked many times. Each block does two things: mix information across tokens (attention), then transform each token on its own (a small MLP). Residual connections let signal and gradients flow straight through, and layer normalization keeps the activations well-scaled at every depth.",
+        "This residual-and-norm sandwich is what makes very deep stacks trainable at all."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "With pre-norm placement, each sub-layer reads a normalized input and adds its result back to the residual stream:"
+      ],
+      "tex": "\\begin{aligned} x &\\leftarrow x + \\mathrm{MHA}(\\mathrm{LN}(x)) \\\\ x &\\leftarrow x + \\mathrm{MLP}(\\mathrm{LN}(x)) \\end{aligned}",
+      "texNote": "The MLP is two linear layers with a nonlinearity, applied to each token independently."
+    },
+    {
+      "h": "In code",
+      "code": "def transformer_block(x, attn, mlp, ln1, ln2):\n    x = x + attn(ln1(x))               # mix across tokens\n    x = x + mlp(ln2(x))                # transform each token\n    return x\n\n# a stack is just this block, repeated\ndef transformer(x, blocks):\n    for blk in blocks:\n        x = blk(x)\n    return x",
+      "caption": "Residual + norm around two sub-layers — repeat N times."
+    }
+  ],
+  "takeaways": [
+    "A transformer is one block (attention + MLP) stacked with residuals and normalization.",
+    "Residual connections keep gradients flowing through deep stacks.",
+    "Attention mixes tokens; the MLP processes each token independently."
+  ],
+  "demo": "multi-head-attention",
+  "updatedAt": "2026-06-10"
+}

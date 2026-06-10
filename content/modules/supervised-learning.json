@@ -1,0 +1,106 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "02",
+  "slug": "supervised-learning",
+  "title": "Supervised Learning",
+  "category": "Classical ML",
+  "blurb": "Master core supervised algorithms from scratch using sklearn and NumPy. Every algorithm is implemented before being compared against library versions.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master core supervised learning algorithms from scratch — linear and logistic regression, decision trees, random forests, gradient boosting, SVMs, kNN, Naive Bayes, and ensembles — building each from NumPy before comparing against sklearn.",
+    "prereqs": "Module 01.",
+    "takeaways": [
+      "Implement regression, trees, boosting, SVMs, kNN, and Naive Bayes in NumPy before trusting a library.",
+      "The decision-boundary and bias/variance intuition behind each family of models.",
+      "How to compare algorithms and pick the right one for a given problem."
+    ],
+    "flagships": [
+      {
+        "n": "02-04",
+        "label": "Gradient Boosting and AdaBoost",
+        "href": "learn/supervised-learning/boosting/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "02-01",
+        "t": "Linear Regression",
+        "d": "California Housing",
+        "m": "20 min"
+      },
+      {
+        "n": "02-02",
+        "t": "Logistic Regression & Binary Classification",
+        "d": "make_moons + make_blobs",
+        "m": "20 min"
+      },
+      {
+        "n": "02-03",
+        "t": "Decision Trees & Random Forests",
+        "d": "Iris + make_classification",
+        "m": "25 min"
+      },
+      {
+        "n": "02-04",
+        "t": "Gradient Boosting & AdaBoost",
+        "d": "California Housing",
+        "m": "25 min"
+      },
+      {
+        "n": "02-05",
+        "t": "Support Vector Machines",
+        "d": "make_moons + make_blobs",
+        "m": "25 min"
+      },
+      {
+        "n": "02-06",
+        "t": "Generalized Linear Models & Exponential Family",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "02-07",
+        "t": "k-Nearest Neighbors",
+        "d": "Digits + make_blobs",
+        "m": "20 min"
+      },
+      {
+        "n": "02-08",
+        "t": "Naive Bayes for Text Classification",
+        "d": "20 Newsgroups",
+        "m": "20 min"
+      },
+      {
+        "n": "02-09",
+        "t": "Stacking & Voting Ensembles",
+        "d": "make_classification",
+        "m": "20 min"
+      },
+      {
+        "n": "02-10",
+        "t": "Model Comparison & Algorithm Selection",
+        "d": "California Housing + Iris",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Fit a model by following the gradient downhill.",
+    "code": "for _ in range(epochs):\n    y_hat = X @ w + b\n    grad_w = X.T @ (y_hat - y) / n      # dLoss/dw\n    w -= lr * grad_w                    # the move every model makes"
+  },
+  "subLessons": {
+    "title": "Supervised Learning",
+    "intro": "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
+    "order": [
+      "linear-regression",
+      "logistic-regression",
+      "knn",
+      "naive-bayes",
+      "decision-tree",
+      "svm",
+      "roc"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

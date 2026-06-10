@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "bias-variance",
+  "module": "ml-theory",
+  "title": "The Bias-Variance Trade-off",
+  "oneLine": "Generalization error splits into bias, variance, and irreducible noise.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Too simple a model misses the pattern (high bias); too flexible a model chases the noise and changes wildly with the training set (high variance). Test error is the sum of both plus the noise floor, and model selection is the search for their sweet spot."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Expected squared error decomposes cleanly:"
+      ],
+      "tex": "\\mathbb{E}[(y-\\hat{f})^2] = \\text{Bias}^2 + \\text{Var} + \\sigma^2",
+      "texNote": "More capacity lowers bias but raises variance; the irreducible noise sigma^2 cannot be removed."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\n# fit many models on resampled data, then:\nbias2 = (preds.mean(0) - truth) ** 2\nvar = preds.var(0)\n# test_err ~ bias2.mean() + var.mean() + noise",
+      "caption": "Average predictions give bias; their spread gives variance."
+    }
+  ],
+  "takeaways": [
+    "Error = bias^2 + variance + irreducible noise.",
+    "Capacity trades bias for variance.",
+    "The goal is the minimum-total-error sweet spot, not zero training error."
+  ],
+  "demo": "bias-variance-decomp",
+  "updatedAt": "2026-06-10"
+}

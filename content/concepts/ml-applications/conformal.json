@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "conformal",
+  "module": "ml-applications",
+  "title": "Conformal Prediction",
+  "oneLine": "Output prediction sets with a guaranteed coverage rate.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Instead of one guess, conformal prediction returns a set that contains the truth with a chosen probability - say 90% - and that guarantee holds for any model, with no distributional assumptions. When the model is unsure the set is large; when it is confident the set shrinks. It turns any predictor into one with honest uncertainty."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Use a calibration quantile of nonconformity scores to build the set:"
+      ],
+      "tex": "C(x) = \\{\\,y : s(x,y) \\le \\hat{q}_{1-\\alpha}\\,\\}",
+      "texNote": "Coverage of at least 1 - alpha holds marginally; set size grows as the model weakens."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\nscores = nonconformity(calib_X, calib_y)\nqhat = np.quantile(scores, 1 - alpha)        # threshold\npred_set = [y for y in classes if score(x, y) <= qhat]",
+      "caption": "Calibrate a threshold; include every plausible label."
+    }
+  ],
+  "takeaways": [
+    "Conformal sets guarantee coverage for any model.",
+    "Set size grows when the model is uncertain.",
+    "Coverage is distribution-free and finite-sample valid."
+  ],
+  "demo": "conformal",
+  "updatedAt": "2026-06-10"
+}

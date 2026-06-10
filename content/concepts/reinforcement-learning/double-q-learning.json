@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "double-q-learning",
+  "module": "reinforcement-learning",
+  "title": "Double Q-Learning",
+  "oneLine": "Cancel the optimistic bias that fools plain Q-learning.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Taking a max over noisy action-value estimates systematically overestimates - the maximization bias. Double Q-learning keeps two value tables and uses one to pick the best action and the other to evaluate it, decoupling selection from evaluation so the noise no longer inflates the estimate."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Select with one estimator, evaluate with the other:"
+      ],
+      "tex": "Q_A(s,a)\\leftarrow Q_A(s,a)+\\alpha\\big[r+\\gamma Q_B\\big(s',\\arg\\max_{a'}Q_A(s',a')\\big)-Q_A(s,a)\\big]",
+      "texNote": "Randomly update A or B each step; the cross-evaluation removes the upward bias."
+    },
+    {
+      "h": "In code",
+      "code": "if np.random.rand() < 0.5:\n    a_star = Q_A[s2].argmax()\n    Q_A[s, a] += alpha * (r + gamma * Q_B[s2, a_star] - Q_A[s, a])\n# else symmetric: pick with B, evaluate with A",
+      "caption": "Decouple action selection from action evaluation."
+    }
+  ],
+  "takeaways": [
+    "max over noisy estimates overestimates values.",
+    "Double Q-learning decouples selection from evaluation.",
+    "It is the idea behind Double DQN."
+  ],
+  "demo": "double-q-learning",
+  "updatedAt": "2026-06-10"
+}

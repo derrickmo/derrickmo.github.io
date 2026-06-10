@@ -16,16 +16,66 @@
       "Agents fail in new ways — prompt injection, runaway loops, silent cost blowups — so evaluation, tracing, and guardrails are part of the build, not an afterthought."
     ],
     "notebooks": [
-      { "n": "21-01", "t": "The Agent Loop: Perceive, Reason, Act", "d": "Synthetic tasks", "m": "25 min" },
-      { "n": "21-02", "t": "Tool Calling & Function Calling", "d": "Tool APIs", "m": "25 min" },
-      { "n": "21-03", "t": "MCP: Protocol, Clients & Servers", "d": "Local MCP server", "m": "30 min" },
-      { "n": "21-04", "t": "ReAct, Planning & Task Decomposition", "d": "Reasoning tasks", "m": "25 min" },
-      { "n": "21-05", "t": "Agent Memory & Context Management", "d": "Conversation logs", "m": "25 min" },
-      { "n": "21-06", "t": "Multi-Agent Orchestration", "d": "Synthetic tasks", "m": "30 min" },
-      { "n": "21-07", "t": "Agent Evaluation: Tasks & Trajectories", "d": "Task suites", "m": "25 min" },
-      { "n": "21-08", "t": "Observability, Tracing & Cost Control", "d": "Trace logs", "m": "25 min" },
-      { "n": "21-09", "t": "Guardrails & Agent Security", "d": "Injection corpus", "m": "25 min" },
-      { "n": "21-10", "t": "Capstone: Build a Production Agent", "d": "End-to-end", "m": "40 min" }
+      {
+        "n": "21-01",
+        "t": "The Agent Loop: Perceive, Reason, Act",
+        "d": "Synthetic tasks",
+        "m": "25 min"
+      },
+      {
+        "n": "21-02",
+        "t": "Tool Calling & Function Calling",
+        "d": "Tool APIs",
+        "m": "25 min"
+      },
+      {
+        "n": "21-03",
+        "t": "MCP: Protocol, Clients & Servers",
+        "d": "Local MCP server",
+        "m": "30 min"
+      },
+      {
+        "n": "21-04",
+        "t": "ReAct, Planning & Task Decomposition",
+        "d": "Reasoning tasks",
+        "m": "25 min"
+      },
+      {
+        "n": "21-05",
+        "t": "Agent Memory & Context Management",
+        "d": "Conversation logs",
+        "m": "25 min"
+      },
+      {
+        "n": "21-06",
+        "t": "Multi-Agent Orchestration",
+        "d": "Synthetic tasks",
+        "m": "30 min"
+      },
+      {
+        "n": "21-07",
+        "t": "Agent Evaluation: Tasks & Trajectories",
+        "d": "Task suites",
+        "m": "25 min"
+      },
+      {
+        "n": "21-08",
+        "t": "Observability, Tracing & Cost Control",
+        "d": "Trace logs",
+        "m": "25 min"
+      },
+      {
+        "n": "21-09",
+        "t": "Guardrails & Agent Security",
+        "d": "Injection corpus",
+        "m": "25 min"
+      },
+      {
+        "n": "21-10",
+        "t": "Capstone: Build a Production Agent",
+        "d": "End-to-end",
+        "m": "40 min"
+      }
     ]
   },
   "snippet": {

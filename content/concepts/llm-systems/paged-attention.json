@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "paged-attention",
+  "module": "llm-systems",
+  "title": "Paged Attention",
+  "oneLine": "Manage the KV cache like virtual memory to kill fragmentation.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Serving many requests with different lengths fragments the KV-cache memory, wasting much of the GPU. Paged attention borrows the OS idea of paging: store the cache in fixed-size blocks allocated on demand, so memory is packed tightly and sequences can share blocks. It is what lets servers batch far more requests."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A logical token position maps to a physical block and offset:"
+      ],
+      "tex": "(\\text{block},\\ \\text{offset}) = \\big(\\lfloor i/B\\rfloor,\\ i \\bmod B\\big)",
+      "texNote": "Non-contiguous blocks via an indirection table - just like OS page tables."
+    },
+    {
+      "h": "In code",
+      "code": "# a block table maps logical positions to physical blocks\nblock = block_table[seq][i // B]\nk = kv_blocks[block][i % B]            # gather K/V by page",
+      "caption": "Fixed-size pages, allocated on demand, packed tight."
+    }
+  ],
+  "takeaways": [
+    "Paged attention pages the KV cache like virtual memory.",
+    "It removes fragmentation and packs more requests per GPU.",
+    "It is the core idea behind high-throughput servers like vLLM."
+  ],
+  "demo": "paged-attention",
+  "updatedAt": "2026-06-10"
+}

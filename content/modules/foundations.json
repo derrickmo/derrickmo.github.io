@@ -1,0 +1,106 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "01",
+  "slug": "foundations",
+  "title": "Mathematical & Programming Foundations",
+  "category": "Foundations",
+  "blurb": "Build fluency with Python's numerical stack and establish the mathematical prerequisites for ML/DL. No prior math courses assumed beyond high school.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build fluency with Python's numerical computing stack and establish the mathematical prerequisites for ML/DL — NumPy, PyTorch tensors, pandas, matplotlib, probability, linear algebra, calculus, and information theory.",
+    "prereqs": "None — this is the entry module.",
+    "takeaways": [
+      "Write vectorized NumPy/PyTorch instead of Python loops — and understand why it's orders of magnitude faster.",
+      "The linear algebra, calculus, probability, and information theory that every later module quietly assumes.",
+      "Load, explore, and visualize real data with pandas, matplotlib, and PyTorch DataLoaders."
+    ],
+    "flagships": [
+      {
+        "n": "01-06",
+        "label": "Linear Algebra for Machine Learning",
+        "href": "learn/foundations/linear-algebra/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "01-01",
+        "t": "Python, NumPy & Tensor Speed",
+        "d": "Synthetic",
+        "m": "15 min"
+      },
+      {
+        "n": "01-02",
+        "t": "Advanced NumPy & PyTorch Operations",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "01-03",
+        "t": "Pandas for Tabular Data",
+        "d": "California Housing",
+        "m": "15 min"
+      },
+      {
+        "n": "01-04",
+        "t": "Visualization with Matplotlib",
+        "d": "Synthetic",
+        "m": "15 min"
+      },
+      {
+        "n": "01-05",
+        "t": "Data Loading with PyTorch",
+        "d": "FashionMNIST",
+        "m": "20 min"
+      },
+      {
+        "n": "01-06",
+        "t": "Linear Algebra for Machine Learning",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "01-07",
+        "t": "Probability & Statistics for ML",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "01-08",
+        "t": "Information Theory for ML",
+        "d": "Synthetic",
+        "m": "15 min"
+      },
+      {
+        "n": "01-09",
+        "t": "Calculus & Optimization Foundations",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "01-10",
+        "t": "Computational Thinking & Complexity",
+        "d": "Synthetic",
+        "m": "15 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Why every later module lives in tensors, not loops.",
+    "code": "import numpy as np\nA = np.random.randn(1000, 1000)\nb = np.random.randn(1000)\ny = A @ b          # NumPy runs the loop in C...\n# ...~100x faster than a Python \"for i: y[i] = (A[i]*b).sum()\""
+  },
+  "subLessons": {
+    "title": "Mathematical and Programming Foundations",
+    "intro": "The handful of mathematical ideas the rest of the course quietly assumes: how derivatives compose, how a model learns by descending a loss, how to reason about uncertainty, and why averages become bell curves.",
+    "order": [
+      "chain-rule",
+      "gradient-descent",
+      "softmax",
+      "cross-entropy",
+      "bayes",
+      "entropy",
+      "clt"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

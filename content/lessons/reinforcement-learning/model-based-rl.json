@@ -1,0 +1,17 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "14-08",
+  "slug": "model-based-rl",
+  "module": "reinforcement-learning",
+  "title": "Model-Based RL & MCTS",
+  "status": "LIVE",
+  "bodySource": "jsx",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/reinforcement-learning/model-based-rl/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

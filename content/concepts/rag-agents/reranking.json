@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "reranking",
+  "module": "rag-agents",
+  "title": "Reranking",
+  "oneLine": "Re-score the top retrieved hits with a more careful model.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Fast vector search uses a bi-encoder that embeds query and document separately - cheap but coarse. A reranker is a cross-encoder that reads the query and a candidate together, scoring relevance far more accurately. You retrieve many cheaply, then rerank the top few expensively: the best of both."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A cross-encoder scores the query-document pair jointly:"
+      ],
+      "tex": "s(q,d) = f_\\theta\\big(\\,[\\,q\\,;\\,d\\,]\\,\\big)",
+      "texNote": "Joint encoding captures interactions a separate-embedding bi-encoder misses."
+    },
+    {
+      "h": "In code",
+      "code": "cands = vector_search(q, k=50)          # cheap recall\nscores = [cross_encoder(q, d) for d in cands]\ntop = [cands[i] for i in argsort(scores)[::-1][:5]]",
+      "caption": "Retrieve broadly, rerank the shortlist precisely."
+    }
+  ],
+  "takeaways": [
+    "Bi-encoders retrieve fast; cross-encoders rerank accurately.",
+    "Retrieve many, rerank a few - the standard two-stage pipeline.",
+    "Reranking sharply improves the final context quality."
+  ],
+  "demo": "rag-reranker",
+  "updatedAt": "2026-06-10"
+}

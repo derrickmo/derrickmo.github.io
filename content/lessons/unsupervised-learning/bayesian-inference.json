@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "03-10",
+  "slug": "bayesian-inference",
+  "module": "unsupervised-learning",
+  "title": "Bayesian Inference & Probabilistic Thinking",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,103 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "20",
+  "slug": "mlops",
+  "title": "MLOps & Production Deployment",
+  "category": "MLOps & Production",
+  "blurb": "ML strategy, experiment tracking, model export, serving, Docker, monitoring, CI/CD, testing, system design.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master the full MLOps lifecycle — systematic evaluation, experiment tracking with MLflow, model serialisation and TorchScript export, FastAPI serving, Docker containerisation, Kubernetes orchestration, drift monitoring, ML testing with pytest, and A/B experimentation — in one integrated capstone.",
+    "prereqs": "Modules 04, 05, 06, 15, 16.",
+    "takeaways": [
+      "Experiment tracking (MLflow), model export (TorchScript), and FastAPI serving.",
+      "Docker and Kubernetes for deployment; data-drift monitoring and ML testing.",
+      "Online A/B experimentation and an end-to-end production pipeline."
+    ],
+    "flagships": [
+      {
+        "n": "20-10",
+        "label": "ML System Design Patterns",
+        "href": "learn/mlops/system-design/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "20-01",
+        "t": "ML Strategy & Evaluation Pipeline",
+        "d": "FashionMNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "20-02",
+        "t": "Experiment Tracking with MLflow",
+        "d": "FashionMNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "20-03",
+        "t": "Model Serialisation & TorchScript",
+        "d": "FashionMNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "20-04",
+        "t": "FastAPI Model Serving",
+        "d": "FashionMNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "20-05",
+        "t": "Docker for ML Deployment",
+        "d": "FashionMNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "20-06",
+        "t": "Kubernetes for ML Deployment",
+        "d": "FashionMNIST",
+        "m": "35 min"
+      },
+      {
+        "n": "20-07",
+        "t": "Model Monitoring & Data Drift",
+        "d": "FashionMNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "20-08",
+        "t": "ML Testing & Project Standards",
+        "d": "FashionMNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "20-09",
+        "t": "Online Experimentation & A/B Testing",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "20-10",
+        "t": "MLOps Capstone",
+        "d": "FashionMNIST",
+        "m": "35 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "A model in production is a function behind an endpoint.",
+    "code": "@app.post(\"/predict\")\ndef predict(req: Input):\n    x = torch.tensor(req.features)\n    return {\"y\": int(model(x).argmax())}      # from notebook to service"
+  },
+  "subLessons": {
+    "title": "MLOps and Serving",
+    "intro": "Running models in production: serve them efficiently, scale with demand, ship new versions safely, and notice when the world shifts under them.",
+    "order": [
+      "model-serving",
+      "autoscaling",
+      "canary-rollout",
+      "drift-detection"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

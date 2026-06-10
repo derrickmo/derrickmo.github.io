@@ -1,0 +1,105 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "17",
+  "slug": "llm-systems",
+  "title": "Large Language Models — Systems & Scaling",
+  "category": "LLMs & Agents",
+  "blurb": "LLM architectures, scaling laws, MoE, quantization, efficient inference, long context, structured output, evaluation.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Master the systems and scaling foundations of LLMs — scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
+    "prereqs": "Modules 08, 10, 13, 16.",
+    "takeaways": [
+      "Scaling laws, emergent abilities, and attention efficiency (FlashAttention, KV-cache, GQA).",
+      "Quantization (INT8/INT4/GPTQ/QLoRA), speculative decoding, and long-context (RoPE/ALiBi).",
+      "Mixture-of-experts, LLM evaluation, and inference optimization (continuous batching, PagedAttention)."
+    ],
+    "flagships": [
+      {
+        "n": "17-06",
+        "label": "Long-Context Techniques",
+        "href": "learn/llm-systems/long-context/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "17-01",
+        "t": "Scaling Laws & Emergent Abilities",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "17-02",
+        "t": "Transformer Efficiency — Attention Variants",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "17-03",
+        "t": "KV-Cache & Positional Encodings",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "17-04",
+        "t": "Quantisation — INT8, INT4, GPTQ",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "17-05",
+        "t": "Speculative Decoding",
+        "d": "Synthetic (GPT-2 style)",
+        "m": "25 min"
+      },
+      {
+        "n": "17-06",
+        "t": "Long-Context Techniques",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "17-07",
+        "t": "Mixture of Experts (MoE)",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "17-08",
+        "t": "LLM Evaluation",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "17-09",
+        "t": "LLM Inference Optimisation",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "17-10",
+        "t": "LLM Systems Capstone",
+        "d": "Synthetic / WikiText-2",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "KV-cache: don't recompute the past at each new token.",
+    "code": "k_cache = torch.cat([k_cache, k_new], dim=1)\nv_cache = torch.cat([v_cache, v_new], dim=1)\nout = attention(q_new, k_cache, v_cache)   # why generation gets cheaper"
+  },
+  "subLessons": {
+    "title": "LLM Systems and Efficiency",
+    "intro": "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
+    "order": [
+      "quantization",
+      "pruning",
+      "distillation",
+      "speculative-decoding",
+      "paged-attention",
+      "moe"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

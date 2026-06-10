@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "distillation",
+  "module": "llm-systems",
+  "title": "Knowledge Distillation",
+  "oneLine": "Train a small student to mimic a big teacher's soft predictions.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A big model's full probability distribution carries more information than a hard label - the relative scores of the wrong classes encode 'dark knowledge'. Distillation trains a small student to match the teacher's softened outputs, transferring much of the teacher's skill into a fraction of the size."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Match softened teacher and student distributions at temperature T:"
+      ],
+      "tex": "\\mathcal{L} = (1-\\alpha)\\,\\mathrm{CE}(y,\\hat{y}) + \\alpha T^2\\,\\mathrm{KL}\\big(p_T^{\\text{tea}}\\,\\|\\,p_T^{\\text{stu}}\\big)",
+      "texNote": "High T exposes the dark knowledge in the teacher's non-top classes."
+    },
+    {
+      "h": "In code",
+      "code": "soft_t = softmax(teacher_logits / T)\nsoft_s = softmax(student_logits / T)\nloss = (1-a)*ce(y, student_logits) + a*T*T*kl(soft_t, soft_s)",
+      "caption": "Learn from the teacher's whole distribution, not just the label."
+    }
+  ],
+  "takeaways": [
+    "Distillation transfers a teacher's soft predictions to a student.",
+    "Dark knowledge lives in the non-top class probabilities.",
+    "Temperature controls how much of it is exposed."
+  ],
+  "demo": "distillation",
+  "updatedAt": "2026-06-10"
+}

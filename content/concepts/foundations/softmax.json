@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "softmax",
+  "module": "foundations",
+  "title": "Softmax",
+  "oneLine": "Turn a vector of scores into a probability distribution.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Softmax converts arbitrary real-valued scores (logits) into positive numbers that sum to one - a probability distribution. It is the output layer of nearly every classifier and the normalizer inside attention. The largest logit gets the most mass, but everything keeps a share, so it stays differentiable."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Exponentiate, then normalize:"
+      ],
+      "tex": "\\mathrm{softmax}(z)_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}",
+      "texNote": "Subtract the max before exponentiating for numerical stability."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef softmax(z):\n    z = z - z.max()          # stability\n    e = np.exp(z)\n    return e / e.sum()",
+      "caption": "Shift, exponentiate, normalize."
+    }
+  ],
+  "takeaways": [
+    "Softmax maps logits to a probability distribution.",
+    "It is the classifier head and the attention normalizer.",
+    "Subtract the max for numerical stability."
+  ],
+  "demo": "decoding",
+  "updatedAt": "2026-06-10"
+}

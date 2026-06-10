@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "cnn",
+  "module": "cnn",
+  "title": "Convolutional Networks",
+  "oneLine": "Stack convolutions and pooling into a hierarchy of visual features.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A CNN interleaves convolutions (detect features) with pooling (shrink and gain invariance), building a hierarchy from edges to textures to object parts. The final feature map feeds a classifier or a detector head. This inductive bias - locality and weight sharing - is what makes vision models data-efficient."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Pooling downsamples a region to one value, e.g. the max:"
+      ],
+      "tex": "y_{i,j} = \\max_{(m,n)\\in R_{i,j}} x_{m,n}",
+      "texNote": "Each conv-pool stage widens the receptive field and adds translation invariance."
+    },
+    {
+      "h": "In code",
+      "code": "def max_pool(x, k=2):\n    h, w = x.shape\n    return x[:h//k*k, :w//k*k].reshape(h//k, k, w//k, k).max((1, 3))",
+      "caption": "Conv to detect, pool to summarize - repeat, then classify."
+    }
+  ],
+  "takeaways": [
+    "CNNs build a feature hierarchy via conv + pool stages.",
+    "Locality and weight sharing make them data-efficient on images.",
+    "Detection and segmentation reuse the same backbone."
+  ],
+  "demo": "nms",
+  "updatedAt": "2026-06-10"
+}

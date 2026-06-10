@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "cross-entropy",
+  "module": "foundations",
+  "title": "Cross-Entropy Loss",
+  "oneLine": "Measure how far a predicted distribution is from the true label.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Cross-entropy is the standard classification loss. It rewards putting probability mass on the correct class and punishes confident wrong answers harshly. Paired with softmax, its gradient is beautifully simple - just predicted minus actual - which is why the combination is everywhere."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Negative log-likelihood of the true class under the predicted distribution:"
+      ],
+      "tex": "\\mathcal{L} = -\\sum_i y_i \\log \\hat{p}_i",
+      "texNote": "For a one-hot label this is just -log of the predicted probability of the right class."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef cross_entropy(p, y):       # y is the true class index\n    return -np.log(p[y] + 1e-12)\n# softmax + cross-entropy gradient is simply (p - onehot(y))",
+      "caption": "Punishes confident mistakes; trivial gradient with softmax."
+    }
+  ],
+  "takeaways": [
+    "Cross-entropy is negative log-likelihood of the true class.",
+    "It penalizes confident wrong predictions sharply.",
+    "With softmax, the gradient is predicted minus actual."
+  ],
+  "demo": null,
+  "updatedAt": "2026-06-10"
+}

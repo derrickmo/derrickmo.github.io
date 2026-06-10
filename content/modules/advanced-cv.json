@@ -1,0 +1,106 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "09",
+  "slug": "advanced-cv",
+  "title": "Advanced Computer Vision",
+  "category": "Advanced Deep Learning",
+  "blurb": "Grad-CAM, object detection, YOLO, Vision Transformers, self-supervised learning, video understanding, OCR, and a CIFAR-100 training deep dive.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Push beyond basic CNNs — object detection (anchor boxes, IoU, NMS), semantic & instance segmentation (FCN, U-Net), vision transformers (ViT) from scratch, OCR with CRNN, and optical flow — on CIFAR-10 and synthetic detection/segmentation data.",
+    "prereqs": "Modules 05, 06, 08.",
+    "takeaways": [
+      "Object detection (anchors, IoU, NMS) and segmentation (FCN, U-Net) from the ground up.",
+      "Vision Transformers from scratch, plus OCR (CRNN) and optical flow.",
+      "Transfer learning and augmentation for production-grade vision."
+    ],
+    "flagships": [
+      {
+        "n": "09-01",
+        "label": "Object Detection Fundamentals",
+        "href": "learn/advanced-cv/object-detection/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "09-01",
+        "t": "Object Detection Foundations",
+        "d": "Synthetic boxes",
+        "m": "25 min"
+      },
+      {
+        "n": "09-02",
+        "t": "Single-Stage Detector (SSD-style)",
+        "d": "Synthetic",
+        "m": "25 min"
+      },
+      {
+        "n": "09-03",
+        "t": "Semantic Segmentation — FCN & U-Net",
+        "d": "Synthetic masks",
+        "m": "25 min"
+      },
+      {
+        "n": "09-04",
+        "t": "Instance Segmentation Concepts",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "09-05",
+        "t": "Vision Transformer (ViT)",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "09-06",
+        "t": "Data Augmentation & Regularisation",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "09-07",
+        "t": "Transfer Learning & Fine-tuning",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "09-08",
+        "t": "Optical Flow",
+        "d": "Synthetic motion",
+        "m": "20 min"
+      },
+      {
+        "n": "09-09",
+        "t": "OCR with CRNN",
+        "d": "Synthetic digit strings",
+        "m": "25 min"
+      },
+      {
+        "n": "09-10",
+        "t": "CV Capstone",
+        "d": "CIFAR-10 + Synthetic",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Detection starts with IoU — how much two boxes overlap.",
+    "code": "inter = overlap_area(box_a, box_b)\niou = inter / (area(box_a) + area(box_b) - inter)\n# keep the highest-scoring box, suppress overlaps (NMS)"
+  },
+  "subLessons": {
+    "title": "Advanced Computer Vision",
+    "intro": "Classic vision beyond convolution: find edges and corners, track motion, segment regions, and clean up overlapping detections.",
+    "order": [
+      "edge-detection",
+      "hough-transform",
+      "harris-corners",
+      "hog",
+      "optical-flow",
+      "image-segmentation",
+      "iou-nms"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

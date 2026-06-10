@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "forecasting",
+  "module": "ml-applications",
+  "title": "Time-Series Forecasting",
+  "oneLine": "Predict future values from the patterns in past observations.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Forecasting exploits structure in time: trend, seasonality, and autocorrelation. Classical methods decompose the series and extrapolate; modern ones learn the patterns directly. The cardinal rule is to respect time when you evaluate - never let the model peek at the future, and backtest on rolling windows."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A series is often modeled as trend plus seasonality plus noise:"
+      ],
+      "tex": "y_t = T_t + S_t + \\varepsilon_t",
+      "texNote": "Validate with rolling-origin backtests, never a random split."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n# simple seasonal-naive baseline: repeat last season\ndef seasonal_naive(y, m, h):\n    return np.array([y[-m + (i % m)] for i in range(h)])",
+      "caption": "Beat this baseline before trusting anything fancier."
+    }
+  ],
+  "takeaways": [
+    "Forecasting models trend, seasonality, and autocorrelation.",
+    "Evaluate with rolling backtests, never a random split.",
+    "Always compare against a seasonal-naive baseline."
+  ],
+  "demo": "forecasting",
+  "updatedAt": "2026-06-10"
+}

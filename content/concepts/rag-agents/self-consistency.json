@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "self-consistency",
+  "module": "rag-agents",
+  "title": "Self-Consistency",
+  "oneLine": "Sample several reasoning paths and take the majority answer.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A single chain of reasoning can go wrong by chance. Self-consistency samples several independent chains at nonzero temperature and votes on the final answer. When errors are independent, the majority is far more reliable than any one path - a Condorcet-style lift. It fails when the errors are correlated."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "With independent per-sample accuracy p, the majority of N improves sharply:"
+      ],
+      "tex": "P(\\text{majority correct}) = \\sum_{k>N/2}\\binom{N}{k}p^k(1-p)^{N-k}",
+      "texNote": "Correlated errors break the independence this relies on."
+    },
+    {
+      "h": "In code",
+      "code": "from collections import Counter\nanswers = [extract(llm(prompt, temperature=0.7)) for _ in range(N)]\nfinal = Counter(answers).most_common(1)[0][0]   # vote",
+      "caption": "Many samples, one vote - reliability from diversity."
+    }
+  ],
+  "takeaways": [
+    "Self-consistency votes over multiple reasoning samples.",
+    "Independent errors make the majority much more reliable.",
+    "Correlated errors defeat it."
+  ],
+  "demo": "self-consistency",
+  "updatedAt": "2026-06-10"
+}

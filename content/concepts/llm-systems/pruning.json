@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "pruning",
+  "module": "llm-systems",
+  "title": "Pruning",
+  "oneLine": "Remove the weights that barely matter to shrink the model.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Most weights in a trained network contribute little. Magnitude pruning zeros the smallest ones, and a brief retrain lets the survivors compensate. Accuracy holds steady as sparsity rises, then falls off a cliff - the trick is finding that edge. Structured pruning removes whole channels for real speedups."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Keep only weights above a magnitude threshold:"
+      ],
+      "tex": "w_i \\leftarrow w_i \\cdot \\mathbb{1}\\big[|w_i| > \\tau\\big]",
+      "texNote": "tau is set to hit a target sparsity; retrain after pruning to recover accuracy."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\nthr = np.quantile(np.abs(W), sparsity)   # e.g. 0.8 -> drop 80%\nW = W * (np.abs(W) > thr)                 # then fine-tune",
+      "caption": "Zero the small weights, retrain the rest."
+    }
+  ],
+  "takeaways": [
+    "Pruning removes low-magnitude weights.",
+    "Accuracy holds then drops sharply past a sparsity edge.",
+    "Structured pruning yields real hardware speedups."
+  ],
+  "demo": "pruning",
+  "updatedAt": "2026-06-10"
+}

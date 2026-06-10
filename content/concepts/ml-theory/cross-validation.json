@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "cross-validation",
+  "module": "ml-theory",
+  "title": "Cross-Validation",
+  "oneLine": "Estimate true performance without ever touching the test set.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "You cannot judge generalization on the data you trained on, and you must not tune on the test set. k-fold cross-validation rotates: train on k-1 folds, validate on the held-out one, repeat, and average. It gives an honest, low-variance estimate to pick hyperparameters."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The CV estimate averages the held-out error across folds:"
+      ],
+      "tex": "\\text{CV} = \\frac1k \\sum_{j=1}^{k} \\mathcal{L}\\big(\\text{fold}_j;\\ \\text{model trained without } \\text{fold}_j\\big)",
+      "texNote": "More folds means less bias but more compute; k=5 or 10 is standard."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef kfold(n, k=5):\n    idx = np.random.permutation(n)\n    return np.array_split(idx, k)   # each chunk is a validation fold",
+      "caption": "Rotate the held-out fold; average the scores."
+    }
+  ],
+  "takeaways": [
+    "CV estimates generalization using only training data.",
+    "It is the standard way to choose hyperparameters.",
+    "Keep a final untouched test set for the last, honest number."
+  ],
+  "demo": "cross-validation",
+  "updatedAt": "2026-06-10"
+}

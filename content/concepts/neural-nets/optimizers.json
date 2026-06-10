@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "optimizers",
+  "module": "neural-nets",
+  "title": "Optimizers: SGD to Adam",
+  "oneLine": "Turn raw gradients into stable, fast parameter updates.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Plain SGD takes a fixed step against the gradient. Momentum smooths the path by accumulating a velocity; Adam goes further, keeping per-parameter running averages of the gradient and its square so each weight gets its own adaptive step size. Adam is the default for most deep learning."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Adam rescales each step by a running estimate of the gradient and its magnitude:"
+      ],
+      "tex": "\\theta \\leftarrow \\theta - \\eta\\,\\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t}+\\epsilon}",
+      "texNote": "m is the momentum (first moment), v the per-parameter scale (second moment)."
+    },
+    {
+      "h": "In code",
+      "code": "m = beta1*m + (1-beta1)*g\nv = beta2*v + (1-beta2)*g*g\nmh, vh = m/(1-beta1**t), v/(1-beta2**t)\ntheta -= lr * mh / (np.sqrt(vh) + 1e-8)",
+      "caption": "Momentum plus per-parameter scaling - the Adam update."
+    }
+  ],
+  "takeaways": [
+    "Momentum smooths noisy gradients into a steadier path.",
+    "Adam gives each parameter its own adaptive step size.",
+    "It is the safe default for most deep networks."
+  ],
+  "demo": "optimizers",
+  "updatedAt": "2026-06-10"
+}

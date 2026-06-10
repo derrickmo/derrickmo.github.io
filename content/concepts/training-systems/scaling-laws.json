@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "scaling-laws",
+  "module": "training-systems",
+  "title": "Scaling Laws",
+  "oneLine": "Loss falls as a predictable power law in compute, data, and parameters.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Model quality improves smoothly and predictably with scale. Empirically, test loss drops as a power law in parameters, data, and compute - straight lines on a log-log plot. These curves let you forecast a big model's loss from small runs and allocate a compute budget optimally between size and data."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Loss versus a scale factor N follows a power law:"
+      ],
+      "tex": "L(N) \\approx L_\\infty + \\Big(\\tfrac{N_c}{N}\\Big)^{\\alpha}",
+      "texNote": "Compute-optimal training (Chinchilla) balances N and data D for a fixed budget."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n# fit a power law to small-scale runs, extrapolate\nlogL = np.log(losses); logN = np.log(sizes)\nslope, intercept = np.polyfit(logN, logL, 1)   # slope = -alpha",
+      "caption": "A line on a log-log plot predicts the next scale."
+    }
+  ],
+  "takeaways": [
+    "Loss is a power law in compute, data, and parameters.",
+    "Small runs forecast large ones.",
+    "Compute-optimal training balances model size against data."
+  ],
+  "demo": "scaling-laws",
+  "updatedAt": "2026-06-10"
+}

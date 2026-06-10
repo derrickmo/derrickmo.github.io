@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "diffusion",
+  "module": "generative",
+  "title": "Diffusion Models",
+  "oneLine": "Add noise to data, then train a network to reverse it step by step.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A diffusion model learns to denoise. The forward process gradually corrupts data into pure noise; the model learns the reverse, removing a little noise at each step. To generate, start from random noise and run the learned denoiser repeatedly until a clean sample emerges. It is the engine behind modern image generators."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The network predicts the noise added at each step, trained by a simple regression:"
+      ],
+      "tex": "\\mathcal{L} = \\mathbb{E}_{t,\\epsilon}\\big[\\,\\|\\epsilon - \\epsilon_\\theta(x_t, t)\\|^2\\,\\big]",
+      "texNote": "Sampling reverses the chain: subtract the predicted noise, repeat over many steps."
+    },
+    {
+      "h": "In code",
+      "code": "# training step: predict the noise you added\nt = np.random.randint(T)\nnoise = np.random.randn(*x.shape)\nx_t = sqrt_acp[t]*x + sqrt_1macp[t]*noise\nloss = ((noise - model(x_t, t))**2).mean()",
+      "caption": "Learn to predict the noise; sampling denoises from scratch."
+    }
+  ],
+  "takeaways": [
+    "Diffusion learns to reverse a gradual noising process.",
+    "The objective is simple noise-prediction regression.",
+    "Generation iteratively denoises from pure noise."
+  ],
+  "demo": "diffusion",
+  "updatedAt": "2026-06-10"
+}

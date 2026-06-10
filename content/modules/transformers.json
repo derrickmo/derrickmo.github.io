@@ -1,0 +1,111 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "08",
+  "slug": "transformers",
+  "title": "Transformers — Architecture to Attention",
+  "category": "Deep Learning Core",
+  "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache — the backbone of modules 9–18.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build the complete Transformer stack from scratch — scaled dot-product attention, multi-head attention, positional encoding, encoder/decoder blocks, GPT-style language modelling, BERT-style pre-training, and attention analysis — developing parallel sequence intuition on WikiText-2 and AG_NEWS.",
+    "prereqs": "Modules 05, 07.",
+    "takeaways": [
+      "Scaled dot-product and multi-head attention, built from first principles.",
+      "Positional encoding, encoder/decoder blocks, and the full transformer stack.",
+      "GPT-style generation and BERT-style pretraining — the backbone of modern NLP."
+    ],
+    "flagships": [
+      {
+        "n": "08-01",
+        "label": "Scaled Dot-Product Attention",
+        "href": "learn/transformers/self-attention/"
+      },
+      {
+        "n": "08-05",
+        "label": "The Full Transformer (Encoder-Decoder)",
+        "href": "learn/transformers/full-transformer/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "08-01",
+        "t": "Scaled Dot-Product Attention",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "08-02",
+        "t": "Multi-Head Attention",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "08-03",
+        "t": "Positional Encoding",
+        "d": "Synthetic",
+        "m": "15 min"
+      },
+      {
+        "n": "08-04",
+        "t": "Transformer Encoder",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "08-05",
+        "t": "Transformer Decoder",
+        "d": "Synthetic",
+        "m": "20 min"
+      },
+      {
+        "n": "08-06",
+        "t": "GPT-style Language Model",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "08-07",
+        "t": "Transformer Text Classifier",
+        "d": "AG_NEWS",
+        "m": "20 min"
+      },
+      {
+        "n": "08-08",
+        "t": "BERT-style Masked LM",
+        "d": "WikiText-2",
+        "m": "25 min"
+      },
+      {
+        "n": "08-09",
+        "t": "Attention Visualisation & Analysis",
+        "d": "WikiText-2",
+        "m": "20 min"
+      },
+      {
+        "n": "08-10",
+        "t": "Transformer Capstone",
+        "d": "AG_NEWS + WikiText-2",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "The one equation behind every modern LLM.",
+    "code": "# scaled dot-product attention\nscores = Q @ K.transpose(-2, -1) / math.sqrt(d_k)\nweights = scores.softmax(dim=-1)\nout = weights @ V          # every token reads every other token"
+  },
+  "subLessons": {
+    "title": "Transformers",
+    "intro": "The architecture behind modern language models, built one idea at a time: turn text into tokens, tokens into vectors, give them a sense of order, let them attend to each other, stack that into a block, and decode the result back into text.",
+    "order": [
+      "tokenization",
+      "embeddings",
+      "positional-encoding",
+      "attention",
+      "multi-head",
+      "transformer-block",
+      "decoding"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

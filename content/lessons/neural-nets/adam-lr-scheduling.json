@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "05-09",
+  "slug": "adam-lr-scheduling",
+  "module": "neural-nets",
+  "title": "Advanced Optimizers & Learning Rate Scheduling",
+  "status": "PENDING",
+  "surfaces": {
+    "notebook": true,
+    "flagship": null,
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

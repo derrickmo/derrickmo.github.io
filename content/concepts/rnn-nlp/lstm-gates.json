@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "lstm-gates",
+  "module": "rnn-nlp",
+  "title": "LSTM Gates",
+  "oneLine": "Gates let a recurrent net keep or forget information over long spans.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "The LSTM adds a cell state that information can travel along nearly untouched, controlled by gates: a forget gate decides what to drop, an input gate what to add, an output gate what to expose. This gated highway keeps gradients alive far longer than a plain RNN."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each gate is a learned sigmoid; the cell is updated additively:"
+      ],
+      "tex": "c_t = f_t \\odot c_{t-1} + i_t \\odot \\tilde{c}_t",
+      "texNote": "The additive update is what preserves gradient flow across many steps."
+    },
+    {
+      "h": "In code",
+      "code": "f = sigmoid(Wf @ z)    # forget\ni = sigmoid(Wi @ z)    # input\no = sigmoid(Wo @ z)    # output\nc = f * c + i * np.tanh(Wc @ z)\nh = o * np.tanh(c)",
+      "caption": "Gates throttle what the cell keeps, adds, and reveals."
+    }
+  ],
+  "takeaways": [
+    "LSTM gates control keep / add / expose for the cell state.",
+    "The additive cell update fights vanishing gradients.",
+    "GRUs are a lighter, two-gate variant."
+  ],
+  "demo": "rnn-gates",
+  "updatedAt": "2026-06-10"
+}

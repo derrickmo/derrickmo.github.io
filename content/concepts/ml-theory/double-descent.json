@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "double-descent",
+  "module": "ml-theory",
+  "title": "Double Descent",
+  "oneLine": "Past the interpolation threshold, more parameters can help again.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Classical theory says test error is U-shaped in model size. Modern overparameterized models show a second descent: error rises to a peak right where the model can exactly fit the training data, then falls again as you add even more capacity. It is why huge networks generalize despite zero training error."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Error peaks near the interpolation threshold where parameters P match samples N:"
+      ],
+      "tex": "P \\approx N \\;\\Rightarrow\\; \\text{test error peaks, then descends again}",
+      "texNote": "Implicit regularization from SGD picks low-norm solutions in the overparameterized regime."
+    },
+    {
+      "h": "In code",
+      "code": "# sweep model width and record test error\nfor width in widths:\n    model = fit(width)\n    err.append(test_error(model))\n# err first dips, spikes near width ~ n_samples, then dips again",
+      "caption": "The second dip is the modern, overparameterized regime."
+    }
+  ],
+  "takeaways": [
+    "Test error can be double-descent shaped, not just U-shaped.",
+    "The peak sits at the interpolation threshold (params ~ samples).",
+    "Overparameterization plus SGD's implicit bias explains big-model success."
+  ],
+  "demo": "double-descent",
+  "updatedAt": "2026-06-10"
+}

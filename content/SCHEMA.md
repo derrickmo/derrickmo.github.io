@@ -72,6 +72,7 @@ identity block. `body`, `interview`, `flashcards` become **required at LIVE**.
 | title | string | yes | |
 | status | enum | yes | |
 | level | enum | LIVE | "intro" \| "core" \| "advanced" |
+| bodySource | enum | no | `"store"` (default) \| `"jsx"` — transitional: the authored content still lives in a legacy flagship `.jsx` page. At LIVE, `"jsx"` waives the `body`/`interview`/`flashcards`/`refs`/`level` minimums **iff** `surfaces.flagship` resolves. Phase C flips each to `"store"`. |
 | prereqs | string[] | no | lesson refs (`"module/lesson"`) |
 | leadsTo | string[] | no | lesson refs |
 | surfaces | object | yes | see below |

@@ -1,0 +1,116 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "14",
+  "slug": "reinforcement-learning",
+  "title": "Reinforcement Learning",
+  "category": "Reinforcement Learning",
+  "blurb": "MDPs, TD learning, Q-learning, bandits, DQN, policy gradients, actor-critic, model-based RL, offline RL, imitation learning.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build the full RL stack from scratch — Markov decision processes, dynamic programming, Monte Carlo, temporal-difference learning (Q-learning, SARSA), deep Q-networks (DQN, Double/Dueling), policy gradients (REINFORCE, Actor-Critic, A2C), and PPO — on gridworld, CartPole, and custom NumPy environments.",
+    "prereqs": "Modules 01, 05.",
+    "takeaways": [
+      "MDPs, dynamic programming, Monte Carlo, and TD learning (Q-learning, SARSA).",
+      "Deep RL: DQN and variants, REINFORCE, Actor-Critic/A2C, and PPO.",
+      "Model-based RL concepts — all on gridworld and CartPole built in NumPy."
+    ],
+    "flagships": [
+      {
+        "n": "14-03",
+        "label": "Temporal-Difference Learning",
+        "href": "learn/reinforcement-learning/mc-td/"
+      },
+      {
+        "n": "14-09",
+        "label": "Model-Based RL and MCTS",
+        "href": "learn/reinforcement-learning/model-based-rl/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "14-01",
+        "t": "MDP & Dynamic Programming",
+        "d": "Gridworld",
+        "m": "25 min"
+      },
+      {
+        "n": "14-02",
+        "t": "Monte Carlo Methods",
+        "d": "Gridworld / Blackjack",
+        "m": "25 min"
+      },
+      {
+        "n": "14-03",
+        "t": "Temporal Difference Learning",
+        "d": "Gridworld / CliffWalk / CartPole",
+        "m": "25 min"
+      },
+      {
+        "n": "14-04",
+        "t": "Deep Q-Networks (DQN)",
+        "d": "CartPole",
+        "m": "30 min"
+      },
+      {
+        "n": "14-05",
+        "t": "Advanced DQN Variants",
+        "d": "CartPole",
+        "m": "25 min"
+      },
+      {
+        "n": "14-06",
+        "t": "Policy Gradient — REINFORCE",
+        "d": "CartPole",
+        "m": "25 min"
+      },
+      {
+        "n": "14-07",
+        "t": "Actor-Critic & A2C",
+        "d": "CartPole",
+        "m": "25 min"
+      },
+      {
+        "n": "14-08",
+        "t": "Proximal Policy Optimisation (PPO)",
+        "d": "CartPole",
+        "m": "30 min"
+      },
+      {
+        "n": "14-09",
+        "t": "Model-Based RL Concepts",
+        "d": "Gridworld + CartPole",
+        "m": "25 min"
+      },
+      {
+        "n": "14-10",
+        "t": "RL Capstone",
+        "d": "CartPole + Gridworld",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Q-learning: bootstrap toward reward + best next value.",
+    "code": "target = r + gamma * Q[s2].max()\nQ[s, a] += alpha * (target - Q[s, a])   # learn from delayed reward"
+  },
+  "subLessons": {
+    "title": "Reinforcement Learning",
+    "intro": "Learning from reward, built up in order: balance exploration, solve known MDPs with Bellman backups, learn values from experience, then optimize policies directly and with deep function approximators.",
+    "order": [
+      "bandit",
+      "mdp-bellman",
+      "q-learning",
+      "sarsa",
+      "td-lambda",
+      "double-q-learning",
+      "policy-gradient",
+      "actor-critic",
+      "gae",
+      "ppo",
+      "dqn",
+      "dyna-q"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

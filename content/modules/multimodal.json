@@ -1,0 +1,101 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "12",
+  "slug": "multimodal",
+  "title": "Multimodal & Cross-Modal Learning",
+  "category": "Advanced Deep Learning",
+  "blurb": "CLIP, contrastive learning, vision-language models, VQA, audio representations, speech pipelines.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build multimodal systems from scratch — contrastive image-text learning (CLIP), visual question answering, cross-modal retrieval, image captioning (CNN+Transformer), audio-visual correspondence, and generative multimodal concepts — on MNIST, CIFAR-10, and synthetic paired datasets.",
+    "prereqs": "Modules 06, 08, 09, 10, 11.",
+    "takeaways": [
+      "Contrastive image-text learning (CLIP) and cross-modal retrieval.",
+      "Image captioning and visual question answering (CNN + Transformer).",
+      "Multimodal fusion strategies — and how to evaluate them honestly."
+    ],
+    "flagships": [
+      {
+        "n": "12-01",
+        "label": "CLIP - Contrastive Image-Text Pretraining",
+        "href": "learn/multimodal/clip/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "12-01",
+        "t": "Contrastive Image-Text Learning (CLIP)",
+        "d": "Synthetic image-caption pairs",
+        "m": "25 min"
+      },
+      {
+        "n": "12-02",
+        "t": "Cross-Modal Retrieval",
+        "d": "MNIST + captions",
+        "m": "20 min"
+      },
+      {
+        "n": "12-03",
+        "t": "Visual Question Answering (VQA)",
+        "d": "Synthetic VQA",
+        "m": "25 min"
+      },
+      {
+        "n": "12-04",
+        "t": "Image Captioning (CNN + Transformer)",
+        "d": "MNIST + captions",
+        "m": "25 min"
+      },
+      {
+        "n": "12-05",
+        "t": "Audio-Visual Correspondence",
+        "d": "Synthetic audio-visual",
+        "m": "20 min"
+      },
+      {
+        "n": "12-06",
+        "t": "Vision-Language Pre-training Concepts",
+        "d": "MNIST + captions",
+        "m": "20 min"
+      },
+      {
+        "n": "12-07",
+        "t": "Cross-Modal Generation (DALL-E concept)",
+        "d": "MNIST + captions",
+        "m": "25 min"
+      },
+      {
+        "n": "12-08",
+        "t": "Multimodal Fusion Strategies",
+        "d": "MNIST + tabular",
+        "m": "20 min"
+      },
+      {
+        "n": "12-09",
+        "t": "Multimodal Evaluation Pipeline",
+        "d": "MNIST + captions",
+        "m": "20 min"
+      },
+      {
+        "n": "12-10",
+        "t": "Multimodal Capstone",
+        "d": "MNIST + FashionMNIST + Synthetic",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "CLIP: pull matching image/text together, push others apart.",
+    "code": "logits = (img_emb @ txt_emb.T) * temperature\nloss = (cross_entropy(logits, idx) + cross_entropy(logits.T, idx)) / 2\n# one shared space for pixels and words"
+  },
+  "subLessons": {
+    "title": "Multimodal Learning",
+    "intro": "Tying modalities together through a shared embedding space, and searching that space at scale.",
+    "order": [
+      "contrastive-learning",
+      "vector-search"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

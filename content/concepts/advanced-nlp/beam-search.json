@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "beam-search",
+  "module": "advanced-nlp",
+  "title": "Beam Search",
+  "oneLine": "Keep several candidate continuations instead of committing greedily.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Greedy decoding picks the single best next token and can paint itself into a corner. Beam search keeps the B most probable partial sequences at each step, expanding all of them and pruning back to B. It finds higher-probability sequences than greedy at B times the cost."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Score a sequence by its summed log-probability and keep the top B:"
+      ],
+      "tex": "s(y_{1:t}) = \\sum_{k=1}^{t} \\log P(y_k \\mid y_{<k})",
+      "texNote": "Length-normalize the score, or beam search favors short sequences."
+    },
+    {
+      "h": "In code",
+      "code": "def expand(beams, logp):\n    cand = []\n    for seq, s in beams:\n        for tok, lp in logp(seq):\n            cand.append((seq + [tok], s + lp))\n    return sorted(cand, key=lambda x: -x[1])[:B]",
+      "caption": "Expand every beam, keep the top B by score."
+    }
+  ],
+  "takeaways": [
+    "Beam search tracks the top-B partial sequences.",
+    "It beats greedy on sequence probability at B times the cost.",
+    "Length normalization stops it preferring short outputs."
+  ],
+  "demo": "beam-search",
+  "updatedAt": "2026-06-10"
+}

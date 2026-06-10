@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "data-augmentation",
+  "module": "cnn",
+  "title": "Data Augmentation",
+  "oneLine": "Manufacture label-preserving variety to regularize a vision model.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A flipped, rotated, or cropped cat is still a cat. Augmentation applies these label-preserving transforms during training so the model sees far more variety than the raw dataset holds, teaching invariance to nuisance factors and curbing overfitting - the cheapest regularizer in vision."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Train on transformed inputs whose label is unchanged:"
+      ],
+      "tex": "(x, y) \\;\\longrightarrow\\; (T(x),\\, y),\\quad T \\sim \\mathcal{T}",
+      "texNote": "T is sampled fresh each epoch; the family T encodes which variations should not change the label."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef augment(img):\n    if np.random.rand() < 0.5: img = img[:, ::-1]      # h-flip\n    img = np.roll(img, np.random.randint(-3, 4), axis=0) # shift\n    return img",
+      "caption": "Fresh random transforms each epoch multiply the effective data."
+    }
+  ],
+  "takeaways": [
+    "Augmentation adds label-preserving variety for free.",
+    "It teaches invariance and reduces overfitting.",
+    "Strong augmentation underpins modern self-supervised vision."
+  ],
+  "demo": "image-augmentation",
+  "updatedAt": "2026-06-10"
+}

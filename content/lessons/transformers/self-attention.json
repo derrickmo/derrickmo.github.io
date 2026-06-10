@@ -1,0 +1,16 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "08-01",
+  "slug": "self-attention",
+  "module": "transformers",
+  "title": "Self-Attention Mechanism",
+  "status": "DRAFT",
+  "surfaces": {
+    "notebook": true,
+    "flagship": "learn/transformers/self-attention/",
+    "demos": [],
+    "concepts": []
+  },
+  "updatedAt": "2026-06-10"
+}

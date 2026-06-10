@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "regularization",
+  "module": "ml-theory",
+  "title": "Regularization",
+  "oneLine": "Penalize complexity to trade a little bias for much less variance.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Regularization discourages the model from fitting noise by adding a penalty on the size of its weights. L2 (weight decay) shrinks weights smoothly; L1 drives some to exactly zero, selecting features. Either way you accept slightly more bias for a big drop in variance."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Add a penalty term to the loss, weighted by lambda:"
+      ],
+      "tex": "\\mathcal{L}_{\\text{reg}} = \\mathcal{L}(\\theta) + \\lambda\\,\\|\\theta\\|_2^2",
+      "texNote": "Larger lambda means simpler models; it is tuned on validation data."
+    },
+    {
+      "h": "In code",
+      "code": "# L2 adds a constant pull toward zero to every gradient step\ngrad = data_grad(theta) + 2 * lam * theta\ntheta = theta - eta * grad      # 'weight decay'",
+      "caption": "A constant shrink toward the origin each update."
+    }
+  ],
+  "takeaways": [
+    "Regularization penalizes complexity to cut variance.",
+    "L2 shrinks smoothly; L1 induces sparsity.",
+    "lambda is chosen by cross-validation."
+  ],
+  "demo": "overfitting",
+  "updatedAt": "2026-06-10"
+}

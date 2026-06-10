@@ -1,0 +1,86 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "24",
+  "slug": "trustworthy-ai",
+  "title": "Trustworthy, Safe & Interpretable AI",
+  "category": "Trustworthy AI",
+  "blurb": "Make models you can trust: calibration, conformal prediction, fairness, attribution, mechanistic interpretability, adversarial robustness, drift, red-teaming, and alignment.",
+  "status": "PENDING",
+  "lecture": {
+    "summary": "Make models you can trust — calibration and conformal prediction, fairness metrics and their trade-offs, attribution methods, mechanistic interpretability (superposition, SAEs, activation patching), adversarial robustness, drift detection, red-teaming, and alignment.",
+    "prereqs": "Modules 04–05; module 08 for the interpretability lessons.",
+    "takeaways": [
+      "A confident wrong answer is worse than an honest 'maybe' — calibration and conformal prediction quantify what a model knows it doesn't know.",
+      "Interpretability has gone mechanistic: features as directions, superposition, and causal interventions on activations.",
+      "Robustness, fairness, and drift aren't compliance checkboxes — they're failure modes you can measure and engineer against."
+    ],
+    "notebooks": [
+      {
+        "n": "24-01",
+        "t": "Calibration & Temperature Scaling",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "24-02",
+        "t": "Conformal Prediction",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      },
+      {
+        "n": "24-03",
+        "t": "Fairness Metrics & Trade-offs",
+        "d": "Adult income",
+        "m": "25 min"
+      },
+      {
+        "n": "24-04",
+        "t": "Attribution: SHAP, Saliency & Attention Rollout",
+        "d": "Tabular + images",
+        "m": "30 min"
+      },
+      {
+        "n": "24-05",
+        "t": "Mechanistic Interpretability I: Superposition & SAEs",
+        "d": "Toy models",
+        "m": "30 min"
+      },
+      {
+        "n": "24-06",
+        "t": "Mechanistic Interpretability II: Probing & Activation Patching",
+        "d": "Small LM",
+        "m": "30 min"
+      },
+      {
+        "n": "24-07",
+        "t": "Adversarial Robustness & Certified Defenses",
+        "d": "MNIST + CIFAR",
+        "m": "30 min"
+      },
+      {
+        "n": "24-08",
+        "t": "Distribution Shift & Drift Detection",
+        "d": "Shifted datasets",
+        "m": "25 min"
+      },
+      {
+        "n": "24-09",
+        "t": "Red-Teaming & Model Auditing",
+        "d": "Prompt suites",
+        "m": "25 min"
+      },
+      {
+        "n": "24-10",
+        "t": "Alignment & Governance Overview",
+        "d": "Walkthrough",
+        "m": "20 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Calibration: confidence should mean what it says.",
+    "code": "conf, correct = probs.max(1)\nece = sum(abs(conf[bin].mean() - correct[bin].mean()) * len(bin) / n\n          for bin in confidence_bins)   # 90% sure should be right 90% of the time"
+  },
+  "updatedAt": "2026-06-10"
+}

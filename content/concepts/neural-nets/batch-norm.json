@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "batch-norm",
+  "module": "neural-nets",
+  "title": "Batch Normalization",
+  "oneLine": "Normalize activations across the batch to stabilize training.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "As signals pass through layers, their scale can drift and stall learning. Batch norm renormalizes each feature to zero mean and unit variance over the mini-batch, then lets the network rescale with learned parameters. It smooths the loss landscape, allows higher learning rates, and adds a little regularizing noise."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Standardize over the batch, then shift and scale:"
+      ],
+      "tex": "\\hat{x} = \\frac{x-\\mu_B}{\\sqrt{\\sigma_B^2+\\epsilon}},\\quad y = \\gamma\\hat{x}+\\beta",
+      "texNote": "gamma and beta are learned; at inference, running statistics replace the batch ones."
+    },
+    {
+      "h": "In code",
+      "code": "mu = x.mean(0); var = x.var(0)\nxhat = (x - mu) / np.sqrt(var + 1e-5)\ny = gamma * xhat + beta",
+      "caption": "Standardize per feature, then let the net rescale."
+    }
+  ],
+  "takeaways": [
+    "Batch norm keeps activation statistics stable across depth.",
+    "It enables higher learning rates and faster convergence.",
+    "Layer norm is the batch-free variant used in transformers."
+  ],
+  "demo": "batch-norm",
+  "updatedAt": "2026-06-10"
+}

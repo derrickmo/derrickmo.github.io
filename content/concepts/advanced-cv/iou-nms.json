@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "iou-nms",
+  "module": "advanced-cv",
+  "title": "IoU and Non-Max Suppression",
+  "oneLine": "Collapse many overlapping detections into clean, single boxes.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A detector fires many overlapping boxes around each object. Non-max suppression keeps the highest-scoring box and discards others that overlap it too much, where overlap is measured by intersection-over-union. The same IoU metric also scores how well a predicted box matches the ground truth."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "IoU is overlap area over union area:"
+      ],
+      "tex": "\\mathrm{IoU}(A,B) = \\frac{|A\\cap B|}{|A\\cup B|}",
+      "texNote": "NMS removes any box with IoU above a threshold against a higher-scoring one."
+    },
+    {
+      "h": "In code",
+      "code": "def nms(boxes, scores, thr=0.5):\n    keep, order = [], scores.argsort()[::-1]\n    while len(order):\n        i = order[0]; keep.append(i)\n        order = [j for j in order[1:] if iou(boxes[i], boxes[j]) < thr]\n    return keep",
+      "caption": "Keep the best box, drop its high-overlap neighbors, repeat."
+    }
+  ],
+  "takeaways": [
+    "IoU measures box overlap quality.",
+    "NMS deduplicates overlapping detections by score.",
+    "The IoU threshold trades duplicates against missed objects."
+  ],
+  "demo": "nms",
+  "updatedAt": "2026-06-10"
+}

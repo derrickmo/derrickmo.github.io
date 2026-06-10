@@ -1,0 +1,103 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "04",
+  "slug": "ml-theory",
+  "title": "ML Theory & Evaluation",
+  "category": "Classical ML",
+  "blurb": "Production-quality evaluation pipelines and formal theory. VC dimension, PAC learning, convex optimization, calibration, Gaussian processes.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build production-quality evaluation pipelines and formal ML theory — from precision/recall to VC dimension, PAC learning, convex optimisation, calibration, and Gaussian processes — grounding every subsequent module in rigorous methodology.",
+    "prereqs": "Modules 01–03.",
+    "takeaways": [
+      "Build honest evaluation: the right metrics, cross-validation, and leakage-free pipelines.",
+      "Bias-variance, VC dimension, and PAC learning — why models generalize, or don't.",
+      "Calibration, uncertainty quantification, and the convex-optimization backbone of training."
+    ],
+    "flagships": [
+      {
+        "n": "04-06",
+        "label": "Learning Theory - VC Dimension and PAC",
+        "href": "learn/ml-theory/learning-theory/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "04-01",
+        "t": "Evaluation Metrics Deep Dive",
+        "d": "Digits + California Housing",
+        "m": "20 min"
+      },
+      {
+        "n": "04-02",
+        "t": "Cross-Validation & Hyperparameter Tuning",
+        "d": "Digits",
+        "m": "25 min"
+      },
+      {
+        "n": "04-03",
+        "t": "Feature Engineering & Pipelines",
+        "d": "California Housing",
+        "m": "20 min"
+      },
+      {
+        "n": "04-04",
+        "t": "Data Augmentation & Color Spaces",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "04-05",
+        "t": "Handling Imbalanced Data",
+        "d": "make_classification",
+        "m": "20 min"
+      },
+      {
+        "n": "04-06",
+        "t": "Learning Theory — VC Dimension & PAC",
+        "d": "make_classification",
+        "m": "20 min"
+      },
+      {
+        "n": "04-07",
+        "t": "Bias-Variance Decomposition & Debugging",
+        "d": "make_classification + make_moons",
+        "m": "25 min"
+      },
+      {
+        "n": "04-08",
+        "t": "Convex Optimization Foundations",
+        "d": "make_classification + make_blobs",
+        "m": "20 min"
+      },
+      {
+        "n": "04-09",
+        "t": "Calibration & Uncertainty Quantification",
+        "d": "Digits + make_classification",
+        "m": "20 min"
+      },
+      {
+        "n": "04-10",
+        "t": "Gaussian Processes & Bayesian Optimization",
+        "d": "make_regression",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Cross-validation: never score on what you trained on.",
+    "code": "scores = []\nfor tr, va in KFold(5).split(X):\n    model.fit(X[tr], y[tr])\n    scores.append(f1(y[va], model.predict(X[va])))\nprint(np.mean(scores), \"±\", np.std(scores))"
+  },
+  "subLessons": {
+    "title": "Machine Learning Theory",
+    "intro": "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
+    "order": [
+      "bias-variance",
+      "regularization",
+      "cross-validation",
+      "double-descent"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

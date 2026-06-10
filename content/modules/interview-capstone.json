@@ -1,0 +1,86 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "25",
+  "slug": "interview-capstone",
+  "title": "ML Interview & System Design Capstone",
+  "category": "Career & Applications",
+  "blurb": "Turn the whole curriculum into interview readiness: ML system design cases, coding patterns, classical CS algorithms, rapid-fire breadth, deep derivations, and a portfolio capstone.",
+  "status": "PENDING",
+  "lecture": {
+    "summary": "Turn the whole curriculum into interview readiness — the ML system design framework, classic design cases (recommender, search & ads, fraud, LLM products), coding patterns, classical CS algorithms, rapid-fire breadth drills, deep derivations, and a portfolio capstone.",
+    "prereqs": "The rest of the curriculum — this module is the integration test.",
+    "takeaways": [
+      "ML system design has a repeatable framework: clarify, frame, data, features, model, serving, metrics, iteration.",
+      "Most interview questions trace back to a small set of derivations and trade-offs you can drill deliberately.",
+      "A portfolio project you can defend end-to-end beats a long list of frameworks on a resume."
+    ],
+    "notebooks": [
+      {
+        "n": "25-01",
+        "t": "The ML Interview Landscape & Strategy",
+        "d": "Walkthrough",
+        "m": "20 min"
+      },
+      {
+        "n": "25-02",
+        "t": "ML System Design Framework",
+        "d": "Case studies",
+        "m": "30 min"
+      },
+      {
+        "n": "25-03",
+        "t": "Design Case: Recommender & Feed",
+        "d": "MovieLens",
+        "m": "30 min"
+      },
+      {
+        "n": "25-04",
+        "t": "Design Case: Search & Ads",
+        "d": "Synthetic queries",
+        "m": "30 min"
+      },
+      {
+        "n": "25-05",
+        "t": "Design Case: Fraud Detection & LLM Products",
+        "d": "Imbalanced data",
+        "m": "30 min"
+      },
+      {
+        "n": "25-06",
+        "t": "Coding Patterns for ML Interviews",
+        "d": "NumPy + pandas drills",
+        "m": "30 min"
+      },
+      {
+        "n": "25-07",
+        "t": "Classical CS Algorithms Review",
+        "d": "Algorithm drills",
+        "m": "30 min"
+      },
+      {
+        "n": "25-08",
+        "t": "ML Breadth Rapid-Fire",
+        "d": "Cross-module Q&A",
+        "m": "25 min"
+      },
+      {
+        "n": "25-09",
+        "t": "Deep-Dive Derivations",
+        "d": "Pen + NumPy",
+        "m": "30 min"
+      },
+      {
+        "n": "25-10",
+        "t": "Take-Homes, Storytelling & Portfolio Capstone",
+        "d": "Your project",
+        "m": "40 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Every design case walks the same skeleton.",
+    "code": "steps = [\"clarify goal\", \"frame as ML task\", \"data & labels\",\n         \"features\", \"model choice\", \"serving & latency\",\n         \"metrics & monitoring\", \"iterate\"]\n# the content changes; the skeleton never does"
+  },
+  "updatedAt": "2026-06-10"
+}

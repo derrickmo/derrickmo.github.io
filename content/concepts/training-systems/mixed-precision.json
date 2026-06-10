@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "mixed-precision",
+  "module": "training-systems",
+  "title": "Mixed Precision",
+  "oneLine": "Train in 16-bit for speed and memory, with safeguards for accuracy.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Half-precision (fp16 / bf16) halves memory and runs far faster on modern hardware, but fp16's narrow range can underflow small gradients to zero. Mixed precision keeps a master copy of the weights in fp32 and scales the loss up before the backward pass so gradients stay representable, then scales them back down."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Loss scaling shifts gradients into fp16's representable range:"
+      ],
+      "tex": "g = \\tfrac{1}{S}\\,\\nabla(S\\cdot\\mathcal{L})",
+      "texNote": "Scale up by S before backward, unscale by S after - bf16's wider range often skips this."
+    },
+    {
+      "h": "In code",
+      "code": "scaled_loss = loss * S            # S ~ 2^14\nscaled_loss.backward()\ngrads = [g / S for g in grads]    # unscale before the step",
+      "caption": "Compute in 16-bit, accumulate the master weights in 32-bit."
+    }
+  ],
+  "takeaways": [
+    "fp16 / bf16 cut memory and speed up training.",
+    "Loss scaling stops fp16 gradients underflowing.",
+    "An fp32 master copy preserves accuracy."
+  ],
+  "demo": "mixed-precision",
+  "updatedAt": "2026-06-10"
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "td-lambda",
+  "module": "reinforcement-learning",
+  "title": "TD(lambda) and Eligibility Traces",
+  "oneLine": "Dial smoothly between one-step TD and full Monte Carlo.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "One-step TD updates from the very next reward (low variance, biased); Monte Carlo waits for the full return (unbiased, high variance). TD(lambda) blends them with eligibility traces - a fading memory of recently visited states - so one update credits a whole trajectory. Intermediate lambda often learns fastest."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The trace decays by gamma*lambda and gates how much each state is updated:"
+      ],
+      "tex": "e_t(s) = \\gamma\\lambda\\,e_{t-1}(s) + \\mathbb{1}[s_t = s]",
+      "texNote": "lambda = 0 is one-step TD; lambda = 1 is Monte Carlo."
+    },
+    {
+      "h": "In code",
+      "code": "delta = r + gamma * V[s2] - V[s]\ne[s] += 1                              # mark visited\nV += alpha * delta * e                 # update all eligible states\ne *= gamma * lam                       # decay the trace",
+      "caption": "One TD error updates every recently-seen state."
+    }
+  ],
+  "takeaways": [
+    "Eligibility traces credit a whole trajectory per step.",
+    "lambda interpolates TD(0) and Monte Carlo.",
+    "Intermediate lambda usually learns fastest."
+  ],
+  "demo": "td-lambda",
+  "updatedAt": "2026-06-10"
+}

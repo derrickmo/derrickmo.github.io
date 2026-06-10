@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "moe",
+  "module": "llm-systems",
+  "title": "Mixture of Experts",
+  "oneLine": "Route each token to a few specialist sub-networks, not all of them.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A dense layer runs every parameter on every token. A mixture of experts has many expert sub-networks and a router that sends each token to just the top few. The model holds enormous total capacity, but each token only activates a slice of it - so quality scales with parameters while compute stays roughly fixed."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A router picks the top-k experts per token and mixes their outputs by gate weight:"
+      ],
+      "tex": "y = \\sum_{e\\in\\text{top-}k} g_e(x)\\,E_e(x)",
+      "texNote": "A load-balancing loss keeps the router from collapsing onto a few experts."
+    },
+    {
+      "h": "In code",
+      "code": "gate = softmax(router @ x)           # scores over experts\ntopk = gate.argsort()[-k:]           # pick k experts\ny = sum(gate[e] * expert[e](x) for e in topk)",
+      "caption": "Only the top-k experts run per token."
+    }
+  ],
+  "takeaways": [
+    "MoE activates only a few experts per token.",
+    "Total capacity grows while per-token compute stays fixed.",
+    "Load balancing prevents router collapse."
+  ],
+  "demo": "moe",
+  "updatedAt": "2026-06-10"
+}

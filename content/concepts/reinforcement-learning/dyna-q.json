@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "dyna-q",
+  "module": "reinforcement-learning",
+  "title": "Dyna-Q",
+  "oneLine": "Learn a model of the world and plan inside it between real steps.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Real experience is expensive. Dyna-Q learns a one-step model from the transitions it sees, then between real steps it replays imagined transitions through that model, running extra Q-updates for free. A handful of planning steps per real step can slash the experience needed to solve a maze."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Each real step is followed by n planning updates on remembered transitions:"
+      ],
+      "tex": "\\text{for } n \\text{ times: } (s,a)\\sim\\text{model},\\; Q(s,a)\\mathrel{+}=\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]",
+      "texNote": "More planning steps means faster learning - until the model's errors dominate."
+    },
+    {
+      "h": "In code",
+      "code": "model[s, a] = (r, s2)                  # learn the model\nfor _ in range(n):                    # plan\n    (sp, ap), (rp, s2p) = sample(model)\n    Q[sp, ap] += alpha * (rp + gamma * Q[s2p].max() - Q[sp, ap])",
+      "caption": "Act once, then imagine n more transitions."
+    }
+  ],
+  "takeaways": [
+    "Dyna-Q mixes model-free learning with model-based planning.",
+    "Planning updates reuse a learned one-step model.",
+    "It is far more sample-efficient than model-free alone."
+  ],
+  "demo": "dyna-q",
+  "updatedAt": "2026-06-10"
+}

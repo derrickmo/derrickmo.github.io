@@ -1,0 +1,107 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "06",
+  "slug": "cnn",
+  "title": "Convolutional Neural Networks",
+  "category": "Deep Learning Core",
+  "blurb": "From convolution mechanics through landmark architectures to segmentation, adversarial robustness, and non-image domains.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build every CNN primitive from scratch — convolution to ResNet skip connections — developing spatial intuition for how networks learn visual hierarchies on CIFAR-10.",
+    "prereqs": "Module 05.",
+    "takeaways": [
+      "Implement convolution, pooling, and receptive fields from scratch.",
+      "The architectural arc LeNet → AlexNet → VGG → ResNet, and what skip connections fix.",
+      "Transfer learning, batch norm, augmentation, and efficient convolutions for real vision."
+    ],
+    "flagships": [
+      {
+        "n": "06-03",
+        "label": "CNN Architectures: LeNet to ResNet",
+        "href": "learn/cnn/cnn-architectures/"
+      },
+      {
+        "n": "06-06",
+        "label": "Transfer Learning and Fine-Tuning",
+        "href": "learn/cnn/transfer-learning/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "06-01",
+        "t": "Convolution from Scratch",
+        "d": "MNIST",
+        "m": "20 min"
+      },
+      {
+        "n": "06-02",
+        "t": "Pooling & Receptive Fields",
+        "d": "MNIST",
+        "m": "15 min"
+      },
+      {
+        "n": "06-03",
+        "t": "LeNet-5 & AlexNet",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "06-04",
+        "t": "VGGNet & Deep CNN Design",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "06-05",
+        "t": "ResNet & Skip Connections",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "06-06",
+        "t": "Transfer Learning & Fine-Tuning",
+        "d": "CIFAR-10",
+        "m": "20 min"
+      },
+      {
+        "n": "06-07",
+        "t": "Data Augmentation",
+        "d": "CIFAR-10",
+        "m": "15 min"
+      },
+      {
+        "n": "06-08",
+        "t": "Batch Normalization in CNNs",
+        "d": "CIFAR-10",
+        "m": "15 min"
+      },
+      {
+        "n": "06-09",
+        "t": "Depthwise Separable Convolutions",
+        "d": "CIFAR-10",
+        "m": "15 min"
+      },
+      {
+        "n": "06-10",
+        "t": "CNN Pipeline Capstone",
+        "d": "CIFAR-10",
+        "m": "25 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "A convolution slides one small kernel over the image.",
+    "code": "# output pixel = elementwise product of a patch and the kernel\nout[i, j] = (patch(img, i, j) * kernel).sum()\n# learn many kernels, stack layers -> a CNN that sees hierarchy"
+  },
+  "subLessons": {
+    "title": "Convolutional Neural Networks",
+    "intro": "Vision-shaped networks: slide learnable filters over the image, share weights for translation equivariance, and regularize with augmentation.",
+    "order": [
+      "convolution",
+      "cnn",
+      "data-augmentation"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}

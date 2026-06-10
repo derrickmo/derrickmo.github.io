@@ -1,0 +1,107 @@
+{
+  "kind": "module",
+  "schemaVersion": 1,
+  "n": "11",
+  "slug": "generative",
+  "title": "Generative Deep Learning",
+  "category": "Advanced Deep Learning",
+  "blurb": "Autoencoders, VAEs, GANs, diffusion, normalizing flows, energy-based models, autoregressive generation.",
+  "status": "LIVE",
+  "lecture": {
+    "summary": "Build the full spectrum of generative models from scratch — VAEs (reparameterisation, ELBO), GANs (DCGAN, WGAN-GP, conditional), diffusion (DDPM forward/reverse, noise schedules, sampling & guidance), normalizing flows, score/flow matching, and autoregressive image models — on MNIST, FashionMNIST, and CIFAR-10.",
+    "prereqs": "Modules 01, 05, 06, 08.",
+    "takeaways": [
+      "VAEs (reparameterization, ELBO) and GANs (DCGAN, WGAN-GP, conditional).",
+      "Diffusion models: forward/reverse process, noise schedules, sampling and guidance.",
+      "Normalizing flows, score/flow matching, and autoregressive image models."
+    ],
+    "flagships": [
+      {
+        "n": "11-04",
+        "label": "Denoising Diffusion (DDPM) from Scratch",
+        "href": "learn/generative/ddpm/"
+      },
+      {
+        "n": "11-06",
+        "label": "Normalizing Flows (RealNVP)",
+        "href": "learn/generative/flows/"
+      }
+    ],
+    "notebooks": [
+      {
+        "n": "11-01",
+        "t": "Variational Autoencoder (VAE)",
+        "d": "MNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "11-02",
+        "t": "GAN Foundations (DCGAN)",
+        "d": "FashionMNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "11-03",
+        "t": "Advanced GANs (WGAN-GP & cGAN)",
+        "d": "FashionMNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "11-04",
+        "t": "Denoising Diffusion (DDPM)",
+        "d": "MNIST",
+        "m": "30 min"
+      },
+      {
+        "n": "11-05",
+        "t": "Diffusion Sampling & Guidance",
+        "d": "MNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "11-06",
+        "t": "Normalizing Flows (RealNVP)",
+        "d": "MNIST (binarised)",
+        "m": "25 min"
+      },
+      {
+        "n": "11-07",
+        "t": "Evaluation of Generative Models",
+        "d": "MNIST",
+        "m": "20 min"
+      },
+      {
+        "n": "11-08",
+        "t": "Score Matching, EBMs & Flow Matching",
+        "d": "Synthetic 2-D",
+        "m": "20 min"
+      },
+      {
+        "n": "11-09",
+        "t": "Autoregressive Image Models",
+        "d": "MNIST",
+        "m": "25 min"
+      },
+      {
+        "n": "11-10",
+        "t": "Generative Models Capstone",
+        "d": "MNIST + FashionMNIST",
+        "m": "30 min"
+      }
+    ]
+  },
+  "snippet": {
+    "caption": "Diffusion: add noise, then learn to take it back out.",
+    "code": "# forward: data -> noise (closed form)\nx_t = sqrt(abar[t]) * x0 + sqrt(1 - abar[t]) * noise\n# train a network to predict `noise`, then run the chain in reverse"
+  },
+  "subLessons": {
+    "title": "Generative Models",
+    "intro": "Three ways to learn to create data: encode and sample through a latent space, train a generator against a critic, or add noise and learn to reverse it.",
+    "order": [
+      "vae",
+      "gan",
+      "diffusion"
+    ]
+  },
+  "updatedAt": "2026-06-10"
+}
