@@ -8,6 +8,7 @@
   "blurb": "LLM architectures, scaling laws, MoE, quantization, efficient inference, long context, structured output, evaluation.",
   "status": "LIVE",
   "lecture": {
+    "title": "Large Language Models: Systems & Scaling",
     "summary": "Master the systems and scaling foundations of LLMs — scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
     "prereqs": "Modules 08, 10, 13, 16.",
     "takeaways": [

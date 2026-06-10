@@ -52,7 +52,7 @@ Mirror of one `curriculum.js` module head + its `lectures.js` entry +
 | category | string | yes | one of the 12 tracks (see curriculum.js) |
 | blurb | string | yes | hub card copy |
 | status | enum | yes | module-level status |
-| lecture | object | yes | `{ summary, prereqs, takeaways[3+], flagships[]?, notebooks[10] }` — notebooks rows are `{ n, t, d, m }`; `flagships` entries are `{ n, label, href }` |
+| lecture | object | yes | `{ title?, summary, prereqs, takeaways[3+], flagships[]?, notebooks[10] }` — `title` only when the lecture-page display title diverges stylistically from the module title; notebooks rows are `{ n, t, d, m }`; `flagships` entries are `{ n, label, href }` |
 | snippet | object | yes | `{ caption, code }` → LECTURE_CODE |
 | subLessons | object | no | `{ title, intro, order[] }` — wrapper for sub-lessons.js; `order` lists concept ids in display order |
 | updatedAt | string | yes | |

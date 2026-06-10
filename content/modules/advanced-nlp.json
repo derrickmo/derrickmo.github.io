@@ -8,6 +8,7 @@
   "blurb": "GPT, BERT, fine-tuning, NER, NLI, QA, chain-of-thought, and mechanistic interpretability.",
   "status": "LIVE",
   "lecture": {
+    "title": "Advanced NLP: Pretrained Language Models",
     "summary": "Master the pretrained language model paradigm — GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning — on WikiText-2, AG_NEWS, and synthetic tasks.",
     "prereqs": "Modules 07, 08.",
     "takeaways": [
