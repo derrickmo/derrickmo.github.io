@@ -30,12 +30,83 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-06-14",
+    range: "June 8 to June 14, 2026",
+    tldr: [
+      "Claude Fable 5 (Anthropic, Jun 9): General-availability Mythos-class reasoning model. 1M context, 128k output tokens, multimodal (text/image/files). Safeguards divert some topics to Opus 4.8. Pricing $10/$50 per Mtok.",
+      "Kimi K2.7 Code (Moonshot AI, Jun 12): Open-weight agentic coding model, 1T params (32B active, 384 experts), 256K context. Reduced reasoning tokens by 30% vs K2.6 while gaining +21.8% on Kimi Code Bench v2, addressing compute cost of test-time reasoning.",
+      "i1: A Simple and Fully Open Recipe for Strong Text-to-Image Models (Princeton, Jun 9): 3B-param diffusion model competitive with closed frontiers. 300+ controlled experiments (700K TPU v6e hours) reveal empirical findings (equal-weight dataset mixing, larger text-encoder adapters). Fully open-sourced training code and data.",
+      "EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments (Jun 11): Benchmark suite for agents in changing environments (terminal/software/social domains). Proposes EvoMem patch-based memory. Current agents baseline 39.6% accuracy; EvoMem lifts by 1.5-6.1% across benchmarks.",
+      "vLLM v0.23.0 shipped June 13, 2026; feature details not yet disclosed.",
+    ],
+    sections: [
+      {
+        header: "// ACADEMIC RESEARCH",
+        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later. Primary sources here are arXiv and official lab pages.",
+        items: [
+          {
+            title: "i1: A Simple and Fully Open Recipe for Strong Text-to-Image Models",
+            whatsNew: "Princeton researchers (Zhuang Liu, Boya Zeng, et al., arXiv 2606.11289, submitted Jun 9) systematically investigate text-to-image diffusion modeling and data choices via 300+ controlled experiments totaling 700K+ TPU v6e hours, then open-source the full training recipe (code, weights, data, pipeline) for a 3B-parameter model.",
+            howItWorks: "The team trains i1 using only public datasets (no proprietary data) and measure on five benchmarks (GenEval, DPG-Bench, PRISM, CVTG-2K, LongText-Bench). Key empirical findings: equal weighting is a strong default for mixing curated datasets (no need for learned blend ratios), and larger text-encoder adapters (few added parameters) improve quality more than scaling the core diffusion model. The inference recipe and training hyperparameters are published.",
+            impact: "i1 matches closed frontier models on benchmark averages and outperforms the best existing fully open model by 29.5 percentage points. For practitioners training diffusion models on limited compute, the ablation results (which design choices matter most, which don't) and the reproducible recipe lower the barrier to customizing models for domain-specific tasks. The open training pipeline (data processing, training loops, inference) means no opaque secret sauce, enabling research iteration.",
+            source: { label: "arXiv 2606.11289", url: "https://arxiv.org/abs/2606.11289" },
+          },
+          {
+            title: "EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments",
+            whatsNew: "MIT-led team (Jundong Xu, et al., arXiv 2606.13681, submitted Jun 11) introduces EvoArena, a benchmark suite that models environment changes as sequences of progressive updates (e.g., software versions, changing tool APIs, updated instructions) and proposes EvoMem, a patch-based memory paradigm that tracks memory changes as structured update histories.",
+            howItWorks: "Standard agent benchmarks assume a static environment. EvoArena generates three environments (terminal commands, software tools, social preferences) with time-series updates that reflect real-world drift. EvoMem records agent memory as a sequence of fine-grained patches (e.g., user prefers dark mode now set to true) rather than rewriting the full memory on every update, making rollback and audit trails cheaper. The agent can replay memory to reason about causality in environment changes.",
+            impact: "Current SOTA agents (Claude Opus 4.8, GPT-5.5, etc.) achieve only 39.6% average accuracy on EvoArena, revealing a real gap. EvoMem consistently improves performance by 1.5% on EvoArena itself and transfers well: +6.1% on GAIA, +4.8% on LoCoMo, showing the memory structure generalizes beyond the benchmark. For anyone building long-horizon agents that outlive their training data distribution, memory versioning and explicit environment-change awareness move from nice-to-have to required.",
+            source: { label: "arXiv 2606.13681", url: "https://arxiv.org/abs/2606.13681" },
+          },
+        ],
+      },
+      {
+        header: "// INDUSTRY PRACTICES",
+        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas. Primary sources are vendor announcements and the original engineering threads.",
+        items: [
+          {
+            title: "Claude Fable 5: General Availability of Mythos-Class Reasoning",
+            whatsNew: "Anthropic released Claude Fable 5 to the public on June 9, 2026, making a Mythos-class frontier reasoning model generally available. Available on the Claude API, AWS Bedrock, Google Vertex AI, and Microsoft Azure Foundry.",
+            howItWorks: "Fable 5 is trained with safeguards that redirect some topics (e.g., illicit drugs, election-specific political tactics) to Claude Opus 4.8 instead of refusing the request. It supports 1 million token context window, 128,000 max output tokens, and multimodal input (text, image, PDF, file upload). Knowledge cutoff is January 2026. The model is post-trained for long-running, multi-step tasks with planning, verification loops, and tool use.",
+            impact: "Practitioners can now deploy frontier reasoning capabilities in production without running a private instance. Concretely: 95% on SWE-bench Verified, 80% on SWE-bench Pro (coding tasks). At $10 per million input / $50 per million output tokens, the pricing is 2x-5x cheaper than running the top private models on the same benchmarks. The multimodal+vision capability (tables, diagrams in PDFs) unlocks document-heavy workflows (finance, legal, architecture) that were previously friction points. Safeguard design (redirect, not refuse) may reduce complexity in downstream compliance logic.",
+            source: { label: "Anthropic", url: "https://www.anthropic.com/news/claude-fable-5-mythos-5" },
+          },
+          {
+            title: "Kimi K2.7 Code: Agentic Coding Model with Reasoning Token Efficiency",
+            whatsNew: "Moonshot AI released Kimi K2.7 Code, an open-weight 1-trillion-parameter agentic coding model on Hugging Face under Modified MIT license (Jun 12 2026). 32B active parameters via 384 sparse experts (mixture-of-experts), 256K context window.",
+            howItWorks: "Built on Kimi K2.6 with improved instruction following, long-horizon coding task completion, and a different post-training recipe that reduces reasoning tokens (the model's internal scratchpad/planning steps) by approximately 30% versus K2.6. Benchmark improvements: +21.8% on Kimi Code Bench v2, +31.5% on MLS Bench Lite, while using fewer compute tokens per forward pass. API pricing is $0.95/$4.00 per million input/output tokens.",
+            impact: "The 30% reduction in reasoning tokens directly improves time-to-first-token and total serve time for agentic workloads, with no quality loss (gains on benchmarks). For practitioners running agents that call tools or iterate on code generation, this cuts both latency (less internal computation) and cost per request. The MoE architecture with 32B active load fits a single H100 with KV cache, making it deployable on modest infrastructure compared to dense 1T-param models.",
+            source: { label: "MarkTechPost", url: "https://www.marktechpost.com/2026/06/12/moonshot-ai-releases-kimi-k2-7-code-a-coding-model-reporting-21-8-on-kimi-code-bench-v2-over-k2-6/" },
+          },
+        ],
+      },
+      {
+        header: "// NEW FRAMEWORKS",
+        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support. Primary sources are official release notes and project blogs.",
+        items: [
+          {
+            title: "vLLM v0.23.0",
+            whatsNew: "vLLM released v0.23.0 on June 13, 2026.",
+            howItWorks: "Release notes not yet available in primary sources.",
+            impact: "Feature details remain to be confirmed.",
+            source: { label: "GitHub vLLM releases", url: "https://github.com/vllm-project/vllm/releases" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Kimi K2.7's 30% reasoning-token reduction claim while improving coding benchmarks. If consistent across diverse reasoning tasks and reproducible by the community, it shifts the cost/quality frontier for test-time compute in agentic systems.", source: { label: "MarkTechPost", url: "https://www.marktechpost.com/2026/06/12/moonshot-ai-releases-kimi-k2-7-code-a-coding-model-reporting-21-8-on-kimi-code-bench-v2-over-k2-6/" } },
+      { text: "EvoMem's transfer gains (+6.1% GAIA, +4.8% LoCoMo) beyond the benchmark. If this generalizes to other agent frameworks and memory architectures, memory versioning becomes a standard ingredient in production agent systems.", source: { label: "arXiv 2606.13681", url: "https://arxiv.org/abs/2606.13681" } },
+      { text: "Claude Fable 5 pricing ($10/$50 per Mtok) undercuts prior frontier models by 2-5x. Whether this pricing holds as consumption scales, and whether competitors match, will reshape the frontier model market.", source: { label: "Anthropic", url: "https://www.anthropic.com/news/claude-fable-5-mythos-5" } },
+    ],
+  },
+  {
     date: "2026-06-07",
     range: "June 1 to June 7, 2026",
     tldr: [
       "RL Excursions during Pre-Training (Kakade group, arXiv 2606.04272, Jun 2): RL is effective on base pre-training checkpoints, not just after SFT. Targeted pre-training data composition beats model scale as a lever for RL gains, and parallel-averaging RL and SFT objectives outperforms SFT-then-RL while preserving general capabilities.",
       "NVIDIA Nemotron 3 Ultra (Jun 4): 550B total / 55B active hybrid Transformer-Mamba MoE, 1M context, NVFP4, day-0 in vLLM v0.22.0. One NVFP4 checkpoint runs on both Hopper and Blackwell. Post-trained with multi-environment RL for agent harnesses.",
-      "Session-Aware Agentic Routing (SAAR, Jun 2) in vLLM Semantic Router cuts model switches 79.29% across 21,600 turns and drives tool-loop and provider-state switch violations to zero. The point: a router behind 'auto' must know when switching mid-session is unsafe.",
+      "Session-Aware Agentic Routing (SAAR, Jun 2) in vLLM Semantic Router cuts model switches 79.29% across 21,600 turns and drives tool-loop and provider-state switch violations to zero. The point: a router behind auto must know when switching mid-session is unsafe.",
       "AutoRound W4A16 is now in vLLM-Omni (Jun 2): Qwen3-Omni-30B drops from 66 GB to 25 GB with no quality loss, and FLUX.1-dev goes from needing 4 GPUs to 1.",
       "Watchlist resolution: last week's two items (EAGLE 3.1 on dense consumer GPUs; TurboQuant in llama.cpp mainline) are both still open, with no in-window primary confirmation this week.",
     ],
@@ -47,7 +118,7 @@ window.WEEKLY_INSIGHTS = [
           {
             title: "RL Excursions during Pre-Training: re-examining where RL belongs in the pipeline",
             whatsNew: "Bansal, Mohri, Qin, Alvarez-Melis, and Kakade (arXiv 2606.04272, submitted Jun 2 2026) question the standard pipeline that applies RL only after pre-training and SFT. They train an LLM from scratch and apply RL, SFT, and SFT-then-RL directly to intermediate pre-training checkpoints.",
-            howItWorks: "Rather than waiting for a finished base model, they run policy optimization on partially-trained checkpoints and compare it head-to-head with SFT and the usual SFT-then-RL recipe. SFT (supervised fine-tuning) imitates demonstration data; RL optimizes a reward directly. 'Sharpening' means RL concentrating probability mass on already-likely outputs rather than expanding what the model can produce. They also merge RL and SFT by parallel averaging, averaging the two separately-trained weight sets.",
+            howItWorks: "Rather than waiting for a finished base model, they run policy optimization on partially-trained checkpoints and compare it head-to-head with SFT and the usual SFT-then-RL recipe. SFT (supervised fine-tuning) imitates demonstration data; RL optimizes a reward directly. Sharpening means RL concentrating probability mass on already-likely outputs rather than expanding what the model can produce. They also merge RL and SFT by parallel averaging, averaging the two separately-trained weight sets.",
             impact: "Three practitioner takeaways. (1) RL is effective very early and often matches the full SFT-then-RL pipeline, so RL is not strictly a final-stage tool. (2) Targeted pre-training data composition is a stronger lever for RL effectiveness than model scale, which reorders where to spend budget on hard problems. (3) RL on base checkpoints expands the output distribution and leaves general capabilities essentially unchanged, while SFT degrades them; the reported sharpening only appears when RL follows SFT. Parallel-averaging the two objectives outperformed every other method tested across metrics while preserving general capabilities.",
             source: { label: "arXiv 2606.04272", url: "https://arxiv.org/abs/2606.04272" },
           },
@@ -67,7 +138,7 @@ window.WEEKLY_INSIGHTS = [
           {
             title: "Session-Aware Agentic Routing (SAAR) in vLLM Semantic Router",
             whatsNew: "SAAR is a session-aware model-selection policy for long-horizon agents. Single-turn routers pick the best model for the current message but do not know when switching mid-session breaks correctness. SAAR adds router-owned session memory, hard locks, reset boundaries, prefix-cache-aware switch pricing, and replayable traces.",
-            howItWorks: "It keeps the existing semantic-routing pipeline and wraps a session-control layer around the result. Two hard locks hold the previous physical model: tool-loop continuity (a tool result must return to the model that requested it) and provider-managed state (a non-portable continuation id stays on its backend). Reset boundaries (idle timeout, decision drift) reopen selection so the policy does not degrade into sticky sessions. Switch economics price the cached-input checkout delta, the input-token cost of abandoning a warm prefix cache, so switching away from a long warm session is penalized. Every decision writes a replay trace, making routing behind a logical 'auto' model inspectable.",
+            howItWorks: "It keeps the existing semantic-routing pipeline and wraps a session-control layer around the result. Two hard locks hold the previous physical model: tool-loop continuity (a tool result must return to the model that requested it) and provider-managed state (a non-portable continuation id stays on its backend). Reset boundaries (idle timeout, decision drift) reopen selection so the policy does not degrade into sticky sessions. Switch economics price the cached-input checkout delta, the input-token cost of abandoning a warm prefix cache, so switching away from a long warm session is penalized. Every decision writes a replay trace, making routing behind a logical auto model inspectable.",
             impact: "Across 21,600 deterministic turns, full SAAR cut switches 79.29% and reduced estimated physical-model cost 78.71% versus single-turn routing, with a small quality delta (-0.0453) versus sticky sessions' larger drop (-0.1433). Tool-loop switch violations went 3,404 to 0; provider-state violations 432 to 0. In live AMD ROCm serving, 2,896 requests completed with 0 continuity violations and p95 routing overhead of 6.181 ms on the balanced workload. For anyone running a model portfolio behind one logical endpoint for agents, this is the missing correctness layer.",
             source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-06-02-session-aware-agentic-routing" },
           },
@@ -87,7 +158,7 @@ window.WEEKLY_INSIGHTS = [
           {
             title: "AutoRound W4A16 lands in vLLM-Omni",
             whatsNew: "Intel's AutoRound post-training quantization (PTQ) is now integrated into vLLM-Omni, bringing W4A16 (4-bit weight, 16-bit activation) to multimodal Omni, diffusion image, and video-diffusion pipelines with a quantize-once, serve-directly flow.",
-            howItWorks: "AutoRound is a tuning-based PTQ that jointly optimizes rounding and clipping with three learnable parameters per tensor (V for rounding offset, alpha and beta for clip range), giving better low-bit accuracy than round-to-nearest while producing a static checkpoint with no inference-time quantization overhead. vLLM-Omni reads quantization_config.quant_method = 'auto-round' from checkpoint metadata and selects the matching backend, so the serving API is identical to a normal load (no --quantization flag). Roughly 128 calibration samples and ~200 optimization iterations are usually enough to converge.",
+            howItWorks: "AutoRound is a tuning-based PTQ that jointly optimizes rounding and clipping with three learnable parameters per tensor (V for rounding offset, alpha and beta for clip range), giving better low-bit accuracy than round-to-nearest while producing a static checkpoint with no inference-time quantization overhead. vLLM-Omni reads quantization_config.quant_method = auto-round from checkpoint metadata and selects the matching backend, so the serving API is identical to a normal load (no --quantization flag). Roughly 128 calibration samples and ~200 optimization iterations are usually enough to converge.",
             impact: "Large memory wins with quality preserved. Qwen3-Omni-30B-A3B drops 62%, from 66 GB to 25 GB, and its W4A16 variant slightly beat its BF16 reference on OmniBench while keeping text-to-image quality drift to ~1.3% on TIIF-Bench. The deployment unlock is sharper: BF16 FLUX.1-dev (23 GB transformer) needs TP=4 to serve on Intel XPU B60, while the 7 GB W4A16 transformer fits on a single GPU with headroom; freeing GPUs enables CFG Parallel (running both classifier-free-guidance branches at once) for a 1.55-1.67x guided-generation speedup. Verified on both Intel XPU and NVIDIA; MXFP4/MXFP8 support is listed as in progress.",
             source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-06-02-vllm-omni-autoround" },
           },
@@ -98,83 +169,6 @@ window.WEEKLY_INSIGHTS = [
       { text: "The RL Excursions claim that parallel-averaging RL and SFT objectives outperforms SFT-then-RL across metrics while preserving general capabilities. If it reproduces at larger scale and on standard harnesses, it changes default post-training recipes.", source: { label: "arXiv 2606.04272", url: "https://arxiv.org/abs/2606.04272" } },
       { text: "NVIDIA's claim that Nemotron 3 Ultra leads open models on throughput and saves ~30% on cost (10k/2k ISL/OSL, BS 1). Worth checking against independent benchmarks rather than the vendor figure.", source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-06-04-nemotron-3-ultra-vllm" } },
       { text: "Carryover: EAGLE 3.1's 2x acceptance gains on dense, non-MLA consumer GPUs and TurboQuant reaching llama.cpp mainline both remain unconfirmed by a primary source as of this week.", source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-05-26-eagle-3-1" } },
-    ],
-  },
-  {
-    date: "2026-05-31",
-    range: "May 24 to May 31, 2026",
-    tldr: [
-      "EAGLE 3.1 fixes 'attention drift', the reason speculative decoding lost speed under long context and unusual prompts. Up to 2x longer acceptance length, backward compatible with EAGLE 3 checkpoints, ships in vLLM v0.22.0.",
-      "Claude Opus 4.8 (May 28) added dynamic workflows: it runs hundreds of parallel subagents in one session and verifies them against your test suite. Reportedly ~4x less likely than 4.7 to let a flaw in its own code pass. Price flat at $5/$25 per Mtok.",
-      "Qwen WebWorld is an open-weight web world model (Apache 2.0) that simulates a browser so you can train web agents off the live internet. WebWorld-32B matches Opus-4.1 on factuality.",
-      "TurboQuant (ICLR 2026), a near-optimal sub-4-bit quantization method, is being ported into llama.cpp.",
-      "Sourcing note: every item below cites a primary source. The check dropped several items the aggregators had relabeled as current (Apple's MLX-on-M5 note is from Nov 2025).",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later. Primary sources here are arXiv and official lab pages.",
-        items: [
-          {
-            title: "Qwen WebWorld: an open web world model for training agents",
-            whatsNew: "Alibaba released WebWorld (8B/14B/32B, Apache 2.0), an open-weight web world model, a model that simulates a browser so you can train web agents against it instead of the live internet.",
-            howItWorks: "Given the current page state plus an action, it predicts the next page state. It was trained on 1.06M real browsing trajectories, so the simulated responses stay close to how real sites behave.",
-            impact: "WebWorld-32B scores 71.0% average Factuality, matching Claude-Opus-4.1 (71.3%), and a Qwen3-14B agent trained purely on its simulated rollouts gains +9.2% on WebArena. For agent RL this is a usable open environment plus dataset, with no live-web flakiness or rate limits.",
-            source: { label: "arXiv 2602.14721", url: "https://arxiv.org/abs/2602.14721" },
-          },
-          {
-            title: "TurboQuant: near-optimal sub-4-bit quantization, heading into llama.cpp",
-            whatsNew: "TurboQuant (ICLR 2026) is a quantization method with provably near-optimal distortion at any bit-width, and a working CPU implementation is being ported into llama.cpp.",
-            howItWorks: "Quantization stores model weights at lower precision to save memory. TurboQuant randomly rotates each weight vector, which makes its coordinates follow a predictable distribution, then applies the optimal simple per-coordinate quantizer. The rotation is data-oblivious, so it runs online with no calibration set.",
-            impact: "It targets the sub-4-bit range below llama.cpp's usual 4-bit floor while keeping reconstruction error near the theoretical minimum, the regime where quality normally breaks. If it lands in mainline, it means a smaller memory footprint for local models without the usual accuracy cliff.",
-            source: { label: "arXiv 2504.19874", url: "https://arxiv.org/abs/2504.19874" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing moves, and deployment gotchas. Primary sources are vendor announcements and the original engineering threads.",
-        items: [
-          {
-            title: "Claude Opus 4.8 and dynamic workflows (Anthropic, May 28)",
-            whatsNew: "Anthropic shipped Opus 4.8 plus a 'dynamic workflows' research preview in Claude Code and an effort control (Low to Max) in claude.ai and Cowork.",
-            howItWorks: "In dynamic workflows, Claude plans a large task, runs hundreds of parallel subagents (separate model instances each handling a slice) in one session, then verifies their outputs against your existing test suite before reporting back. Opus 4.8 was also trained for honesty: to flag uncertainty rather than claim unsupported progress.",
-            impact: "It is pitched for codebase-scale migrations across hundreds of thousands of lines, kickoff to merge. Anthropic reports it is ~4x less likely than 4.7 to let a flaw in its own code pass unremarked, the property that matters when subagents run unattended. Pricing is flat at $5/$25 per Mtok; fast mode is $10/$50 at 2.5x speed, 3x cheaper than the prior fast tier.",
-            source: { label: "Anthropic", url: "https://www.anthropic.com/news/claude-opus-4-8" },
-          },
-          {
-            title: "llama.cpp MTP: a real win on dense models, a trap on MoE",
-            whatsNew: "Multi-Token Prediction (MTP) speculative decoding merged into llama.cpp (PR #22673), letting a model draft its own next tokens from built-in heads, with no separate draft model.",
-            howItWorks: "The MTP heads load from the same GGUF file and guess a few tokens ahead; the main model verifies them in one pass. The PR reports about 75% acceptance at 3 draft tokens.",
-            impact: "On dense Qwen 3.6 27B it lifts decode ~1.85-1.9x (roughly 23 to 42 tok/s). But on the 35B-A3B mixture-of-experts model (only a few expert sub-networks fire per token) at batch size 1, each drafted token can wake a different expert and the verifier must load all of them, so the gain can vanish. The rule: MTP is close to free on dense, but measure on MoE before relying on it.",
-            source: { label: "llama.cpp PR #22673", url: "https://github.com/ggml-org/llama.cpp/pull/22673" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support. Primary sources are official release notes and project blogs.",
-        items: [
-          {
-            title: "EAGLE 3.1 speculative decoding (EAGLE team / vLLM / TorchSpec, May 26)",
-            whatsNew: "EAGLE 3.1 fixes 'attention drift', the reason speculative decoding (a small draft model guesses several tokens, the large model verifies them in one pass) lost speed under long context, odd chat templates, or unusual system prompts.",
-            howItWorks: "As the drafter guesses deeper it drifts attention off the early 'sink' tokens toward its own output. EAGLE 3.1 adds FC normalization on each target hidden state and feeds the normalized state forward, so drafting behaves like calling the drafter recursively. It is config-driven and backward compatible with EAGLE 3 checkpoints.",
-            impact: "Up to 2x longer acceptance length on long context; on Kimi-K2.6 (NVFP4, a 4-bit serving format) on a GB200 it delivered 2.03x per-user throughput at one concurrent request. It ships in vLLM v0.22.0 as a drop-in drafter upgrade, so existing EAGLE 3 setups can adopt it without retraining.",
-            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-05-26-eagle-3-1" },
-          },
-          {
-            title: "vLLM v0.21.0: DeepSeek V4 and Blackwell hardening",
-            whatsNew: "vLLM's v0.21.0 stable release focused on DeepSeek V4 and Nvidia Blackwell (the current GPU generation), adding a new TOKENSPEED_MLA attention backend.",
-            howItWorks: "TOKENSPEED_MLA (#41778) handles DeepSeek-R1 / Kimi-K2.5 prefill and decode on Blackwell, alongside faster FP8 group-quant kernels and a persistent MLA path for the sparse backend. The FlashInfer top-k/top-p sampler is now on by default.",
-            impact: "It is the current production-grade path for DeepSeek-class models on Blackwell. Two breaking changes to check before upgrading: C++20 is now required to build, and Transformers v4 is deprecated.",
-            source: { label: "vLLM v0.21.0 release", url: "https://github.com/vllm-project/vllm/releases/tag/v0.21.0" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "EAGLE 3.1's headline numbers are on Kimi-K2.6 (NVFP4, MLA attention) on a GB200. Whether the 2x carries to dense, non-MLA models on consumer GPUs is the open question before you assume it for your stack.", source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-05-26-eagle-3-1" } },
-      { text: "TurboQuant landing in llama.cpp mainline. If the sub-4-bit path ships with near-paper quality, it becomes a new default for memory-constrained local models. Tracking against the method paper.", source: { label: "arXiv 2504.19874", url: "https://arxiv.org/abs/2504.19874" } },
     ],
   },
 ];
