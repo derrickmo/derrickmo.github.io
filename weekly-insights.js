@@ -30,6 +30,71 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-06-21",
+    range: "June 15 to June 21, 2026",
+    tldr: [
+      "DFlash + Spec V2 is now the default speculative decoding engine in SGLang (Z Lab / Modal / SGLang, Jun 15). Block diffusion drafting plus KV injection hits >4.3x baseline throughput and 1.5x native MTP at concurrency 1 on Qwen 3.5 397B (HumanEval, 8xB200); the V2 overlap scheduler alone adds +33% (11.4 to 15.3 ktok/s, Qwen 3-8B, B200, concurrency 32).",
+      "MiniMax Sparse Attention (MSA), arXiv 2606.13392, submitted Jun 11 and verified across the field this week. Two-branch block-sparse attention on GQA cuts per-token attention compute 28.4x at 1M context while matching dense GQA; co-designed kernel gives 14.2x prefill and 7.6x decode speedups on H800. Kernel open-sourced; powers MiniMax-M3.",
+      "Model panels (Fusion) are becoming a live serving pattern. vLLM Semantic Router shipped a programmable Fusion routing primitive (Jun 16); OpenRouter's launch (Jun 12) reported a fused Fable 5 + GPT-5.5 panel at 69.0% on Perplexity's DRACO deep-research benchmark vs 65.3% solo Fable 5, with a budget panel within 1% of Fable 5 at ~half the cost.",
+      "Watchlist resolution: Kimi K2.7's 30% reasoning-token claim is partially debunked (token cut holds, but practitioner tests report no capability gain and a KernelBench-Hard regression); EvoMem transfer gains saw no new primary and remain open; Claude Fable 5 pricing still holds.",
+    ],
+    sections: [
+      {
+        header: "// ACADEMIC RESEARCH",
+        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
+        items: [
+          {
+            title: "MiniMax Sparse Attention (MSA): block-sparse long-context attention with a co-designed kernel",
+            whatsNew: "MiniMax (Xunhao Lai et al., arXiv 2606.13392) introduces MSA, a blockwise sparse attention built on Grouped Query Attention. The paper was submitted Jun 11, just before this week's window, but it was independently verified and widely analyzed this week and is the most significant long-context method the field engaged with, so it is included with that date noted. The inference kernel is open-sourced and the technique powers the production MiniMax-M3 model.",
+            howItWorks: "MSA factors attention into two branches. A lightweight Index Branch scores key-value blocks and independently selects a Top-k subset of blocks per GQA group (GQA = multiple query heads share one KV head, giving group-specific sparse retrieval while keeping block-level execution efficient). The Main Branch runs exact softmax attention over only the selected blocks, so it is sparse in which blocks are read but exact within them. Unlike methods that compress the KV cache, MSA keeps KV uncompressed to preserve long-context retrieval accuracy, trading slightly higher memory for fidelity. To turn sparsity into real speedups, the GPU path uses exp-free Top-k selection (avoids the expensive exponential in index scoring) and a KV-outer sparse attention layout to keep tensor cores utilized under block-granular access.",
+            impact: "On a 109B-parameter natively-multimodal MoE, MSA matches dense GQA quality while cutting per-token attention compute by 28.4x at 1M-token context. With the co-designed kernel that becomes 14.2x prefill and 7.6x decode wall-clock speedups on H800. For teams serving long-context agentic or repo-scale workloads, this is a deployable path to 1M context without the quadratic blowup, and because the kernel is open (github.com/MiniMax-AI/MSA) and the design is simple (GQA plus block Top-k) it is portable across GPUs rather than vendor-locked. The H800 numbers matter for teams on export-restricted hardware.",
+            source: { label: "arXiv 2606.13392", url: "https://arxiv.org/abs/2606.13392" },
+          },
+        ],
+      },
+      {
+        header: "// INDUSTRY PRACTICES",
+        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
+        items: [
+          {
+            title: "Model panels (Fusion) move from research idea to a production serving primitive",
+            whatsNew: "Within a week, two primary sources made multi-model Fusion a real serving pattern. OpenRouter launched a Fusion API (Jun 12) that sends one request to a panel of models in parallel and synthesizes one answer, with a benchmark report. vLLM Semantic Router followed with its own Fusion primitive (Jun 16) that makes the panel-judge-synthesis flow a programmable, policy-controlled, traceable routing decision inside an open self-hostable router rather than a hosted black box. OpenRouter's post is dated Jun 12, just before this window; the vLLM-SR post is in-window and treats it as the external signal.",
+            howItWorks: "A panel of models each answer the prompt independently (with web search and fetch enabled). A judge model reads all answers and produces structured analysis: consensus, contradictions, partial coverage, unique insights, blind spots. A final synthesis call writes one user-facing answer grounded in that analysis. vLLM-SR adds a control plane: signals describe the request, decisions choose whether a request even deserves a Fusion route (it is expensive, 2-3x normal latency), and the router records which models ran plus token accounting. It exposes three entry modes (auto routing, Fusion-only, per-request plugin override) and returns an OpenAI-compatible response while giving operators the full trace.",
+            impact: "On Perplexity's DRACO deep-research benchmark (100 tasks, 10 domains, ~39 weighted criteria with negative weights for errors), OpenRouter reported a fused Fable 5 + GPT-5.5 panel (synthesized by Opus 4.8) at 69.0% vs 65.3% for solo Fable 5; a budget panel of Gemini 3 Flash + Kimi K2.6 + DeepSeek V4 Pro hit 64.7%, within 1% of solo Fable 5 at roughly half the cost. Fusing Opus 4.8 with itself scored 65.5% vs 58.8% solo (+6.7 points), showing much of the lift comes from the synthesis step, not just model diversity. Practical gotcha worth copying: when panel models had web access they surfaced the DRACO grading rubric online, so OpenRouter had to exclude those domains before final runs (pass excluded_domains / blocked_domains in your own evals). Takeaway: panels are a real quality lever for hard research-style queries but only worth the latency on requests that need it, which is exactly the routing decision vLLM-SR is built to make.",
+            source: { label: "vLLM SR Fusion (Jun 16)", url: "https://vllm.ai/blog/2026-06-16-vllm-sr-fusion-api" },
+          },
+        ],
+      },
+      {
+        header: "// NEW FRAMEWORKS",
+        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
+        items: [
+          {
+            title: "DFlash + Spec V2: SGLang's new default speculative decoding engine",
+            whatsNew: "Z Lab, Modal, and the SGLang team shipped DFlash, a block-diffusion speculative decoding method, integrated into SGLang's new V2 speculative decoding engine, now the default (LMSYS blog, Jun 15). They also released DFlash draft models for Qwen 3.5 397B-A17B on Hugging Face (z-lab, modal-labs, lmsys orgs).",
+            howItWorks: "Speculative decoding uses a small fast draft model to propose multiple tokens the target model verifies in parallel, with no quality change. Prior methods (EAGLE series, native MTP heads in Gemma 4 / DeepSeek-V4) still draft autoregressively, one token at a time, which underuses the GPU. DFlash drafts a whole block of tokens in one forward pass via a lightweight block-diffusion model (MTP = multi-token prediction; block diffusion = denoise a block of positions jointly instead of left-to-right). Its key trick is KV injection: it extracts the target model's hidden representations of the context and injects them directly into every draft layer's KV cache, so the small drafter stays conditioned on the target's context at depth and produces higher-acceptance drafts. Spec V2 adds an overlap scheduler that hides host-device sync: host-side cleanup and KV allocation for batch N overlap with GPU work on batch N-1.",
+            impact: "On Qwen 3.5 397B-A17B (BF16, HumanEval, greedy, thinking on, 8xB200), DFlash hits >4.3x baseline throughput and 1.5x native MTP at concurrency 1, and beats native MTP across GSM8K/HumanEval/MT-Bench from concurrency 1 to 32. Ablations on Qwen 3-4B show why: a 5-layer DFlash drafter matches a 5-layer EAGLE-3 drafter on acceptance length (4.2 vs 4.2 on GSM8K) but delivers higher end-to-end speedup (3.3x vs 2.1x) because parallel drafting is much cheaper; KV injection alone lifts acceptance length to 4.8 on GSM8K. The Spec V2 overlap scheduler adds +33% on its own (11.4 to 15.3 ktok/s, Qwen 3-8B, single B200, concurrency 32). For anyone serving large MoE models this is a drop-in default that cuts latency and cost, and you can train a DFlash drafter for your own target since the block-diffusion-plus-KV-injection recipe is target-agnostic.",
+            source: { label: "LMSYS DFlash + Spec V2 (Jun 15)", url: "https://www.lmsys.org/blog/2026-06-15-next-generation-speculative-decoding-dflash-v2/" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      {
+        text: "Whether SGLang's >4.3x DFlash throughput and the +33% Spec V2 overlap-scheduler gain reproduce in third-party benchmarks on target models beyond Qwen 3.5 397B, and whether DFlash drafters trained on other targets land in the wild.",
+        source: { label: "LMSYS DFlash + Spec V2", url: "https://www.lmsys.org/blog/2026-06-15-next-generation-speculative-decoding-dflash-v2/" },
+      },
+      {
+        text: "Whether MSA's 14.2x prefill / 7.6x decode H800 speedups reproduce in third-party serving stacks (vLLM, SGLang) using the open kernel, rather than only MiniMax's own deployment.",
+        source: { label: "MiniMax MSA kernel", url: "https://github.com/MiniMax-AI/MSA" },
+      },
+      {
+        text: "Whether a larger public eval confirms model panels beat the best single model beyond DRACO; vLLM-SR explicitly says a broader Fusion-vs-single-model-vs-frontier-panel eval is still owed.",
+        source: { label: "vLLM SR Fusion", url: "https://vllm.ai/blog/2026-06-16-vllm-sr-fusion-api" },
+      },
+    ],
+  },
+  {
     date: "2026-06-14",
     range: "June 8 to June 14, 2026",
     tldr: [
