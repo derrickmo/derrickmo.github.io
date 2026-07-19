@@ -158,6 +158,23 @@ function Notebooks() {
                 <span style={{ fontFamily: "var(--f-display)", fontWeight: 500, fontSize: 17, color: "var(--white)", letterSpacing: "-0.005em" }}>{nb.t}</span>
                 <span className="t-small" style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.45 }}>{nb.d}</span>
                 <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10, marginTop: 2 }}>{nb.models}</span>
+                {nb.cur && nb.cur.length > 0 && window.CURRICULUM && (
+                  <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10, marginTop: 4 }}>
+                    IN THE CURRICULUM:{" "}
+                    {nb.cur.map((ref, j) => {
+                      const [ms, ls] = ref.split("/");
+                      const l = window.CURRICULUM.findLesson(ms, ls);
+                      if (!l) return null;
+                      return (
+                        <span key={ref}>
+                          {j > 0 && <span> · </span>}
+                          <a href={`${BASE}learn/${ms}/`} style={{ color: "var(--blue-lt)", textDecoration: "none" }}
+                             title={`Module page — lesson ${l.n}`}>{l.n} {l.title}</a>
+                        </span>
+                      );
+                    })}
+                  </span>
+                )}
               </div>
               <span className="t-mono-s" style={{ color: diffColor(nb.diff), fontSize: 10, whiteSpace: "nowrap", justifySelf: mobile ? "start" : "end" }}>{nb.diff.toUpperCase()}</span>
             </div>
