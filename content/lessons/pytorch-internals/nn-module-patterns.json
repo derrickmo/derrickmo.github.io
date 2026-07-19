@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "15-03_advanced_nn_module_patterns.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

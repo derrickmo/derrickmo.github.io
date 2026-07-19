@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "19-05_shap_model_agnostic_explainability.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

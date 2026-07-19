@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "10-04_pretrained_transformer_fine_tuning.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

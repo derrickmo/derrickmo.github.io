@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "03-10_bayesian_inference_probabilistic_thinking.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

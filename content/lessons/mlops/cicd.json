@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "20-07_cicd_for_ml.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

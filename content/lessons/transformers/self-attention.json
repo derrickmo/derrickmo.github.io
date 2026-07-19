@@ -8,9 +8,10 @@
   "status": "DRAFT",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "08-01_self_attention_mechanism.ipynb",
     "flagship": "learn/transformers/self-attention/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

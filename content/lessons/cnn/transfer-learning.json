@@ -9,9 +9,10 @@
   "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "06-04_transfer_learning_fine_tuning.ipynb",
     "flagship": "learn/cnn/transfer-learning/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

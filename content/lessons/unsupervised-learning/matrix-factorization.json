@@ -9,9 +9,10 @@
   "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "03-09_matrix_factorization_decomposition.ipynb",
     "flagship": "learn/unsupervised-learning/matrix-factorization/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

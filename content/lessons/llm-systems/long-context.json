@@ -9,9 +9,10 @@
   "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "17-08_long_context_rope_scaling_sliding_window.ipynb",
     "flagship": "learn/llm-systems/long-context/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

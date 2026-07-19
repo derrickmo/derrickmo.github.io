@@ -9,9 +9,10 @@
   "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "11-08_normalizing_flows_flow_matching.ipynb",
     "flagship": "learn/generative/flows/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

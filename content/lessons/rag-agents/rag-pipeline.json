@@ -9,9 +9,10 @@
   "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
+    "notebookFile": "18-04_rag_pipeline_end_to_end.ipynb",
     "flagship": "learn/rag-agents/rag-pipeline/",
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

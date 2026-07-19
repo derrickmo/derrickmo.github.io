@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": false,
+    "notebookFile": "22-02_flax_optax.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

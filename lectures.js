@@ -1,6 +1,6 @@
 // GENERATED from content/ by _private/scripts/gen-from-store.mjs — DO NOT EDIT BY HAND.
 // Edit the canonical store (content/modules/) and re-run the generator.
-// contentVersion 1.0.0-seed
+// contentVersion 1.1.0
 // lectures.js — condensed on-site lectures for the 25 ML-from-Scratch modules.
 // Each is a high-level distillation; the full runnable notebooks live on GitHub.
 // Consumed by module-app.jsx. Keyed by the curriculum slug (see curriculum.js).

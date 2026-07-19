@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": false,
+    "notebookFile": "21-06_multi_agent.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

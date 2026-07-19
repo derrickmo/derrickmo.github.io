@@ -1,6 +1,6 @@
 // GENERATED from content/ by _private/scripts/gen-from-store.mjs — DO NOT EDIT BY HAND.
 // Edit the canonical store (content/concepts/, modules/*.subLessons) and re-run the generator.
-// contentVersion 1.0.0-seed
+// contentVersion 1.1.0
 // sub-lessons.js — per-concept sub-lessons that break each ML-from-scratch module
 // down into the concepts it teaches. Each module page (module-app.jsx) renders its
 // concept sequence as a "Concept by concept" syllabus; each concept gets its own

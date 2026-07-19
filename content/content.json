@@ -1,8 +1,8 @@
 {
   "meta": {
     "schemaVersion": 1,
-    "contentVersion": "1.0.0-seed",
-    "updatedAt": "2026-06-10"
+    "contentVersion": "1.1.0",
+    "updatedAt": "2026-07-18"
   },
   "modules": [
     {
@@ -2560,11 +2560,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-01_python_numpy_tensor_speed.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2576,11 +2577,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-02_advanced_numpy_pytorch_ops.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2592,11 +2594,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-03_pandas_tabular_data.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2608,11 +2611,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-04_visualization_matplotlib.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2624,11 +2628,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-05_data_loading_pytorch.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2641,11 +2646,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-06_linear_algebra_ml.ipynb",
         "flagship": "learn/foundations/linear-algebra/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2657,11 +2663,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-07_probability_statistics_ml.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2673,11 +2680,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-08_information_theory_ml.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2689,11 +2697,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-09_calculus_optimization_foundations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2705,11 +2714,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "01-10_computational_thinking_complexity.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2721,11 +2731,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-01_linear_regression.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2737,11 +2748,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-02_logistic_regression_binary_classification.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2753,11 +2765,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-03_decision_trees_random_forests.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2770,11 +2783,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-04_gradient_boosting_adaboost.ipynb",
         "flagship": "learn/supervised-learning/boosting/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2786,11 +2800,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-05_support_vector_machines.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2802,11 +2817,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-06_generalized_linear_models_exponential_family.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2818,11 +2834,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-07_k_nearest_neighbors.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2834,11 +2851,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-08_naive_bayes_text_classification.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2850,11 +2868,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-09_stacking_voting_ensembles.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2866,11 +2885,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "02-10_model_comparison_algorithm_selection.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2882,11 +2902,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-01_kmeans_clustering.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2898,11 +2919,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-02_hierarchical_density_based_clustering.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2914,11 +2936,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-03_principal_component_analysis.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2930,11 +2953,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-04_tsne_umap_manifold_learning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2946,11 +2970,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-05_independent_component_analysis.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2962,11 +2987,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-06_gaussian_mixture_models_em_algorithm.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2978,11 +3004,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-07_anomaly_detection.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -2994,11 +3021,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-08_kernel_methods_feature_maps.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3011,11 +3039,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-09_matrix_factorization_decomposition.ipynb",
         "flagship": "learn/unsupervised-learning/matrix-factorization/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3027,11 +3056,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "03-10_bayesian_inference_probabilistic_thinking.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3043,11 +3073,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-01_evaluation_metrics_deep_dive.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3059,11 +3090,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-02_cross_validation_hyperparameter_tuning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3075,11 +3107,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-03_feature_engineering_pipelines.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3091,11 +3124,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-04_data_augmentation_color_spaces.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3107,11 +3141,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-05_handling_imbalanced_data.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3124,11 +3159,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-06_learning_theory_vc_dimension_pac.ipynb",
         "flagship": "learn/ml-theory/learning-theory/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3140,11 +3176,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-07_bias_variance_decomposition_ml_debugging.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3156,11 +3193,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-08_convex_optimization_foundations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3172,11 +3210,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-09_calibration_uncertainty_quantification.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3188,11 +3227,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "04-10_gaussian_processes_bayesian_opt.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3204,11 +3244,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-01_neural_network_end_to_end_walkthrough.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3220,11 +3261,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-02_perceptron_multi_layer_architecture.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3236,11 +3278,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-03_activation_functions.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3253,11 +3296,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-04_loss_functions.ipynb",
         "flagship": "learn/neural-nets/loss-functions/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3270,11 +3314,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-05_forward_pass_computational_graphs.ipynb",
         "flagship": "learn/neural-nets/forward-pass/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3286,11 +3331,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-06_backpropagation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3302,11 +3348,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-07_pytorch_fundamentals_autograd_nn_module.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3318,11 +3365,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-08_optimizers_sgd_momentum_nesterov.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3334,11 +3382,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-09_advanced_optimizers_learning_rate_scheduling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3350,11 +3399,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "05-10_regularization_techniques.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3366,11 +3416,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-01_fully_connected_networks_for_images.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3382,11 +3433,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-02_convolution_from_scratch.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3399,11 +3451,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-03_cnn_architectures_lenet_to_resnet.ipynb",
         "flagship": "learn/cnn/cnn-architectures/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3416,11 +3469,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-04_transfer_learning_fine_tuning.ipynb",
         "flagship": "learn/cnn/transfer-learning/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3432,11 +3486,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-05_unet_encoder_decoder_architecture.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3448,11 +3503,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-06_depthwise_separable_convolutions_efficient_architectures.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3464,11 +3520,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-07_semantic_instance_segmentation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3480,11 +3537,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-08_neural_style_transfer.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3496,11 +3554,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-09_conv1d_conv3d.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3512,11 +3571,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "06-10_adversarial_examples_robustness.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3528,11 +3588,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-01_tokenization_bpe_wordpiece_sentencepiece.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3544,11 +3605,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-02_word_vectors_word2vec_glove_fasttext.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3560,11 +3622,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-03_recurrent_neural_networks.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3576,11 +3639,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-04_lstm_gru.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3593,11 +3657,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-05_seq2seq_attention.ipynb",
         "flagship": "learn/rnn-nlp/seq2seq-attention/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3609,11 +3674,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-06_text_generation_decoding_strategies.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3625,11 +3691,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-07_classical_language_models_perplexity.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3641,11 +3708,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-08_dependency_parsing.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3657,11 +3725,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-09_sequence_labeling_bilstm_crf.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3673,11 +3742,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "07-10_contextual_embeddings_elmo.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3689,11 +3759,12 @@
       "status": "DRAFT",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-01_self_attention_mechanism.ipynb",
         "flagship": "learn/transformers/self-attention/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3705,11 +3776,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-02_multi_head_attention.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3721,11 +3793,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-03_positional_encoding_sinusoidal_learned.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3737,11 +3810,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-04_transformer_block.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3754,11 +3828,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-05_full_transformer_encoder_decoder.ipynb",
         "flagship": "learn/transformers/full-transformer/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3770,11 +3845,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-06_rmsnorm_swiglu_modern_blocks.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3786,11 +3862,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-07_grouped_query_multi_query_attention.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3802,11 +3879,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-08_rotary_position_embeddings_rope.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3818,11 +3896,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-09_flash_attention_concepts.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3834,11 +3913,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "08-10_kv_cache_autoregressive_inference.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3850,11 +3930,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-01_grad_cam_saliency_maps.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3867,11 +3948,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-02_object_detection_fundamentals.ipynb",
         "flagship": "learn/advanced-cv/object-detection/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3883,11 +3965,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-03_yolo_detection.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3899,11 +3982,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-04_mediapipe_real_time_vision.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3915,11 +3999,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-05_vision_transformers_vit.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3931,11 +4016,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-06_self_supervised_dino_mae.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3947,11 +4033,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-07_image_retrieval_visual_similarity_search.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3963,11 +4050,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-08_video_understanding.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3979,11 +4067,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-09_ocr_document_ai.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -3995,11 +4084,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "09-10_cnn_training_deep_dive_cifar100.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4012,11 +4102,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-01_gpt_style_autoregressive_language_modeling.ipynb",
         "flagship": "learn/advanced-nlp/gpt/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4028,11 +4119,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-02_bert_style_masked_language_modeling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4044,11 +4136,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-03_encoder_decoder_architectures.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4060,11 +4153,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-04_pretrained_transformer_fine_tuning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4076,11 +4170,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-05_named_entity_recognition.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4092,11 +4187,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-06_natural_language_inference.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4108,11 +4204,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-07_question_answering.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4124,11 +4221,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-08_nlp_evaluation_pipeline.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4140,11 +4238,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-09_chain_of_thought_in_context_learning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4156,11 +4255,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "10-10_mechanistic_interpretability.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4172,11 +4272,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-01_autoencoders.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4188,11 +4289,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-02_variational_autoencoders.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4204,11 +4306,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-03_gans_dcgan_wgan.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4220,11 +4323,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-04_conditional_generation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4237,11 +4341,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-05_ddpm_diffusion_from_scratch.ipynb",
         "flagship": "learn/generative/ddpm/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4253,11 +4358,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-06_latent_diffusion_models.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4269,11 +4375,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-07_diffusion_guidance_evaluation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4286,11 +4393,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-08_normalizing_flows_flow_matching.ipynb",
         "flagship": "learn/generative/flows/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4302,11 +4410,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-09_energy_based_models_score_matching.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4318,11 +4427,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "11-10_autoregressive_generative_models.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4335,11 +4445,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-01_clip_contrastive_image_text_pretraining.ipynb",
         "flagship": "learn/multimodal/clip/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4351,11 +4462,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-02_zero_shot_few_shot_classification.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4367,11 +4479,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-03_siamese_networks_triplet_loss.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4383,11 +4496,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-04_contrastive_ssl_simclr_byol.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4399,11 +4513,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-05_vision_language_models_image_captioning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4415,11 +4530,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-06_visual_question_answering.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4431,11 +4547,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-07_multi_modal_fusion_architectures.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4447,11 +4564,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-08_audio_speech_representations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4463,11 +4581,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-09_stt_tts_foundations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4479,11 +4598,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "12-10_multimodal_evaluation_alignment_metrics.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4495,11 +4615,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-01_full_finetuning_vs_feature_extraction.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4511,11 +4632,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-02_lora_low_rank_adaptation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4527,11 +4649,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-03_qlora_4bit_quantization.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4543,11 +4666,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-04_adapter_methods_comparison.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4559,11 +4683,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-05_prompt_tuning_prefix_tuning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4575,11 +4700,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-06_instruction_tuning_sft.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4591,11 +4717,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-07_reward_modeling_bradley_terry.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4608,11 +4735,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-08_rlhf_with_ppo.ipynb",
         "flagship": "learn/fine-tuning/rlhf-ppo/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4624,11 +4752,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-09_dpo_grpo_modern_alignment.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4640,11 +4769,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "13-10_efficient_finetuning_unsloth.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4656,11 +4786,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-01_mdps_bellman_value_policy_iteration.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4673,11 +4804,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-02_monte_carlo_td_learning.ipynb",
         "flagship": "learn/reinforcement-learning/mc-td/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4689,11 +4821,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-03_q_learning_sarsa.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4705,11 +4838,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-04_exploration_bandits_ucb.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4721,11 +4855,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-05_deep_q_networks_dqn.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4737,11 +4872,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-06_policy_gradient_reinforce.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4753,11 +4889,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-07_actor_critic_a2c.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4770,11 +4907,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-08_model_based_rl_mcts.ipynb",
         "flagship": "learn/reinforcement-learning/model-based-rl/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4786,11 +4924,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-09_offline_rl_cql_iql.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4802,11 +4941,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "14-10_imitation_learning_inverse_rl.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4819,11 +4959,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-01_custom_autograd_functions_hooks.ipynb",
         "flagship": "learn/pytorch-internals/custom-autograd/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4835,11 +4976,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-02_advanced_data_pipelines.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4851,11 +4993,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-03_advanced_nn_module_patterns.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4867,11 +5010,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-04_custom_loss_functions_gradient_utilities.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4883,11 +5027,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-05_torchscript_jit_compilation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4899,11 +5044,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-06_torch_fx_graph_transformations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4915,11 +5061,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-07_cuda_memory_management.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4931,11 +5078,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-08_distributed_communication_primitives.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4947,11 +5095,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-09_pytorch_debugging_profiling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4963,11 +5112,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "15-10_mini_training_framework.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4979,11 +5129,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-01_mixed_precision_training.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -4995,11 +5146,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-02_torch_compile_dynamo_inductor.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5011,11 +5163,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-03_gradient_checkpointing.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5027,11 +5180,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-04_gradient_accumulation_large_batch_training.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5043,11 +5197,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-05_data_loading_at_scale.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5059,11 +5214,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-06_training_stability_nan_recovery.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5075,11 +5231,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-07_profiling_bottleneck_analysis.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5092,11 +5249,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-08_distributed_data_parallel_ddp.ipynb",
         "flagship": "learn/training-systems/ddp/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5108,11 +5266,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-09_fsdp_zero_sharding.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5124,11 +5283,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "16-10_end_to_end_optimized_training_pipeline.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5140,11 +5300,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-01_llm_architecture_patterns.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5156,11 +5317,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-02_scaling_laws_chinchilla.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5172,11 +5334,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-03_mixture_of_experts.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5188,11 +5351,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-04_training_data_pipelines.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5204,11 +5368,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-05_knowledge_distillation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5220,11 +5385,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-06_quantization_ptq_qat_gptq_awq.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5236,11 +5402,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-07_efficient_inference_speculative_decoding.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5253,11 +5420,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-08_long_context_rope_scaling_sliding_window.ipynb",
         "flagship": "learn/llm-systems/long-context/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5269,11 +5437,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-09_structured_output_function_calling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5285,11 +5454,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "17-10_llm_evaluation_benchmarks.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5301,11 +5471,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-01_embeddings_vector_stores.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5317,11 +5488,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-02_chunking_bm25_dense_retrieval.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5333,11 +5505,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-03_advanced_rag_hyde_reranking.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5350,11 +5523,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-04_rag_pipeline_end_to_end.ipynb",
         "flagship": "learn/rag-agents/rag-pipeline/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5366,11 +5540,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-05_rag_evaluation_metrics.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5382,11 +5557,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-06_agent_loops_tool_use_planning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5398,11 +5574,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-07_multi_agent_orchestration.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5414,11 +5591,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-08_voice_agents_stt_llm_tts.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5430,11 +5608,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-09_guardrails_agent_evaluation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5446,11 +5625,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "18-10_domain_specific_ai_assistant_capstone.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5463,11 +5643,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-01_recommender_systems_collaborative_filtering.ipynb",
         "flagship": "learn/ml-applications/recommenders-cf/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5479,11 +5660,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-02_neural_recommenders_two_tower.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5495,11 +5677,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-03_time_series_forecasting.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5511,11 +5694,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-04_search_ranking_systems.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5527,11 +5711,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-05_shap_model_agnostic_explainability.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5543,11 +5728,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-06_graph_neural_networks.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5559,11 +5745,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-07_audio_classification.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5575,11 +5762,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-08_semi_supervised_learning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5591,11 +5779,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-09_multi_task_multi_output_learning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5607,11 +5796,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "19-10_tabular_deep_learning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5623,11 +5813,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-01_ml_strategy_error_analysis.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5639,11 +5830,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-02_mlflow_experiment_tracking.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5655,11 +5847,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-03_model_export_torchscript_onnx.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5671,11 +5864,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-04_model_serving_fastapi_gradio.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5687,11 +5881,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-05_docker_containerization.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5703,11 +5898,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-06_data_drift_model_monitoring.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5719,11 +5915,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-07_cicd_for_ml.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5735,11 +5932,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-08_ml_testing_data_validation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5751,11 +5949,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-09_ml_project_structure.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5768,11 +5967,12 @@
       "bodySource": "jsx",
       "surfaces": {
         "notebook": true,
+        "notebookFile": "20-10_ml_system_design_patterns.ipynb",
         "flagship": "learn/mlops/system-design/",
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5784,11 +5984,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-01_agent_loop.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5800,11 +6001,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-02_tool_calling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5816,11 +6018,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-03_mcp.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5832,11 +6035,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-04_react_planning.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5848,11 +6052,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-05_agent_memory.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5864,11 +6069,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-06_multi_agent.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5880,11 +6086,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-07_agent_evaluation.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5896,11 +6103,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-08_observability.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5912,11 +6120,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-09_agent_security.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5928,11 +6137,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "21-10_agent_capstone.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5944,11 +6154,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-01_jax_fundamentals.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5960,11 +6171,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-02_flax_optax.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5976,11 +6188,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-03_open_weight_models.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -5992,11 +6205,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-04_vllm_paged_attention.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6008,11 +6222,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-05_torch_compile_triton.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6024,11 +6239,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-06_onnx_export.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6040,11 +6256,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-07_provider_apis.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6056,11 +6273,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-08_lora_qlora.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6072,11 +6290,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-09_eval_harnesses.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6088,11 +6307,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "22-10_staying_current.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6104,11 +6324,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-01_potential_outcomes.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6120,11 +6341,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-02_causal_graphs.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6136,11 +6358,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-03_confounding_simpson.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6152,11 +6375,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-04_instrumental_variables.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6168,11 +6392,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-05_propensity_matching.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6184,11 +6409,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-06_uplift_modeling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6200,11 +6426,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-07_ab_testing.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6216,11 +6443,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-08_resampling.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6232,11 +6460,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-09_bayesian_workflow.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6248,11 +6477,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "23-10_synthetic_control.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6264,11 +6494,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-01_calibration.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6280,11 +6511,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-02_conformal_prediction.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6296,11 +6528,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-03_fairness.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6312,11 +6545,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-04_attribution.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6328,11 +6562,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-05_superposition_sae.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6344,11 +6579,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-06_probing_patching.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6360,11 +6596,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-07_adversarial.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6376,11 +6613,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-08_drift_detection.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6392,11 +6630,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-09_red_teaming.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6408,11 +6647,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "24-10_alignment_governance.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6424,11 +6664,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-01_interview_strategy.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6440,11 +6681,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-02_system_design_framework.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6456,11 +6698,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-03_design_recommender.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6472,11 +6715,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-04_design_search_ads.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6488,11 +6732,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-05_design_fraud_llm.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6504,11 +6749,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-06_coding_patterns.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6520,11 +6766,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-07_cs_algorithms.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6536,11 +6783,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-08_breadth_rapid_fire.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6552,11 +6800,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-09_derivations.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     },
     {
       "kind": "lesson",
@@ -6568,11 +6817,12 @@
       "status": "PENDING",
       "surfaces": {
         "notebook": false,
+        "notebookFile": "25-10_portfolio_capstone.ipynb",
         "flagship": null,
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-06-10"
+      "updatedAt": "2026-07-18"
     }
   ],
   "concepts": [

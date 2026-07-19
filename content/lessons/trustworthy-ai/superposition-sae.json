@@ -8,9 +8,10 @@
   "status": "PENDING",
   "surfaces": {
     "notebook": false,
+    "notebookFile": "24-05_superposition_sae.ipynb",
     "flagship": null,
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-18"
 }

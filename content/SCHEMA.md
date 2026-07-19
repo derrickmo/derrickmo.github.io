@@ -5,7 +5,13 @@ The website's window-global `.js` data files are *generated* from it; the
 notebooks repo and the mobile app consume the compiled `content.json`.
 
 **Schema v1 is FROZEN.** Additive changes (new optional fields) bump
-`contentVersion`. Breaking changes (renames, removals, type changes) require a
+`contentVersion`.
+
+**contentVersion 1.1.0 (2026-07-18, additive):** `lesson.surfaces.notebookFile`
+(canonical notebook filename, set for all 250 lessons from the notebooks repo)
+and `module.notebooksSynced` (per-module gate for per-lesson GitHub deep links —
+needed because the GitHub drip still carries pre-B2-rename filenames until
+Derrick syncs each module; flip it per module after syncing, then regenerate). Breaking changes (renames, removals, type changes) require a
 `schemaVersion` bump and a migration note here — avoid until after app launch.
 
 ## Layout
@@ -52,6 +58,7 @@ Mirror of one `curriculum.js` module head + its `lectures.js` entry +
 | category | string | yes | one of the 12 tracks (see curriculum.js) |
 | blurb | string | yes | hub card copy |
 | status | enum | yes | module-level status |
+| notebooksSynced | bool | no | **v1.1** — `true` once Derrick has synced this module's GitHub notebook folder to the canonical (curriculum-aligned) filenames; gates per-lesson deep links in `curriculum.js notebookUrl()`. Absent = `false` (module-folder links). |
 | lecture | object | yes | `{ title?, summary, prereqs, takeaways[3+], flagships[]?, notebooks[10] }` — `title` only when the lecture-page display title diverges stylistically from the module title; notebooks rows are `{ n, t, d, m }`; `flagships` entries are `{ n, label, href }` |
 | snippet | object | yes | `{ caption, code }` → LECTURE_CODE |
 | subLessons | object | no | `{ title, intro, order[] }` — wrapper for sub-lessons.js; `order` lists concept ids in display order |
@@ -86,6 +93,10 @@ identity block. `body`, `interview`, `flashcards` become **required at LIVE**.
 ```json
 {
   "notebook": true,            // a notebook exists (URL derives from CURRICULUM.notebookUrl)
+  "notebookFile": "21-01_agent_loop.ipynb",  // v1.1 (optional) — canonical filename inside
+                               // modules/module_NN/ of the notebooks repo; emitted as the
+                               // lesson's `nb` field and used for a per-lesson deep link +
+                               // Colab button once the module's `notebooksSynced` is true
   "flagship": "learn/agentic-ai/agent-loop/" ,  // on-site full lesson page, or null
   "demos": ["pathfinding"],    // play-demos.js slugs
   "concepts": ["agent-loop"]   // concepts-index.js ids this lesson teaches/uses
