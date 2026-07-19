@@ -39,6 +39,10 @@ const REPO = CURR.repo;
 const BASE = window.__DM_BASE || "../../../";
 const MODULE_SLUG = window.__DM_MODULE_SLUG;
 const LESSON_SLUG = window.__DM_LESSON_SLUG;
+// Store-authored lesson body (Phase C): per-module data file lesson-bodies/<module>.js
+// sets window.DM_LESSON_BODIES = { [lessonSlug]: { level, body, interview, flashcards, refs } }.
+// It loads BEFORE this app in generated pages, so module-scope read is safe.
+const STORE_DATA = (window.DM_LESSON_BODIES || {})[LESSON_SLUG] || null;
 const MODULE = CURR.findModule(MODULE_SLUG);
 const LESSON = MODULE && MODULE.lessons.find(l => l.slug === LESSON_SLUG);
 
@@ -50,6 +54,16 @@ const PARTS = [
   { n: "3", id: "training",    title: "Training",     tag: "// TRAIN + COMPARE" },
   { n: "4", id: "evaluation",  title: "Evaluation",   tag: "// METRICS + ABLATION" },
   { n: "5", id: "summary",     title: "Summary",      tag: "// TAKEAWAYS" },
+];
+
+// Outline for store-authored lessons (different structure than notebook flagships)
+const STORE_PARTS = [
+  { n: "1", id: "intuition",  title: "Intuition",   tag: "// THE IDEA" },
+  { n: "2", id: "math",       title: "The Math",    tag: "// NOTATION + MEANING" },
+  { n: "3", id: "code",       title: "Code",        tag: "// PYTHON" },
+  { n: "4", id: "practice",   title: "In Practice", tag: "// USES + PITFALLS" },
+  { n: "5", id: "interview",  title: "Interview",   tag: "// 3-TIER Q&A" },
+  { n: "6", id: "flashcards", title: "Flashcards",  tag: "// DRILL" },
 ];
 
 // ─── Layout primitives ────────────────────────────────────────
@@ -357,7 +371,7 @@ function OutlineStrip() {
         padding: "10px 48px", overflowX: "auto",
       }}>
         <span className="t-mono-s" style={{ color: "var(--muted)", whiteSpace: "nowrap" }}>// OUTLINE</span>
-        {PARTS.map(p => (
+        {(STORE_DATA ? STORE_PARTS : PARTS).map(p => (
           <a key={p.id} href={`#${p.id}`} className="t-mono-s"
             style={{
               color: "var(--blue-br)", padding: "6px 10px",
@@ -425,9 +439,138 @@ function PrevNext() {
   );
 }
 
+// ─── Store-authored body renderer (Phase C) ───────────────────
+function StoreLessonBody({ data }) {
+  const b = data.body || {};
+  const iv = data.interview || {};
+  const cards = data.flashcards || [];
+  const refs = data.refs || [];
+  const linkOf = (ref) => {
+    if (!ref) return null;
+    const [ms] = ref.split("/");
+    return CURR && CURR.findModule(ms) ? `${BASE}learn/${ms}/` : null;
+  };
+  return (
+    <>
+      <LessonSection n="1" id="intuition" title="Intuition" tag="// THE IDEA">
+        {(b.intuition || []).map((t, i) => <P key={i}>{t}</P>)}
+      </LessonSection>
+
+      <LessonSection n="2" id="math" title="The Math" tag="// NOTATION + MEANING">
+        {(b.math || []).map((m, i) => (
+          <div key={i}>
+            <H3>{m.h}</H3>
+            {(m.paras || []).map((t, j) => <P key={j}>{t}</P>)}
+            <MathBlock>{m.tex}</MathBlock>
+            {m.texNote && (
+              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, textAlign: "center", margin: "-8px 0 20px" }}>
+                {m.texNote}
+              </p>
+            )}
+          </div>
+        ))}
+      </LessonSection>
+
+      <LessonSection n="3" id="code" title="Code" tag="// PYTHON">
+        {(b.code || []).map((c, i) => (
+          <div key={i}>
+            <H3>{c.h}</H3>
+            {(c.paras || []).map((t, j) => <P key={j}>{t}</P>)}
+            <CodeBlock>{c.code}</CodeBlock>
+            {c.caption && (
+              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, margin: "-8px 0 20px" }}>{c.caption}</p>
+            )}
+          </div>
+        ))}
+      </LessonSection>
+
+      <LessonSection n="4" id="practice" title="In Practice" tag="// USES + PITFALLS">
+        <KeyInsight title="Where this shows up">
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {(b.useCases || []).map((t, i) => <li key={i} style={{ margin: "6px 0" }}>{t}</li>)}
+          </ul>
+        </KeyInsight>
+        <Warn title="How it bites">
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {(b.pitfalls || []).map((t, i) => <li key={i} style={{ margin: "6px 0" }}>{t}</li>)}
+          </ul>
+        </Warn>
+        {(b.connections || []).length > 0 && (
+          <Aside title="Connections across the curriculum">
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {b.connections.map((c, i) => {
+                const href = linkOf(c.ref);
+                return (
+                  <li key={i} style={{ margin: "6px 0" }}>
+                    {href ? <a href={href} style={{ color: "var(--blue-lt)" }}>{c.ref}</a> : null}
+                    {href ? " — " : ""}{c.text}
+                  </li>
+                );
+              })}
+            </ul>
+          </Aside>
+        )}
+      </LessonSection>
+
+      <LessonSection n="5" id="interview" title="Interview" tag="// 3-TIER Q&A">
+        <H3>Quick grind — one-liners you should own</H3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {(iv.quickGrind || []).map((qa, i) => (
+            <details key={i} style={{ border: "1px solid var(--border)", borderRadius: 6, padding: "10px 16px", background: "rgba(13,24,52,0.4)" }}>
+              <summary style={{ cursor: "pointer", color: "var(--white)", fontSize: 15 }}>{qa.q}</summary>
+              <p style={{ color: "var(--muted)", fontSize: 14, margin: "10px 0 2px", lineHeight: 1.6 }}>{qa.a}</p>
+            </details>
+          ))}
+        </div>
+        <H3>Standard — complete answers with deep-dives</H3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {(iv.standard || []).map((qa, i) => (
+            <details key={i} style={{ border: "1px solid var(--border-violet, var(--border))", borderRadius: 6, padding: "12px 18px", background: "rgba(13,24,52,0.4)" }}>
+              <summary style={{ cursor: "pointer", color: "var(--white)", fontSize: 15.5, fontWeight: 500 }}>{qa.q}</summary>
+              <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "12px 0", lineHeight: 1.65 }}>{qa.a}</p>
+              {qa.deepDive && (
+                <div style={{ borderLeft: "2px solid var(--violet-lt)", paddingLeft: 14, margin: "10px 0 4px" }}>
+                  <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>// DEEP DIVE — {qa.deepDive.q}</span>
+                  <p style={{ color: "var(--muted)", fontSize: 14, margin: "8px 0 0", lineHeight: 1.6 }}>{qa.deepDive.a}</p>
+                </div>
+              )}
+            </details>
+          ))}
+        </div>
+      </LessonSection>
+
+      <LessonSection n="6" id="flashcards" title="Flashcards" tag="// DRILL">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+          {cards.map((c, i) => (
+            <details key={i} style={{ border: "1px solid var(--border)", borderRadius: 6, padding: "14px 16px", background: "rgba(13,24,52,0.4)" }}>
+              <summary style={{ cursor: "pointer", color: "var(--white)", fontSize: 14.5 }}>
+                <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 9, marginRight: 8 }}>{(c.type || "card").toUpperCase()}</span>
+                {c.front}
+              </summary>
+              <p style={{ color: "var(--muted)", fontSize: 13.5, margin: "10px 0 2px", lineHeight: 1.6 }}>{c.back}</p>
+            </details>
+          ))}
+        </div>
+        {refs.length > 0 && (
+          <Aside title="References">
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {refs.map((r, i) => (
+                <li key={i} style={{ margin: "6px 0" }}>
+                  <a href={r.url} target="_blank" rel="noopener" style={{ color: "var(--blue-lt)" }}>{r.title}</a>
+                </li>
+              ))}
+            </ul>
+          </Aside>
+        )}
+      </LessonSection>
+    </>
+  );
+}
+
 // ─── Body renderer ────────────────────────────────────────────
 function LessonBody() {
   const Content = window.__DM_LESSON_CONTENT;
+  if (!Content && STORE_DATA) return <StoreLessonBody data={STORE_DATA} />;
   if (!Content) {
     return (
       <Section>

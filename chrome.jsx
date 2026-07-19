@@ -507,6 +507,9 @@ const DM_NAV_INDEX = [
   { label: "Canary Rollouts - MLOps and Serving", group: "Lesson", href: "/learn/mlops/canary-rollout/", kw: "canary rollouts mlops and serving canary rollout sub lesson concept ship a new model to a slice of traffic watch then ramp or roll back" },
   { label: "Drift Detection - MLOps and Serving", group: "Lesson", href: "/learn/mlops/drift-detection/", kw: "drift detection mlops and serving drift detection sub lesson concept notice when production data has shifted away from training" },
   // <<< generated:sublessons
+  // >>> generated:storelessons
+  { label: "Python, NumPy & Tensor Speed - Mathematical & Programming Foundations", group: "Lesson", href: "/learn/foundations/python-numpy-tensor-speed/", kw: "python numpy  tensor speed mathematical  programming foundations lesson 0101 python is slow at exactly the thing machine learning does most arithmetic over millions" },
+  // <<< generated:storelessons
   { label: "Weekly Insights", group: "Page", href: "/weekly-insights/", kw: "weekly insights digest news ml field notes practitioner rl quantization agents inference" },
   { label: "Guided Learning Paths", group: "Page", href: "/paths/", kw: "paths tracks guided learning course curriculum journey roadmap sequence progress" },
   { label: "Path: ML Foundations", group: "Path", href: "/paths/ml-foundations/", kw: "path ml foundations beginner gradient descent overfitting knn svm kmeans pca" },

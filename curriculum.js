@@ -24,7 +24,7 @@ window.CURRICULUM = {
           "n": "01-01",
           "slug": "python-numpy-tensor-speed",
           "title": "Python, NumPy & Tensor Speed",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-01_python_numpy_tensor_speed.ipynb"
         },
         {

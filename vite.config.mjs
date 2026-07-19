@@ -166,6 +166,9 @@ export default defineConfig({
         'sublesson-mlops-canary-rollout': 'learn/mlops/canary-rollout/index.html',
         'sublesson-mlops-drift-detection': 'learn/mlops/drift-detection/index.html',
         // <<< generated:sublessons
+        // >>> generated:storelessons
+        'lesson-foundations-python-numpy-tensor-speed': 'learn/foundations/python-numpy-tensor-speed/index.html',
+        // <<< generated:storelessons
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',
         'play-tic-tac-toe': 'play/tic-tac-toe/index.html',
