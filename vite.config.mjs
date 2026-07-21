@@ -168,6 +168,14 @@ export default defineConfig({
         // <<< generated:sublessons
         // >>> generated:storelessons
         'lesson-foundations-python-numpy-tensor-speed': 'learn/foundations/python-numpy-tensor-speed/index.html',
+        'lesson-foundations-advanced-numpy-pytorch': 'learn/foundations/advanced-numpy-pytorch/index.html',
+        'lesson-foundations-pandas': 'learn/foundations/pandas/index.html',
+        'lesson-foundations-matplotlib': 'learn/foundations/matplotlib/index.html',
+        'lesson-foundations-pytorch-data-loading': 'learn/foundations/pytorch-data-loading/index.html',
+        'lesson-foundations-probability': 'learn/foundations/probability/index.html',
+        'lesson-foundations-information-theory': 'learn/foundations/information-theory/index.html',
+        'lesson-foundations-calculus': 'learn/foundations/calculus/index.html',
+        'lesson-foundations-complexity': 'learn/foundations/complexity/index.html',
         // <<< generated:storelessons
         play: 'play/index.html',
         'play-neuroevolution': 'play/neuroevolution/index.html',

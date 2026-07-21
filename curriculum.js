@@ -31,28 +31,28 @@ window.CURRICULUM = {
           "n": "01-02",
           "slug": "advanced-numpy-pytorch",
           "title": "Advanced NumPy & PyTorch Operations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-02_advanced_numpy_pytorch_ops.ipynb"
         },
         {
           "n": "01-03",
           "slug": "pandas",
           "title": "Pandas for Tabular Data",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-03_pandas_tabular_data.ipynb"
         },
         {
           "n": "01-04",
           "slug": "matplotlib",
           "title": "Visualization with Matplotlib",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-04_visualization_matplotlib.ipynb"
         },
         {
           "n": "01-05",
           "slug": "pytorch-data-loading",
           "title": "Data Loading with PyTorch",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-05_data_loading_pytorch.ipynb"
         },
         {
@@ -66,28 +66,28 @@ window.CURRICULUM = {
           "n": "01-07",
           "slug": "probability",
           "title": "Probability & Statistics for ML",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-07_probability_statistics_ml.ipynb"
         },
         {
           "n": "01-08",
           "slug": "information-theory",
           "title": "Information Theory for ML",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-08_information_theory_ml.ipynb"
         },
         {
           "n": "01-09",
           "slug": "calculus",
           "title": "Calculus & Optimization Foundations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-09_calculus_optimization_foundations.ipynb"
         },
         {
           "n": "01-10",
           "slug": "complexity",
           "title": "Computational Thinking & Complexity",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "01-10_computational_thinking_complexity.ipynb"
         }
       ]

@@ -222,14 +222,22 @@
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/reward-model/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/rlhf-ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/advanced-numpy-pytorch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/calculus/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/chain-rule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/clt/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/complexity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/gradient-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/information-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/linear-algebra/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/matplotlib/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/pandas/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/probability/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/python-numpy-tensor-speed/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/pytorch-data-loading/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/softmax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
