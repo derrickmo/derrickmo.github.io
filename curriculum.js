@@ -184,56 +184,56 @@ window.CURRICULUM = {
           "n": "03-01",
           "slug": "kmeans",
           "title": "K-Means Clustering",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-01_kmeans_clustering.ipynb"
         },
         {
           "n": "03-02",
           "slug": "hierarchical-density-clustering",
           "title": "Hierarchical & Density-Based Clustering",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-02_hierarchical_density_based_clustering.ipynb"
         },
         {
           "n": "03-03",
           "slug": "pca",
           "title": "Principal Component Analysis",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-03_principal_component_analysis.ipynb"
         },
         {
           "n": "03-04",
           "slug": "tsne-umap",
           "title": "t-SNE, UMAP & Manifold Learning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-04_tsne_umap_manifold_learning.ipynb"
         },
         {
           "n": "03-05",
           "slug": "ica",
           "title": "Independent Component Analysis",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-05_independent_component_analysis.ipynb"
         },
         {
           "n": "03-06",
           "slug": "gmm-em",
           "title": "Gaussian Mixture Models & EM Algorithm",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-06_gaussian_mixture_models_em_algorithm.ipynb"
         },
         {
           "n": "03-07",
           "slug": "anomaly-detection",
           "title": "Anomaly Detection",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-07_anomaly_detection.ipynb"
         },
         {
           "n": "03-08",
           "slug": "kernel-methods",
           "title": "Kernel Methods & Feature Maps",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-08_kernel_methods_feature_maps.ipynb"
         },
         {
@@ -247,7 +247,7 @@ window.CURRICULUM = {
           "n": "03-10",
           "slug": "bayesian-inference",
           "title": "Bayesian Inference & Probabilistic Thinking",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "03-10_bayesian_inference_probabilistic_thinking.ipynb"
         }
       ]

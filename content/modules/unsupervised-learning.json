@@ -93,13 +93,10 @@
     "title": "Unsupervised Learning",
     "intro": "Finding structure with no labels at all: group points that belong together, and find the directions that carry the information.",
     "order": [
-      "kmeans",
-      "gmm-em",
       "dbscan",
       "hierarchical-clustering",
-      "pca",
       "tsne"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-21"
 }

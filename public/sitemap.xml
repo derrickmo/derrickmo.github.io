@@ -367,12 +367,18 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/anomaly-detection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/bayesian-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/dbscan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/gmm-em/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/hierarchical-clustering/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/hierarchical-density-clustering/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/ica/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kernel-methods/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/matrix-factorization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/pca/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/tsne-umap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/tsne/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/audio-ml/</loc><priority>0.6</priority></url>

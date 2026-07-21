@@ -313,76 +313,11 @@ window.SUB_LESSONS = {
     "title": "Unsupervised Learning",
     "intro": "Finding structure with no labels at all: group points that belong together, and find the directions that carry the information.",
     "order": [
-      "kmeans",
-      "gmm-em",
       "dbscan",
       "hierarchical-clustering",
-      "pca",
       "tsne"
     ],
     "lessons": {
-      "kmeans": {
-        "title": "K-Means Clustering",
-        "oneLine": "Group points around k centers by alternating assignment and update.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "K-means partitions data into k groups by repeating two steps: assign each point to its nearest center, then move each center to the mean of its points. It is fast and intuitive but assumes round, similarly sized clusters and needs k chosen up front."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "It minimizes within-cluster squared distance to the centers:"
-            ],
-            "tex": "\\min_{\\{\\mu_k\\}}\\;\\sum_i \\min_k \\|x_i - \\mu_k\\|^2",
-            "texNote": "Each iteration cannot increase this objective, so it converges - but to a local optimum."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef kmeans_step(X, mu):\n    a = np.argmin(((X[:, None] - mu) ** 2).sum(-1), axis=1)\n    mu = np.array([X[a == k].mean(0) for k in range(len(mu))])\n    return a, mu",
-            "caption": "Assign, update, repeat - Lloyd's algorithm."
-          }
-        ],
-        "takeaways": [
-          "K-means alternates nearest-center assignment with mean updates.",
-          "It assumes round clusters and needs k chosen in advance.",
-          "GMMs generalize it to soft, elliptical clusters."
-        ],
-        "demo": "kmeans"
-      },
-      "gmm-em": {
-        "title": "Gaussian Mixtures and EM",
-        "oneLine": "Model data as a blend of Gaussians, fit by soft assignments.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A Gaussian mixture says the data came from several Gaussian blobs with unknown parameters. Expectation-Maximization fits it by alternating: the E-step computes each point's soft membership in every blob; the M-step re-estimates each blob from those weighted points. It is k-means with probabilities and elliptical clusters."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The E-step responsibility of component k for point i:"
-            ],
-            "tex": "\\gamma_{ik} = \\frac{\\pi_k\\,\\mathcal{N}(x_i\\mid \\mu_k,\\Sigma_k)}{\\sum_j \\pi_j\\,\\mathcal{N}(x_i\\mid \\mu_j,\\Sigma_j)}",
-            "texNote": "The M-step updates each mean, covariance, and weight from responsibility-weighted data."
-          },
-          {
-            "h": "In code",
-            "code": "# E-step: soft assignments; M-step: weighted moments\ngamma = (pi * gaussian(X, mu, Sigma))      # (n, k)\ngamma /= gamma.sum(1, keepdims=True)\nNk = gamma.sum(0)\nmu = (gamma.T @ X) / Nk[:, None]           # weighted means",
-            "caption": "Soft k-means: every point partly belongs to every cluster."
-          }
-        ],
-        "takeaways": [
-          "GMMs model data as a weighted blend of Gaussians.",
-          "EM alternates soft assignment (E) with re-estimation (M).",
-          "It generalizes k-means to elliptical, overlapping clusters."
-        ],
-        "demo": "gmm"
-      },
       "dbscan": {
         "title": "DBSCAN",
         "oneLine": "Find dense clusters of any shape, and label the rest as noise.",
@@ -444,37 +379,6 @@ window.SUB_LESSONS = {
           "Linkage choice changes the cluster shapes."
         ],
         "demo": "hierarchical-clustering"
-      },
-      "pca": {
-        "title": "Principal Component Analysis",
-        "oneLine": "Find the orthogonal directions that capture the most variance.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "PCA rotates the data to new axes ordered by how much variance they explain, then keeps the top few. It compresses, denoises, and visualizes high-dimensional data by projecting onto the directions that matter most. Those directions are the leading eigenvectors of the covariance matrix."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The principal directions are the top eigenvectors of the covariance:"
-            ],
-            "tex": "\\Sigma = \\tfrac1n X^{\\top}X = U\\Lambda U^{\\top}",
-            "texNote": "Project onto the top-k columns of U; the eigenvalues say how much variance each keeps."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef pca(X, k):\n    X = X - X.mean(0)\n    U, S, Vt = np.linalg.svd(X, full_matrices=False)\n    return X @ Vt[:k].T          # top-k projection",
-            "caption": "Center, take the SVD, project onto the leading directions."
-          }
-        ],
-        "takeaways": [
-          "PCA keeps the directions of greatest variance.",
-          "It is computed from the covariance eigenvectors (or an SVD).",
-          "Used for compression, denoising, and 2D visualization."
-        ],
-        "demo": "pca"
       },
       "tsne": {
         "title": "t-SNE",
