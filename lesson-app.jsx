@@ -440,11 +440,16 @@ function PrevNext() {
 }
 
 // ─── Store-authored body renderer (Phase C) ───────────────────
+const DEMO_ACRONYMS = { roc: "ROC", svm: "SVM", knn: "kNN", pr: "PR", glm: "GLM", rbf: "RBF", pca: "PCA", knn2: "kNN" };
+const demoLabel = (slug) =>
+  slug.split("-").map((w) => DEMO_ACRONYMS[w] || w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
 function StoreLessonBody({ data }) {
   const b = data.body || {};
   const iv = data.interview || {};
   const cards = data.flashcards || [];
   const refs = data.refs || [];
+  const demos = data.demos || [];
   const linkOf = (ref) => {
     if (!ref) return null;
     const [ms] = ref.split("/");
@@ -507,6 +512,20 @@ function StoreLessonBody({ data }) {
                   </li>
                 );
               })}
+            </ul>
+          </Aside>
+        )}
+        {demos.length > 0 && (
+          <Aside title="Try it interactively">
+            <p style={{ margin: "0 0 8px", color: "var(--muted)", fontSize: 14 }}>
+              Interactive visualizations for the ideas in this lesson:
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {demos.map((slug, i) => (
+                <li key={i} style={{ margin: "6px 0" }}>
+                  <a href={`${BASE}visualize/${slug}/`} style={{ color: "var(--blue-lt)" }}>{demoLabel(slug)}</a>
+                </li>
+              ))}
             </ul>
           </Aside>
         )}

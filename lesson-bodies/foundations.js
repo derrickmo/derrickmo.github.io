@@ -240,7 +240,8 @@ window.DM_LESSON_BODIES = {
         "title": "Harris et al., Array programming with NumPy (Nature 2020)",
         "url": "https://www.nature.com/articles/s41586-020-2649-2"
       }
-    ]
+    ],
+    "demos": []
   },
   "advanced-numpy-pytorch": {
     "level": "intro",
@@ -480,7 +481,8 @@ window.DM_LESSON_BODIES = {
         "title": "NumPy: Internal memory layout of an ndarray",
         "url": "https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray"
       }
-    ]
+    ],
+    "demos": []
   },
   "pandas": {
     "level": "intro",
@@ -710,7 +712,8 @@ window.DM_LESSON_BODIES = {
         "title": "scikit-learn: California Housing dataset",
         "url": "https://scikit-learn.org/stable/datasets/real_world.html#california-housing-dataset"
       }
-    ]
+    ],
+    "demos": []
   },
   "matplotlib": {
     "level": "intro",
@@ -939,7 +942,8 @@ window.DM_LESSON_BODIES = {
         "title": "Matplotlib: hexbin / hist2d for large scatter",
         "url": "https://matplotlib.org/stable/gallery/statistics/hexbin_demo.html"
       }
-    ]
+    ],
+    "demos": []
   },
   "pytorch-data-loading": {
     "level": "intro",
@@ -1168,7 +1172,8 @@ window.DM_LESSON_BODIES = {
         "title": "torchvision: FashionMNIST dataset",
         "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.FashionMNIST.html"
       }
-    ]
+    ],
+    "demos": []
   },
   "probability": {
     "level": "intro",
@@ -1406,7 +1411,8 @@ window.DM_LESSON_BODIES = {
         "title": "NumPy: Generator (random sampling API)",
         "url": "https://numpy.org/doc/stable/reference/random/generator.html"
       }
-    ]
+    ],
+    "demos": []
   },
   "information-theory": {
     "level": "intro",
@@ -1644,7 +1650,8 @@ window.DM_LESSON_BODIES = {
         "title": "Kraskov, Stogbauer, Grassberger - Estimating Mutual Information",
         "url": "https://arxiv.org/abs/cond-mat/0305641"
       }
-    ]
+    ],
+    "demos": []
   },
   "calculus": {
     "level": "intro",
@@ -1882,7 +1889,8 @@ window.DM_LESSON_BODIES = {
         "title": "PyTorch: torch.nn.utils.clip_grad_norm_",
         "url": "https://pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html"
       }
-    ]
+    ],
+    "demos": []
   },
   "complexity": {
     "level": "intro",
@@ -2120,6 +2128,7 @@ window.DM_LESSON_BODIES = {
         "title": "Python: time complexity of built-in operations (wiki)",
         "url": "https://wiki.python.org/moin/TimeComplexity"
       }
-    ]
+    ],
+    "demos": []
   }
 };

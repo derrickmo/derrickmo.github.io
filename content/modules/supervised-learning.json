@@ -93,14 +93,9 @@
     "title": "Supervised Learning",
     "intro": "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
     "order": [
-      "linear-regression",
-      "logistic-regression",
-      "knn",
-      "naive-bayes",
       "decision-tree",
-      "svm",
       "roc"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-21"
 }

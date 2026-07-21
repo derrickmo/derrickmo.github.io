@@ -104,21 +104,21 @@ window.CURRICULUM = {
           "n": "02-01",
           "slug": "linear-regression",
           "title": "Linear Regression",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-01_linear_regression.ipynb"
         },
         {
           "n": "02-02",
           "slug": "logistic-regression",
           "title": "Logistic Regression & Binary Classification",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-02_logistic_regression_binary_classification.ipynb"
         },
         {
           "n": "02-03",
           "slug": "trees-forests",
           "title": "Decision Trees & Random Forests",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-03_decision_trees_random_forests.ipynb"
         },
         {
@@ -132,42 +132,42 @@ window.CURRICULUM = {
           "n": "02-05",
           "slug": "svm",
           "title": "Support Vector Machines",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-05_support_vector_machines.ipynb"
         },
         {
           "n": "02-06",
           "slug": "glm",
           "title": "Generalized Linear Models & Exponential Family",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-06_generalized_linear_models_exponential_family.ipynb"
         },
         {
           "n": "02-07",
           "slug": "knn",
           "title": "k-Nearest Neighbors",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-07_k_nearest_neighbors.ipynb"
         },
         {
           "n": "02-08",
           "slug": "naive-bayes",
           "title": "Naive Bayes for Text Classification",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-08_naive_bayes_text_classification.ipynb"
         },
         {
           "n": "02-09",
           "slug": "ensembles",
           "title": "Stacking & Voting Ensembles",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-09_stacking_voting_ensembles.ipynb"
         },
         {
           "n": "02-10",
           "slug": "model-comparison",
           "title": "Model Comparison & Algorithm Selection",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "02-10_model_comparison_algorithm_selection.ipynb"
         }
       ]

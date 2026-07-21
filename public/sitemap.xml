@@ -339,12 +339,16 @@
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/boosting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/decision-tree/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/ensembles/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/glm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/knn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/linear-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/logistic-regression/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/model-comparison/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/naive-bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/roc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/svm/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/trees-forests/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/ddp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/gradient-clipping/</loc><priority>0.6</priority></url>

@@ -241,139 +241,10 @@ window.SUB_LESSONS = {
     "title": "Supervised Learning",
     "intro": "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
     "order": [
-      "linear-regression",
-      "logistic-regression",
-      "knn",
-      "naive-bayes",
       "decision-tree",
-      "svm",
       "roc"
     ],
     "lessons": {
-      "linear-regression": {
-        "title": "Linear Regression",
-        "oneLine": "Fit a line (or hyperplane) by minimizing squared error.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Linear regression predicts a number as a weighted sum of features. Training finds the weights that minimize the squared gap between predictions and truth - geometrically, the line that sits closest to all the points. It is the simplest supervised model and the foundation everything else builds on."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The least-squares solution has a closed form (the normal equations):"
-            ],
-            "tex": "\\hat{\\theta} = (X^{\\top}X)^{-1}X^{\\top}y",
-            "texNote": "Or fit by gradient descent when X is large or you want regularization."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef fit(X, y):\n    return np.linalg.solve(X.T @ X, X.T @ y)   # normal equations",
-            "caption": "Closed-form for small problems; gradient descent at scale."
-          }
-        ],
-        "takeaways": [
-          "Linear regression minimizes squared error.",
-          "It has a closed-form least-squares solution.",
-          "It is the base case for logistic regression and beyond."
-        ],
-        "demo": "regression"
-      },
-      "logistic-regression": {
-        "title": "Logistic Regression",
-        "oneLine": "A linear model squashed through a sigmoid for classification.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Logistic regression turns a linear score into a probability by passing it through a sigmoid, then thresholds it to classify. Despite the name it is a classifier, trained by minimizing cross-entropy. It is the workhorse linear baseline and the single-neuron building block of neural nets."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "A sigmoid maps the linear score to a probability:"
-            ],
-            "tex": "P(y=1\\mid x) = \\sigma(w^{\\top}x + b) = \\frac{1}{1+e^{-(w^{\\top}x+b)}}",
-            "texNote": "Trained by gradient descent on cross-entropy; the boundary is linear."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\nsigmoid = lambda z: 1 / (1 + np.exp(-z))\n# gradient of cross-entropy is simply (sigmoid(Xw) - y)\ngrad = X.T @ (sigmoid(X @ w) - y) / len(y)",
-            "caption": "Linear score, sigmoid, cross-entropy - a clean gradient."
-          }
-        ],
-        "takeaways": [
-          "Logistic regression is a linear classifier via the sigmoid.",
-          "It is trained with cross-entropy, not squared error.",
-          "It is one neuron - the atom of a neural network."
-        ],
-        "demo": "regression"
-      },
-      "knn": {
-        "title": "k-Nearest Neighbors",
-        "oneLine": "Classify a point by the majority vote of its closest neighbors.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "kNN is the simplest idea that actually works: to label a new point, find the k closest labeled points and let them vote. There is no training - the data is the model. Small k gives a jagged, high-variance boundary; large k smooths it toward the majority class."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Predict the most common label among the k nearest by some distance d:"
-            ],
-            "tex": "\\hat{y}(x) = \\text{mode}\\,\\{\\, y_i : x_i \\in \\mathcal{N}_k(x) \\,\\}",
-            "texNote": "Distance choice and feature scaling matter enormously - standardize first."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef knn_predict(X, y, x, k=5):\n    d = np.linalg.norm(X - x, axis=1)\n    nn = np.argsort(d)[:k]\n    return np.bincount(y[nn]).argmax()",
-            "caption": "No fit step - prediction does all the work."
-          }
-        ],
-        "takeaways": [
-          "kNN is lazy: it stores the data and votes at query time.",
-          "k trades a jagged boundary (low k) for a smooth one (high k).",
-          "Distances need scaled features to be meaningful."
-        ],
-        "demo": "knn"
-      },
-      "naive-bayes": {
-        "title": "Naive Bayes",
-        "oneLine": "A probabilistic classifier that assumes features are independent.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Naive Bayes applies Bayes' rule with one bold simplification: assume every feature is independent given the class. That 'naive' assumption is usually false, yet the classifier is fast, needs little data, and is a famously strong baseline for text. It picks the class with the highest posterior."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The independence assumption turns the joint likelihood into a product:"
-            ],
-            "tex": "\\hat{y} = \\arg\\max_y\\; P(y)\\prod_i P(x_i \\mid y)",
-            "texNote": "Work in log-space to avoid underflow when multiplying many probabilities."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n# Gaussian NB: per-class feature mean/var, then log-posterior\nlogpost = np.log(prior) + log_gaussian(x, mean, var).sum(axis=1)\nyhat = logpost.argmax()",
-            "caption": "Multiply (or sum log) per-feature likelihoods, pick the best class."
-          }
-        ],
-        "takeaways": [
-          "Naive Bayes assumes conditional feature independence.",
-          "It is fast, data-efficient, and strong on text.",
-          "The independence assumption is wrong but often harmless."
-        ],
-        "demo": "naive-bayes"
-      },
       "decision-tree": {
         "title": "Decision Trees",
         "oneLine": "Carve the feature space with a sequence of axis-aligned questions.",
@@ -404,37 +275,6 @@ window.SUB_LESSONS = {
           "Ensembles (bagging, boosting) turn weak trees into strong models."
         ],
         "demo": "decision-tree"
-      },
-      "svm": {
-        "title": "Support Vector Machines",
-        "oneLine": "Separate the classes with the widest possible margin.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "An SVM does not just find a separating line - it finds the one with the largest buffer between the classes, defined by a few critical points called support vectors. The kernel trick lets the same idea draw curved boundaries by measuring similarity in a richer space without ever building it."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Maximize the margin, i.e. minimize the weight norm subject to correct, confident classification:"
-            ],
-            "tex": "\\min_{w,b}\\;\\tfrac12\\|w\\|^2 \\quad \\text{s.t.}\\quad y_i(w^{\\top}x_i + b) \\ge 1",
-            "texNote": "The soft-margin version adds slack so a few points may violate the margin."
-          },
-          {
-            "h": "In code",
-            "code": "# hinge-loss SVM via subgradient descent\ndef step(w, b, x, y, lr=0.01, C=1.0):\n    if y * (w @ x + b) < 1:\n        w = w - lr * (w - C * y * x); b = b + lr * C * y\n    else:\n        w = w - lr * w\n    return w, b",
-            "caption": "Only the margin-violating points (support vectors) drive the update."
-          }
-        ],
-        "takeaways": [
-          "SVMs maximize the margin, set by a few support vectors.",
-          "Kernels give nonlinear boundaries cheaply.",
-          "The C parameter trades margin width against training errors."
-        ],
-        "demo": "svm"
       },
       "roc": {
         "title": "ROC and Thresholds",
