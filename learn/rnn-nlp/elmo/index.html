@@ -4,18 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>07-03 Recurrent Neural Networks from Scratch | ML from Scratch | Derrick Mo</title>
-  <meta name="description" content="A feedforward network sees a fixed-size input all at once, but language is a variable-length sequence where order and context matter. Recurrent neural netw" />
-  <link rel="canonical" href="https://derrickmo.github.io/learn/rnn-nlp/rnn/" />
+  <title>07-10 Contextual Embeddings - ELMo | ML from Scratch | Derrick Mo</title>
+  <meta name="description" content="Static word embeddings (Word2Vec, GloVe) gave each word ONE fixed vector, which fundamentally couldn't handle polysemy - 'bank' got a single averaged vecto" />
+  <link rel="canonical" href="https://derrickmo.github.io/learn/rnn-nlp/elmo/" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Derrick Mo" />
-  <meta property="og:title" content="07-03 Recurrent Neural Networks from Scratch | ML from Scratch | Derrick Mo" />
-  <meta property="og:description" content="A feedforward network sees a fixed-size input all at once, but language is a variable-length sequence where order and context matter. Recurrent neural netw" />
-  <meta property="og:url" content="https://derrickmo.github.io/learn/rnn-nlp/rnn/" />
+  <meta property="og:title" content="07-10 Contextual Embeddings - ELMo | ML from Scratch | Derrick Mo" />
+  <meta property="og:description" content="Static word embeddings (Word2Vec, GloVe) gave each word ONE fixed vector, which fundamentally couldn't handle polysemy - 'bank' got a single averaged vecto" />
+  <meta property="og:url" content="https://derrickmo.github.io/learn/rnn-nlp/elmo/" />
   <meta property="og:image" content="https://derrickmo.github.io/og-default.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="07-03 Recurrent Neural Networks from Scratch | ML from Scratch | Derrick Mo" />
-  <meta name="twitter:description" content="A feedforward network sees a fixed-size input all at once, but language is a variable-length sequence where order and context matter. Recurrent neural netw" />
+  <meta name="twitter:title" content="07-10 Contextual Embeddings - ELMo | ML from Scratch | Derrick Mo" />
+  <meta name="twitter:description" content="Static word embeddings (Word2Vec, GloVe) gave each word ONE fixed vector, which fundamentally couldn't handle polysemy - 'bank' got a single averaged vecto" />
   <meta name="twitter:image" content="https://derrickmo.github.io/og-default.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -38,7 +38,7 @@
     .katex { color: var(--blue-br); }
   </style>
 
-  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "rnn-nlp"; window.__DM_LESSON_SLUG = "rnn";</script>
+  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "rnn-nlp"; window.__DM_LESSON_SLUG = "elmo";</script>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>

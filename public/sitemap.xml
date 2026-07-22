@@ -331,10 +331,18 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/sarsa/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/td-lambda/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/classical-lm/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/dependency-parsing/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/elmo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/lstm-gates/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/lstm-gru/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/markov/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/rnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/seq2seq-attention/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/sequence-labeling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/text-generation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/tokenization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word-vectors/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/boosting/</loc><priority>0.6</priority></url>

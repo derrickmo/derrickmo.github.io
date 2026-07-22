@@ -859,7 +859,6 @@ window.SUB_LESSONS = {
     "order": [
       "markov",
       "word2vec",
-      "rnn",
       "lstm-gates"
     ],
     "lessons": {
@@ -924,37 +923,6 @@ window.SUB_LESSONS = {
           "It produces vectors with linear analogy structure."
         ],
         "demo": "word2vec"
-      },
-      "rnn": {
-        "title": "Recurrent Networks",
-        "oneLine": "Carry a hidden state across time to model sequences of any length.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "An RNN reads a sequence one step at a time, updating a hidden state that summarizes everything seen so far. The same weights apply at every step, so it handles arbitrary lengths. It was the pre-transformer way to model order - but long-range dependencies are hard because gradients vanish through time."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The hidden state recurs through a shared cell:"
-            ],
-            "tex": "h_t = \\tanh\\!\\big(W_h h_{t-1} + W_x x_t + b\\big)",
-            "texNote": "Trained by backprop through time; repeated multiplication makes gradients vanish or explode."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef rnn(xs, h, Wh, Wx, b):\n    for x in xs:\n        h = np.tanh(Wh @ h + Wx @ x + b)\n    return h            # summary of the whole sequence",
-            "caption": "One shared cell, unrolled over the sequence."
-          }
-        ],
-        "takeaways": [
-          "RNNs maintain a running summary in a hidden state.",
-          "Shared weights handle variable-length input.",
-          "Vanishing gradients limit their memory - which LSTMs address."
-        ],
-        "demo": "rnn-gates"
       },
       "lstm-gates": {
         "title": "LSTM Gates",

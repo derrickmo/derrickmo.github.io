@@ -504,28 +504,28 @@ window.CURRICULUM = {
           "n": "07-01",
           "slug": "tokenization",
           "title": "Tokenization — BPE, WordPiece & SentencePiece",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-01_tokenization_bpe_wordpiece_sentencepiece.ipynb"
         },
         {
           "n": "07-02",
           "slug": "word-vectors",
           "title": "Word Vectors — Word2Vec, GloVe & FastText",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-02_word_vectors_word2vec_glove_fasttext.ipynb"
         },
         {
           "n": "07-03",
           "slug": "rnn",
           "title": "Recurrent Neural Networks from Scratch",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-03_recurrent_neural_networks.ipynb"
         },
         {
           "n": "07-04",
           "slug": "lstm-gru",
           "title": "LSTMs & GRUs",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-04_lstm_gru.ipynb"
         },
         {
@@ -539,35 +539,35 @@ window.CURRICULUM = {
           "n": "07-06",
           "slug": "text-generation",
           "title": "Text Generation & Decoding Strategies",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-06_text_generation_decoding_strategies.ipynb"
         },
         {
           "n": "07-07",
           "slug": "classical-lm",
           "title": "Classical Language Models & Perplexity",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-07_classical_language_models_perplexity.ipynb"
         },
         {
           "n": "07-08",
           "slug": "dependency-parsing",
           "title": "Dependency Parsing",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-08_dependency_parsing.ipynb"
         },
         {
           "n": "07-09",
           "slug": "sequence-labeling",
           "title": "Sequence Labeling & CRFs",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-09_sequence_labeling_bilstm_crf.ipynb"
         },
         {
           "n": "07-10",
           "slug": "elmo",
           "title": "Contextual Embeddings — ELMo",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "07-10_contextual_embeddings_elmo.ipynb"
         }
       ]

@@ -95,9 +95,8 @@
     "order": [
       "markov",
       "word2vec",
-      "rnn",
       "lstm-gates"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-21"
 }
