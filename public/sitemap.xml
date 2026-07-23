@@ -291,13 +291,20 @@
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/activation-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/activations/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/adam-lr-scheduling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/forward-pass/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/loss-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/mlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/nn-walkthrough/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/optimizers/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/perceptron-mlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/pytorch-fundamentals/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/regularization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/sgd-momentum/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/weight-init/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/notes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/</loc><priority>0.6</priority></url>

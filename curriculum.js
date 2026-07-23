@@ -344,21 +344,21 @@ window.CURRICULUM = {
           "n": "05-01",
           "slug": "nn-walkthrough",
           "title": "Neural Network End-to-End Walkthrough",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-01_neural_network_end_to_end_walkthrough.ipynb"
         },
         {
           "n": "05-02",
           "slug": "perceptron-mlp",
           "title": "Perceptron & Multi-Layer Architecture",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-02_perceptron_multi_layer_architecture.ipynb"
         },
         {
           "n": "05-03",
           "slug": "activation-functions",
           "title": "Activation Functions Deep Dive",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-03_activation_functions.ipynb"
         },
         {
@@ -379,35 +379,35 @@ window.CURRICULUM = {
           "n": "05-06",
           "slug": "backprop",
           "title": "Backpropagation from Scratch",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-06_backpropagation.ipynb"
         },
         {
           "n": "05-07",
           "slug": "pytorch-fundamentals",
           "title": "PyTorch Fundamentals — Autograd & nn.Module",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-07_pytorch_fundamentals_autograd_nn_module.ipynb"
         },
         {
           "n": "05-08",
           "slug": "sgd-momentum",
           "title": "Optimizers — SGD, Momentum & Nesterov",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-08_optimizers_sgd_momentum_nesterov.ipynb"
         },
         {
           "n": "05-09",
           "slug": "adam-lr-scheduling",
           "title": "Advanced Optimizers & Learning Rate Scheduling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-09_advanced_optimizers_learning_rate_scheduling.ipynb"
         },
         {
           "n": "05-10",
           "slug": "regularization",
           "title": "Regularization Techniques",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "05-10_regularization_techniques.ipynb"
         }
       ]

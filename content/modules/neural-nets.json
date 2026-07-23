@@ -99,7 +99,6 @@
     "intro": "The deep-learning core: stack linear maps and nonlinearities into a network, get gradients with backprop, keep training stable with the right activations, initialization, normalization, and optimizer.",
     "order": [
       "mlp",
-      "backprop",
       "activations",
       "optimizers",
       "batch-norm",

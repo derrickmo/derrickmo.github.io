@@ -554,7 +554,6 @@ window.SUB_LESSONS = {
     "intro": "The deep-learning core: stack linear maps and nonlinearities into a network, get gradients with backprop, keep training stable with the right activations, initialization, normalization, and optimizer.",
     "order": [
       "mlp",
-      "backprop",
       "activations",
       "optimizers",
       "batch-norm",
@@ -591,37 +590,6 @@ window.SUB_LESSONS = {
           "Wide enough, it can approximate any continuous function."
         ],
         "demo": "neural-playground"
-      },
-      "backprop": {
-        "title": "Backpropagation",
-        "oneLine": "Get the gradient for every parameter in one backward pass.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Backprop is the chain rule run efficiently over the whole network. A forward pass computes the output and caches intermediate values; a backward pass sends the error signal from the loss back through each layer, accumulating the gradient of the loss with respect to every weight in a single sweep."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The error signal at a layer propagates through the local Jacobian:"
-            ],
-            "tex": "\\delta^{(l)} = \\big(W^{(l+1)\\top}\\delta^{(l+1)}\\big)\\odot\\sigma'\\!\\big(z^{(l)}\\big)",
-            "texNote": "Then the weight gradient is delta times the layer's input - reuse, not recompute."
-          },
-          {
-            "h": "In code",
-            "code": "# backward through one ReLU layer\ndZ = dA * (Z > 0)            # gradient through ReLU\ndW = dZ @ A_prev.T           # weight gradient\ndA_prev = W.T @ dZ           # pass the signal down",
-            "caption": "One backward sweep yields every gradient at once."
-          }
-        ],
-        "takeaways": [
-          "Backprop is reverse-mode automatic differentiation.",
-          "One forward + one backward pass gives all gradients.",
-          "It reuses cached activations instead of recomputing."
-        ],
-        "demo": "backprop"
       },
       "activations": {
         "title": "Activation Functions",
