@@ -721,42 +721,10 @@ window.SUB_LESSONS = {
     "title": "Convolutional Neural Networks",
     "intro": "Vision-shaped networks: slide learnable filters over the image, share weights for translation equivariance, and regularize with augmentation.",
     "order": [
-      "convolution",
       "cnn",
       "data-augmentation"
     ],
     "lessons": {
-      "convolution": {
-        "title": "Convolution",
-        "oneLine": "Slide a small learnable kernel over the input to detect local patterns.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A convolution slides a small filter across the image, computing a weighted sum at every position. Because the same weights are reused everywhere, the layer detects a pattern (an edge, a texture) wherever it appears, with far fewer parameters than a dense layer. Stacking convolutions builds from edges to objects."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Each output pixel is a dot product of the kernel with a local patch:"
-            ],
-            "tex": "(I * K)(i,j) = \\sum_{m,n} I(i+m,\\,j+n)\\,K(m,n)",
-            "texNote": "Weight sharing gives translation equivariance and parameter efficiency."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef conv2d(I, K):\n    kh, kw = K.shape\n    out = np.zeros((I.shape[0]-kh+1, I.shape[1]-kw+1))\n    for i in range(out.shape[0]):\n        for j in range(out.shape[1]):\n            out[i, j] = (I[i:i+kh, j:j+kw] * K).sum()\n    return out",
-            "caption": "One kernel, reused at every position."
-          }
-        ],
-        "takeaways": [
-          "Convolution applies a shared filter across all positions.",
-          "Weight sharing gives translation equivariance and few parameters.",
-          "Stacked convolutions grow from edges to objects."
-        ],
-        "demo": "convolution"
-      },
       "cnn": {
         "title": "Convolutional Networks",
         "oneLine": "Stack convolutions and pooling into a hierarchy of visual features.",

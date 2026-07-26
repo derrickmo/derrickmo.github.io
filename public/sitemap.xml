@@ -211,11 +211,18 @@
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/1d-3d-convolutions/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/adversarial/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/cnn-architectures/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/cnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/convolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/data-augmentation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/efficient-cnns/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/fc-for-images/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/segmentation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/style-transfer/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/transfer-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/cnn/unet/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/dpo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/lora/</loc><priority>0.6</priority></url>

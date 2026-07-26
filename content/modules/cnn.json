@@ -98,10 +98,9 @@
     "title": "Convolutional Neural Networks",
     "intro": "Vision-shaped networks: slide learnable filters over the image, share weights for translation equivariance, and regularize with augmentation.",
     "order": [
-      "convolution",
       "cnn",
       "data-augmentation"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-25"
 }

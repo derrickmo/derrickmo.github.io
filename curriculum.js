@@ -424,14 +424,14 @@ window.CURRICULUM = {
           "n": "06-01",
           "slug": "fc-for-images",
           "title": "Fully Connected Networks for Images",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-01_fully_connected_networks_for_images.ipynb"
         },
         {
           "n": "06-02",
           "slug": "convolution",
           "title": "Convolution from Scratch",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-02_convolution_from_scratch.ipynb"
         },
         {
@@ -452,42 +452,42 @@ window.CURRICULUM = {
           "n": "06-05",
           "slug": "unet",
           "title": "U-Net & Encoder-Decoder Architecture",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-05_unet_encoder_decoder_architecture.ipynb"
         },
         {
           "n": "06-06",
           "slug": "efficient-cnns",
           "title": "Depthwise Separable Convolutions & Efficient Architectures",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-06_depthwise_separable_convolutions_efficient_architectures.ipynb"
         },
         {
           "n": "06-07",
           "slug": "segmentation",
           "title": "Semantic & Instance Segmentation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-07_semantic_instance_segmentation.ipynb"
         },
         {
           "n": "06-08",
           "slug": "style-transfer",
           "title": "Neural Style Transfer",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-08_neural_style_transfer.ipynb"
         },
         {
           "n": "06-09",
           "slug": "1d-3d-convolutions",
           "title": "1D & 3D Convolutions",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-09_conv1d_conv3d.ipynb"
         },
         {
           "n": "06-10",
           "slug": "adversarial",
           "title": "Adversarial Examples & Robustness",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "06-10_adversarial_examples_robustness.ipynb"
         }
       ]

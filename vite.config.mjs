@@ -82,7 +82,6 @@ export default defineConfig({
         'sublesson-neural-nets-optimizers': 'learn/neural-nets/optimizers/index.html',
         'sublesson-neural-nets-batch-norm': 'learn/neural-nets/batch-norm/index.html',
         'sublesson-neural-nets-weight-init': 'learn/neural-nets/weight-init/index.html',
-        'sublesson-cnn-convolution': 'learn/cnn/convolution/index.html',
         'sublesson-cnn-cnn': 'learn/cnn/cnn/index.html',
         'sublesson-cnn-data-augmentation': 'learn/cnn/data-augmentation/index.html',
         'sublesson-rnn-nlp-markov': 'learn/rnn-nlp/markov/index.html',
@@ -157,6 +156,14 @@ export default defineConfig({
         'sublesson-mlops-drift-detection': 'learn/mlops/drift-detection/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
+        'lesson-cnn-fc-for-images': 'learn/cnn/fc-for-images/index.html',
+        'lesson-cnn-convolution': 'learn/cnn/convolution/index.html',
+        'lesson-cnn-unet': 'learn/cnn/unet/index.html',
+        'lesson-cnn-efficient-cnns': 'learn/cnn/efficient-cnns/index.html',
+        'lesson-cnn-segmentation': 'learn/cnn/segmentation/index.html',
+        'lesson-cnn-style-transfer': 'learn/cnn/style-transfer/index.html',
+        'lesson-cnn-1d-3d-convolutions': 'learn/cnn/1d-3d-convolutions/index.html',
+        'lesson-cnn-adversarial': 'learn/cnn/adversarial/index.html',
         'lesson-foundations-python-numpy-tensor-speed': 'learn/foundations/python-numpy-tensor-speed/index.html',
         'lesson-foundations-advanced-numpy-pytorch': 'learn/foundations/advanced-numpy-pytorch/index.html',
         'lesson-foundations-pandas': 'learn/foundations/pandas/index.html',
