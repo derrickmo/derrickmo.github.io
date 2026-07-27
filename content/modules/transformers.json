@@ -101,12 +101,10 @@
     "order": [
       "tokenization",
       "embeddings",
-      "positional-encoding",
       "attention",
       "multi-head",
-      "transformer-block",
       "decoding"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-07-26"
 }

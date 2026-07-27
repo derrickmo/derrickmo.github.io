@@ -381,9 +381,15 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/embeddings/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/flash-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/full-transformer/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/gqa-mqa/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/kv-cache/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/modern-blocks/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/multi-head-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/multi-head/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/positional-encoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/transformers/rope/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/self-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/tokenization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>

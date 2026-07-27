@@ -5,7 +5,8 @@
   "slug": "self-attention",
   "module": "transformers",
   "title": "Self-Attention Mechanism",
-  "status": "DRAFT",
+  "status": "LIVE",
+  "bodySource": "jsx",
   "surfaces": {
     "notebook": true,
     "notebookFile": "08-01_self_attention_mechanism.ipynb",
@@ -13,5 +14,5 @@
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "updatedAt": "2026-07-26"
 }

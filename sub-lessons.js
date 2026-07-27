@@ -899,10 +899,8 @@ window.SUB_LESSONS = {
     "order": [
       "tokenization",
       "embeddings",
-      "positional-encoding",
       "attention",
       "multi-head",
-      "transformer-block",
       "decoding"
     ],
     "lessons": {
@@ -970,38 +968,6 @@ window.SUB_LESSONS = {
         ],
         "demo": "embeddings"
       },
-      "positional-encoding": {
-        "title": "Positional Encoding",
-        "oneLine": "Inject order into a model that otherwise treats its input as a set.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Attention has no built-in notion of order — shuffle the tokens and the raw computation is unchanged. But language is sequential: 'dog bites man' is not 'man bites dog'. Positional encodings add a position-dependent signal to each token vector so the model can tell where each token sits.",
-              "The classic transformer uses fixed sinusoids of geometrically increasing wavelength. Because sines and cosines combine linearly, the model can represent relative offsets — a useful inductive bias that also extends to lengths never seen in training."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "For position pos and dimension i, the encoding interleaves sine and cosine across a spectrum of frequencies:"
-            ],
-            "tex": "PE_{(pos,2i)} = \\sin\\!\\Big(\\tfrac{pos}{10000^{2i/d}}\\Big),\\quad PE_{(pos,2i+1)} = \\cos\\!\\Big(\\tfrac{pos}{10000^{2i/d}}\\Big)",
-            "texNote": "Added to the token embedding before the first attention layer."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef positional_encoding(seq_len, d):\n    pos = np.arange(seq_len)[:, None]\n    i = np.arange(d)[None, :]\n    angle = pos / np.power(10000, (2 * (i // 2)) / d)\n    pe = np.where(i % 2 == 0, np.sin(angle), np.cos(angle))\n    return pe                          # (seq_len, d), add to embeddings",
-            "caption": "Different dimensions oscillate at different rates — a positional fingerprint."
-          }
-        ],
-        "takeaways": [
-          "Self-attention is permutation-invariant; position must be added explicitly.",
-          "Sinusoidal encodings let the model reason about relative position and generalize past trained lengths.",
-          "Modern variants (RoPE, ALiBi) encode position inside attention instead of adding it up front."
-        ],
-        "demo": "positional-encoding"
-      },
       "attention": {
         "title": "Attention",
         "oneLine": "Weight every token by how relevant it is to the one you are computing.",
@@ -1063,38 +1029,6 @@ window.SUB_LESSONS = {
           "Multiple heads capture multiple relationships in parallel subspaces.",
           "Splitting the width keeps the total cost the same as single-head attention.",
           "The output projection W^O lets the heads' results recombine."
-        ],
-        "demo": "multi-head-attention"
-      },
-      "transformer-block": {
-        "title": "The Transformer Block",
-        "oneLine": "Stack attention and an MLP with residuals and normalization into one repeatable unit.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A transformer is just the same block stacked many times. Each block does two things: mix information across tokens (attention), then transform each token on its own (a small MLP). Residual connections let signal and gradients flow straight through, and layer normalization keeps the activations well-scaled at every depth.",
-              "This residual-and-norm sandwich is what makes very deep stacks trainable at all."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "With pre-norm placement, each sub-layer reads a normalized input and adds its result back to the residual stream:"
-            ],
-            "tex": "\\begin{aligned} x &\\leftarrow x + \\mathrm{MHA}(\\mathrm{LN}(x)) \\\\ x &\\leftarrow x + \\mathrm{MLP}(\\mathrm{LN}(x)) \\end{aligned}",
-            "texNote": "The MLP is two linear layers with a nonlinearity, applied to each token independently."
-          },
-          {
-            "h": "In code",
-            "code": "def transformer_block(x, attn, mlp, ln1, ln2):\n    x = x + attn(ln1(x))               # mix across tokens\n    x = x + mlp(ln2(x))                # transform each token\n    return x\n\n# a stack is just this block, repeated\ndef transformer(x, blocks):\n    for blk in blocks:\n        x = blk(x)\n    return x",
-            "caption": "Residual + norm around two sub-layers — repeat N times."
-          }
-        ],
-        "takeaways": [
-          "A transformer is one block (attention + MLP) stacked with residuals and normalization.",
-          "Residual connections keep gradients flowing through deep stacks.",
-          "Attention mixes tokens; the MLP processes each token independently."
         ],
         "demo": "multi-head-attention"
       },

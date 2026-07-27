@@ -584,28 +584,28 @@ window.CURRICULUM = {
           "n": "08-01",
           "slug": "self-attention",
           "title": "Self-Attention Mechanism",
-          "status": "DRAFT",
+          "status": "LIVE",
           "nb": "08-01_self_attention_mechanism.ipynb"
         },
         {
           "n": "08-02",
           "slug": "multi-head-attention",
           "title": "Multi-Head Attention",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-02_multi_head_attention.ipynb"
         },
         {
           "n": "08-03",
           "slug": "positional-encoding",
           "title": "Positional Encoding — Sinusoidal & Learned",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-03_positional_encoding_sinusoidal_learned.ipynb"
         },
         {
           "n": "08-04",
           "slug": "transformer-block",
           "title": "The Transformer Block",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-04_transformer_block.ipynb"
         },
         {
@@ -619,35 +619,35 @@ window.CURRICULUM = {
           "n": "08-06",
           "slug": "modern-blocks",
           "title": "RMSNorm, SwiGLU & Modern Building Blocks",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-06_rmsnorm_swiglu_modern_blocks.ipynb"
         },
         {
           "n": "08-07",
           "slug": "gqa-mqa",
           "title": "Grouped-Query & Multi-Query Attention",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-07_grouped_query_multi_query_attention.ipynb"
         },
         {
           "n": "08-08",
           "slug": "rope",
           "title": "Rotary Position Embeddings (RoPE)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-08_rotary_position_embeddings_rope.ipynb"
         },
         {
           "n": "08-09",
           "slug": "flash-attention",
           "title": "Flash Attention — Algorithm & Concepts",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-09_flash_attention_concepts.ipynb"
         },
         {
           "n": "08-10",
           "slug": "kv-cache",
           "title": "KV Cache & Autoregressive Inference",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "08-10_kv_cache_autoregressive_inference.ipynb"
         }
       ]
