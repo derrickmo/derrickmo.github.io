@@ -264,35 +264,35 @@ window.CURRICULUM = {
           "n": "04-01",
           "slug": "evaluation-metrics",
           "title": "Evaluation Metrics Deep Dive",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-01_evaluation_metrics_deep_dive.ipynb"
         },
         {
           "n": "04-02",
           "slug": "cross-validation",
           "title": "Cross-Validation & Hyperparameter Tuning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-02_cross_validation_hyperparameter_tuning.ipynb"
         },
         {
           "n": "04-03",
           "slug": "feature-engineering",
           "title": "Feature Engineering & Pipelines",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-03_feature_engineering_pipelines.ipynb"
         },
         {
           "n": "04-04",
           "slug": "data-augmentation",
           "title": "Data Augmentation & Color Spaces",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-04_data_augmentation_color_spaces.ipynb"
         },
         {
           "n": "04-05",
           "slug": "imbalanced-data",
           "title": "Handling Imbalanced Data",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-05_handling_imbalanced_data.ipynb"
         },
         {
@@ -306,28 +306,28 @@ window.CURRICULUM = {
           "n": "04-07",
           "slug": "bias-variance",
           "title": "Bias-Variance Decomposition & ML Debugging",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-07_bias_variance_decomposition_ml_debugging.ipynb"
         },
         {
           "n": "04-08",
           "slug": "convex-optimization",
           "title": "Convex Optimization Foundations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-08_convex_optimization_foundations.ipynb"
         },
         {
           "n": "04-09",
           "slug": "calibration",
           "title": "Calibration & Uncertainty Quantification",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-09_calibration_uncertainty_quantification.ipynb"
         },
         {
           "n": "04-10",
           "slug": "gaussian-processes",
           "title": "Gaussian Processes & Bayesian Optimization",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "04-10_gaussian_processes_bayesian_opt.ipynb"
         }
       ]

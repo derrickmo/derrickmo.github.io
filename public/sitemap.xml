@@ -283,8 +283,15 @@
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/calibration/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/convex-optimization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/cross-validation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/data-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/evaluation-metrics/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/feature-engineering/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/gaussian-processes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/imbalanced-data/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/learning-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>

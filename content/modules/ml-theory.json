@@ -93,11 +93,9 @@
     "title": "Machine Learning Theory",
     "intro": "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
     "order": [
-      "bias-variance",
       "regularization",
-      "cross-validation",
       "double-descent"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-01"
 }

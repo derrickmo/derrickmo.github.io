@@ -417,43 +417,10 @@ window.SUB_LESSONS = {
     "title": "Machine Learning Theory",
     "intro": "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
     "order": [
-      "bias-variance",
       "regularization",
-      "cross-validation",
       "double-descent"
     ],
     "lessons": {
-      "bias-variance": {
-        "title": "The Bias-Variance Trade-off",
-        "oneLine": "Generalization error splits into bias, variance, and irreducible noise.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Too simple a model misses the pattern (high bias); too flexible a model chases the noise and changes wildly with the training set (high variance). Test error is the sum of both plus the noise floor, and model selection is the search for their sweet spot."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Expected squared error decomposes cleanly:"
-            ],
-            "tex": "\\mathbb{E}[(y-\\hat{f})^2] = \\text{Bias}^2 + \\text{Var} + \\sigma^2",
-            "texNote": "More capacity lowers bias but raises variance; the irreducible noise sigma^2 cannot be removed."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\n# fit many models on resampled data, then:\nbias2 = (preds.mean(0) - truth) ** 2\nvar = preds.var(0)\n# test_err ~ bias2.mean() + var.mean() + noise",
-            "caption": "Average predictions give bias; their spread gives variance."
-          }
-        ],
-        "takeaways": [
-          "Error = bias^2 + variance + irreducible noise.",
-          "Capacity trades bias for variance.",
-          "The goal is the minimum-total-error sweet spot, not zero training error."
-        ],
-        "demo": "bias-variance-decomp"
-      },
       "regularization": {
         "title": "Regularization",
         "oneLine": "Penalize complexity to trade a little bias for much less variance.",
@@ -484,37 +451,6 @@ window.SUB_LESSONS = {
           "lambda is chosen by cross-validation."
         ],
         "demo": "overfitting"
-      },
-      "cross-validation": {
-        "title": "Cross-Validation",
-        "oneLine": "Estimate true performance without ever touching the test set.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "You cannot judge generalization on the data you trained on, and you must not tune on the test set. k-fold cross-validation rotates: train on k-1 folds, validate on the held-out one, repeat, and average. It gives an honest, low-variance estimate to pick hyperparameters."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The CV estimate averages the held-out error across folds:"
-            ],
-            "tex": "\\text{CV} = \\frac1k \\sum_{j=1}^{k} \\mathcal{L}\\big(\\text{fold}_j;\\ \\text{model trained without } \\text{fold}_j\\big)",
-            "texNote": "More folds means less bias but more compute; k=5 or 10 is standard."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef kfold(n, k=5):\n    idx = np.random.permutation(n)\n    return np.array_split(idx, k)   # each chunk is a validation fold",
-            "caption": "Rotate the held-out fold; average the scores."
-          }
-        ],
-        "takeaways": [
-          "CV estimates generalization using only training data.",
-          "It is the standard way to choose hyperparameters.",
-          "Keep a final untouched test set for the last, honest number."
-        ],
-        "demo": "cross-validation"
       },
       "double-descent": {
         "title": "Double Descent",
