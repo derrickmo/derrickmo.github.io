@@ -751,63 +751,63 @@ window.CURRICULUM = {
           "n": "10-02",
           "slug": "bert",
           "title": "BERT-Style Masked Language Modeling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-02_bert_style_masked_language_modeling.ipynb"
         },
         {
           "n": "10-03",
           "slug": "architectures",
           "title": "Encoder vs Decoder vs Encoder-Decoder",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-03_encoder_decoder_architectures.ipynb"
         },
         {
           "n": "10-04",
           "slug": "fine-tuning-transformers",
           "title": "Pretrained Transformer Fine-Tuning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-04_pretrained_transformer_fine_tuning.ipynb"
         },
         {
           "n": "10-05",
           "slug": "ner",
           "title": "Named Entity Recognition",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-05_named_entity_recognition.ipynb"
         },
         {
           "n": "10-06",
           "slug": "nli",
           "title": "Natural Language Inference",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-06_natural_language_inference.ipynb"
         },
         {
           "n": "10-07",
           "slug": "qa",
           "title": "Question Answering",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-07_question_answering.ipynb"
         },
         {
           "n": "10-08",
           "slug": "nlp-eval",
           "title": "NLP Evaluation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-08_nlp_evaluation_pipeline.ipynb"
         },
         {
           "n": "10-09",
           "slug": "cot",
           "title": "Chain-of-Thought & In-Context Learning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-09_chain_of_thought_in_context_learning.ipynb"
         },
         {
           "n": "10-10",
           "slug": "interpretability",
           "title": "Mechanistic Interpretability",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "10-10_mechanistic_interpretability.ipynb"
         }
       ]
