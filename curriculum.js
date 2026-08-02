@@ -824,28 +824,28 @@ window.CURRICULUM = {
           "n": "11-01",
           "slug": "autoencoders",
           "title": "Autoencoders",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-01_autoencoders.ipynb"
         },
         {
           "n": "11-02",
           "slug": "vae",
           "title": "Variational Autoencoders (VAEs)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-02_variational_autoencoders.ipynb"
         },
         {
           "n": "11-03",
           "slug": "gan",
           "title": "GANs — DCGAN & WGAN",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-03_gans_dcgan_wgan.ipynb"
         },
         {
           "n": "11-04",
           "slug": "conditional-generation",
           "title": "Conditional Generation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-04_conditional_generation.ipynb"
         },
         {
@@ -859,14 +859,14 @@ window.CURRICULUM = {
           "n": "11-06",
           "slug": "latent-diffusion",
           "title": "Latent Diffusion Models",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-06_latent_diffusion_models.ipynb"
         },
         {
           "n": "11-07",
           "slug": "diffusion-guidance",
           "title": "Diffusion Guidance & Evaluation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-07_diffusion_guidance_evaluation.ipynb"
         },
         {
@@ -880,14 +880,14 @@ window.CURRICULUM = {
           "n": "11-09",
           "slug": "ebm-score",
           "title": "Energy-Based Models & Score Matching",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-09_energy_based_models_score_matching.ipynb"
         },
         {
           "n": "11-10",
           "slug": "ar-generative",
           "title": "Autoregressive Generative Models",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "11-10_autoregressive_generative_models.ipynb"
         }
       ]

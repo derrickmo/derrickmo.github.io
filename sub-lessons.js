@@ -1342,73 +1342,9 @@ window.SUB_LESSONS = {
     "title": "Generative Models",
     "intro": "Three ways to learn to create data: encode and sample through a latent space, train a generator against a critic, or add noise and learn to reverse it.",
     "order": [
-      "vae",
-      "gan",
       "diffusion"
     ],
     "lessons": {
-      "vae": {
-        "title": "Variational Autoencoders",
-        "oneLine": "Encode data to a distribution, sample, and decode to generate.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A VAE learns a smooth latent space you can sample from. The encoder maps each input to a distribution (a mean and spread), you sample a latent code, and the decoder reconstructs the input. A regularizer keeps the latent space close to a standard Gaussian, so sampling it produces plausible new data."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Maximize the evidence lower bound: reconstruction minus a latent KL penalty:"
-            ],
-            "tex": "\\mathcal{L} = \\mathbb{E}_{q}[\\log p(x\\mid z)] - D_{KL}\\!\\big(q(z\\mid x)\\,\\|\\,p(z)\\big)",
-            "texNote": "The reparameterization trick z = mu + sigma * eps lets gradients flow through sampling."
-          },
-          {
-            "h": "In code",
-            "code": "mu, logvar = encoder(x)\nz = mu + np.exp(0.5*logvar) * np.random.randn(*mu.shape)\nrecon = decoder(z)\nkl = -0.5 * np.sum(1 + logvar - mu**2 - np.exp(logvar))",
-            "caption": "Encode to a distribution, sample, decode; KL keeps it regular."
-          }
-        ],
-        "takeaways": [
-          "A VAE learns a continuous, sampleable latent space.",
-          "The ELBO balances reconstruction against a latent prior.",
-          "The reparameterization trick makes sampling differentiable."
-        ],
-        "demo": "vae"
-      },
-      "gan": {
-        "title": "Generative Adversarial Networks",
-        "oneLine": "Train a generator against a discriminator in a minimax game.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A GAN pits two networks against each other: a generator turns noise into fake samples, a discriminator tries to tell fake from real. As the discriminator improves, it pushes the generator toward more realistic output. At equilibrium the fakes are indistinguishable from real data."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The two networks play a minimax game over the discriminator's accuracy:"
-            ],
-            "tex": "\\min_G \\max_D\\; \\mathbb{E}[\\log D(x)] + \\mathbb{E}[\\log(1 - D(G(z)))]",
-            "texNote": "Training is a delicate balance - if either network wins too fast, learning stalls."
-          },
-          {
-            "h": "In code",
-            "code": "# alternate two updates\nd_loss = -(log(D(real)) + log(1 - D(G(z)))).mean()   # train D\ng_loss = -log(D(G(z))).mean()                       # train G\n# step D, then step G",
-            "caption": "Discriminator learns to judge; generator learns to fool it."
-          }
-        ],
-        "takeaways": [
-          "A GAN is a generator-vs-discriminator minimax game.",
-          "Adversarial pressure drives realistic samples.",
-          "Training instability is the central challenge."
-        ],
-        "demo": "gan"
-      },
       "diffusion": {
         "title": "Diffusion Models",
         "oneLine": "Add noise to data, then train a network to reverse it step by step.",
