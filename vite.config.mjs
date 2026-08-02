@@ -152,6 +152,15 @@ export default defineConfig({
         'sublesson-mlops-drift-detection': 'learn/mlops/drift-detection/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
+        'lesson-advanced-cv-grad-cam': 'learn/advanced-cv/grad-cam/index.html',
+        'lesson-advanced-cv-yolo': 'learn/advanced-cv/yolo/index.html',
+        'lesson-advanced-cv-mediapipe': 'learn/advanced-cv/mediapipe/index.html',
+        'lesson-advanced-cv-vit': 'learn/advanced-cv/vit/index.html',
+        'lesson-advanced-cv-dino-mae': 'learn/advanced-cv/dino-mae/index.html',
+        'lesson-advanced-cv-image-retrieval': 'learn/advanced-cv/image-retrieval/index.html',
+        'lesson-advanced-cv-video': 'learn/advanced-cv/video/index.html',
+        'lesson-advanced-cv-ocr': 'learn/advanced-cv/ocr/index.html',
+        'lesson-advanced-cv-cifar100': 'learn/advanced-cv/cifar100/index.html',
         'lesson-cnn-fc-for-images': 'learn/cnn/fc-for-images/index.html',
         'lesson-cnn-convolution': 'learn/cnn/convolution/index.html',
         'lesson-cnn-unet': 'learn/cnn/unet/index.html',

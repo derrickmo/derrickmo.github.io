@@ -194,14 +194,23 @@
   <url><loc>https://derrickmo.github.io/concepts/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/</loc><priority>0.8</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/cifar100/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/dino-mae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/edge-detection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/grad-cam/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/harris-corners/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/hog/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/hough-transform/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/image-retrieval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/image-segmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/iou-nms/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/mediapipe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/object-detection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/ocr/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/optical-flow/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/video/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/vit/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/yolo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/gpt/</loc><priority>0.6</priority></url>

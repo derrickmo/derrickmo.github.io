@@ -664,7 +664,7 @@ window.CURRICULUM = {
           "n": "09-01",
           "slug": "grad-cam",
           "title": "Grad-CAM & Saliency Maps",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-01_grad_cam_saliency_maps.ipynb"
         },
         {
@@ -678,56 +678,56 @@ window.CURRICULUM = {
           "n": "09-03",
           "slug": "yolo",
           "title": "YOLO Detection",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-03_yolo_detection.ipynb"
         },
         {
           "n": "09-04",
           "slug": "mediapipe",
           "title": "MediaPipe Real-Time Vision",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-04_mediapipe_real_time_vision.ipynb"
         },
         {
           "n": "09-05",
           "slug": "vit",
           "title": "Vision Transformers (ViT)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-05_vision_transformers_vit.ipynb"
         },
         {
           "n": "09-06",
           "slug": "dino-mae",
           "title": "Self-Supervised Vision — DINO & MAE",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-06_self_supervised_dino_mae.ipynb"
         },
         {
           "n": "09-07",
           "slug": "image-retrieval",
           "title": "Image Retrieval & Visual Similarity Search",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-07_image_retrieval_visual_similarity_search.ipynb"
         },
         {
           "n": "09-08",
           "slug": "video",
           "title": "Video Understanding",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-08_video_understanding.ipynb"
         },
         {
           "n": "09-09",
           "slug": "ocr",
           "title": "OCR & Document AI",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-09_ocr_document_ai.ipynb"
         },
         {
           "n": "09-10",
           "slug": "cifar100",
           "title": "CNN Training Deep Dive — CIFAR-100",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "09-10_cnn_training_deep_dive_cifar100.ipynb"
         }
       ]
