@@ -911,63 +911,63 @@ window.CURRICULUM = {
           "n": "12-02",
           "slug": "zero-shot",
           "title": "Zero-Shot & Few-Shot Classification",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-02_zero_shot_few_shot_classification.ipynb"
         },
         {
           "n": "12-03",
           "slug": "siamese",
           "title": "Siamese Networks & Triplet Loss",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-03_siamese_networks_triplet_loss.ipynb"
         },
         {
           "n": "12-04",
           "slug": "simclr-byol",
           "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-04_contrastive_ssl_simclr_byol.ipynb"
         },
         {
           "n": "12-05",
           "slug": "vlm-captioning",
           "title": "Vision-Language Models & Image Captioning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-05_vision_language_models_image_captioning.ipynb"
         },
         {
           "n": "12-06",
           "slug": "vqa",
           "title": "Visual Question Answering",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-06_visual_question_answering.ipynb"
         },
         {
           "n": "12-07",
           "slug": "multimodal-fusion",
           "title": "Multi-Modal Fusion Architectures",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-07_multi_modal_fusion_architectures.ipynb"
         },
         {
           "n": "12-08",
           "slug": "audio-representations",
           "title": "Audio & Speech Representations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-08_audio_speech_representations.ipynb"
         },
         {
           "n": "12-09",
           "slug": "stt-tts",
           "title": "STT & TTS Foundations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-09_stt_tts_foundations.ipynb"
         },
         {
           "n": "12-10",
           "slug": "multimodal-eval",
           "title": "Multimodal Evaluation & Alignment Metrics",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "12-10_multimodal_evaluation_alignment_metrics.ipynb"
         }
       ]

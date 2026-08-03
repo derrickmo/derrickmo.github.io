@@ -325,9 +325,18 @@
   <url><loc>https://derrickmo.github.io/learn/mlops/model-serving/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/system-design/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/audio-representations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/clip/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-eval/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-fusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/siamese/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/simclr-byol/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/stt-tts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vector-search/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/vlm-captioning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/vqa/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/zero-shot/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/activation-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/activations/</loc><priority>0.6</priority></url>
