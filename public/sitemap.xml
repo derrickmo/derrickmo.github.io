@@ -364,9 +364,18 @@
   <url><loc>https://derrickmo.github.io/learn/notes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/backprop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/cuda-memory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/custom-autograd/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/custom-loss/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/data-pipelines/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/debugging-profiling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/distributed-primitives/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/gradient-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/mini-framework/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/nn-module-patterns/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/optimizers/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/torch-fx/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/pytorch-internals/torchscript/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/guardrails/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/hyde/</loc><priority>0.6</priority></url>

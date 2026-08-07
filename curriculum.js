@@ -1151,63 +1151,63 @@ window.CURRICULUM = {
           "n": "15-02",
           "slug": "data-pipelines",
           "title": "Advanced Data Pipelines",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-02_advanced_data_pipelines.ipynb"
         },
         {
           "n": "15-03",
           "slug": "nn-module-patterns",
           "title": "Advanced nn.Module Patterns",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-03_advanced_nn_module_patterns.ipynb"
         },
         {
           "n": "15-04",
           "slug": "custom-loss",
           "title": "Custom Loss Functions & Gradient Utilities",
-          "status": "PENDING",
-          "nb": "15-04_custom_loss_functions_gradient_utilities.ipynb"
+          "status": "LIVE",
+          "nb": "15-04_custom_loss_gradient_utilities.ipynb"
         },
         {
           "n": "15-05",
           "slug": "torchscript",
           "title": "TorchScript & JIT Compilation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-05_torchscript_jit_compilation.ipynb"
         },
         {
           "n": "15-06",
           "slug": "torch-fx",
           "title": "torch.fx Graph Transformations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-06_torch_fx_graph_transformations.ipynb"
         },
         {
           "n": "15-07",
           "slug": "cuda-memory",
           "title": "CUDA Memory Management",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-07_cuda_memory_management.ipynb"
         },
         {
           "n": "15-08",
           "slug": "distributed-primitives",
           "title": "Distributed Communication Primitives",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-08_distributed_communication_primitives.ipynb"
         },
         {
           "n": "15-09",
           "slug": "debugging-profiling",
           "title": "PyTorch Debugging & Profiling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-09_pytorch_debugging_profiling.ipynb"
         },
         {
           "n": "15-10",
           "slug": "mini-framework",
           "title": "Mini Training Framework",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "15-10_mini_training_framework.ipynb"
         }
       ]
