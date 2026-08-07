@@ -242,10 +242,18 @@
   <url><loc>https://derrickmo.github.io/learn/cnn/transfer-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/unet/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/adapters/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/dpo-grpo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/dpo/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/full-fine-tuning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/instruction-tuning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/lora/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/prompt-tuning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/qlora/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/reward-model/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/reward-modeling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/rlhf-ppo/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/fine-tuning/unsloth/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/advanced-numpy-pytorch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>

@@ -93,10 +93,9 @@
     "title": "Fine-Tuning and Alignment",
     "intro": "Adapting a pretrained model cheaply, and steering it toward human preferences.",
     "order": [
-      "lora",
       "reward-model",
       "dpo"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-06"
 }

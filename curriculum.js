@@ -984,49 +984,49 @@ window.CURRICULUM = {
           "n": "13-01",
           "slug": "full-fine-tuning",
           "title": "Full Fine-Tuning vs Feature Extraction",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-01_full_finetuning_vs_feature_extraction.ipynb"
         },
         {
           "n": "13-02",
           "slug": "lora",
           "title": "LoRA — Low-Rank Adaptation from Scratch",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-02_lora_low_rank_adaptation.ipynb"
         },
         {
           "n": "13-03",
           "slug": "qlora",
           "title": "QLoRA — 4-Bit Quantization + LoRA",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-03_qlora_4bit_quantization.ipynb"
         },
         {
           "n": "13-04",
           "slug": "adapters",
           "title": "Adapter Methods Comparison",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-04_adapter_methods_comparison.ipynb"
         },
         {
           "n": "13-05",
           "slug": "prompt-tuning",
           "title": "Prompt Tuning & Prefix Tuning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-05_prompt_tuning_prefix_tuning.ipynb"
         },
         {
           "n": "13-06",
           "slug": "instruction-tuning",
           "title": "Instruction Tuning & SFT",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-06_instruction_tuning_sft.ipynb"
         },
         {
           "n": "13-07",
           "slug": "reward-modeling",
           "title": "Reward Modeling (Bradley-Terry)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-07_reward_modeling_bradley_terry.ipynb"
         },
         {
@@ -1040,14 +1040,14 @@ window.CURRICULUM = {
           "n": "13-09",
           "slug": "dpo-grpo",
           "title": "DPO, GRPO & Modern Alignment",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-09_dpo_grpo_modern_alignment.ipynb"
         },
         {
           "n": "13-10",
           "slug": "unsloth",
           "title": "Efficient Fine-Tuning with Unsloth",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "13-10_efficient_finetuning_unsloth.ipynb"
         }
       ]
