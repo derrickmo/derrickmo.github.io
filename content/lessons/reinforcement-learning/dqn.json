@@ -5,13 +5,277 @@
   "slug": "dqn",
   "module": "reinforcement-learning",
   "title": "Deep Q-Networks (DQN)",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "14-05_deep_q_networks_dqn.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["dqn", "prioritized-replay", "double-q-learning", "distributional-rl"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["reinforcement-learning/q-learning", "neural-nets/sgd-momentum"],
+  "leadsTo": ["reinforcement-learning/policy-gradient", "reinforcement-learning/offline-rl"],
+  "body": {
+    "intuition": [
+      "Replace the Q-table with a neural network and you get DQN. That sentence understates the problem: the moment the table becomes a function approximator, every guarantee from the tabular lessons is void. You now have all three legs of the deadly triad at once - function approximation, bootstrapping, and off-policy data - and the composition of the Bellman operator with a projection onto a function class need not be a contraction in any norm. Divergence is not a bug you can find; it is permitted by the mathematics. So DQN is best understood not as 'Q-learning with a network' but as Q-learning plus a set of devices for holding the feedback loop still long enough to learn.",
+      "There are two such devices and each targets a specific leg. EXPERIENCE REPLAY stores transitions and samples them randomly, which breaks the temporal correlation between consecutive updates - stochastic gradient descent assumes roughly independent samples, and a trajectory is about as far from independent as data gets - while also letting each transition be reused many times. TARGET NETWORKS freeze a copy of the network to compute the bootstrap targets, refreshing it every few thousand steps. Between refreshes, the target is a FIXED function, so each phase looks like ordinary supervised regression, which is stable. Notice the tension: replay makes the data MORE off-policy, worsening one leg, and the target network weakens the bootstrapping leg to compensate. They are not two independent good ideas; they are a balanced pair.",
+      "The result was genuinely striking - one architecture and one hyperparameter set learning 49 Atari games from raw pixels, reaching or exceeding human scores on many. Then the field spent several years discovering what the result rested on. Double DQN showed the value estimates were substantially overoptimistic and fixed it with a one-line change. Prioritized replay showed uniform sampling wastes effort. Rainbow combined six extensions and, more usefully, ablated them. And Henderson et al. showed that reported gains in deep RL are frequently within SEED VARIANCE - that the same algorithm with different random seeds, or a different but equally reasonable implementation, can produce results spanning the gap between published methods. That last finding is the honest frame for this lesson: the techniques here are real, and the effect sizes attributed to many of them were measured with instruments too noisy to support the claims."
+    ],
+    "math": [
+      {
+        "h": "The DQN loss, and what the target network changes",
+        "paras": [
+          "Regression toward a bootstrapped target, exactly as in tabular Q-learning, except the target is computed with a SEPARATE frozen parameter set theta-minus that is only periodically synced.",
+          "The gradient does not flow through the target - that is the whole point. Without the stop-gradient you are chasing a target that moves as you move, which is the bootstrapping leg of the triad at full strength."
+        ],
+        "tex": "\\mathcal{L}(\\theta) = \\mathbb{E}_{(s,a,r,s')\\sim \\mathcal{D}}\\Big[\\big(\\underbrace{r + \\gamma \\max_{a'} Q(s',a';\\theta^{-})}_{\\text{fixed target, no gradient}} - Q(s,a;\\theta)\\big)^2\\Big]",
+        "texNote": "Between syncs of theta-minus this is a standard supervised regression problem with a fixed target function - which is stable. The instability is concentrated into the periodic refresh, so the sync interval C is a real hyperparameter: too short and you recover the unstable moving-target problem, too long and you are regressing toward stale values and learning slows."
+      },
+      {
+        "h": "Double DQN: the same decoupling, using networks you already have",
+        "paras": [
+          "The max in the target both SELECTS the action and EVALUATES it using the same noisy estimates, which is maximization bias. Double DQN selects with the online network and evaluates with the target network.",
+          "The elegance is that no new machinery is needed - the two networks already exist for a different reason, so the fix costs one line."
+        ],
+        "tex": "y^{\\text{DQN}} = r + \\gamma\\, Q\\!\\big(s', \\arg\\max_{a'} Q(s',a';\\theta^{-});\\, \\theta^{-}\\big) \\\\[4pt] y^{\\text{DDQN}} = r + \\gamma\\, Q\\!\\big(s', \\arg\\max_{a'} Q(s',a';\\theta);\\, \\theta^{-}\\big)",
+        "texNote": "The only change is which parameters supply the argmax. van Hasselt et al. measured DQN's value estimates against actual discounted returns on Atari and found substantial systematic overestimation, which Double DQN reduced along with improving scores - a rare case in deep RL where a mechanism was proposed, measured directly, and the fix verified against the measurement rather than only against the benchmark."
+      },
+      {
+        "h": "Prioritized replay, and the bias it introduces",
+        "paras": [
+          "Sampling uniformly from the buffer spends most updates on transitions the network already predicts well. Prioritizing by TD-error magnitude concentrates effort where the error is - but it changes the sampling distribution, which biases the expectation the loss is estimating.",
+          "So the correction is not optional: importance-sampling weights restore the expectation, annealed by beta because the bias matters most near convergence."
+        ],
+        "tex": "P(i) = \\frac{p_i^{\\alpha}}{\\sum_k p_k^{\\alpha}}, \\quad p_i = |\\delta_i| + \\epsilon, \\qquad w_i = \\left(\\frac{1}{N \\cdot P(i)}\\right)^{\\beta}\\Big/\\max_j w_j",
+        "texNote": "alpha interpolates between uniform (0) and fully greedy prioritization (1). The w_i weights are the standard importance correction and they must be normalized by the max so they only ever scale gradients DOWN, preserving stability. This is the module's theme appearing as a design choice: you are deliberately reshaping your own data distribution, and reshaping it requires paying for the bias you introduced."
+      }
+    ],
+    "code": [
+      {
+        "h": "The training step, annotated by which triad leg each device addresses",
+        "paras": [
+          "The whole algorithm is short. What is worth memorizing is not the code but which structural problem each line exists to solve - because that is what tells you which knob to turn when it fails."
+        ],
+        "code": "def train_step(q, q_target, buffer, opt, gamma, batch=32):\n    s, a, r, s2, done = buffer.sample(batch)     # REPLAY: breaks temporal\n                                                 # correlation (SGD wants ~iid)\n                                                 # and reuses each transition.\n                                                 # NOTE it makes data MORE\n                                                 # off-policy - worsens that leg.\n    with torch.no_grad():                        # TARGET NET: no gradient here.\n        a_star = q(s2).argmax(1)                 # DOUBLE DQN: online net SELECTS\n        y = r + gamma * (1 - done) * \\           # target net EVALUATES.\n            q_target(s2).gather(1, a_star[:, None]).squeeze(1)\n        #        ^^^^^^^^^^^^ (1-done): NEVER bootstrap past a terminal state.\n\n    pred = q(s).gather(1, a[:, None]).squeeze(1)\n    loss = F.smooth_l1_loss(pred, y)             # HUBER: quadratic near zero,\n                                                 # linear in the tails, so one\n                                                 # bad target cannot produce a\n                                                 # huge gradient.\n    opt.zero_grad(); loss.backward()\n    nn.utils.clip_grad_norm_(q.parameters(), 10)\n    opt.step()\n\nif step % C == 0:\n    q_target.load_state_dict(q.state_dict())     # the sync interval C is a real\n                                                 # hyperparameter: too short =\n                                                 # moving target, too long =\n                                                 # stale targets, slow learning.\n\n# THE TWO DEVICES MAP ONTO THE TRIAD:\n#   replay        -> makes SGD's iid assumption approximately true (and makes\n#                    the OFF-POLICY leg worse, deliberately, for efficiency)\n#   target net    -> weakens the BOOTSTRAPPING leg: between syncs this is\n#                    ordinary supervised regression toward a FIXED function\n# They are a balanced pair, not two independent good ideas.",
+        "caption": "Each line exists to hold one leg of the deadly triad still. Replay deliberately worsens the off-policy leg to buy sample efficiency, and the target network weakens the bootstrapping leg to pay for it - which is why removing either one alone destabilizes training."
+      },
+      {
+        "h": "The preprocessing that changes the problem, and the Rainbow ablation",
+        "paras": [
+          "Two things worth knowing that are not in the loss function. The Atari preprocessing quietly redefines the objective, and Rainbow's ablation is more informative than its headline result."
+        ],
+        "code": "# PREPROCESSING THAT IS NOT NEUTRAL:\n#\n#   frame stacking (4 frames)  -> RESTORES THE MARKOV PROPERTY. One frame does\n#                                 not contain velocity, so Q(s,a) over a single\n#                                 frame is not a well-defined object.\n#   reward clipping to [-1,1]  -> CHANGES THE PROBLEM. It makes one shared\n#                                 hyperparameter set work across 49 games with\n#                                 wildly different reward scales, and the agent\n#                                 can no longer prefer a 100-point reward to a\n#                                 1-point one. That is a different MDP, and it\n#                                 is why later work replaced it with adaptive\n#                                 normalization rather than keeping it.\n#   frame skip (4)             -> shortens the effective horizon 4x.\n\n# RAINBOW'S ABLATION is the useful part of that paper. Combining six extensions\n# beat all of them; removing each in turn showed which carried the result:\n#   prioritized replay ....... large drop when removed\n#   multi-step returns ....... large drop when removed\n#   distributional RL ........ clear contribution\n#   Double DQN, dueling,\n#     noisy nets ............. smaller / game-dependent\n#\n# READ THAT AGAINST Henderson et al.: reported gains in deep RL are frequently\n# within SEED VARIANCE - the same algorithm across seeds, or two reasonable\n# implementations of it, can span the gap between published methods. So the\n# large-effect rows are trustworthy and the small ones deserve more seeds\n# before you build on them.\n#\n# MINIMUM HONEST PROTOCOL: >= 5 seeds, report the spread not the best run, and\n# use sticky actions - without them a deterministic emulator lets an agent\n# memorize one action sequence rather than learn a policy.",
+        "caption": "Reward clipping is not preprocessing, it is a redefinition of the objective - the agent literally cannot prefer a 100-point reward to a 1-point one. And Rainbow's ablation matters more than its score, especially read against the seed-variance result."
+      }
+    ],
+    "useCases": [
+      "Discrete-action control with a high-dimensional observation space - games, some robotics with discretized actions, dialogue-action selection - which is the setting DQN was built for and where value-based methods remain a reasonable default.",
+      "Any problem where interaction is expensive and data must be reused. Off-policy learning with a replay buffer is the property that makes DQN far more sample-efficient than on-policy policy-gradient methods, and it is usually the deciding factor.",
+      "Learning from logged or demonstration data mixed with online interaction, since the off-policy target does not care where a transition came from - a property later formalized in offline RL and in demonstration-seeded replay buffers.",
+      "As the standard reference implementation for studying stability. Because its failure modes are well-characterized, DQN is a good instrument for asking whether a new representation or exploration method helps, without confounding it with a novel learning rule."
+    ],
+    "pitfalls": [
+      "Removing the target network or the replay buffer independently. They are a balanced pair - replay deliberately makes the data more off-policy for sample efficiency, and the target network weakens the bootstrapping leg to compensate. Take away either and training destabilizes for reasons that look mysterious if you do not know the triad.",
+      "Bootstrapping past terminal states. The (1 - done) factor is load-bearing, and a related subtle version is treating TIME-LIMIT truncation as termination - the episode did not really end, so zeroing the bootstrap there teaches the agent that the world stops arbitrarily.",
+      "Treating reward clipping as harmless preprocessing. Clipping to [-1, 1] means the agent cannot prefer a 100-point reward to a 1-point one - a different MDP. It existed to make one hyperparameter set work across 49 games, and later methods replaced it with adaptive normalization rather than retaining it.",
+      "Forgetting that a single frame is not Markov. Frame stacking is not a performance trick, it restores the property that makes Q(s,a) a well-defined object at all. Any problem with hidden velocity, latency, or mode needs the equivalent.",
+      "Using prioritized replay without the importance-sampling correction. Prioritizing changes the sampling distribution, which biases the expectation the loss estimates. The weights must be included and normalized by their maximum so they only scale gradients down.",
+      "Reporting single-seed results. Henderson et al. showed deep RL results vary enough across seeds and implementations that reported differences between methods are frequently within that variance. Five seeds minimum, report the spread, and be suspicious of small gains - including your own.",
+      "Evaluating on a deterministic emulator. Without sticky actions or random no-op starts, an agent can memorize a single winning action sequence rather than learn a policy, and the score will not reveal the difference."
+    ],
+    "connections": [
+      {
+        "ref": "reinforcement-learning/q-learning",
+        "text": "The tabular guarantees this lesson gives up. Maximization bias is a small correctable issue there and a persistent problem here, because approximation error does not decay with more visits the way sampling noise does - it is a property of the function class."
+      },
+      {
+        "ref": "reinforcement-learning/offline-rl",
+        "text": "What happens when you keep the replay buffer and remove the environment. Everything DQN relies on to correct its own overestimates - trying the action and observing the result - is exactly what is unavailable there, which is why conservatism becomes necessary."
+      },
+      {
+        "ref": "reinforcement-learning/policy-gradient",
+        "text": "The alternative family. Policy-gradient methods avoid the triad by staying on-policy and not bootstrapping through a max, at the cost of discarding data after each update - a direct trade of stability against sample efficiency."
+      },
+      {
+        "ref": "reinforcement-learning/bandits",
+        "text": "DQN's exploration is plain epsilon-greedy, which is why hard-exploration games resisted it for years. Bootstrapped ensembles and noisy networks are attempts to bring posterior sampling into this setting."
+      },
+      {
+        "ref": "training-systems/training-stability",
+        "text": "Huber loss, gradient clipping and target freezing are the same stabilization vocabulary used in supervised training - but here the instability has an additional structural source, since the target itself is generated by the model being trained."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is DQN?",
+        "a": "Q-learning with a neural network approximating Q(s,a), stabilized by an experience replay buffer and a periodically-synced target network."
+      },
+      {
+        "q": "Why is experience replay needed?",
+        "a": "Consecutive transitions are highly correlated and SGD assumes roughly independent samples. Replay breaks that correlation and lets each transition be reused many times."
+      },
+      {
+        "q": "Why is a target network needed?",
+        "a": "It freezes the bootstrap target, so between syncs the problem is ordinary supervised regression toward a fixed function. Without it you chase a target that moves as you move."
+      },
+      {
+        "q": "Which triad legs do the two devices address?",
+        "a": "Replay addresses SGD's independence assumption but makes the data more off-policy; the target network weakens the bootstrapping leg to compensate. They are a balanced pair."
+      },
+      {
+        "q": "What does Double DQN change?",
+        "a": "The online network selects the maximizing action and the target network evaluates it. One line, using two networks that already exist for another reason."
+      },
+      {
+        "q": "What did van Hasselt et al. measure?",
+        "a": "DQN's value estimates against actual discounted returns on Atari, finding substantial systematic overestimation that Double DQN reduced along with improving scores."
+      },
+      {
+        "q": "What is the dueling architecture?",
+        "a": "Split the head into a state value V(s) and an advantage A(s,a), recombining as V + A - mean(A). It helps in states where the action choice barely matters."
+      },
+      {
+        "q": "What is prioritized experience replay?",
+        "a": "Sample transitions in proportion to TD-error magnitude rather than uniformly, with importance-sampling weights to correct the bias that introduces."
+      },
+      {
+        "q": "Why must prioritized replay use IS weights?",
+        "a": "Changing the sampling distribution changes the expectation the loss estimates. The weights restore it, and are normalized by their max so they only scale gradients down."
+      },
+      {
+        "q": "Why is Huber loss used?",
+        "a": "It is quadratic near zero and linear in the tails, so one badly-wrong bootstrap target cannot produce an enormous gradient."
+      },
+      {
+        "q": "What does reward clipping cost?",
+        "a": "The agent can no longer prefer a 100-point reward to a 1-point one - it is a different MDP. It existed so one hyperparameter set worked across 49 games."
+      },
+      {
+        "q": "What did Rainbow's ablation show?",
+        "a": "Prioritized replay and multi-step returns carried the most, with distributional RL contributing clearly and Double DQN, dueling and noisy nets smaller or game-dependent."
+      }
+    ],
+    "standard": [
+      {
+        "q": "DQN needed around 200 million frames to learn an Atari game. Why so many, and what would you do about it?",
+        "a": "Two hundred million frames is roughly 38 days of continuous play for a game a person learns in minutes, so the gap is worth explaining precisely rather than dismissing as 'deep learning needs data'. WHERE THE SAMPLES GO. (1) NO PRIOR KNOWLEDGE. The agent starts with no concept of objects, gravity, or that a ladder is climbable. It learns the visual representation, the dynamics, and the policy simultaneously from a scalar reward - and a scalar reward is an extraordinarily thin supervision signal compared with a label per image. (2) CREDIT ASSIGNMENT IS SLOW. One-step bootstrapping propagates value backward one state per update. A reward a hundred steps from the relevant decision needs the information to traverse a hundred backups, each requiring the intermediate values to have settled. (3) EXPLORATION IS UNDIRECTED. Epsilon-greedy is a random walk, so the agent spends enormous effort re-visiting known regions and rarely reaches new ones. (4) THE DEVICES THEMSELVES COST SAMPLES. The target network deliberately delays learning - you regress toward stale values between syncs - and a large replay buffer means each update uses a mixture dominated by old policies. Both trade sample efficiency for stability, on purpose. WHAT ACTUALLY CLOSED THE GAP, in rough order of effect. (1) MULTI-STEP RETURNS. Propagating n steps of real reward per update instead of one is one of the largest single wins, and Rainbow's ablation confirms it. Cheap to add. (2) PRIORITIZED REPLAY, for the same reason - it accelerates backward propagation of newly-discovered reward rather than replaying it uniformly. (3) MORE UPDATES PER ENVIRONMENT STEP. The later data-efficient work found that DQN was massively under-training relative to its data: raising the replay ratio - many gradient steps per environment step - buys large efficiency gains, provided you counteract the resulting overfitting with periodic resets or regularization. This reframes the problem as one of under-using data rather than needing more. (4) MODEL-BASED METHODS. Learn the dynamics and generate synthetic experience, which is where the biggest reported efficiency gains on Atari have come from - and it is a direct attack on the root cause, since a model lets you do credit assignment without new interaction. (5) BETTER EXPLORATION for the hard-exploration subset specifically. WHAT I WOULD DO ON A REAL PROBLEM. Ask first whether I need to learn from scratch at all - demonstrations, a pretrained representation, a simulator, or a shaped reward each remove an entire category of cost, and are almost always cheaper than an algorithmic improvement. Then multi-step returns and a higher replay ratio, since both are small changes with large measured effects. Then model-based, if interaction is genuinely the binding constraint. THE FRAMING I WOULD OFFER. The comparison to human learning is not quite fair - a person brings a lifetime of physical priors to a new game. But the honest version of the point still stands: DQN's sample cost is dominated by learning things that were, in principle, available more cheaply, and most practical sample-efficiency work consists of finding a way to supply them."
+      },
+      {
+        "q": "Explain DQN and why each of its components exists.",
+        "a": "THE STARTING POINT. Tabular Q-learning has convergence guarantees. Replace the table with a neural network and every one of them is void, because you now have all three legs of the deadly triad simultaneously: function approximation, bootstrapping, and off-policy data. The Bellman operator contracts in the sup-norm, the projection onto the function class contracts in a weighted L2 norm, and composing contractions in different norms guarantees nothing - divergence is permitted by the mathematics, not just a possible bug. So DQN is Q-learning plus devices for holding that loop still. DEVICE 1: EXPERIENCE REPLAY. Store transitions in a large buffer and sample uniformly. Two purposes. It breaks the temporal correlation between consecutive updates - SGD assumes roughly independent samples and a trajectory is about as far from that as data gets. And it lets each expensive transition be used many times, which is why DQN is far more sample-efficient than on-policy methods. The cost, and I would say this explicitly: replay makes the data MORE off-policy, since you are training on transitions generated by older policies. It worsens one leg of the triad in exchange for efficiency. DEVICE 2: TARGET NETWORK. Keep a frozen copy of the parameters for computing bootstrap targets, synced every few thousand steps. Between syncs the target is a FIXED function, so the problem is ordinary supervised regression, which is stable. This weakens the bootstrapping leg and pays for what replay cost. That is why removing either one alone destabilizes training - they are a balanced pair rather than two independent tricks. THE SUPPORTING DETAILS THAT MATTER. Huber loss, so one wildly wrong target cannot produce an enormous gradient. Frame stacking, which is not a trick but a restoration of the Markov property - a single frame has no velocity, so Q over one frame is not a well-defined object. Reward clipping, which I would flag as changing the problem rather than preprocessing it: the agent cannot prefer a 100-point reward to a 1-point one, and it existed so one hyperparameter set could span 49 games. THE IMPROVEMENTS. Double DQN decouples selection from evaluation using the two networks already present, addressing maximization bias, and it was validated by measuring the overestimation directly rather than only by benchmark scores. Dueling splits the head into value and advantage. Prioritized replay samples by TD error with importance-sampling correction. Multi-step returns trade bias for faster credit propagation. Rainbow combines them. THE HONEST CLOSE. Rainbow's ablation showed prioritized replay and multi-step returns carried most of the gain, with several other components smaller or game-dependent. Read against Henderson et al.'s finding that deep RL results frequently vary across seeds and implementations by more than the gap between published methods, the right posture is to trust the large effects and treat the small ones as unresolved.",
+        "deepDive": {
+          "q": "Walk through what actually goes wrong if you remove the target network, in terms of the update dynamics.",
+          "a": "THE SETUP. Without a target network the loss is (r + gamma*max_a' Q(s',a';theta) - Q(s,a;theta))^2, with the SAME theta in both terms. Note that in practice the gradient is still stopped through the target - it is a semi-gradient method - so the issue is not that you are differentiating the target; it is that the target FUNCTION moves every time you take a step. FAILURE MODE ONE: THE MOVING TARGET AND SELF-REINFORCEMENT. Suppose a gradient step raises Q(s,a). Because the network generalizes, it also raises Q at states similar to s - including, very often, s' itself, since consecutive states in a trajectory are highly similar in feature space. So the target r + gamma*max Q(s') also rises. The next update chases the raised target, raising Q further, which raises the target again. This is a positive feedback loop with gain roughly gamma times the generalization coefficient between s and s'. When that product exceeds one, the values grow without bound. With a table this cannot happen, because updating Q(s,a) does not touch Q(s',a'). Generalization - the thing that makes the network useful - is precisely what creates the loop. FAILURE MODE TWO: MAXIMIZATION BIAS AMPLIFIED. The max over actions selects whichever action has the largest positive approximation error. That inflated value becomes a bootstrap target for predecessor states, whose values inflate, and their errors propagate backward through the chain. With a frozen target this propagation happens once per sync and the network has time to fit consistently in between; without one it compounds every step. FAILURE MODE THREE: LOSS OF THE REGRESSION FRAMING. The stability of supervised learning rests on a fixed target function. A moving target turns the problem into a fixed-point iteration on a non-contraction, and the analytical guarantees are simply absent. Empirically it shows as Q values growing steadily while episode returns stay flat or collapse - a very characteristic signature, and one worth recognizing because it points immediately at this cause. WHY FREEZING FIXES IT. Between syncs the target is a fixed function, so you are solving a well-posed regression problem, and standard SGD analysis applies. The loop is not eliminated - it reappears at each sync - but it is SAMPLED at a low rate rather than run continuously, so the network has time to fit the current target before the target moves. The sync interval C is therefore a genuine hyperparameter: too short recovers the moving-target instability, too long means regressing toward stale values so learning is slow and the policy lags. THE VARIANTS THIS EXPLAINS. Polyak averaging - theta-minus <- tau*theta + (1-tau)*theta-minus with small tau - is the continuous version, giving a slowly-moving target rather than a periodically-jumping one, and it is standard in continuous-control methods where the abrupt jump interacts badly with the actor. Both are the same idea: put a low-pass filter between the network and its own target. THE GENERALIZABLE POINT. Any time a model generates its own training targets, ask what the loop gain is. That question covers target networks here, the KL anchor in RLHF, EMA teachers in self-supervised learning, and self-training in semi-supervised learning - all the same structure, and all solved by slowing one side of the loop down."
+        }
+      },
+      {
+        "q": "Your DQN's Q-values are growing steadily but episode return is flat. Diagnose it.",
+        "a": "That specific combination is close to diagnostic, and it is the signature of value inflation rather than of a learning failure. I would work through it in order. FIRST, CONFIRM WHAT THE VALUES SHOULD BE. Compute the maximum possible discounted return from the reward scale and horizon: with rewards clipped to [-1,1] and gamma = 0.99, no state's value can exceed about 100. If Q values are in the thousands, they are not merely optimistic, they are impossible, and this is inflation rather than optimism. This check takes one minute and immediately rules half the hypotheses in or out. CAUSE 1: THE TARGET NETWORK IS EFFECTIVELY ABSENT. Either it is not being used, or the sync interval is so short that the target moves every step, or - a real bug I would check - the target network shares parameters with the online network because of how it was constructed. Then the self-reinforcing loop runs: raising Q(s,a) raises Q(s') through generalization, which raises the target, which raises Q further. Diagnostic: print the norm of the difference between online and target parameters; if it is near zero, they are the same network. CAUSE 2: TERMINAL BOOTSTRAPPING. If the (1 - done) factor is missing or wrong, value flows through terminal states and accumulates around them without bound. A subtler variant that I would specifically check: TIME-LIMIT TRUNCATION being recorded as termination, or worse, termination not being recorded at all for a time-limited environment. Print the value of states just before episode end. CAUSE 3: MAXIMIZATION BIAS WITHOUT DOUBLE DQN. Plain DQN's max both selects and evaluates using the same noisy estimates, and van Hasselt measured this producing substantial overestimation on Atari. Switching to Double DQN is a one-line change and is worth trying early precisely because it is so cheap. CAUSE 4: THE DEADLY TRIAD IN FULL. Very large replay buffer relative to policy change rate, a high learning rate, or a target sync interval that is too short. Diagnostic: reduce the learning rate substantially; if the growth slows proportionally, it is a dynamics problem rather than a bug. CAUSE 5, AND THE ONE THAT EXPLAINS THE FLAT RETURN: the values could be inflated by a CONSTANT and the policy would still be fine, since the greedy action depends on differences. Flat return alongside growing values suggests the inflation is not uniform - it is corrupting the ORDERING. So I would look at the spread of Q values across actions in a given state. If the advantages have collapsed - all actions nearly equal, with a large shared offset - the network is spending its capacity representing a large constant and the action distinctions are being lost in the noise. That is exactly what the dueling architecture addresses by separating V from A. WHAT I WOULD LOG GOING FORWARD, since this is a recurring class of problem: mean and max Q alongside the actual observed discounted return on evaluation episodes. Plotting predicted value against realized return is the single most informative diagnostic in value-based RL, it takes ten lines, and it turns 'the agent seems unstable' into a measured statement about overestimation. It is exactly the measurement the Double DQN paper made, and it is under-used."
+      },
+      {
+        "q": "How do you evaluate a deep RL algorithm honestly?",
+        "a": "This deserves a careful answer because the field's own reproducibility work showed the default practices are not adequate. THE CORE PROBLEM, from Henderson et al. and related work: deep RL results vary substantially with random seed, with implementation details that are not in the paper, with hyperparameters chosen per-method, and with the exact environment version. The variation is often larger than the gap between methods being compared, which means a single-seed comparison is not weak evidence, it is no evidence. WHAT I WOULD REQUIRE. (1) MULTIPLE SEEDS - five is a minimum and ten is better - and REPORT THE DISTRIBUTION, not the mean of the top runs and certainly not the best run. A common and serious error is reporting the max over seeds, which is a biased estimator of performance that gets worse the more seeds you run. (2) THE SPREAD SHOWN, ideally as individual seed curves or a percentile band rather than a standard error, since RL learning curves are frequently multimodal - some seeds solve the task and some never do, and a mean with error bars describes neither population. (3) TUNE EACH METHOD SEPARATELY with an equal budget, and say what that budget was. Comparing a tuned method against a baseline at its paper's default hyperparameters is one of the most common ways to manufacture a result. (4) FIX THE ENVIRONMENT VERSION AND PROTOCOL and state it. On Atari specifically: sticky actions or random no-op starts, because a deterministic emulator lets an agent memorize a single winning action sequence rather than learn a policy, and the score does not reveal which happened. Also state whether you report training scores or separate evaluation episodes, and whether evaluation is greedy. (5) REPORT SAMPLE EFFICIENCY, not only final performance - an algorithm that reaches the same score in a tenth of the interactions is a different proposition, and final-score tables hide that entirely. (6) USE AGGREGATE METRICS DESIGNED FOR THIS. Mean human-normalized score across games is dominated by a few games where scores can be enormous; interquartile mean and stratified bootstrap confidence intervals over the full run distribution are much more robust, and this is now standard practice in careful work. WHAT I WOULD ADD BEYOND THE STATISTICS. An ablation, because a combined method's headline number does not tell you what carried it - Rainbow's ablation is more valuable than Rainbow's score. And a measured mechanism where possible: the Double DQN paper's strength is that it predicted overestimation, MEASURED it against realized returns, and showed the fix reduced the measured quantity - not just the benchmark. A claim tied to a measured mechanism survives seed noise in a way a benchmark delta does not. THE POSTURE I WOULD RECOMMEND. Be most suspicious of your own small improvements. If an effect is within the seed spread, the honest report is that it is within the seed spread - and saying so is more useful than a confident claim that will not replicate.",
+        "deepDive": {
+          "q": "Given that seed variance is so large, how should a practitioner decide whether to adopt a technique?",
+          "a": "I would separate the question into three, because they have different answers. QUESTION ONE: IS THERE A MECHANISM I UNDERSTAND? Techniques whose justification is structural survive better than techniques justified only by benchmark deltas. Target networks address a specific instability with an explicable loop; Double DQN addresses a bias that is provable from Jensen's inequality and was measured directly; multi-step returns address credit-propagation speed with a clear bias-variance account. Compare those against a technique justified by 'it improved mean score on 57 games by 3%'. When seed variance is large, a mechanism you can reason about is stronger evidence than an effect size you cannot reproduce - and it also tells you WHEN the technique should help, which lets you predict rather than hope. QUESTION TWO: HOW LARGE IS THE EFFECT RELATIVE TO THE NOISE? Rainbow's ablation is useful precisely because it separates large effects from small ones. Prioritized replay and multi-step returns produced large drops when removed; some others were small or game-dependent. I would adopt the large-effect components readily and treat the small ones as unresolved until I have measured them on MY problem. The general rule: an effect smaller than the seed spread should not be adopted on someone else's evidence, because you have no way to verify it and no reason to think it transfers. QUESTION THREE: WHAT DOES IT COST? Not just compute - complexity, hyperparameters, and failure modes. Prioritized replay adds a sum-tree, two hyperparameters, and a correction that is easy to get wrong. Distributional RL changes the loss and the output head. Each addition multiplies the space of things that can be subtly broken, and in a field where debugging is already hard because failures are silent, that cost is real and usually under-counted. HOW I WOULD ACTUALLY DECIDE. Start with the simplest thing that works - DQN with a target network, replay, Huber loss, and Double DQN, since that last one is one line and mechanistically justified. Get it working and establish a seed distribution on my own problem. Then add components ONE AT A TIME, each evaluated with the same seed protocol, and keep only those whose effect clearly exceeds my measured seed spread. That is slower than adopting Rainbow wholesale and it produces a system I can debug. THE STRUCTURAL POINT WORTH MAKING. The reproducibility problem is not primarily a statistics problem, it is an incentive problem: publishing rewards a positive delta, and the cheapest route to one is a favourable seed and a well-tuned method against an untuned baseline. As a practitioner you are not subject to that incentive - you want the thing to work - so you can afford the discipline of adopting only what you have verified. That asymmetry is worth exploiting rather than lamenting."
+        }
+      },
+      {
+        "q": "When would you choose DQN over a policy-gradient method, and vice versa?",
+        "a": "THE DECIDING AXES, in the order they usually matter. AXIS 1: ACTION SPACE. DQN requires a max over actions, so it needs a discrete and enumerable action set. Continuous actions rule it out directly - you cannot argmax over a continuum - which is why continuous control is dominated by policy-gradient and actor-critic methods, and why the value-based methods that do work there (DDPG, TD3, SAC) all introduce a separate actor network specifically to produce the argmax. Very large discrete action spaces have the same problem in practice. This axis alone decides many cases. AXIS 2: SAMPLE EFFICIENCY VERSUS STABILITY, which is the real trade. DQN is off-policy: a replay buffer lets each transition be used many times, so it is far more sample-efficient. The price is the deadly triad and everything in this lesson built to manage it. On-policy policy-gradient methods discard data after each update - the data must match the current policy - so they are much hungrier, and in exchange they avoid the off-policy leg entirely and are markedly more stable and easier to get working. If interaction is cheap (a fast simulator, massive parallelism) buy stability with samples and use PPO. If interaction is expensive (a real robot, a live system) you need off-policy reuse. AXIS 3: WHAT KIND OF POLICY YOU NEED. Value-based methods produce a deterministic greedy policy. If you need a genuinely STOCHASTIC optimal policy - partial observability, adversarial or multi-agent settings where being predictable is exploitable, or anywhere you want entropy for exploration - policy-gradient methods represent that natively and value-based ones cannot. AXIS 4: HOW HARD THE REWARD STRUCTURE IS. Value-based methods with bootstrapping propagate reward information backward efficiently through a replay buffer, which helps in long-horizon sparse tasks. Policy gradients rely on sampling a good trajectory before they can reinforce it, which is harder when good trajectories are rare. WHAT I WOULD ACTUALLY REACH FOR. Discrete actions, expensive interaction: DQN with Double DQN and multi-step returns. Continuous actions, expensive interaction: SAC, which is off-policy actor-critic and gets much of DQN's efficiency with a continuous action space and entropy-regularized exploration. Cheap interaction, want it working quickly and reliably: PPO, essentially regardless of the action space - it is the default for good reasons, and its reliability across problems is worth more than a sample-efficiency advantage you may spend weeks debugging. THE HONEST CAVEAT. The empirical comparisons between these families are exactly the ones most affected by seed variance and per-method tuning, so I would hold the rankings loosely and rely on the structural arguments - action space, data reuse, policy class - which do not depend on benchmark noise."
+      },
+      {
+        "q": "Explain prioritized experience replay, including why it needs a correction.",
+        "a": "THE MOTIVATION. Uniform sampling from the replay buffer spends most updates on transitions the network already predicts well, where the TD error is near zero and the gradient contributes almost nothing. That is wasted computation, and it is especially wasteful in sparse-reward problems where the few informative transitions are a tiny fraction of the buffer. THE MECHANISM. Assign each transition a priority p_i = |delta_i| + epsilon, the magnitude of its last TD error plus a small constant so nothing has zero probability. Sample with probability proportional to p_i^alpha, where alpha interpolates between uniform (alpha = 0) and fully greedy prioritization (alpha = 1). After each update, recompute the sampled transitions' TD errors and update their priorities. New transitions get maximal priority so they are seen at least once. Implementation is a sum-tree, giving O(log N) sampling and updating. WHY IT NEEDS A CORRECTION - the part that matters. The loss is an EXPECTATION over the buffer's distribution. Changing which transitions you sample changes that expectation, so the gradient you compute is no longer an unbiased estimate of the gradient of the loss you meant to minimize. Concretely, high-error transitions are over-represented, so the network is fitted disproportionately to them, which biases the value function toward the noisiest parts of the state space. The fix is standard importance sampling: weight each sampled transition's loss by w_i = (1/(N*P(i)))^beta. At beta = 1 this exactly cancels the sampling bias; below 1 it partially corrects. TWO DETAILS THAT ARE EASY TO GET WRONG. (1) NORMALIZE BY THE MAXIMUM WEIGHT in the batch, so all weights are at most one and the correction only ever scales gradients DOWN. Without this the correction can produce very large gradients for rare transitions, which is exactly the instability you were trying to avoid. (2) ANNEAL BETA from about 0.4 toward 1 over training. The bias matters most near convergence, when you need unbiased estimates to settle correctly, and early on the extra bias is an acceptable price for faster learning. WHY IT HELPS AS MUCH AS IT DOES. Rainbow's ablation found prioritized replay among the largest contributors, and the reason is credit propagation. In a sparse-reward task, when a reward is first observed, exactly one transition has a large TD error. Uniform sampling replays it about as often as everything else, so information crawls backward. Prioritization replays it immediately, which creates a large TD error at its predecessor, which is then prioritized - so the reward information propagates backward along the trajectory quickly. It is doing a form of prioritized sweeping, the classic model-based idea, in a model-free setting. THE MODULE-THEME READING. This is the agent deliberately reshaping its own data distribution to learn faster - the feedback loop used as a tool rather than merely managed. And the correction is the price: any time you choose your own data non-uniformly, you owe an accounting for the bias you introduced. That is the same discipline as logging propensities in a bandit, and the same estimator."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "intuition",
+      "front": "DQN's two devices map onto the deadly triad",
+      "back": "REPLAY: makes SGD's iid assumption ~true and reuses data - but makes the data MORE off-policy. TARGET NET: weakens the BOOTSTRAPPING leg (between syncs it is plain supervised regression). A balanced pair - remove either alone and training destabilizes."
+    },
+    {
+      "type": "intuition",
+      "front": "Why a moving target diverges",
+      "back": "Raising Q(s,a) also raises Q(s') through GENERALIZATION (consecutive states are similar), which raises the target, which raises Q again. Loop gain ~ gamma x generalization coefficient; above 1 it blows up. A table cannot do this - generalization is what creates the loop."
+    },
+    {
+      "type": "formula",
+      "front": "Double DQN target",
+      "back": "y = r + gamma*Q(s', argmax_a' Q(s',a'; THETA); THETA-MINUS). Online net SELECTS, target net EVALUATES. One line, using two networks that already exist. Validated by MEASURING overestimation against realized returns, not just by scores."
+    },
+    {
+      "type": "pitfall",
+      "front": "Reward clipping is not preprocessing",
+      "back": "Clipping to [-1,1] means the agent CANNOT prefer a 100-point reward to a 1-point one - a different MDP. It existed so one hyperparameter set spanned 49 games; later methods replaced it with adaptive normalization rather than keeping it."
+    },
+    {
+      "type": "intuition",
+      "front": "Frame stacking restores the Markov property",
+      "back": "A single frame has no VELOCITY, so Q(s,a) over one frame is not a well-defined object. This is not a performance trick. Any problem with hidden velocity, latency, or mode needs the equivalent."
+    },
+    {
+      "type": "formula",
+      "front": "Prioritized replay + its correction",
+      "back": "P(i) ~ p_i^alpha with p_i = |delta_i| + eps. IS weights w_i = (1/(N*P(i)))^beta, NORMALIZED BY MAX so they only scale gradients DOWN. Anneal beta 0.4 -> 1: bias matters most near convergence."
+    },
+    {
+      "type": "intuition",
+      "front": "Why prioritized replay helps so much",
+      "back": "Credit propagation. When a sparse reward is first seen, ONE transition has a large TD error; prioritization replays it immediately, creating a large error at its predecessor, which is then prioritized. It is prioritized sweeping in a model-free setting."
+    },
+    {
+      "type": "pitfall",
+      "front": "Deep RL results are frequently within SEED VARIANCE",
+      "back": "Henderson et al.: seeds, implementation details, and per-method tuning vary results by more than the gap between published methods. >= 5 seeds, report the SPREAD (curves or percentiles, not SEM - RL curves are often multimodal), never the max over seeds."
+    },
+    {
+      "type": "intuition",
+      "front": "Rainbow's ablation beats Rainbow's score",
+      "back": "Prioritized replay and multi-step returns carried the most; distributional RL contributed clearly; Double DQN, dueling and noisy nets were smaller or game-dependent. Adopt large effects readily; treat sub-seed-spread effects as unresolved until measured on YOUR problem."
+    },
+    {
+      "type": "pitfall",
+      "front": "The growing-Q, flat-return signature",
+      "back": "First check the ARITHMETIC ceiling (clipped rewards + gamma=0.99 caps value ~100). Then: target net effectively absent, terminal bootstrapping / time-limit truncation, maximization bias. Log PREDICTED value against REALIZED discounted return - the single best value-based diagnostic."
+    },
+    {
+      "type": "definition",
+      "front": "Polyak-averaged target",
+      "back": "theta_minus <- tau*theta + (1-tau)*theta_minus with small tau - the continuous version of a periodic sync, giving a slowly-moving rather than jumping target. Standard in continuous control, where the abrupt jump interacts badly with the actor."
+    },
+    {
+      "type": "pitfall",
+      "front": "Evaluate with sticky actions",
+      "back": "On a deterministic emulator an agent can MEMORIZE one winning action sequence rather than learn a policy - and the score will not reveal which happened. Sticky actions or random no-op starts are the minimum honest protocol."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Mnih et al. (2015), Human-level Control through Deep Reinforcement Learning",
+      "url": "https://www.nature.com/articles/nature14236"
+    },
+    {
+      "title": "van Hasselt, Guez & Silver (2016), Deep Reinforcement Learning with Double Q-learning",
+      "url": "https://arxiv.org/abs/1509.06461"
+    },
+    {
+      "title": "Schaul et al. (2016), Prioritized Experience Replay",
+      "url": "https://arxiv.org/abs/1511.05952"
+    },
+    {
+      "title": "Hessel et al. (2018), Rainbow: Combining Improvements in Deep Reinforcement Learning",
+      "url": "https://arxiv.org/abs/1710.02298"
+    },
+    {
+      "title": "Henderson et al. (2018), Deep Reinforcement Learning that Matters",
+      "url": "https://arxiv.org/abs/1709.06560"
+    }
+  ],
+  "updatedAt": "2026-08-06"
 }

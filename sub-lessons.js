@@ -1527,16 +1527,11 @@ window.SUB_LESSONS = {
     "intro": "Learning from reward, built up in order: balance exploration, solve known MDPs with Bellman backups, learn values from experience, then optimize policies directly and with deep function approximators.",
     "order": [
       "bandit",
-      "mdp-bellman",
-      "q-learning",
       "sarsa",
       "td-lambda",
       "double-q-learning",
-      "policy-gradient",
-      "actor-critic",
       "gae",
       "ppo",
-      "dqn",
       "dyna-q"
     ],
     "lessons": {
@@ -1570,68 +1565,6 @@ window.SUB_LESSONS = {
           "Every RL method inherits this tension."
         ],
         "demo": "bandit"
-      },
-      "mdp-bellman": {
-        "title": "MDPs and the Bellman Equation",
-        "oneLine": "Frame sequential decisions, and solve them with a recursive value identity.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A Markov decision process is states, actions, rewards, and transitions. The value of a state is the best total reward you can expect from it. The Bellman equation makes this recursive: a state's value is the immediate reward plus the discounted value of where you land next - which value iteration solves by repeated backups."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The optimal value satisfies the Bellman optimality equation:"
-            ],
-            "tex": "V^*(s) = \\max_a \\sum_{s'} P(s'\\mid s,a)\\big[r + \\gamma V^*(s')\\big]",
-            "texNote": "gamma discounts the future; iterating this backup converges to V*."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef value_iteration(P, R, gamma=0.9, iters=100):\n    V = np.zeros(nS)\n    for _ in range(iters):\n        V = np.max(R + gamma * P @ V, axis=1)   # Bellman backup\n    return V",
-            "caption": "Repeated backups converge to the optimal values."
-          }
-        ],
-        "takeaways": [
-          "MDPs formalize sequential decision-making.",
-          "Bellman makes value recursive: reward now plus discounted value next.",
-          "Value iteration solves a known MDP by repeated backups."
-        ],
-        "demo": "value-iteration"
-      },
-      "q-learning": {
-        "title": "Q-Learning",
-        "oneLine": "Learn action-values from experience, without knowing the environment.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "When you do not know the transition model, you learn from samples. Q-learning estimates the value of each action in each state, nudging its estimate toward the observed reward plus the best next-state value. It is off-policy: it learns the optimal policy even while exploring with a different one."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The temporal-difference update on the action-value Q:"
-            ],
-            "tex": "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\big[r + \\gamma\\max_{a'}Q(s',a') - Q(s,a)\\big]",
-            "texNote": "The bracket is the TD error - the surprise that drives learning."
-          },
-          {
-            "h": "In code",
-            "code": "td = r + gamma * Q[s2].max() - Q[s, a]\nQ[s, a] += alpha * td",
-            "caption": "Move the estimate toward reward plus best next value."
-          }
-        ],
-        "takeaways": [
-          "Q-learning is model-free, off-policy value learning.",
-          "The TD error is the learning signal.",
-          "max over next actions makes it learn the greedy optimum."
-        ],
-        "demo": "gridworld-rl"
       },
       "sarsa": {
         "title": "SARSA",
@@ -1726,68 +1659,6 @@ window.SUB_LESSONS = {
         ],
         "demo": "double-q-learning"
       },
-      "policy-gradient": {
-        "title": "Policy Gradients",
-        "oneLine": "Optimize the policy directly by following the gradient of expected reward.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Instead of learning values and acting greedily, policy gradients adjust the policy's parameters to make high-reward actions more likely. REINFORCE nudges the log-probability of each action by the return that followed it. It handles continuous actions naturally but can be high-variance."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The policy-gradient theorem weights each action's log-prob gradient by its return:"
-            ],
-            "tex": "\\nabla J = \\mathbb{E}\\big[\\nabla_\\theta \\log \\pi_\\theta(a\\mid s)\\,G_t\\big]",
-            "texNote": "Subtracting a baseline from G_t cuts variance without adding bias."
-          },
-          {
-            "h": "In code",
-            "code": "# REINFORCE update over a trajectory\nfor (s, a, G) in trajectory:\n    grad = score(s, a)             # d log pi(a|s)/d theta\n    theta += lr * grad * (G - baseline)",
-            "caption": "Make actions that led to high return more likely."
-          }
-        ],
-        "takeaways": [
-          "Policy gradients optimize the policy directly.",
-          "REINFORCE scales each log-prob gradient by its return.",
-          "A baseline reduces variance without bias."
-        ],
-        "demo": "policy-gradient"
-      },
-      "actor-critic": {
-        "title": "Actor-Critic",
-        "oneLine": "Pair a policy (actor) with a learned value baseline (critic).",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Pure policy gradients are noisy because returns are noisy. Actor-critic adds a critic that learns the value function and supplies a low-variance baseline, so the actor updates on the advantage - how much better an action was than expected - instead of the raw return. It is the template behind A2C, PPO, and SAC."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The actor updates on the advantage, estimated by the critic's TD error:"
-            ],
-            "tex": "A_t = r + \\gamma V(s') - V(s)",
-            "texNote": "The critic learns V; the actor ascends grad log-pi times A."
-          },
-          {
-            "h": "In code",
-            "code": "delta = r + gamma * V[s2] - V[s]      # TD error = advantage\nV[s]   += lr_v * delta                # critic\ntheta  += lr_a * score(s, a) * delta  # actor",
-            "caption": "One TD error trains both the critic and the actor."
-          }
-        ],
-        "takeaways": [
-          "Actor-critic combines a policy with a learned value baseline.",
-          "Updating on advantage cuts variance.",
-          "It underlies A2C, PPO, and SAC."
-        ],
-        "demo": "actor-critic"
-      },
       "gae": {
         "title": "Generalized Advantage Estimation",
         "oneLine": "Tune the bias-variance trade-off of the advantage signal.",
@@ -1849,37 +1720,6 @@ window.SUB_LESSONS = {
           "It is the workhorse of modern RL and RLHF."
         ],
         "demo": "ppo"
-      },
-      "dqn": {
-        "title": "Deep Q-Networks",
-        "oneLine": "Replace the Q-table with a network - stabilized by replay and a target net.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "When states are too many to tabulate (pixels, say), approximate Q with a neural network. Two tricks keep it from diverging: a replay buffer that breaks the correlation between consecutive samples, and a slowly-updated target network that provides a stable regression goal. Together they made deep RL work on Atari."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Regress the network Q toward a target built from a frozen copy:"
-            ],
-            "tex": "y = r + \\gamma\\max_{a'} Q_{\\theta^-}(s', a'),\\quad \\mathcal{L} = (y - Q_\\theta(s,a))^2",
-            "texNote": "theta^- is the target network, copied from theta every so often."
-          },
-          {
-            "h": "In code",
-            "code": "# sample a minibatch from replay, regress to the target net\ny = r + gamma * Q_target(s2).max(1) * (1 - done)\nloss = ((y - Q(s).gather(a)) ** 2).mean()",
-            "caption": "Replay decorrelates data; the target net stabilizes the goal."
-          }
-        ],
-        "takeaways": [
-          "DQN approximates Q with a neural network.",
-          "Experience replay breaks sample correlation.",
-          "A target network gives a stable regression target."
-        ],
-        "demo": "dqn"
       },
       "dyna-q": {
         "title": "Dyna-Q",

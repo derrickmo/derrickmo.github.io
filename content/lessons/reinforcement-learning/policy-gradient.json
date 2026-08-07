@@ -5,13 +5,277 @@
   "slug": "policy-gradient",
   "module": "reinforcement-learning",
   "title": "Policy Gradient & REINFORCE",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "14-06_policy_gradient_reinforce.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["policy-gradient", "gae", "max-entropy-rl", "gridworld-rl"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["reinforcement-learning/mdp-bellman", "reinforcement-learning/dqn"],
+  "leadsTo": ["reinforcement-learning/actor-critic"],
+  "body": {
+    "intuition": [
+      "Value-based methods learn a value function and read a policy off it. Policy-gradient methods skip the intermediary and optimize the policy's parameters directly against expected return. Three reasons that is worth doing. CONTINUOUS ACTIONS: you cannot argmax over a continuum, so any method requiring a max over actions is structurally excluded. STOCHASTIC OPTIMAL POLICIES: under partial observability or in adversarial settings the best policy is genuinely randomized, and a greedy value method cannot represent that. And SMOOTHNESS: a small parameter change produces a small change in behaviour, whereas an epsilon-greedy policy over a value function flips discontinuously the instant two action values cross - which is a real source of instability in value-based learning.",
+      "The obstacle looks fatal at first. Expected return depends on the trajectory distribution, which depends on the policy, so differentiating it seems to require differentiating through the ENVIRONMENT - through where the policy takes you, which you have no model of. The policy gradient theorem's remarkable content is that you do not. Using the identity grad p = p * grad log p, the gradient becomes an expectation you can sample, and the term involving how the state distribution shifts VANISHES. You need only the gradient of the log-probability of the actions you took, weighted by how good the outcome was. No model, no differentiating through dynamics.",
+      "This is the module's theme at its sharpest. The agent's parameters determine the data distribution, and the theorem says that when you differentiate expected return, the dependence of the DATA on the parameters contributes nothing to the gradient - you can take the derivative as though the state distribution were fixed. That is what makes the whole family possible. What you pay for it is VARIANCE. The estimator is a product of a log-probability gradient and a sampled return, and returns over long trajectories are extremely noisy, so the raw estimator is nearly unusable. Essentially every technique in this lesson and the next - baselines, reward-to-go, advantage estimation, trust regions - exists to reduce that variance without reintroducing bias. Understanding policy gradients means understanding that one derivation and then a long list of variance reductions."
+    ],
+    "math": [
+      {
+        "h": "The policy gradient theorem, via the log-derivative trick",
+        "paras": [
+          "The whole derivation is three lines. Write the objective as an expectation over trajectories, push the gradient inside, and use grad p = p grad log p to turn it back into an expectation you can estimate from samples.",
+          "The crucial cancellation: the trajectory probability factorizes into environment transitions times policy probabilities, and the log turns that product into a sum - in which every transition term is independent of theta and differentiates to zero."
+        ],
+        "tex": "\\nabla_\\theta J = \\nabla_\\theta \\mathbb{E}_{\\tau\\sim\\pi_\\theta}[R(\\tau)] = \\mathbb{E}_{\\tau}\\big[R(\\tau)\\,\\nabla_\\theta \\log p_\\theta(\\tau)\\big] \\\\[4pt] \\log p_\\theta(\\tau) = \\log p(s_0) + \\sum_t \\big[\\underbrace{\\log P(s_{t+1}|s_t,a_t)}_{\\nabla_\\theta = 0} + \\log \\pi_\\theta(a_t|s_t)\\big]",
+        "texNote": "The dynamics terms vanish because they do not depend on theta - which is why this works with NO MODEL of the environment. You are not differentiating through where the policy takes you; you are only differentiating the probability of the actions you actually chose, weighted by the return that followed."
+      },
+      {
+        "h": "Baselines: free variance reduction",
+        "paras": [
+          "Subtracting any function of the STATE from the return leaves the gradient unbiased, because the expected score function is zero. Subtracting a function of the ACTION does not, which is the line people cross.",
+          "The practical choice is b(s) = V(s), which turns the weight into the advantage - how much better this action was than the policy's average from that state."
+        ],
+        "tex": "\\mathbb{E}_{a\\sim\\pi}\\big[\\nabla_\\theta \\log \\pi_\\theta(a|s)\\big] = \\sum_a \\nabla_\\theta \\pi_\\theta(a|s) = \\nabla_\\theta \\sum_a \\pi_\\theta(a|s) = \\nabla_\\theta 1 = 0 \\\\[4pt] \\Rightarrow\\; \\nabla_\\theta J = \\mathbb{E}\\big[\\nabla_\\theta\\log\\pi_\\theta(a_t|s_t)\\,(G_t - b(s_t))\\big] \\;\\;\\text{unbiased for any } b(s)",
+        "texNote": "Why it reduces variance: without a baseline, if all returns are positive the update raises the probability of EVERY action taken and relies on the relative magnitudes to sort them out - which is a terrible signal-to-noise ratio. With V(s) subtracted, better-than-average actions get raised and worse-than-average ones get lowered, which is what you meant all along."
+      },
+      {
+        "h": "Score function versus reparameterization",
+        "paras": [
+          "REINFORCE is the score-function estimator: it needs only the ability to evaluate log-probability, so it works for discrete actions and non-differentiable objectives, and it is high-variance. The reparameterization trick pushes the randomness into a fixed noise source and differentiates THROUGH the sample, which is far lower variance but requires a differentiable path.",
+          "Knowing which one you are using explains most of the variance behaviour of a method, and it is the same distinction that separates the two families of gradient estimator in variational inference."
+        ],
+        "tex": "\\text{score fn: } \\nabla_\\theta \\mathbb{E}[f(a)] = \\mathbb{E}\\big[f(a)\\nabla_\\theta \\log \\pi_\\theta(a)\\big] \\\\[4pt] \\text{reparam: } a = \\mu_\\theta + \\sigma_\\theta \\epsilon,\\; \\epsilon\\sim\\mathcal{N}(0,I) \\;\\Rightarrow\\; \\nabla_\\theta \\mathbb{E}[f(a)] = \\mathbb{E}\\big[\\nabla_a f \\cdot \\nabla_\\theta a\\big]",
+        "texNote": "The reparameterized form uses the gradient of f itself, so it exploits far more information per sample - which is why it is dramatically lower variance. It requires f to be differentiable in a, which the environment's return is not, but a learned critic IS: that is exactly the trick SAC uses, and it is the same identity that makes VAEs trainable."
+      }
+    ],
+    "code": [
+      {
+        "h": "REINFORCE, with the two corrections that make it usable",
+        "paras": [
+          "The plain estimator is correct and nearly unusable. Reward-to-go and a baseline are both unbiased, both cost almost nothing, and together they are the difference between a method that learns and one that does not."
+        ],
+        "code": "def reinforce_loss(logps, rewards, values, gamma=0.99):\n    # 1. REWARD-TO-GO, not the full episode return. Actions cannot influence\n    #    rewards that already happened, so including them adds pure noise with\n    #    zero expected contribution. Unbiased, strictly lower variance.\n    G, out = 0.0, []\n    for r in reversed(rewards):\n        G = r + gamma * G\n        out.append(G)\n    G = torch.tensor(out[::-1])\n\n    # 2. BASELINE. Subtracting any function of STATE is unbiased because\n    #    E[grad log pi] = 0. V(s) is the practical choice -> the ADVANTAGE.\n    adv = G - values.detach()\n\n    # 3. NORMALIZE the advantages. Not unbiased in the strict sense, but it\n    #    decouples the learning rate from the reward SCALE, which otherwise\n    #    silently rescales every gradient. Universally done.\n    adv = (adv - adv.mean()) / (adv.std() + 1e-8)\n\n    # NOTE THE MINUS: optimizers descend, the objective ascends.\n    return -(logps * adv).mean()\n\n# WHY NOT SUBTRACT A FUNCTION OF THE ACTION? Because E[grad log pi * b(s)] = 0\n# requires b to be constant w.r.t. the sum over actions. A b(s,a) does NOT\n# come out of that sum and you get a biased gradient - this is the line people\n# cross when they invent a clever baseline.\n\n# THE ON-POLICY CONSTRAINT: logps must come from the CURRENT policy. After one\n# gradient step the data is stale and the estimator is no longer valid without\n# an importance-sampling correction. That is the whole reason PPO exists.",
+        "caption": "Three lines of variance reduction, two of them exactly unbiased. Note the boundary: a baseline may depend on the state but not the action - crossing it silently biases the gradient, and it is the most common way a hand-rolled 'improvement' goes wrong."
+      },
+      {
+        "h": "Why the raw estimator fails, measured",
+        "paras": [
+          "Worth running once so the variance problem is a number rather than an assertion. The gradient estimate from a handful of episodes is dominated by noise, and each correction is visible in the estimator's standard deviation."
+        ],
+        "code": "# Estimate the SAME gradient many times and look at its spread:\ndef grad_std(estimator, n_repeats=100, n_eps=10):\n    gs = [estimator(collect(n_eps)) for _ in range(n_repeats)]\n    return torch.stack(gs).std(0).mean()\n\n#   full return, no baseline ......... enormous spread; the sign of individual\n#                                      components flips between repeats\n#   + reward-to-go ................... clearly lower\n#   + value baseline ................. lower again - the biggest single win\n#   + advantage normalization ........ stable across reward scales\n#\n# WHY THE RAW VERSION IS SO BAD. The weight on every action in an episode is\n# the SAME total return, so a lucky episode raises the probability of every\n# action it contained, including the bad ones, and an unlucky episode lowers\n# all of them. The estimator is unbiased - average enough episodes and the\n# bad actions wash out - but the number of episodes needed is impractical.\n#\n# AND IF ALL RETURNS ARE POSITIVE (a common reward design), every update\n# raises the probability of every sampled action, and learning depends\n# entirely on the RELATIVE magnitudes surviving the noise. Subtracting a\n# baseline is what turns 'raise everything, some more than others' into\n# 'raise the good ones, lower the bad ones'.",
+        "caption": "The estimator is unbiased and that is not sufficient - the number of episodes needed to average out the noise is impractical. The all-positive-returns case shows why a baseline is not an optimization but a repair."
+      }
+    ],
+    "useCases": [
+      "Continuous control - robotics, locomotion, manipulation, vehicle control - where a max over actions is not available and the policy must output a distribution over a continuous space.",
+      "Any setting where the optimal policy is genuinely stochastic: partially observable environments, adversarial and multi-agent games where predictability is exploitable, and problems where you want to preserve behavioural diversity.",
+      "Fine-tuning large models against a non-differentiable objective. RLHF and RL with verifiable rewards are policy gradients over token sequences - the reward is a black box, so only a score-function estimator is available, and every variance-reduction technique here applies directly.",
+      "Problems with structured or combinatorial action spaces where the policy can be factorized and sampled from but a value function over all actions cannot be enumerated - routing, scheduling, sequence generation."
+    ],
+    "pitfalls": [
+      "Using the full episode return instead of reward-to-go. Actions cannot affect rewards that already occurred, so those terms have zero expected contribution and pure variance. It is unbiased to drop them and it is free.",
+      "Making the baseline depend on the action. b(s) is unbiased because the expected score function sums to zero over actions; b(s,a) does not come out of that sum and the gradient becomes biased. This is the most common way a hand-rolled improvement goes wrong.",
+      "Not normalizing advantages. Without it the effective learning rate scales with the reward magnitude, so a change in reward scale silently retunes your optimizer - and the symptom is that hyperparameters stop transferring between environments for no visible reason.",
+      "Reusing data after an update. The estimator is valid only for trajectories drawn from the CURRENT policy. One gradient step makes the batch stale, and continuing to use it without an importance-sampling correction gives a wrong gradient - which is precisely the problem PPO's clipped ratio is designed to bound.",
+      "Ignoring reward scale entirely. The gradient magnitude is proportional to the return, so an environment with returns in the thousands and one with returns in the units need completely different learning rates unless you normalize. Normalize.",
+      "Forgetting the entropy term in a deterministic-drifting policy. Policy gradients can collapse to a near-deterministic policy early, after which exploration stops and the run plateaus. An entropy bonus is the standard cheap insurance and its coefficient matters.",
+      "Assuming low variance means correctness. Many variance reductions - advantage normalization, dropping the gamma^t weighting that the strict theorem requires, generalized advantage estimation with lambda below one - introduce bias that is accepted because it pays for itself. That is a defensible trade and it should be a known one rather than an accident."
+    ],
+    "connections": [
+      {
+        "ref": "reinforcement-learning/actor-critic",
+        "text": "The direct continuation: replace the sampled return with a learned critic's estimate, trading variance for bias. Everything in that lesson - GAE, trust regions, PPO's clipping - is a further attack on the variance problem introduced here."
+      },
+      {
+        "ref": "reinforcement-learning/dqn",
+        "text": "The opposite trade. Value-based methods are off-policy and sample-efficient at the cost of the deadly triad; policy gradients stay on-policy and avoid it entirely, paying with data that must be discarded after every update."
+      },
+      {
+        "ref": "generative/vae",
+        "text": "The same estimator choice appears there: the reparameterization trick is what makes VAEs trainable, and it is low-variance precisely because it uses the gradient of the objective rather than only its value. REINFORCE is the score-function alternative you must fall back on when no differentiable path exists."
+      },
+      {
+        "ref": "fine-tuning/rlhf-ppo",
+        "text": "RLHF is a policy gradient over token sequences with a learned reward model. The reward is a black box, so only the score-function estimator is available - which is why every variance-reduction technique here reappears there, and why the KL term functions as a trust region."
+      },
+      {
+        "ref": "reinforcement-learning/mdp-bellman",
+        "text": "Note what the policy gradient theorem does NOT need: a model. The Bellman machinery requires P(s'|s,a); this derivation makes the dynamics terms differentiate to zero, which is why policy gradients were the natural route to model-free continuous control."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is the policy gradient theorem?",
+        "a": "grad J = E[grad log pi(a|s) * Q(s,a)]. The gradient of expected return is an expectation of the score function weighted by how good the outcome was."
+      },
+      {
+        "q": "What is the log-derivative trick?",
+        "a": "grad p = p * grad log p. It converts the gradient of an expectation into an expectation of a gradient, which you can then estimate from samples."
+      },
+      {
+        "q": "Why do you not need a model of the environment?",
+        "a": "The log trajectory probability is a sum of transition terms and policy terms, and the transition terms do not depend on theta, so they differentiate to zero."
+      },
+      {
+        "q": "What is REINFORCE?",
+        "a": "The Monte Carlo policy gradient: weight each action's score function by the sampled return that followed it. Unbiased and very high variance."
+      },
+      {
+        "q": "Why is reward-to-go better than the full return?",
+        "a": "An action cannot influence rewards that already happened, so those terms contribute zero in expectation and only add variance. Dropping them is unbiased and free."
+      },
+      {
+        "q": "Why can you subtract a baseline?",
+        "a": "Because the expected score function is zero - the gradient of the probabilities summing to one. So E[grad log pi * b(s)] = 0 for any b that does not depend on the action."
+      },
+      {
+        "q": "What happens if the baseline depends on the action?",
+        "a": "The gradient becomes biased. b(s,a) does not factor out of the sum over actions, so the cancellation that made baselines free no longer applies."
+      },
+      {
+        "q": "What is the advantage?",
+        "a": "A(s,a) = Q(s,a) - V(s): how much better an action was than the policy's average from that state. Using V as the baseline turns the weight into the advantage."
+      },
+      {
+        "q": "Why normalize advantages?",
+        "a": "It decouples the learning rate from the reward scale. Without it, changing the reward magnitude silently rescales every gradient and hyperparameters stop transferring."
+      },
+      {
+        "q": "Why are policy gradients on-policy?",
+        "a": "The expectation is over trajectories from the current policy. After one update the data is stale and the estimator is invalid without an importance-sampling correction."
+      },
+      {
+        "q": "What is the difference between score-function and reparameterization estimators?",
+        "a": "The score function needs only log-probabilities, works for discrete and non-differentiable objectives, and is high-variance. Reparameterization differentiates through the sample using the objective's own gradient, and is far lower variance."
+      },
+      {
+        "q": "Why add an entropy bonus?",
+        "a": "Policy gradients can collapse to a near-deterministic policy early, ending exploration. An entropy term keeps the distribution spread out and is cheap insurance."
+      }
+    ],
+    "standard": [
+      {
+        "q": "How would you parameterize a policy for a continuous action space, and what goes wrong?",
+        "a": "THE STANDARD CHOICE. A diagonal Gaussian: the network outputs a mean vector mu(s) and a log standard deviation, and the action is sampled from N(mu, sigma^2). Log-probability is analytic, entropy is analytic, and sampling is trivial. Diagonal rather than full covariance because the full version needs a Cholesky factor and the extra expressiveness rarely pays. THE FOUR THINGS THAT GO WRONG, in the order I have seen them bite. (1) UNBOUNDED SIGMA. If log-sigma is a free parameter it can run to negative infinity, giving a deterministic policy with exploding log-probabilities and a numerically broken loss, or to positive infinity, giving pure noise. CLAMP log-sigma to something like [-20, 2]. This is a one-line fix and its absence is a genuinely common bug. (2) STATE-INDEPENDENT VERSUS STATE-DEPENDENT SIGMA. A single global log-sigma parameter is the usual default and it is often better than a state-dependent head, because a state-dependent sigma lets the policy become confident in familiar states early and stop exploring there. If you do make it state-dependent, expect to work harder on entropy regularization. (3) ACTION BOUNDS. Real actuators have limits, and a Gaussian has infinite support. Naively CLIPPING the sampled action to the valid range is the common approach and it is subtly wrong: the log-probability you compute is for the unclipped action, so the gradient is inconsistent with what was actually executed, and probability mass piles up at the boundary invisibly. The principled fix is a squashing function - apply tanh and correct the log-probability by the log-determinant of the transformation's Jacobian, which is what SAC does. If you clip instead, at least know that you are introducing a bias. (4) ACTION SCALE. If different action dimensions have different physical ranges, a single sigma means the policy explores absurdly in one dimension and negligibly in another. Normalize the action space to roughly [-1,1] per dimension and let the environment wrapper rescale. THE ALTERNATIVES WORTH KNOWING. A BETA distribution has bounded support by construction, so it removes the clipping problem entirely and is a reasonable choice for bounded actions. DISCRETIZING each dimension into bins turns the problem back into a categorical policy, which is surprisingly competitive and removes all the above issues at the cost of resolution and of an action space that grows exponentially in dimensions if you need joint bins. And a DETERMINISTIC policy with added exploration noise is what DDPG and TD3 use, which changes the estimator from score-function to reparameterized. WHAT I WOULD CHECK FIRST when a continuous-control run misbehaves: log-sigma over training, the fraction of sampled actions hitting the bounds, and per-dimension action statistics. Those three catch most of the above, and none of them are logged by default."
+      },
+      {
+        "q": "Derive the policy gradient theorem and explain why it is remarkable.",
+        "a": "THE OBJECTIVE. J(theta) = E over trajectories drawn from pi_theta of the return R(tau). We want its gradient. THE APPARENT OBSTACLE. The expectation is over a distribution that DEPENDS on theta, so we cannot simply move the gradient inside. And the trajectory distribution involves the environment's transition kernel, which we have no model of and cannot differentiate. It looks like we would need to differentiate through the dynamics. THE DERIVATION, three steps. (1) Write J = integral over tau of p_theta(tau) R(tau). Differentiate: grad J = integral of grad p_theta(tau) * R(tau). (2) Apply the identity grad p = p * grad log p, which is just the chain rule on the logarithm. This gives grad J = integral of p_theta(tau) * grad log p_theta(tau) * R(tau) - which is once again an EXPECTATION under p_theta, so it can be estimated by sampling trajectories. (3) Expand log p_theta(tau). The trajectory probability factorizes as p(s_0) times the product over t of P(s_{t+1}|s_t,a_t) * pi_theta(a_t|s_t). The log turns that product into a sum, and every environment term - the initial-state distribution and every transition probability - is INDEPENDENT OF THETA and differentiates to zero. What survives is the sum of grad log pi_theta(a_t|s_t). RESULT: grad J = E[ sum_t grad log pi_theta(a_t|s_t) * R(tau) ]. WHY IT IS REMARKABLE, and this is what I would emphasize. The policy determines the data distribution - which states you visit depends on how you act. So naively, changing theta changes both what actions you take AND where you end up, and you would expect the gradient to have a term for the shifting state distribution. The derivation shows that term contributes nothing: you may differentiate as though the trajectory distribution were fixed, correcting only the log-probabilities of the actions actually taken. That is what makes model-free policy optimization possible at all. THE INTERPRETATION. grad log pi(a|s) points in the parameter direction that makes action a more likely. Multiplying by the return means good outcomes push the parameters toward the actions that produced them and bad outcomes push away - trial and error, made into a gradient. THE PRICE. Variance. The weight on every action in an episode is a noisy sampled return, so a lucky episode raises the probability of every action it contained including the bad ones. The estimator is unbiased and the number of episodes needed to average out the noise is impractical, which is why the rest of the subject is variance reduction: reward-to-go (unbiased), baselines (unbiased), advantage normalization and GAE (slightly biased, worth it).",
+        "deepDive": {
+          "q": "The strict theorem has a gamma^t discounting factor on the state distribution that essentially nobody implements. What is going on?",
+          "a": "THE DISCREPANCY. Derived carefully for the discounted objective, the policy gradient is an expectation under the DISCOUNTED state distribution, which means each timestep's contribution should be weighted by gamma^t: grad J = E[ sum_t gamma^t * grad log pi(a_t|s_t) * A(s_t,a_t) ]. Standard implementations discount the RETURNS but do not apply gamma^t to the gradient terms - every timestep gets weight one. So essentially every practical implementation computes a biased estimate of the discounted objective. Thomas pointed this out explicitly, and the practice has not changed. WHY IT IS DONE ANYWAY. (1) THE gamma^t FACTOR DESTROYS LATE-EPISODE LEARNING. With gamma = 0.99 and a thousand-step episode, the final steps get weight about 4e-5. Those transitions contribute essentially nothing to the gradient, so the agent barely learns about the later portion of episodes - which is often where the interesting behaviour is. Effective sample size collapses. (2) THE DISCOUNTED OBJECTIVE IS USUALLY NOT WHAT YOU WANT. gamma is normally introduced as a variance-reduction and horizon-limiting device for the SOLVER, while the quantity you actually care about is the undiscounted episode return. If the true objective is undiscounted, then weighting all timesteps equally is arguably closer to the right thing, and the gamma in the returns is doing bias-variance work rather than defining the objective. (3) IT WORKS. This is not a satisfying justification, but the undiscounted-weighting version is what produced essentially all the results in the field, and the discrepancy does not appear to be a practical limitation. HOW TO THINK ABOUT IT PRECISELY. The unweighted estimator is a consistent gradient estimator for the AVERAGE-REWARD or undiscounted objective under certain conditions, and a biased one for the discounted objective. So the honest description is not 'everyone implements it wrong' but 'everyone optimizes a different objective than the one in the derivation, and it is usually the objective they wanted'. Which is a defensible position that is nonetheless worth stating out loud, because the derivation in most textbooks is for the discounted case. WHY THIS IS WORTH KNOWING FOR AN INTERVIEW. It is a good example of a gap between theory and practice where the practice is defensible and the reasoning is instructive. It also generalizes: several standard implementation choices in RL are biased with respect to the stated objective and are kept because the bias buys effective sample size - GAE with lambda below one, advantage normalization, and value-function bootstrapping at truncation boundaries are all in the same category. Being able to name which parts of your estimator are exact and which are pragmatic is a much more useful skill than being able to recite the theorem, because it tells you which approximations to suspect when something behaves unexpectedly."
+        }
+      },
+      {
+        "q": "Why is REINFORCE so high-variance, and what would you do about it?",
+        "a": "THE SOURCES OF VARIANCE, and it helps to enumerate them because different fixes attack different ones. (1) THE RETURN ITSELF IS A NOISY RANDOM VARIABLE. It accumulates the stochasticity of the policy, the environment transitions, and the reward, over the whole episode. Its variance typically grows with horizon length - roughly linearly for independent per-step noise, worse when the noise compounds. (2) CREDIT IS ASSIGNED INDISCRIMINATELY. In the raw estimator, every action in an episode is weighted by the SAME total return. A single lucky outcome raises the probability of every action taken, including the bad ones, and relies on averaging over many episodes to sort them out. (3) THE ALL-POSITIVE-RETURNS PROBLEM. If your rewards are all positive - a very common design - then every update raises the probability of every sampled action, and learning depends entirely on the RELATIVE magnitudes surviving the noise. That is a terrible signal-to-noise ratio, and it is a design flaw rather than an inherent difficulty. (4) THE SCORE-FUNCTION ESTIMATOR IS INTRINSICALLY WEAK. It uses only the VALUE of the objective at sampled points, not its gradient, so it extracts far less information per sample than a reparameterized estimator would. THE FIXES, in order of value per unit of effort. (1) REWARD-TO-GO. Weight each action by the return from that point forward, not the whole episode. Exactly unbiased, since actions cannot influence past rewards and those terms have zero expectation. Free, and it addresses source (2) directly. (2) A VALUE BASELINE. Subtract V(s) so the weight becomes the advantage. Unbiased for any function of state, because the expected score function is zero. This is the single largest win, and it converts 'raise everything, some more than others' into 'raise better-than-average actions, lower worse-than-average ones' - addressing source (3) completely. (3) ADVANTAGE NORMALIZATION. Standardize the advantages within a batch. Not strictly unbiased, but it decouples the learning rate from the reward scale, and without it hyperparameters silently fail to transfer between environments. Universally done. (4) A LEARNED CRITIC INSTEAD OF SAMPLED RETURNS - which is actor-critic. This trades variance for BIAS, and it is the big lever: a one-step TD estimate has far lower variance than a full return and is biased by the critic's error. GAE then gives you a lambda knob to sit anywhere on that trade. (5) MORE PARALLEL ENVIRONMENTS. Unglamorous and extremely effective - the estimator's variance falls with batch size, and modern implementations run dozens to thousands of environments precisely for this reason. (6) REPARAMETERIZATION WHERE POSSIBLE. If actions are continuous and you have a differentiable critic, you can differentiate through the sampled action using the critic's gradient rather than using the score function. That is SAC's approach and it is dramatically lower variance, because it uses the gradient of the objective rather than only its value. WHAT I WOULD DO IN PRACTICE. Never run bare REINFORCE. Reward-to-go plus a value baseline plus normalization plus many parallel environments is the minimum viable configuration, and at that point you have essentially written A2C - which is the honest way to describe the relationship between the two."
+      },
+      {
+        "q": "When would you choose a policy-gradient method over a value-based one?",
+        "a": "FOUR CONDITIONS, and the first is usually decisive. (1) CONTINUOUS OR VERY LARGE ACTION SPACES. Value-based methods require argmax over actions, which is undefined over a continuum and impractical over a huge discrete set. A policy network simply outputs distribution parameters - a mean and standard deviation for a Gaussian, say - and sampling is trivial. This is why continuous control is dominated by policy-gradient and actor-critic methods, and why the value-based methods that do work there (DDPG, TD3, SAC) all bolt on an actor network specifically to produce the argmax. (2) THE OPTIMAL POLICY IS STOCHASTIC. Under full observability a finite MDP always has a deterministic optimal policy, so this seems not to matter - but it stops being true under PARTIAL OBSERVABILITY, where two states that look identical may require different actions and the best you can do is randomize; in ADVERSARIAL settings, where being predictable is exploitable and the equilibrium is mixed; and whenever you want to preserve behavioural diversity. Policy gradients represent stochastic policies natively; a greedy value method cannot. (3) YOU NEED SMOOTH POLICY CHANGES. This one is under-appreciated. An epsilon-greedy policy over a value function changes DISCONTINUOUSLY: a tiny change to two nearly-equal action values flips the argmax and the behaviour jumps. Policy gradients change the policy smoothly with the parameters, which makes the learning dynamics much better behaved and makes trust-region methods possible - you can bound how much the policy changed, which you cannot meaningfully do for a greedy policy. (4) THE OBJECTIVE IS NON-DIFFERENTIABLE OR A BLACK BOX. Optimizing a language model against a reward model, a verifier, or a human preference - there is no value function over token sequences you would want to argmax over, and the score-function estimator is the only tool available. WHEN I WOULD NOT. Sample efficiency. On-policy policy gradients must DISCARD data after each update, because the estimator is only valid for the current policy. Value-based methods reuse a replay buffer many times over. If interaction is expensive - a real robot, a live system - that difference typically dominates everything above, and the right answer is an off-policy actor-critic like SAC, which is genuinely a hybrid: a policy network for the continuous action space, a replay buffer and Q-functions for the sample efficiency. THE HONEST SUMMARY I WOULD GIVE. The families are not competitors so much as endpoints, and the methods people actually deploy sit in between. The structural questions - can I argmax, do I need stochasticity, can I afford to throw data away - decide it, and they do not depend on benchmark noise, which is why I would reason from them rather than from published rankings.",
+        "deepDive": {
+          "q": "Explain the score-function versus reparameterization distinction and why it matters beyond RL.",
+          "a": "THE PROBLEM BOTH SOLVE. You want the gradient with respect to theta of an expectation E_{x ~ p_theta}[f(x)], where the DISTRIBUTION depends on theta. You cannot move the gradient inside naively. SCORE-FUNCTION ESTIMATOR (REINFORCE, likelihood ratio). Use grad p = p grad log p to get E[f(x) * grad log p_theta(x)]. Requirements: you must be able to sample from p_theta and evaluate grad log p_theta. You do NOT need f to be differentiable, or even continuous, or known analytically - it can be a black-box simulator, a human rating, or a discrete metric. Weakness: it uses only the VALUE of f at sampled points. The gradient information about theta comes entirely from the score function; f is just a scalar weight. So each sample carries little information about which direction to move, and variance is high - and it grows with the dimension of x and with the magnitude of f. REPARAMETERIZATION ESTIMATOR. Express the sample as a deterministic function of theta and a parameter-free noise variable: x = g_theta(epsilon) with epsilon from a fixed distribution. Then E_{p_theta}[f(x)] = E_epsilon[f(g_theta(epsilon))], and since the expectation is now over something independent of theta, you can move the gradient inside directly: E_epsilon[grad_x f * grad_theta g]. Requirements: f must be differentiable in x, and the distribution must admit such a reparameterization - Gaussians do (mu + sigma*epsilon), and discrete distributions do not without relaxation. Strength: it uses grad f, the actual gradient of the objective, so each sample tells you which DIRECTION to move rather than only how good the current point was. Variance is typically far lower, often by orders of magnitude. WHERE EACH APPEARS. Score function: REINFORCE and all policy gradients over discrete actions; RLHF and RL with verifiable rewards, where the reward is a black box over token sequences; variational inference with discrete latents; any optimization through a simulator you cannot differentiate. Reparameterization: VAEs - this trick is precisely what made them trainable, and the paper is largely about this identity; SAC, which reparameterizes the continuous action and backpropagates through a differentiable CRITIC, getting low-variance policy gradients; normalizing flows; most continuous latent-variable models. THE HYBRIDS, which are where the interesting engineering lives. Gumbel-Softmax relaxes a discrete distribution into a continuous one so it can be reparameterized, trading exactness for variance. Control variates - baselines - reduce score-function variance and are exactly what a value baseline does in RL; RELAX and REBAR build learned control variates for discrete variables. And note that SAC's approach is the general recipe: if the objective is a black box, LEARN a differentiable surrogate for it (the critic), then reparameterize through the surrogate. That converts a score-function problem into a reparameterization problem at the cost of the surrogate's bias. THE POINT I WOULD MAKE. Recognizing which estimator a method uses predicts its variance behaviour before you run anything, and it explains apparently unrelated design decisions across RL, generative modelling, and variational inference as instances of one choice. That is the kind of unification worth carrying between fields."
+        }
+      },
+      {
+        "q": "Your policy-gradient agent learns then collapses to a deterministic policy and stops improving. Diagnose it.",
+        "a": "This is entropy collapse, and it is one of the characteristic failure modes of the family. THE MECHANISM. Policy gradients increase the log-probability of actions that led to good outcomes. Nothing in the objective rewards keeping the distribution spread out. So the policy can concentrate quickly - and once it is nearly deterministic, two things happen. It stops exploring, so it never discovers anything better. And the gradient itself dies: grad log pi for the near-certain action is near zero, since log pi is near zero and flat, so even if a better action existed the update signal to move toward it is vanishing. It is self-locking. WHAT I WOULD CHECK, in order. (1) LOG THE POLICY ENTROPY. This should be a standard metric in any policy-gradient run and it is the direct diagnostic. If entropy falls monotonically and hits near zero around when improvement stalls, that is the answer. If entropy is healthy and returns are flat, the problem is elsewhere. (2) IS THERE AN ENTROPY BONUS, and is its coefficient sensible? The standard fix is adding beta times entropy to the objective. Too small and it does nothing; too large and the policy stays diffuse and never commits. It usually wants tuning per environment, and a schedule that decays it over training is often better than a constant. (3) LEARNING RATE TOO HIGH. Large updates overshoot, concentrating probability mass on whatever happened to look good in one noisy batch, and the resulting deterministic policy then cannot recover. Entropy collapse and too-large steps are frequently the same problem, which is exactly what trust-region methods address. (4) ADVANTAGE NORMALIZATION MISSING. If advantages have a large scale, the effective step size is huge regardless of the nominal learning rate. (5) FOR GAUSSIAN POLICIES SPECIFICALLY: is the standard deviation learned or state-dependent, and is it bounded? An unbounded learned log-sigma can run to negative infinity, giving a deterministic policy and, worse, exploding log-probabilities. Clamping log-sigma to a sensible range is standard and its absence is a common bug. (6) IS IT ACTUALLY A LOCAL OPTIMUM? Policy gradients converge to local optima, and if the collapse is to a genuinely locally-optimal behaviour then entropy was a symptom rather than a cause. Diagnostic: initialize a fresh policy from the collapsed one but with higher entropy and see whether it finds anything better. THE STRUCTURAL FIXES beyond a bonus term. Maximum-entropy RL - SAC's formulation - puts entropy INTO the objective rather than adding it as a penalty, so the optimal policy is stochastic by definition and the temperature can be auto-tuned to hit an entropy target. That is a cleaner solution than a hand-tuned coefficient and it is one of the main reasons SAC is robust. A KL constraint against a previous policy also bounds how fast the distribution can concentrate, which is a different route to the same protection. WHAT I WOULD ADD TO THE LOGGING PERMANENTLY. Policy entropy, the KL divergence between consecutive policies, and the advantage statistics. Those three make most policy-gradient pathologies visible immediately, and none of them are on by default in most implementations."
+      },
+      {
+        "q": "How does RLHF relate to what is in this lesson?",
+        "a": "It is a policy gradient over token sequences, and recognizing that makes the whole stack legible rather than exotic. THE MAPPING. The POLICY is the language model: pi(a|s) is the probability of the next token given the context. An ACTION is a token, a STATE is the sequence so far, an EPISODE is generating one response, and the REWARD is a scalar from a reward model, delivered at the end of the sequence. So it is an MDP with an enormous discrete action space, a deterministic transition function (appending a token), and a terminal reward. WHY THE SCORE-FUNCTION ESTIMATOR IS FORCED. The reward is a black box with respect to the tokens - a separate network scoring a discrete sequence - so there is no differentiable path from the reward back to the policy parameters. You cannot reparameterize through a discrete token sampling step. That leaves REINFORCE-style estimation as the only option, which is exactly why every variance-reduction technique in this lesson reappears in RLHF: a value head as the baseline, advantage normalization, and GAE across token positions. WHAT MAPS ONTO WHAT, concretely. The value head in a PPO-based RLHF implementation is the baseline from this lesson, predicting the expected reward from a partial sequence. Whitening the rewards per batch is advantage normalization, and it is doubly necessary here because a reward model's scale is arbitrary - recall that a Bradley-Terry reward is identified only up to a per-prompt shift. PPO's clipped ratio is the trust region, bounding how far the policy can move on one batch of data, which matters because the data is on-policy and goes stale. THE ONE STRUCTURAL DIFFERENCE WORTH NAMING: the KL PENALTY against the reference model. In classical RL there is no privileged prior policy to stay near. In RLHF there is - the pretrained model - and the KL term is doing two jobs: it is a trust region in the sense of this lesson, and it is a constraint keeping the policy near a distribution the reward model was fitted on, which is what bounds reward-model overoptimization. That dual role is why it is the most important hyperparameter in the stack. AND GRPO IS A DIRECT DESCENDANT of the baseline discussion here. It drops the value network and computes the baseline as the MEAN REWARD OVER A GROUP of samples for the same prompt. That is legitimate for exactly the reason given in this lesson: a baseline may be any function of the state alone, and the group mean for a prompt is such a function, so the estimator stays unbiased while variance falls. It also removes the per-prompt reward shift by construction. WHAT I WOULD SAY THIS BUYS YOU. Someone who knows this lesson can read an RLHF implementation and identify every component's purpose, predict which hyperparameters are dangerous, and diagnose failures - a collapsing entropy, a policy drifting off the reward model's distribution, an advantage scale problem - using the same vocabulary. The apparent novelty of the RLHF stack is mostly this lesson's machinery applied to a very large action space with a learned reward."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "Policy gradient theorem",
+      "back": "grad J = E[ grad log pi_theta(a_t|s_t) * G_t ]. Derived via grad p = p*grad log p. The trajectory log-prob is a SUM of transition terms (theta-independent -> vanish) and policy terms - which is why NO MODEL is needed."
+    },
+    {
+      "type": "intuition",
+      "front": "What makes the theorem remarkable",
+      "back": "The policy determines the DATA DISTRIBUTION, so you would expect a term for how the state distribution shifts. It contributes NOTHING. You may differentiate as though the trajectory distribution were fixed, correcting only the log-probs of actions actually taken."
+    },
+    {
+      "type": "formula",
+      "front": "Why baselines are free",
+      "back": "E[grad log pi] = sum_a grad pi(a|s) = grad(sum_a pi) = grad 1 = 0. So subtracting ANY b(s) is unbiased. b(s,a) is NOT - it does not factor out of the sum over actions. That is the line hand-rolled 'improvements' cross."
+    },
+    {
+      "type": "intuition",
+      "front": "Why a baseline is a repair, not an optimization",
+      "back": "With all-positive returns (a common reward design) every update RAISES the probability of every sampled action, and learning depends on relative magnitudes surviving the noise. Subtracting V(s) turns that into 'raise better-than-average, lower worse-than-average'."
+    },
+    {
+      "type": "definition",
+      "front": "Reward-to-go",
+      "back": "Weight each action by the return FROM THAT POINT FORWARD, not the whole episode. Exactly unbiased - actions cannot influence past rewards, so those terms have zero expectation and contribute only variance."
+    },
+    {
+      "type": "intuition",
+      "front": "Score function vs reparameterization",
+      "back": "SCORE FN uses only the VALUE of f at sampled points -> works for black-box/discrete objectives, high variance. REPARAM (x = mu + sigma*eps) uses grad_x f -> tells you which DIRECTION to move, far lower variance, needs a differentiable path. Same choice as VAE vs REINFORCE."
+    },
+    {
+      "type": "pitfall",
+      "front": "Policy gradients are ON-POLICY",
+      "back": "The estimator is valid only for trajectories from the CURRENT policy. One gradient step makes the batch stale. Reusing it without importance correction gives a wrong gradient - which is exactly what PPO's clipped ratio bounds."
+    },
+    {
+      "type": "pitfall",
+      "front": "Normalize advantages",
+      "back": "Gradient magnitude is proportional to the return, so the effective learning rate scales with the REWARD SCALE. Without normalization hyperparameters silently fail to transfer between environments, and the symptom names no cause."
+    },
+    {
+      "type": "pitfall",
+      "front": "Entropy collapse is self-locking",
+      "back": "Once the policy is near-deterministic, exploration stops AND the gradient dies (grad log pi is near zero and flat for a near-certain action), so it cannot recover. Log policy entropy always. Fixes: entropy bonus, lower LR, clamp log-sigma, or max-entropy RL (SAC)."
+    },
+    {
+      "type": "intuition",
+      "front": "The gamma^t factor nobody implements",
+      "back": "The strict discounted theorem weights step t by gamma^t; implementations use weight 1. With gamma=0.99 over 1000 steps the last steps would get ~4e-5 - effective sample size collapses. The honest framing: everyone optimizes the UNDISCOUNTED objective, which is usually the one they wanted."
+    },
+    {
+      "type": "intuition",
+      "front": "RLHF is this lesson over tokens",
+      "back": "Policy = LM, action = token, episode = one response, terminal reward = reward model. The reward is a BLACK BOX over discrete tokens, so the score-function estimator is FORCED. Value head = baseline; reward whitening = advantage normalization; PPO clip = trust region."
+    },
+    {
+      "type": "intuition",
+      "front": "GRPO's baseline is this lesson's theorem",
+      "back": "It replaces the value network with the MEAN REWARD OVER A GROUP of samples for the same prompt. Legitimate because a baseline may be any function of the STATE alone - and the group mean for a prompt is exactly that, so the estimator stays unbiased."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Williams (1992), Simple Statistical Gradient-Following Algorithms for Connectionist RL (REINFORCE)",
+      "url": "https://link.springer.com/article/10.1007/BF00992696"
+    },
+    {
+      "title": "Sutton et al. (2000), Policy Gradient Methods for RL with Function Approximation",
+      "url": "https://papers.nips.cc/paper/1999/hash/464d828b85b0bed98e80ade0a5c43b0f-Abstract.html"
+    },
+    {
+      "title": "Kakade (2001), A Natural Policy Gradient",
+      "url": "https://papers.nips.cc/paper/2001/hash/4b86abe48d358ecf194c56c69108433e-Abstract.html"
+    },
+    {
+      "title": "Greensmith, Bartlett & Baxter (2004), Variance Reduction Techniques for Gradient Estimates in Reinforcement Learning",
+      "url": "https://www.jmlr.org/papers/v5/greensmith04a.html"
+    },
+    {
+      "title": "Thomas (2014), Bias in Natural Actor-Critic Algorithms",
+      "url": "https://proceedings.mlr.press/v32/thomas14.html"
+    }
+  ],
+  "updatedAt": "2026-08-06"
 }

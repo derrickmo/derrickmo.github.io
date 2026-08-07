@@ -1064,7 +1064,7 @@ window.CURRICULUM = {
           "n": "14-01",
           "slug": "mdp-bellman",
           "title": "MDPs, Bellman Equations & Value/Policy Iteration",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-01_mdps_bellman_value_policy_iteration.ipynb"
         },
         {
@@ -1078,35 +1078,35 @@ window.CURRICULUM = {
           "n": "14-03",
           "slug": "q-learning",
           "title": "Q-Learning & SARSA",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-03_q_learning_sarsa.ipynb"
         },
         {
           "n": "14-04",
           "slug": "bandits",
           "title": "Exploration, Bandits & UCB",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-04_exploration_bandits_ucb.ipynb"
         },
         {
           "n": "14-05",
           "slug": "dqn",
           "title": "Deep Q-Networks (DQN)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-05_deep_q_networks_dqn.ipynb"
         },
         {
           "n": "14-06",
           "slug": "policy-gradient",
           "title": "Policy Gradient & REINFORCE",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-06_policy_gradient_reinforce.ipynb"
         },
         {
           "n": "14-07",
           "slug": "actor-critic",
           "title": "Actor-Critic, A2C & PPO",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-07_actor_critic_a2c.ipynb"
         },
         {
@@ -1120,14 +1120,14 @@ window.CURRICULUM = {
           "n": "14-09",
           "slug": "offline-rl",
           "title": "Offline RL — CQL & IQL",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-09_offline_rl_cql_iql.ipynb"
         },
         {
           "n": "14-10",
           "slug": "imitation-learning",
           "title": "Imitation Learning & Inverse RL",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "14-10_imitation_learning_inverse_rl.ipynb"
         }
       ]

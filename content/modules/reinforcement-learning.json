@@ -99,18 +99,13 @@
     "intro": "Learning from reward, built up in order: balance exploration, solve known MDPs with Bellman backups, learn values from experience, then optimize policies directly and with deep function approximators.",
     "order": [
       "bandit",
-      "mdp-bellman",
-      "q-learning",
       "sarsa",
       "td-lambda",
       "double-q-learning",
-      "policy-gradient",
-      "actor-critic",
       "gae",
       "ppo",
-      "dqn",
       "dyna-q"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-07"
 }

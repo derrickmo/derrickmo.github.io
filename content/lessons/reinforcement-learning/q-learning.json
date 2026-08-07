@@ -5,13 +5,277 @@
   "slug": "q-learning",
   "module": "reinforcement-learning",
   "title": "Q-Learning & SARSA",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "14-03_q_learning_sarsa.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["sarsa-vs-qlearning", "gridworld-rl", "td-lambda", "double-q-learning"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["reinforcement-learning/mc-td", "reinforcement-learning/mdp-bellman"],
+  "leadsTo": ["reinforcement-learning/dqn", "reinforcement-learning/bandits"],
+  "body": {
+    "intuition": [
+      "Take the Bellman optimality equation, replace the expectation you cannot compute with a single sampled transition, and nudge your estimate toward it. That is Q-learning. Its sibling SARSA differs in exactly one symbol: where Q-learning uses the max over next actions, SARSA uses the value of the action it ACTUALLY TOOK. One symbol, and it changes what the algorithm is learning - Q-learning learns the value of the greedy policy no matter how it behaves, while SARSA learns the value of the policy it is actually following, exploration included.",
+      "That distinction is abstract until you see cliff walking, which is why it is the canonical example. A gridworld with a cliff along the bottom edge: the shortest path runs right beside it, and stepping off is catastrophic. Q-learning learns the optimal path - along the edge - because the max in its target assumes it will act greedily from the next state onward. But it is BEHAVING epsilon-greedily, so it occasionally steps off and falls, and its online return is worse. SARSA's target includes the exploratory action, so the value of edge-adjacent states carries the cost of sometimes randomly stepping into the cliff; it learns the longer, safer path and earns more reward while learning. Neither is wrong. Q-learning answers 'what is the best policy', SARSA answers 'what is the best policy given that I will keep exploring'. Anneal epsilon to zero and both converge to the same optimal policy.",
+      "This is the module's theme in its cleanest instance: SARSA is the algorithm that ACCOUNTS FOR ITS OWN BEHAVIOUR. The agent generates its own data, and SARSA's target treats that fact as part of the problem rather than as noise. There is a second consequence of the max that runs through the rest of the module. The max of noisy estimates is biased upward - by Jensen's inequality, the expectation of a maximum exceeds the maximum of expectations - so Q-learning systematically OVERESTIMATES action values whenever its estimates are noisy, which is always. That bias is small and correctable in a table; it becomes a defining problem once function approximation amplifies it in DQN, and it becomes the central problem in offline RL, where the overestimated actions can never be tried and corrected."
+    ],
+    "math": [
+      {
+        "h": "The one-symbol difference",
+        "paras": [
+          "Both are temporal-difference control: form a target from one sampled transition, take the difference from the current estimate, and step toward it. The only difference is which next-action value enters the target.",
+          "Q-learning's max makes it OFF-POLICY - the target does not depend on what the behaviour policy will do next, so it can learn about the greedy policy from data generated any way at all. SARSA's a' is the action actually taken, which ties the target to the behaviour policy and makes it on-policy."
+        ],
+        "tex": "\\text{Q-learning:}\\quad Q(s,a) \\mathrel{+}= \\alpha\\Big[r + \\gamma \\max_{a'} Q(s',a') - Q(s,a)\\Big] \\\\[6pt] \\text{SARSA:}\\qquad\\; Q(s,a) \\mathrel{+}= \\alpha\\Big[r + \\gamma\\, Q(s',a') - Q(s,a)\\Big], \\;\\; a' \\sim \\pi(\\cdot\\mid s')",
+        "texNote": "The bracketed quantity is the TD error. Note what off-policy buys and costs: Q-learning can reuse old data, learn from demonstrations, and learn the optimal policy while behaving safely - which is why every replay-based deep method descends from it. What it costs is the off-policy leg of the deadly triad, so once function approximation enters, this is the update that can diverge."
+      },
+      {
+        "h": "Expected SARSA, and why Q-learning is a special case of it",
+        "paras": [
+          "SARSA's target uses a sampled next action, which adds variance for no benefit when you know the policy. Replace the sample with its expectation under the policy and the variance from that choice disappears entirely.",
+          "The unification is the useful part: make the target policy greedy and the expectation collapses to a max, recovering Q-learning exactly. So these are one algorithm parameterized by the target policy."
+        ],
+        "tex": "Q(s,a) \\mathrel{+}= \\alpha\\Big[r + \\gamma \\sum_{a'} \\pi(a'\\mid s')\\,Q(s',a') - Q(s,a)\\Big] \\\\[4pt] \\pi = \\text{greedy} \\;\\Rightarrow\\; \\sum_{a'}\\pi(a'|s')Q(s',a') = \\max_{a'}Q(s',a')",
+        "texNote": "Expected SARSA generally dominates SARSA: same bias, strictly lower variance, and it tolerates larger learning rates as a result. The cost is one sum over actions per update, which is negligible for small action sets and impossible for continuous ones - which is precisely where actor-critic methods take over."
+      },
+      {
+        "h": "Maximization bias",
+        "paras": [
+          "The max in Q-learning's target is applied to ESTIMATES, not true values. Jensen's inequality then guarantees a systematic upward bias, because the max is a convex function of its arguments.",
+          "The bias is largest when estimates are noisy and when there are many actions, since the max of many noisy variables drifts further above the true best. This is not an artefact of a bad implementation - it is a property of the estimator."
+        ],
+        "tex": "\\mathbb{E}\\Big[\\max_{a} \\hat{Q}(s,a)\\Big] \\;\\ge\\; \\max_{a} \\mathbb{E}\\big[\\hat{Q}(s,a)\\big] \\;=\\; \\max_a Q(s,a)",
+        "texNote": "The fix is DECOUPLING: use one estimator to SELECT the maximizing action and a second, independent one to EVALUATE it. Double Q-learning maintains two tables and updates one at a time using the other for evaluation, which removes the bias without needing more data. The same idea reappears as Double DQN and again as the twin critics of continuous-control methods, so it is worth learning here where it is provable rather than there where it is a trick."
+      }
+    ],
+    "code": [
+      {
+        "h": "Both algorithms, and the cliff-walking result that separates them",
+        "paras": [
+          "The implementations differ in one line. What separates them is not correctness but what question they answer, and cliff walking makes that visible in a single plot."
+        ],
+        "code": "def step(Q, s, a, r, s2, a2, done, alpha, gamma, off_policy):\n    if done:\n        target = r                              # NO bootstrap at a terminal state\n    elif off_policy:\n        target = r + gamma * Q[s2].max()        # Q-LEARNING: assumes greedy next\n    else:\n        target = r + gamma * Q[s2, a2]          # SARSA: the action ACTUALLY taken\n    Q[s, a] += alpha * (target - Q[s, a])\n\n# CLIFF WALKING (Sutton & Barto's example). A gridworld whose shortest path\n# runs along a cliff edge; stepping off is catastrophic and resets the episode.\n#\n#   Q-LEARNING  -> learns the OPTIMAL path, right along the edge, because the\n#                  max assumes it will act greedily from s' onward. But it is\n#                  BEHAVING eps-greedily, so it occasionally steps off.\n#                  Lower online return during learning.\n#   SARSA       -> its target contains the exploratory action, so states beside\n#                  the cliff inherit the cost of sometimes falling. Learns the\n#                  longer SAFE path. Higher online return during learning.\n#\n# NEITHER IS WRONG. They answer different questions:\n#   Q-learning: \"what is the best policy?\"\n#   SARSA:      \"what is the best policy GIVEN that I will keep exploring?\"\n# Anneal eps -> 0 and both converge to the same optimal policy.\n#\n# THIS IS THE MODULE'S THEME IN ONE EXAMPLE: SARSA is the algorithm that\n# accounts for its own behaviour. The agent generates its own data, and SARSA\n# treats that as part of the problem rather than as noise to be ignored.",
+        "caption": "One line apart, and they learn different paths. The distinction is not which is correct but which question you are asking - and if you evaluate greedily rather than online, the entire visible difference disappears, which is why the evaluation protocol matters as much as the algorithm."
+      },
+      {
+        "h": "Maximization bias, and decoupling as the fix",
+        "paras": [
+          "A demonstration you can run in twenty lines, and the reason Double Q-learning exists. The bias is not subtle once you construct a case that isolates it."
+        ],
+        "code": "# THE CLASSIC CONSTRUCTION. State A: go RIGHT for terminal reward 0, or LEFT\n# to state B. From B there are many actions, each with reward ~ N(-0.1, 1).\n# So LEFT is WORSE in expectation (-0.1 < 0) - going right is optimal.\n#\n# What Q-learning does early on: max over many noisy N(-0.1, 1) estimates is\n# positive with high probability, so Q(A, LEFT) looks GOOD and the agent\n# strongly prefers LEFT for a long time. It is not a bug and more data does\n# not immediately fix it - the estimator itself is biased upward.\n\n# DOUBLE Q-LEARNING: decouple SELECTION from EVALUATION.\nif np.random.rand() < 0.5:\n    a_star = Q1[s2].argmax()                    # Q1 SELECTS\n    Q1[s, a] += alpha * (r + gamma * Q2[s2, a_star] - Q1[s, a])   # Q2 EVALUATES\nelse:\n    a_star = Q2[s2].argmax()\n    Q2[s, a] += alpha * (r + gamma * Q1[s2, a_star] - Q2[s, a])\n\n# WHY IT WORKS: the noise that made an action look best in Q1 is INDEPENDENT\n# of the noise in Q2, so Q2's estimate of that action is unbiased. You are no\n# longer taking a max and reading its value off the same noisy numbers.\n#\n# The bias grows with the NUMBER OF ACTIONS and with estimate noise - which is\n# why it becomes severe in DQN (function approximation is a noise source that\n# never goes away) and catastrophic in offline RL (the overestimated action can\n# never be tried and corrected, so nothing pushes it back down).",
+        "caption": "The estimator is biased, not the implementation. Decoupling selection from evaluation removes it, and this same trick reappears as Double DQN and as the twin critics of continuous-control methods - worth learning here where it is provable."
+      }
+    ],
+    "useCases": [
+      "Any small-to-moderate discrete control problem where a table fits: routing and scheduling, game agents on modest state spaces, inventory policies, elevator and traffic-light control. Tabular Q-learning is genuinely deployable and has convergence guarantees that nothing later in this module retains.",
+      "SARSA specifically where the cost of exploration is real and borne during learning - a physical robot, a live system, anything where falling off the cliff has consequences. Learning the value of the policy you are actually running is the safer default when online performance matters.",
+      "As the learning core inside a larger system: Q-learning's off-policy property means it can learn from logged data, from demonstrations, and from a replay buffer, which is the property every deep value-based method inherits.",
+      "As a diagnostic baseline. If tabular Q-learning on a discretized version of your problem cannot solve it, the difficulty is in the problem formulation - the reward, the state, the horizon - and a deep method will not rescue it."
+    ],
+    "pitfalls": [
+      "Comparing Q-learning and SARSA at fixed epsilon and concluding one is better. They optimize different objectives under exploration; anneal epsilon to zero and both reach the same optimal policy. The comparison is only meaningful once you say whether you care about online return or final greedy performance.",
+      "Evaluating with the exploration policy still on. Q-learning's learned policy is the greedy one - evaluating it epsilon-greedily measures something you never intend to deploy, and it is exactly what makes Q-learning look worse than SARSA on cliff walking. Report both, and say which you mean.",
+      "Bootstrapping at terminal states. The target at a terminal transition is the reward alone, with no gamma*Q(s') term. Getting this wrong produces a value function that looks plausible and is systematically wrong near the goal - the most common bug in a first implementation.",
+      "Treating maximization bias as an implementation error. E[max] >= max E is a property of the estimator, guaranteed by Jensen. It grows with the number of actions and with estimate noise, and the fix is decoupling selection from evaluation rather than tuning.",
+      "Using a constant learning rate and expecting convergence. The Robbins-Monro conditions require the step sizes to sum to infinity but their squares to converge. A constant alpha never settles - it keeps tracking, which is exactly what you want in a non-stationary problem and not what you want when claiming convergence.",
+      "Sampling the next action for SARSA when you know the policy. Expected SARSA uses the expectation instead, giving identical bias with strictly lower variance for one sum over actions - it dominates plain SARSA whenever the action set is small enough to enumerate.",
+      "Assuming the tabular convergence guarantees carry over. They require every state-action pair to be visited infinitely often and a table. Replace the table with a network and you have entered the deadly triad; nothing on this page still holds."
+    ],
+    "connections": [
+      {
+        "ref": "reinforcement-learning/mc-td",
+        "text": "This lesson is TD applied to CONTROL rather than prediction. The bias-variance trade established there - Monte Carlo unbiased and noisy, one-step TD biased and stable - is the same axis n-step returns and TD(lambda) interpolate along here."
+      },
+      {
+        "ref": "reinforcement-learning/dqn",
+        "text": "Q-learning with a neural network in place of the table. Everything that needs to be added there - replay, target networks, Double DQN - is a repair for a guarantee that this lesson still has and that lesson gives up."
+      },
+      {
+        "ref": "reinforcement-learning/offline-rl",
+        "text": "Where maximization bias becomes the central problem rather than a correctable one: the overestimated action can never be tried, so no data ever arrives to push its value back down. The loop that fixes the bias online is exactly what offline learning removes."
+      },
+      {
+        "ref": "reinforcement-learning/bandits",
+        "text": "The epsilon-greedy behaviour policy used here is the crudest exploration strategy, and that lesson is about what better ones buy. Cliff walking is really a statement about the interaction between exploration and the value being learned."
+      },
+      {
+        "ref": "reinforcement-learning/mdp-bellman",
+        "text": "Q-learning is that lesson's optimality equation with the expectation replaced by a sample. Keeping the max while sampling is what makes it off-policy - so the algorithm's defining property and its central weakness come from the same symbol."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is the Q-learning update?",
+        "a": "Q(s,a) += alpha * [r + gamma * max_a' Q(s',a') - Q(s,a)]. A sampled Bellman optimality backup with a step size."
+      },
+      {
+        "q": "How does SARSA differ?",
+        "a": "It uses Q(s', a') for the action actually taken rather than the max. One symbol, and it makes the algorithm on-policy."
+      },
+      {
+        "q": "What does on-policy versus off-policy mean here?",
+        "a": "SARSA learns the value of the policy it is following, exploration included. Q-learning learns the value of the greedy policy regardless of how it behaves."
+      },
+      {
+        "q": "What happens in cliff walking?",
+        "a": "Q-learning learns the optimal path along the cliff edge but falls off while exploring, so its online return is worse. SARSA learns the longer safe path and earns more during learning."
+      },
+      {
+        "q": "Do they converge to the same policy?",
+        "a": "Yes, if epsilon is annealed to zero. The difference is entirely about behaviour under persistent exploration."
+      },
+      {
+        "q": "What is Expected SARSA?",
+        "a": "Replace the sampled next action with its expectation under the policy. Same bias, strictly lower variance, at the cost of one sum over actions."
+      },
+      {
+        "q": "How is Q-learning a special case of Expected SARSA?",
+        "a": "Make the target policy greedy and the expectation over actions collapses to a max. They are one algorithm parameterized by the target policy."
+      },
+      {
+        "q": "What is maximization bias?",
+        "a": "E[max of estimates] >= max of true values, by Jensen. Taking a max over noisy estimates systematically overestimates, and the bias grows with the number of actions."
+      },
+      {
+        "q": "How does Double Q-learning fix it?",
+        "a": "Decouple selection from evaluation: one table picks the maximizing action, the other supplies its value. The noise that made an action look best is independent of the noise evaluating it."
+      },
+      {
+        "q": "What are the tabular convergence conditions?",
+        "a": "Robbins-Monro step sizes - sum of alpha infinite, sum of alpha squared finite - plus every state-action pair visited infinitely often."
+      },
+      {
+        "q": "Why might you use a constant learning rate anyway?",
+        "a": "Because it never stops tracking, which is what you want in a non-stationary environment. You give up the convergence claim in exchange for adaptivity."
+      },
+      {
+        "q": "Why can't you bootstrap at a terminal state?",
+        "a": "The terminal state has value zero by definition, so the target is the reward alone. Including gamma*Q(s') there makes values near the goal systematically wrong."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain the difference between Q-learning and SARSA and why it matters.",
+        "a": "THE MECHANICAL DIFFERENCE is one symbol. Both are temporal-difference control: sample a transition, build a target, step toward it. Q-learning's target is r + gamma*max_a' Q(s',a'). SARSA's is r + gamma*Q(s',a') where a' is the action ACTUALLY TAKEN by the behaviour policy. WHAT THAT CHANGES CONCEPTUALLY. Q-learning's max assumes the agent will act greedily from the next state onward, so it converges to the value of the OPTIMAL policy no matter how the data was generated - that is what off-policy means, and it is why Q-learning can learn from a replay buffer, from demonstrations, or from any exploratory behaviour. SARSA's target contains the action its own policy chose, so it converges to the value of THE POLICY IT IS ACTUALLY FOLLOWING, exploration and all. THE EXAMPLE THAT MAKES IT CONCRETE - cliff walking. A gridworld with a cliff along the bottom; the shortest path runs right beside it and stepping off is catastrophic. Q-learning learns to walk the edge, because the greedy path is optimal. But it is behaving epsilon-greedily, so it periodically steps off, and its return DURING LEARNING is worse. SARSA's targets carry the expected cost of exploratory actions, so states next to the cliff get low values and it learns a longer, safer path with better online return. Neither is wrong - Q-learning answers 'what is the best policy', SARSA answers 'what is the best policy given that I will keep exploring'. Anneal epsilon to zero and they agree. WHY IT MATTERS PRACTICALLY. If exploration has real cost - a physical robot, a live recommender, anything where mistakes are expensive while learning - SARSA's objective is the one you want, because it prices your own exploration. If you will train in simulation and deploy greedily, Q-learning's objective is correct and its off-policy property is worth a great deal, since it lets you reuse data. THE EVALUATION POINT I would make, because it is where people go wrong: the entire visible difference depends on how you evaluate. Evaluate greedily and both look the same; evaluate online with exploration on and SARSA wins. So the comparison is meaningless until you state which you are measuring, and 'Q-learning was worse' usually means 'we evaluated with epsilon still on'. THE CONNECTION TO THE REST. Q-learning's max is also the source of maximization bias - the max of noisy estimates is biased upward by Jensen - which is a minor correctable issue in a table, a defining problem in DQN, and the central problem in offline RL. So the one symbol that gives Q-learning its most useful property also gives it its most persistent failure mode.",
+        "deepDive": {
+          "q": "Derive maximization bias and explain why it becomes progressively worse in DQN and then in offline RL.",
+          "a": "THE DERIVATION. Suppose Q-hat(s,a) is an unbiased estimate of Q(s,a) for every a, with independent noise. We want the value of the best action, max_a Q(s,a), and we estimate it by max_a Q-hat(s,a). The max is a CONVEX function of its arguments, so Jensen's inequality gives E[max_a Q-hat(s,a)] >= max_a E[Q-hat(s,a)] = max_a Q(s,a). The estimator is biased UPWARD, and strictly so whenever there is noise and more than one action near the maximum. INTUITION FOR WHY. The max selects whichever estimate is largest, and an estimate is largest partly because its true value is high and partly because its noise happened to be positive. You are selecting FOR positive noise, then reading off the selected value as if it were unbiased. It is a winner's curse. THE SIZE OF THE BIAS grows with two things: the noise scale, and the NUMBER OF ACTIONS - with k actions the expected maximum of k independent zero-mean noises grows roughly like the standard deviation times sqrt(2 log k), so more actions means more bias, not merely more variance. THE CANONICAL EXAMPLE. State A: go right for reward 0 and terminate, or go left to state B, from which many actions each give reward ~ N(-0.1, 1). Left is worse in expectation. But early on the max over many noisy estimates from B is positive with high probability, so Q(A, left) looks good and the agent prefers left persistently. WHY IT WORSENS IN DQN. In a table, each Q(s,a) has its own entry and the noise comes only from sampling, which shrinks as visits accumulate - so the bias decays. With function approximation, the estimates are coupled through shared parameters and there is a persistent approximation error that does NOT vanish with more data: the network cannot represent the true Q exactly, so every state has residual error, and the max keeps selecting the positive residuals. Worse, that error is now correlated across states, so the overestimation propagates through bootstrapping rather than averaging out. This is exactly why Double DQN - use the online network to select and the target network to evaluate - produced a measurable improvement: it is the tabular fix transplanted, using two networks that already existed. WHY IT IS CATASTROPHIC IN OFFLINE RL. Online, there is a self-correcting loop: if Q(s,a) is overestimated, the greedy policy tries a, observes the real reward, and the estimate comes down. That loop is the mechanism by which optimism is repaired, and it is why optimism is a FEATURE online - it drives exploration. Remove the environment and the loop is gone. The max in the target ranges over ALL actions including those never present in the dataset, where the network's output is pure extrapolation and unconstrained by any data. Those out-of-distribution actions get overestimated, the max selects them precisely because they are overestimated, the error propagates through bootstrapping to earlier states, and nothing ever arrives to contradict it. The estimates can diverge. THE UNIFYING READING, which is the module's theme: the same optimism is a feature when the agent can act on it and a pathology when it cannot. Every offline method is a way of preventing the max from ranging over actions the data cannot support - CQL by pushing down out-of-distribution values explicitly, IQL by never querying an out-of-dataset action at all. Understanding that these are all responses to Jensen's inequality plus a missing feedback loop is more useful than remembering three algorithms."
+        }
+      },
+      {
+        "q": "When would you choose SARSA over Q-learning in a real system?",
+        "a": "The decision turns on whether exploration costs are borne for real, and on whether you can reuse data. CHOOSE SARSA WHEN EXPLORATION IS EXPENSIVE AND ONLINE. A physical robot that can damage itself, a live recommendation or pricing system where every exploratory action is a real user's experience, a control system with safety consequences. SARSA's value function prices its own exploration, so it learns policies with MARGIN - it stays away from states where a random action would be catastrophic. That is not conservatism bolted on, it is what its objective actually is, and it is the right objective when the exploration is not free. Cliff walking is a toy version of exactly this situation. CHOOSE Q-LEARNING WHEN YOU WILL DEPLOY GREEDILY. If training happens in simulation and the deployed policy has no exploration, then SARSA is optimizing for a behaviour you will never exhibit, and Q-learning's target matches your deployment. Most simulation-trained agents are in this case. THE OTHER AXIS, WHICH USUALLY DOMINATES IN PRACTICE: DATA REUSE. Q-learning is off-policy, so it can learn from a replay buffer, from logged historical data, from human demonstrations, from an older policy's trajectories. SARSA is on-policy, so its data is stale the moment the policy changes and must largely be discarded. In any setting where interaction is the scarce resource - which is most real settings - that sample-efficiency difference is larger than the safety difference and usually decides it. This is why essentially every deep value-based method descends from Q-learning rather than SARSA. WHAT I WOULD ACTUALLY DO in a safety-sensitive online system. I would not simply pick SARSA. I would use Q-learning for its data efficiency and handle safety EXPLICITLY - action masking or a safety layer that filters catastrophic actions before they are taken, plus a conservative exploration schedule. That is more reliable than hoping the value function has learned to avoid the cliff, because it does not depend on the value function being correct. SARSA's implicit safety is a real property, but it is a soft one that emerges from learning, and if what you need is 'never step off the cliff', an explicit constraint beats a learned tendency. THE MIDDLE OPTION worth naming. Expected SARSA gives you SARSA's on-policy semantics with strictly lower variance, and it generalizes: with a greedy target policy it is Q-learning, with the behaviour policy it is SARSA, and you can pick any target policy in between - for instance, a slightly-less-exploratory version of your behaviour policy. That gives a continuous dial between the two objectives rather than a binary choice, and it is under-used."
+      },
+      {
+        "q": "What conditions guarantee Q-learning converges, and which ones do real systems violate?",
+        "a": "THE GUARANTEE. Tabular Q-learning converges to Q* with probability one given three conditions. (1) EVERY STATE-ACTION PAIR IS VISITED INFINITELY OFTEN. Without this there are entries you never update and cannot know. (2) ROBBINS-MONRO STEP SIZES: the sum of alpha_t diverges, so you can still travel arbitrarily far from your initialization, while the sum of alpha_t squared converges, so the noise averages out and the iterate settles. A schedule like 1/t satisfies both; a constant alpha satisfies only the first. (3) BOUNDED REWARDS and a discount below one, which is what makes the underlying operator a contraction. The proof is a stochastic-approximation argument: Q-learning is a noisy fixed-point iteration on a contraction mapping, and the step-size conditions are exactly what let the noise be averaged away without stalling. WHICH ONES REAL SYSTEMS VIOLATE - all three, routinely. (1) INFINITE VISITATION IS IMPOSSIBLE in any large or continuous space; you visit a vanishing fraction of the state-action space. This is the exploration problem, and it is why the guarantee is asymptotic in a way that has little to say about finite-time behaviour. (2) CONSTANT LEARNING RATES ARE STANDARD, deliberately. A decaying alpha stops learning, and in a non-stationary environment - which includes any multi-agent setting, any system with drifting dynamics, and notably any deep RL setup where the representation is itself changing - you WANT to keep tracking. So practitioners knowingly trade the convergence claim for adaptivity, and the honest statement is that the algorithm tracks rather than converges. (3) THE TABLE IS REPLACED BY A NETWORK, which voids the argument entirely. This is the big one. The proof requires updating one entry without affecting others; a function approximator couples every entry, and the composition of the Bellman operator with a projection onto the function class need not be a contraction in any norm. That is the deadly triad, and Baird's counterexample shows genuine divergence with no bug present. WHAT THIS MEANS PRACTICALLY, which is my actual answer. The tabular guarantee is not a promise about your deep RL system; it is a statement about the idealized algorithm, and its value is DIAGNOSTIC. When a deep agent misbehaves, ask which condition is being violated hardest. Poor coverage of the state space points at exploration. Instability that appears with off-policy data and disappears on-policy points at the triad. A value function that grows without bound points at the max plus bootstrapping. Each of those has a different fix - better exploration, more on-policy data or importance correction, target networks and Double DQN respectively. THE HABIT I WOULD RECOMMEND. Keep a small tabular version of the problem where the conditions DO hold. If your method fails there, it is broken in a way that has nothing to do with approximation, and you have saved yourself a long investigation of the wrong layer.",
+        "deepDive": {
+          "q": "Explain the deadly triad concretely and why on-policy TD with linear approximation is safe while off-policy is not.",
+          "a": "THE THREE INGREDIENTS. (1) FUNCTION APPROXIMATION - values are represented by a parametric function rather than a table, so updating one state changes others. (2) BOOTSTRAPPING - the target contains your own current estimate, as in TD and Q-learning, rather than an actual observed return as in Monte Carlo. (3) OFF-POLICY TRAINING - the distribution of states you update on differs from the distribution the target policy would induce. Any TWO of these together are safe. All three can diverge, and the divergence is genuine rather than a numerical artefact. WHY, IN TERMS OF NORMS - this is the crux. The Bellman operator T is a contraction in the SUP-norm. With function approximation you cannot represent TV, so each update effectively applies T then PROJECTS back onto the representable set: the operator is Pi-T. The projection Pi is an orthogonal projection with respect to a weighted L2 norm, where the weights are the STATE DISTRIBUTION YOU SAMPLE FROM. A projection is a non-expansion in its OWN norm. So you are composing a contraction in the sup-norm with a non-expansion in a weighted L2 norm - two different norms - and the composition has no guarantee at all. It can expand, and the parameters can grow without bound. WHY ON-POLICY IS SAFE. If you sample states from the stationary distribution induced by the policy you are evaluating, then a special relationship holds: T is a contraction in THAT weighted L2 norm too, not just in the sup-norm. The key fact is that the policy's own transition matrix does not increase the norm weighted by its own stationary distribution - intuitively, transitioning according to the policy leaves the distribution unchanged, so it cannot amplify a norm defined by that distribution. Now both operators contract in the SAME norm, the composition contracts, and on-policy linear TD converges - this is the classic Tsitsiklis and Van Roy result. WHY OFF-POLICY BREAKS IT. Update on a distribution mu that is not the target policy's stationary distribution, and that relationship fails: the transition operator CAN expand the mu-weighted norm, because mu is not its fixed point. Concretely, you repeatedly update states that the target policy rarely visits, using bootstrap targets from states it visits often, and there is no mechanism forcing consistency. Baird's counterexample is a seven-state MDP with linear features where exactly this happens and the weights diverge geometrically. WHAT THIS PREDICTS about the fixes, which is why the theory earns its keep. Target networks attack the BOOTSTRAPPING leg: freezing the target for many steps makes each phase look like supervised regression toward a fixed function, which is stable, and only the periodic refresh reintroduces the coupling. Experience replay makes the data MORE off-policy - it is a sample-efficiency device that worsens this leg, which is why it needs the target network alongside it. Importance-sampling corrections attack the off-policy leg directly, at the cost of enormous variance over long horizons. Gradient-TD methods change the objective to one whose true gradient is being followed, so the norm mismatch never arises. And on-policy methods like A2C and PPO sidestep the whole thing by keeping the data distribution matched to the policy - which is a large part of why they are more stable than value-based methods, and why they are less sample-efficient, since matched data cannot be reused."
+        }
+      },
+      {
+        "q": "Explain n-step returns and TD(lambda) as a bridge between this lesson and Monte Carlo.",
+        "a": "THE AXIS. One-step TD bootstraps immediately: target = r + gamma*Q(s'). Monte Carlo waits for the episode to end and uses the actual return with no bootstrap at all. Those are the endpoints of a spectrum, and n-step returns are the interior: take n real rewards, then bootstrap on the value estimate n steps out. THE BIAS-VARIANCE TRADE, which is the whole content. One-step TD has LOW VARIANCE - only one reward and one transition enter the target - and HIGH BIAS, because it leans entirely on a current estimate that is wrong early in training. Monte Carlo is UNBIASED, since the observed return is a genuine sample of the return, and has HIGH VARIANCE, because it accumulates the randomness of an entire trajectory. n interpolates: more real reward means less bias and more variance. There is typically an interior optimum, and it is usually well above one - n in the range of three to twenty is often much better than either extreme, which is a practical finding people under-use. THE SECOND EFFECT, credit assignment speed. With one-step TD, information about a reward propagates backward one state per update, so a reward at the end of a long corridor takes many sweeps to reach the start. With n-step it moves n states per update. In sparse-reward problems this is often the dominant consideration, ahead of the bias-variance argument. TD(LAMBDA). Rather than picking one n, take a geometrically weighted average of ALL n-step returns with decay lambda - the lambda-return. lambda = 0 recovers one-step TD, lambda = 1 recovers Monte Carlo, and intermediate values blend smoothly. The reason to prefer this to a single n is partly that the average has lower variance than any individual term, and partly the implementation: ELIGIBILITY TRACES let you compute it online, incrementally, without waiting for the episode to end. Each state keeps a trace of how recently and how often it was visited, decayed by gamma*lambda, and every TD error updates all states in proportion to their traces. That is the backward view, and it is equivalent to the forward view of averaging n-step returns. WHERE THIS SHOWS UP IN MODERN WORK. Generalized advantage estimation is exactly TD(lambda) applied to ADVANTAGES rather than values, with the same lambda knob doing the same bias-variance job, and it is a standard component of PPO. So this is not historical material - it is the machinery inside the policy-gradient methods later in the module, which is a good reason to understand it here where it is simple. THE OFF-POLICY COMPLICATION worth flagging. n-step returns with off-policy data require importance-sampling corrections whose variance grows with n, because you are correcting for a product of n policy ratios. This is why n-step methods sit more naturally in on-policy algorithms, and why off-policy multi-step methods - Retrace, Tree Backup, V-trace - exist as a distinct family whose whole purpose is bounding that variance."
+      },
+      {
+        "q": "Your tabular Q-learning agent's values keep growing without bound. What is happening?",
+        "a": "In a genuinely tabular setting with a discount below one, unbounded growth is not supposed to happen, so this is a bug or a broken assumption rather than a tuning problem. I would work through it in this order. CHECK 1: IS THERE ACTUALLY A DISCOUNT? If gamma = 1 in a CONTINUING task with any positive reward on a cycle, the true value IS infinite and the algorithm is correct. This is the most common cause. gamma = 1 is only legitimate in episodic tasks that provably terminate. Related: a time-limit truncation being recorded as a normal transition means episodes never really end from the learner's point of view. CHECK 2: TERMINAL BOOTSTRAPPING. If the target at a terminal transition is r + gamma*max Q(s_terminal) instead of just r, and the terminal entry is being updated by other paths, you have created a loop that feeds value back into itself. This produces exactly the symptom and it is the classic first-implementation bug. Print the terminal state's Q values - they must be zero and must never be a bootstrap source. CHECK 3: LEARNING RATE ABOVE ONE, or an update written as Q += alpha*target rather than Q += alpha*(target - Q). The second form is a moving average and is stable for alpha in (0,1]; the first is an accumulation and diverges. This is a transcription error people make and then debug at the wrong level. CHECK 4: A REWARD LOOP - a self-transition or short cycle with positive net reward. Then the value really is large and the algorithm has correctly found it. This is specification gaming, and the diagnostic is to look at which state the growth concentrates in and inspect its transitions. CHECK 5: IS IT ACTUALLY TABULAR? If states are being hashed, discretized, or featurized in any way that makes two distinct situations share an entry, you have function approximation with aliasing, and the guarantees are gone. This includes the sneaky case where a dictionary keyed on a mutable object is collapsing states you believed were distinct. CHECK 6: NUMERICAL - rewards on a very large scale plus a long horizon can overflow, and NaN propagation makes everything look like divergence. Print the reward magnitudes. HOW I WOULD LOCALIZE IT FAST. Log the maximum Q value and WHICH state-action pair attains it, every few hundred steps. Divergence is nearly always concentrated: one entry runs away and drags its predecessors along. Looking at that entry's transitions and rewards usually names the cause immediately, and it is far more informative than watching an aggregate curve. THE THING I WOULD SAY ABOUT PRIORS. In tabular RL with a proper discount, divergence means an assumption is broken - most often that the task terminates, or that terminal states are handled correctly. In DEEP RL the same symptom has a much wider differential, because the deadly triad permits genuine divergence with no bug at all. Knowing which regime you are in determines whether you are looking for a mistake or for an instability, and that is worth establishing before spending an afternoon."
+      },
+      {
+        "q": "How does the exploration policy interact with what Q-learning learns?",
+        "a": "More than people expect, and in two distinct ways that are worth separating. WAY ONE: COVERAGE, which affects whether learning is possible at all. Q-learning's convergence requires every state-action pair to be visited infinitely often. Epsilon-greedy explores by taking uniformly random actions with probability epsilon, which is a random walk over the state space - and a random walk reaches a state at the end of a long corridor with probability exponentially small in its length. So in sparse-reward or deep problems, epsilon-greedy does not merely explore slowly, it effectively never reaches the reward, and the agent has nothing to learn from. No amount of training fixes this because the data does not contain the signal. This is why the exploration lesson matters and why methods like optimistic initialization, count-based bonuses, and posterior sampling exist. WAY TWO: WHAT THE VALUES MEAN, which is subtler and is the cliff-walking story. Q-learning's TARGET is off-policy, so in the limit its values are the optimal ones regardless of behaviour. But the DISTRIBUTION of updates is set by the behaviour policy, so which states are accurate at any finite time depends entirely on where you have been. An epsilon-greedy behaviour policy concentrates updates near the current greedy path, so values far from it stay poor - and if the greedy path is a local optimum, exploration is what determines whether you ever discover otherwise. THE INTERACTION THAT SURPRISES PEOPLE: epsilon affects the LEARNED POLICY of SARSA and not of Q-learning, but it affects the DATA of both. So Q-learning's asymptotic answer is exploration-independent while its finite-time behaviour is exploration-dominated, and since every real run is finite, in practice exploration dominates both. A PRACTICAL CONSEQUENCE. When people report that Q-learning 'converged to a suboptimal policy', it is almost always an exploration failure rather than a learning failure - the algorithm converged correctly on the data it saw, and the data did not contain the better option. The diagnostic separating these is the one I keep coming back to: give the agent data from a good policy - a demonstration, or an exploratory policy you know covers the space - and see whether it then learns the good policy. If yes, the learner is fine and exploration is the problem. If no, the learner or the representation is the problem. WHAT I WOULD USE instead of epsilon-greedy where it matters. Optimistic initialization is nearly free and remarkably effective in tabular settings - initialize Q high and the agent is drawn to unvisited pairs automatically, because unvisited means still-optimistic. Count-based bonuses generalize it. Boltzmann exploration scales exploration with value uncertainty rather than uniformly. And a decaying epsilon schedule is the minimum, since a constant epsilon means you never stop paying the exploration cost and never converge to the greedy policy's performance."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "Q-learning vs SARSA: the one-symbol difference",
+      "back": "Q-learning target: r + gamma*MAX_a' Q(s',a') - assumes greedy continuation, OFF-policy. SARSA target: r + gamma*Q(s',a') for the action ACTUALLY TAKEN - ON-policy, learns the value of the policy it is running."
+    },
+    {
+      "type": "intuition",
+      "front": "Cliff walking",
+      "back": "Q-learning learns the OPTIMAL edge path but falls off while exploring (worse ONLINE return). SARSA prices its own exploration and learns the longer SAFE path (better online). Anneal eps->0 and both reach optimal. The difference vanishes if you evaluate greedily."
+    },
+    {
+      "type": "formula",
+      "front": "Maximization bias",
+      "back": "E[max_a Qhat(s,a)] >= max_a Q(s,a) by Jensen - the max is convex. You select FOR positive noise then read the selected value as unbiased: a winner's curse. Grows with noise AND with the NUMBER of actions (~sigma*sqrt(2 log k))."
+    },
+    {
+      "type": "definition",
+      "front": "Double Q-learning",
+      "back": "Decouple SELECTION from EVALUATION: Q1 picks argmax, Q2 supplies its value (and vice versa, chosen at random each step). The noise that made an action look best is independent of the noise evaluating it. Reappears as Double DQN and as twin critics."
+    },
+    {
+      "type": "intuition",
+      "front": "Expected SARSA unifies the two",
+      "back": "Target = r + gamma*sum_a' pi(a'|s')Q(s',a'). Same bias as SARSA, strictly LOWER variance (tolerates bigger alpha). Make pi greedy and the sum collapses to a max = Q-learning. One algorithm parameterized by the TARGET policy."
+    },
+    {
+      "type": "pitfall",
+      "front": "Never bootstrap at a terminal state",
+      "back": "Target is the reward ALONE - no gamma*Q(s') term. Getting it wrong makes values near the goal systematically wrong, and it can cause unbounded growth if the terminal entry feeds back. The most common first-implementation bug."
+    },
+    {
+      "type": "definition",
+      "front": "Tabular Q-learning convergence conditions",
+      "back": "(1) every (s,a) visited infinitely often; (2) Robbins-Monro steps: sum alpha = inf, sum alpha^2 < inf; (3) bounded rewards, gamma < 1. Real systems violate ALL THREE - and knowingly, since constant alpha buys tracking in non-stationary problems."
+    },
+    {
+      "type": "intuition",
+      "front": "Why maximization bias worsens down the module",
+      "back": "TABULAR: noise is sampling noise and decays with visits. DQN: approximation error PERSISTS and is correlated across states, so it propagates through bootstrapping. OFFLINE: the overestimated action can never be TRIED, so no data ever pushes it back down."
+    },
+    {
+      "type": "pitfall",
+      "front": "Comparing Q-learning and SARSA at fixed epsilon",
+      "back": "They optimize different objectives UNDER EXPLORATION. Anneal eps->0 and both reach the same optimal policy. State whether you measure ONLINE return or FINAL GREEDY performance - 'Q-learning was worse' usually means 'we evaluated with epsilon on'."
+    },
+    {
+      "type": "intuition",
+      "front": "n-step returns and TD(lambda)",
+      "back": "One-step TD = low variance, high bias. MC = unbiased, high variance. n interpolates, and the optimum is usually WELL ABOVE 1 (n~3-20). Second effect: credit propagates n states per update instead of 1 - often dominant in sparse-reward tasks. GAE is TD(lambda) on ADVANTAGES."
+    },
+    {
+      "type": "intuition",
+      "front": "Exploration affects Q-learning's DATA, not its target",
+      "back": "Asymptotically the values are exploration-independent (off-policy target). But WHICH states are accurate at finite time is set entirely by where you went - and every real run is finite. 'Converged to a suboptimal policy' is almost always an exploration failure."
+    },
+    {
+      "type": "intuition",
+      "front": "The exploration-vs-learning diagnostic",
+      "back": "Give the agent data from a KNOWN-GOOD policy (a demonstration, or a covering exploratory policy). If it then learns well, exploration was the problem. If not, the learner or representation is. One experiment, resolves an argument people otherwise have repeatedly."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Watkins & Dayan (1992), Q-learning",
+      "url": "https://link.springer.com/article/10.1007/BF00992698"
+    },
+    {
+      "title": "Rummery & Niranjan (1994), On-line Q-Learning Using Connectionist Systems (SARSA)",
+      "url": "http://mi.eng.cam.ac.uk/reports/svr-ftp/auto-pdf/rummery_tr166.pdf"
+    },
+    {
+      "title": "van Hasselt (2010), Double Q-learning",
+      "url": "https://papers.nips.cc/paper/2010/hash/091d584fced301b442654dd8c23b3fc9-Abstract.html"
+    },
+    {
+      "title": "van Seijen et al. (2009), A Theoretical and Empirical Analysis of Expected Sarsa",
+      "url": "https://ieeexplore.ieee.org/document/4927542"
+    },
+    {
+      "title": "Jaakkola, Jordan & Singh (1994), On the Convergence of Stochastic Iterative Dynamic Programming Algorithms",
+      "url": "https://direct.mit.edu/neco/article/6/6/1185/5850"
+    }
+  ],
+  "updatedAt": "2026-08-06"
 }
