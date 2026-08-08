@@ -1304,49 +1304,49 @@ window.CURRICULUM = {
           "n": "17-01",
           "slug": "llm-architectures",
           "title": "LLM Architecture Patterns",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-01_llm_architecture_patterns.ipynb"
         },
         {
           "n": "17-02",
           "slug": "scaling-laws",
           "title": "Scaling Laws & Chinchilla",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-02_scaling_laws_chinchilla.ipynb"
         },
         {
           "n": "17-03",
           "slug": "moe",
           "title": "Mixture of Experts (MoE)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-03_mixture_of_experts.ipynb"
         },
         {
           "n": "17-04",
           "slug": "llm-data-pipelines",
           "title": "Training Data Pipelines",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-04_training_data_pipelines.ipynb"
         },
         {
           "n": "17-05",
           "slug": "distillation",
           "title": "Knowledge Distillation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-05_knowledge_distillation.ipynb"
         },
         {
           "n": "17-06",
           "slug": "quantization",
           "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-06_quantization_ptq_qat_gptq_awq.ipynb"
         },
         {
           "n": "17-07",
           "slug": "speculative-decoding",
           "title": "Efficient Inference & Speculative Decoding",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-07_efficient_inference_speculative_decoding.ipynb"
         },
         {
@@ -1360,14 +1360,14 @@ window.CURRICULUM = {
           "n": "17-09",
           "slug": "structured-output",
           "title": "Structured Output & Function Calling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-09_structured_output_function_calling.ipynb"
         },
         {
           "n": "17-10",
           "slug": "llm-eval",
           "title": "LLM Evaluation & Benchmarks",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "17-10_llm_evaluation_benchmarks.ipynb"
         }
       ]

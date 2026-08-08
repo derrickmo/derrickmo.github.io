@@ -93,14 +93,7 @@
   "subLessons": {
     "title": "LLM Systems and Efficiency",
     "intro": "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
-    "order": [
-      "quantization",
-      "pruning",
-      "distillation",
-      "speculative-decoding",
-      "paged-attention",
-      "moe"
-    ]
+    "order": ["pruning", "paged-attention"]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-08"
 }

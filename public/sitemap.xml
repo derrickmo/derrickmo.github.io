@@ -299,12 +299,17 @@
   <url><loc>https://derrickmo.github.io/learn/key-concepts/applications/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/distillation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/llm-architectures/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/llm-data-pipelines/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/llm-eval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/long-context/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/paged-attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/pruning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/quantization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/scaling-laws/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/speculative-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/llm-systems/structured-output/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/conformal/</loc><priority>0.6</priority></url>

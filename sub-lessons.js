@@ -1966,45 +1966,10 @@ window.SUB_LESSONS = {
     "title": "LLM Systems and Efficiency",
     "intro": "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
     "order": [
-      "quantization",
       "pruning",
-      "distillation",
-      "speculative-decoding",
-      "paged-attention",
-      "moe"
+      "paged-attention"
     ],
     "lessons": {
-      "quantization": {
-        "title": "Quantization",
-        "oneLine": "Store and compute weights in fewer bits with minimal accuracy loss.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A model in 16-bit floats is mostly empty precision. Quantization maps weights to low-bit integers (8-bit, even 4-bit), shrinking memory and speeding up math. The trick is choosing a scale per group of weights so the rounding error stays small, and handling outliers that would otherwise stretch the scale."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Symmetric quantization rounds to a grid set by a per-group scale s:"
-            ],
-            "tex": "q = \\mathrm{round}(w/s),\\qquad \\hat{w} = s\\cdot q",
-            "texNote": "Smaller groups and outlier handling keep the reconstruction error low."
-          },
-          {
-            "h": "In code",
-            "code": "import numpy as np\n\ndef quantize(w, bits=8):\n    s = np.abs(w).max() / (2**(bits-1) - 1)\n    q = np.round(w / s).clip(-(2**(bits-1)), 2**(bits-1)-1)\n    return q, s          # store q (int) + s (scale)",
-            "caption": "Round to a grid; dequantize by multiplying back."
-          }
-        ],
-        "takeaways": [
-          "Quantization trades precision for memory and speed.",
-          "Per-group scales keep rounding error small.",
-          "Outliers are the main accuracy challenge."
-        ],
-        "demo": "quantization"
-      },
       "pruning": {
         "title": "Pruning",
         "oneLine": "Remove the weights that barely matter to shrink the model.",
@@ -2036,68 +2001,6 @@ window.SUB_LESSONS = {
         ],
         "demo": "pruning"
       },
-      "distillation": {
-        "title": "Knowledge Distillation",
-        "oneLine": "Train a small student to mimic a big teacher's soft predictions.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A big model's full probability distribution carries more information than a hard label - the relative scores of the wrong classes encode 'dark knowledge'. Distillation trains a small student to match the teacher's softened outputs, transferring much of the teacher's skill into a fraction of the size."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Match softened teacher and student distributions at temperature T:"
-            ],
-            "tex": "\\mathcal{L} = (1-\\alpha)\\,\\mathrm{CE}(y,\\hat{y}) + \\alpha T^2\\,\\mathrm{KL}\\big(p_T^{\\text{tea}}\\,\\|\\,p_T^{\\text{stu}}\\big)",
-            "texNote": "High T exposes the dark knowledge in the teacher's non-top classes."
-          },
-          {
-            "h": "In code",
-            "code": "soft_t = softmax(teacher_logits / T)\nsoft_s = softmax(student_logits / T)\nloss = (1-a)*ce(y, student_logits) + a*T*T*kl(soft_t, soft_s)",
-            "caption": "Learn from the teacher's whole distribution, not just the label."
-          }
-        ],
-        "takeaways": [
-          "Distillation transfers a teacher's soft predictions to a student.",
-          "Dark knowledge lives in the non-top class probabilities.",
-          "Temperature controls how much of it is exposed."
-        ],
-        "demo": "distillation"
-      },
-      "speculative-decoding": {
-        "title": "Speculative Decoding",
-        "oneLine": "Draft several tokens with a small model, verify them with the big one.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Generation is slow because the big model runs once per token. Speculative decoding has a cheap draft model propose several tokens at once; the big model then checks them all in a single parallel pass and accepts the longest correct prefix. It is exactly as accurate as the big model, just faster."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "Accept a drafted token with a probability that preserves the target distribution:"
-            ],
-            "tex": "p_{\\text{accept}} = \\min\\!\\Big(1,\\ \\tfrac{p_{\\text{target}}(x)}{p_{\\text{draft}}(x)}\\Big)",
-            "texNote": "A correction step on rejection makes the output identical in distribution to the target."
-          },
-          {
-            "h": "In code",
-            "code": "draft = small.generate(ctx, k=4)           # propose k tokens\np = big.logprobs(ctx, draft)               # verify in one pass\naccept = longest_prefix_where(p_ratio >= u) # keep correct prefix",
-            "caption": "Propose cheaply, verify in parallel, keep the correct prefix."
-          }
-        ],
-        "takeaways": [
-          "Speculative decoding drafts cheap, verifies expensive.",
-          "Output is identical in distribution to the big model.",
-          "Speedup depends on how often drafts are accepted."
-        ],
-        "demo": "speculative-decoding"
-      },
       "paged-attention": {
         "title": "Paged Attention",
         "oneLine": "Manage the KV cache like virtual memory to kill fragmentation.",
@@ -2128,37 +2031,6 @@ window.SUB_LESSONS = {
           "It is the core idea behind high-throughput servers like vLLM."
         ],
         "demo": "paged-attention"
-      },
-      "moe": {
-        "title": "Mixture of Experts",
-        "oneLine": "Route each token to a few specialist sub-networks, not all of them.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A dense layer runs every parameter on every token. A mixture of experts has many expert sub-networks and a router that sends each token to just the top few. The model holds enormous total capacity, but each token only activates a slice of it - so quality scales with parameters while compute stays roughly fixed."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "A router picks the top-k experts per token and mixes their outputs by gate weight:"
-            ],
-            "tex": "y = \\sum_{e\\in\\text{top-}k} g_e(x)\\,E_e(x)",
-            "texNote": "A load-balancing loss keeps the router from collapsing onto a few experts."
-          },
-          {
-            "h": "In code",
-            "code": "gate = softmax(router @ x)           # scores over experts\ntopk = gate.argsort()[-k:]           # pick k experts\ny = sum(gate[e] * expert[e](x) for e in topk)",
-            "caption": "Only the top-k experts run per token."
-          }
-        ],
-        "takeaways": [
-          "MoE activates only a few experts per token.",
-          "Total capacity grows while per-token compute stays fixed.",
-          "Load balancing prevents router collapse."
-        ],
-        "demo": "moe"
       }
     }
   },

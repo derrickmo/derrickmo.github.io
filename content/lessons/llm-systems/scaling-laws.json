@@ -5,13 +5,274 @@
   "slug": "scaling-laws",
   "module": "llm-systems",
   "title": "Scaling Laws & Chinchilla",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "17-02_scaling_laws_chinchilla.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["scaling-laws", "batching", "lr-schedule", "moe"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["llm-systems/llm-architectures", "ml-theory/learning-theory"],
+  "leadsTo": ["llm-systems/llm-data-pipelines", "training-systems/optimized-pipeline"],
+  "body": {
+    "intuition": [
+      "Scaling laws are the training regime's central result: language-model loss falls as a smooth POWER LAW in parameters, in data, and in compute, and it does so predictably across many orders of magnitude. That predictability is the practically important part and it is under-appreciated. It means you can run a handful of small models, fit a curve, and forecast what a run a thousand times larger will achieve - which turns the decision to spend millions of dollars of compute into an extrapolation you can check rather than a bet.",
+      "The famous correction is a story about methodology. Kaplan et al. established the power laws and concluded that, given a compute budget, you should scale PARAMETERS much faster than data. The field followed that for two years, building very large models trained on comparatively few tokens. Then Chinchilla re-ran the analysis and found the opposite: parameters and data should scale roughly EQUALLY, at about twenty tokens per parameter. The reason for the discrepancy is instructive - Kaplan used a fixed learning-rate schedule across runs of different lengths, which systematically under-trains the shorter ones and therefore makes small models look worse than they are. Matching the schedule to the token count changed the conclusion. A 70B model trained on 1.4T tokens beat a 280B model trained on 300B tokens at the same compute: four times smaller, four times more data, better on essentially everything.",
+      "And then modern practice moved past Chinchilla in a way that lands exactly on this module's theme. Compute-optimal means optimal for TRAINING compute - it minimizes the cost of producing the model. But a model you intend to SERVE incurs inference cost forever, and inference cost scales with parameter count, not with how many tokens you trained on. So if the model will be deployed, you want a SMALLER model trained LONGER: pay more once, pay less on every request for the model's life. That is why the widely-used open models are trained far past twenty tokens per parameter, and why quoting Chinchilla-optimal as the right answer is a training-regime answer to what is usually a two-regime question."
+    ],
+    "math": [
+      {
+        "h": "The power laws, and the parametric form",
+        "paras": [
+          "Loss falls as a power law in each of parameters and data, with an irreducible term representing the entropy of the data itself. The parametric fit is what lets you extrapolate rather than merely observe.",
+          "The two exponents being close in magnitude is the finding: neither factor dominates, so neither should be scaled preferentially."
+        ],
+        "tex": "L(N, D) = \\underbrace{E}_{\\text{irreducible}} + \\frac{A}{N^{\\alpha}} + \\frac{B}{D^{\\beta}}, \\qquad \\alpha \\approx \\beta \\approx 0.34",
+        "texNote": "E is the entropy floor - no amount of scale drives loss below it, because natural language is genuinely stochastic. The near-equality of alpha and beta is the Chinchilla result in one line: since the two terms fall at the same rate, a compute budget should be split so that neither is the bottleneck, which means scaling them together."
+      },
+      {
+        "h": "The compute-optimal allocation",
+        "paras": [
+          "Compute is approximately six times parameters times tokens. Minimizing loss subject to that constraint, with the exponents roughly equal, gives both quantities scaling as the square root of compute.",
+          "The ratio that falls out is the memorable number, and it is what the field means by Chinchilla-optimal."
+        ],
+        "tex": "C \\approx 6ND, \\quad \\min_{N,D} L \\;\\text{s.t.}\\; C \\Rightarrow N^{*} \\propto C^{1/2}, \\; D^{*} \\propto C^{1/2}, \\quad \\frac{D^{*}}{N^{*}} \\approx 20",
+        "texNote": "Read the exponents: doubling your compute budget should mean about 1.4 times the parameters and 1.4 times the tokens, not 2 times the parameters. Kaplan's analysis gave roughly N proportional to C to the 0.73, which is why the field over-built models for two years - and the difference traces to a learning-rate schedule not matched to the token count."
+      },
+      {
+        "h": "Accounting for inference: the objective changes",
+        "paras": [
+          "Training cost is paid once; inference cost is paid on every request forever and scales with parameter count. Adding it to the objective shifts the optimum toward smaller models trained on more data.",
+          "How far it shifts depends on the expected serving volume, which makes the deployment plan an input to the architecture decision."
+        ],
+        "tex": "\\min_{N,D} \\Big[\\underbrace{6ND}_{\\text{train, once}} + \\underbrace{2N \\cdot D_{\\text{inf}}}_{\\text{serve, forever}}\\Big] \\;\\text{s.t.}\\; L(N,D) = L_{\\text{target}}",
+        "texNote": "The inference term has no D in it - training longer costs nothing at serving time. So as the expected inference volume grows, the optimum moves monotonically toward smaller N and larger D, and at high volume it goes far past twenty tokens per parameter. That is the formal statement of why the widely-deployed open models are deliberately over-trained relative to Chinchilla."
+      }
+    ],
+    "code": [
+      {
+        "h": "Fit a scaling law and extrapolate - the actual practical use",
+        "paras": [
+          "The underrated application is not choosing a ratio but FORECASTING. A handful of small runs predicts a large one, which lets you compare architectures and data mixtures before committing the budget."
+        ],
+        "code": "# Run a LADDER of small models - vary N over ~2 orders of magnitude, each\n# trained to a token count in the right proportion, each with its LR SCHEDULE\n# MATCHED to its token budget. That last point is what Kaplan got wrong and it\n# changes the conclusion, not just the constants.\nruns = [(n, d, final_loss) for n, d, final_loss in ladder]\n\ndef L(params, N, D):\n    E, A, B, alpha, beta = params\n    return E + A / N**alpha + B / D**beta\n\nfit = least_squares(lambda p: [L(p, n, d) - l for n, d, l in runs], x0)\n\n# NOW EXTRAPOLATE - the point of the exercise:\nprint(\"predicted loss at 70B / 1.4T:\", L(fit.x, 70e9, 1.4e12))\n\n# WHAT THIS IS FOR, and it is more useful than the ratio everyone quotes:\n#   * compare two DATA MIXTURES by fitting a curve to each - the better mixture\n#     shows a lower E or a better constant, visible at small scale\n#   * compare ARCHITECTURES before committing compute\n#   * decide whether a proposed run is worth doing AT ALL, by predicting\n#     whether it clears the target\n#   * detect that a large run is UNDERPERFORMING its own scaling curve, which\n#     is a bug signal you otherwise would not have\n\n# THE ISOFLOP METHOD, which is the most robust of Chinchilla's three:\n#   for each FIXED compute budget C, train several (N, D) pairs with 6ND = C\n#   and plot loss against N. Each budget gives a U-SHAPED curve whose minimum\n#   is the optimal N for that C. Fit those minima across budgets.\nfor C in budgets:\n    pairs = [(n, C / (6 * n)) for n in n_grid]        # 6ND = C\n    losses = [train(n, d) for n, d in pairs]\n    n_star = n_grid[argmin(losses)]                   # the U's minimum\n#   The U-shape is the whole argument made visible: too few parameters and the\n#   model cannot fit; too many and it is under-trained on the tokens the budget\n#   allows. The minimum sits near D/N ~ 20.",
+        "caption": "The forecasting use is worth more than the ratio. And note the methodological point in the first comment: matching the learning-rate schedule to each run's token count is what separated Chinchilla's conclusion from Kaplan's."
+      },
+      {
+        "h": "Compute-optimal versus inference-optimal",
+        "paras": [
+          "The calculation that decides real deployments, and the one that explains why the models you actually use are not Chinchilla-optimal."
+        ],
+        "code": "def total_cost(N, D, inference_tokens):\n    train = 6 * N * D                    # paid ONCE\n    serve = 2 * N * inference_tokens     # paid FOREVER - note: no D term\n    return train + serve\n\n# For a TARGET LOSS, sweep (N, D) pairs that achieve it and pick the cheapest:\ncandidates = [(n, d_for_target_loss(n)) for n in n_grid]\nfor inf_tokens in (0, 1e12, 1e14, 1e16):\n    best = min(candidates, key=lambda nd: total_cost(*nd, inf_tokens))\n    print(f\"{inf_tokens:.0e} inference tokens -> N={best[0]:.1e}, \"\n          f\"D/N={best[1]/best[0]:.0f}\")\n#\n#   inference tokens = 0      -> D/N ~ 20     (Chinchilla-optimal: TRAINING only)\n#   large serving volume      -> D/N >> 20    (smaller model, trained longer)\n#\n# THE INTUITION: the inference term contains N and NOT D. Training longer is\n# free at serving time. So the more you will serve, the more it pays to shrink\n# the model and compensate with tokens - which is exactly why the widely-\n# deployed open models are trained far past 20 tokens per parameter.\n\n# THE CONSTRAINT THAT EVENTUALLY BINDS: you run out of high-quality tokens.\n# Beyond that, repeating data has diminishing and eventually negative returns\n# - a few epochs are close to as good as fresh data, and many epochs are not.\n# Which turns DATA QUALITY and DEDUPLICATION into scaling-law concerns rather\n# than pipeline hygiene.",
+        "caption": "The inference term contains N and not D, so training longer is free at serving time. That single asymmetry is why deployed models are deliberately over-trained and why quoting Chinchilla-optimal answers a training-only question."
+      }
+    ],
+    "useCases": [
+      "Deciding whether a proposed training run is worth its budget, by fitting a curve to a ladder of small runs and forecasting whether the large one will clear the target before any of the compute is committed.",
+      "Comparing data mixtures or architectures cheaply, since a better mixture shows a better curve at small scale and the comparison costs a fraction of a real run.",
+      "Choosing a model size for a product, where the expected serving volume enters the objective and typically pushes the answer well below Chinchilla-optimal in parameters and well above it in tokens.",
+      "Detecting that a large run is underperforming, by comparing its loss against the curve fitted from smaller ones - a bug signal that is otherwise invisible because there is nothing to compare a single large run against."
+    ],
+    "pitfalls": [
+      "Quoting twenty tokens per parameter as the right answer. It is the compute-optimal answer for TRAINING only. Any model you intend to serve should be smaller and trained longer, because inference cost scales with parameters and is paid forever.",
+      "Fitting scaling laws with a fixed learning-rate schedule across runs of different lengths. This under-trains the shorter runs and biases the conclusion toward larger models - it is precisely the methodological difference between Kaplan's recommendation and Chinchilla's.",
+      "Treating loss as capability. Scaling laws predict cross-entropy, which is smooth; downstream benchmark performance is what people care about and is measured with metrics that can be discontinuous, which is a large part of why abilities appear to emerge suddenly.",
+      "Extrapolating across a change in architecture or data distribution. The fitted constants are properties of that setup, so a curve fitted on one mixture says little about another - which is exactly why comparing mixtures by their curves is useful and transferring a curve is not.",
+      "Ignoring the irreducible term. Loss cannot fall below the data's entropy, so a fit that omits E will over-predict the returns to scale and forecast improvements that are not available.",
+      "Assuming more data is always available. Beyond the supply of high-quality tokens you are repeating data, where a few epochs are nearly as good as fresh tokens and many epochs are not - which makes deduplication and quality filtering scaling concerns rather than hygiene.",
+      "Applying dense-model scaling laws to a mixture of experts. FLOPs per token track ACTIVE parameters while capacity tracks total parameters, so the compute-optimal analysis has to be redone with that distinction or the recommendation is meaningless."
+    ],
+    "connections": [
+      {
+        "ref": "llm-systems/llm-data-pipelines",
+        "text": "What Chinchilla made urgent. Once data is co-equal with parameters, the supply and quality of tokens becomes a first-order constraint, and deduplication and filtering move from hygiene to a determinant of the achievable loss."
+      },
+      {
+        "ref": "training-systems/profiling",
+        "text": "The other half of a training plan: scaling laws say how many FLOPs are worth buying and MFU says how long they take, so only the product is a schedule and a budget."
+      },
+      {
+        "ref": "llm-systems/distillation",
+        "text": "The other route to the inference-optimal objective. Rather than training a small model longer, train a large one and distil it - both are ways of moving cost from the serving side to the training side."
+      },
+      {
+        "ref": "llm-systems/moe",
+        "text": "Why the dense scaling laws need redoing there: MoE decouples FLOPs per token from total parameters, so the compute-optimal allocation is a different optimization with active parameters in the compute term and total parameters in the capacity term."
+      },
+      {
+        "ref": "llm-systems/llm-eval",
+        "text": "Where the loss-is-not-capability gap is confronted. Scaling laws predict a smooth quantity; the benchmarks people care about are measured with metrics whose discontinuity is a large part of why capabilities appear to emerge."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is a scaling law?",
+        "a": "Loss falls as a power law in parameters, data and compute, predictably across many orders of magnitude - which makes a large run's result forecastable from small ones."
+      },
+      {
+        "q": "What is the parametric form?",
+        "a": "L(N,D) = E + A/N^alpha + B/D^beta, where E is the irreducible entropy of the data and the two exponents are both around 0.34."
+      },
+      {
+        "q": "What did Chinchilla find?",
+        "a": "Parameters and data should scale roughly equally at about twenty tokens per parameter, rather than scaling parameters much faster as Kaplan had concluded."
+      },
+      {
+        "q": "Why did Kaplan reach a different conclusion?",
+        "a": "A fixed learning-rate schedule across runs of different lengths, which under-trains the shorter runs and makes smaller models look worse than they are."
+      },
+      {
+        "q": "What was the headline comparison?",
+        "a": "A 70B model on 1.4T tokens beat a 280B model on 300B tokens at the same compute - four times smaller, roughly four times more data, better on essentially everything."
+      },
+      {
+        "q": "How does compute-optimal scale with budget?",
+        "a": "Both parameters and tokens scale as the square root of compute, so doubling the budget means about 1.4 times each rather than 2 times the parameters."
+      },
+      {
+        "q": "Why is Chinchilla-optimal not the right answer for a deployed model?",
+        "a": "It minimizes training compute only. Inference cost scales with parameters and is paid forever, so a served model should be smaller and trained longer."
+      },
+      {
+        "q": "Why does the inference term push toward more data?",
+        "a": "Because it contains parameter count and not token count - training longer costs nothing at serving time, so it is the cheap way to buy quality."
+      },
+      {
+        "q": "What is the IsoFLOP method?",
+        "a": "For each fixed compute budget, train several parameter-token pairs satisfying 6ND = C and find the loss minimum. The U-shape's minimum gives the optimal size for that budget."
+      },
+      {
+        "q": "What does the irreducible term represent?",
+        "a": "The entropy of the data itself. No amount of scale drives loss below it, and omitting it from a fit over-predicts the returns to scale."
+      },
+      {
+        "q": "What is the most under-rated use of scaling laws?",
+        "a": "Forecasting. Fit a curve on a ladder of small runs and predict a large one, which lets you compare architectures and data mixtures before committing the budget."
+      },
+      {
+        "q": "Why do dense scaling laws not transfer to mixture-of-experts models?",
+        "a": "FLOPs per token track active parameters while capacity tracks total parameters, so the compute constraint and the loss model refer to different quantities."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain scaling laws and the Chinchilla result.",
+        "a": "THE PHENOMENON. Language-model loss falls as a smooth POWER LAW in parameters, in data, and in compute, and it does so over many orders of magnitude with remarkably little noise. That predictability is the substantive finding - it means the outcome of a very large run can be forecast from a ladder of small ones. THE PARAMETRIC FORM. L(N, D) = E + A/N^alpha + B/D^beta. E is irreducible - the entropy of natural language, which no scale removes. The two exponents are both around 0.34, and their near-equality is the whole Chinchilla result in one line: since the parameter term and the data term fall at similar rates, neither should be scaled preferentially. THE ALLOCATION PROBLEM. Compute is about 6ND. Minimizing loss subject to a compute budget, with roughly equal exponents, gives both N and D scaling as the square root of C - so doubling your budget means about 1.4 times the parameters and 1.4 times the tokens. The ratio that falls out is about twenty tokens per parameter. THE HISTORY, which is a methodology story and is the instructive part. Kaplan et al. established the laws and concluded that parameters should be scaled much faster than data - roughly N proportional to C to the 0.73. The field followed that for two years and built very large, comparatively under-trained models. Chinchilla re-ran it and found the near-equal scaling. The discrepancy traces to a LEARNING-RATE SCHEDULE not matched to each run's token count: a fixed schedule under-trains the shorter runs, which makes small models look worse than they are and biases the conclusion toward size. The headline demonstration was a 70B model on 1.4T tokens beating a 280B model on 300B tokens at equal compute. I would emphasize that the correction was not a better theory but a better experiment, which is a useful thing to notice about empirical scaling work generally. THE MODERN POSITION, which goes past Chinchilla. Compute-optimal means optimal for TRAINING compute. But a served model incurs inference cost forever, and inference cost scales with PARAMETERS and not with the tokens you trained on. Adding it to the objective - minimize training plus expected inference cost subject to hitting a target loss - moves the optimum monotonically toward smaller models trained on more data as the serving volume grows. That is why the widely-deployed open models are trained far past twenty tokens per parameter, and it means quoting Chinchilla-optimal is a training-regime answer to what is usually a two-regime question. THE CAVEATS I WOULD ATTACH. The laws predict cross-entropy, which is smooth; downstream capability is measured differently and much of apparent emergence is a metric artefact. The constants are properties of a fixed architecture and data distribution, so curves do not transfer across mixtures - which is precisely why comparing mixtures by their curves is a good use and transferring one is not. And the data supply eventually binds, which turns quality and deduplication into scaling concerns.",
+        "deepDive": {
+          "q": "Derive the compute-optimal allocation, and show how adding inference changes it."
+          ,
+          "a": "THE TRAINING-ONLY DERIVATION. Minimize L(N,D) = E + A/N^a + B/D^b subject to 6ND = C. Substitute D = C/(6N) and differentiate with respect to N. The derivative of A/N^a is -aA/N^(a+1); the data term becomes B(6N/C)^b, whose derivative is bB*6^b*N^(b-1)/C^b. Setting the sum to zero gives aA/N^(a+1) = bB*6^b*N^(b-1)/C^b, so N^(a+b) is proportional to C^b, giving N* proportional to C^(b/(a+b)). With a and b both about 0.34, that exponent is about one half - hence N* proportional to the square root of C, and by the constraint D* likewise. The ratio D*/N* is then a constant determined by A, B, a and b, and Chinchilla's fit puts it around twenty. THE KEY SENSITIVITY. Notice the exponent is b/(a+b). If a exceeds b - the parameter term falling faster - the exponent exceeds one half and you should scale parameters preferentially. Kaplan's fit effectively had that, giving roughly C^0.73. So the entire disagreement reduces to the relative size of two exponents, and those exponents are sensitive to whether each run was trained to convergence for its token budget. A fixed learning-rate schedule that does not decay fully by the end of a short run leaves it under-trained, inflating the measured loss at small D, which inflates b's apparent effect... and the fit moves. That is a remarkably delicate dependence for a conclusion the field acted on for two years, and it is the reason I would treat any scaling-law recommendation as contingent on its experimental protocol. ADDING INFERENCE. The objective becomes minimize 6ND + 2N*D_inf subject to L(N,D) = L_target, where D_inf is the expected total tokens generated over the model's life and the factor 2 is the forward-only cost per parameter per token. Two structural observations. First, the constraint is now a TARGET LOSS rather than a compute budget - you are asking for the cheapest way to reach a given quality, which is the question a product actually poses. Second, and decisively, the inference term contains N and NOT D. Training on more tokens is free at serving time. So the marginal cost of buying quality via D is only the training term, while buying it via N is charged twice - once in training and again on every future request. Differentiating, the optimum shifts toward smaller N and larger D, monotonically in D_inf, and at high serving volume it goes far past twenty tokens per parameter. WHAT THIS PREDICTS AND WHAT IS OBSERVED. It predicts that models built to be deployed widely should look over-trained by Chinchilla's standard, which is exactly what the popular open models look like - small parameter counts with token counts many times the compute-optimal ratio. And it predicts that a model trained purely to demonstrate a capability, with no serving plan, should sit at the Chinchilla point. Both hold. THE LIMIT WORTH NAMING. This assumes tokens are available. Once you exhaust high-quality data, increasing D means repeating it, and repeated data has diminishing returns - a few epochs are close to as good as fresh tokens, many epochs are not. So the inference-aware optimum is bounded by the data supply, which is why the data-constrained scaling work matters and why quality filtering and deduplication are now scaling-law concerns rather than pipeline hygiene."
+        }
+      },
+      {
+        "q": "How would you use scaling laws in practice on a real project?",
+        "a": "THE HEADLINE RATIO IS THE LEAST USEFUL PART. What scaling laws actually buy you is FORECASTING, and I would use them in four ways. (1) DECIDE WHETHER A RUN IS WORTH DOING. Train a ladder of small models - parameters varying over about two orders of magnitude, each with a token count in proportion and, critically, each with its learning-rate schedule MATCHED to its own token budget. Fit the parametric form. Then extrapolate to the size you are considering and ask whether the predicted loss clears your target. If it does not, you have saved the entire budget; if it does, you have a prediction to check the run against. This is the highest-value use and it is skipped constantly. (2) COMPARE DATA MIXTURES AND ARCHITECTURES CHEAPLY. Fit a separate curve for each candidate at small scale. A better mixture shows a better curve - a lower irreducible term or better constants - and the comparison costs a fraction of a real run. This is far more reliable than comparing two small models at one size, because it separates a genuine advantage from a difference that would vanish at scale. (3) DETECT AN UNDERPERFORMING RUN. A large training run has nothing to be compared against, so a subtle bug that costs a few percent of quality is invisible. With a fitted curve you have an expectation, and a run that lands above its predicted loss is a signal to investigate. I would plot the running loss against the curve's prediction as a standard dashboard panel. (4) CHOOSE THE MODEL SIZE FOR A PRODUCT, using the inference-aware objective rather than the compute-optimal one. Estimate the expected serving volume, minimize training plus inference cost subject to a target loss, and accept that the answer will be a smaller model trained much longer than Chinchilla suggests. THE PRACTICAL CAUTIONS. Match the learning-rate schedule to each run's token count, or you reproduce Kaplan's bias. Include the irreducible term in the fit or you over-predict the returns to scale. Use the IsoFLOP method if you can afford it, since the U-shaped curve at each budget is the most robust of the three approaches and its minimum is directly the answer. And do not transfer constants across a change of architecture or data - refit. WHAT I WOULD ACTUALLY REPORT to a decision-maker. The predicted loss at the proposed scale, the compute and wall-clock it implies once combined with a measured MFU, the cost, and the sensitivity - how the answer moves if the fit is off by a plausible margin. That converts a scaling law from an interesting regularity into a project plan, which is the point."
+      },
+      {
+        "q": "Do scaling laws predict capability? Discuss emergence.",
+        "a": "THEY PREDICT LOSS, AND LOSS IS NOT CAPABILITY - the gap between those two is the substance here. WHAT IS SOLID. Cross-entropy on held-out text falls smoothly and predictably as a power law. That is well-established, replicated, and it is the quantity the laws are about. WHAT PEOPLE ACTUALLY WANT is downstream performance: accuracy on benchmarks, ability to follow instructions, arithmetic, code that runs. And there the observed picture looked different - a widely-reported phenomenon of EMERGENT ABILITIES, where a capability is at chance across many model scales and then rises sharply past some threshold. That looked like a qualitative change and it was interpreted as one. THE DEFLATIONARY ARGUMENT, which I find largely persuasive. Schaeffer et al. pointed out that emergence is substantially a property of the METRIC rather than of the model. Consider exact-match accuracy on a multi-step arithmetic problem: it requires every token to be right, so it is a step function of the underlying per-token probability. A model whose per-token accuracy improves smoothly will show exact-match accuracy that is zero, zero, zero, then suddenly non-trivial - not because anything discontinuous happened inside the model, but because a discontinuous metric was applied to a continuous improvement. Replace exact match with a continuous measure - token-level edit distance, log-likelihood of the correct answer, partial credit - and the smooth improvement is visible all along. That reframing explains a large share of reported emergence. WHERE I WOULD NOT OVERCLAIM. It does not follow that nothing interesting happens with scale. Some capabilities do appear to require a threshold of representational capacity, and in-context learning strengthening with scale is a real and non-trivial phenomenon. And even if the underlying improvement is smooth, the PRACTICAL consequence of crossing a usefulness threshold is genuinely discontinuous - a model that gets arithmetic right 5% of the time and one that gets it right 80% of the time are different products regardless of the smoothness of the curve between them. WHAT THIS MEANS FOR PLANNING, which is the actionable part. You can forecast LOSS reliably and you cannot forecast BENCHMARK performance from it reliably, because the mapping from loss to any particular downstream metric is unknown in advance and can be sharp. So a scaling-law extrapolation supports a statement like 'this run will reach a loss of X' and does not support 'this run will pass that benchmark'. If a capability threshold is what you need, the honest position is that you cannot predict where it is, and the useful mitigation is to evaluate with CONTINUOUS metrics during training so you can see the underlying improvement before the discontinuous metric registers it. THE METHODOLOGICAL LESSON I WOULD DRAW, which generalizes well past this topic: a sharp transition in a plot should always prompt the question of whether the sharpness is in the system or in the instrument. That is the same discipline as the rest of this curriculum - the measurement can manufacture the phenomenon."
+      },
+      {
+        "q": "What happens when you run out of data?",
+        "a": "THIS IS THE CONSTRAINT CHINCHILLA CREATED. Once data is co-equal with parameters, scaling requires more tokens, and the supply of high-quality text is finite - large but finite, and the largest current runs consume a substantial fraction of what is readily available. So the question is what happens when D cannot grow. WHAT THE EVIDENCE SAYS ABOUT REPEATING DATA. The data-constrained scaling work found that repetition degrades gracefully at first and then sharply. A few epochs over the same tokens is worth nearly as much as fresh data - the marginal value of a second or third pass is high. Beyond that the returns fall away quickly, and at many epochs additional passes are worth close to nothing and eventually hurt through memorization. So there is a usable regime of modest repetition and a wall past it. That reframes the constraint from a hard limit to a soft one with a known shape. THE RESPONSES, in rough order of how much they help. (1) BETTER DATA, which is the highest-leverage answer and is why deduplication and quality filtering are now scaling concerns rather than pipeline hygiene. Removing near-duplicates increases the EFFECTIVE token count for a given corpus, because a duplicated token was already a repeated epoch you did not know you were taking. And quality filtering raises the value of each token, which shows up as a better scaling curve rather than merely a cleaner corpus. (2) MULTIPLE EPOCHS, deliberately, within the regime where they still pay - which the data-constrained work quantifies rather than leaving to guesswork. (3) SYNTHETIC DATA, which works in domains with a verifier - mathematics, code, anything checkable - because you can generate and filter for correctness. Its limits outside those domains are real and the risk of degradation from training on model output is a genuine concern rather than a hypothetical. (4) MULTIMODAL AND MULTILINGUAL DATA, expanding what counts as the corpus. (5) SPEND THE COMPUTE ON PARAMETERS INSTEAD, accepting a departure from compute-optimal because the data leg cannot grow - which is a return to something closer to the pre-Chinchilla allocation, for a completely different reason. (6) SPEND IT ON POST-TRAINING rather than pretraining, which is a large part of where the field's effort has gone: reinforcement learning on verifiable rewards, and inference-time compute, both of which buy capability without needing more pretraining tokens. THE STRATEGIC OBSERVATION I WOULD MAKE. The data wall changes what the marginal dollar buys. When tokens were abundant, more compute meant a bigger better-trained model. When they are scarce, more compute has to go somewhere else - into repetition with diminishing returns, into synthetic generation, into post-training, or into inference-time search. That reallocation is visible in what the field has actually been working on, and reading it as a consequence of the data constraint rather than as independent trends makes the direction much easier to follow."
+      },
+      {
+        "q": "How do scaling laws change for mixture-of-experts models?",
+        "a": "THE DENSE ANALYSIS ASSUMES ONE PARAMETER COUNT DOES TWO JOBS - it determines both the model's capacity and its FLOPs per token, because every parameter participates in every token. MoE breaks that identity, and the scaling analysis has to be redone with the two separated. THE TWO QUANTITIES. TOTAL parameters determine capacity and memory residency: all experts must be held, even though most are idle for any given token. ACTIVE parameters determine FLOPs per token: only the routed experts run, so compute scales with the active count. A model with 8 experts routing to 2 has roughly four times the parameters at roughly the same FLOPs per token as a dense model of the active size. WHAT THAT DOES TO THE OPTIMIZATION. The compute constraint C is about 6 times ACTIVE parameters times tokens, while the loss depends on TOTAL parameters and tokens. So you are no longer trading a single N against D - you have a third axis, the sparsity ratio, and the compute-optimal frontier is a surface rather than a curve. The empirical finding is that at fixed compute, sparse models reach a lower loss than dense ones, which is the whole reason MoE is used - you buy capacity without buying FLOPs. THE COSTS THAT DO NOT APPEAR IN A FLOP-BASED LAW, and this is where the two-regime framing matters. (1) MEMORY RESIDENCY. All experts must be in memory whether or not they fire, so a sparse model with the FLOPs of a 7B dense model has the memory footprint of a much larger one. In the inference regime, where bytes read and bytes resident are the binding constraint, that is a serious cost that a compute-optimal analysis does not see at all. (2) COMMUNICATION. Expert parallelism needs all-to-all routing, which is the most demanding collective and is data-dependent in size. (3) LOAD IMBALANCE, requiring capacity factors and auxiliary losses, which cost either dropped tokens or gradient signal. THE PRACTICAL CONSEQUENCE. MoE's advantage is largest in the TRAINING regime, where FLOPs are the constraint, and smallest in the memory-bound INFERENCE regime, where total parameters must be resident and read. So a sparse model is an excellent way to spend a training budget and a more awkward thing to serve - which is exactly why the deployment discussion around MoE is about memory and routing rather than about arithmetic. HOW I WOULD DO THE ANALYSIS. Fit the scaling law with active parameters in the compute constraint and total parameters in the loss model, sweep the sparsity ratio as a third variable, and then apply the INFERENCE-AWARE objective with the memory footprint priced in - because the naive version will recommend far more sparsity than is servable. That combination is the honest calculation, and it explains why deployed sparse models use more modest expert counts than the compute-optimal frontier alone would suggest."
+      },
+      {
+        "q": "Why is the predictability of scaling laws surprising, and how much should you trust it?",
+        "a": "WHY IT IS SURPRISING. Nothing about deep learning theory predicts that loss should be a clean power law in parameters and data over many orders of magnitude. The optimization is non-convex, the architecture is complicated, the data is heterogeneous, and yet the curve is smooth enough to extrapolate across a factor of a thousand in scale with useful accuracy. That is an empirical regularity without a settled theoretical explanation, and it is worth being clear that it is an observation rather than a derivation. There are suggestive accounts - power laws arise naturally from data manifolds of a given intrinsic dimension, and from the statistics of natural language - but none that predicted the exponents in advance. HOW MUCH TO TRUST IT, and I would separate three claims. (1) THE FUNCTIONAL FORM WITHIN A REGIME: high confidence. Fit on a ladder and interpolate or modestly extrapolate, and it works well. This is what the practical uses depend on and it is reliable. (2) EXTRAPOLATION BY A LARGE FACTOR: moderate confidence, and it has held up historically for loss - the predictions made for very large runs were broadly borne out, which is a genuine track record. But the confidence should decay with the extrapolation distance, and I would always state the range the fit was made over. (3) TRANSFER ACROSS A CHANGE OF SETUP: low confidence, and this is where people go wrong. The constants encode the architecture, the data distribution, the tokenizer and the optimization recipe. A curve fitted on one mixture tells you almost nothing quantitative about another - which is exactly why FITTING a curve per candidate is a good comparison method and why REUSING published constants is not. THE FAILURE MODES I WOULD WATCH FOR. A fit that omits the irreducible term over-predicts returns and forecasts improvements that do not exist. A ladder whose runs are not each trained to convergence for their own token budget reproduces Kaplan's bias, which is a live risk because matching the schedule per run is extra work. A ladder spanning too narrow a range gives a fit dominated by noise. And any extrapolation into a regime where a different constraint binds - running out of data, hitting a numerical instability, changing the parallelism strategy - is outside what the curve models. THE POSITION I WOULD TAKE. Scaling laws are the most reliable quantitative tool in this area and they are an empirical regularity rather than a law of nature. Use them to forecast, to compare, and to detect underperformance; state the fitting range and the extrapolation distance; refit whenever the setup changes; and do not use them to predict downstream capability, which is a different quantity with a different and much sharper relationship to scale."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "The scaling law's parametric form",
+      "back": "L(N,D) = E + A/N^alpha + B/D^beta, with alpha ~ beta ~ 0.34. E is IRREDUCIBLE - the entropy of language - and omitting it from a fit over-predicts the returns to scale."
+    },
+    {
+      "type": "formula",
+      "front": "Compute-optimal allocation",
+      "back": "C ~ 6ND; minimizing L subject to C with alpha ~ beta gives N* and D* both ~ C^(1/2), so D/N ~ 20. Doubling the budget means ~1.4x parameters AND ~1.4x tokens, not 2x parameters."
+    },
+    {
+      "type": "intuition",
+      "front": "Why Kaplan and Chinchilla disagreed",
+      "back": "A LEARNING-RATE SCHEDULE not matched to each run's token count. A fixed schedule under-trains the SHORT runs, inflating small-model loss and biasing the fit toward size. The exponent is b/(a+b) - delicately sensitive to two numbers the field acted on for two years."
+    },
+    {
+      "type": "intuition",
+      "front": "The Chinchilla demonstration",
+      "back": "70B on 1.4T tokens BEAT 280B on 300B tokens at equal compute - 4x smaller, ~4x more data, better on essentially everything. The correction was a better EXPERIMENT, not a better theory."
+    },
+    {
+      "type": "formula",
+      "front": "The inference-aware objective",
+      "back": "min [6ND (once) + 2N*D_inf (forever)] s.t. L(N,D) = target. The inference term contains N and NOT D - training longer is FREE at serving time. So more expected serving volume pushes monotonically to smaller N, larger D."
+    },
+    {
+      "type": "pitfall",
+      "front": "20 tokens/param is a TRAINING-only answer",
+      "back": "Compute-optimal minimizes the cost of PRODUCING the model. Anything you intend to SERVE should be smaller and trained longer, which is why the widely-deployed open models are deliberately over-trained far past the Chinchilla ratio."
+    },
+    {
+      "type": "intuition",
+      "front": "The most under-rated use: FORECASTING",
+      "back": "Fit a ladder of small runs, extrapolate, and decide whether a large run is worth doing BEFORE committing the budget. Also: compare data mixtures by their CURVES, and detect a large run underperforming its own prediction - a bug signal you otherwise cannot get."
+    },
+    {
+      "type": "definition",
+      "front": "The IsoFLOP method",
+      "back": "For each fixed budget C, train several (N, D) with 6ND = C and plot loss vs N. Each budget gives a U-SHAPED curve whose minimum is the optimal N. Too few parameters = cannot fit; too many = under-trained on the tokens the budget allows."
+    },
+    {
+      "type": "intuition",
+      "front": "Emergence is largely a METRIC artefact",
+      "back": "Exact-match accuracy is a STEP FUNCTION of per-token probability, so smooth underlying improvement shows as a sudden jump. Continuous metrics (log-likelihood, partial credit, edit distance) reveal the improvement all along. Ask whether the sharpness is in the system or the instrument."
+    },
+    {
+      "type": "pitfall",
+      "front": "Loss is forecastable; CAPABILITY is not",
+      "back": "A scaling extrapolation supports 'this run will reach loss X'. It does NOT support 'this run will pass that benchmark' - the mapping from loss to any downstream metric is unknown in advance and can be sharp."
+    },
+    {
+      "type": "intuition",
+      "front": "What happens at the data wall",
+      "back": "Repetition degrades GRACEFULLY then sharply - a few epochs are nearly as good as fresh tokens, many are not. So DEDUPLICATION raises the EFFECTIVE token count (a duplicate was an epoch you did not know you took), and quality filtering shows up as a better CURVE."
+    },
+    {
+      "type": "pitfall",
+      "front": "MoE needs the analysis redone",
+      "back": "Dense laws assume ONE parameter count sets both capacity and FLOPs. MoE splits them: compute ~ 6 x ACTIVE x D, loss depends on TOTAL. And the FLOP-based law cannot see MEMORY RESIDENCY - all experts must be resident, which is the binding cost in the inference regime."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Hoffmann et al. (2022), Training Compute-Optimal Large Language Models (Chinchilla)",
+      "url": "https://arxiv.org/abs/2203.15556"
+    },
+    {
+      "title": "Kaplan et al. (2020), Scaling Laws for Neural Language Models",
+      "url": "https://arxiv.org/abs/2001.08361"
+    },
+    {
+      "title": "Sardana et al. (2023), Beyond Chinchilla-Optimal: Accounting for Inference in Language Model Scaling Laws",
+      "url": "https://arxiv.org/abs/2401.00448"
+    },
+    {
+      "title": "Schaeffer, Miranda & Koyejo (2023), Are Emergent Abilities of Large Language Models a Mirage?",
+      "url": "https://arxiv.org/abs/2304.15004"
+    },
+    {
+      "title": "Muennighoff et al. (2023), Scaling Data-Constrained Language Models",
+      "url": "https://arxiv.org/abs/2305.16264"
+    }
+  ],
+  "updatedAt": "2026-08-08"
 }
