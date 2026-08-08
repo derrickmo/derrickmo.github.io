@@ -432,11 +432,19 @@
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/svm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/trees-forests/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/data-loading-scale/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/ddp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/fsdp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/gradient-accumulation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/gradient-checkpointing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/gradient-clipping/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/mixed-precision/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/optimized-pipeline/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/profiling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/training-systems/scaling-laws/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/torch-compile/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/training-systems/training-stability/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/attention/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/decoding/</loc><priority>0.6</priority></url>

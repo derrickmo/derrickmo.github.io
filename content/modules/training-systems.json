@@ -96,9 +96,8 @@
     "order": [
       "lr-schedule",
       "gradient-clipping",
-      "mixed-precision",
       "scaling-laws"
     ]
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-08"
 }

@@ -5,13 +5,277 @@
   "slug": "gradient-accumulation",
   "module": "training-systems",
   "title": "Gradient Accumulation & Large Batch Training",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "16-04_gradient_accumulation_large_batch_training.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["lr-schedule", "scaling-laws", "optimizers", "batching"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["neural-nets/sgd-momentum", "training-systems/mixed-precision"],
+  "leadsTo": ["training-systems/ddp", "llm-systems/scaling-laws"],
+  "body": {
+    "intuition": [
+      "Gradient accumulation needs no special support because backward already accumulates into .grad - a value used in several places receives a contribution from each, which is the multivariable chain rule. So running k micro-batches without calling zero_grad between them, and dividing each loss by k, gives exactly the gradient of the concatenated batch. Two lines. The exchange is wall-clock time for effective batch size: you get the large-batch gradient on hardware that cannot hold a large batch, and you pay k forward-backward passes per optimizer step.",
+      "The equivalence is exact, and the conditions matter. It holds because the loss is a MEAN over examples, so the mean of per-micro-batch means equals the overall mean - provided the micro-batches are the same size. It fails in three ways that are all silent. BatchNorm computes statistics over the micro-batch, so a model with BatchNorm accumulated over k steps is genuinely not the same function as one trained at the full batch. A loss with IN-BATCH INTERACTIONS - a contrastive objective whose denominator contains the other examples - is not a mean over examples at all, so its per-micro-batch value is not a shard of the global loss and accumulating it optimizes something different. And a per-batch normalizer such as a real-token count differs per micro-batch, so averaging the normalized losses is not the globally normalized loss.",
+      "The question underneath all of this is why you want a large batch, and the honest answer is that the benefit saturates at a point you can estimate. Large batches use hardware efficiently and reduce communication per token, and they were once thought to generalize worse - the sharp-minima story - until the linear scaling rule with warmup showed that much of that gap was a tuning artefact. What survived is the CRITICAL BATCH SIZE: below it, doubling the batch roughly halves the number of steps to a target loss; above it, you burn compute for almost no reduction in steps. McCandlish et al. showed this is predicted by the gradient NOISE SCALE, which you can measure. That makes this lesson's exchange rate something you can compute rather than guess, which is unusual and worth exploiting."
+    ],
+    "math": [
+      {
+        "h": "Why accumulation is exactly equivalent, and when it is not",
+        "paras": [
+          "The loss is a mean over examples, so the gradient is a mean of per-example gradients. Splitting into k equal micro-batches and averaging their means recovers the same quantity exactly - no approximation.",
+          "The condition is equal micro-batch sizes. With unequal sizes the unweighted average over-weights examples in the smaller micro-batches."
+        ],
+        "tex": "\\nabla \\Big[\\tfrac{1}{B}\\textstyle\\sum_{i=1}^{B} \\ell_i\\Big] = \\frac{1}{k}\\sum_{j=1}^{k} \\nabla\\Big[\\tfrac{k}{B}\\textstyle\\sum_{i \\in \\mathcal{B}_j} \\ell_i\\Big] \\qquad \\text{iff } |\\mathcal{B}_j| = B/k \\;\\forall j",
+        "texNote": "The 1/k on the right is why you divide the loss by the accumulation count - omit it and the effective learning rate is k times larger, which usually presents as divergence a few hundred steps in rather than as an obvious error. Note this argument requires the loss to be a per-example mean; a contrastive objective with in-batch negatives is not, and the equivalence simply does not apply to it."
+      },
+      {
+        "h": "The gradient noise scale and the critical batch size",
+        "paras": [
+          "A minibatch gradient is a noisy estimate of the true gradient. The noise scale compares the gradient's variance against its magnitude - roughly, how many examples you need before the estimate is dominated by signal rather than noise.",
+          "Below the critical batch size, more examples buy a proportionally better gradient and therefore fewer steps. Above it, the gradient is already accurate and extra examples buy almost nothing."
+        ],
+        "tex": "B_{\\text{noise}} = \\frac{\\operatorname{tr}(\\Sigma)}{|\\nabla L|^2}, \\qquad \\frac{S}{S_{\\min}} = 1 + \\frac{B_{\\text{noise}}}{B} \\;\\;\\Longrightarrow\\;\\; \\text{steps} \\times \\text{examples} \\text{ trade hyperbolically}",
+        "texNote": "Read the second relation as a hyperbola: at B far below B_noise, doubling the batch roughly halves the steps, so total compute is unchanged and wall-clock halves. At B far above it, steps barely fall and total compute doubles. The knee is the critical batch size, and it GROWS during training as the gradient gets smaller - which is why large runs increase the batch size over the course of training rather than fixing it."
+      },
+      {
+        "h": "The linear scaling rule, and why warmup is needed",
+        "paras": [
+          "Scaling the batch by a factor scales the gradient estimate's precision but not its magnitude, so to make the same progress per example you scale the learning rate by the same factor. This holds well over a wide range and it is what dissolved much of the supposed large-batch generalization gap.",
+          "It breaks at the start of training, when the weights move fast and the linearization the rule relies on is invalid - hence a warmup period."
+        ],
+        "tex": "B \\to \\kappa B \\;\\Longrightarrow\\; \\eta \\to \\kappa \\eta, \\qquad \\text{with } \\eta \\text{ ramped from } 0 \\text{ over the first few epochs}",
+        "texNote": "Goyal et al. used this to train ImageNet at batch 8192 with no accuracy loss, which reframed the earlier sharp-minima result as substantially a tuning artefact rather than a property of large batches. Note the rule is derived for SGD; for Adam the empirical picture is muddier and square-root scaling is sometimes better, which is a reason to sweep rather than to apply the formula blindly."
+      }
+    ],
+    "code": [
+      {
+        "h": "The loop, and the four places it goes wrong",
+        "paras": [
+          "Two lines of mechanism and four ordering constraints. Every one of the mistakes below is silent - the run trains and converges differently."
+        ],
+        "code": "for i, batch in enumerate(loader):\n    is_last = (i + 1) % ACCUM == 0\n\n    # DDP: suppress the all-reduce on every micro-step but the last, or you\n    # communicate ACCUM times per optimizer step instead of once. Large,\n    # common, easily-fixed waste.\n    ctx = nullcontext() if is_last else model.no_sync()\n    with ctx:\n        with torch.autocast(\"cuda\", dtype=torch.bfloat16):\n            loss = criterion(model(batch.x), batch.y) / ACCUM   # <-- DIVIDE.\n        loss.backward()          # accumulates into .grad - this is the whole\n                                 # mechanism, inherited from autograd's '+='\n\n    if is_last:\n        clip_grad_norm_(model.parameters(), 1.0)   # ONCE, before the step\n        opt.step()\n        scheduler.step()         # <-- PER OPTIMIZER STEP, not per micro-batch,\n                                 #     or your schedule runs ACCUM times fast\n        opt.zero_grad(set_to_none=True)\n\n# THE FOUR SILENT MISTAKES:\n#   1. no division by ACCUM  -> effective LR is ACCUM x larger. Usually shows\n#                               as divergence a few hundred steps in.\n#   2. zero_grad inside the loop -> defeats accumulation entirely; you get a\n#                               small batch and believe you have a large one.\n#   3. scheduler per micro-step -> the LR schedule completes ACCUM times too\n#                               early; warmup ends before it has done anything.\n#   4. no no_sync under DDP  -> ACCUM all-reduces per step. Correct results,\n#                               badly wasted bandwidth.\n#\n# EFFECTIVE BATCH = micro_batch x ACCUM x world_size. Write it down and log it:\n# comparing two runs at different effective batch without adjusting the\n# learning rate is comparing two different optimization problems.",
+        "caption": "The mechanism is one division and one skipped zero_grad. The four mistakes are all silent - the scheduler one is especially nasty, since warmup finishing early looks like an unstable model rather than a configuration error."
+      },
+      {
+        "h": "Where the equivalence breaks, and how to find your critical batch size",
+        "paras": [
+          "The exactness argument assumed a per-example mean over equal micro-batches. Three common situations violate it, and the noise-scale measurement is what turns the batch-size decision into a calculation."
+        ],
+        "code": "# BREAK 1: BATCHNORM. Statistics are computed over the MICRO-batch, so\n# accumulating k micro-batches of size m is NOT the same function as one batch\n# of size k*m - it is k separate normalizations. The model is genuinely\n# different, and at small m the statistics are noisy. Use LayerNorm, GroupNorm,\n# or SyncBatchNorm; or accept it and know that you have.\n\n# BREAK 2: IN-BATCH INTERACTIONS. A contrastive loss's denominator contains\n# the OTHER examples in the batch:\n#     L_i = -log( exp(s_ii/T) / sum_j exp(s_ij/T) )\n# With accumulation, j ranges only over the MICRO-batch, so you have far fewer\n# negatives and are optimizing a different objective. Accumulation does not\n# give you a large-batch contrastive loss. The fixes are a memory bank, a\n# momentum queue (MoCo), or gathering embeddings across ranks before the loss.\n\n# BREAK 3: PER-BATCH NORMALIZERS. If you divide by the real-token count and\n# the micro-batches have different counts, averaging the normalized losses is\n# not the globally normalized loss. Accumulate the SUM of losses and the SUM of\n# token counts, and divide once at the end.\n\n# ---- MEASURE THE CRITICAL BATCH SIZE instead of guessing ----\n# The gradient noise scale: variance of the gradient over its squared norm.\n# Estimate it from two batch sizes (McCandlish et al.'s simple estimator):\ng_small = grad_at(batch_size=b_small)      # noisier\ng_big   = grad_at(batch_size=b_big)        # less noisy\n# |g_B|^2 estimates |G|^2 + tr(Sigma)/B, so two sizes give two equations:\nG2    = (b_big * g_big.norm()**2 - b_small * g_small.norm()**2) / (b_big - b_small)\ntrSig = (g_small.norm()**2 - g_big.norm()**2) / (1/b_small - 1/b_big)\nB_noise = trSig / G2\n#\n#   B << B_noise -> doubling the batch roughly HALVES the steps: same total\n#                   compute, half the wall-clock. Scale up.\n#   B >> B_noise -> steps barely fall: you are DOUBLING COMPUTE FOR NOTHING.\n#\n# B_noise GROWS during training as the gradient shrinks - which is why large\n# runs RAMP the batch size rather than fixing it.",
+        "caption": "Contrastive losses are the break people miss: accumulation gives you fewer negatives, not a larger effective batch, so it optimizes a different objective. And the noise scale turns 'how big should the batch be' from a sweep into a two-measurement calculation."
+      }
+    ],
+    "useCases": [
+      "Training a model whose desired batch size does not fit in memory, which is the everyday case - accumulation is the cheapest way to decouple the statistical batch size from the hardware's capacity, and it costs no extra compute.",
+      "Reproducing a published result on smaller hardware, where matching the effective batch size is necessary for the reported hyperparameters to mean anything.",
+      "Large-scale pretraining, where effective batches in the millions of tokens are standard and are assembled from micro-batch times accumulation times world size - and where the critical batch size determines how far that is worth pushing.",
+      "Stabilizing a noisy objective: reinforcement learning and preference optimization often have high gradient variance, and a larger effective batch is a direct variance reduction that is frequently cheaper than algorithmic alternatives."
+    ],
+    "pitfalls": [
+      "Forgetting to divide the loss by the accumulation count. Gradients add, so the effective learning rate becomes k times larger - which typically shows as divergence a few hundred steps in rather than as an obvious error.",
+      "Calling zero_grad inside the accumulation loop. It defeats the mechanism entirely, so you train at the micro-batch size while believing you have a large effective batch - and the run works, just differently from what you intended.",
+      "Stepping the scheduler per micro-batch. The learning-rate schedule then completes k times too early, so warmup finishes before it has done anything and the decay is over long before training is. Step per OPTIMIZER step.",
+      "Using DDP without no_sync on the non-final micro-steps. You perform k all-reduces per optimizer step instead of one. The results are correct and the bandwidth is badly wasted, which is why it is easy to miss.",
+      "Accumulating a model containing BatchNorm and expecting large-batch behaviour. Statistics are computed per micro-batch, so it is k separate normalizations rather than one over the full batch - a genuinely different function, and noisier at small micro-batch.",
+      "Accumulating a contrastive loss. The in-batch negatives come only from the micro-batch, so you get fewer negatives rather than a larger effective batch, and you are optimizing a different objective. Use a memory bank or gather embeddings across ranks.",
+      "Raising the effective batch without adjusting the learning rate. The linear scaling rule with warmup exists for a reason, and comparing two runs at different effective batch with the same schedule is comparing two different optimization problems."
+    ],
+    "connections": [
+      {
+        "ref": "pytorch-internals/mini-framework",
+        "text": "Why this needs no special support: backward accumulates into .grad because a value used in several places receives a contribution from each. Skipping zero_grad is the entire implementation, which is obvious once you have written the engine."
+      },
+      {
+        "ref": "training-systems/ddp",
+        "text": "Where no_sync lives, and why it matters - DDP all-reduces on every backward by default, so accumulation without it multiplies your communication by k for identical results."
+      },
+      {
+        "ref": "llm-systems/scaling-laws",
+        "text": "The critical batch size is the batch-dimension counterpart of the scaling literature: both are about where an axis stops paying, and both turn a tuning question into a measurement."
+      },
+      {
+        "ref": "training-systems/gradient-checkpointing",
+        "text": "The other lever on the same constraint. Accumulation reduces peak activation memory linearly with no recompute cost, so it is usually worth trying first; checkpointing takes over once the micro-batch is already one."
+      },
+      {
+        "ref": "neural-nets/adam-lr-scheduling",
+        "text": "Where the linear scaling rule and warmup are developed properly. The rule is derived for SGD, and the Adam picture is muddier - which is a reason to sweep the learning rate at a new batch size rather than applying a formula."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "How does gradient accumulation work?",
+        "a": "Run k micro-batches without calling zero_grad between them, dividing each loss by k. Backward already accumulates into .grad, so that is the whole implementation."
+      },
+      {
+        "q": "Why divide the loss by k?",
+        "a": "Gradients add, so without the division the accumulated gradient is k times too large and the effective learning rate is k times higher."
+      },
+      {
+        "q": "Is accumulation exactly equivalent to a large batch?",
+        "a": "Yes, provided the loss is a per-example mean and the micro-batches are equal in size - the mean of means is then the overall mean, exactly."
+      },
+      {
+        "q": "What is the effective batch size?",
+        "a": "Micro-batch times accumulation steps times world size. Worth logging, because comparing runs at different effective batch without adjusting the learning rate compares different problems."
+      },
+      {
+        "q": "Why does BatchNorm break the equivalence?",
+        "a": "Its statistics are computed over the micro-batch, so accumulation gives k separate normalizations rather than one over the full batch - a genuinely different function."
+      },
+      {
+        "q": "Why does a contrastive loss break it?",
+        "a": "The denominator contains the other examples in the batch, so with accumulation the negatives come only from the micro-batch. You get fewer negatives, not a larger effective batch."
+      },
+      {
+        "q": "What is no_sync for?",
+        "a": "Suppressing DDP's gradient all-reduce on the non-final micro-steps. Without it you communicate k times per optimizer step instead of once."
+      },
+      {
+        "q": "How often should the scheduler step?",
+        "a": "Once per optimizer step, not per micro-batch. Otherwise the schedule completes k times too early and warmup ends before it has done anything."
+      },
+      {
+        "q": "What is the gradient noise scale?",
+        "a": "The trace of the gradient covariance divided by the squared gradient norm - roughly how many examples you need before the estimate is signal-dominated."
+      },
+      {
+        "q": "What is the critical batch size?",
+        "a": "The knee where more examples stop reducing the number of steps. Below it, doubling the batch roughly halves the steps; above it, you double compute for almost nothing."
+      },
+      {
+        "q": "Does the critical batch size change during training?",
+        "a": "Yes, it grows as the gradient shrinks - which is why large runs ramp the batch size over the course of training rather than fixing it."
+      },
+      {
+        "q": "What is the linear scaling rule?",
+        "a": "Scale the learning rate by the same factor as the batch size, with a warmup period because the rule breaks early in training when the weights move fast."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain gradient accumulation, and prove when it is exactly equivalent to a large batch.",
+        "a": "THE MECHANISM, which needs no framework support. Backward ACCUMULATES into .grad rather than overwriting - because a value used in several places receives a gradient contribution from each path, which is just the multivariable chain rule. So running k micro-batches without zero_grad between them leaves the sum of their gradients in .grad. Divide each loss by k and you have the average. Two lines. THE PROOF OF EQUIVALENCE. The loss over a batch B is a MEAN over examples: L = (1/B) sum of per-example losses. Split into k micro-batches of equal size B/k. Micro-batch j's loss is (k/B) times the sum over its examples. Its gradient is therefore (k/B) times the sum of per-example gradients in that micro-batch. Average over the k micro-batches: (1/k) times sum over j of (k/B) times sum over its examples, which is (1/B) times the sum over ALL examples - exactly the full-batch gradient. Not an approximation, an identity. THE CONDITIONS, and each failure is a real and silent bug. (1) EQUAL MICRO-BATCH SIZES. With unequal sizes the unweighted average over-weights examples in the smaller micro-batches. The last micro-batch of an epoch is the usual culprit. (2) THE LOSS MUST BE A PER-EXAMPLE MEAN. This is where it most often fails in practice. A CONTRASTIVE loss with in-batch negatives is not a sum over independent examples at all - each example's loss depends on the others through the denominator - so a micro-batch's loss is not a shard of the global loss, and accumulating gives you fewer negatives rather than a larger effective batch. That is a different objective, and the fixes are a memory bank, a momentum queue, or gathering embeddings across the batch before computing the loss. (3) NO BATCH-DEPENDENT LAYERS. BatchNorm computes statistics over the micro-batch, so accumulation produces k separate normalizations rather than one - a genuinely different function, and noisier when the micro-batch is small. LayerNorm has no such dependence. (4) NO PER-BATCH NORMALIZERS THAT VARY. If you divide by a real-token count that differs per micro-batch, averaging the normalized losses is not the globally normalized loss; accumulate the summed loss and the summed token count and divide once. WHAT THE EXCHANGE IS. You buy a large effective batch on hardware that cannot hold one, and you pay wall-clock: k forward-backward passes per optimizer step. Note it does not increase TOTAL compute - the same examples are processed - but per-step utilization can be slightly worse because the micro-batches are smaller, and there is scheduler and optimizer overhead per step amortized over more work. THE FOUR IMPLEMENTATION MISTAKES, all silent: forgetting the division, which multiplies the effective learning rate by k; calling zero_grad inside the loop, which defeats the mechanism; stepping the scheduler per micro-batch, so the schedule completes k times too early; and omitting no_sync under DDP, which performs k all-reduces per step for identical results.",
+        "deepDive": {
+          "q": "Derive the gradient noise scale and explain what it tells you about batch size.",
+          "a": "THE SETUP. The true gradient is G, the gradient over the full data distribution. A minibatch of size B gives an estimate g_B whose expectation is G and whose covariance is Sigma/B, where Sigma is the per-example gradient covariance. So the estimate's squared norm has expectation |g_B|^2 = |G|^2 + tr(Sigma)/B - the true signal plus a noise term falling as 1/B. THE NOISE SCALE. Define B_noise = tr(Sigma) / |G|^2. This is the batch size at which the noise term equals the signal term. Below it, your gradient estimate is noise-dominated and more examples materially improve the direction; above it, the estimate is already close to G and more examples change the direction very little. WHAT IT PREDICTS. McCandlish et al. derive that the number of optimization steps S to reach a target scales as S/S_min = 1 + B_noise/B, where S_min is the minimum achievable steps. Read the consequences off it. At B much less than B_noise, S is proportional to 1/B, so DOUBLING THE BATCH HALVES THE STEPS - total examples processed is unchanged, and wall-clock halves if you have the parallelism. That is a free win and it is why data parallelism works at all. At B much greater than B_noise, S approaches S_min and stops falling, so doubling the batch DOUBLES TOTAL COMPUTE for almost no reduction in steps. The knee - the critical batch size - is around B_noise, and it is where you should stop scaling. HOW TO MEASURE IT, which is the practical payoff. You do not need the full covariance. Estimate |g_B|^2 at two different batch sizes; each satisfies |g_B|^2 = |G|^2 + tr(Sigma)/B, giving two equations in two unknowns. Solve for |G|^2 and tr(Sigma), take the ratio. In distributed training this is nearly free, because you already have per-rank gradients - the per-rank gradient is a small-batch estimate and the all-reduced one is a large-batch estimate, so you can compute the noise scale from quantities you already have. THE PROPERTY THAT MATTERS MOST OPERATIONALLY. B_noise GROWS DURING TRAINING. Early on, the gradient is large and consistent across examples, so the signal dominates and a small batch suffices. Late in training the gradient is small and examples disagree more, so the noise term is relatively larger and bigger batches pay off. This is the justification for BATCH SIZE RAMPS - starting small and increasing - which large-scale runs use and which looks arbitrary until you know this result. It also explains why a batch size that was clearly too large at the start can become appropriate later. THE CAVEATS I WOULD STATE. The derivation assumes SGD-like dynamics and a locally quadratic objective; with Adam the picture is muddier because the preconditioner changes the effective geometry. The estimator is noisy and needs averaging over steps. And S_min itself depends on the learning rate being tuned appropriately at each batch size, so a measured curve that flattens early may reflect an untuned learning rate rather than the noise floor - which is exactly the confound the linear scaling rule addresses. So I would treat B_noise as an order-of-magnitude guide that turns an unbounded sweep into a bounded one, rather than as a precise target."
+        }
+      },
+      {
+        "q": "Why would you want a large batch at all, and when does it stop helping?",
+        "a": "THREE REASONS TO WANT ONE, and they are different in kind. (1) HARDWARE UTILIZATION. Small batches under-fill the device: matmul shapes are too small to keep the streaming multiprocessors busy, and kernel launch overhead is a larger fraction of step time. Throughput in examples per second rises with batch size until the device saturates. This is a systems argument and it saturates early. (2) LESS COMMUNICATION PER EXAMPLE. In data-parallel training, one all-reduce happens per optimizer step regardless of batch size, so a larger per-step batch means fewer optimizer steps for the same number of examples and therefore proportionally less communication. At scale this is often the dominant argument. (3) A BETTER GRADIENT ESTIMATE, which is the statistical argument and the interesting one. A minibatch gradient has variance proportional to 1/B, so more examples give a direction closer to the true gradient, allowing larger steps and fewer of them. WHEN IT STOPS HELPING - the critical batch size. The number of steps to a target scales as 1 + B_noise/B. Below B_noise, doubling the batch roughly halves the steps, so you process the same total examples in half the wall-clock: a genuine free win. Above B_noise, the steps barely fall while the compute per step doubles, so you are burning compute for nothing. The knee is estimable from the gradient noise scale, which makes this one of the few tuning questions in deep learning with a principled answer. THE HISTORY WORTH KNOWING, because it is often misremembered. Keskar et al. reported that large-batch training generalizes worse and attributed it to convergence toward sharp minima. Goyal et al. then trained ImageNet at batch 8192 with no accuracy loss using the LINEAR SCALING RULE - scale the learning rate with the batch - plus a WARMUP period, because the rule's linearization is invalid early when the weights move fast. That reframed much of the supposed generalization gap as a TUNING ARTEFACT: the large-batch runs had been under-tuned. Shallue et al. then measured the steps-versus-batch curve carefully across models and optimizers and found the hyperbolic shape with a model-dependent knee, which is the modern picture. So the honest summary is that large batches are fine if you re-tune, and they stop paying at a measurable point. THE PRACTICAL CONSEQUENCE FOR THIS LESSON. Accumulation lets you reach any effective batch size regardless of memory - so the constraint becomes statistical rather than physical, and the right question is not how large a batch can I fit but how large a batch is worth having. Those are different questions and the second one has an answer. AND THE DETAIL PEOPLE MISS: B_noise grows during training, which is why large runs ramp the batch size rather than fixing it. A batch that was wastefully large at step zero can be appropriate at step 100,000."
+      },
+      {
+        "q": "Walk through the interaction between accumulation, DDP, and the learning-rate schedule.",
+        "a": "THESE THREE INTERACT IN WAYS THAT ARE EACH INDIVIDUALLY SILENT, so I would take them one at a time and then state the combined loop. ACCUMULATION AND DDP. DDP registers autograd hooks that launch a gradient all-reduce as each bucket fills during the backward pass - that is what gives it communication-computation overlap. With accumulation, that means an all-reduce on EVERY micro-batch's backward, so k all-reduces per optimizer step instead of one. The results are identical, because averaging k times then stepping is the same as averaging once, but you have multiplied your communication by k. model.no_sync() is a context manager that suppresses the hooks, so you wrap every micro-step except the last. The gradients accumulate locally, and the final micro-step's backward triggers one all-reduce of the accumulated total. On a communication-bound job this is a large and easily-missed waste. ACCUMULATION AND THE SCHEDULER. The scheduler must step once per OPTIMIZER step. If it steps per micro-batch, the schedule advances k times too fast: a 2000-step warmup completes in 2000/k optimizer steps, so the learning rate reaches its peak long before the model is ready and the run looks unstable for reasons that appear to be about the model. The same error compresses the decay, so the learning rate is near zero while most of training remains. This is a configuration bug that presents as a modelling problem, which is why it is worth naming explicitly. DDP AND THE EFFECTIVE BATCH. DDP averages gradients across ranks, so the effective batch is micro_batch times ACCUM times world_size. Changing the number of GPUs changes the effective batch and therefore requires a learning-rate change under the linear scaling rule - so a run that worked on 8 GPUs and diverges on 32 is usually not a distributed bug, it is a four-times-larger batch at the same learning rate. This is one of the most common confusions when scaling out, and logging the effective batch size makes it visible immediately. THE COMBINED LOOP, with every placement derivable. Divide the loss by ACCUM. Wrap the non-final micro-steps in no_sync. Backward, which accumulates. On the accumulation boundary: unscale if using an fp16 scaler, clip once, step the optimizer, step the scheduler, zero the gradients. THE ONE MORE INTERACTION worth knowing: with an fp16 GradScaler, an overflow detected at the step boundary discards the WHOLE accumulated gradient, not just the offending micro-batch - so a single bad micro-batch costs you k micro-batches of work. That is an argument against very large k when using fp16, and a further argument for bf16, which has no scaler. WHAT I WOULD LOG to make all of this visible: effective batch size, learning rate read from the optimizer rather than from your schedule's intent, the number of optimizer steps as distinct from micro-steps, and the gradient norm. Those four make every failure above diagnosable at a glance.",
+        "deepDive": {
+          "q": "Someone reports that moving from 8 GPUs to 64 made training diverge. Diagnose it.",
+          "a": "THE FIRST HYPOTHESIS, and it is right most of the time: THE EFFECTIVE BATCH SIZE WENT UP EIGHTFOLD and the learning rate did not. Effective batch is micro_batch times accumulation times world_size, so eight times the ranks is eight times the batch. Under the linear scaling rule the learning rate should rise by roughly the same factor to make equivalent progress per example - and if it did not, the run is now taking steps that are eight times too small relative to the gradient's precision, which usually shows as very slow progress rather than divergence. So if it DIVERGED rather than stalled, the more likely story is that someone DID scale the learning rate and did so without WARMUP. The linear scaling rule's linearization is invalid at the start of training when the weights are moving fast, which is exactly when a large learning rate does the most damage. Goyal et al.'s recipe is the rule PLUS a gradual warmup for precisely this reason, and omitting the warmup is the classic way a scaled-up run diverges in the first few hundred steps. Diagnostic: look at when it diverged. Within the first few hundred steps points at warmup; much later points elsewhere. HYPOTHESIS 2: THE SCHEDULE IS NOW WRONG IN LENGTH. If the schedule is specified in optimizer steps and the number of steps per epoch fell by eight, then warmup and decay both complete eight times sooner in terms of data seen. A schedule specified in TOKENS or examples rather than steps is robust to this; one specified in steps is not, and rescaling the number of GPUs silently rescales the schedule. HYPOTHESIS 3: BATCHNORM. If the model has BatchNorm, the per-device batch may have shrunk if the total batch was held fixed - and BatchNorm at small per-device batch has noisy statistics and can destabilize. SyncBatchNorm fixes it at a communication cost. HYPOTHESIS 4: A GENUINE DISTRIBUTED BUG rather than an optimization one. Did the model parameters get broadcast at startup, so all ranks began identical? If not, the ranks are averaging gradients of different models, which trains badly and can diverge. Are the data shards disjoint and equal in count? Uneven shards cause a hang rather than divergence, so that is probably not it here, but the identical-initialization check is worth confirming - all-reduce a parameter hash and assert agreement. HYPOTHESIS 5: THE fp16 SCALER at larger scale. More ranks means more gradients participating in each all-reduce, and an overflow anywhere discards the step. If the scale is collapsing, that is visible in the log. HOW I WOULD ORDER THE INVESTIGATION. Log the effective batch size and the actual learning rate from the optimizer for both runs and put them side by side - that single comparison resolves hypotheses 1 and 2 immediately and costs nothing. Then check whether warmup is present and long enough. Then verify identical initialization. Then look at the loss curve's shape: divergence within a few hundred steps is warmup or learning rate, divergence much later is more likely instability or data. THE PREVENTIVE MEASURE. Specify the schedule in TOKENS, log the effective batch, and re-tune the learning rate whenever the world size changes. Scaling out is not a transparent operation - it changes the optimization problem - and treating it as pure infrastructure is why this failure is so common."
+        }
+      },
+      {
+        "q": "How would you choose the accumulation count and micro-batch size?",
+        "a": "TWO SEPARATE DECISIONS that people conflate, and separating them is most of the answer. THE MICRO-BATCH SIZE is a HARDWARE decision: the largest that fits comfortably, because larger micro-batches use the device better - bigger matmul shapes, less launch overhead per example, better memory-bandwidth utilization. THE ACCUMULATION COUNT is a STATISTICAL decision: whatever multiplies up to the effective batch size you want. So the procedure is to find the largest micro-batch that fits, then set k to reach the target effective batch, rather than choosing them together. HOW I WOULD FIND THE MICRO-BATCH SIZE. Sweep upward until it no longer fits, then back off for headroom - and note that the largest that fits is not always the fastest, because at very large micro-batch you may hit memory pressure that makes the allocator thrash. Measure throughput in examples per second at each size, not just whether it fits. There is usually a plateau: beyond some point the device is saturated and larger micro-batches buy nothing, and if you are already on that plateau there is no reason to push further. HOW I WOULD FIND THE TARGET EFFECTIVE BATCH. This is where the critical batch size comes in. Below B_noise, more examples per step means proportionally fewer steps, so scaling up is close to free in total compute and halves wall-clock. Above it, you are paying compute for nothing. Estimate B_noise from the gradient noise scale - and in distributed training that is nearly free, since per-rank gradients are small-batch estimates and the all-reduced gradient is a large-batch one. If measuring is impractical, use the literature for your model class as a starting point and sweep around it, remembering that the answer GROWS during training. THE INTERACTION WITH WALL-CLOCK, which decides in practice. Accumulation does not reduce total compute - the same examples are processed - so a larger k means the same work in more sequential steps per update. What it buys is a better gradient per update. If you are NOT communication-bound and NOT at the critical batch size, there may be no reason for a large k at all: just use the largest micro-batch that fits and step every time. Accumulation earns its place when the desired statistical batch exceeds what memory allows, and when communication cost per step is high enough that fewer, larger steps is a win. THE CONSTRAINTS THAT OVERRIDE ALL OF THIS. If the model has BatchNorm, small micro-batches are bad regardless of the arithmetic, and you need SyncBatchNorm or a different normalization. If the loss has in-batch interactions, accumulation does not give you the effective batch you think and the whole calculation is moot. And with an fp16 scaler, a large k means an overflow discards more work, which argues for smaller k or for bf16. WHAT I WOULD ACTUALLY REPORT. Micro-batch, accumulation, world size, and the resulting effective batch, logged every run. That last number is the one that determines the optimization problem, and it is the one that silently changes when someone adds GPUs."
+      },
+      {
+        "q": "Explain the exchange this technique makes, in the module's terms.",
+        "a": "WHAT IT SPENDS: sequential wall-clock time. You perform k forward-backward passes per optimizer step instead of one, so a step takes roughly k times as long. WHAT IT BUYS: an effective batch size decoupled from memory capacity. WHY THE RATE IS UNUSUALLY GOOD. Unlike checkpointing, accumulation does NOT increase total compute - the same examples are processed either way, and the FLOPs are identical. What you lose is only the mild inefficiency of running smaller micro-batches: slightly worse device utilization and the per-step overheads amortized over more work. So the exchange is nearly free in the resource that usually matters, which makes accumulation the first thing to try when memory is the constraint and a large batch is the goal. WHY THE RATE IS STILL CONFIGURATION-DEPENDENT, which is this module's recurring point. If you are already above the CRITICAL BATCH SIZE, the effective batch you are buying is worth nothing - more examples per step barely reduce the number of steps, so you have spent wall-clock for no statistical benefit. If your micro-batch is already saturating the device, the utilization loss is zero and the trade is nearly perfect. If you are communication-bound in distributed training, accumulation additionally REDUCES communication per example, since one all-reduce covers k micro-batches - so the exchange has a second payoff and the rate improves. And if your loss has in-batch interactions, you are not buying an effective batch at all and the exchange is a pure loss. Four situations, four different rates, and the only way to know which you are in is to measure the noise scale and profile the step. WHAT MAKES THIS LESSON UNUSUAL IN THE MODULE. Most of these techniques require you to measure the exchange rate empirically. Here you can CALCULATE it: the gradient noise scale predicts where more batch stops helping, and the linear scaling rule tells you how to adjust when you change it. That is a rare case of the systems literature giving you a formula rather than a heuristic, and it converts an unbounded hyperparameter sweep into a bounded one. THE COMPARISON WITH CHECKPOINTING that clarifies both. Both attack the activation memory term. Accumulation reduces peak memory LINEARLY at no compute cost; checkpointing reduces it to O(sqrt(L)) at about a third more compute. So accumulation should be tried first, and checkpointing becomes the answer when the micro-batch is already one and it still does not fit - or when you want a larger micro-batch than memory allows for utilization reasons. Knowing the ordering between two techniques that target the same resource is exactly the kind of thing this module is for."
+      },
+      {
+        "q": "How does gradient accumulation interact with data ordering and reproducibility?",
+        "a": "SEVERAL WAYS THAT ARE EASY TO MISS, and they matter most when comparing runs or resuming. THE COMPOSITION OF THE EFFECTIVE BATCH. Accumulating k micro-batches means the effective batch is k CONSECUTIVE micro-batches from the loader. If the loader is shuffled properly this is a random sample and equivalent to a large batch. If it is NOT - if the data is ordered by class, by length, by source, or by time - then each effective batch is a correlated block, which is a genuinely different training signal from a randomly sampled batch of the same size. This bites particularly with streaming datasets whose shuffle buffer is smaller than the effective batch, where consecutive micro-batches can come from the same shard. The check is to look at the label or source distribution within an effective batch, not within a micro-batch. LENGTH BUCKETING makes this worse in a way that is usually intentional and worth being aware of. Sorting by sequence length to reduce padding means consecutive micro-batches have similar lengths, so an effective batch is homogeneous in length - and if length correlates with anything else in your data, which it usually does, the batch is correlated in that too. The trade is real: bucketing saves substantial compute on padding and costs some batch diversity. THE LAST BATCH OF AN EPOCH. If the number of micro-batches is not divisible by k, the final optimizer step accumulates fewer than k micro-batches - so its effective batch is smaller and, if you divided by k unconditionally, its gradient is scaled down. Small effect, but it means the last step of every epoch is systematically different. Either drop the remainder or divide by the actual count accumulated. REPRODUCIBILITY AND RESUME. The state you must checkpoint now includes where you are WITHIN an accumulation cycle, not just which optimizer step you are on. Resuming mid-cycle without that either drops a partial gradient or double-counts micro-batches. Most implementations checkpoint only at optimizer-step boundaries, which sidesteps this - and is worth doing deliberately rather than by accident. DETERMINISM. Accumulation changes the ORDER of floating-point additions into .grad compared with a single large batch, so even in the exact-equivalence case the results differ in the last bits. That is expected and it means bitwise comparison between an accumulated run and a large-batch run is not the right test; comparing to a tolerance is. THE THING I WOULD CHECK when comparing an accumulated run against a large-batch baseline. Same effective batch, same effective data order, same learning rate, and gradients compared to floating-point tolerance rather than exactly. If the gradients match and the training curves diverge, the difference is in something batch-dependent - BatchNorm, a contrastive term, a per-batch normalizer - which is the diagnostic that localizes it immediately."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "Why accumulation is EXACTLY equivalent",
+      "back": "The loss is a per-example MEAN, so the mean of per-micro-batch means is the overall mean - an identity, not an approximation. Condition: EQUAL micro-batch sizes. The 1/k on the loss is why you divide by ACCUM."
+    },
+    {
+      "type": "pitfall",
+      "front": "The four silent accumulation mistakes",
+      "back": "(1) no divide by k -> effective LR is k x larger; (2) zero_grad INSIDE the loop -> defeats it entirely; (3) scheduler per micro-batch -> the schedule completes k times too early; (4) no no_sync under DDP -> k all-reduces per step for identical results."
+    },
+    {
+      "type": "pitfall",
+      "front": "Contrastive losses break the equivalence",
+      "back": "The denominator contains the OTHER examples, so with accumulation the negatives come only from the MICRO-batch. You get fewer negatives, not a bigger effective batch - a different objective. Fix: memory bank, momentum queue, or gather embeddings across ranks."
+    },
+    {
+      "type": "pitfall",
+      "front": "BatchNorm breaks it too",
+      "back": "Statistics are computed over the MICRO-batch, so accumulating k micro-batches is k SEPARATE normalizations, not one over the full batch - a genuinely different function, and noisier at small micro-batch. LayerNorm is unaffected."
+    },
+    {
+      "type": "formula",
+      "front": "Gradient noise scale and the critical batch size",
+      "back": "B_noise = tr(Sigma)/|G|^2, and steps S/S_min = 1 + B_noise/B. B << B_noise: doubling the batch HALVES the steps (free). B >> B_noise: steps barely fall, compute doubles for nothing. The knee is where you stop scaling."
+    },
+    {
+      "type": "intuition",
+      "front": "B_noise GROWS during training",
+      "back": "Early on the gradient is large and consistent, so a small batch suffices; late on it is small and examples disagree more, so bigger batches pay. This is why large runs RAMP the batch size - a practice that looks arbitrary until you know the result."
+    },
+    {
+      "type": "intuition",
+      "front": "Estimate B_noise nearly free in DDP",
+      "back": "|g_B|^2 = |G|^2 + tr(Sigma)/B, so two batch sizes give two equations. In distributed training you already have both: the PER-RANK gradient is a small-batch estimate and the ALL-REDUCED one is a large-batch estimate."
+    },
+    {
+      "type": "definition",
+      "front": "The linear scaling rule + warmup",
+      "back": "B -> kB implies eta -> k*eta, with the LR ramped from 0 over the first epochs because the linearization fails early when weights move fast. Goyal et al. trained ImageNet at batch 8192 with no accuracy loss - reframing Keskar's 'sharp minima' gap as largely a TUNING artefact."
+    },
+    {
+      "type": "pitfall",
+      "front": "Adding GPUs changes the optimization problem",
+      "back": "Effective batch = micro_batch x ACCUM x WORLD_SIZE. 8 -> 64 GPUs is an 8x batch increase, so it needs a LR change. A run that diverges after scaling out is usually the linear scaling rule applied WITHOUT warmup, not a distributed bug. Log the effective batch."
+    },
+    {
+      "type": "intuition",
+      "front": "Micro-batch and ACCUM are separate decisions",
+      "back": "MICRO-BATCH is a HARDWARE decision - the largest that fits, since bigger shapes use the device better. ACCUM is a STATISTICAL decision - whatever multiplies up to the target effective batch. Choose them in that order, not together."
+    },
+    {
+      "type": "intuition",
+      "front": "Accumulation vs checkpointing on the same term",
+      "back": "Both reduce peak activation memory. ACCUMULATION: linear reduction, NO extra compute. CHECKPOINTING: O(sqrt(L)) reduction, ~33% more compute. So try accumulation FIRST; checkpointing takes over once the micro-batch is already 1."
+    },
+    {
+      "type": "pitfall",
+      "front": "An effective batch is k CONSECUTIVE micro-batches",
+      "back": "If the loader is not shuffled well - or the shuffle buffer is smaller than the effective batch, or you bucket by length - each effective batch is a CORRELATED block, not a random sample. Check the label/source distribution across the effective batch, not the micro-batch."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Goyal et al. (2017), Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour",
+      "url": "https://arxiv.org/abs/1706.02677"
+    },
+    {
+      "title": "McCandlish et al. (2018), An Empirical Model of Large-Batch Training",
+      "url": "https://arxiv.org/abs/1812.06162"
+    },
+    {
+      "title": "Keskar et al. (2017), On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima",
+      "url": "https://arxiv.org/abs/1609.04836"
+    },
+    {
+      "title": "Shallue et al. (2019), Measuring the Effects of Data Parallelism on Neural Network Training",
+      "url": "https://arxiv.org/abs/1811.03600"
+    },
+    {
+      "title": "You et al. (2020), Large Batch Optimization for Deep Learning (LAMB)",
+      "url": "https://arxiv.org/abs/1904.00962"
+    }
+  ],
+  "updatedAt": "2026-08-07"
 }

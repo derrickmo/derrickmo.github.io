@@ -1224,49 +1224,49 @@ window.CURRICULUM = {
           "n": "16-01",
           "slug": "mixed-precision",
           "title": "Mixed Precision Training",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-01_mixed_precision_training.ipynb"
         },
         {
           "n": "16-02",
           "slug": "torch-compile",
           "title": "torch.compile — Dynamo & Inductor",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-02_torch_compile_dynamo_inductor.ipynb"
         },
         {
           "n": "16-03",
           "slug": "gradient-checkpointing",
           "title": "Gradient Checkpointing",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-03_gradient_checkpointing.ipynb"
         },
         {
           "n": "16-04",
           "slug": "gradient-accumulation",
           "title": "Gradient Accumulation & Large Batch Training",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-04_gradient_accumulation_large_batch_training.ipynb"
         },
         {
           "n": "16-05",
           "slug": "data-loading-scale",
           "title": "Data Loading at Scale",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-05_data_loading_at_scale.ipynb"
         },
         {
           "n": "16-06",
           "slug": "training-stability",
           "title": "Training Stability & NaN Recovery",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-06_training_stability_nan_recovery.ipynb"
         },
         {
           "n": "16-07",
           "slug": "profiling",
           "title": "Profiling & Bottleneck Analysis",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-07_profiling_bottleneck_analysis.ipynb"
         },
         {
@@ -1280,14 +1280,14 @@ window.CURRICULUM = {
           "n": "16-09",
           "slug": "fsdp",
           "title": "FSDP, ZeRO & Model Parallelism",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-09_fsdp_zero_sharding.ipynb"
         },
         {
           "n": "16-10",
           "slug": "optimized-pipeline",
           "title": "End-to-End Optimized Training Pipeline",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "16-10_end_to_end_optimized_training_pipeline.ipynb"
         }
       ]
