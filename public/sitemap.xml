@@ -382,15 +382,23 @@
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/torch-fx/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/pytorch-internals/torchscript/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/advanced-rag/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/agent-loops/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/capstone-assistant/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/chunking-retrieval/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/embeddings-vector-stores/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/guardrails/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/hyde/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/multi-agent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/prompt-injection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-chunking/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-eval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/rag-pipeline/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/react-agent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/reflection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/reranking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rag-agents/self-consistency/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rag-agents/voice-agents/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/actor-critic/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/bandit/</loc><priority>0.6</priority></url>

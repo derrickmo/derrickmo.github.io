@@ -1384,21 +1384,21 @@ window.CURRICULUM = {
           "n": "18-01",
           "slug": "embeddings-vector-stores",
           "title": "Embeddings & Vector Stores",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-01_embeddings_vector_stores.ipynb"
         },
         {
           "n": "18-02",
           "slug": "chunking-retrieval",
           "title": "Chunking, BM25 & Dense Retrieval",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-02_chunking_bm25_dense_retrieval.ipynb"
         },
         {
           "n": "18-03",
           "slug": "advanced-rag",
           "title": "Advanced RAG — HyDE & Reranking",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-03_advanced_rag_hyde_reranking.ipynb"
         },
         {
@@ -1412,42 +1412,42 @@ window.CURRICULUM = {
           "n": "18-05",
           "slug": "rag-eval",
           "title": "RAG Evaluation Metrics",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-05_rag_evaluation_metrics.ipynb"
         },
         {
           "n": "18-06",
           "slug": "agent-loops",
           "title": "Agent Loops, Tool Use & Planning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-06_agent_loops_tool_use_planning.ipynb"
         },
         {
           "n": "18-07",
           "slug": "multi-agent",
           "title": "Multi-Agent Orchestration",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-07_multi_agent_orchestration.ipynb"
         },
         {
           "n": "18-08",
           "slug": "voice-agents",
           "title": "Voice Agents — STT→LLM→TTS",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-08_voice_agents_stt_llm_tts.ipynb"
         },
         {
           "n": "18-09",
           "slug": "guardrails",
           "title": "Guardrails & Agent Evaluation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-09_guardrails_agent_evaluation.ipynb"
         },
         {
           "n": "18-10",
           "slug": "capstone-assistant",
           "title": "Domain-Specific AI Assistant (Capstone)",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "18-10_domain_specific_ai_assistant_capstone.ipynb"
         }
       ]

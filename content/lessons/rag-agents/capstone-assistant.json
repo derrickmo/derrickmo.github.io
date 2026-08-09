@@ -5,13 +5,273 @@
   "slug": "capstone-assistant",
   "module": "rag-agents",
   "title": "Domain-Specific AI Assistant (Capstone)",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "advanced",
   "surfaces": {
     "notebook": true,
     "notebookFile": "18-10_domain_specific_ai_assistant_capstone.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["rag-chunking", "rag-reranker", "react-agent", "guardrails"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["rag-agents/rag-eval", "rag-agents/guardrails"],
+  "leadsTo": ["interview-capstone/design-fraud-llm", "agentic-ai/agent-capstone"],
+  "body": {
+    "intuition": [
+      "Assembling the module produces a specific and useful finding: each component moves only its own axis. Retrieval quality moves groundedness and does nothing for safety. Guardrails move attack containment and do nothing for accuracy. A step budget moves worst-case cost and does nothing for either. So a system that is accurate is not thereby safe, and a system that is safe is not thereby bounded - and no single headline number can reveal that, because a single number averages across axes that are independent.",
+      "That is why the honest way to present a system like this is an ABLATION rather than a score. Start from the naive version, add one feature at a time, and report every axis at every stage. The table that results is the artefact: it shows which feature bought which property, it exposes the ones that bought nothing, and it makes the case for each addition individually rather than asking a reviewer to accept the whole assembly on the strength of a final number.",
+      "The other thing assembly reveals is INTERACTIONS. Retrieving more raises recall and lowers faithfulness, because more context means more opportunity to blend sources. Retry raises success and unbounds cost. Confirmation raises safety and adds friction that can make the product unusable. Each pair is a real trade that only appears once both features exist, which is why a component-by-component evaluation is necessary but not sufficient - the assembled system needs its own measurement."
+    ],
+    "math": [
+      {
+        "h": "The system as a composition of the module's two structures",
+        "paras": [
+          "The retrieval half is a chain of ceilings; the agent half multiplies; the guardrail half multiplies in the other direction.",
+          "Writing them in one line shows why one metric cannot govern the system."
+        ],
+        "tex": "\\underbrace{\\Pr[\\text{correct}] \\le \\text{recall@}k}_{\\text{ceilings}} \\;\\cdot\\; \\underbrace{s^{n}}_{\\text{loop}} \\;\\;\\text{vs}\\;\\; \\underbrace{\\Pr[\\text{harm}] = \\textstyle\\prod_i (1-d_i)}_{\\text{defence}}",
+        "texNote": "Three different compositions, and each one wants a different engineering response: raise the binding ceiling, remove steps, add independent layers. A team optimizing 'the score' will move whichever of these happens to be easiest and report progress, which is exactly the failure the ablation table prevents by forcing every axis to be visible at once."
+      },
+      {
+        "h": "Why the ablation is the right presentation",
+        "paras": [
+          "Adding features one at a time and measuring every axis attributes each gain to its cause.",
+          "The interesting cells are the ones where a feature moved nothing."
+        ],
+        "tex": "\\Delta_{j,a} = M_a(\\text{config}_{j}) - M_a(\\text{config}_{j-1}) \\quad\\text{for each feature } j,\\;\\text{axis } a",
+        "texNote": "A well-designed feature has a large delta on one axis and near-zero elsewhere, which is the sign that you understand what it does. A feature with zero delta everywhere is complexity you are carrying for nothing, and a feature with a NEGATIVE delta on another axis has found a real interaction worth naming. Reading the table by column - what did this feature buy - and by row - what still fails - is the whole exercise."
+      },
+      {
+        "h": "The bound that makes cost knowable",
+        "paras": [
+          "An unbounded loop with retries has a heavy-tailed cost distribution, so the median tells you nothing about exposure.",
+          "Caps convert an expectation into a guarantee."
+        ],
+        "tex": "\\text{worst case} \\;\\le\\; B \\cdot (r_{\\max}+1) \\cdot c_{\\text{step}} \\qquad\\text{vs}\\qquad \\mathbb{E}[\\text{cost}] \\text{ with } p_{\\text{halt}} \\to 0",
+        "texNote": "The step budget B and the retry cap together make the worst case a number you can write in a contract. Without them the expected cost is finite only if the halting probability is bounded away from zero, and the tail is what produces the surprising bill. This is the axis that improves when nothing else does - which is precisely why it needs its own column in the table."
+      }
+    ],
+    "code": [
+      {
+        "h": "The ablation - each feature moves ONE axis",
+        "paras": [
+          "This table is the capstone's real output, and its shape is the module's thesis in one artefact."
+        ],
+        "code": "# CONFIG                    correct  ground  attacks  worst   p95\n#                                     -ed     blocked  cost    lat\n# ---------------------------------------------------------------\n# 1 naive (LLM alone)         0.31    n/a      0.00    low    fast\n# 2 + retrieval               0.62    0.55     0.00    low     ok    <- accuracy\n# 3 + chunking/hybrid/rerank  0.81    0.71     0.00    low     ok    <- accuracy\n# 4 + faithfulness/citations  0.79    0.94     0.00    low    slow   <- GROUNDING\n# 5 + abstention              0.77    0.96     0.00    low    slow   <- honesty\n# 6 + agent loop (multi-hop)  0.86    0.93     0.00   UNBOUND slow   <- capability\n# 7 + budgets & caps          0.85    0.93     0.00   BOUND   slow   <- COST\n# 8 + guardrails/least-priv   0.85    0.93     1.00   BOUND   slow   <- SAFETY\n\n# ★ READ IT BY COLUMN - each feature moves essentially ONE axis:\n#   retrieval/reranking -> accuracy, nothing else\n#   citations           -> grounding (and cost ~2 pts of accuracy,\n#                          because abstaining beats guessing)\n#   budgets             -> cost bound ONLY. Zero quality effect. It\n#                          would look useless in an accuracy-only eval.\n#   guardrails          -> attacks blocked ONLY. Same.\n#\n# ★ SO: the only configuration that is capable AND grounded AND bounded\n#   AND safe is the FULL one. Rows 3, 6 and 7 each look \"good enough\"\n#   on the metric someone happened to be watching.\n\n# AND READ IT BY ROW for the INTERACTIONS - visible only once assembled:\n#   retrieval depth  UP -> recall UP,  faithfulness DOWN (more sources\n#                          to blend); tune k against BOTH\n#   retry            ON -> success UP,  cost UNBOUNDED without a cap\n#   confirmation     ON -> safety UP,   friction UP (uniform = unusable)\n#   context length   UP -> recall UP,   TTFT UP (a per-turn tax)",
+        "caption": "The budgets and guardrails rows are the point: both move zero quality and would be deleted by any accuracy-driven evaluation, yet without them the system is unbounded and unsafe."
+      },
+      {
+        "h": "The build order I would actually follow",
+        "paras": [
+          "Sequenced by what unblocks the next decision rather than by architectural interest."
+        ],
+        "code": "# 0. THE EVAL SET, FIRST. Real queries + labelled passages, plus the\n#    UNANSWERABLE tier. Without it every later step is a preference.\n#    Highest-value hour in the project, and the most commonly deferred.\n\n# 1. INGESTION. Validate extraction by READING samples - PDFs drop\n#    tables and mangle columns silently. A rising chunk count is not\n#    evidence the content is right.\n\n# 2. CHUNKING. Usually the largest single move on recall and the\n#    cheapest to test. Structural or small-to-big + contextual prefixes.\n\n# 3. RETRIEVAL. Hybrid + RRF from the start (identifiers need lexical).\n#    Measure recall@k -> that number is the CEILING on everything after.\n\n# 4. RERANK over a DEEP K (50-100 -> 5). Deep, or it buys little.\n\n# 5. GENERATION with citations required per claim. This converts an\n#    offline metric into a runtime check - the highest-leverage single\n#    thing to build off 18-05.\n\n# 6. ABSTENTION on a calibrated score. Converts confident-wrong into\n#    honest-decline; the low-confidence rate doubles as monitoring.\n\n# 7. ONLY NOW consider an agent loop, and only for the query classes a\n#    single pass structurally cannot serve (multi-hop). ROUTE: one-shot\n#    for the simple majority, loop for the rest. Keeps n=1 on most\n#    traffic, which keeps s^n out of the common path.\n\n# 8. BUDGETS + CAPS the moment a loop exists. Not later.\n\n# 9. GUARDRAILS, structural first: per-TASK tool allowlist, data\n#    scoping, confirmation by risk. Detectors last, as one layer.\n\n# 10. MONITORING: retrieval score distribution, low-confidence rate,\n#     faithfulness on a sample (needs no gold answer), cost p95.",
+        "caption": "Steps 0 to 6 are a pipeline and cover most products; the loop is step 7 and only for the query classes that structurally need it."
+      }
+    ],
+    "useCases": [
+      "Building a domain assistant over an internal corpus - support, policy, documentation - which is the most common real deployment of everything in this module.",
+      "Presenting a system to reviewers or stakeholders, where an ablation table justifies each component individually rather than asking for acceptance of the whole.",
+      "Auditing an existing assistant, by reconstructing which axis each component was supposed to move and checking whether any of them are unmeasured.",
+      "Interview system-design questions on RAG and agents, where the per-stage decomposition and the ablation are what distinguish a designed answer from a list of components."
+    ],
+    "pitfalls": [
+      "Optimizing a single headline number. The axes are independent, so a team will improve whichever is easiest and report progress while the system remains unbounded or ungrounded.",
+      "Deleting features that show no quality gain. Budgets and guardrails move zero accuracy by design; an accuracy-driven evaluation would remove exactly the components that make the system safe and bounded.",
+      "Building the agent loop before the pipeline works. Retrieval ceilings are unaffected by agency, so a loop over a bad substrate fails the same way with more steps and a larger bill.",
+      "Making everything agentic. Route: one-shot retrieval for the simple majority and a loop only for query classes that structurally need it, which keeps the step count at one on most traffic.",
+      "Tuning retrieval depth against recall alone. Faithfulness falls as chunk count grows, so k must be tuned against both - an interaction invisible when the two metrics have different owners.",
+      "Deferring the evaluation set. Every decision in the build order is a comparison on it, so without it the whole sequence becomes a series of preferences.",
+      "Reporting the assembled system without the ablation. The final number cannot tell a reviewer which component earned its place, and carrying unmeasured components is how a system becomes slow and fragile for reasons nobody can name."
+    ],
+    "connections": [
+      {
+        "ref": "rag-agents/rag-eval",
+        "text": "Where each axis in the ablation table is defined. The capstone is only meaningful because the metrics were made separable first."
+      },
+      {
+        "ref": "rag-agents/guardrails",
+        "text": "The safety column, and the inversion that makes it composable - independent layers multiply the attacker's failure probability rather than yours."
+      },
+      {
+        "ref": "rag-agents/agent-loops",
+        "text": "The capability column and its cost, including why routing most traffic to a single pass keeps the compounding out of the common path."
+      },
+      {
+        "ref": "interview-capstone/design-fraud-llm",
+        "text": "The same architecture as an interview design case, with the retrieval ceiling and the guardrail frontier as the two measured trade-offs."
+      },
+      {
+        "ref": "trustworthy-ai/alignment-governance",
+        "text": "The same conjunction logic at the governance layer - a headline metric passing while the safety case fails, because the weakest link governs."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is the capstone's central finding?",
+        "a": "Each feature moves essentially one axis, so only the fully assembled system is simultaneously capable, grounded, bounded and safe."
+      },
+      {
+        "q": "Why present an ablation instead of a score?",
+        "a": "It attributes each gain to its cause, exposes features that bought nothing, and justifies each addition individually rather than as a package."
+      },
+      {
+        "q": "Which features show zero quality gain by design?",
+        "a": "Budgets and guardrails. They move cost bound and attack containment, so an accuracy-only evaluation would delete exactly the components that make the system deployable."
+      },
+      {
+        "q": "What happens to faithfulness as you retrieve more?",
+        "a": "It tends to fall - more context means more sources to blend - so k must be tuned against recall and faithfulness together."
+      },
+      {
+        "q": "What is the first thing to build?",
+        "a": "The evaluation set, including unanswerable questions. Every later decision is a comparison on it."
+      },
+      {
+        "q": "Where does the agent loop belong in the build order?",
+        "a": "Late, and only for query classes a single pass structurally cannot serve. Route the simple majority to one-shot retrieval."
+      },
+      {
+        "q": "Why route rather than make everything agentic?",
+        "a": "It keeps the step count at one for most traffic, so the compounding stays out of the common path."
+      },
+      {
+        "q": "When do budgets get added?",
+        "a": "The moment a loop exists, not later - an unbounded loop with retries has a heavy-tailed cost distribution."
+      },
+      {
+        "q": "What order do guardrails go in?",
+        "a": "Structural first - per-task allowlist, data scoping, confirmation by risk - and detectors last, as one layer among several."
+      },
+      {
+        "q": "Why does citation-per-claim matter so much?",
+        "a": "It converts an offline faithfulness metric into a runtime check, so unsupported claims are detectable at generation time."
+      },
+      {
+        "q": "What does abstention cost and buy?",
+        "a": "It costs a couple of points of raw accuracy and buys a large gain in groundedness, because declining beats guessing."
+      },
+      {
+        "q": "What monitoring works without labels?",
+        "a": "Retrieval score distribution, low-confidence rate, faithfulness on a sample, and cost at p95 - none of which need a gold answer."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Design a domain-specific assistant end to end.",
+        "a": "I WOULD BUILD IT IN THE ORDER THAT UNBLOCKS THE NEXT DECISION, which is not the order of architectural interest - and I would present it as an ablation so each component is justified individually. STEP 0 - THE EVALUATION SET. Real queries with labelled answering passages, plus a tier of UNANSWERABLE questions, plus adversarial cases. Every step below is a comparison on this, so without it the project is a sequence of preferences. It is the highest-value hour and the most commonly deferred. STEP 1 - INGESTION, validated by reading samples of the extracted text. PDFs drop tables and mangle multi-column layout silently, and a chunking comparison run on corrupted text measures nothing. A rising chunk count is not evidence the content is right. STEP 2 - CHUNKING, which is usually the single largest move on recall and the cheapest to test. Structural splitting or small-to-big, with contextual prefixes so each chunk is self-describing. STEP 3 - RETRIEVAL, hybrid with reciprocal rank fusion from the start, because identifiers and rare terms need lexical search and no embedding fixes that. Then measure recall@k, because that number is the CEILING on everything downstream and it tells me whether to keep working on this half. STEP 4 - RERANKING over a deep candidate set, 50 to 100 down to 5. Deep, or it buys little, since a reranker can only reorder what retrieval returned. STEP 5 - GENERATION with a citation required per claim. This is the highest-leverage single thing to build, because it turns the offline faithfulness metric into a runtime check - unsupported claims become detectable at generation time rather than in an evaluation report. STEP 6 - ABSTENTION on a calibrated score, with the threshold set by the cost ratio between a wrong answer and a decline. It costs a little raw accuracy and buys a lot of groundedness, and the low-confidence rate doubles as the best label-free monitoring signal available. STEP 7 - AND ONLY NOW, an agent loop, for the query classes a single pass structurally cannot serve - multi-hop, where the second query needs the first hop's answer. I would ROUTE: one-shot for the simple majority, the loop for the rest, which keeps the step count at one on most traffic and keeps the compounding out of the common path. STEP 8 - BUDGETS AND CAPS, the moment the loop exists. STEP 9 - GUARDRAILS, structural first: per-task tool allowlist, data scoping so the agent never holds what it must not leak, confirmation by risk. Detectors last, as one independent layer. STEP 10 - MONITORING: retrieval score distribution, low-confidence rate, sampled faithfulness, cost and latency at p95. WHAT I WOULD PRESENT: the ablation table, with every axis at every configuration. It shows that retrieval moved accuracy, citations moved grounding, budgets moved only the cost bound and guardrails moved only attack containment - and therefore that the full assembly is the only configuration that is all four at once.",
+        "deepDive": {
+          "q": "Which parts of that design would you cut if you had two weeks?",
+          "a": "I WOULD CUT AGGRESSIVELY AND IN A SPECIFIC ORDER, because two weeks is enough for a genuinely useful system if you spend it on the parts that carry the quality and skip the parts that carry the sophistication. WHAT I WOULD KEEP, non-negotiably. (1) THE EVAL SET, even a small one - a hundred real queries with labelled passages and twenty unanswerable ones. It is a day of work and without it I cannot tell whether anything I do in the remaining nine days helped. Cutting this to save time is the decision that most reliably wastes the other two weeks. (2) INGESTION VALIDATION, an hour of reading extracted text. Cheap, and it catches the failure that would otherwise invalidate everything downstream. (3) SENSIBLE CHUNKING with contextual prefixes. Structural splitting, a couple of sizes compared on the eval set. Half a day, and it is usually the largest single quality move available. (4) HYBRID RETRIEVAL. About five lines of reciprocal rank fusion over a dense index and BM25. The cost is trivial and it covers a structural gap that no amount of model quality closes. (5) CITATIONS PER CLAIM AND ABSTENTION. Together these are the difference between a system that is occasionally confidently wrong and one that is honest about its limits, and in a first release honesty is worth more than a few points of coverage - it is also what makes early users trust the thing enough to keep using it. (6) A COST CAP, if anything loops at all. One line. WHAT I WOULD CUT, and why each is safe to defer. THE AGENT LOOP entirely. Two weeks is not enough to build and evaluate a loop responsibly, and the multi-hop queries it serves are usually a minority of traffic. Ship one-shot retrieval, log the failures, and let the data say whether the loop is justified. THE RERANKER, unless retrieval measurement shows precision is the binding problem. It is a model, a latency cost, and a dependency; and if recall@k is the constraint, a reranker cannot help anyway. HyDE, MULTI-QUERY, DECOMPOSITION - all of them. Each is a purchase with a latency and cost bill, and none of them should be bought before the eval set can price them. SEMANTIC CHUNKING, which in my experience gives an inconsistent gain over structural splitting at much higher ingestion cost. FINE-TUNING the embedder, which is a project rather than a task and obliges a full re-embedding. MULTI-AGENT anything. THE HONEST TRADE-OFF I WOULD STATE to whoever is asking. The two-week system will have lower recall than the full one and will decline more often. What it will NOT do is answer confidently from passages that do not support the answer, exceed a cost bound, or take an action nobody authorized - because those properties come from cheap components rather than sophisticated ones. That is the right shape for a first release, and it also produces the logs that tell you which of the cut items to build first. WHAT I WOULD MEASURE ON DAY 14 to guide the next phase: recall@k, faithfulness, abstention rate, and the distribution of query types among failures. That last one is the roadmap - if a third of failures are multi-hop, the loop is justified; if they are identifier lookups, the retrieval side needs work; if they are absent from the corpus, the problem was never in the system at all."
+        }
+      },
+      {
+        "q": "What would you monitor once it is live, and what would you act on?",
+        "a": "I WOULD SPLIT IT INTO SIGNALS THAT NEED NO LABELS AND A SAMPLED PROCESS THAT PRODUCES THEM, because production has no gold answers and every useful monitoring design starts from that constraint. THE LABEL-FREE SIGNALS. (1) RETRIEVAL SCORE DISTRIBUTION, tracked as a distribution rather than a mean. A downward shift means the corpus or the traffic changed - new topics, an ingestion break, a re-embedding gone wrong - and it is the earliest available warning. (2) LOW-CONFIDENCE RATE, the fraction of queries below the abstention threshold. It doubles as a coverage-gap detector, and a rise usually precedes complaints. (3) ABSTENTION RATE by segment. Both directions are informative: rising means coverage is degrading, falling can mean a threshold drifted or the corpus grew. (4) FAITHFULNESS ON A SAMPLE, which needs only the answer and the context it was given, making it one of the very few real quality metrics computable on live traffic. (5) CITATION VALIDITY, if citations are exposed - a cited chunk that does not support the claim is an unambiguous defect. (6) BEHAVIOURAL SIGNALS: rephrase rate, which is a strong implicit failure signal; abandonment; explicit feedback; escalation to a human. (7) OPERATIONAL: cost and latency at p95 by stage, budget-exhaustion rate if there is a loop, error rates, and index health including deleted-fraction. THE ALERT I WOULD ACTUALLY SET, if limited to one: a shift in the retrieval score distribution together with a rise in the low-confidence rate. That pair catches ingestion breakage, corpus drift and query-distribution shift, needs no labels, and fires before users complain - which is what separates monitoring from reporting. WHAT I WOULD ACT ON, and how. A score-distribution shift means investigate ingestion first, then check whether the query mix moved. A rising low-confidence rate means a coverage gap - look at what those queries are about, since it is usually a topic the corpus does not cover, which is a content problem rather than a system problem. Falling faithfulness means the generation side changed or context is getting crowded - check whether k or the prompt changed. Rising p95 cost with flat quality means a loop is wandering, and the budget distribution will show it. THE FEEDBACK LOOP THAT MATTERS MOST: sample production queries into the offline eval set continuously, prioritizing low-confidence and negative-feedback cases, and label them. The eval set built at launch measures the product you launched, and both the traffic and the corpus drift away from it - so without this the measurement quietly stops being about the live system. Every incident becomes a permanent regression case, which is how the suite grows into something that actually reflects the failure modes you have rather than the ones you imagined. AND THE HABIT I WOULD INSIST ON: read a sample of real conversations weekly. Aggregate metrics are structurally unable to show you a class of failure nobody thought to measure, and this module's recurring lesson is that the important failure is usually the one your instrument cannot see."
+      },
+      {
+        "q": "How would you present this system to a skeptical reviewer?",
+        "a": "WITH THE ABLATION TABLE, BECAUSE IT ANSWERS THE QUESTION A SKEPTIC IS ACTUALLY ASKING - not 'is this good' but 'why is each of these pieces here'. A single headline number invites the reasonable objection that the system is a pile of components someone liked, and it gives no way to answer. THE STRUCTURE OF THE PRESENTATION. Start from the naive baseline - the model alone, no retrieval - and give its number. This matters more than people think: it establishes what the domain-specific work is actually buying, and occasionally it is uncomfortably close, which is a finding worth knowing early. Then add one component at a time and show every axis at every step: accuracy, groundedness, attacks blocked, worst-case cost, p95 latency. WHAT THE TABLE DEMONSTRATES, and this is the argument. Each component moves essentially ONE axis. Retrieval and reranking move accuracy and touch nothing else. Citations move groundedness and cost a couple of points of accuracy, because declining beats guessing. Budgets move only the cost bound - zero quality change. Guardrails move only attack containment - zero quality change. A reviewer looking at accuracy alone would delete the last two, and the table is what shows why that would be wrong: the system without them is unbounded and unsafe while scoring identically. THE INTERACTIONS I WOULD SHOW DELIBERATELY, because volunteering the trade-offs is what makes the rest credible. Retrieval depth raises recall and lowers faithfulness. Retry raises success and unbounds cost until capped. Confirmation raises safety and adds friction. Presenting these as known and quantified trades, rather than being asked about them, changes the character of the conversation. WHAT I WOULD ALSO BRING. Confidence intervals, because agent and RAG suites are small and a five-point difference on fifty questions is noise - a reviewer who knows this and does not see intervals will discount everything. The unanswerable-question tier and the abstention numbers in both directions, since that is where a skeptic's real worry usually lives. The failure analysis: what the system still gets wrong, categorized, with the evidence-derived next step. And the cost per query, which is the question that arrives last and decides most. WHAT I WOULD NOT DO: present the best configuration's number as the result. It is unfalsifiable in the reviewer's hands, it hides which parts were load-bearing, and it makes the whole thing look like a demo. The ablation is more work and it is also more persuasive, because it lets a skeptic check each claim separately - and a claim that survives being checked individually is worth more than a summary that has to be taken on trust. THE HONEST CLOSING I WOULD OFFER: the failures the system still has, the axes I did not measure, and what would change my mind about the design. Saying what is unmeasured is what distinguishes a thorough evaluation from an honest one, and it is the habit this whole module is built around."
+      },
+      {
+        "q": "What would you do differently for a high-stakes domain?",
+        "a": "I WOULD MOVE EVERY THRESHOLD TOWARD DECLINING AND MAKE THE HUMAN PATH FIRST-CLASS, because in medicine, law or finance the cost asymmetry between a wrong answer and a decline is enormous and the design should reflect that ratio explicitly rather than inheriting defaults tuned for a consumer assistant. THE THRESHOLD CHANGES. Abstention goes conservative: decline unless the evidence clearly supports an answer, and accept a much higher false-abstention rate as the price. Confirmation applies to a wider set of actions, and the risk bar that triggers it drops. And I would consider CONFORMAL prediction rather than a hand-set threshold, because it gives distribution-free coverage - a provable error rate on exchangeable data - which converts 'the score looked low' into a statement with a guarantee attached. In a regulated setting that difference is not academic; it is the difference between a defensible control and an arbitrary one. THE ARCHITECTURE CHANGES. Citations become mandatory and user-facing, so every claim is checkable by the person acting on it - which also shifts the interaction from 'trust the answer' to 'verify the source', a better posture for the domain. Retrieval permissions get enforced at query time with no exceptions, since a permissions failure here is a reportable incident rather than a bug. The agent loop gets narrower or disappears: autonomy is where unbounded behaviour lives, and in a high-stakes setting I would prefer a constrained pipeline with a human decision point over a loop that is usually right. And every action becomes reversible or gated. THE EVALUATION CHANGES, and this is where most of the extra work goes. Domain experts label the eval set, not annotators - the definition of a correct answer requires the expertise. Failures get stratified by severity, because a wrong dosage and a wrong formatting are not the same event and an aggregate accuracy treats them identically. Subgroup performance gets measured explicitly, since an aggregate can pass while a segment fails badly, and in these domains that is both a quality and a fairness problem. And the safety case becomes a CONJUNCTION: accuracy, calibration, subgroup gaps, faithfulness and coverage all have to pass, and the system fails if any one does - the weakest link governs, which is this module's structure applied to a release decision. THE PROCESS CHANGES. Audit logs of every retrieval and every action, retained. A documented model card and evaluation report. A defined escalation path to a human, staffed, with the system's uncertainty visible to that human rather than hidden. Periodic re-evaluation, since a model or corpus update can regress safety in ways a capability test does not see. AND THE FRAMING I WOULD GIVE, which is the part that most often needs saying: the system should be designed as decision SUPPORT rather than decision MAKING, with the human's judgement as the control rather than as a fallback. That changes what you optimize - surfacing the right evidence quickly beats producing a confident answer - and it is a more honest fit to what these systems can currently guarantee."
+      },
+      {
+        "q": "What is the single most transferable idea from this module?",
+        "a": "ASK WHETHER YOU ARE IN A CONJUNCTION OR A DISJUNCTION BEFORE ADDING A COMPONENT, because that one question determines whether the addition helps or hurts, and the module is essentially four demonstrations of it. IN A CONJUNCTION every part must work. Retrieval must find the evidence AND the generator must use it. Every step of an agent loop must succeed. Every stage of a voice cascade must fit inside one latency budget. Here, components compose against you: probabilities multiply below one, latencies add against a ceiling, and the worst stage bounds the whole. So the burden of proof falls on ADDING - each new component needs to earn its place, and the cheapest reliability gain is usually subtraction. Ten steps at 0.95 is 0.60, and removing four of them is worth more than improving any one. IN A DISJUNCTION any part working is sufficient. A layered defence catches an attack if ANY layer fires. Here the same arithmetic runs in your favour: three imperfect layers at 0.6, 0.8 and 0.9 take attack success to under one percent. The burden of proof falls on LEAVING OUT, and adding an independent layer is close to free in expectation. THE SHARED CAVEAT, which appeared three times: INDEPENDENCE. Correlated components do not multiply in either direction. Same-model agents are wrong on the same items, so voting buys little. Phrasing-based filters miss the same inputs, so stacking them buys little. In both cases the real engineering is manufacturing components that fail for DIFFERENT reasons - different models, different evidence, different mechanisms - and that work is what makes the arithmetic true rather than decorative. THE COROLLARY ABOUT MEASUREMENT, which is what makes the framing usable rather than just descriptive: in any composed system an aggregate number cannot say which component is binding, and the intuitive guess is biased toward the visible and expensive one. That is why chunking beats the embedding model, why endpointing beats the language model, why recall@K explains the disappointing reranker. Decompose and measure per stage - it costs an afternoon and it removes the guessing entirely. WHERE ELSE IT APPLIES, well beyond this module: microservice reliability, hiring loops, safety cases, manufacturing yield, security architecture. Anywhere components compose, the first question is which structure you are in, the second is which component binds, and the third is whether the components fail independently. Everything in this module is those three questions asked about retrieval, agents, voice and defence - and the reason to hold onto the abstraction rather than the specifics is that the specific technologies will turn over quickly while the structure will not."
+      },
+      {
+        "q": "How does the capstone close the module?",
+        "a": "BY SHOWING THAT THE MODULE'S TWO STRUCTURES COEXIST IN ONE SYSTEM and demand different responses, which is the thing a component-by-component reading cannot convey. The retrieval half is a chain of CEILINGS - chunking bounds retrieval bounds generation - and the right response is to find the binding one and raise it. The agent half MULTIPLIES - each step is a factor below one - and the right response is to remove steps rather than improve them. The guardrail half multiplies in the OTHER direction - independent layers compound the attacker's failure - and the right response is to add layers that fail for different reasons. Three structures, three opposite instincts, in one product. A team holding only one of them will systematically do the wrong thing with the other two. THE ABLATION IS WHAT MAKES THAT VISIBLE, and it is the module's practical output. Each feature moves essentially one axis, so the table separates what a single score merges: retrieval buys accuracy, citations buy grounding, budgets buy a cost bound and nothing else, guardrails buy containment and nothing else. The consequence is stated most sharply by the rows that look useless - an accuracy-driven evaluation deletes exactly the components that make the system bounded and safe, and it does so with data on its side. That is the module's opening claim proved on its own system: the aggregate cannot tell you what you need to know, and the fix is not a better aggregate but a decomposition. WHAT I WOULD WANT SOMEONE TO CARRY OUT OF THE MODULE. First, measure per stage - always, and early, because it costs an afternoon and it is the difference between engineering and guessing. Second, before adding a component, ask whether all of them must work or any one suffices, since that determines the sign of the addition. Third, remember that the binding constraint is usually the cheapest and least interesting stage, because attention flows to the visible expensive one - chunking, endpointing, recall@K. And fourth, the honest closing note that this module shares with the rest of the curriculum: say what remains unmeasured. The failure that hurts is the one your instrument was structurally unable to see, and the only defence against it is the habit of naming what you did not measure alongside what you did."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "intuition",
+      "front": "★ The capstone finding",
+      "back": "Each feature moves essentially ONE axis. Retrieval → accuracy. Citations → grounding. Budgets → cost bound ONLY. Guardrails → containment ONLY. So only the FULL assembly is capable AND grounded AND bounded AND safe."
+    },
+    {
+      "type": "pitfall",
+      "front": "An accuracy-only eval deletes the safety features",
+      "back": "Budgets and guardrails move ZERO quality by design — and would be cut, with data on their side. That is the module's opening claim proved on its own system: the aggregate can't tell you what you need to know."
+    },
+    {
+      "type": "formula",
+      "front": "Three compositions in ONE system",
+      "back": "CEILINGS (P ≤ recall@k) → raise the binding one. MULTIPLICATION (sⁿ) → remove steps. DEFENCE (∏(1−dᵢ)) → add independent layers. Three opposite instincts; holding only one means doing the wrong thing with the other two."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The single most transferable question",
+      "back": "CONJUNCTION (all must work) or DISJUNCTION (any suffices)? In a conjunction the burden is on ADDING (each part is a factor <1; subtraction is the cheapest gain). In a disjunction the burden is on LEAVING OUT."
+    },
+    {
+      "type": "intuition",
+      "front": "Independence, the caveat on both sides",
+      "back": "Appeared three times: Condorcet voting, ensemble diversity, defensive layers. Correlated components don't multiply in EITHER direction. Manufacturing components that fail for DIFFERENT reasons is the real engineering."
+    },
+    {
+      "type": "intuition",
+      "front": "The build order",
+      "back": "0 eval set (incl. UNANSWERABLE) · 1 validate ingestion · 2 chunking · 3 hybrid retrieval → recall@k = THE CEILING · 4 rerank over deep K · 5 citations per claim · 6 abstention · 7 loop ONLY for multi-hop, and ROUTE · 8 budgets · 9 structural guardrails · 10 monitoring."
+    },
+    {
+      "type": "pitfall",
+      "front": "The interactions, visible only once assembled",
+      "back": "retrieval depth ↑ → recall ↑, FAITHFULNESS ↓ (more sources to blend) · retry → success ↑, cost UNBOUNDED · confirmation → safety ↑, friction ↑ · context ↑ → recall ↑, TTFT ↑. Tune k against BOTH metrics."
+    },
+    {
+      "type": "intuition",
+      "front": "Route instead of making everything agentic",
+      "back": "One-shot retrieval for the simple majority, a loop only for query classes a single pass STRUCTURALLY cannot serve (multi-hop). Keeps n=1 on most traffic — so sⁿ stays out of the common path."
+    },
+    {
+      "type": "intuition",
+      "front": "The two-week version",
+      "back": "KEEP: eval set, ingestion check, chunking, hybrid+RRF, citations, abstention, a cost cap. CUT: the loop, reranker (unless precision is binding), HyDE/multi-query, semantic chunking, fine-tuning, multi-agent. Honest, bounded, lower recall — the right first shape."
+    },
+    {
+      "type": "intuition",
+      "front": "Monitoring without labels",
+      "back": "Retrieval score DISTRIBUTION · low-confidence rate · sampled FAITHFULNESS (needs no gold answer) · citation validity · rephrase rate · cost p95. The one alert: score-distribution shift + rising low-confidence."
+    },
+    {
+      "type": "intuition",
+      "front": "Present the ablation, not the score",
+      "back": "A skeptic isn't asking \"is this good\" but \"why is each piece here\". Start from the naive baseline, add one feature at a time, show EVERY axis. Volunteer the interactions. Bring CIs — a 5-point gap on 50 questions is noise."
+    },
+    {
+      "type": "intuition",
+      "front": "High-stakes changes",
+      "back": "Conservative abstention (consider CONFORMAL for a provable rate) · mandatory user-facing citations · narrower or no loop · expert-labelled eval · severity-stratified failures · subgroup gaps · and a CONJUNCTION safety case — the weakest link governs."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Lewis et al. (2020), Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "url": "https://arxiv.org/abs/2005.11401"
+    },
+    {
+      "title": "Es et al. (2023), RAGAS: Automated Evaluation of Retrieval Augmented Generation",
+      "url": "https://arxiv.org/abs/2309.15217"
+    },
+    {
+      "title": "Anthropic (2024), Building Effective Agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents"
+    },
+    {
+      "title": "Debenedetti et al. (2024), AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses",
+      "url": "https://arxiv.org/abs/2406.13352"
+    },
+    {
+      "title": "NIST (2023), AI Risk Management Framework 1.0",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf"
+    }
+  ],
+  "updatedAt": "2026-08-08"
 }

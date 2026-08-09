@@ -2044,7 +2044,6 @@ window.SUB_LESSONS = {
       "react-agent",
       "self-consistency",
       "reflection",
-      "guardrails",
       "prompt-injection"
     ],
     "lessons": {
@@ -2233,37 +2232,6 @@ window.SUB_LESSONS = {
           "It is the sequential cousin of self-consistency."
         ],
         "demo": "reflection"
-      },
-      "guardrails": {
-        "title": "Guardrails",
-        "oneLine": "Filter inputs and outputs to keep an LLM system safe.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A deployed model needs a safety pipeline around it. Input guards strip or flag prompt injection and sensitive data; output guards catch unsafe content, leaked secrets, or off-policy responses before they reach the user. Each guard is a focused check; turning one off lets the matching threat through."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The system passes only if every guard passes:"
-            ],
-            "tex": "\\text{allow} = \\bigwedge_{g\\in G} g(\\text{text})",
-            "texNote": "Layered, independent checks - defense in depth, not a single classifier."
-          },
-          {
-            "h": "In code",
-            "code": "def guarded(prompt):\n    if injection(prompt) or has_pii(prompt): return BLOCK\n    out = model(sanitize(prompt))\n    if toxic(out) or leaks_secret(out): return BLOCK\n    return out",
-            "caption": "Check the input, generate, then check the output."
-          }
-        ],
-        "takeaways": [
-          "Guardrails wrap the model with input and output checks.",
-          "Layered, independent guards give defense in depth.",
-          "Removing a guard exposes exactly its threat class."
-        ],
-        "demo": "guardrails"
       },
       "prompt-injection": {
         "title": "Prompt Injection",

@@ -4,18 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>18-09 Guardrails &amp; Agent Evaluation | ML from Scratch | Derrick Mo</title>
-  <meta name="description" content="This is the lesson where the module's arithmetic changes sign. Everywhere else, composition has worked against you: ceilings bound you to the worst stage, " />
-  <link rel="canonical" href="https://derrickmo.github.io/learn/rag-agents/guardrails/" />
+  <title>18-02 Chunking, BM25 &amp; Dense Retrieval | ML from Scratch | Derrick Mo</title>
+  <meta name="description" content="Chunking is the least glamorous decision in a RAG system and it sets the highest ceiling. The chunk is the unit that gets embedded, so it is the unit that " />
+  <link rel="canonical" href="https://derrickmo.github.io/learn/rag-agents/chunking-retrieval/" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Derrick Mo" />
-  <meta property="og:title" content="18-09 Guardrails &amp; Agent Evaluation | ML from Scratch | Derrick Mo" />
-  <meta property="og:description" content="This is the lesson where the module's arithmetic changes sign. Everywhere else, composition has worked against you: ceilings bound you to the worst stage, " />
-  <meta property="og:url" content="https://derrickmo.github.io/learn/rag-agents/guardrails/" />
+  <meta property="og:title" content="18-02 Chunking, BM25 &amp; Dense Retrieval | ML from Scratch | Derrick Mo" />
+  <meta property="og:description" content="Chunking is the least glamorous decision in a RAG system and it sets the highest ceiling. The chunk is the unit that gets embedded, so it is the unit that " />
+  <meta property="og:url" content="https://derrickmo.github.io/learn/rag-agents/chunking-retrieval/" />
   <meta property="og:image" content="https://derrickmo.github.io/og-default.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="18-09 Guardrails &amp; Agent Evaluation | ML from Scratch | Derrick Mo" />
-  <meta name="twitter:description" content="This is the lesson where the module's arithmetic changes sign. Everywhere else, composition has worked against you: ceilings bound you to the worst stage, " />
+  <meta name="twitter:title" content="18-02 Chunking, BM25 &amp; Dense Retrieval | ML from Scratch | Derrick Mo" />
+  <meta name="twitter:description" content="Chunking is the least glamorous decision in a RAG system and it sets the highest ceiling. The chunk is the unit that gets embedded, so it is the unit that " />
   <meta name="twitter:image" content="https://derrickmo.github.io/og-default.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -38,7 +38,7 @@
     .katex { color: var(--blue-br); }
   </style>
 
-  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "rag-agents"; window.__DM_LESSON_SLUG = "guardrails";</script>
+  <script>window.__DM_BASE = "../../../"; window.__DM_PAGE = "learn"; window.__DM_MODULE_SLUG = "rag-agents"; window.__DM_LESSON_SLUG = "chunking-retrieval";</script>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
