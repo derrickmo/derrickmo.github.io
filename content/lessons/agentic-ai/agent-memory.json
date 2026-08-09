@@ -5,13 +5,274 @@
   "slug": "agent-memory",
   "module": "agentic-ai",
   "title": "Agent Memory & Context Management",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "advanced",
   "surfaces": {
-    "notebook": false,
-    "notebookFile": "21-05_agent_memory.ipynb",
+    "notebook": true,
+    "notebookFile": "21-05_agent_memory_context_management.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["embeddings", "vector-search", "kv-cache-eviction", "lost-in-the-middle"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["agentic-ai/agent-loop", "rag-agents/embeddings-vector-stores"],
+  "leadsTo": ["agentic-ai/multi-agent", "agentic-ai/observability"],
+  "body": {
+    "intuition": [
+      "An agent's history grows every step and its context does not, so something must be dropped. The interesting question is not which strategy is best - none of them dominates - but what SHAPE each one's failure has, because the shapes are completely different and that is what determines which is survivable for your traffic. Measured on the same task, with a fact buried d turns back and a budget too small to hold everything, the three standard strategies fail in three unrelated ways.",
+      "RECENCY - keep the last B turns - is a CLIFF. Inside the window it scores 1.0; outside it scores 0.0. Not a decay, a step function at the boundary. That is the most dangerous shape, because the system looks perfect right up to the point where it knows nothing, and nothing in its behaviour signals which side of the boundary a given fact is on. RETRIEVAL is FLAT in distance - a fact from a hundred turns ago is as available as one from two - which is exactly the property you want, and it has a different failure entirely. SUMMARIZATION holds perfectly until the number of distinct facts exceeds its capacity and then EVICTS, dropping from 1.0 to 0.66 past six facts in the measured setting.",
+      "The retrieval failure is the one worth dwelling on, because finding it required abandoning the experiment that was planned. The intended test - does adding distractors degrade retrieval - showed nothing at all: retrieval stayed flat at 1.0, because the target fact was always the best lexical match no matter how many distractors surrounded it. The real failure was elsewhere. A query using the fact's exact vocabulary retrieves it at 1.0; a query that paraphrases it retrieves it at 0.0. That is the LEXICAL GAP, and it is precisely why production systems use semantic embeddings rather than word overlap - a conclusion that arrives as a measured necessity rather than a best practice."
+    ],
+    "math": [
+      {
+        "h": "Recency is a step function, not a decay",
+        "paras": [
+          "Truncation keeps the last B turns, so a fact is either present or absent.",
+          "The failure has no gradient, which is what makes it dangerous."
+        ],
+        "tex": "\\text{success}_{\\text{recency}}(d) = \\mathbb{1}[\\,d \\le B\\,] \\;=\\; \\begin{cases} 1.0 & d \\le B \\\\ 0.0 & d > B \\end{cases}",
+        "texNote": "There is no partial credit and no warning. The agent behaves perfectly on everything inside the window and knows nothing one turn outside it, and its outputs give no signal about which regime a particular fact is in - so the same system answers confidently in both cases. A metric averaged over a mixed distance distribution reports something in the middle and describes neither behaviour."
+      },
+      {
+        "h": "Retrieval is flat in distance and gated by matching",
+        "paras": [
+          "Distance stops mattering entirely, which is the whole point of retrieval as a memory strategy.",
+          "What replaces it is a different gate, and it is binary in the measured lexical case."
+        ],
+        "tex": "\\text{success}_{\\text{retr}}(d) \\approx \\text{const}, \\qquad \\text{but } \\;\\; \\underbrace{1.0}_{\\text{exact vocabulary}} \\;\\;\\text{vs}\\;\\; \\underbrace{0.0}_{\\text{paraphrase}}",
+        "texNote": "Trading a distance failure for a matching failure is a good trade only if the matching is robust - and with bag-of-words overlap it is not: a synonym or a rephrasing drops recall to zero. This is the measured argument for semantic embeddings in agent memory, and it also imports the whole retrieval ceiling from 18-01: if the memory is not retrieved, no reasoning recovers it."
+      },
+      {
+        "h": "Summarization holds, then evicts",
+        "paras": [
+          "A capped fact store is exact while it fits and lossy once it does not.",
+          "The eviction is silent, which is what it shares with the recency cliff."
+        ],
+        "tex": "\\text{success}_{\\text{summary}} = \\begin{cases} 1.0 & |\\text{facts}| \\le C \\\\ \\approx 0.66 & |\\text{facts}| > C \\end{cases}, \\qquad C \\approx 6",
+        "texNote": "Unlike recency this degrades rather than cliffs, but the loss is invisible in the same way - the summary reads as complete because a summary always does, so nothing indicates that three facts were dropped to make room. The cost side is real too: maintaining the summary means an extra model call per update, which is why the measured frontier prices it at roughly six facts' worth of overhead."
+      }
+    ],
+    "code": [
+      {
+        "h": "Three strategies, three failure SHAPES",
+        "paras": [
+          "The shapes matter more than the averages, because they say which failure your traffic will hit."
+        ],
+        "code": "# Task: a fact planted d turns back; budget B < history length.\n#\n#   strategy        vs DISTANCE d           failure shape\n#   ------------------------------------------------------------------\n#   RECENCY         1.0 (d<=B), 0.0 (d>B)   ★ CLIFF - step function.\n#                                             Perfect, then nothing,\n#                                             with NO signal which side\n#                                             a fact is on.\n#   RETRIEVAL       flat ~1.0 in d          distance stops mattering -\n#                                             but see the lexical gap\n#   SUMMARIZATION   1.0 until |facts|>C,    EVICTION - graceful-looking\n#                   then ~0.66  (C~6)        and silently lossy\n\n# ★ THE FRONTIER, at B=8 on an OLD fact:\n#     recency  0.000     <- outside the window; unrecoverable\n#     retrieval 1.000    <- distance-independent\n#     summary   1.000    <- at ~6 facts' worth of maintenance cost\n\n# ★ THE LEXICAL GAP - retrieval's real failure, and the honest story\n#   of how it was found:\n#     query using the fact's EXACT vocabulary   -> 1.000\n#     query that PARAPHRASES the same fact      -> 0.000\n#\n#   THE PLANNED EXPERIMENT WAS DIFFERENT. The intent was to show that\n#   distractors degrade retrieval. It showed nothing: retrieval stayed\n#   flat at 1.0 because the target was always the best lexical match no\n#   matter how many distractors surrounded it. So the claim was dropped\n#   and the REAL failure was measured instead. That is the discipline -\n#   report what the experiment found, not what it was designed to show.\n#\n#   AND IT IS WHY PRODUCTION USES SEMANTIC EMBEDDINGS: not as a best\n#   practice, but because word overlap fails on paraphrase, which is\n#   how people actually refer back to things.",
+        "caption": "Three unrelated failure shapes — a cliff, a matching gate, and a silent eviction — which is why 'which memory strategy is best' is the wrong question."
+      },
+      {
+        "h": "What a production memory stack actually looks like",
+        "paras": [
+          "Nobody picks one strategy; the layers cover each other's failure shapes."
+        ],
+        "code": "context = [\n  SYSTEM_PROMPT,              # fixed - and a PER-TURN prefill tax\n  running_summary,            # compressed older history (evicts silently)\n  *retrieved_memories(query), # SEMANTIC, not lexical - the gap above\n  *last_k_turns,              # verbatim recency (the cliff, bounded)\n]\n# The layers are chosen so their failures DON'T overlap: recency covers\n# the immediate, retrieval covers the distant, the summary covers the\n# gist. That is the same independence argument as defence in depth.\n\n# ★ MEMORY IS NOT ONE THING - four kinds, different lifetimes:\n#   WORKING     the context window itself      (this request)\n#   EPISODIC    what happened, when            (this session)\n#   SEMANTIC    facts learned about the user   (across sessions)\n#   PROCEDURAL  how to do a task here          (learned patterns)\n#   Conflating them is why \"add memory\" projects sprawl - each has a\n#   different store, lifetime, and privacy question.\n\n# THE OPERATIONAL DETAILS THAT BITE:\n#  * POSITION matters - models use mid-context material less reliably,\n#    so WHERE a retrieved memory sits is a real decision (18-08, 17-10).\n#  * The transcript grows faster than its INFORMATION content; prefer a\n#    structured scratchpad of facts over raw turns.\n#  * Every replan re-reads the history, so an adaptive strategy (21-04)\n#    multiplies this cost - memory and control strategy interact.\n#  * WRITING is the hard part, not reading: deciding what is worth\n#    remembering is a judgement nobody has a good metric for.",
+        "caption": "The layers are chosen so their failure shapes do not overlap — the same independence argument that makes defence in depth work."
+      }
+    ],
+    "useCases": [
+      "Long-running assistants where a fact from early in a session must survive to the end, which is exactly where the recency cliff bites.",
+      "Multi-session products that need to remember a user across conversations, which is semantic memory with a different store and a privacy question attached.",
+      "Deep agent trajectories, where the history grows faster than its information content and a structured scratchpad beats a raw transcript.",
+      "Diagnosing an agent that 'forgets', which is usually a specific one of the three failure shapes and is identifiable by testing against distance and against paraphrase."
+    ],
+    "pitfalls": [
+      "Treating recency truncation as graceful degradation. It is a step function - perfect inside the window, nothing outside - and the agent gives no signal about which side a fact is on.",
+      "Using lexical matching for memory retrieval. Exact-vocabulary queries retrieve at 1.0 and paraphrases at 0.0, which is how people actually refer back to earlier material.",
+      "Assuming a summary is lossless because it reads complete. A capped store evicts silently once distinct facts exceed capacity, dropping to about two thirds in the measured setting.",
+      "Averaging memory performance over a mixed distance distribution. It reports a number in the middle that describes neither the in-window nor the out-of-window behaviour.",
+      "Conflating the four kinds of memory. Working, episodic, semantic and procedural have different stores, lifetimes and privacy implications, and merging them is why memory projects sprawl.",
+      "Storing raw transcript instead of extracted facts. The transcript grows faster than its information content, so the same budget holds far less that matters.",
+      "Ignoring position within the context. Models use mid-context material less reliably, so where a retrieved memory is placed is a real decision rather than an implementation detail.",
+      "Treating retrieval as free in an adaptive loop. Every replan re-reads the history, so memory cost and control strategy interact and the product is what you pay."
+    ],
+    "connections": [
+      {
+        "ref": "rag-agents/embeddings-vector-stores",
+        "text": "Why semantic embeddings rather than word overlap, and the retrieval ceiling that memory inherits - an unretrieved memory is unrecoverable by any reasoning."
+      },
+      {
+        "ref": "agentic-ai/react-planning",
+        "text": "The interaction: every replan re-reads the history, so an adaptive control strategy multiplies whatever memory costs per step."
+      },
+      {
+        "ref": "agentic-ai/observability",
+        "text": "Where naive history handling shows up as a quadratic cost curve, and what a managed window does to it."
+      },
+      {
+        "ref": "llm-systems/long-context",
+        "text": "Why a bigger window changes the trade-off without removing it - position effects persist and the KV cache bounds how much you can afford to carry."
+      },
+      {
+        "ref": "agentic-ai/multi-agent",
+        "text": "The context-isolation argument: a subagent's dead ends stay in its own window, which is a memory-management benefit rather than a collective-intelligence one."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What shape is the recency-truncation failure?",
+        "a": "A cliff. 1.0 inside the window and 0.0 outside - a step function with no partial credit and no warning."
+      },
+      {
+        "q": "Why is that the most dangerous shape?",
+        "a": "The agent behaves perfectly right up to the boundary and knows nothing past it, and its outputs give no signal about which side a fact is on."
+      },
+      {
+        "q": "How does retrieval behave with distance?",
+        "a": "Flat - a fact from a hundred turns ago is as available as one from two. Distance stops mattering entirely, which is the point."
+      },
+      {
+        "q": "What is the lexical gap?",
+        "a": "Exact-vocabulary queries retrieve the fact at 1.0; paraphrased queries retrieve it at 0.0. Word overlap fails on the way people actually refer back."
+      },
+      {
+        "q": "What does that measurement justify?",
+        "a": "Semantic embeddings for agent memory - not as a best practice but as a measured necessity, since paraphrase is the normal case."
+      },
+      {
+        "q": "How was the lexical gap found?",
+        "a": "The planned distractor experiment showed nothing - the target was always the best lexical match - so the claim was dropped and the real failure was measured instead."
+      },
+      {
+        "q": "How does summarization fail?",
+        "a": "It holds at 1.0 until distinct facts exceed capacity, then evicts - about 0.66 past six facts in the measured setting."
+      },
+      {
+        "q": "What do summarization and recency share?",
+        "a": "Silent loss. A summary reads complete whether or not facts were dropped, just as truncation gives no signal that something fell out of the window."
+      },
+      {
+        "q": "What was the frontier at a budget of 8 on an old fact?",
+        "a": "Recency 0.0, retrieval 1.0, summary 1.0 at roughly six facts' worth of maintenance cost."
+      },
+      {
+        "q": "What are the four kinds of memory?",
+        "a": "Working - the context itself; episodic - what happened; semantic - facts learned; procedural - how to do things here. Different stores and lifetimes."
+      },
+      {
+        "q": "Why store extracted facts rather than transcript?",
+        "a": "The transcript grows faster than its information content, so the same budget holds far less of what actually matters."
+      },
+      {
+        "q": "How does memory interact with the control strategy?",
+        "a": "Every replan re-reads the history, so an adaptive strategy multiplies the per-step memory cost - the two are not independent."
+      }
+    ],
+    "standard": [
+      {
+        "q": "How would you design memory for a long-running agent?",
+        "a": "AS LAYERS CHOSEN SO THEIR FAILURE SHAPES DO NOT OVERLAP, which is the actual design principle and it comes straight from the measurement. The three standard strategies fail in three unrelated ways, so no single one is a good answer and a combination covers what each one misses. WHAT THE MEASUREMENT SHOWED. Recency truncation is a CLIFF - 1.0 inside the window, 0.0 outside, a step function with no gradient and no warning. Retrieval is FLAT in distance, which is exactly the property you want for old facts, but it has a matching gate that failed badly with lexical overlap: exact vocabulary 1.0, paraphrase 0.0. Summarization holds at 1.0 until distinct facts exceed capacity and then evicts, dropping to about 0.66 past six facts. At a budget of eight on an old fact the frontier was recency 0.0, retrieval 1.0, summary 1.0 at roughly six facts of maintenance cost. THE STACK THAT FOLLOWS. Last k turns VERBATIM, because recent context is what most turns need and truncation's cliff is harmless when the fact is recent. Semantic RETRIEVAL over older material, because it is distance-independent and covers exactly what recency loses - and semantic rather than lexical, which the paraphrase result makes non-optional. A running SUMMARY for the gist, accepting that it evicts, because it covers the case where the relevant thing is a pattern across many turns rather than a specific fact retrieval could match. And EXTERNAL stores for anything that must survive the session. That layering is the same independence argument as defence in depth: the layers help because they fail for different reasons. THE FOUR KINDS OF MEMORY, which I would separate explicitly because conflating them is why these projects sprawl. Working memory is the context window. Episodic is what happened and when. Semantic is facts learned about the user or domain. Procedural is how to do a task in this environment. They have different stores, different lifetimes, and different privacy questions - remembering a user's preference across sessions is a product and legal decision, not just an engineering one. WHAT I WOULD STORE, which matters more than the retrieval mechanism: extracted FACTS rather than raw turns. The transcript grows much faster than its information content, so the same budget holds far less that matters, and a structured scratchpad is both smaller and more retrievable. THE HARD PART, stated honestly: WRITING is harder than reading. Deciding what is worth remembering is a judgement with no good metric, and getting it wrong is invisible - you cannot tell from behaviour that the agent failed to record something it would later need. That is the open problem in this area, and every strategy above assumes it has been solved well enough.",
+        "deepDive": {
+          "q": "An agent 'forgets' things. How do you diagnose which failure it is?",
+          "a": "BY TESTING AGAINST THE TWO AXES THAT SEPARATE THE THREE FAILURE SHAPES - distance and phrasing - because each strategy has a signature and the signatures do not overlap. TEST 1 - VARY THE DISTANCE. Plant a fact at increasing distance back in the conversation and ask about it. If success is 1.0 up to a point and 0.0 immediately after, that is the RECENCY CLIFF and the boundary tells you the effective window. This is the fastest diagnostic and it is decisive - a clean step function can only be truncation. If success is flat across distance, recency is not your problem and the memory is being retrieved or summarized. TEST 2 - VARY THE PHRASING, holding distance fixed. Ask about the same fact using the exact words from the original turn, then using a paraphrase and synonyms. If exact wording works and paraphrase fails, that is the LEXICAL GAP - your retrieval is matching on word overlap rather than meaning, and the fix is semantic embeddings. This is the failure that hides best, because every test the developer writes tends to use the original vocabulary, so it passes internally and fails on real users who naturally rephrase. TEST 3 - VARY THE NUMBER OF DISTINCT FACTS. Load the conversation with many separate facts and ask about an early one. If success holds and then drops to a partial level as facts accumulate, that is SUMMARIZATION EVICTION - the store hit capacity and dropped things to make room. The signature is a decline rather than a cliff, and it correlates with fact COUNT rather than with distance. TEST 4 - VARY THE POSITION IN CONTEXT. Put the same fact at the start, middle and end of a long context. If middle placement is measurably worse, you have a position effect rather than a memory-management failure - the fact IS present and the model is using it less reliably. That distinction matters because the fix is reordering rather than a different memory strategy, and no amount of retrieval improvement addresses it. WHAT THE COMBINATION TELLS YOU. These four tests are quick, they are orthogonal, and between them they localize essentially every 'the agent forgot' complaint. In my experience the most common real cause is the second - lexical or weak semantic matching - precisely because it survives internal testing. The second most common is the fourth, which people do not think of as a memory problem at all. WHAT I WOULD INSTRUMENT so this is answerable without a special investigation: log what was actually IN the context for each request, not just the response. Almost every memory diagnosis reduces to 'was the fact present', and that question is unanswerable after the fact unless you recorded it. And log retrieval scores for memory queries, so a matching failure is visible as a low top score rather than inferred from a wrong answer."
+        }
+      },
+      {
+        "q": "Does a longer context window make memory management unnecessary?",
+        "a": "IT MOVES THE BOUNDARY WITHOUT REMOVING THE PROBLEM, and the honest answer separates what genuinely gets easier from what does not. WHAT GETS EASIER. The recency cliff moves much further out, so a larger fraction of sessions fit entirely and never encounter it. For a bounded interaction - a support conversation, a single coding task - you may be able to keep everything, which removes the strategy question completely and is simpler and better. And when you do retrieve, you can afford to bring back much more, which raises recall and shifts the burden from precision to the model's ability to find what matters. WHAT DOES NOT GET EASIER. COST AND LATENCY: attention over a long prompt is not free, prefill dominates time-to-first-token, and the KV cache scales with sequence length, which bounds concurrency. Carrying a hundred thousand tokens of history to answer from two turns is an expensive way to be right, and in an agent it is paid on EVERY step - which the interaction with adaptive replanning makes worse, since each replan re-reads it. POSITION EFFECTS: models use mid-context material less reliably, so a fact at position eighty thousand is not equivalent to the same fact at position five hundred. That means the advertised window is not a uniform capability and placement remains a real decision - a memory strategy by another name. UNBOUNDED HISTORIES: a long-running assistant accumulates indefinitely, so no fixed window ever holds everything. The strategy question returns as soon as the interaction outlives the window, which for a persistent product is immediately. And CROSS-SESSION memory is not a context-length problem at all - it is a storage, retrieval and privacy problem, and no window size addresses it. WHAT CHANGES QUALITATIVELY. The optimal design shifts from aggressive compression toward selective inclusion: with a large window, keeping recent history verbatim and retrieving generously is affordable, and the summary layer becomes less necessary. That is a real simplification. But 'select what to include' is still memory management - you have traded a hard constraint for a cost curve, and cost curves still need managing. AND THE THING THAT GETS HARDER, which is easy to miss: with a large window it is tempting to include everything, and more irrelevant context measurably degrades output quality - the same effect as retrieving too many chunks in RAG, where faithfulness falls as context grows. So the discipline of deciding what belongs in the context does not go away; it stops being enforced by a hard limit and becomes a judgement you have to make deliberately. In practice that is harder, because a constraint you can hit is easier to respect than one you can only measure."
+      },
+      {
+        "q": "What is hard about deciding what to remember?",
+        "a": "IT IS A PREDICTION PROBLEM WITH NO FEEDBACK SIGNAL, which is why it is the genuinely open part of agent memory while retrieval mechanics are largely solved. THE PROBLEM. At the moment something happens, you must decide whether it will matter later - and you find out only if a later request needs it and it is missing. If you never store it and never need it, nothing happens. If you never store it and later need it, the agent simply does not know, and its behaviour looks like a reasoning failure rather than a memory one. So the error is invisible in both directions, and there is no gradient to learn from. WHAT MAKES IT HARDER THAN IT LOOKS. IMPORTANCE IS CONTEXT-DEPENDENT: a user mentioning a peanut allergy in passing is critical for a restaurant task and irrelevant for a coding task, and at write time you often do not know which task is coming. IMPLICIT facts matter as much as explicit ones - the user corrected you twice on formatting, which is a preference nobody stated. And UPDATES are ambiguous: when a stored fact conflicts with a new one, is that a change, a correction, or a different context? Getting this wrong produces confidently outdated behaviour, which is worse than forgetting. THE APPROACHES, none of which fully solves it. Store EVERYTHING and rely on retrieval, which pushes the problem to retrieval quality and works reasonably at moderate scale - though it accumulates noise that degrades retrieval over time. Model-scored IMPORTANCE at write time, as in the generative-agents line of work, which combines recency, importance and relevance in the retrieval score; it is a reasonable heuristic and it is still a guess. Store on explicit SIGNALS - corrections, preferences, stated constraints - which is high precision and low recall. And REFLECTION passes that periodically consolidate raw episodes into durable facts, which helps with the transcript-grows-faster-than-information problem. WHAT I WOULD ACTUALLY DO. Store liberally with cheap extraction, since storage is cheap and the failure of not storing is unrecoverable while the failure of storing too much is a retrieval-quality problem you can attack. Keep provenance - when and in what context a fact was recorded - because that is what lets you resolve conflicts later rather than guessing. Prefer structured facts over transcript. And treat CONFLICT resolution as an explicit mechanism rather than letting last-write-win by accident. THE MEASUREMENT PROBLEM, which is why this stays open: you cannot easily evaluate a write policy offline, because the label depends on future requests that have not happened. The nearest practical thing is to replay real sessions and ask, for each later request, whether the needed fact was in the store - which turns it into a recall measurement over a realistic trajectory distribution. That is worth building, and it is the only honest way I know to compare write policies rather than reasoning about them."
+      },
+      {
+        "q": "The distractor experiment failed to show anything. Why is that worth teaching?",
+        "a": "BECAUSE IT IS THE MOST TRANSFERABLE THING IN THE LESSON, and because the way it was handled is the whole discipline this module runs on. WHAT HAPPENED. The plan was to demonstrate that retrieval degrades as distractors accumulate - a plausible claim, the kind that appears in write-ups without measurement. The experiment showed nothing: retrieval stayed flat at 1.0 regardless of how many distractors were added, because the target fact was always the best lexical match. The distractors were not competitive, so they did not compete. THE TWO WAYS TO RESPOND, and the difference matters. One is to keep tuning until the effect appears - add more distractors, make them more similar, adjust the retrieval depth - and then report the configuration where it did. That is a search for a favourable result, and it produces a claim that is true only of the setup constructed to produce it. The other is to report that the effect was not there, drop the claim, and go looking for the failure that actually exists. That is what was done, and the real failure turned out to be more interesting: a paraphrased query retrieves at 0.0 where an exact-vocabulary query retrieves at 1.0. WHY THE REPLACEMENT IS BETTER. The lexical gap is not a curiosity - it is why production systems use semantic embeddings, and it arrives here as a measured necessity rather than a repeated recommendation. It is also the failure mode that survives internal testing, because developers naturally test with the vocabulary they wrote, and real users paraphrase. So the abandoned experiment led to a result with direct practical consequence, which the intended one would not have had. THE GENERAL LESSON, which applies well beyond agents. An experiment that fails to show its intended effect has told you something real, and the honest move is to update the claim rather than the setup. The dishonest move is not usually fabrication - it is the softer thing of iterating the experimental configuration until the number cooperates, which is the same selection-over-noise mechanism that inflates published headline results and tuning-optimism estimates. It looks like diligence while functioning as p-hacking. HOW I WOULD OPERATIONALIZE IT: decide what result would falsify the claim BEFORE running, and if the measurement lands there, say so. In a teaching or documentation context, saying 'we expected X, measured no effect, and here is what we found instead' is more useful than a clean claim, because it tells the reader which of their intuitions to distrust. And in an engineering context it is the difference between a benchmark you can act on and one that describes only itself."
+      },
+      {
+        "q": "How does memory interact with the other parts of an agent?",
+        "a": "IT COUPLES TO ALMOST EVERYTHING, WHICH IS WHY IT IS USUALLY UNDER-BUDGETED, and the couplings are multiplicative rather than additive. WITH THE CONTROL STRATEGY. Every replan re-reads the history, so an adaptive strategy multiplies whatever memory costs per step. A hybrid agent at 8 planning calls per task pays the context cost eight times; full ReAct at 18 pays it eighteen times. So a memory design that is fine for a static pipeline can be the dominant cost in an adaptive loop, and the two decisions cannot be made independently. WITH COST AND LATENCY. Prefill scales with context length, so history is a per-step tax on time-to-first-token as well as on spend. In the observability lesson the naive resend-everything approach turns out to be quadratic in trajectory length - each step re-sends a history that grew by the previous step - which is one of the clearest examples of a cost curve nobody notices until the bill arrives. WITH RELIABILITY. A fact that falls out of the window is a step that fails for a reason unrelated to the model's ability, and it feeds directly into the compounding from 21-01: memory failures reduce per-step reliability, which is then raised to the power of the trajectory length. Long trajectories are therefore doubly exposed - more steps to multiply AND more history to lose. WITH MULTI-AGENT DESIGN. Context isolation is the most robust justification for subagents, and it is a memory argument rather than an intelligence one: a subagent's dead ends fill its own window and only a conclusion returns. The corresponding cost is the handoff, where a summary replaces what the subagent actually saw - which is the same silent-loss shape as summarization, arriving at an interface. WITH EVALUATION. Memory failures are hard to attribute after the fact unless you logged what was IN the context, so a diagnosis that takes minutes with the right logging is impossible without it. This is the single instrumentation decision I would insist on, and it is made before you know you need it. AND WITH SAFETY, which is easy to overlook. Memory is state that persists, so it is also an injection surface: content written into memory from an untrusted source is read back later, in a different context, with the original framing gone. A poisoned memory is more durable than a poisoned turn. That argues for treating memory writes as an authorization boundary rather than a convenience. THE SUMMARY I WOULD GIVE: memory looks like a component and behaves like a cross-cutting concern. It sets a floor on per-step reliability, multiplies with the control strategy on cost, determines whether failures are diagnosable, and carries state that outlives the request in which it was created."
+      },
+      {
+        "q": "What does this lesson contribute to the module's method?",
+        "a": "IT SHOWS THAT THE USEFUL COMPARISON IS BETWEEN FAILURE SHAPES, NOT BETWEEN AVERAGES - which is a sharper version of what the module has been doing. Previous lessons found that a technique works in a regime; here, three techniques have comparable average performance and completely different failure geometry, and the geometry is what determines which one your traffic survives. Recency is a step function with no warning. Retrieval is flat in the axis you worried about and binary in an axis you did not. Summarization is exact then silently lossy. Averaging those into a single 'memory accuracy' would produce a number that describes none of them and predicts nothing about your deployment. WHY THAT MATTERS BEYOND MEMORY: it is the same structural point as reporting per-stage metrics rather than an aggregate, extended one level. Not only should you decompose by component - you should characterize each component's failure MODE, because two components with the same mean can behave completely differently at the tails where products break. The recency cliff is the clearest case: an average over a mixed distance distribution says '0.6' and the truth is that it is perfect on 60% of cases and useless on 40%, which is a totally different system to operate. THE SECOND CONTRIBUTION is methodological and it is the one I would most want carried forward. The planned experiment did not reproduce - distractors did not degrade lexical retrieval, because the target was always the best match - and the response was to drop the claim and find the failure that actually existed, which turned out to be the paraphrase gap. That is the honest move, and the dishonest alternative is not fabrication but iterating the setup until the effect appears, which is the same selection-over-noise mechanism that inflates headline results everywhere. Naming that explicitly is worth as much as any measurement in the module. AND THE RESULT THAT CAME OUT OF IT is genuinely useful: the case for semantic embeddings in agent memory arrives as a measured necessity rather than a recommendation, and it identifies a failure that survives internal testing precisely because developers test with the vocabulary they wrote. That is the kind of finding that only comes from measuring the thing you did not plan to measure."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "★ Three strategies, three FAILURE SHAPES",
+      "back": "RECENCY: 1[d≤B] — a CLIFF, no gradient, no warning. RETRIEVAL: flat in distance — but gated by matching. SUMMARIZATION: 1.0 until |facts|>C≈6, then evicts to ~0.66. The shapes matter more than the averages."
+    },
+    {
+      "type": "pitfall",
+      "front": "Why the recency cliff is the dangerous one",
+      "back": "Perfect inside the window, nothing one turn outside — and the agent's outputs give NO signal which side a fact is on, so it answers confidently in both regimes. An average over mixed distances describes neither."
+    },
+    {
+      "type": "formula",
+      "front": "★ The LEXICAL GAP",
+      "back": "Exact-vocabulary query → 1.000. Paraphrased query for the SAME fact → 0.000. This is the measured argument for semantic embeddings in agent memory — and it survives internal testing because developers test with the words they wrote."
+    },
+    {
+      "type": "intuition",
+      "front": "★ How that gap was found (the method note)",
+      "back": "The PLANNED experiment — distractors degrade retrieval — showed NOTHING: retrieval stayed flat at 1.0 because the target was always the best lexical match. The claim was dropped and the real failure measured instead. Update the claim, not the setup."
+    },
+    {
+      "type": "formula",
+      "front": "The frontier at B=8 on an OLD fact",
+      "back": "recency 0.000 (outside the window, unrecoverable) · retrieval 1.000 (distance-independent) · summary 1.000 at ~6 facts' worth of maintenance cost. Retrieval trades a DISTANCE failure for a MATCHING failure."
+    },
+    {
+      "type": "intuition",
+      "front": "The production stack layers by failure shape",
+      "back": "system prompt + running SUMMARY (gist) + SEMANTIC retrieval (distant) + last-k turns VERBATIM (immediate). Chosen so the failures don't overlap — the same independence argument as defence in depth."
+    },
+    {
+      "type": "intuition",
+      "front": "Memory is four things, not one",
+      "back": "WORKING (the context, this request) · EPISODIC (what happened, this session) · SEMANTIC (facts learned, across sessions) · PROCEDURAL (how to do it here). Different stores, lifetimes, and privacy questions — conflating them is why memory projects sprawl."
+    },
+    {
+      "type": "intuition",
+      "front": "The 4-test diagnosis for \"the agent forgot\"",
+      "back": "Vary DISTANCE (step function → recency cliff) · vary PHRASING (exact works, paraphrase fails → lexical gap) · vary FACT COUNT (decline correlating with count → summary eviction) · vary POSITION (middle worse → it's present but under-used)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Log what was IN the context",
+      "back": "Almost every memory diagnosis reduces to \"was the fact present?\" — unanswerable after the fact unless you recorded it. This instrumentation decision is made before you know you need it."
+    },
+    {
+      "type": "pitfall",
+      "front": "Store extracted FACTS, not transcript",
+      "back": "The transcript grows much faster than its information content, so the same budget holds far less that matters. And keep PROVENANCE — when and in what context — because that's what resolves conflicts later instead of last-write-wins."
+    },
+    {
+      "type": "intuition",
+      "front": "WRITING is harder than reading",
+      "back": "Deciding what's worth remembering is a prediction with NO feedback signal — you find out only if a later request needs what's missing, and it looks like a reasoning failure. This is the genuinely open part; retrieval mechanics are largely solved."
+    },
+    {
+      "type": "intuition",
+      "front": "Memory is a cross-cutting concern",
+      "back": "Every REPLAN re-reads history (so it multiplies with the control strategy) · prefill makes it a per-step latency tax · a lost fact lowers per-step reliability, which is then raised to the nth · and persisted memory is a durable INJECTION surface."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Park et al. (2023), Generative Agents: Interactive Simulacra of Human Behavior",
+      "url": "https://arxiv.org/abs/2304.03442"
+    },
+    {
+      "title": "Packer et al. (2023), MemGPT: Towards LLMs as Operating Systems",
+      "url": "https://arxiv.org/abs/2310.08560"
+    },
+    {
+      "title": "Zhong et al. (2023), MemoryBank: Enhancing Large Language Models with Long-Term Memory",
+      "url": "https://arxiv.org/abs/2305.10250"
+    },
+    {
+      "title": "Xu, Szlam & Weston (2022), Beyond Goldfish Memory: Long-Term Open-Domain Conversation",
+      "url": "https://arxiv.org/abs/2107.07567"
+    },
+    {
+      "title": "Liu et al. (2023), Lost in the Middle: How Language Models Use Long Contexts",
+      "url": "https://arxiv.org/abs/2307.03172"
+    }
+  ],
+  "updatedAt": "2026-08-08"
 }

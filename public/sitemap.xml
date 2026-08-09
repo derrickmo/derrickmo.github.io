@@ -226,6 +226,16 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/qa/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-nlp/rope/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-capstone/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-evaluation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-loop/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-memory/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-security/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/mcp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/multi-agent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/observability/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/react-planning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/tool-calling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>

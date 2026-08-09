@@ -6,7 +6,7 @@
   "title": "Agentic AI Systems & MCP",
   "category": "LLMs & Agents",
   "blurb": "Build production agents from first principles: the agent loop, tool calling, MCP servers, planning, memory, multi-agent orchestration, evaluation, and guardrails.",
-  "status": "PENDING",
+  "status": "LIVE",
   "lecture": {
     "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
     "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
@@ -82,5 +82,5 @@
     "caption": "An agent is a loop: reason, act, observe, repeat.",
     "code": "while not done:\n    thought = llm(context)                 # reason about the goal\n    result = tools[thought.tool](thought.args)   # act\n    context += observe(result)             # fold the result back in"
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-08"
 }
