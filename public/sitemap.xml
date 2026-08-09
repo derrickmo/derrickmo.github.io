@@ -283,6 +283,16 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/pytorch-data-loading/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/softmax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/eval-harnesses/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/finetuning-stacks/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/flax-optax/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/jax-fundamentals/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/onnx-export/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/open-weight-models/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/provider-apis/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/staying-current/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/torch-compile-triton/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/vllm-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/ar-generative/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/generative/autoencoders/</loc><priority>0.6</priority></url>

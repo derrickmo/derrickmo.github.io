@@ -1698,76 +1698,76 @@ window.CURRICULUM = {
       "title": "Frontier Models & Modern Frameworks",
       "category": "Systems & Engineering",
       "blurb": "The modern toolchain beyond PyTorch: JAX/Flax, vLLM, torch.compile & Triton, ONNX, provider APIs, fine-tuning stacks, eval harnesses — taught principle-first so it dates slowly.",
-      "status": "PENDING",
+      "status": "LIVE",
       "lessons": [
         {
           "n": "22-01",
           "slug": "jax-fundamentals",
           "title": "JAX & Functional ML: jit, grad, vmap",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-01_jax_fundamentals.ipynb"
         },
         {
           "n": "22-02",
           "slug": "flax-optax",
           "title": "Training in JAX with Flax & Optax",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-02_flax_optax.ipynb"
         },
         {
           "n": "22-03",
           "slug": "open-weight-models",
           "title": "The Open-Weight Model Landscape",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-03_open_weight_models.ipynb"
         },
         {
           "n": "22-04",
           "slug": "vllm-inference",
           "title": "Inference Engines: vLLM & Paged Attention",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-04_vllm_paged_attention.ipynb"
         },
         {
           "n": "22-05",
           "slug": "torch-compile-triton",
           "title": "torch.compile & GPU Kernels with Triton",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-05_torch_compile_triton.ipynb"
         },
         {
           "n": "22-06",
           "slug": "onnx-export",
           "title": "Model Export: ONNX & Quantized Runtimes",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-06_onnx_export.ipynb"
         },
         {
           "n": "22-07",
           "slug": "provider-apis",
           "title": "Provider APIs in Production",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-07_provider_apis.ipynb"
         },
         {
           "n": "22-08",
           "slug": "finetuning-stacks",
           "title": "Modern Fine-Tuning Stacks",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-08_lora_qlora.ipynb"
         },
         {
           "n": "22-09",
           "slug": "eval-harnesses",
           "title": "Evaluation Harnesses & Custom Evals",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-09_eval_harnesses.ipynb"
         },
         {
           "n": "22-10",
           "slug": "staying-current",
           "title": "Staying Current: Releases, Benchmarks & Changelogs",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "22-10_staying_current.ipynb"
         }
       ]

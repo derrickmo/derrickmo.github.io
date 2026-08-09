@@ -6,7 +6,7 @@
   "title": "Frontier Models & Modern Frameworks",
   "category": "Systems & Engineering",
   "blurb": "The modern toolchain beyond PyTorch: JAX/Flax, vLLM, torch.compile & Triton, ONNX, provider APIs, fine-tuning stacks, eval harnesses — taught principle-first so it dates slowly.",
-  "status": "PENDING",
+  "status": "LIVE",
   "lecture": {
     "summary": "The modern toolchain beyond core PyTorch — JAX and Flax, the open-weight model landscape, vLLM and inference engines, torch.compile and Triton, ONNX export, provider APIs, modern fine-tuning stacks, and evaluation harnesses. Principle-first so it dates slowly.",
     "prereqs": "Modules 15–17 (PyTorch internals, training systems, LLM systems).",
@@ -82,5 +82,5 @@
     "caption": "JAX: gradients as a function transformation.",
     "code": "import jax\nloss = lambda w, x, y: ((x @ w - y) ** 2).mean()\ngrad_fn = jax.jit(jax.grad(loss))   # compile the gradient itself\nw -= lr * grad_fn(w, x, y)          # same idea, new toolchain"
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-09"
 }
