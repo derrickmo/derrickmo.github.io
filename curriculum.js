@@ -1166,7 +1166,7 @@ window.CURRICULUM = {
           "slug": "custom-loss",
           "title": "Custom Loss Functions & Gradient Utilities",
           "status": "LIVE",
-          "nb": "15-04_custom_loss_gradient_utilities.ipynb"
+          "nb": "15-04_custom_loss_functions_gradient_utilities.ipynb"
         },
         {
           "n": "15-05",
@@ -1625,70 +1625,70 @@ window.CURRICULUM = {
           "slug": "agent-loop",
           "title": "The Agent Loop: Perceive, Reason, Act",
           "status": "LIVE",
-          "nb": "21-01_the_agent_loop.ipynb"
+          "nb": "21-01_agent_loop.ipynb"
         },
         {
           "n": "21-02",
           "slug": "tool-calling",
           "title": "Tool Calling & Function Calling",
           "status": "LIVE",
-          "nb": "21-02_tool_calling_function_calling.ipynb"
+          "nb": "21-02_tool_calling.ipynb"
         },
         {
           "n": "21-03",
           "slug": "mcp",
           "title": "MCP: Protocol, Clients & Servers",
           "status": "LIVE",
-          "nb": "21-03_mcp_protocol_clients_servers.ipynb"
+          "nb": "21-03_mcp.ipynb"
         },
         {
           "n": "21-04",
           "slug": "react-planning",
           "title": "ReAct, Planning & Task Decomposition",
           "status": "LIVE",
-          "nb": "21-04_react_planning_task_decomposition.ipynb"
+          "nb": "21-04_react_planning.ipynb"
         },
         {
           "n": "21-05",
           "slug": "agent-memory",
           "title": "Agent Memory & Context Management",
           "status": "LIVE",
-          "nb": "21-05_agent_memory_context_management.ipynb"
+          "nb": "21-05_agent_memory.ipynb"
         },
         {
           "n": "21-06",
           "slug": "multi-agent",
           "title": "Multi-Agent Orchestration",
           "status": "LIVE",
-          "nb": "21-06_multi_agent_orchestration.ipynb"
+          "nb": "21-06_multi_agent.ipynb"
         },
         {
           "n": "21-07",
           "slug": "agent-evaluation",
           "title": "Agent Evaluation: Tasks & Trajectories",
           "status": "LIVE",
-          "nb": "21-07_agent_evaluation_tasks_trajectories.ipynb"
+          "nb": "21-07_agent_evaluation.ipynb"
         },
         {
           "n": "21-08",
           "slug": "observability",
           "title": "Observability, Tracing & Cost Control",
           "status": "LIVE",
-          "nb": "21-08_observability_tracing_cost_control.ipynb"
+          "nb": "21-08_observability.ipynb"
         },
         {
           "n": "21-09",
           "slug": "agent-security",
           "title": "Guardrails & Agent Security",
           "status": "LIVE",
-          "nb": "21-09_guardrails_agent_security.ipynb"
+          "nb": "21-09_agent_security.ipynb"
         },
         {
           "n": "21-10",
           "slug": "agent-capstone",
           "title": "Capstone: Build a Production Agent",
           "status": "LIVE",
-          "nb": "21-10_capstone_build_a_production_agent.ipynb"
+          "nb": "21-10_agent_capstone.ipynb"
         }
       ]
     },

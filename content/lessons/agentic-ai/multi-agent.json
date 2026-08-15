@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-06_multi_agent_orchestration.ipynb",
+    "notebookFile": "21-06_multi_agent.ipynb",
     "flagship": null,
     "demos": ["agent-router", "bagging-boosting", "react-agent", "guardrails"],
     "concepts": []

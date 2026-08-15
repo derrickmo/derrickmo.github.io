@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-08_observability_tracing_cost_control.ipynb",
+    "notebookFile": "21-08_observability.ipynb",
     "flagship": null,
     "demos": ["kv-cache", "kv-cache-eviction", "tokenizer", "react-agent"],
     "concepts": []

@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-09_guardrails_agent_security.ipynb",
+    "notebookFile": "21-09_agent_security.ipynb",
     "flagship": null,
     "demos": ["guardrails", "prompt-injection", "classification-metrics", "calibration"],
     "concepts": []

@@ -35910,7 +35910,7 @@
       "level": "core",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "15-04_custom_loss_gradient_utilities.ipynb",
+        "notebookFile": "15-04_custom_loss_functions_gradient_utilities.ipynb",
         "flagship": null,
         "demos": [
           "backprop",
@@ -51092,7 +51092,7 @@
       "level": "core",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-01_the_agent_loop.ipynb",
+        "notebookFile": "21-01_agent_loop.ipynb",
         "flagship": null,
         "demos": [
           "react-agent",
@@ -51380,7 +51380,7 @@
       "level": "core",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-02_tool_calling_function_calling.ipynb",
+        "notebookFile": "21-02_tool_calling.ipynb",
         "flagship": null,
         "demos": [
           "constrained-decoding",
@@ -51669,7 +51669,7 @@
       "level": "core",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-03_mcp_protocol_clients_servers.ipynb",
+        "notebookFile": "21-03_mcp.ipynb",
         "flagship": null,
         "demos": [
           "agent-router",
@@ -51957,7 +51957,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-04_react_planning_task_decomposition.ipynb",
+        "notebookFile": "21-04_react_planning.ipynb",
         "flagship": null,
         "demos": [
           "react-agent",
@@ -52245,7 +52245,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-05_agent_memory_context_management.ipynb",
+        "notebookFile": "21-05_agent_memory.ipynb",
         "flagship": null,
         "demos": [
           "embeddings",
@@ -52534,7 +52534,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-06_multi_agent_orchestration.ipynb",
+        "notebookFile": "21-06_multi_agent.ipynb",
         "flagship": null,
         "demos": [
           "agent-router",
@@ -52823,7 +52823,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-07_agent_evaluation_tasks_trajectories.ipynb",
+        "notebookFile": "21-07_agent_evaluation.ipynb",
         "flagship": null,
         "demos": [
           "classification-metrics",
@@ -53112,7 +53112,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-08_observability_tracing_cost_control.ipynb",
+        "notebookFile": "21-08_observability.ipynb",
         "flagship": null,
         "demos": [
           "kv-cache",
@@ -53401,7 +53401,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-09_guardrails_agent_security.ipynb",
+        "notebookFile": "21-09_agent_security.ipynb",
         "flagship": null,
         "demos": [
           "guardrails",
@@ -53690,7 +53690,7 @@
       "level": "advanced",
       "surfaces": {
         "notebook": true,
-        "notebookFile": "21-10_capstone_build_a_production_agent.ipynb",
+        "notebookFile": "21-10_agent_capstone.ipynb",
         "flagship": null,
         "demos": [
           "react-agent",

@@ -9,7 +9,7 @@
   "level": "core",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "15-04_custom_loss_gradient_utilities.ipynb",
+    "notebookFile": "15-04_custom_loss_functions_gradient_utilities.ipynb",
     "flagship": null,
     "demos": ["backprop", "gradient-clipping", "optimizers", "activations"],
     "concepts": []

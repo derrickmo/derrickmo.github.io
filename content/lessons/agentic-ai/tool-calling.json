@@ -9,7 +9,7 @@
   "level": "core",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-02_tool_calling_function_calling.ipynb",
+    "notebookFile": "21-02_tool_calling.ipynb",
     "flagship": null,
     "demos": ["constrained-decoding", "agent-router", "react-agent", "tokenizer"],
     "concepts": []

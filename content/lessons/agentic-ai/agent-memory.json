@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-05_agent_memory_context_management.ipynb",
+    "notebookFile": "21-05_agent_memory.ipynb",
     "flagship": null,
     "demos": ["embeddings", "vector-search", "kv-cache-eviction", "lost-in-the-middle"],
     "concepts": []

@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-07_agent_evaluation_tasks_trajectories.ipynb",
+    "notebookFile": "21-07_agent_evaluation.ipynb",
     "flagship": null,
     "demos": ["classification-metrics", "calibration", "conformal", "react-agent"],
     "concepts": []

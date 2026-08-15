@@ -9,7 +9,7 @@
   "level": "advanced",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-04_react_planning_task_decomposition.ipynb",
+    "notebookFile": "21-04_react_planning.ipynb",
     "flagship": null,
     "demos": ["react-agent", "bfs-dfs-astar", "pathfinding", "mcts"],
     "concepts": []

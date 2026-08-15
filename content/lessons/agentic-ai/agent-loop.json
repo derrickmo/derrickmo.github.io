@@ -9,7 +9,7 @@
   "level": "core",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-01_the_agent_loop.ipynb",
+    "notebookFile": "21-01_agent_loop.ipynb",
     "flagship": null,
     "demos": ["react-agent", "agent-router", "constrained-decoding", "guardrails"],
     "concepts": []

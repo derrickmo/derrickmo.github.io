@@ -9,7 +9,7 @@
   "level": "core",
   "surfaces": {
     "notebook": true,
-    "notebookFile": "21-03_mcp_protocol_clients_servers.ipynb",
+    "notebookFile": "21-03_mcp.ipynb",
     "flagship": null,
     "demos": ["agent-router", "react-agent", "guardrails", "constrained-decoding"],
     "concepts": []
