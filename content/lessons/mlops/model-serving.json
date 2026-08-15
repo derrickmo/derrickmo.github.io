@@ -5,13 +5,274 @@
   "slug": "model-serving",
   "module": "mlops",
   "title": "Model Serving — FastAPI & Gradio",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "20-04_model_serving_fastapi_gradio.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["autoscaling", "batching", "model-cascade", "canary-rollout"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["mlops/torchscript-onnx", "interview-capstone/system-design-framework"],
+  "leadsTo": ["mlops/docker", "mlops/monitoring"],
+  "body": {
+    "intuition": [
+      "Serving is the seam between THE MODEL AND THE REQUEST, and the defining failure is train/serve skew: the training pipeline and the serving path each compute features correctly, they compute them slightly differently, and the difference flows into a prediction with nothing raising.",
+      "The measurement that makes this concrete is a single preprocessing mistake - serving refits the scaler on the incoming batch instead of loading the one from training. AUC was IDENTICAL to four decimals, 0.7823 against 0.7823, because rescaling preserves the ranking. So the offline metric check PASSES. The probabilities moved by a mean of 0.0042 and 0.69% of decisions at a 0.5 threshold flipped - and probabilities are what a cost threshold consumes.",
+      "The detail that makes it a production bug rather than a curiosity is the batch-size dependence. At a serving batch of 8,000 the decision change was 0.69%; at 500 it was 1.05%; at 50, 3.69%; at 8, 4.34%. THE BUG IS NEARLY INVISIBLE AT LARGE BATCH AND SEVERE AT SMALL BATCH, so it passes a load test and breaks on real traffic, which is the shape of a great many serving incidents."
+    ],
+    "math": [
+      {
+        "h": "★ The skew that an offline check cannot see",
+        "paras": [
+          "A monotone transform of the inputs changes the probabilities and preserves the ranking, so any ranking metric is blind to it.",
+          "That is the general reason offline validation misses skew: most offline metrics are rank-based."
+        ],
+        "tex": "\\mathrm{AUC}_{\\text{correct}} = 0.7823 \\;=\\; \\mathrm{AUC}_{\\text{skewed}} = 0.7823, \\qquad \\overline{|\\Delta p|} = 0.0042, \\qquad \\Pr[\\text{decision flips at } 0.5] = 0.69\\%",
+        "texNote": "The check that would have caught it is a prediction-level comparison between the training path and the serving path on identical inputs - not a metric comparison, which is exactly the quantity that stayed fixed."
+      },
+      {
+        "h": "★ Severity scales inversely with batch size",
+        "paras": [
+          "A statistic computed on the request batch converges to the training statistic as the batch grows, so the error is largest exactly where production operates.",
+          "Load tests use large batches; real traffic arrives in ones and twos."
+        ],
+        "tex": "\\begin{array}{rrr} \\text{serving batch} & \\overline{|\\Delta p|} & \\text{decisions changed}\\\\ 8{,}000 & 0.0042 & 0.69\\%\\\\ 500 & 0.0077 & 1.05\\%\\\\ 50 & 0.0265 & 3.69\\%\\\\ 8 & 0.0685 & 4.34\\% \\end{array}",
+        "texNote": "An order of magnitude in batch size costs roughly an order of magnitude in error. A bug that is invisible in staging and severe in production is not bad luck - it is a predictable consequence of testing at the wrong batch size."
+      },
+      {
+        "h": "The latency budget, decomposed",
+        "paras": [
+          "Model inference is usually a minority of the request. Optimizing it while feature fetch dominates is the most common misallocation in serving work."
+        ],
+        "tex": "t_{p99} = t_{\\text{network}} + t_{\\text{feature fetch}} + t_{\\text{preprocess}} + t_{\\text{model}} + t_{\\text{postprocess}} + t_{\\text{serialize}}",
+        "texNote": "Measure each term before optimizing any. And p99 with fan-out is set by the slowest dependency, so a request touching ten shards needs each shard at roughly p99.9 - which is the tail-at-scale arithmetic."
+      }
+    ],
+    "code": [
+      {
+        "h": "★ The check that catches skew",
+        "paras": [
+          "A prediction-level comparison on identical raw inputs, run in CI and again against production traffic. Metric comparisons cannot see this."
+        ],
+        "code": "# THE ASSERTION\n#   feed the SAME RAW INPUT through the training path and the serving path\n#   compare at TWO points:\n#     1 the model's INPUT TENSOR   -> catches preprocessing skew\n#     2 the final PREDICTION       -> catches runtime/export drift\n#   ★ comparing metrics catches NEITHER: AUC was 0.7823 both ways\n\n# THE PRODUCTION VERSION\n#   log a sample of (raw input, features, prediction) from serving, replay\n#   through the training pipeline, and assert agreement. Run it continuously.\n#   ★ this is the only check that survives a refactor of either side\n\n# THE STRUCTURAL FIX, in order of strength\n#   1 ONE implementation, called by both paths (a shared library)\n#   2 features computed once and READ by both (a feature store)\n#   3 preprocessing pushed INSIDE the exported graph, so it cannot diverge\n#   4 two implementations plus the assertion above (weakest, most common)",
+        "caption": "Option four is where most systems are, which is why the assertion matters: the divergence is a matter of time rather than a possibility."
+      },
+      {
+        "h": "The serving decisions that are not about the model",
+        "paras": [
+          "Batching, concurrency and rollout dominate the operational behaviour, and none of them is a modelling choice."
+        ],
+        "code": "# DYNAMIC BATCHING   accumulate requests for a few ms, run one batch\n#   trades latency for throughput; the wait must fit the p99 budget\n#   ★ only pays when traffic is dense enough to fill a batch quickly -\n#     at 69,000 QPS a batch fills in under a millisecond; at 100 QPS\n#     you are adding latency for nothing\n\n# CONCURRENCY        one model instance per worker vs a shared instance\n#   GPU models are usually one instance, request-queued; CPU models fork\n\n# ROLLOUT            canary a small share, compare on live traffic, then\n#   ramp. ★ compare PREDICTIONS between old and new on the SAME requests\n#   (shadow traffic), not just aggregate metrics - a metric can match\n#   while individual decisions differ, which is this lesson's whole point\n\n# FALLBACK           what happens when the model times out or errors?\n#   serve a cached score, a simpler model, or a default - and DECIDE this\n#   rather than discovering it, because the default is a 500 to the user",
+        "caption": "Shadow traffic comparing predictions rather than metrics is the rollout version of the parity assertion, and it catches the same class of failure."
+      }
+    ],
+    "useCases": [
+      "Any online model behind an API, where the request path is a second implementation of everything the training pipeline did.",
+      "Internal demos and stakeholder review, where a Gradio interface turns a model into something people can interrogate and produces better feedback than a metric table.",
+      "Shadow deployment, where a new model scores live traffic without serving it, which is the cheapest way to compare predictions rather than metrics.",
+      "Cost and latency work, where measuring the request decomposition first usually shows the model is a minority of the budget."
+    ],
+    "pitfalls": [
+      "Validating with a metric comparison. A refitted scaler left AUC identical at 0.7823 both ways while 0.69% of decisions flipped - ranking metrics are blind to monotone input transforms.",
+      "Load-testing at large batch. The same bug was 0.69% at batch 8,000 and 4.34% at batch 8, so it passes staging and breaks on real traffic that arrives in ones and twos.",
+      "Computing any statistic on the request batch. Normalization, imputation defaults and encodings must be loaded from the training artifact, never recomputed at serving time.",
+      "Treating preprocessing as code rather than as a versioned artifact. Two implementations drift, and the divergence is a matter of time rather than a possibility.",
+      "Optimizing model inference first. It is usually a minority of the request - measure network, feature fetch, preprocessing, model, postprocessing and serialization before choosing.",
+      "Adding dynamic batching at low traffic. It only pays when a batch fills quickly; at low QPS it is added latency for no throughput gain.",
+      "Comparing only aggregate metrics during a canary. Metrics can match while individual decisions differ, which is exactly the failure this lesson is about - compare predictions on the same requests."
+    ],
+    "connections": [
+      {
+        "ref": "mlops/torchscript-onnx",
+        "text": "The other half of the same seam - runtime drift at the boundary, where this lesson covers preprocessing drift before the boundary."
+      },
+      {
+        "ref": "mlops/monitoring",
+        "text": "Where the production version of the parity check lives, replaying logged serving traffic through the training pipeline continuously."
+      },
+      {
+        "ref": "interview-capstone/system-design-framework",
+        "text": "The latency budget arithmetic and the funnel it forces, which decides what can be in the request path at all."
+      },
+      {
+        "ref": "trustworthy-ai/calibration",
+        "text": "Why a probability shift matters even when the ranking is preserved: a cost threshold consumes the probability, and skew moves it."
+      },
+      {
+        "ref": "mlops/cicd",
+        "text": "Where the parity assertion is enforced, and the canary and rollback machinery that bounds the damage when it is violated anyway."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is train/serve skew?",
+        "a": "The training pipeline and the serving path each compute features correctly and slightly differently. The difference flows into a prediction with nothing raising."
+      },
+      {
+        "q": "★ Why doesn't an offline metric catch it?",
+        "a": "A refitted scaler left AUC **identical at 0.7823 both ways** — a monotone input transform preserves the ranking, and most offline metrics are rank-based."
+      },
+      {
+        "q": "What did move?",
+        "a": "The probabilities: mean |Δp| = 0.0042 and **0.69% of decisions flipped** at a 0.5 threshold. Probabilities are what a cost threshold consumes."
+      },
+      {
+        "q": "★ Give the batch-size dependence.",
+        "a": "Decisions changed: batch 8,000 → 0.69% · 500 → 1.05% · 50 → 3.69% · **8 → 4.34%**. An order of magnitude in batch costs roughly an order of magnitude in error."
+      },
+      {
+        "q": "Why does that make it a production bug?",
+        "a": "It's nearly invisible at large batch and severe at small batch — so it passes a LOAD TEST and breaks on real traffic, which arrives in ones and twos."
+      },
+      {
+        "q": "What check would have caught it?",
+        "a": "A PREDICTION-level comparison: same raw input through both paths, compared at the model's INPUT TENSOR and at the final prediction. Not a metric comparison."
+      },
+      {
+        "q": "Rank the structural fixes.",
+        "a": "(1) ONE implementation called by both paths · (2) features computed once and READ by both (a feature store) · (3) preprocessing pushed INSIDE the exported graph · (4) two implementations plus an assertion — weakest, and most common."
+      },
+      {
+        "q": "Decompose the latency budget.",
+        "a": "network + feature fetch + preprocess + model + postprocess + serialize. Model inference is usually a MINORITY — measure each term before optimizing any."
+      },
+      {
+        "q": "p99 with fan-out?",
+        "a": "Set by the SLOWEST dependency. A request touching ten shards needs each at roughly p99.9 — the tail-at-scale arithmetic."
+      },
+      {
+        "q": "When does dynamic batching pay?",
+        "a": "Only when traffic is dense enough to fill a batch quickly. At 69,000 QPS a batch fills in under a millisecond; at 100 QPS you're adding latency for nothing."
+      },
+      {
+        "q": "★ What should a canary compare?",
+        "a": "PREDICTIONS between old and new on the SAME requests (shadow traffic) — not aggregate metrics, which can match while individual decisions differ."
+      },
+      {
+        "q": "What's the fallback when the model errors?",
+        "a": "A cached score, a simpler model, or a default — DECIDED in advance. The undecided default is a 500 to the user."
+      }
+    ],
+    "standard": [
+      {
+        "q": "What is train/serve skew and how do you detect it?",
+        "a": "IT IS THE SEAM BETWEEN THE MODEL AND THE REQUEST: the training pipeline computes features one way, the serving path computes them another, both correctly, and the difference becomes a prediction with nothing raising. THE MEASUREMENT I'D GIVE is a single realistic mistake — serving recomputes the scaler on the incoming batch instead of loading the one fitted during training. AUC WAS IDENTICAL TO FOUR DECIMALS, 0.7823 against 0.7823, because rescaling is monotone and preserves the ranking, so every rank-based offline metric is blind to it. What moved was the probabilities: mean absolute change 0.0042, and 0.69% of decisions flipped at a 0.5 threshold — and probabilities are what a cost-based threshold consumes. SO THE DETECTION HAS TO BE AT THE PREDICTION LEVEL, not the metric level: feed the same raw input through both paths and compare at two points, the model's input tensor, which catches preprocessing skew, and the final prediction, which catches runtime drift. THE PRODUCTION VERSION is to log a sample of raw inputs, features and predictions from serving, replay them through the training pipeline, and assert agreement continuously — which is the only check that survives a refactor of either side.",
+        "deepDive": "The batch-size result is what turns this from a curiosity into an explanation for a category of incidents. The same bug produced a 0.69% decision change at a serving batch of 8,000, 1.05% at 500, 3.69% at 50 and 4.34% at 8 — because a statistic computed on the request batch converges to the training statistic as the batch grows. Load tests and staging environments use large batches; real traffic arrives in ones and twos. So the bug is nearly invisible exactly where you test and severe exactly where you deploy, and that is not bad luck, it is a predictable consequence of testing at the wrong batch size. The general lesson is to include batch size 1 in every serving test, because a whole class of defects — batch statistics, padding behaviour, any per-batch normalization — is invisible above it. That is the same discipline as testing n=1 in the coding round, arriving as an infrastructure requirement."
+      },
+      {
+        "q": "How would you prevent skew structurally rather than detecting it?",
+        "a": "BY REDUCING THE NUMBER OF IMPLEMENTATIONS, IN FOUR DESCENDING LEVELS OF STRENGTH. STRONGEST: ONE implementation called by both paths — the training job and the serving process import the same library and execute the same code, so divergence is impossible rather than unlikely. That is often achievable and is blocked in practice by language boundaries, since training is Python and serving may not be. SECOND: features computed ONCE and READ by both, which is what a feature store provides — the training set is built by reading the same store the serving path reads, with point-in-time correctness, so there is no second computation to diverge. THIRD: push the preprocessing INSIDE the exported graph, so normalization constants, tokenization and resizing travel with the model and cannot be reimplemented. A model whose graph consumes raw inputs has no preprocessing seam at all. FOURTH AND WEAKEST: two implementations plus a parity assertion, which is where most systems actually are and is why the assertion matters — with two implementations, divergence is a matter of time rather than a possibility. THE PRINCIPLE IS TO COUNT SEAMS: each one is a place where two correct components can disagree silently.",
+        "deepDive": "The feature store option deserves a caveat because it is often oversold as a skew solution. It removes the computation seam for features it serves, and it introduces a new one — the store's online and offline paths are themselves two systems, and point-in-time correctness in the offline path is a nontrivial guarantee that is frequently approximate. So a feature store moves the seam rather than eliminating it, and the question becomes whether its seam is better managed than yours would be, which for a mature product it usually is. The third option, pushing preprocessing into the graph, is underused and has the strongest guarantee: an artifact that takes raw pixels or raw text and emits a prediction cannot suffer preprocessing skew, because there is no preprocessing outside it. The limits are opset coverage and that some preprocessing genuinely requires external state — a vocabulary, an embedding table, a lookup — which then has to be versioned as data alongside the model. That is still far better than code, because data can be pinned by content hash and code cannot."
+      },
+      {
+        "q": "How do you approach the latency budget for a served model?",
+        "a": "MEASURE THE DECOMPOSITION BEFORE OPTIMIZING ANYTHING, because model inference is usually a minority of the request and optimizing it while feature fetch dominates is the most common misallocation in serving work. The terms are network in and out, feature fetch, preprocessing, model, postprocessing and serialization, and I would want a p99 for each rather than a mean, because the budget is a tail budget. THEN THE FAN-OUT ARITHMETIC: if a request touches ten shards or ten dependencies, its p99 is set by the slowest of them, so each dependency needs to be at roughly p99.9 for the request to hit p99 — which is the tail-at-scale result and it is why adding a dependency is more expensive than its mean latency suggests. THE LEVERS, roughly in order of return: caching, which removes the work entirely for repeated requests; reducing the candidate set, since the funnel arithmetic says a cross-encoder scores about 128 items in a 115 ms budget; dynamic batching, which trades latency for throughput and only pays when traffic is dense enough to fill a batch quickly; and only then model-level optimization — quantization, compilation, a smaller model. AND A HARD TIMEOUT WITH A DEFINED FALLBACK, because an unbounded request is a queue that eventually becomes an outage.",
+        "deepDive": "The fallback decision is worth making explicitly rather than inheriting, because the default is a 500 to the user and that is rarely the right answer. The options are a cached score, which is stale but usually acceptable; a simpler and faster model, which is the cascade pattern and gives graceful degradation; a static default, which is honest and blunt; or failing the request, which is correct only when a wrong answer is worse than no answer — a fraud block, say. Choosing among them is a product decision and it should be recorded, because it will be exercised. The related operational point is that the fallback path must be TESTED, since a fallback that has never run in production is as likely to be broken as any other untested code, and it will be invoked for the first time during an incident. Periodically forcing the fallback in a small traffic share is the cheap insurance, and it is the same argument as exercising a backup restore rather than assuming it works."
+      },
+      {
+        "q": "How would you roll out a new model version?",
+        "a": "SHADOW FIRST, THEN CANARY, COMPARING PREDICTIONS RATHER THAN METRICS. SHADOW: run the new model on live traffic without serving its output, and compare its predictions against the incumbent's on the SAME requests. That is the strongest available check and it costs only compute — it catches skew, export drift and behaviour changes that aggregate metrics cannot see, because a metric can match while individual decisions differ, which is this lesson's entire point. CANARY: serve a small share, monitor the guardrails, and ramp. The comparison during a canary should still be prediction-level where possible, plus the business metrics with the reversed burden of proof from the strategy lesson — evidence of no harm rather than absence of evidence of harm. AND A ROLLBACK THAT IS ONE ACTION, tested, with the previous artifact still available; a rollback plan that requires a rebuild is not a rollback plan. I'D ALSO RE-DERIVE EVERYTHING DOWNSTREAM OF THE MODEL as part of the deploy: the calibration temperature, any conformal calibration set, thresholds tuned for the old model, and monitoring baselines are all properties of the model-plus-distribution pair and become silently wrong otherwise.",
+        "deepDive": "That last item is a genuinely common and hard-to-diagnose failure. A retrained model changes the score distribution, so a threshold tuned to produce 700 alerts a day now produces 2,000 or 200, and nobody changed the threshold — the model's calibration moved underneath it. Similarly a conformal calibration set computed on the previous model is invalid, and monitoring baselines for score distribution will alarm continuously or never. The fix is to make re-derivation a required step in the deployment pipeline rather than a checklist item, so a model cannot ship without its dependent artifacts being recomputed. That is the same insight as versioning the preprocessing with the weights: the deployable unit is larger than the model, and every part of it that was fitted to the previous model is stale. Enumerating those parts once, for a given system, is an hour of work and it prevents an entire category of post-deployment surprises that otherwise present as unexplained metric shifts a week later."
+      },
+      {
+        "q": "How does this lesson fit the module's theme?",
+        "a": "IT IS THE MODULE'S CENTRAL SEAM AND THE ONE WITH THE MOST INSTRUCTIVE MEASUREMENT. The model is correct. The serving code is correct. They compute features differently, and the difference becomes a decision with nothing raising — no exception, no failed test, no alert. THE CONTRACT IS THAT THE SERVING PATH REPRODUCES THE TRAINING PATH'S FEATURES EXACTLY, and it is violated silently because a slightly different number is not an error condition. WHAT MAKES THIS LESSON'S VERSION SHARP IS THAT THE OBVIOUS CHECK PASSES: AUC was identical to four decimals while 0.69% of decisions flipped, because AUC is rank-based and the skew was monotone. So a team doing everything the standard playbook asks — validate offline, compare metrics, load test — sees nothing. AND THE BATCH-SIZE RESULT explains why it reaches production: 0.69% at batch 8,000 and 4.34% at batch 8, so the defect is smallest where you test and largest where you deploy. THE TRANSFERABLE HABIT is to compare the thing the system consumes, at the level it consumes it, rather than a summary statistic over it.",
+        "deepDive": "That habit generalizes past serving and is the through-line of the whole curriculum, which is worth noticing at this point. The trustworthy-AI module found aggregate ECE hiding a subgroup, marginal coverage hiding per-class coverage, and a robustness number hiding a threat model. The applications module found aggregate metrics hiding a leak. Here an aggregate AUC hides a decision change. IN EVERY CASE THE SUMMARY STATISTIC WAS TRUE AND THE THING BEING DECIDED WAS ELSEWHERE. The serving version is perhaps the most operationally expensive because it is the closest to the user: the summary is computed in an offline notebook and the decision is made in a request, and the gap between them is where the money is. Comparing at the level of the decision — the prediction, the threshold crossing, the ranked list — rather than at the level of the metric is a small change in what you assert and it closes most of this class."
+      },
+      {
+        "q": "When would you use Gradio rather than a proper API?",
+        "a": "FOR THE AUDIENCE THAT CANNOT READ A METRIC TABLE, WHICH IS MOST OF THE PEOPLE WHOSE OPINION DECIDES THE PROJECT. A Gradio or Streamlit interface turns a model into something a domain expert, a product owner or a reviewer can interrogate directly — they type an input, see the output, and immediately find the failure cases that no aggregate would have surfaced. That feedback is qualitatively different from a metric review and it arrives much faster, and in my experience it is the single most efficient way to discover that the model is confidently wrong on a case everyone in the room considers obvious. IT IS ALSO THE RIGHT TOOL FOR ERROR ANALYSIS, since browsing errors interactively is faster than exporting them, and for stakeholder demos where the alternative is a slide. WHAT IT IS NOT is a serving path: no authentication story worth relying on, no autoscaling, no batching, no latency guarantees, and a synchronous execution model that does not survive concurrency. THE FAILURE TO AVOID is a demo becoming production by accident, which happens when it is useful enough that someone points a real workflow at it. Putting it behind an internal-only boundary and stating plainly that it is not a serving path prevents that.",
+        "deepDive": "There is a real design point underneath which is that the demo interface and the production API should share the same inference code, precisely so the demo exercises the real path rather than a third implementation. If the demo has its own preprocessing, then it is a third place for skew to appear, and worse, the failures stakeholders find in the demo may not exist in production and vice versa — which destroys the value of the exercise. Building the demo as a thin wrapper over the serving client rather than over the model directly is the right structure: it costs nothing extra and it means every demo session is also an integration test of the real path. That is the same seam-counting discipline as the rest of the lesson, applied to a tool that feels informal enough to skip it — which is exactly when these things get skipped."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "definition",
+      "front": "Train/serve skew",
+      "back": "The training pipeline and the serving path each compute features CORRECTLY and slightly differently. The difference becomes a prediction with nothing raising."
+    },
+    {
+      "type": "formula",
+      "front": "★ Why an offline metric misses it",
+      "back": "A refitted scaler: **AUC 0.7823 both ways**, identical to four decimals — a monotone input transform preserves ranking, and most offline metrics are rank-based. What moved: mean |Δp| 0.0042, **0.69% of decisions flipped**."
+    },
+    {
+      "type": "formula",
+      "front": "★ Severity scales inversely with batch size",
+      "back": "Decisions changed: 8,000 → 0.69% · 500 → 1.05% · 50 → 3.69% · **8 → 4.34%**. Invisible where you LOAD TEST, severe where you DEPLOY. Always include batch size 1 in serving tests."
+    },
+    {
+      "type": "definition",
+      "front": "The check that catches skew",
+      "back": "Same RAW input through both paths, compared at (1) the model's INPUT TENSOR — catches preprocessing skew — and (2) the final PREDICTION — catches runtime drift. Metric comparison catches neither."
+    },
+    {
+      "type": "intuition",
+      "front": "★ Structural fixes, strongest first",
+      "back": "(1) ONE implementation called by both · (2) features computed once and READ by both (feature store) · (3) preprocessing INSIDE the exported graph — no seam at all · (4) two implementations + an assertion (weakest, most common)."
+    },
+    {
+      "type": "pitfall",
+      "front": "A feature store moves the seam",
+      "back": "It removes the computation seam and introduces its own — online and offline paths are two systems, and point-in-time correctness offline is a nontrivial, often approximate guarantee. Better managed, not eliminated."
+    },
+    {
+      "type": "formula",
+      "front": "The latency decomposition",
+      "back": "network + feature fetch + preprocess + MODEL + postprocess + serialize. Model inference is usually a MINORITY. Measure each p99 before optimizing any."
+    },
+    {
+      "type": "intuition",
+      "front": "Fan-out and the tail",
+      "back": "A request touching ten dependencies has p99 set by the SLOWEST — so each needs to be at ~p99.9. Adding a dependency costs far more than its mean latency suggests."
+    },
+    {
+      "type": "intuition",
+      "front": "When dynamic batching pays",
+      "back": "Only when traffic fills a batch quickly. At 69,000 QPS a batch fills in <1 ms; at 100 QPS you're adding latency for no throughput. It trades latency for throughput — the wait must fit the p99 budget."
+    },
+    {
+      "type": "intuition",
+      "front": "★ What a canary should compare",
+      "back": "PREDICTIONS between old and new on the SAME requests (shadow traffic). Aggregate metrics can match while individual decisions differ — which is the whole point of this lesson."
+    },
+    {
+      "type": "pitfall",
+      "front": "Re-derive everything downstream on deploy",
+      "back": "A retrained model shifts the score distribution, so calibration temperature, conformal calibration sets, tuned thresholds and monitoring baselines all go silently stale. A threshold set for 700 alerts/day now gives 2,000, and nobody changed it."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The habit that generalizes",
+      "back": "Compare THE THING THE SYSTEM CONSUMES, at the level it consumes it — not a summary statistic over it. Aggregate ECE hid a subgroup; marginal coverage hid per-class; here AUC hid a decision change."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Google, Rules of Machine Learning — Training-Serving Skew",
+      "url": "https://developers.google.com/machine-learning/guides/rules-of-ml"
+    },
+    {
+      "title": "Dean & Barroso (2013), The Tail at Scale",
+      "url": "https://research.google/pubs/pub40801/"
+    },
+    {
+      "title": "Olston et al. (2017), TensorFlow-Serving: Flexible, High-Performance ML Serving",
+      "url": "https://arxiv.org/abs/1712.06139"
+    },
+    {
+      "title": "Crankshaw et al. (2017), Clipper: A Low-Latency Online Prediction Serving System",
+      "url": "https://www.usenix.org/conference/nsdi17/technical-sessions/presentation/crankshaw"
+    },
+    {
+      "title": "FastAPI Documentation, Concurrency and async/await",
+      "url": "https://fastapi.tiangolo.com/async/"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

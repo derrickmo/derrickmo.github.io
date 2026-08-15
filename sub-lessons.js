@@ -2406,43 +2406,11 @@ window.SUB_LESSONS = {
     "title": "MLOps and Serving",
     "intro": "Running models in production: serve them efficiently, scale with demand, ship new versions safely, and notice when the world shifts under them.",
     "order": [
-      "model-serving",
       "autoscaling",
       "canary-rollout",
       "drift-detection"
     ],
     "lessons": {
-      "model-serving": {
-        "title": "Serving and Batching",
-        "oneLine": "Trade a little latency for far more throughput by batching requests.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "A served model spends most of its time idle between requests. Dynamic batching waits a few milliseconds to gather several requests and runs them together, amortizing the fixed cost and multiplying throughput. The knob is the batch window: bigger batches mean higher throughput but more tail latency."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "By Little's law, queue length ties throughput to latency:"
-            ],
-            "tex": "L = \\lambda\\,W",
-            "texNote": "Push arrival rate lambda past capacity and the queue - and latency W - runs away."
-          },
-          {
-            "h": "In code",
-            "code": "# accumulate until full or the window elapses, then run once\nbatch = collect(max_size=32, max_wait_ms=5)\nresults = model(batch)        # one padded forward for many requests",
-            "caption": "Wait briefly, batch, run once - amortize the fixed cost."
-          }
-        ],
-        "takeaways": [
-          "Batching amortizes fixed cost into higher throughput.",
-          "The batch window trades throughput against tail latency.",
-          "Arrivals past capacity make the queue run away."
-        ],
-        "demo": "batching"
-      },
       "autoscaling": {
         "title": "Autoscaling",
         "oneLine": "Track demand by adding and removing replicas automatically.",

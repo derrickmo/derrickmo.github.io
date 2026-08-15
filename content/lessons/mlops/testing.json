@@ -5,13 +5,274 @@
   "slug": "testing",
   "module": "mlops",
   "title": "ML Testing & Data Validation",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "20-08_ml_testing_data_validation.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["cross-validation", "classification-metrics", "drift-detection", "overfitting"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["mlops/cicd", "mlops/monitoring"],
+  "leadsTo": ["mlops/project-structure", "trustworthy-ai/red-teaming"],
+  "body": {
+    "intuition": [
+      "Testing is the seam between CODE CORRECTNESS AND MODEL CORRECTNESS, and the reason it needs its own discipline is that the usual tools cannot express the second. A unit test asserts an exact output. A model has no exact output to assert - it has a distribution of behaviour - so the assertions have to be about PROPERTIES rather than values.",
+      "The most valuable tests in an ML system are therefore not model tests at all. Data validation - schema, ranges, null rates, cardinality, freshness - written as INVARIANTS rather than statistical tests, catches the failures that do the most damage fastest and has a low false-positive rate. Those are ordinary assertions about ordinary values, and they are skipped because they feel too simple to matter.",
+      "The model-specific layer is behavioural: invariance tests, directional tests and minimum-functionality tests, which assert what the model should do rather than what it did. And the through-line with the rest of the module is that each one converts a silent failure into a loud one - which is the only defence available when the failure mode is a wrong number rather than an exception."
+    ],
+    "math": [
+      {
+        "h": "The four layers, and what each can express",
+        "paras": [
+          "They ascend from ordinary software testing to claims only a model can violate. Most ML systems have the first and the last and neither of the middle two.",
+          "The middle two are where the model-specific value is."
+        ],
+        "tex": "\\underbrace{\\text{unit}}_{\\text{transforms, features}} \\to \\underbrace{\\text{data validation}}_{\\text{invariants on inputs}} \\to \\underbrace{\\text{behavioural}}_{\\text{properties of predictions}} \\to \\underbrace{\\text{evaluation}}_{\\text{metrics on a set}}",
+        "texNote": "Evaluation is the one everyone has and the weakest per unit of effort: it produces a single number that can improve while a slice regresses, which is the aggregation failure this curriculum has found in every module."
+      },
+      {
+        "h": "★ The three behavioural test types",
+        "paras": [
+          "Borrowed from the CheckList framing, and they are the tests a unit test cannot express because they assert relationships rather than values.",
+          "Each catches a class the metric cannot see."
+        ],
+        "tex": "\\text{INVARIANCE: } f(x)\\approx f(T(x)) \\quad\\cdot\\quad \\text{DIRECTIONAL: } f(x') > f(x)\\ \\text{for a known-direction edit} \\quad\\cdot\\quad \\text{MINIMUM FUNCTIONALITY: } f(x)=y\\ \\text{on trivial cases}",
+        "texNote": "Invariance encodes what should not matter - a name change, a synonym, a reordering. Directional encodes what should. Minimum functionality is a unit test for the simplest cases everyone assumes work and nobody checks."
+      },
+      {
+        "h": "Why slice tests rather than a threshold",
+        "paras": [
+          "An aggregate metric gate lets a model regress on a segment while improving overall. Per-slice assertions are the same cost and catch the case the aggregate averages away."
+        ],
+        "tex": "\\text{assert } m_{\\text{new}} \\ge m_{\\text{old}} - \\epsilon \\quad \\textbf{for every slice}, \\ \\text{not only } \\bar{m}",
+        "texNote": "The slices come from the error analysis in the strategy lesson: each category found there becomes a named slice with a tracked metric, which is how a fixed problem stays fixed rather than being rediscovered in six months."
+      }
+    ],
+    "code": [
+      {
+        "h": "Data validation, written as invariants",
+        "paras": [
+          "These are the highest-value tests in an ML system and they are ordinary assertions. Write them as invariants rather than as statistical tests - the false-positive rate is what determines whether anyone acts on them."
+        ],
+        "code": "# SCHEMA        expected columns, types, and NO unexpected columns\n# RANGES        min/max per numeric column, from domain knowledge\n# NULLS         null rate per column against an expected bound\n# CARDINALITY   distinct counts for categoricals; a sudden collapse to 1\n#               is an upstream join gone wrong\n# FRESHNESS     max timestamp within an expected lag\n# ROW COUNT     within a band - a 10x drop is a broken partition\n# UNIQUENESS    primary keys actually unique\n# RELATIONSHIPS cross-column invariants (start <= end, sum of parts = total)\n\n# ★ WHY INVARIANTS RATHER THAN STATISTICAL TESTS:\n#   a KS test on 1000 features flags ~6 on IDENTICAL distributions at\n#   alpha=0.01. An invariant fires only when something is actually broken,\n#   so people act on it. The false-positive rate IS the design constraint.",
+        "caption": "Every one of these is a two-line assertion, and together they catch the failures that reach production fastest and cost the most."
+      },
+      {
+        "h": "The model tests worth writing",
+        "paras": [
+          "Behavioural assertions plus the pipeline checks the rest of this module has been accumulating."
+        ],
+        "code": "# BEHAVIOURAL\n#   INVARIANCE   f(x) ~ f(T(x)) for label-preserving T\n#                (paraphrase, a name swap, an irrelevant field change)\n#   DIRECTIONAL  a known-direction edit moves the score the right way\n#   MIN FUNC     trivial cases the team assumes work - and nobody checks\n\n# PIPELINE (from earlier lessons, as permanent tests)\n#   ★ SERVING PARITY   training and serving preprocessing agree on fixed\n#                      inputs - milliseconds, and the highest value/second\n#   ★ EXPORT PARITY    drift, decision agreement, AND the low-margin decile\n#   SMOKE TRAIN        converges on a small fixed subset\n#   OVERFIT-ONE-BATCH  the model CAN drive loss to ~0 on 8 examples;\n#                      if it cannot, something is wired wrong\n#   SHAPE/DTYPE        at batch 1, max batch, and an unseen shape\n\n# EVALUATION\n#   per-SLICE thresholds against the incumbent, not just the aggregate\n#   ★ slices come from ERROR ANALYSIS - each category becomes a test, so\n#     a fixed problem cannot silently return",
+        "caption": "Overfit-one-batch is the fastest diagnostic in deep learning: it separates a broken pipeline from a hard problem in under a minute."
+      }
+    ],
+    "useCases": [
+      "Any pipeline consuming upstream data you do not own, where schema and range invariants catch a breaking change before it becomes a silent prediction shift.",
+      "Preventing regression on a known failure mode, by turning each error-analysis category into a permanent slice test.",
+      "Debugging a model that will not learn, where overfit-one-batch separates a wiring bug from a genuinely hard problem in under a minute.",
+      "Gating a retrain, where the behavioural and parity tests are the checks a metric threshold cannot express."
+    ],
+    "pitfalls": [
+      "Testing only with an evaluation metric. It produces one number that can improve while a slice regresses, which is the aggregation failure this curriculum finds in every module.",
+      "Writing data validation as statistical tests. A KS test over a thousand features flags about six on identical distributions, and a checker people ignore is worse than none.",
+      "Asserting exact model outputs. A model has a distribution of behaviour rather than an exact output, so the assertions must be about properties - invariance, direction, minimum functionality.",
+      "Skipping data validation because it feels too simple. Schema, range and freshness invariants catch the failures that reach production fastest and cost the most.",
+      "Not testing at batch size 1. A whole class of defects - batch statistics, padding, per-batch normalization - is invisible above it, which the serving lesson measured at 0.69% versus 4.34% decision change.",
+      "Letting error-analysis categories die in a notebook. Each should become a named slice with a tracked assertion, or the problem is rediscovered in six months.",
+      "Testing the happy path only. The fallback path, the empty input, the malformed record and the timeout are what run during an incident, and an untested fallback is as likely to be broken as any other untested code."
+    ],
+    "connections": [
+      {
+        "ref": "mlops/cicd",
+        "text": "Where these tests run, and the ordering that keeps the fast, high-yield ones first so failures surface in seconds."
+      },
+      {
+        "ref": "mlops/ml-strategy",
+        "text": "Where the slices come from - each error-analysis category becomes a permanent test, which is how a fixed problem stays fixed."
+      },
+      {
+        "ref": "mlops/model-serving",
+        "text": "The parity assertion that belongs in the fast test suite, and why a metric comparison cannot substitute for it."
+      },
+      {
+        "ref": "trustworthy-ai/red-teaming",
+        "text": "The adversarial extension, and why a patched suite measures regression rather than safety once you have optimized against it."
+      },
+      {
+        "ref": "mlops/monitoring",
+        "text": "The production continuation of the same invariants, where a schema check becomes a runtime assertion rather than a build-time one."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "Why can't a unit test express model correctness?",
+        "a": "A unit test asserts an exact output. A model has a DISTRIBUTION of behaviour, so the assertions must be about PROPERTIES rather than values."
+      },
+      {
+        "q": "Name the four layers.",
+        "a": "Unit (transforms, features) → data validation (invariants on inputs) → behavioural (properties of predictions) → evaluation (metrics on a set). Most systems have the first and last and neither middle one."
+      },
+      {
+        "q": "★ Which layer has the best return?",
+        "a": "DATA VALIDATION. Ordinary assertions about ordinary values, catching the failures that reach production fastest and cost the most — and skipped because they feel too simple."
+      },
+      {
+        "q": "Invariants or statistical tests for data?",
+        "a": "INVARIANTS. A KS test over 1000 features flags ~6 on IDENTICAL distributions at α=0.01. **The false-positive rate is the design constraint** — a checker people ignore is worse than none."
+      },
+      {
+        "q": "List the data invariants worth writing.",
+        "a": "Schema (and NO unexpected columns) · ranges · null rates · cardinality (a collapse to 1 is a broken join) · freshness · row-count band · key uniqueness · cross-column relationships."
+      },
+      {
+        "q": "★ Name the three behavioural test types.",
+        "a": "INVARIANCE f(x) ≈ f(T(x)) for label-preserving T · DIRECTIONAL — a known-direction edit moves the score the right way · MINIMUM FUNCTIONALITY on trivial cases."
+      },
+      {
+        "q": "What does invariance encode?",
+        "a": "What should NOT matter — a paraphrase, a name swap, an irrelevant field change. Directional encodes what should."
+      },
+      {
+        "q": "What is overfit-one-batch?",
+        "a": "Assert the model CAN drive loss to ~0 on 8 examples. If it cannot, something is wired wrong. The fastest diagnostic in deep learning — under a minute."
+      },
+      {
+        "q": "Which parity checks belong in the suite?",
+        "a": "SERVING parity (training vs serving preprocessing on fixed inputs — milliseconds, highest value per second) and EXPORT parity (drift, decision agreement, and the low-margin decile)."
+      },
+      {
+        "q": "★ Why per-slice thresholds?",
+        "a": "An aggregate gate lets a model regress on a segment while improving overall — the aggregation failure found in every module of this curriculum. Same cost, catches what the average hides."
+      },
+      {
+        "q": "Where do the slices come from?",
+        "a": "ERROR ANALYSIS. Each category becomes a named slice with a tracked assertion — which is how a fixed problem stays fixed rather than being rediscovered in six months."
+      },
+      {
+        "q": "Why test batch size 1?",
+        "a": "A whole class of defects — batch statistics, padding, per-batch normalization — is invisible above it. Measured: 0.69% decision change at batch 8,000 vs 4.34% at batch 8."
+      }
+    ],
+    "standard": [
+      {
+        "q": "How do you test a machine learning system?",
+        "a": "IN FOUR LAYERS, AND THE TWO IN THE MIDDLE ARE THE ONES MOST SYSTEMS LACK. UNIT TESTS on the deterministic parts — data transforms, feature computation, the serving preprocessing — which are ordinary software and should be tested as such. DATA VALIDATION, written as INVARIANTS: schema with no unexpected columns, ranges from domain knowledge, null rates, cardinality, freshness, row-count bands, key uniqueness, cross-column relationships. These are the highest-return tests in an ML system and they are skipped because they feel too simple to matter. BEHAVIOURAL TESTS, which assert properties of predictions rather than values, because a model has a distribution of behaviour and no exact output to assert against. AND EVALUATION, which everyone has and which is the weakest per unit of effort — it produces one number that can improve while a slice regresses. THE REASON DATA VALIDATION SHOULD BE INVARIANTS RATHER THAN STATISTICAL TESTS is the false-positive rate: a KS test over a thousand features flags about six on identical distributions at alpha 0.01, and a checker people learn to ignore is worse than no checker, because the one true alarm is ignored with the rest.",
+        "deepDive": "The behavioural layer is worth expanding because it is the genuinely ML-specific part and the CheckList framing names it well. INVARIANCE tests assert that a label-preserving transformation does not change the prediction — swapping a name, paraphrasing, reordering irrelevant fields, changing a unit that the model should normalize away — and they encode what should not matter. DIRECTIONAL tests assert that an edit with a known sign moves the score the right way, which is a weaker and much more robust claim than asserting a value. MINIMUM FUNCTIONALITY tests are unit tests for the simplest cases everyone assumes work: the clearest positive, the clearest negative, the empty input. Together they catch a class of defect that metrics cannot see, because a model can have excellent aggregate accuracy while being sensitive to a name change — which is both a quality bug and, in many domains, a fairness one. The practical way to generate them is from the error analysis: every category found there suggests an invariance or a directional test, which is how the two lessons connect and how the exercise stops being a one-off."
+      },
+      {
+        "q": "What data validation would you write, and why invariants?",
+        "a": "EIGHT CHECKS, ALL TWO-LINE ASSERTIONS. Schema — expected columns and types, and crucially NO unexpected columns, since a silently added column is a schema change nobody announced. Ranges per numeric column from domain knowledge. Null rate per column against a bound. Cardinality for categoricals, where a sudden collapse to one distinct value is an upstream join that produced nulls. Freshness — maximum timestamp within an expected lag. Row count within a band, because a tenfold drop is a broken partition. Key uniqueness. And cross-column relationships: start before end, parts summing to the total. WHY INVARIANTS RATHER THAN STATISTICAL TESTS is the crux and it is about the false-positive rate. A statistical drift test over a wide table fires constantly at production sample sizes — six of a thousand features on identical distributions — so people stop reading it, and the organizational cost is that the one genuine alarm is ignored alongside the noise. An invariant fires only when something is actually broken, which is what makes it actionable. THE DESIGN CONSTRAINT IS THE FALSE-POSITIVE RATE, not the detection power, and that inverts the usual instinct.",
+        "deepDive": "The distinction between validation and drift detection is worth keeping sharp because the tooling blurs it. Validation asks whether the data is BROKEN — a contract violation with a right answer. Drift detection asks whether the data has CHANGED — a statistical question with no right answer, whose relationship to performance the monitoring lesson showed is weak in both directions. They deserve different alert routing, different thresholds and different owners: a validation failure should block a pipeline, and a drift signal should inform a human. Conflating them produces either a pipeline that halts on harmless distribution shifts or a validation suite people snooze. The other practical point is where validation runs: at the boundary of every stage, not once at ingestion, because the most common real failure is a transformation producing nulls or out-of-range values downstream of a perfectly valid input. Asserting the contract at each stage boundary localizes the fault to a single step, which turns a pipeline debugging session into a stack trace."
+      },
+      {
+        "q": "What is overfit-one-batch and why is it valuable?",
+        "a": "TAKE ABOUT EIGHT EXAMPLES, TURN OFF REGULARIZATION AND AUGMENTATION, AND ASSERT THE MODEL CAN DRIVE THE LOSS TO NEARLY ZERO. If it can, the pipeline is wired correctly — the data reaches the model, the labels align with the inputs, the loss is connected to the parameters, and the optimizer updates them. If it cannot, something is broken, and the failure is upstream of anything about the problem's difficulty. IT IS THE FASTEST DIAGNOSTIC IN DEEP LEARNING because it runs in under a minute and it cleanly separates 'the pipeline is broken' from 'the problem is hard', which is the ambiguity that otherwise costs days. The failures it catches are the ones with no error message: labels shuffled relative to inputs, a detached tensor breaking the gradient path, a learning rate of zero, the loss computed on the wrong axis, a frozen layer that should not be, augmentation destroying the signal. ALL OF THOSE PRESENT IDENTICALLY as a model that trains and does not improve, which is a symptom people spend a week attributing to the data or the architecture. AS A PERMANENT TEST it is a smoke check that catches a refactor breaking the training path, and it belongs in the fast tier of the pipeline.",
+        "deepDive": "The complementary check is the label-shuffle test: train on deliberately randomized labels and assert that validation performance is at chance. If a model achieves meaningfully better than chance on shuffled labels, there is leakage — information reaching the model through a path other than the intended features — and that is a much more direct leakage detector than staring at the feature list. It is the same logic as the A/A test from the experimentation module and the negative-control discipline from the causal one, arriving as a training-pipeline check. Both tests share a shape worth noticing: they establish what SHOULD happen in a degenerate case and assert it, rather than checking whether the real case looks good. That is generally the most reliable form of test available for a system whose correct output you cannot specify — bound the behaviour in cases where you know the answer, and let the uncertain cases be measured rather than asserted."
+      },
+      {
+        "q": "How do you keep a fixed problem fixed?",
+        "a": "BY TURNING EVERY ERROR-ANALYSIS CATEGORY INTO A NAMED SLICE WITH A TRACKED ASSERTION. The strategy lesson's exercise produces a ranked list of error categories — blurry inputs, mislabelled ground truth, rare-class confusion — and the usual fate of that list is a notebook that nobody opens again, so the same categories are rediscovered six months later by whoever next does the analysis. INSTEAD, EACH CATEGORY BECOMES A SLICE: a named subset with its own metric, tracked over releases, and gated in the pipeline with an assertion that the new model does not regress on it by more than a small tolerance. That converts a one-off insight into a permanent property of the system, and it costs a filter and a threshold per category. AND IT FIXES THE AGGREGATION FAILURE at the same time, because a per-slice gate catches the case where the aggregate improves while a segment regresses — which is the failure this curriculum has found in every module, from subgroup calibration to negative transfer to search's tail queries. THE COMPLEMENTARY PRACTICE is to add a specific test for each production incident, the same way a bug gets a regression test, so the incident cannot recur silently.",
+        "deepDive": "There is a maintenance question that has to be answered or the practice decays: slices accumulate, some become irrelevant as the product changes, and a suite of forty slice gates that nobody prunes becomes a source of flaky failures that get overridden. The discipline is to give each slice an owner and a review date, and to retire slices deliberately rather than by neglect — which is the same governance shape as the fairness metric choice and the loss weights in multi-task. The other consideration is statistical: small slices have wide intervals, so a strict threshold on a slice with two hundred examples will fail on noise, and the gate should be an interval-aware comparison rather than a point threshold. That is the minimum-detectable-effect discipline applied to a CI gate, and getting it wrong in either direction is costly — too strict and the pipeline is flaky, too loose and the gate does nothing. Sizing the slice evaluation sets deliberately, rather than taking whatever falls out of the filter, is the fix."
+      },
+      {
+        "q": "How does this lesson fit the module's theme?",
+        "a": "THE SEAM IS BETWEEN CODE CORRECTNESS AND MODEL CORRECTNESS, AND THE WHOLE LESSON IS ABOUT CONVERTING SILENT FAILURES INTO LOUD ONES. That is the module's theme stated as a practice: every check here exists because an ML component fails by producing a different number rather than by raising, and a test is the mechanism that turns a wrong number into a build failure. THE REASON IT NEEDS ITS OWN DISCIPLINE is that ordinary testing tools assert values and a model has no exact value to assert — so the assertions become properties, which is a weaker and more robust form of claim. AND THE HIGHEST-VALUE LAYER IS THE LEAST GLAMOROUS: data validation as invariants, which is ordinary software testing applied to inputs, catching the failures that reach production fastest. THE DESIGN CONSTRAINT WORTH CARRYING is that the false-positive rate determines whether anyone acts — a statistical test over a thousand features flagging six on identical distributions produces a checker people snooze, and a snoozed checker is worse than none because it manufactures confidence. Prefer assertions that fire only when something is broken.",
+        "deepDive": "Reading this lesson against the red-teaming material completes a useful picture of what testing can and cannot establish. A test suite is a sample of the behaviour space, so a passing suite is a statement about the cases you thought of — which is precisely the coverage argument, and it means 'the tests pass' has the same epistemic shape as 'the red team found nothing'. That is why the suite has to keep growing from error analysis and incidents rather than being written once, and why some findings should stay unpatched as measurement. It also explains the limit: no suite establishes that a model is correct, because correctness is not a property you can enumerate. What a suite establishes is that a specific set of known failures does not recur, which is a real and bounded claim, and stating it that way is more honest and more useful than treating a green pipeline as a safety argument."
+      },
+      {
+        "q": "What would you test first on an inherited ML system?",
+        "a": "DATA VALIDATION AT EVERY STAGE BOUNDARY, BECAUSE IT IS CHEAP AND IT LOCALIZES FAULTS. Schema, ranges, nulls, cardinality, freshness and row counts asserted at each stage's input and output means the next pipeline failure produces a specific message about a specific step rather than a wrong number at the end. THEN THE SERVING PARITY TEST — the same raw input through the training path and the serving path, compared at the model's input tensor — because it is milliseconds to run and it targets the failure mode with the largest measured cost, where a skewed pipeline left AUC identical at 0.7823 while 0.69% of decisions flipped. THEN OVERFIT-ONE-BATCH AND A LABEL-SHUFFLE TEST, which together establish that the training pipeline is wired correctly and that there is no leakage, in about two minutes of compute. THEN PER-SLICE EVALUATION against the incumbent, with the slices taken from whatever error analysis exists or a quick one if none does. THAT ORDERING IS DELIBERATE: it starts with the checks that have the lowest false-positive rate and the fastest feedback, so the suite is trusted from the beginning — a new test suite that fires spuriously in its first week never recovers its credibility.",
+        "deepDive": "The credibility point is worth taking seriously because it is an organizational constraint rather than a technical one, and it determines whether the work survives. A suite that is trusted gets extended; a suite that cries wolf gets bypassed with a skip marker and then deleted in a cleanup six months later. So the sequencing should optimize for early true positives: start with invariants that only fire on genuine breakage, demonstrate that they catch something real, and add the more statistical checks once the suite has standing. The other move that helps is to make the first tests ones that would have caught a PAST incident, because the argument for the work then writes itself and the team can see what it buys. That is the same principle as the module's tool criterion — does it convert a silent failure into a loud one — applied to the adoption problem rather than the technical one, and in most organizations the adoption problem is the harder of the two."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "definition",
+      "front": "The four testing layers",
+      "back": "Unit (transforms, features) → **data validation** (invariants on inputs) → **behavioural** (properties of predictions) → evaluation (metrics). Most systems have the first and last and neither middle one."
+    },
+    {
+      "type": "intuition",
+      "front": "Why unit tests can't express model correctness",
+      "back": "A unit test asserts an exact output. A model has a DISTRIBUTION of behaviour, so assertions must be about PROPERTIES — a weaker and far more robust form of claim."
+    },
+    {
+      "type": "intuition",
+      "front": "★ Invariants, not statistical tests",
+      "back": "A KS test over 1000 features flags ~6 on IDENTICAL distributions at α=0.01. **The false-positive rate is the design constraint** — a checker people snooze is worse than none, because it manufactures confidence."
+    },
+    {
+      "type": "definition",
+      "front": "The eight data invariants",
+      "back": "Schema (and NO unexpected columns) · ranges · null rates · cardinality (collapse to 1 = a broken join) · freshness · row-count band · key uniqueness · cross-column relationships (start ≤ end, parts = total)."
+    },
+    {
+      "type": "definition",
+      "front": "★ The three behavioural tests",
+      "back": "INVARIANCE f(x) ≈ f(T(x)) — what should NOT matter (paraphrase, name swap). DIRECTIONAL — a known-sign edit moves the score correctly. MINIMUM FUNCTIONALITY — the trivial cases everyone assumes work."
+    },
+    {
+      "type": "intuition",
+      "front": "Validation vs drift detection",
+      "back": "Validation asks whether the data is BROKEN — a contract with a right answer, and it should BLOCK. Drift asks whether it CHANGED — statistical, no right answer, and it should INFORM. Different thresholds, routing and owners."
+    },
+    {
+      "type": "intuition",
+      "front": "Where validation runs",
+      "back": "At EVERY stage boundary, not once at ingestion — because the common failure is a transformation producing nulls downstream of perfectly valid input. Asserting per stage turns a debugging session into a stack trace."
+    },
+    {
+      "type": "definition",
+      "front": "★ Overfit-one-batch",
+      "back": "8 examples, no regularization or augmentation, assert loss → ~0. Under a minute, and it separates \"the pipeline is broken\" from \"the problem is hard\" — the ambiguity that otherwise costs days."
+    },
+    {
+      "type": "intuition",
+      "front": "What overfit-one-batch catches",
+      "back": "Shuffled labels · a detached tensor breaking the gradient path · LR of zero · loss on the wrong axis · a wrongly frozen layer · augmentation destroying the signal. **All present identically** as \"trains but doesn't improve.\""
+    },
+    {
+      "type": "definition",
+      "front": "The label-shuffle test",
+      "back": "Train on randomized labels; assert validation is at CHANCE. Better than chance ⇒ LEAKAGE through a path other than the intended features. The A/A test and the negative control, arriving as a pipeline check."
+    },
+    {
+      "type": "intuition",
+      "front": "★ How a fixed problem stays fixed",
+      "back": "Every error-analysis category becomes a NAMED SLICE with a tracked assertion, gated per release. Otherwise the list dies in a notebook and the categories are rediscovered in six months. Add a test per incident too."
+    },
+    {
+      "type": "pitfall",
+      "front": "Slice gates need interval awareness",
+      "back": "Small slices have wide intervals, so a strict point threshold fails on NOISE and the pipeline becomes flaky and gets overridden. Size the slice evaluation sets deliberately; give each slice an owner and a review date."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Breck, Cai, Nielsen, Salib & Sculley (2017), The ML Test Score",
+      "url": "https://research.google/pubs/pub46555/"
+    },
+    {
+      "title": "Ribeiro, Wu, Guestrin & Singh (2020), Beyond Accuracy: Behavioral Testing of NLP Models with CheckList",
+      "url": "https://arxiv.org/abs/2005.04118"
+    },
+    {
+      "title": "Polyzotis, Zinkevich, Roy, Breck & Whang (2019), Data Validation for Machine Learning",
+      "url": "https://mlsys.org/Conferences/2019/doc/2019/167.pdf"
+    },
+    {
+      "title": "Karpathy, A Recipe for Training Neural Networks",
+      "url": "http://karpathy.github.io/2019/04/25/recipe/"
+    },
+    {
+      "title": "Great Expectations, Data Quality Testing Documentation",
+      "url": "https://docs.greatexpectations.io/"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

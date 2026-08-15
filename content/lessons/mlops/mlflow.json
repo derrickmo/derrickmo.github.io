@@ -5,13 +5,274 @@
   "slug": "mlflow",
   "module": "mlops",
   "title": "Experiment Tracking with MLflow",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
     "notebook": true,
     "notebookFile": "20-02_mlflow_experiment_tracking.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["cross-validation", "overfitting", "lr-schedule", "bias-variance-decomp"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["mlops/ml-strategy", "foundations/pytorch-data-loading"],
+  "leadsTo": ["mlops/project-structure", "mlops/cicd"],
+  "body": {
+    "intuition": [
+      "The seam here is between AN EXPERIMENT AND ITS REPRODUCTION, and the failure is the most ordinary in applied ML: a number in a notebook that nobody can produce again. The model that scored 0.87 exists, and the combination of code, data, parameters and environment that produced it does not, so the result is an anecdote rather than a measurement.",
+      "Tracking is not a dashboard. It is the discipline of recording enough that a run is REPRODUCIBLE, and the useful test of any tracking setup is whether a colleague can regenerate a result from the record alone. Four things have to be pinned and teams routinely pin two: the code version, the DATA version, the parameters, and the environment.",
+      "The data version is the one that gets skipped, and it is the one that silently invalidates comparisons. If two runs a month apart used 'the training table' and the table grew, the comparison between them is confounded by a variable nobody recorded - which is the same structural problem as an unlogged confounder, and it means the entire experiment log is a set of observational results rather than controlled ones."
+    ],
+    "math": [
+      {
+        "h": "What a reproducible run record contains",
+        "paras": [
+          "Four coordinates, and a run is reproducible only if all four are pinned. Most setups capture parameters and metrics and treat the other two as implicit.",
+          "The test is operational: can someone else regenerate the number from the record?"
+        ],
+        "tex": "\\text{run} = \\big(\\underbrace{\\text{code SHA}}_{\\text{usually pinned}},\\ \\underbrace{\\text{data version}}_{\\textbf{usually not}},\\ \\underbrace{\\text{params}}_{\\text{pinned}},\\ \\underbrace{\\text{environment}}_{\\textbf{usually not}}\\big) \\to (\\text{metrics},\\ \\text{artifacts})",
+        "texNote": "Pinning code and parameters alone gives a record that reproduces only on the machine and the dataset it was run against, which is exactly the situation that produces 'it worked last month'."
+      },
+      {
+        "h": "The comparison problem, stated as confounding",
+        "paras": [
+          "Two runs differing in more than one coordinate cannot attribute the difference. That is the same identification problem as any observational comparison, arriving in an experiment log.",
+          "Most experiment tables are observational data about your own project."
+        ],
+        "tex": "\\Delta\\text{metric} = f(\\Delta\\text{code}, \\Delta\\text{data}, \\Delta\\text{params}, \\Delta\\text{env}) \\quad\\Rightarrow\\quad \\text{attributable only if exactly one } \\Delta \\neq 0",
+        "texNote": "A run log where the data version is unrecorded has an unobserved variable in every comparison. You cannot condition on what you did not log, which is module 23's point in a tooling costume."
+      },
+      {
+        "h": "Seeds, and what they do and do not buy",
+        "paras": [
+          "A fixed seed makes a run repeatable and does NOT make a result reliable. A single-seed comparison between two methods is a sample of size one from a distribution whose spread is often larger than the difference being claimed."
+        ],
+        "tex": "\\text{report } \\bar{m} \\pm s \\text{ over } k \\text{ seeds, not } m_{\\text{seed}=42}",
+        "texNote": "The practical rule: log the seed for reproducibility, and report a mean and spread over several seeds for any claim. A method that wins on one seed and loses on another has not won."
+      }
+    ],
+    "code": [
+      {
+        "h": "What to log, and the two entries usually missing",
+        "paras": [
+          "Everything below is cheap. The two marked entries are the ones that turn a log into a reproducible record."
+        ],
+        "code": "# PARAMS       hyperparameters, architecture, optimizer, schedule\n# METRICS      train/val curves, final numbers, PER-SLICE metrics\n# ARTIFACTS    the model, the preprocessing object, plots, the config file\n# ★ CODE       the git SHA - and whether the tree was DIRTY at run time\n# ★ DATA       a version or content hash of the exact training set\n# ENVIRONMENT  the lockfile, the CUDA/driver version, the framework version\n# SEED         for repeatability - not for reliability\n# HARDWARE     device type and count (a batch-size-per-device change is a\n#              different experiment)\n\n# ★ THE DIRTY-TREE FLAG is the cheapest high-value field: a SHA recorded\n#   from a modified working tree points at code that never existed, and\n#   it is a one-line check that catches the most common reproduction\n#   failure in practice.",
+        "caption": "Logging a git SHA from an uncommitted working tree is worse than logging nothing, because it looks like a pin and is not."
+      },
+      {
+        "h": "The registry, and what a stage actually means",
+        "paras": [
+          "A model registry is the seam between an experiment and a deployment. Its value is not storage - it is that the deployed artifact has a traceable lineage back to a run."
+        ],
+        "code": "# THE QUESTION A REGISTRY MUST ANSWER\n#   'which run produced the model currently serving traffic, and can I\n#    regenerate it?'   -> if the answer is no, you cannot debug production\n\n# STAGES are a workflow convention, not a guarantee\n#   None -> Staging -> Production -> Archived\n#   ★ nothing enforces that a Production model passed anything; the gates\n#     live in CI/CD, and the stage is a label recording that they ran\n\n# WHAT MUST BE VERSIONED TOGETHER, or the seam leaks\n#   the model weights\n#   the PREPROCESSING object (fitted scalers, encoders, vocabularies)\n#   the feature computation code\n#   ★ these three must move as ONE unit. Versioning weights alone is the\n#     most common source of train/serve skew, because the preprocessing\n#     drifts independently and nothing raises.",
+        "caption": "The preprocessing object is part of the model. Treating it as code rather than as an artifact is how a redeploy silently changes predictions."
+      }
+    ],
+    "useCases": [
+      "Any project with more than a handful of runs, where the log is what lets you answer 'what did we already try' without re-running it.",
+      "Debugging a production regression, where the registry's lineage from serving artifact back to run is the difference between a two-hour investigation and a rebuild.",
+      "Handing a project over, where the record is the deliverable and an unreproducible result is not transferable.",
+      "Reporting results honestly, where a mean and spread over seeds distinguishes a real improvement from a lucky run."
+    ],
+    "pitfalls": [
+      "Not versioning the data. Two runs a month apart against 'the training table' are confounded by an unrecorded variable, which makes the whole experiment log observational rather than controlled.",
+      "Logging a git SHA from a dirty working tree. That points at code that never existed and looks like a pin, which is worse than logging nothing.",
+      "Versioning model weights without the preprocessing object. The fitted scalers, encoders and vocabularies are part of the model, and letting them drift independently is the most common source of train/serve skew.",
+      "Treating a fixed seed as evidence. It buys repeatability, not reliability - report a mean and spread over several seeds for any claim.",
+      "Comparing runs that differ in more than one coordinate. The difference is unattributable, which is the identification problem from the causal module arriving in an experiment table.",
+      "Reading a registry stage as a guarantee. Nothing enforces that a Production model passed anything; the gates live in CI/CD and the stage records that they ran.",
+      "Logging only aggregate metrics. Per-slice metrics cost nothing extra at log time and are the only way a later regression on a subgroup is visible."
+    ],
+    "connections": [
+      {
+        "ref": "mlops/project-structure",
+        "text": "Where the configuration lives so that a run is describable by a single versioned object rather than by a call signature."
+      },
+      {
+        "ref": "mlops/cicd",
+        "text": "Where the gates actually are - a registry stage records that they ran, and the pipeline is what enforces them."
+      },
+      {
+        "ref": "causal-inference/confounding",
+        "text": "Why an unrecorded data version makes every run comparison observational: you cannot condition on what you did not log."
+      },
+      {
+        "ref": "mlops/model-serving",
+        "text": "The seam this feeds - the deployed artifact must trace back to a run, or a production regression cannot be debugged."
+      },
+      {
+        "ref": "ml-theory/cross-validation",
+        "text": "Why a single-seed, single-split number is a sample of size one, and what the spread across repetitions is telling you."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "★ What makes a run reproducible?",
+        "a": "Four pinned coordinates: code SHA, **DATA version**, parameters, and environment. Most setups pin parameters and code and treat the other two as implicit."
+      },
+      {
+        "q": "Which is most often missing?",
+        "a": "The data version. Two runs a month apart against \"the training table\" differ in an unrecorded variable, so the comparison is confounded."
+      },
+      {
+        "q": "Why is that a causal problem?",
+        "a": "Δmetric = f(Δcode, Δdata, Δparams, Δenv) is attributable only if exactly one Δ ≠ 0. You cannot condition on what you did not log — module 23 in a tooling costume."
+      },
+      {
+        "q": "★ What's wrong with a SHA from a dirty tree?",
+        "a": "It points at code that never existed and LOOKS like a pin, which is worse than logging nothing. Log a dirty-tree flag — one line, catches the most common reproduction failure."
+      },
+      {
+        "q": "What does a fixed seed buy?",
+        "a": "Repeatability, not reliability. Log it for reproduction; report a mean and spread over several seeds for any claim."
+      },
+      {
+        "q": "A method wins on one seed. Has it won?",
+        "a": "No. A single-seed comparison is a sample of size one from a distribution whose spread is often larger than the claimed difference."
+      },
+      {
+        "q": "★ What must be versioned TOGETHER?",
+        "a": "Model weights + the **PREPROCESSING object** (fitted scalers, encoders, vocabularies) + the feature computation code. Versioning weights alone is the most common source of train/serve skew."
+      },
+      {
+        "q": "What question must a registry answer?",
+        "a": "\"Which run produced the model currently serving traffic, and can I regenerate it?\" If the answer is no, you cannot debug production."
+      },
+      {
+        "q": "Does a Production stage guarantee anything?",
+        "a": "No — it's a workflow label. Nothing enforces that the model passed anything; the gates live in CI/CD and the stage records that they ran."
+      },
+      {
+        "q": "What else should be logged that usually isn't?",
+        "a": "PER-SLICE metrics (free at log time, and the only way a later subgroup regression is visible) and hardware/device count, since batch-size-per-device changes the experiment."
+      },
+      {
+        "q": "Is tracking a dashboard?",
+        "a": "No — it's the discipline of recording enough to REPRODUCE. The test: can a colleague regenerate the number from the record alone?"
+      },
+      {
+        "q": "How do you version a large dataset cheaply?",
+        "a": "A content hash of the manifest plus an immutable snapshot or a time-travel table. You need identity, not a copy."
+      }
+    ],
+    "standard": [
+      {
+        "q": "What does experiment tracking actually need to capture, and why?",
+        "a": "FOUR COORDINATES, AND A RUN IS REPRODUCIBLE ONLY IF ALL FOUR ARE PINNED: the code version, the DATA version, the parameters, and the environment. Most setups capture parameters and metrics well, capture code passably, and treat data and environment as implicit — which produces a record that reproduces only on the machine and against the dataset it originally ran on. THE OPERATIONAL TEST IS SIMPLE: can a colleague regenerate the number from the record alone? If not, the result is an anecdote. THE DATA VERSION IS THE ONE THAT SILENTLY INVALIDATES COMPARISONS. If two runs a month apart both trained on 'the training table' and the table grew, the difference between them is a function of both the change you made and the data change you did not record, and it is unattributable. That is exactly the identification problem from the causal module — Δmetric depends on Δcode, Δdata, Δparams and Δenv, and it is attributable only when exactly one is nonzero — so an experiment log without data versions is a set of OBSERVATIONAL results about your own project rather than controlled ones. AND THE PREPROCESSING OBJECT IS PART OF THE MODEL: fitted scalers, encoders and vocabularies must be versioned with the weights, or they drift independently and nothing raises.",
+        "deepDive": "The dirty-tree flag deserves a specific mention because it is the cheapest high-value field in a tracking schema and almost nobody logs it. A git SHA recorded while the working tree has uncommitted changes points at code that never produced that result, and because it LOOKS like a pin it is actively worse than recording nothing — someone will check out that SHA, get a different number, and lose a day. One line at run start that records whether the tree was clean prevents it entirely. On data versioning, the practical objection is cost, and the answer is that you need IDENTITY rather than a copy: a content hash over the file manifest, or a snapshot identifier from a table format that supports time travel, is a few bytes and is sufficient to detect that two runs saw different data. That distinction — identity versus copy — is what makes data versioning affordable at scale, and confusing them is why teams decide it is impractical and then spend years unable to compare their own experiments."
+      },
+      {
+        "q": "How would you report an experimental result honestly?",
+        "a": "WITH A MEAN AND A SPREAD OVER SEEDS, AGAINST A BASELINE, ON SLICES. A single-seed number is a sample of size one, and for many methods the seed-to-seed spread is larger than the difference being claimed — so a method that wins on seed 42 and loses on seed 7 has not won, and reporting only the win is a selection effect. The seed should be LOGGED for reproducibility and never used as evidence. AGAINST A BASELINE, because a metric with no comparison is not a result, and the baseline must have received the same tuning budget — the realistic-evaluation problem that appeared in the semi-supervised lesson and again in tabular deep learning, where a heavily-tuned new method is compared against a default. AND ON SLICES, because per-slice metrics are free at log time and an aggregate improvement is compatible with a regression on a subgroup, which is the aggregation failure this curriculum has found in every module. I'D ALSO REPORT WHAT CHANGED — exactly one coordinate if possible — because a run differing in code, data and parameters simultaneously produces a number nobody can attribute, and a log full of those is a log you cannot learn from.",
+        "deepDive": "There is a subtler selection problem in experiment logs that is worth naming because tracking tools make it easier rather than harder: running many configurations and reporting the best is a multiple-comparisons exercise, and the best-of-N on a validation set is optimistically biased by roughly the spread of the N. That is the same arithmetic as peeking in the experimentation module, and the mitigation is the same — a final held-out evaluation the search never touched, consulted once. Tracking systems encourage large sweeps and make the best result easy to surface, so the discipline has to be deliberate: record the sweep, report the selected configuration's performance on a set that played no part in selecting it, and state how many configurations were tried. That last number is what a reader needs to discount appropriately, and it is almost never reported. It costs one field."
+      },
+      {
+        "q": "What is a model registry for, beyond storage?",
+        "a": "LINEAGE, WHICH IS THE ONLY THING THAT MAKES A PRODUCTION REGRESSION DEBUGGABLE. The question a registry must answer is: which run produced the model currently serving traffic, and can I regenerate it? If the answer is no, then when production degrades you cannot compare the serving artifact against the run that validated it, cannot check whether the preprocessing matches, and cannot reproduce the training to bisect. You are reduced to retraining and hoping, which is a bad position at exactly the moment you can least afford it. THE SECOND FUNCTION IS TO MAKE THE DEPLOYABLE UNIT EXPLICIT, and the unit is bigger than the weights: the model, the fitted preprocessing object, and the feature computation code must move together as one versioned artifact. Versioning weights alone is the most common source of train/serve skew, because the preprocessing is treated as code, code evolves independently, and a redeploy silently changes predictions with nothing raising. THE THIRD IS WORKFLOW, and here I would be precise: stages like Staging and Production are LABELS, not guarantees. Nothing about the registry enforces that a Production model passed a test; the gates live in CI/CD, and the stage records that they ran.",
+        "deepDive": "That last distinction matters because registries are frequently sold as governance and are not, on their own. A stage transition is an assertion by whoever made it, and the assurance comes from whether a pipeline gated the transition on tests, evaluation thresholds, and a canary — which is the CI/CD lesson's territory. A useful design principle is that stage transitions should be performed by automation rather than by people, so the label is a consequence of the gate rather than a claim about it. The related practice worth adopting is recording the EVALUATION artifacts alongside the model in the registry — the slice metrics, the calibration curve, the fairness table, the parity check against the exported version — so that the deployed artifact carries its own evidence. That turns the registry into the answer to 'why did we believe this was safe', which is the question asked after an incident, and reconstructing it from scattered notebooks afterwards is exactly the situation this whole lesson exists to prevent."
+      },
+      {
+        "q": "How do you version a dataset without copying it?",
+        "a": "BY RECORDING IDENTITY RATHER THAN CONTENT, WHICH IS CHEAP. The requirement is to detect that two runs saw different data and to be able to reconstruct which data a run saw — neither of which needs a copy. A content hash over the file manifest, including paths, sizes and modification times or per-file hashes, is a few bytes and is sufficient for detection. For warehouse tables, modern table formats support snapshot identifiers and time travel, so recording a snapshot ID pins the exact state and reconstruction is a query. For append-only logs, a maximum timestamp or offset serves the same purpose. FOR THE CASES WHERE A COPY IS GENUINELY WARRANTED — a benchmark set, a golden evaluation set, a labelled sample — copy them, because they are small and they are the artifacts you will most want to be certain about years later. THE ANTI-PATTERN IS TREATING THIS AS ALL-OR-NOTHING: teams conclude that versioning petabytes is impractical, log nothing, and lose the ability to compare their own experiments. Identity for the large training data and copies for the small evaluation data is affordable at any scale and captures nearly all of the value.",
+        "deepDive": "There is a second-order benefit that makes this worth more than it first appears: once the data version is a field, you can detect the specific failure where a result becomes unreproducible because the data moved under it, which otherwise presents as a mysterious inability to replicate and gets attributed to seeds or environments. Being able to say 'the data version differs' resolves those in seconds. It also makes the training pipeline's inputs auditable, which matters when a regulator or an incident review asks what a model was trained on — and 'the table as of some point last spring' is not an answer. The related practice is to pin the data version in the pipeline definition rather than resolving 'latest' at run time, so a scheduled retrain is a deliberate act with a recorded input rather than a moving target. Retrains that silently pick up whatever data exists are how a model changes without a corresponding change in any code, which is the seam this lesson is about."
+      },
+      {
+        "q": "How does this lesson fit the module's theme?",
+        "a": "THE SEAM IS BETWEEN AN EXPERIMENT AND ITS REPRODUCTION, and the failure has the module's signature: nothing raises. A run completes, a number is produced, and it is correct — the defect is that the combination which produced it was never recorded, and that defect is invisible until someone tries to reproduce it, which is typically weeks later during an incident. NO ERROR OCCURS AT THE MOMENT THE INFORMATION IS LOST. THE CONTRACT AT THIS SEAM is that a record contains everything needed to regenerate its result, and the violation is silent by construction because the missing coordinate — usually the data version or the environment — is absent rather than wrong. THAT IS WHY THE DISCIPLINE HAS TO BE UP FRONT: unlike most bugs, this one cannot be found by testing after the fact, because there is nothing to test. It also connects to the causal module directly: an experiment log with an unrecorded coordinate is observational data about your own project, and every comparison in it is confounded by whatever you did not log. You cannot condition on a variable you never recorded, which is the same statement in two vocabularies.",
+        "deepDive": "It is worth noting the organizational version of this failure, because it is more common than the technical one. Tracking usually exists — someone set up MLflow — and the gap is that it records what the library logs by default, which is parameters and metrics, and not what makes a run reproducible. So the team has a dashboard, believes it has traceability, and discovers during an incident that it has neither. The cheap remedy is to write down the four coordinates as an explicit schema and to fail a run that cannot populate them, which converts a convention into a constraint. That is the same move as every other practice in this module — turn a silent omission into a loud failure at the point where it happens — and it is the criterion worth applying to any MLOps tooling decision: does this make a silent failure audible, and where?"
+      },
+      {
+        "q": "A result from three months ago cannot be reproduced. How do you investigate?",
+        "a": "BY BISECTING THE FOUR COORDINATES, IN ORDER OF PRIOR PROBABILITY. FIRST, DATA — it is the most commonly unpinned and the most commonly changed, so check whether the training table has grown, been backfilled, or had a schema change since; a backfill is particularly insidious because it rewrites history and no code changed. SECOND, ENVIRONMENT — a framework, CUDA or driver upgrade changes numerics and occasionally changes defaults, and a library's default parameter changing between minor versions has silently altered many results; the lockfile is what settles it, and its absence is itself the finding. THIRD, CODE — check whether the recorded SHA is real and whether the working tree was clean, since a SHA logged from a dirty tree points at code that never ran. FOURTH, SEED AND NONDETERMINISM — GPU reductions are nondeterministic by default, so exact reproduction may require deterministic flags at a performance cost, and if the gap is within the seed-to-seed spread then there was never a result to reproduce. I'D ALSO CHECK HARDWARE, because a different device count changes the effective batch size and is a different experiment wearing the same config.",
+        "deepDive": "The last one catches people repeatedly and is worth internalizing: a config specifying batch size per device produces a different global batch on four GPUs than on eight, which changes the effective learning rate dynamics and can change results materially — and the config file is identical, so every recorded coordinate matches. Logging device type and count is one field and it resolves this class immediately. The broader lesson from a failed reproduction is that it should generate a schema change rather than only a fix: whatever coordinate was missing gets added as a required field, so the same investigation cannot recur. Teams that treat each reproduction failure as a one-off keep having them; teams that treat it as a gap in the record converge on a schema that works. That is the same posture as adding a regression test after a bug, applied to metadata rather than to code, and it is the mechanism by which tracking discipline actually improves rather than being periodically re-exhorted."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "definition",
+      "front": "★ The four coordinates of a reproducible run",
+      "back": "code SHA · **DATA version** · parameters · environment. Most setups pin params and code and treat the other two as implicit. Test: can a colleague regenerate the number from the record alone?"
+    },
+    {
+      "type": "formula",
+      "front": "Why an unlogged coordinate is confounding",
+      "back": "Δmetric = f(Δcode, Δdata, Δparams, Δenv) — attributable only if exactly one Δ ≠ 0. **You cannot condition on what you did not log.** An unversioned log is observational data about your own project."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ A SHA from a dirty working tree",
+      "back": "Points at code that NEVER produced the result, and it LOOKS like a pin — worse than logging nothing. A one-line clean/dirty flag catches the most common reproduction failure."
+    },
+    {
+      "type": "intuition",
+      "front": "What a fixed seed buys",
+      "back": "Repeatability, NOT reliability. Log it to reproduce; report mean ± spread over several seeds for any claim. A method that wins on seed 42 and loses on seed 7 has not won."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ Version these three TOGETHER",
+      "back": "Model weights + the **PREPROCESSING object** (fitted scalers, encoders, vocabularies) + feature computation code. Versioning weights alone is the most common source of train/serve skew — the preprocessing drifts and nothing raises."
+    },
+    {
+      "type": "definition",
+      "front": "The question a registry must answer",
+      "back": "\"Which run produced the model currently serving traffic, and can I regenerate it?\" If no, you cannot debug production — you're reduced to retraining and hoping."
+    },
+    {
+      "type": "pitfall",
+      "front": "Does a \"Production\" stage guarantee anything?",
+      "back": "No — it's a LABEL. Nothing enforces that the model passed anything; the gates live in CI/CD. Stage transitions should be made by AUTOMATION, so the label is a consequence of the gate."
+    },
+    {
+      "type": "intuition",
+      "front": "Versioning data cheaply: identity, not copies",
+      "back": "A content hash over the file manifest, a table snapshot ID, or a max offset — a few bytes. COPY only the small things (benchmark and golden evaluation sets). Treating it as all-or-nothing is why teams log nothing."
+    },
+    {
+      "type": "pitfall",
+      "front": "The sweep selection effect",
+      "back": "Best-of-N on a validation set is optimistically biased by roughly the spread of the N — the peeking arithmetic again. Report the selected config on a set that played NO part in selection, and state how many configs were tried."
+    },
+    {
+      "type": "pitfall",
+      "front": "The hardware coordinate",
+      "back": "Batch size PER DEVICE means four GPUs and eight GPUs are different experiments with an IDENTICAL config file. Log device type and count — one field, and it resolves a whole class of failed reproductions."
+    },
+    {
+      "type": "intuition",
+      "front": "Investigating a failed reproduction",
+      "back": "Bisect by prior probability: DATA (grew? backfilled? schema change?) → ENVIRONMENT (a library default changed between minor versions) → CODE (real SHA? clean tree?) → seed/nondeterminism → hardware."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The seam, and why it's silent",
+      "back": "Between an experiment and its REPRODUCTION. Nothing raises when the information is lost — the missing coordinate is ABSENT rather than wrong, so it cannot be found by testing afterwards. A failed reproduction should produce a SCHEMA change, not just a fix."
+    }
+  ],
+  "refs": [
+    {
+      "title": "MLflow Documentation, Tracking and Model Registry",
+      "url": "https://mlflow.org/docs/latest/tracking.html"
+    },
+    {
+      "title": "Sculley et al. (2015), Hidden Technical Debt in Machine Learning Systems",
+      "url": "https://proceedings.neurips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html"
+    },
+    {
+      "title": "Pineau et al. (2021), Improving Reproducibility in Machine Learning Research",
+      "url": "https://www.jmlr.org/papers/v22/20-303.html"
+    },
+    {
+      "title": "Bouthillier, Laurent & Vincent (2019), Unreproducible Research is Reproducible",
+      "url": "https://proceedings.mlr.press/v97/bouthillier19a.html"
+    },
+    {
+      "title": "Breck, Cai, Nielsen, Salib & Sculley (2017), The ML Test Score",
+      "url": "https://research.google/pubs/pub46555/"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

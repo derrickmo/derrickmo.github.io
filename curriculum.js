@@ -1544,63 +1544,63 @@ window.CURRICULUM = {
           "n": "20-01",
           "slug": "ml-strategy",
           "title": "ML Strategy & Error Analysis",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-01_ml_strategy_error_analysis.ipynb"
         },
         {
           "n": "20-02",
           "slug": "mlflow",
           "title": "Experiment Tracking with MLflow",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-02_mlflow_experiment_tracking.ipynb"
         },
         {
           "n": "20-03",
           "slug": "torchscript-onnx",
           "title": "Model Export — TorchScript & ONNX",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-03_model_export_torchscript_onnx.ipynb"
         },
         {
           "n": "20-04",
           "slug": "model-serving",
           "title": "Model Serving — FastAPI & Gradio",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-04_model_serving_fastapi_gradio.ipynb"
         },
         {
           "n": "20-05",
           "slug": "docker",
           "title": "Docker Containerization",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-05_docker_containerization.ipynb"
         },
         {
           "n": "20-06",
           "slug": "monitoring",
           "title": "Data Drift & Model Monitoring",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-06_data_drift_model_monitoring.ipynb"
         },
         {
           "n": "20-07",
           "slug": "cicd",
           "title": "CI/CD for ML",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-07_cicd_for_ml.ipynb"
         },
         {
           "n": "20-08",
           "slug": "testing",
           "title": "ML Testing & Data Validation",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-08_ml_testing_data_validation.ipynb"
         },
         {
           "n": "20-09",
           "slug": "project-structure",
           "title": "ML Project Structure & Best Practices",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "20-09_ml_project_structure.ipynb"
         },
         {

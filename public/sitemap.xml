@@ -382,9 +382,17 @@
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/canary-rollout/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/cicd/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/docker/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/drift-detection/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/ml-strategy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/mlflow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/model-serving/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/monitoring/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/project-structure/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/system-design/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/testing/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/torchscript-onnx/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/audio-representations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/clip/</loc><priority>0.6</priority></url>
