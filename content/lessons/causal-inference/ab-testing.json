@@ -5,13 +5,273 @@
   "slug": "ab-testing",
   "module": "causal-inference",
   "title": "A/B Testing & Experimentation at Scale",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "23-07_ab_testing.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["clt", "bandit", "thompson-vs-ucb", "classification-metrics"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["causal-inference/potential-outcomes", "ml-theory/evaluation-metrics"],
+  "leadsTo": ["causal-inference/resampling", "causal-inference/bayesian-workflow"],
+  "body": {
+    "intuition": [
+      "Randomization is the only method in this module that buys ignorability by DESIGN rather than by assumption. That is why an experiment is worth its cost, and it is also why the remaining failure modes are all about the design leaking - not about the estimator being wrong.",
+      "The leaks are procedural and they are large. Checking an A/A test - two arms drawn from the same distribution, so the true effect is exactly zero - once gives a 5.0% false positive rate as advertised. Checking it ten times gives 19.7%, and twenty times gives 25.0%. Nothing about the data changed; the DECISION RULE changed, and the decision rule is part of the statistic.",
+      "The same arithmetic runs across metrics rather than across time. Twenty independent metrics on a dashboard produce at least one nominally significant result 64.2% of the time under a true null, and fifty produce one 92.3% of the time. A team that ships when any metric is green under a nominal 5% test is running closer to a coin flip, and every individual test in that dashboard is computed correctly."
+    ],
+    "math": [
+      {
+        "h": "Peeking inflates the false positive rate, measured",
+        "paras": [
+          "Each interim look is another chance to cross the boundary, and the crossings are positively correlated but far from identical, so the family-wise rate climbs steeply at first and then slowly.",
+          "Twenty thousand simulated A/A experiments per row, 4,000 users per arm, evenly spaced checkpoints."
+        ],
+        "tex": "\\text{peeks}: 1 \\to 5.0\\%, \\quad 2 \\to 8.1\\%, \\quad 5 \\to 14.0\\%, \\quad 10 \\to 19.7\\%, \\quad 20 \\to 25.0\\%",
+        "texNote": "In the limit of continuous monitoring with a fixed nominal threshold, the probability of crossing at some point approaches 1 - the law of the iterated logarithm guarantees the statistic wanders back across any fixed boundary eventually."
+      },
+      {
+        "h": "Minimum detectable effect scales as one over root n",
+        "paras": [
+          "Power calculations are the part of experimentation that is pure arithmetic, and the square root is what makes big experiments feel disappointing."
+        ],
+        "tex": "\\mathrm{MDE} = (z_{1-\\alpha/2}+z_{\\text{power}})\\,\\sigma\\sqrt{\\tfrac{2}{n}}: \\quad n{=}10^3 \\to 0.125\\sigma, \\quad 10^4 \\to 0.040\\sigma, \\quad 10^5 \\to 0.013\\sigma, \\quad 10^6 \\to 0.004\\sigma",
+        "texNote": "A hundredfold increase in users buys a tenfold improvement in resolution. This is why variance reduction is worth more than traffic: it attacks sigma, which sits outside the square root."
+      },
+      {
+        "h": "CUPED: free sample size from a pre-period covariate",
+        "paras": [
+          "Subtract off the part of the outcome predicted by a pre-treatment covariate. The covariate is pre-treatment so the adjustment cannot bias the estimate, and it removes variance in proportion to the squared correlation."
+        ],
+        "tex": "Y^{cuped}=Y-\\theta(X_{pre}-\\bar{X}_{pre}), \\quad \\theta=\\frac{\\mathrm{Cov}(Y,X_{pre})}{\\mathrm{Var}(X_{pre})}, \\quad \\mathrm{Var}\\ \\text{reduction}=\\rho^2",
+        "texNote": "At rho = 0.627 the variance fell 39.3%, equivalent to multiplying the sample size by 1.65x at zero cost in users or duration. MDE at n = 50,000 improved from 0.0226 to 0.0176."
+      }
+    ],
+    "code": [
+      {
+        "h": "The two multiplicity surfaces, and the fix that keeps early stopping",
+        "paras": [
+          "Peeking multiplies across TIME. A metrics dashboard multiplies across METRICS. Both are the same arithmetic and both are usually uncontrolled."
+        ],
+        "code": "# ACROSS TIME - A/A test, true effect exactly zero\n#   1 check  ->  5.0%      10 checks ->  19.7%\n#   5 checks -> 14.0%      20 checks ->  25.0%\n\n# ACROSS METRICS - P(at least one 'significant') under a true null\n#    1 metric  ->  5.0%      20 metrics ->  64.2%\n#   10 metrics -> 40.1%      50 metrics ->  92.3%\n\n# THE FIX IS NOT 'STOP LOOKING' - it is to pay for looking\n#   10 peeks at alpha=0.0500 each -> family-wise 19.3%\n#   10 peeks at alpha=0.0106 each -> family-wise  5.5%   <- Pocock-style\n\n# ★ You keep the ability to stop early. You pay for it in the boundary,\n#   which is a worse threshold at every single look.",
+        "caption": "Sequential designs are not a way to avoid the cost of peeking. They are a way to pay it in advance, in a currency you choose."
+      },
+      {
+        "h": "Where experiments leak even when the statistics are right",
+        "paras": [
+          "Every item here breaks the design rather than the estimator, so no amount of statistical care downstream repairs it."
+        ],
+        "code": "# INTERFERENCE      marketplace / social / shared budget -> SUTVA fails,\n#                   control is contaminated by treatment. Fix: cluster,\n#                   market, or switchback randomization (costly in power).\n# NON-COMPLIANCE    assigned != exposed. Report ITT; use assignment as an\n#                   instrument for LATE. Never analyse as-treated.\n# DIFFERENTIAL      attrition/outcome-logging differs by arm -> you are\n#   ATTRITION       conditioning on a POST-treatment variable (collider).\n# SAMPLE RATIO      observed split != designed split. A 50/50 that lands\n#   MISMATCH        50.4/49.6 at scale means assignment is broken - and\n#                   the whole analysis is void, not merely noisier.\n# NOVELTY /         effect decays or grows over the window; a 1-week read\n#   PRIMACY         of a permanent change is a different estimand.\n# TRIGGER DILUTION  analysing all users when only 3% saw the change divides\n#                   the effect by ~33 and the power with it.",
+        "caption": "SRM is the highest-value automated check to run: it is cheap, it fires on the failures that invalidate everything, and it has no false-negative-free alternative."
+      }
+    ],
+    "useCases": [
+      "Any product change where the decision is reversible and the metric moves within a reasonable window - the default, and the reason to make experimentation infrastructure rather than a project.",
+      "Sizing an experiment before running it, so that 'we saw no significant difference' can be reported honestly as 'we could not have detected anything below X'.",
+      "Deciding between more traffic and better statistics: at rho = 0.627 CUPED was worth a 1.65x sample multiplier for free, which usually beats waiting another week.",
+      "Designing holdouts that outlive a single test, since a permanent randomized holdout is what makes uplift modelling, long-run effect measurement and observational calibration possible later."
+    ],
+    "pitfalls": [
+      "Peeking with a fixed threshold. Ten looks took the false positive rate from 5.0% to 19.7% and twenty took it to 25.0%, on data with no effect at all.",
+      "Declaring success when any metric on a dashboard turns green. Twenty independent metrics produce a false positive 64.2% of the time and fifty produce one 92.3% of the time.",
+      "Stopping as soon as significance appears, which is peeking with an optimal stopping rule and biases the effect size upward even when the direction is right - the winner's curse.",
+      "Ignoring a sample ratio mismatch because it is 'only half a percent'. At scale that is overwhelming evidence that assignment is broken, and it voids the analysis rather than widening the interval.",
+      "Analysing as-treated instead of intention-to-treat under non-compliance, which discards the randomization and reintroduces exactly the selection the experiment was built to remove.",
+      "Reading a one-week experiment as an estimate of a permanent change. Novelty and primacy effects mean the estimand is 'the effect during week one', which is a different quantity.",
+      "Diluting the effect by analysing all users when only a small triggered subset could possibly be affected, which divides the measured effect and the power along with it."
+    ],
+    "connections": [
+      {
+        "ref": "causal-inference/potential-outcomes",
+        "text": "Why randomization works at all: it removes the selection term by construction rather than by assumption, and it is the only method here that does."
+      },
+      {
+        "ref": "causal-inference/instrumental-variables",
+        "text": "The repair for non-compliance - assignment instruments for exposure, giving ITT and LATE as two honest numbers instead of one dishonest one."
+      },
+      {
+        "ref": "causal-inference/resampling",
+        "text": "Permutation tests as the assumption-light alternative for skewed metrics, and the exact sense in which they are exact."
+      },
+      {
+        "ref": "reinforcement-learning/bandits",
+        "text": "The adaptive alternative that trades clean inference for lower regret, and why the resulting logs need logged propensities to remain analysable."
+      },
+      {
+        "ref": "mlops/system-design",
+        "text": "Experimentation as platform: assignment service, exposure logging, SRM alerting and a metric registry are infrastructure decisions, not analysis decisions."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "Why does randomization identify the causal effect?",
+        "a": "Assignment is independent of the potential outcomes by construction, so the selection term is exactly zero. It is bought by design, not assumed."
+      },
+      {
+        "q": "What does peeking do to the false positive rate?",
+        "a": "Inflates it. Measured on A/A data: 1 check 5.0%, 5 checks 14.0%, 10 checks 19.7%, 20 checks 25.0%."
+      },
+      {
+        "q": "Why does it inflate?",
+        "a": "Each look is another chance to cross a fixed boundary. Under continuous monitoring the crossing probability approaches 1."
+      },
+      {
+        "q": "Twenty metrics, nominal 5% each. P(at least one false positive)?",
+        "a": "1 − 0.95²⁰ = 64.2%. Fifty metrics gives 92.3%."
+      },
+      {
+        "q": "Give the MDE formula and its scaling.",
+        "a": "MDE = (z_{1−α/2} + z_power)·σ·√(2/n). ∝ 1/√n — 100× the users buys 10× the resolution."
+      },
+      {
+        "q": "What is CUPED and what does it buy?",
+        "a": "Y − θ(X_pre − mean). Variance reduction ρ². At ρ=0.627: 39.3% less variance ≈ a 1.65× sample multiplier, free."
+      },
+      {
+        "q": "Why can't CUPED bias the estimate?",
+        "a": "X_pre is pre-treatment, so it is independent of assignment. Adjusting for it removes variance, not signal."
+      },
+      {
+        "q": "How do you keep early stopping legitimately?",
+        "a": "Pay for it in the boundary. 10 peeks at α=0.0106 each gave 5.5% family-wise vs 19.3% at α=0.05. Or use always-valid p-values / mSPRT."
+      },
+      {
+        "q": "What is sample ratio mismatch and why does it void an analysis?",
+        "a": "Observed split ≠ designed split. It means assignment or logging is broken, so the arms are not exchangeable — the result is invalid, not just noisy."
+      },
+      {
+        "q": "ITT or as-treated under non-compliance?",
+        "a": "ITT. As-treated throws away the randomization and reintroduces selection. Use assignment as an instrument if you want LATE."
+      },
+      {
+        "q": "What is the winner's curse in experimentation?",
+        "a": "Stopping at first significance selects on a high realization of noise, so the reported effect is biased upward even when the sign is right."
+      },
+      {
+        "q": "What is trigger dilution?",
+        "a": "Analysing all users when only a triggered subset could be affected. If 3% trigger, the effect and the power are divided by ~33."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain why peeking at an experiment inflates the false positive rate, and how to fix it without giving up early stopping.",
+        "a": "THE DECISION RULE IS PART OF THE STATISTIC, AND PEEKING CHANGES THE DECISION RULE. A p-value below 0.05 controls the error rate of ONE pre-specified test at one pre-specified time. If you evaluate repeatedly and stop the first time the threshold is crossed, you have defined a different procedure — 'reject if the statistic ever crosses' — whose error rate is much larger. Measured on simulated A/A experiments where the true effect is exactly zero: one check gives 5.0%, five gives 14.0%, ten gives 19.7%, twenty gives 25.0%. Nothing about the data generating process changed across those rows. And in the limit of continuous monitoring against a fixed boundary the crossing probability approaches 1, because the law of the iterated logarithm guarantees the statistic wanders back across any fixed threshold eventually. THE FIX IS NOT 'STOP LOOKING', which is unenforceable and wastes the operational value of early stopping. It is to PAY for looking. Group sequential designs spend the alpha budget across pre-planned looks: ten peeks at a Pocock-style boundary of 0.0106 each brought the family-wise rate back to 5.5% against 19.3% for the naive version. Always-valid p-values and mixture SPRT approaches go further and permit continuous monitoring with no pre-specified schedule.",
+        "deepDive": "The honest trade is worth stating, because sequential methods are sometimes sold as free. You keep the ability to stop early and you pay in the boundary: the threshold is stricter at every single look, so if the effect is real and you run to the planned horizon anyway, you have less power than the fixed-horizon test would have given you. Sequential designs are therefore worth it when early stopping has operational value — a harmful change you want to kill fast, or a decision that unblocks other work — and not worth it when you were going to wait for the full sample regardless. There is a second, subtler cost that survives any correct sequential procedure: the winner's curse. Stopping at the first crossing selects on a high realization of noise, so the reported effect size is biased upward even when the sign is correct and the error rate is properly controlled. That is not a bug in the method, it is selection, and the mitigations are shrinkage toward a prior, reporting a de-biased estimate, or planning to re-measure the winner in a follow-up holdout. Teams that ship on the first crossing and then wonder why the aggregate of their wins does not show up in the top-line metric are usually seeing exactly this."
+      },
+      {
+        "q": "Your experimentation platform tracks 40 metrics per test. What is your advice?",
+        "a": "THE DASHBOARD IS A MULTIPLICITY SURFACE AND IT IS USUALLY UNCONTROLLED. Under a true null with independent metrics, the probability that at least one is nominally significant at 5% is 40.1% for ten metrics, 64.2% for twenty, and 92.3% for fifty. At forty it is around 87%. So a team that ships when any metric looks good is running a procedure whose false positive rate is close to certainty, and every individual test in it is computed correctly — which is why nobody notices. THE FIX IS STRUCTURAL, NOT STATISTICAL: designate ONE primary metric per experiment, in advance, and make the ship decision on it. Everything else is either a GUARDRAIL, tested in the other direction with the burden of proof reversed — you need evidence of no harm, so a wide interval is a failure rather than a pass — or it is EXPLORATORY, reported without a decision attached and treated as hypothesis generation. That taxonomy does most of the work and costs nothing. WHERE FORMAL CORRECTION IS STILL NEEDED, I would use Benjamini-Hochberg over Bonferroni for the exploratory tier: metrics on the same experiment are heavily correlated, so Bonferroni is badly conservative, and controlling false discovery rate matches what the tier is for.",
+        "deepDive": "The guardrail asymmetry deserves emphasis because it is where teams most often get the logic backwards. For a primary metric the null is 'no effect' and you need evidence to move; for a guardrail like latency, crash rate or unsubscribes, shipping without evidence of harm is the risky action, so the sensible framing is a non-inferiority test against a pre-agreed margin. 'p > 0.05 on the guardrail' is not reassurance — it is often a statement that the experiment could not have detected a 20% regression, and that should block the ship rather than clear it. The other practical point is that metric correlation cuts both ways: it makes Bonferroni too conservative, and it also means the significant metrics in a given readout tend to arrive in correlated clusters, which reads as a coherent story and is very persuasive. A good platform makes the tiering mandatory at experiment-creation time rather than at readout time, because the entire value of pre-specification comes from the ordering. Choosing the primary metric after seeing the results is the same failure as peeking, in a form that leaves no trace in the logs."
+      },
+      {
+        "q": "How do you decide how long to run an experiment, and what do you do if you are underpowered?",
+        "a": "I START FROM THE MDE FORMULA AND WORK BACKWARDS FROM A DECISION-RELEVANT EFFECT SIZE. MDE = (z_{1−α/2} + z_power)·σ·√(2/n), so the resolution improves only as 1/√n: at 1,000 per arm it is 0.125σ, at 10,000 it is 0.040σ, at 100,000 it is 0.013σ, and at a million it is 0.004σ. A hundredfold increase in users buys tenfold resolution, which is why 'we have lots of traffic' is less decisive than people expect. THE RIGHT STARTING QUESTION IS NOT 'WHAT CAN WE DETECT' BUT 'WHAT WOULD CHANGE OUR DECISION' — if a 0.2% lift is not worth shipping, there is no point powering for it, and if only a 2% lift matters, the experiment may be short. I also fix the duration to whole weeks to cover day-of-week composition, and I check that the effect is plausibly stable over the window rather than a novelty spike. IF I AM UNDERPOWERED, the first move is variance reduction rather than more traffic, because sigma sits outside the square root: CUPED with a pre-period covariate at rho = 0.627 cut variance 39.3%, equivalent to a 1.65x sample multiplier for free, improving MDE at n = 50,000 from 0.0226 to 0.0176. After that: trigger-based analysis to remove unaffected users, a less noisy metric, or accepting that the question is not answerable and saying so.",
+        "deepDive": "The last option is the one worth defending, because 'we cannot answer this' is a legitimate and underused outcome. A null result from an underpowered test is not evidence of no effect, and reporting it as 'no significant difference' invites exactly that misreading. The honest phrasing states the resolution: 'we could not have detected anything below 3%, and the point estimate was +0.4% with an interval spanning −2.1% to +2.9%.' That tells the reader what they actually learned. On trigger dilution, the arithmetic is brutal enough to be worth checking first: if only 3% of users ever encounter the changed surface, analysing all users divides the effect by roughly 33 and the power along with it, so a well-powered experiment on triggered users can be hopeless on the full population. The catch is that triggering must be defined by pre-treatment eligibility, not by observed exposure, because 'users who saw the new flow' is a post-treatment variable and conditioning on it is the collider problem. The clean pattern is to log a counterfactual trigger in BOTH arms — the moment a control user would have hit the change — which requires instrumenting the control path deliberately and is one of the highest-value things an experimentation platform can provide."
+      },
+      {
+        "q": "What breaks an experiment even when the statistics are done perfectly?",
+        "a": "THE DESIGN LEAKS, AND NO ESTIMATOR REPAIRS A BROKEN DESIGN. Six failures matter most. INTERFERENCE breaks SUTVA: in a marketplace, treated buyers consume inventory control buyers need, so the control arm is degraded by the treatment and the measured lift is partly a transfer; in a social product, spillover contaminates control the other way and shrinks the effect. Fix by randomizing at the level containing the interference and pay the power cost. NON-COMPLIANCE means assigned is not exposed; report ITT and use assignment as an instrument for LATE, never as-treated. DIFFERENTIAL ATTRITION is worse than it looks — if outcome logging or dropout differs by arm you are conditioning on a post-treatment variable, which is the collider case, and even ITT is compromised. SAMPLE RATIO MISMATCH is the highest-value automated check there is: a designed 50/50 landing at 50.4/49.6 at scale is overwhelming evidence that assignment or logging is broken, and it VOIDS the analysis rather than widening the interval. NOVELTY AND PRIMACY mean a one-week read of a permanent change estimates a different quantity. TRIGGER DILUTION divides both effect and power by the reciprocal of the trigger rate.",
+        "deepDive": "SRM deserves the top spot because of its error profile: it is cheap, it is automatic, and it catches a class of failure whose other symptoms are subtle. The causes are usually mundane and always serious — a redirect that drops users asymmetrically, a bot filter applied after assignment, a client that fails to log for one variant, an eligibility check evaluated at different times in the two arms. In every case the arms have stopped being exchangeable, which is the one property the whole design rests on, and no analysis can be trusted afterward. The right response is to investigate and discard, not to reweight. On interference, the underrated practical move is to run the same change at two randomization levels simultaneously when you can afford it — user-level and market-level — because the gap between the two estimates IS the interference, measured rather than argued about. It is expensive, so it is worth doing once for a class of change rather than every time, and the resulting correction factor generalises reasonably well within that class. The general lesson is the module's: these are all failures of the assumption the design was supposed to buy, and none of them shows up as a wide confidence interval."
+      },
+      {
+        "q": "When would you use a bandit instead of an A/B test?",
+        "a": "WHEN MINIMISING REGRET MATTERS MORE THAN CLEAN INFERENCE. A bandit adaptively shifts traffic toward arms that look better, so it loses less value during the learning period, which is the right trade for short-lived decisions with many arms — headline selection, creative rotation, promotional offers, anything that expires before a proper experiment could finish. It is the wrong trade when you need a trustworthy effect estimate, because adaptive allocation destroys the clean statistics: sample sizes are data-dependent, the arms are no longer exchangeable at analysis time, and naive confidence intervals on the resulting logs are wrong in a way that is easy to miss. THE SECOND CONDITION IS STATIONARITY. Bandits assume the arm that was best stays best; if the environment shifts, a converged bandit is stuck exploiting a stale winner, and non-stationary variants exist but require you to know something about the drift rate. THE THIRD IS THE HORIZON — bandits pay off when the decision is made many times in a stream, not once. WHAT I WOULD DO IN PRACTICE is keep a small forced-exploration floor and LOG THE ASSIGNMENT PROPENSITIES, which preserves the ability to do off-policy evaluation later and turns the bandit's exploration into a valid instrument.",
+        "deepDive": "That logging point is the one with the longest-lived consequences, and it is an infrastructure decision rather than an analysis one. If every decision records the probability with which it was made, you have a known assignment mechanism rather than an estimated one, so ignorability holds by construction and inverse propensity weighting is valid without any of the concerns from the propensity lesson. Teams that log propensities can answer counterfactual questions about their own system for years; teams that do not are reduced to observational estimates on logs generated by a policy that changed repeatedly, which is the hardest version of the problem. There is a middle design that is often the right default: run a bandit for allocation but hold out a fixed small fraction under uniform randomization permanently. That holdout costs a little regret and it buys unbiased measurement of the whole system's effect, a training set for uplift models, and a way to detect that the bandit has converged on something bad. The cost is easy to quantify and the benefit is not, which is why it tends to get cut — worth arguing for explicitly and early, since it cannot be recovered retroactively."
+      },
+      {
+        "q": "In the module's framing, what does an experiment actually buy, and what does it not?",
+        "a": "IT BUYS IGNORABILITY BY DESIGN — the one purchase in this module that does not rest on an untestable claim about the world. A coin flip cannot correlate with potential outcomes, so the selection term is exactly zero rather than assumed zero, and that is a categorical difference from adjustment, matching, or instruments. In the opening lesson the same estimator on the same potential outcomes gave −1.889 under confounded assignment and 4.999 under randomization, against a truth of 4.99. WHAT IT DOES NOT BUY IS ANY OF THE PROCEDURAL DISCIPLINE. Randomization says nothing about how many times you looked, how many metrics you scanned, whether the arms stayed exchangeable, whether treatment leaked between units, or whether the population you measured is the one you will ship to. Those are separate assumptions, and this lesson's numbers show they are not small: peeking took a 5.0% error rate to 25.0%, twenty metrics took it to 64.2%, and an SRM of half a percent invalidates everything upstream of it. SO THE FRAMING GENERALISES RATHER THAN CHANGING: the transferable question is still what would have to be true for this number to be causal, and for an experiment the answer is a list of design properties rather than a claim about confounders — which is progress, because design properties can be monitored.",
+        "deepDive": "That last clause is the real reason experimentation platforms are worth building. The assumptions an experiment needs are mostly CHECKABLE at the platform level, which is not true for any other method here. SRM alerting checks exchangeability. Pre-registered primary metrics check multiplicity. Sequential boundaries check peeking. Exposure logging in both arms checks trigger dilution. Fixed whole-week durations check day-of-week composition. Each of those converts a discipline problem into an infrastructure property, which is the only way it survives contact with an organisation under deadline pressure. The residue that platforms cannot check is interference and external validity — whether the effect measured on this population, in this season, at this scale, transfers to the rollout — and those deserve explicit discussion in every readout rather than a default assumption of yes. The pattern to carry forward is that a method's value is partly determined by how many of its assumptions can be automated into a monitor, and by that criterion randomized experimentation is far ahead of everything else in this module, which is why it should be the default whenever it is possible at all."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "intuition",
+      "front": "★ What randomization uniquely buys",
+      "back": "Ignorability by DESIGN, not assumption — a coin flip can't correlate with potential outcomes, so the selection term is exactly zero. Same estimator: −1.889 confounded vs 4.999 randomized (truth 4.99)."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ Peeking, measured on A/A data",
+      "back": "1 check 5.0% | 5 checks 14.0% | 10 checks 19.7% | 20 checks 25.0%. Nothing about the data changed — the DECISION RULE changed, and the rule is part of the statistic."
+    },
+    {
+      "type": "pitfall",
+      "front": "The dashboard multiplicity surface",
+      "back": "P(≥1 significant) under a true null: 10 metrics 40.1%, 20 metrics 64.2%, 50 metrics 92.3%. Every individual test is computed correctly — which is why nobody notices."
+    },
+    {
+      "type": "formula",
+      "front": "MDE and its scaling",
+      "back": "MDE = (z_{1−α/2}+z_power)·σ·√(2/n). n=10³→0.125σ, 10⁴→0.040σ, 10⁵→0.013σ, 10⁶→0.004σ. 100× users = 10× resolution."
+    },
+    {
+      "type": "formula",
+      "front": "★ CUPED",
+      "back": "Y − θ(X_pre − mean), θ = Cov(Y,X_pre)/Var(X_pre). Variance reduction = ρ². At ρ=0.627: −39.3% variance ≈ 1.65× sample size, FREE. Can't bias — X_pre is pre-treatment."
+    },
+    {
+      "type": "intuition",
+      "front": "Why variance reduction beats more traffic",
+      "back": "MDE ∝ σ/√n. Traffic attacks n under a square root; CUPED attacks σ directly. That's why a pre-period covariate is worth more than another week."
+    },
+    {
+      "type": "definition",
+      "front": "Sequential testing — what it costs",
+      "back": "10 peeks at α=0.0106 → 5.5% family-wise (vs 19.3% at α=0.05). You KEEP early stopping and pay in a stricter boundary at every look. Not free: less power if you run to the horizon anyway."
+    },
+    {
+      "type": "pitfall",
+      "front": "Winner's curse",
+      "back": "Stopping at first crossing selects on a high noise realization → the reported effect is biased UPWARD even with the error rate correctly controlled. Shrink, or re-measure the winner."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ Sample ratio mismatch",
+      "back": "Designed 50/50 landing 50.4/49.6 at scale = assignment or logging is broken. It VOIDS the analysis — it doesn't widen the interval. Highest-value automated check there is."
+    },
+    {
+      "type": "definition",
+      "front": "The guardrail asymmetry",
+      "back": "Primary metric: need evidence to move. Guardrail: need evidence of NO HARM — so p>0.05 is not reassurance, it's often 'we couldn't have detected a 20% regression'. Use non-inferiority against a pre-agreed margin."
+    },
+    {
+      "type": "pitfall",
+      "front": "Trigger dilution",
+      "back": "3% trigger rate → effect and power both divided by ~33. Fix by triggered analysis — but define triggering by PRE-treatment eligibility, logged in BOTH arms. 'Users who saw it' is post-treatment (collider)."
+    },
+    {
+      "type": "intuition",
+      "front": "Why experiments are the default",
+      "back": "Their assumptions are mostly CHECKABLE at the platform level — SRM alerts, pre-registered primaries, sequential boundaries, both-arm exposure logging. No other method here can automate its assumptions into a monitor."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Kohavi, Tang & Xu (2020), Trustworthy Online Controlled Experiments",
+      "url": "https://experimentguide.com/"
+    },
+    {
+      "title": "Deng, Xu, Kohavi & Walker (2013), Improving the Sensitivity of Online Controlled Experiments by Utilizing Pre-Experiment Data (CUPED)",
+      "url": "https://exp-platform.com/Documents/2013-02-CUPED-ImprovingSensitivityOfControlledExperiments.pdf"
+    },
+    {
+      "title": "Johari, Koomen, Pekelis & Walsh (2017), Peeking at A/B Tests: Why It Matters and What to Do About It",
+      "url": "https://dl.acm.org/doi/10.1145/3097983.3097992"
+    },
+    {
+      "title": "Fabijan et al. (2019), Diagnosing Sample Ratio Mismatch in Online Controlled Experiments",
+      "url": "https://dl.acm.org/doi/10.1145/3292500.3330722"
+    },
+    {
+      "title": "Benjamini & Hochberg (1995), Controlling the False Discovery Rate",
+      "url": "https://www.jstor.org/stable/2346101"
+    }
+  ],
+  "updatedAt": "2026-08-14"
 }

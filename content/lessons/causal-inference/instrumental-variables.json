@@ -5,13 +5,275 @@
   "slug": "instrumental-variables",
   "module": "causal-inference",
   "title": "Instrumental Variables",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "advanced",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "23-04_instrumental_variables.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["instrumental-variables", "regression", "do-intervention", "bias-variance-decomp"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["causal-inference/causal-graphs", "causal-inference/confounding"],
+  "leadsTo": ["causal-inference/propensity-matching", "causal-inference/time-series-causality"],
+  "body": {
+    "intuition": [
+      "Every method so far required you to MEASURE the confounder. An instrument is the trick that works when you cannot. Find a variable Z that shoves treatment around but has no other route to the outcome, and the variation in T that Z explains is as good as randomized - even though the rest of T is hopelessly confounded. You then use only that slice.",
+      "The mechanics are a ratio: how much Y moves when Z moves, divided by how much T moves when Z moves. In simulation with an unmeasured confounder, OLS returned 2.702 against a truth of 2.000, and two-stage least squares with a valid instrument returned 2.004.",
+      "The lesson's sting is what happens to the diagnostics. IV has exactly one well-known check, the first-stage F-statistic, and it tests STRENGTH. Weaken the instrument and F falls from 30,861 to 2.8 and correctly flags the problem. Now hold the instrument strong and violate the exclusion restriction instead: the estimate walks from 2.003 to 2.503 while the F-statistic sits at 30,731 in EVERY row. The one diagnostic you have is blind to the one assumption that cannot be tested."
+    ],
+    "math": [
+      {
+        "h": "The three conditions, and which of them is checkable",
+        "paras": [
+          "Relevance is a statement about the observed joint distribution of Z and T, so the data can speak to it. The other two are statements involving the unobserved confounder and the potential outcomes, so they cannot be tested with one instrument.",
+          "This is the module's thesis again in a specific costume: the estimate is bought by exclusion, and exclusion is exactly the part no software will check for you."
+        ],
+        "tex": "\\text{(1) relevance } \\mathrm{Cov}(Z,T)\\neq 0 \\ \\ \\textbf{testable} \\qquad \\text{(2) exogeneity } Z \\perp U \\qquad \\text{(3) exclusion: } Z \\text{ affects } Y \\text{ ONLY through } T",
+        "texNote": "With more instruments than endogenous regressors an overidentification test becomes available, but it only checks whether the instruments AGREE - if they are all invalid in the same direction, it passes cleanly."
+      },
+      {
+        "h": "The Wald estimator, and why bias is amplified",
+        "paras": [
+          "The estimator is a ratio of reduced form to first stage. Any direct path from Z to Y, of size gamma, lands in the numerator and is divided by the instrument's strength pi.",
+          "So the two failure modes multiply. A weak instrument is bad on its own; a weak instrument with a small validity problem is a disaster."
+        ],
+        "tex": "\\hat{\\beta}_{IV} = \\frac{\\mathrm{Cov}(Z,Y)}{\\mathrm{Cov}(Z,T)} \\ \\longrightarrow\\ \\beta + \\frac{\\gamma}{\\pi}, \\qquad \\frac{\\gamma}{\\pi} = 0.10,\\ 0.333,\\ 1.000 \\ \\text{ vs measured bias } 0.100,\\ 0.329,\\ 0.942",
+        "texNote": "The predicted amplification matches the simulation to two decimals. At pi = 0.1 a direct effect of gamma = 0.1 - a twentieth the size of the true effect - produces a bias of +0.94 on a true value of 2.00."
+      },
+      {
+        "h": "What IV actually estimates: LATE, not ATE",
+        "paras": [
+          "With heterogeneous effects and imperfect compliance, IV identifies the effect on COMPLIERS - the units whose treatment status the instrument actually moved. Always-takers and never-takers contribute nothing.",
+          "Compliers cannot be identified individually. You know their share, not their names, which makes the estimand honest but awkward to act on."
+        ],
+        "tex": "\\hat{\\beta}_{IV} = \\mathbb{E}[Y(1)-Y(0)\\mid \\text{complier}] = 1.989 \\quad\\text{while}\\quad \\mathrm{ATE}=2.347,\\ \\mathrm{ATT}=3.772",
+        "texNote": "In the encouragement design: 20% always-takers with effect 6.0, 50% compliers with effect 2.0, 30% never-takers with effect 0.5. The IV estimate of 1.989 is CORRECT and understates the ATE by 15%. Reporting it as 'the effect' overclaims."
+      }
+    ],
+    "code": [
+      {
+        "h": "Two failure modes, one diagnostic",
+        "paras": [
+          "Same generative process, same estimator. The top block weakens the instrument; the bottom block keeps it strong and adds a direct path Z to Y."
+        ],
+        "code": "# WEAKENING THE INSTRUMENT - F sees it, and fires correctly\n#   pi     first-stage F    2SLS est     bias\n#  1.00        30,861         1.994     -0.006\n#  0.10           306         1.944     -0.056\n#  0.02            11.8       1.714     -0.286\n#  0.01             2.8       1.415     -0.585    (OLS on same data: 2.924)\n#   ^ 2SLS COLLAPSES BACK ONTO the OLS bias it was meant to fix\n\n# VIOLATING EXCLUSION - F is BLIND\n#  gamma   first-stage F    2SLS est     bias\n#   0.00        30,731         2.003     +0.003\n#   0.10        30,731         2.103     +0.103\n#   0.50        30,731         2.503     +0.503\n#   ^ IDENTICAL F in every row. The instrument is exactly as strong;\n#     it is just no longer valid, and nothing computed from the data\n#     can tell you so.",
+        "caption": "F > 10 means your instrument is strong. It has never meant your instrument is good, and the two are routinely conflated in writeups."
+      },
+      {
+        "h": "An encouragement design, and the estimand you actually get",
+        "paras": [
+          "Randomize the ENCOURAGEMENT, not the treatment - the standard move when you can nudge but cannot compel."
+        ],
+        "code": "# 20% always-takers (effect 6.0), 50% compliers (2.0), 30% never-takers (0.5)\n\n# naive as-treated:  T=1 vs T=0        5.093   contaminated by always-takers\n# ITT (Z=1 vs Z=0):                    0.996   real, policy-relevant, DILUTED\n# IV / Wald = ITT / first stage:       1.989   <- lands on LATE\n\n# true ATE  2.347      true ATT  3.772      true LATE  2.000\n\n# ★ ITT is what a rollout of the ENCOURAGEMENT would deliver.\n#   LATE is the effect on the people the encouragement moved.\n#   Neither is the ATE, and the gap is 15%.",
+        "caption": "ITT and LATE answer different real questions. The mistake is reporting either one under the name 'the treatment effect'."
+      }
+    ],
+    "useCases": [
+      "Randomized encouragement designs, where you can nudge adoption but cannot force it - the most common way IV shows up in a product setting.",
+      "Non-compliance in an otherwise clean experiment: randomized assignment is a valid instrument for actual take-up, which rescues the analysis without abandoning randomization.",
+      "Natural experiments in policy and economics - lotteries, distance to a facility, weather, administrative cutoffs, staggered rollouts - where assignment was arbitrary for reasons unrelated to the outcome.",
+      "Recommender and ads work, where a randomized ranking perturbation instruments for exposure, letting you estimate the effect of being shown an item despite selection into who sees it."
+    ],
+    "pitfalls": [
+      "Treating the first-stage F as validation of the instrument. F was identical at 30,731 across exclusion violations that walked the estimate from 2.003 to 2.503; it measures strength only.",
+      "Using a weak instrument because it is the only one available. At F = 2.8 the 2SLS estimate was 1.415 against a truth of 2.000, having collapsed toward the OLS bias of 2.924 that motivated the whole exercise.",
+      "Underestimating amplification. Bias from a validity violation scales as gamma over pi, so at pi = 0.1 a direct effect one twentieth the size of the true effect produced +0.94 of bias on a true 2.00.",
+      "Reporting LATE as if it were the ATE. In the encouragement design LATE was 1.989 while ATE was 2.347 and ATT 3.772 - all three correct, all three different questions.",
+      "Assuming an overidentification test validates your instruments. It tests whether they agree; instruments that are invalid in the same direction pass it comfortably.",
+      "Forgetting monotonicity. If the instrument pushes some units toward treatment and others away, defiers exist and the complier interpretation collapses - and nothing in the data reveals them.",
+      "Using standard errors from a naively fitted second stage. The fitted values carry first-stage uncertainty, so the SEs need the 2SLS formula or a bootstrap of the whole procedure."
+    ],
+    "connections": [
+      {
+        "ref": "causal-inference/causal-graphs",
+        "text": "Why an instrument works at all: it identifies the effect through a graph pattern rather than an adjustment set, which is why no admissible control set is needed."
+      },
+      {
+        "ref": "causal-inference/ab-testing",
+        "text": "Non-compliance in a live experiment, where randomized assignment instruments for actual exposure and ITT versus LATE becomes a reporting decision."
+      },
+      {
+        "ref": "causal-inference/time-series-causality",
+        "text": "Identification bought from timing rather than from an instrument - the same trade of an untestable assumption for a causal estimate, priced differently."
+      },
+      {
+        "ref": "reinforcement-learning/bandits",
+        "text": "Deliberately injected randomization as an instrument: a bandit's exploration is a logged, known-probability perturbation you can reuse for causal estimation later."
+      },
+      {
+        "ref": "reinforcement-learning/offline-rl",
+        "text": "The same structural problem at policy scale - estimating what an unobserved action would have produced from logs generated by a different policy."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What problem does an instrument solve?",
+        "a": "Confounding by a variable you cannot measure. It isolates variation in treatment that is as-good-as-random without ever observing the confounder."
+      },
+      {
+        "q": "State the three IV conditions.",
+        "a": "Relevance (Cov(Z,T) ≠ 0), exogeneity (Z independent of the confounder), exclusion (Z affects Y only through T). Only relevance is testable."
+      },
+      {
+        "q": "Write the Wald estimator.",
+        "a": "β_IV = Cov(Z,Y)/Cov(Z,T) — the reduced form divided by the first stage."
+      },
+      {
+        "q": "What does the first-stage F-statistic test?",
+        "a": "Instrument STRENGTH only. F > 10 is the rule of thumb; it says nothing about validity."
+      },
+      {
+        "q": "Show that F is blind to exclusion violations.",
+        "a": "Holding strength fixed and adding a direct Z→Y path, the estimate went 2.003 → 2.503 while F stayed at 30,731 in every row."
+      },
+      {
+        "q": "What happens to 2SLS with a very weak instrument?",
+        "a": "It collapses toward the OLS bias it was meant to fix: at F=2.8 the estimate was 1.415 (truth 2.000, OLS 2.924)."
+      },
+      {
+        "q": "How does exclusion-violation bias scale?",
+        "a": "As γ/π — the direct effect divided by instrument strength. At π=0.1, γ=0.1 produced +0.94 bias on a true 2.00."
+      },
+      {
+        "q": "What does IV estimate under heterogeneous effects?",
+        "a": "LATE — the effect on compliers, the units whose treatment the instrument actually moved. Not ATE, not ATT."
+      },
+      {
+        "q": "Name the four compliance types.",
+        "a": "Always-takers, never-takers, compliers, defiers. Monotonicity assumes no defiers; you know complier SHARE, never which units they are."
+      },
+      {
+        "q": "ITT vs LATE?",
+        "a": "ITT = effect of ASSIGNMENT (0.996 in the sim) — what a rollout of the encouragement delivers. LATE = ITT / first stage = 1.989 — the effect on those it moved."
+      },
+      {
+        "q": "Does an overidentification test validate instruments?",
+        "a": "No. It tests whether instruments AGREE. Instruments invalid in the same direction pass it comfortably."
+      },
+      {
+        "q": "Why can't you use OLS standard errors from the second stage?",
+        "a": "The fitted values carry first-stage uncertainty. Use the 2SLS variance formula or bootstrap both stages together."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain instrumental variables and the conditions an instrument must satisfy.",
+        "a": "AN INSTRUMENT IS A SOURCE OF VARIATION IN TREATMENT THAT HAS NO OTHER ROUTE TO THE OUTCOME. When a confounder is unmeasured, adjustment is unavailable — you cannot block a backdoor path through a variable you do not have. IV sidesteps that by finding a Z that shoves T around for reasons unrelated to the confounder, then using ONLY the slice of T that Z explains, discarding the rest as hopelessly contaminated. Mechanically it is a ratio: β_IV = Cov(Z,Y)/Cov(Z,T), the reduced form over the first stage, and two-stage least squares is the same thing computed by regressing T on Z, then Y on the fitted values. In a simulation with an unmeasured confounder, OLS gave 2.702 against a truth of 2.000, and 2SLS gave 2.004. THREE CONDITIONS ARE REQUIRED, AND ONLY ONE IS TESTABLE. Relevance, Cov(Z,T) ≠ 0, is a statement about observed variables, so the first-stage F speaks to it directly. Exogeneity, Z independent of the confounder, and the exclusion restriction, Z affecting Y only through T, both involve quantities you cannot see. So the credibility of an IV study rests entirely on a substantive argument about why the instrument could not touch the outcome except through treatment.",
+        "deepDive": "The intuition worth carrying is that IV is not extracting more from the data — it is throwing data away in exchange for cleanliness. You discard all variation in T except the part Z explains, which is why the estimator is so much noisier than OLS and why weak instruments are catastrophic rather than merely inefficient. That also explains the estimand shift: the part of T you kept is the part Z moved, so the effect you recover is the effect on the units Z moved. A useful way to sanity-check a proposed instrument in an interview is to ask what the exclusion restriction would sound like as a sentence a domain expert could dispute — 'living further from a college affects earnings only by changing how much college you attend' is a claim someone can argue with, and it has been argued with for thirty years, which is exactly the right outcome. If the sentence sounds unfalsifiable or obviously false once stated plainly, the instrument is not worth using regardless of what the first stage says."
+      },
+      {
+        "q": "Your first-stage F is 30,000. How confident are you in the estimate?",
+        "a": "NOT CONFIDENT AT ALL, BECAUSE F ANSWERS A QUESTION I WASN'T WORRIED ABOUT. F measures relevance — whether the instrument moves treatment — and an F of 30,000 says only that it moves it a lot. The assumption that actually carries the estimate is exclusion, and F cannot see it. THE DEMONSTRATION IS DIRECT: holding instrument strength fixed and adding a direct path from Z to Y of increasing size, the 2SLS estimate walked 2.003 → 2.053 → 2.103 → 2.203 → 2.503, while the first-stage F sat at 30,731 in every single row. Identical diagnostic, completely different answer. SO WHAT I WOULD ACTUALLY DO is argue exclusion substantively and then test it where testing is possible. If I have more instruments than endogenous regressors I would run an overidentification test, while stating its limit — it checks agreement, so instruments invalid in the same direction pass. I would look for a subpopulation with zero first stage, where any reduced-form effect of Z on Y is direct-path evidence. I would run a pre-period or negative-control outcome the treatment cannot affect. And I would report a plausible-exogeneity sensitivity analysis: for a range of assumed direct effects γ, show what the estimate becomes.",
+        "deepDive": "That last one is worth doing by default because the arithmetic is unforgiving. Bias from an exclusion violation is γ/π, so it is amplified by weak instruments, and the two failure modes multiply rather than add. Measured: at π = 1.0 a direct effect of γ = 0.1 produced +0.100 of bias; at π = 0.3 it produced +0.329; at π = 0.1 it produced +0.942 — a bias of nearly 50% of the true value from a direct path one twentieth the size of the effect being estimated. The predicted γ/π values were 0.100, 0.333, 1.000, so the formula is exact. This is why the combination that looks most attractive in practice — a clever, weak, natural instrument — is the most dangerous. And it explains a pathology in the applied literature: a paper reporting F = 12 and a large effect is often reporting amplified noise plus amplified violation. Modern practice has moved to reporting Anderson–Rubin confidence sets, which stay valid under weak instruments instead of quietly failing, and to the Lee et al. tF adjustment. If someone shows me an IV result with a big F and no discussion of exclusion, my read is that they checked the assumption they could and skipped the one that matters."
+      },
+      {
+        "q": "What exactly does an IV estimate when treatment effects are heterogeneous?",
+        "a": "THE LOCAL AVERAGE TREATMENT EFFECT — the average effect among COMPLIERS, meaning the units whose treatment status the instrument actually changed. Always-takers would have been treated regardless and never-takers would not have been treated regardless, so neither contributes any information about the effect; the instrument moved nothing for them. In an encouragement design with 20% always-takers whose effect is 6.0, 50% compliers whose effect is 2.0, and 30% never-takers whose effect is 0.5, the IV estimate came out at 1.989 — precisely LATE. The true ATE was 2.347 and the true ATT 3.772. ALL THREE ARE CORRECT ANSWERS TO DIFFERENT QUESTIONS, and calling the 1.989 'the treatment effect' understates the population average by 15% and the effect on the currently-treated by 47%. THE AWKWARD PART IS THAT COMPLIERS CANNOT BE IDENTIFIED INDIVIDUALLY. You can estimate their share from the first stage, and you can characterise them in aggregate by comparing covariate means, but you cannot label a row as a complier, because that would require knowing what they would have done under the other assignment. So the estimand is honest and hard to act on: it applies to a subpopulation defined by a counterfactual, and its policy relevance depends entirely on whether the intervention you are contemplating would move the same people.",
+        "deepDive": "That last clause is the practical test and it is often favourable. If the instrument IS the policy — you are considering rolling out the encouragement itself — then compliers are exactly the people the rollout will move, and LATE is the most decision-relevant number available, more so than the ATE. If the contemplated policy is a mandate, LATE is the wrong number, because a mandate moves never-takers too and you have no evidence about them. Monotonicity deserves its own mention: LATE requires no defiers, units the instrument pushes AWAY from treatment, and nothing in the data reveals them. It is plausible for an encouragement and much less plausible for instruments like distance or price, where different subgroups can respond in opposite directions. Where monotonicity fails, the estimate is a weighted difference of complier and defier effects with some negative weights, and it can land outside the range of every individual effect in the population — an estimate that corresponds to nobody. Reporting complier characteristics, which is straightforward to compute, at least lets a reader judge how far the subpopulation is from the one they care about."
+      },
+      {
+        "q": "An experiment had 30% non-compliance. Walk through how you would analyse it.",
+        "a": "I WOULD REPORT ITT FIRST AND LATE SECOND, AND NEVER THE AS-TREATED COMPARISON. The as-treated comparison — those who actually took the treatment versus those who did not — throws away the randomization entirely, because take-up is a choice and is confounded by everything that drives it. In the simulation the as-treated number was 5.093 against a true complier effect of 2.000; it is contaminated by always-takers, who have both higher baseline outcomes and larger effects. Per-protocol analysis, dropping non-compliers, has the same problem in a more respectable-looking form. ITT COMPARES BY ASSIGNMENT, preserving randomization exactly, and it answers a real question: what a rollout of this policy actually delivers, given that some people will ignore it. It came out at 0.996. It is diluted by design, and that dilution is a genuine feature of the intervention, not a bug in the analysis. LATE THEN RESCALES ITT BY THE FIRST STAGE — divide 0.996 by the 0.50 complier share and you get 1.989, the effect on those the assignment moved. That is the number to quote when the question is about the treatment's efficacy rather than the policy's reach. I would report both with their interpretations attached, plus the compliance rate itself, since a reader cannot convert between them without it.",
+        "deepDive": "Two complications come up in practice. First, differential attrition is a separate and more damaging problem than non-compliance, and it is often mistaken for it: if treated users drop out at a different rate than control, the surviving samples are no longer comparable and even ITT is broken, because you are conditioning on a post-treatment variable — survival — which is the collider case. The fix is not statistical; it is measuring outcomes for everyone assigned, including those who left, or bounding the effect with Manski or Lee bounds. Second, one-sided non-compliance, where control units cannot access the treatment, is much friendlier: there are no always-takers, so LATE equals the effect on the treated and the interpretation gets cleaner. Worth noting also that the randomization-as-instrument framing is exactly what makes this analysis defensible — assignment is randomized so exogeneity holds by construction, and exclusion is the claim that being ASSIGNED affects the outcome only through actually receiving treatment. That claim can fail: being told you are in the treatment group can change behaviour on its own, which is why blinding exists and why unblinded product experiments deserve a little suspicion."
+      },
+      {
+        "q": "Where would you look for instruments in a product or ML setting?",
+        "a": "THE BEST INSTRUMENTS ARE RANDOMIZATION YOU ALREADY PERFORMED, and most systems have more of it than people realise. An A/B test's assignment instruments for actual exposure whenever compliance is imperfect. A bandit or exploration policy injects logged, known-probability perturbations, and because the propensity is recorded rather than estimated, exogeneity holds by construction — this is the cleanest case there is. Randomized ranking perturbations in search or recommendations instrument for whether an item was seen, which lets you estimate the effect of exposure despite massive selection into who sees what. Randomized holdouts for a notification or email are encouragement designs by another name. THE SECOND FAMILY IS ARBITRARY OPERATIONAL VARIATION: staggered rollouts by region, capacity constraints, queue assignment, a cutoff in an eligibility rule, or infrastructure quirks like which datacenter served a request. These are quasi-random for reasons unrelated to the outcome, and the exclusion argument is often genuinely strong. WHAT I WOULD AVOID is the clever-sounding observational instrument — weather, distance, seasonality, a lagged value of the treatment — because in a product setting these almost always have plausible direct paths to the outcome, and the amplification arithmetic means a small direct path with a modest first stage destroys the estimate.",
+        "deepDive": "The strategic version of this answer is worth giving, because it changes what you build rather than how you analyse. If exploration is what makes causal estimation possible later, then logging propensities is infrastructure, not analytics: record the assignment probability with every decision, keep a permanent small random holdout, and resist the urge to switch fully greedy the moment a model looks good. Teams that do this can answer counterfactual questions cheaply for years; teams that do not are stuck arguing about observational estimates on logs generated by a policy that changed six times. There is a real cost to state honestly — exploration means knowingly serving worse decisions to some users, and the right frame is that it buys the ability to know whether your decisions are good at all. The same logic connects directly to off-policy evaluation in recommenders and offline RL, where importance weighting requires exactly those logged propensities, and where the variance of the estimator blows up in precisely the regions the logging policy avoided. The overlap condition from the potential-outcomes lesson is the same condition wearing different notation."
+      },
+      {
+        "q": "Summarise what IV buys and what it costs, in the module's framing.",
+        "a": "IT BUYS IDENTIFICATION WITHOUT MEASURING THE CONFOUNDER, AND IT PAYS IN THREE CURRENCIES. The purchase is real and unusual: every other method in this module needs the confounder in your dataset, and IV needs only a variable with no second route to the outcome. That is why natural experiments are so valuable and why the technique survives in fields where randomization is impossible. THE FIRST COST IS AN UNTESTABLE ASSUMPTION WITH NO DIAGNOSTIC. Exclusion cannot be checked, and the one check that exists, the first-stage F, tests something else — it stayed at 30,731 while the estimate moved from 2.003 to 2.503. THE SECOND COST IS VARIANCE AND AMPLIFICATION. You discard all treatment variation except the instrumented slice, so estimates are noisy, and any violation is amplified by 1/π: at π = 0.1 a direct effect of 0.1 produced +0.94 of bias on a true 2.00. THE THIRD COST IS THE ESTIMAND. You get LATE, an effect on a subpopulation you cannot name — 1.989 when the ATE was 2.347 and the ATT was 3.772. In the module's framing, IV is not a better estimator than adjustment; it is a different trade. Adjustment assumes you measured the confounders. IV assumes you found a variable with one path. Both are assumptions, and IV's is the harder one to defend and the easier one to state.",
+        "deepDive": "Being able to say when NOT to use IV is the part that separates a considered answer from a recited one. If the confounders are plausibly measured, adjustment or a matching estimator is better: lower variance, a cleaner estimand, and diagnostics that at least interrogate the assumption partially through balance. If the instrument is weak, IV is worse than doing nothing, because it produces a confidently reported number that has collapsed back toward the bias you were trying to remove — 1.415 at F = 2.8, against an OLS bias of 2.924 on a truth of 2.000. If you can run an experiment, run it, since randomization buys the same identification with a testable design and a clean estimand. IV is the right tool in a narrow band: unmeasured confounding, no possible experiment, and a strong instrument with a defensible exclusion story. That band is narrower than the volume of published IV work suggests, which is itself worth noticing — the amplification arithmetic means marginal instruments produce large, publishable, wrong effects, and publication selects on largeness."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "intuition",
+      "front": "★ What an instrument buys",
+      "back": "Identification WITHOUT measuring the confounder. Find Z that shoves T around with no other route to Y, then use only the slice of T that Z explains. OLS 2.702 → 2SLS 2.004 (truth 2.000)."
+    },
+    {
+      "type": "definition",
+      "front": "The three IV conditions",
+      "back": "Relevance Cov(Z,T)≠0 — TESTABLE. Exogeneity Z ⫫ U — untestable. Exclusion: Z affects Y ONLY through T — untestable. The credibility rests entirely on the untestable two."
+    },
+    {
+      "type": "formula",
+      "front": "Wald / IV estimator",
+      "back": "β_IV = Cov(Z,Y)/Cov(Z,T) — reduced form over first stage. 2SLS computes the same thing: regress T on Z, then Y on the fitted T̂."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ The first-stage F is blind to what matters",
+      "back": "Holding strength fixed, exclusion violations walked the estimate 2.003 → 2.503 while F stayed at 30,731 in EVERY row. F tests strength; validity has no diagnostic."
+    },
+    {
+      "type": "pitfall",
+      "front": "What a weak instrument does",
+      "back": "2SLS collapses BACK onto the OLS bias it was meant to fix. F: 30,861 → 2.8; estimate 1.994 → 1.415 (truth 2.000, OLS 2.924). F<10 is the classic flag and it fires correctly here."
+    },
+    {
+      "type": "formula",
+      "front": "★ Bias amplification",
+      "back": "Exclusion-violation bias = γ/π. Measured: π=1.0→+0.100, π=0.3→+0.329, π=0.1→+0.942 (predicted 0.100/0.333/1.000). Weak AND slightly invalid is catastrophic — the failures MULTIPLY."
+    },
+    {
+      "type": "definition",
+      "front": "LATE",
+      "back": "The effect on COMPLIERS — units the instrument actually moved. Sim: LATE 1.989 ✓, while ATE=2.347 and ATT=3.772. All correct, all different questions."
+    },
+    {
+      "type": "definition",
+      "front": "The four compliance types",
+      "back": "Always-takers, never-takers, compliers, defiers. Monotonicity = no defiers. You can estimate the complier SHARE but never label a row — the type is defined by a counterfactual."
+    },
+    {
+      "type": "intuition",
+      "front": "ITT vs LATE vs as-treated",
+      "back": "ITT 0.996 = effect of ASSIGNMENT (what a rollout delivers, dilution included). LATE 1.989 = ITT ÷ first stage. As-treated 5.093 = randomization thrown away. Never report the third."
+    },
+    {
+      "type": "pitfall",
+      "front": "Does an overidentification test validate instruments?",
+      "back": "No — it tests whether they AGREE. Instruments invalid in the same direction pass comfortably. Rejection is informative; passing is not."
+    },
+    {
+      "type": "intuition",
+      "front": "Where to find instruments in a product",
+      "back": "Randomization you already did: A/B assignment (for exposure), bandit exploration (propensity LOGGED, not estimated), ranking perturbations, notification holdouts. Avoid clever observational ones — weather, distance, lags."
+    },
+    {
+      "type": "pitfall",
+      "front": "When NOT to use IV",
+      "back": "Confounders plausibly measured → adjust instead (lower variance, cleaner estimand). Weak instrument → worse than nothing. Can run an experiment → run it. The valid band is narrower than the literature suggests."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Angrist, Imbens & Rubin (1996), Identification of Causal Effects Using Instrumental Variables",
+      "url": "https://www.jstor.org/stable/2291629"
+    },
+    {
+      "title": "Imbens & Angrist (1994), Identification and Estimation of Local Average Treatment Effects",
+      "url": "https://www.jstor.org/stable/2951620"
+    },
+    {
+      "title": "Bound, Jaeger & Baker (1995), Problems with Instrumental Variables Estimation When the Correlation Between the Instruments and the Endogenous Explanatory Variable is Weak",
+      "url": "https://www.jstor.org/stable/2291055"
+    },
+    {
+      "title": "Conley, Hansen & Rossi (2012), Plausibly Exogenous",
+      "url": "https://direct.mit.edu/rest/article/94/1/260/58135/Plausibly-Exogenous"
+    },
+    {
+      "title": "Lee, McCrary, Moreira & Porter (2022), What to Do When You Can't Use '1.96' Confidence Intervals for IV",
+      "url": "https://www.aeaweb.org/articles?id=10.1257/aer.20211063"
+    }
+  ],
+  "updatedAt": "2026-08-14"
 }

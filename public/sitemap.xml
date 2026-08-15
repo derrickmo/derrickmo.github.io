@@ -238,6 +238,16 @@
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/tool-calling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/ab-testing/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/bayesian-workflow/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/causal-graphs/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/confounding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/instrumental-variables/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/potential-outcomes/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/propensity-matching/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/resampling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/time-series-causality/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/uplift-modeling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/1d-3d-convolutions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/adversarial/</loc><priority>0.6</priority></url>

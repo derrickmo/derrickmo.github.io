@@ -1778,76 +1778,76 @@ window.CURRICULUM = {
       "title": "Causal Inference & Advanced Statistics",
       "category": "Classical ML",
       "blurb": "From correlation to causation: potential outcomes, causal graphs, confounding, instrumental variables, A/B testing at scale, resampling, and the Bayesian workflow.",
-      "status": "PENDING",
+      "status": "LIVE",
       "lessons": [
         {
           "n": "23-01",
           "slug": "potential-outcomes",
           "title": "Potential Outcomes & Treatment Effects",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-01_potential_outcomes.ipynb"
         },
         {
           "n": "23-02",
           "slug": "causal-graphs",
           "title": "Causal Graphs & do-Calculus",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-02_causal_graphs.ipynb"
         },
         {
           "n": "23-03",
           "slug": "confounding",
           "title": "Confounding & Simpson's Paradox",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-03_confounding_simpson.ipynb"
         },
         {
           "n": "23-04",
           "slug": "instrumental-variables",
           "title": "Instrumental Variables",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-04_instrumental_variables.ipynb"
         },
         {
           "n": "23-05",
           "slug": "propensity-matching",
           "title": "Propensity Scores & Matching",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-05_propensity_matching.ipynb"
         },
         {
           "n": "23-06",
           "slug": "uplift-modeling",
           "title": "Uplift Modeling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-06_uplift_modeling.ipynb"
         },
         {
           "n": "23-07",
           "slug": "ab-testing",
           "title": "A/B Testing & Experimentation at Scale",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-07_ab_testing.ipynb"
         },
         {
           "n": "23-08",
           "slug": "resampling",
           "title": "Bootstrap, Permutation & Resampling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-08_resampling.ipynb"
         },
         {
           "n": "23-09",
           "slug": "bayesian-workflow",
           "title": "The Bayesian Workflow",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-09_bayesian_workflow.ipynb"
         },
         {
           "n": "23-10",
           "slug": "time-series-causality",
           "title": "Time-Series Causality & Synthetic Control",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "23-10_synthetic_control.ipynb"
         }
       ]

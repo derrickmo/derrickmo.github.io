@@ -6,7 +6,7 @@
   "title": "Causal Inference & Advanced Statistics",
   "category": "Classical ML",
   "blurb": "From correlation to causation: potential outcomes, causal graphs, confounding, instrumental variables, A/B testing at scale, resampling, and the Bayesian workflow.",
-  "status": "PENDING",
+  "status": "LIVE",
   "lecture": {
     "summary": "From correlation to causation — potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
     "prereqs": "Modules 01 (probability) and 04 (evaluation).",
@@ -82,5 +82,5 @@
     "caption": "Intervening is not the same as observing.",
     "code": "p_obs = df[df.treated == 1].outcome.mean()       # P(Y | T=1)\n# do(T=1): break the arrows INTO treatment, then average\np_do = sum(p(y, do_t=1, z=z) * p(z) for z in confounders)\n# the gap between the two IS confounding"
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-14"
 }
