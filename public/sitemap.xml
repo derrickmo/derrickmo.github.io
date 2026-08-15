@@ -351,12 +351,20 @@
   <url><loc>https://derrickmo.github.io/learn/llm-systems/speculative-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/llm-systems/structured-output/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/audio-classification/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/forecasting/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/gnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/multi-task/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/neural-recommenders/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/recommenders-cf/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/search-ranking/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/semi-supervised/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/shap/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/tabular-dl/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/time-series/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>

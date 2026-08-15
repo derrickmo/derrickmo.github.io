@@ -5,13 +5,275 @@
   "slug": "gnn",
   "module": "ml-applications",
   "title": "Graph Neural Networks",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "advanced",
   "surfaces": {
     "notebook": true,
     "notebookFile": "19-06_graph_neural_networks.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["gnn", "pagerank", "louvain", "label-propagation"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["ml-applications/neural-recommenders", "neural-nets/backprop"],
+  "leadsTo": ["ml-applications/semi-supervised", "ml-applications/multi-task"],
+  "body": {
+    "intuition": [
+      "A graph neural network is a stack of permutation-invariant aggregations over neighbourhoods. Each layer lets a node see one hop further, so a k-layer network computes a function of each node's k-hop subgraph, and the whole design question is what to aggregate and how far to go before the neighbourhoods stop being informative.",
+      "The structure being exploited is HOMOPHILY - the assumption that connected nodes are similar. That assumption is what makes message passing work, and it is worth testing rather than assuming: on heterophilous graphs, where connected nodes tend to DIFFER, a plain GCN can underperform an MLP that ignores the graph entirely, which is a result people find surprising and should not.",
+      "And the module's spine has its sharpest form here, because in a graph THE LEAK TRAVELS ALONG EDGES. Hiding a node's own label is not sufficient - its neighbours' labels must be hidden too, or message passing reads them directly. Measured with a 1-hop neighbour vote at 85% homophily: using all labels gave AUC 0.9901 and using train labels only gave 0.9783. The gap is modest here because the vote was already near-saturated; with weaker features and a deeper network it is much larger, and the mechanism is the same."
+    ],
+    "math": [
+      {
+        "h": "Message passing, and what the aggregator must be",
+        "paras": [
+          "Every GNN layer is the same three steps: transform each neighbour, aggregate over the neighbourhood, update the node. The aggregator must be permutation-invariant because a neighbourhood is a set, not a sequence.",
+          "That invariance is the architectural prior, exactly as translation equivariance is a CNN's."
+        ],
+        "tex": "h_v^{(k+1)} = \\phi\\Big(h_v^{(k)},\\ \\bigoplus_{u\\in\\mathcal{N}(v)} \\psi\\big(h_v^{(k)},h_u^{(k)}\\big)\\Big), \\qquad \\bigoplus \\in \\{\\text{sum},\\ \\text{mean},\\ \\text{max},\\ \\text{attention}\\}",
+        "texNote": "The choice of aggregator determines expressiveness: SUM can distinguish multisets that MEAN and MAX cannot, which is why GIN with a sum aggregator is as powerful as the 1-Weisfeiler-Lehman test and mean-pooled GCNs are strictly weaker."
+      },
+      {
+        "h": "The depth problem is not vanishing gradients",
+        "paras": [
+          "Stacking layers grows the receptive field exponentially, so beyond a few hops every node's neighbourhood is most of the graph and all embeddings converge toward the same value.",
+          "That is over-smoothing, and it is why GNNs are typically two or three layers rather than dozens."
+        ],
+        "tex": "|\\mathcal{N}_k(v)| \\approx \\bar{d}^{\\,k} \\quad\\Rightarrow\\quad \\bar{d}=10,\\ k=4 \\Rightarrow 10{,}000\\ \\text{nodes};\\ k=6 \\Rightarrow 10^{6}",
+        "texNote": "Over-squashing is the companion problem: exponentially many nodes must be compressed into a fixed-width vector, so long-range dependencies are lost regardless of depth. Residual connections, jumping knowledge and graph rewiring all target these rather than gradient flow."
+      },
+      {
+        "h": "★ The leak travels along edges",
+        "paras": [
+          "Transductive evaluation - the standard setup in much of the literature - lets the model see the whole graph structure and the test nodes' features. If any label information reaches a test node through message passing, the evaluation is compromised.",
+          "One-hop neighbour vote, 85% homophily, 30% of nodes held out."
+        ],
+        "tex": "\\text{using ALL labels: AUC } 0.9901 \\qquad \\text{using TRAIN labels only: AUC } 0.9783",
+        "texNote": "The gap is modest because a 1-hop vote at high homophily is already near-saturated. The mechanism is what matters: hiding a node's own label is not enough, because its neighbours carry the same information one hop away."
+      }
+    ],
+    "code": [
+      {
+        "h": "The three evaluation settings, and which one you need",
+        "paras": [
+          "They answer different deployment questions and are routinely conflated in reported numbers."
+        ],
+        "code": "# TRANSDUCTIVE     the whole graph, including test nodes' features and edges,\n#                  is available at training time. Only their LABELS are hidden.\n#                  -> answers: 'can I label the rest of THIS graph?'\n#                  -> the standard academic setup (Cora, Citeseer, Pubmed)\n\n# INDUCTIVE        test nodes are unseen at training time.\n#                  -> answers: 'can I label nodes that arrive later?'\n#                  -> what almost every production system actually needs\n\n# FULLY INDUCTIVE  an entirely unseen GRAPH.\n#                  -> answers: 'does this transfer to a new network?'\n\n# ★ Numbers from these three are not comparable, and a paper reporting a\n#   transductive result on a citation benchmark is not evidence about a\n#   production system that scores new nodes hourly.\n\n# AND IN ALL THREE: neighbours' labels must be masked, not just the node's.\n#   measured: 1-hop vote AUC 0.9901 with all labels, 0.9783 with train only.",
+        "caption": "Choosing the setting is choosing the question. Most production graph problems are inductive and most reported benchmarks are transductive."
+      },
+      {
+        "h": "The baseline that decides whether you need a GNN",
+        "paras": [
+          "Run these first. On many real graphs one of them wins, and the ones that lose tell you which structure is present."
+        ],
+        "code": "# 1 MLP ON NODE FEATURES ONLY   ignores the graph entirely.\n#     ★ if this wins, the graph carries no signal you are exploiting -\n#       which happens more often than the literature suggests\n# 2 LABEL PROPAGATION           uses ONLY the graph, no features.\n#     if this wins, features are noise and homophily is strong\n# 3 MLP + propagated features    concatenate neighbour-averaged features\n#     ★ a very strong, very cheap baseline that beats GCNs on several\n#       benchmarks and requires no message-passing machinery\n# 4 GNN                          the two together, learned end to end\n\n# CHECK HOMOPHILY EXPLICITLY before any of this:\n#   h = fraction of edges connecting same-label nodes\n#   h >> base rate -> homophilous, message passing should help\n#   h ~ base rate  -> the graph is uninformative about the label\n#   h << base rate -> HETEROPHILOUS, and a plain GCN can lose to an MLP",
+        "caption": "The homophily statistic is one line and it predicts whether the whole architecture is appropriate, which makes it the highest-value thing to compute first."
+      }
+    ],
+    "useCases": [
+      "Fraud and abuse rings, where the signal is relational - shared devices, payment instruments or IPs - and an isolated account looks fine while the component does not.",
+      "Recommendation as link prediction on a user-item bipartite graph, where higher-order connectivity captures collaborative signal that a two-tower model sees only through co-occurrence.",
+      "Molecular property prediction, the domain where GNNs are least contested, because a molecule genuinely is a graph and the permutation invariance is exactly right.",
+      "Knowledge-graph completion and entity resolution, where connected components and relational structure are the problem rather than a feature."
+    ],
+    "pitfalls": [
+      "Masking a node's label but not its neighbours'. Message passing reads them one hop away - the 1-hop vote scored 0.9901 with all labels against 0.9783 with train labels only.",
+      "Comparing transductive and inductive numbers. They answer different deployment questions, and most benchmarks are transductive while most production systems are inductive.",
+      "Assuming homophily. On heterophilous graphs a plain GCN can lose to an MLP that ignores the graph, and the homophily statistic that predicts this is one line.",
+      "Stacking layers to increase capacity. Beyond a few hops the receptive field is most of the graph - mean degree 10 at 6 layers reaches a million nodes - and embeddings converge, which is over-smoothing rather than a gradient problem.",
+      "Skipping the MLP-on-features baseline. If it wins, the graph is not contributing and the architecture is unjustified complexity.",
+      "Ignoring over-squashing. Exponentially many nodes compressed into a fixed-width vector means long-range dependencies are lost regardless of depth, and depth does not fix it.",
+      "Neighbour sampling without noting it changes the function. Sampled aggregation is a stochastic approximation, so inference should either sample consistently or aggregate over the full neighbourhood."
+    ],
+    "connections": [
+      {
+        "ref": "ml-applications/semi-supervised",
+        "text": "Label propagation as the featureless limit of message passing, and the same homophily assumption doing the work under a different name."
+      },
+      {
+        "ref": "ml-applications/neural-recommenders",
+        "text": "Recommendation as link prediction, and the point where a bipartite graph view and a two-tower view describe the same system."
+      },
+      {
+        "ref": "neural-nets/backprop",
+        "text": "Why over-smoothing is not a gradient problem: the receptive field grows exponentially and the representations converge, which no optimization fix addresses."
+      },
+      {
+        "ref": "transformers/self-attention",
+        "text": "Attention as message passing on a complete graph, which is the cleanest way to see what a GNN's sparsity buys and costs."
+      },
+      {
+        "ref": "ml-theory/cross-validation",
+        "text": "Why the split has to respect edges, which is this domain's instance of matching the unit of splitting to the unit of generalization."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "Write the message-passing update.",
+        "a": "h_v^{(k+1)} = φ(h_v^{(k)}, ⊕_{u∈N(v)} ψ(h_v^{(k)}, h_u^{(k)})). The aggregator ⊕ must be PERMUTATION-INVARIANT — a neighbourhood is a set."
+      },
+      {
+        "q": "Why does the aggregator choice matter?",
+        "a": "Expressiveness. SUM distinguishes multisets that MEAN and MAX cannot — GIN with sum matches 1-WL power; mean-pooled GCNs are strictly weaker."
+      },
+      {
+        "q": "What does a k-layer GNN compute?",
+        "a": "A function of each node's k-hop subgraph. Depth is receptive-field radius, not capacity."
+      },
+      {
+        "q": "★ Why are GNNs shallow?",
+        "a": "OVER-SMOOTHING. Receptive field grows like d̄^k — mean degree 10 at k=4 is 10,000 nodes, at k=6 is 10⁶ — so embeddings converge. Not a gradient problem."
+      },
+      {
+        "q": "What is over-squashing?",
+        "a": "Exponentially many nodes compressed into a fixed-width vector, so long-range dependencies are lost REGARDLESS of depth. Rewiring and jumping knowledge target it; depth doesn't."
+      },
+      {
+        "q": "★ Where does the leak travel in a graph?",
+        "a": "Along EDGES. Hiding a node's own label isn't enough — neighbours carry it one hop away. Measured: 1-hop vote AUC **0.9901** with all labels vs **0.9783** with train only."
+      },
+      {
+        "q": "Name the three evaluation settings.",
+        "a": "Transductive (whole graph available, only test LABELS hidden) · inductive (test nodes unseen) · fully inductive (an unseen graph). Their numbers are not comparable."
+      },
+      {
+        "q": "Which does production usually need?",
+        "a": "Inductive — new nodes arrive and must be scored. Most published benchmarks are transductive."
+      },
+      {
+        "q": "What is homophily and why check it?",
+        "a": "The fraction of edges connecting same-label nodes. h ≫ base rate → message passing helps. h ≈ base rate → the graph is uninformative. h ≪ → HETEROPHILOUS, and a plain GCN can lose to an MLP."
+      },
+      {
+        "q": "Name the baselines before a GNN.",
+        "a": "MLP on node features only · label propagation (graph only, no features) · **MLP + neighbour-averaged features** — that third one is cheap and beats GCNs on several benchmarks."
+      },
+      {
+        "q": "What if the MLP-on-features baseline wins?",
+        "a": "The graph carries no signal you're exploiting, and the architecture is unjustified complexity. This happens more often than the literature suggests."
+      },
+      {
+        "q": "How does attention relate to message passing?",
+        "a": "Self-attention is message passing on a COMPLETE graph. That framing is the clearest way to see what a GNN's sparsity buys and costs."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Explain how a GNN works and what the architectural prior is.",
+        "a": "EVERY GNN LAYER IS THE SAME THREE STEPS: transform each neighbour's representation, aggregate over the neighbourhood, and update the node. Written out, h_v^{(k+1)} = φ(h_v^{(k)}, ⊕_{u∈N(v)} ψ(h_v, h_u)). THE AGGREGATOR MUST BE PERMUTATION-INVARIANT because a neighbourhood is a set with no canonical ordering, and that invariance is the architectural prior in exactly the way translation equivariance is a CNN's. A k-layer network therefore computes a function of each node's k-hop subgraph, so DEPTH IS RECEPTIVE-FIELD RADIUS RATHER THAN CAPACITY — which is a genuinely different meaning of depth from other architectures and explains most of what is unusual about training them. THE AGGREGATOR CHOICE DETERMINES EXPRESSIVENESS: sum can distinguish multisets that mean and max cannot, which is why GIN with a sum aggregator matches the 1-Weisfeiler-Lehman test's discriminative power and mean-pooled GCNs are provably weaker. AND THE ASSUMPTION UNDERNEATH IT ALL IS HOMOPHILY — that connected nodes are similar. Message passing averages over neighbours, so if neighbours tend to differ, averaging destroys signal, and on heterophilous graphs a plain GCN can lose to an MLP that ignores the graph entirely.",
+        "deepDive": "The homophily check is the highest-value thing to compute before choosing an architecture and it is one line: the fraction of edges connecting same-label nodes, compared against the base rate you would expect from random wiring. Well above it means message passing should help; at it means the graph carries no label information and you are adding machinery for nothing; well below it means heterophily, where the standard fixes are to separate the ego and neighbour representations rather than averaging them together, to use higher-order neighbourhoods, or to learn signed aggregation. That check also reframes the baseline discussion: an MLP on node features tests whether the graph is needed at all, label propagation tests whether the features are needed at all, and 'MLP plus neighbour-averaged features' — simply concatenating a mean of neighbours' features and training an ordinary network — is a very strong, very cheap baseline that beats GCNs on several standard benchmarks. Running those three before a GNN takes an afternoon and frequently ends the project with a simpler model."
+      },
+      {
+        "q": "How do you split a graph for evaluation?",
+        "a": "FIRST DECIDE WHICH QUESTION YOU ARE ANSWERING, because the three standard settings are not comparable and are routinely conflated. TRANSDUCTIVE gives the model the whole graph — all node features and all edges, including test nodes — and hides only the test LABELS; it answers 'can I label the rest of this graph', and it is the setup behind most academic benchmarks. INDUCTIVE holds test nodes out entirely, so they are unseen at training time; it answers 'can I label nodes that arrive later', which is what almost every production system actually needs. FULLY INDUCTIVE holds out an entire graph and answers whether the model transfers to a new network. A transductive number on a citation benchmark is therefore not evidence about a system that scores new accounts hourly. THEN, IN ALL THREE SETTINGS, THE LEAK TRAVELS ALONG EDGES. Masking a test node's own label is insufficient because its neighbours carry nearly the same information one hop away — measured with a 1-hop neighbour vote at 85% homophily, using all labels gave AUC 0.9901 and using train labels only gave 0.9783. The mechanism matters more than that particular gap, which is small because the vote was near-saturated.",
+        "deepDive": "The practical version of edge-aware splitting depends on what you are predicting. For NODE classification, mask the labels of all held-out nodes and ensure message passing uses only training labels — if you use label-propagation-style features or label reuse tricks, those must be computed from the training mask alone. For LINK prediction the discipline is stricter and more commonly violated: the edges you are trying to predict must be REMOVED from the graph used for message passing, or the model can see the answer as part of its input, which is the most direct leak available in this domain. Negative sampling for link prediction also has to respect the split, since sampling negatives from the full edge set can produce 'negatives' that are actually held-out positives. For temporal graphs, add the time dimension: edges after the split time must not be present in the message-passing graph at all, which is the time-series discipline arriving in a graph costume. Each of these is a mask over the adjacency rather than a row filter, which is why the standard tooling does not protect you."
+      },
+      {
+        "q": "Why are GNNs typically only two or three layers deep?",
+        "a": "OVER-SMOOTHING, WHICH IS NOT A GRADIENT PROBLEM AND IS NOT FIXED BY THE USUAL DEPTH TOOLKIT. Each layer extends the receptive field by one hop, so the number of nodes influencing a representation grows roughly as mean degree to the power k. At a mean degree of 10, four layers reaches about ten thousand nodes and six layers about a million — which on most real graphs is a large fraction of everything. When every node aggregates over nearly the whole graph, every node's representation converges toward the same value, and the model loses the ability to distinguish nodes at all. THAT IS A PROPERTY OF REPEATED AVERAGING rather than of optimization, so residual connections and normalization help only marginally; the effective fixes change what is aggregated — jumping knowledge, which combines representations from several depths, or graph rewiring, which changes the connectivity. THE COMPANION PROBLEM IS OVER-SQUASHING: even if you avoided smoothing, exponentially many nodes must be compressed into a fixed-width vector, so information from distant nodes is lost regardless of depth. Together they mean the useful range is small, and that a graph problem requiring genuinely long-range interaction may need a different architecture — which is one motivation for graph transformers.",
+        "deepDive": "The contrast with CNNs is instructive and worth having, because the intuition that 'deeper is more powerful' transfers wrongly. A CNN's receptive field grows linearly with depth on a regular grid, so fifty layers is reasonable and the field remains local; a GNN's grows exponentially because real graphs have small diameter — the six-degrees property is exactly what makes depth useless here. So the same word describes two different geometries, and importing the intuition costs you. The practical consequence is that a GNN's capacity has to come from width and from the transformation functions rather than from depth, which is the opposite of the usual scaling lever. It also explains why graph transformers, which attend over all nodes with structural encodings, are attractive for problems needing long-range interaction: they trade the sparsity that caused the problem for quadratic cost, which is affordable on molecules and not on a billion-node social graph. Knowing which regime you are in — small graphs with long-range structure, or huge graphs with local structure — decides the architecture more reliably than benchmark leaderboards do."
+      },
+      {
+        "q": "How would you scale a GNN to a very large graph?",
+        "a": "BY SAMPLING, AND THE THING TO BE CLEAR ABOUT IS THAT SAMPLING CHANGES THE FUNCTION. Full-batch message passing requires the whole graph in memory and the receptive-field explosion means a single node's k-hop neighbourhood can be a large fraction of it, so exact training does not scale. NEIGHBOUR SAMPLING, as in GraphSAGE, fixes a sample size per layer, which bounds the computation per node at the cost of making the aggregation a stochastic estimate — so the trained function is an expectation over samples, and inference should either sample consistently or aggregate over the full neighbourhood, and reporting which one you did matters because they differ. CLUSTER-BASED APPROACHES partition the graph and train on subgraphs, which is memory-efficient and drops the edges crossing partitions, biasing toward local structure. HISTORICAL-EMBEDDING METHODS cache stale representations for out-of-batch neighbours, trading accuracy for memory. AND THE PRECOMPUTATION APPROACH is often the best value: propagate features over the graph ONCE as a preprocessing step, then train an ordinary MLP on the propagated features — no message passing at training time at all, trivially scalable, and competitive on many benchmarks.",
+        "deepDive": "That last option deserves more attention than it gets because it collapses most of the engineering difficulty. SGC and SIGN-style methods observe that a linear GCN's propagation is just a fixed sparse matrix power applied to the feature matrix, which can be computed once offline; everything after that is standard supervised learning on a wider feature vector, with all the tooling, distributed training and serving simplicity that implies. The cost is that the propagation is no longer learned and no longer interleaved with nonlinearity, which matters on some problems and not on many. In a production setting the operational advantage is large — no graph in the serving path, no neighbour fetching at inference, no sampling variance — so the honest evaluation is to compare a full GNN against precomputed propagation on your data and check whether the accuracy difference justifies the infrastructure. Frequently it does not, and the team discovers this after building the harder thing, which is the same 'do the arithmetic before choosing the architecture' point the design lessons make."
+      },
+      {
+        "q": "When is a graph the wrong frame?",
+        "a": "WHEN THE HOMOPHILY CHECK COMES BACK NEAR THE BASE RATE, which means the edges carry no information about the label and every layer of message passing is mixing in noise. That check is one line and it should precede the architecture decision, because the alternative is discovering it after building a pipeline. SECOND, WHEN THE MLP-ON-FEATURES BASELINE WINS — the graph is then not contributing, and the honest report is that a simpler model is better, which happens more often than the literature suggests because benchmarks were selected partly for having exploitable structure. THIRD, WHEN THE GRAPH IS SMALL AND DENSE ENOUGH THAT ATTENTION OVER ALL NODES IS AFFORDABLE, in which case a graph transformer with structural encodings sidesteps over-smoothing and over-squashing entirely and usually wins — the sparsity a GNN exploits is only a benefit when the graph is genuinely large. FOURTH, WHEN THE RELATIONAL STRUCTURE IS BETTER CAPTURED AS FEATURES: degree, PageRank, cluster membership, triangle counts and component size are cheap, interpretable, and feed a GBDT that will often outperform a GNN on a tabular-plus-graph problem, which is a very common shape in fraud and risk.",
+        "deepDive": "That fourth case is the one most likely to be relevant in industry and least likely to be tried, because it is unglamorous. A fraud problem with a device-sharing graph usually has most of its signal in a handful of aggregate graph statistics — how many accounts share this device, how large is the connected component, what is the component's historical fraud rate — and those are columns in a table, computed by a graph query rather than learned. A GBDT over them plus the usual tabular features is fast, explainable, and competitive, and it inherits the tabular domain's advantages from the next lessons. The GNN wins when the relevant structure is genuinely higher-order and not summarizable — when it matters not just that the component is large but how it is shaped — and that is a real and narrower condition than 'we have a graph'. Testing it is straightforward: build the statistics, fit the GBDT, and make the GNN beat it. If nobody has run that comparison, the architecture choice was made by fashion."
+      },
+      {
+        "q": "How does this lesson fit the module's theme?",
+        "a": "GRAPHS GIVE THE MOST LITERAL VERSION OF THE MODULE'S SPINE: the structure IS the edges, and the leak travels along them. Homophily is what makes a graph learnable — connected nodes share labels, so a neighbour's label is evidence about yours — and that is precisely why hiding a node's own label is insufficient protection. THE DEPENDENCY THAT MAKES THE PROBLEM SOLVABLE IS THE DEPENDENCY THAT BREAKS THE EVALUATION, with no gap between the two. Measured with a 1-hop vote at 85% homophily: 0.9901 with all labels against 0.9783 with train labels only, and the mechanism generalizes with depth since a k-layer network reaches k hops. WHAT GRAPHS ADD TO THE MODULE'S ARGUMENT is that the split is not a row operation at all — it is a MASK OVER THE ADJACENCY, and for link prediction the edges being predicted must be removed from the message-passing graph entirely. Standard tooling splits rows, so it offers no protection here, which is why this domain's leaks survive careful people. THE TRANSFERABLE FORM: identify the channel through which information flows between examples, and make sure the split cuts that channel rather than merely partitioning the index.",
+        "deepDive": "Stating it that way makes the whole module's pattern precise. In every domain there is a channel: time in a series, the group in clustered data, the query in search, the user in a recommender, the edge in a graph. A split cuts the index; the question is whether it cuts the channel. Random k-fold cuts the index and no channel, which is why it is wrong everywhere in this module and right for genuinely i.i.d. tabular rows. Once you see the split as cutting a channel rather than partitioning rows, the correct scheme for a new domain is derivable rather than memorized — ask what makes two examples informative about each other, and hold out along that. It also explains why feature leakage survives correct splits, which was the recommender lesson's finding: a feature computed across the boundary is a second channel that the split never touched, so cutting one and leaving the other open is exactly what the measurements kept showing."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "Message passing",
+      "back": "h_v^{(k+1)} = φ(h_v^{(k)}, ⊕_{u∈N(v)} ψ(h_v, h_u)). ⊕ must be PERMUTATION-INVARIANT — a neighbourhood is a set. That invariance is the architectural prior."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the aggregator matters",
+      "back": "Expressiveness. SUM distinguishes multisets that MEAN and MAX cannot — GIN with sum matches 1-WL power; mean-pooled GCNs are provably weaker."
+    },
+    {
+      "type": "formula",
+      "front": "★ Why GNNs are shallow",
+      "back": "OVER-SMOOTHING: receptive field ≈ d̄^k. At d̄=10, k=4 reaches 10,000 nodes and k=6 reaches 10⁶ — so representations converge. A property of repeated AVERAGING, not of gradients."
+    },
+    {
+      "type": "definition",
+      "front": "Over-squashing",
+      "back": "Exponentially many nodes compressed into a fixed-width vector, so long-range information is lost REGARDLESS of depth. Jumping knowledge and rewiring target it; adding layers does not."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ In a graph, the leak travels along EDGES",
+      "back": "Masking a node's own label is insufficient — neighbours carry it one hop away. Measured (1-hop vote, 85% homophily): AUC **0.9901** with all labels vs **0.9783** with train only."
+    },
+    {
+      "type": "definition",
+      "front": "The three evaluation settings",
+      "back": "TRANSDUCTIVE (whole graph, only test labels hidden — most benchmarks) · INDUCTIVE (test nodes unseen — what production needs) · FULLY INDUCTIVE (unseen graph). Their numbers are NOT comparable."
+    },
+    {
+      "type": "pitfall",
+      "front": "Link prediction's stricter rule",
+      "back": "The edges you're predicting must be REMOVED from the message-passing graph, or the model sees the answer as input. And negatives must respect the split, or you sample held-out positives as 'negatives'."
+    },
+    {
+      "type": "definition",
+      "front": "★ Check homophily FIRST",
+      "back": "h = fraction of edges joining same-label nodes. h ≫ base rate → message passing helps. h ≈ base rate → the graph is uninformative. h ≪ → HETEROPHILOUS, and a plain GCN can LOSE to an MLP."
+    },
+    {
+      "type": "intuition",
+      "front": "The three baselines before a GNN",
+      "back": "MLP on features only (is the graph needed?) · label propagation (are features needed?) · **MLP + neighbour-averaged features** — cheap, no message passing, and it beats GCNs on several benchmarks."
+    },
+    {
+      "type": "intuition",
+      "front": "Scaling: precompute the propagation",
+      "back": "A linear GCN's propagation is a fixed sparse matrix power — compute it ONCE offline, then train an ordinary MLP (SGC/SIGN). No graph in the serving path, no neighbour fetching, no sampling variance. Often competitive."
+    },
+    {
+      "type": "intuition",
+      "front": "When a graph is the wrong frame",
+      "back": "Homophily ≈ base rate · the MLP baseline wins · the graph is small enough for a graph transformer · **the structure is summarizable as FEATURES** (degree, PageRank, component size, component fraud rate) feeding a GBDT — very common in fraud, and rarely tried."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The module's spine, made precise",
+      "back": "Every domain has a CHANNEL through which examples inform each other: time, group, query, user, edge. A split cuts the INDEX — the question is whether it cuts the CHANNEL. Random k-fold cuts no channel, which is why it's wrong everywhere here."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Hamilton, Ying & Leskovec (2017), Inductive Representation Learning on Large Graphs (GraphSAGE)",
+      "url": "https://arxiv.org/abs/1706.02216"
+    },
+    {
+      "title": "Xu, Hu, Leskovec & Jegelka (2019), How Powerful are Graph Neural Networks? (GIN)",
+      "url": "https://arxiv.org/abs/1810.00826"
+    },
+    {
+      "title": "Zhu et al. (2020), Beyond Homophily in Graph Neural Networks",
+      "url": "https://arxiv.org/abs/2006.11468"
+    },
+    {
+      "title": "Wu et al. (2019), Simplifying Graph Convolutional Networks (SGC)",
+      "url": "https://arxiv.org/abs/1902.07153"
+    },
+    {
+      "title": "Alon & Yahav (2021), On the Bottleneck of Graph Neural Networks and its Practical Implications",
+      "url": "https://arxiv.org/abs/2006.05205"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

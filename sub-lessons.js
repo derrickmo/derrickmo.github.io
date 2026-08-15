@@ -2273,8 +2273,7 @@ window.SUB_LESSONS = {
       "forecasting",
       "calibration",
       "conformal",
-      "fairness",
-      "shap"
+      "fairness"
     ],
     "lessons": {
       "forecasting": {
@@ -2400,37 +2399,6 @@ window.SUB_LESSONS = {
           "Choosing a metric is a value judgment, not a technicality."
         ],
         "demo": "fairness"
-      },
-      "shap": {
-        "title": "Explainability with SHAP",
-        "oneLine": "Attribute a prediction fairly across its input features.",
-        "sections": [
-          {
-            "h": "The intuition",
-            "paras": [
-              "Why did the model decide this? SHAP answers by borrowing from game theory: treat features as players and the prediction as a payout, then give each feature its Shapley value - its average marginal contribution across all orderings. It is the unique attribution that is fair and adds up to the prediction."
-            ]
-          },
-          {
-            "h": "The math",
-            "paras": [
-              "The Shapley value averages a feature's marginal contribution over all coalitions:"
-            ],
-            "tex": "\\phi_i = \\sum_{S} \\frac{|S|!\\,(n-|S|-1)!}{n!}\\big[v(S\\cup\\{i\\}) - v(S)\\big]",
-            "texNote": "The contributions sum exactly to the prediction minus the baseline."
-          },
-          {
-            "h": "In code",
-            "code": "# exact Shapley by enumerating coalitions (small feature sets)\nfrom itertools import combinations\n# phi_i = average of f(S + i) - f(S) over all subsets S not containing i",
-            "caption": "Average marginal contribution over every feature ordering."
-          }
-        ],
-        "takeaways": [
-          "SHAP gives each feature its fair share of the prediction.",
-          "Attributions sum to the prediction minus a baseline.",
-          "It is the game-theoretic standard for local explanations."
-        ],
-        "demo": "shap"
       }
     }
   },

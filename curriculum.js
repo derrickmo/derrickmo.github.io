@@ -1471,63 +1471,63 @@ window.CURRICULUM = {
           "n": "19-02",
           "slug": "neural-recommenders",
           "title": "Neural Recommenders & Two-Tower Architecture",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-02_neural_recommenders_two_tower.ipynb"
         },
         {
           "n": "19-03",
           "slug": "time-series",
           "title": "Time Series Forecasting",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-03_time_series_forecasting.ipynb"
         },
         {
           "n": "19-04",
           "slug": "search-ranking",
           "title": "Search & Ranking Systems",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-04_search_ranking_systems.ipynb"
         },
         {
           "n": "19-05",
           "slug": "shap",
           "title": "SHAP & Model-Agnostic Explainability",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-05_shap_model_agnostic_explainability.ipynb"
         },
         {
           "n": "19-06",
           "slug": "gnn",
           "title": "Graph Neural Networks",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-06_graph_neural_networks.ipynb"
         },
         {
           "n": "19-07",
           "slug": "audio-classification",
           "title": "Audio Classification",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-07_audio_classification.ipynb"
         },
         {
           "n": "19-08",
           "slug": "semi-supervised",
           "title": "Semi-Supervised Learning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-08_semi_supervised_learning.ipynb"
         },
         {
           "n": "19-09",
           "slug": "multi-task",
           "title": "Multi-Task & Multi-Output Learning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-09_multi_task_multi_output_learning.ipynb"
         },
         {
           "n": "19-10",
           "slug": "tabular-dl",
           "title": "Tabular Deep Learning",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "19-10_tabular_deep_learning.ipynb"
         }
       ]
