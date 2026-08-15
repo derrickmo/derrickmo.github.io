@@ -5,13 +5,274 @@
   "slug": "red-teaming",
   "module": "trustworthy-ai",
   "title": "Red-Teaming & Model Auditing",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "24-09_red_teaming.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["prompt-injection", "guardrails", "adversarial-examples", "classification-metrics"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["trustworthy-ai/adversarial-robustness", "rag-agents/guardrails"],
+  "leadsTo": ["trustworthy-ai/alignment-governance", "agentic-ai/agent-security"],
+  "body": {
+    "intuition": [
+      "Red-teaming is sampling from an attack space you cannot enumerate, and the number that matters is the one nobody reports: COVERAGE. A report listing what was found is compatible with two very different worlds - a model with few vulnerabilities, and a team that stopped looking. Without a coverage estimate those produce identical documents.",
+      "Simulating a model with 300 latent vulnerability classes and a heavy-tailed discovery distribution: 1,000 probes found 138 of them, 46%. Twenty thousand probes found 280, 93%. The Chao1 estimator, computed from the singleton and doubleton counts alone, estimated 209 and 290 against the true 300 - so an estimate of what you MISSED is available from the data you already have, and it is a lower bound.",
+      "The sharpest result is that the same red-team suite supports opposite conclusions depending on your threat model. Patching every one of the 214 classes found by a 3,000-probe campaign takes failure on NATURAL traffic from 1.0000 to 0.0153 - a genuine 98% reduction. It takes failure against an ADVERSARY from 100% to 100%, because 86 classes remain and an attacker SEARCHES rather than samples. The residual 1.5% of natural mass is essentially all of what a motivated attacker will use."
+    ],
+    "math": [
+      {
+        "h": "Coverage estimation from the discovery curve",
+        "paras": [
+          "Chao1 estimates unseen richness from the counts of classes seen exactly once and exactly twice. Many singletons relative to doubletons means a large unsampled tail.",
+          "It is a LOWER bound on the number of classes, which is exactly the right direction for a safety claim."
+        ],
+        "tex": "\\hat{S}_{\\text{Chao1}} = S_{\\text{obs}} + \\frac{f_1(f_1-1)}{2(f_2+1)}: \\quad n{=}1000 \\to 138\\ \\text{found},\\ \\hat{S}=209; \\quad n{=}20000 \\to 280,\\ \\hat{S}=290 \\quad (\\text{true } 300)",
+        "texNote": "At n = 200 it estimated 109 against a true 300 - badly low, because at low coverage there is little information about the tail. The honest reading is 'at least this many remain', which is still infinitely more than a report with no estimate."
+      },
+      {
+        "h": "Capture-recapture: overlap between independent teams is the signal",
+        "paras": [
+          "Two teams working independently give an estimate from their overlap. High overlap means saturation; low overlap means the space is far larger than either found.",
+          "It is the cheapest coverage estimate available and almost nobody computes it."
+        ],
+        "tex": "\\hat{N}_{LP} = \\frac{|A|\\cdot|B|}{|A\\cap B|} = \\frac{183\\times179}{147} = 223 \\quad (\\text{true } 300)",
+        "texNote": "The estimate is LOW, and the reason is instructive: the teams are not independent, because both sample easy classes first. Heterogeneity biases capture-recapture downward, so every estimate here is a floor."
+      },
+      {
+        "h": "★ The same patch, two threat models",
+        "paras": [
+          "A 3,000-probe campaign found 214 of 300 classes, carrying 98.47% of natural traffic mass. Patching all of them:"
+        ],
+        "tex": "\\begin{array}{lrrr} \\text{patched} & \\text{suite pass} & \\text{NATURAL failure} & \\text{ADVERSARIAL failure}\\\\ 0\\% & 0.0\\% & 1.0000 & 100\\%\\\\ 50\\% & 50.0\\% & 0.7453 & 100\\%\\\\ 100\\% & 100.0\\% & \\mathbf{0.0153} & \\mathbf{100\\%} \\end{array}",
+        "texNote": "A 98% reduction and no reduction at all, from the same work, because an accidental user samples traffic and an adversary searches. State which threat model your number describes."
+      }
+    ],
+    "code": [
+      {
+        "h": "The discovery curve flattens for two different reasons",
+        "paras": [
+          "A raw 'issues found per week' chart cannot distinguish saturation from exhaustion of the tester's imagination. The singleton count can."
+        ],
+        "code": "#  probes   distinct found   % of true   singletons   doubletons   Chao1\n#      50         23            7.7%          16            5          43\n#     200         61           20.3%          37           13         109\n#   1,000        138           46.0%          60           24         209\n#   5,000        232           77.3%          43           39         255\n#  20,000        280           93.3%          21           21         290\n\n# ★ flattening curve + MANY singletons -> a long tail remains, keep going\n# ★ flattening curve + FEW singletons  -> genuinely approaching saturation\n\n# The singleton count is the diagnostic. Notice it PEAKS mid-campaign (60 at\n# n=1000) and falls as coverage grows - a rising singleton count means you are\n# still on the steep part of the curve no matter what the headline says.",
+        "caption": "Report the discovery curve and the singleton count, not just the issue list. Both are free, and together they say whether stopping is justified."
+      },
+      {
+        "h": "What a red-team report should contain",
+        "paras": [
+          "Structured so a reader can tell what was NOT tested, which is the part that determines residual risk."
+        ],
+        "code": "# THE FINDINGS                what broke, severity, reproduction\n# THE THREAT MODEL            who is the adversary, what can they do,\n#                             what do they know, what does success mean\n# THE ATTACK SPACE SAMPLED    categories attempted, categories NOT attempted,\n#                             and how prompts/inputs were generated\n# COVERAGE ESTIMATE           discovery curve, singleton count, Chao1, and\n#                             overlap with any independent effort\n# EFFORT                      probes run, person-hours, wall-clock, budget\n# WHAT WOULD CHANGE THE ANSWER  which unexplored category worries you most\n\n# ★ 'We found no further issues' and 'we ran out of time' produce IDENTICAL\n#   reports without the effort and coverage sections. Those two sentences\n#   should never be indistinguishable in a safety document.",
+        "caption": "The findings section is the part everyone writes and the least informative about residual risk. The coverage and effort sections are where the decision actually lives."
+      }
+    ],
+    "useCases": [
+      "Pre-launch safety assessment for a generative system, where the deliverable is a residual-risk statement rather than a list of fixed prompts.",
+      "Continuous adversarial evaluation in production, where the attack distribution moves and a frozen suite decays into a regression test within weeks.",
+      "Auditing a third-party model you cannot inspect, where behavioural probing is the only access and coverage estimation is the only honest way to bound what you learned.",
+      "Deciding whether to ship, by converting a discovery curve and a threat model into a statement about what an attacker is likely to find in the first month."
+    ],
+    "pitfalls": [
+      "Reporting findings without coverage. 'We found no further issues' and 'we ran out of time' are the same document unless effort and a coverage estimate are stated.",
+      "Treating a patched suite as safety. Patching all 214 found classes took natural-traffic failure to 0.0153 and adversarial failure from 100% to 100%, with 86 classes untouched.",
+      "Using a frozen red-team suite as a safety metric. It becomes a regression test the moment it is patched against, and pass rate then measures regression, not risk.",
+      "Reading a flattening discovery curve as saturation. With a high singleton count it means the opposite - a long tail remains and you are still on the steep part.",
+      "Trusting capture-recapture as an unbiased estimate. Two teams gave 223 against a true 300 because they are not independent; heterogeneity biases these estimators downward, so treat them as floors.",
+      "Letting the red team's findings become training data without keeping some held out. Training on everything you found leaves nothing to measure with, and the model learns the suite.",
+      "Assuming natural-traffic statistics describe an adversary. The classes nobody sampled carried 1.53% of natural mass and are approximately 100% of what a searching attacker will use."
+    ],
+    "connections": [
+      {
+        "ref": "trustworthy-ai/adversarial-robustness",
+        "text": "The bounded version of the same problem - there the threat model is a norm ball, here there is no budget at all and coverage replaces the certificate."
+      },
+      {
+        "ref": "rag-agents/guardrails",
+        "text": "The mitigations being tested, and why a guardrail's own false-negative rate is the number that carries a red-team finding into production."
+      },
+      {
+        "ref": "agentic-ai/agent-security",
+        "text": "Where the attack space is largest - an agent with tools has an action space, not just an output space, and coverage is correspondingly harder to claim."
+      },
+      {
+        "ref": "trustworthy-ai/alignment-governance",
+        "text": "Who owns the residual-risk decision, and why a coverage estimate is what makes that decision reviewable rather than a matter of confidence."
+      },
+      {
+        "ref": "llm-systems/llm-eval",
+        "text": "The measurement discipline underneath - a red-team suite is an eval, and inherits every problem with scorers, contamination and sample size."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "What is the number missing from most red-team reports?",
+        "a": "Coverage. A findings list is compatible with 'few vulnerabilities' and 'we stopped looking' — without effort and coverage those are the same document."
+      },
+      {
+        "q": "What is Chao1?",
+        "a": "Ŝ = S_obs + f₁(f₁−1)/(2(f₂+1)) — estimates unseen richness from singleton and doubleton counts. A LOWER bound, which is the right direction for a safety claim."
+      },
+      {
+        "q": "Give the measured discovery curve.",
+        "a": "Of 300 true classes: 1,000 probes → 138 found (46%), Chao1 209. 20,000 probes → 280 (93%), Chao1 290."
+      },
+      {
+        "q": "When is Chao1 unreliable?",
+        "a": "At low coverage. n=200 gave 109 against a true 300 — badly low, because there's little information about the tail yet."
+      },
+      {
+        "q": "What does capture-recapture add?",
+        "a": "Overlap between two independent teams estimates the total. 183 and 179 found with 147 overlap → 223 (true 300)."
+      },
+      {
+        "q": "Why was that estimate low?",
+        "a": "The teams aren't independent — both sample easy classes first. Heterogeneity biases capture-recapture DOWNWARD, so treat every estimate as a floor."
+      },
+      {
+        "q": "★ Give the two-threat-model result.",
+        "a": "Patching all 214 found classes: NATURAL traffic failure 1.0000 → **0.0153** (a real 98% win). ADVERSARIAL failure 100% → **100%**, with 86 classes left."
+      },
+      {
+        "q": "Why the difference?",
+        "a": "An accidental user SAMPLES traffic; an adversary SEARCHES. The missed classes carried 1.53% of natural mass and ~100% of what an attacker will use."
+      },
+      {
+        "q": "What does a flattening discovery curve mean?",
+        "a": "Ambiguous. With MANY singletons, a long tail remains and you're still on the steep part. With FEW singletons, genuine saturation. The singleton count distinguishes them."
+      },
+      {
+        "q": "Why does a frozen red-team suite decay?",
+        "a": "Once patched against, its pass rate measures REGRESSION, not risk — and the attack distribution moves. It becomes a regression test within weeks."
+      },
+      {
+        "q": "Should red-team findings become training data?",
+        "a": "Some, not all. Train on everything you found and you have nothing left to measure with, and the model learns the suite rather than the property."
+      },
+      {
+        "q": "Name the sections a red-team report needs.",
+        "a": "Findings, threat model, attack space sampled (and NOT sampled), coverage estimate, effort spent, and what unexplored category worries you most."
+      }
+    ],
+    "standard": [
+      {
+        "q": "How would you assess whether a red-team exercise was thorough?",
+        "a": "BY ASKING FOR COVERAGE AND EFFORT, WHICH IS WHERE THE INFORMATION IS. A findings list tells you what broke and nothing about what remains, and those are the same document whether the model is genuinely clean or the team ran out of time — that is the single most important structural fact about red-team reporting. THE ESTIMATES ARE CHEAP AND AVAILABLE FROM DATA YOU ALREADY HAVE. The discovery curve — distinct issue classes found against probes run — plus the singleton count gives you Chao1, which estimates unseen richness from the ratio of classes seen once to classes seen twice. In simulation with 300 true vulnerability classes: 1,000 probes found 138 and Chao1 estimated 209; 20,000 probes found 280 and it estimated 290. So even mid-campaign, an estimate of what you are missing is derivable, and it is a LOWER bound, which is the correct direction for a safety claim. THE SECOND ESTIMATOR IS OVERLAP: run two independent efforts and use capture-recapture. Teams finding 183 and 179 with 147 in common gave an estimate of 223 against a true 300. THE DIAGNOSTIC THAT MATTERS MOST is the singleton count, because a flattening discovery curve is ambiguous — many singletons means a long tail remains, few means genuine saturation, and the raw curve cannot tell them apart.",
+        "deepDive": "The capture-recapture underestimate is worth understanding rather than dismissing, because it generalizes. Lincoln-Petersen assumes the two efforts are independent and that all classes are equally catchable; here both teams sampled from the same heavy-tailed discovery distribution, so both found the easy classes and the overlap was inflated, which drives the estimate down. Heterogeneity always biases these estimators downward, which is convenient — every number is a floor, so 'at least this many remain' is a safe reading. You can reduce the bias by making the teams genuinely different: different backgrounds, different tooling, different attack philosophies, one automated and one manual. That is a real argument for diversity in red-teaming that is about measurement rather than about sentiment — the more the two efforts' catchability profiles differ, the more informative their overlap. It also argues for keeping the teams from sharing findings during the exercise, which teams naturally want to do, and which destroys the estimator."
+      },
+      {
+        "q": "A team patched everything the red team found. Are they safe now?",
+        "a": "THAT DEPENDS ENTIRELY ON THE THREAT MODEL, AND THE SAME WORK SUPPORTS OPPOSITE ANSWERS. In simulation a 3,000-probe campaign found 214 of 300 vulnerability classes, and those 214 carried 98.47% of natural traffic mass. Patching all of them took failure on NATURAL traffic from 1.0000 to 0.0153 — a genuine 98% reduction, and exactly the right number to report if the concern is ordinary users hitting problems by accident. It took failure against an ADVERSARY from 100% to 100%, because 86 classes remain and an attacker does not sample traffic, they SEARCH. The 1.53% of natural mass that nobody found is approximately 100% of what a motivated attacker will use, because they will keep trying until they land in it. SO THE HONEST STATEMENT IS TWO NUMBERS, not one, and the report has to say which threat model each describes. THERE IS A SECOND PROBLEM with 'we patched everything found': the suite's pass rate went from 0% to 100%, and that number now measures regression rather than risk. A suite you have optimized against is a regression test, and treating its pass rate as a safety metric is Goodhart with extra steps.",
+        "deepDive": "The practical consequence is that some findings must be held out. If every discovered vulnerability goes into the training or patching set, you have no measurement left — the same reason you do not train on the test set — and the model learns the specific prompts rather than the underlying property. The standard split is to patch most and hold back a stratified sample across severity and category, then measure on the holdout. It feels wrong to leave a known vulnerability unpatched, and the counterargument is that without a holdout you cannot tell whether patching generalized at all, which is the thing you most need to know. The related question is whether patching produced a real fix or a narrow one: the test is whether a paraphrase or a nearby variant of a patched attack still works, and it very often does. A patch that fails paraphrase testing has taught the model a surface pattern, and the correct interpretation of a 100% suite pass rate in that case is that you have measured memorization."
+      },
+      {
+        "q": "How is red-teaming different from adversarial robustness as covered earlier?",
+        "a": "THE THREAT MODEL HAS NO BUDGET, AND THAT CHANGES EVERYTHING. Adversarial robustness assumes a perturbation set — an L-p ball of radius epsilon — which makes the problem mathematically tractable, allows certification, and lets you state a guarantee that covers perturbations nobody has invented. Red-teaming has no such constraint: an attacker rewriting a prompt is not bounded by any norm, so there is no ball to certify over, no min-max to solve, and no certificate available in principle. WHAT REPLACES THE CERTIFICATE IS COVERAGE, and coverage is a statistical estimate rather than a proof. That is a genuine downgrade in guarantee strength and it should be stated as one: the strongest honest claim from a red-team exercise is 'we sampled this much of an attack space we cannot enumerate, and estimate at least this many classes remain', which is much weaker than 'no perturbation within radius r changes the output'. THE SECOND DIFFERENCE IS THAT THE ATTACK SPACE IS NOT STATIC. New jailbreak families appear, so a suite frozen at launch decays; whereas an L-infinity ball at epsilon 0.08 is the same set forever. THE THIRD is that success is not binary or even well defined — 'harmful output' is a judgment call, which means the scorer is part of the measurement.",
+        "deepDive": "That last point connects to the eval problems from the LLM systems module and deserves weight, because it is where red-team numbers are least comparable across organisations. If success is adjudicated by a human panel, you inherit inter-rater disagreement; if by a model judge, you inherit its biases, including the length and position biases measured earlier in the curriculum; and if by a keyword rule, you inherit a brittle proxy that both misses paraphrases and fires on discussion of the topic. The severity scale is equally load-bearing and equally unstandardized, so 'we found 12 critical issues' means whatever that team's rubric meant. The practical recommendation is to publish the rubric and a sample of adjudicated cases alongside the counts, and to measure the scorer's own agreement rate, because a red-team report without those is not comparable to any other red-team report — including your own from last quarter, if the rubric drifted. That is the same discipline as reporting the binning with an ECE or the variant with a SHAP plot: the number is meaningless without its reference."
+      },
+      {
+        "q": "How would you structure continuous red-teaming for a deployed system?",
+        "a": "AS A SAMPLING PROGRAM WITH A MOVING TARGET, NOT AS A GATE. Four components. FIRST, AUTOMATED GENERATION at volume — model-generated attacks, mutation of known families, fuzzing over templates — because that is what makes coverage estimation statistically meaningful; hand-written suites are too small for a discovery curve to say anything. SECOND, HUMAN RED-TEAMING for novelty, because automated generation explores the neighbourhood of what it already knows and humans supply the genuinely new families that shift the distribution. THIRD, PRODUCTION MINING: real users find things no red team does, so misuse reports, unusual refusal patterns, and outlier conversations are a discovery channel and usually the highest-yield one. FOURTH, MEASUREMENT — the discovery curve, singleton counts, and overlap between the automated and human channels, tracked over time. THE STRUCTURAL POINT is that the suite must keep growing and some of it must stay unpatched, or you lose the ability to measure. And the reporting cadence should include the coverage estimate, not just the issue count, because an issue count falling is ambiguous in exactly the way a flattening discovery curve is.",
+        "deepDive": "The overlap between channels is the most useful and least used metric in that list. If your automated generator and your human team find largely the same classes, you are near saturation of the space they can both reach — which is not the same as saturation of the attack space, but it does tell you the marginal value of more of the same is low and you need a genuinely different generator. If they overlap barely at all, the space is much larger than either has explored and the total estimate should be revised upward sharply. Tracking that ratio over time is the cheapest early warning that your program has stopped learning. One more organisational hazard worth naming: red-teaming that reports to the team shipping the model has an incentive problem, and the failure is subtle — not suppressed findings so much as a drift toward testing what is likely to pass, and toward severity rubrics that classify generously. Independent reporting lines and a rubric fixed in advance are the standard mitigations, and both are cheap relative to the cost of a report that everyone believes and that measured the wrong thing."
+      },
+      {
+        "q": "What would you put in a red-team report that most reports omit?",
+        "a": "THREE SECTIONS, AND ALL THREE ARE ABOUT WHAT WAS NOT FOUND. FIRST, EFFORT: probes run, person-hours, wall-clock, budget. Without it, 'we found no further issues' and 'we ran out of time' are indistinguishable, and in a safety document those two sentences should never look the same. SECOND, THE ATTACK SPACE SAMPLED AND NOT SAMPLED: which categories were attempted, how inputs were generated, and — the part that carries the most information — which categories were deliberately or accidentally skipped. A reader can reason about an unexplored category; they cannot reason about one they do not know was unexplored. THIRD, A COVERAGE ESTIMATE: the discovery curve, the singleton count, Chao1, and the overlap with any independent effort. Those are computed from data the exercise already generated and they turn a list into a bounded claim. I WOULD ALSO ADD 'WHAT WOULD CHANGE THE ANSWER' — the unexplored category the team is most worried about — because it is the single most decision-relevant sentence in the document and it never appears. AND THE THREAT MODEL, explicitly, because the same findings support a 98% risk reduction or none at all depending on whether the adversary samples or searches.",
+        "deepDive": "It is worth being clear about what these additions cost, since the argument for them has to survive contact with a deadline. The discovery curve and singleton count are a groupby over data already logged — under an hour. Chao1 is one line. Capture-recapture requires running two efforts, which is the only genuinely expensive item, and it can be approximated by splitting one team's effort in half by time or by tester and treating those as pseudo-independent, which biases the estimate but still bounds it. Effort tracking is free if logged during the exercise and painful to reconstruct after. So the marginal cost of a substantially more informative report is small, and the reason it is not standard is convention rather than economics. The framing that tends to work with leadership is that the current report answers 'what did we find' and the decision they have to make requires 'what is left', and those are different questions — which is the same argument this module has made about every other guarantee in it."
+      },
+      {
+        "q": "How does this lesson fit the module's thesis?",
+        "a": "IT IS THE THESIS WITH THE WEAKEST STARTING GUARANTEE, WHICH MAKES THE REFERENCE CLASS MATTER MOST. A red-team report says: these attacks succeeded, these did not. Both halves are true. What gets read from it is 'the model is safe', which is a claim about an attack space that was sampled, not enumerated. OVER WHAT SET DOES THE FINDING HOLD? Over the attacks you ran. Is that the set you care about? No — you care about the attacks that exist, and in simulation a campaign covering 71.3% of classes left 86 unfound. WHAT MAKES THIS LESSON DISTINCTIVE is that the gap is PARTIALLY closable and the tools are unusually cheap: Chao1 from singleton counts, capture-recapture from overlap, the discovery curve from logs already collected. That puts it between the closable gaps like subgroup calibration and the unclosable one from the drift lesson — you cannot enumerate the space, and you can bound how much of it you have seen. THE OTHER DISTINCTIVE FEATURE is that the same measurement supports opposite conclusions: 0.0153 natural failure and 100% adversarial failure from identical work, which makes the threat model, not the findings, the load-bearing part of the document.",
+        "deepDive": "Reading this alongside the adversarial robustness lesson gives the full spectrum of guarantee strength in this module, and it is worth holding as a ladder. A certified radius is a proof over a set you defined, and it holds against attacks nobody has invented. Empirical robust accuracy is a measurement over attacks you ran, and it is an upper bound that tomorrow's attack lowers. A red-team finding is a sample from a space you cannot define, and coverage estimation is the only bound available. Strength decreases and applicability increases as you go down, which is not a coincidence — the tractable threat models are tractable because they are narrow. The mistake is to use the language of the top of the ladder while standing at the bottom, and the word 'safe' does that every time it appears without a threat model attached. If this module leaves one habit, it should be reading the quantifier out loud: 'no perturbation within L2 radius 0.5 for the smoothed classifier on non-abstained inputs' versus 'none of the 3,000 attacks we tried', and then asking which one the decision needs."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "intuition",
+      "front": "★ The number missing from red-team reports",
+      "back": "COVERAGE. A findings list is identical whether the model is clean or the team stopped looking. \"We found no further issues\" and \"we ran out of time\" must never produce the same document."
+    },
+    {
+      "type": "formula",
+      "front": "Chao1",
+      "back": "Ŝ = S_obs + f₁(f₁−1)/(2(f₂+1)) — unseen richness from singletons and doubletons. Measured (true 300): n=1,000 → 138 found, Ŝ=209. n=20,000 → 280 found, Ŝ=290. A LOWER bound."
+    },
+    {
+      "type": "pitfall",
+      "front": "When Chao1 fails",
+      "back": "At low coverage. n=200 → 109 against a true 300. Little information about the tail yet. Reading: \"at least this many remain\" — still infinitely more than no estimate."
+    },
+    {
+      "type": "formula",
+      "front": "Capture-recapture",
+      "back": "N̂ = |A|·|B|/|A∩B|. Teams found 183 and 179, overlap 147 → **223** (true 300). LOW because the teams aren't independent — both sample easy classes first. Heterogeneity biases DOWNWARD, so it's a floor."
+    },
+    {
+      "type": "pitfall",
+      "front": "★ The same patch, two threat models",
+      "back": "Patched all 214 found classes (98.47% of natural mass): NATURAL failure 1.0000 → **0.0153** (real 98% win). ADVERSARIAL failure 100% → **100%** (86 classes left). Users SAMPLE; attackers SEARCH."
+    },
+    {
+      "type": "intuition",
+      "front": "A flattening discovery curve means…",
+      "back": "Ambiguous. MANY singletons → long tail remains, still on the steep part. FEW singletons → genuine saturation. The singleton count is the diagnostic; it PEAKED mid-campaign (60 at n=1,000)."
+    },
+    {
+      "type": "pitfall",
+      "front": "A patched suite is a regression test",
+      "back": "Suite pass rate went 0% → 100% while 86 classes stayed live. Once you optimize against a suite its pass rate measures REGRESSION, not risk — Goodhart with extra steps."
+    },
+    {
+      "type": "intuition",
+      "front": "Hold back some findings",
+      "back": "Train/patch on everything you found and there's nothing left to measure with. Patch most, hold a stratified sample by severity and category. Then test PARAPHRASES — if a nearby variant still works, you measured memorization."
+    },
+    {
+      "type": "definition",
+      "front": "The report sections that matter",
+      "back": "Findings · THREAT MODEL · attack space sampled AND NOT sampled · coverage estimate (curve, singletons, Chao1, overlap) · EFFORT (probes, hours, budget) · what unexplored category worries you most."
+    },
+    {
+      "type": "intuition",
+      "front": "Red-teaming vs adversarial robustness",
+      "back": "No perturbation budget ⇒ no ball to certify over, no min-max, no certificate in principle. COVERAGE replaces the certificate — a statistical estimate, not a proof. And the attack space MOVES; an L∞ ball doesn't."
+    },
+    {
+      "type": "pitfall",
+      "front": "The scorer is part of the measurement",
+      "back": "\"Harmful output\" is a judgment call. Human panels bring rater disagreement; model judges bring length/position bias; keyword rules miss paraphrases and fire on discussion. Publish the rubric and the scorer's agreement rate."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The guarantee-strength ladder",
+      "back": "Certified radius (proof over a set you defined, covers uninvented attacks) → empirical robust accuracy (upper bound, attacks you ran) → red-team finding (sample of a space you can't define). Strength falls, applicability rises. Don't use top-of-ladder language at the bottom."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Ganguli et al. (2022), Red Teaming Language Models to Reduce Harms",
+      "url": "https://arxiv.org/abs/2209.07858"
+    },
+    {
+      "title": "Perez et al. (2022), Red Teaming Language Models with Language Models",
+      "url": "https://arxiv.org/abs/2202.03286"
+    },
+    {
+      "title": "Chao (1984), Nonparametric Estimation of the Number of Classes in a Population",
+      "url": "https://www.jstor.org/stable/4615964"
+    },
+    {
+      "title": "Raji et al. (2020), Closing the AI Accountability Gap: Defining an End-to-End Framework for Internal Algorithmic Auditing",
+      "url": "https://arxiv.org/abs/2001.00973"
+    },
+    {
+      "title": "Zou, Wang, Kolter & Fredrikson (2023), Universal and Transferable Adversarial Attacks on Aligned Language Models",
+      "url": "https://arxiv.org/abs/2307.15043"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

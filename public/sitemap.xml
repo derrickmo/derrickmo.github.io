@@ -505,6 +505,16 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/tokenization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/adversarial-robustness/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/alignment-governance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/attribution/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/calibration/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/conformal-prediction/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/distribution-shift/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/fairness/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/probing-patching/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/red-teaming/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/superposition-sae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/anomaly-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/bayesian-inference/</loc><priority>0.6</priority></url>

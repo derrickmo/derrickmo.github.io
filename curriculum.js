@@ -1858,76 +1858,76 @@ window.CURRICULUM = {
       "title": "Trustworthy, Safe & Interpretable AI",
       "category": "Trustworthy AI",
       "blurb": "Make models you can trust: calibration, conformal prediction, fairness, attribution, mechanistic interpretability, adversarial robustness, drift, red-teaming, and alignment.",
-      "status": "PENDING",
+      "status": "LIVE",
       "lessons": [
         {
           "n": "24-01",
           "slug": "calibration",
           "title": "Calibration & Temperature Scaling",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-01_calibration.ipynb"
         },
         {
           "n": "24-02",
           "slug": "conformal-prediction",
           "title": "Conformal Prediction",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-02_conformal_prediction.ipynb"
         },
         {
           "n": "24-03",
           "slug": "fairness",
           "title": "Fairness Metrics & Trade-offs",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-03_fairness.ipynb"
         },
         {
           "n": "24-04",
           "slug": "attribution",
           "title": "Attribution: SHAP, Saliency & Attention Rollout",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-04_attribution.ipynb"
         },
         {
           "n": "24-05",
           "slug": "superposition-sae",
           "title": "Mechanistic Interpretability I: Superposition & SAEs",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-05_superposition_sae.ipynb"
         },
         {
           "n": "24-06",
           "slug": "probing-patching",
           "title": "Mechanistic Interpretability II: Probing & Activation Patching",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-06_probing_patching.ipynb"
         },
         {
           "n": "24-07",
           "slug": "adversarial-robustness",
           "title": "Adversarial Robustness & Certified Defenses",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-07_adversarial.ipynb"
         },
         {
           "n": "24-08",
           "slug": "distribution-shift",
           "title": "Distribution Shift & Drift Detection",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-08_drift_detection.ipynb"
         },
         {
           "n": "24-09",
           "slug": "red-teaming",
           "title": "Red-Teaming & Model Auditing",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-09_red_teaming.ipynb"
         },
         {
           "n": "24-10",
           "slug": "alignment-governance",
           "title": "Alignment & Governance Overview",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "24-10_alignment_governance.ipynb"
         }
       ]

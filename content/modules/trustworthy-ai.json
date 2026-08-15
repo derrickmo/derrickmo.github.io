@@ -6,7 +6,7 @@
   "title": "Trustworthy, Safe & Interpretable AI",
   "category": "Trustworthy AI",
   "blurb": "Make models you can trust: calibration, conformal prediction, fairness, attribution, mechanistic interpretability, adversarial robustness, drift, red-teaming, and alignment.",
-  "status": "PENDING",
+  "status": "LIVE",
   "lecture": {
     "summary": "Make models you can trust — calibration and conformal prediction, fairness metrics and their trade-offs, attribution methods, mechanistic interpretability (superposition, SAEs, activation patching), adversarial robustness, drift detection, red-teaming, and alignment.",
     "prereqs": "Modules 04–05; module 08 for the interpretability lessons.",
@@ -82,5 +82,5 @@
     "caption": "Calibration: confidence should mean what it says.",
     "code": "conf, correct = probs.max(1)\nece = sum(abs(conf[bin].mean() - correct[bin].mean()) * len(bin) / n\n          for bin in confidence_bins)   # 90% sure should be right 90% of the time"
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-15"
 }
