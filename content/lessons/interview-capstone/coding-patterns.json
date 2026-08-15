@@ -5,13 +5,274 @@
   "slug": "coding-patterns",
   "module": "interview-capstone",
   "title": "Coding Patterns for ML Interviews",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "25-06_coding_patterns.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["reservoir-sampling", "count-min-sketch", "bloom-filter", "knn"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["foundations/advanced-numpy-pytorch", "foundations/pandas"],
+  "leadsTo": ["interview-capstone/cs-algorithms", "interview-capstone/derivations"],
+  "body": {
+    "intuition": [
+      "The ML coding round is not a LeetCode round with a numpy accent. It asks whether you can implement a small piece of ML correctly, reason about its cost, and notice when the obvious implementation will not fit in memory. The recurring test is whether you know the difference between a slow implementation and an IMPOSSIBLE one.",
+      "The canonical example is pairwise distances. The broadcast form, subtracting an (N,1,D) from a (1,M,D), is the one everybody writes first and it allocates an intermediate of N x M x D - for 2,000 by 2,000 by 64 that is 2.05 GB. The Gram-matrix form computes the same thing in 32 MB, sixty-four times less, and ran 42.6x faster. THE FLOP COUNT IS IDENTICAL; the win is entirely memory, and saying that is the answer the question is looking for.",
+      "The rest of the round rewards the same instinct. Vectorizing an elementwise product was 43x a Python loop. Taking the top 10 of a million values with argpartition rather than a full argsort was 7.3x, because it is O(n) rather than O(n log n). None of this is clever - it is knowing three or four patterns well enough to reach for them without thinking, which is exactly the variance reduction this module keeps arguing for."
+    ],
+    "math": [
+      {
+        "h": "★ The Gram-matrix identity",
+        "paras": [
+          "Expanding the squared norm turns a three-dimensional broadcast into two vector norms and one matrix product, which BLAS executes at full speed with no large intermediate.",
+          "Know this one cold. It underlies k-NN, k-means, kernel methods, and every retrieval implementation."
+        ],
+        "tex": "\\|x_i-y_j\\|^2 = \\|x_i\\|^2 + \\|y_j\\|^2 - 2\\,x_i^\\top y_j \\;\\Rightarrow\\; D = \\mathbf{1}\\|X\\|^2_{\\text{row}} + \\|Y\\|^2_{\\text{row}}\\mathbf{1}^\\top - 2XY^\\top",
+        "texNote": "Measured at N=M=2000, D=64: broadcast 1,162 ms and 2.05 GB of intermediate; Gram form 27 ms and 32 MB. Same FLOPs, 64x less memory, 42.6x faster because it is one GEMM instead of a strided reduction over a huge array."
+      },
+      {
+        "h": "Selection beats sorting when you only need the top k",
+        "paras": [
+          "A full sort orders everything; you need the boundary. Introselect gives the k largest in linear expected time.",
+          "The same distinction recurs as heap-based top-k in a streaming setting."
+        ],
+        "tex": "\\text{argsort}: O(n\\log n) \\quad\\text{vs}\\quad \\text{argpartition}: O(n) \\;\\Rightarrow\\; 67.4\\ \\text{ms} \\to 9.3\\ \\text{ms}\\ (7.3\\times)\\ \\text{at } n=10^6,\\ k=10",
+        "texNote": "Note argpartition does not order the k it returns, so if you need them sorted you sort k elements afterwards - which is O(k log k) and free at k = 10."
+      },
+      {
+        "h": "Why complexity answers need the n",
+        "paras": [
+          "The gap between n log n and n squared is not a constant factor, and the size of the gap is the thing to quote."
+        ],
+        "tex": "\\begin{array}{lrr} n & n\\log_2 n & n^2/(n\\log_2 n)\\\\ 10^3 & 9{,}966 & 100\\times\\\\ 10^4 & 132{,}877 & 753\\times\\\\ 10^6 & 19{,}931{,}569 & \\mathbf{50{,}172\\times} \\end{array}",
+        "texNote": "'It is quadratic but n is small' is a valid argument that requires you to state n. At n = 1,000 the penalty is 100x and often survivable; at a million it is fifty thousand and never is."
+      }
+    ],
+    "code": [
+      {
+        "h": "The patterns worth having automatic",
+        "paras": [
+          "Not an exhaustive list - the four or five that come up repeatedly and that separate a fluent answer from a laboured one."
+        ],
+        "code": "# 1 PAIRWISE DISTANCES via the Gram trick  (2.05 GB -> 32 MB)\nD2 = (X**2).sum(1)[:,None] + (Y**2).sum(1)[None,:] - 2*X@Y.T\n\n# 2 TOP-K without sorting                  (67 ms -> 9 ms at n=1e6)\nidx = np.argpartition(-v, k)[:k]; idx = idx[np.argsort(-v[idx])]\n\n# 3 STABLE SOFTMAX / LOGSUMEXP - subtract the max, always\nE = np.exp(Z - Z.max(1, keepdims=True)); P = E / E.sum(1, keepdims=True)\n\n# 4 GROUPED AGGREGATION without a Python loop\nsums = np.bincount(group_id, weights=values, minlength=G)\ncounts = np.bincount(group_id, minlength=G)\nmeans = sums / np.maximum(counts, 1)\n\n# 5 ONE-PASS STREAMING STATS (Welford) - when the data does not fit\n#   n += 1; d = x - mean; mean += d/n; M2 += d*(x - mean)\n\n# ★ In all five the question behind the question is: what does this\n#   ALLOCATE, and does it fit?",
+        "caption": "Write the obvious version, say what it allocates, then improve it. Doing that out loud is worth more than producing the fast version silently."
+      },
+      {
+        "h": "How to behave in the round",
+        "paras": [
+          "The behaviours are worth more than the algorithms, because they are what the interviewer can actually score."
+        ],
+        "code": "# STATE THE SIGNATURE AND THE COMPLEXITY BEFORE WRITING\n#   'this is O(nd) time and O(n) extra space' - if it is wrong you find\n#   out in ten seconds instead of ten minutes\n\n# TEST ON A CASE YOU CAN VERIFY BY HAND, out loud, before being asked\n#   n=1, empty input, all-equal values, a 2x2 you can compute mentally\n\n# NARRATE THE TRADE, don't just take it\n#   'I'll use a dict for O(1) lookup, costing O(n) memory - fine at this n'\n\n# SAY THE NUMERICAL ISSUE WHEN IT EXISTS\n#   exp overflow, log(0), catastrophic cancellation in a naive variance,\n#   division by a count that can be zero\n\n# ★ THE MOST COMMON FAILURE IS SILENCE. A correct solution produced\n#   without narration is a low-signal answer, which is exactly the\n#   high-variance presentation from lesson 25-01.",
+        "caption": "Every one of these is legibility rather than skill, which is why practising them changes outcomes faster than more problems does."
+      }
+    ],
+    "useCases": [
+      "The ML coding round itself, where implementing k-NN, k-means, a softmax, an attention head or a metric from scratch is the standard prompt.",
+      "Real work, where the difference between a 2 GB intermediate and a 32 MB one is the difference between a job that runs and one that is killed.",
+      "Reviewing someone else's numerical code, where 'what does this allocate' finds most of the problems in one question.",
+      "Take-home exercises, where the same patterns plus a test file and a README are most of what distinguishes a strong submission."
+    ],
+    "pitfalls": [
+      "Writing the broadcast form of pairwise distances at scale. It allocated 2.05 GB against 32 MB for the Gram form - the FLOPs are identical and the memory is not.",
+      "Full-sorting to get a top-k. argpartition was 7.3x faster at n = 1e6 and the difference is asymptotic, not constant.",
+      "Computing a softmax without subtracting the max. It overflows for logits above about 710 in float64 and about 88 in float32, and it is the single most common numerical bug in an ML coding round.",
+      "Quoting a complexity without the n. The n log n versus n squared gap is 100x at a thousand and 50,172x at a million, so 'quadratic but small' needs the number.",
+      "Looping in Python over rows of an array. The elementwise product alone was 43x slower, and the gap widens with the work done per element.",
+      "Coding in silence. A correct answer with no narration is a low-signal answer, and this round is scored on reasoning you make audible.",
+      "Not testing the edge cases unprompted. n = 1, empty input and all-equal values catch most implementation bugs and take fifteen seconds each."
+    ],
+    "connections": [
+      {
+        "ref": "foundations/advanced-numpy-pytorch",
+        "text": "The substance underneath - broadcasting rules, strides, views versus copies - which is what makes the memory question answerable."
+      },
+      {
+        "ref": "foundations/python-numpy-tensor-speed",
+        "text": "Where the 43x and the memory-layout effects come from, and why a strided reduction loses to a GEMM even at equal FLOPs."
+      },
+      {
+        "ref": "interview-capstone/cs-algorithms",
+        "text": "The other coding round, where the data structures rather than the array operations are the subject."
+      },
+      {
+        "ref": "unsupervised-learning/kmeans",
+        "text": "The most common from-scratch prompt, and the one where the Gram trick is the difference between a toy and something that runs."
+      },
+      {
+        "ref": "interview-capstone/interview-landscape",
+        "text": "Why narration matters here specifically: this is a round whose variance is reduced almost entirely by making your reasoning audible."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "★ Write pairwise squared distances without a big intermediate.",
+        "a": "‖x−y‖² = ‖x‖² + ‖y‖² − 2xᵀy → D = (X²).sum(1)[:,None] + (Y²).sum(1)[None,:] − 2X@Yᵀ."
+      },
+      {
+        "q": "Why is that better?",
+        "a": "MEMORY, not FLOPs. At N=M=2000, D=64: broadcast allocates **2.05 GB**, the Gram form **32 MB** — 64× less — and ran **42.6× faster** (one GEMM vs a strided reduction)."
+      },
+      {
+        "q": "Top-10 of a million values?",
+        "a": "np.argpartition(−v, k)[:k], then sort those k. O(n) vs O(n log n) — **67.4 ms → 9.3 ms**, 7.3×."
+      },
+      {
+        "q": "Why sort afterwards?",
+        "a": "argpartition doesn't order the k it returns. Sorting k elements is O(k log k) — free at k=10."
+      },
+      {
+        "q": "Stable softmax?",
+        "a": "Subtract the row max before exponentiating: E = exp(Z − Z.max(1, keepdims=True)); P = E/E.sum(1, keepdims=True)."
+      },
+      {
+        "q": "Where does the naive version break?",
+        "a": "exp overflows above ~710 in float64 and ~88 in float32. The most common numerical bug in an ML coding round."
+      },
+      {
+        "q": "Grouped aggregation without a loop?",
+        "a": "np.bincount(group_id, weights=values, minlength=G) over np.bincount(group_id, minlength=G), guarding the zero counts."
+      },
+      {
+        "q": "Streaming mean and variance?",
+        "a": "Welford: n += 1; d = x − mean; mean += d/n; M2 += d·(x − mean). One pass, numerically stable, no catastrophic cancellation."
+      },
+      {
+        "q": "How much does vectorizing buy?",
+        "a": "43× for a bare elementwise product over 200k elements — and the gap widens with the work done per element."
+      },
+      {
+        "q": "Quote the n log n vs n² gap.",
+        "a": "100× at n=10³, 753× at 10⁴, **50,172× at 10⁶**. \"Quadratic but n is small\" is valid and requires you to state n."
+      },
+      {
+        "q": "What should you say before writing any code?",
+        "a": "The signature and the complexity. If it's wrong you find out in ten seconds rather than ten minutes."
+      },
+      {
+        "q": "★ What's the most common failure in this round?",
+        "a": "Silence. A correct solution produced without narration is a low-signal answer — lesson 25-01's high-variance presentation."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Implement k-nearest-neighbours efficiently and talk me through the choices.",
+        "a": "I'D STATE THE SIGNATURE AND COMPLEXITY FIRST — given a query matrix X of shape (N, D) and a reference set Y of shape (M, D), returning the k nearest for each query is O(NMD) time and the memory depends entirely on how I compute the distances. THEN THE DISTANCE MATRIX, which is the whole question. The obvious form subtracts an (N,1,D) array from a (1,M,D) array and reduces over the last axis, which allocates an N×M×D intermediate — at N=M=2000 and D=64 that is 2.05 GB, and it will be killed on most machines. The Gram form uses ‖x−y‖² = ‖x‖² + ‖y‖² − 2xᵀy, so it is two row-norm vectors plus one matrix product, allocating only the N×M output at 32 MB. Sixty-four times less memory, and 42.6× faster in wall clock, because one GEMM runs at BLAS speed while a strided reduction over a huge array is memory-bound. THE FLOP COUNTS ARE IDENTICAL, which is the point worth saying out loud. THEN THE SELECTION: I want the k smallest per row, so argpartition rather than a full sort — O(n) versus O(n log n), measured at 7.3× for k=10 over a million — then sort the k returned indices, which is free.",
+        "deepDive": "Two caveats I'd volunteer. First, the Gram form is less numerically stable: it computes a difference of large similar numbers, so for high-dimensional or large-magnitude data the result can be slightly negative where it should be zero, and clipping at zero before any square root is standard practice. That is a real trade and worth naming rather than presenting the trick as free. Second, at genuinely large M the exact computation is the wrong algorithm entirely and the answer is approximate nearest neighbours — HNSW or IVF-PQ — which trades a small recall loss for orders of magnitude in latency, and which connects to the retrieval ceiling from the recommender case: your system's recall is bounded by the ANN's recall, so that parameter is a system-level decision rather than a library default. Mentioning both shows the difference between someone who has implemented k-NN and someone who has deployed retrieval, and it costs two sentences."
+      },
+      {
+        "q": "What distinguishes a strong ML coding round from an adequate one?",
+        "a": "FOUR BEHAVIOURS, AND NONE OF THEM IS KNOWING A CLEVERER ALGORITHM. FIRST, STATING THE SIGNATURE AND COMPLEXITY BEFORE WRITING — it takes ten seconds, it surfaces a misunderstanding immediately, and it gives the interviewer something to score early. SECOND, NAMING WHAT THE CODE ALLOCATES. The question behind most ML coding prompts is whether you can tell a slow implementation from an impossible one, and 2.05 GB versus 32 MB for the same FLOPs is the canonical instance. THIRD, TESTING UNPROMPTED on cases you can verify by hand: n=1, empty input, all-equal values, a 2×2 you can compute mentally. Most implementation bugs die there and it takes fifteen seconds each. FOURTH, SAYING THE NUMERICAL ISSUE WHERE ONE EXISTS — exp overflow above roughly 88 in float32, log of zero, catastrophic cancellation in a naive variance, division by a count that can be zero. AND UNDERPINNING ALL FOUR, NARRATION. This round's variance is reduced almost entirely by making reasoning audible, and a correct solution produced in silence is a low-signal answer, which is exactly the failure mode lesson 25-01 measured.",
+        "deepDive": "It is worth being explicit about the sequencing that works best under time pressure: write the obvious correct version first, say what is wrong with it, then improve it. Candidates who try to produce the optimized version immediately often produce neither, and they lose the chance to demonstrate that they knew the trade-off existed. Saying 'here's the readable version, it allocates N×M×D which is 2 GB at this scale, let me rewrite it with the Gram identity' is strictly better than silently writing the Gram version, because the interviewer cannot see reasoning you did not perform out loud — and it protects you if the optimization has a bug, since the working version is already on the board. The same sequencing applies to tests: writing one before optimizing means the optimization is checked, which is both good practice and visible good practice. This is the same principle as the design round's skeleton, and it is the module's thesis in yet another costume: the interviewer is a low-bandwidth channel and your job is to transmit structure."
+      },
+      {
+        "q": "When is a Python loop acceptable, and when is it a bug?",
+        "a": "IT IS ACCEPTABLE WHEN THE LOOP COUNT IS SMALL AND THE WORK PER ITERATION IS LARGE, and it is a bug when either is reversed. A bare elementwise product over 200,000 elements was 43× slower as a Python loop than in numpy, and that gap comes almost entirely from interpreter overhead per element — so the more trivial the per-element work, the worse the loop is. Conversely, a loop over ten shards each doing a large matrix multiply costs nothing, because the overhead is amortized over real work. THE PRACTICAL RULE I'D STATE is to loop over the SMALL axis and vectorize the large one — over epochs, over batches, over folds, over shards — and never over rows of a data matrix. THE OTHER LEGITIMATE USE is when vectorizing would blow up memory, which is precisely the pairwise-distance case in reverse: if the vectorized form allocates an intermediate that does not fit, then chunking with a loop over blocks is the correct answer, and it is a deliberate trade rather than a failure to vectorize. Saying 'I'll chunk this to bound peak memory at X' is a strong signal, because it shows you are optimizing the constraint that actually binds.",
+        "deepDive": "The chunking pattern is worth knowing concretely because it comes up constantly in real work and occasionally in interviews: process the query set in blocks of B rows, compute the B×M distance block, take the top-k within the block, and merge. Peak memory becomes B×M rather than N×M, which turns an impossible computation into a tunable one, and B becomes a knob trading memory for loop overhead. That is the same structure as batching in the serving arithmetic from the design lessons — trade latency or overhead for a memory bound — and recognizing it as the same pattern is the kind of transfer these rounds reward. There is one more case where a loop is right and it is easy to forget: when the operation is genuinely sequential, such as a recurrence or an iterative solver, vectorizing across the sequential axis is not possible and the honest answer is to say so rather than to contort the code. Knowing which axis is parallel is most of numerical programming."
+      },
+      {
+        "q": "What would you do differently for a take-home rather than a live round?",
+        "a": "THE CONSTRAINT CHANGES FROM TIME TO SIGNAL, so the deliverable changes. In a live round the interviewer sees your reasoning, so the code can be sparse and the narration carries it. In a take-home nobody watches, so THE WRITING IS THE ONLY CHANNEL and the code alone is a low-signal artifact. What I'd add: a short README stating the problem as I understood it, the assumptions I made, what I would do with more time, and the results with numbers. A test file, even a small one, because it demonstrates the habit and it is the most commonly missing item. Clean structure — separate data loading, modelling and evaluation — because a single notebook is hard to review. And a HONEST LIMITATIONS SECTION, which is the highest-signal paragraph in most submissions and is almost always absent. WHAT I'D AVOID is over-engineering. A take-home graded on a two-hour brief and submitted with a Docker setup, a config framework and three model classes reads as poor judgement about scope, not as thoroughness. The strongest submissions are usually a simple baseline done carefully with the evaluation taken seriously.",
+        "deepDive": "The evaluation section is where take-homes are actually won and lost, and it maps directly onto the curriculum. A submission that reports a single accuracy number is weaker than one that reports a metric chosen for a stated reason, a confidence interval or at least a variance estimate across folds, a baseline to compare against, and a per-segment breakdown. That is module 24's reference-class discipline applied to a two-hour exercise, and it costs almost nothing extra. The corresponding trap is data leakage, which is the most common silent failure in take-homes: scaling or imputing before the split, using future information in a time-series feature, or tuning on the test set. Stating explicitly how you avoided leakage is worth a paragraph, because a reviewer's first suspicion of a surprisingly good number is that it leaked. And if the result is unimpressive, say so plainly with the diagnosis — a submission that reports a modest number honestly and explains why beats one that reports a suspiciously good one with no interrogation."
+      },
+      {
+        "q": "Which from-scratch implementations should you be able to write cold?",
+        "a": "A SHORT LIST, AND IT IS SHORTER THAN PEOPLE EXPECT. K-MEANS, because it exercises the Gram trick, argmin over a distance matrix, and grouped aggregation via bincount — three of the five core patterns in one problem. K-NN for the same reason plus top-k selection. A SOFTMAX AND CROSS-ENTROPY with the max subtraction, because the numerical issue is the point of asking. LINEAR AND LOGISTIC REGRESSION WITH GRADIENT DESCENT, which is the derivation lesson made executable and where the analytic gradient Xᵀ(prediction − target)/n should be automatic. A SINGLE ATTENTION HEAD, which is scaled dot product, a mask, a stable softmax and one more matmul — and is now as common a prompt as k-means. AND THE METRICS: precision, recall, AUC by rank, and a calibration binning, because candidates who use library functions daily are frequently unable to write them, and being asked is a deliberate probe. THE COMMON THREAD is that each is short enough to finish under pressure and long enough to expose whether you understand what you normally import.",
+        "deepDive": "The metric implementations deserve emphasis because they are the most under-practised and the most revealing. Writing AUC from scratch forces you to state what it means — the probability a random positive outranks a random negative — and the rank-based implementation follows immediately from that, which is a much better answer than a Riemann sum over an ROC curve. Similarly, writing an ECE binning forces you to confront the free bin-count parameter that module 24 measured moving the number from 0.0091 to 0.0183, which turns a rote exercise into a place to demonstrate judgement. The general point is that these prompts are not testing whether you can produce twenty lines of numpy; they are testing whether the definition is in your head or only the import. Preparing them is fast — an afternoon covers the whole list — and it is unusually high-return because the same definitions are what the breadth and depth rounds probe from a different direction."
+      },
+      {
+        "q": "How does this round fit the module's thesis?",
+        "a": "IT IS THE ROUND WHERE THE THESIS IS EASIEST TO ACT ON AND MOST OFTEN IGNORED. The measurable content is small — five patterns, a handful of numbers like 43×, 7.3×, 2.05 GB versus 32 MB — and it can be made automatic in a few sessions. What actually decides the round is whether the interviewer can HEAR the reasoning: the signature and complexity stated first, the allocation named, the edge cases tested unprompted, the numerical issue flagged. Those are pure variance reduction, exactly as lesson 25-01 modelled it, and they are worth more than another twenty practice problems for anyone already competent. AND THE HONEST CONDITION FROM THAT LESSON CARRIES HERE TOO: narration amplifies with the sign of your level. Narrating a wrong approach clearly makes the wrongness clearer, which is why the patterns have to be genuinely automatic before the legibility work pays. THE ORDER IS THEREFORE: get the five patterns cold, then practise saying them out loud on a timer, and not the reverse.",
+        "deepDive": "There is a specific and common failure this framing explains. Strong engineers sometimes interview badly in coding rounds not because they cannot solve the problem but because they solve it in their heads and then type the answer, which transmits almost nothing and reads as either luck or memorization. The fix is mechanical and slightly uncomfortable: practise with someone listening, or record yourself, and check whether a listener could follow the reasoning without seeing the screen. That is a different exercise from solving more problems, and it is the one that moves the outcome for candidates who are already competent — which is the same conclusion the design-round lesson reached, arrived at from a different direction. It is also the reason mock interviews outperform solo practice by more than their content justifies: what they are really training is the transmission, and transmission is the part that the measurement in lesson 25-01 says decides loops you should have won."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "★ The Gram-matrix identity",
+      "back": "‖x−y‖² = ‖x‖² + ‖y‖² − 2xᵀy → D = (X²).sum(1)[:,None] + (Y²).sum(1)[None,:] − 2X@Yᵀ. Underlies k-NN, k-means, kernels and every retrieval implementation."
+    },
+    {
+      "type": "intuition",
+      "front": "★ Why the Gram trick wins",
+      "back": "MEMORY, not FLOPs — the FLOP counts are identical. At N=M=2000, D=64: broadcast **2.05 GB** vs **32 MB** (64× less), and **42.6× faster** because one GEMM beats a strided reduction over a huge array."
+    },
+    {
+      "type": "pitfall",
+      "front": "The Gram trick's cost",
+      "back": "Less numerically stable — a difference of large similar numbers, so results can come out slightly NEGATIVE where they should be zero. Clip at zero before any square root."
+    },
+    {
+      "type": "formula",
+      "front": "Top-k without sorting",
+      "back": "np.argpartition(−v, k)[:k], then sort those k. O(n) vs O(n log n): **67.4 ms → 9.3 ms** (7.3×) at n=10⁶. argpartition doesn't order its k — sorting k is O(k log k), free."
+    },
+    {
+      "type": "pitfall",
+      "front": "Stable softmax",
+      "back": "Subtract the row max BEFORE exponentiating. Naive exp overflows above ~710 (float64) and ~**88** (float32) — the single most common numerical bug in an ML coding round."
+    },
+    {
+      "type": "formula",
+      "front": "Grouped aggregation, no loop",
+      "back": "sums = bincount(gid, weights=vals, minlength=G); counts = bincount(gid, minlength=G); means = sums/max(counts,1). Guard the zero counts."
+    },
+    {
+      "type": "formula",
+      "front": "Welford streaming stats",
+      "back": "n += 1; d = x − mean; mean += d/n; M2 += d·(x − mean). One pass, stable, no catastrophic cancellation from the naive E[x²]−E[x]² form."
+    },
+    {
+      "type": "intuition",
+      "front": "When is a Python loop acceptable?",
+      "back": "Small loop count, large work per iteration. Loop over epochs/batches/folds/shards; NEVER over rows of a data matrix (43× penalty on a bare product). Also fine when vectorizing would blow memory — then CHUNK deliberately."
+    },
+    {
+      "type": "formula",
+      "front": "Quote the complexity gap",
+      "back": "n² / (n log₂ n): **100×** at n=10³, 753× at 10⁴, **50,172×** at 10⁶. \"Quadratic but n is small\" is a valid argument that requires you to state n."
+    },
+    {
+      "type": "intuition",
+      "front": "The four behaviours that decide the round",
+      "back": "State signature + complexity BEFORE writing · name what it ALLOCATES · test n=1/empty/all-equal unprompted · flag the numerical issue. All legibility, not skill."
+    },
+    {
+      "type": "intuition",
+      "front": "The sequencing that works under pressure",
+      "back": "Write the obvious correct version → say what's wrong with it → improve it. Silently writing the optimized version transmits nothing and leaves you with no working code if it breaks."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The from-scratch list",
+      "back": "k-means · k-NN · softmax+cross-entropy · linear/logistic with GD · one attention head · the METRICS (precision, recall, AUC by rank, ECE binning). An afternoon covers it — and the metrics are the most revealing."
+    }
+  ],
+  "refs": [
+    {
+      "title": "NumPy Documentation, Broadcasting",
+      "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+    },
+    {
+      "title": "Welford (1962), Note on a Method for Calculating Corrected Sums of Squares and Products",
+      "url": "https://www.tandfonline.com/doi/abs/10.1080/00401706.1962.10490022"
+    },
+    {
+      "title": "Goldberg (1991), What Every Computer Scientist Should Know About Floating-Point Arithmetic",
+      "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html"
+    },
+    {
+      "title": "Malkov & Yashunin (2018), Efficient and Robust Approximate Nearest Neighbor Search Using HNSW",
+      "url": "https://arxiv.org/abs/1603.09320"
+    },
+    {
+      "title": "VanderPlas, Python Data Science Handbook - Computation on NumPy Arrays",
+      "url": "https://jakevdp.github.io/PythonDataScienceHandbook/02.03-computation-on-arrays-ufuncs.html"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

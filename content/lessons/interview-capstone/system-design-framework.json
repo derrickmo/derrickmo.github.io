@@ -5,13 +5,273 @@
   "slug": "system-design-framework",
   "module": "interview-capstone",
   "title": "ML System Design Framework",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "25-02_system_design_framework.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["model-cascade", "autoscaling", "canary-rollout", "batching"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["interview-capstone/interview-landscape", "mlops/system-design"],
+  "leadsTo": ["interview-capstone/design-recommender", "interview-capstone/design-search-ads"],
+  "body": {
+    "intuition": [
+      "A design question has no answer key, so it is scored on whether you scoped it, named a metric, chose under a constraint, and said what you gave up. The skeleton exists because it makes those four things visible in 40 minutes to someone who cannot read your mind - which is the previous lesson's variance reduction, applied to the round with the most variance to reduce.",
+      "The single most useful thing to internalize is that MOST OF THE DESIGN IS SETTLED BY ARITHMETIC BEFORE ANY MODEL IS CHOSEN. With a 200 ms p99 budget and 85 ms of fixed costs, the ranker has 115 ms. That budget scores about 57,500 items with a GBDT, 19,000 with a small MLP, 128 with a cross-encoder and 10 with a 7B LLM. THE RETRIEVE-RANK-RERANK FUNNEL IS FORCED, not chosen for elegance.",
+      "And the number candidates almost never say out loud is cost. At 69,444 peak QPS, a 3 ms GBDT ranker needs about 174 hosts and a 45 ms cross-encoder about 3,157 - a difference of roughly 39 million dollars a year at $1.50 per host-hour. Naming that converts an architecture preference into a decision, which is exactly what the round is testing."
+    ],
+    "math": [
+      {
+        "h": "The eight-step skeleton",
+        "paras": [
+          "The order matters more than the content. Each step constrains the next, and the common failure is jumping from step 1 to step 5.",
+          "Say the step names out loud. The interviewer is scoring whether the structure exists, and structure they cannot hear does not count."
+        ],
+        "tex": "\\text{clarify} \\to \\text{frame as ML} \\to \\text{data \\& labels} \\to \\text{features} \\to \\text{model} \\to \\text{serving} \\to \\text{metrics} \\to \\text{iterate}",
+        "texNote": "Steps 1-3 are where the interview is won and where candidates spend the least time. If you cannot say what a positive label IS, everything downstream is decoration."
+      },
+      {
+        "h": "★ The latency budget collapses the architecture space",
+        "paras": [
+          "Fix the p99 budget, subtract the fixed costs, and the remaining time determines how many items each model class can score. That single calculation eliminates most designs before you discuss them."
+        ],
+        "tex": "\\begin{array}{lrr} \\text{ranker} & \\text{ms}/1000\\ \\text{items} & \\text{items in }115\\ \\text{ms}\\\\ \\text{two-tower dot product} & 0.5 & 230{,}000\\\\ \\text{GBDT, 50 features} & 2 & 57{,}500\\\\ \\text{2-layer MLP} & 6 & 19{,}167\\\\ \\text{cross-encoder} & 900 & \\mathbf{128}\\\\ \\text{7B LLM re-rank} & 12{,}000 & \\mathbf{10} \\end{array}",
+        "texNote": "200 ms budget minus 85 ms of network, feature fetch, retrieval, filtering and serialization. The four-order-of-magnitude spread across model classes is why the funnel has the shape it has everywhere."
+      },
+      {
+        "h": "A well-sized funnel has roughly constant cost per stage",
+        "paras": [
+          "Each stage cuts the candidate set by one to two orders of magnitude and costs one to two orders more per item. If one stage dominates the budget, it is mis-sized."
+        ],
+        "tex": "500{,}000{,}000 \\xrightarrow{\\text{ANN, 1 ms}} 1000 \\xrightarrow{\\text{rules}} 500 \\xrightarrow{\\text{GBDT, 3 ms}} 500 \\xrightarrow{\\text{cross-enc, 45 ms}} 50 \\to 10",
+        "texNote": "The diagnostic to state in an interview: if any stage is more than about half the latency budget, either shrink its input or move work to an earlier, cheaper stage. That sentence is worth more than naming a model."
+      }
+    ],
+    "code": [
+      {
+        "h": "The numbers to have memorized",
+        "paras": [
+          "Not because the exact values matter, but because being able to produce them in ten seconds is what lets you reason instead of speculate."
+        ],
+        "code": "# TRAFFIC\n#   100M DAU x 20 req/day = 23,000 QPS average, ~69,000 peak (3x diurnal)\n#   peak/average is 2-4x for consumer, 5-10x for anything with a daily batch\n\n# STORAGE\n#   500M items x 256-d fp32 = 0.51 TB   (fp16 0.26 TB, int8 0.13 TB)\n#   -> too big for a typical 64-256 GB serving host: SHARD or QUANTIZE.\n#      That conclusion is arithmetic, not preference.\n\n# LATENCY (order of magnitude, per request)\n#   in-memory lookup      <1 us      network round trip, same DC   ~0.5 ms\n#   Redis / KV fetch       1-5 ms    ANN search over 500M           5-20 ms\n#   GBDT, 50 features      1-3 ms    cross-encoder BERT-base       40-60 ms\n#   two-tower dot product  <1 ms     7B LLM, batched, short out   300-800 ms\n\n# COST at 69,000 peak QPS, ~$1.5/host/hour\n#   GBDT ranker     3 ms   ~400 req/s/host  ->    174 hosts\n#   MLP ranker      8 ms   ~150 req/s/host  ->    463 hosts\n#   cross-encoder  45 ms   ~ 22 req/s/host  ->  3,157 hosts   ~ +$39M/year",
+        "caption": "Ten seconds of arithmetic eliminates more candidate designs than ten minutes of discussion, and doing it out loud is the highest-signal thing in the round."
+      },
+      {
+        "h": "What the skeleton actually asks at each step",
+        "paras": [
+          "The questions, not the answers - because the answers are case-specific and the questions are not."
+        ],
+        "code": "# 1 CLARIFY     who is the user, what action, what scale, what latency,\n#               what is explicitly OUT of scope?\n# 2 FRAME       what is the prediction target, and what is ONE row?\n#               ranking / classification / regression / generation?\n# 3 DATA        where does a LABEL come from? how delayed? how biased?\n#               ★ the hardest and most-skipped question in the round\n# 4 FEATURES    what is available AT SERVING TIME? (train/serve skew lives here)\n# 5 MODEL       simplest thing that could work, then what would justify more\n# 6 SERVING     online/offline split, funnel sizing, caching, fallback\n# 7 METRICS     ONE primary + guardrails + the online/offline gap\n# 8 ITERATE     what ships first, what you measure, what would make you revert\n\n# ★ Say 'I'm going to assume X, tell me if that's wrong' and move. An\n#   unresolved ambiguity costs you the whole round; a stated assumption\n#   costs you nothing and demonstrates the thing being scored.",
+        "caption": "Steps 3 and 7 are where strong candidates separate. Everyone can name a model; far fewer can say where a label comes from and how delayed it is."
+      }
+    ],
+    "useCases": [
+      "Any ML system design round, where the skeleton converts a 40-minute open-ended conversation into a sequence of decisions with stated trade-offs.",
+      "Writing a design doc at work, where the same eight steps in the same order produce a document reviewers can argue with rather than admire.",
+      "Scoping a new project, where steps 1-3 done honestly will kill a meaningful fraction of proposals before any engineering is spent.",
+      "Reviewing someone else's design, where asking 'where does the label come from' and 'what is the p99 budget' finds most problems in two questions."
+    ],
+    "pitfalls": [
+      "Jumping from clarify to model. It is the most common failure in the round and it forfeits the three steps where candidates differentiate.",
+      "Never naming a number. A 200 ms budget minus 85 ms fixed leaves 115 ms, which permits 128 cross-encoder items and 10 LLM items - state that and the architecture follows.",
+      "Not saying where labels come from. Implicit feedback is delayed, biased by what was shown, and often absent for the cases you care about most.",
+      "Ignoring cost. A cross-encoder ranker at 69,000 peak QPS is ~3,157 hosts against 174 for a GBDT, roughly $39M a year, and no interviewer minds you saying so.",
+      "Proposing features unavailable at serving time. Train/serve skew starts here, and 'I'd use the user's next-session behaviour' ends the round.",
+      "Listing ten metrics. One primary, a small set of guardrails tested for NO harm, and an explicit statement of the online/offline gap - module 24's tiering, applied.",
+      "Treating the skeleton as a script to recite. It is a checklist to make your reasoning audible; a candidate who recites it without adapting to the case is visibly doing so."
+    ],
+    "connections": [
+      {
+        "ref": "mlops/system-design",
+        "text": "The production version of the same material, where the funnel, the feature store and the serving path are engineering rather than a whiteboard."
+      },
+      {
+        "ref": "llm-systems/quantization",
+        "text": "Why the storage arithmetic has a lever: int8 embeddings cut 0.51 TB to 0.13 TB and change a sharding decision into a single-host one."
+      },
+      {
+        "ref": "causal-inference/ab-testing",
+        "text": "Step 7 done properly - one primary metric, guardrails with the burden of proof reversed, and the peeking discipline that makes the readout mean anything."
+      },
+      {
+        "ref": "trustworthy-ai/distribution-shift",
+        "text": "Step 8's monitoring, and the honest version: input monitoring catches pipeline breaks, and only labels catch the failure that matters."
+      },
+      {
+        "ref": "interview-capstone/design-recommender",
+        "text": "The first worked case, where this skeleton meets a concrete problem and the label question turns out to be the hard one."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "Name the eight steps.",
+        "a": "Clarify → frame as ML → data & labels → features → model → serving → metrics → iterate. The ORDER is the content; each step constrains the next."
+      },
+      {
+        "q": "What is the most common failure in a design round?",
+        "a": "Jumping from clarify straight to model, forfeiting steps 2–4 where candidates actually differentiate."
+      },
+      {
+        "q": "★ How does a latency budget decide the architecture?",
+        "a": "200 ms p99 − 85 ms fixed = 115 ms for the ranker. That scores ~57,500 GBDT items, 19,167 MLP, **128 cross-encoder**, **10 LLM**. The funnel is forced."
+      },
+      {
+        "q": "What makes a well-sized funnel?",
+        "a": "Roughly constant cost per stage: each cuts the candidate set 10–100× and costs 10–100× more per item. If one stage exceeds ~half the budget, it's mis-sized."
+      },
+      {
+        "q": "Give the traffic arithmetic.",
+        "a": "100M DAU × 20 req/day = 23,000 QPS average, ~69,000 peak at 3× diurnal. Peak/average is 2–4× consumer, 5–10× with a daily batch."
+      },
+      {
+        "q": "Give the storage arithmetic.",
+        "a": "500M items × 256-d fp32 = 0.51 TB (fp16 0.26, int8 0.13). Too big for a typical 64–256 GB serving host → shard or quantize. Arithmetic, not preference."
+      },
+      {
+        "q": "★ Why name cost?",
+        "a": "At 69,000 peak QPS: GBDT ~174 hosts, cross-encoder ~3,157 — roughly **$39M/year** apart at $1.5/host-hour. It converts an architecture preference into a decision."
+      },
+      {
+        "q": "Which step do candidates skip most?",
+        "a": "Step 3 — where a label comes from, how delayed it is, and how biased. Everything downstream is decoration without it."
+      },
+      {
+        "q": "What's the trap in step 4?",
+        "a": "Proposing features unavailable AT SERVING TIME. Train/serve skew starts there, and 'I'd use next-session behaviour' ends the round."
+      },
+      {
+        "q": "How many metrics in step 7?",
+        "a": "One primary, a few guardrails tested for NO harm (burden of proof reversed), plus an explicit statement of the online/offline gap."
+      },
+      {
+        "q": "What do you do with an ambiguity?",
+        "a": "State an assumption and move: \"I'll assume X, tell me if that's wrong.\" An unresolved ambiguity costs the round; a stated one costs nothing."
+      },
+      {
+        "q": "Is the skeleton a script?",
+        "a": "No — a checklist to make reasoning audible. A candidate reciting it without adapting to the case is visibly reciting it."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Walk me through your framework for an ML system design question.",
+        "a": "EIGHT STEPS, AND THE ORDER IS THE CONTENT because each constrains the next. CLARIFY: who the user is, what action we are driving, the scale, the latency budget, and what is explicitly out of scope. FRAME: what exactly is being predicted and what one row of training data is — ranking, classification, regression or generation, because that choice determines everything after. DATA AND LABELS: where a label comes from, how delayed it is, and how biased, which is the hardest question in the round and the most skipped. FEATURES: what is available AT SERVING TIME, which is where train/serve skew is born. MODEL: the simplest thing that could work, then what evidence would justify more. SERVING: the online/offline split, funnel sizing, caching and fallback. METRICS: one primary, guardrails, and the online/offline gap. ITERATE: what ships first and what would make you revert. I SAY THE STEP NAMES OUT LOUD, because the round is scored on whether the structure exists and structure the interviewer cannot hear does not count. AND WHEN SOMETHING IS AMBIGUOUS I state an assumption and move — 'I'll assume 200 ms p99 and a consumer traffic shape, tell me if that's wrong' — since an unresolved ambiguity costs the whole round and a stated assumption costs nothing.",
+        "deepDive": "The step worth expanding is data and labels, because it is where strong candidates separate and where real projects die. For a recommender the label is usually implicit feedback — a click, a watch, a purchase — and each has a different delay, a different bias, and a different relationship to the thing you actually want. Clicks arrive in seconds and are biased by position and by what the previous model chose to show; purchases arrive in days and are sparse; satisfaction is not logged at all. Saying that out loud demonstrates you have shipped something. The second-order point is that the label choice determines the feedback loop: training on clicks from a system that ranked by predicted clicks is training on data your own policy generated, which is module 23's confounding, and the mitigation — logged propensities and a small random holdout — is a design decision that has to be made at step 3, not retrofitted. Candidates who raise that unprompted are doing something genuinely rare, and it costs one sentence."
+      },
+      {
+        "q": "How do you decide the architecture before choosing a model?",
+        "a": "WITH ARITHMETIC, AND IT ELIMINATES MOST DESIGNS IN TEN SECONDS. Fix the p99 budget — say 200 ms — and subtract the fixed costs: network in and out, feature fetch, ANN retrieval, filtering, serialization, roughly 85 ms. That leaves 115 ms for the ranker. NOW COUNT WHAT FITS. A two-tower dot product costs about 0.5 ms per thousand items, so 230,000 items. A GBDT on 50 features costs about 2 ms per thousand, so 57,500. A small MLP, 19,167. A cross-encoder, 900 ms per thousand — 128 items. A 7B LLM re-rank, 12,000 ms per thousand — 10 items. FOUR ORDERS OF MAGNITUDE ACROSS MODEL CLASSES, and that spread is why every production system in this shape is retrieve, rank, re-rank: the funnel is FORCED by the latency budget, not chosen for elegance. A well-sized funnel then has roughly constant cost per stage, each cutting the candidate set by one to two orders and costing one to two orders more per item, and the diagnostic worth stating is that if any stage exceeds about half the budget it is mis-sized — either shrink its input or move work earlier and cheaper.",
+        "deepDive": "Two refinements that come up if the interviewer pushes. First, these numbers are per-request under batching assumptions, and batching changes them a lot: a cross-encoder that is hopeless at batch size 1 becomes viable at batch 32 if you can accumulate requests, which trades latency for throughput and only works if your traffic is dense enough that the batch fills quickly — at 69,000 QPS it fills in under a millisecond, at 100 QPS it does not. Second, the budget is p99, not mean, so the tail is what you must fit, and anything with variable cost per item — an LLM whose output length varies, an ANN whose probe count adapts — needs a hard cap rather than an average. The related trap is fan-out: a request that hits ten shards has a p99 set by the slowest shard, so shard-level p99 must be much tighter than the end-to-end budget, and hedged requests or a fixed timeout with partial results are the standard mitigations. Saying 'p99 with fan-out is the slowest of ten, so I need shard p99 near p99.9' is a strong signal."
+      },
+      {
+        "q": "Why does cost belong in a design interview answer?",
+        "a": "BECAUSE IT CONVERTS AN ARCHITECTURE PREFERENCE INTO A DECISION, WHICH IS WHAT THE ROUND MEASURES. At 69,000 peak QPS: a 3 ms GBDT ranker serves roughly 400 requests per second per host and needs about 174 hosts; a 45 ms cross-encoder serves about 22 per second per host and needs about 3,157. At $1.50 per host-hour that gap is roughly $39 million a year. Nobody has to accept my exact numbers — the point is that a two-sentence calculation reframes 'should we use a cross-encoder' from a taste question into a question about whether the quality gain is worth $39M, which is a question a business can answer and an architecture debate is not. IT ALSO DEMONSTRATES SOMETHING THE ROUND IS ACTUALLY TESTING: that you have owned a system rather than designed one on a whiteboard. Candidates who have run things reach for cost naturally, because they have been in the meeting where it mattered. AND IT USUALLY IMPROVES THE DESIGN, since it pushes you toward the funnel — apply the expensive model to 50 items rather than 500 — which is both cheaper and, because you can then afford a better expensive model, often better.",
+        "deepDive": "The related move that impresses more and is rarer is to name the cost per unit of business value rather than in the abstract. Cost per thousand requests, or per incremental conversion, makes the trade legible to a product owner and connects to the uplift material from module 23: the relevant question is not what the ranker costs but what the incremental revenue per dollar of ranker is, and that requires an experiment. It also surfaces the case where the expensive model is obviously worth it — for high-value queries, a $39M ranker cost against a much larger revenue base is trivially justified — which is why segment-dependent architectures exist, applying the cross-encoder only to the top decile of query value. Proposing that unprompted is a strong signal, because it shows you are optimizing the system rather than the model. The general habit is to end every architecture claim with a number and a unit, and to notice when you cannot produce one, because that is usually where you have not thought it through."
+      },
+      {
+        "q": "What separates a strong design answer from an adequate one?",
+        "a": "FOUR THINGS, AND NONE OF THEM IS KNOWING A BETTER MODEL. FIRST, THE LABEL QUESTION ANSWERED HONESTLY: where the label comes from, its delay, its bias, and what it is a proxy FOR. Most candidates say 'clicks' and stop; a strong answer says clicks arrive in seconds and are position-biased and generated by the previous model's choices, purchases arrive in days and are sparse, and satisfaction is not logged — and then picks one and says why. SECOND, NUMBERS ATTACHED TO CHOICES: the p99 budget, the funnel sizes, the host count, the cost. Not because precision matters but because a design without numbers is a preference. THIRD, EXPLICIT TRADE-OFFS — 'I'm choosing a GBDT over a cross-encoder here, giving up maybe two points of NDCG to save roughly 3,000 hosts, and I'd revisit for the top decile of query value.' That single sentence contains a decision, a cost, a quantity and a condition for changing your mind. FOURTH, FAILURE MODES: what breaks, what the fallback is, what you monitor, and what would make you revert. Candidates who describe a happy path have designed a demo.",
+        "deepDive": "The fourth item is the one most reliably missing and the cheapest to add. Every stage of the funnel needs a stated failure behaviour: if the feature store times out, do you serve with defaults or fail the request; if the ANN index is stale, how stale is acceptable; if the ranker is down, do you fall back to popularity or to the previous model's cached scores. Those answers are usually obvious once asked, and volunteering them signals operational experience more efficiently than anything else in the round. The related habit is to state what you would monitor and — from module 24 — to be honest that input monitoring catches pipeline breaks while only labels catch the failure that matters, so a labelled sample is part of the design rather than an afterthought. Finally, saying what would make you revert is the strongest single sentence available, because it demonstrates that you treat your own design as a hypothesis, which is the disposition the whole curriculum has been building toward."
+      },
+      {
+        "q": "How do you handle a design question in a domain you do not know?",
+        "a": "THE SKELETON IS DOMAIN-INDEPENDENT, WHICH IS THE POINT OF HAVING ONE. I would clarify harder than usual, because my domain priors are weak and the interviewer's answers are now doing more work: who the user is, what action we drive, what a good outcome looks like, and what the scale and latency are. I WOULD BE EXPLICIT ABOUT NOT KNOWING THE DOMAIN and ask the two or three questions whose answers would change the design — that reads as competence rather than weakness, and an interviewer who has to correct a confident wrong assumption forms a much worse impression than one who answers a good question. THEN THE ARITHMETIC STILL WORKS: traffic, storage, latency budget and funnel sizing do not care what the items are, and they will eliminate most designs regardless. THE LABEL QUESTION STILL WORKS, and in an unfamiliar domain it is where I would spend the most time, because the answer usually reveals the actual difficulty — a domain where labels are expensive and delayed is a fundamentally different problem from one with abundant implicit feedback, and that distinction is more consequential than any domain knowledge I am missing. WHAT I WOULD NOT DO is bluff domain specifics, which is the failure mode that turns a survivable gap into a disqualifying one.",
+        "deepDive": "There is a useful move for genuinely unfamiliar domains: reason by analogy to a structure you do know, out loud and labelled as an analogy. 'This looks structurally like a retrieval problem with an expensive verification step, which is the same shape as retrieval-augmented generation — the corpus is different but the funnel arithmetic transfers.' That demonstrates transfer, which is what the round is really testing, and it invites correction if the analogy is wrong. It also connects to module 22's thesis: the mechanisms transfer even when the surface does not, so a candidate who has learned mechanisms rather than domains is genuinely more portable and can say so with evidence. The honest limit is that some rounds are testing domain knowledge specifically — an ads role asking about auction mechanics, say — and no framework substitutes for knowing what a second-price auction is. Recognizing which kind of question you are in, and saying 'I don't know the auction mechanics, here's how I'd reason about the rest', is better than either bluffing or freezing."
+      },
+      {
+        "q": "How does this framework relate to the rest of the curriculum?",
+        "a": "IT IS THE CURRICULUM'S CONTENT ARRANGED FOR A DIFFERENT AUDIENCE. Step 3, data and labels, is module 23: where a label comes from is a question about the process that generated it, and training on logs your own policy produced is confounding. Step 5, model choice, is the supervised and deep-learning modules, and the honest answer is usually 'the simplest thing that could work' because that is what the bias-variance and scaling material actually supports. Step 6, serving, is the LLM-systems and MLOps arithmetic — the funnel exists because of the memory-bandwidth and latency facts from module 17. Step 7, metrics, is module 24: one primary metric with a stated reference class, guardrails with the burden of proof reversed, and honesty about the online-offline gap. Step 8, iterate, is module 23's experimentation discipline and module 24's monitoring limits. SO THE FRAMEWORK IS NOT A NEW SKILL BOLTED ON AT THE END; it is a retrieval structure over material you already have, which is exactly why it reduces variance — you are not inventing answers under pressure, you are indexing them.",
+        "deepDive": "That framing has a practical consequence for preparation. If the framework is an index, then practising it means practising the RETRIEVAL, not re-learning the content — running through cases out loud, on a timer, with someone listening, until the step transitions are automatic and you can spend your attention on the case rather than on what comes next. That is a different activity from reading, and it is the one that actually moves the variance. It also predicts the specific failure of under-practised candidates: they know every piece of the content and produce it in an order the interviewer cannot follow, which is exactly the high-variance presentation from the previous lesson, and it is why strong engineers sometimes interview badly. The fix is mechanical and fast — three or four timed mock cases with feedback on structure rather than on content — which is a much better use of a week than another pass through a textbook whose material you already know."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "definition",
+      "front": "★ The eight-step skeleton",
+      "back": "clarify → frame as ML → data & labels → features → model → serving → metrics → iterate. The ORDER is the content. Say the step names OUT LOUD — structure the interviewer can't hear doesn't count."
+    },
+    {
+      "type": "formula",
+      "front": "★ The latency budget forces the funnel",
+      "back": "200 ms p99 − 85 ms fixed = 115 ms for the ranker. Items scorable: two-tower 230,000 · GBDT 57,500 · MLP 19,167 · cross-encoder **128** · 7B LLM **10**. Four orders of magnitude."
+    },
+    {
+      "type": "intuition",
+      "front": "A well-sized funnel",
+      "back": "500M → 1,000 (ANN) → 500 (rules) → 500 (GBDT) → 50 (cross-encoder) → 10. Each stage cuts 10–100× and costs 10–100× more per item. **Roughly constant cost per stage.** If one exceeds half the budget, it's mis-sized."
+    },
+    {
+      "type": "formula",
+      "front": "Traffic and storage arithmetic",
+      "back": "100M DAU × 20/day = 23,000 QPS avg, ~69,000 peak (3× diurnal). 500M × 256-d fp32 = 0.51 TB (int8: 0.13 TB) → too big for a 64–256 GB host, so shard or quantize."
+    },
+    {
+      "type": "formula",
+      "front": "★ Name the cost",
+      "back": "At 69,000 peak QPS: GBDT (3 ms, ~400 rps/host) → **174 hosts**. Cross-encoder (45 ms, ~22 rps/host) → **3,157 hosts**. ≈ **$39M/year** apart. Converts a preference into a decision."
+    },
+    {
+      "type": "pitfall",
+      "front": "The most common failure",
+      "back": "Jumping from clarify straight to MODEL, forfeiting steps 2–4 — frame, labels, features — which is exactly where candidates differentiate."
+    },
+    {
+      "type": "intuition",
+      "front": "★ Step 3 is where the round is won",
+      "back": "Where does a label come from, how delayed, how biased, and what is it a proxy FOR? Clicks: seconds, position-biased, generated by the PREVIOUS model. Purchases: days, sparse. Satisfaction: not logged."
+    },
+    {
+      "type": "pitfall",
+      "front": "The step-4 trap",
+      "back": "Proposing features unavailable AT SERVING TIME. Train/serve skew is born there, and \"I'd use the user's next-session behaviour\" ends the round."
+    },
+    {
+      "type": "intuition",
+      "front": "Handling ambiguity",
+      "back": "\"I'll assume 200 ms p99 and consumer traffic — tell me if that's wrong,\" then move. An unresolved ambiguity costs the round; a stated assumption costs nothing and demonstrates the thing being scored."
+    },
+    {
+      "type": "intuition",
+      "front": "p99 with fan-out",
+      "back": "A request hitting 10 shards has p99 set by the SLOWEST shard, so shard p99 must sit near end-to-end p99.9. Mitigations: hedged requests, hard timeout with partial results, hard caps on variable-cost stages."
+    },
+    {
+      "type": "pitfall",
+      "front": "The missing fourth thing",
+      "back": "FAILURE MODES. Feature store times out → defaults or fail? Index stale → how stale is OK? Ranker down → popularity or cached scores? A happy-path design is a demo. And: what would make you revert?"
+    },
+    {
+      "type": "intuition",
+      "front": "★ The framework is an INDEX, not new content",
+      "back": "Step 3 = module 23 (labels, confounded logs). Step 6 = module 17 (funnel arithmetic). Step 7 = module 24 (one primary, reference classes). So practise RETRIEVAL — timed mock cases out loud — not re-reading."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Huyen (2022), Designing Machine Learning Systems",
+      "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
+    },
+    {
+      "title": "Sculley et al. (2015), Hidden Technical Debt in Machine Learning Systems",
+      "url": "https://proceedings.neurips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html"
+    },
+    {
+      "title": "Dean & Barroso (2013), The Tail at Scale",
+      "url": "https://research.google/pubs/pub40801/"
+    },
+    {
+      "title": "Google, Rules of Machine Learning: Best Practices for ML Engineering",
+      "url": "https://developers.google.com/machine-learning/guides/rules-of-ml"
+    },
+    {
+      "title": "Breck, Cai, Nielsen, Salib & Sculley (2017), The ML Test Score",
+      "url": "https://research.google/pubs/pub46555/"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }

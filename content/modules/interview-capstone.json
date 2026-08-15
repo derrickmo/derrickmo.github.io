@@ -6,7 +6,7 @@
   "title": "ML Interview & System Design Capstone",
   "category": "Career & Applications",
   "blurb": "Turn the whole curriculum into interview readiness: ML system design cases, coding patterns, classical CS algorithms, rapid-fire breadth, deep derivations, and a portfolio capstone.",
-  "status": "PENDING",
+  "status": "LIVE",
   "lecture": {
     "summary": "Turn the whole curriculum into interview readiness — the ML system design framework, classic design cases (recommender, search & ads, fraud, LLM products), coding patterns, classical CS algorithms, rapid-fire breadth drills, deep derivations, and a portfolio capstone.",
     "prereqs": "The rest of the curriculum — this module is the integration test.",
@@ -82,5 +82,5 @@
     "caption": "Every design case walks the same skeleton.",
     "code": "steps = [\"clarify goal\", \"frame as ML task\", \"data & labels\",\n         \"features\", \"model choice\", \"serving & latency\",\n         \"metrics & monitoring\", \"iterate\"]\n# the content changes; the skeleton never does"
   },
-  "updatedAt": "2026-06-10"
+  "updatedAt": "2026-08-15"
 }

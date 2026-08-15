@@ -1938,76 +1938,76 @@ window.CURRICULUM = {
       "title": "ML Interview & System Design Capstone",
       "category": "Career & Applications",
       "blurb": "Turn the whole curriculum into interview readiness: ML system design cases, coding patterns, classical CS algorithms, rapid-fire breadth, deep derivations, and a portfolio capstone.",
-      "status": "PENDING",
+      "status": "LIVE",
       "lessons": [
         {
           "n": "25-01",
           "slug": "interview-landscape",
           "title": "The ML Interview Landscape & Strategy",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-01_interview_strategy.ipynb"
         },
         {
           "n": "25-02",
           "slug": "system-design-framework",
           "title": "ML System Design Framework",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-02_system_design_framework.ipynb"
         },
         {
           "n": "25-03",
           "slug": "design-recommender",
           "title": "Design Case: Recommender & Feed",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-03_design_recommender.ipynb"
         },
         {
           "n": "25-04",
           "slug": "design-search-ads",
           "title": "Design Case: Search & Ads",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-04_design_search_ads.ipynb"
         },
         {
           "n": "25-05",
           "slug": "design-fraud-llm",
           "title": "Design Case: Fraud Detection & LLM Products",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-05_design_fraud_llm.ipynb"
         },
         {
           "n": "25-06",
           "slug": "coding-patterns",
           "title": "Coding Patterns for ML Interviews",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-06_coding_patterns.ipynb"
         },
         {
           "n": "25-07",
           "slug": "cs-algorithms",
           "title": "Classical CS Algorithms Review",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-07_cs_algorithms.ipynb"
         },
         {
           "n": "25-08",
           "slug": "breadth-rapid-fire",
           "title": "ML Breadth Rapid-Fire",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-08_breadth_rapid_fire.ipynb"
         },
         {
           "n": "25-09",
           "slug": "derivations",
           "title": "Deep-Dive Derivations",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-09_derivations.ipynb"
         },
         {
           "n": "25-10",
           "slug": "portfolio-capstone",
           "title": "Take-Homes, Storytelling & Portfolio Capstone",
-          "status": "PENDING",
+          "status": "LIVE",
           "nb": "25-10_portfolio_capstone.ipynb"
         }
       ]

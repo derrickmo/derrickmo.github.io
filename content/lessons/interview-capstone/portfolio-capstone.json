@@ -5,13 +5,274 @@
   "slug": "portfolio-capstone",
   "module": "interview-capstone",
   "title": "Take-Homes, Storytelling & Portfolio Capstone",
-  "status": "PENDING",
+  "status": "LIVE",
+  "level": "core",
   "surfaces": {
-    "notebook": false,
+    "notebook": true,
     "notebookFile": "25-10_portfolio_capstone.ipynb",
     "flagship": null,
-    "demos": [],
+    "demos": ["canary-rollout", "drift-detection", "fairness", "model-cascade"],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "prereqs": ["interview-capstone/derivations", "trustworthy-ai/alignment-governance"],
+  "leadsTo": ["mlops/system-design", "trustworthy-ai/alignment-governance"],
+  "body": {
+    "intuition": [
+      "The last lesson of the curriculum, and it is about the artefact that carries everything else: a project you can defend end to end. The project round has the highest controllable variance of any round, it is chronically underprepared relative to coding, and the fix is a writing exercise rather than a technical one.",
+      "The failure is almost never that the project is uninteresting. It is that the candidate cannot separate what THEY did from what the team did, cannot state the alternative they rejected, and cannot say what the result was in a number. Those three gaps are why a strong project produces a weak round, and pre-writing four sentences per project closes all of them.",
+      "This is also where the module's thesis and the curriculum's converge. Lesson 25-01 measured that structure amplifies with the sign of your level - moving P(offer) from 0.522 to 0.792 at the 95th percentile and from 0.108 to 0.025 at the 75th. The twenty-four modules before this one are the substance; this lesson is the transmission. Neither works alone, and the order matters: substance first, then legibility."
+    ],
+    "math": [
+      {
+        "h": "The four sentences that convert a project into a story",
+        "paras": [
+          "Write these once per project, before any interview. They are not a script to recite - they are an index that makes the round's questions answerable without improvising under pressure.",
+          "The fourth is the one candidates omit and the one interviewers weight most."
+        ],
+        "tex": "\\text{(1) the decision I owned} \\;\\cdot\\; \\text{(2) the option I rejected, and why} \\;\\cdot\\; \\text{(3) the metric that moved, by how much} \\;\\cdot\\; \\text{(4) what I would do differently}",
+        "texNote": "Four sentences per project, three or four projects, is under an hour of writing. It converts the highest-variance round in the loop into one of the lowest, which is the best return available in interview preparation."
+      },
+      {
+        "h": "★ Why this round deserves the time",
+        "paras": [
+          "From the loop model in lesson 25-01: the levers available to a candidate are position in the ranking and the variance with which an interviewer reads you, and the second is the one available this week.",
+          "The condition attached to that advice is the honest part and it applies here too."
+        ],
+        "tex": "P(\\text{offer})\\ \\text{at a top-10\\% bar}: \\quad 95\\text{th pct } 0.522 \\to \\mathbf{0.792}, \\quad 90\\text{th } 0.335 \\to 0.413, \\quad 75\\text{th } 0.108 \\to \\mathbf{0.025} \\quad (\\sigma: 1.5 \\to 0.7)",
+        "texNote": "Legibility amplifies with the sign of your actual level. That is why this lesson is last: the substance had to come first, and a well-told story about work you did not really do is worse than no story."
+      },
+      {
+        "h": "The take-home rubric, in the reviewer's order",
+        "paras": [
+          "Reviewers read in a predictable order and stop early on a bad signal. Optimize for the first two minutes."
+        ],
+        "tex": "\\text{README} \\to \\text{results \\& evaluation} \\to \\text{leakage check} \\to \\text{code structure} \\to \\text{tests} \\to \\text{limitations}",
+        "texNote": "A modest result reported honestly with a diagnosis beats a suspiciously good one with no interrogation - because the reviewer's first suspicion of an unexpectedly strong number is that it leaked, and you want to have answered that before they ask."
+      }
+    ],
+    "code": [
+      {
+        "h": "★ What a defensible project contains",
+        "paras": [
+          "The bar is not novelty. It is that every claim in it survives one follow-up question."
+        ],
+        "code": "# A BASELINE YOU BEAT, and by how much, with a confidence interval\n#   'GBDT 0.842 +/- 0.011 against a majority-class baseline of 0.71'\n#   -> a number with no baseline is not a result\n\n# A METRIC CHOSEN FOR A STATED REASON\n#   'PR-AUC, because the base rate is 0.4% and ROC-AUC is silent about\n#    the operating point we'd actually ship'\n\n# A LEAKAGE CHECK YOU RAN AND CAN NAME\n#   'split by user before any scaling or imputation; time-ordered split\n#    because the target is temporal'\n\n# A DECISION YOU OWNED AND AN OPTION YOU REJECTED\n#   'chose logistic over GBDT because the output feeds a cost threshold\n#    and I needed calibration; cost ~2 points of PR-AUC'\n\n# AN HONEST LIMITATION\n#   'the labels come from manual review, so they inherit the reviewers'\n#    bias, and I could not measure that with the data available'\n\n# ★ Each of these is one sentence and each pre-answers the obvious\n#   follow-up. That is the whole technique.",
+        "caption": "Notice that four of the five are curriculum habits: a baseline, a justified metric, a leakage check, and a stated limitation."
+      },
+      {
+        "h": "The curriculum in one page",
+        "paras": [
+          "The through-line across twenty-five modules, stated as questions rather than as facts, because the questions are what transfer."
+        ],
+        "code": "# WHAT IS THE REFERENCE CLASS?      every number holds over a set. State it\n#   in the same sentence.            (M24: ECE 0.011 overall, 0.153 minority)\n\n# WHAT ASSUMPTION IS DOING THE WORK? data never identifies a causal effect;\n#                                    an untestable assumption does. (M23)\n\n# WHAT CONSUMES THIS NUMBER?         order-only -> calibration optional.\n#                                    A price or a threshold -> it must be right.\n\n# WHERE DOES THE LABEL COME FROM?    how delayed, how biased, and is it\n#                                    CENSORED by the system's own actions?\n\n# WHAT DOES THE ARITHMETIC ALLOW?    latency and memory budgets eliminate\n#                                    most designs before taste enters. (M17, M25)\n\n# WHAT WOULD MAKE ME REVERT?         treat your own design as a hypothesis.\n\n# ★ Six questions. They take under two minutes and they locate the hard\n#   part of essentially any applied ML problem - which is what twenty-five\n#   modules were for.",
+        "caption": "None of these is a technique. They are the habits the techniques were teaching, and they outlive every framework in the curriculum."
+      }
+    ],
+    "useCases": [
+      "The project deep-dive round, which is the highest-variance round in most loops and the one most improved by an hour of writing.",
+      "Take-home exercises, where the README, the evaluation section and the honest limitations do more work than the model choice.",
+      "Writing a design doc or a project retrospective at work, where the same four sentences produce a document people can argue with.",
+      "Choosing what to build next, since a project that cannot answer the four questions is one you will not be able to defend regardless of how well it works."
+    ],
+    "pitfalls": [
+      "Preparing the project round by re-reading the code. The failure is narrative, not technical - what you owned, what you rejected, what moved, what you would change.",
+      "Reporting a number with no baseline. A result without a comparison is not a result, and the follow-up will arrive immediately.",
+      "Omitting the limitations section. It is the highest-signal paragraph in most take-homes and it is almost always absent.",
+      "Over-engineering a take-home. A two-hour brief answered with Docker, a config framework and three model classes reads as poor scope judgement rather than thoroughness.",
+      "Reporting a suspiciously good number without interrogating it. The reviewer's first hypothesis is leakage, so state the split and the check before they ask.",
+      "Claiming team work as your own. It collapses under one follow-up, and the collapse costs more than the credit was worth - the bluff asymmetry from the breadth round.",
+      "Polishing the story before having the substance. Legibility amplifies with the sign of your level, and at the 75th percentile it took P(offer) from 0.108 to 0.025."
+    ],
+    "connections": [
+      {
+        "ref": "interview-capstone/interview-landscape",
+        "text": "The measurement that justifies spending an hour here: this is the round with the most controllable variance, and variance is what loses loops you should have won."
+      },
+      {
+        "ref": "trustworthy-ai/alignment-governance",
+        "text": "The reference-class discipline applied to your own writeup - every number with the set it holds over, stated in the same sentence."
+      },
+      {
+        "ref": "causal-inference/ab-testing",
+        "text": "Where the numbers in a good project story come from, and why a result with a confidence interval reads differently from a point estimate."
+      },
+      {
+        "ref": "mlops/system-design",
+        "text": "The production context that makes a project defensible - what you monitored, what broke, and what you would revert."
+      },
+      {
+        "ref": "interview-capstone/system-design-framework",
+        "text": "The same skeleton applied to your own work, which is why a project you can walk through the eight steps is one you can defend."
+      }
+    ]
+  },
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "★ Give the four sentences per project.",
+        "a": "The decision I owned · the option I rejected and why · the metric that moved and by how much · what I'd do differently. Four sentences × four projects is under an hour."
+      },
+      {
+        "q": "Which is most often omitted?",
+        "a": "The fourth — what you'd do differently — and it's the one interviewers weight most, because it shows you treat your own work as a hypothesis."
+      },
+      {
+        "q": "Why does this round deserve the time?",
+        "a": "It has the highest CONTROLLABLE variance in the loop and is chronically underprepared relative to coding, where practice material is abundant and legibility gains are small."
+      },
+      {
+        "q": "What's the honest condition on that advice?",
+        "a": "Legibility amplifies with the sign of your level: σ 1.5→0.7 moved P(offer) 0.522 → **0.792** at the 95th percentile and 0.108 → **0.025** at the 75th."
+      },
+      {
+        "q": "What does a defensible result need?",
+        "a": "A baseline you beat, by how much, with an interval. A number with no comparison is not a result."
+      },
+      {
+        "q": "What does a metric choice need?",
+        "a": "A stated reason: \"PR-AUC because the base rate is 0.4% and ROC-AUC is silent about the operating point we'd ship.\""
+      },
+      {
+        "q": "Name the leakage checks worth stating.",
+        "a": "Split by user BEFORE any scaling or imputation; time-ordered split when the target is temporal; no future information in features."
+      },
+      {
+        "q": "Why state limitations explicitly?",
+        "a": "It's the highest-signal paragraph in most take-homes and almost always absent. It also pre-answers the reviewer's first suspicion."
+      },
+      {
+        "q": "What's the reviewer's reading order for a take-home?",
+        "a": "README → results & evaluation → leakage check → code structure → tests → limitations. Optimize for the first two minutes."
+      },
+      {
+        "q": "Modest result or suspiciously good one?",
+        "a": "A modest result reported honestly with a diagnosis beats a suspiciously good one with no interrogation — the reviewer's first hypothesis is leakage."
+      },
+      {
+        "q": "Why not over-engineer a take-home?",
+        "a": "Docker, a config framework and three model classes on a two-hour brief reads as poor scope judgement, not thoroughness."
+      },
+      {
+        "q": "★ Give the curriculum's six questions.",
+        "a": "What's the reference class? · What assumption is doing the work? · What consumes this number? · Where does the label come from? · What does the arithmetic allow? · What would make me revert?"
+      }
+    ],
+    "standard": [
+      {
+        "q": "How would you prepare for a project deep-dive round?",
+        "a": "AS A WRITING EXERCISE, NOT A TECHNICAL ONE, because the failure is almost never that the project is uninteresting. It is that the candidate cannot separate what THEY did from what the team did, cannot name the alternative they rejected, and cannot say what the result was in a number. THE FIX IS FOUR SENTENCES PER PROJECT, written once, before any interview: the decision I owned, the option I rejected and why, the metric that moved and by how much, and what I would do differently. Four sentences across three or four projects is under an hour, and it converts the highest-variance round in the loop into one of the lowest. THE FOURTH IS THE ONE PEOPLE OMIT and the one interviewers weight most, because it demonstrates that you treat your own work as a hypothesis rather than as a monument — which is the disposition this whole curriculum has been building. I'D ALSO REHEARSE THE HANDOFF between the two-minute version and the ten-minute version, since interviewers ask for one and get the other constantly, and being able to give a genuinely two-minute summary and then say 'happy to go deeper on the evaluation or the serving side' hands them the pacing control they need.",
+        "deepDive": "The 'what would you do differently' answer has a failure mode worth avoiding: it should be a real technical judgement, not a humility performance. 'I'd have written more tests' is a non-answer; 'I'd have logged the assignment propensities from the start, because without them I couldn't answer any counterfactual question about the ranker later and retrofitting it onto the logs was impossible' is a real one, and it demonstrates that you learned something transferable. The same applies to the rejected option — 'I chose logistic regression over a GBDT because the output fed a cost-based threshold and I needed calibration, which cost about two points of PR-AUC' contains a decision, a constraint, a trade and a number in one sentence. Those sentences are hard to produce under pressure and easy to produce at a desk, which is precisely why pre-writing them is the highest-return hour in interview preparation. It is also useful independent of interviewing: a project you cannot summarize in four sentences is one you have not finished thinking about."
+      },
+      {
+        "q": "What makes a take-home submission strong?",
+        "a": "THE WRITING, BECAUSE NOBODY IS WATCHING YOU REASON. In a live round the interviewer sees your thinking and the code can be sparse; in a take-home the code alone is a low-signal artefact and the README is the only channel. SO: A README stating the problem as you understood it, your assumptions, the results with numbers, and what you would do with more time. AN EVALUATION SECTION THAT TAKES ITSELF SERIOUSLY — a metric chosen for a stated reason, a baseline, a variance estimate or interval rather than a point estimate, and a per-segment breakdown, which is module 24's reference-class discipline applied to a two-hour exercise for almost no extra cost. AN EXPLICIT LEAKAGE CHECK, because the reviewer's first hypothesis about a surprisingly good number is that it leaked, and stating the split — by user, before any scaling or imputation, time-ordered if the target is temporal — answers that before it is asked. A TEST FILE, even a small one, because it is the most commonly missing item and demonstrates the habit. AND AN HONEST LIMITATIONS SECTION, the highest-signal paragraph in most submissions and almost always absent. WHAT I'D AVOID IS OVER-ENGINEERING: a two-hour brief answered with Docker, a config framework and three model classes reads as poor scope judgement.",
+        "deepDive": "The strongest submissions are usually a simple baseline done carefully with the evaluation taken seriously, which surprises people who expect novelty to be the bar. The reason is that a reviewer is trying to predict what you will be like as a colleague, and careful beats clever for that purpose almost every time. There is also a specific asymmetry about results: if your number is unimpressive, say so plainly with a diagnosis — 'the signal in these features is weak; a majority-class baseline gets 0.71 and my best model gets 0.74, and I think the ceiling here is the label quality rather than the model' — because that reads as judgement, while an unexplained mediocre result reads as inability. Conversely a suspiciously strong number with no interrogation is the worst outcome, since the reviewer will assume leakage and you will not be there to correct them. The general habit is the one the curriculum keeps returning to: state what the number holds over, state what could have made it wrong, and state what you checked."
+      },
+      {
+        "q": "How do you talk about work that was mostly done by a team?",
+        "a": "PRECISELY, AND WITHOUT INFLATING IT, because the inflation collapses under one follow-up and the collapse costs more than the credit was worth — the same asymmetry as bluffing in the breadth round, where one detected overstatement converts every other claim into something requiring verification. THE FORM THAT WORKS is to state the team's scope, then your slice, then the specific decisions inside your slice: 'the team built the ranking stack; I owned the candidate-generation service, and the decision I'd point to is that I measured retrieval recall separately and found it was the ceiling at 0.70, which redirected the next quarter's roadmap away from the ranker.' THAT IS HONEST AND STRONGER THAN A VAGUE CLAIM TO THE WHOLE SYSTEM, because it contains a specific act of judgement that only the person who did it would produce. IF YOUR CONTRIBUTION WAS GENUINELY SMALL on a big impressive project, say so and pick a different project to go deep on — a small system you owned entirely is better interview material than a large one you touched, and interviewers are explicitly trying to find the boundary of what you did. THE QUESTION THEY ARE ASKING is not how impressive the project was; it is whether your resume is load-bearing.",
+        "deepDive": "There is a related trap in the opposite direction, which is undersell — engineers who worked on something substantial and describe it so modestly that no decision is visible. 'I helped with the feature pipeline' contains no information. The fix is the same four sentences: even a modest contribution has a decision you owned and an option you rejected, and stating them at the right scale is accurate rather than boastful. It is worth rehearsing the boundary language explicitly, because it is awkward to improvise: 'that part was owned by a colleague, so I can tell you the interface and the constraint it put on my side but not the internals' is a completely acceptable answer and reads as precision. The interviewer generally knows what one person can do in the stated time, so a claim that exceeds it triggers exactly the follow-up you cannot survive. Being the person who is clearly accurate about their own scope is a stronger signal than being the person with the biggest project, and it is entirely under your control."
+      },
+      {
+        "q": "If you had one week before a loop, how would you spend it?",
+        "a": "BY CONTROLLABLE VARIANCE, WHICH IS THE MEASUREMENT FROM LESSON 25-01. ONE HOUR: write the four sentences for each project. This is the single highest-return activity in the week because the project round is high-variance and chronically underprepared. THREE TO FOUR HOURS: run the breadth list on a timer, three beats each, and note every concept where you cannot name a failure mode — that produces a specific list of maybe five gaps rather than a vague sense of underpreparedness, and it is bounded and finishable. THREE TIMED MOCK DESIGN CASES, out loud, with someone giving feedback on STRUCTURE rather than content, because the design round has the most controllable variance and the failure is usually presentation order rather than knowledge. AN AFTERNOON on the five coding patterns until they are automatic, and one pass through the six derivations with their standard perturbations. AND THE REST ON REST, because loop performance is fatigue-sensitive and a fifth mock case is worth less than being sharp. WHAT I WOULD NOT DO is another fifty algorithm problems, which is where the hours usually go and where the marginal return is lowest.",
+        "deepDive": "The reason mock interviews outperform solo practice by more than their content justifies is that what they train is the TRANSMISSION, and transmission is what the loop model says decides outcomes you should have won. Solving a design case in your head and solving it out loud to someone who can be confused are different skills, and only the second is tested. That also explains a pattern worth naming: strong engineers sometimes interview badly not from lack of knowledge but because they solve internally and then state a conclusion, which transmits almost nothing — the high-variance presentation from 25-01. The remedy is uncomfortable and fast. If no partner is available, recording yourself and listening back is a surprisingly good substitute, because the gap between what you think you said and what a listener received is obvious on playback and invisible in the moment. One week is enough to close most of it, which is the genuinely encouraging finding in this module."
+      },
+      {
+        "q": "What is the through-line of this curriculum?",
+        "a": "SIX QUESTIONS, AND THEY ARE HABITS RATHER THAN TECHNIQUES. WHAT IS THE REFERENCE CLASS — every number holds over a set, and the set belongs in the same sentence as the number; an ECE of 0.011 overall was 0.153 for a minority subgroup. WHAT ASSUMPTION IS DOING THE WORK — data never identifies a causal effect, an untestable assumption does, and the diagnostics systematically check something else. WHAT CONSUMES THIS NUMBER — an ordering makes calibration optional, and a price or a cost threshold makes it mandatory, worth up to 36.9% of revenue in the ads case. WHERE DOES THE LABEL COME FROM — how delayed, how biased, and is it censored by the system's own actions, which was the same finding three times across the design cases. WHAT DOES THE ARITHMETIC ALLOW — a latency budget eliminated most architectures before taste entered, and 115 ms permits 128 cross-encoder items or 10 LLM items. AND WHAT WOULD MAKE ME REVERT — treating your own design as a hypothesis. SIX QUESTIONS, UNDER TWO MINUTES, and they locate the hard part of essentially any applied ML problem. That is what twenty-five modules were for.",
+        "deepDive": "It is worth being explicit that none of the six is a technique, because techniques were the surface and the habits are the content. Frameworks will churn — module 22 made that its thesis and the environment demonstrated it by not having half the libraries installed — while the questions survive, and a candidate or engineer who has the questions can pick up a technique in an afternoon. The reverse is not true. It is also why the curriculum ends with a communication lesson rather than a technical one: every question in that list is a thing you have to SAY, out loud, to a colleague or an interviewer or in a design doc, and a habit exercised only internally does not change any decision. The measured version from 25-01 is that structure amplifies with the sign of your level, which is the honest closing note — the twenty-four technical modules were the sign, and this one is the amplifier, and the amplifier is worthless applied to the wrong sign."
+      },
+      {
+        "q": "What went wrong in building this module, and what does it illustrate?",
+        "a": "MY FIRST VERSION OF THIS MODULE'S CENTRAL CLAIM WAS WRONG, AND IT WAS WRONG IN THE DIRECTION I EXPECTED — which is the most dangerous kind of error. The thesis is that reducing an interviewer's measurement variance is a lever a candidate controls, and to measure it I compared P(offer) at different noise levels. THE FIRST COMPARISON HELD THE THRESHOLD FIXED while changing the noise, which is invalid: lowering the noise narrows the score distribution, so fewer candidates clear a threshold calibrated to a wider one, and the result came out saying that reducing noise HURT everyone. I nearly wrote that up as a surprising finding. THE CORRECT COMPARISON HOLDS THE ACCEPT RATE FIXED, because the company hires a fixed fraction either way, and it produced something better than my hypothesis: a CROSSOVER. Structure moves P(offer) from 0.522 to 0.792 at the 95th percentile and from 0.108 to 0.025 at the 75th, because for a candidate below the bar interviewer noise is a lottery ticket and legibility cashes it in. SO THE HONEST ADVICE IS CONDITIONAL, and I would not have found the condition if the first version had happened to come out the way I expected.",
+        "deepDive": "That is the second time in three modules the same shape appeared, which makes it the finding worth ending on. Module 24 shipped an invalid certified-robustness radius, caught only because certified accuracy exceeded empirical accuracy and a lower bound cannot exceed what it bounds. Here the error was an invalid comparison, caught only because the result contradicted a mechanism I could reason about independently. IN BOTH CASES THE CODE WAS CORRECT AND THE QUESTION WAS WRONG, which no amount of review finds — the check that worked was an invariant or a mechanism computed separately from the thing being tested. And in both cases the corrected version was more interesting than the original hypothesis: the certificate got a real abstention rate and a real gap, and the interview advice got a condition that makes it honest rather than motivational. The habit that generalizes, and the one I would put last in a curriculum: when a result confirms what you expected, look for the invariant that would have caught you if it had not."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "definition",
+      "front": "★ The four sentences per project",
+      "back": "(1) The decision I OWNED. (2) The option I REJECTED, and why. (3) The metric that moved, BY HOW MUCH. (4) What I'd do DIFFERENTLY. Under an hour for four projects; converts the highest-variance round into one of the lowest."
+    },
+    {
+      "type": "intuition",
+      "front": "Which sentence is omitted, and why it matters",
+      "back": "The fourth. Interviewers weight it most because it shows you treat your own work as a HYPOTHESIS. And it must be a real technical judgement — \"more tests\" is a non-answer; \"I'd have logged propensities from day one\" is not."
+    },
+    {
+      "type": "intuition",
+      "front": "★ Why this round, and the honest condition",
+      "back": "Highest CONTROLLABLE variance, chronically underprepared. But legibility amplifies with the sign of your level: σ 1.5→0.7 gives 0.522 → **0.792** at the 95th pct and 0.108 → **0.025** at the 75th. Substance first, then transmission."
+    },
+    {
+      "type": "definition",
+      "front": "What a defensible result contains",
+      "back": "A BASELINE you beat, by how much, with an interval · a metric chosen for a STATED reason · a leakage check you can NAME · a decision owned + option rejected · an honest limitation. One sentence each; each pre-answers the obvious follow-up."
+    },
+    {
+      "type": "intuition",
+      "front": "The take-home reading order",
+      "back": "README → results & evaluation → leakage check → code structure → tests → limitations. Reviewers stop early on a bad signal — optimize the first two minutes."
+    },
+    {
+      "type": "pitfall",
+      "front": "Modest vs suspiciously good",
+      "back": "A modest number reported honestly WITH a diagnosis beats a strong one with no interrogation — the reviewer's first hypothesis about an unexpectedly good result is leakage, and you won't be there to correct them."
+    },
+    {
+      "type": "pitfall",
+      "front": "Over-engineering a take-home",
+      "back": "Docker + a config framework + three model classes on a two-hour brief reads as poor SCOPE JUDGEMENT, not thoroughness. The strongest submissions are a simple baseline done carefully with the evaluation taken seriously."
+    },
+    {
+      "type": "intuition",
+      "front": "Talking about team work",
+      "back": "Team scope → your slice → a specific decision inside it. \"That part was owned by a colleague; I can give you the interface and the constraint but not the internals\" reads as PRECISION. The question is whether your resume is load-bearing."
+    },
+    {
+      "type": "intuition",
+      "front": "One week before a loop",
+      "back": "1 hr: the four sentences. 3–4 hrs: breadth list on a timer, note every missing failure mode. 3 timed mock DESIGN cases out loud. An afternoon on the five coding patterns + six derivations. Rest. NOT fifty more algorithm problems."
+    },
+    {
+      "type": "intuition",
+      "front": "Why mocks beat solo practice",
+      "back": "They train TRANSMISSION, which is what the loop model says decides outcomes. Solving internally then stating a conclusion transmits almost nothing — the high-variance presentation. Recording yourself is a surprisingly good substitute."
+    },
+    {
+      "type": "intuition",
+      "front": "★ The curriculum's six questions",
+      "back": "What's the REFERENCE CLASS? · What ASSUMPTION is doing the work? · What CONSUMES this number? · Where does the LABEL come from (delayed? biased? censored)? · What does the ARITHMETIC allow? · What would make me REVERT?"
+    },
+    {
+      "type": "intuition",
+      "front": "★ The habit to end on",
+      "back": "Twice in three modules a result was wrong while the code was correct — an invalid certificate (caught by certified > empirical) and an invalid comparison (caught by a mechanism reasoned separately). **When a result confirms what you expected, look for the invariant that would have caught you if it hadn't.**"
+    }
+  ],
+  "refs": [
+    {
+      "title": "Huyen (2022), Designing Machine Learning Systems",
+      "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
+    },
+    {
+      "title": "Kapoor & Narayanan (2023), Leakage and the Reproducibility Crisis in Machine-Learning-Based Science",
+      "url": "https://www.cell.com/patterns/fulltext/S2666-3899(23)00159-9"
+    },
+    {
+      "title": "Mitchell et al. (2019), Model Cards for Model Reporting",
+      "url": "https://arxiv.org/abs/1810.03993"
+    },
+    {
+      "title": "Google re:Work, Guide to Structured Interviewing",
+      "url": "https://rework.withgoogle.com/en/guides/hiring-use-structured-interviewing"
+    },
+    {
+      "title": "Sculley et al. (2015), Hidden Technical Debt in Machine Learning Systems",
+      "url": "https://proceedings.neurips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html"
+    }
+  ],
+  "updatedAt": "2026-08-15"
 }
