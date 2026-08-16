@@ -2052,5 +2052,178 @@ window.DM_LESSON_BODIES = {
       }
     ],
     "demos": []
+  },
+  "full-transformer": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are the two masks in a transformer and what is each for?",
+          "a": "A padding mask hides positions that are only there to square off a batch, and a causal mask stops a decoder position from seeing the future. They are combined, not alternatives."
+        },
+        {
+          "q": "Where does cross-attention sit and what does it read?",
+          "a": "In each decoder block, between self-attention and the FFN. Q comes from the decoder state, K and V from the encoder output."
+        },
+        {
+          "q": "What is the FFN and why is it wide?",
+          "a": "Two linear layers with a nonlinearity, typically expanding d to 4d and back. It is where most parameters live and where per-position nonlinear computation happens."
+        },
+        {
+          "q": "Pre-LN vs post-LN, in one line?",
+          "a": "Post-LN normalizes after the residual add and needs learning-rate warmup to train deep; pre-LN normalizes inside the branch and trains stably without it. Modern stacks are pre-LN."
+        },
+        {
+          "q": "Why did the original transformer need warmup?",
+          "a": "Post-LN puts the normalization on the residual path, so early large updates destabilize deep stacks. Warmup keeps steps small until the scales settle."
+        },
+        {
+          "q": "What is the residual stream?",
+          "a": "The running sum carried through the network that every block reads from and writes to. Attention moves information between positions; the FFN transforms it in place."
+        },
+        {
+          "q": "What is weight tying?",
+          "a": "Sharing the input embedding matrix with the output projection. It saves a large parameter block and usually helps, since both map between tokens and the same space."
+        },
+        {
+          "q": "Teacher forcing — what is it and what does it cost?",
+          "a": "Feeding ground-truth prefixes during training rather than the model's own outputs. It is fast and parallel, but creates exposure bias: at inference the model conditions on its own mistakes."
+        },
+        {
+          "q": "Why is training parallel over positions but generation is not?",
+          "a": "With teacher forcing all target positions are known, so the causal mask lets every position be computed at once. Generation must produce token t before it can condition on it."
+        },
+        {
+          "q": "Roughly where do the parameters go?",
+          "a": "Per block, attention is about 4*d^2 and the FFN about 8*d^2, so the FFN holds roughly two thirds. Embeddings can dominate at small d with a large vocabulary."
+        },
+        {
+          "q": "What does label smoothing do?",
+          "a": "Replaces the one-hot target with a slightly softened distribution. It costs perplexity but improves calibration and BLEU — the original paper accepted exactly that trade."
+        },
+        {
+          "q": "Encoder-decoder vs decoder-only — when does the split matter?",
+          "a": "Encoder-decoder suits input-output tasks with a clean boundary and gives the encoder bidirectional context. Decoder-only with the input as a prefix is simpler and scales better, which is why it dominates now."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Trace one token's path through a full encoder-decoder forward pass.",
+          "a": "An input token is embedded and gets positional information added, producing the first residual state. In each encoder block, LayerNorm feeds self-attention, which mixes information across ALL input positions (no mask beyond padding), and the result is added back to the residual; then the FFN transforms that state position-wise and is added back. After N blocks the encoder output is a set of contextualized vectors — computed once and reused for every decoder step. On the decoder side the target prefix is embedded, and each block runs three sub-layers: causal self-attention over previously generated positions, cross-attention where Q comes from the decoder state and K and V from the encoder output, and the FFN. A final LayerNorm and a projection to vocabulary size produce logits, softmaxed into a distribution over the next token. The important asymmetry is that the encoder runs once while the decoder runs once per generated token.",
+          "deepDive": {
+            "q": "Why is cross-attention placed after self-attention rather than before?",
+            "a": "Self-attention first lets a decoder position assemble what it already knows from the prefix, so the query it sends to the encoder is informed by that context. Querying the source before consolidating the target-side state would ask a less well-formed question. It is a soft ordering rather than a hard constraint, but it is the standard arrangement."
+          }
+        },
+        {
+          "q": "Explain pre-LN vs post-LN and why the field moved.",
+          "a": "Post-LN, the original, computes x + Sublayer(x) and then normalizes: LN(x + Sublayer(x)). The normalization sits ON the residual path, so the identity shortcut is repeatedly rescaled, and gradient magnitudes at initialization grow with depth. Deep post-LN stacks therefore diverge without learning-rate warmup, which is why the original recipe has that distinctive schedule. Pre-LN computes x + Sublayer(LN(x)): normalization moves inside the branch and the residual path stays clean, so gradients flow to early layers without amplification and training is stable without warmup at much greater depth. The cost is a mild quality gap at equal size in some settings, and a need for a final LayerNorm since the stream is never normalized on the way out. The general lesson is that keeping the identity path unmodified is what makes very deep residual networks trainable.",
+          "deepDive": {
+            "q": "Does pre-LN remove the need for warmup entirely?",
+            "a": "It removes the failure mode that made warmup mandatory, but large-batch training still commonly uses a short warmup for optimizer-state reasons — Adam's second-moment estimate is unreliable in the first steps. So warmup persists, for a different reason than the original one."
+          }
+        },
+        {
+          "q": "Why is the FFN there at all, given attention already mixes information?",
+          "a": "Attention is a convex combination of value vectors: it moves and averages information across positions but is close to linear in the values, and stacking it alone drives representations toward each other. The FFN supplies the per-position nonlinearity that attention lacks, and it is where most of the parameters and most of the stored knowledge sit — probing work locates factual associations there rather than in attention. The division of labour is clean: attention decides WHERE information comes from, the FFN decides WHAT to compute with it. Remove the FFN and the model loses both capacity and the mechanism that keeps token representations distinct with depth."
+        },
+        {
+          "q": "Padding and causal masks are combined — what breaks if you get it wrong?",
+          "a": "The masks apply on different axes and both must be additive -inf before the softmax. Forget the padding mask and real positions attend to padding, so a batch's results depend on the length of the longest unrelated sequence in it — a bug that shows up as results changing when batch composition changes, which is hard to trace. Forget the causal mask in the decoder and every position sees the future: training loss collapses to near zero because the model reads the answer, and generation is then incoherent because that information is absent. The failure signature is diagnostic — suspiciously good training loss with terrible sampling means a leak, not a good model."
+        },
+        {
+          "q": "Greedy decoding vs beam search vs sampling — what are you actually choosing between?",
+          "a": "You are choosing what to optimize. Greedy takes the argmax at each step and is fast but locally myopic. Beam search keeps k partial hypotheses and approximates the most probable SEQUENCE, which helps when a single high-probability output exists — translation, summarization — but produces bland, repetitive text for open-ended generation, and needs length normalization since probability decays with length. Sampling with temperature, top-k or nucleus deliberately does not maximize probability, because the most probable continuation is not the most human-like one. The rule of thumb: search when there is a right answer, sample when there is a distribution of acceptable ones."
+        },
+        {
+          "q": "How do you sanity-check a from-scratch transformer implementation?",
+          "a": "Test the invariants rather than eyeballing the loss curve. Check that attention rows sum to 1 after masking. Verify causality directly: perturb a future token and confirm the output at position t is bit-identical, which catches mask bugs that loss curves hide. Overfit a single batch to near-zero loss to confirm the optimization path works at all. Compare shapes and parameter count against the arithmetic (about 12*d^2 per block). Check that padding does not change results by running the same sequence alone and inside a padded batch. Each of these isolates one mechanism, whereas a bad loss curve tells you only that something is wrong."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Residual stream",
+        "back": "The running sum every block reads from and writes to. Attention moves information across positions; the FFN transforms it in place."
+      },
+      {
+        "type": "definition",
+        "front": "Cross-attention",
+        "back": "Decoder sub-layer with Q from the decoder state and K, V from the encoder output — the channel through which the target reads the source."
+      },
+      {
+        "type": "definition",
+        "front": "Teacher forcing",
+        "back": "Training on ground-truth prefixes. Parallel and fast, but causes exposure bias: at inference the model conditions on its own mistakes."
+      },
+      {
+        "type": "formula",
+        "front": "Pre-LN vs post-LN",
+        "back": "Pre-LN: x + Sublayer(LN(x)) — clean residual path, stable deep, needs a final LN. Post-LN: LN(x + Sublayer(x)) — needs warmup."
+      },
+      {
+        "type": "formula",
+        "front": "Parameters per block",
+        "back": "About 4*d^2 for attention and 8*d^2 for the FFN, so roughly two thirds sit in the FFN."
+      },
+      {
+        "type": "intuition",
+        "front": "Why an FFN if attention already mixes",
+        "back": "Attention is a convex combination and near-linear in V. The FFN is the per-position nonlinearity, and where most stored knowledge lives."
+      },
+      {
+        "type": "intuition",
+        "front": "Encoder runs once, decoder runs per token",
+        "back": "That asymmetry is why encoder output is cached and why generation, not training, is the latency problem."
+      },
+      {
+        "type": "intuition",
+        "front": "Search vs sample",
+        "back": "Beam search when there is a right answer (translation); sampling when many continuations are acceptable (open-ended text)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Missing padding mask",
+        "back": "Real positions attend to padding, so results depend on the longest unrelated sequence in the batch — changes with batch composition."
+      },
+      {
+        "type": "pitfall",
+        "front": "Missing causal mask",
+        "back": "Training loss collapses toward zero while generation is incoherent. Suspiciously good training loss is the signature of a leak."
+      },
+      {
+        "type": "pitfall",
+        "front": "Beam search for open-ended text",
+        "back": "Maximizing sequence probability yields bland, repetitive output — the most probable continuation is not the most human one."
+      },
+      {
+        "type": "pitfall",
+        "front": "Post-LN without warmup",
+        "back": "Normalization on the residual path amplifies gradients with depth; deep stacks diverge. Either warm up or switch to pre-LN."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Vaswani et al. (2017) — Attention Is All You Need",
+        "url": "https://arxiv.org/abs/1706.03762"
+      },
+      {
+        "title": "Xiong et al. (2020) — On Layer Normalization in the Transformer Architecture",
+        "url": "https://arxiv.org/abs/2002.04745"
+      },
+      {
+        "title": "Geva et al. (2021) — Transformer Feed-Forward Layers Are Key-Value Memories",
+        "url": "https://arxiv.org/abs/2012.14913"
+      },
+      {
+        "title": "Holtzman et al. (2020) — The Curious Case of Neural Text Degeneration",
+        "url": "https://arxiv.org/abs/1904.09751"
+      },
+      {
+        "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
+        "url": "https://transformer-circuits.pub/2021/framework/index.html"
+      }
+    ],
+    "demos": []
   }
 };
