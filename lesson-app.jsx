@@ -66,6 +66,25 @@ const STORE_PARTS = [
   { n: "6", id: "flashcards", title: "Flashcards",  tag: "// DRILL" },
 ];
 
+// A legacy flagship page owns its own body (lessons/<slug>.jsx) but can still carry
+// the store's DRILL LAYER — interview + flashcards + refs — with no store body. Those
+// two sections then follow the flagship's 6 parts, so they are numbered 6 and 7.
+const DRILL_PARTS = [
+  { n: "6", id: "interview",  title: "Interview",   tag: "// 3-TIER Q&A" },
+  { n: "7", id: "flashcards", title: "Flashcards",  tag: "// DRILL" },
+];
+const hasStoreBody = (d) => !!(d && d.body);
+const hasDrill = (d) => !!(d && (
+  (d.interview && ((d.interview.quickGrind || []).length || (d.interview.standard || []).length)) ||
+  (d.flashcards || []).length
+));
+// Read at RENDER time: the flagship's lessons/<slug>.jsx loads AFTER this file, so
+// window.__DM_LESSON_CONTENT does not exist yet at module scope.
+function outlineParts() {
+  if (window.__DM_LESSON_CONTENT) return hasDrill(STORE_DATA) ? [...PARTS, ...DRILL_PARTS] : PARTS;
+  return hasStoreBody(STORE_DATA) ? STORE_PARTS : PARTS;
+}
+
 // ─── Layout primitives ────────────────────────────────────────
 function P({ children }) {
   return (
@@ -371,7 +390,7 @@ function OutlineStrip() {
         padding: "10px 48px", overflowX: "auto",
       }}>
         <span className="t-mono-s" style={{ color: "var(--muted)", whiteSpace: "nowrap" }}>// OUTLINE</span>
-        {(STORE_DATA ? STORE_PARTS : PARTS).map(p => (
+        {outlineParts().map(p => (
           <a key={p.id} href={`#${p.id}`} className="t-mono-s"
             style={{
               color: "var(--blue-br)", padding: "6px 10px",
@@ -531,7 +550,21 @@ function StoreLessonBody({ data }) {
         )}
       </LessonSection>
 
-      <LessonSection n="5" id="interview" title="Interview" tag="// 3-TIER Q&A">
+      <DrillSections iv={iv} cards={cards} refs={refs} nInterview="5" nFlashcards="6" />
+    </>
+  );
+}
+
+// ─── Drill layer (Interview + Flashcards + refs) ──────────────
+// Extracted from StoreLessonBody so a legacy FLAGSHIP page can render it too: the
+// flagship owns the body, the store supplies only the drill. Section numbers are
+// parameterised because they are 5/6 after a store body and 6/7 after a flagship's
+// six parts.
+function DrillSections({ iv, cards, refs, nInterview, nFlashcards }) {
+  iv = iv || {}; cards = cards || []; refs = refs || [];
+  return (
+    <>
+      <LessonSection n={nInterview} id="interview" title="Interview" tag="// 3-TIER Q&A">
         <H3>Quick grind — one-liners you should own</H3>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(iv.quickGrind || []).map((qa, i) => (
@@ -558,7 +591,7 @@ function StoreLessonBody({ data }) {
         </div>
       </LessonSection>
 
-      <LessonSection n="6" id="flashcards" title="Flashcards" tag="// DRILL">
+      <LessonSection n={nFlashcards} id="flashcards" title="Flashcards" tag="// DRILL">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
           {cards.map((c, i) => (
             <details key={i} style={{ border: "1px solid var(--border)", borderRadius: 6, padding: "14px 16px", background: "rgba(13,24,52,0.4)" }}>
@@ -589,6 +622,20 @@ function StoreLessonBody({ data }) {
 // ─── Body renderer ────────────────────────────────────────────
 function LessonBody() {
   const Content = window.__DM_LESSON_CONTENT;
+  // Flagship page: it owns the body. If the store also carries a drill layer for this
+  // lesson (interview/flashcards/refs, no store body), append it after the flagship's
+  // six parts — that is how a legacy-jsx lesson gets interview content without losing
+  // its hand-built visuals.
+  if (Content && hasDrill(STORE_DATA)) {
+    return (
+      <>
+        <Content />
+        <DrillSections
+          iv={STORE_DATA.interview} cards={STORE_DATA.flashcards} refs={STORE_DATA.refs}
+          nInterview="6" nFlashcards="7" />
+      </>
+    );
+  }
   if (!Content && STORE_DATA) return <StoreLessonBody data={STORE_DATA} />;
   if (!Content) {
     return (
