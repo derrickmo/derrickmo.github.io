@@ -8,7 +8,8 @@
 //      page BEFORE lesson-app.jsx, which renders it via StoreLessonBody)
 //   2. writes learn/<module-slug>/<lesson-slug>/index.html (template = the
 //      linear-algebra flagship page, with metas/slugs/scripts swapped)
-//   3. patches vite.config.mjs rollupOptions.input and chrome.jsx DM_NAV_INDEX
+//   3. patches vite.config.mjs rollupOptions.input and public/search-index.js
+//      (the palette index; it moved out of chrome.jsx in PF-0021)
 //      between  // >>> generated:storelessons  ...  // <<< generated:storelessons
 //      markers (inserted after the sublessons blocks on first run)
 //
@@ -177,8 +178,8 @@ const navLines = pages.map(p => {
   const kw = ascii(`${p.lesson.title} ${p.moduleTitle} lesson ${p.lesson.id} ${(p.lesson.body.intuition?.[0] || "").split(" ").slice(0, 14).join(" ")}`).toLowerCase().replace(/[^a-z0-9 ]/g, "");
   return `  { label: "${ascii(p.lesson.title)} - ${ascii(p.moduleTitle)}", group: "Lesson", href: "/learn/${p.module}/${p.lesson.slug}/", kw: "${kw}" },`;
 });
-patchBetween("chrome.jsx", "  // >>> generated:storelessons", "  // <<< generated:storelessons",
+patchBetween("public/search-index.js", "  // >>> generated:storelessons", "  // <<< generated:storelessons",
   navLines, "  // <<< generated:sublessons");
 
-console.log(`patched vite.config.mjs (+${viteLines.length}) and chrome.jsx DM_NAV_INDEX (+${navLines.length})`);
+console.log(`patched vite.config.mjs (+${viteLines.length}) and public/search-index.js (+${navLines.length})`);
 console.log("done — run npm run build, then node scripts/gen-sitemap.mjs");

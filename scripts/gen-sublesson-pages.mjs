@@ -2,7 +2,7 @@
 // Idempotent: re-run after editing sub-lessons.js. For every module in SUB_LESSONS and
 // every concept in its `order`, writes learn/<module>/<concept>/index.html, then patches:
 //   - vite.config.mjs  rollupOptions.input  (between // >>> generated:sublessons markers)
-//   - chrome.jsx       DM_NAV_INDEX         (between // >>> generated:sublessons markers)
+//   - public/search-index.js  the palette index  (between // >>> generated:sublessons markers)
 //
 //   node scripts/gen-sublesson-pages.mjs
 //
@@ -132,6 +132,6 @@ for (const moduleSlug of Object.keys(SUB)) {
 }
 
 patchBlock("vite.config.mjs", "generated:sublessons", viteLines);
-patchBlock("chrome.jsx", "generated:sublessons", navLines);
+patchBlock("public/search-index.js", "generated:sublessons", navLines);
 
-console.log(`wrote ${pages} sub-lesson page(s) across ${Object.keys(SUB).length} module(s); patched vite.config.mjs + chrome.jsx`);
+console.log(`wrote ${pages} sub-lesson page(s) across ${Object.keys(SUB).length} module(s); patched vite.config.mjs + public/search-index.js`);
