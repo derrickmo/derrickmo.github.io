@@ -487,7 +487,9 @@ function TopNav() {
 
   return (
     <>
-      <a href="#top" className="dm-skip">Skip to content</a>
+      {/* Targets the <main id="main"> landmark each page app renders. tabIndex={-1}
+          there makes the anchor move keyboard FOCUS, not just the reading position. */}
+      <a href="#main" className="dm-skip">Skip to content</a>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
         backdropFilter: scrolled ? "blur(12px)" : "none",

@@ -297,12 +297,14 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <CasesHero />
       <Engagements />
       <Process />
       <Models />
       <CasesNote />
       <CasesCta />
+      </main>
       <Footer />
     </>
   );

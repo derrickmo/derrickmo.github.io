@@ -191,7 +191,9 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       {CTX ? <><Hero /><Body /><Takeaways /><Explore /><LessonNav /></> : <NotFound />}
+      </main>
       <Footer />
     </>
   );

@@ -93,6 +93,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Section id="top" padded={false} style={{ paddingTop: 132, paddingBottom: 48, position: "relative", overflow: "hidden" }}>
         <GridOverlay mode="dark" spacing={80} opacity={0.35} />
         <GlowBlob color={tone} size={460} x={"80%"} y={"-10%"} opacity={0.18} />
@@ -177,6 +178,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
         </Section>
       )}
 
+      </main>
       <Footer />
     </>
   );

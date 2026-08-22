@@ -258,6 +258,8 @@ function WeeklyList() {
   );
 }
 
-function App() { return (<><TopNav /><WeeklyInsightsHero /><WeeklyList /><Footer /></>); }
+function App() { return (<><TopNav />
+      <main id="main" tabIndex={-1}><WeeklyInsightsHero /><WeeklyList /></main>
+      <Footer /></>); }
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);

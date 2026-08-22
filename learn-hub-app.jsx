@@ -165,7 +165,9 @@ function Sections() {
 }
 
 function App() {
-  return (<><TopNav /><LearnHero /><Sections /><Footer /></>);
+  return (<><TopNav />
+      <main id="main" tabIndex={-1}><LearnHero /><Sections /></main>
+      <Footer /></>);
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

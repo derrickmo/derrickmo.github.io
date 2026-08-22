@@ -296,12 +296,14 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <ResearchHero />
       <Flagship />
       <Publications />
       <Patents />
       <Interests />
       <CollabCta />
+      </main>
       <Footer />
     </>
   );

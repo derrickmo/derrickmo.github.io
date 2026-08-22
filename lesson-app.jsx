@@ -679,11 +679,13 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <ProgressBar />
       <LessonHero />
       <OutlineStrip />
       <LessonBody />
       <PrevNext />
+      </main>
       <Footer />
     </>
   );

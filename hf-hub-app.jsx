@@ -166,9 +166,11 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <HubHero />
       <SectionsGrid />
       <Formats />
+      </main>
       <Footer />
     </>
   );

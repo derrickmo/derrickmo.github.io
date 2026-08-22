@@ -121,8 +121,10 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <Groups />
+      </main>
       <Footer />
     </>
   );

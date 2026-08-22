@@ -374,7 +374,9 @@ function GamesJump() {
 }
 
 function App() {
-  return (<><TopNav /><PlayHero /><GamesJump /><Games /><MLConcepts /><SuggestCta /><Footer /></>);
+  return (<><TopNav />
+      <main id="main" tabIndex={-1}><PlayHero /><GamesJump /><Games /><MLConcepts /><SuggestCta /></main>
+      <Footer /></>);
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

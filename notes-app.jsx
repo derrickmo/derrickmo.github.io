@@ -89,6 +89,8 @@ function NotesList() {
   );
 }
 
-function App() { return (<><TopNav /><NotesHero /><NotesList /><Footer /></>); }
+function App() { return (<><TopNav />
+      <main id="main" tabIndex={-1}><NotesHero /><NotesList /></main>
+      <Footer /></>); }
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);

@@ -190,15 +190,19 @@ function Refs() {
 }
 
 function App() {
-  if (!C) return (<><TopNav /><NotFound /><Footer /></>);
+  if (!C) return (<><TopNav />
+      <main id="main" tabIndex={-1}><NotFound /></main>
+      <Footer /></>);
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <PrereqStrip />
       <Surfaces />
       <PathsForConcept />
       <Refs />
+      </main>
       <Footer />
     </>
   );

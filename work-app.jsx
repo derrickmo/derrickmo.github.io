@@ -118,8 +118,10 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <WorkHero />
       <WorkGrid />
+      </main>
       <Footer />
     </>
   );

@@ -582,6 +582,7 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <SectionJump />
       <ConceptsInMotion />
@@ -589,6 +590,7 @@ function App() {
       <SelectedWork />
       <Services />
       <About />
+      </main>
       <Footer />
     </>
   );

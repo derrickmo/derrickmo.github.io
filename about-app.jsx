@@ -82,7 +82,9 @@ function Journey() {
 }
 
 function App() {
-  return (<><TopNav /><AboutHero /><Journey /><Footer /></>);
+  return (<><TopNav />
+      <main id="main" tabIndex={-1}><AboutHero /><Journey /></main>
+      <Footer /></>);
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

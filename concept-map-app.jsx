@@ -392,12 +392,14 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <Section style={{ paddingTop: 8, paddingBottom: 90 }}>
         <Container>
           <ConceptMap />
         </Container>
       </Section>
+      </main>
       <Footer />
     </>
   );

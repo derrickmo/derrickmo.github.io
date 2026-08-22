@@ -196,6 +196,7 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <Section style={{ paddingTop: 8 }}>
         <GridOverlay mode="dark" spacing={80} opacity={0.3} />
@@ -207,6 +208,7 @@ function App() {
           </div>
         </Container>
       </Section>
+      </main>
       <Footer />
     </>
   );

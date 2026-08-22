@@ -271,6 +271,7 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Hero />
       <Takeaways />
       <CodeIllustration />
@@ -278,6 +279,7 @@ function App() {
       <HFConnections />
       <Formats />
       <SectionNav />
+      </main>
       <Footer />
     </>
   );

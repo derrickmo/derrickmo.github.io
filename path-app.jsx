@@ -21,7 +21,9 @@ function App() {
   const refresh = () => setTick(t => t + 1);
 
   if (!path) {
-    return (<><TopNav /><Section style={{ paddingTop: 160 }}><Container><h1 style={{ color: "var(--white)", fontFamily: "var(--f-display)" }}>Path not found.</h1><a href="../" style={{ color: "var(--blue-lt)" }}>← All paths</a></Container></Section><Footer /></>);
+    return (<><TopNav />
+      <main id="main" tabIndex={-1}><Section style={{ paddingTop: 160 }}><Container><h1 style={{ color: "var(--white)", fontFamily: "var(--f-display)" }}>Path not found.</h1><a href="../" style={{ color: "var(--blue-lt)" }}>← All paths</a></Container></Section></main>
+      <Footer /></>);
   }
 
   const accent = ACCENT(path.accent);
@@ -47,6 +49,7 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <Section id="top" padded={false} style={{ paddingTop: 150, paddingBottom: 36, position: "relative", overflow: "hidden" }}>
         <GridOverlay mode="dark" spacing={80} opacity={0.4} />
         <GlowBlob color={path.accent} size={520} x={"-8%"} y={"-25%"} opacity={0.22} />
@@ -135,6 +138,7 @@ function App() {
           </div>
         </Container>
       </Section>
+      </main>
       <Footer />
     </>
   );

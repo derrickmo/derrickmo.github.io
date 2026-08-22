@@ -180,7 +180,9 @@ function Article() {
 }
 
 function App() {
-  return (<><TopNav /><GenAIHero /><Article /><Footer /></>);
+  return (<><TopNav />
+      <main id="main" tabIndex={-1}><GenAIHero /><Article /></main>
+      <Footer /></>);
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

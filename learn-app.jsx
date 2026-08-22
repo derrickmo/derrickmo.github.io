@@ -394,11 +394,13 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <LearnHero />
       <ModulesGrid />
       <Philosophy />
       <LearnCta />
       <OtherCourse />
+      </main>
       <Footer />
     </>
   );

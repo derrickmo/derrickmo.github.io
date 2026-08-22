@@ -2982,12 +2982,14 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <PlayHero />
       <VizJump />
       <VizConcepts />
       <Demos />
       <HowItWorks />
       <SuggestCta />
+      </main>
       <Footer />
     </>
   );

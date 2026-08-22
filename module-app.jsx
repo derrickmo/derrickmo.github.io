@@ -393,6 +393,7 @@ function App() {
   return (
     <>
       <TopNav />
+      <main id="main" tabIndex={-1}>
       <ModuleHero />
       <Takeaways />
       <ConceptBreakdown />
@@ -402,6 +403,7 @@ function App() {
       <ModuleConnections />
       <Formats />
       <ModuleNav />
+      </main>
       <Footer />
     </>
   );
