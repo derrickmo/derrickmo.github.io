@@ -1301,6 +1301,19 @@ const CONCEPT_TAGS = {
     "foundations":           ["clt", "gradient-descent", "chain-rule", "entropy", "bayes"],
     "ml-theory":             ["bias-variance", "regularization"],
     "advanced-cv":           ["iou-nms"],
+    // GR-0010 (2026-08-22): the last 8 modules, which had no entry at all and were
+    // therefore invisible from the concept graph in both directions.
+    "multimodal":            ["contrastive-learning", "embeddings", "spectrogram", "mfcc"],
+    "pytorch-internals":     ["backprop", "chain-rule", "mixed-precision"],
+    "mlops":                 ["model-serving", "drift-detection", "canary-rollout", "autoscaling", "model-cascade"],
+    "agentic-ai":            ["react-agent", "tool-routing", "reflection", "guardrails", "prompt-injection"],
+    "frontier-frameworks":   ["quantization", "paged-attention", "speculative-decoding", "lora", "moe"],
+    "causal-inference":      ["causal-inference", "instrumental-variables", "simpsons-paradox", "bayes", "mcmc"],
+    "trustworthy-ai":        ["calibration", "conformal", "conformal-regression", "fairness", "shap", "saliency",
+                              "adversarial-examples", "certified-robustness", "superposition", "sparse-autoencoder",
+                              "probing-classifier", "activation-patching", "drift-detection"],
+    "interview-capstone":    ["bias-variance", "cross-validation", "classification-metrics", "dynamic-programming",
+                              "graph-search", "reranking"],
   },
   // HuggingFace tutorial sections — slugs match hf-lectures.js
   hf: {
