@@ -154,7 +154,7 @@ concept pages at `learn/<module>/<concept-id>/`.
 
 ## Validation
 
-`node _private/scripts/validate-content.mjs` — must be **green before any
+`node scripts/validate-content.mjs` — must be **green before any
 generation or release**. It checks: JSON validity, required fields per kind,
 enum values, id formats and uniqueness, module/lesson agreement with
 `curriculum.js`, concept-id resolution against `concepts-index.js` (warn) and
