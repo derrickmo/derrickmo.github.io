@@ -2431,5 +2431,178 @@ window.DM_LESSON_BODIES = {
       "lr-schedule",
       "neural-playground"
     ]
+  },
+  "custom-autograd": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does autograd actually record?",
+          "a": "A dynamic DAG of operations built during the forward pass. Each output tensor stores the function that produced it and references to its inputs, so the graph is a by-product of running the code."
+        },
+        {
+          "q": "Why reverse mode rather than forward mode?",
+          "a": "Cost scales with the number of OUTPUTS in reverse mode and inputs in forward mode. A loss is one scalar and parameters are millions, so reverse mode gets all gradients in one backward pass."
+        },
+        {
+          "q": "What does each node need to know?",
+          "a": "Only its local derivative rule — how to turn the gradient of its output into gradients of its inputs. The chain rule composes them; no node needs global knowledge."
+        },
+        {
+          "q": "Why must gradients accumulate with += rather than =?",
+          "a": "Because a tensor used in several places receives a gradient contribution from each. Assignment keeps only the last one and silently produces a wrong gradient."
+        },
+        {
+          "q": "Why does backward need topological order?",
+          "a": "A node's gradient is only complete once every consumer has contributed. Processing it early gives a partial gradient that then propagates as if it were final."
+        },
+        {
+          "q": "What is requires_grad for?",
+          "a": "It marks which leaves need gradients and prunes the graph — anything not on a path to a requires_grad leaf is not recorded, which is how inference avoids graph-building cost."
+        },
+        {
+          "q": "detach versus no_grad versus .data?",
+          "a": "detach returns a tensor sharing storage but cut from the graph; no_grad is a context that stops recording entirely; .data is the legacy escape hatch that bypasses version checking and can silently produce wrong gradients."
+        },
+        {
+          "q": "Why does the graph get freed after backward?",
+          "a": "Because the saved intermediate buffers dominate memory. Keep them with retain_graph only when you genuinely need a second backward through the same graph."
+        },
+        {
+          "q": "What limits training batch size, parameters or activations?",
+          "a": "Activations, in almost every real run. Parameter and optimizer memory is fixed; activation memory scales with batch size and sequence length, which is why checkpointing targets it."
+        },
+        {
+          "q": "What does gradient checkpointing trade?",
+          "a": "Memory for compute — store a subset of activations and recompute the rest during backward. Segmented at roughly sqrt(L) boundaries it cuts peak memory a lot for about 30% more compute."
+        },
+        {
+          "q": "When do you write a custom autograd Function?",
+          "a": "When you have a better backward than the composed one — a numerically stable form, a fused kernel, a memory-saving recomputation — or when you need to wrap a non-differentiable op with a surrogate gradient."
+        },
+        {
+          "q": "How do you check a custom backward is right?",
+          "a": "gradcheck against finite differences in float64. Do it always; a wrong backward trains to a plausible-looking loss and is nearly invisible otherwise."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain how reverse-mode autodiff works and why it is the right choice here.",
+          "a": "Every differentiable program is a composition of primitive operations, so its Jacobian is a product of the primitives' Jacobians. The question is the ORDER you multiply that product in, and the two associations give the two modes. Forward mode propagates a directional derivative from inputs toward outputs, so one pass gives you the derivative with respect to one input direction and you need n passes for n inputs. Reverse mode propagates a cotangent from outputs backward, so one pass gives the gradient of one output with respect to ALL inputs. Cost is therefore roughly proportional to inputs in forward mode and to outputs in reverse mode. Training a network means differentiating one scalar loss with respect to millions of parameters, so reverse mode does in one backward pass what forward mode would need millions of passes to do — that ratio is the whole reason deep learning is practical. The price is memory: reverse mode must have the intermediate activations available when the backward pass reaches them, so the forward pass stores them, and that storage is what actually bounds your batch size. Forward mode has no such cost, which is why it is preferred when the input dimension is small — a few hyperparameters, or a directional derivative for a Jacobian-vector product. The framing worth carrying is that forward and reverse are not better and worse; they are two associations of the same product, and you pick by the SHAPE of the function.",
+          "deepDive": {
+            "q": "Where does that shape argument choose forward mode in practice?",
+            "a": "Jacobian-vector products, which is what forward mode computes natively. Anything needing directional derivatives — Hessian-vector products for second-order methods, computed as a forward-over-reverse composition, or sensitivity analysis with respect to a handful of parameters — is cheaper in forward mode. It is also natural for physics-informed networks where you need derivatives with respect to a small number of input coordinates rather than with respect to the weights."
+          }
+        },
+        {
+          "q": "Walk through implementing autograd from scratch and the details that are easy to get wrong.",
+          "a": "The minimum object is a value that carries data, a gradient slot, a reference to the inputs it came from, and a closure implementing its local backward rule. Each operation creates a new value, records its parents, and stores the closure — so the graph is built as a side effect of the forward pass and its structure is whatever the Python control flow did, which is what 'define-by-run' means. Backward then seeds the output's gradient to one and walks the graph applying local rules. Three details do most of the damage when wrong. First, ACCUMULATION: gradients must be added, not assigned, because a value consumed by several operations gets a contribution from each — this is the fan-out case, and assigning keeps only the last contributor, which produces a wrong gradient that still looks like a gradient. Second, ORDER: you cannot process a node until every consumer has contributed, so backward must run in reverse topological order; do it in the wrong order and a node propagates a partially-accumulated gradient onward as if it were complete. Third, BROADCASTING: if an operation broadcast an input, the backward must sum the gradient over the broadcast axes to restore the original shape, and forgetting this is the classic silent bug because the shapes often still work out. On top of that sit the correctness practices — zeroing gradients between steps, since accumulation is the default and PyTorch will happily add this step's gradient to last step's; and gradcheck in float64 against finite differences, which is the only cheap way to know the whole thing is right.",
+          "deepDive": {
+            "q": "Why does PyTorch accumulate into .grad by default rather than overwrite?",
+            "a": "Because accumulation is the semantically correct behaviour for the fan-out case inside a graph, and exposing the same behaviour at the leaves makes gradient accumulation across micro-batches free — run several backward passes, then step, and you have simulated a larger batch. The cost is that forgetting optimizer.zero_grad() is one of the most common bugs in the framework, and it fails quietly: the model still trains, just with a stale contribution mixed in, so the loss curve is merely worse rather than obviously broken."
+          }
+        },
+        {
+          "q": "When would you write a custom autograd Function, and what must you get right?",
+          "a": "Four legitimate reasons. Numerical stability: the composed backward of a mathematically fine forward can be catastrophic — sqrt at zero has infinite derivative, so a norm implemented as sqrt(sum of squares) produces NaN gradients at the origin even though the forward value is fine, and clamping the OUTPUT cannot fix it because the gradient is computed from the unclamped path. Memory: Flash Attention's backward recomputes the attention matrix rather than storing it, which is only expressible by writing the backward yourself. Speed: a fused kernel whose backward you also fuse. And non-differentiable operations, where you want a surrogate — the straight-through estimator for quantization passes the gradient through unchanged even though the forward is a step function, which is a deliberate lie that makes training possible. What you must get right: the forward saves only what the backward needs, via save_for_backward rather than closing over tensors, because that mechanism participates in version tracking and will raise if a saved tensor was modified in place instead of silently giving you a wrong gradient. The backward must return exactly one gradient per forward input, with None for anything that does not need one, and shapes must match. Mark non-tensor arguments correctly. And run gradcheck in double precision — a custom backward is one of the few places where a wrong implementation produces a model that trains to a plausible loss and is subtly worse forever, so the check is not optional."
+        },
+        {
+          "q": "Explain gradient checkpointing properly, including the part people get wrong.",
+          "a": "Backward needs the forward activations, so the forward pass stores them, and for a deep network that storage is the dominant memory cost — it scales with depth times batch times sequence length, while parameters and optimizer state are fixed. Checkpointing stores only a subset and recomputes the rest: during backward, when the missing activations are needed, the relevant forward segment runs again to regenerate them. The trade is memory for compute, roughly one extra forward pass over the checkpointed regions, so about 30% more time in practice. The part people get wrong is the granularity. Checkpointing EVERY layer saves essentially nothing, because you then store one activation per layer, which is what you were already storing — the saving comes from segmenting: divide the network into roughly sqrt(L) segments, store only the boundaries, and recompute within a segment. That gives O(sqrt(L)) memory instead of O(L) and is the classic result, and the measured version in this curriculum is 693 MiB down to 224 MiB for about 1.4x the compute. Two practical hazards. Any nondeterminism inside a checkpointed region — dropout, or any RNG-dependent op — must be handled by preserving and restoring the RNG state, or the recomputed forward differs from the original and the gradient is silently wrong; PyTorch does this for you but a hand-rolled version will not. And checkpointing interacts with batch norm, since the recomputed forward would update running statistics a second time."
+        },
+        {
+          "q": "Your custom operation trains but the model is subtly worse than expected. How do you find out whether the gradient is wrong?",
+          "a": "A wrong gradient is the hardest class of bug in this area precisely because it does not crash — the loss still decreases, because a wrong direction that is positively correlated with the right one still makes progress, so the symptom is a model that is merely worse and no error anywhere. Attack it directly rather than by inspection. First, gradcheck in float64 on a small instance: it compares your analytic gradient against central finite differences, and it is the definitive test. Do it in double precision, because float32 finite differences are noisy enough to produce both false passes and false failures, which is why people conclude gradcheck is unreliable when the real problem is the dtype. Second, if gradcheck passes on the isolated op but the model is still wrong, the bug is in the wiring rather than the math — check broadcasting reductions, check that in-place operations have not modified a saved tensor, and check that you are not accidentally detaching part of the path, which produces a partial gradient that is entirely valid-looking. Third, the overfit-one-batch test: a correct implementation should drive a single batch to near-zero loss, and failing that is strong evidence something in the gradient path is broken rather than that the problem is hard. Fourth, compare against a reference — implement the same operation with composed framework primitives, however slowly, and check both the values and the gradients agree. That last one is what turns 'I think it is right' into evidence, and it is the same discipline as validating a model export against its source."
+        },
+        {
+          "q": "How does a define-by-run graph differ from a static one, and what does that cost?",
+          "a": "In define-by-run the graph is constructed by executing the program, so it reflects whatever the Python control flow actually did on this input — a data-dependent branch produces a different graph on the next call, and that is fine because the graph is rebuilt every iteration. The benefit is that debugging is ordinary Python debugging: you can print intermediate tensors, set breakpoints, and use arbitrary control flow, which is most of why PyTorch displaced static-graph frameworks for research. The cost is that the framework never sees the whole computation at once, so it cannot do the optimizations a compiler would — operator fusion, memory planning, dead-code elimination, kernel selection across the whole graph — and it pays Python overhead per operation, which matters for small operators where launch overhead dominates the arithmetic. That is exactly the gap the compilation path exists to close: torch.fx traces a static graph and fails loudly on data-dependent control flow, torch.compile captures graphs with Dynamo and falls back to eager around breaks rather than refusing, and both then hand the captured graph to a compiler that can fuse. The honest framing for an interview is that define-by-run traded compiler optimizations for developer velocity, that trade was clearly correct for research, and the subsequent decade of work has been about recovering the optimizations without giving the flexibility back."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Forward vs reverse mode",
+        "back": "Two associations of the same Jacobian product. Cost ~ inputs in forward, ~ outputs in reverse. One scalar loss, millions of parameters, so reverse."
+      },
+      {
+        "type": "definition",
+        "front": "Define-by-run",
+        "back": "The graph is a side effect of executing the program, rebuilt each iteration, so it reflects the actual control flow taken."
+      },
+      {
+        "type": "pitfall",
+        "front": "= instead of += on gradients",
+        "back": "A tensor used in several places gets a contribution from each. Assignment keeps only the last and produces a wrong gradient that still looks like one."
+      },
+      {
+        "type": "pitfall",
+        "front": "Wrong backward order",
+        "back": "A node's gradient is complete only after every consumer contributes. Out of topological order, a partial gradient propagates onward as if final."
+      },
+      {
+        "type": "pitfall",
+        "front": "Forgetting the broadcast reduction",
+        "back": "If the forward broadcast an input, the backward must sum over the broadcast axes. The classic silent bug — shapes often still work out."
+      },
+      {
+        "type": "definition",
+        "front": "save_for_backward",
+        "back": "Participates in version tracking, so an in-place modification of a saved tensor RAISES instead of silently corrupting the gradient. Do not close over tensors instead."
+      },
+      {
+        "type": "intuition",
+        "front": "Why sqrt-at-zero breaks",
+        "back": "The derivative is infinite at the origin, so a norm as sqrt(sum sq) gives NaN gradients with a finite forward. Clamping the OUTPUT cannot fix a gradient."
+      },
+      {
+        "type": "formula",
+        "front": "Checkpointing granularity",
+        "back": "Segment at ~sqrt(L) boundaries for O(sqrt(L)) memory. Per-layer checkpointing saves essentially nothing — measured 693 MiB to 224 MiB at ~1.4x compute."
+      },
+      {
+        "type": "intuition",
+        "front": "What bounds batch size",
+        "back": "Activations, not parameters. Parameter and optimizer memory is fixed; activation memory scales with batch and sequence length."
+      },
+      {
+        "type": "pitfall",
+        "front": "gradcheck in float32",
+        "back": "Finite differences are too noisy in single precision — both false passes and false failures. Run it in float64 or it tells you nothing."
+      },
+      {
+        "type": "pitfall",
+        "front": "RNG inside a checkpointed region",
+        "back": "Dropout recomputed with different randomness gives a forward that differs from the original and a silently wrong gradient. RNG state must be preserved and restored."
+      },
+      {
+        "type": "pitfall",
+        "front": "A wrong gradient does not crash",
+        "back": "A direction positively correlated with the truth still reduces the loss. The model is merely worse, forever, with no error anywhere."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Paszke et al. (2019) — PyTorch: An Imperative Style, High-Performance Deep Learning Library",
+        "url": "https://arxiv.org/abs/1912.01703"
+      },
+      {
+        "title": "Baydin et al. (2018) — Automatic Differentiation in Machine Learning: A Survey",
+        "url": "https://arxiv.org/abs/1502.05767"
+      },
+      {
+        "title": "Chen et al. (2016) — Training Deep Nets with Sublinear Memory Cost",
+        "url": "https://arxiv.org/abs/1604.06174"
+      },
+      {
+        "title": "Griewank & Walther — Evaluating Derivatives (2nd ed.)",
+        "url": "https://epubs.siam.org/doi/book/10.1137/1.9780898717761"
+      },
+      {
+        "title": "PyTorch docs — Extending torch.autograd",
+        "url": "https://pytorch.org/docs/stable/notes/extending.html"
+      }
+    ],
+    "demos": []
   }
 };

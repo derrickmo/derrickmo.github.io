@@ -2432,5 +2432,178 @@ window.DM_LESSON_BODIES = {
       "mixed-precision",
       "lr-schedule"
     ]
+  },
+  "ddp": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does data parallelism replicate and what does it split?",
+          "a": "It replicates the model on every device and splits the batch. Each device computes gradients on its shard, and the gradients are averaged so all replicas stay identical."
+        },
+        {
+          "q": "Why is averaging the shard gradients correct?",
+          "a": "Because the loss is a mean over examples, so the gradient of the full-batch mean is the mean of the per-shard gradients. Exact, not an approximation — each shard's gradient alone is wrong, and their average is exactly right."
+        },
+        {
+          "q": "Why communicate gradients rather than weights?",
+          "a": "If every replica starts identical and applies the same averaged gradient with the same optimizer state, the weights stay identical by construction. Syncing gradients is sufficient."
+        },
+        {
+          "q": "What is all-reduce?",
+          "a": "A collective where every rank contributes a tensor and every rank ends up with the reduction — here the sum or mean — of all contributions."
+        },
+        {
+          "q": "Why ring all-reduce rather than a parameter server?",
+          "a": "A server is a bandwidth bottleneck scaling with N. The ring moves about 2(N-1)/N times the data per rank, which is essentially 2D and FLAT in N."
+        },
+        {
+          "q": "What are the ring's two phases?",
+          "a": "Reduce-scatter, after which each rank holds one fully-reduced chunk, then all-gather to distribute those chunks. N-1 steps each."
+        },
+        {
+          "q": "What is gradient bucketing?",
+          "a": "Grouping gradients into buckets and launching the all-reduce for a bucket as soon as it is full, so communication overlaps with the rest of the backward pass instead of waiting for it."
+        },
+        {
+          "q": "What does DistributedSampler do?",
+          "a": "Gives each rank a disjoint shard of the indices, reshuffled per epoch from a shared seed. Forget to call set_epoch and every epoch sees the same order."
+        },
+        {
+          "q": "Why does DDP use one process per GPU?",
+          "a": "To avoid the GIL. The older single-process multi-GPU DataParallel serializes on Python and adds a scatter-gather every step, which is why it is deprecated."
+        },
+        {
+          "q": "What is the linear scaling rule?",
+          "a": "Multiply the learning rate by the number of workers when you multiply the batch, with a warmup. A heuristic that holds over a useful range and breaks at very large batch."
+        },
+        {
+          "q": "When does data parallelism stop being enough?",
+          "a": "When one replica does not fit on one device. Then you shard the model state — ZeRO stages, FSDP — or partition the model itself with tensor or pipeline parallelism."
+        },
+        {
+          "q": "What does batch norm do across ranks?",
+          "a": "By default it normalizes over the LOCAL batch only, so statistics differ per rank. With small per-device batches that is a real accuracy difference; SyncBatchNorm computes them across ranks at a communication cost."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain why averaging per-shard gradients is exactly right, and what that fact does and does not license.",
+          "a": "The training loss is a mean over the batch, L = (1/B) sum_i l_i. Split the batch into N shards of equal size; each rank computes the mean loss over its shard, so its gradient is the mean of its own l_i terms. Averaging those N gradients gives (1/N) sum_ranks (N/B) sum_{i in rank} grad l_i = (1/B) sum_i grad l_i, which is exactly the full-batch gradient. So it is an identity, not an approximation — and this is the entire correctness basis of data-parallel training. Each individual shard gradient is WRONG in the sense that it saw a fraction of the data, and their average is exactly right, which is a nice thing to be able to state cleanly. What it licenses: a data-parallel run is mathematically identical to a single-device run at the larger batch size, so you can reason about it as one big batch and the trajectories match to numerical precision. What it does NOT license is the assumption that any loss decomposes this way. The identity requires the loss to be a per-example MEAN, so it fails for anything computing statistics across the batch — a contrastive loss whose denominator ranges over the whole batch is not a per-example mean, and naively data-paralleling it changes the objective, because each rank's in-batch negatives are only its own shard. That is why contrastive training gathers embeddings across ranks before computing the loss, and it is also why gradient accumulation, which relies on the same identity, silently breaks for those losses.",
+          "deepDive": {
+            "q": "What about unequal shard sizes?",
+            "a": "Then the plain average is wrong, because it weights each rank equally rather than each example. The last batch of an epoch is the usual culprit when the dataset does not divide evenly, and DistributedSampler pads by default precisely to avoid this. If you must handle ragged shards, weight each rank's contribution by its example count rather than taking a plain mean — and note that a rank that finishes early and stops participating will hang the collective, which is the other failure this creates."
+          }
+        },
+        {
+          "q": "Derive the ring all-reduce cost and say why it beats the obvious alternatives.",
+          "a": "Take N ranks each holding a gradient vector of D elements, and split each into N chunks. Reduce-scatter runs N-1 steps; in each, every rank sends one chunk to its neighbour and adds the chunk it receives, and after N-1 steps each rank holds one chunk that is the fully-reduced sum for that slice. All-gather then runs another N-1 steps passing those completed chunks around the ring until everyone has all of them. Each rank therefore sends 2(N-1) chunks of size D/N, so 2(N-1)D/N elements — which approaches 2D as N grows and is INDEPENDENT of N. That flatness is the whole point. Compare the alternatives. A parameter server receives D from each of N-1 ranks and sends D back, so its traffic is O(ND) and it becomes the bottleneck as you scale — the algorithm is fine, the topology is not. A naive all-gather where everyone broadcasts their full gradient moves (N-1)D per rank, linear in N. The ring is also bandwidth-optimal in the sense that 2D(N-1)/N is a lower bound for this collective under a bandwidth model, so it is not merely a good heuristic. The practical caveats: latency scales with N since there are 2(N-1) sequential steps, so for small tensors on many ranks a tree or hierarchical algorithm wins, which is why NCCL picks an algorithm based on message size and topology rather than always using a ring. And the ring assumes roughly uniform link bandwidth, so real multi-node clusters use hierarchical variants that reduce within a node over fast interconnect first, then across nodes.",
+          "deepDive": {
+            "q": "So why does NCCL not always use a ring?",
+            "a": "Because the ring optimizes bandwidth and pays in latency: it takes 2(N-1) sequential steps, and for a small tensor across many ranks that latency dominates while the bandwidth saving is irrelevant. Tree algorithms finish in O(log N) steps and win there. NCCL therefore selects an algorithm from message size and topology rather than committing to one, and on real multi-node clusters it goes hierarchical - reduce within a node over NVLink first, then across nodes over the slower fabric, then broadcast back down - because the ring assumes roughly uniform link bandwidth and a real cluster is not uniform at all."
+          }
+        },
+        {
+          "q": "How does DDP overlap communication with computation, and why does it matter?",
+          "a": "Naively you would run the whole backward pass, then all-reduce all the gradients — a compute phase followed by a communication phase, with the devices idle during each other's turn. Since the gradients for the LAST layers are ready first and the backward pass continues for a while afterwards, that idle time is avoidable. DDP registers an autograd hook on every parameter and groups parameters into buckets, typically around 25 MB. When every gradient in a bucket has been produced, that bucket's all-reduce launches immediately on a separate stream while the backward pass continues computing earlier layers. By the time backward finishes, most of the communication has already happened underneath it. This is why the practical scaling efficiency is far better than a naive model predicts — the useful mental model is speedup = N * t_compute / (t_compute + t_exposed_comm), where the exposed communication is only the part that could not be hidden, often 20% or less of the total. Two consequences worth knowing. First, bucket size is a real tuning knob: too small and you pay per-collective launch overhead many times, too large and the first bucket waits a long time before it can start. Second, this is why parameter ORDER matters — DDP assumes the backward produces gradients in roughly reverse construction order, and a model whose forward uses parameters in an unusual order can produce buckets that fill late, which shows up as worse scaling for no obvious reason. It is also why unused parameters need find_unused_parameters, since a bucket waiting on a gradient that never arrives will hang."
+        },
+        {
+          "q": "You scale from 1 GPU to 8 and get 5x. Where did the other 3x go?",
+          "a": "Work through the candidates in order of how often they are the answer. First, the data pipeline: at 8x the throughput you need 8x the input rate, and a loader that was comfortably ahead on one GPU is now the bottleneck — the tell is that GPU utilization is low and roughly equal on all ranks, and the fix is more workers, prefetching, or a faster storage path rather than anything to do with distribution. Second, exposed communication: check whether the gradients are large relative to compute, which is the usual case for a small model on fast GPUs, since the ratio that matters is bytes-per-step over FLOPs-per-step and a small model has a bad one. Gradient compression or a larger per-device batch both improve it. Third, load imbalance: with variable-length inputs, every step is as slow as the slowest rank because the collective is a synchronization barrier, so a long-tail sequence length distribution silently costs you the tail on every single step — length-grouped batching is the standard fix and often recovers a surprising amount. Fourth, the last-batch and validation phases, which are often not parallelized at all and quietly eat into Amdahl's fraction. Fifth, per-step fixed costs — optimizer overhead, logging, checkpointing every N steps — which do not shrink with more devices. The diagnostic discipline is to measure a step's breakdown rather than guess: time the forward, backward, communication and data wait separately, on every rank, and the profile usually names the answer immediately."
+        },
+        {
+          "q": "When do you move beyond data parallelism, and to what?",
+          "a": "The trigger is capacity rather than speed: data parallelism replicates the whole model on every device, so the moment one replica's parameters plus gradients plus optimizer state exceed one device's memory, adding devices does not help at all. With Adam in mixed precision the per-parameter cost is about 16 bytes — fp16 weights, fp16 gradients, fp32 master weights, and Adam's two moments — so a 7B model needs roughly 112 GB of state, which fits nothing, and data parallelism is FLAT in N for this quantity. The response is to shard that state. ZeRO stage 1 shards the optimizer state, taking per-device cost to 4P + 12P/N; stage 2 adds gradients at 2P + 14P/N; stage 3, which is FSDP, shards the parameters too and reaches 16P/N. Stage 3 gathers each layer's parameters just before it is needed and frees them after, so peak parameter memory is the shard plus the largest single layer rather than the whole model. The cost is communication: stages 1 and 2 keep DDP's roughly 2D volume, while stage 3 adds parameter all-gathers in both forward and backward for about 1.5x DDP. Beyond that, when a single LAYER does not fit, you need tensor parallelism, which splits individual matrices across devices and communicates within each layer, so it wants very fast interconnect and is normally kept within a node. Pipeline parallelism splits by layer across nodes and trades a bubble for much lower communication. Real large-scale training composes all three, and the composition order follows the interconnect hierarchy."
+        },
+        {
+          "q": "What silently breaks when you move a working single-GPU script to DDP?",
+          "a": "A specific and well-known list, and most of them fail quietly rather than loudly. The sampler: without DistributedSampler every rank iterates the whole dataset, so you are training on N copies of everything and the epoch means something different — and with it, forgetting set_epoch(epoch) means the shuffle is identical every epoch, which degrades training in a way that looks like a learning-rate problem. Batch norm normalizes over the local batch, so at a small per-device batch the statistics are noisy and differ per rank; that is a real accuracy gap and SyncBatchNorm is the fix if you can afford the communication. Metrics and logging: every rank computes its own, so unless you reduce them you are logging rank 0's shard rather than the epoch, and validation numbers are quietly computed on 1/N of the data. Checkpointing from all ranks races on the file; save from rank 0 and barrier. Random seeds that are identical across ranks make every rank apply the same dropout mask and the same augmentation, which reduces effective diversity — seed by rank. And anything conditional that differs between ranks will deadlock, because a collective is a barrier: if one rank takes an early-exit branch, or has a different number of batches, or hits an exception, the others wait forever, which is why a DDP job that hangs with no error is usually a control-flow divergence rather than a network problem."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "Why gradient averaging is exact",
+        "back": "The loss is a per-example mean, so the mean of shard gradients IS the full-batch gradient. Each shard alone is wrong; the average is exactly right."
+      },
+      {
+        "type": "pitfall",
+        "front": "Losses that are not per-example means",
+        "back": "A contrastive loss's denominator ranges over the batch, so data-paralleling it changes the objective. Gather embeddings across ranks first — and the same breaks gradient accumulation."
+      },
+      {
+        "type": "formula",
+        "front": "Ring all-reduce volume",
+        "back": "2(N-1)D/N per rank, approaching 2D and FLAT in N. Parameter server is O(ND); naive all-gather is (N-1)D."
+      },
+      {
+        "type": "definition",
+        "front": "Ring's two phases",
+        "back": "Reduce-scatter (N-1 steps, each rank ends with one fully-reduced chunk), then all-gather (N-1 steps to distribute them)."
+      },
+      {
+        "type": "intuition",
+        "front": "Why bucketing matters",
+        "back": "Last layers' gradients are ready first, so launching a bucket's all-reduce immediately hides most communication under the remaining backward pass."
+      },
+      {
+        "type": "formula",
+        "front": "Realistic scaling model",
+        "back": "speedup = N * t_compute / (t_compute + t_exposed_comm), where exposed comm is only the part bucketing could not hide — often under 20%."
+      },
+      {
+        "type": "formula",
+        "front": "ZeRO stage memory",
+        "back": "~16 bytes/param for Adam mixed precision. DDP 16P flat; ZeRO-1 4P+12P/N; ZeRO-2 2P+14P/N; ZeRO-3/FSDP 16P/N."
+      },
+      {
+        "type": "intuition",
+        "front": "Why DDP is flat in N for capacity",
+        "back": "Every device holds a full replica, so adding devices never helps if one replica does not fit. Capacity, not speed, is the trigger to shard."
+      },
+      {
+        "type": "pitfall",
+        "front": "Forgetting set_epoch",
+        "back": "The shuffle is then identical every epoch. Degrades training in a way that reads like a learning-rate problem."
+      },
+      {
+        "type": "pitfall",
+        "front": "Local batch norm statistics",
+        "back": "BN normalizes over the LOCAL batch, so ranks differ and small per-device batches give noisy statistics. A real accuracy gap, not a rounding issue."
+      },
+      {
+        "type": "pitfall",
+        "front": "Load imbalance with variable lengths",
+        "back": "A collective is a barrier, so every step costs the slowest rank. Length-grouped batching often recovers a surprising amount."
+      },
+      {
+        "type": "pitfall",
+        "front": "A DDP job that hangs with no error",
+        "back": "Usually control-flow divergence — one rank took a different branch, had fewer batches, or raised. The others wait on the collective forever."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Li et al. (2020) — PyTorch Distributed: Experiences on Accelerating Data Parallel Training",
+        "url": "https://arxiv.org/abs/2006.15704"
+      },
+      {
+        "title": "Rajbhandari et al. (2019) — ZeRO: Memory Optimizations Toward Training Trillion Parameter Models",
+        "url": "https://arxiv.org/abs/1910.02054"
+      },
+      {
+        "title": "Goyal et al. (2017) — Accurate, Large Minibatch SGD (linear scaling rule and warmup)",
+        "url": "https://arxiv.org/abs/1706.02677"
+      },
+      {
+        "title": "Zhao et al. (2023) — PyTorch FSDP: Experiences on Scaling Fully Sharded Data Parallel",
+        "url": "https://arxiv.org/abs/2304.11277"
+      },
+      {
+        "title": "Patarasuk & Yuan (2009) — Bandwidth Optimal All-reduce Algorithms for Clusters of Workstations",
+        "url": "https://www.sciencedirect.com/science/article/pii/S0743731508001767"
+      }
+    ],
+    "demos": []
   }
 };
