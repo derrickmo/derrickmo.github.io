@@ -103,7 +103,10 @@ function DemoButton({ onClick, children, tone = "blue", primary = false, disable
 // ─── Stat readout ─────────────────────────────────────────────
 function StatReadout({ label, value, accent = "var(--blue-lt)" }) {
   return (
-    <div style={{
+    // data-dm-stat is how DemoLayout's live region finds these. The label and value
+    // are two separate spans on screen, which reads as two loose strings to a screen
+    // reader, so the pair is also carried on the container as one string.
+    <div data-dm-stat={`${label}: ${value}`} style={{
       padding: "12px 14px", border: "1px solid var(--border)", borderRadius: 6,
       background: "rgba(13,24,52,0.4)", display: "flex", flexDirection: "column", gap: 4,
     }}>
