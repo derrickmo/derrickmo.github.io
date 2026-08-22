@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "quantization",
+  "module": "frontier-frameworks",
+  "title": "Quantization",
+  "oneLine": "Fewer bits per weight, and the outliers decide how few you can get away with.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Weights trained in 16 bits rarely need 16 bits to be evaluated. Mapping them onto a small grid - int8, int4, or a non-uniform codebook like NF4 - cuts memory and, because decoding is memory-bandwidth-bound, cuts latency roughly in proportion.",
+        "What limits how far you can go is not the average weight but the OUTLIERS. A single large value in a tensor stretches the scale so every other weight lands on a coarse grid, which is why per-channel scales beat one per-tensor scale, and why the failure is a cliff rather than a slope."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Affine quantization maps a real range onto integers with a scale and a zero point:"
+      ],
+      "tex": "q = \\mathrm{round}\\!\\left(\\frac{w}{s}\\right) + z, \\qquad s = \\frac{\\max(w) - \\min(w)}{2^{b} - 1}",
+      "texNote": "The scale is set by the extremes, so one outlier degrades every weight sharing that scale."
+    },
+    {
+      "h": "In code",
+      "code": "# per-tensor: one scale for everything - cheap, and outlier-sensitive\ns = (w.max() - w.min()) / (2**bits - 1)\n\n# per-channel: one scale per output channel - the standard fix\ns = (w.amax(dim=1, keepdim=True) - w.amin(dim=1, keepdim=True)) / (2**bits - 1)\n\nq = torch.round(w / s).clamp(0, 2**bits - 1)\nw_hat = q * s                                   # dequantized for the matmul",
+      "caption": "Measured in the module: per-tensor int4 scored 0.655 against per-channel's 0.732 on the same weights."
+    }
+  ],
+  "takeaways": [
+    "The win is bytes read per token, which is why it speeds up decoding and not training.",
+    "Outliers set the scale, so granularity matters more than the rounding rule.",
+    "Degradation is a cliff - int8 and int4 are often near-free while int2 collapses."
+  ],
+  "demo": "quantization",
+  "updatedAt": "2026-08-22"
+}

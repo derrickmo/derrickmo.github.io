@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "guardrails",
+  "module": "agentic-ai",
+  "title": "Agent Guardrails",
+  "oneLine": "Independent layers multiply the attacker's failure probability - which is why defence composes where a pipeline does not.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A pipeline needs EVERY stage to work, so per-stage reliability multiplies downward: ten steps at 0.95 is 0.60. A defence needs ANY layer to hold, so the attacker must beat all of them and their failure probabilities multiply instead. That inversion is the whole reason defence in depth is worth building.",
+        "The layers have to be genuinely independent for the arithmetic to hold. Two prompt-based detectors sharing a model are one layer wearing two hats, and an attack that fools the model fools both."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "With independent layers each blocking with probability p_i, an attack succeeds only by beating all of them:"
+      ],
+      "tex": "P(\\text{attack succeeds}) = \\prod_i (1 - p_i)",
+      "texNote": "Measured on the module's toy agent: a 0.6 detector, a 0.8 allowlist and a 0.9 confirmation step take attack success from 1.0 to 0.008."
+    },
+    {
+      "h": "In code",
+      "code": "def act(step, task):\n    if step.tool not in ALLOWLIST[task.kind]:      # least privilege\n        return Refused(\"tool not permitted for this task\")\n    if detector.flags(step.args):                 # a classifier, so it has an ROC\n        return Refused(\"input flagged\")\n    if RISK[step.tool] >= 2:                       # confirm by RISK, not uniformly\n        return NeedsConfirmation(step)\n    return execute(step)",
+      "caption": "Least privilege first: it is the only layer with no false-positive cost, blocking 100% of out-of-scope tool use while permitting every legitimate call."
+    }
+  ],
+  "takeaways": [
+    "Defence composes disjunctively and a pipeline composes conjunctively - so adding a layer helps here and hurts there.",
+    "The product only holds for INDEPENDENT layers; two detectors sharing a model are one layer.",
+    "A detector is a classifier in an arms race; structural limits like an allowlist are not, which is why they come first."
+  ],
+  "demo": "guardrails",
+  "updatedAt": "2026-08-22"
+}

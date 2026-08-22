@@ -82,5 +82,15 @@
     "caption": "JAX: gradients as a function transformation.",
     "code": "import jax\nloss = lambda w, x, y: ((x @ w - y) ** 2).mean()\ngrad_fn = jax.jit(jax.grad(loss))   # compile the gradient itself\nw -= lr * grad_fn(w, x, y)          # same idea, new toolchain"
   },
-  "updatedAt": "2026-08-09"
+  "updatedAt": "2026-08-09",
+  "subLessons": {
+    "title": "Concept by concept",
+    "intro": "The techniques that survive the framework churn. Each is a mechanism rather than an API, which is why they outlast the library that first shipped them.",
+    "order": [
+      "quantization",
+      "speculative-decoding",
+      "lora",
+      "moe"
+    ]
+  }
 }

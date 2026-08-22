@@ -134,6 +134,13 @@ export default defineConfig({
         'sublesson-mlops-autoscaling': 'learn/mlops/autoscaling/index.html',
         'sublesson-mlops-canary-rollout': 'learn/mlops/canary-rollout/index.html',
         'sublesson-mlops-drift-detection': 'learn/mlops/drift-detection/index.html',
+        'sublesson-agentic-ai-tool-routing': 'learn/agentic-ai/tool-routing/index.html',
+        'sublesson-agentic-ai-guardrails': 'learn/agentic-ai/guardrails/index.html',
+        'sublesson-agentic-ai-constrained-decoding': 'learn/agentic-ai/constrained-decoding/index.html',
+        'sublesson-frontier-frameworks-quantization': 'learn/frontier-frameworks/quantization/index.html',
+        'sublesson-frontier-frameworks-speculative-decoding': 'learn/frontier-frameworks/speculative-decoding/index.html',
+        'sublesson-frontier-frameworks-lora': 'learn/frontier-frameworks/lora/index.html',
+        'sublesson-frontier-frameworks-moe': 'learn/frontier-frameworks/moe/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
         'lesson-advanced-cv-grad-cam': 'learn/advanced-cv/grad-cam/index.html',

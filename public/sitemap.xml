@@ -232,11 +232,14 @@
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-loop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-memory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/agent-security/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/constrained-decoding/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/guardrails/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/mcp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/multi-agent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/observability/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/react-planning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/agentic-ai/tool-calling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/agentic-ai/tool-routing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/building-with-genai/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/ab-testing/</loc><priority>0.6</priority></url>
@@ -298,9 +301,13 @@
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/finetuning-stacks/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/flax-optax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/jax-fundamentals/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/lora/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/onnx-export/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/open-weight-models/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/provider-apis/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/quantization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/speculative-decoding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/staying-current/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/torch-compile-triton/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/vllm-inference/</loc><priority>0.6</priority></url>

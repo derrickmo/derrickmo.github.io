@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "speculative-decoding",
+  "module": "frontier-frameworks",
+  "title": "Speculative Decoding",
+  "oneLine": "Verify k drafted tokens for the price of one, because decoding is bandwidth-bound and the weights are read once either way.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Generating one token requires reading every weight, so the arithmetic done per byte moved is about one - the hardware is idle waiting on memory. That slack is free capacity: a single forward pass can score MANY candidate tokens for barely more than it costs to score one.",
+        "So let a small cheap model draft k tokens, then have the large model verify all k in one pass. Accepted tokens are kept, the first rejection is resampled, and the output distribution is provably identical to sampling from the large model alone. It is faster with no quality cost, which is rare enough to be worth understanding rather than memorising."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Accept a drafted token with probability given by the ratio of the two models' probabilities, and resample from the residual on rejection:"
+      ],
+      "tex": "P(\\text{accept } x) = \\min\\!\\left(1, \\frac{p(x)}{q(x)}\\right), \\qquad \\text{on reject draw from } \\frac{[\\,p - q\\,]_+}{\\lVert [\\,p - q\\,]_+ \\rVert_1}",
+      "texNote": "The correction term is what makes it exact rather than approximate - this is a sampling identity, not a heuristic."
+    },
+    {
+      "h": "In code",
+      "code": "draft = small.generate(prefix, k)                 # k cheap tokens\nlogits = large(prefix + draft)                   # ONE pass scores all k\n\nfor i, tok in enumerate(draft):\n    if random() < min(1, p[i][tok] / q[i][tok]):\n        prefix.append(tok)                       # accept\n    else:\n        prefix.append(sample(residual(p[i], q[i])))\n        break                                    # stop at first rejection",
+      "caption": "The speedup is the expected acceptance run length; a draft model that agrees more often is worth more than one that is merely faster."
+    }
+  ],
+  "takeaways": [
+    "It is exact - the output distribution matches the large model, not an approximation of it.",
+    "It works only because decode is memory-bound; on a compute-bound workload there is no free capacity to exploit.",
+    "Gains scale with draft ACCEPTANCE rate, so alignment between the two models matters more than draft speed."
+  ],
+  "demo": "speculative-decoding",
+  "updatedAt": "2026-08-22"
+}

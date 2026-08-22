@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "lora",
+  "module": "frontier-frameworks",
+  "title": "LoRA",
+  "oneLine": "Assume the update is low rank, train two thin matrices, and merge them back for free inference.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Fine-tuning learns a weight UPDATE. LoRA's bet is that this update, unlike the weights themselves, is approximately low rank - the task is a small correction, not a new model. So freeze W and learn BA with an inner dimension r that is tiny next to the layer width.",
+        "The memory win is often misattributed. It is not mainly the adapter's size; it is that the frozen base needs no gradients and no optimizer state, which is where the bulk of training memory lives. And because BA is a matrix, it can be added into W after training, so inference costs exactly nothing extra."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The adapted layer is the frozen weight plus a low-rank correction, scaled:"
+      ],
+      "tex": "W' = W + \\frac{\\alpha}{r} BA, \\qquad B \\in \\mathbb{R}^{d \\times r},\\; A \\in \\mathbb{R}^{r \\times k}",
+      "texNote": "B is zero-initialized, so training starts exactly at the pretrained function and learns a perturbation."
+    },
+    {
+      "h": "In code",
+      "code": "class LoRALinear(nn.Module):\n    def __init__(self, base, r, alpha):\n        super().__init__()\n        self.base = base\n        for p in self.base.parameters():\n            p.requires_grad = False              # the actual memory win\n        self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)\n        self.B = nn.Parameter(torch.zeros(base.out_features, r))\n        self.s = alpha / r\n\n    def forward(self, x):\n        return self.base(x) + (x @ self.A.T @ self.B.T) * self.s",
+      "caption": "Merging W + (alpha/r)BA back into the base weight was verified exact to ~1e-6, so serving is unchanged."
+    }
+  ],
+  "takeaways": [
+    "The saving comes from the frozen base carrying no optimizer state, not from the adapter being small.",
+    "Rank should be pushed until it reaches the task's intrinsic rank, then stopped - the curve has an elbow.",
+    "Merging makes inference cost identical to the base model, which is the real deployment argument."
+  ],
+  "demo": "lora",
+  "updatedAt": "2026-08-22"
+}

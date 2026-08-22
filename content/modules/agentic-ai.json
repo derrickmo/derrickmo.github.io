@@ -82,5 +82,14 @@
     "caption": "An agent is a loop: reason, act, observe, repeat.",
     "code": "while not done:\n    thought = llm(context)                 # reason about the goal\n    result = tools[thought.tool](thought.args)   # act\n    context += observe(result)             # fold the result back in"
   },
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "subLessons": {
+    "title": "Concept by concept",
+    "intro": "The pieces an agent is assembled from, taken one at a time. Each is a mechanism you can measure on its own before it disappears into a loop that does five things at once.",
+    "order": [
+      "tool-routing",
+      "guardrails",
+      "constrained-decoding"
+    ]
+  }
 }

@@ -2505,6 +2505,252 @@ window.SUB_LESSONS = {
         "demo": "drift-detection"
       }
     }
+  },
+  "agentic-ai": {
+    "title": "Concept by concept",
+    "intro": "The pieces an agent is assembled from, taken one at a time. Each is a mechanism you can measure on its own before it disappears into a loop that does five things at once.",
+    "order": [
+      "tool-routing",
+      "guardrails",
+      "constrained-decoding"
+    ],
+    "lessons": {
+      "tool-routing": {
+        "title": "Tool Routing",
+        "oneLine": "Choosing which tool to call is a classification problem hiding inside a generation problem.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "An agent with one tool has no routing problem. Give it twenty and the hardest part of a tool call is no longer emitting valid JSON - it is picking the right function in the first place. That decision is a classifier over the tool catalogue, conditioned on the request, and it fails differently from the formatting step around it.",
+              "This matters because a single accuracy number hides three separate things: whether the right tool was SELECTED, whether the call was well FORMED, and whether the ARGUMENTS were right. They have different fixes. Format is solved by construction with constrained decoding; selection is a capability question; arguments are the residual, and usually the hardest."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Routing is a softmax over tools given the request, and the catalogue itself is part of the input:"
+            ],
+            "tex": "P(t \\mid q) = \\mathrm{softmax}\\big(f(q,\\, d_1),\\, \\dots,\\, f(q,\\, d_K)\\big)",
+            "texNote": "Each tool's DESCRIPTION d_k is scored against the query, so a badly written description is a modelling error, not a documentation one."
+          },
+          {
+            "h": "In code",
+            "code": "# The catalogue is prompt content, so its wording is a tunable\ntools = [\n    {\"name\": \"search_docs\",\n     \"description\": \"Full-text search over internal policy documents. \"\n                    \"Use for questions about company policy, not general knowledge.\"},\n    {\"name\": \"run_sql\",\n     \"description\": \"Read-only SQL against the analytics warehouse.\"},\n]\n\ncall = model.choose_tool(query, tools)\nif call.name not in {t[\"name\"] for t in tools}:\n    raise ToolRoutingError(call.name)   # reject before executing, never after",
+            "caption": "Validate the choice against the catalogue before anything runs - a rejected call is retryable, an executed wrong one may not be."
+          }
+        ],
+        "takeaways": [
+          "Selection, format and arguments are three different failure modes behind one accuracy number.",
+          "Tool descriptions are model input, so rewriting them is a legitimate and cheap fix for routing errors.",
+          "Overlapping tools are the main cause of misrouting - merge them or make the boundary explicit in the description."
+        ]
+      },
+      "guardrails": {
+        "title": "Agent Guardrails",
+        "oneLine": "Independent layers multiply the attacker's failure probability - which is why defence composes where a pipeline does not.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A pipeline needs EVERY stage to work, so per-stage reliability multiplies downward: ten steps at 0.95 is 0.60. A defence needs ANY layer to hold, so the attacker must beat all of them and their failure probabilities multiply instead. That inversion is the whole reason defence in depth is worth building.",
+              "The layers have to be genuinely independent for the arithmetic to hold. Two prompt-based detectors sharing a model are one layer wearing two hats, and an attack that fools the model fools both."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "With independent layers each blocking with probability p_i, an attack succeeds only by beating all of them:"
+            ],
+            "tex": "P(\\text{attack succeeds}) = \\prod_i (1 - p_i)",
+            "texNote": "Measured on the module's toy agent: a 0.6 detector, a 0.8 allowlist and a 0.9 confirmation step take attack success from 1.0 to 0.008."
+          },
+          {
+            "h": "In code",
+            "code": "def act(step, task):\n    if step.tool not in ALLOWLIST[task.kind]:      # least privilege\n        return Refused(\"tool not permitted for this task\")\n    if detector.flags(step.args):                 # a classifier, so it has an ROC\n        return Refused(\"input flagged\")\n    if RISK[step.tool] >= 2:                       # confirm by RISK, not uniformly\n        return NeedsConfirmation(step)\n    return execute(step)",
+            "caption": "Least privilege first: it is the only layer with no false-positive cost, blocking 100% of out-of-scope tool use while permitting every legitimate call."
+          }
+        ],
+        "takeaways": [
+          "Defence composes disjunctively and a pipeline composes conjunctively - so adding a layer helps here and hurts there.",
+          "The product only holds for INDEPENDENT layers; two detectors sharing a model are one layer.",
+          "A detector is a classifier in an arms race; structural limits like an allowlist are not, which is why they come first."
+        ],
+        "demo": "guardrails"
+      },
+      "constrained-decoding": {
+        "title": "Constrained Decoding",
+        "oneLine": "Mask invalid tokens at every step and a valid parse stops being a result - it becomes the definition.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "If a tool call must be JSON matching a schema, you can ask the model nicely and measure the parse rate, or you can make anything else unrepresentable. Constrained decoding does the second: at each step, compute which tokens could still lead to a valid string and set every other logit to negative infinity.",
+              "The consequence worth internalising is that a 100% parse rate is then not an achievement to report - it is what the method guarantees by construction. The interesting number is whether the model chose the RIGHT tool and arguments, which constraint does nothing for."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Renormalize over the valid set V(s) at state s:"
+            ],
+            "tex": "\\tilde{p}(x \\mid s) = \\frac{p(x \\mid s)\\,\\mathbb{1}[x \\in V(s)]}{\\sum_{x' \\in V(s)} p(x' \\mid s)}",
+            "texNote": "This is a per-step local renormalization, which is NOT the same distribution as sampling p and rejecting invalid strings - the two differ, measurably."
+          },
+          {
+            "h": "In code",
+            "code": "def step(logits, state, grammar):\n    allowed = grammar.valid_next(state)          # an FSM, or a stack for nesting\n    mask = torch.full_like(logits, float('-inf'))\n    mask[list(allowed)] = 0.0\n    return (logits + mask).softmax(-1)           # invalid tokens cannot be sampled",
+            "caption": "A flat grammar needs a finite-state machine; nesting - JSON objects, balanced brackets - needs a pushdown stack."
+          }
+        ],
+        "takeaways": [
+          "Constraint makes format correct by construction, so report selection accuracy instead.",
+          "Per-step renormalization is not equivalent to rejection sampling the full string.",
+          "Nested structure needs a stack, not a finite-state machine."
+        ],
+        "demo": "constrained-decoding"
+      }
+    }
+  },
+  "frontier-frameworks": {
+    "title": "Concept by concept",
+    "intro": "The techniques that survive the framework churn. Each is a mechanism rather than an API, which is why they outlast the library that first shipped them.",
+    "order": [
+      "quantization",
+      "speculative-decoding",
+      "lora",
+      "moe"
+    ],
+    "lessons": {
+      "quantization": {
+        "title": "Quantization",
+        "oneLine": "Fewer bits per weight, and the outliers decide how few you can get away with.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Weights trained in 16 bits rarely need 16 bits to be evaluated. Mapping them onto a small grid - int8, int4, or a non-uniform codebook like NF4 - cuts memory and, because decoding is memory-bandwidth-bound, cuts latency roughly in proportion.",
+              "What limits how far you can go is not the average weight but the OUTLIERS. A single large value in a tensor stretches the scale so every other weight lands on a coarse grid, which is why per-channel scales beat one per-tensor scale, and why the failure is a cliff rather than a slope."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Affine quantization maps a real range onto integers with a scale and a zero point:"
+            ],
+            "tex": "q = \\mathrm{round}\\!\\left(\\frac{w}{s}\\right) + z, \\qquad s = \\frac{\\max(w) - \\min(w)}{2^{b} - 1}",
+            "texNote": "The scale is set by the extremes, so one outlier degrades every weight sharing that scale."
+          },
+          {
+            "h": "In code",
+            "code": "# per-tensor: one scale for everything - cheap, and outlier-sensitive\ns = (w.max() - w.min()) / (2**bits - 1)\n\n# per-channel: one scale per output channel - the standard fix\ns = (w.amax(dim=1, keepdim=True) - w.amin(dim=1, keepdim=True)) / (2**bits - 1)\n\nq = torch.round(w / s).clamp(0, 2**bits - 1)\nw_hat = q * s                                   # dequantized for the matmul",
+            "caption": "Measured in the module: per-tensor int4 scored 0.655 against per-channel's 0.732 on the same weights."
+          }
+        ],
+        "takeaways": [
+          "The win is bytes read per token, which is why it speeds up decoding and not training.",
+          "Outliers set the scale, so granularity matters more than the rounding rule.",
+          "Degradation is a cliff - int8 and int4 are often near-free while int2 collapses."
+        ],
+        "demo": "quantization"
+      },
+      "speculative-decoding": {
+        "title": "Speculative Decoding",
+        "oneLine": "Verify k drafted tokens for the price of one, because decoding is bandwidth-bound and the weights are read once either way.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Generating one token requires reading every weight, so the arithmetic done per byte moved is about one - the hardware is idle waiting on memory. That slack is free capacity: a single forward pass can score MANY candidate tokens for barely more than it costs to score one.",
+              "So let a small cheap model draft k tokens, then have the large model verify all k in one pass. Accepted tokens are kept, the first rejection is resampled, and the output distribution is provably identical to sampling from the large model alone. It is faster with no quality cost, which is rare enough to be worth understanding rather than memorising."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Accept a drafted token with probability given by the ratio of the two models' probabilities, and resample from the residual on rejection:"
+            ],
+            "tex": "P(\\text{accept } x) = \\min\\!\\left(1, \\frac{p(x)}{q(x)}\\right), \\qquad \\text{on reject draw from } \\frac{[\\,p - q\\,]_+}{\\lVert [\\,p - q\\,]_+ \\rVert_1}",
+            "texNote": "The correction term is what makes it exact rather than approximate - this is a sampling identity, not a heuristic."
+          },
+          {
+            "h": "In code",
+            "code": "draft = small.generate(prefix, k)                 # k cheap tokens\nlogits = large(prefix + draft)                   # ONE pass scores all k\n\nfor i, tok in enumerate(draft):\n    if random() < min(1, p[i][tok] / q[i][tok]):\n        prefix.append(tok)                       # accept\n    else:\n        prefix.append(sample(residual(p[i], q[i])))\n        break                                    # stop at first rejection",
+            "caption": "The speedup is the expected acceptance run length; a draft model that agrees more often is worth more than one that is merely faster."
+          }
+        ],
+        "takeaways": [
+          "It is exact - the output distribution matches the large model, not an approximation of it.",
+          "It works only because decode is memory-bound; on a compute-bound workload there is no free capacity to exploit.",
+          "Gains scale with draft ACCEPTANCE rate, so alignment between the two models matters more than draft speed."
+        ],
+        "demo": "speculative-decoding"
+      },
+      "lora": {
+        "title": "LoRA",
+        "oneLine": "Assume the update is low rank, train two thin matrices, and merge them back for free inference.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Fine-tuning learns a weight UPDATE. LoRA's bet is that this update, unlike the weights themselves, is approximately low rank - the task is a small correction, not a new model. So freeze W and learn BA with an inner dimension r that is tiny next to the layer width.",
+              "The memory win is often misattributed. It is not mainly the adapter's size; it is that the frozen base needs no gradients and no optimizer state, which is where the bulk of training memory lives. And because BA is a matrix, it can be added into W after training, so inference costs exactly nothing extra."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The adapted layer is the frozen weight plus a low-rank correction, scaled:"
+            ],
+            "tex": "W' = W + \\frac{\\alpha}{r} BA, \\qquad B \\in \\mathbb{R}^{d \\times r},\\; A \\in \\mathbb{R}^{r \\times k}",
+            "texNote": "B is zero-initialized, so training starts exactly at the pretrained function and learns a perturbation."
+          },
+          {
+            "h": "In code",
+            "code": "class LoRALinear(nn.Module):\n    def __init__(self, base, r, alpha):\n        super().__init__()\n        self.base = base\n        for p in self.base.parameters():\n            p.requires_grad = False              # the actual memory win\n        self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)\n        self.B = nn.Parameter(torch.zeros(base.out_features, r))\n        self.s = alpha / r\n\n    def forward(self, x):\n        return self.base(x) + (x @ self.A.T @ self.B.T) * self.s",
+            "caption": "Merging W + (alpha/r)BA back into the base weight was verified exact to ~1e-6, so serving is unchanged."
+          }
+        ],
+        "takeaways": [
+          "The saving comes from the frozen base carrying no optimizer state, not from the adapter being small.",
+          "Rank should be pushed until it reaches the task's intrinsic rank, then stopped - the curve has an elbow.",
+          "Merging makes inference cost identical to the base model, which is the real deployment argument."
+        ],
+        "demo": "lora"
+      },
+      "moe": {
+        "title": "Mixture of Experts",
+        "oneLine": "Route each token to a few experts: parameters grow, compute per token does not - and all of them still have to be resident.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A dense layer uses every parameter for every token. An MoE layer holds many expert FFNs and a router that sends each token to the top-k of them, so total parameters can grow enormously while the FLOPs per token stay roughly fixed. That is why MoE models train so well for their compute budget.",
+              "The trap is assuming that serving inherits the same win. It does not: every expert must be RESIDENT in memory because any token might route to it, so memory scales with total parameters while compute scales with active ones. A model that trains like a small one serves like a large one."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The layer is a sparse gated combination over experts:"
+            ],
+            "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
+            "texNote": "With k=2 of 64 experts, active parameters are ~1/32 of total - and resident memory is still all of it."
+          },
+          {
+            "h": "In code",
+            "code": "gate = self.router(x)                            # [tokens, n_experts]\nw, idx = gate.softmax(-1).topk(self.k, dim=-1)\n\ny = torch.zeros_like(x)\nfor e in range(self.n_experts):\n    sel = (idx == e).any(-1)\n    if sel.any():\n        y[sel] += w[sel][idx[sel] == e].unsqueeze(-1) * self.experts[e](x[sel])\n\n# without a balance term the router collapses onto a few experts\naux = self.n_experts * (frac_tokens * mean_prob).sum()",
+            "caption": "The auxiliary load-balancing loss is not optional - left off, routing collapses and most experts go unused."
+          }
+        ],
+        "takeaways": [
+          "Parameters scale, compute per token does not - that is the training argument.",
+          "All experts stay resident, so memory scales with TOTAL parameters and residency bounds the batch.",
+          "Routing needs an explicit balance loss or it collapses onto a handful of experts."
+        ],
+        "demo": "moe"
+      }
+    }
   }
 };
 
