@@ -1904,5 +1904,351 @@ window.DM_LESSON_BODIES = {
       "certified-robustness",
       "saliency"
     ]
+  },
+  "cnn-architectures": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a unit's receptive field, and how does it grow with depth?",
+          "a": "The region of the input that can affect it. Stacking 3x3 convs grows it by 2 per layer, and a stride-2 downsample doubles the rate — so depth and downsampling are the two levers."
+        },
+        {
+          "q": "Why did VGG stack 3x3 convs instead of using 7x7?",
+          "a": "Three stacked 3x3s see the same 7x7 window with 27C^2 parameters instead of 49C^2, and interleave two extra nonlinearities. More expressive, fewer weights."
+        },
+        {
+          "q": "What problem does a residual connection actually solve?",
+          "a": "Degradation: past a certain depth, plain networks get worse on TRAINING loss. Deeper should never be worse, because the extra layers could be identity — residual blocks make that identity easy to represent."
+        },
+        {
+          "q": "So the degradation problem is not overfitting?",
+          "a": "No, and the distinction is the whole argument. Training error rises too, so it is an optimization failure, not a generalization one. That is why regularization does not help and a change of parameterization does."
+        },
+        {
+          "q": "Why does the gradient flow better through a skip?",
+          "a": "The Jacobian of y = x + F(x) is I + dF/dx, so backprop through a block adds an identity path. The gradient reaches earlier layers through a route that is never multiplied down to nothing."
+        },
+        {
+          "q": "What is a bottleneck block?",
+          "a": "1x1 down-project, 3x3 at the reduced width, 1x1 up-project. It buys depth at fixed cost — the expensive spatial conv runs on a quarter of the channels."
+        },
+        {
+          "q": "What is a 1x1 convolution for?",
+          "a": "Mixing channels at a fixed spatial location: a per-pixel linear map. It changes the channel count cheaply, which is what makes bottlenecks and depthwise-separable designs possible."
+        },
+        {
+          "q": "What did batch norm change about depth?",
+          "a": "It made deep networks trainable at higher learning rates by stabilizing the distribution of layer inputs. It was necessary but not sufficient — BN alone did not fix degradation; residuals did."
+        },
+        {
+          "q": "Pre-activation or post-activation ResNet?",
+          "a": "Pre-activation — BN and ReLU before the conv — makes the skip path a clean identity all the way through, which trains better at extreme depth. It is the v2 formulation."
+        },
+        {
+          "q": "Why global average pooling instead of large fully connected layers?",
+          "a": "The FC layers held most of the parameters and most of the overfitting. Averaging each channel over space is parameter-free, makes the network input-size agnostic, and lost nothing measurable."
+        },
+        {
+          "q": "Where do residual connections appear outside CNNs?",
+          "a": "Every transformer block — attention and the FFN are both wrapped in a residual. The idea outlived the architecture that motivated it, which is a good sign it was about optimization rather than vision."
+        },
+        {
+          "q": "Would you design an architecture by hand today?",
+          "a": "Rarely. You start from a strong pretrained backbone and adapt it. Hand design is for genuine constraints — a target latency, an unusual input shape, a deployment device — not for chasing accuracy."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the degradation problem and why residual connections fix it.",
+          "a": "The observation that motivated ResNet was not about overfitting. He et al. compared a 20-layer and a 56-layer plain network on CIFAR and found the deeper one had HIGHER TRAINING error — not just worse test error. That rules out capacity and regularization as explanations, because a 56-layer network strictly contains the 20-layer one as a special case: set the extra 36 layers to identity and you reproduce it exactly. So the deeper network can represent the shallower solution and gradient descent does not find it. That makes it an optimization problem, and the fix is a change of parameterization rather than a change of capacity. A residual block computes y = x + F(x) instead of y = H(x), so representing identity means driving F to zero — pushing a stack of weights toward zero is easy, whereas making a stack of convolutions and nonlinearities compute identity is not. The block starts near identity and learns a perturbation. The gradient view is the same fact from the other side: the Jacobian is I + dF/dx, so there is an additive path back to every earlier layer that no chain of multiplications can attenuate to nothing. That is why 152 layers trains at all, and why the pre-activation variant, which keeps the skip path a pure identity with no BN or ReLU on it, trains even deeper networks more stably.",
+          "deepDive": {
+            "q": "Does that mean the deep network is really learning a deep function?",
+            "a": "Partly, and less than the depth suggests. Veit et al. showed a ResNet behaves like an ensemble of many shallower paths: there are 2^n routes through n blocks, most of them short, and deleting a single block at test time barely changes the output — which would be catastrophic in a plain network. So depth is buying an ensemble of effective depths rather than one very deep computation, and that reframes the 'deeper is better' intuition considerably."
+          }
+        },
+        {
+          "q": "How do you reason about receptive field when designing or debugging a network?",
+          "a": "Start by computing it, because the number is often smaller than people assume and it bounds what the network can possibly do. Each 3x3 conv adds 2, each stride-2 downsample doubles the growth rate downstream, and dilation multiplies the effective kernel spacing without cost. If your task requires relating two things 200 pixels apart and the final layer's receptive field is 90, no amount of training fixes it — you need more depth, more downsampling, or dilation. That is a design constraint you can check on paper before running anything. The complication is that the THEORETICAL receptive field is not the effective one. Luo et al. showed the effective receptive field is roughly Gaussian and grows only with the square root of the number of layers, so influence concentrates near the centre and the outer region contributes very little. A network whose theoretical field covers the image may in practice attend to a much smaller region, which is one reason architectures reach for explicit global context — dilated convolutions, pyramid pooling, or attention — rather than relying on stacked convs alone. Practically I would compute the theoretical field as a sanity bound, and if the task is genuinely global, add a mechanism that is global by construction instead of hoping depth delivers it.",
+          "deepDive": {
+            "q": "How would you check the effective receptive field empirically?",
+            "a": "Take the gradient of a single output unit with respect to the input and look at where it is non-negligible. That directly measures which pixels can influence that unit and by how much, and it typically shows a compact blob well inside the theoretical bound. It is a few lines of autograd and it settles the question for your actual trained network rather than for the architecture in the abstract."
+          }
+        },
+        {
+          "q": "Walk through LeNet to ResNet and say what each step actually fixed.",
+          "a": "LeNet established the pattern that still holds: alternate convolution and downsampling to build features while shrinking spatial extent, then classify. AlexNet showed the pattern scaled given GPUs, ReLU and enough data — the contribution was mostly demonstrating that the recipe worked at ImageNet scale, plus dropout and augmentation. VGG made the design uniform and asked what depth alone buys: only 3x3 convs, double the channels whenever you halve the resolution. It reached 19 layers and then hit a wall, and it was enormous because the fully connected head held around 100 million of its 138 million parameters. Inception attacked cost rather than depth, running several kernel sizes in parallel and using 1x1 convolutions to reduce channels first — the origin of the bottleneck idea. ResNet then fixed the wall itself with the residual block, which turned depth from a liability into a knob and immediately produced 152-layer networks that trained more easily than 20-layer plain ones. Afterwards the field explored the same space differently: DenseNet concatenated instead of adding, ResNeXt added grouped convolutions, EfficientNet found that width, depth and resolution should be scaled together, and ConvNeXt showed that a plain CNN modernized with the transformer era's training recipe matches vision transformers — which is a useful reminder that a lot of apparent architectural progress was actually training-recipe progress."
+        },
+        {
+          "q": "An 'efficient' architecture has half the FLOPs and runs slower. Explain.",
+          "a": "FLOPs count arithmetic and hardware is usually not arithmetic-bound. The common culprit is arithmetic intensity: depthwise convolutions do very little work per byte of memory traffic, so they are bandwidth-bound and use a small fraction of the available FLOPs, whereas a dense 3x3 on many channels maps onto highly optimized GEMM kernels running near peak. Halving FLOPs while quartering intensity is a net loss. Kernel support matters too — a fused, well-tuned operator can beat a theoretically cheaper one that falls back to a generic implementation. Then there is fragmentation: many small operators mean many kernel launches, and at small batch sizes launch overhead can dominate the math entirely. Memory access patterns and layout conversions add more. The practical consequence is that FLOPs are a proxy that is only reliable within an architecture family, and the honest procedure is to measure latency on the target hardware at the target batch size, which is where papers reporting 'efficiency' most often diverge from deployment. It is the same shape as every proxy-metric problem: the number is real, and it is not the quantity you are being paid to reduce."
+        },
+        {
+          "q": "Why do residual connections appear in transformers if they were invented for CNNs?",
+          "a": "Because the problem they solve is about optimizing deep stacks, not about images. Any architecture that composes many layers faces the same difficulty — the composed Jacobian is a long product, and without an additive path the signal reaching early layers is at the mercy of that product. A transformer block wraps both attention and the feed-forward network in a residual for exactly that reason, and it also inherits the identity-initialization argument: with the residual, a block starts close to a no-op and learns a perturbation, which is a much better starting point than a random deep function. The related detail worth knowing is that pre-norm and post-norm transformers differ in precisely the way pre-activation and post-activation ResNets do. Pre-norm keeps the residual stream a clean additive highway and trains stably at depth without warmup; post-norm puts a normalization on the residual path itself and needs careful warmup to avoid diverging. Modern LLMs are pre-norm for the same reason ResNet-v2 was: keep the identity path unobstructed. So the lineage is direct, and it is evidence that the contribution was an optimization insight rather than a vision one."
+        },
+        {
+          "q": "You need a model for a fixed latency budget on a specific device. How do you proceed?",
+          "a": "Treat it as a constrained search where the constraint is measured, not estimated. First establish the budget precisely — latency at what percentile, at what batch size, on what hardware, including preprocessing — because a p99 target at batch 1 is a very different problem from a mean target at batch 32. Then build a baseline from a pretrained backbone at a few widths and depths and MEASURE each on the target device rather than reasoning from FLOPs. That measurement usually reorders the candidates. From there the levers in rough order of return: pick the right backbone family for the device, since what is fast on a server GPU and what is fast on a mobile NPU differ substantially; reduce input resolution, which is often the single largest lever and is frequently under-explored because it feels like giving up; apply compound scaling rather than tuning depth or width alone; then quantize, which typically gives a solid speedup for a small accuracy cost and is well supported. Distillation is worth trying when a large model is available and the small one has capacity to spare. Structured pruning helps if the runtime can actually exploit the resulting sparsity, and unstructured pruning usually cannot be exploited at all — which is the same FLOPs-versus-latency trap in a different disguise."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Degradation problem",
+        "back": "Deeper plain networks show higher TRAINING error, not just test error. An optimization failure, not overfitting — which is why residuals and not regularization fix it."
+      },
+      {
+        "type": "formula",
+        "front": "Residual block",
+        "back": "y = x + F(x). Jacobian is I + dF/dx, so backprop always has an additive identity path to earlier layers."
+      },
+      {
+        "type": "intuition",
+        "front": "Why identity is the key",
+        "back": "A deeper net contains the shallower one if the extra layers are identity. Residual form makes identity mean 'drive F to zero', which is easy; plain form does not."
+      },
+      {
+        "type": "formula",
+        "front": "Receptive field growth",
+        "back": "+2 per 3x3 conv; a stride-2 downsample doubles the downstream growth rate; dilation widens it at no parameter cost."
+      },
+      {
+        "type": "intuition",
+        "front": "Effective receptive field",
+        "back": "Roughly Gaussian and grows with sqrt(depth), so it is much smaller than the theoretical bound. Measure it with the gradient of one output w.r.t. the input."
+      },
+      {
+        "type": "formula",
+        "front": "Three 3x3 vs one 7x7",
+        "back": "Same 7x7 window, 27C^2 vs 49C^2 parameters, plus two extra nonlinearities. The VGG argument for small kernels."
+      },
+      {
+        "type": "definition",
+        "front": "Bottleneck block",
+        "back": "1x1 down-project, 3x3 at reduced width, 1x1 up-project. Buys depth at fixed cost by running the expensive spatial conv on fewer channels."
+      },
+      {
+        "type": "intuition",
+        "front": "ResNet as an ensemble",
+        "back": "2^n paths through n blocks, mostly short; deleting one block barely changes the output. Depth buys an ensemble of effective depths, not one very deep function."
+      },
+      {
+        "type": "intuition",
+        "front": "Pre-norm vs post-norm",
+        "back": "The transformer version of pre-activation vs post-activation ResNet. Keep the residual stream a clean identity and depth trains without warmup."
+      },
+      {
+        "type": "pitfall",
+        "front": "Trusting FLOPs",
+        "back": "Depthwise convs have low arithmetic intensity and are bandwidth-bound; many small ops add launch overhead. Measure latency on the target device at the target batch size."
+      },
+      {
+        "type": "pitfall",
+        "front": "Assuming depth delivers global context",
+        "back": "The effective receptive field may not cover the image even when the theoretical one does. If the task is global, use dilation, pyramid pooling or attention."
+      },
+      {
+        "type": "pitfall",
+        "front": "Crediting the architecture",
+        "back": "ConvNeXt showed a plain CNN with a modern training recipe matches ViTs. Much apparent architectural progress was training-recipe progress."
+      }
+    ],
+    "refs": [
+      {
+        "title": "He et al. (2015) — Deep Residual Learning for Image Recognition",
+        "url": "https://arxiv.org/abs/1512.03385"
+      },
+      {
+        "title": "He et al. (2016) — Identity Mappings in Deep Residual Networks",
+        "url": "https://arxiv.org/abs/1603.05027"
+      },
+      {
+        "title": "Simonyan & Zisserman (2014) — Very Deep Convolutional Networks (VGG)",
+        "url": "https://arxiv.org/abs/1409.1556"
+      },
+      {
+        "title": "Luo et al. (2016) — Understanding the Effective Receptive Field",
+        "url": "https://arxiv.org/abs/1701.04128"
+      },
+      {
+        "title": "Liu et al. (2022) — A ConvNet for the 2020s (ConvNeXt)",
+        "url": "https://arxiv.org/abs/2201.03545"
+      }
+    ],
+    "demos": []
+  },
+  "transfer-learning": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why do pretrained features transfer at all?",
+          "a": "Early layers learn edges, colour and texture, which are properties of natural images rather than of the labels. Almost any vision task needs the same primitives, so that work is reusable."
+        },
+        {
+          "q": "Feature extraction versus fine-tuning, in one line each?",
+          "a": "Feature extraction freezes the backbone and trains a head — fast, tiny, safe on small data. Fine-tuning updates the backbone too — more capacity to adapt, more data required, more ways to break it."
+        },
+        {
+          "q": "What learning rate for the backbone?",
+          "a": "Much lower than the head's, typically 10x. The head is random and needs to move; the backbone is already good and a large step destroys what you are trying to keep."
+        },
+        {
+          "q": "What is discriminative or layer-wise learning rate decay?",
+          "a": "Give each layer its own rate, increasing with depth — lowest at the bottom, highest at the top. It follows the transferability gradient: general features should barely move, specific ones should."
+        },
+        {
+          "q": "When does transfer actively hurt?",
+          "a": "When the source and target domains differ in low-level statistics — medical scans, satellite imagery, spectrograms — and the target set is large enough to learn its own features. Then the pretrained prior is a bias, not a head start."
+        },
+        {
+          "q": "Should you freeze batch norm when fine-tuning?",
+          "a": "Usually put BN in eval mode if the batch is small or the domain shifted, because updating running statistics on a few unrepresentative samples corrupts them. It is one of the most common silent bugs in transfer."
+        },
+        {
+          "q": "How much target data before full fine-tuning beats a frozen backbone?",
+          "a": "There is no universal number — it depends on domain distance more than count. Measure it: run both across a label-budget sweep and read the crossover off the curve."
+        },
+        {
+          "q": "What is LP-FT?",
+          "a": "Linear-probe then fine-tune: train the head with the backbone frozen, then unfreeze. It stops the random head's large early gradients from distorting good features, and Kumar et al. showed it helps out-of-distribution accuracy in particular."
+        },
+        {
+          "q": "Why does a random head damage a pretrained backbone?",
+          "a": "Its initial gradients are large and essentially meaningless, and they flow straight into the backbone. A few hundred steps of that can undo pretraining before the head has learned anything worth propagating."
+        },
+        {
+          "q": "Do you need to match the pretraining input resolution?",
+          "a": "Not exactly, but close helps — the filters and any position embeddings were learned at a scale. Large changes want interpolation of position embeddings and usually a short adaptation phase."
+        },
+        {
+          "q": "What about the classifier head itself?",
+          "a": "Initialize it small or zero-ish and warm it up first. A zero-initialized final layer starts the model at the pretrained function and learns a perturbation, which is the residual argument applied to fine-tuning."
+        },
+        {
+          "q": "How do you pick which layers to freeze?",
+          "a": "Sweep it rather than guess: freeze the first k blocks for several k and read the curve. The optimum moves with domain distance and dataset size, so it is a measurement, not a rule."
+        }
+      ],
+      "standard": [
+        {
+          "q": "You have a pretrained backbone and 2,000 labelled images for a new task. Walk me through it.",
+          "a": "With 2,000 labels the default is a frozen backbone and a trained head, because full fine-tuning at that scale usually overfits and can degrade features that were better than anything the target set can teach. But I would not stop at the default — I would establish the curve, because that is the decision-relevant object. Concretely: start with a linear probe on frozen features as the baseline, which trains in minutes and sets the floor. Then run LP-FT — keep the probe, unfreeze the backbone at a low rate with layer-wise decay, and warm up — which is the version most likely to win. Then a partial unfreeze of the last block or two as a middle point. Compare all three on a properly grouped split, and if the images cluster by patient, site, session or camera, split on that, because a random split here inflates every number and the effect is large. Two details decide whether this works. Put batch norm in eval mode unless the batch is large and the domain close, since updating running statistics on small unrepresentative batches is a silent and common way to lose accuracy. And use strong augmentation, because with 2,000 labels augmentation is doing more work than the architecture choice. Finally, be explicit about the alternative: if the frozen probe is close to the fine-tuned model, the honest recommendation is to spend the next week on labels rather than on training, since the curve tells you which one buys more.",
+          "deepDive": {
+            "q": "Why does LP-FT help out-of-distribution specifically?",
+            "a": "Kumar et al.'s argument is that a randomly initialized head produces large, uninformative gradients that distort the pretrained features before the head is any good — and the distortion is concentrated in the directions the target set happens to cover. In-distribution that is harmless or even helpful, because those are the directions being evaluated. Out of distribution it is a real loss, because the features that transferred were the ones you just overwrote. Fitting the head first means that by the time the backbone unfreezes, the gradients arriving at it are already meaningful."
+          }
+        },
+        {
+          "q": "Explain the transferability gradient and how you would measure it for your own problem.",
+          "a": "Layers differ in how general their features are. The first layers learn Gabor-like edge and colour detectors that are essentially universal across natural images; the last layers learn combinations specific to the pretraining label set, and the final classifier is entirely specific. So transferability decreases with depth, which is why the standard recipes freeze from the bottom and adapt from the top. Yosinski et al. measured this directly by transferring the first k layers and retraining the rest, and found two distinct effects that are worth separating: features become less general with depth, and there is a separate penalty from splitting CO-ADAPTED layers — cutting a network in the middle hurts even when transferring to the SAME task, because neighbouring layers had learned to work together. Fine-tuning removes that second penalty, which is part of why it beats freezing when you have the data for it. To measure it on your own problem the experiment is cheap: freeze the first k blocks for k = 0, 1, 2, ... and plot target accuracy against k. The shape tells you what you need. A flat curve means the pretrained features are already sufficient and you should not be fine-tuning at all. A curve that rises then falls locates the sweet spot directly. And a monotonically decreasing curve — best at k = 0 — says the source domain is far enough away that you are better off training from scratch, which is the answer people most often fail to consider.",
+          "deepDive": {
+            "q": "What does it mean if the best k is zero but from-scratch is still worse?",
+            "a": "That pretraining is helping as an INITIALIZATION rather than as a feature extractor. The weights are a better starting point than random even though none of them should be held fixed, which is common for distant domains with moderate data. The practical read is: unfreeze everything, but keep the low learning rate and the warmup, because you are still trying to preserve the optimization advantage rather than the features."
+          }
+        },
+        {
+          "q": "What goes wrong with batch normalization during transfer?",
+          "a": "Batch norm carries two kinds of state and they fail differently. The learned scale and shift are ordinary parameters and behave like any other weights. The running mean and variance are buffers estimated from the data, and they are the problem. In train mode, every forward pass updates them from the current batch — so fine-tuning with a batch size of 8 on a domain whose statistics differ from ImageNet's replaces well-estimated population statistics with a noisy estimate from a handful of unrepresentative images, and the damage accumulates over steps without appearing in the loss in any legible way. The classic symptom is a model whose training accuracy looks fine and whose eval accuracy is much worse, because eval uses the corrupted running statistics while training used the batch ones. The fixes are simple once you know: put BN modules in eval mode so the buffers freeze; or if the domain has genuinely shifted and you have enough data, recompute the statistics deliberately by running forward passes over the target set with a large batch before evaluating. This is also a good argument for architectures using group or layer normalization when small-batch fine-tuning is the expected workflow, since neither keeps cross-batch state and neither has this failure mode at all."
+        },
+        {
+          "q": "When would you train from scratch instead?",
+          "a": "Three situations. First, when the input is not natural images in any meaningful sense — raw spectrograms, tabular data reshaped into a grid, scientific instrument output — because the low-level statistics the backbone learned do not describe your data and the prior is a handicap rather than a head start. Second, when you have enough target data that the pretrained prior stops mattering: at millions of in-domain examples the model can learn better features than any transferred set, and the freeze sweep will show it by peaking at k = 0. Third, when architecture is constrained by deployment in a way no pretrained checkpoint matches — an unusual input resolution, a hard latency budget, a device that needs a specific operator set — and adapting a large backbone is more work than training the right small model. The honest caveat is that from-scratch is chosen far more often than it should be, usually early in a project when nobody has measured. The cheap discipline is to run the frozen linear probe first: it costs an afternoon, and if it already beats the from-scratch model you were planning, that settles the question before anyone spends a month on it."
+        },
+        {
+          "q": "How do you tell whether transfer actually helped?",
+          "a": "Against the right baselines, and there are three that matter. The first is the same architecture trained from scratch on the target data, which is the comparison people usually mean. The second is a randomly initialized frozen backbone with a trained head — a surprisingly strong baseline, because random convolutional features are not useless, and if pretrained-frozen barely beats random-frozen then the pretraining is contributing much less than assumed. The third is a simple non-deep baseline, which on small tabular-like or highly structured problems sometimes wins outright. Then check that the comparison is fair: the same augmentation, the same schedule length, the same tuning budget for each arm, since an under-tuned from-scratch baseline is the standard way transfer results get inflated. Report the label-efficiency curve rather than a single number, because the interesting claim is almost always 'transfer reaches the from-scratch model's accuracy with a tenth of the labels' rather than 'transfer is two points better', and the curve makes the trade legible to whoever is deciding whether to fund more labelling. And if the split is not grouped correctly for the domain, none of these numbers mean anything, so that check comes first."
+        },
+        {
+          "q": "Full fine-tuning or a parameter-efficient method for vision?",
+          "a": "The choice is usually made by serving rather than by accuracy. If you are adapting one backbone to one task and will deploy that one model, full fine-tuning is simplest and generally the accuracy ceiling. Parameter-efficient methods — adapters, LoRA on the attention or convolutional projections, or just training the biases — earn their place when you have many tasks and one backbone, because they let you keep a single set of frozen weights in memory and swap a few megabytes per task, and because LoRA in particular can be merged back into the weights so inference costs nothing extra. They also bound the damage: a method that can only modify a small subspace cannot destroy the pretrained features, which makes it a reasonable default when the target set is small or noisy. The trade to state honestly is that PEFT accuracy on a single well-resourced task is usually at or slightly below full fine-tuning, so if the accuracy is what you are optimizing and you only have one task, the parameter count is not the constraint and you should just fine-tune. The parameter-efficiency argument is about deployment economics and about bounding interference, not about being more accurate."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Why features transfer",
+        "back": "Early layers learn edges, colour and texture — properties of natural images, not of the labels. Almost any vision task needs the same primitives."
+      },
+      {
+        "type": "definition",
+        "front": "Transferability gradient",
+        "back": "Generality decreases with depth: universal edge detectors at the bottom, pretraining-label-specific combinations at the top. Freeze from the bottom, adapt from the top."
+      },
+      {
+        "type": "definition",
+        "front": "LP-FT",
+        "back": "Linear-probe then fine-tune. Fitting the head first stops a random head's large gradients from distorting good features; helps OOD accuracy in particular."
+      },
+      {
+        "type": "definition",
+        "front": "Layer-wise LR decay",
+        "back": "Per-layer learning rates increasing with depth. Encodes the transferability gradient directly: general features barely move, specific ones do."
+      },
+      {
+        "type": "intuition",
+        "front": "Co-adaptation penalty",
+        "back": "Yosinski's second effect: splitting neighbouring layers hurts even when transferring to the SAME task, because they had learned to work together. Fine-tuning removes it."
+      },
+      {
+        "type": "intuition",
+        "front": "Read the freeze sweep",
+        "back": "Flat = features already sufficient. Rise-then-fall = a real sweet spot. Monotonically decreasing = the source domain is too far; consider from scratch."
+      },
+      {
+        "type": "formula",
+        "front": "Backbone learning rate",
+        "back": "Roughly 10x below the head's, with warmup. The head is random and must move; the backbone is good and a large step destroys it."
+      },
+      {
+        "type": "intuition",
+        "front": "Zero-init the head",
+        "back": "Starts the model at the pretrained function and learns a perturbation — the residual argument applied to fine-tuning."
+      },
+      {
+        "type": "pitfall",
+        "front": "Batch norm in train mode",
+        "back": "Running statistics get overwritten from small unrepresentative batches. Training looks fine, eval collapses. Put BN in eval mode or recompute the statistics deliberately."
+      },
+      {
+        "type": "pitfall",
+        "front": "Ungrouped split",
+        "back": "If images cluster by patient, site, session or camera, a random split leaks the group signature and inflates every arm of the comparison."
+      },
+      {
+        "type": "pitfall",
+        "front": "Under-tuned from-scratch baseline",
+        "back": "The standard way transfer results get inflated. Equal augmentation, equal schedule, equal tuning budget — or the comparison says nothing."
+      },
+      {
+        "type": "pitfall",
+        "front": "PEFT for accuracy",
+        "back": "On one well-resourced task, PEFT sits at or slightly below full fine-tuning. Its case is deployment economics and bounded interference, not accuracy."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Yosinski et al. (2014) — How Transferable Are Features in Deep Neural Networks?",
+        "url": "https://arxiv.org/abs/1411.1792"
+      },
+      {
+        "title": "Kumar et al. (2022) — Fine-Tuning Can Distort Pretrained Features and Underperform Out-of-Distribution",
+        "url": "https://arxiv.org/abs/2202.10054"
+      },
+      {
+        "title": "Kornblith, Shlens & Le (2019) — Do Better ImageNet Models Transfer Better?",
+        "url": "https://arxiv.org/abs/1805.08974"
+      },
+      {
+        "title": "Raghu et al. (2019) — Transfusion: Understanding Transfer Learning for Medical Imaging",
+        "url": "https://arxiv.org/abs/1902.07208"
+      },
+      {
+        "title": "Howard & Ruder (2018) — Universal Language Model Fine-tuning (ULMFiT; discriminative LRs)",
+        "url": "https://arxiv.org/abs/1801.06146"
+      }
+    ],
+    "demos": []
   }
 };
