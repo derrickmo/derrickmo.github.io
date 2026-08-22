@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "content": "node scripts/gen-from-store.mjs --write",
-    "audit": "node scripts/audit-curriculum.mjs && node scripts/check-page-assets.mjs"
+    "audit": "node scripts/audit-curriculum.mjs && node scripts/check-page-assets.mjs && node scripts/check-notebook-sync.mjs"
   },
   "devDependencies": {
     "vite": "^6.0.7"
