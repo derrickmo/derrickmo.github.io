@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "saliency",
+  "module": "trustworthy-ai",
+  "title": "Saliency Maps",
+  "oneLine": "Gradient-based heat maps that look convincing whether or not they track the model.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "The simplest attribution for an image is the gradient of the output with respect to the input: which pixels, if nudged, would change the score most. It is one backward pass, and it produces a picture that a human immediately finds persuasive - which is the problem.",
+        "Plain gradients saturate. If the model is already confident, the local slope is near zero even though the feature is what drove the decision, so the map goes dark exactly where the evidence is strongest. Integrated Gradients fixes this by accumulating gradients along a path from a baseline, and satisfies a completeness property that plain saliency does not."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Integrated Gradients accumulates the gradient along a straight path from the baseline to the input:"
+      ],
+      "tex": "\\mathrm{IG}_i(x) = (x_i - x'_i)\\int_{0}^{1} \\frac{\\partial f\\big(x' + \\alpha(x - x')\\big)}{\\partial x_i}\\, d\\alpha",
+      "texNote": "Completeness: the attributions sum to f(x) - f(x'), which plain gradients do not satisfy."
+    },
+    {
+      "h": "In code",
+      "code": "# The check that matters more than the map: does it track the MODEL?\nrandomized = deepcopy(model)\nrandomize_weights(randomized)\n\nif spearman(attr(model, x), attr(randomized, x)) > 0.5:\n    print(\"FAILS Adebayo sanity check - the map is a property of the input\")\n\n# Measured: IG and Shapley collapse to ~0.06 correlation (pass);\n# input-times-gradient survives at 0.493 (fails).",
+      "caption": "An explanation should be sensitive to the thing it claims to explain, and that sensitivity is testable in ten lines."
+    }
+  ],
+  "takeaways": [
+    "Plain gradients saturate, so a confident model gives a dark map where the evidence is.",
+    "Run the model-randomization check - some popular methods produce near-identical maps for a randomized network.",
+    "Plausibility is not faithfulness; a map that always looks reasonable is not evidence."
+  ],
+  "demo": "saliency",
+  "updatedAt": "2026-08-22"
+}

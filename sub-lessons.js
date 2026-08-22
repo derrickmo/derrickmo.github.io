@@ -2751,6 +2751,391 @@ window.SUB_LESSONS = {
         "demo": "moe"
       }
     }
+  },
+  "causal-inference": {
+    "title": "Concept by concept",
+    "intro": "The ideas this module rests on, taken one at a time. Each is a claim about what the data cannot tell you on its own - which is the whole subject in one sentence.",
+    "order": [
+      "causal-inference",
+      "simpsons-paradox",
+      "mcmc"
+    ],
+    "lessons": {
+      "causal-inference": {
+        "title": "Causal Inference",
+        "oneLine": "Estimating what WOULD have happened, from data that only records what did.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Every unit has two potential outcomes - what happens under treatment and what happens without it - and you observe exactly one. That missing half is not a data-collection problem you can fix with more rows; it is missing by construction, which is why causal inference is a different discipline rather than a harder regression.",
+              "So the effect is never identified by the data alone. It is identified by an ASSUMPTION that licenses treating some observed comparison as if it were the missing counterfactual - randomization, ignorability given covariates, a valid instrument, parallel trends. The estimate is only as good as that assumption, and the assumption is usually untestable."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The individual effect is a difference of potential outcomes, and the naive comparison misses it by a selection term:"
+            ],
+            "tex": "\\tau = \\mathbb{E}[Y(1) - Y(0)], \\qquad \\underbrace{\\mathbb{E}[Y \\mid T{=}1] - \\mathbb{E}[Y \\mid T{=}0]}_{\\text{naive}} = \\mathrm{ATT} + \\underbrace{\\mathbb{E}[Y(0)\\mid T{=}1] - \\mathbb{E}[Y(0)\\mid T{=}0]}_{\\text{selection bias}}",
+            "texNote": "The decomposition is exact. Randomization does not estimate the bias away - it makes the second term zero by design."
+          },
+          {
+            "h": "In code",
+            "code": "# A simulation can compute what reality cannot: both outcomes for everyone.\ny1, y0 = potential_outcomes(X)\nate_true = (y1 - y0).mean()\n\n# What an analyst actually sees, under confounded assignment:\nt = assign(X)                                  # depends on X, so not random\ny = np.where(t, y1, y0)\nnaive = y[t == 1].mean() - y[t == 0].mean()\n\n# Measured in the module: naive 3.26 against a true ATE of 7.95 -\n# and with a different DGP the naive estimate has the wrong SIGN.",
+            "caption": "Grading estimators against a known truth is only possible in simulation, which is exactly why the module is built on them."
+          }
+        ],
+        "takeaways": [
+          "One potential outcome per unit is missing by construction, not by omission.",
+          "The assumption identifies the effect; the estimator only computes it.",
+          "More data shrinks the interval and does nothing to the bias - they are different axes."
+        ]
+      },
+      "simpsons-paradox": {
+        "title": "Simpson's Paradox",
+        "oneLine": "A trend that reverses on aggregation - and no statistic in the table tells you which answer to act on.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A treatment can win in every subgroup and lose overall. That is not a statistical anomaly or a sampling artefact; it is arithmetic, and it happens whenever the subgroup mix differs between the arms. Charig's kidney-stone data is the canonical case: treatment A wins on small stones and on large stones, and loses on the combined table, because A was given to the harder cases.",
+              "The part that makes this a causal lesson rather than a curiosity is that the SAME four cells support opposite recommendations depending on when the third variable was determined. If it is a pre-treatment confounder, the stratified answer is right. If the treatment CAUSED it, stratifying blocks part of the effect and the aggregate is right. Nothing in the numbers distinguishes those cases."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "A weighted average can invert its components when the weights differ:"
+            ],
+            "tex": "\\frac{a_1 + a_2}{b_1 + b_2} < \\frac{c_1 + c_2}{d_1 + d_2} \\quad\\text{while}\\quad \\frac{a_i}{b_i} > \\frac{c_i}{d_i}\\;\\; \\text{for each } i",
+            "texNote": "Because it is arithmetic, the reversal can be built to any magnitude - and a further split can flip it back."
+          },
+          {
+            "h": "In code",
+            "code": "# 'Always disaggregate' is the wrong lesson - it depends on the arrow.\nfor g, sub in df.groupby(\"severity\"):\n    print(g, sub.query(\"t==1\").y.mean() - sub.query(\"t==0\").y.mean())\nprint(\"pooled\", df.query(\"t==1\").y.mean() - df.query(\"t==0\").y.mean())\n\n# If `severity` is measured BEFORE treatment -> confounder -> trust the strata.\n# If treatment causes it (a complication, say) -> mediator -> trust the pooled.",
+            "caption": "The deciding fact - when the covariate was determined - is nowhere in the dataframe."
+          }
+        ],
+        "takeaways": [
+          "The reversal is arithmetic, so it can be constructed to any size and reversed again by another split.",
+          "There is no 'most disaggregated' level that is automatically correct.",
+          "Only the causal structure terminates the regress - the timestamp of the covariate is the practical test."
+        ],
+        "demo": "simpsons-paradox"
+      },
+      "mcmc": {
+        "title": "MCMC",
+        "oneLine": "Sample from a distribution you can only evaluate up to a constant, by building a chain whose stationary distribution is it.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Bayesian inference needs the posterior, and the posterior's normalizing constant is an integral that is usually intractable. MCMC sidesteps it: construct a random walk whose long-run visiting frequency IS the posterior, then run it and treat the visited states as samples. Because the acceptance rule uses a RATIO of densities, the unknown constant cancels.",
+              "The practical consequence is that you get a completely general inference engine at the cost of correlated samples and a convergence question. Neither is free - a chain can look healthy and still have missed a mode entirely."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Metropolis-Hastings accepts a proposal with probability given by the density ratio, where the intractable constant cancels:"
+            ],
+            "tex": "\\alpha = \\min\\!\\left(1, \\frac{\\tilde{p}(\\theta')\\, q(\\theta \\mid \\theta')}{\\tilde{p}(\\theta)\\, q(\\theta' \\mid \\theta)}\\right)",
+            "texNote": "Only the UNNORMALIZED density p-tilde appears, which is the whole trick."
+          },
+          {
+            "h": "In code",
+            "code": "theta = init\nfor _ in range(n_steps):\n    prop = theta + sigma * np.random.randn()\n    # log-space ratio: the normalizing constant is absent by construction\n    if np.log(np.random.rand()) < log_post(prop) - log_post(theta):\n        theta = prop\n    chain.append(theta)\n\n# Validate against a case with a closed form before trusting it anywhere else.\n# In the module: MCMC mean 2.4329 vs the analytic conjugate posterior's 2.4323.",
+            "caption": "R-hat below 1.01 says the chains agree, not that the model is right - chains started near each other can agree while all missing a mode."
+          }
+        ],
+        "takeaways": [
+          "The acceptance ratio cancels the normalizing constant, which is why an unnormalized density suffices.",
+          "Samples are correlated, so effective sample size matters more than raw draw count - and tail ESS more than bulk.",
+          "Convergence diagnostics check the SAMPLER, never the model; posterior predictive checks are what test the model."
+        ],
+        "demo": "mcmc"
+      }
+    }
+  },
+  "trustworthy-ai": {
+    "title": "Concept by concept",
+    "intro": "The instruments this module uses to interrogate a model. Every one of them is a true measurement over a reference class narrower than its name suggests.",
+    "order": [
+      "shap",
+      "saliency",
+      "adversarial-examples",
+      "superposition",
+      "activation-patching"
+    ],
+    "lessons": {
+      "shap": {
+        "title": "SHAP Values",
+        "oneLine": "The only attribution satisfying a set of fairness axioms - computed against a baseline that the number never mentions.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Attribution asks how much each feature contributed to one prediction. Shapley values answer it by averaging a feature's marginal contribution over every possible order of adding features, which is the unique method satisfying efficiency, symmetry, dummy and additivity together.",
+              "The uniqueness is real and frequently over-read. A Shapley value is a contrast against a BASELINE - what the model does when the feature is 'absent' - and absence has to be defined. Interventional and conditional baselines give different, both-correct answers to different questions, and the reported number carries no record of which was used."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The value is a weighted average of marginal contributions over all subsets:"
+            ],
+            "tex": "\\phi_i = \\sum_{S \\subseteq N \\setminus \\{i\\}} \\frac{|S|!\\,(|N|-|S|-1)!}{|N|!}\\,\\big[v(S \\cup \\{i\\}) - v(S)\\big]",
+            "texNote": "Exact cost is exponential in features; TreeSHAP computes it in polynomial time for tree ensembles, which is why SHAP is practical there and approximated elsewhere."
+          },
+          {
+            "h": "In code",
+            "code": "# Efficiency: the attributions must sum to the gap from the baseline.\nassert abs(phi.sum() - (f(x) - f(baseline))) < 1e-6\n\n# Correlated features SPLIT credit, so importance can look small for a\n# feature that is genuinely driving the prediction through a duplicate.\n# Grouped Shapley treats a set of related columns as one player.",
+            "caption": "Name the question before choosing the baseline: debugging and adverse-action notices want interventional; describing the data-generating process wants conditional."
+          }
+        ],
+        "takeaways": [
+          "The axioms pin down the method uniquely; they say nothing about which baseline is right.",
+          "Correlated features share credit, so a ranking by attribution is not a ranking by importance.",
+          "It is a statement about the MODEL, never about the world - a causal reading is a category error."
+        ],
+        "demo": "shap"
+      },
+      "saliency": {
+        "title": "Saliency Maps",
+        "oneLine": "Gradient-based heat maps that look convincing whether or not they track the model.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "The simplest attribution for an image is the gradient of the output with respect to the input: which pixels, if nudged, would change the score most. It is one backward pass, and it produces a picture that a human immediately finds persuasive - which is the problem.",
+              "Plain gradients saturate. If the model is already confident, the local slope is near zero even though the feature is what drove the decision, so the map goes dark exactly where the evidence is strongest. Integrated Gradients fixes this by accumulating gradients along a path from a baseline, and satisfies a completeness property that plain saliency does not."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Integrated Gradients accumulates the gradient along a straight path from the baseline to the input:"
+            ],
+            "tex": "\\mathrm{IG}_i(x) = (x_i - x'_i)\\int_{0}^{1} \\frac{\\partial f\\big(x' + \\alpha(x - x')\\big)}{\\partial x_i}\\, d\\alpha",
+            "texNote": "Completeness: the attributions sum to f(x) - f(x'), which plain gradients do not satisfy."
+          },
+          {
+            "h": "In code",
+            "code": "# The check that matters more than the map: does it track the MODEL?\nrandomized = deepcopy(model)\nrandomize_weights(randomized)\n\nif spearman(attr(model, x), attr(randomized, x)) > 0.5:\n    print(\"FAILS Adebayo sanity check - the map is a property of the input\")\n\n# Measured: IG and Shapley collapse to ~0.06 correlation (pass);\n# input-times-gradient survives at 0.493 (fails).",
+            "caption": "An explanation should be sensitive to the thing it claims to explain, and that sensitivity is testable in ten lines."
+          }
+        ],
+        "takeaways": [
+          "Plain gradients saturate, so a confident model gives a dark map where the evidence is.",
+          "Run the model-randomization check - some popular methods produce near-identical maps for a randomized network.",
+          "Plausibility is not faithfulness; a map that always looks reasonable is not evidence."
+        ],
+        "demo": "saliency"
+      },
+      "adversarial-examples": {
+        "title": "Adversarial Examples",
+        "oneLine": "Imperceptible perturbations that flip a prediction - and the direction, not the size, is what does it.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Add a carefully chosen perturbation, small enough that a person sees no change, and a confident classifier flips. The essential comparison is against a RANDOM perturbation of the same size, which barely moves accuracy at all - so this is not fragility to noise, it is fragility to a specific direction that an optimizer can find.",
+              "The uncomfortable framing is that the model may not be making an error in any statistical sense. Ilyas et al. argue these arise from non-robust features that are genuinely predictive on the natural distribution and evaporate under a small shift - the model is using real signal that happens not to survive an adversary."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "FGSM takes one step along the sign of the loss gradient; PGD iterates it inside the ball:"
+            ],
+            "tex": "x_{\\text{adv}} = \\Pi_{\\mathcal{B}_\\epsilon(x)}\\Big( x + \\alpha\\,\\mathrm{sign}\\big(\\nabla_x \\mathcal{L}(f(x), y)\\big) \\Big)",
+            "texNote": "The projection keeps the perturbation inside the threat model; PGD with restarts is the standard evaluation attack."
+          },
+          {
+            "h": "In code",
+            "code": "# Measured in the module: clean 0.97, random perturbation at eps=0.3 -> 0.93,\n# PGD at the same eps -> 0.28. Same budget, entirely different outcome.\n\n# The trap when EVALUATING a defence:\nfgsm_acc = evaluate(model, fgsm_attack)   # 0.62 - looks robust\npgd_acc  = evaluate(model, pgd_attack)   # 0.32 - it was gradient masking",
+            "caption": "A defence that only resists the attack it was trained against is the standard way robustness is overstated."
+          }
+        ],
+        "takeaways": [
+          "Compare against a random perturbation of equal size or the result means nothing.",
+          "Gradient masking makes a defence look strong to weak attacks; always evaluate with a strong adaptive one.",
+          "'Robust' is meaningless without the threat model - the norm, the budget and the attacker's access."
+        ],
+        "demo": "adversarial-examples"
+      },
+      "superposition": {
+        "title": "Superposition",
+        "oneLine": "More features than dimensions, packed at an angle - which is why single neurons rarely mean one thing.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A layer with 4 dimensions can represent more than 4 features if the features are SPARSE - rarely active at the same time. The model stores them as non-orthogonal directions and tolerates the interference, because the cost of occasional collision is lower than the cost of dropping a feature entirely.",
+              "That is the mechanistic reason interpretability cannot proceed neuron by neuron. If features are packed at angles to the basis, a single neuron participates in several of them, so it is polysemantic by construction rather than by accident, and looking for 'the cat neuron' is looking for something the geometry says need not exist."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The toy model compresses and reconstructs with a tied decoder; interference is the off-diagonal of the Gram matrix:"
+            ],
+            "tex": "\\hat{x} = \\mathrm{ReLU}\\big(W^\\top W x + b\\big), \\qquad \\text{interference} = \\big|\\,(W^\\top W)_{ij}\\,\\big|_{i \\neq j}",
+            "texNote": "The ReLU is load-bearing - it absorbs small negative interference, and removing it changes the behaviour qualitatively."
+          },
+          {
+            "h": "In code",
+            "code": "# Sparsity is what makes superposition worth it.\n# Dense features  -> only m of n represented, and orthogonally.\n# Sparse features -> all n packed into m dims, at angles.\n\n# Five features in two dimensions arrange as a regular pentagon,\n# ~72 degrees apart - the geometry is not arbitrary.\nangles = np.degrees(np.arccos(W.T @ W))",
+            "caption": "Sparse autoencoders try to undo the packing; measured recovery was 5 of 24 planted features at the BEST reconstruction, so the units are not identified."
+          }
+        ],
+        "takeaways": [
+          "Superposition requires sparsity - it is a bet that features rarely co-occur.",
+          "Polysemantic neurons are the predicted consequence, not a curiosity.",
+          "An SAE's reconstruction can be near-perfect while the recovered features are mostly wrong."
+        ],
+        "demo": "superposition"
+      },
+      "activation-patching": {
+        "title": "Activation Patching",
+        "oneLine": "The do-operator applied inside a network - the one place in ML where intervention is exact and free.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Run the model on a clean input and on a corrupted one that differs in exactly the thing you care about. Then copy ONE activation from the clean run into the corrupted run and see how much of the correct behaviour returns. Whatever recovers the output is causally carrying that information.",
+              "This is the interventional counterpart to probing, and the distinction is the whole point: a probe shows a property is DECODABLE, patching shows it is USED. A probe can hit 100% accuracy on a direction the network never reads - measured in the module at 1.0000 decodability with a causal effect of 0.000003."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Patch component c and measure the recovered fraction of the clean-corrupted gap:"
+            ],
+            "tex": "\\text{effect}(c) = \\frac{f\\big(x_{\\text{corr}} \\,\\big|\\, a_c \\leftarrow a_c^{\\text{clean}}\\big) - f(x_{\\text{corr}})}{f(x_{\\text{clean}}) - f(x_{\\text{corr}})}",
+            "texNote": "Normalizing by the gap makes effects comparable across components and inputs."
+          },
+          {
+            "h": "In code",
+            "code": "clean_acts = capture(model, x_clean)\n\ndef patch_hook(module, inp, out):\n    out[:, pos, :] = clean_acts[layer][:, pos, :]   # one component, one position\n    return out\n\nwith hook(model, layer, patch_hook):\n    recovered = model(x_corrupted)\n\n# Caution: ablating one component often shows a SMALL effect because a backup\n# component takes over - self-repair, which understates true importance.",
+            "caption": "Interventions here are exact and repeatable, which is why interpretability is methodologically luckier than causal inference on the world."
+          }
+        ],
+        "takeaways": [
+          "Probing is correlational, patching is causal - a decodable property may be entirely unused.",
+          "Normalize by the clean-corrupted gap so effects compare across components.",
+          "Self-repair and backup components mean a small ablation effect is not proof of unimportance."
+        ],
+        "demo": "activation-patching"
+      }
+    }
+  },
+  "interview-capstone": {
+    "title": "Concept by concept",
+    "intro": "The handful of ideas that recur across every round. Each is small enough to state in a minute and general enough to answer questions you did not prepare for.",
+    "order": [
+      "classification-metrics",
+      "dynamic-programming",
+      "graph-search"
+    ],
+    "lessons": {
+      "classification-metrics": {
+        "title": "Classification Metrics",
+        "oneLine": "Precision, recall and the rest are a family, and picking the wrong member is how a project optimizes the wrong thing.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Every classification metric is a summary of the confusion matrix, and each discards something different. Accuracy is useless under imbalance - a 1.2% fraud rate makes 'flag nothing' 98.8% accurate. ROC-AUC is insensitive to the base rate, which sounds like a virtue and means it flatters rare-positive problems; PR-AUC does not.",
+              "The deeper point for an interview is that a metric is a proxy for a DECISION. If the product shows a top-10 list, a metric averaging over all items is measuring something nobody consumes; if a threshold drives an action, an integral over all thresholds is measuring operating points you will never run at."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The cost-optimal threshold follows directly from the cost matrix, not from convention:"
+            ],
+            "tex": "t^{*} = \\frac{C_{FP}}{C_{FP} + C_{FN}}",
+            "texNote": "At $100 per missed fraud and $2 per false alert this is 0.0196, not 0.5 - and the module measured a ~10x cost reduction from making that swap."
+          },
+          {
+            "h": "In code",
+            "code": "# Under imbalance these tell very different stories about the same model.\nprint(\"accuracy \", (y == pred).mean())      # 0.988 - and catches no fraud\nprint(\"roc-auc  \", roc_auc_score(y, s))     # 0.990 - optimistic\nprint(\"pr-auc   \", average_precision_score(y, s))   # 0.607 - honest\nprint(\"p@100    \", precision_at_k(y, s, 100))       # 0.85 - the review queue",
+            "caption": "Report the metric the decision consumes; precision at the queue depth is often the only one anyone acts on."
+          }
+        ],
+        "takeaways": [
+          "Under imbalance, accuracy is a distraction and ROC-AUC is optimistic - PR-AUC is the honest summary.",
+          "The threshold is a cost decision, and 0.5 is a convention rather than an answer.",
+          "A metric integrating over all operating points describes points you will never deploy at."
+        ],
+        "demo": "classification-metrics"
+      },
+      "dynamic-programming": {
+        "title": "Dynamic Programming",
+        "oneLine": "Overlapping subproblems plus optimal substructure - and the ML versions are the same recursion wearing different names.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "DP applies when a problem decomposes into subproblems that RECUR, so a naive recursion recomputes the same answers exponentially often, and when an optimal solution is built from optimal solutions to those subproblems. Memoize or fill a table and the exponential collapses to polynomial.",
+              "For an ML candidate the payoff is recognizing it outside the coding round. Viterbi is DP over a trellis. Edit distance underpins word error rate. The Bellman equation is DP over states - value iteration IS the table fill. Preparing this pattern and its ML homes together halves the cost of two interview rounds."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The recurrence is the whole algorithm; the table is an implementation detail:"
+            ],
+            "tex": "D[i][j] = \\min\\big(D[i-1][j] + 1,\\; D[i][j-1] + 1,\\; D[i-1][j-1] + \\mathbb{1}[a_i \\neq b_j]\\big)",
+            "texNote": "Edit distance in one line - delete, insert, or substitute-if-different."
+          },
+          {
+            "h": "In code",
+            "code": "def edit_distance(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i]\n        for j, cb in enumerate(b, 1):\n            cur.append(min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (ca != cb)))\n        prev = cur\n    return prev[-1]\n\n# Timed in the module on disjoint strings: naive recursion 0.05 -> 1207 ms\n# from L=4 to L=10, while the DP stays ~0.02 ms and handles L=1000 in 0.25 s.",
+            "caption": "Only the previous row is needed, so the O(nm) table collapses to O(min(n,m)) space - the standard follow-up."
+          }
+        ],
+        "takeaways": [
+          "Two conditions: overlapping subproblems AND optimal substructure. Missing either means DP is the wrong tool.",
+          "Write the recurrence first; the table or memo is mechanical once it is right.",
+          "Viterbi, edit distance and value iteration are the same pattern - prepare them together."
+        ]
+      },
+      "graph-search": {
+        "title": "Graph Search",
+        "oneLine": "BFS, Dijkstra and A* are one algorithm with three queues - and the heuristic is the only thing that must be proven.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "All three explore outward from a start node and differ only in the order the frontier is popped. BFS uses a plain queue and is correct when every edge costs the same. Dijkstra uses a priority queue on distance-so-far and handles varying non-negative weights. A* prioritizes distance-so-far PLUS an estimate of what remains, so it drives toward the goal instead of expanding uniformly.",
+              "Recognizing which one applies is most of the value: 'shortest path, unweighted' means BFS, and reaching for Dijkstra there is a correct answer that says you did not notice. The ML homes are worth carrying too - beam search is a bounded frontier, and HNSW is graph search over a similarity index."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "A* orders the frontier by the sum of cost incurred and cost estimated:"
+            ],
+            "tex": "f(n) = g(n) + h(n), \\qquad \\text{admissible iff } h(n) \\le h^{*}(n)\\ \\forall n",
+            "texNote": "Admissibility - never overestimating - is what guarantees optimality. An inadmissible heuristic is faster and can return the wrong path."
+          },
+          {
+            "h": "In code",
+            "code": "# One skeleton, three behaviours - only the frontier differs.\nfrontier = deque([start])                 # BFS\nfrontier = [(0, start)]                   # Dijkstra: heap on g\nfrontier = [(h(start), 0, start)]         # A*:       heap on g + h\n\n# h = 0 makes A* exactly Dijkstra, which is the cleanest way to remember\n# that they are the same algorithm under different priorities.",
+            "caption": "Set h to zero and A* degenerates to Dijkstra; make every edge cost 1 and Dijkstra degenerates to BFS."
+          }
+        ],
+        "takeaways": [
+          "The three differ only in frontier ordering - h=0 turns A* into Dijkstra, unit weights turn Dijkstra into BFS.",
+          "A* is optimal only with an admissible heuristic; overestimating buys speed and loses the guarantee.",
+          "Dijkstra assumes non-negative weights - negative edges need Bellman-Ford."
+        ],
+        "demo": "bfs-dfs-astar"
+      }
+    }
   }
 };
 

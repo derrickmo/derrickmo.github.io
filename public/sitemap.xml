@@ -245,11 +245,14 @@
   <url><loc>https://derrickmo.github.io/learn/causal-inference/ab-testing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/bayesian-workflow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/causal-graphs/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/causal-inference/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/confounding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/instrumental-variables/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/mcmc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/potential-outcomes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/propensity-matching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/resampling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/causal-inference/simpsons-paradox/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/time-series-causality/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/causal-inference/uplift-modeling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/cnn/</loc><priority>0.6</priority></url>
@@ -333,12 +336,15 @@
   <url><loc>https://derrickmo.github.io/learn/huggingface/nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/breadth-rapid-fire/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/classification-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/coding-patterns/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/cs-algorithms/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/derivations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-fraud-llm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-recommender/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-search-ads/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/dynamic-programming/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/interview-landscape/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/portfolio-capstone/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/system-design-framework/</loc><priority>0.6</priority></url>
@@ -539,6 +545,8 @@
   <url><loc>https://derrickmo.github.io/learn/transformers/tokenization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/transformers/transformer-block/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/activation-patching/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/adversarial-examples/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/adversarial-robustness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/alignment-governance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/attribution/</loc><priority>0.6</priority></url>
@@ -548,7 +556,10 @@
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/probing-patching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/red-teaming/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/saliency/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/shap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/superposition-sae/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/superposition/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/anomaly-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/bayesian-inference/</loc><priority>0.6</priority></url>

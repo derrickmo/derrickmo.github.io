@@ -82,5 +82,14 @@
     "caption": "Every design case walks the same skeleton.",
     "code": "steps = [\"clarify goal\", \"frame as ML task\", \"data & labels\",\n         \"features\", \"model choice\", \"serving & latency\",\n         \"metrics & monitoring\", \"iterate\"]\n# the content changes; the skeleton never does"
   },
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "subLessons": {
+    "title": "Concept by concept",
+    "intro": "The handful of ideas that recur across every round. Each is small enough to state in a minute and general enough to answer questions you did not prepare for.",
+    "order": [
+      "classification-metrics",
+      "dynamic-programming",
+      "graph-search"
+    ]
+  }
 }

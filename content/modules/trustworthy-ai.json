@@ -82,5 +82,16 @@
     "caption": "Calibration: confidence should mean what it says.",
     "code": "conf, correct = probs.max(1)\nece = sum(abs(conf[bin].mean() - correct[bin].mean()) * len(bin) / n\n          for bin in confidence_bins)   # 90% sure should be right 90% of the time"
   },
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "subLessons": {
+    "title": "Concept by concept",
+    "intro": "The instruments this module uses to interrogate a model. Every one of them is a true measurement over a reference class narrower than its name suggests.",
+    "order": [
+      "shap",
+      "saliency",
+      "adversarial-examples",
+      "superposition",
+      "activation-patching"
+    ]
+  }
 }

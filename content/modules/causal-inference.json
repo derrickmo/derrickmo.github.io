@@ -82,5 +82,14 @@
     "caption": "Intervening is not the same as observing.",
     "code": "p_obs = df[df.treated == 1].outcome.mean()       # P(Y | T=1)\n# do(T=1): break the arrows INTO treatment, then average\np_do = sum(p(y, do_t=1, z=z) * p(z) for z in confounders)\n# the gap between the two IS confounding"
   },
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "subLessons": {
+    "title": "Concept by concept",
+    "intro": "The ideas this module rests on, taken one at a time. Each is a claim about what the data cannot tell you on its own - which is the whole subject in one sentence.",
+    "order": [
+      "causal-inference",
+      "simpsons-paradox",
+      "mcmc"
+    ]
+  }
 }

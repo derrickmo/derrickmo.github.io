@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "simpsons-paradox",
+  "module": "causal-inference",
+  "title": "Simpson's Paradox",
+  "oneLine": "A trend that reverses on aggregation - and no statistic in the table tells you which answer to act on.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A treatment can win in every subgroup and lose overall. That is not a statistical anomaly or a sampling artefact; it is arithmetic, and it happens whenever the subgroup mix differs between the arms. Charig's kidney-stone data is the canonical case: treatment A wins on small stones and on large stones, and loses on the combined table, because A was given to the harder cases.",
+        "The part that makes this a causal lesson rather than a curiosity is that the SAME four cells support opposite recommendations depending on when the third variable was determined. If it is a pre-treatment confounder, the stratified answer is right. If the treatment CAUSED it, stratifying blocks part of the effect and the aggregate is right. Nothing in the numbers distinguishes those cases."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A weighted average can invert its components when the weights differ:"
+      ],
+      "tex": "\\frac{a_1 + a_2}{b_1 + b_2} < \\frac{c_1 + c_2}{d_1 + d_2} \\quad\\text{while}\\quad \\frac{a_i}{b_i} > \\frac{c_i}{d_i}\\;\\; \\text{for each } i",
+      "texNote": "Because it is arithmetic, the reversal can be built to any magnitude - and a further split can flip it back."
+    },
+    {
+      "h": "In code",
+      "code": "# 'Always disaggregate' is the wrong lesson - it depends on the arrow.\nfor g, sub in df.groupby(\"severity\"):\n    print(g, sub.query(\"t==1\").y.mean() - sub.query(\"t==0\").y.mean())\nprint(\"pooled\", df.query(\"t==1\").y.mean() - df.query(\"t==0\").y.mean())\n\n# If `severity` is measured BEFORE treatment -> confounder -> trust the strata.\n# If treatment causes it (a complication, say) -> mediator -> trust the pooled.",
+      "caption": "The deciding fact - when the covariate was determined - is nowhere in the dataframe."
+    }
+  ],
+  "takeaways": [
+    "The reversal is arithmetic, so it can be constructed to any size and reversed again by another split.",
+    "There is no 'most disaggregated' level that is automatically correct.",
+    "Only the causal structure terminates the regress - the timestamp of the covariate is the practical test."
+  ],
+  "demo": "simpsons-paradox",
+  "updatedAt": "2026-08-22"
+}

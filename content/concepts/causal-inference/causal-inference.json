@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "causal-inference",
+  "module": "causal-inference",
+  "title": "Causal Inference",
+  "oneLine": "Estimating what WOULD have happened, from data that only records what did.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Every unit has two potential outcomes - what happens under treatment and what happens without it - and you observe exactly one. That missing half is not a data-collection problem you can fix with more rows; it is missing by construction, which is why causal inference is a different discipline rather than a harder regression.",
+        "So the effect is never identified by the data alone. It is identified by an ASSUMPTION that licenses treating some observed comparison as if it were the missing counterfactual - randomization, ignorability given covariates, a valid instrument, parallel trends. The estimate is only as good as that assumption, and the assumption is usually untestable."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The individual effect is a difference of potential outcomes, and the naive comparison misses it by a selection term:"
+      ],
+      "tex": "\\tau = \\mathbb{E}[Y(1) - Y(0)], \\qquad \\underbrace{\\mathbb{E}[Y \\mid T{=}1] - \\mathbb{E}[Y \\mid T{=}0]}_{\\text{naive}} = \\mathrm{ATT} + \\underbrace{\\mathbb{E}[Y(0)\\mid T{=}1] - \\mathbb{E}[Y(0)\\mid T{=}0]}_{\\text{selection bias}}",
+      "texNote": "The decomposition is exact. Randomization does not estimate the bias away - it makes the second term zero by design."
+    },
+    {
+      "h": "In code",
+      "code": "# A simulation can compute what reality cannot: both outcomes for everyone.\ny1, y0 = potential_outcomes(X)\nate_true = (y1 - y0).mean()\n\n# What an analyst actually sees, under confounded assignment:\nt = assign(X)                                  # depends on X, so not random\ny = np.where(t, y1, y0)\nnaive = y[t == 1].mean() - y[t == 0].mean()\n\n# Measured in the module: naive 3.26 against a true ATE of 7.95 -\n# and with a different DGP the naive estimate has the wrong SIGN.",
+      "caption": "Grading estimators against a known truth is only possible in simulation, which is exactly why the module is built on them."
+    }
+  ],
+  "takeaways": [
+    "One potential outcome per unit is missing by construction, not by omission.",
+    "The assumption identifies the effect; the estimator only computes it.",
+    "More data shrinks the interval and does nothing to the bias - they are different axes."
+  ],
+  "updatedAt": "2026-08-22"
+}

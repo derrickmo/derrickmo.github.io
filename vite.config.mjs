@@ -141,6 +141,17 @@ export default defineConfig({
         'sublesson-frontier-frameworks-speculative-decoding': 'learn/frontier-frameworks/speculative-decoding/index.html',
         'sublesson-frontier-frameworks-lora': 'learn/frontier-frameworks/lora/index.html',
         'sublesson-frontier-frameworks-moe': 'learn/frontier-frameworks/moe/index.html',
+        'sublesson-causal-inference-causal-inference': 'learn/causal-inference/causal-inference/index.html',
+        'sublesson-causal-inference-simpsons-paradox': 'learn/causal-inference/simpsons-paradox/index.html',
+        'sublesson-causal-inference-mcmc': 'learn/causal-inference/mcmc/index.html',
+        'sublesson-trustworthy-ai-shap': 'learn/trustworthy-ai/shap/index.html',
+        'sublesson-trustworthy-ai-saliency': 'learn/trustworthy-ai/saliency/index.html',
+        'sublesson-trustworthy-ai-adversarial-examples': 'learn/trustworthy-ai/adversarial-examples/index.html',
+        'sublesson-trustworthy-ai-superposition': 'learn/trustworthy-ai/superposition/index.html',
+        'sublesson-trustworthy-ai-activation-patching': 'learn/trustworthy-ai/activation-patching/index.html',
+        'sublesson-interview-capstone-classification-metrics': 'learn/interview-capstone/classification-metrics/index.html',
+        'sublesson-interview-capstone-dynamic-programming': 'learn/interview-capstone/dynamic-programming/index.html',
+        'sublesson-interview-capstone-graph-search': 'learn/interview-capstone/graph-search/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
         'lesson-advanced-cv-grad-cam': 'learn/advanced-cv/grad-cam/index.html',

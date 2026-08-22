@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "graph-search",
+  "module": "interview-capstone",
+  "title": "Graph Search",
+  "oneLine": "BFS, Dijkstra and A* are one algorithm with three queues - and the heuristic is the only thing that must be proven.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "All three explore outward from a start node and differ only in the order the frontier is popped. BFS uses a plain queue and is correct when every edge costs the same. Dijkstra uses a priority queue on distance-so-far and handles varying non-negative weights. A* prioritizes distance-so-far PLUS an estimate of what remains, so it drives toward the goal instead of expanding uniformly.",
+        "Recognizing which one applies is most of the value: 'shortest path, unweighted' means BFS, and reaching for Dijkstra there is a correct answer that says you did not notice. The ML homes are worth carrying too - beam search is a bounded frontier, and HNSW is graph search over a similarity index."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A* orders the frontier by the sum of cost incurred and cost estimated:"
+      ],
+      "tex": "f(n) = g(n) + h(n), \\qquad \\text{admissible iff } h(n) \\le h^{*}(n)\\ \\forall n",
+      "texNote": "Admissibility - never overestimating - is what guarantees optimality. An inadmissible heuristic is faster and can return the wrong path."
+    },
+    {
+      "h": "In code",
+      "code": "# One skeleton, three behaviours - only the frontier differs.\nfrontier = deque([start])                 # BFS\nfrontier = [(0, start)]                   # Dijkstra: heap on g\nfrontier = [(h(start), 0, start)]         # A*:       heap on g + h\n\n# h = 0 makes A* exactly Dijkstra, which is the cleanest way to remember\n# that they are the same algorithm under different priorities.",
+      "caption": "Set h to zero and A* degenerates to Dijkstra; make every edge cost 1 and Dijkstra degenerates to BFS."
+    }
+  ],
+  "takeaways": [
+    "The three differ only in frontier ordering - h=0 turns A* into Dijkstra, unit weights turn Dijkstra into BFS.",
+    "A* is optimal only with an admissible heuristic; overestimating buys speed and loses the guarantee.",
+    "Dijkstra assumes non-negative weights - negative edges need Bellman-Ford."
+  ],
+  "demo": "bfs-dfs-astar",
+  "updatedAt": "2026-08-22"
+}
