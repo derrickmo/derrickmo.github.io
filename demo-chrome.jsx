@@ -80,6 +80,16 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
     return d && d.topic ? d.topic : null;
   })();
   const _topic = _registryTopic || topic;
+  // Same idea for "READ THE LESSON": every demo used to hand-pass the /learn/ HUB, so
+  // the link dropped the reader at a 25-module index to find the lesson themselves.
+  // play-demos.js carries a `lesson` path per demo; prefer it and fall back to whatever
+  // was passed (the hub) for demos that have no single owning lesson yet (CQ-0003).
+  const _registryLesson = (() => {
+    if (!_slug || typeof window === "undefined") return null;
+    const d = ((window.PLAY_DEMOS || {}).demos || []).find((x) => x.slug === _slug);
+    return d && d.lesson ? `${_BASE}${d.lesson}` : null;
+  })();
+  const _lessonHref = _registryLesson || lessonHref;
   return (
     <>
       <TopNav />
@@ -147,10 +157,10 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
               <Connections ids={_conceptIds} />
             )}
             {_slug && <PathsCallout kind="demo" refId={_slug} accent={accent} />}
-            {(lessonHref || repoHref) && (
+            {(_lessonHref || repoHref) && (
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
-                {lessonHref && (
-                  <a href={lessonHref} className="t-mono-s" style={{
+                {_lessonHref && (
+                  <a href={_lessonHref} className="t-mono-s" style={{
                     padding: "12px 20px", border: `1px solid ${accent}`, borderRadius: 4,
                     color: "var(--white)", textDecoration: "none", background: "rgba(59,130,246,0.10)",
                   }}>READ THE LESSON →</a>
