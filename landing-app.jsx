@@ -125,7 +125,7 @@ function About() {
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
       <Container style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "minmax(0, 0.85fr) minmax(0, 1.15fr)", gap: mobile ? 36 : 64, alignItems: "center" }}>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <HexPortrait src={window.__DM_CARTOON || "assets/derrick-cartoon.webp"} size={mobile ? 240 : 380} />
+          <HexPortrait src="assets/derrick-cartoon.webp" size={mobile ? 240 : 380} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <MonoLabel>// PROFILE.LOG</MonoLabel>
