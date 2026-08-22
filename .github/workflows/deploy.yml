@@ -28,6 +28,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # The sitemap is generated from dist/, so it has to be rebuilt before the output is
+      # verified against it - otherwise a new page ships with a stale sitemap.
+      - run: node scripts/gen-sitemap.mjs
+      # PF-0008: dist/ used to be published unconditionally, so a file that never reached
+      # the deploy (og-default.png sat at the repo root for months) was invisible until a
+      # reader hit it. Every assertion here maps to a bug this repo has actually had.
+      - name: Verify build output
+        run: node scripts/verify-build-output.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
