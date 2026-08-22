@@ -200,7 +200,8 @@ for (const [f, o] of parsedLessons) {
   if (o.bodySource !== undefined && !["store", "jsx"].includes(o.bodySource)) err(f, `bad bodySource "${o.bodySource}"`);
   const legacyJsx = o.bodySource === "jsx";
   if (legacyJsx && !(s && isStr(s.flagship))) err(f, `bodySource "jsx" requires surfaces.flagship`);
-  // LIVE minimums (waived for legacy-jsx flagship lessons until Phase C)
+  // LIVE minimums. Legacy-jsx lessons take the separate, narrower bar below: their
+  // hand-built body waives level/body/the store-body sections, not the drill layer.
   if (o.status === "LIVE" && !legacyJsx) {
     if (!LEVELS.has(o.level)) err(f, `level required at LIVE`);
     const b = o.body;
@@ -239,23 +240,26 @@ for (const [f, o] of parsedLessons) {
   // bar as any other lesson — without this, a drill layer would be authored with
   // nothing checking it at all, which is exactly how 11 bad notebookFile values
   // survived for weeks (2026-08-15). Absent drill layer = still waived, no error.
+  // A legacy-jsx lesson keeps its hand-built body, so `level` and `body` stay waived —
+  // but the DRILL layer is now required, not optional. All 25 flagships have one as of
+  // 2026-08-22, so a new flagship that ships without interview/flashcards/refs is a
+  // regression rather than a known debt, and fails here.
   if (o.status === "LIVE" && legacyJsx) {
     const iv = o.interview || {};
     const cards = isArr(o.flashcards) ? o.flashcards : [];
-    const drilled = !!((iv.quickGrind || []).length || (iv.standard || []).length || cards.length);
-    if (drilled) {
-      if (!isArr(iv.quickGrind) || iv.quickGrind.length < 10) err(f, "[drill] interview.quickGrind >= 10");
-      if (!isArr(iv.standard) || iv.standard.length < 6) err(f, "[drill] interview.standard >= 6");
-      [...(iv.quickGrind || []), ...(iv.standard || [])].forEach((qa, i) => {
-        if (!isStr(qa.q) || !isStr(qa.a)) err(f, `[drill] interview entry ${i} needs {q, a}`);
-      });
-      if (cards.length < 8) err(f, "[drill] flashcards >= 8");
-      cards.forEach((c, i) => {
-        if (!CARD_TYPES.has(c.type)) err(f, `[drill] flashcards[${i}].type bad`);
-        if (!isStr(c.front) || !isStr(c.back)) err(f, `[drill] flashcards[${i}] needs {front, back}`);
-      });
-      if (!isArr(o.refs) || o.refs.length === 0) warn(f, "[drill] refs empty");
-    }
+    if (!isArr(iv.quickGrind) || iv.quickGrind.length < 10) err(f, "[drill] interview.quickGrind >= 10");
+    if (!isArr(iv.standard) || iv.standard.length < 6) err(f, "[drill] interview.standard >= 6");
+    [...(iv.quickGrind || []), ...(iv.standard || [])].forEach((qa, i) => {
+      if (!isStr(qa.q) || !isStr(qa.a)) err(f, `[drill] interview entry ${i} needs {q, a}`);
+    });
+    const deep = (iv.standard || []).filter((s2) => s2.deepDive && s2.deepDive.q && s2.deepDive.a).length;
+    if (deep < 2) err(f, `[drill] interview.standard needs >= 2 full {q,a} deepDives, has ${deep}`);
+    if (cards.length < 8) err(f, "[drill] flashcards >= 8");
+    cards.forEach((c, i) => {
+      if (!CARD_TYPES.has(c.type)) err(f, `[drill] flashcards[${i}].type bad`);
+      if (!isStr(c.front) || !isStr(c.back)) err(f, `[drill] flashcards[${i}] needs {front, back}`);
+    });
+    if (!isArr(o.refs) || o.refs.length < 4) err(f, "[drill] refs >= 4");
   }
 }
 

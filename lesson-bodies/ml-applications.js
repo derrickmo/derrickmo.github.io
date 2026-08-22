@@ -2572,5 +2572,178 @@ window.DM_LESSON_BODIES = {
       "overfitting",
       "cross-validation"
     ]
+  },
+  "recommenders-cf": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is collaborative filtering?",
+          "a": "Predicting a user's preferences from the behaviour of similar users or similar items, using only the interaction matrix — no content features required."
+        },
+        {
+          "q": "User-based or item-based neighbourhoods?",
+          "a": "Item-based, usually. Item-item similarities are more stable than user-user because items accumulate more interactions and change less, and they can be precomputed."
+        },
+        {
+          "q": "Why do neighbourhood methods stop scaling?",
+          "a": "The similarity matrix is quadratic in the number of items or users, so at millions of either it is neither computable nor storable, and it must be recomputed as interactions arrive."
+        },
+        {
+          "q": "What do latent factors buy over neighbourhoods?",
+          "a": "A compact representation that generalizes. Instead of storing all pairwise similarities you learn d-dimensional vectors, and the dot product recovers a similarity that was never explicitly stored."
+        },
+        {
+          "q": "Why can't you run plain SVD on the interaction matrix?",
+          "a": "It is mostly missing, and SVD has no notion of missing. Filling with zeros asserts that unobserved means disliked, which is false and dominates the fit since most cells are empty."
+        },
+        {
+          "q": "Explicit versus implicit feedback?",
+          "a": "Explicit is a stated rating and an unobserved cell is genuinely unknown. Implicit is a play, click or purchase, where absence is weak evidence of disinterest — so you fit over ALL cells with a confidence weight."
+        },
+        {
+          "q": "Why add bias terms?",
+          "a": "Most of the signal is not interaction. Some users rate high, some items are widely liked, and a global-plus-user-plus-item bias captures that before any factor does work."
+        },
+        {
+          "q": "What is the cold-start problem?",
+          "a": "A pure CF model knows nothing about a user or item with no interactions, because its only input is interactions. Content features or a popularity fallback are needed for that population."
+        },
+        {
+          "q": "How does a two-tower model fix it?",
+          "a": "By making the towers consume FEATURES rather than ids, so a new item with no interactions still has an embedding derived from its content."
+        },
+        {
+          "q": "What is the popularity trap in evaluation?",
+          "a": "Popular items appear in most test sets, so recommending them scores well on accuracy metrics while adding no value. A popularity baseline is mandatory for this reason."
+        },
+        {
+          "q": "Why must you split by time?",
+          "a": "A random split lets the model see a user's future interactions while predicting their past. That is a leak, it inflates every offline number, and deployment is inherently temporal."
+        },
+        {
+          "q": "Which metrics actually matter?",
+          "a": "Ranking metrics at the k you display — recall@k, NDCG@k — plus coverage and diversity. RMSE measures the ratings people gave, not the list the product shows."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Walk from neighbourhood methods to latent factors and say what actually changed.",
+          "a": "Neighbourhood CF computes similarities directly: item-item cosine or Pearson correlation over the interaction columns, then predicts a user's affinity for an item as a similarity-weighted average of their ratings for its neighbours. It is interpretable — 'because you watched X' falls straight out — and it needs no training in the usual sense. It fails on two axes. Scale: the similarity matrix is quadratic in item count, so at ten million items it is neither computable nor storable, and it goes stale as interactions arrive. And sparsity: with a typical interaction density well below one percent, two items that are genuinely related may share almost no co-raters, so the estimated similarity is noise. Latent factors change the representation rather than the idea. Learn a d-dimensional vector per user and per item so that their dot product predicts affinity; similarity is now recovered from a compact representation instead of stored, so the memory goes from quadratic to linear and generalization comes for free — two items never co-consumed can still land near each other because they relate to overlapping factors. The critical practical point is that this is NOT an SVD of the interaction matrix, even though it is often described that way. The matrix is mostly missing, and SVD has no missing-data concept, so treating unobserved as zero asserts that everything unrated is disliked. What you actually fit is a bilinear model whose loss sums over OBSERVED entries only, with regularization, solved by ALS or SGD — no closed form, and no Eckart-Young optimality guarantee.",
+          "deepDive": {
+            "q": "What changes for implicit feedback specifically?",
+            "a": "The meaning of a missing cell. With explicit ratings, unobserved is genuinely unknown and you must exclude it. With implicit signals, absence is weak evidence of disinterest rather than missingness, so you fit over ALL cells with a binary preference and a confidence weight that grows with the observed count — Hu, Koren and Volinsky's formulation. That makes the problem dense, which is why ALS with its closed-form per-user solve and Gram-matrix trick is the standard solver there rather than SGD."
+          }
+        },
+        {
+          "q": "How would you evaluate a recommender offline without fooling yourself?",
+          "a": "Four things, and the first is the one that invalidates everything else. Split by TIME, not at random. A random split lets the model see a user's later interactions while predicting earlier ones, and since user preferences are strongly autocorrelated that leak is large — deployment is inherently temporal, so the offline protocol must be too. Second, use ranking metrics at the k the product actually displays. RMSE averages over the ratings people chose to give and weights every observation equally, while the product shows a top-10; a model can improve RMSE by predicting mediocre ratings better and make the head of the list worse, which is the Netflix Prize's most-repeated lesson. Recall@k and NDCG@k are the honest measures. Third, include a popularity baseline, always. Popular items appear in most users' test sets, so a recommender that just returns the global top-k scores respectably on accuracy metrics while providing no personalization at all — and without that baseline in the table you cannot tell whether your model is doing anything. Fourth, report beyond accuracy: catalogue coverage, intra-list diversity, and the share of recommendations going to the long tail, because a model can win on recall while collapsing onto a narrow popular set, and that failure shows up months later as supply-side attrition rather than as a metric regression. Then, having done all that, expect the offline-online gap anyway, because the logged data was generated by the incumbent system and items it never showed cannot appear in your ground truth."
+        },
+        {
+          "q": "Explain the feedback loop problem and what you do about it.",
+          "a": "The deployed model decides what users see, so it determines which interactions get logged, and the next model trains on that log. Items the current system never surfaces generate no positive signal, so the next model has even less reason to surface them, and the catalogue narrows across generations. This is a causal problem rather than a modelling one: the training data is not a sample of user preferences, it is a sample of user preferences FILTERED THROUGH the previous policy, and no amount of model capacity fixes a missing counterfactual. It also makes offline evaluation systematically optimistic in a specific direction — a new model is rewarded for agreeing with the incumbent, because agreement is what the ground truth records. The responses are all forms of deliberately breaking the loop. Log propensities: record the probability with which each item was shown, which turns the logging policy from unknown into known and makes inverse-propensity weighting valid, so you can estimate what a different policy would have done. Maintain a permanent small randomized holdout, which is the only genuinely unconfounded data you will ever have and is nearly impossible to add retroactively — it gives an unbiased baseline, clean training data, and the counterfactual for measuring cumulative drift. And keep explicit exploration in the serving policy rather than going fully greedy the moment a model looks good, accepting a small known cost now against an unknown compounding one later. All three are infrastructure decisions rather than modelling ones, which is why they get deferred and then cannot be retrofitted.",
+          "deepDive": {
+            "q": "Why can none of this be retrofitted?",
+            "a": "Because every fix requires data that only exists if you collected it at the time. Inverse propensity weighting needs the probability each item was shown, and that probability is unrecoverable after the fact - you cannot reconstruct what a policy would have done from logs that only record what it did. A randomized holdout is the same: the unconfounded comparison exists only for traffic that was actually randomized, so a holdout added today tells you nothing about the last two years of drift. This is why they are infrastructure decisions rather than analysis decisions, and why they get deferred - the cost is immediate and visible, the benefit is deferred and invisible, right up until someone asks a counterfactual question and the answer is that the data to settle it was never recorded."
+          }
+        },
+        {
+          "q": "How do you handle cold start, honestly?",
+          "a": "Split it into three cases because they have different answers. New ITEM is the most tractable: a pure CF model has no embedding for it, so the fix is to derive one from content — a two-tower model whose item tower consumes text, category, price and images produces an embedding on day zero, and this is the main structural argument for two-tower over id-based factorization. The training-time trap worth knowing is that if the item tower can also see an id embedding, the model will lean on it for well-observed items because it is more informative, and the content pathway atrophies — so cold-start performance degrades exactly as warm-start performance improves, and the fix is to drop the id during training with some probability so the content path stays load-bearing. New USER is harder because you have no signal at all: the practical answers are onboarding preferences, contextual and demographic signals where available, and a bandit or exploration policy over popular-but-diverse items to gather information quickly, treating the first session as an exploration problem rather than a prediction one. New SYSTEM, with no interactions anywhere, is the case people forget: you cannot do collaborative filtering without collaboration, so you start with content-based similarity or editorial rules and switch over as data accumulates. The honest framing for an interview is that cold start is not a bug in CF but a direct consequence of its input — a model whose only input is interactions can say nothing about an entity with none — so every solution involves bringing in information from outside the interaction matrix."
+        },
+        {
+          "q": "Your offline recall improved 5% and the A/B test was flat. What do you check?",
+          "a": "Five things in order of how often they are the answer. First, whether the recommendations actually changed: compute the overlap between the old and new top-k for a sample of users, and if it is 95% then nothing a user could perceive changed and no metric was ever going to move — this takes minutes and resolves a surprising fraction of these investigations. Second, popularity: if the recall gain came from predicting popular items better, and the surface was already dominated by popular items, the improvement is real and invisible. Third, the split — if the offline evaluation used a random rather than temporal split, the gain may be entirely in the leaked component and there was never anything to see online. Fourth, the offline-online mismatch that is structural: the ground truth is the incumbent's logs, so a model that surfaces genuinely new items is PENALIZED offline for finding things the old system never showed, which means offline recall can be anti-correlated with exploration value. Fifth, the possibility that closes every one of these honestly: the improvement is real and the experiment was underpowered. Engagement effects are small and noisy, and a 5% recall gain may correspond to a fraction of a percent of engagement that a two-week test cannot detect — in which case the correct report states the minimum detectable effect rather than claiming no effect, because 'we could not have detected anything below X' is a very different conclusion from 'it did nothing'."
+        },
+        {
+          "q": "Design the retrieval and ranking stages for a feed. Why two stages?",
+          "a": "Because latency forces it and the arithmetic is unforgiving. Scoring ten million candidates with a model rich enough to rank well is off by orders of magnitude against a budget measured in tens of milliseconds, so the system must first cheaply reduce the candidate set and then spend its compute on a small one. Retrieval optimizes RECALL cheaply: a two-tower model embeds the user once per request and items offline, so the online cost is one embedding plus an ANN lookup, and the whole point of the architecture — that the towers never interact — is precisely what makes the index possible. Typically several retrieval sources run in parallel: a two-tower model, a recently-viewed-similar-items source, a trending source, and rule-based ones for freshness or business needs, unioned into a few hundred candidates. Ranking then optimizes PRECISION expensively: a model that sees user and item together with full cross-features, plus context — time of day, device, session history — scoring a few hundred items rather than millions. The measured effect in this curriculum is that a richer second stage lifted NDCG@10 from 0.592 to 0.882 on the SAME retrieved set, which is what the split is for. Then a third stage that people omit: re-ranking for diversity, business rules and de-duplication, since the top-10 by score is often ten near-identical items. The design principle worth stating is that the ceiling is upstream — a perfect ranker cannot exceed retrieval's recall — so the common failure of spending the entire design discussion on the ranker is the same misallocation that shows up in RAG."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Neighbourhoods to latent factors",
+        "back": "Similarity stops being STORED and starts being RECOVERED from a compact representation — quadratic memory becomes linear, and unseen pairs generalize."
+      },
+      {
+        "type": "pitfall",
+        "front": "Calling it SVD",
+        "back": "The matrix is mostly missing and SVD has no missing concept. Zero-filling asserts unrated = disliked. Fit over observed entries with ALS or SGD — no closed form."
+      },
+      {
+        "type": "definition",
+        "front": "Implicit feedback formulation",
+        "back": "Fit over ALL cells with a binary preference and a confidence weight growing with observed count. Absence is weak evidence, not missingness."
+      },
+      {
+        "type": "formula",
+        "front": "Biased MF",
+        "back": "r_ui = mu + b_u + b_i + p_u . q_i. Biases carry most of the signal; the dot product carries the interaction."
+      },
+      {
+        "type": "intuition",
+        "front": "Why two stages",
+        "back": "Retrieval optimizes recall cheaply over millions; ranking optimizes precision expensively over hundreds. A richer ranker lifted NDCG@10 0.592 to 0.882 on the same set."
+      },
+      {
+        "type": "intuition",
+        "front": "The ceiling is upstream",
+        "back": "A perfect ranker cannot exceed retrieval's recall. Spending the whole design on the ranker is the same misallocation as in RAG."
+      },
+      {
+        "type": "definition",
+        "front": "The feedback loop",
+        "back": "The model decides what is shown, which decides what is logged, which trains the next model. A causal problem — the log is preferences filtered through the old policy."
+      },
+      {
+        "type": "intuition",
+        "front": "Why a permanent randomized holdout",
+        "back": "The only unconfounded data you will ever have: unbiased baseline, clean training data, and the counterfactual for cumulative drift. Nearly impossible to add later."
+      },
+      {
+        "type": "pitfall",
+        "front": "Random split",
+        "back": "Lets the model see a user's future while predicting their past. Preferences are autocorrelated, so the leak is large. Split by time."
+      },
+      {
+        "type": "pitfall",
+        "front": "No popularity baseline",
+        "back": "Popular items are in most test sets, so returning the global top-k scores respectably with zero personalization. Without the baseline you cannot tell if the model does anything."
+      },
+      {
+        "type": "pitfall",
+        "front": "Id embedding starving the content path",
+        "back": "If the item tower can see an id, it leans on it and the content pathway atrophies — so cold-start degrades exactly as warm-start improves. Drop the id sometimes during training."
+      },
+      {
+        "type": "pitfall",
+        "front": "Offline ground truth from the incumbent",
+        "back": "Items the old system never showed cannot appear in the labels, so a model surfacing genuinely new items is PENALIZED offline for it."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Koren, Bell & Volinsky (2009) — Matrix Factorization Techniques for Recommender Systems",
+        "url": "https://ieeexplore.ieee.org/document/5197422"
+      },
+      {
+        "title": "Hu, Koren & Volinsky (2008) — Collaborative Filtering for Implicit Feedback Datasets",
+        "url": "https://ieeexplore.ieee.org/document/4781121"
+      },
+      {
+        "title": "Covington, Adams & Sargin (2016) — Deep Neural Networks for YouTube Recommendations",
+        "url": "https://dl.acm.org/doi/10.1145/2959100.2959190"
+      },
+      {
+        "title": "Yi et al. (2019) — Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations",
+        "url": "https://dl.acm.org/doi/10.1145/3298689.3346996"
+      },
+      {
+        "title": "Schnabel et al. (2016) — Recommendations as Treatments: Debiasing Learning and Evaluation",
+        "url": "https://arxiv.org/abs/1602.05352"
+      }
+    ],
+    "demos": []
   }
 };
