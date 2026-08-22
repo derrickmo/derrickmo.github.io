@@ -66,6 +66,23 @@ if (eager.length) problems.push(`${eager.length} page(s) load search-index.js st
 const strays = allHtml.filter((f) => (readFileSync(f, "utf8").match(/lesson-bodies\/[^"]+\.js/g) || []).length > 1);
 if (strays.length) problems.push(`${strays.length} page(s) load more than one lesson-bodies bundle`);
 
+// 6. The /interview/ corpus is generated and gitignored, so nothing in the repo
+//    proves it shipped. If prebuild is reordered or the builder fails quietly, the
+//    page deploys and every fetch 404s -- the reader just sees an empty hub. Assert
+//    the manifest, one shard per module, and that the manifest agrees with itself.
+const manPath = join(DIST, "interview-manifest.json");
+if (!existsSync(manPath)) {
+  problems.push("interview-manifest.json is missing from dist/ -- the drill hub would load nothing");
+} else {
+  const man = JSON.parse(readFileSync(manPath, "utf8"));
+  const missing = man.modules.filter((m) => !existsSync(join(DIST, "interview", m.slug + ".json")));
+  if (missing.length) problems.push(missing.length + " interview shard(s) missing from dist/: " + missing.slice(0, 3).map((m) => m.slug).join(", "));
+  const declared = man.modules.reduce((a, m) => a + m.questions, 0);
+  if (declared !== man.counts.questions) problems.push("interview manifest disagrees with itself: modules sum to " + declared + ", counts say " + man.counts.questions);
+  if (!man.counts.questions) problems.push("interview manifest declares zero questions");
+  note("interview corpus: " + man.counts.questions + " questions, " + man.counts.cards + " cards, " + man.modules.length + " shards");
+}
+
 if (problems.length) {
   console.error("\nBUILD NOT PUBLISHABLE:");
   for (const p of problems) console.error(`  ✗ ${p}`);

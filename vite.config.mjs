@@ -60,6 +60,7 @@ export default defineConfig({
         'learn-notes': 'learn/notes/index.html',
         'weekly-insights': 'weekly-insights/index.html',
         'paths': 'paths/index.html',
+        'interview': 'interview/index.html',
         'paths-ml-foundations': 'paths/ml-foundations/index.html',
         'paths-zero-to-transformer': 'paths/zero-to-transformer/index.html',
         'paths-rl-from-scratch': 'paths/rl-from-scratch/index.html',

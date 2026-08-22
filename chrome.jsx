@@ -1,5 +1,6 @@
 // chrome.jsx — shared chrome (TopNav, Footer, helpers) for every page.
 // Each page sets `window.__DM_PAGE` ("home" | "research" | "learn" | "paths" |
+// "interview" |
 // "weekly-insights" | "visualize" | "play" | "cases" | "about") and
 // `window.__DM_BASE` ("" for landing, "../" for subdirectory pages)
 // BEFORE this script runs, so the nav can highlight the active page and

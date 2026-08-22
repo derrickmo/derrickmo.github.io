@@ -9,6 +9,12 @@ const {
 
 const SECTIONS = [
   {
+    href: "../interview/", tag: "// DRILL · INTERVIEW PREP", title: "Interview Prep", tone: "violet",
+    blurb: "Every interview question and flashcard written into the 250 lessons, in one place — filter by module, tier and level, drill on a spaced-repetition schedule, or run a timed mock interview.",
+    stat: "5,210 questions · 2,765 flashcards · scheduled review",
+    diagram: <AgentConstellation width={280} height={170} mode="dark" />,
+  },
+  {
     href: "../paths/", tag: "// GUIDED · TRACKS", title: "Guided Paths", tone: "violet",
     blurb: "Curated routes through the demos, concepts, and lessons — taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
     stat: "11 paths · saved progress · start anywhere",
