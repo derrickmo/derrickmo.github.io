@@ -289,7 +289,7 @@ function RegressionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Linear & Logistic Regression"
+    <DemoLayout title="Linear & Logistic Regression"
       subtitle="The line of best fit, the residual sticks that define it, and the sigmoid boundary you train with gradient descent."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

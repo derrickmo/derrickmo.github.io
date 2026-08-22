@@ -221,7 +221,7 @@ function SudokuDemo() {
     </>
   );
   return (
-    <DemoLayout topic="SEARCH / CSP" title="Sudoku Solver"
+    <DemoLayout title="Sudoku Solver"
       subtitle="Backtracking + constraint propagation on a 9×9 grid. Toggle propagation off and watch the guess and backtrack counts explode for the same puzzle."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

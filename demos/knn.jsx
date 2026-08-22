@@ -141,7 +141,7 @@ function KnnDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="k-Nearest Neighbors"
+    <DemoLayout title="k-Nearest Neighbors"
       subtitle="The simplest classifier — vote among the k closest points. Watch k trade a jagged boundary for a smooth one."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

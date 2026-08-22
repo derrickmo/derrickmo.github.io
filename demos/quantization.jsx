@@ -185,7 +185,7 @@ function QuantizationDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="Quantization"
+    <DemoLayout title="Quantization"
       subtitle="Round fp32 weights to b-bit integers — smaller and faster, but coarser. Watch weights snap to the grid, and how outliers wreck it until you clip them."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

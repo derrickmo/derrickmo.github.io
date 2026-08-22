@@ -224,7 +224,6 @@ function GridworldDemo() {
   );
   return (
     <DemoLayout
-      topic="REINFORCEMENT LEARNING"
       title="Q-Learning Gridworld"
       subtitle="Watch a tabular Q-learning agent discover a policy — value propagates backward from the goal, one update at a time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

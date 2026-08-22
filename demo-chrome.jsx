@@ -68,6 +68,18 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
   const _conceptIds = (relatedConcepts && relatedConcepts.length)
     ? relatedConcepts
     : __resolveAutoConcepts(_slug, _backHref);
+  // The topic chip is DERIVED from play-demos.js, which is what the /visualize/ hub
+  // card shows, so the two can never disagree. It used to be hand-passed per demo,
+  // which drifted into 55 variants contradicting the registry on 48 of 179 demos
+  // (CQ-0001). Games keep passing it explicitly — their labels are algorithm names
+  // ("GAME · MINIMAX + ALPHA-BETA") that no registry field carries — so an explicit
+  // prop still wins for anything the demo registry doesn't know about.
+  const _registryTopic = (() => {
+    if (!_slug || typeof window === "undefined") return null;
+    const d = ((window.PLAY_DEMOS || {}).demos || []).find((x) => x.slug === _slug);
+    return d && d.topic ? d.topic : null;
+  })();
+  const _topic = _registryTopic || topic;
   return (
     <>
       <TopNav />
@@ -80,7 +92,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
             <a href={_backHref} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>← {backLabel}</a>
             <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
-            <MonoLabel color={accent}>{topic}</MonoLabel>
+            <MonoLabel color={accent}>{_topic}</MonoLabel>
           </div>
 
           <h1 style={{

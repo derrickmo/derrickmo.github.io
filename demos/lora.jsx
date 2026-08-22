@@ -164,7 +164,7 @@ function LoRADemo() {
     </>
   );
   return (
-    <DemoLayout topic="FINE-TUNING" title="LoRA — Low-Rank Adaptation"
+    <DemoLayout title="LoRA — Low-Rank Adaptation"
       subtitle="Approximate a full weight update with two thin matrices — most of the change, a fraction of the parameters."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}

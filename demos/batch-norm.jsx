@@ -207,7 +207,7 @@ function BatchNormDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NEURAL NETWORKS" title="Batch Normalization"
+    <DemoLayout title="Batch Normalization"
       subtitle="Watch a mini-batch's activation distribution drift, explode, or saturate across a deep stack — then turn BatchNorm on and see every layer snap back to a healthy unit-variance spread."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

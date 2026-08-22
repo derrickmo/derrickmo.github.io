@@ -206,7 +206,7 @@ function KnapsackDemo() {
     </>
   );
   return (
-    <DemoLayout topic="DYNAMIC PROGRAMMING" title="Knapsack (DP)"
+    <DemoLayout title="Knapsack (DP)"
       subtitle="Pack the most value into a weight budget. Watch the DP table fill from its sub-answers, then backtrack to recover which items to take."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

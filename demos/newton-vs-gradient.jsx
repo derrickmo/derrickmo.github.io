@@ -396,7 +396,6 @@ function NewtonVsGradientDemo() {
 
   return (
     <DemoLayout
-      topic="OPTIMIZATION"
       title="Newton vs Gradient Descent"
       subtitle="Race a first-order step against a second-order one that uses curvature to jump to the minimum."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

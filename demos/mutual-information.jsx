@@ -184,7 +184,6 @@ function MutualInformationDemo() {
 
   return (
     <DemoLayout
-      topic="INFORMATION THEORY"
       title="Mutual Information vs Correlation"
       subtitle="Correlation only sees straight lines - mutual information detects any dependence, including the parabola and the ring."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

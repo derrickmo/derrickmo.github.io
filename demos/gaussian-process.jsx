@@ -216,7 +216,7 @@ function GaussianProcessDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Gaussian Processes"
+    <DemoLayout title="Gaussian Processes"
       subtitle="A distribution over functions with closed-form uncertainty. Click to add observations and watch the posterior mean bend and the ±2σ band pinch shut at data and flare open where you have none. Tune the kernel to reshape the prior."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

@@ -202,7 +202,7 @@ function WeightInitDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NEURAL NETWORKS" title="Weight Initialization"
+    <DemoLayout title="Weight Initialization"
       subtitle="The activation signal's std either stays near 1 or diverges exponentially with depth, depending entirely on how the weights are scaled. Compare Naive vs Xavier vs He, and switch the activation to see which scheme is right."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

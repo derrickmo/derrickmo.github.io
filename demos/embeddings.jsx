@@ -206,7 +206,6 @@ function EmbeddingsDemo() {
   );
   return (
     <DemoLayout
-      topic="EMBEDDINGS"
       title="Embedding Atlas"
       subtitle="Explore the geometry of word vectors — nearest neighbors and the analogy parallelograms that make king−man+woman≈queen."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

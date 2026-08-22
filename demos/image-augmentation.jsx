@@ -218,7 +218,6 @@ function ImageAugmentationDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Data Augmentation"
       subtitle="Manufacture endless training views from one labeled image with label-preserving random transforms — the cheapest, most reliable regularizer in deep learning."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

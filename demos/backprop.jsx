@@ -289,7 +289,7 @@ function BackpropDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Backprop Graph"
+    <DemoLayout title="Backprop Graph"
       subtitle="Step through forward then backward on a tiny network — every value, every gradient, by the chain rule."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}

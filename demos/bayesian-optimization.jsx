@@ -278,7 +278,6 @@ function BayesianOptimizationDemo() {
 
   return (
     <DemoLayout
-      topic="BAYESIAN"
       title="Bayesian Optimization"
       subtitle="Find the max of an expensive function in a handful of evals - a GP surrogate plus an acquisition function that decides where to look next."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

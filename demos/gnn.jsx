@@ -208,7 +208,7 @@ function GNNDemo() {
     </>
   );
   return (
-    <DemoLayout topic="GRAPH NEURAL NETS" title="GNN Message Passing"
+    <DemoLayout title="GNN Message Passing"
       subtitle="Each layer averages a node's feature with its neighbors. Watch features smooth across the graph — and over-smooth when you go too deep."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-applications/`}

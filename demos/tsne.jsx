@@ -222,7 +222,7 @@ function TSNEDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="t-SNE"
+    <DemoLayout title="t-SNE"
       subtitle="Watch real KL-divergence gradient descent pull high-dimensional clusters apart in 2D. Tune perplexity, separation, and learning rate to see t-SNE work — and to see the ways it famously misleads."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

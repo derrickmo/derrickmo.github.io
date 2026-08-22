@@ -177,7 +177,7 @@ function LouvainDemo() {
   );
 
   return (
-    <DemoLayout topic="GRAPHS / NETWORKS" title="Community Detection (Louvain)"
+    <DemoLayout title="Community Detection (Louvain)"
       subtitle="Find the groups in a network. Greedily move nodes to maximize modularity and the colors merge into communities — until too many cross-edges blur them away."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

@@ -287,7 +287,6 @@ function GradientDescentDemo() {
 
   return (
     <DemoLayout
-      topic="OPTIMIZATION"
       title="Gradient Descent"
       subtitle="Drop a point on a loss surface and race four optimizers to the bottom."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

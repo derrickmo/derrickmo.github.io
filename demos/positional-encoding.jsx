@@ -160,7 +160,6 @@ function PositionalEncodingDemo() {
   );
   return (
     <DemoLayout
-      topic="TRANSFORMERS · POSITION"
       title="Positional Encoding"
       subtitle="See how sinusoidal and rotary encodings give a transformer a sense of order."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

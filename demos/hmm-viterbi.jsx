@@ -232,7 +232,7 @@ function HMMViterbiDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="HMM & the Viterbi Algorithm"
+    <DemoLayout title="HMM & the Viterbi Algorithm"
       subtitle="Watch real Viterbi dynamic programming recover the most-likely hidden regime path from a noisy stream of market moves. Tune regime persistence and emission noise to make the hidden sequence easy or near-impossible to decode."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

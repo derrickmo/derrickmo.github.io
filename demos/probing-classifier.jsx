@@ -268,7 +268,6 @@ function ProbingClassifierDemo() {
 
   return (
     <DemoLayout
-      topic="INTERPRETABILITY"
       title="Linear Probing by Layer"
       subtitle="Fit a linear readout to each layer and watch representations become linearly separable with depth."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

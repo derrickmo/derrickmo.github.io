@@ -136,7 +136,7 @@ function MultiHeadAttentionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRANSFORMERS · ATTENTION" title="Multi-Head Attention"
+    <DemoLayout title="Multi-Head Attention"
       subtitle="Several attention patterns in parallel — each head free to specialize, then blended back together."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/`}

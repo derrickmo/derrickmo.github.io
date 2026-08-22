@@ -179,7 +179,7 @@ function AgentRouterDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Agent Tool Router"
+    <DemoLayout title="Agent Tool Router"
       subtitle="Which tool handles this query? Score the request against each tool, route to the top one above a confidence threshold — and fall back to the model when nothing fits."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

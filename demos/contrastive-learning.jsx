@@ -205,7 +205,7 @@ function ContrastiveLearningDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NEURAL NETWORKS" title="Contrastive Learning"
+    <DemoLayout title="Contrastive Learning"
       subtitle="Optimize the SimCLR / NT-Xent loss live: two views of each item pull together (alignment) while every other item is pushed away (uniformity) — all without labels. Tune temperature and batch size to feel the tradeoffs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

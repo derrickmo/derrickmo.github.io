@@ -163,7 +163,7 @@ function MSTDemo() {
   );
 
   return (
-    <DemoLayout topic="GRAPHS / NETWORKS" title="Minimum Spanning Tree (Prim's)"
+    <DemoLayout title="Minimum Spanning Tree (Prim's)"
       subtitle="Connect everything for the least total weight. Greedily add the cheapest edge crossing out of the growing tree — the cut property says that's always safe."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

@@ -219,7 +219,7 @@ function VAEDemo() {
     </>
   );
   return (
-    <DemoLayout topic="GENERATIVE · VAE" title="Variational Autoencoder"
+    <DemoLayout title="Variational Autoencoder"
       subtitle="Encode to a distribution, sample with the reparameterization trick, and let KL shape a latent space you can generate from."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/generative/`}

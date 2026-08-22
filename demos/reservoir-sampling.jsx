@@ -216,7 +216,7 @@ function ReservoirDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Reservoir Sampling"
+    <DemoLayout title="Reservoir Sampling"
       subtitle="Keep a uniform random sample of k items from a stream you can't store and whose length you don't know — in one pass, O(k) memory. The histogram proves every position survives with equal probability k/N, while the naive 'keep first/last k' shortcuts are visibly biased."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

@@ -192,7 +192,6 @@ function ClassificationMetricsDemo() {
 
   return (
     <DemoLayout
-      topic="EVALUATION"
       title="Classification Metrics"
       subtitle="Read the confusion matrix - accuracy, precision, recall, F1, and the macro / micro / weighted / F-beta averagings that disagree on imbalanced data."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

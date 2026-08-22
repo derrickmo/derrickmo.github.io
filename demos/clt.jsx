@@ -173,7 +173,7 @@ function CLTDemo() {
     </>
   );
   return (
-    <DemoLayout topic="PROBABILITY & STATISTICS" title="Central Limit Theorem"
+    <DemoLayout title="Central Limit Theorem"
       subtitle="Average samples from any distribution and watch the means pile up into a Gaussian."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

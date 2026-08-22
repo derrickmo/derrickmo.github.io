@@ -202,7 +202,6 @@ function ReplicatorDynamicsDemo() {
 
   return (
     <DemoLayout
-      topic="GAME THEORY"
       title="Replicator Dynamics"
       subtitle="Evolve a population of strategies on the simplex - and watch Rock-Paper-Scissors cycle forever around Nash."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

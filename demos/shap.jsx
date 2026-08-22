@@ -201,7 +201,7 @@ function ShapDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="Feature Attribution (SHAP)"
+    <DemoLayout title="Feature Attribution (SHAP)"
       subtitle="Why did the model decide that? Exact Shapley values credit each feature's contribution — including the interaction — as a waterfall from base to prediction."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

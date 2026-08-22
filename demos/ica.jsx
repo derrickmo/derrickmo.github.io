@@ -223,7 +223,7 @@ function ICADemo() {
     </>
   );
   return (
-    <DemoLayout topic="GENERATIVE & SIGNAL" title="ICA (Cocktail Party)"
+    <DemoLayout title="ICA (Cocktail Party)"
       subtitle="Two independent signals get blended into two microphones; ICA unmixes them knowing only the blend, by hunting the directions that make the outputs least Gaussian. Crank the mixing — it still separates. Switch to two Gaussian sources and watch it fail by design."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}

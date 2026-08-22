@@ -170,7 +170,6 @@ function ConvolutionDemo() {
   );
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Convolution Lab"
       subtitle="Slide a 3×3 kernel over an image and see what each filter detects — the core operation inside every CNN."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

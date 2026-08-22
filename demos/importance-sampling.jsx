@@ -232,7 +232,7 @@ function ImportanceSamplingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Importance Sampling"
+    <DemoLayout title="Importance Sampling"
       subtitle="Estimate a rare-event probability that naive Monte Carlo never reaches by sampling a steered proposal and reweighting by p/q. Aim the proposal into the tail to watch the estimate converge — or misplace it and watch a few exploding weights crater the effective sample size."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

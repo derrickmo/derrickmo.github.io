@@ -256,7 +256,7 @@ function PromptInjectionDemo() {
   );
 
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Prompt Injection"
+    <DemoLayout title="Prompt Injection"
       subtitle="Untrusted content posing as instructions. Pick an attack, layer the defenses, and watch how much of it survives — no single control reaches zero."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

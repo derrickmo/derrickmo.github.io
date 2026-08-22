@@ -174,7 +174,7 @@ function SimpsonsDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CAUSAL INFERENCE" title="Simpson's Paradox"
+    <DemoLayout title="Simpson's Paradox"
       subtitle="Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

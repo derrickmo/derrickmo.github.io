@@ -193,7 +193,7 @@ function ContextExtensionDemo() {
   );
 
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Context Extension"
+    <DemoLayout title="Context Extension"
       subtitle="Stretch a RoPE model past its training length. Naive extrapolation falls off a cliff; PI, NTK-aware, and YaRN rescale the positions to hold quality."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

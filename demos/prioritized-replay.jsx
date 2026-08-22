@@ -225,7 +225,7 @@ function PrioritizedReplayDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Prioritized Experience Replay"
+    <DemoLayout title="Prioritized Experience Replay"
       subtitle="Replay surprising transitions first. Sampling by TD error sweeps value back from a sparse reward in a fraction of the updates uniform replay needs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

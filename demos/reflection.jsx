@@ -213,7 +213,7 @@ function ReflectionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Self-Correction (Reflection)"
+    <DemoLayout title="Self-Correction (Reflection)"
       subtitle="Draft, critique, revise, repeat. Watch quality climb to the bar — then weaken the critic and see reflection stall, ship garbage, or burn the budget."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

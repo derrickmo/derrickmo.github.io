@@ -341,7 +341,6 @@ function PathfindingDemo() {
   );
   return (
     <DemoLayout
-      topic="SEARCH · CLASSIC AI"
       title="A* Pathfinding"
       subtitle="Informed search, live. Drop walls, drag the endpoints, and watch four classic algorithms race to the goal."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

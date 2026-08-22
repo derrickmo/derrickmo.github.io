@@ -206,7 +206,7 @@ function PruningDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="Pruning & Sparsity"
+    <DemoLayout title="Pruning & Sparsity"
       subtitle="Zero the smallest weights and accuracy barely budges — until it falls off a cliff. The over-parameterization that makes networks compressible."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

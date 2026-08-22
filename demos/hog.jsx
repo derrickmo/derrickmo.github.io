@@ -191,7 +191,6 @@ function HogDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Histogram of Oriented Gradients"
       subtitle="Summarize an image by where its edges point — per-cell orientation histograms, block-normalized into the descriptor behind classic object detection."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

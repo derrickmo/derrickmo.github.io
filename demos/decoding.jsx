@@ -135,7 +135,7 @@ function DecodingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NLP · LANGUAGE MODELS" title="Decoding Strategies"
+    <DemoLayout title="Decoding Strategies"
       subtitle="Temperature, top-k, and top-p — how the same model becomes safe or wild depending on how you sample."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-nlp/`}

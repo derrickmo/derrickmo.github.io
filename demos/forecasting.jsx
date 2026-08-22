@@ -178,7 +178,7 @@ function ForecastDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TIME SERIES · FORECASTING" title="Time-Series Forecasting"
+    <DemoLayout title="Time-Series Forecasting"
       subtitle="Level, trend, and seasonality: classic exponential smoothing fit on history and scored on a held-out future."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-applications/`}

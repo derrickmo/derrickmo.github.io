@@ -179,7 +179,7 @@ function DriftDetectionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="MLOPS / MONITORING" title="Data Drift Detection"
+    <DemoLayout title="Data Drift Detection"
       subtitle="Deployed models rot as the world shifts. Watch the live distribution peel away from the reference and a PSI monitor trip the retrain alarm."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/mlops/`}

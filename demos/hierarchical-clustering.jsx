@@ -229,7 +229,7 @@ function HierClustDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Hierarchical Clustering"
+    <DemoLayout title="Hierarchical Clustering"
       subtitle="Merge the two closest clusters over and over into a tree, then slide a cut across the dendrogram to read off any number of clusters from the same structure — no k chosen up front. Switch the linkage to see compact, chained, or variance-minimizing clusters."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}

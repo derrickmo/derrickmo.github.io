@@ -357,7 +357,7 @@ function DQNDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Deep Q-Network (DQN)"
+    <DemoLayout title="Deep Q-Network (DQN)"
       subtitle="A neural net learns Q(s, a) on a continuous state. Toggle experience replay and the target network to see why deep RL needs both to stay stable."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

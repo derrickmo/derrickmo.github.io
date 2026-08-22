@@ -200,7 +200,7 @@ function BaggingBoostingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Bagging vs Boosting"
+    <DemoLayout title="Bagging vs Boosting"
       subtitle="Two ways to ensemble trees: bagging averages bootstrap-trained deep trees to cut variance; boosting stacks shallow trees on the residual to cut bias. Tune depth, count, and noise to see each shine and fail."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

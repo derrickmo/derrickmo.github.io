@@ -202,7 +202,7 @@ function BFSDFSAStarDemo() {
     </>
   );
   return (
-    <DemoLayout topic="SEARCH / CSP" title="BFS vs DFS vs A*"
+    <DemoLayout title="BFS vs DFS vs A*"
       subtitle="Three searches, one maze. Watch uninformed rings and dives versus A*'s heuristic beeline — and compare nodes expanded and path optimality."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

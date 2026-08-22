@@ -211,7 +211,7 @@ function HydeDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="HyDE — Hypothetical Document Embeddings"
+    <DemoLayout title="HyDE — Hypothetical Document Embeddings"
       subtitle="Questions embed away from their answers. Draft a hypothetical answer, embed that instead, and retrieval lands on the right documents."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

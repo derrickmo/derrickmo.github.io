@@ -223,7 +223,7 @@ function GMMDemo() {
     </>
   );
   return (
-    <DemoLayout topic="UNSUPERVISED LEARNING" title="Gaussian Mixtures & EM"
+    <DemoLayout title="Gaussian Mixtures & EM"
       subtitle="Soft clustering: fit overlapping Gaussians with Expectation-Maximization and watch the log-likelihood climb."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}

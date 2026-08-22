@@ -251,7 +251,6 @@ function ThompsonVsUcbDemo() {
 
   return (
     <DemoLayout
-      topic="BAYESIAN"
       title="Thompson Sampling vs UCB"
       subtitle="Two principled ways to explore - a Bayesian posterior vs frequentist optimism - racing on the same bandit."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

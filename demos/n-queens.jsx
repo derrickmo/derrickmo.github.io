@@ -212,7 +212,7 @@ function NQueensDemo() {
     </>
   );
   return (
-    <DemoLayout topic="SEARCH / CSP" title="N-Queens (Backtracking)"
+    <DemoLayout title="N-Queens (Backtracking)"
       subtitle="Place N non-attacking queens by depth-first backtracking. Toggle forward checking and watch constraint propagation prune the search."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

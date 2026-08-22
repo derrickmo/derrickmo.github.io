@@ -197,7 +197,7 @@ function MixtureOfDepthsDemo() {
   );
 
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Mixture-of-Depths"
+    <DemoLayout title="Mixture-of-Depths"
       subtitle="Per-token dynamic compute: a router picks which tokens each block processes under a fixed capacity. Smart routing keeps quality at a fraction of the FLOPs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

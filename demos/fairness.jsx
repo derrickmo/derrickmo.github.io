@@ -190,7 +190,7 @@ function FairnessDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="Fairness & Group Metrics"
+    <DemoLayout title="Fairness & Group Metrics"
       subtitle="Equal qualification, biased scores. See how one threshold creates unequal outcomes — and why you can't satisfy every fairness metric at once."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

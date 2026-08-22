@@ -152,7 +152,7 @@ function NMSDemo() {
     </>
   );
   return (
-    <DemoLayout topic="COMPUTER VISION · DETECTION" title="IoU & Non-Max Suppression"
+    <DemoLayout title="IoU & Non-Max Suppression"
       subtitle="From a cloud of overlapping detections to one clean box per object — the greedy algorithm every detector ends with."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}

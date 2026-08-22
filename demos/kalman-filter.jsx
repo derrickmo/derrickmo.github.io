@@ -248,7 +248,7 @@ function KalmanDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Kalman Filter"
+    <DemoLayout title="Kalman Filter"
       subtitle="A real 2-state (position, velocity) Kalman filter tracks a maneuvering target from noisy measurements. Tune process noise Q and sensor noise R to move the Kalman gain — and watch the estimate denoise the sensor in real time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

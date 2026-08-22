@@ -189,7 +189,7 @@ function MaxFlowDemo() {
   );
 
   return (
-    <DemoLayout topic="GRAPHS / NETWORKS" title="Max Flow / Min Cut"
+    <DemoLayout title="Max Flow / Min Cut"
       subtitle="Push as much as the network allows from source to sink. Augmenting paths in the residual graph find the maximum flow — and reveal the bottleneck cut that equals it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

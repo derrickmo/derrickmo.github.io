@@ -175,7 +175,7 @@ function DoInterventionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CAUSAL INFERENCE" title="do() & Backdoor Adjustment"
+    <DemoLayout title="do() & Backdoor Adjustment"
       subtitle="Observing X is not setting X. A confounder biases the naive estimate; cut its arrow with do(X), or adjust for it, to recover the true causal effect."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

@@ -208,7 +208,6 @@ function DiffusionDemo() {
   );
   return (
     <DemoLayout
-      topic="GENERATIVE MODELS"
       title="Diffusion Sampler"
       subtitle="Noise a distribution into static, then watch DDIM denoise pure noise back into the shape."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

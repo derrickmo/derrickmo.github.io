@@ -304,7 +304,6 @@ function IstaDemo() {
 
   return (
     <DemoLayout
-      topic="OPTIMIZATION"
       title="ISTA / Proximal Gradient (L1)"
       subtitle="Recover a sparse model with soft-thresholding - the proximal step that snaps small coefficients to exactly zero."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

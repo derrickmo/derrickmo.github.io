@@ -230,7 +230,7 @@ function SpectralClusteringDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Spectral Clustering"
+    <DemoLayout title="Spectral Clustering"
       subtitle="Cluster by graph connectivity, not distance. Build a similarity graph, embed with the Laplacian's eigenvectors, and separate interlocking rings and moons that k-means cuts straight through."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

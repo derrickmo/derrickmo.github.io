@@ -224,7 +224,7 @@ function GuardrailsDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Guardrails"
+    <DemoLayout title="Guardrails"
       subtitle="The input/output safety pipeline around an LLM. Toggle a guard off and watch the matching threat reach the model — or leak back out."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

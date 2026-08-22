@@ -329,7 +329,6 @@ function LBFGSDemo() {
 
   return (
     <DemoLayout
-      topic="OPTIMIZATION"
       title="L-BFGS (Quasi-Newton)"
       subtitle="Approximate curvature from a short memory of past gradients - Newton-like convergence with no Hessian."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

@@ -205,7 +205,6 @@ function HarrisDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Harris Corner Detector"
       subtitle="A corner is where intensity changes in two directions at once — find them from the eigenvalues of the local gradient structure tensor."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

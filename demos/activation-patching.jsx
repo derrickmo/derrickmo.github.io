@@ -218,7 +218,6 @@ function ActivationPatchingDemo() {
 
   return (
     <DemoLayout
-      topic="INTERPRETABILITY"
       title="Activation Patching (Causal Tracing)"
       subtitle="Copy one neuron from a clean run into a corrupted run and watch which components actually carry the answer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

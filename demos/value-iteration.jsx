@@ -188,7 +188,7 @@ function ValueIterationDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="MDP Value Iteration"
+    <DemoLayout title="MDP Value Iteration"
       subtitle="Solve a gridworld exactly: Bellman backups propagate value out from the goal, inducing the optimal policy."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

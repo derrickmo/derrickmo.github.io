@@ -186,7 +186,6 @@ function HuffmanCodingDemo() {
 
   return (
     <DemoLayout
-      topic="INFORMATION THEORY"
       title="Huffman Coding & Entropy"
       subtitle="Build the optimal compression code and watch its length hug the entropy limit H <= L < H+1."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

@@ -179,7 +179,7 @@ function MFCCDemo() {
   );
 
   return (
-    <DemoLayout topic="AUDIO / SIGNAL" title="Mel Filterbank & MFCC"
+    <DemoLayout title="Mel Filterbank & MFCC"
       subtitle="Turn a sound into a dozen numbers. Spectrum to perceptual mel bands to log to DCT — the feature that named phonemes for decades of speech recognition."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

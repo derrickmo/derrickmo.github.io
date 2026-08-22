@@ -245,7 +245,6 @@ function EdgeDetectionDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Canny Edge Detection"
       subtitle="Walk the classic five-stage pipeline — blur, Sobel gradient, non-max suppression, double threshold, hysteresis — and watch edges emerge from pixels."
       stage={stage_el} controls={controls} explainer={explainer} concepts={concepts}

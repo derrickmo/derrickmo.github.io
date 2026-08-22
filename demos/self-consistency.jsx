@@ -233,7 +233,7 @@ function SelfConsistencyDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Self-Consistency"
+    <DemoLayout title="Self-Consistency"
       subtitle="Sample many chains of thought and majority-vote the answer. See why it lifts accuracy — and why correlated errors defeat it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

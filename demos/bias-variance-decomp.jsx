@@ -214,7 +214,7 @@ function BiasVarianceDecompDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Bias-Variance Decomposition"
+    <DemoLayout title="Bias-Variance Decomposition"
       subtitle="Fit many models to resampled noisy data and watch error split into bias², variance, and irreducible noise. Sweep complexity to trace the U-curve, and add data to see variance collapse."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

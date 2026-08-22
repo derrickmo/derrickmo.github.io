@@ -188,7 +188,7 @@ function KVCacheEvictionDemo() {
   );
 
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="KV-Cache Eviction"
+    <DemoLayout title="KV-Cache Eviction"
       subtitle="Bound the KV cache by dropping past tokens. Sliding-window throws away the attention sinks and quality crashes; sink+window and H2O keep it at the same memory."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

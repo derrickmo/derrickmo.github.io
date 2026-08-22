@@ -230,7 +230,7 @@ function CoresetDemo() {
     </>
   );
   return (
-    <DemoLayout topic="DATA-CENTRIC ML" title="Coresets"
+    <DemoLayout title="Coresets"
       subtitle="Keep a tiny weighted subset of the data that reproduces the full k-means clustering. Compare uniform vs importance sampling and watch the cost ratio as you shrink the subset."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

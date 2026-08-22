@@ -189,7 +189,7 @@ function IVDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CAUSAL INFERENCE" title="Instrumental Variables"
+    <DemoLayout title="Instrumental Variables"
       subtitle="Recover a causal effect when a hidden confounder biases the obvious regression. An instrument that moves the treatment — but not the outcome directly — lets 2SLS read the true effect. Then break relevance and exclusion to see it fail."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

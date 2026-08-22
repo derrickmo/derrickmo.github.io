@@ -245,7 +245,7 @@ function RagChunkingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="RAG / RETRIEVAL" title="RAG Chunking"
+    <DemoLayout title="RAG Chunking"
       subtitle="Chunk size, overlap, and strategy decide whether the answer survives retrieval. Real TF-IDF cosine over the chunks — watch the verdict flip."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

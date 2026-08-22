@@ -156,7 +156,6 @@ function ChannelCapacityDemo() {
 
   return (
     <DemoLayout
-      topic="INFORMATION THEORY"
       title="Channel Capacity"
       subtitle="How much information survives a noisy channel - Shannon's C = 1 - H(p), the limit no code can beat."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

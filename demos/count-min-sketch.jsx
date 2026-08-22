@@ -207,7 +207,7 @@ function CountMinDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Count-Min Sketch"
+    <DemoLayout title="Count-Min Sketch"
       subtitle="Estimate item frequencies in a massive stream using a tiny d×w table of hashed counters. Each item bumps one counter per row; a query takes the minimum, so collisions only ever overestimate. Widen the table or add rows to tighten the bound."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

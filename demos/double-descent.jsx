@@ -238,7 +238,7 @@ function DoubleDescentDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Double Descent"
+    <DemoLayout title="Double Descent"
       subtitle="Test error dips, spikes at the interpolation threshold, then dips again as capacity grows past it. Sweep capacity and watch the fit go wild at P/N=1 — then turn up noise and ridge to see what drives and what cures the peak."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

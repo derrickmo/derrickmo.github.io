@@ -244,7 +244,7 @@ function BeamSearchDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NLP / DECODING" title="Beam Search Tree"
+    <DemoLayout title="Beam Search Tree"
       subtitle="Greedy vs beam vs sampling on a toy language model — see the search frontier expand and prune step by step."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-nlp/`}

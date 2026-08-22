@@ -176,7 +176,7 @@ function SpeculativeDecodingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="Speculative Decoding"
+    <DemoLayout title="Speculative Decoding"
       subtitle="A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step — a lossless speedup set by draft agreement and lookahead."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}

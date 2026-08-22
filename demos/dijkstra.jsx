@@ -194,7 +194,7 @@ function DijkstraDemo() {
   );
 
   return (
-    <DemoLayout topic="GRAPHS / NETWORKS" title="Dijkstra's Shortest Path"
+    <DemoLayout title="Dijkstra's Shortest Path"
       subtitle="Grow certainty outward from the source: always settle the closest frontier node and relax its neighbors. Non-negative weights make the greedy choice optimal."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

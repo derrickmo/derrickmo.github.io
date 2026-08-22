@@ -280,7 +280,6 @@ function VariationalInferenceDemo() {
 
   return (
     <DemoLayout
-      topic="BAYESIAN"
       title="Variational Inference (ELBO)"
       subtitle="Approximate a posterior by optimization - and watch mean-field VI underestimate variance and chase a single mode."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

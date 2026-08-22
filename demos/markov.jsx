@@ -139,7 +139,7 @@ function MarkovDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NLP · LANGUAGE MODELS" title="Markov Text Generator"
+    <DemoLayout title="Markov Text Generator"
       subtitle="The simplest language model — count which token follows which, then sample. The ancestor of every LLM."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rnn-nlp/`}

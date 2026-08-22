@@ -241,7 +241,6 @@ function BayesianLinearRegressionDemo() {
 
   return (
     <DemoLayout
-      topic="BAYESIAN"
       title="Bayesian Linear Regression"
       subtitle="Fit a distribution over functions, not a single line - and watch uncertainty shrink where the data is."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

@@ -253,7 +253,7 @@ function BranchAndBoundDemo() {
   // drive redraw whenever frame or trace changes
   _useEffect(() => { draw(); /* eslint-disable-next-line */ });
   return (
-    <DemoLayout topic="SEARCH" title="Branch & Bound"
+    <DemoLayout title="Branch & Bound"
       subtitle="Solve 0/1 knapsack exactly without opening every branch. An optimistic bound prunes whole subtrees that can't beat the best solution so far. Toggle bounding off to watch it collapse into brute force."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

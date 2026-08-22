@@ -262,7 +262,7 @@ function OptimizersDemo() {
     </>
   );
   return (
-    <DemoLayout topic="OPTIMIZATION" title="Optimizer Shootout"
+    <DemoLayout title="Optimizer Shootout"
       subtitle="SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}

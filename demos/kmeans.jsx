@@ -233,7 +233,6 @@ function KMeansDemo() {
   );
   return (
     <DemoLayout
-      topic="UNSUPERVISED LEARNING"
       title="K-Means Clustering"
       subtitle="Lloyd's algorithm, live. Watch centroids and assignments alternate until the clusters lock in."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

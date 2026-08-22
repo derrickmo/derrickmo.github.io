@@ -198,7 +198,7 @@ function BloomDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Bloom Filter"
+    <DemoLayout title="Bloom Filter"
       subtitle="Answer set membership with a tiny bit array and k hashes: never a false negative, only tunable false positives. Watch the array fill, the false-positive rate climb as (1-e^{-kn/m})^k, and find the optimal number of hash functions."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

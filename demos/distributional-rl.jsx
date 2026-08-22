@@ -250,7 +250,7 @@ function DistributionalRLDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Distributional RL (C51)"
+    <DemoLayout title="Distributional RL (C51)"
       subtitle="Learn the whole distribution of returns, not just its mean. The distributional Bellman backup carries a bimodal payoff back through the chain — and the scalar value hides it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

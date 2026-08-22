@@ -198,7 +198,7 @@ function BayesDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Bayes Updater"
+    <DemoLayout title="Bayes Updater"
       subtitle="A Beta prior meets Bernoulli flips — watch the posterior settle on the truth, live."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

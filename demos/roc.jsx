@@ -184,7 +184,7 @@ function ROCDemo() {
     </>
   );
   return (
-    <DemoLayout topic="ML THEORY · EVALUATION" title="ROC, PR & Thresholds"
+    <DemoLayout title="ROC, PR & Thresholds"
       subtitle="One score, many decisions: move the threshold and watch precision, recall, ROC, and PR trade off."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

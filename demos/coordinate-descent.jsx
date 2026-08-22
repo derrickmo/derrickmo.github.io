@@ -284,7 +284,6 @@ function CoordinateDescentDemo() {
 
   return (
     <DemoLayout
-      topic="OPTIMIZATION"
       title="Coordinate Descent"
       subtitle="Minimize one variable at a time, and watch axis-aligned moves stall when the coordinates are correlated."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

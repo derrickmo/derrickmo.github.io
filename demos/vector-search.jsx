@@ -160,7 +160,7 @@ function VectorSearchDemo() {
     </>
   );
   return (
-    <DemoLayout topic="RETRIEVAL · RAG" title="Vector Search"
+    <DemoLayout title="Vector Search"
       subtitle="The engine under semantic search and RAG: k-nearest-neighbor retrieval, and how the metric reshapes what counts as similar."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

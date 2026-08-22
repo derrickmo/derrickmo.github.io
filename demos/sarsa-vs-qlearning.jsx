@@ -275,7 +275,7 @@ function SarsaVsQDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="SARSA vs Q-Learning"
+    <DemoLayout title="SARSA vs Q-Learning"
       subtitle="One term in the TD update separates them: on-policy SARSA learns the safe path, off-policy Q-learning the optimal cliff-edge path — and pays for it while exploring."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

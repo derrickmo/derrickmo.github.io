@@ -248,7 +248,7 @@ function CrossValDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="Cross-Validation"
+    <DemoLayout title="Cross-Validation"
       subtitle="Train error always falls with complexity, so it can't pick a model. Watch honest k-fold CV rotate a held-out fold through the data and trace a U-shaped error curve whose minimum is the right amount of complexity — the bias/variance tradeoff, measured."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

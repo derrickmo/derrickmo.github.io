@@ -215,7 +215,7 @@ function CalibrationDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="Model Calibration"
+    <DemoLayout title="Model Calibration"
       subtitle="A '90% confident' model should be right 90% of the time. See overconfidence on a reliability diagram, measure it with ECE, and fix it with one temperature knob."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

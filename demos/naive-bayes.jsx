@@ -239,7 +239,7 @@ function NaiveBayesDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Gaussian Naive Bayes"
+    <DemoLayout title="Gaussian Naive Bayes"
       subtitle="Classify by Bayes' rule with one bold shortcut: assume the features are independent within each class. Watch the decision regions, and tilt the data so the features correlate to see exactly what the naive diagonal-covariance assumption costs versus full QDA."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

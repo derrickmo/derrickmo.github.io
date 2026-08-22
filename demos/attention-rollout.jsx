@@ -172,7 +172,7 @@ function AttentionRolloutDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRANSFORMERS / NLP" title="Attention Rollout"
+    <DemoLayout title="Attention Rollout"
       subtitle="One attention layer shows one hop; compose them to trace a token's attribution back to the input. Watch rollout spread credit beyond the last layer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/`}

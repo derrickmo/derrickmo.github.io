@@ -217,7 +217,7 @@ function PerceptronDemo() {
     </>
   );
   return (
-    <DemoLayout topic="NEURAL NETWORKS" title="The Perceptron"
+    <DemoLayout title="The Perceptron"
       subtitle="Watch the original learning algorithm swing a decision boundary into place, one corrective nudge per misclassified point. Separable data converges by theorem; raise the class overlap to see it never settle — the limitation that launched margins, kernels, and backprop."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}

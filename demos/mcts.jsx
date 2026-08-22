@@ -253,7 +253,7 @@ function MCTSDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="MCTS Tree Search"
+    <DemoLayout title="MCTS Tree Search"
       subtitle="Monte-Carlo Tree Search, iteration by iteration — select, expand, rollout, backup."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

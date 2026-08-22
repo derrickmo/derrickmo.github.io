@@ -299,7 +299,6 @@ function WatershedDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Watershed Segmentation"
       subtitle="Separate touching objects by flooding the distance transform from markers and damming where basins meet — the classic marker-controlled watershed."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

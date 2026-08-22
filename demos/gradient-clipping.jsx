@@ -217,7 +217,7 @@ function GradientClippingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRAINING & SCALING" title="Gradient Clipping"
+    <DemoLayout title="Gradient Clipping"
       subtitle="A loss cliff makes the gradient explode; one unclipped step launches the parameters off the map. Clipping caps the gradient norm so descent stays bounded. Race a clipped and an unclipped walker on the same surface."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

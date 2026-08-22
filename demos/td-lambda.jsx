@@ -216,7 +216,7 @@ function TDLambdaDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="TD(λ) & Eligibility Traces"
+    <DemoLayout title="TD(λ) & Eligibility Traces"
       subtitle="One knob from one-step TD to Monte Carlo. Eligibility traces carry a reward's credit backward along the path you took — and an intermediate λ usually learns fastest."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

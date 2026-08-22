@@ -212,7 +212,6 @@ function HoughTransformDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Hough Transform"
       subtitle="Every edge point votes for the lines that could pass through it — and real lines emerge as bright peaks in the accumulator."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

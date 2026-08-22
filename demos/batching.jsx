@@ -233,7 +233,6 @@ function BatchingDemo() {
 
   return (
     <DemoLayout
-      topic="MLOPS & SERVING"
       title="Dynamic Batching"
       subtitle="Batch requests to amortize GPU overhead: throughput climbs and tail latency grows, and the queue runs away the instant arrivals outpace capacity. A live serving simulation."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

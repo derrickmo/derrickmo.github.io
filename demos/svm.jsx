@@ -182,7 +182,7 @@ function SVMDemo() {
     </>
   );
   return (
-    <DemoLayout topic="SUPERVISED LEARNING" title="SVM — Margins & Kernels"
+    <DemoLayout title="SVM — Margins & Kernels"
       subtitle="The widest-margin boundary, the support vectors that define it, and the kernel trick that bends it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

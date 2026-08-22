@@ -192,7 +192,6 @@ function ModelCascadeDemo() {
 
   return (
     <DemoLayout
-      topic="MLOPS & SERVING"
       title="Model Cascade (Early-Exit)"
       subtitle="Let a cheap model answer the easy inputs and escalate only the uncertain ones to an expensive model — spend big compute where it actually changes the answer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

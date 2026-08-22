@@ -242,7 +242,7 @@ function DynaQDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Dyna-Q (Model-Based Planning)"
+    <DemoLayout title="Dyna-Q (Model-Based Planning)"
       subtitle="Learn a model from experience, then plan inside it. n imagined updates per real step let Dyna-Q solve the maze in a fraction of the experience model-free Q-learning needs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

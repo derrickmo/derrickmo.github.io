@@ -252,7 +252,7 @@ function KVCacheDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRANSFORMERS" title="KV Cache"
+    <DemoLayout title="KV Cache"
       subtitle="Toggle the KV cache and watch per-step compute either stay flat or grow with prefix length — the trick that makes LLM inference tractable."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}

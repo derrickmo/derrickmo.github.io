@@ -217,7 +217,7 @@ function SuccessorRepresentationDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Successor Representation"
+    <DemoLayout title="Successor Representation"
       subtitle="Separate where you'll go from what you want. Learn the successor map once, then move the reward and value recomputes instantly as V = M·R — no relearning."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

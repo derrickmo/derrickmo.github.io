@@ -233,7 +233,7 @@ function ActiveLearningDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="Active Learning"
+    <DemoLayout title="Active Learning"
       subtitle="Labels are expensive — so let the model pick what to label. Uncertainty sampling races random labeling, and reaches high accuracy with far fewer labels."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

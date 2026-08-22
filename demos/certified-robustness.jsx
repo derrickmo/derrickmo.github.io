@@ -215,7 +215,6 @@ function CertifiedRobustnessDemo() {
 
   return (
     <DemoLayout
-      topic="ROBUSTNESS"
       title="Certified Robustness (Randomized Smoothing)"
       subtitle="Turn a classifier into one with a provable safety radius - no perturbation inside the circle can change its answer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

@@ -180,7 +180,6 @@ function TemplateMatchingDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Template Matching (NCC)"
       subtitle="Slide a template over an image and score every position - and see why normalized correlation beats raw differences under a brightness change."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

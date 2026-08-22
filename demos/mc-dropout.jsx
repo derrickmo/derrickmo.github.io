@@ -212,7 +212,7 @@ function MCDropoutDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="MC Dropout"
+    <DemoLayout title="MC Dropout"
       subtitle="Keep dropout on at inference and sample many times — the spread is the model's uncertainty, and it grows where the data runs out."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

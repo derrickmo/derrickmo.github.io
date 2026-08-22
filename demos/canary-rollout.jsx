@@ -197,7 +197,6 @@ function CanaryRolloutDemo() {
 
   return (
     <DemoLayout
-      topic="MLOPS & SERVING"
       title="Canary Rollout"
       subtitle="Ship a new model to a sliver of live traffic, guard it with an automated metric test, and widen or roll back — capping the blast radius of a bad deploy."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

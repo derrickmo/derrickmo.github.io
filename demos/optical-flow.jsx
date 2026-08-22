@@ -191,7 +191,6 @@ function OpticalFlowDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Optical Flow (Lucas-Kanade)"
       subtitle="Estimate per-point motion between frames by assuming brightness is conserved and solving the 2x2 least-squares system in a local window."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

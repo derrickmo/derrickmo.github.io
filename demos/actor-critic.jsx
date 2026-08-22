@@ -309,7 +309,7 @@ function ActorCriticDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Actor-Critic"
+    <DemoLayout title="Actor-Critic"
       subtitle="A critic learns the value of each state; an actor learns the policy. One shared TD error trains both — the learned baseline behind A2C, PPO, and RLHF."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

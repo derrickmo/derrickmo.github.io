@@ -175,7 +175,6 @@ function MorphologicalOpsDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Morphological Operations"
       subtitle="Reshape a binary image with erosion, dilation, opening, closing, and gradient - the cleanup crew of classical vision."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

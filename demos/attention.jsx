@@ -228,7 +228,6 @@ function AttentionDemo() {
   );
   return (
     <DemoLayout
-      topic="TRANSFORMERS · ATTENTION"
       title="Attention Heatmap"
       subtitle="Type a sentence and watch scaled dot-product self-attention decide which tokens look at which."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

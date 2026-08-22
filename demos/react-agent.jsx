@@ -185,7 +185,7 @@ function ReactAgentDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="ReAct — Reason + Act"
+    <DemoLayout title="ReAct — Reason + Act"
       subtitle="The tool-using agent loop: Thought → Action → Observation, repeat. Watch a worked trace — then drop the reliability and see errors compound."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

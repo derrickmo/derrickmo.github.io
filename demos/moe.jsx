@@ -199,7 +199,7 @@ function MoEDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="Mixture of Experts (MoE)"
+    <DemoLayout title="Mixture of Experts (MoE)"
       subtitle="Route each token to a few of many experts — scale parameters, not per-token compute. Watch specialization emerge, and fight the load-imbalance failure."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

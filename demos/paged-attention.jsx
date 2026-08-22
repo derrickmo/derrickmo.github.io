@@ -171,7 +171,7 @@ function PagedAttentionDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="PagedAttention (KV-cache paging)"
+    <DemoLayout title="PagedAttention (KV-cache paging)"
       subtitle="Contiguous KV reservations waste memory on every half-finished sequence; paging packs fixed blocks on demand and fits far more streams in the same GPU."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}

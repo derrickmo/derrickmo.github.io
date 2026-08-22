@@ -155,7 +155,7 @@ function LRScheduleDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRAINING · OPTIMIZATION" title="Learning-Rate Schedules"
+    <DemoLayout title="Learning-Rate Schedules"
       subtitle="Warmup, decay, and why the same optimizer converges or diverges depending on the curve you feed it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

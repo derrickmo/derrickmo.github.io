@@ -171,7 +171,6 @@ function PdTournamentDemo() {
 
   return (
     <DemoLayout
-      topic="GAME THEORY"
       title="Iterated Prisoner's Dilemma Tournament"
       subtitle="Run Axelrod's round-robin and watch nice, reciprocal strategies beat pure defection."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

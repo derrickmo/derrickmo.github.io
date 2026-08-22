@@ -227,7 +227,6 @@ function SparseAutoencoderDemo() {
 
   return (
     <DemoLayout
-      topic="INTERPRETABILITY"
       title="Sparse Autoencoders (Superposition)"
       subtitle="Pull monosemantic features out of polysemantic neurons - the core tool of mechanistic interpretability."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

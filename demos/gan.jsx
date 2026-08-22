@@ -386,7 +386,7 @@ function GANDemo() {
     </>
   );
   return (
-    <DemoLayout topic="GENERATIVE" title="GAN 2-D"
+    <DemoLayout title="GAN 2-D"
       subtitle="Two tiny networks duel in your browser — generator chases the real distribution, discriminator polices the boundary."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/generative/`}

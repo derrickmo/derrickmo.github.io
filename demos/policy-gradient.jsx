@@ -283,7 +283,7 @@ function PolicyGradientDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Policy Gradient — REINFORCE"
+    <DemoLayout title="Policy Gradient — REINFORCE"
       subtitle="A Gaussian policy finds the hidden target by sampling, scoring, and updating. The simplest possible RL — and a parent to PPO and RLHF."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

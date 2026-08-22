@@ -188,7 +188,7 @@ function ConformalDemo() {
     </>
   );
   return (
-    <DemoLayout topic="TRUSTWORTHY ML" title="Conformal Prediction"
+    <DemoLayout title="Conformal Prediction"
       subtitle="Output a label set guaranteed to contain the truth (1−α) of the time — for any model. Watch coverage hold even as the model gets worse; only set size suffers."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

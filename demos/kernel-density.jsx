@@ -234,7 +234,7 @@ function KDEDemo() {
     </>
   );
   return (
-    <DemoLayout topic="CLASSICAL ML" title="Kernel Density Estimation"
+    <DemoLayout title="Kernel Density Estimation"
       subtitle="Drop a kernel on every data point and sum them into a smooth, assumption-free density estimate. Drag the bandwidth to watch the bias/variance tradeoff play out: spiky overfitting at small h, oversmoothed bias at large h."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}

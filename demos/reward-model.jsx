@@ -314,7 +314,7 @@ function RewardModelDemo() {
     </>
   );
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Reward Model (RLHF)"
+    <DemoLayout title="Reward Model (RLHF)"
       subtitle="Learn a scalar reward from pairwise human preferences with Bradley-Terry — the signal PPO maximizes in RLHF. Watch the learned field reconstruct the hidden one."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}

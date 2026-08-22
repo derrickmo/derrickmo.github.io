@@ -234,7 +234,7 @@ function MCMCDemo() {
     </>
   );
   return (
-    <DemoLayout topic="FOUNDATIONS" title="MCMC (Metropolis-Hastings)"
+    <DemoLayout title="MCMC (Metropolis-Hastings)"
       subtitle="Sample a distribution you can only evaluate up to a constant by building a random walk that visits it in proportion to its density. Tune the proposal step to feel the mixing-vs-acceptance tradeoff, and switch targets to see where random-walk MCMC struggles."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

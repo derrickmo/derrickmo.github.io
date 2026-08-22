@@ -189,7 +189,7 @@ function EditDistanceDemo() {
     </>
   );
   return (
-    <DemoLayout topic="DYNAMIC PROGRAMMING" title="Edit Distance"
+    <DemoLayout title="Edit Distance"
       subtitle="The fewest insert/delete/substitute edits between two strings. Watch the DP table fill from its neighbors, then backtrack the character alignment."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

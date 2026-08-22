@@ -233,7 +233,6 @@ function ConjugateUpdatingDemo() {
 
   return (
     <DemoLayout
-      topic="BAYESIAN"
       title="Conjugate Prior Updating"
       subtitle="Watch a prior become a posterior, one observation at a time - the closed-form heart of Bayesian inference."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

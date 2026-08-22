@@ -212,7 +212,6 @@ function RegretMatchingDemo() {
 
   return (
     <DemoLayout
-      topic="GAME THEORY"
       title="Regret Matching to Nash"
       subtitle="Two no-regret learners play a game and their average strategy converges to a Nash equilibrium."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

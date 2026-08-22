@@ -168,7 +168,6 @@ function HistogramEqualizationDemo() {
 
   return (
     <DemoLayout
-      topic="COMPUTER VISION"
       title="Histogram Equalization"
       subtitle="Push a washed-out image's tones through its own CDF to spread the contrast - plus CLAHE clipping to tame noise."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

@@ -176,7 +176,7 @@ function PageRankDemo() {
   );
 
   return (
-    <DemoLayout topic="GRAPHS / NETWORKS" title="PageRank"
+    <DemoLayout title="PageRank"
       subtitle="Importance flows along links. Power iteration converges to the random surfer's stationary distribution — and the damping factor is what keeps it well-defined."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

@@ -269,7 +269,7 @@ function DatasetDistillationDemo() {
     </>
   );
   return (
-    <DemoLayout topic="DATA-CENTRIC ML" title="Dataset Distillation"
+    <DemoLayout title="Dataset Distillation"
       subtitle="Learn a handful of synthetic training points whose model reproduces the full dataset's decision boundary. Watch them migrate into the most informative positions as the distillation loss falls."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}

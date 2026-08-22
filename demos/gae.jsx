@@ -185,7 +185,7 @@ function GAEDemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="Generalized Advantage Estimation"
+    <DemoLayout title="Generalized Advantage Estimation"
       subtitle="The one knob, λ, that trades bias against variance in the advantage estimate driving every modern policy gradient — with a critic error that shifts the sweet spot."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

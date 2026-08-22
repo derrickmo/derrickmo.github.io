@@ -259,7 +259,7 @@ function ConstrainedDecodingDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Constrained Decoding"
+    <DemoLayout title="Constrained Decoding"
       subtitle="Mask the grammar-invalid tokens at every step and structured output becomes guaranteed, not hoped-for. Compare raw vs constrained JSON generation."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

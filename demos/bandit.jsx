@@ -227,7 +227,6 @@ function BanditDemo() {
   );
   return (
     <DemoLayout
-      topic="REINFORCEMENT LEARNING"
       title="Multi-Armed Bandit"
       subtitle="Explore vs exploit: pit ε-greedy, UCB, and Thompson sampling against the same slot machines."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

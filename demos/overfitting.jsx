@@ -191,7 +191,6 @@ function OverfittingDemo() {
 
   return (
     <DemoLayout
-      topic="ML THEORY"
       title="Overfitting Lab"
       subtitle="Fit a polynomial to noisy data and watch the bias-variance tradeoff play out in real time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

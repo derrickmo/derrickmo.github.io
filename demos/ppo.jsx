@@ -186,7 +186,7 @@ function PPODemo() {
   );
 
   return (
-    <DemoLayout topic="REINFORCEMENT LEARNING" title="PPO Clipped Objective"
+    <DemoLayout title="PPO Clipped Objective"
       subtitle="The clip that made policy gradients stable: reward moving the policy only within a trust region, so you can safely reuse a batch without a destructive update."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

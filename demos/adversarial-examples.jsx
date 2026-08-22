@@ -225,7 +225,6 @@ function AdversarialExamplesDemo() {
 
   return (
     <DemoLayout
-      topic="ROBUSTNESS"
       title="Adversarial Examples (FGSM / PGD)"
       subtitle="Nudge an input along the loss gradient and fool a real classifier - then defend it with adversarial training."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

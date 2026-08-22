@@ -200,7 +200,7 @@ function DistillationDemo() {
     </>
   );
   return (
-    <DemoLayout topic="EFFICIENCY" title="Knowledge Distillation"
+    <DemoLayout title="Knowledge Distillation"
       subtitle="Train a small student to match a teacher's soft labels, not just its answers. Turn up temperature and soft-weight to transfer the teacher's dark knowledge."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}

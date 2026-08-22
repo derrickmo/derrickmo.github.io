@@ -175,7 +175,7 @@ function DTWDemo() {
   );
 
   return (
-    <DemoLayout topic="AUDIO / SIGNAL" title="Dynamic Time Warping"
+    <DemoLayout title="Dynamic Time Warping"
       subtitle="Align two series at different speeds. DTW finds the cheapest nonlinear warp between them — where rigid Euclidean distance fails on the smallest time shift."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}

@@ -245,7 +245,7 @@ function SemanticCachingDemo() {
   );
 
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="Semantic Caching"
+    <DemoLayout title="Semantic Caching"
       subtitle="Cache LLM answers by embedding similarity, not exact text. Slide the threshold between big cost savings and serving a confidently wrong cached answer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

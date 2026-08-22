@@ -238,7 +238,7 @@ function GraphColoringDemo() {
     </>
   );
   return (
-    <DemoLayout topic="SEARCH / CSP" title="Graph Coloring (AC-3)"
+    <DemoLayout title="Graph Coloring (AC-3)"
       subtitle="Color the map so neighbors differ. Backtracking with arc-consistency propagation — watch domains shrink, and compare backtracks with AC-3 on vs off."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}

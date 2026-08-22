@@ -154,7 +154,7 @@ function RagRerankerDemo() {
     </>
   );
   return (
-    <DemoLayout topic="AGENTS / LLM OPS" title="RAG Reranker"
+    <DemoLayout title="RAG Reranker"
       subtitle="Cheap lexical retrieval buries semantically-relevant docs; a cross-encoder reranker re-scores the shortlist and floats them back to the top. Watch nDCG jump."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

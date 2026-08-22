@@ -225,7 +225,6 @@ function NeuralPlaygroundDemo() {
   );
   return (
     <DemoLayout
-      topic="NEURAL NETWORKS"
       title="Neural Playground"
       subtitle="Train a small neural net live on 2D data and watch its decision boundary take shape."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

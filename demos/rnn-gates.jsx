@@ -229,7 +229,7 @@ function RNNGatesDemo() {
     </>
   );
   return (
-    <DemoLayout topic="RNN / NLP" title="LSTM Gates"
+    <DemoLayout title="LSTM Gates"
       subtitle="A live LSTM cell processing a 1-D sequence — see the forget, input, and output gates open and close over time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rnn-nlp/`}

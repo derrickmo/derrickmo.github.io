@@ -210,7 +210,6 @@ function SuperpositionDemo() {
 
   return (
     <DemoLayout
-      topic="INTERPRETABILITY"
       title="Toy Model of Superposition"
       subtitle="Watch a network pack more features than it has dimensions - the reason neurons are polysemantic."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}

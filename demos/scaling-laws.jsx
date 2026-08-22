@@ -148,7 +148,7 @@ function ScalingLawsDemo() {
     </>
   );
   return (
-    <DemoLayout topic="LLM SYSTEMS · SCALING" title="Neural Scaling Laws"
+    <DemoLayout title="Neural Scaling Laws"
       subtitle="Spend compute wisely: the power-law frontier and the compute-optimal balance of parameters and data."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}

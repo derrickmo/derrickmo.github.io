@@ -178,7 +178,7 @@ function SpectrogramDemo() {
   );
 
   return (
-    <DemoLayout topic="AUDIO / SIGNAL" title="Spectrogram (STFT)"
+    <DemoLayout title="Spectrogram (STFT)"
       subtitle="See frequency change over time. The STFT windows a signal and Fourier-transforms each chunk — and the window length forces a tradeoff between time and frequency resolution."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
