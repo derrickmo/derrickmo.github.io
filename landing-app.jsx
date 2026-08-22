@@ -171,7 +171,7 @@ function Services() {
       tag: "02 · LEARN",
       title: "Learn",
       blurb: "ML and DL from first principles — for people who refuse to treat the framework as a black box. Two full courses, animated concepts, and lessons you can actually follow.",
-      list: ["Courses, free & self-guided", "Animated key concepts", "200-lesson program", "Workshops & mentoring"],
+      list: ["Courses, free & self-guided", "Animated key concepts", "250-lesson program", "Workshops & mentoring"],
       tone: "violet",
       href: "learn/",
       diagram: <LessonStack count={7} width={260} height={200} mode="dark" />,

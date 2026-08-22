@@ -1075,6 +1075,15 @@ const CONCEPTS_INDEX = {
 // Keyed by registry, then by slug. Each value is the array of concept ids the
 // item covers. Kept here (instead of inside each registry file) so the
 // taxonomy can grow in one place without touching unrelated code.
+//
+// ⚠ ORDER IS SIGNIFICANT: the FIRST id in each list is that item's PRIMARY
+// concept, and path-ordering checks depend on it. Append new ids; only put one
+// at the front when it really is what the item is mainly about.
+//
+// ⚠ A KEY IS A SLUG, A VALUE IS A CONCEPT ID — and the two namespaces overlap
+// (`overfitting`, `pathfinding`, `tokenizer` … are all both). Never bulk
+// find/replace an id across this file; a demo slug that happens to match a
+// renamed concept must NOT be rewritten. See GR-0001..0005.
 const CONCEPT_TAGS = {
   // Visualize demos — slugs match play-demos.js
   demos: {

@@ -2,9 +2,9 @@
 
 Personal website of **Derrick Mo** — machine-learning engineer and educator.
 Part portfolio (Research · Learn · Build), part **interactive ML curriculum**: a
-browser-based lab of **170+ hands-on demos** across 19 areas, a 20-module course,
-flagship lessons, guided learning paths, and a linked concept graph — every
-algorithm runs entirely in your browser.
+browser-based lab of **179 hands-on demos** across 19 areas, a **25-module,
+250-lesson** course, flagship lessons, guided learning paths, and a linked concept
+graph — every algorithm runs entirely in your browser.
 
 🔗 Live: https://derrickmo.github.io
 
@@ -13,12 +13,12 @@ This site is the **visual, concept-first** surface of a single ML curriculum del
 three ways from one source of content:
 1. **Website** (this repo) — interactive, visual, intuition-building demos + walk-through lessons.
 2. **Notebooks** — [machine_learning_tutorials](https://github.com/derrickmo/machine_learning_tutorials),
-   the comprehensive, runnable, code-first reference (~200 notebooks).
-3. **Mobile app** (planned) — a Flutter app for on-the-go learning, flashcards, and interview
-   prep that **mirrors** this content.
+   the comprehensive, runnable, code-first reference (250 notebooks, one per lesson).
 
-The site visualizes concepts and links out to the notebooks for full code; the planned app
-reuses the same content. (Internal planning lives in `_private/`, kept out of the repo.)
+The site visualizes concepts and links out to the notebooks for full code. A **Flutter app**
+for on-the-go learning, flashcards and interview prep is a goal for a later phase — it does
+not exist yet, and nothing in this repo ships it. (Internal planning lives in `_private/`,
+kept out of the repo.)
 
 ## Stack
 - **Vite** multi-page static build → **GitHub Pages** (free tier).
@@ -38,22 +38,25 @@ npm run preview   # serve the production build
 > (the module scripts need to be served over HTTP).
 
 ## What's inside
-- **Visualize** (`/visualize/`) — 170+ interactive demos in 19 categories (Foundations,
-  Classical ML, Neural Networks, Transformers & NLP, RL, Generative & Signal, Agents & LLM
-  Systems, Trustworthy & Explainable ML, Interpretability, Search & CSP, Efficiency & Systems,
-  MLOps & Serving, Audio & Signal, Graphs & Networks, Probabilistic & Bayesian, Game Theory &
-  Multi-Agent, Information Theory, …). Each implements the real algorithm in JS.
-- **Learn** (`/learn/`) — a 20-module ML course (`curriculum.js` / `lectures.js`), 25 flagship
-  on-site lessons, 127 per-concept sub-lessons, and a HuggingFace mini-course.
-- **Concept graph** (`/concepts/`, `/concept-map/`) — ~180 concepts linked by prerequisites,
+- **Visualize** (`/visualize/`) — 179 interactive demos in 19 categories: Foundations,
+  Information Theory, Evaluation & Robustness, Probabilistic & Bayesian, Classical Machine
+  Learning, Neural Networks, Transformers & NLP, Training & Scaling, Reinforcement Learning,
+  Game Theory & Multi-Agent, Generative & Signal, Agents & LLM Systems, Trustworthy &
+  Explainable ML, Interpretability, Search & Constraint Solving, Efficiency & Systems,
+  MLOps & Serving, Audio & Signal, and Graphs & Networks. Each implements the real
+  algorithm in JS.
+- **Learn** (`/learn/`) — a 25-module, 250-lesson ML course (`curriculum.js` / `lectures.js`),
+  25 flagship on-site lessons, 73 per-concept sub-lessons, and a HuggingFace mini-course.
+- **Concept graph** (`/concepts/`, `/concept-map/`) — 188 concepts linked by prerequisites,
   tying every demo, lesson, and game together.
-- **Guided paths** (`/paths/`) — curated multi-step learning tracks with progress tracking.
-- **Playground** (`/playground/`) — build-a-classifier sandbox. **Play** (`/play/`) — AI games.
+- **Guided paths** (`/paths/`) — 11 curated multi-step learning tracks with progress tracking.
+- **Playground** (`/playground/`) — build-a-classifier sandbox. **Play** (`/play/`) — 12 AI games.
 - **Insights** (`/weekly-insights/`) — a weekly ML research digest.
 
 ## Content model
 - `concepts-index.js` — the concept graph (concepts + prereqs/leadsTo + tags linking every surface).
-- `curriculum.js` / `lectures.js` — the 20-module course.
+- `curriculum.js` / `lectures.js` — the 25-module course. Both are **generated** from the
+  canonical `content/` store; edit the store, not these files.
 - `play-demos.js` — the demo registry + categories.
 - `sub-lessons.js` — per-concept taught lessons. `paths.js` — guided paths.
 
@@ -61,7 +64,7 @@ npm run preview   # serve the production build
 ```
 index.html / landing-app.jsx     Home
 about/ research/ cases/ work/     Portfolio pages
-learn/                            Curriculum hub, 20 modules, flagship + sub-lessons, HuggingFace
+learn/                            Curriculum hub, 25 modules, flagship + sub-lessons, HuggingFace
 visualize/<slug>/ + demos/        Interactive demos (one per page)
 play/<slug>/ + games/             AI games
 concepts/ concept-map/            Concept graph + force-directed map
