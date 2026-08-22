@@ -1331,4 +1331,20 @@ function __buildReverseIndex() {
 }
 const CONCEPT_REVERSE = __buildReverseIndex();
 
+// `leadsTo` is the transpose of `prereqs`. Author `prereqs` only; any hand-written
+// `leadsTo` is merged in and de-duplicated, so the graph cannot drift out of symmetry
+// again. (250 edges existed in one direction only before this ran, which made hub
+// concepts like `attention` and `gradient-descent` look like dead ends.)
+(function __symmetrizeGraph() {
+  const back = {};
+  for (const [id, c] of Object.entries(CONCEPTS_INDEX))
+    for (const p of c.prereqs || [])
+      if (CONCEPTS_INDEX[p]) (back[p] = back[p] || []).push(id);
+  for (const [id, c] of Object.entries(CONCEPTS_INDEX)) {
+    c.leadsTo = [...new Set([...(c.leadsTo || []), ...(back[id] || [])])]
+      .filter((x) => CONCEPTS_INDEX[x] && x !== id);
+    c.prereqs = [...new Set(c.prereqs || [])].filter((x) => CONCEPTS_INDEX[x] && x !== id);
+  }
+})();
+
 Object.assign(window, { CONCEPTS_INDEX, CONCEPT_TAGS, CONCEPT_REVERSE });
