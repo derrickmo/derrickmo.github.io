@@ -17,6 +17,7 @@ window.DM_NAV_INDEX = [
   { label: "Research", group: "Page", href: "/research/", kw: "papers patents slm survey publications" },
   { label: "Build", group: "Page", href: "/cases/", kw: "consulting build how i work hire engagement collaborate" },
   { label: "Learn", group: "Page", href: "/learn/", kw: "curriculum teaching courses ml dl" },
+  { label: "Failure Modes (pitfalls)", group: "Page", href: "/pitfalls/", kw: "pitfalls failure modes debugging broken nan loss out of memory leakage drift troubleshooting gotchas mistakes" },
   { label: "Interview Prep", group: "Page", href: "/interview/", kw: "interview questions flashcards drill spaced repetition anki mock timed practice prep quiz revision" },
   { label: "ML from Scratch (course)", group: "Page", href: "/learn/ml-from-scratch/", kw: "numpy pytorch 25 modules curriculum first principles" },
   { label: "Building with GenAI (short course)", group: "Page", href: "/learn/building-with-genai/", kw: "claude code cowork design making of this site genai workflow" },

@@ -15,6 +15,12 @@ const SECTIONS = [
     diagram: <AgentConstellation width={280} height={170} mode="dark" />,
   },
   {
+    href: "../pitfalls/", tag: "// REFERENCE · FAILURE MODES", title: "Failure Modes", tone: "blue",
+    blurb: "Every documented way to get it wrong, collected from all 250 lessons and searchable by symptom. The rest of the site answers “teach me X”; this one answers “why is my thing broken?”",
+    stat: "2,246 pitfalls · searchable · links back to the lesson",
+    diagram: <LessonStack count={5} width={300} height={170} mode="dark" />,
+  },
+  {
     href: "../paths/", tag: "// GUIDED · TRACKS", title: "Guided Paths", tone: "violet",
     blurb: "Curated routes through the demos, concepts, and lessons — taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
     stat: "11 paths · saved progress · start anywhere",

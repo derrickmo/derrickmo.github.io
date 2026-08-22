@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs && node scripts/build-interview-index.mjs",
+    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs && node scripts/build-interview-index.mjs && node scripts/build-pitfalls-index.mjs",
     "prebuild": "npm run validate",
     "build": "vite build",
     "preview": "vite preview",

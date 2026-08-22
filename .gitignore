@@ -38,4 +38,5 @@ Thumbs.db
 # how content.json went 7 lessons stale (review finding RC-0002). CI runs the
 # build, so the deploy always carries a freshly compiled corpus.
 public/interview-manifest.json
+public/pitfalls-index.json
 public/interview/

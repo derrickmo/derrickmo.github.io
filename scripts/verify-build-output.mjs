@@ -83,6 +83,18 @@ if (!existsSync(manPath)) {
   note("interview corpus: " + man.counts.questions + " questions, " + man.counts.cards + " cards, " + man.modules.length + " shards");
 }
 
+// 7. Same reasoning for the /pitfalls/ index: generated, gitignored, and the page
+//    is useless without it.
+const pfPath = join(DIST, "pitfalls-index.json");
+if (!existsSync(pfPath)) {
+  problems.push("pitfalls-index.json is missing from dist/ -- the failure-mode index would load nothing");
+} else {
+  const pf = JSON.parse(readFileSync(pfPath, "utf8"));
+  if (!pf.rows || !pf.rows.length) problems.push("pitfalls index has no rows");
+  else if (pf.rows.length !== pf.counts.total) problems.push("pitfalls index disagrees with itself: " + pf.rows.length + " rows vs counts.total " + pf.counts.total);
+  else note("pitfalls index: " + pf.counts.total + " entries across " + pf.modules.length + " modules");
+}
+
 if (problems.length) {
   console.error("\nBUILD NOT PUBLISHABLE:");
   for (const p of problems) console.error(`  ✗ ${p}`);
