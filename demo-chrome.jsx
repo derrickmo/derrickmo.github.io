@@ -90,6 +90,114 @@ function __labelCanvases(root, title) {
   });
 }
 
+// A11Y-0003 -- make the click-driven canvases usable from the keyboard.
+//
+// 18 of the 191 demos take input on the canvas itself; the other 173 are display
+// only and are already driven entirely by the controls column, which is real DOM
+// and was always keyboard-reachable. For those 18 the click IS the interaction --
+// placing a point, dropping a centroid, drawing a wall -- so without this they are
+// unusable without a mouse.
+//
+// The trick that keeps this central: every one of them reads e.clientX/e.clientY off
+// the event and subtracts getBoundingClientRect(). So Enter dispatches a real
+// PointerEvent at the virtual cursor and the demo's OWN handler runs, unmodified.
+// No demo needs to learn about keyboard input, and the two paths cannot drift.
+//
+// Interactivity is read off the stage's React element tree rather than a list kept
+// here, so a demo that gains or loses a pointer handler is classified correctly
+// without anyone remembering to update this file.
+function __canvasPointerFlags(node, out) {
+  if (Array.isArray(node)) { node.forEach((n) => __canvasPointerFlags(n, out)); return out; }
+  if (!node || typeof node !== "object" || !node.props) return out;
+  if (node.type === "canvas") {
+    // onPointerMove counts: two demos (attention, activations) reveal their whole
+    // result on HOVER, which is just as unreachable from a keyboard as a click.
+    // data-dm-canvas-input is the opt-in for a canvas that binds through
+    // addEventListener instead of a prop, where there is nothing here to inspect.
+    out.push(Object.keys(node.props).some((k) => /^on(PointerDown|PointerMove|MouseDown|Click)$/.test(k))
+      || !!node.props["data-dm-canvas-input"]);
+  }
+  __canvasPointerFlags(node.props.children, out);
+  return out;
+}
+
+const __KEY_HINT = "Focus this figure and use the arrow keys to move the cursor, "
+  + "Enter or Space to act at it, Home to recentre. Hold Shift to move faster.";
+
+function __wireCanvasKeys(root, stage) {
+  if (!root) return;
+  const flags = __canvasPointerFlags(stage, []);
+  const canvases = root.querySelectorAll("canvas");
+  canvases.forEach((cv, i) => {
+    if (!flags[i] || cv.dataset.dmKeys) return;
+    cv.dataset.dmKeys = "1";
+    // role=application asks a screen reader to pass keystrokes through instead of
+    // capturing them for its own navigation, which is what this needs.
+    cv.setAttribute("role", "application");
+    cv.setAttribute("tabindex", "0");
+    cv.setAttribute("aria-label", `${cv.getAttribute("aria-label") || ""} ${__KEY_HINT}`.trim());
+
+    // The cursor is a plain element over the canvas, not something painted into it.
+    // Demos repaint constantly and would erase anything drawn, and this way no demo
+    // has to change its draw function.
+    const dot = document.createElement("div");
+    dot.setAttribute("aria-hidden", "true");
+    dot.style.cssText = "position:absolute;width:15px;height:15px;margin:-8px 0 0 -8px;"
+      + "border:2px solid var(--blue-lt);border-radius:50%;pointer-events:none;display:none;"
+      + "box-shadow:0 0 0 1px rgba(2,6,23,0.9),0 0 10px rgba(96,165,250,0.7);z-index:3;";
+    root.appendChild(dot);
+
+    let x = 0.5, y = 0.5;
+    const place = () => {
+      const r = cv.getBoundingClientRect(), rr = root.getBoundingClientRect();
+      dot.style.left = (r.left - rr.left + x * r.width) + "px";
+      dot.style.top = (r.top - rr.top + y * r.height) + "px";
+    };
+    // Hover demos read pointermove; click demos either ignore it or gate their
+    // drag logic on a button being held, which is why this sends buttons: 0.
+    const hover = () => {
+      const r = cv.getBoundingClientRect();
+      cv.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, cancelable: true,
+        clientX: r.left + x * r.width, clientY: r.top + y * r.height,
+        pointerType: "mouse", isPrimary: true, buttons: 0 }));
+    };
+    const commit = () => {
+      const r = cv.getBoundingClientRect();
+      const opts = { bubbles: true, cancelable: true, clientX: r.left + x * r.width,
+        clientY: r.top + y * r.height, pointerType: "mouse", isPrimary: true, button: 0, buttons: 1 };
+      cv.dispatchEvent(new PointerEvent("pointerdown", opts));
+      cv.dispatchEvent(new MouseEvent("mousedown", opts));
+      cv.dispatchEvent(new PointerEvent("pointerup", { ...opts, buttons: 0 }));
+      cv.dispatchEvent(new MouseEvent("click", { ...opts, buttons: 0 }));
+    };
+    cv.addEventListener("focus", () => { dot.style.display = "block"; place(); });
+    cv.addEventListener("blur", () => {
+      dot.style.display = "none";
+      // Hover demos highlight whatever the pointer is over; leaving focus should
+      // clear that the same way moving the mouse away does.
+      cv.dispatchEvent(new PointerEvent("pointerleave", { bubbles: false, pointerType: "mouse" }));
+    });
+    cv.addEventListener("keydown", (e) => {
+      const step = e.shiftKey ? 0.1 : 0.02;
+      let handled = true;
+      if (e.key === "ArrowLeft") x -= step;
+      else if (e.key === "ArrowRight") x += step;
+      else if (e.key === "ArrowUp") y -= step;
+      else if (e.key === "ArrowDown") y += step;
+      else if (e.key === "Home") { x = 0.5; y = 0.5; }
+      else if (e.key === "Enter" || e.key === " ") commit();
+      else handled = false;
+      if (!handled) return;
+      x = Math.min(1, Math.max(0, x)); y = Math.min(1, Math.max(0, y));
+      place(); hover();
+      // Arrows would scroll the page and Space would page down, both of which
+      // would move the reader away from the figure they are operating.
+      e.preventDefault();
+    });
+    window.addEventListener("resize", () => { if (dot.style.display === "block") place(); });
+  });
+}
+
 function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concepts, relatedConcepts, lessonHref, repoHref, tone = "blue", backHref, backLabel = "VISUALIZE" }) {
   const accent = tone === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
   const mobile = useIsMobile();
@@ -126,6 +234,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
   // and the labeller skips anything already named, so re-running is cheap.
   const _stageRef = __useRef(null);
   __useEffect(() => { __labelCanvases(_stageRef.current, title); });
+  __useEffect(() => { __wireCanvasKeys(_stageRef.current, stage); });
 
   // A11Y-0001 part 2 -- narrate the demo's live state.
   //

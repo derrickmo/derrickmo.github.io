@@ -218,7 +218,9 @@ function RegressionDemo() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [running, mode, lr]);
 
-  const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4, cursor: "crosshair" }} />;
+  // A11Y-0003: the click handler is bound with addEventListener below rather than
+  // as a prop, so DemoLayout has nothing to detect -- this says so explicitly.
+  const stage = <canvas ref={canvasRef} data-dm-canvas-input="click" style={{ maxWidth: "100%", borderRadius: 4, cursor: "crosshair" }} />;
   const controls = (
     <ControlGroup>
       <SegmentedControl label="// MODE" value={mode} onChange={(v) => { setMode(v); setRunning(false); setTimeout(() => reseed(v), 0); }}

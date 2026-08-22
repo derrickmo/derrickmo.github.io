@@ -128,6 +128,14 @@
 }
 .dm-skip:focus { top: 12px; }
 
+/* A11Y-0003: an interactive canvas is focusable, so focus has to be visible.
+   Only the 18 canvases that take pointer input get tabindex, so this never
+   fires on the display-only ones. */
+canvas:focus-visible {
+  outline: 2px solid var(--blue-lt);
+  outline-offset: 2px;
+}
+
 /* A11Y-0001: visually hidden, still announced. Used for the live region that
    narrates a demo's state, since the canvas beside it exposes nothing at all.
    clip-path does the hiding in modern browsers; clip is the old-Safari fallback. */
