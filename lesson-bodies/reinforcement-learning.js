@@ -2162,5 +2162,351 @@ window.DM_LESSON_BODIES = {
       "max-entropy-rl",
       "pathfinding"
     ]
+  },
+  "mc-td": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Monte Carlo versus TD in one line?",
+          "a": "MC waits for the actual return and updates once the episode ends; TD updates immediately using its own estimate of what comes next."
+        },
+        {
+          "q": "Write the TD(0) update.",
+          "a": "V(s) <- V(s) + alpha [r + gamma V(s') - V(s)]. The bracket is the TD error, and it is the signal almost every RL algorithm is built on."
+        },
+        {
+          "q": "What is bootstrapping?",
+          "a": "Updating an estimate using another estimate rather than a sampled ground truth. It is what makes TD low-variance and what makes it biased."
+        },
+        {
+          "q": "Which has higher variance and why?",
+          "a": "MC. Its target is the sum of every reward and every random transition to the end of the episode, so all of that randomness lands in one update. TD's target contains one reward and one state."
+        },
+        {
+          "q": "Which is biased?",
+          "a": "TD, because V(s') is wrong early in training so the target is wrong. MC's target is an unbiased sample of the true return by construction."
+        },
+        {
+          "q": "So which converges faster?",
+          "a": "TD usually, on Markov problems — the variance reduction outweighs the bias, and the bias shrinks as the value function improves. It is an empirical regularity, not a theorem."
+        },
+        {
+          "q": "What does TD(lambda) do?",
+          "a": "Interpolates: lambda = 0 is TD(0), lambda = 1 is MC, and intermediate values average n-step returns geometrically. One knob spanning the bias-variance axis."
+        },
+        {
+          "q": "What are eligibility traces?",
+          "a": "The online mechanism for TD(lambda) — a decaying record of recently visited states, so a TD error updates everything that led here, not just the last state."
+        },
+        {
+          "q": "Why does TD need the Markov property more than MC?",
+          "a": "TD's target assumes V(s') summarizes the future given s'. If the state is not Markov that assumption is wrong and the bootstrap propagates the error; MC never bootstraps, so it just estimates the observed return."
+        },
+        {
+          "q": "What is the deadly triad?",
+          "a": "Function approximation, bootstrapping and off-policy learning. Any two are fine; all three together can diverge, and that is a genuine divergence, not slow convergence."
+        },
+        {
+          "q": "How do you go from prediction to control?",
+          "a": "Estimate action values instead of state values and act greedily-ish with respect to them. SARSA bootstraps from the action actually taken; Q-learning from the best available action."
+        },
+        {
+          "q": "Where does the TD error show up outside tabular RL?",
+          "a": "Everywhere — it is the DQN loss, the critic's target in actor-critic, and the advantage in policy-gradient methods. Learning the right value function is most of deep RL."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Derive both updates and explain the bias-variance trade precisely.",
+          "a": "Both estimate the value function V(s) = E[G_t | S_t = s], where G is the discounted return. They differ in what they substitute for that expectation. Monte Carlo runs the episode to termination and uses the observed return: V(s) <- V(s) + alpha (G_t - V(s)). G_t is an unbiased sample of the expectation — no assumption is made about anything — so MC is unbiased, and it converges to the value that minimizes mean squared error on the observed returns. Its variance is the problem: G_t accumulates every reward and every stochastic transition to the end of the episode, so a single unlucky trajectory moves the estimate a long way, and the variance grows with episode length. TD(0) instead uses the Bellman equation as its target: V(s) = E[r + gamma V(s')], so the update is V(s) <- V(s) + alpha (r + gamma V(s') - V(s)). Only one reward and one transition enter, so the variance is dramatically lower. The cost is that V(s') is the current estimate, which is wrong, so the target is biased and errors propagate through the bootstrap. The elegant part is what each converges to on finite data: Sutton showed batch MC converges to the least-squares fit to the observed returns, while batch TD converges to the value function of the maximum-likelihood MARKOV MODEL of the data — the certainty-equivalence estimate. So TD is not merely a cheaper approximation to MC; it is exploiting the Markov structure and answering a different, usually more useful question, which is why it wins when the problem really is Markov and can lose when it is not.",
+          "deepDive": {
+            "q": "Where does that difference bite in practice?",
+            "a": "In partially observed problems. If the agent's observation is not a sufficient statistic for the future — a maze where two corridors look identical, or any system with hidden state — then TD's target is built on an assumption that is false, and it will confidently converge to a wrong value. MC makes no such assumption and simply averages what happened. That is a real argument for MC-style returns in POMDPs and one reason methods like GAE keep lambda well above zero rather than trusting the one-step bootstrap."
+          }
+        },
+        {
+          "q": "Explain TD(lambda) and how you would choose lambda.",
+          "a": "Between the one-step TD target and the full return there is a family of n-step targets: r + gamma V(s') for n=1, r + gamma r' + gamma^2 V(s'') for n=2, and so on up to the full return at n = episode length. Each is a valid estimate with more variance and less bias as n grows, so n is a dial on exactly the trade. TD(lambda) averages all of them with geometrically decaying weights (1-lambda) lambda^(n-1) — the lambda-return — which is smoother than picking a single n and has a clean online implementation via eligibility traces: keep a decaying trace per state, and apply each TD error to every state in proportion to its trace, so credit flows backwards without waiting for the episode to end. Choosing lambda is empirical and the considerations are legible. Low lambda when the environment is strongly Markov, the value function is already decent, and episodes are long — variance reduction is what you need. High lambda when the state is partially observed, when the value function is poorly initialized so bootstrapping is propagating garbage, or when rewards are sparse and delayed, because a one-step bootstrap moves reward information backwards one state per update and a long delay takes forever to propagate. In deep RL the modern form is GAE, which applies the same geometric averaging to advantages, and typical values sit around 0.95 — well above zero, which is itself evidence that pure one-step bootstrapping is rarely the right choice at scale.",
+          "deepDive": {
+            "q": "Why is GAE typically run at lambda around 0.95 rather than 0?",
+            "a": "Because the one-step bootstrap is only trustworthy when the value function is already good, and in deep RL it never is early on — the critic is being learned at the same time as the policy, so its estimates are the thing you are least entitled to trust. A high lambda leans on real observed rewards and uses the critic mainly to reduce variance at the tail, which is the right balance while the critic is still wrong. It also helps with the partial observability that most realistic environments have. The fact that the field settled near 0.95 rather than near 0 is quiet evidence that pure bootstrapping is rarely the right choice at scale."
+          }
+        },
+        {
+          "q": "What is the deadly triad and what do you do about it?",
+          "a": "Three ingredients: function approximation, bootstrapping, and off-policy learning. Each pair is safe. Tabular off-policy TD converges. On-policy TD with linear function approximation converges. Monte Carlo with function approximation off-policy converges. All three together can DIVERGE — the value estimates grow without bound — and Baird's counterexample is a tiny linear MDP where this provably happens, so it is not a pathology of deep networks. The mechanism is that the bootstrap target moves when the parameters move, and under a distribution mismatch between the behaviour and target policies the update is no longer a contraction in any norm the approximator respects. Every practical deep RL algorithm is partly a set of mitigations. Target networks freeze the bootstrap target for a number of steps, which makes the update closer to supervised regression against a fixed target. Replay buffers and importance weighting manage the distribution mismatch, and clipping or truncating those weights keeps the variance finite. Gradient-TD methods attack it properly by following the gradient of the projected Bellman error, which has convergence guarantees, though they see less use in practice. And DQN's two famous components are exactly a paired response to this: the replay buffer worsens the off-policy leg, and the target network weakens the bootstrapping leg to pay for it — which is why removing either one alone destabilizes training and is a good thing to be able to explain."
+        },
+        {
+          "q": "How do MC and TD turn into control algorithms, and what separates SARSA from Q-learning?",
+          "a": "Prediction becomes control by estimating action values Q(s,a) rather than V(s), so the policy can be read off the estimate directly, and by acting greedily with respect to Q while retaining exploration — usually epsilon-greedy — which gives generalized policy iteration: evaluate a bit, improve a bit, repeat. The split between SARSA and Q-learning is which action the bootstrap uses. SARSA updates toward r + gamma Q(s', a') where a' is the action ACTUALLY TAKEN next, so it evaluates the policy being followed, exploration included — it is on-policy. Q-learning updates toward r + gamma max_a Q(s', a), the best available action regardless of what was taken, so it evaluates the greedy policy while following an exploratory one — off-policy. The behavioural difference shows up cleanly on cliff walking: SARSA learns a path that stays away from the cliff edge, because its value estimates include the cost of occasionally exploring into it, while Q-learning learns the optimal path along the edge and falls in during training whenever exploration fires. Both are correct answers to different questions, and the practical read is that if exploration is genuinely dangerous during learning — a robot, a live system — SARSA's pricing of its own exploration is the property you want. Expected SARSA sits between them, bootstrapping from the expectation over the policy's action distribution, which removes the variance from sampling a' without becoming fully greedy."
+        },
+        {
+          "q": "Why is the TD error described as the heartbeat of RL?",
+          "a": "Because almost every algorithm downstream is a way of computing or consuming it. In tabular TD it is the update itself. In DQN the loss is the squared TD error with a target network supplying V(s'). In actor-critic the critic is trained on the TD error and the actor is updated by the advantage, which is an estimate built from TD errors — GAE is explicitly a geometric average of them. In PPO the advantage entering the clipped objective comes from the same place. So a very large fraction of deep RL's practical difficulty is the difficulty of estimating one quantity well: the error between what you predicted and what one step of reality plus your own prediction says you should have predicted. There is a further reason the framing sticks, which is the neuroscience connection: Schultz, Dayan and Montague's work found that dopamine neuron firing in primates tracks a reward prediction error with the signature TD structure — responding to unexpected reward, transferring to the predictive cue as learning proceeds, and dipping below baseline when an expected reward is omitted. That correspondence is one of the more striking cases of an algorithm developed for engineering reasons matching a mechanism found in biology, and it is worth being able to state accurately rather than as a vague gesture, because the specific prediction — the dip on omission — is what makes it evidence rather than analogy."
+        },
+        {
+          "q": "You are implementing TD learning and the values diverge. Walk through your debugging.",
+          "a": "Start with the cheap structural checks before touching hyperparameters. Confirm the terminal handling: the value of a terminal state must be zero, and a common bug is bootstrapping off the state after termination, which injects a phantom future return and inflates everything — this alone explains a large share of divergences. Check gamma is strictly less than one for a continuing task, since gamma = 1 with no terminal state makes the true values infinite and the algorithm is correctly reporting that. Check the learning rate: TD is a stochastic approximation method and needs alpha small enough, and a rate that works tabularly is often far too large with function approximation because updates to one state now move many. Then check whether you have assembled the deadly triad without meaning to — if you are learning off-policy from a replay buffer with a neural network and no target network, divergence is the expected behaviour rather than a bug, and adding a target network or reducing the off-policyness is the fix. Verify the reward scale, since large rewards make the targets large and interact badly with the learning rate; normalizing or clipping rewards is standard for a reason. Finally, sanity-check on a tiny tabular version of the same environment where you can compute the true values by dynamic programming and compare directly — if the tabular version is correct and the approximated one is not, the problem is the approximation, and if the tabular version is also wrong, the bug is in the environment or the update rather than in the learning."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "TD(0) update",
+        "back": "V(s) <- V(s) + alpha [r + gamma V(s') - V(s)]. The bracket is the TD error, the signal almost everything downstream consumes."
+      },
+      {
+        "type": "intuition",
+        "front": "The trade in one sentence",
+        "back": "MC is unbiased with high variance because its target is the whole episode; TD is biased with low variance because its target is one step plus its own estimate."
+      },
+      {
+        "type": "intuition",
+        "front": "What batch TD converges to",
+        "back": "The value function of the maximum-likelihood Markov model of the data. Batch MC converges to the least-squares fit to observed returns — different questions, not one approximating the other."
+      },
+      {
+        "type": "formula",
+        "front": "lambda-return",
+        "back": "Geometric average of all n-step returns with weights (1-lambda)lambda^(n-1). lambda=0 is TD(0), lambda=1 is MC."
+      },
+      {
+        "type": "definition",
+        "front": "Eligibility traces",
+        "back": "A decaying per-state record so one TD error updates everything that led here. The online mechanism for TD(lambda)."
+      },
+      {
+        "type": "definition",
+        "front": "Deadly triad",
+        "back": "Function approximation + bootstrapping + off-policy. Any two are safe; all three can genuinely diverge — Baird's counterexample is linear, not a deep-net pathology."
+      },
+      {
+        "type": "intuition",
+        "front": "DQN's two components as a pair",
+        "back": "Replay worsens the off-policy leg; the target network weakens the bootstrapping leg to pay for it. Remove either alone and training destabilizes."
+      },
+      {
+        "type": "intuition",
+        "front": "SARSA vs Q-learning on the cliff",
+        "back": "SARSA prices its own exploration and walks away from the edge; Q-learning learns the optimal edge path and falls in while exploring. Different questions, both correct."
+      },
+      {
+        "type": "pitfall",
+        "front": "Bootstrapping past termination",
+        "back": "Terminal states must have value zero. Bootstrapping off the post-terminal state injects a phantom return and is a leading cause of divergence."
+      },
+      {
+        "type": "pitfall",
+        "front": "TD under partial observability",
+        "back": "The target assumes V(s') summarizes the future given s'. If the state is not Markov, TD converges confidently to a wrong value; MC does not make that assumption."
+      },
+      {
+        "type": "pitfall",
+        "front": "Tabular learning rate with function approximation",
+        "back": "Updating one state now moves many, so a rate that was fine tabularly is often far too large."
+      },
+      {
+        "type": "pitfall",
+        "front": "gamma = 1 with no terminal state",
+        "back": "The true values are infinite and the algorithm is correctly reporting that. Not a bug in the update."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Sutton & Barto — Reinforcement Learning: An Introduction (2nd ed., ch. 6-7, 11)",
+        "url": "http://incompleteideas.net/book/the-book-2nd.html"
+      },
+      {
+        "title": "Sutton (1988) — Learning to Predict by the Methods of Temporal Differences",
+        "url": "https://link.springer.com/article/10.1007/BF00115009"
+      },
+      {
+        "title": "Schulman et al. (2015) — High-Dimensional Continuous Control Using Generalized Advantage Estimation",
+        "url": "https://arxiv.org/abs/1506.02438"
+      },
+      {
+        "title": "Schultz, Dayan & Montague (1997) — A Neural Substrate of Prediction and Reward",
+        "url": "https://www.science.org/doi/10.1126/science.275.5306.1593"
+      },
+      {
+        "title": "Baird (1995) — Residual Algorithms: Reinforcement Learning with Function Approximation",
+        "url": "https://www.sciencedirect.com/science/article/pii/B9781558603776500133"
+      }
+    ],
+    "demos": []
+  },
+  "model-based-rl": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Model-based versus model-free, in one line?",
+          "a": "Model-based learns the environment's dynamics and uses them to plan or to generate experience; model-free learns a value function or policy directly from real transitions."
+        },
+        {
+          "q": "What is the main argument for model-based RL?",
+          "a": "Sample efficiency. Real interaction is the expensive resource, and a learned model lets you produce unlimited simulated experience from a small amount of it."
+        },
+        {
+          "q": "What is Dyna?",
+          "a": "The minimal combination: after each real transition, update from it, then run k additional updates on transitions sampled from the learned model. Planning is literally just more updates."
+        },
+        {
+          "q": "What is the failure mode of model-based methods?",
+          "a": "Model bias. The policy optimizes against the model, so it finds and exploits the model's errors — a plan that is excellent in an imagined world and useless in the real one."
+        },
+        {
+          "q": "How does MCTS choose which branch to explore?",
+          "a": "UCT — UCB applied to a tree. Score each child by its mean value plus an exploration bonus proportional to sqrt(log N_parent / N_child), and descend the argmax."
+        },
+        {
+          "q": "Name the four phases of MCTS.",
+          "a": "Selection down the tree by UCT, expansion of a new leaf, evaluation of that leaf, and backup of the result along the visited path."
+        },
+        {
+          "q": "What did AlphaGo use for the evaluation step?",
+          "a": "A random rollout to the end of the game, blended with a learned value network. AlphaZero dropped the rollouts entirely and used the value network alone."
+        },
+        {
+          "q": "What is the policy network for in AlphaZero?",
+          "a": "It supplies the prior in the PUCT selection rule, focusing the search on plausible moves. Without it the branching factor makes deep search hopeless."
+        },
+        {
+          "q": "What is the training signal in AlphaZero?",
+          "a": "Self-play. The search's visit distribution is a better policy than the raw network, so the network is trained to imitate it, and the game outcome trains the value head."
+        },
+        {
+          "q": "Why is search described as a policy improvement operator?",
+          "a": "Because the searched policy is measurably better than the network alone. Training the network toward it and re-searching is policy iteration with search as the improvement step."
+        },
+        {
+          "q": "What is MuZero's contribution?",
+          "a": "It learns a model in a LATENT space trained only to predict reward, value and policy — not to reconstruct observations — so it works where the true dynamics are unknown or not worth modelling."
+        },
+        {
+          "q": "When is planning not worth it?",
+          "a": "When the model is hard to learn, when the action space is continuous and large, or when simulation is as expensive as reality. Then a model-free method with more real data is usually simpler and better."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain model bias and the ways people control it.",
+          "a": "The core asymmetry is that a learned model is fitted on data from one distribution and then queried by an optimizer that is actively searching for the highest-value states it can find — which is precisely a search for wherever the model is most optimistic, and optimism and error are correlated because the errors are largest where the data is sparsest. So the planner exploits model error by construction, not by accident, and the symptom is a policy that achieves excellent imagined return and fails in the real environment. This is the same shape as reward hacking in RLHF and as the OOD-action problem in offline RL: an optimizer pointed at a learned proxy will find its weak points. The controls follow the mechanism. Model ensembles and probabilistic models let you measure disagreement and treat it as epistemic uncertainty — PETS plans through an ensemble and averages over sampled dynamics, so a trajectory only looks good if it looks good under most plausible models. Short rollouts bound the compounding: error grows with horizon, so generating five imagined steps from a real state is far safer than fifty, which is exactly what MBPO does — branch short model rollouts off real states rather than simulating whole episodes. Pessimism penalizes uncertainty explicitly, subtracting a term proportional to model disagreement so the planner avoids regions it cannot vouch for. And frequent replanning in a receding-horizon loop means only the first action of each plan is ever executed, so errors deep in the plan never get to act.",
+          "deepDive": {
+            "q": "Why does MuZero's approach sidestep some of this?",
+            "a": "Because it never tries to be an accurate simulator. Its latent model is trained only so that unrolling it predicts the quantities the search consumes — reward, value and policy — so it is optimized for exactly what it is used for rather than for reconstruction. A pixel-accurate model wastes capacity on detail that does not affect decisions and can still be wrong about the parts that do; a value-equivalent model puts capacity where the decisions are. It does not remove exploitation of model error, but it removes a large class of irrelevant modelling effort and the failures that come with it."
+          }
+        },
+        {
+          "q": "Walk through MCTS in detail and say what each phase contributes.",
+          "a": "Selection: from the root, repeatedly descend to the child maximizing a UCT score — the child's mean value plus c sqrt(log N_parent / N_child). The first term exploits, the second is an optimism bonus that decays as a child is visited, so the search concentrates on promising branches without permanently abandoning under-explored ones. This is the bandit machinery from the exploration lesson applied at every node, and it is why the tree grows asymmetrically: good lines get deep, bad ones stay shallow, which is the entire efficiency argument versus uniform-depth search. Expansion: on reaching a leaf that has been visited before, add its children. Evaluation: estimate the new leaf's value — historically by a random rollout to termination, which is unbiased but extremely high variance, and in AlphaZero by a learned value network, which is biased but vastly lower variance and much cheaper. Backup: propagate the value up the visited path, incrementing visit counts and updating means, so information from one deep evaluation improves every ancestor's estimate. Run this thousands of times and the visit distribution at the root becomes the policy — you play the most-visited move rather than the highest-mean one, because visit count is a more robust statistic than a mean that might rest on a single lucky evaluation. That choice is a small detail that matters and is a good thing to know.",
+          "deepDive": {
+            "q": "Why does AlphaZero use PUCT rather than plain UCT?",
+            "a": "Because plain UCT's exploration term depends only on visit counts, which means with a branching factor in the hundreds the search spends its early budget sampling every legal move once, most of which are obviously bad. PUCT multiplies the exploration term by the policy network's prior for that move, so the search allocates visits in proportion to plausibility from the start. That prior is what makes deep search tractable at Go's branching factor, and it is the clearest illustration of learning and search being complementary rather than alternatives — the network narrows the tree, the search corrects the network."
+          }
+        },
+        {
+          "q": "Explain the AlphaZero loop and why it works.",
+          "a": "One network with two heads takes a position and outputs a policy prior and a value estimate. Self-play games are generated where each move is chosen by running MCTS guided by that network, and the search's root visit distribution is recorded as the improved policy target while the eventual game result is recorded as the value target. The network is then trained to predict both — cross-entropy against the visit distribution, squared error against the outcome — and the improved network is used for the next round of self-play. The reason this bootstraps rather than stalling is the key claim: SEARCH IS A POLICY IMPROVEMENT OPERATOR. Running MCTS with the network's prior produces a policy measurably stronger than the network's raw output, because the search actually looks ahead and corrects the prior's mistakes. So training the network toward the searched policy is generalized policy iteration where the improvement step is search rather than a greedy argmax, and each iteration produces a network whose priors make the next search better, which produces a better target. It also solves its own curriculum problem: the opponent is always exactly the current skill level, so the training signal is informative throughout, from random play to superhuman, without anyone designing a progression. That last property is why the same algorithm worked across Go, chess and shogi with no game-specific engineering beyond the rules — and it is also the property that does not transfer to single-agent problems, where nothing supplies an automatically-matched adversary."
+        },
+        {
+          "q": "When would you choose model-based over model-free, honestly?",
+          "a": "The decision is dominated by the cost of real interaction and by how learnable the dynamics are. Model-based wins clearly when interaction is expensive or dangerous — robotics, industrial control, anything with a physical plant or a live system — because sample efficiency is the binding constraint and an order-of-magnitude reduction in real episodes is worth substantial extra compute. It also wins when the dynamics are genuinely simpler than the policy: many control problems have smooth, low-dimensional physics and a complicated optimal policy, and learning the easier object is the better bet. And it wins when you need to plan for goals that were not in the training reward, since a model plus a new objective gives you a new plan without retraining — the same argument that made inverse RL's recovered reward transferable where a cloned policy was not. Model-free wins when a simulator is cheap and fast, because then you already have a perfect model and learning an imperfect one is strictly worse; when the observation space makes dynamics modelling hard, though MuZero-style latent models weakened this; and when you simply want something robust with fewer moving parts, since model-based systems have more components that can fail quietly. The honest summary is that model-based methods have the better asymptotic argument and a worse engineering profile, and the field's practical default remains model-free with a large simulator, with model-based reserved for where reality is the bottleneck."
+        },
+        {
+          "q": "How does planning relate to what large language models do at inference?",
+          "a": "The connection is real and worth drawing carefully. Chain-of-thought is closest to a rollout: the model generates intermediate steps, and those tokens are serial computation that the forward pass alone could not perform, so it is spending inference compute to improve an answer. Tree-of-thought and similar methods make the analogy explicit by branching over candidate continuations and evaluating them, which is a search over a tree with the model supplying both the expansion policy and the evaluation. Best-of-n with a verifier is the flattest version: sample n candidates, score them, keep the best — no tree, but the same trade of compute for quality at inference rather than in the weights. The AlphaZero framing applies directly: if search improves on the model's raw output, then distilling the searched result back into the weights is policy improvement, and that is exactly what iterated self-improvement schemes do when they fine-tune on verified solutions. The honest limits are two. First, the value function is the hard part — MCTS works in games because the outcome is objectively checkable, and for open-ended reasoning the evaluator is another model with its own biases, so search amplifies whatever the verifier gets wrong. Second, best-of-n is bounded by the base policy's support while policy optimization is not, so inference-time search is safer against Goodhart but has a ceiling the base model sets."
+        },
+        {
+          "q": "Your Dyna agent learns fast in the model and performs poorly in the real environment. Diagnose it.",
+          "a": "This is the canonical model-bias signature, so start by measuring the model rather than the policy. Compute one-step prediction error on held-out real transitions, then multi-step error by unrolling the model from real states and comparing against the real trajectory — the shape of that curve against horizon tells you how far you can trust a rollout, and if error is already large at five steps then any planning beyond that is fiction. Compare where the model is being QUERIED against where it was TRAINED: if the planner is producing state-action pairs far from the data distribution, that is the exploitation mechanism and it will show up as high ensemble disagreement on exactly the trajectories the planner likes. Then the fixes in order of cheapness. Shorten the rollout horizon, which is the single most effective knob and costs nothing. Branch imagined rollouts off REAL states from the replay buffer rather than from imagined ones, so errors cannot compound across an episode. Add an ensemble and either average over models or penalize disagreement, so a trajectory that only one model likes stops looking attractive. Increase the ratio of real to imagined updates, which trades sample efficiency back for correctness and is the honest fallback. And check the boring possibility first: that the model is fine and the reward function differs subtly between the imagined and real settings, since a mismatch there produces exactly this symptom and is much easier to fix."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Dyna",
+        "back": "After each real transition, update from it, then run k more updates on model-sampled transitions. Planning is literally just additional updates."
+      },
+      {
+        "type": "intuition",
+        "front": "Why model bias is structural",
+        "back": "The planner searches for high-value states, which is a search for where the model is most optimistic — and optimism correlates with error, since error is largest where data is sparsest."
+      },
+      {
+        "type": "formula",
+        "front": "UCT score",
+        "back": "mean value + c sqrt(log N_parent / N_child). Bandit machinery at every node; the tree grows asymmetrically, which is the efficiency argument."
+      },
+      {
+        "type": "definition",
+        "front": "MCTS four phases",
+        "back": "Selection by UCT, expansion of a leaf, evaluation (rollout or value net), backup along the visited path."
+      },
+      {
+        "type": "intuition",
+        "front": "Search as policy improvement",
+        "back": "The searched policy beats the raw network, so training the network toward the search's visit distribution is policy iteration with search as the improvement step."
+      },
+      {
+        "type": "definition",
+        "front": "PUCT",
+        "back": "UCT with the exploration term scaled by the policy prior, so visits go to plausible moves first. What makes deep search tractable at Go's branching factor."
+      },
+      {
+        "type": "intuition",
+        "front": "Play the most-visited move",
+        "back": "Not the highest-mean one. Visit count is more robust than a mean that may rest on one lucky evaluation."
+      },
+      {
+        "type": "definition",
+        "front": "MuZero's latent model",
+        "back": "Trained only to predict reward, value and policy — not to reconstruct observations. Capacity goes where the decisions are."
+      },
+      {
+        "type": "pitfall",
+        "front": "Long imagined rollouts",
+        "back": "Model error compounds with horizon. Branch SHORT rollouts off real states (MBPO) rather than simulating whole episodes."
+      },
+      {
+        "type": "pitfall",
+        "front": "Planning without uncertainty",
+        "back": "A single deterministic model gives the planner nothing to be cautious about. Ensembles turn disagreement into epistemic uncertainty you can penalize."
+      },
+      {
+        "type": "pitfall",
+        "front": "Assuming self-play transfers",
+        "back": "AlphaZero's automatic curriculum comes from an opponent always at your exact skill level. Single-agent problems have nothing that supplies it."
+      },
+      {
+        "type": "pitfall",
+        "front": "Search with a learned verifier",
+        "back": "MCTS works in games because outcomes are objectively checkable. With a model as evaluator, search amplifies whatever the verifier gets wrong."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Silver et al. (2017) — Mastering Chess and Shogi by Self-Play (AlphaZero)",
+        "url": "https://arxiv.org/abs/1712.01815"
+      },
+      {
+        "title": "Schrittwieser et al. (2019) — Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model (MuZero)",
+        "url": "https://arxiv.org/abs/1911.08265"
+      },
+      {
+        "title": "Janner et al. (2019) — When to Trust Your Model: Model-Based Policy Optimization (MBPO)",
+        "url": "https://arxiv.org/abs/1906.08253"
+      },
+      {
+        "title": "Chua et al. (2018) — Deep Reinforcement Learning in a Handful of Trials (PETS)",
+        "url": "https://arxiv.org/abs/1805.12114"
+      },
+      {
+        "title": "Browne et al. (2012) — A Survey of Monte Carlo Tree Search Methods",
+        "url": "https://ieeexplore.ieee.org/document/6145622"
+      }
+    ],
+    "demos": []
   }
 };

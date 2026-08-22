@@ -14,5 +14,175 @@
     "demos": [],
     "concepts": []
   },
-  "updatedAt": "2026-07-18"
+  "updatedAt": "2026-08-22",
+  "interview": {
+    "quickGrind": [
+      {
+        "q": "Monte Carlo versus TD in one line?",
+        "a": "MC waits for the actual return and updates once the episode ends; TD updates immediately using its own estimate of what comes next."
+      },
+      {
+        "q": "Write the TD(0) update.",
+        "a": "V(s) <- V(s) + alpha [r + gamma V(s') - V(s)]. The bracket is the TD error, and it is the signal almost every RL algorithm is built on."
+      },
+      {
+        "q": "What is bootstrapping?",
+        "a": "Updating an estimate using another estimate rather than a sampled ground truth. It is what makes TD low-variance and what makes it biased."
+      },
+      {
+        "q": "Which has higher variance and why?",
+        "a": "MC. Its target is the sum of every reward and every random transition to the end of the episode, so all of that randomness lands in one update. TD's target contains one reward and one state."
+      },
+      {
+        "q": "Which is biased?",
+        "a": "TD, because V(s') is wrong early in training so the target is wrong. MC's target is an unbiased sample of the true return by construction."
+      },
+      {
+        "q": "So which converges faster?",
+        "a": "TD usually, on Markov problems — the variance reduction outweighs the bias, and the bias shrinks as the value function improves. It is an empirical regularity, not a theorem."
+      },
+      {
+        "q": "What does TD(lambda) do?",
+        "a": "Interpolates: lambda = 0 is TD(0), lambda = 1 is MC, and intermediate values average n-step returns geometrically. One knob spanning the bias-variance axis."
+      },
+      {
+        "q": "What are eligibility traces?",
+        "a": "The online mechanism for TD(lambda) — a decaying record of recently visited states, so a TD error updates everything that led here, not just the last state."
+      },
+      {
+        "q": "Why does TD need the Markov property more than MC?",
+        "a": "TD's target assumes V(s') summarizes the future given s'. If the state is not Markov that assumption is wrong and the bootstrap propagates the error; MC never bootstraps, so it just estimates the observed return."
+      },
+      {
+        "q": "What is the deadly triad?",
+        "a": "Function approximation, bootstrapping and off-policy learning. Any two are fine; all three together can diverge, and that is a genuine divergence, not slow convergence."
+      },
+      {
+        "q": "How do you go from prediction to control?",
+        "a": "Estimate action values instead of state values and act greedily-ish with respect to them. SARSA bootstraps from the action actually taken; Q-learning from the best available action."
+      },
+      {
+        "q": "Where does the TD error show up outside tabular RL?",
+        "a": "Everywhere — it is the DQN loss, the critic's target in actor-critic, and the advantage in policy-gradient methods. Learning the right value function is most of deep RL."
+      }
+    ],
+    "standard": [
+      {
+        "q": "Derive both updates and explain the bias-variance trade precisely.",
+        "a": "Both estimate the value function V(s) = E[G_t | S_t = s], where G is the discounted return. They differ in what they substitute for that expectation. Monte Carlo runs the episode to termination and uses the observed return: V(s) <- V(s) + alpha (G_t - V(s)). G_t is an unbiased sample of the expectation — no assumption is made about anything — so MC is unbiased, and it converges to the value that minimizes mean squared error on the observed returns. Its variance is the problem: G_t accumulates every reward and every stochastic transition to the end of the episode, so a single unlucky trajectory moves the estimate a long way, and the variance grows with episode length. TD(0) instead uses the Bellman equation as its target: V(s) = E[r + gamma V(s')], so the update is V(s) <- V(s) + alpha (r + gamma V(s') - V(s)). Only one reward and one transition enter, so the variance is dramatically lower. The cost is that V(s') is the current estimate, which is wrong, so the target is biased and errors propagate through the bootstrap. The elegant part is what each converges to on finite data: Sutton showed batch MC converges to the least-squares fit to the observed returns, while batch TD converges to the value function of the maximum-likelihood MARKOV MODEL of the data — the certainty-equivalence estimate. So TD is not merely a cheaper approximation to MC; it is exploiting the Markov structure and answering a different, usually more useful question, which is why it wins when the problem really is Markov and can lose when it is not.",
+        "deepDive": {
+          "q": "Where does that difference bite in practice?",
+          "a": "In partially observed problems. If the agent's observation is not a sufficient statistic for the future — a maze where two corridors look identical, or any system with hidden state — then TD's target is built on an assumption that is false, and it will confidently converge to a wrong value. MC makes no such assumption and simply averages what happened. That is a real argument for MC-style returns in POMDPs and one reason methods like GAE keep lambda well above zero rather than trusting the one-step bootstrap."
+        }
+      },
+      {
+        "q": "Explain TD(lambda) and how you would choose lambda.",
+        "a": "Between the one-step TD target and the full return there is a family of n-step targets: r + gamma V(s') for n=1, r + gamma r' + gamma^2 V(s'') for n=2, and so on up to the full return at n = episode length. Each is a valid estimate with more variance and less bias as n grows, so n is a dial on exactly the trade. TD(lambda) averages all of them with geometrically decaying weights (1-lambda) lambda^(n-1) — the lambda-return — which is smoother than picking a single n and has a clean online implementation via eligibility traces: keep a decaying trace per state, and apply each TD error to every state in proportion to its trace, so credit flows backwards without waiting for the episode to end. Choosing lambda is empirical and the considerations are legible. Low lambda when the environment is strongly Markov, the value function is already decent, and episodes are long — variance reduction is what you need. High lambda when the state is partially observed, when the value function is poorly initialized so bootstrapping is propagating garbage, or when rewards are sparse and delayed, because a one-step bootstrap moves reward information backwards one state per update and a long delay takes forever to propagate. In deep RL the modern form is GAE, which applies the same geometric averaging to advantages, and typical values sit around 0.95 — well above zero, which is itself evidence that pure one-step bootstrapping is rarely the right choice at scale.",
+        "deepDive": {
+          "q": "Why is GAE typically run at lambda around 0.95 rather than 0?",
+          "a": "Because the one-step bootstrap is only trustworthy when the value function is already good, and in deep RL it never is early on — the critic is being learned at the same time as the policy, so its estimates are the thing you are least entitled to trust. A high lambda leans on real observed rewards and uses the critic mainly to reduce variance at the tail, which is the right balance while the critic is still wrong. It also helps with the partial observability that most realistic environments have. The fact that the field settled near 0.95 rather than near 0 is quiet evidence that pure bootstrapping is rarely the right choice at scale."
+        }
+      },
+      {
+        "q": "What is the deadly triad and what do you do about it?",
+        "a": "Three ingredients: function approximation, bootstrapping, and off-policy learning. Each pair is safe. Tabular off-policy TD converges. On-policy TD with linear function approximation converges. Monte Carlo with function approximation off-policy converges. All three together can DIVERGE — the value estimates grow without bound — and Baird's counterexample is a tiny linear MDP where this provably happens, so it is not a pathology of deep networks. The mechanism is that the bootstrap target moves when the parameters move, and under a distribution mismatch between the behaviour and target policies the update is no longer a contraction in any norm the approximator respects. Every practical deep RL algorithm is partly a set of mitigations. Target networks freeze the bootstrap target for a number of steps, which makes the update closer to supervised regression against a fixed target. Replay buffers and importance weighting manage the distribution mismatch, and clipping or truncating those weights keeps the variance finite. Gradient-TD methods attack it properly by following the gradient of the projected Bellman error, which has convergence guarantees, though they see less use in practice. And DQN's two famous components are exactly a paired response to this: the replay buffer worsens the off-policy leg, and the target network weakens the bootstrapping leg to pay for it — which is why removing either one alone destabilizes training and is a good thing to be able to explain."
+      },
+      {
+        "q": "How do MC and TD turn into control algorithms, and what separates SARSA from Q-learning?",
+        "a": "Prediction becomes control by estimating action values Q(s,a) rather than V(s), so the policy can be read off the estimate directly, and by acting greedily with respect to Q while retaining exploration — usually epsilon-greedy — which gives generalized policy iteration: evaluate a bit, improve a bit, repeat. The split between SARSA and Q-learning is which action the bootstrap uses. SARSA updates toward r + gamma Q(s', a') where a' is the action ACTUALLY TAKEN next, so it evaluates the policy being followed, exploration included — it is on-policy. Q-learning updates toward r + gamma max_a Q(s', a), the best available action regardless of what was taken, so it evaluates the greedy policy while following an exploratory one — off-policy. The behavioural difference shows up cleanly on cliff walking: SARSA learns a path that stays away from the cliff edge, because its value estimates include the cost of occasionally exploring into it, while Q-learning learns the optimal path along the edge and falls in during training whenever exploration fires. Both are correct answers to different questions, and the practical read is that if exploration is genuinely dangerous during learning — a robot, a live system — SARSA's pricing of its own exploration is the property you want. Expected SARSA sits between them, bootstrapping from the expectation over the policy's action distribution, which removes the variance from sampling a' without becoming fully greedy."
+      },
+      {
+        "q": "Why is the TD error described as the heartbeat of RL?",
+        "a": "Because almost every algorithm downstream is a way of computing or consuming it. In tabular TD it is the update itself. In DQN the loss is the squared TD error with a target network supplying V(s'). In actor-critic the critic is trained on the TD error and the actor is updated by the advantage, which is an estimate built from TD errors — GAE is explicitly a geometric average of them. In PPO the advantage entering the clipped objective comes from the same place. So a very large fraction of deep RL's practical difficulty is the difficulty of estimating one quantity well: the error between what you predicted and what one step of reality plus your own prediction says you should have predicted. There is a further reason the framing sticks, which is the neuroscience connection: Schultz, Dayan and Montague's work found that dopamine neuron firing in primates tracks a reward prediction error with the signature TD structure — responding to unexpected reward, transferring to the predictive cue as learning proceeds, and dipping below baseline when an expected reward is omitted. That correspondence is one of the more striking cases of an algorithm developed for engineering reasons matching a mechanism found in biology, and it is worth being able to state accurately rather than as a vague gesture, because the specific prediction — the dip on omission — is what makes it evidence rather than analogy."
+      },
+      {
+        "q": "You are implementing TD learning and the values diverge. Walk through your debugging.",
+        "a": "Start with the cheap structural checks before touching hyperparameters. Confirm the terminal handling: the value of a terminal state must be zero, and a common bug is bootstrapping off the state after termination, which injects a phantom future return and inflates everything — this alone explains a large share of divergences. Check gamma is strictly less than one for a continuing task, since gamma = 1 with no terminal state makes the true values infinite and the algorithm is correctly reporting that. Check the learning rate: TD is a stochastic approximation method and needs alpha small enough, and a rate that works tabularly is often far too large with function approximation because updates to one state now move many. Then check whether you have assembled the deadly triad without meaning to — if you are learning off-policy from a replay buffer with a neural network and no target network, divergence is the expected behaviour rather than a bug, and adding a target network or reducing the off-policyness is the fix. Verify the reward scale, since large rewards make the targets large and interact badly with the learning rate; normalizing or clipping rewards is standard for a reason. Finally, sanity-check on a tiny tabular version of the same environment where you can compute the true values by dynamic programming and compare directly — if the tabular version is correct and the approximated one is not, the problem is the approximation, and if the tabular version is also wrong, the bug is in the environment or the update rather than in the learning."
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "type": "formula",
+      "front": "TD(0) update",
+      "back": "V(s) <- V(s) + alpha [r + gamma V(s') - V(s)]. The bracket is the TD error, the signal almost everything downstream consumes."
+    },
+    {
+      "type": "intuition",
+      "front": "The trade in one sentence",
+      "back": "MC is unbiased with high variance because its target is the whole episode; TD is biased with low variance because its target is one step plus its own estimate."
+    },
+    {
+      "type": "intuition",
+      "front": "What batch TD converges to",
+      "back": "The value function of the maximum-likelihood Markov model of the data. Batch MC converges to the least-squares fit to observed returns — different questions, not one approximating the other."
+    },
+    {
+      "type": "formula",
+      "front": "lambda-return",
+      "back": "Geometric average of all n-step returns with weights (1-lambda)lambda^(n-1). lambda=0 is TD(0), lambda=1 is MC."
+    },
+    {
+      "type": "definition",
+      "front": "Eligibility traces",
+      "back": "A decaying per-state record so one TD error updates everything that led here. The online mechanism for TD(lambda)."
+    },
+    {
+      "type": "definition",
+      "front": "Deadly triad",
+      "back": "Function approximation + bootstrapping + off-policy. Any two are safe; all three can genuinely diverge — Baird's counterexample is linear, not a deep-net pathology."
+    },
+    {
+      "type": "intuition",
+      "front": "DQN's two components as a pair",
+      "back": "Replay worsens the off-policy leg; the target network weakens the bootstrapping leg to pay for it. Remove either alone and training destabilizes."
+    },
+    {
+      "type": "intuition",
+      "front": "SARSA vs Q-learning on the cliff",
+      "back": "SARSA prices its own exploration and walks away from the edge; Q-learning learns the optimal edge path and falls in while exploring. Different questions, both correct."
+    },
+    {
+      "type": "pitfall",
+      "front": "Bootstrapping past termination",
+      "back": "Terminal states must have value zero. Bootstrapping off the post-terminal state injects a phantom return and is a leading cause of divergence."
+    },
+    {
+      "type": "pitfall",
+      "front": "TD under partial observability",
+      "back": "The target assumes V(s') summarizes the future given s'. If the state is not Markov, TD converges confidently to a wrong value; MC does not make that assumption."
+    },
+    {
+      "type": "pitfall",
+      "front": "Tabular learning rate with function approximation",
+      "back": "Updating one state now moves many, so a rate that was fine tabularly is often far too large."
+    },
+    {
+      "type": "pitfall",
+      "front": "gamma = 1 with no terminal state",
+      "back": "The true values are infinite and the algorithm is correctly reporting that. Not a bug in the update."
+    }
+  ],
+  "refs": [
+    {
+      "title": "Sutton & Barto — Reinforcement Learning: An Introduction (2nd ed., ch. 6-7, 11)",
+      "url": "http://incompleteideas.net/book/the-book-2nd.html"
+    },
+    {
+      "title": "Sutton (1988) — Learning to Predict by the Methods of Temporal Differences",
+      "url": "https://link.springer.com/article/10.1007/BF00115009"
+    },
+    {
+      "title": "Schulman et al. (2015) — High-Dimensional Continuous Control Using Generalized Advantage Estimation",
+      "url": "https://arxiv.org/abs/1506.02438"
+    },
+    {
+      "title": "Schultz, Dayan & Montague (1997) — A Neural Substrate of Prediction and Reward",
+      "url": "https://www.science.org/doi/10.1126/science.275.5306.1593"
+    },
+    {
+      "title": "Baird (1995) — Residual Algorithms: Reinforcement Learning with Function Approximation",
+      "url": "https://www.sciencedirect.com/science/article/pii/B9781558603776500133"
+    }
+  ]
 }
