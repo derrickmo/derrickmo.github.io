@@ -7,6 +7,9 @@ _private/
 _review/
 _expansion/
 
+# ── Generator scratch output (parity check writes here) ────────
+.gen-out/
+
 # ── Node / Vite (added in Phase 1) ─────────────────────────────
 node_modules/
 dist/

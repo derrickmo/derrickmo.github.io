@@ -6,10 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "validate": "node validate-insights.mjs",
-    "prebuild": "node validate-insights.mjs",
+    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs",
+    "prebuild": "npm run validate",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "content": "node scripts/gen-from-store.mjs --write",
+    "audit": "node scripts/audit-curriculum.mjs && node scripts/check-page-assets.mjs"
   },
   "devDependencies": {
     "vite": "^6.0.7"

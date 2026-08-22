@@ -3806,7 +3806,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "What does a matrix multiplication mean geometrically?",
+            "a": "A linear map: it sends the basis vectors somewhere and everything else follows by linearity. The columns of A are the images of the basis vectors."
+          },
+          {
+            "q": "What is rank, in one line?",
+            "a": "The dimension of the column space — how many independent directions the map can actually produce. It bounds how much information can survive the transformation."
+          },
+          {
+            "q": "Why do singular values matter more than eigenvalues in ML?",
+            "a": "SVD exists for every matrix, including rectangular ones, while eigendecomposition needs square and (for a stable real one) symmetric. Data matrices are rarely square."
+          },
+          {
+            "q": "What is the condition number and why should you care?",
+            "a": "The ratio of largest to smallest singular value. It bounds how much relative input error is amplified — a large one means the solution is unstable and gradients are badly scaled."
+          },
+          {
+            "q": "What does PCA actually compute?",
+            "a": "The eigenvectors of the covariance matrix, equivalently the right singular vectors of the centred data matrix. Centring is not optional — without it you find the mean direction."
+          },
+          {
+            "q": "Why is A^T A important?",
+            "a": "It is symmetric positive semi-definite, its eigenvalues are the squared singular values of A, and it is what appears in the normal equations for least squares."
+          },
+          {
+            "q": "Why avoid solving least squares by inverting A^T A?",
+            "a": "Forming A^T A squares the condition number, so it destroys precision. Use a QR or SVD-based solver instead."
+          },
+          {
+            "q": "What is a positive definite matrix and where does it show up?",
+            "a": "Symmetric with all eigenvalues positive, so x^T A x > 0 for nonzero x. It is the Hessian of a strictly convex function and the requirement for a valid covariance."
+          },
+          {
+            "q": "What does the determinant tell you?",
+            "a": "The signed volume scaling of the map. Zero means the map collapses a dimension and is not invertible; it is numerically useless as a singularity test, though."
+          },
+          {
+            "q": "Row-major vs column-major — why does it matter?",
+            "a": "It determines which axis is contiguous in memory, so the same mathematical operation can be cache-friendly or not. It is why transposes can be surprisingly expensive."
+          },
+          {
+            "q": "What is the point of an orthogonal matrix?",
+            "a": "It preserves lengths and angles, so its condition number is 1 and it never amplifies error. That is why numerically stable algorithms are built from them."
+          },
+          {
+            "q": "How does a low-rank factorization save you anything?",
+            "a": "Replacing an m-by-n matrix by rank r costs r(m+n) instead of mn parameters. That is exactly the arithmetic behind LoRA and embedding factorization."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Explain the SVD and why it is the workhorse decomposition in ML.",
+            "a": "Every real matrix A factors as U S V^T, where U and V are orthogonal and S is diagonal with non-negative entries in decreasing order. Read geometrically, any linear map is a rotation, then an axis-aligned scaling, then another rotation — there are no other behaviours. This matters practically for several reasons. The singular values quantify how much each direction is stretched, so their ratio is the condition number and their decay tells you the effective rank. Truncating to the top k gives provably the best rank-k approximation in both Frobenius and spectral norm, which is the Eckart-Young theorem and the justification for PCA, latent factor models and low-rank compression. It exists unconditionally, unlike eigendecomposition, so it applies to the rectangular data matrices we actually have. And it gives the pseudo-inverse, hence the minimum-norm least-squares solution, which is what makes it the numerically safe way to solve underdetermined systems.",
+            "deepDive": {
+              "q": "How does SVD relate to eigendecomposition exactly?",
+              "a": "The right singular vectors V are eigenvectors of A^T A, the left singular vectors U are eigenvectors of A A^T, and the singular values are the square roots of the shared eigenvalues. This is also why you should not compute an SVD by forming A^T A: squaring the matrix squares the condition number and loses about half your significant digits."
+            }
+          },
+          {
+            "q": "What is the condition number and how does it show up in training?",
+            "a": "For a matrix it is sigma_max over sigma_min, and it bounds the factor by which relative error in the input can be amplified in the output. In optimization the relevant object is the Hessian's condition number, which is the ratio of largest to smallest curvature. Gradient descent's convergence rate depends on it directly: a badly conditioned problem has a loss surface shaped like a narrow valley, so the step size is limited by the steepest direction while progress is dictated by the shallowest, and the number of iterations scales with the condition number. This is why input normalization is not cosmetic — features on wildly different scales produce a badly conditioned Hessian and therefore slow training. It is also what second-order and adaptive methods address: preconditioning is precisely the attempt to make the effective condition number closer to 1, and Adam's per-parameter scaling is a crude diagonal version of that.",
+            "deepDive": {
+              "q": "Why is batch normalization sometimes described as a conditioning fix?",
+              "a": "By keeping activations at a controlled scale it prevents the layer-wise curvature disparities that make the Hessian badly conditioned, which lets larger learning rates be stable. That is a better-supported explanation of its benefit than the original internal-covariate-shift story, which later work challenged directly."
+            }
+          },
+          {
+            "q": "Why is a low-rank approximation such a recurring tool?",
+            "a": "Because real data matrices are usually close to low rank while being formally full rank: the singular values decay quickly, so most of the Frobenius norm sits in a few directions and the rest is close to noise. Eckart-Young says truncating the SVD is optimal for a given rank, so the compression is not a heuristic. Three consequences recur across ML. Storage and compute drop from mn to r(m+n), which is what makes LoRA practical — adapting a weight matrix by a rank-r update instead of a full one. Truncation acts as a regularizer, since discarding small singular directions removes exactly the components most sensitive to noise, which is the connection between PCA and denoising. And a rank constraint is a modelling assumption: matrix factorization for recommenders asserts that user-item preference is explained by r latent factors, so the rank is a statement about the world rather than a computational trick."
+          },
+          {
+            "q": "How do you actually solve least squares, and why not with the normal equations?",
+            "a": "The normal equations A^T A x = A^T b are correct mathematically and a poor algorithm. Forming A^T A squares the condition number, so if A has condition number 10^6 — unremarkable for real design matrices — the normal-equations system has 10^12 and you lose roughly twice as many digits, potentially all of them in double precision. The standard approach is a QR factorization of A, solving R x = Q^T b, which works with A's own condition number. When A is rank-deficient or nearly so, use the SVD: it gives the pseudo-inverse and the minimum-norm solution, and it lets you truncate small singular values explicitly, which is regularization made visible. Ridge regression is the same idea from the other direction — adding lambda to the diagonal shifts every singular value away from zero, which is why it both stabilizes the solve and shrinks the coefficients."
+          },
+          {
+            "q": "What breaks when a covariance matrix is not positive definite?",
+            "a": "A covariance must be positive semi-definite by construction, so a non-PSD one means an estimation or numerical problem, and everything downstream assumes PSD. A Cholesky factorization fails outright, which is usually the first symptom, since Cholesky is the standard way to sample from a Gaussian or to evaluate its density. A negative eigenvalue implies a direction with negative variance, which is meaningless, and any Mahalanobis distance using it can come out negative. The usual causes are having fewer samples than dimensions, so the sample covariance is singular by construction, or floating-point error producing tiny negative eigenvalues in a matrix that is mathematically PSD. The standard remedies are shrinkage toward a diagonal target, adding a small ridge to the diagonal, or clipping negative eigenvalues to zero — all of which trade a little bias for a matrix you can actually use."
+          },
+          {
+            "q": "Why do orthogonal matrices keep appearing in numerical algorithms?",
+            "a": "Because they are perfectly conditioned. An orthogonal Q satisfies Q^T Q = I, preserves the 2-norm exactly, and therefore has condition number 1, so multiplying by it never amplifies error. That property makes them the safe building block: QR factorization solves least squares stably because Q contributes no error growth, Householder reflections and Givens rotations are the standard tools for introducing zeros without losing precision, and the U and V of an SVD are orthogonal for the same reason. The idea recurs in deep learning too — orthogonal initialization keeps the norm of a signal constant through a layer, which is exactly the r = 1 condition that prevents activations exploding or vanishing with depth, and orthogonality constraints on recurrent weights were an early answer to the vanishing-gradient problem."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "definition",
+          "front": "Rank",
+          "back": "Dimension of the column space — how many independent directions the map can produce. It bounds what information survives."
+        },
+        {
+          "type": "formula",
+          "front": "SVD",
+          "back": "A = U S V^T with U, V orthogonal and S diagonal non-negative. Any linear map is rotate, scale, rotate."
+        },
+        {
+          "type": "formula",
+          "front": "Condition number",
+          "back": "sigma_max / sigma_min. Bounds error amplification; for a Hessian it sets how slowly gradient descent converges."
+        },
+        {
+          "type": "definition",
+          "front": "Eckart-Young",
+          "back": "Truncating the SVD to rank k is the optimal rank-k approximation in Frobenius and spectral norm — so PCA is not a heuristic."
+        },
+        {
+          "type": "definition",
+          "front": "Positive definite",
+          "back": "Symmetric with all eigenvalues positive, so x^T A x > 0. Required of a covariance and of a strictly convex Hessian."
+        },
+        {
+          "type": "intuition",
+          "front": "Why SVD over eigendecomposition",
+          "back": "SVD exists for every matrix including rectangular ones; eigendecomposition needs square. Data matrices are rarely square."
+        },
+        {
+          "type": "intuition",
+          "front": "Why low rank recurs",
+          "back": "Singular values of real data decay fast, so r(m+n) parameters replace mn. It is LoRA, PCA and matrix factorization alike."
+        },
+        {
+          "type": "intuition",
+          "front": "Why orthogonal matrices are everywhere",
+          "back": "Condition number exactly 1, so they never amplify error — the safe building block for stable algorithms."
+        },
+        {
+          "type": "pitfall",
+          "front": "Solving least squares via A^T A",
+          "back": "Squares the condition number and loses about half your digits. Use QR, or SVD when rank-deficient."
+        },
+        {
+          "type": "pitfall",
+          "front": "PCA without centring",
+          "back": "Uncentred data makes the first component point at the mean, so you recover location rather than variance structure."
+        },
+        {
+          "type": "pitfall",
+          "front": "det(A) as a singularity test",
+          "back": "Numerically useless — it scales with dimension and magnitude. Use the smallest singular value or the condition number."
+        },
+        {
+          "type": "pitfall",
+          "front": "Non-PSD covariance",
+          "back": "Cholesky fails and Mahalanobis distances can go negative. Cause is usually n < d or float error; fix with shrinkage or a ridge."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Strang — Linear Algebra and Learning from Data",
+          "url": "https://math.mit.edu/~gs/learningfromdata/"
+        },
+        {
+          "title": "Trefethen & Bau — Numerical Linear Algebra",
+          "url": "https://people.maths.ox.ac.uk/trefethen/text.html"
+        },
+        {
+          "title": "Eckart & Young (1936) — The Approximation of One Matrix by Another of Lower Rank",
+          "url": "https://link.springer.com/article/10.1007/BF02288367"
+        },
+        {
+          "title": "Hu et al. (2021) — LoRA: Low-Rank Adaptation of Large Language Models",
+          "url": "https://arxiv.org/abs/2106.09685"
+        },
+        {
+          "title": "Santurkar et al. (2018) — How Does Batch Normalization Help Optimization?",
+          "url": "https://arxiv.org/abs/1805.11604"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -5633,7 +5803,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "Bagging vs boosting in one line?",
+            "a": "Bagging trains independent models in parallel to reduce variance; boosting trains models sequentially, each fixing the previous ensemble's errors, primarily reducing bias."
+          },
+          {
+            "q": "What does gradient boosting actually fit at each step?",
+            "a": "A weak learner to the negative gradient of the loss with respect to the current predictions — the pseudo-residuals. For squared loss those are ordinary residuals."
+          },
+          {
+            "q": "Why are the base learners deliberately weak?",
+            "a": "Because the ensemble adds capacity. Strong base learners overfit the residuals immediately and leave nothing for later trees to correct."
+          },
+          {
+            "q": "What does the learning rate do in boosting?",
+            "a": "Shrinks each tree's contribution, so more trees are needed but each commits less. Learning rate and number of trees trade off directly."
+          },
+          {
+            "q": "Why does boosting usually beat a single deep tree?",
+            "a": "Many shallow trees each capture a different piece of structure additively, whereas one deep tree partitions the space greedily and fragments the data."
+          },
+          {
+            "q": "AdaBoost vs gradient boosting?",
+            "a": "AdaBoost reweights misclassified examples; gradient boosting fits the gradient of an arbitrary differentiable loss. AdaBoost is the special case of exponential loss."
+          },
+          {
+            "q": "Why does XGBoost use second-order information?",
+            "a": "It expands the loss to second order, so the split gain uses both gradient and Hessian. That gives better splits and a principled leaf value in closed form."
+          },
+          {
+            "q": "What is the main practical weakness of boosting?",
+            "a": "It is sequential, so it cannot be parallelized across trees, and it is sensitive to noisy labels because it keeps focusing on the examples it gets wrong."
+          },
+          {
+            "q": "Why is boosting strong on tabular data but not images?",
+            "a": "Trees split on individual features, which suits heterogeneous, meaningful columns. They cannot exploit spatial or translational structure the way convolution does."
+          },
+          {
+            "q": "How do you regularize a boosted ensemble?",
+            "a": "Shrinkage, tree depth or leaf count, subsampling of rows and columns, minimum child weight, and L1/L2 penalties on leaf values — plus early stopping on a validation set."
+          },
+          {
+            "q": "Does boosting overfit as you add trees?",
+            "a": "Eventually yes, unlike bagging. Training loss keeps falling while validation loss turns up, which is why early stopping is standard rather than optional."
+          },
+          {
+            "q": "How does a boosted model handle missing values?",
+            "a": "Modern implementations learn a default direction per split from the data, so missingness becomes a signal rather than something to impute away."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Derive gradient boosting as gradient descent in function space.",
+            "a": "Ordinary gradient descent updates parameters against the gradient of the loss. Gradient boosting does the same thing but treats the MODEL itself as the variable being optimized. At stage m the ensemble is F_{m-1}, and we want to reduce sum of L(y_i, F(x_i)). The direction of steepest descent evaluated at each training point is the negative derivative of the loss with respect to the prediction, g_i = -dL/dF at F_{m-1}(x_i). Those values are only defined at the training points, so they cannot be added to the model directly; instead we fit a weak learner h_m to approximate them, which projects that steepest-descent direction onto the space of functions the base learner can represent. The update is F_m = F_{m-1} + eta * h_m, with eta a step size. With squared loss the negative gradient is exactly the residual y - F(x), which is why the algorithm is usually first taught as fitting residuals, but that is the special case, not the definition. The general form is what allows boosting for logistic loss, Poisson, ranking objectives or quantile regression by swapping the loss.",
+            "deepDive": {
+              "q": "Where does the second-order version differ?",
+              "a": "XGBoost expands the loss to second order around the current prediction, giving a per-leaf objective in terms of summed gradients G and Hessians H. The optimal leaf value is -G/(H + lambda) and the split gain follows in closed form. This both improves split selection and makes the L2 penalty lambda enter naturally, rather than being bolted on."
+            }
+          },
+          {
+            "q": "Why is boosting still the default for tabular data?",
+            "a": "Several properties line up with what tabular data actually looks like. Features are heterogeneous — different units, scales and meanings — and trees are invariant to monotone transformations of any individual feature, so no scaling or normalization is needed and skewed distributions cause no trouble. Interactions are captured automatically by successive splits without being specified. Categorical and missing values can be handled natively, with a learned default direction for missingness. The additive form with shrinkage gives fine-grained control over capacity, and early stopping on a validation set is straightforward. Meanwhile the inductive biases that make deep networks powerful — weight sharing, locality, smoothness over a continuous input space — correspond to structure that tabular data does not have. Empirically the benchmark record is consistent: on medium-sized tabular problems, gradient-boosted trees match or beat neural approaches at a fraction of the tuning effort, and papers claiming otherwise have repeatedly failed to replicate under equal tuning budgets.",
+            "deepDive": {
+              "q": "When SHOULD you reach for a neural network on tabular data?",
+              "a": "When there is structure trees cannot exploit: very high-cardinality categoricals that benefit from learned embeddings, multi-modal inputs where a text or image column must be encoded jointly, transfer from a related pretrained model, or when the tabular model must be one differentiable component of a larger end-to-end system."
+            }
+          },
+          {
+            "q": "Boosting is sensitive to label noise. Explain the mechanism and the remedies.",
+            "a": "The algorithm concentrates on examples with large loss, and a mislabeled example is by construction an example with large loss that cannot be fixed. Each round it receives more attention, so the ensemble spends increasing capacity fitting a wrong answer, and the effect compounds because later trees see the residual that earlier trees failed to remove. AdaBoost's exponential loss makes this worst, since weights grow exponentially in the margin, which is why AdaBoost is notably fragile on noisy data. The remedies follow the mechanism. Use a loss with bounded influence — Huber for regression, or logistic rather than exponential for classification — so a single bad point cannot dominate. Reduce the learning rate so no round commits hard. Subsample rows per tree, which means a noisy point is absent from many trees. Cap depth so no single tree can isolate individual points. And early-stop on validation, since the divergence between training and validation loss is exactly where noise-fitting begins."
+          },
+          {
+            "q": "How do the main implementations differ, and does it matter in practice?",
+            "a": "XGBoost grows trees level-wise (depth-first to a uniform depth) with second-order gains and strong regularization, which makes it predictable and well-behaved. LightGBM grows leaf-wise, always splitting the leaf with the highest gain, which reaches lower loss with fewer leaves and is faster on large data, but overfits more readily on small data unless the number of leaves is constrained — the different growth policy is the main behavioural difference to know. LightGBM also bins features into histograms, which is where much of its speed comes from. CatBoost targets categorical features with ordered target statistics and uses ordered boosting to avoid the target leakage that naive target encoding introduces, and it tends to need less tuning. In practice all three land in a similar accuracy band with proper tuning, so the choice is usually driven by data shape and by categorical handling rather than by a real accuracy gap."
+          },
+          {
+            "q": "How would you tune a gradient boosting model efficiently?",
+            "a": "Exploit the structure of the hyperparameters instead of searching blindly. Fix a low learning rate — 0.05 or 0.1 — and set the number of trees by early stopping rather than tuning it, since the two are coupled and early stopping resolves the coupling for free. Then tune capacity first, because it matters most: max depth or number of leaves, and minimum child weight. Then tune the stochastic regularizers, subsample and colsample, which typically want values around 0.7 to 0.9. Then the explicit penalties lambda and alpha, which usually matter least. Only at the end, if the budget allows, lower the learning rate further and let the tree count rise, which reliably buys a small improvement at proportional cost. Use a validation split that respects the data's structure — grouped or time-based if applicable — otherwise every number above is measured against a leak."
+          },
+          {
+            "q": "How do you interpret a boosted model responsibly?",
+            "a": "Start by knowing what the built-in importances mean, because they are frequently misread. Gain-based importance measures total loss reduction attributed to a feature, and it is biased toward high-cardinality and continuous features, which offer more possible split points. Split-count importance is worse for the same reason. Both are global and cannot tell you the direction of an effect. SHAP values are the usual improvement: they are per-prediction, signed, and additive, and the TreeSHAP algorithm computes them exactly in polynomial time for tree ensembles, which is why they are practical here and not elsewhere. Even then, correlated features share credit arbitrarily, so an unimportant-looking feature may be a perfect substitute for an important one. For causal questions none of this suffices — an importance is a statement about the model, not about the world, and the honest move is to say so and reach for an interventional design."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "definition",
+          "front": "Gradient boosting",
+          "back": "Gradient descent in function space: fit each weak learner to the negative gradient of the loss w.r.t. current predictions."
+        },
+        {
+          "type": "formula",
+          "front": "XGBoost leaf value",
+          "back": "-G/(H + lambda) from a second-order expansion, with the split gain following in closed form. L2 enters naturally."
+        },
+        {
+          "type": "definition",
+          "front": "Pseudo-residual",
+          "back": "The negative gradient at each training point. Equals the plain residual y - F(x) only for squared loss."
+        },
+        {
+          "type": "definition",
+          "front": "Shrinkage",
+          "back": "Scaling each tree's contribution by eta so no round commits hard. Trades directly against the number of trees."
+        },
+        {
+          "type": "intuition",
+          "front": "Bagging vs boosting",
+          "back": "Bagging: parallel, independent, attacks variance. Boosting: sequential, error-correcting, attacks bias — and can overfit with more rounds."
+        },
+        {
+          "type": "intuition",
+          "front": "Why weak learners",
+          "back": "The ensemble supplies capacity. Strong base learners fit the residuals immediately and leave later trees nothing to correct."
+        },
+        {
+          "type": "intuition",
+          "front": "Why trees win on tabular data",
+          "back": "Monotone-invariant per feature, automatic interactions, native categoricals and missingness — and no spatial structure for a CNN to exploit."
+        },
+        {
+          "type": "intuition",
+          "front": "Level-wise vs leaf-wise",
+          "back": "XGBoost grows to uniform depth (predictable); LightGBM splits the highest-gain leaf (faster, lower loss, overfits small data)."
+        },
+        {
+          "type": "pitfall",
+          "front": "Boosting with noisy labels",
+          "back": "A mislabeled point is a permanently high-loss point, so it attracts ever more capacity. Bound the loss, subsample, early-stop."
+        },
+        {
+          "type": "pitfall",
+          "front": "Adding trees indefinitely",
+          "back": "Unlike bagging, boosting does overfit with rounds. Training loss keeps falling while validation turns up — early stopping is mandatory."
+        },
+        {
+          "type": "pitfall",
+          "front": "Gain importance as truth",
+          "back": "Biased toward high-cardinality and continuous features, gives no direction, and is a fact about the model, not the world."
+        },
+        {
+          "type": "pitfall",
+          "front": "Naive target encoding",
+          "back": "Encoding a categorical by its target mean leaks the label. CatBoost's ordered statistics exist precisely to avoid this."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Friedman (2001) — Greedy Function Approximation: A Gradient Boosting Machine",
+          "url": "https://projecteuclid.org/euclid.aos/1013203451"
+        },
+        {
+          "title": "Chen & Guestrin (2016) — XGBoost: A Scalable Tree Boosting System",
+          "url": "https://arxiv.org/abs/1603.02754"
+        },
+        {
+          "title": "Ke et al. (2017) — LightGBM: A Highly Efficient Gradient Boosting Decision Tree",
+          "url": "https://papers.nips.cc/paper/6907-lightgbm-a-highly-efficient-gradient-boosting-decision-tree"
+        },
+        {
+          "title": "Prokhorenkova et al. (2018) — CatBoost: Unbiased Boosting with Categorical Features",
+          "url": "https://arxiv.org/abs/1706.09516"
+        },
+        {
+          "title": "Grinsztajn et al. (2022) — Why Do Tree-Based Models Still Outperform Deep Learning on Tabular Data?",
+          "url": "https://arxiv.org/abs/2207.08815"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -10792,7 +11132,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "What is generalization error, precisely?",
+            "a": "The expected loss over the true data distribution, as opposed to the empirical loss on your sample. Everything in learning theory is about bounding the gap."
+          },
+          {
+            "q": "State the bias-variance decomposition.",
+            "a": "For squared loss, expected error = bias^2 + variance + irreducible noise. Only the first two are affected by the model you choose."
+          },
+          {
+            "q": "What is VC dimension?",
+            "a": "The largest number of points a hypothesis class can shatter, i.e. label in all possible ways. It measures capacity independently of the data distribution."
+          },
+          {
+            "q": "Why are VC bounds loose in practice?",
+            "a": "They are worst-case over all distributions and ignore the algorithm. For modern networks the capacity term is astronomically larger than the sample size, yet they generalize."
+          },
+          {
+            "q": "What does PAC learnable mean?",
+            "a": "That with probability at least 1-delta, a polynomial number of samples suffices to reach error at most epsilon — probably approximately correct."
+          },
+          {
+            "q": "What is Rademacher complexity, and why is it an improvement?",
+            "a": "The expected ability of a class to fit random labels on your actual sample. It is data-dependent, so it can be much tighter than VC dimension."
+          },
+          {
+            "q": "State the no free lunch theorem in one line.",
+            "a": "Averaged over all possible problems, no algorithm beats any other. Useful learning depends entirely on assumptions matching reality."
+          },
+          {
+            "q": "What does uniform convergence give you?",
+            "a": "A bound holding simultaneously for every hypothesis in the class, which is what you need since the hypothesis was chosen using the data."
+          },
+          {
+            "q": "What is the double descent phenomenon?",
+            "a": "Test error rises to a peak at the interpolation threshold, then falls again as capacity grows past it — contradicting the classical U-shaped curve."
+          },
+          {
+            "q": "Why does regularization help generalization?",
+            "a": "It restricts the effective hypothesis class, so the capacity term shrinks. It buys a smaller generalization gap at the cost of some bias."
+          },
+          {
+            "q": "What is the difference between estimation error and approximation error?",
+            "a": "Approximation error is how far the best hypothesis in your class is from the truth; estimation error is how far your chosen hypothesis is from that best one."
+          },
+          {
+            "q": "Why is a train/test split not enough if you tune on the test set?",
+            "a": "Every decision made using the test set spends some of its independence, so the reported number is optimistically biased — that is adaptive overfitting."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Explain the bias-variance decomposition and where it stops being useful.",
+            "a": "For squared loss the expected test error at a point decomposes into three terms: bias squared, the systematic error of the average model over training sets; variance, how much the fitted model moves as the training set changes; and irreducible noise, which no model can remove. The classical reading is a U-shaped tradeoff — more capacity lowers bias and raises variance, so an interior optimum exists. Two limits are important. First, the decomposition is specific to squared loss; for 0-1 loss there is no clean additive version, and the analogous statements are approximations. Second, and more importantly, the U-shaped picture is empirically wrong for modern overparameterized models. Beyond the interpolation threshold, where the model can fit the training data exactly, test error can decrease again as capacity keeps growing — double descent. So variance does not simply grow with parameter count, because the implicit bias of the optimizer selects among the many interpolating solutions. The decomposition is still a correct identity and a useful conceptual tool; what fails is the assumption that variance is monotone in capacity.",
+            "deepDive": {
+              "q": "What resolves the apparent contradiction with double descent?",
+              "a": "Parameter count is the wrong capacity measure. What matters is the complexity of the function the optimizer actually selects, and gradient descent has an implicit bias toward small-norm, smooth solutions. Past the interpolation threshold there are many zero-error solutions, and more capacity gives the optimizer more room to pick a well-behaved one, so an effective-capacity measure like norm can decrease while parameter count rises."
+            }
+          },
+          {
+            "q": "Why do generalization bounds fail to explain deep learning, and what has been tried?",
+            "a": "Classical bounds pair the empirical error with a capacity term over the sample size. For a network with more parameters than samples, VC dimension is far larger than n and the bound is vacuous — it can exceed 1 for a model with a few percent test error. The decisive empirical evidence is that the same architecture can fit random labels perfectly, so the hypothesis class demonstrably CAN express arbitrary functions and no bound depending on class capacity alone can distinguish that case from real learning. The responses fall into a few families. Norm-based bounds use margin and weight norms rather than parameter counts, so capacity depends on the solution found. PAC-Bayes bounds measure the volume of good solutions around the one found, and give the tightest non-vacuous results so far. Compression bounds argue that a network compressible to few bits must generalize. Stability arguments bound generalization by how much the output changes when one training point is swapped. Each captures something real, and none yet gives tight predictive bounds for realistic networks — which is a genuinely open problem, and worth saying plainly rather than papering over.",
+            "deepDive": {
+              "q": "What does the random-label experiment actually prove?",
+              "a": "That any explanation of generalization based only on the hypothesis class is insufficient, because the class is the same in both experiments while generalization differs completely. It shifts the explanatory burden onto the data, the algorithm and their interaction — which is why implicit regularization by SGD became a central topic."
+            }
+          },
+          {
+            "q": "What is the no free lunch theorem really saying, and what should you take from it?",
+            "a": "Averaged uniformly over all possible target functions, every learning algorithm has identical expected off-training-set error — including one that predicts at random. The proof is close to trivial: for every function on which algorithm A beats B there is a mirrored function on which B beats A, because the space of functions is symmetric. The correct conclusion is not that learning is impossible or that all methods are equal in practice; it is that the space of real problems is nothing like uniform, and every useful method works by encoding assumptions that match that structure. Convolution assumes translation-equivariant local structure. Boosted trees assume axis-aligned, interaction-heavy structure. Smoothness penalties assume nearby inputs have similar outputs. The practical takeaway is that model selection is really assumption selection: asking which model is best in the abstract is malformed, and the answerable question is which assumptions this data actually satisfies."
+          },
+          {
+            "q": "How does the theory motivate cross-validation, and where does it mislead?",
+            "a": "Learning theory says the empirical error on data used to select a hypothesis is optimistically biased, so an independent estimate is required. Cross-validation provides one by rotating a held-out fold, using data efficiently at the cost of k fits, and k-fold is roughly unbiased for the performance of a model trained on n(k-1)/k points — slightly pessimistic for the full-data model, which is usually acceptable. It misleads in specific and common ways. If any preprocessing — scaling, feature selection, imputation, resampling — is fitted before the split, information from held-out folds leaks in and the estimate is optimistic; everything must live inside the fold. If observations are grouped, correlated in time or spatially structured, random folds put near-duplicates on both sides and the estimate is badly optimistic, so grouped or time-based splitting is required. And if the same folds are reused to make many decisions, the estimate degrades through adaptive overfitting, which is why a final untouched test set still matters even when cross-validation is used throughout."
+          },
+          {
+            "q": "What is the relationship between capacity, sample size and the amount you can learn?",
+            "a": "The classical statement is that the sample complexity needed for a given error scales with capacity — roughly d/epsilon^2 samples for a class of VC dimension d, up to log factors — so with fixed data, more capacity means a larger generalization gap unless something else constrains the solution. This gives the familiar advice: complex models need more data. It stays useful as an ordering, not as a number: it is why a linear model can be preferable on a few hundred rows and why data augmentation, which effectively enlarges n, reliably helps. The important caveat is that the relevant capacity is EFFECTIVE capacity — the complexity of solutions the optimizer actually reaches — not the nominal size of the class. Early stopping, weight decay, dropout, augmentation and the implicit bias of SGD all reduce effective capacity without changing the architecture, which is why a heavily regularized large model can generalize better than a small unregularized one on the same data."
+          },
+          {
+            "q": "Someone reports 99 percent cross-validated accuracy. What do you check first?",
+            "a": "Assume leakage until it is ruled out, because at that level leakage is more likely than a genuinely easy problem. Check the class balance first — 99 percent may be below the majority-class baseline, in which case the model has learned nothing. Then check that preprocessing was fitted inside the folds, since scaling, imputation, feature selection and especially any target-based encoding fitted on the full data leak the answer. Check for near-duplicate rows across folds, and for grouped structure — repeated users, sessions, patients or devices — where random folds put the same entity on both sides. Check for a feature that is a proxy for the label, either derived from it or recorded after it, which is the classic time-leakage failure. Check that the temporal order was respected if the task is predicting the future. Then look at what the model relies on: if a single feature carries nearly all the signal, inspect that feature's provenance directly. Only after all of that is it worth believing the number."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "formula",
+          "front": "Bias-variance decomposition",
+          "back": "Expected squared error = bias^2 + variance + irreducible noise. An identity for squared loss; no clean additive form for 0-1 loss."
+        },
+        {
+          "type": "definition",
+          "front": "VC dimension",
+          "back": "Largest set the class can shatter (label every possible way). Distribution-free capacity — and vacuous for modern networks."
+        },
+        {
+          "type": "definition",
+          "front": "PAC learnable",
+          "back": "With probability >= 1-delta, polynomially many samples give error <= epsilon. Probably approximately correct."
+        },
+        {
+          "type": "definition",
+          "front": "Rademacher complexity",
+          "back": "Expected ability to fit random labels on YOUR sample. Data-dependent, so tighter than VC dimension."
+        },
+        {
+          "type": "definition",
+          "front": "Double descent",
+          "back": "Test error peaks at the interpolation threshold then falls again as capacity grows — the classical U-curve is not the whole story."
+        },
+        {
+          "type": "intuition",
+          "front": "No free lunch",
+          "back": "Averaged over all problems every algorithm ties. Useful learning comes from assumptions matching reality — model choice is assumption choice."
+        },
+        {
+          "type": "intuition",
+          "front": "Why uniform convergence",
+          "back": "The hypothesis was chosen using the data, so you need a bound holding for every hypothesis at once, not one fixed in advance."
+        },
+        {
+          "type": "intuition",
+          "front": "Effective vs nominal capacity",
+          "back": "What matters is the complexity of solutions the optimizer reaches. Early stopping and weight decay shrink it without changing architecture."
+        },
+        {
+          "type": "pitfall",
+          "front": "Preprocessing outside the fold",
+          "back": "Scaling, imputation, selection or target encoding fitted before splitting leaks held-out information. Everything goes inside the fold."
+        },
+        {
+          "type": "pitfall",
+          "front": "Random folds on grouped data",
+          "back": "Repeated users, sessions or patients land on both sides, so near-duplicates inflate the score. Use grouped or time-based splits."
+        },
+        {
+          "type": "pitfall",
+          "front": "Reusing the test set",
+          "back": "Every decision informed by it spends independence. Repeated use produces adaptive overfitting and an optimistic final number."
+        },
+        {
+          "type": "pitfall",
+          "front": "Quoting a VC bound as a guarantee",
+          "back": "For overparameterized networks the bound often exceeds 1 while test error is a few percent — true but vacuous."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Shalev-Shwartz & Ben-David — Understanding Machine Learning: From Theory to Algorithms",
+          "url": "https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+        },
+        {
+          "title": "Zhang et al. (2017) — Understanding Deep Learning Requires Rethinking Generalization",
+          "url": "https://arxiv.org/abs/1611.03530"
+        },
+        {
+          "title": "Belkin et al. (2019) — Reconciling Modern Machine Learning Practice and the Bias-Variance Trade-Off",
+          "url": "https://arxiv.org/abs/1812.11118"
+        },
+        {
+          "title": "Dziugaite & Roy (2017) — Computing Nonvacuous Generalization Bounds via PAC-Bayes",
+          "url": "https://arxiv.org/abs/1703.11008"
+        },
+        {
+          "title": "Wolpert (1996) — The Lack of A Priori Distinctions Between Learning Algorithms",
+          "url": "https://direct.mit.edu/neco/article/8/7/1341/6016"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -12623,7 +13133,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "Why cross-entropy rather than MSE for classification?",
+            "a": "With a softmax, cross-entropy gives the gradient (p - y), which is linear in the error. MSE multiplies by the softmax derivative, which vanishes exactly when the model is confidently wrong."
+          },
+          {
+            "q": "What is the gradient of softmax + cross-entropy w.r.t. the logits?",
+            "a": "p - y. That clean form is why the two are always implemented as one fused op."
+          },
+          {
+            "q": "Why never apply softmax then log separately?",
+            "a": "Overflow and underflow. Fuse them as log-softmax with the max subtracted (the log-sum-exp trick); frameworks expect raw logits for this reason."
+          },
+          {
+            "q": "MSE vs MAE, in one line?",
+            "a": "MSE penalizes quadratically so it chases outliers and estimates the mean; MAE is linear, robust, and estimates the median."
+          },
+          {
+            "q": "What is Huber loss for?",
+            "a": "Quadratic near zero and linear in the tails — MSE's smooth gradients near the optimum with MAE's resistance to outliers, at the cost of a threshold to tune."
+          },
+          {
+            "q": "What does a loss's minimizer tell you?",
+            "a": "Which statistic you are estimating: squared error gives the conditional mean, absolute error the median, pinball loss a quantile. Choosing a loss is choosing a target statistic."
+          },
+          {
+            "q": "What is a proper scoring rule?",
+            "a": "One minimized by reporting the true probability, so it rewards calibration. Log loss and Brier are proper; accuracy is not, which is why accuracy alone cannot tell you about probabilities."
+          },
+          {
+            "q": "BCE vs categorical cross-entropy?",
+            "a": "BCE treats each output as an independent yes/no, so labels can be multiple. Categorical CE with softmax forces the outputs to compete and sum to 1 — use it only when the classes are exclusive."
+          },
+          {
+            "q": "What does focal loss change?",
+            "a": "It multiplies cross-entropy by (1-p)^gamma, down-weighting already-easy examples so the gradient is dominated by hard ones. Built for extreme foreground/background imbalance."
+          },
+          {
+            "q": "How does label smoothing change the objective?",
+            "a": "The target becomes 1-eps plus eps spread over other classes, so the optimal logit gap is finite rather than infinite. It improves calibration and discourages overconfidence."
+          },
+          {
+            "q": "Does reduction='sum' vs 'mean' matter?",
+            "a": "Yes — sum makes the effective learning rate scale with batch size. Mixing them across a codebase is a classic source of unreproducible results."
+          },
+          {
+            "q": "How do you weight classes for imbalance, and what breaks?",
+            "a": "Weight the loss inversely to frequency or resample. Both fix the gradient balance but distort the predicted probabilities, so you must recalibrate before treating outputs as probabilities."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Derive why MSE trains a classifier badly and cross-entropy does not.",
+            "a": "Take a softmax output p and one-hot target y. With cross-entropy, dL/dz = p - y: the gradient is proportional to the error, so a confidently wrong prediction (p near 1 on the wrong class) produces a gradient near its maximum and the model corrects fast. With MSE the loss is |p - y|^2, and the chain rule brings in the softmax Jacobian, giving a gradient with a factor of roughly p(1-p). That factor goes to zero as p approaches 0 or 1 — so a confidently WRONG prediction produces almost no gradient and the model gets stuck. The pathology is precisely that the learning signal vanishes when it is needed most. There is a second, statistical reason: cross-entropy is the negative log-likelihood of a categorical model, so minimizing it is maximum likelihood, whereas squared error implies Gaussian noise, which is the wrong model for a class label.",
+            "deepDive": {
+              "q": "Does this mean MSE can never be used on classification?",
+              "a": "It can be, and sometimes is — Brier score is MSE on probabilities and is a proper scoring rule with good calibration properties. The objection is optimization dynamics with saturating outputs, not the statistic itself. With a linear output or careful initialization it trains, just less robustly."
+            }
+          },
+          {
+            "q": "How do you choose a regression loss, and what is really being decided?",
+            "a": "You are deciding which statistic to estimate and how much to care about outliers, and those are the same decision. Squared error's minimizer is the conditional mean, and because the penalty grows quadratically, a single large outlier can dominate the total — good if large errors are genuinely disproportionately costly, bad if the tail is noise or mislabeling. Absolute error's minimizer is the conditional median, giving constant gradient magnitude and robustness, but a kink at zero that slows final convergence. Huber interpolates: quadratic within delta, linear outside, so it keeps smooth gradients near the optimum and bounded influence in the tails, at the cost of a delta to tune (and delta is scale-dependent, so it interacts with target normalization). Pinball loss generalizes further to any quantile, which is how you get prediction intervals from point regression. The right question is never which loss is best but which statistic the downstream decision needs.",
+            "deepDive": {
+              "q": "Why does MAE sometimes stall near the optimum?",
+              "a": "Its gradient is constant in magnitude and flips sign at zero, so with a fixed learning rate the iterate oscillates in a band around the minimum rather than settling. Huber exists largely to remove that discontinuity while keeping tail robustness."
+            }
+          },
+          {
+            "q": "Class imbalance: what actually goes wrong, and what fixes it?",
+            "a": "With 99 to 1 imbalance, predicting the majority everywhere gives 99 percent accuracy and near-minimal average loss, so the gradient from the rare class is swamped. Three interventions attack different parts. Class weighting or resampling rebalances the gradient contribution — simple, but it changes the effective prior and therefore distorts the output probabilities, so a weighted model needs recalibration before its scores mean anything. Focal loss reweights by difficulty rather than by class, down-weighting the easy negatives that dominate detection, which is a better match when the problem is easy-example volume rather than class rarity per se. Threshold moving leaves training untouched and adjusts the decision point afterward, which is often the cleanest option because it separates the probability model from the decision rule. The pitfall common to all of them is evaluating with accuracy, which imbalance makes meaningless — use PR-AUC, per-class recall, or the actual decision cost."
+          },
+          {
+            "q": "What does label smoothing do to the geometry of the solution?",
+            "a": "With hard targets the loss is minimized by driving the correct logit to infinity relative to the others, so training pushes toward ever-larger logit gaps and overconfidence — the model keeps reducing loss without learning anything new. Smoothing sets the target to 1-eps for the true class and eps/(K-1) elsewhere, which makes the optimal logit gap FINITE and stops that runaway. The effects are consistent: better calibration, mildly worse perplexity, and tighter, more equally spaced class clusters in the penultimate layer. The trade-off worth knowing is that smoothing destroys some of the information in those representations, which is why it can hurt when the network is used as a feature extractor for distillation or retrieval — a case where a better-calibrated classifier is a worse encoder."
+          },
+          {
+            "q": "Why do frameworks want raw logits rather than probabilities?",
+            "a": "Numerical stability plus a gradient simplification. exp of a large logit overflows and log of a small probability underflows, but log-softmax computes log p = z - max(z) - log sum exp(z - max(z)), which is stable for any input range. Fusing softmax with cross-entropy also lets the framework return p - y directly instead of composing two Jacobians, which is both faster and more accurate. The practical consequence is a very common bug: passing softmax outputs into a function that expects logits applies softmax twice, which does not error — it silently flattens the distribution, so the model trains poorly for no visible reason."
+          },
+          {
+            "q": "You have a working loss but the model is overconfident. What do you check?",
+            "a": "First establish it is miscalibration rather than a bad model: plot a reliability diagram and compute ECE, since accuracy can be fine while confidence is systematically too high. Then consider the causes in order of likelihood. Overparameterized networks trained to zero training loss are known to be overconfident, so check whether training ran far past convergence. Check for a double softmax or a missing log. Check whether class weighting or resampling shifted the effective prior without recalibration. Then choose a remedy by cost: temperature scaling is a single parameter fit on a validation set, costs nothing in accuracy, and is almost always the right first move; label smoothing or focal loss changes training; ensembling improves both accuracy and calibration but multiplies cost. Recalibrate on data that is not the training set, or you will measure the fit and not the calibration."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "formula",
+          "front": "Softmax + cross-entropy gradient",
+          "back": "dL/dz = p - y. Linear in the error, which is why the two are fused into one op."
+        },
+        {
+          "type": "formula",
+          "front": "Log-sum-exp trick",
+          "back": "log softmax(z) = z - max(z) - log sum exp(z - max(z)). Stable for any input range; the reason APIs want logits."
+        },
+        {
+          "type": "definition",
+          "front": "Proper scoring rule",
+          "back": "Minimized by reporting the true probability, so it rewards calibration. Log loss and Brier qualify; accuracy does not."
+        },
+        {
+          "type": "definition",
+          "front": "Huber loss",
+          "back": "Quadratic within delta, linear outside — MSE's smooth gradients near zero with MAE's tail robustness. Delta is scale-dependent."
+        },
+        {
+          "type": "definition",
+          "front": "Focal loss",
+          "back": "CE scaled by (1-p)^gamma, down-weighting easy examples. Built for extreme foreground/background imbalance."
+        },
+        {
+          "type": "intuition",
+          "front": "A loss picks a statistic",
+          "back": "Squared error estimates the mean, absolute error the median, pinball a quantile. Choose the loss the decision needs."
+        },
+        {
+          "type": "intuition",
+          "front": "Why MSE stalls on classification",
+          "back": "Its gradient carries a p(1-p) factor that vanishes exactly when the model is confidently wrong — no signal when it is needed most."
+        },
+        {
+          "type": "intuition",
+          "front": "Why label smoothing helps calibration",
+          "back": "Hard targets make the optimal logit gap infinite. Smoothing makes it finite, so training stops rewarding pure confidence."
+        },
+        {
+          "type": "pitfall",
+          "front": "Double softmax",
+          "back": "Passing probabilities where logits are expected applies softmax twice. It does not error — it silently flattens the distribution."
+        },
+        {
+          "type": "pitfall",
+          "front": "reduction sum vs mean",
+          "back": "Sum makes the effective learning rate scale with batch size. Mixing them across a codebase breaks reproducibility."
+        },
+        {
+          "type": "pitfall",
+          "front": "Class weighting without recalibration",
+          "back": "Reweighting fixes the gradient balance but shifts the effective prior, so the output probabilities are no longer trustworthy."
+        },
+        {
+          "type": "pitfall",
+          "front": "Accuracy under imbalance",
+          "back": "At 99 to 1, predicting the majority scores 99 percent. Use PR-AUC, per-class recall, or the real decision cost."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Goodfellow, Bengio & Courville — Deep Learning, ch. 6 (output units and loss)",
+          "url": "https://www.deeplearningbook.org/contents/mlp.html"
+        },
+        {
+          "title": "Guo et al. (2017) — On Calibration of Modern Neural Networks",
+          "url": "https://arxiv.org/abs/1706.04599"
+        },
+        {
+          "title": "Lin et al. (2017) — Focal Loss for Dense Object Detection",
+          "url": "https://arxiv.org/abs/1708.02002"
+        },
+        {
+          "title": "Muller, Kornblith & Hinton (2019) — When Does Label Smoothing Help?",
+          "url": "https://arxiv.org/abs/1906.02629"
+        },
+        {
+          "title": "Gneiting & Raftery (2007) — Strictly Proper Scoring Rules, Prediction, and Estimation",
+          "url": "https://sites.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -12641,7 +13321,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "Write the forward pass of one dense layer.",
+            "a": "z = xW + b then a = f(z), with x of shape (B, d_in), W of shape (d_in, d_out) and b broadcast over the batch."
+          },
+          {
+            "q": "Why does the nonlinearity matter?",
+            "a": "Without it, any stack of linear layers collapses to a single linear map — depth would buy no expressiveness at all."
+          },
+          {
+            "q": "Why is a batched matmul faster than looping over examples?",
+            "a": "It becomes one GEMM, which is cache-efficient and saturates the hardware. Looping is memory-bound and leaves most of the machine idle."
+          },
+          {
+            "q": "What is the role of the bias term?",
+            "a": "It shifts the pre-activation so the decision boundary need not pass through the origin. It is redundant when the next op is a normalization layer with its own shift."
+          },
+          {
+            "q": "Why does initialization scale matter in the forward pass?",
+            "a": "Activation variance compounds multiplicatively with depth. Slightly too large and deep activations explode; slightly too small and they vanish, before a single gradient is computed."
+          },
+          {
+            "q": "What does He initialization correct for?",
+            "a": "ReLU zeroes about half the units, halving the variance, so the weight variance is set to 2/fan_in to compensate. Xavier assumes a symmetric activation and uses 1/fan_in."
+          },
+          {
+            "q": "What is a dead ReLU?",
+            "a": "A unit whose pre-activation is negative for every input, so it outputs zero and receives zero gradient forever. Usually caused by too large a learning rate or a bad bias."
+          },
+          {
+            "q": "Why is broadcasting dangerous?",
+            "a": "Shapes that should be incompatible silently align, so a (B,1) versus (1,B) mistake produces a (B,B) tensor and a plausible-looking loss instead of an error."
+          },
+          {
+            "q": "Where does the forward pass store things for the backward pass?",
+            "a": "Activations. Memory is roughly proportional to batch size times total activation width, which is why activation memory, not parameters, usually limits batch size."
+          },
+          {
+            "q": "What is the effect of layer width versus depth on the forward pass?",
+            "a": "Width costs quadratically in FLOPs per layer and parallelizes well; depth adds sequential dependency, so it costs latency that cannot be parallelized away."
+          },
+          {
+            "q": "Why do we normalize inputs?",
+            "a": "So features share a scale and no single feature dominates the pre-activations. Unnormalized inputs make the loss surface badly conditioned and effectively give each feature a different learning rate."
+          },
+          {
+            "q": "What does it mean that the forward pass is a computational graph?",
+            "a": "Each op records its inputs and how to compute its local derivative, so the same traversal that produced the output can be reversed to produce gradients."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Walk through the shapes and cost of a forward pass through an MLP.",
+            "a": "Take input (B, d0) and layers of widths d1 to dL. Layer i computes (B, d_{i-1}) times (d_{i-1}, d_i), giving (B, d_i), plus a broadcast bias and an elementwise activation. That matmul costs about 2 * B * d_{i-1} * d_i FLOPs — the factor of two counting one multiply and one add — and it dominates, since the activation is O(B * d_i). Parameters are sum of d_{i-1} * d_i, independent of B, while activation memory is B times sum of d_i and therefore scales with the batch. Two consequences follow. First, doubling width roughly quadruples per-layer compute while doubling activation memory, so width is compute-bound and batch size is memory-bound. Second, all layers must be traversed in order, so depth adds latency you cannot parallelize away — which is exactly why inference latency scales with depth while throughput scales with width.",
+            "deepDive": {
+              "q": "Why is activation memory usually the binding constraint rather than parameters?",
+              "a": "Parameters are stored once; activations are stored per example in the batch, for every layer, because the backward pass needs them. So memory grows with B times depth times width, and it is normal for activations to dwarf the parameters at moderate batch size. That is what gradient checkpointing trades against: recompute activations in the backward pass to cut memory at the cost of extra FLOPs."
+            }
+          },
+          {
+            "q": "Why does initialization scale determine whether a deep network trains at all?",
+            "a": "Treat each layer as multiplying activation variance by a factor that depends on the weight variance and the activation function. If that factor is r, then after L layers the variance scales like r^L — an exponential in depth. With r slightly above 1, activations at layer 50 overflow; slightly below, they collapse to zero and every unit outputs the same thing, so the network cannot break symmetry. The fix is to choose the weight variance so r is approximately 1 for the activation in use: Xavier uses 1/fan_in for symmetric activations like tanh, and He uses 2/fan_in for ReLU because ReLU zeroes about half the pre-activations and halves the variance. This is a pure forward-pass argument, which is the striking part — the network can be broken before any gradient is ever computed. Normalization layers make the network far more robust to getting this wrong, which is one of the main practical reasons they are used.",
+            "deepDive": {
+              "q": "Does this argument still matter now that everything uses normalization?",
+              "a": "Less for trainability, still for behaviour. Normalization rescales activations so the exponential blow-up is corrected each layer, but initialization still sets the effective scale of the residual branches, and in very deep residual stacks a scaled-down initialization of the branch (or a learned gate initialized near zero) is what keeps early training stable. So the concern migrated from every layer to the residual branches."
+            }
+          },
+          {
+            "q": "How do you debug a forward pass that produces NaN?",
+            "a": "Localize before theorizing. Register a forward hook on every module that checks for non-finite outputs, run one batch, and take the FIRST layer that reports — a NaN propagates, so the last layer to show it is almost never the cause. Then check the usual generators in order: division by a quantity that can be zero (a normalization with zero variance, an empty mask), log or sqrt of a non-positive number, exp overflowing when logits are unbounded, and a loss that produces inf from a probability of exactly zero. Also check the inputs themselves, since a NaN in the data reproduces perfectly on the same batch and looks like a model bug. Distinguish deterministic from stochastic: if the same batch always NaNs, it is data or a boundary case; if it appears after N steps, it is usually divergence, so inspect whether activations or gradients were growing beforehand and reduce the learning rate."
+          },
+          {
+            "q": "What actually happens numerically in a forward pass under mixed precision?",
+            "a": "Weights and activations are cast to fp16 or bf16 so the matmuls run on tensor cores at much higher throughput and half the activation memory, while a master copy of the weights stays in fp32 for the update. The formats differ in the way that matters: fp16 has more mantissa but a narrow exponent range, so intermediate values can overflow to inf or underflow to zero, which is why fp16 needs loss scaling; bf16 keeps fp32's exponent range with fewer mantissa bits, so it rarely overflows and needs no loss scaling but is less precise per value. Reductions — sums, norms, softmax denominators — are the accuracy-critical parts and are typically accumulated in fp32 even when the inputs are half, because adding many small numbers in low precision loses them entirely. The practical rule is that matmuls tolerate low precision and reductions do not."
+          },
+          {
+            "q": "Why is a batched forward pass so much faster than a loop, in hardware terms?",
+            "a": "A single example's forward pass is a matrix-vector product, which reads the entire weight matrix to do O(d^2) work with O(d^2) memory traffic — arithmetic intensity of about one, so it is memory-bandwidth-bound and the arithmetic units idle. Batching turns it into a matrix-matrix product: the same weight matrix is read once and reused across all B examples, so work rises to O(B * d^2) while traffic stays near O(d^2), and arithmetic intensity rises with B until the machine becomes compute-bound. That is why throughput improves dramatically with batch size while per-example latency does not, and it is the same reason generation with a KV cache is slow: producing one token at a time is exactly the memory-bound matrix-vector regime, which is what batching requests together at serving time is meant to fix."
+          },
+          {
+            "q": "How do you verify a hand-written forward pass is correct?",
+            "a": "Check it against properties rather than against intuition. Compare layer by layer with a reference implementation on the same input and weights, using an explicit tolerance, since a full-network comparison only tells you that something differs. Verify shapes symbolically with a non-square batch and non-square widths, because square shapes hide transpose errors. Test invariances the layer should have: a permutation of the batch should permute the outputs identically and nothing else, and padding an input should not change the result for real positions. Feed a zero input and confirm the output equals the bias path. Finally, gradient-check the composition with finite differences on a small random case — if the forward pass is wrong, the analytic and numerical gradients will disagree, which catches errors that shape checks cannot."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "formula",
+          "front": "Dense layer forward",
+          "back": "z = xW + b, a = f(z), with x (B, d_in), W (d_in, d_out), b broadcast over the batch."
+        },
+        {
+          "type": "formula",
+          "front": "Matmul FLOPs",
+          "back": "About 2 * B * d_in * d_out per layer — one multiply plus one add. It dominates the elementwise activation cost."
+        },
+        {
+          "type": "formula",
+          "front": "He vs Xavier init",
+          "back": "He: Var(W) = 2/fan_in for ReLU (it zeroes half the units). Xavier: 1/fan_in for symmetric activations."
+        },
+        {
+          "type": "definition",
+          "front": "Arithmetic intensity",
+          "back": "FLOPs per byte moved. Matrix-vector is about 1 (memory-bound); matrix-matrix rises with batch size until compute-bound."
+        },
+        {
+          "type": "definition",
+          "front": "Dead ReLU",
+          "back": "A unit negative for every input: outputs zero, receives zero gradient, never recovers. Usually too high a learning rate."
+        },
+        {
+          "type": "intuition",
+          "front": "Why depth needs nonlinearity",
+          "back": "Stacked linear maps compose to one linear map. Without a nonlinearity, depth adds parameters and no expressiveness."
+        },
+        {
+          "type": "intuition",
+          "front": "Variance compounds as r^L",
+          "back": "Each layer multiplies activation variance by r, so depth makes it exponential — a network can be broken before any gradient exists."
+        },
+        {
+          "type": "intuition",
+          "front": "Width vs depth cost",
+          "back": "Width is quadratic FLOPs but parallelizes; depth is sequential, so it costs latency you cannot parallelize away."
+        },
+        {
+          "type": "pitfall",
+          "front": "Silent broadcasting",
+          "back": "(B,1) against (1,B) yields (B,B) and a plausible loss instead of an error. Assert shapes rather than trusting them."
+        },
+        {
+          "type": "pitfall",
+          "front": "Activation memory, not parameters",
+          "back": "Activations are stored per example per layer for the backward pass, so they usually bind batch size. Checkpointing trades FLOPs for this."
+        },
+        {
+          "type": "pitfall",
+          "front": "Chasing the last NaN",
+          "back": "NaN propagates, so the layer that reports it is rarely the cause. Hook every module and take the FIRST one."
+        },
+        {
+          "type": "pitfall",
+          "front": "Low-precision reductions",
+          "back": "Matmuls tolerate fp16/bf16; sums, norms and softmax denominators need fp32 accumulation or small terms vanish."
+        }
+      ],
+      "refs": [
+        {
+          "title": "He et al. (2015) — Delving Deep into Rectifiers (He initialization)",
+          "url": "https://arxiv.org/abs/1502.01852"
+        },
+        {
+          "title": "Glorot & Bengio (2010) — Understanding the Difficulty of Training Deep Feedforward Networks",
+          "url": "https://proceedings.mlr.press/v9/glorot10a.html"
+        },
+        {
+          "title": "Micikevicius et al. (2018) — Mixed Precision Training",
+          "url": "https://arxiv.org/abs/1710.03740"
+        },
+        {
+          "title": "Chen et al. (2016) — Training Deep Nets with Sublinear Memory Cost (gradient checkpointing)",
+          "url": "https://arxiv.org/abs/1604.06174"
+        },
+        {
+          "title": "Williams, Waterman & Patterson (2009) — Roofline: An Insightful Visual Performance Model",
+          "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -18399,7 +19249,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-26"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "What are Q, K and V, in one line each?",
+            "a": "Q is what this position is looking for, K is what each position advertises, V is the content that actually gets mixed. Q and K decide the weights; V decides what is returned."
+          },
+          {
+            "q": "Write scaled dot-product attention.",
+            "a": "softmax(QK^T / sqrt(d_k)) V, with the softmax taken row-wise over keys so each query's weights sum to 1."
+          },
+          {
+            "q": "Why divide by sqrt(d_k)?",
+            "a": "A dot product of two independent d_k-dimensional vectors with unit-variance entries has variance d_k, so raw logits scale like sqrt(d_k). Dividing keeps them O(1) as width grows."
+          },
+          {
+            "q": "What actually breaks if you drop the scaling at large d_k?",
+            "a": "Logits get large, softmax saturates toward one-hot, its Jacobian goes to zero, and gradients through the attention weights vanish. It is a training failure, not an accuracy nuisance."
+          },
+          {
+            "q": "Time and memory cost over n tokens?",
+            "a": "O(n^2 * d) time and O(n^2) memory for the attention matrix. Note the parameter count is independent of n — only the activation is quadratic."
+          },
+          {
+            "q": "Is self-attention permutation equivariant?",
+            "a": "Yes. Permute the input rows and the output rows permute identically, so the layer alone cannot distinguish orderings of the same multiset of tokens."
+          },
+          {
+            "q": "So why is positional encoding required?",
+            "a": "Because that equivariance means the bare layer sees a bag of tokens. Order has to be injected into the representations, since attention will never recover it on its own."
+          },
+          {
+            "q": "How is causal masking implemented, and why that way?",
+            "a": "Add -inf to the disallowed logits BEFORE the softmax, so renormalization spans only legal positions. Zeroing weights after the softmax leaves rows that no longer sum to 1."
+          },
+          {
+            "q": "What do multiple heads buy you?",
+            "a": "h heads of width d/h cost about the same total compute, but let different subspaces attend to different relations instead of averaging every relation into one pattern."
+          },
+          {
+            "q": "Self-attention vs cross-attention?",
+            "a": "Self-attention draws Q, K and V from one sequence. Cross-attention draws Q from one sequence and K, V from another — that is how a decoder reads an encoder."
+          },
+          {
+            "q": "Does FlashAttention change the result?",
+            "a": "No. It is exact. It tiles the computation and recomputes pieces so the n-by-n matrix is never materialized, trading extra FLOPs for far less memory traffic."
+          },
+          {
+            "q": "Are attention weights an explanation of the decision?",
+            "a": "Not reliably. Different weight distributions can produce the same output, so a large weight is evidence of routing, not proof of causal importance."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Derive the sqrt(d_k) scaling, and say precisely what fails without it.",
+            "a": "Model the query and key entries as independent, zero-mean, unit-variance. Their dot product q.k is a sum of d_k such products, so it has mean 0 and variance d_k, i.e. a typical magnitude of sqrt(d_k). Feed that straight into a softmax and the spread of the logits grows with width: at d_k = 64 the logits are already several units apart, and the softmax approaches a one-hot. The damage is in the backward pass. The softmax Jacobian is diag(p) - p p^T, which goes to zero as p approaches one-hot, so gradients to Q and K vanish and the layer stops learning to route. Dividing by sqrt(d_k) normalizes the logit variance back to 1 so the softmax stays in its responsive regime independently of head width.",
+            "deepDive": {
+              "q": "What if the entries are not unit variance?",
+              "a": "Then sqrt(d_k) is the wrong constant in principle — the right scale is the standard deviation of the logits. In practice LayerNorm before the projections keeps the inputs near unit scale, so sqrt(d_k) remains the correct fixed choice; that is a reason the normalization placement and the scaling are coupled design decisions rather than independent ones."
+            }
+          },
+          {
+            "q": "Walk through the tensor shapes of a multi-head forward pass.",
+            "a": "Start with X of shape (B, n, d). Project to Q, K, V of shape (B, n, d) each, then reshape to (B, h, n, d_h) with d_h = d/h. The scores QK^T give (B, h, n, n) — this is the tensor that is quadratic in sequence length and the one that dominates memory. Softmax over the last axis, multiply by V of shape (B, h, n, d_h) to get (B, h, n, d_h), transpose and merge the heads back to (B, n, d), then apply the output projection W_O of shape (d, d). The parameter count is 4 d^2 regardless of n; only the (B, h, n, n) activation grows with sequence length."
+          },
+          {
+            "q": "Why separate K and V at all, rather than attending directly over the inputs?",
+            "a": "Separating them decouples matching from content. K lives in the space where similarity to Q is measured, V lives in the space of what gets written to the residual stream — a token can be easy to find for one reason and contribute something quite different. It also breaks symmetry: with a single shared matrix the score between positions i and j would be forced toward symmetry, whereas language is full of asymmetric relations, where a verb should attend to its subject far more than the reverse. Separate projections make the score bilinear in the input, x_i^T W_Q^T W_K x_j, which is an arbitrary (low-rank) bilinear form rather than an inner product.",
+            "deepDive": {
+              "q": "What does tying K and V actually cost?",
+              "a": "You force the retrieval key and the transmitted content to be the same vector, so any token that must be findable by many different queries has to compromise between being findable and being useful. Empirically it costs quality at equal parameter count, which is why the untied form persists despite tying being cheaper."
+            }
+          },
+          {
+            "q": "Explain the quadratic bottleneck and how it is genuinely addressed in practice.",
+            "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention — low-rank, kernelized or sparse — changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
+          },
+          {
+            "q": "What is a KV cache, and how does it change inference cost?",
+            "a": "At generation time the keys and values of previous tokens do not change, so recomputing them for every new token repeats work. The cache stores K and V for all past positions; each new token computes only its own Q, K and V, appends them, and attends over the cache. Per-token cost drops from O(n^2) to O(n), making generation linear overall. The price is memory: the cache is 2 * layers * heads * d_h * n * batch values, which for long contexts and large batches becomes the dominant memory consumer and the real constraint on serving. That is what motivates multi-query and grouped-query attention, which share K and V across heads to shrink the cache."
+          },
+          {
+            "q": "What goes wrong in very deep stacks of pure attention, and what prevents it?",
+            "a": "Attention output is a convex combination of value vectors, which is a smoothing operation. Stacked without help, it drives token representations toward each other — the rank of the representation matrix collapses, provably doubly exponentially in depth for pure attention, and every position ends up nearly identical, which destroys the model's ability to distinguish tokens. Three components counteract it, and the point is that they are not incidental: residual connections preserve a path that is not averaged, the position-wise MLPs apply a nonlinearity that is not a convex combination and can re-separate collapsed representations, and LayerNorm keeps scales controlled. This is a good example of an architecture whose famous component does not work without its unfamous ones."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "formula",
+          "front": "Scaled dot-product attention",
+          "back": "softmax(QK^T / sqrt(d_k)) V, softmax taken row-wise over keys."
+        },
+        {
+          "type": "formula",
+          "front": "Why the denominator is sqrt(d_k)",
+          "back": "Var(q.k) = d_k for independent unit-variance entries, so logits scale like sqrt(d_k); dividing restores unit logit variance."
+        },
+        {
+          "type": "definition",
+          "front": "Q, K, V",
+          "back": "Query = what I am looking for; Key = what I advertise; Value = what I contribute. Q and K set the weights, V is the payload."
+        },
+        {
+          "type": "definition",
+          "front": "Permutation equivariance",
+          "back": "Permuting input rows permutes output rows identically — which is exactly why positional information must be added."
+        },
+        {
+          "type": "definition",
+          "front": "KV cache",
+          "back": "Stored keys and values for past positions, so each new token costs O(n) instead of O(n^2). Cost is memory, not compute."
+        },
+        {
+          "type": "intuition",
+          "front": "Attention as lookup",
+          "back": "A soft dictionary lookup: similarity between a query and every key produces weights, and the answer is the weighted average of the values."
+        },
+        {
+          "type": "intuition",
+          "front": "Why more than one head",
+          "back": "One head must average all relations into a single pattern. h heads of width d/h cost the same and can specialize by subspace."
+        },
+        {
+          "type": "intuition",
+          "front": "Why FlashAttention is faster while doing more work",
+          "back": "The bottleneck was memory traffic, not FLOPs. Tiling plus recomputation avoids materializing the n-by-n matrix."
+        },
+        {
+          "type": "pitfall",
+          "front": "Masking after the softmax",
+          "back": "Zeroing disallowed weights post-softmax leaves rows that do not sum to 1. Add -inf to the logits BEFORE the softmax."
+        },
+        {
+          "type": "pitfall",
+          "front": "Dropping the scaling at large width",
+          "back": "Softmax saturates toward one-hot, its Jacobian goes to zero, gradients vanish and routing stops being learned."
+        },
+        {
+          "type": "pitfall",
+          "front": "Reading attention weights as explanation",
+          "back": "Different weight distributions can yield the same output. Weight shows routing, not causal importance."
+        },
+        {
+          "type": "pitfall",
+          "front": "Assuming attention alone builds depth",
+          "back": "Pure stacked attention collapses representations toward uniformity. Residuals, MLPs and LayerNorm are what make depth work."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Vaswani et al. (2017) — Attention Is All You Need",
+          "url": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "title": "Dao et al. (2022) — FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+          "url": "https://arxiv.org/abs/2205.14135"
+        },
+        {
+          "title": "Dong et al. (2021) — Pure Attention Loses Rank Doubly Exponentially with Depth",
+          "url": "https://arxiv.org/abs/2103.03404"
+        },
+        {
+          "title": "Jain & Wallace (2019) — Attention is not Explanation",
+          "url": "https://arxiv.org/abs/1902.10186"
+        },
+        {
+          "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
+          "url": "https://transformer-circuits.pub/2021/framework/index.html"
+        }
+      ]
     },
     {
       "kind": "lesson",
@@ -19189,7 +20209,177 @@
         "demos": [],
         "concepts": []
       },
-      "updatedAt": "2026-07-18"
+      "updatedAt": "2026-08-16",
+      "interview": {
+        "quickGrind": [
+          {
+            "q": "What are the two masks in a transformer and what is each for?",
+            "a": "A padding mask hides positions that are only there to square off a batch, and a causal mask stops a decoder position from seeing the future. They are combined, not alternatives."
+          },
+          {
+            "q": "Where does cross-attention sit and what does it read?",
+            "a": "In each decoder block, between self-attention and the FFN. Q comes from the decoder state, K and V from the encoder output."
+          },
+          {
+            "q": "What is the FFN and why is it wide?",
+            "a": "Two linear layers with a nonlinearity, typically expanding d to 4d and back. It is where most parameters live and where per-position nonlinear computation happens."
+          },
+          {
+            "q": "Pre-LN vs post-LN, in one line?",
+            "a": "Post-LN normalizes after the residual add and needs learning-rate warmup to train deep; pre-LN normalizes inside the branch and trains stably without it. Modern stacks are pre-LN."
+          },
+          {
+            "q": "Why did the original transformer need warmup?",
+            "a": "Post-LN puts the normalization on the residual path, so early large updates destabilize deep stacks. Warmup keeps steps small until the scales settle."
+          },
+          {
+            "q": "What is the residual stream?",
+            "a": "The running sum carried through the network that every block reads from and writes to. Attention moves information between positions; the FFN transforms it in place."
+          },
+          {
+            "q": "What is weight tying?",
+            "a": "Sharing the input embedding matrix with the output projection. It saves a large parameter block and usually helps, since both map between tokens and the same space."
+          },
+          {
+            "q": "Teacher forcing — what is it and what does it cost?",
+            "a": "Feeding ground-truth prefixes during training rather than the model's own outputs. It is fast and parallel, but creates exposure bias: at inference the model conditions on its own mistakes."
+          },
+          {
+            "q": "Why is training parallel over positions but generation is not?",
+            "a": "With teacher forcing all target positions are known, so the causal mask lets every position be computed at once. Generation must produce token t before it can condition on it."
+          },
+          {
+            "q": "Roughly where do the parameters go?",
+            "a": "Per block, attention is about 4*d^2 and the FFN about 8*d^2, so the FFN holds roughly two thirds. Embeddings can dominate at small d with a large vocabulary."
+          },
+          {
+            "q": "What does label smoothing do?",
+            "a": "Replaces the one-hot target with a slightly softened distribution. It costs perplexity but improves calibration and BLEU — the original paper accepted exactly that trade."
+          },
+          {
+            "q": "Encoder-decoder vs decoder-only — when does the split matter?",
+            "a": "Encoder-decoder suits input-output tasks with a clean boundary and gives the encoder bidirectional context. Decoder-only with the input as a prefix is simpler and scales better, which is why it dominates now."
+          }
+        ],
+        "standard": [
+          {
+            "q": "Trace one token's path through a full encoder-decoder forward pass.",
+            "a": "An input token is embedded and gets positional information added, producing the first residual state. In each encoder block, LayerNorm feeds self-attention, which mixes information across ALL input positions (no mask beyond padding), and the result is added back to the residual; then the FFN transforms that state position-wise and is added back. After N blocks the encoder output is a set of contextualized vectors — computed once and reused for every decoder step. On the decoder side the target prefix is embedded, and each block runs three sub-layers: causal self-attention over previously generated positions, cross-attention where Q comes from the decoder state and K and V from the encoder output, and the FFN. A final LayerNorm and a projection to vocabulary size produce logits, softmaxed into a distribution over the next token. The important asymmetry is that the encoder runs once while the decoder runs once per generated token.",
+            "deepDive": {
+              "q": "Why is cross-attention placed after self-attention rather than before?",
+              "a": "Self-attention first lets a decoder position assemble what it already knows from the prefix, so the query it sends to the encoder is informed by that context. Querying the source before consolidating the target-side state would ask a less well-formed question. It is a soft ordering rather than a hard constraint, but it is the standard arrangement."
+            }
+          },
+          {
+            "q": "Explain pre-LN vs post-LN and why the field moved.",
+            "a": "Post-LN, the original, computes x + Sublayer(x) and then normalizes: LN(x + Sublayer(x)). The normalization sits ON the residual path, so the identity shortcut is repeatedly rescaled, and gradient magnitudes at initialization grow with depth. Deep post-LN stacks therefore diverge without learning-rate warmup, which is why the original recipe has that distinctive schedule. Pre-LN computes x + Sublayer(LN(x)): normalization moves inside the branch and the residual path stays clean, so gradients flow to early layers without amplification and training is stable without warmup at much greater depth. The cost is a mild quality gap at equal size in some settings, and a need for a final LayerNorm since the stream is never normalized on the way out. The general lesson is that keeping the identity path unmodified is what makes very deep residual networks trainable.",
+            "deepDive": {
+              "q": "Does pre-LN remove the need for warmup entirely?",
+              "a": "It removes the failure mode that made warmup mandatory, but large-batch training still commonly uses a short warmup for optimizer-state reasons — Adam's second-moment estimate is unreliable in the first steps. So warmup persists, for a different reason than the original one."
+            }
+          },
+          {
+            "q": "Why is the FFN there at all, given attention already mixes information?",
+            "a": "Attention is a convex combination of value vectors: it moves and averages information across positions but is close to linear in the values, and stacking it alone drives representations toward each other. The FFN supplies the per-position nonlinearity that attention lacks, and it is where most of the parameters and most of the stored knowledge sit — probing work locates factual associations there rather than in attention. The division of labour is clean: attention decides WHERE information comes from, the FFN decides WHAT to compute with it. Remove the FFN and the model loses both capacity and the mechanism that keeps token representations distinct with depth."
+          },
+          {
+            "q": "Padding and causal masks are combined — what breaks if you get it wrong?",
+            "a": "The masks apply on different axes and both must be additive -inf before the softmax. Forget the padding mask and real positions attend to padding, so a batch's results depend on the length of the longest unrelated sequence in it — a bug that shows up as results changing when batch composition changes, which is hard to trace. Forget the causal mask in the decoder and every position sees the future: training loss collapses to near zero because the model reads the answer, and generation is then incoherent because that information is absent. The failure signature is diagnostic — suspiciously good training loss with terrible sampling means a leak, not a good model."
+          },
+          {
+            "q": "Greedy decoding vs beam search vs sampling — what are you actually choosing between?",
+            "a": "You are choosing what to optimize. Greedy takes the argmax at each step and is fast but locally myopic. Beam search keeps k partial hypotheses and approximates the most probable SEQUENCE, which helps when a single high-probability output exists — translation, summarization — but produces bland, repetitive text for open-ended generation, and needs length normalization since probability decays with length. Sampling with temperature, top-k or nucleus deliberately does not maximize probability, because the most probable continuation is not the most human-like one. The rule of thumb: search when there is a right answer, sample when there is a distribution of acceptable ones."
+          },
+          {
+            "q": "How do you sanity-check a from-scratch transformer implementation?",
+            "a": "Test the invariants rather than eyeballing the loss curve. Check that attention rows sum to 1 after masking. Verify causality directly: perturb a future token and confirm the output at position t is bit-identical, which catches mask bugs that loss curves hide. Overfit a single batch to near-zero loss to confirm the optimization path works at all. Compare shapes and parameter count against the arithmetic (about 12*d^2 per block). Check that padding does not change results by running the same sequence alone and inside a padded batch. Each of these isolates one mechanism, whereas a bad loss curve tells you only that something is wrong."
+          }
+        ]
+      },
+      "flashcards": [
+        {
+          "type": "definition",
+          "front": "Residual stream",
+          "back": "The running sum every block reads from and writes to. Attention moves information across positions; the FFN transforms it in place."
+        },
+        {
+          "type": "definition",
+          "front": "Cross-attention",
+          "back": "Decoder sub-layer with Q from the decoder state and K, V from the encoder output — the channel through which the target reads the source."
+        },
+        {
+          "type": "definition",
+          "front": "Teacher forcing",
+          "back": "Training on ground-truth prefixes. Parallel and fast, but causes exposure bias: at inference the model conditions on its own mistakes."
+        },
+        {
+          "type": "formula",
+          "front": "Pre-LN vs post-LN",
+          "back": "Pre-LN: x + Sublayer(LN(x)) — clean residual path, stable deep, needs a final LN. Post-LN: LN(x + Sublayer(x)) — needs warmup."
+        },
+        {
+          "type": "formula",
+          "front": "Parameters per block",
+          "back": "About 4*d^2 for attention and 8*d^2 for the FFN, so roughly two thirds sit in the FFN."
+        },
+        {
+          "type": "intuition",
+          "front": "Why an FFN if attention already mixes",
+          "back": "Attention is a convex combination and near-linear in V. The FFN is the per-position nonlinearity, and where most stored knowledge lives."
+        },
+        {
+          "type": "intuition",
+          "front": "Encoder runs once, decoder runs per token",
+          "back": "That asymmetry is why encoder output is cached and why generation, not training, is the latency problem."
+        },
+        {
+          "type": "intuition",
+          "front": "Search vs sample",
+          "back": "Beam search when there is a right answer (translation); sampling when many continuations are acceptable (open-ended text)."
+        },
+        {
+          "type": "pitfall",
+          "front": "Missing padding mask",
+          "back": "Real positions attend to padding, so results depend on the longest unrelated sequence in the batch — changes with batch composition."
+        },
+        {
+          "type": "pitfall",
+          "front": "Missing causal mask",
+          "back": "Training loss collapses toward zero while generation is incoherent. Suspiciously good training loss is the signature of a leak."
+        },
+        {
+          "type": "pitfall",
+          "front": "Beam search for open-ended text",
+          "back": "Maximizing sequence probability yields bland, repetitive output — the most probable continuation is not the most human one."
+        },
+        {
+          "type": "pitfall",
+          "front": "Post-LN without warmup",
+          "back": "Normalization on the residual path amplifies gradients with depth; deep stacks diverge. Either warm up or switch to pre-LN."
+        }
+      ],
+      "refs": [
+        {
+          "title": "Vaswani et al. (2017) — Attention Is All You Need",
+          "url": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "title": "Xiong et al. (2020) — On Layer Normalization in the Transformer Architecture",
+          "url": "https://arxiv.org/abs/2002.04745"
+        },
+        {
+          "title": "Geva et al. (2021) — Transformer Feed-Forward Layers Are Key-Value Memories",
+          "url": "https://arxiv.org/abs/2012.14913"
+        },
+        {
+          "title": "Holtzman et al. (2020) — The Curious Case of Neural Text Degeneration",
+          "url": "https://arxiv.org/abs/1904.09751"
+        },
+        {
+          "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
+          "url": "https://transformer-circuits.pub/2021/framework/index.html"
+        }
+      ]
     },
     {
       "kind": "lesson",
