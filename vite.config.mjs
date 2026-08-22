@@ -1,8 +1,21 @@
 import { defineConfig } from 'vite'
 
 // Build-only: swap the CDN React from development to production.min (smaller,
-// faster, no warnings) and drop the now-mismatched SRI hashes. Dev keeps the
-// development build for useful warnings while iterating.
+// faster, no warnings). Dev keeps the development build for useful warnings.
+//
+// SRI (PF-0002): this used to DELETE the integrity attributes here, because the dev
+// hashes do not match the production files. That left dev protected and production
+// not — exactly backwards, since a tampered CDN response reaches real visitors and
+// never reaches localhost. It now substitutes the correct production hashes.
+//
+// To regenerate after a React version bump (do it yourself, do not paste a value):
+//   curl -sL https://unpkg.com/react@18.3.1/umd/react.production.min.js \
+//     | openssl dgst -sha384 -binary | openssl base64 -A
+// A wrong hash makes the browser refuse the script and every page renders blank,
+// so verify a built page in a browser after changing these.
+const REACT_PROD_SRI = 'sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z'
+const REACT_DOM_PROD_SRI = 'sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1'
+
 const reactProdInBuild = {
   name: 'react-prod-in-build',
   apply: 'build',
@@ -10,8 +23,8 @@ const reactProdInBuild = {
     return html
       .replace('react@18.3.1/umd/react.development.js', 'react@18.3.1/umd/react.production.min.js')
       .replace('react-dom@18.3.1/umd/react-dom.development.js', 'react-dom@18.3.1/umd/react-dom.production.min.js')
-      .replace(/ integrity="sha384-hD6[^"]*"/, '')
-      .replace(/ integrity="sha384-u6a[^"]*"/, '')
+      .replace(/ integrity="sha384-hD6[^"]*"/, ` integrity="${REACT_PROD_SRI}"`)
+      .replace(/ integrity="sha384-u6a[^"]*"/, ` integrity="${REACT_DOM_PROD_SRI}"`)
   },
 }
 
