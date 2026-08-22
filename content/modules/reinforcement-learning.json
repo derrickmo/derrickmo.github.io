@@ -104,7 +104,8 @@
       "double-q-learning",
       "gae",
       "ppo",
-      "dyna-q"
+      "dyna-q",
+      "regret-matching"
     ]
   },
   "updatedAt": "2026-08-07"

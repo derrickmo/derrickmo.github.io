@@ -95,7 +95,8 @@
     "order": [
       "dbscan",
       "hierarchical-clustering",
-      "tsne"
+      "tsne",
+      "spectral-clustering"
     ]
   },
   "updatedAt": "2026-07-21"

@@ -89,7 +89,8 @@
     "order": [
       "classification-metrics",
       "dynamic-programming",
-      "graph-search"
+      "graph-search",
+      "search-astar"
     ]
   }
 }

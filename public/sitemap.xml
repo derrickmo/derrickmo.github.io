@@ -291,6 +291,7 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/complexity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/entropy/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/information-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/linear-algebra/</loc><priority>0.6</priority></url>
@@ -348,6 +349,7 @@
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/interview-landscape/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/portfolio-capstone/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/search-astar/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/system-design-framework/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/key-concepts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/key-concepts/agentic/</loc><priority>0.6</priority></url>
@@ -393,6 +395,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/gaussian-processes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/imbalanced-data/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/learning-theory/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/overfitting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
@@ -433,6 +436,7 @@
   <url><loc>https://derrickmo.github.io/learn/neural-nets/nn-walkthrough/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/optimizers/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/perceptron-mlp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/perceptron/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/pytorch-fundamentals/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/sgd-momentum/</loc><priority>0.6</priority></url>
@@ -486,6 +490,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/ppo/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/q-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/regret-matching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/sarsa/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/td-lambda/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/</loc><priority>0.6</priority></url>
@@ -573,6 +578,7 @@
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/matrix-factorization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/pca/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/spectral-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/tsne-umap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/tsne/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/paths/</loc><priority>0.6</priority></url>

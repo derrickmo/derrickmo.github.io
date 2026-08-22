@@ -106,7 +106,8 @@
           "cross-entropy",
           "bayes",
           "entropy",
-          "clt"
+          "clt",
+          "fourier"
         ]
       },
       "updatedAt": "2026-06-10"
@@ -309,7 +310,8 @@
         "order": [
           "dbscan",
           "hierarchical-clustering",
-          "tsne"
+          "tsne",
+          "spectral-clustering"
         ]
       },
       "updatedAt": "2026-07-21"
@@ -410,7 +412,8 @@
         "intro": "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
         "order": [
           "regularization",
-          "double-descent"
+          "double-descent",
+          "overfitting"
         ]
       },
       "updatedAt": "2026-08-01"
@@ -519,7 +522,8 @@
           "activations",
           "optimizers",
           "batch-norm",
-          "weight-init"
+          "weight-init",
+          "perceptron"
         ]
       },
       "updatedAt": "2026-06-10"
@@ -1464,7 +1468,8 @@
           "double-q-learning",
           "gae",
           "ppo",
-          "dyna-q"
+          "dyna-q",
+          "regret-matching"
         ]
       },
       "updatedAt": "2026-08-07"
@@ -2561,7 +2566,8 @@
         "order": [
           "classification-metrics",
           "dynamic-programming",
-          "graph-search"
+          "graph-search",
+          "search-astar"
         ]
       }
     }
@@ -70878,6 +70884,51 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
+      "id": "fourier",
+      "module": "foundations",
+      "title": "Fourier Series",
+      "oneLine": "Any periodic signal is a sum of sines — and that basis change is why positional encodings and spectrograms look the way they do.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "A square wave looks nothing like a sine wave. Add enough sines at the right frequencies and amplitudes and you get one anyway. That is the whole claim: the sines form a basis for periodic functions, so any periodic signal is a set of coordinates in that basis — how much of each frequency it contains.",
+            "The payoff is that hard operations in one basis are easy in the other. Convolution in time is multiplication in frequency. Smoothing is deleting high-frequency coordinates. A signal that is a tangle in time is often three spikes in frequency."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The coefficients are inner products with each basis function — how much the signal overlaps that frequency:"
+          ],
+          "tex": "f(x) = \\frac{a_0}{2} + \\sum_{n=1}^{\\infty}\\left(a_n\\cos nx + b_n\\sin nx\\right),\\qquad a_n = \\frac{1}{\\pi}\\int_{-\\pi}^{\\pi} f(x)\\cos(nx)\\,dx",
+          "texNote": "Truncating the sum at N is the approximation you actually compute. Sharp jumps converge slowly and overshoot at the discontinuity — Gibbs ringing, which is a property of the truncation, not a bug in your code."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef square_wave_series(x, n_terms):\n    # A square wave contains only ODD harmonics, with amplitude 1/n.\n    out = np.zeros_like(x)\n    for n in range(1, 2 * n_terms, 2):\n        out += np.sin(n * x) / n\n    return 4 / np.pi * out",
+          "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen — and the overshoot at the jump refuse to shrink."
+        },
+        {
+          "h": "Where it shows up",
+          "paras": [
+            "Sinusoidal positional encodings in transformers are this idea used deliberately: each dimension is a sine at a different frequency, so position becomes a smooth, unique code that the model can do arithmetic on.",
+            "A spectrogram is a Fourier transform per short time window, and MFCCs are a further compression of that. Every audio model starts by changing basis, because pitch and timbre are structure in frequency and noise in time.",
+            "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images."
+          ]
+        }
+      ],
+      "takeaways": [
+        "A Fourier series is a change of basis, not an approximation trick — the sines are a coordinate system for periodic signals.",
+        "Operations that are painful in time are often trivial in frequency, which is the entire reason to change basis.",
+        "Truncating the series overshoots at sharp jumps (Gibbs), and undersampling folds high frequencies down into fake low ones (aliasing)."
+      ],
+      "demo": "fourier",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
       "id": "gradient-descent",
       "module": "foundations",
       "title": "Gradient Descent",
@@ -71094,6 +71145,51 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
+      "id": "spectral-clustering",
+      "module": "unsupervised-learning",
+      "title": "Spectral Clustering",
+      "oneLine": "Cut the similarity graph, not the feature space — which is why it finds the two interleaved rings that k-means cannot.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "k-means assumes clusters are blobs around a centre, so it fails on any shape where two points in the same cluster are far apart — two concentric rings, two interleaved crescents. Spectral clustering changes the question from 'which centre is this near?' to 'which points are connected to each other?'.",
+            "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line — so you run k-means there instead of in the original space."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The Laplacian encodes the graph; its smallest eigenvectors are the smooth functions on it, and they are what you cluster:"
+          ],
+          "tex": "L = D - W, \\qquad L_{\\text{sym}} = I - D^{-1/2} W D^{-1/2}",
+          "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components — so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\nfrom scipy.linalg import eigh\n\ndef spectral(X, k, sigma=1.0):\n    d2 = ((X[:, None, :] - X[None, :, :]) ** 2).sum(-1)\n    W = np.exp(-d2 / (2 * sigma ** 2))      # Gaussian affinity\n    np.fill_diagonal(W, 0)\n    d = W.sum(1)\n    L = np.eye(len(X)) - (W / np.sqrt(np.outer(d, d)))\n    _, V = eigh(L, subset_by_index=[0, k - 1])\n    V = V / np.linalg.norm(V, axis=1, keepdims=True)\n    return V                                 # now run k-means on these rows",
+          "caption": "The whole method is: build affinities, take the bottom k eigenvectors, cluster those. The hard part is sigma."
+        },
+        {
+          "h": "What it costs you",
+          "paras": [
+            "The affinity kernel width is the whole model. Too small and the graph fragments into isolated points; too large and everything connects and the structure disappears. There is no way to set it from the objective — it is a modelling choice you have to check.",
+            "It is O(n^2) to build the affinity matrix and worse to decompose it, so it does not scale the way k-means does. Nystrom approximation and k-nearest-neighbour graphs are the standard escapes.",
+            "And it gives you no way to assign a NEW point without recomputing — there is no centroid to compare against. If you need to cluster a stream, this is the wrong tool."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Spectral clustering replaces 'near a centre' with 'connected in a graph', which is why it handles non-convex shapes.",
+        "The eigenvalue gap of the Laplacian is a genuine signal about how many clusters the data supports.",
+        "It costs O(n^2) memory, has no out-of-sample rule, and its kernel width is an unavoidable modelling choice."
+      ],
+      "demo": "spectral-clustering",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
       "id": "tsne",
       "module": "unsupervised-learning",
       "title": "t-SNE",
@@ -71162,6 +71258,51 @@
       ],
       "demo": "double-descent",
       "updatedAt": "2026-06-10"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "overfitting",
+      "module": "ml-theory",
+      "title": "Overfitting & Generalization",
+      "oneLine": "Fitting the noise instead of the signal — measurable only against data the model has never seen, which is why the split is the experiment.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "A model that memorises its training set has zero training error and has learned nothing transferable. Overfitting is not a bug in the optimiser; the optimiser did exactly what you asked. It is a mismatch between what you minimised (error on this sample) and what you wanted (error on the distribution).",
+            "The consequence is that training loss cannot detect it. Only held-out data can, which is why the split is not administrative bookkeeping — it is the measuring instrument, and anything that leaks across it breaks the measurement rather than merely biasing it."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The quantity you care about is the gap between empirical and true risk:"
+          ],
+          "tex": "\\underbrace{R(h)}_{\\text{true risk}} = \\underbrace{\\hat{R}_n(h)}_{\\text{training error}} + \\underbrace{\\big(R(h) - \\hat{R}_n(h)\\big)}_{\\text{generalization gap}}",
+          "texNote": "Capacity control, more data and regularization all attack the second term. Note the gap is a property of the model AND the sample size AND the class of functions you searched — not of the architecture alone."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef fit_curve(x_tr, y_tr, x_te, y_te, max_degree=15):\n    # The textbook demonstration: raise polynomial degree, watch the two curves split.\n    for d in range(1, max_degree + 1):\n        c = np.polyfit(x_tr, y_tr, d)\n        tr = np.mean((np.polyval(c, x_tr) - y_tr) ** 2)\n        te = np.mean((np.polyval(c, x_te) - y_te) ** 2)\n        print(f\"degree {d:2d}  train {tr:8.4f}  test {te:8.4f}\")",
+          "caption": "Training error falls monotonically. Test error falls, bottoms out, then climbs. The gap between them IS the overfitting."
+        },
+        {
+          "h": "What actually helps, and what only looks like it does",
+          "paras": [
+            "More data is the only intervention that reduces the gap without costing you capacity. Everything else — weight decay, dropout, early stopping, a smaller model — trades fit for gap and has an optimum you have to find.",
+            "The modern caveat: the classical picture of test error rising monotonically past the interpolation point is incomplete. Very over-parameterised models often show DOUBLE DESCENT, where test error falls again beyond the point of fitting the training set exactly. Capacity alone does not predict generalisation.",
+            "The failure that masquerades as success: a validation set you have selected against hundreds of times is no longer held out. Tuning optimism inflates your best number by roughly the spread of the configurations you searched, which is why a final untouched test set exists."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Overfitting is invisible in training loss by construction — the held-out split is the instrument, not paperwork.",
+        "More data shrinks the generalization gap for free; every other lever trades fit against gap and has an optimum.",
+        "Selecting repeatedly on a validation set consumes it, which is why the final number comes from a set you touched once."
+      ],
+      "demo": "overfitting",
+      "updatedAt": "2026-08-22"
     },
     {
       "kind": "concept",
@@ -71342,6 +71483,51 @@
       ],
       "demo": "optimizers",
       "updatedAt": "2026-06-10"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "perceptron",
+      "module": "neural-nets",
+      "title": "The Perceptron",
+      "oneLine": "One neuron, one linear boundary — and the 1969 proof of what it cannot do is why depth exists.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "A perceptron takes a weighted sum of its inputs and fires if the total clears a threshold. Geometrically that is a hyperplane: everything on one side is class one, everything on the other is class zero. Learning means sliding and rotating that plane until the data is on the correct sides.",
+            "The update rule is almost embarrassingly simple — when it gets an example wrong, push the weights toward that example. And it comes with a real guarantee: if a separating plane exists, this converges to one in a finite number of updates."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The prediction is a thresholded dot product, and the update fires only on mistakes:"
+          ],
+          "tex": "\\hat{y} = \\mathrm{sign}(w^\\top x + b), \\qquad w \\leftarrow w + \\eta\\,(y - \\hat{y})\\,x",
+          "texNote": "On a correct prediction the update term is zero, so nothing moves. The convergence bound depends on the MARGIN of the data — the wider the separation, the fewer mistakes before it stops. Data that is not linearly separable makes it cycle forever, which is a real failure mode rather than slow progress."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef perceptron(X, y, epochs=50, eta=1.0):\n    w = np.zeros(X.shape[1]); b = 0.0\n    for _ in range(epochs):\n        errors = 0\n        for xi, yi in zip(X, y):\n            if yi * (w @ xi + b) <= 0:          # only mistakes update\n                w += eta * yi * xi\n                b += eta * yi\n                errors += 1\n        if errors == 0:\n            break                                # separated; nothing left to fix\n    return w, b",
+          "caption": "Labels are +1/-1 here, which is what makes the mistake test a single sign check."
+        },
+        {
+          "h": "Why it mattered that it failed",
+          "paras": [
+            "Minsky and Papert showed a single perceptron cannot represent XOR, because no straight line separates its four points. That is not a limitation of the learning rule — it is a limitation of the function class, and no amount of training fixes it.",
+            "The fix is a hidden layer with a nonlinearity between the layers. Stacking linear maps without one collapses back to a single linear map, so the nonlinearity is what buys the depth rather than the extra weights.",
+            "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin — how much room the boundary has — turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
+          ]
+        }
+      ],
+      "takeaways": [
+        "A perceptron is a hyperplane; the update rule only fires on mistakes and provably converges when the data is separable.",
+        "It cannot learn XOR — a function-class limit, not a training failure, and the reason hidden layers exist.",
+        "Without a nonlinearity between layers, a deep stack collapses to one linear map, so the activation is what depth is actually buying."
+      ],
+      "demo": "perceptron",
+      "updatedAt": "2026-08-22"
     },
     {
       "kind": "concept",
@@ -72463,6 +72649,50 @@
       ],
       "demo": "ppo",
       "updatedAt": "2026-06-10"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "regret-matching",
+      "module": "reinforcement-learning",
+      "title": "Regret Matching & Nash Equilibrium",
+      "oneLine": "Play each action in proportion to how much you regret not having played it — and the time-average converges to equilibrium.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "In a game against an adapting opponent there is no fixed best action to learn: whatever you settle on, they exploit. Regret matching sidesteps this by never settling. After each round you ask, for every action, how much better off you would have been had you always played it. Actions you regret not playing get more probability next time.",
+            "The result is not that any single round is optimal. It is that the running average of your strategy converges to an equilibrium, which is the strongest thing available when the opponent is also learning."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "Cumulative regret for action a is how much more you would have scored by always choosing it. The next policy is regret, clipped at zero, normalised:"
+          ],
+          "tex": "R_T(a) = \\sum_{t=1}^{T}\\big(u_t(a) - u_t(\\sigma_t)\\big), \\qquad \\sigma_{T+1}(a) = \\frac{[R_T(a)]^{+}}{\\sum_{a'}[R_T(a')]^{+}}",
+          "texNote": "Clipping at zero matters: an action you do not regret gets no weight at all. If every regret is negative the policy falls back to uniform. Regret grows sub-linearly, so the AVERAGE regret goes to zero — which is exactly the condition for the average strategy to be an equilibrium."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef regret_matching(payoff, rounds=10000):\n    n = payoff.shape[0]\n    regret = np.zeros(n)\n    avg = np.zeros(n)\n    for _ in range(rounds):\n        pos = np.maximum(regret, 0)\n        p = pos / pos.sum() if pos.sum() > 0 else np.ones(n) / n\n        avg += p\n        u = payoff @ p                  # value of each action against the current mix\n        regret += u - u @ p             # regret is action value minus achieved value\n    return avg / avg.sum()              # the AVERAGE strategy is the equilibrium",
+          "caption": "Run this on rock-paper-scissors and the average converges to (1/3, 1/3, 1/3). The current strategy never settles there — only the average does."
+        },
+        {
+          "h": "Why this is the poker algorithm",
+          "paras": [
+            "Counterfactual regret minimisation is this rule applied at every information set of an imperfect-information game, with regrets weighted by the probability of reaching that decision point. It is what produced superhuman poker, and the core update is the four lines above.",
+            "The distinction that trips people up: the CURRENT strategy oscillates forever and is not an equilibrium. The AVERAGE over all iterations is. Reporting the last iterate rather than the average is the classic implementation bug, and it looks like the algorithm failed to converge."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Regret matching plays each action in proportion to positive cumulative regret; unregretted actions get zero weight.",
+        "The AVERAGE strategy converges to equilibrium, not the current one — averaging is not a smoothing detail, it is the result.",
+        "CFR is this update applied per information set, which is how imperfect-information games like poker were solved."
+      ],
+      "demo": "regret-matching",
+      "updatedAt": "2026-08-22"
     },
     {
       "kind": "concept",
@@ -73989,6 +74219,51 @@
         "Dijkstra assumes non-negative weights - negative edges need Bellman-Ford."
       ],
       "demo": "bfs-dfs-astar",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "search-astar",
+      "module": "interview-capstone",
+      "title": "A* and Informed Search",
+      "oneLine": "Dijkstra with a hint: rank by cost-so-far plus an estimate of cost-to-go, and stay optimal as long as the estimate never over-promises.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Dijkstra explores outward in every direction equally, because it only knows what a path has cost so far. If you also have a rough sense of how far the goal still is, you can spend your exploration budget on the promising side and reach the same answer having opened far fewer nodes.",
+            "A* is that idea with one guarantee attached. The estimate must never overstate the remaining cost. If it never over-promises, A* still returns the optimal path; it just gets there faster."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "Nodes come off the frontier in order of f, not g — the total estimated cost of a route through this node:"
+          ],
+          "tex": "f(n) = g(n) + h(n)",
+          "texNote": "g is the known cost from the start; h is the heuristic estimate to the goal. h = 0 makes this exactly Dijkstra. h admissible (never over-estimates) keeps the result optimal; h consistent (obeys the triangle inequality) additionally means no node needs reopening."
+        },
+        {
+          "h": "In code",
+          "code": "import heapq\n\ndef astar(start, goal, neighbors, cost, h):\n    frontier = [(h(start), 0, start)]\n    best = {start: 0}\n    came = {}\n    while frontier:\n        _, g, node = heapq.heappop(frontier)\n        if node == goal:\n            return best[goal], came\n        if g > best.get(node, float(\"inf\")):\n            continue                      # a better route to this node already ran\n        for nxt in neighbors(node):\n            ng = g + cost(node, nxt)\n            if ng < best.get(nxt, float(\"inf\")):\n                best[nxt] = ng\n                came[nxt] = node\n                heapq.heappush(frontier, (ng + h(nxt), ng, nxt))\n    return None, came",
+          "caption": "Delete h and this is Dijkstra. That is the honest way to remember A*: it is one term added to the priority."
+        },
+        {
+          "h": "The trade the heuristic makes",
+          "paras": [
+            "A stronger heuristic opens fewer nodes but costs more to evaluate, and the useful comparison is total work, not nodes expanded. A perfect heuristic walks straight to the goal and is usually as expensive as solving the problem.",
+            "Overestimating breaks optimality but is sometimes the right call: weighted A*, which multiplies h by a factor above one, finds a path bounded by that factor times optimal, far faster. Say which you chose — a route that is 10% long and instant is often the product decision.",
+            "The same f = g + h shape reappears in beam search over language models, in branch and bound, and in Monte Carlo tree search's selection rule. Once you recognise 'known cost plus optimistic estimate', you see it everywhere."
+          ]
+        }
+      ],
+      "takeaways": [
+        "A* is Dijkstra plus a heuristic term in the priority; setting h = 0 recovers Dijkstra exactly.",
+        "Admissibility (never over-estimate) is what preserves optimality — it is a property of your estimate, not of the algorithm.",
+        "Deliberately over-estimating buys speed for a bounded loss of optimality, which is frequently the right engineering trade."
+      ],
+      "demo": "pathfinding",
       "updatedAt": "2026-08-22"
     }
   ]

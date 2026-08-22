@@ -99,7 +99,8 @@
       "cross-entropy",
       "bayes",
       "entropy",
-      "clt"
+      "clt",
+      "fourier"
     ]
   },
   "updatedAt": "2026-06-10"

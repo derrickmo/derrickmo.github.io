@@ -94,7 +94,8 @@
     "intro": "Why models generalize - or fail to: the bias-variance trade-off, how regularization tames it, how to estimate true performance, and the surprise of double descent.",
     "order": [
       "regularization",
-      "double-descent"
+      "double-descent",
+      "overfitting"
     ]
   },
   "updatedAt": "2026-08-01"
