@@ -22,7 +22,9 @@ content/
   meta.json                                  { schemaVersion, contentVersion, updatedAt }
   modules/<module-slug>.json                 25 files - one per module
   lessons/<module-slug>/<lesson-slug>.json   250 files - one per curriculum lesson
-  concepts/<module-slug>/<concept-id>.json   one per taught sub-lesson (104 at seed)
+  concepts/<module-slug>/<concept-id>.json   one per taught sub-lesson (73; was 104 at
+                                             seed, minus the 31 retired by RC-0001 whose
+                                             URL a store lesson now owns)
 ```
 
 A build step compiles the tree into one versioned `content.json`

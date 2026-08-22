@@ -2,7 +2,7 @@
   "meta": {
     "schemaVersion": 1,
     "contentVersion": "1.1.0",
-    "updatedAt": "2026-07-18"
+    "updatedAt": "2026-08-22"
   },
   "modules": [
     {
@@ -67014,150 +67014,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "knn",
-      "module": "supervised-learning",
-      "title": "k-Nearest Neighbors",
-      "oneLine": "Classify a point by the majority vote of its closest neighbors.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "kNN is the simplest idea that actually works: to label a new point, find the k closest labeled points and let them vote. There is no training - the data is the model. Small k gives a jagged, high-variance boundary; large k smooths it toward the majority class."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Predict the most common label among the k nearest by some distance d:"
-          ],
-          "tex": "\\hat{y}(x) = \\text{mode}\\,\\{\\, y_i : x_i \\in \\mathcal{N}_k(x) \\,\\}",
-          "texNote": "Distance choice and feature scaling matter enormously - standardize first."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef knn_predict(X, y, x, k=5):\n    d = np.linalg.norm(X - x, axis=1)\n    nn = np.argsort(d)[:k]\n    return np.bincount(y[nn]).argmax()",
-          "caption": "No fit step - prediction does all the work."
-        }
-      ],
-      "takeaways": [
-        "kNN is lazy: it stores the data and votes at query time.",
-        "k trades a jagged boundary (low k) for a smooth one (high k).",
-        "Distances need scaled features to be meaningful."
-      ],
-      "demo": "knn",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "linear-regression",
-      "module": "supervised-learning",
-      "title": "Linear Regression",
-      "oneLine": "Fit a line (or hyperplane) by minimizing squared error.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Linear regression predicts a number as a weighted sum of features. Training finds the weights that minimize the squared gap between predictions and truth - geometrically, the line that sits closest to all the points. It is the simplest supervised model and the foundation everything else builds on."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The least-squares solution has a closed form (the normal equations):"
-          ],
-          "tex": "\\hat{\\theta} = (X^{\\top}X)^{-1}X^{\\top}y",
-          "texNote": "Or fit by gradient descent when X is large or you want regularization."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef fit(X, y):\n    return np.linalg.solve(X.T @ X, X.T @ y)   # normal equations",
-          "caption": "Closed-form for small problems; gradient descent at scale."
-        }
-      ],
-      "takeaways": [
-        "Linear regression minimizes squared error.",
-        "It has a closed-form least-squares solution.",
-        "It is the base case for logistic regression and beyond."
-      ],
-      "demo": "regression",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "logistic-regression",
-      "module": "supervised-learning",
-      "title": "Logistic Regression",
-      "oneLine": "A linear model squashed through a sigmoid for classification.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Logistic regression turns a linear score into a probability by passing it through a sigmoid, then thresholds it to classify. Despite the name it is a classifier, trained by minimizing cross-entropy. It is the workhorse linear baseline and the single-neuron building block of neural nets."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "A sigmoid maps the linear score to a probability:"
-          ],
-          "tex": "P(y=1\\mid x) = \\sigma(w^{\\top}x + b) = \\frac{1}{1+e^{-(w^{\\top}x+b)}}",
-          "texNote": "Trained by gradient descent on cross-entropy; the boundary is linear."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\nsigmoid = lambda z: 1 / (1 + np.exp(-z))\n# gradient of cross-entropy is simply (sigmoid(Xw) - y)\ngrad = X.T @ (sigmoid(X @ w) - y) / len(y)",
-          "caption": "Linear score, sigmoid, cross-entropy - a clean gradient."
-        }
-      ],
-      "takeaways": [
-        "Logistic regression is a linear classifier via the sigmoid.",
-        "It is trained with cross-entropy, not squared error.",
-        "It is one neuron - the atom of a neural network."
-      ],
-      "demo": "regression",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "naive-bayes",
-      "module": "supervised-learning",
-      "title": "Naive Bayes",
-      "oneLine": "A probabilistic classifier that assumes features are independent.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Naive Bayes applies Bayes' rule with one bold simplification: assume every feature is independent given the class. That 'naive' assumption is usually false, yet the classifier is fast, needs little data, and is a famously strong baseline for text. It picks the class with the highest posterior."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The independence assumption turns the joint likelihood into a product:"
-          ],
-          "tex": "\\hat{y} = \\arg\\max_y\\; P(y)\\prod_i P(x_i \\mid y)",
-          "texNote": "Work in log-space to avoid underflow when multiplying many probabilities."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n# Gaussian NB: per-class feature mean/var, then log-posterior\nlogpost = np.log(prior) + log_gaussian(x, mean, var).sum(axis=1)\nyhat = logpost.argmax()",
-          "caption": "Multiply (or sum log) per-feature likelihoods, pick the best class."
-        }
-      ],
-      "takeaways": [
-        "Naive Bayes assumes conditional feature independence.",
-        "It is fast, data-efficient, and strong on text.",
-        "The independence assumption is wrong but often harmless."
-      ],
-      "demo": "naive-bayes",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "roc",
       "module": "supervised-learning",
       "title": "ROC and Thresholds",
@@ -67189,42 +67045,6 @@
         "Pick the operating threshold from the curve, by the cost of each error."
       ],
       "demo": "roc",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "svm",
-      "module": "supervised-learning",
-      "title": "Support Vector Machines",
-      "oneLine": "Separate the classes with the widest possible margin.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "An SVM does not just find a separating line - it finds the one with the largest buffer between the classes, defined by a few critical points called support vectors. The kernel trick lets the same idea draw curved boundaries by measuring similarity in a richer space without ever building it."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Maximize the margin, i.e. minimize the weight norm subject to correct, confident classification:"
-          ],
-          "tex": "\\min_{w,b}\\;\\tfrac12\\|w\\|^2 \\quad \\text{s.t.}\\quad y_i(w^{\\top}x_i + b) \\ge 1",
-          "texNote": "The soft-margin version adds slack so a few points may violate the margin."
-        },
-        {
-          "h": "In code",
-          "code": "# hinge-loss SVM via subgradient descent\ndef step(w, b, x, y, lr=0.01, C=1.0):\n    if y * (w @ x + b) < 1:\n        w = w - lr * (w - C * y * x); b = b + lr * C * y\n    else:\n        w = w - lr * w\n    return w, b",
-          "caption": "Only the margin-violating points (support vectors) drive the update."
-        }
-      ],
-      "takeaways": [
-        "SVMs maximize the margin, set by a few support vectors.",
-        "Kernels give nonlinear boundaries cheaply.",
-        "The C parameter trades margin width against training errors."
-      ],
-      "demo": "svm",
       "updatedAt": "2026-06-10"
     },
     {
@@ -67266,42 +67086,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "gmm-em",
-      "module": "unsupervised-learning",
-      "title": "Gaussian Mixtures and EM",
-      "oneLine": "Model data as a blend of Gaussians, fit by soft assignments.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A Gaussian mixture says the data came from several Gaussian blobs with unknown parameters. Expectation-Maximization fits it by alternating: the E-step computes each point's soft membership in every blob; the M-step re-estimates each blob from those weighted points. It is k-means with probabilities and elliptical clusters."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The E-step responsibility of component k for point i:"
-          ],
-          "tex": "\\gamma_{ik} = \\frac{\\pi_k\\,\\mathcal{N}(x_i\\mid \\mu_k,\\Sigma_k)}{\\sum_j \\pi_j\\,\\mathcal{N}(x_i\\mid \\mu_j,\\Sigma_j)}",
-          "texNote": "The M-step updates each mean, covariance, and weight from responsibility-weighted data."
-        },
-        {
-          "h": "In code",
-          "code": "# E-step: soft assignments; M-step: weighted moments\ngamma = (pi * gaussian(X, mu, Sigma))      # (n, k)\ngamma /= gamma.sum(1, keepdims=True)\nNk = gamma.sum(0)\nmu = (gamma.T @ X) / Nk[:, None]           # weighted means",
-          "caption": "Soft k-means: every point partly belongs to every cluster."
-        }
-      ],
-      "takeaways": [
-        "GMMs model data as a weighted blend of Gaussians.",
-        "EM alternates soft assignment (E) with re-estimation (M).",
-        "It generalizes k-means to elliptical, overlapping clusters."
-      ],
-      "demo": "gmm",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "hierarchical-clustering",
       "module": "unsupervised-learning",
       "title": "Hierarchical Clustering",
@@ -67338,78 +67122,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "kmeans",
-      "module": "unsupervised-learning",
-      "title": "K-Means Clustering",
-      "oneLine": "Group points around k centers by alternating assignment and update.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "K-means partitions data into k groups by repeating two steps: assign each point to its nearest center, then move each center to the mean of its points. It is fast and intuitive but assumes round, similarly sized clusters and needs k chosen up front."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "It minimizes within-cluster squared distance to the centers:"
-          ],
-          "tex": "\\min_{\\{\\mu_k\\}}\\;\\sum_i \\min_k \\|x_i - \\mu_k\\|^2",
-          "texNote": "Each iteration cannot increase this objective, so it converges - but to a local optimum."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef kmeans_step(X, mu):\n    a = np.argmin(((X[:, None] - mu) ** 2).sum(-1), axis=1)\n    mu = np.array([X[a == k].mean(0) for k in range(len(mu))])\n    return a, mu",
-          "caption": "Assign, update, repeat - Lloyd's algorithm."
-        }
-      ],
-      "takeaways": [
-        "K-means alternates nearest-center assignment with mean updates.",
-        "It assumes round clusters and needs k chosen in advance.",
-        "GMMs generalize it to soft, elliptical clusters."
-      ],
-      "demo": "kmeans",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "pca",
-      "module": "unsupervised-learning",
-      "title": "Principal Component Analysis",
-      "oneLine": "Find the orthogonal directions that capture the most variance.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "PCA rotates the data to new axes ordered by how much variance they explain, then keeps the top few. It compresses, denoises, and visualizes high-dimensional data by projecting onto the directions that matter most. Those directions are the leading eigenvectors of the covariance matrix."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The principal directions are the top eigenvectors of the covariance:"
-          ],
-          "tex": "\\Sigma = \\tfrac1n X^{\\top}X = U\\Lambda U^{\\top}",
-          "texNote": "Project onto the top-k columns of U; the eigenvalues say how much variance each keeps."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef pca(X, k):\n    X = X - X.mean(0)\n    U, S, Vt = np.linalg.svd(X, full_matrices=False)\n    return X @ Vt[:k].T          # top-k projection",
-          "caption": "Center, take the SVD, project onto the leading directions."
-        }
-      ],
-      "takeaways": [
-        "PCA keeps the directions of greatest variance.",
-        "It is computed from the covariance eigenvectors (or an SVD).",
-        "Used for compression, denoising, and 2D visualization."
-      ],
-      "demo": "pca",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "tsne",
       "module": "unsupervised-learning",
       "title": "t-SNE",
@@ -67441,78 +67153,6 @@
         "Perplexity controls the neighborhood scale."
       ],
       "demo": "tsne",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "bias-variance",
-      "module": "ml-theory",
-      "title": "The Bias-Variance Trade-off",
-      "oneLine": "Generalization error splits into bias, variance, and irreducible noise.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Too simple a model misses the pattern (high bias); too flexible a model chases the noise and changes wildly with the training set (high variance). Test error is the sum of both plus the noise floor, and model selection is the search for their sweet spot."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Expected squared error decomposes cleanly:"
-          ],
-          "tex": "\\mathbb{E}[(y-\\hat{f})^2] = \\text{Bias}^2 + \\text{Var} + \\sigma^2",
-          "texNote": "More capacity lowers bias but raises variance; the irreducible noise sigma^2 cannot be removed."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\n# fit many models on resampled data, then:\nbias2 = (preds.mean(0) - truth) ** 2\nvar = preds.var(0)\n# test_err ~ bias2.mean() + var.mean() + noise",
-          "caption": "Average predictions give bias; their spread gives variance."
-        }
-      ],
-      "takeaways": [
-        "Error = bias^2 + variance + irreducible noise.",
-        "Capacity trades bias for variance.",
-        "The goal is the minimum-total-error sweet spot, not zero training error."
-      ],
-      "demo": "bias-variance-decomp",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "cross-validation",
-      "module": "ml-theory",
-      "title": "Cross-Validation",
-      "oneLine": "Estimate true performance without ever touching the test set.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "You cannot judge generalization on the data you trained on, and you must not tune on the test set. k-fold cross-validation rotates: train on k-1 folds, validate on the held-out one, repeat, and average. It gives an honest, low-variance estimate to pick hyperparameters."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The CV estimate averages the held-out error across folds:"
-          ],
-          "tex": "\\text{CV} = \\frac1k \\sum_{j=1}^{k} \\mathcal{L}\\big(\\text{fold}_j;\\ \\text{model trained without } \\text{fold}_j\\big)",
-          "texNote": "More folds means less bias but more compute; k=5 or 10 is standard."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef kfold(n, k=5):\n    idx = np.random.permutation(n)\n    return np.array_split(idx, k)   # each chunk is a validation fold",
-          "caption": "Rotate the held-out fold; average the scores."
-        }
-      ],
-      "takeaways": [
-        "CV estimates generalization using only training data.",
-        "It is the standard way to choose hyperparameters.",
-        "Keep a final untouched test set for the last, honest number."
-      ],
-      "demo": "cross-validation",
       "updatedAt": "2026-06-10"
     },
     {
@@ -67621,42 +67261,6 @@
         "GELU/SiLU are smooth variants common in transformers."
       ],
       "demo": "activations",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "backprop",
-      "module": "neural-nets",
-      "title": "Backpropagation",
-      "oneLine": "Get the gradient for every parameter in one backward pass.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Backprop is the chain rule run efficiently over the whole network. A forward pass computes the output and caches intermediate values; a backward pass sends the error signal from the loss back through each layer, accumulating the gradient of the loss with respect to every weight in a single sweep."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The error signal at a layer propagates through the local Jacobian:"
-          ],
-          "tex": "\\delta^{(l)} = \\big(W^{(l+1)\\top}\\delta^{(l+1)}\\big)\\odot\\sigma'\\!\\big(z^{(l)}\\big)",
-          "texNote": "Then the weight gradient is delta times the layer's input - reuse, not recompute."
-        },
-        {
-          "h": "In code",
-          "code": "# backward through one ReLU layer\ndZ = dA * (Z > 0)            # gradient through ReLU\ndW = dZ @ A_prev.T           # weight gradient\ndA_prev = W.T @ dZ           # pass the signal down",
-          "caption": "One backward sweep yields every gradient at once."
-        }
-      ],
-      "takeaways": [
-        "Backprop is reverse-mode automatic differentiation.",
-        "One forward + one backward pass gives all gradients.",
-        "It reuses cached activations instead of recomputing."
-      ],
-      "demo": "backprop",
       "updatedAt": "2026-06-10"
     },
     {
@@ -67842,42 +67446,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "convolution",
-      "module": "cnn",
-      "title": "Convolution",
-      "oneLine": "Slide a small learnable kernel over the input to detect local patterns.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A convolution slides a small filter across the image, computing a weighted sum at every position. Because the same weights are reused everywhere, the layer detects a pattern (an edge, a texture) wherever it appears, with far fewer parameters than a dense layer. Stacking convolutions builds from edges to objects."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Each output pixel is a dot product of the kernel with a local patch:"
-          ],
-          "tex": "(I * K)(i,j) = \\sum_{m,n} I(i+m,\\,j+n)\\,K(m,n)",
-          "texNote": "Weight sharing gives translation equivariance and parameter efficiency."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef conv2d(I, K):\n    kh, kw = K.shape\n    out = np.zeros((I.shape[0]-kh+1, I.shape[1]-kw+1))\n    for i in range(out.shape[0]):\n        for j in range(out.shape[1]):\n            out[i, j] = (I[i:i+kh, j:j+kw] * K).sum()\n    return out",
-          "caption": "One kernel, reused at every position."
-        }
-      ],
-      "takeaways": [
-        "Convolution applies a shared filter across all positions.",
-        "Weight sharing gives translation equivariance and few parameters.",
-        "Stacked convolutions grow from edges to objects."
-      ],
-      "demo": "convolution",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "data-augmentation",
       "module": "cnn",
       "title": "Data Augmentation",
@@ -67981,42 +67549,6 @@
         "They are a strong, simple baseline for sequences."
       ],
       "demo": "markov",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "rnn",
-      "module": "rnn-nlp",
-      "title": "Recurrent Networks",
-      "oneLine": "Carry a hidden state across time to model sequences of any length.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "An RNN reads a sequence one step at a time, updating a hidden state that summarizes everything seen so far. The same weights apply at every step, so it handles arbitrary lengths. It was the pre-transformer way to model order - but long-range dependencies are hard because gradients vanish through time."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The hidden state recurs through a shared cell:"
-          ],
-          "tex": "h_t = \\tanh\\!\\big(W_h h_{t-1} + W_x x_t + b\\big)",
-          "texNote": "Trained by backprop through time; repeated multiplication makes gradients vanish or explode."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef rnn(xs, h, Wh, Wx, b):\n    for x in xs:\n        h = np.tanh(Wh @ h + Wx @ x + b)\n    return h            # summary of the whole sequence",
-          "caption": "One shared cell, unrolled over the sequence."
-        }
-      ],
-      "takeaways": [
-        "RNNs maintain a running summary in a hidden state.",
-        "Shared weights handle variable-length input.",
-        "Vanishing gradients limit their memory - which LSTMs address."
-      ],
-      "demo": "rnn-gates",
       "updatedAt": "2026-06-10"
     },
     {
@@ -68206,43 +67738,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "positional-encoding",
-      "module": "transformers",
-      "title": "Positional Encoding",
-      "oneLine": "Inject order into a model that otherwise treats its input as a set.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Attention has no built-in notion of order — shuffle the tokens and the raw computation is unchanged. But language is sequential: 'dog bites man' is not 'man bites dog'. Positional encodings add a position-dependent signal to each token vector so the model can tell where each token sits.",
-            "The classic transformer uses fixed sinusoids of geometrically increasing wavelength. Because sines and cosines combine linearly, the model can represent relative offsets — a useful inductive bias that also extends to lengths never seen in training."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "For position pos and dimension i, the encoding interleaves sine and cosine across a spectrum of frequencies:"
-          ],
-          "tex": "PE_{(pos,2i)} = \\sin\\!\\Big(\\tfrac{pos}{10000^{2i/d}}\\Big),\\quad PE_{(pos,2i+1)} = \\cos\\!\\Big(\\tfrac{pos}{10000^{2i/d}}\\Big)",
-          "texNote": "Added to the token embedding before the first attention layer."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef positional_encoding(seq_len, d):\n    pos = np.arange(seq_len)[:, None]\n    i = np.arange(d)[None, :]\n    angle = pos / np.power(10000, (2 * (i // 2)) / d)\n    pe = np.where(i % 2 == 0, np.sin(angle), np.cos(angle))\n    return pe                          # (seq_len, d), add to embeddings",
-          "caption": "Different dimensions oscillate at different rates — a positional fingerprint."
-        }
-      ],
-      "takeaways": [
-        "Self-attention is permutation-invariant; position must be added explicitly.",
-        "Sinusoidal encodings let the model reason about relative position and generalize past trained lengths.",
-        "Modern variants (RoPE, ALiBi) encode position inside attention instead of adding it up front."
-      ],
-      "demo": "positional-encoding",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "tokenization",
       "module": "transformers",
       "title": "Tokenization",
@@ -68275,43 +67770,6 @@
         "BPE is just: merge the most frequent adjacent pair, repeat."
       ],
       "demo": "tokenizer",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "transformer-block",
-      "module": "transformers",
-      "title": "The Transformer Block",
-      "oneLine": "Stack attention and an MLP with residuals and normalization into one repeatable unit.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A transformer is just the same block stacked many times. Each block does two things: mix information across tokens (attention), then transform each token on its own (a small MLP). Residual connections let signal and gradients flow straight through, and layer normalization keeps the activations well-scaled at every depth.",
-            "This residual-and-norm sandwich is what makes very deep stacks trainable at all."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "With pre-norm placement, each sub-layer reads a normalized input and adds its result back to the residual stream:"
-          ],
-          "tex": "\\begin{aligned} x &\\leftarrow x + \\mathrm{MHA}(\\mathrm{LN}(x)) \\\\ x &\\leftarrow x + \\mathrm{MLP}(\\mathrm{LN}(x)) \\end{aligned}",
-          "texNote": "The MLP is two linear layers with a nonlinearity, applied to each token independently."
-        },
-        {
-          "h": "In code",
-          "code": "def transformer_block(x, attn, mlp, ln1, ln2):\n    x = x + attn(ln1(x))               # mix across tokens\n    x = x + mlp(ln2(x))                # transform each token\n    return x\n\n# a stack is just this block, repeated\ndef transformer(x, blocks):\n    for blk in blocks:\n        x = blk(x)\n    return x",
-          "caption": "Residual + norm around two sub-layers — repeat N times."
-        }
-      ],
-      "takeaways": [
-        "A transformer is one block (attention + MLP) stacked with residuals and normalization.",
-        "Residual connections keep gradients flowing through deep stacks.",
-        "Attention mixes tokens; the MLP processes each token independently."
-      ],
-      "demo": "multi-head-attention",
       "updatedAt": "2026-06-10"
     },
     {
@@ -68713,78 +68171,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "gan",
-      "module": "generative",
-      "title": "Generative Adversarial Networks",
-      "oneLine": "Train a generator against a discriminator in a minimax game.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A GAN pits two networks against each other: a generator turns noise into fake samples, a discriminator tries to tell fake from real. As the discriminator improves, it pushes the generator toward more realistic output. At equilibrium the fakes are indistinguishable from real data."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The two networks play a minimax game over the discriminator's accuracy:"
-          ],
-          "tex": "\\min_G \\max_D\\; \\mathbb{E}[\\log D(x)] + \\mathbb{E}[\\log(1 - D(G(z)))]",
-          "texNote": "Training is a delicate balance - if either network wins too fast, learning stalls."
-        },
-        {
-          "h": "In code",
-          "code": "# alternate two updates\nd_loss = -(log(D(real)) + log(1 - D(G(z)))).mean()   # train D\ng_loss = -log(D(G(z))).mean()                       # train G\n# step D, then step G",
-          "caption": "Discriminator learns to judge; generator learns to fool it."
-        }
-      ],
-      "takeaways": [
-        "A GAN is a generator-vs-discriminator minimax game.",
-        "Adversarial pressure drives realistic samples.",
-        "Training instability is the central challenge."
-      ],
-      "demo": "gan",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "vae",
-      "module": "generative",
-      "title": "Variational Autoencoders",
-      "oneLine": "Encode data to a distribution, sample, and decode to generate.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A VAE learns a smooth latent space you can sample from. The encoder maps each input to a distribution (a mean and spread), you sample a latent code, and the decoder reconstructs the input. A regularizer keeps the latent space close to a standard Gaussian, so sampling it produces plausible new data."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Maximize the evidence lower bound: reconstruction minus a latent KL penalty:"
-          ],
-          "tex": "\\mathcal{L} = \\mathbb{E}_{q}[\\log p(x\\mid z)] - D_{KL}\\!\\big(q(z\\mid x)\\,\\|\\,p(z)\\big)",
-          "texNote": "The reparameterization trick z = mu + sigma * eps lets gradients flow through sampling."
-        },
-        {
-          "h": "In code",
-          "code": "mu, logvar = encoder(x)\nz = mu + np.exp(0.5*logvar) * np.random.randn(*mu.shape)\nrecon = decoder(z)\nkl = -0.5 * np.sum(1 + logvar - mu**2 - np.exp(logvar))",
-          "caption": "Encode to a distribution, sample, decode; KL keeps it regular."
-        }
-      ],
-      "takeaways": [
-        "A VAE learns a continuous, sampleable latent space.",
-        "The ELBO balances reconstruction against a latent prior.",
-        "The reparameterization trick makes sampling differentiable."
-      ],
-      "demo": "vae",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "contrastive-learning",
       "module": "multimodal",
       "title": "Contrastive Learning",
@@ -68893,42 +68279,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "lora",
-      "module": "fine-tuning",
-      "title": "LoRA",
-      "oneLine": "Fine-tune with a tiny low-rank update instead of all the weights.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Full fine-tuning updates every weight - expensive to train and store. LoRA freezes the pretrained weights and learns a small low-rank correction alongside them. A few million extra parameters can specialize a giant model, and you can swap adapters per task without touching the base."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Add a rank-r update B A to the frozen weight W:"
-          ],
-          "tex": "W' = W + B A,\\qquad B\\in\\mathbb{R}^{d\\times r},\\; A\\in\\mathbb{R}^{r\\times k},\\; r\\ll d",
-          "texNote": "Only A and B are trained; W stays frozen. Tiny, swappable, and mergeable."
-        },
-        {
-          "h": "In code",
-          "code": "# only A, B are trainable; W is frozen\nA = np.random.randn(r, k) * 0.01\nB = np.zeros((d, r))\ny = x @ (W + B @ A).T          # forward uses W + BA",
-          "caption": "A few million low-rank parameters specialize a frozen model."
-        }
-      ],
-      "takeaways": [
-        "LoRA learns a low-rank correction to frozen weights.",
-        "It cuts trainable parameters and memory by orders of magnitude.",
-        "Adapters are swappable and mergeable per task."
-      ],
-      "demo": "lora",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "reward-model",
       "module": "fine-tuning",
       "title": "Reward Modeling",
@@ -68960,42 +68310,6 @@
         "Goodhart risk: optimizing a proxy reward invites reward hacking."
       ],
       "demo": "reward-model",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "actor-critic",
-      "module": "reinforcement-learning",
-      "title": "Actor-Critic",
-      "oneLine": "Pair a policy (actor) with a learned value baseline (critic).",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Pure policy gradients are noisy because returns are noisy. Actor-critic adds a critic that learns the value function and supplies a low-variance baseline, so the actor updates on the advantage - how much better an action was than expected - instead of the raw return. It is the template behind A2C, PPO, and SAC."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The actor updates on the advantage, estimated by the critic's TD error:"
-          ],
-          "tex": "A_t = r + \\gamma V(s') - V(s)",
-          "texNote": "The critic learns V; the actor ascends grad log-pi times A."
-        },
-        {
-          "h": "In code",
-          "code": "delta = r + gamma * V[s2] - V[s]      # TD error = advantage\nV[s]   += lr_v * delta                # critic\ntheta  += lr_a * score(s, a) * delta  # actor",
-          "caption": "One TD error trains both the critic and the actor."
-        }
-      ],
-      "takeaways": [
-        "Actor-critic combines a policy with a learned value baseline.",
-        "Updating on advantage cuts variance.",
-        "It underlies A2C, PPO, and SAC."
-      ],
-      "demo": "actor-critic",
       "updatedAt": "2026-06-10"
     },
     {
@@ -69073,42 +68387,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "dqn",
-      "module": "reinforcement-learning",
-      "title": "Deep Q-Networks",
-      "oneLine": "Replace the Q-table with a network - stabilized by replay and a target net.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "When states are too many to tabulate (pixels, say), approximate Q with a neural network. Two tricks keep it from diverging: a replay buffer that breaks the correlation between consecutive samples, and a slowly-updated target network that provides a stable regression goal. Together they made deep RL work on Atari."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Regress the network Q toward a target built from a frozen copy:"
-          ],
-          "tex": "y = r + \\gamma\\max_{a'} Q_{\\theta^-}(s', a'),\\quad \\mathcal{L} = (y - Q_\\theta(s,a))^2",
-          "texNote": "theta^- is the target network, copied from theta every so often."
-        },
-        {
-          "h": "In code",
-          "code": "# sample a minibatch from replay, regress to the target net\ny = r + gamma * Q_target(s2).max(1) * (1 - done)\nloss = ((y - Q(s).gather(a)) ** 2).mean()",
-          "caption": "Replay decorrelates data; the target net stabilizes the goal."
-        }
-      ],
-      "takeaways": [
-        "DQN approximates Q with a neural network.",
-        "Experience replay breaks sample correlation.",
-        "A target network gives a stable regression target."
-      ],
-      "demo": "dqn",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "dyna-q",
       "module": "reinforcement-learning",
       "title": "Dyna-Q",
@@ -69181,78 +68459,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "mdp-bellman",
-      "module": "reinforcement-learning",
-      "title": "MDPs and the Bellman Equation",
-      "oneLine": "Frame sequential decisions, and solve them with a recursive value identity.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A Markov decision process is states, actions, rewards, and transitions. The value of a state is the best total reward you can expect from it. The Bellman equation makes this recursive: a state's value is the immediate reward plus the discounted value of where you land next - which value iteration solves by repeated backups."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The optimal value satisfies the Bellman optimality equation:"
-          ],
-          "tex": "V^*(s) = \\max_a \\sum_{s'} P(s'\\mid s,a)\\big[r + \\gamma V^*(s')\\big]",
-          "texNote": "gamma discounts the future; iterating this backup converges to V*."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef value_iteration(P, R, gamma=0.9, iters=100):\n    V = np.zeros(nS)\n    for _ in range(iters):\n        V = np.max(R + gamma * P @ V, axis=1)   # Bellman backup\n    return V",
-          "caption": "Repeated backups converge to the optimal values."
-        }
-      ],
-      "takeaways": [
-        "MDPs formalize sequential decision-making.",
-        "Bellman makes value recursive: reward now plus discounted value next.",
-        "Value iteration solves a known MDP by repeated backups."
-      ],
-      "demo": "value-iteration",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "policy-gradient",
-      "module": "reinforcement-learning",
-      "title": "Policy Gradients",
-      "oneLine": "Optimize the policy directly by following the gradient of expected reward.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Instead of learning values and acting greedily, policy gradients adjust the policy's parameters to make high-reward actions more likely. REINFORCE nudges the log-probability of each action by the return that followed it. It handles continuous actions naturally but can be high-variance."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The policy-gradient theorem weights each action's log-prob gradient by its return:"
-          ],
-          "tex": "\\nabla J = \\mathbb{E}\\big[\\nabla_\\theta \\log \\pi_\\theta(a\\mid s)\\,G_t\\big]",
-          "texNote": "Subtracting a baseline from G_t cuts variance without adding bias."
-        },
-        {
-          "h": "In code",
-          "code": "# REINFORCE update over a trajectory\nfor (s, a, G) in trajectory:\n    grad = score(s, a)             # d log pi(a|s)/d theta\n    theta += lr * grad * (G - baseline)",
-          "caption": "Make actions that led to high return more likely."
-        }
-      ],
-      "takeaways": [
-        "Policy gradients optimize the policy directly.",
-        "REINFORCE scales each log-prob gradient by its return.",
-        "A baseline reduces variance without bias."
-      ],
-      "demo": "policy-gradient",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "ppo",
       "module": "reinforcement-learning",
       "title": "Proximal Policy Optimization",
@@ -69284,42 +68490,6 @@
         "It is the workhorse of modern RL and RLHF."
       ],
       "demo": "ppo",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "q-learning",
-      "module": "reinforcement-learning",
-      "title": "Q-Learning",
-      "oneLine": "Learn action-values from experience, without knowing the environment.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "When you do not know the transition model, you learn from samples. Q-learning estimates the value of each action in each state, nudging its estimate toward the observed reward plus the best next-state value. It is off-policy: it learns the optimal policy even while exploring with a different one."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The temporal-difference update on the action-value Q:"
-          ],
-          "tex": "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\big[r + \\gamma\\max_{a'}Q(s',a') - Q(s,a)\\big]",
-          "texNote": "The bracket is the TD error - the surprise that drives learning."
-        },
-        {
-          "h": "In code",
-          "code": "td = r + gamma * Q[s2].max() - Q[s, a]\nQ[s, a] += alpha * td",
-          "caption": "Move the estimate toward reward plus best next value."
-        }
-      ],
-      "takeaways": [
-        "Q-learning is model-free, off-policy value learning.",
-        "The TD error is the learning signal.",
-        "max over next actions makes it learn the greedy optimum."
-      ],
-      "demo": "gridworld-rl",
       "updatedAt": "2026-06-10"
     },
     {
@@ -69577,42 +68747,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "mixed-precision",
-      "module": "training-systems",
-      "title": "Mixed Precision",
-      "oneLine": "Train in 16-bit for speed and memory, with safeguards for accuracy.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Half-precision (fp16 / bf16) halves memory and runs far faster on modern hardware, but fp16's narrow range can underflow small gradients to zero. Mixed precision keeps a master copy of the weights in fp32 and scales the loss up before the backward pass so gradients stay representable, then scales them back down."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Loss scaling shifts gradients into fp16's representable range:"
-          ],
-          "tex": "g = \\tfrac{1}{S}\\,\\nabla(S\\cdot\\mathcal{L})",
-          "texNote": "Scale up by S before backward, unscale by S after - bf16's wider range often skips this."
-        },
-        {
-          "h": "In code",
-          "code": "scaled_loss = loss * S            # S ~ 2^14\nscaled_loss.backward()\ngrads = [g / S for g in grads]    # unscale before the step",
-          "caption": "Compute in 16-bit, accumulate the master weights in 32-bit."
-        }
-      ],
-      "takeaways": [
-        "fp16 / bf16 cut memory and speed up training.",
-        "Loss scaling stops fp16 gradients underflowing.",
-        "An fp32 master copy preserves accuracy."
-      ],
-      "demo": "mixed-precision",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "scaling-laws",
       "module": "training-systems",
       "title": "Scaling Laws",
@@ -69644,78 +68778,6 @@
         "Compute-optimal training balances model size against data."
       ],
       "demo": "scaling-laws",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "distillation",
-      "module": "llm-systems",
-      "title": "Knowledge Distillation",
-      "oneLine": "Train a small student to mimic a big teacher's soft predictions.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A big model's full probability distribution carries more information than a hard label - the relative scores of the wrong classes encode 'dark knowledge'. Distillation trains a small student to match the teacher's softened outputs, transferring much of the teacher's skill into a fraction of the size."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Match softened teacher and student distributions at temperature T:"
-          ],
-          "tex": "\\mathcal{L} = (1-\\alpha)\\,\\mathrm{CE}(y,\\hat{y}) + \\alpha T^2\\,\\mathrm{KL}\\big(p_T^{\\text{tea}}\\,\\|\\,p_T^{\\text{stu}}\\big)",
-          "texNote": "High T exposes the dark knowledge in the teacher's non-top classes."
-        },
-        {
-          "h": "In code",
-          "code": "soft_t = softmax(teacher_logits / T)\nsoft_s = softmax(student_logits / T)\nloss = (1-a)*ce(y, student_logits) + a*T*T*kl(soft_t, soft_s)",
-          "caption": "Learn from the teacher's whole distribution, not just the label."
-        }
-      ],
-      "takeaways": [
-        "Distillation transfers a teacher's soft predictions to a student.",
-        "Dark knowledge lives in the non-top class probabilities.",
-        "Temperature controls how much of it is exposed."
-      ],
-      "demo": "distillation",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "moe",
-      "module": "llm-systems",
-      "title": "Mixture of Experts",
-      "oneLine": "Route each token to a few specialist sub-networks, not all of them.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A dense layer runs every parameter on every token. A mixture of experts has many expert sub-networks and a router that sends each token to just the top few. The model holds enormous total capacity, but each token only activates a slice of it - so quality scales with parameters while compute stays roughly fixed."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "A router picks the top-k experts per token and mixes their outputs by gate weight:"
-          ],
-          "tex": "y = \\sum_{e\\in\\text{top-}k} g_e(x)\\,E_e(x)",
-          "texNote": "A load-balancing loss keeps the router from collapsing onto a few experts."
-        },
-        {
-          "h": "In code",
-          "code": "gate = softmax(router @ x)           # scores over experts\ntopk = gate.argsort()[-k:]           # pick k experts\ny = sum(gate[e] * expert[e](x) for e in topk)",
-          "caption": "Only the top-k experts run per token."
-        }
-      ],
-      "takeaways": [
-        "MoE activates only a few experts per token.",
-        "Total capacity grows while per-token compute stays fixed.",
-        "Load balancing prevents router collapse."
-      ],
-      "demo": "moe",
       "updatedAt": "2026-06-10"
     },
     {
@@ -69788,114 +68850,6 @@
         "Structured pruning yields real hardware speedups."
       ],
       "demo": "pruning",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "quantization",
-      "module": "llm-systems",
-      "title": "Quantization",
-      "oneLine": "Store and compute weights in fewer bits with minimal accuracy loss.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A model in 16-bit floats is mostly empty precision. Quantization maps weights to low-bit integers (8-bit, even 4-bit), shrinking memory and speeding up math. The trick is choosing a scale per group of weights so the rounding error stays small, and handling outliers that would otherwise stretch the scale."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Symmetric quantization rounds to a grid set by a per-group scale s:"
-          ],
-          "tex": "q = \\mathrm{round}(w/s),\\qquad \\hat{w} = s\\cdot q",
-          "texNote": "Smaller groups and outlier handling keep the reconstruction error low."
-        },
-        {
-          "h": "In code",
-          "code": "import numpy as np\n\ndef quantize(w, bits=8):\n    s = np.abs(w).max() / (2**(bits-1) - 1)\n    q = np.round(w / s).clip(-(2**(bits-1)), 2**(bits-1)-1)\n    return q, s          # store q (int) + s (scale)",
-          "caption": "Round to a grid; dequantize by multiplying back."
-        }
-      ],
-      "takeaways": [
-        "Quantization trades precision for memory and speed.",
-        "Per-group scales keep rounding error small.",
-        "Outliers are the main accuracy challenge."
-      ],
-      "demo": "quantization",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "speculative-decoding",
-      "module": "llm-systems",
-      "title": "Speculative Decoding",
-      "oneLine": "Draft several tokens with a small model, verify them with the big one.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Generation is slow because the big model runs once per token. Speculative decoding has a cheap draft model propose several tokens at once; the big model then checks them all in a single parallel pass and accepts the longest correct prefix. It is exactly as accurate as the big model, just faster."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "Accept a drafted token with a probability that preserves the target distribution:"
-          ],
-          "tex": "p_{\\text{accept}} = \\min\\!\\Big(1,\\ \\tfrac{p_{\\text{target}}(x)}{p_{\\text{draft}}(x)}\\Big)",
-          "texNote": "A correction step on rejection makes the output identical in distribution to the target."
-        },
-        {
-          "h": "In code",
-          "code": "draft = small.generate(ctx, k=4)           # propose k tokens\np = big.logprobs(ctx, draft)               # verify in one pass\naccept = longest_prefix_where(p_ratio >= u) # keep correct prefix",
-          "caption": "Propose cheaply, verify in parallel, keep the correct prefix."
-        }
-      ],
-      "takeaways": [
-        "Speculative decoding drafts cheap, verifies expensive.",
-        "Output is identical in distribution to the big model.",
-        "Speedup depends on how often drafts are accepted."
-      ],
-      "demo": "speculative-decoding",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "guardrails",
-      "module": "rag-agents",
-      "title": "Guardrails",
-      "oneLine": "Filter inputs and outputs to keep an LLM system safe.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A deployed model needs a safety pipeline around it. Input guards strip or flag prompt injection and sensitive data; output guards catch unsafe content, leaked secrets, or off-policy responses before they reach the user. Each guard is a focused check; turning one off lets the matching threat through."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The system passes only if every guard passes:"
-          ],
-          "tex": "\\text{allow} = \\bigwedge_{g\\in G} g(\\text{text})",
-          "texNote": "Layered, independent checks - defense in depth, not a single classifier."
-        },
-        {
-          "h": "In code",
-          "code": "def guarded(prompt):\n    if injection(prompt) or has_pii(prompt): return BLOCK\n    out = model(sanitize(prompt))\n    if toxic(out) or leaks_secret(out): return BLOCK\n    return out",
-          "caption": "Check the input, generate, then check the output."
-        }
-      ],
-      "takeaways": [
-        "Guardrails wrap the model with input and output checks.",
-        "Layered, independent guards give defense in depth.",
-        "Removing a guard exposes exactly its threat class."
-      ],
-      "demo": "guardrails",
       "updatedAt": "2026-06-10"
     },
     {
@@ -70297,42 +69251,6 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
-      "id": "shap",
-      "module": "ml-applications",
-      "title": "Explainability with SHAP",
-      "oneLine": "Attribute a prediction fairly across its input features.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "Why did the model decide this? SHAP answers by borrowing from game theory: treat features as players and the prediction as a payout, then give each feature its Shapley value - its average marginal contribution across all orderings. It is the unique attribution that is fair and adds up to the prediction."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "The Shapley value averages a feature's marginal contribution over all coalitions:"
-          ],
-          "tex": "\\phi_i = \\sum_{S} \\frac{|S|!\\,(n-|S|-1)!}{n!}\\big[v(S\\cup\\{i\\}) - v(S)\\big]",
-          "texNote": "The contributions sum exactly to the prediction minus the baseline."
-        },
-        {
-          "h": "In code",
-          "code": "# exact Shapley by enumerating coalitions (small feature sets)\nfrom itertools import combinations\n# phi_i = average of f(S + i) - f(S) over all subsets S not containing i",
-          "caption": "Average marginal contribution over every feature ordering."
-        }
-      ],
-      "takeaways": [
-        "SHAP gives each feature its fair share of the prediction.",
-        "Attributions sum to the prediction minus a baseline.",
-        "It is the game-theoretic standard for local explanations."
-      ],
-      "demo": "shap",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
       "id": "autoscaling",
       "module": "mlops",
       "title": "Autoscaling",
@@ -70436,42 +69354,6 @@
         "Catching drift early triggers retraining before accuracy falls."
       ],
       "demo": "drift-detection",
-      "updatedAt": "2026-06-10"
-    },
-    {
-      "kind": "concept",
-      "schemaVersion": 1,
-      "id": "model-serving",
-      "module": "mlops",
-      "title": "Serving and Batching",
-      "oneLine": "Trade a little latency for far more throughput by batching requests.",
-      "sections": [
-        {
-          "h": "The intuition",
-          "paras": [
-            "A served model spends most of its time idle between requests. Dynamic batching waits a few milliseconds to gather several requests and runs them together, amortizing the fixed cost and multiplying throughput. The knob is the batch window: bigger batches mean higher throughput but more tail latency."
-          ]
-        },
-        {
-          "h": "The math",
-          "paras": [
-            "By Little's law, queue length ties throughput to latency:"
-          ],
-          "tex": "L = \\lambda\\,W",
-          "texNote": "Push arrival rate lambda past capacity and the queue - and latency W - runs away."
-        },
-        {
-          "h": "In code",
-          "code": "# accumulate until full or the window elapses, then run once\nbatch = collect(max_size=32, max_wait_ms=5)\nresults = model(batch)        # one padded forward for many requests",
-          "caption": "Wait briefly, batch, run once - amortize the fixed cost."
-        }
-      ],
-      "takeaways": [
-        "Batching amortizes fixed cost into higher throughput.",
-        "The batch window trades throughput against tail latency.",
-        "Arrivals past capacity make the queue run away."
-      ],
-      "demo": "batching",
       "updatedAt": "2026-06-10"
     }
   ]
