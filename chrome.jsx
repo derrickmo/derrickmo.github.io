@@ -42,6 +42,11 @@ function useIsMobile(bp = 760) {
 const __KATEX_VER = "0.16.11";
 const __KATEX_CSS = `https://cdn.jsdelivr.net/npm/katex@${__KATEX_VER}/dist/katex.min.css`;
 const __KATEX_JS  = `https://cdn.jsdelivr.net/npm/katex@${__KATEX_VER}/dist/katex.min.js`;
+// SRI (PF-0003). These must match __KATEX_VER; scripts/add-cdn-sri.mjs holds the same
+// pair for the static tags, so bump both together. Compute, never paste:
+//   curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
+const __KATEX_CSS_SRI = "sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+";
+const __KATEX_JS_SRI  = "sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg";
 let __katexReady = null;
 function __ensureKatex() {
   if (typeof window === "undefined") return Promise.resolve();
@@ -51,12 +56,14 @@ function __ensureKatex() {
     if (!document.querySelector('link[data-katex="1"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet"; link.href = __KATEX_CSS; link.dataset.katex = "1";
+      link.integrity = __KATEX_CSS_SRI; link.crossOrigin = "anonymous";
       document.head.appendChild(link);
     }
     const existing = document.querySelector('script[data-katex="1"]');
     if (existing) { const t = () => window.katex ? resolve() : setTimeout(t, 60); t(); return; }
     const s = document.createElement("script");
     s.src = __KATEX_JS; s.async = true; s.dataset.katex = "1";
+    s.integrity = __KATEX_JS_SRI; s.crossOrigin = "anonymous";
     s.onload = () => resolve();
     s.onerror = () => resolve(); // fall back to plaintext on network failure
     document.head.appendChild(s);
