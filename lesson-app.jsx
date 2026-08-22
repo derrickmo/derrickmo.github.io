@@ -576,18 +576,23 @@ function DrillSections({ iv, cards, refs, nInterview, nFlashcards }) {
         </div>
         <H3>Standard — complete answers with deep-dives</H3>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {(iv.standard || []).map((qa, i) => (
-            <details key={i} style={{ border: "1px solid var(--border-violet, var(--border))", borderRadius: 6, padding: "12px 18px", background: "rgba(13,24,52,0.4)" }}>
-              <summary style={{ cursor: "pointer", color: "var(--white)", fontSize: 15.5, fontWeight: 500 }}>{qa.q}</summary>
-              <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "12px 0", lineHeight: 1.65 }}>{qa.a}</p>
-              {qa.deepDive && (
-                <div style={{ borderLeft: "2px solid var(--violet-lt)", paddingLeft: 14, margin: "10px 0 4px" }}>
-                  <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>// DEEP DIVE — {qa.deepDive.q}</span>
-                  <p style={{ color: "var(--muted)", fontSize: 14, margin: "8px 0 0", lineHeight: 1.6 }}>{qa.deepDive.a}</p>
-                </div>
-              )}
-            </details>
-          ))}
+          {(iv.standard || []).map((qa, i) => {
+            // Some modules ship deepDive as a bare string instead of {q,a}. Read it as an
+            // answer continuation with no follow-up question — never as an empty box.
+            const dd = typeof qa.deepDive === "string" ? { q: null, a: qa.deepDive } : qa.deepDive;
+            return (
+              <details key={i} style={{ border: "1px solid var(--border-violet, var(--border))", borderRadius: 6, padding: "12px 18px", background: "rgba(13,24,52,0.4)" }}>
+                <summary style={{ cursor: "pointer", color: "var(--white)", fontSize: 15.5, fontWeight: 500 }}>{qa.q}</summary>
+                <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "12px 0", lineHeight: 1.65 }}>{qa.a}</p>
+                {dd && dd.a && (
+                  <div style={{ borderLeft: "2px solid var(--violet-lt)", paddingLeft: 14, margin: "10px 0 4px" }}>
+                    <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>{dd.q ? `// DEEP DIVE — ${dd.q}` : "// DEEP DIVE"}</span>
+                    <p style={{ color: "var(--muted)", fontSize: 14, margin: "8px 0 0", lineHeight: 1.6 }}>{dd.a}</p>
+                  </div>
+                )}
+              </details>
+            );
+          })}
         </div>
       </LessonSection>
 
