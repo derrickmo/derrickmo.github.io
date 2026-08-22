@@ -6,11 +6,14 @@
 // at a different moment - usually by someone who already knows the topic and is
 // looking at a number that is wrong.
 //
-// SEARCH IS THE PRIMARY INTERFACE, not a taxonomy. See the header of
-// scripts/build-pitfalls-index.mjs for why there are no symptom buckets: two
-// attempts at routing this prose by keyword both produced visible false positives,
-// and most of the corpus is method-specific rather than symptom-generic. Every
-// facet here - module, category, source - comes straight from the store and is exact.
+// SEARCH IS THE PRIMARY INTERFACE, not a taxonomy. Module, category and source come
+// straight from the store and are exact. The SYMPTOM facet is different in kind: it
+// is a filter over the ~11% of entries that name a general symptom, not a
+// classification of the corpus, because most failure modes here are specific to one
+// method and belong to no general bucket. The page says that out loud under the
+// chips - a reader who assumed the tags were exhaustive would wrongly conclude
+// nothing else is in here. scripts/build-pitfalls-index.mjs has the full history,
+// including the two routers that were built, measured, and thrown away.
 
 const { useState, useEffect, useMemo, useRef } = React;
 const {
@@ -91,6 +94,7 @@ function App() {
   const [cats, setCats] = useState([]);
   const [mods, setMods] = useState([]);
   const [kinds, setKinds] = useState([]);
+  const [syms, setSyms] = useState([]);
   const [open, setOpen] = useState({});
   const timer = useRef(null);
 
@@ -149,11 +153,14 @@ function App() {
     const catSet = cats.length ? new Set(modsInCats.map((m) => m.slug)) : null;
     return index.rows.filter((r) => {
       if (kinds.length && !kinds.includes(r.kind)) return false;
+      // OR within the symptom facet: picking two symptoms widens, it does not narrow
+      // to rows carrying both, which is almost never what someone debugging wants.
+      if (syms.length && !syms.some((x) => (r.sy || []).includes(x))) return false;
       if (mods.length ? !mods.includes(r.m) : catSet && !catSet.has(r.m)) return false;
       if (!matcher) return true;
       return matcher.testRow(r.title, r.detail);
     });
-  }, [index, matcher, cats, mods, kinds, modsInCats]);
+  }, [index, matcher, cats, mods, kinds, syms, modsInCats]);
 
   const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter((x) => x !== v) : arr.concat(v));
   const shown = results.slice(0, LIMIT);
@@ -195,6 +202,31 @@ function App() {
                     background: "rgba(5,8,22,0.6)", color: "var(--white)",
                     border: "1px solid var(--border)", borderRadius: 6, marginBottom: 20,
                   }} />
+
+                {index.symptoms && index.symptoms.length > 0 && (
+                  <fieldset style={{ border: 0, padding: 0, margin: "0 0 18px" }}>
+                    <legend className="t-mono-s" style={{ color: "var(--muted)", marginBottom: 9, padding: 0 }}>
+                      // SYMPTOM
+                    </legend>
+                    <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                      {index.symptoms.map((s) => (
+                        <Chip key={s.id} tone="violet" on={syms.includes(s.id)} onClick={() => toggle(syms, setSyms, s.id)}
+                          title={`${s.count} entries name this symptom`}>
+                          {s.label} <span style={{ color: "var(--dim)" }}>{s.count}</span>
+                        </Chip>
+                      ))}
+                    </div>
+                    {/* Say the coverage out loud. These tags cover about a tenth of the
+                        corpus - most failure modes here are specific to one method and
+                        belong to no general symptom - and a reader who assumed the tags
+                        were exhaustive would wrongly conclude nothing else exists. */}
+                    <div className="t-body" style={{ color: "var(--dim)", fontSize: 13, marginTop: 9, maxWidth: 620, lineHeight: 1.55 }}>
+                      Only {index.symptomTagged} of {index.counts.total} entries name a general
+                      symptom like these — most are specific to one method. Search reaches all
+                      of them.
+                    </div>
+                  </fieldset>
+                )}
 
                 <div style={{ display: "flex", gap: mobile ? 14 : 30, flexWrap: "wrap", marginBottom: 8 }}>
                   <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
