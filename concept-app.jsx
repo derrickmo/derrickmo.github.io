@@ -162,6 +162,89 @@ function PrereqStrip() {
   );
 }
 
+// "How to get here" — the generated prerequisite ladder.
+//
+// Every one of these 188 pages was a leaf: it told you what a concept builds on
+// (one hop) but never how to actually reach it from where you are. This walks the
+// full prerequisite closure in teaching order, so the page answers "what do I need
+// first?" rather than "what is adjacent?".
+//
+// Marking a step known prunes its whole subtree, not just its row, which is what
+// takes a ten-step path down to three rather than to a shorter list of the same wall.
+function PrereqLadder() {
+  const P = window.DM_CONCEPT_PATH, K = window.DM_KNOWN;
+  const [, bump] = _useState(0);
+  if (!P || !K || !C) return null;
+
+  const full = P.pathTo(C.id).steps;
+  // A root concept has no prerequisites, and a one-step "path" to itself says
+  // nothing. That is correct for chain-rule or linear-regression, not a gap.
+  if (full.length <= 1) return null;
+
+  const known = K.setObj();
+  const path = P.pathTo(C.id, known).steps;
+  const remaining = path.filter((id) => id !== C.id);
+  const skipped = full.length - path.length;
+
+  return (
+    <Section style={{ paddingTop: 8, paddingBottom: 34 }}>
+      <Container style={{ maxWidth: 860 }}>
+        <MonoLabel color="var(--violet-lt)">// HOW TO GET HERE</MonoLabel>
+        <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 16px" }}>
+          {remaining.length === 0
+            ? `You have marked every prerequisite known — ${C.name} is the next thing to learn.`
+            : `${remaining.length} concept${remaining.length === 1 ? "" : "s"} come first, in this order.`}
+          {skipped > 0 && <span style={{ color: "var(--dim)" }}> {skipped} already known and hidden.</span>}
+          {" "}Derived from the concept graph, not hand-written.
+        </div>
+
+        <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+          {path.map((id, i) => {
+            const node = INDEX[id];
+            if (!node) return null;
+            const isTarget = id === C.id;
+            const s = P.surfacesFor(id);
+            return (
+              <li key={id} style={{
+                display: "flex", alignItems: "baseline", gap: 12, padding: "10px 13px",
+                border: `1px solid ${isTarget ? "rgba(168,85,247,0.55)" : "var(--border)"}`,
+                borderRadius: 6, background: isTarget ? "rgba(168,85,247,0.09)" : "rgba(13,24,52,0.3)",
+              }}>
+                <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10, minWidth: 20 }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  {isTarget
+                    ? <span className="t-body" style={{ color: "var(--white)", fontSize: 15.5 }}>{node.name} <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>YOU ARE HERE</span></span>
+                    : <a href={`${BASE}concepts/${id}/`} className="t-body" style={{ color: "var(--white)", fontSize: 15.5, textDecoration: "none", borderBottom: "1px solid rgba(148,163,184,0.3)" }}>{node.name}</a>}
+                  {s.demos.length > 0 && (
+                    <a href={`${BASE}visualize/${s.demos[0]}/`} className="t-mono-s"
+                      style={{ color: "var(--blue-lt)", textDecoration: "none", marginLeft: 12, fontSize: 10 }}>PLAY →</a>
+                  )}
+                </span>
+                {!isTarget && (
+                  <button type="button" onClick={() => { K.set(id, true); bump((n) => n + 1); }}
+                    className="t-mono-s" title={`Hide ${node.name} and everything it depends on`}
+                    style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: 4, color: "var(--muted)", cursor: "pointer", padding: "4px 9px", fontSize: 10 }}>
+                    I KNOW THIS
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        {skipped > 0 && (
+          <button type="button" onClick={() => { K.clear(); bump((n) => n + 1); }} className="t-mono-s"
+            style={{ marginTop: 12, background: "transparent", border: "1px solid var(--border)", borderRadius: 4, color: "var(--muted)", cursor: "pointer", padding: "7px 13px" }}>
+            SHOW ALL {full.length} STEPS AGAIN
+          </button>
+        )}
+      </Container>
+    </Section>
+  );
+}
+
 function Surfaces() {
   if (!Connections) return null;
   return (
@@ -199,6 +282,7 @@ function App() {
       <main id="main" tabIndex={-1}>
       <Hero />
       <PrereqStrip />
+      <PrereqLadder />
       <Surfaces />
       <PathsForConcept />
       <Refs />

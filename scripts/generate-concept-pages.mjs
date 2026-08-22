@@ -147,6 +147,7 @@ function pageHtml(id, c) {
   <script type="module" src="../../components/HUD.jsx"></script>
   <script type="module" src="../../components/Monogram.jsx"></script>
   <script type="module" src="../../chrome.jsx"></script>
+  <script type="module" src="../../concept-paths.js"></script>
   <script type="module" src="../../concept-app.jsx"></script>
 </body>
 </html>

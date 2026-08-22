@@ -184,6 +184,13 @@ function Hero() {
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 17, lineHeight: 1.6 }}>
             Curated routes through the demos, concepts, and lessons — in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.
           </div>
+          {/* These eleven are hand-written and stay that way. The builder covers the
+              other 177 destinations nobody had time to plan a route to. */}
+          <a href="build/" className="t-mono-s" style={{
+            display: "inline-block", marginTop: 4, padding: "11px 20px", borderRadius: 4,
+            border: "1px solid var(--violet)", background: "rgba(168,85,247,0.10)",
+            color: "var(--white)", textDecoration: "none", letterSpacing: "0.09em",
+          }}>OR BUILD ONE TO ANY CONCEPT →</a>
         </div>
       </Container>
     </Section>

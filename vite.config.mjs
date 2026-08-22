@@ -60,6 +60,7 @@ export default defineConfig({
         'learn-notes': 'learn/notes/index.html',
         'weekly-insights': 'weekly-insights/index.html',
         'paths': 'paths/index.html',
+        'paths-build': 'paths/build/index.html',
         'interview': 'interview/index.html',
         'pitfalls': 'pitfalls/index.html',
         'paths-ml-foundations': 'paths/ml-foundations/index.html',
