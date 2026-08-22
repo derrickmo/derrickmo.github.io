@@ -2,11 +2,11 @@
   "name": "derrickmo-website",
   "private": true,
   "version": "0.1.0",
-  "description": "Derrick Mo — personal website (React, Vite static build, GitHub Pages)",
+  "description": "Derrick Mo \u2014 personal website (React, Vite static build, GitHub Pages)",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs",
+    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs && node scripts/build-interview-index.mjs",
     "prebuild": "npm run validate",
     "build": "vite build",
     "preview": "vite preview",
