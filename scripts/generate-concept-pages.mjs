@@ -15,6 +15,23 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 
+// Meta descriptions are what a searcher sees in Google and what a colleague sees when
+// the link is pasted into Slack, so a half-word ending reads as broken (MT-0001).
+// Cut on a word boundary near the ~155 chars Google renders, and end with an ellipsis.
+function metaDescription(text, max = 155) {
+  const flat = String(text || "").replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  const cut = flat.slice(0, max - 1);
+  const sp = cut.lastIndexOf(" ");
+  // Only fall back to a hard cut if there is no space in the last third.
+  const base = sp > max * 0.6 ? cut.slice(0, sp) : cut;
+  // ASCII "..." not U+2026: esc()/htmlEscape() ASCII-fold these metas (the site keeps
+  // HTML head content ASCII-only), so a real ellipsis is silently stripped and the
+  // description ends mid-word again - which is the bug this function exists to fix.
+  return base.replace(/[\s,;:.\-]+$/, "") + "...";
+}
+
+
 const src = fs.readFileSync(path.join(root, "concepts-index.js"), "utf8");
 const sandbox = { window: {} };
 vm.createContext(sandbox);
@@ -81,7 +98,7 @@ const hubHtml = `<!doctype html>
 
 function pageHtml(id, c) {
   const title = `${c.name} - Concept | Derrick Mo`;
-  const desc = c.summary || `The ${c.name} concept on Derrick Mo's ML/DL site - every demo, game, lesson, and animation that touches it.`;
+  const desc = metaDescription(c.summary || `The ${c.name} concept on Derrick Mo's ML/DL site - every demo, game, lesson, and animation that touches it.`);
   return `<!doctype html>
 <html lang="en">
 <head>

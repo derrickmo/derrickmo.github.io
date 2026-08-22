@@ -21,6 +21,23 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// Meta descriptions are what a searcher sees in Google and what a colleague sees when
+// the link is pasted into Slack, so a half-word ending reads as broken (MT-0001).
+// Cut on a word boundary near the ~155 chars Google renders, and end with an ellipsis.
+function metaDescription(text, max = 155) {
+  const flat = String(text || "").replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  const cut = flat.slice(0, max - 1);
+  const sp = cut.lastIndexOf(" ");
+  // Only fall back to a hard cut if there is no space in the last third.
+  const base = sp > max * 0.6 ? cut.slice(0, sp) : cut;
+  // ASCII "..." not U+2026: esc()/htmlEscape() ASCII-fold these metas (the site keeps
+  // HTML head content ASCII-only), so a real ellipsis is silently stripped and the
+  // description ends mid-word again - which is the bug this function exists to fix.
+  return base.replace(/[\s,;:.\-]+$/, "") + "...";
+}
+
 const STORE = join(ROOT, "content");
 
 const readJ = (p) => JSON.parse(readFileSync(p, "utf8"));
@@ -119,7 +136,7 @@ for (const [mslug, lessons] of Object.entries(authored)) {
   for (const l of lessons) {
     const dir = join(ROOT, "learn", mslug, l.slug);
     const title = `${l.id} ${ascii(l.title)} | ML from Scratch | Derrick Mo`;
-    const desc = esc((l.body.intuition?.[0] || l.title).slice(0, 155));
+    const desc = esc(metaDescription(l.body.intuition?.[0] || l.title));
     const url = `https://derrickmo.github.io/learn/${mslug}/${l.slug}/`;
     let html = template;
     // The template is learn/foundations/linear-algebra/index.html, which is itself a
