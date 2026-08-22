@@ -1,4 +1,4 @@
-// GENERATED from content/ by _private/scripts/gen-from-store.mjs — DO NOT EDIT BY HAND.
+// GENERATED from content/ by scripts/gen-from-store.mjs — DO NOT EDIT BY HAND.
 // Edit the canonical store (content/modules/, lessons/) and re-run the generator.
 // contentVersion 1.1.0
 // curriculum.js — window.CURRICULUM for all 25 modules + 250 lessons.
