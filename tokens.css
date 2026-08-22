@@ -19,7 +19,13 @@
 
   --white:       #e0e7ff;
   --muted:       #94a3b8;
-  --dim:         #475569;
+  /* A11Y-0004: was #475569, which scored 2.31:1 on --bg-card - roughly half the
+     required contrast, and 87 of its ~117 uses are TEXT. #78859a clears AA for
+     SMALL text on all three dark grounds (4.69 card / 4.91 mid / 5.34 deep) while
+     staying clearly dimmer than --muted (6.84), so the visual hierarchy survives.
+     The audit suggested #64748b, but that is 3.69 on cards - AA-large only, and
+     these labels are 10-13px. Verify with a contrast checker before changing. */
+  --dim:         #78859a;
 
   --border:      rgba(96, 165, 250, 0.28);
   --border-strong: rgba(96, 165, 250, 0.55);
@@ -34,7 +40,10 @@
 
   --ink:         #0a1428;
   --ink-muted:   #475569;
-  --ink-dim:     #94a3b8;
+  /* A11Y-0006: was #94a3b8, which is 2.56:1 on --paper-card and fails outright.
+     Unused today, but a failing token invites someone to reach for it. #5b6675
+     gives 5.83:1 on white and stays dimmer than --ink-muted. */
+  --ink-dim:     #5b6675;
 
   --blue-paper:   #2563eb;
   --violet-paper: #7c3aed;
