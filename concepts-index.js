@@ -195,6 +195,7 @@ const CONCEPTS_INDEX = {
   "activations": {
     id: "activations", name: "Activation Functions", area: "Foundations",
     summary: "The per-neuron nonlinearity that lets a stack of linear maps approximate any function.",
+    prereqs: ["perceptron"],
     tex: "\\mathrm{ReLU}(x) = \\max(0, x)",
   },
   "batch-norm": {
@@ -228,6 +229,7 @@ const CONCEPTS_INDEX = {
   "bias-variance": {
     id: "bias-variance", name: "Bias-Variance Tradeoff", area: "Foundations",
     summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    prereqs: ["linear-regression"],
     leadsTo: ["regularization", "double-descent", "cross-validation", "overfitting"],
   },
   "overfitting": {
@@ -252,6 +254,7 @@ const CONCEPTS_INDEX = {
   "regularization": {
     id: "regularization", name: "Regularization (L2 / weight decay)", area: "Foundations",
     summary: "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    prereqs: ["overfitting"],
     tex: "\\mathcal{L} + \\lambda \\lVert \\theta \\rVert^2",
   },
   "clt": {
@@ -299,6 +302,7 @@ const CONCEPTS_INDEX = {
   "svm": {
     id: "svm", name: "SVM (Max-Margin + Kernels)", area: "Classical ML",
     summary: "Find the widest-margin separating boundary; bend it nonlinearly with the kernel trick.",
+    prereqs: ["linear-regression"],
     tex: "\\min_w \\tfrac{1}{2}\\lVert w \\rVert^2 + C \\sum_i \\xi_i",
     leadsTo: ["attention", "gaussian-process"],
   },
@@ -334,11 +338,13 @@ const CONCEPTS_INDEX = {
   "gmm-em": {
     id: "gmm-em", name: "Gaussian Mixtures & EM", area: "Classical ML",
     summary: "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    prereqs: ["kmeans"],
     leadsTo: ["vae"],
   },
   "roc": {
     id: "roc", name: "ROC / PR Curves", area: "Classical ML",
     summary: "Slide a threshold across a score model to read off recall, precision, and the threshold-free AUC.",
+    prereqs: ["logistic-regression"],
   },
 
   // ── Neural networks ───────────────────────────────────────────
@@ -357,6 +363,7 @@ const CONCEPTS_INDEX = {
   "convolution": {
     id: "convolution", name: "Convolution (CNN)", area: "Computer Vision",
     summary: "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    prereqs: ["mlp"],
     animation: "viz/convolution.html",
   },
   "cnn": {
@@ -417,6 +424,7 @@ const CONCEPTS_INDEX = {
   "embeddings": {
     id: "embeddings", name: "Embeddings", area: "NLP",
     summary: "Map tokens (or items) to vectors so that distance and direction encode meaning.",
+    prereqs: ["tokenization"],
     leadsTo: ["vector-search", "attention", "word2vec"],
     animation: "viz/embeddings.html",
   },
@@ -470,11 +478,12 @@ const CONCEPTS_INDEX = {
   "lora": {
     id: "lora", name: "LoRA (Low-Rank Adaptation)", area: "Fine-Tuning",
     summary: "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
-    prereqs: ["pca"],
+    prereqs: ["pca", "mlp", "attention"],
   },
   "scaling-laws": {
     id: "scaling-laws", name: "Neural Scaling Laws", area: "Training Systems",
     summary: "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    prereqs: ["cross-entropy"],
   },
 
   // ── Reinforcement learning ───────────────────────────────────
@@ -507,10 +516,12 @@ const CONCEPTS_INDEX = {
   "cfr": {
     id: "cfr", name: "Counterfactual Regret Minimization", area: "Game AI",
     summary: "Self-play with regret matching — converges to a Nash equilibrium for imperfect-information games like poker.",
+    prereqs: ["regret-matching"],
   },
   "neuroevolution": {
     id: "neuroevolution", name: "Neuroevolution", area: "Reinforcement Learning",
     summary: "Improve a neural-net policy by selection + crossover + mutation, no gradients required.",
+    prereqs: ["mlp"],
   },
 
   // ── Retrieval & RAG ──────────────────────────────────────────
@@ -524,6 +535,7 @@ const CONCEPTS_INDEX = {
   "forecasting": {
     id: "forecasting", name: "Exponential Smoothing & ARIMA", area: "Time Series",
     summary: "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
+    prereqs: ["linear-regression"],
   },
   "simulated-annealing": {
     id: "simulated-annealing", name: "Simulated Annealing", area: "Foundations",
