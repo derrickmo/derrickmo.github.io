@@ -228,7 +228,14 @@ const CONCEPTS_INDEX = {
   "bias-variance": {
     id: "bias-variance", name: "Bias-Variance Tradeoff", area: "Foundations",
     summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
-    leadsTo: ["regularization", "double-descent", "cross-validation"],
+    leadsTo: ["regularization", "double-descent", "cross-validation", "overfitting"],
+  },
+  "overfitting": {
+    id: "overfitting", name: "Overfitting & Generalization", area: "Foundations",
+    summary: "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    tex: "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
+    prereqs: ["bias-variance"],
+    leadsTo: ["regularization", "cross-validation", "double-descent", "label-noise"],
   },
   "cross-validation": {
     id: "cross-validation", name: "Cross-Validation", area: "Foundations",
@@ -816,7 +823,7 @@ const CONCEPTS_INDEX = {
     id: "constrained-decoding", name: "Constrained Decoding", area: "NLP",
     summary: "Guarantee structured output (JSON mode, function calling) by intersecting the model's next-token distribution with the tokens a grammar permits at each step, then sampling from the survivors. A schema/regex/CFG compiled to a finite-state machine supplies the per-step token mask.",
     tex: "\\tilde{p}(t) \\propto p_\\theta(t) \\cdot \\mathbb{1}\\!\\left[ t \\in \\mathrm{valid}(\\text{state}) \\right]",
-    prereqs: ["decoding", "tokenizer"],
+    prereqs: ["decoding", "tokenization"],
   },
   "guardrails": {
     id: "guardrails", name: "Guardrails", area: "NLP",
@@ -917,7 +924,7 @@ const CONCEPTS_INDEX = {
   "backtracking": {
     id: "backtracking", name: "Backtracking & CSP", area: "Foundations",
     summary: "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
-    prereqs: ["pathfinding"],
+    prereqs: ["search-astar"],
   },
   "arc-consistency": {
     id: "arc-consistency", name: "Arc Consistency (AC-3)", area: "Foundations",
@@ -985,7 +992,7 @@ const CONCEPTS_INDEX = {
     id: "attention-rollout", name: "Attention Rollout", area: "NLP",
     summary: "Turn a stack of attention maps into one input-token attribution by composing them across layers, accounting for residual connections: Â=0.5A+0.5I, R=Â_L···Â_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar & Zuidema, 2020) — but attention isn't a faithful explanation by itself; it ignores values/MLPs and averages heads.",
     tex: "R = \\prod_{l=L}^{1} \\bigl( 0.5\\,A_l + 0.5\\,I \\bigr)",
-    prereqs: ["attention", "multi-head-attention"],
+    prereqs: ["attention", "multi-head"],
   },
   "tool-routing": {
     id: "tool-routing", name: "Tool Routing & Dispatch", area: "NLP",
@@ -1060,7 +1067,7 @@ const CONCEPTS_INDEX = {
   "graph-search": {
     id: "graph-search", name: "Graph Search (BFS / DFS / A*)", area: "Foundations",
     summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
-    prereqs: ["pathfinding"],
+    prereqs: ["search-astar"],
   },
 };
 
@@ -1085,7 +1092,7 @@ const CONCEPT_TAGS = {
     "bayesian-optimization": ["bayesian-optimization", "gaussian-process", "bandit"],
     "sparse-autoencoder":   ["sparse-autoencoder", "activations", "regularization"],
     "probing-classifier":   ["probing-classifier", "mlp", "logistic-regression"],
-    "activation-patching":  ["activation-patching", "probing-classifier", "do-intervention"],
+    "activation-patching":  ["activation-patching", "probing-classifier", "causal-inference"],
     "superposition":        ["superposition", "sparse-autoencoder", "activations"],
     "regret-matching":      ["regret-matching", "bandit"],
     "replicator-dynamics":  ["replicator-dynamics", "regret-matching"],
@@ -1099,7 +1106,7 @@ const CONCEPT_TAGS = {
     "morphological-ops":    ["morphological-operations", "convolution"],
     "template-matching":    ["template-matching", "convolution", "harris-corners"],
     "histogram-equalization": ["histogram-equalization"],
-    "overfitting":          ["bias-variance", "regularization"],
+    "overfitting":          ["overfitting", "bias-variance", "regularization"],
     "cross-validation":     ["cross-validation", "bias-variance", "regularization"],
     "double-descent":       ["double-descent", "bias-variance", "regularization"],
     "bias-variance-decomp": ["bias-variance", "regularization", "double-descent"],
@@ -1206,7 +1213,7 @@ const CONCEPT_TAGS = {
     "max-flow":             ["max-flow", "graph-search", "spectral-clustering"],
     "rag-chunking":         ["rag-chunking", "embeddings", "vector-search"],
     "self-consistency":     ["self-consistency", "decoding"],
-    "constrained-decoding": ["constrained-decoding", "decoding", "tokenizer"],
+    "constrained-decoding": ["constrained-decoding", "decoding", "tokenization"],
     "guardrails":           ["guardrails", "constrained-decoding"],
     "prompt-injection":     ["prompt-injection", "guardrails", "react-agent"],
     "semantic-caching":     ["semantic-caching", "embeddings", "vector-search"],
@@ -1220,7 +1227,7 @@ const CONCEPT_TAGS = {
     "multi-query":          ["rag-fusion", "rag-chunking", "vector-search"],
     "rag-reranker":         ["reranking", "vector-search", "rag-chunking"],
     "agent-router":         ["tool-routing", "react-agent"],
-    "attention-rollout":    ["attention-rollout", "attention", "multi-head-attention"],
+    "attention-rollout":    ["attention-rollout", "attention", "multi-head"],
     "calibration":          ["calibration", "logistic-regression", "roc"],
     "shap":                 ["shap", "logistic-regression"],
     "conformal":            ["conformal", "calibration", "roc"],
@@ -1229,7 +1236,7 @@ const CONCEPT_TAGS = {
     "coreset":              ["coreset", "kmeans", "active-learning"],
     "dataset-distillation": ["dataset-distillation", "coreset", "distillation"],
     "fairness":             ["fairness", "roc", "calibration"],
-    "n-queens":             ["backtracking", "pathfinding"],
+    "n-queens":             ["backtracking", "search-astar"],
     "graph-coloring":       ["arc-consistency", "backtracking"],
     "sudoku":               ["backtracking", "arc-consistency"],
     "quantization":         ["quantization", "lora"],
@@ -1241,7 +1248,7 @@ const CONCEPT_TAGS = {
     "instrumental-variables": ["instrumental-variables", "causal-inference", "linear-regression"],
     "knapsack":             ["dynamic-programming", "mdp-bellman"],
     "branch-and-bound":     ["branch-and-bound", "dynamic-programming", "graph-search"],
-    "bfs-dfs-astar":        ["graph-search", "pathfinding"],
+    "bfs-dfs-astar":        ["graph-search", "search-astar"],
     "edit-distance":        ["dynamic-programming"],
     "mixed-precision":      ["mixed-precision", "quantization"],
     "speculative-decoding": ["speculative-decoding", "decoding", "kv-cache"],

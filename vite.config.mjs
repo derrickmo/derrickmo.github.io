@@ -655,6 +655,7 @@ export default defineConfig({
         'concept-softmax': 'concepts/softmax/index.html',
         'concept-cross-entropy': 'concepts/cross-entropy/index.html',
         'concept-bias-variance': 'concepts/bias-variance/index.html',
+        'concept-overfitting': 'concepts/overfitting/index.html',
         'concept-cross-validation': 'concepts/cross-validation/index.html',
         'concept-double-descent': 'concepts/double-descent/index.html',
         'concept-regularization': 'concepts/regularization/index.html',
