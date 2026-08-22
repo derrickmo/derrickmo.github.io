@@ -3,6 +3,10 @@
 # here stays on Derrick's machine and is excluded from the GitHub push.
 _private/
 
+# ── Review reports (2026-08-21 audit) — local only ─────────────
+_review/
+_expansion/
+
 # ── Node / Vite (added in Phase 1) ─────────────────────────────
 node_modules/
 dist/
