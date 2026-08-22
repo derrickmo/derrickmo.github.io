@@ -102,6 +102,10 @@ function BranchAndBoundDemo() {
   // animate reveal
   _useEffect(() => {
     const total = traceRef.current.nodes.length;
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we jump to the end. The loop only reveals the trace one node at a
+      // time, so the final frame is the whole explored tree.
+    if (window.__DM_REDUCED_MOTION) { setFrame(total); return; }
     let last = performance.now();
     const tick = (now) => {
       if (now - last > 240 / speed) {

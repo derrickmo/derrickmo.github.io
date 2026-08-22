@@ -90,6 +90,11 @@ function CrossValDemo() {
   _useEffect(() => { reset(); /* eslint-disable-next-line */ }, [k, noise, seed]);
 
   _useEffect(() => {
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we hold fold 0. This is the one demo here with no end state to run
+      // to -- it cycles folds indefinitely -- so a frame is genuinely lost, and
+      // that is the trade the preference asks for.
+    if (window.__DM_REDUCED_MOTION) { draw(); return; }
     const tick = () => {
       frameRef.current++;
       if (frameRef.current % 45 === 0) { foldRef.current = (foldRef.current + 1) % k; setTick(t => t + 1); }

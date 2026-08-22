@@ -22,7 +22,9 @@ function BatchingDemo() {
   const [lam, setLam] = _useState(18);     // arrival rate, req/s
   const [maxB, setMaxB] = _useState(8);    // max batch size
   const [winMs, setWinMs] = _useState(40); // batch-formation window, ms
-  const [running, setRunning] = _useState(true);
+  // A11Y-0002: this loop starts on its own, so it starts PAUSED when the reader
+  // has asked for reduced motion. The PLAY control is right there either way.
+  const [running, setRunning] = _useState(!window.__DM_REDUCED_MOTION);
   const [stats, setStats] = _useState({ thru: 0, mlat: 0, p99: 0, q: 0, util: 0, served: 0 });
 
   const cfg = _useRef({ lam, maxB, winMs, running });

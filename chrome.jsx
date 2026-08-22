@@ -26,6 +26,33 @@ window.__dmCopyEmail = function () {
 };
 
 // ─── Responsive hook ──────────────────────────────────────────
+// A11Y-0002 — the reduced-motion preference, in the two shapes callers need.
+//
+// `__DM_REDUCED_MOTION` is a plain live boolean for code that runs OUTSIDE React:
+// a demo's requestAnimationFrame kickoff sits in a useEffect that reads it once at
+// mount, and a hook would be the wrong tool there. It updates on change so a reader
+// who flips the OS setting doesn't have to reload.
+//
+// Only ten demos need this. The other 76 animation loops start when the reader
+// presses Run, and WCAG 2.2.2 governs motion that starts on its own -- stopping a
+// loop somebody just asked for would be a bug, not an accommodation.
+if (typeof window !== "undefined" && window.matchMedia) {
+  const __rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+  window.__DM_REDUCED_MOTION = __rm.matches;
+  __rm.addEventListener("change", (e) => { window.__DM_REDUCED_MOTION = e.matches; });
+}
+
+function usePrefersReducedMotion() {
+  const [r, setR] = __useState(false);
+  __useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const h = () => setR(mq.matches);
+    h(); mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+  return r;
+}
+
 function useIsMobile(bp = 760) {
   const [m, setM] = __useState(false);
   __useEffect(() => {
@@ -658,5 +685,6 @@ function Footer() {
 Object.assign(window, {
   Section, Container, TopNav, Footer, MonoLabel, ConstructionBadge,
   NavIcon, IconMail, IconGit, IconProfile, useIsMobile,
+  usePrefersReducedMotion,
   TeX, Connections,
 });

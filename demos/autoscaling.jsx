@@ -20,7 +20,9 @@ function AutoscalingDemo() {
   const [target, setTarget] = _useState(0.7);    // target utilization
   const [cold, setCold] = _useState(6);          // cold-start seconds
   const [maxRep, setMaxRep] = _useState(12);     // replica ceiling
-  const [running, setRunning] = _useState(true);
+  // A11Y-0002: this loop starts on its own, so it starts PAUSED when the reader
+  // has asked for reduced motion. The PLAY control is right there either way.
+  const [running, setRunning] = _useState(!window.__DM_REDUCED_MOTION);
   const [stats, setStats] = _useState({ rep: 1, util: 0, load: 0, cap: CAP, cost: 0, breach: 0 });
 
   const cfg = _useRef({ target, cold, maxRep, running });

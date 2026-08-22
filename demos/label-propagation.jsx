@@ -101,6 +101,14 @@ function LabelPropDemo() {
   }
 
   _useEffect(() => {
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we run it to convergence and draw the result. propagate() is a
+      // no-op once st.conv is set; the cap is there so a non-converging
+      // configuration cannot hang the page.
+    if (window.__DM_REDUCED_MOTION) {
+      for (let i = 0; i < 2000 && !(sim.current && sim.current.conv); i++) propagate();
+      setTick(t => t + 1); draw(); return;
+    }
     let last = performance.now();
     const tick = (now) => {
       if (now - last > 55) { last = now; propagate(); setTick(t => t + 1); }

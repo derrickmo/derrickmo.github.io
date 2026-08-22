@@ -102,6 +102,10 @@ function IsomapDemo() {
   _useEffect(() => { reset(); /* eslint-disable-next-line */ }, [k, shape, noise, seed]);
 
   _useEffect(() => {
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we draw once. All this loop animates is a marching highlight, so
+      // the static figure carries the whole result.
+    if (window.__DM_REDUCED_MOTION) { draw(); return; }
     const tick = () => { markRef.current += 0.02; if (markRef.current > 1) markRef.current = 0; draw(); rafRef.current = requestAnimationFrame(tick); };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);

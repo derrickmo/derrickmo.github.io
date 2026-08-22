@@ -82,6 +82,10 @@ function HMMViterbiDemo() {
   _useEffect(() => { reset(); /* eslint-disable-next-line */ }, [persist, emisNoise, T, seed]);
 
   _useEffect(() => {
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we reveal the full trellis immediately. The loop only steps the
+      // reveal forward, so the end state is the complete decoded path.
+    if (window.__DM_REDUCED_MOTION) { revealRef.current = T; setTick(t => t + 1); draw(); return; }
     let last = performance.now();
     const tick = (now) => {
       if (now - last > 360) {

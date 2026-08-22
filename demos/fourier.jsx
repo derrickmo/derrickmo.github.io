@@ -76,6 +76,10 @@ function FourierDemo() {
     const cv = canvasRef.current, dpr = window.devicePixelRatio || 1;
     dprRef.current = dpr; cv.width = W * dpr; cv.height = H * dpr;
     cv.style.width = W + "px"; cv.style.height = H + "px";
+      // A11Y-0002: this loop starts on its own and never stops, so under reduced
+      // motion we draw a single frame. The epicycle diagram is complete at t=0;
+      // only the sweep is lost.
+    if (window.__DM_REDUCED_MOTION) { frame(); return; }
     let alive = true;
     const loop = () => { if (!alive) return; frame(); rafRef.current = requestAnimationFrame(loop); };
     rafRef.current = requestAnimationFrame(loop);

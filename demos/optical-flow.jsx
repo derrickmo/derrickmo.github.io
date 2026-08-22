@@ -34,7 +34,9 @@ function OpticalFlowDemo() {
   const [angle, setAngle] = _useState(25);   // degrees
   const [win, setWin] = _useState(5);         // LK window radius
   const [showDiff, setShowDiff] = _useState(false);
-  const [playing, setPlaying] = _useState(true);
+  // A11Y-0002: this loop starts on its own, so it starts PAUSED when the reader
+  // has asked for reduced motion. The PLAY control is right there either way.
+  const [playing, setPlaying] = _useState(!window.__DM_REDUCED_MOTION);
   const [err, setErr] = _useState(0);
 
   // refs mirror control state so the single rAF loop reads fresh values

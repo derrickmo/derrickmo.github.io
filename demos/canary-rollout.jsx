@@ -21,7 +21,9 @@ function CanaryRolloutDemo() {
   const mobile = useIsMobile ? useIsMobile() : false;
   const [v2err, setV2err] = _useState(0.08);   // candidate true error rate (hidden to the guard)
   const [zcrit, setZcrit] = _useState(3.0);    // guard sensitivity (z threshold)
-  const [running, setRunning] = _useState(true);
+  // A11Y-0002: this loop starts on its own, so it starts PAUSED when the reader
+  // has asked for reduced motion. The PLAY control is right there either way.
+  const [running, setRunning] = _useState(!window.__DM_REDUCED_MOTION);
   const [ui, setUi] = _useState(null);
 
   const cfg = _useRef({ v2err, zcrit, running });
