@@ -1,4 +1,4 @@
-// GENERATED from content/lessons/mlops/ by _private/scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// GENERATED from content/lessons/mlops/ by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
 // Store-authored lesson bodies for module "mlops". Loaded by the lesson pages
 // BEFORE lesson-app.jsx, which renders window.DM_LESSON_BODIES[lessonSlug].
 

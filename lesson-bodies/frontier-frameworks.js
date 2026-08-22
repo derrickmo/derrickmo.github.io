@@ -1,4 +1,4 @@
-// GENERATED from content/lessons/frontier-frameworks/ by _private/scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// GENERATED from content/lessons/frontier-frameworks/ by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
 // Store-authored lesson bodies for module "frontier-frameworks". Loaded by the lesson pages
 // BEFORE lesson-app.jsx, which renders window.DM_LESSON_BODIES[lessonSlug].
 
