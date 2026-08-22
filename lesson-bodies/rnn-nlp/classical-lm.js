@@ -1,0 +1,240 @@
+// GENERATED from content/lessons/rnn-nlp/classical-lm.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rnn-nlp/classical-lm/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "classical-lm": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "A language model, at its core, is a probability distribution over sequences of tokens - it answers 'how likely is this text?' and, equivalently, 'what token is likely to come next?'. Before neural networks, the dominant approach was the n-gram model: estimate the probability of the next word from the previous n-1 words by simply counting how often each such sequence appears in a corpus. It's the crudest possible language model, but studying it is invaluable because it makes the core concepts concrete - the chain rule of probability over tokens, the sparsity problem, smoothing, and the metric that still evaluates every language model today: perplexity.",
+        "The n-gram model rests on a Markov assumption: the next word depends only on the previous n-1 words, not the entire history. A bigram (n=2) model predicts each word from just the one before it; a trigram from the two before. This makes estimation tractable (count sequences and divide) but immediately reveals the fundamental tension of language modeling: a larger n captures more context (better predictions) but the number of possible n-grams explodes exponentially, so most never appear in any finite corpus - the data sparsity that plagued classical NLP and that neural models were invented to overcome by generalizing rather than counting.",
+        "Perplexity is the standard intrinsic evaluation metric for language models, and it's just a transformation of cross-entropy - the information-theoretic quantity from earlier. Perplexity is the exponential of the per-token cross-entropy, interpretable as the model's average 'branching factor': how many equally-likely options the model is effectively choosing among at each step. A perplexity of 20 means the model is as uncertain as if it were picking uniformly among 20 words. Lower is better, and understanding perplexity - what it measures, its pitfalls, and why it's not comparable across tokenizers - is essential for evaluating any language model, classical or neural."
+      ],
+      "math": [
+        {
+          "h": "The chain rule and the n-gram Markov approximation",
+          "paras": [
+            "The probability of a sequence factorizes exactly by the chain rule into a product of next-token conditionals. An n-gram model approximates each conditional by assuming it depends only on the previous n-1 tokens (the Markov assumption), estimated by counting."
+          ],
+          "tex": "P(w_1 \\dots w_T) = \\prod_{t} P(w_t \\mid w_{<t}) \\;\\overset{n\\text{-gram}}{\\approx}\\; \\prod_t P(w_t \\mid w_{t-n+1:t-1}), \\quad \\hat{P}(w_t \\mid w_{t-1}) = \\frac{\\text{count}(w_{t-1} w_t)}{\\text{count}(w_{t-1})}",
+          "texNote": "The chain rule is exact; the n-gram approximation truncates the history to n-1 tokens (Markov) and estimates by counting - simple, but blind to context beyond the window."
+        },
+        {
+          "h": "Perplexity: exponentiated per-token cross-entropy",
+          "paras": [
+            "Perplexity is 2 (or e) raised to the average per-token cross-entropy - the average negative log-probability the model assigns to the true next tokens. It's the effective 'branching factor': lower perplexity means the model concentrates probability on the right tokens (less uncertainty)."
+          ],
+          "tex": "\\text{PPL} = \\exp\\!\\Big(-\\frac{1}{T}\\sum_{t} \\log P(w_t \\mid w_{<t})\\Big) = 2^{H}, \\quad H = \\text{per-token cross-entropy}",
+          "texNote": "Perplexity = exp(cross-entropy). A model assigning uniform probability over V options has perplexity V; a perfect model (probability 1 on each true token) has perplexity 1. Lower is better."
+        }
+      ],
+      "code": [
+        {
+          "h": "A bigram model and its sparsity problem",
+          "paras": [
+            "Counting bigrams gives a language model, but any word pair unseen in training gets probability zero - so an entire sentence's probability collapses to zero, which is why smoothing is mandatory."
+          ],
+          "code": "from collections import Counter, defaultdict\nimport numpy as np\n\ndef train_bigram(tokens):\n    unigram = Counter(tokens)\n    bigram = Counter(zip(tokens, tokens[1:]))\n    return unigram, bigram\n\ndef bigram_prob(w_prev, w, unigram, bigram, vocab_size, alpha=0.0):\n    # add-alpha (Laplace) smoothing: alpha>0 gives unseen pairs nonzero probability\n    return (bigram[(w_prev, w)] + alpha) / (unigram[w_prev] + alpha * vocab_size)\n\ntoks = 'the cat sat on the mat the cat ran'.split()\nuni, bi = train_bigram(toks)\nprint('P(cat|the) unsmoothed:', bigram_prob('the', 'cat', uni, bi, len(uni)))\nprint('P(dog|the) unsmoothed:', bigram_prob('the', 'dog', uni, bi, len(uni)))  # 0.0 - never seen!\nprint('P(dog|the) smoothed:  ', bigram_prob('the', 'dog', uni, bi, len(uni), alpha=1.0))",
+          "caption": "An unseen bigram gets probability 0 (zeroing the whole sequence) - add-alpha (Laplace) smoothing gives every pair a small nonzero probability. This is the same conjugate-prior idea as before."
+        },
+        {
+          "h": "Computing perplexity",
+          "paras": [
+            "Perplexity is the exponential of the average negative log-probability the model assigns to the actual next tokens - a direct measure of how surprised the model is by real text."
+          ],
+          "code": "import numpy as np\n\ndef perplexity(model_probs):\n    # model_probs: the probability the model assigned to each TRUE next token\n    log_probs = np.log(np.clip(model_probs, 1e-12, 1.0))\n    avg_neg_log = -log_probs.mean()               # per-token cross-entropy (nats)\n    return np.exp(avg_neg_log)                     # perplexity\n\n# a model confident and right -> probs near 1 -> low perplexity\nprint('confident+correct:', round(perplexity(np.array([0.9, 0.8, 0.95, 0.85])), 2))\nprint('uncertain:        ', round(perplexity(np.array([0.1, 0.2, 0.15, 0.1])), 2))\n# clip avoids log(0); perplexity 1 = perfect, = V for uniform over V tokens",
+          "caption": "Perplexity exponentiates the average negative log-probability of the true tokens - low when the model puts high probability on what actually comes next."
+        }
+      ],
+      "useCases": [
+        "Perplexity is STILL the standard intrinsic evaluation for language models, from n-grams to modern LLMs - reported for GPT and every pretrained model to measure how well it predicts held-out text.",
+        "N-gram models remain practical baselines and are used where speed/simplicity matter - autocomplete, spelling correction, and as fast components in speech recognition and machine translation pipelines historically.",
+        "Understanding smoothing (add-alpha, Kneser-Ney, backoff, interpolation) generalizes to any count-based probability estimation and connects to the Bayesian/conjugate-prior view of adding pseudo-counts.",
+        "The chain-rule factorization and next-token-prediction objective here are EXACTLY what modern autoregressive LLMs optimize - a transformer is a very powerful conditional next-token model trained with the same cross-entropy objective."
+      ],
+      "pitfalls": [
+        "Zero-probability problem: any n-gram unseen in training gets probability zero under naive counting, which zeros the entire sequence's probability (and makes perplexity infinite) - smoothing (add-alpha, Kneser-Ney, backoff) is mandatory, not optional.",
+        "The context-vs-sparsity trade-off: a larger n captures more context but the number of possible n-grams grows exponentially, so most never appear in a finite corpus - n-grams can't generalize to unseen contexts, only count seen ones (the gap neural models close).",
+        "Perplexity is NOT comparable across models with different tokenizers or vocabularies - a coarser tokenizer gives higher per-token perplexity for the same capability, so cross-tokenizer comparisons need normalization (bits-per-byte/character).",
+        "Low perplexity doesn't guarantee good downstream performance or good generation: perplexity measures next-token prediction on the eval distribution, which correlates with but doesn't equal task quality, factuality, or usefulness - it's an intrinsic proxy.",
+        "Perplexity is sensitive to the evaluation data: it's only meaningful relative to a specific held-out set from a specific distribution, and a model can have low perplexity on in-domain text but high on out-of-domain, so the eval set choice matters as much as the number."
+      ],
+      "connections": [
+        {
+          "ref": "foundations/information-theory",
+          "text": "Perplexity is exp(cross-entropy) - a direct transformation of the cross-entropy/KL machinery; the whole lesson is information theory applied to sequences."
+        },
+        {
+          "ref": "rnn-nlp/tokenization",
+          "text": "Perplexity and probabilities are per-TOKEN, so the tokenizer defines the units - which is exactly why perplexity isn't comparable across different tokenizers."
+        },
+        {
+          "ref": "unsupervised-learning/bayesian-inference",
+          "text": "Add-alpha smoothing is the conjugate Dirichlet/Beta prior (pseudo-counts) from the Bayesian lesson - the same 'add prior evidence to avoid zeros' idea."
+        },
+        {
+          "text": "Modern autoregressive LLMs (Module 08+) optimize the exact chain-rule next-token cross-entropy objective here - a transformer is an n-gram model's successor that generalizes over context instead of counting."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a language model?",
+          "a": "A probability distribution over token sequences - equivalently, a model of P(next token | context). It scores how likely text is and predicts what comes next."
+        },
+        {
+          "q": "What is an n-gram model?",
+          "a": "Estimates P(next word | previous n-1 words) by counting n-gram frequencies in a corpus - a Markov approximation truncating the history to n-1 tokens."
+        },
+        {
+          "q": "What is the Markov assumption in n-gram models?",
+          "a": "The next token depends only on the previous n-1 tokens, not the full history - what makes counting-based estimation tractable."
+        },
+        {
+          "q": "What is the zero-probability problem?",
+          "a": "Any n-gram unseen in training gets probability zero under naive counting, zeroing the whole sequence's probability and making perplexity infinite - fixed by smoothing."
+        },
+        {
+          "q": "What is add-alpha (Laplace) smoothing?",
+          "a": "Add a constant alpha to every count before normalizing so unseen n-grams get nonzero probability - the same pseudo-count/conjugate-prior idea as Laplace smoothing elsewhere."
+        },
+        {
+          "q": "What is perplexity?",
+          "a": "exp(per-token cross-entropy) - the model's effective branching factor (how many equally-likely options it's choosing among). Lower is better; 1 = perfect, V = uniform over V tokens."
+        },
+        {
+          "q": "What is the context-vs-sparsity trade-off?",
+          "a": "Larger n captures more context but the number of possible n-grams explodes, so most are unseen - n-grams can't generalize, only count, which neural models fixed."
+        },
+        {
+          "q": "Why isn't perplexity comparable across tokenizers?",
+          "a": "It's per-token, so a coarser tokenizer gives higher per-token perplexity for the same capability - cross-tokenizer comparison needs bits-per-byte/character normalization."
+        },
+        {
+          "q": "What objective do modern LLMs share with n-gram models?",
+          "a": "The chain-rule next-token prediction with cross-entropy loss - a transformer is a powerful conditional next-token model, same objective, generalizing instead of counting."
+        },
+        {
+          "q": "Does low perplexity guarantee good generation or task performance?",
+          "a": "No - it measures next-token prediction on the eval distribution, an intrinsic proxy that correlates with but doesn't equal downstream quality, factuality, or usefulness."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain how an n-gram language model works and the fundamental limitation it faces.",
+          "a": "An n-gram model estimates the probability of a sequence using the chain rule of probability - P(w1...wT) = product of P(w_t | w_1...w_{t-1}) - but approximates each conditional with a Markov assumption: the next word depends only on the previous n-1 words, not the entire history. So a bigram model (n=2) estimates P(w_t | w_{t-1}), a trigram P(w_t | w_{t-2}, w_{t-1}), etc. The estimation is pure counting: P(w_t | w_{t-1}) = count(w_{t-1}, w_t) / count(w_{t-1}) - how often the pair appeared divided by how often the context appeared. This is simple, fast, and interpretable, and it works reasonably for local patterns. The fundamental limitation is the CONTEXT-SPARSITY trade-off and the inability to GENERALIZE. On one hand, a small n (bigram/trigram) captures very little context - it can't model dependencies beyond a couple of words, so it misses long-range structure, agreement, and meaning that depend on distant context. On the other hand, increasing n to capture more context makes the number of possible n-grams grow EXPONENTIALLY (vocabulary^n), so the vast majority of n-grams never appear in any finite training corpus - the counts are zero or unreliably small (data sparsity), and the model simply has no estimate for unseen contexts. Crucially, an n-gram model can only COUNT contexts it has seen; it cannot GENERALIZE to similar-but-unseen contexts, because it treats every distinct n-gram as an atomic, independent event with no notion that 'the cat sat' and 'the dog sat' are related. So it's stuck between too-little-context (small n) and too-sparse-to-estimate (large n), with no way to bridge via similarity - which is precisely the gap neural language models close by learning distributed representations that generalize across similar contexts rather than counting exact matches.",
+          "deepDive": {
+            "q": "How do neural language models overcome the sparsity/generalization limitation that n-grams face?",
+            "a": "Neural language models overcome it by learning DISTRIBUTED, CONTINUOUS representations that generalize across similar contexts, instead of treating each context as a discrete atom to be counted. The key is that a neural LM embeds words (and contexts) into a continuous vector space where similar words/contexts are nearby, and it predicts the next word as a smooth function of that continuous context representation. This means that even if the exact context 'the fluffy cat sat on the' was never seen in training, the model represents it near other similar contexts it HAS learned from (contexts with cats, animals, sitting, etc.), so it can produce a sensible next-word distribution by GENERALIZING from related contexts - the continuous representation lets 'the cat sat' and 'the dog sat' share statistical strength because their embeddings are similar, which an n-gram's discrete counting can never do. Concretely: (1) word embeddings mean the model learns that similar words behave similarly, so a rare or unseen context involving a known-similar word inherits reasonable predictions; (2) the model's parameters are SHARED across all contexts (it's one function, not a per-n-gram count table), so learning from one context improves predictions on related ones; (3) architectures like RNNs and transformers can incorporate LONG context (not just n-1 words) through hidden states or attention, without the exponential blow-up, because they compress context into a fixed-size continuous representation rather than enumerating discrete n-grams. So neural LMs solve BOTH horns of the n-gram dilemma at once: they use unbounded context (fixing the small-n limitation) AND generalize via continuous representations (fixing the sparsity/unseen-context limitation), which is why they dramatically outperformed n-grams and why the field moved from counting to learning - the same 'distributed representations generalize where discrete counts can't' insight that underlies word embeddings and all of deep learning for NLP."
+          }
+        },
+        {
+          "q": "Explain perplexity - what it measures, its relationship to cross-entropy, and how to interpret a specific value.",
+          "a": "Perplexity is the standard intrinsic evaluation metric for language models, measuring how well a model predicts a held-out text - specifically, how 'surprised' the model is by the actual sequence. Formally, perplexity is the exponential of the per-token cross-entropy: PPL = exp(-(1/T) sum_t log P(w_t | context)), where the sum is the average negative log-probability the model assigned to the TRUE next tokens across the evaluation text. Its relationship to cross-entropy is direct: cross-entropy H is the average number of nats/bits needed to encode the true tokens under the model's distribution (the information-theoretic quantity from earlier), and perplexity is simply 2^H (in bits) or e^H (in nats) - so perplexity and cross-entropy carry the same information, just on different scales, and minimizing one minimizes the other. The interpretation of a specific value is as an effective BRANCHING FACTOR or 'average number of equally-likely choices': a perplexity of 20 means the model, at each step, is as uncertain as if it were choosing uniformly among 20 equally-likely tokens. The bounds anchor the intuition: a PERFECT model that assigns probability 1 to each true token has perplexity 1 (no uncertainty, no branching); a model that assigns UNIFORM probability over a vocabulary of size V has perplexity exactly V (maximal uncertainty, choosing among all V options); a real model falls in between, and lower perplexity means it concentrates probability more tightly on the actual next tokens (less uncertainty, better prediction). So when you see a language model reported with perplexity 15 vs 30, the first is roughly 'twice as certain' in this branching-factor sense - it's effectively deciding among ~15 options per token vs ~30 - and lower is better. It remains THE intrinsic metric because it directly measures the language-modeling objective (next-token prediction quality) on held-out data.",
+          "deepDive": {
+            "q": "Why is perplexity comparable only within the same tokenizer/vocabulary, and how do you compare models with different tokenizers?",
+            "a": "Perplexity is a PER-TOKEN quantity - it's the exponentiated average negative log-probability PER TOKEN - so it fundamentally depends on what a 'token' is, which is set by the tokenizer. This breaks cross-tokenizer comparison because different tokenizers split the same text into different numbers of tokens: a model with a COARSER tokenizer (fewer, longer tokens, so more text per token) faces a HARDER per-token prediction task (each token carries more information / is less predictable) and will show HIGHER per-token perplexity even if it's equally or more capable overall, while a model with a FINER tokenizer (more, shorter tokens) faces an EASIER per-token task (short sub-word continuations are highly predictable) and shows artificially LOWER perplexity - so comparing raw per-token perplexity across models with different vocabularies conflates genuine capability with tokenization granularity, making it meaningless. The fix is to normalize to a tokenization-INDEPENDENT unit: compute bits-per-BYTE or bits-per-CHARACTER instead of per-token. Since the underlying text (in bytes or characters) is the same regardless of tokenizer, you convert the total cross-entropy over the eval text to bits and divide by the number of bytes/characters (not tokens) - this measures how well the model compresses the actual text at the byte/character level, which is comparable across any tokenizers because the denominator is tokenizer-independent. Concretely, bits-per-byte = (total cross-entropy in bits) / (number of bytes in the text), and models with wildly different vocabularies can be fairly compared on it. This is exactly why modern LLM comparisons across different tokenizers report bits-per-byte rather than perplexity, and it's the same 'perplexity depends on the units' caution from the information-theory and tokenization lessons - the tokenizer isn't a neutral choice, it changes the metric, so you must control for it to compare capability fairly."
+          }
+        },
+        {
+          "q": "Explain smoothing in n-gram models and connect it to the Bayesian idea of priors.",
+          "a": "Smoothing solves the zero-probability problem: with naive maximum-likelihood counting, any n-gram never seen in training gets probability zero, which is catastrophic because it makes the entire sequence's probability zero (a product with a zero factor) and perplexity infinite - and unseen n-grams are ubiquitous due to sparsity. Smoothing redistributes probability mass so that unseen events get a small nonzero probability, 'stealing' a little from the seen events. The simplest is ADD-ALPHA (Laplace when alpha=1) smoothing: add a constant alpha to every count before normalizing, so P(w | context) = (count(context, w) + alpha) / (count(context) + alpha * V) - every n-gram, seen or not, gets at least alpha's worth of pseudo-count. More sophisticated methods (Kneser-Ney, Good-Turing, backoff, interpolation) redistribute mass more cleverly - e.g., backoff/interpolation fall back to lower-order n-grams (use the bigram estimate when the trigram is unseen) and Kneser-Ney accounts for how many distinct contexts a word appears in - but they all share the goal of giving unseen events reasonable nonzero probability. The connection to Bayesian priors is exact and illuminating: add-alpha smoothing IS maximum a posteriori (MAP) estimation under a Dirichlet prior on the n-gram distribution. The Dirichlet is the conjugate prior for the multinomial (categorical) next-word distribution, and adding alpha to every count is precisely the posterior update from a symmetric Dirichlet prior with concentration alpha - the alpha pseudo-counts are the prior 'evidence' that every word has some baseline probability before seeing data. So 'add-alpha smoothing' isn't an ad-hoc hack to avoid zeros; it's the principled Bayesian posterior estimate that combines a prior (every word is somewhat possible) with the observed counts, exactly the same conjugate-prior/pseudo-count idea as the Laplace smoothing in Naive Bayes and the Beta-Binomial update in the Bayesian lesson. The smoothing strength alpha is the prior strength: larger alpha means the uniform prior dominates (more smoothing, more bias toward uniform), smaller alpha trusts the counts more - the standard prior-vs-data balance.",
+          "deepDive": {
+            "q": "Why do the best classical smoothing methods (like Kneser-Ney) outperform simple add-alpha, and what insight do they capture?",
+            "a": "The best classical smoothing methods outperform add-alpha because add-alpha smooths CRUDELY and uniformly - it adds the same pseudo-count to every unseen n-gram regardless of context, which is a poor model of how language actually distributes probability over unseen events. Kneser-Ney (the strongest classical method) captures a subtle, important insight about what makes a word likely in a NOVEL context: it's not the word's raw frequency but the DIVERSITY of contexts it appears in. The classic example: 'Francisco' is a fairly frequent word, but it appears almost exclusively after 'San' - so in a new, unseen context, 'Francisco' is actually UNLIKELY (it doesn't appear in diverse contexts), whereas a word like 'time' that appears after many different words is much more likely to appear in a novel context. Add-alpha (and even frequency-based backoff) would wrongly favor 'Francisco' because it's frequent; Kneser-Ney's key idea is to estimate a word's 'continuation probability' from the NUMBER OF DISTINCT CONTEXTS it follows, not its total count - so words that are versatile (appear after many things) get more probability mass in unseen contexts than words that are frequent-but-narrow. Kneser-Ney also uses ABSOLUTE DISCOUNTING (subtract a fixed discount from each count, redistributing the freed mass) which better matches empirical count statistics than adding a constant, and INTERPOLATION with lower-order models. The general insight these methods capture is that good smoothing requires modeling the STRUCTURE of how words distribute across contexts (versatility, discounting behavior) rather than naively adding uniform pseudo-counts - a more informed prior. This mattered enormously for classical NLP quality, and while neural models made explicit smoothing obsolete (they generalize via representations instead), the underlying lesson - that estimating probabilities of rare/unseen events well requires modeling context diversity, not just frequency - remains conceptually important, and it's a nice example of how a better prior (context-versatility-aware) beats a naive one (uniform pseudo-counts) for the same estimation problem."
+          }
+        },
+        {
+          "q": "How is the objective that modern LLMs optimize related to the classical n-gram language model, and what changed?",
+          "a": "The OBJECTIVE is essentially identical; what changed is the model class that optimizes it. Both classical n-gram models and modern autoregressive LLMs (GPT-style) are trained to model the same thing: the probability of the next token given the preceding context, via the chain-rule factorization P(sequence) = product of P(w_t | context), and both are evaluated by how well they predict held-out text (cross-entropy / perplexity). A modern LLM is trained by minimizing the cross-entropy of its next-token predictions against the true next tokens - which is exactly maximizing the likelihood of the training text under the chain-rule factorization, the SAME objective an n-gram model estimates by counting. So a transformer LLM is, in the most literal sense, a very powerful next-token prediction model - the successor to the n-gram, optimizing the identical language-modeling objective. What CHANGED is the function class and how the conditional is estimated: (1) UNBOUNDED, LEARNED CONTEXT instead of a fixed Markov window - a transformer attends over the whole context (or a long window) rather than truncating to n-1 tokens, so it captures long-range dependencies n-grams can't. (2) GENERALIZATION via distributed representations instead of counting - it embeds tokens and context in continuous space and predicts as a smooth learned function, so it generalizes to unseen contexts by similarity rather than being limited to exact-match counts, dissolving the sparsity problem. (3) SHARED PARAMETERS instead of a per-n-gram count table - one set of weights predicts for all contexts, so learning transfers across contexts. (4) SCALE - trained on far more data with far more capacity. But the through-line is that the transformer optimizes the classical next-token cross-entropy objective; the revolution was in the MODEL (a deep, attention-based, representation-learning function) that estimates the conditional distribution far better than counting, not in the objective itself. This is why understanding n-grams and perplexity is foundational: they define the task (next-token modeling) and the metric (perplexity) that modern LLMs still target - the LLM is a dramatically better solution to the same problem the n-gram model posed.",
+          "deepDive": {
+            "q": "If the objective is the same, why did simply scaling this next-token objective lead to the emergent capabilities of large language models?",
+            "a": "This is one of the deepest and most surprising findings in modern ML: optimizing the humble next-token-prediction objective at massive scale produces capabilities - reasoning, translation, coding, in-context learning - that go far beyond what 'predicting the next word' seems to promise, and understanding why connects back to what the objective actually requires. The key insight is that to predict the next token WELL across a huge, diverse corpus of human text, a model is implicitly forced to learn an enormous amount ABOUT THE WORLD and about language, because human text encodes reasoning, facts, logic, code, dialogue, and structure - so genuinely minimizing next-token cross-entropy on text that contains, say, worked math problems requires learning to do the math, and on text containing translations requires learning to translate. The objective is 'simple' but the DATA is rich enough that mastering prediction on it requires mastering the underlying competencies. Scale matters because (a) larger models have the capacity to represent these competencies, (b) more data exposes more of them, and (c) empirically, capabilities emerge in a somewhat threshold-like way as scale increases (the model gets good enough at prediction that latent skills become usable) - the scaling-laws finding that loss decreases predictably with scale, accompanied by qualitative capability jumps. Crucially, this is exactly why the n-gram-to-LLM story is about the MODEL not the objective: an n-gram model optimizing the same objective could never develop these capabilities because counting can't represent reasoning or generalize - it's the combination of the right objective (which forces learning the structure of the data) with a model class powerful enough to actually capture that structure (deep attention-based networks) at sufficient scale (huge data + parameters) that unlocked emergence. The objective was always pointing at 'understand the data well enough to predict it'; classical models just couldn't rise to it, and scaling a model class that can turned 'predict the next token' into 'learn to reason, translate, and code' - a profound demonstration that a simple training objective on rich data, given enough capacity, can induce far more than it superficially asks for."
+          }
+        },
+        {
+          "q": "You're evaluating a language model and it has excellent perplexity but users complain the outputs are bad. Reconcile this.",
+          "a": "Low perplexity and bad user-perceived output can coexist because perplexity measures something related to, but distinct from, output quality - and several gaps explain the discrepancy. (1) Perplexity measures NEXT-TOKEN PREDICTION on a held-out EVALUATION SET, not generation quality: a model can be excellent at predicting the next token in existing text (which is what perplexity scores) while its GENERATED text is poor, because generation involves decoding (sampling choices, repetition, exposure bias / error compounding over many steps) that perplexity doesn't capture at all - perplexity is computed with teacher forcing (the true previous tokens given), whereas generation feeds the model its own possibly-erroneous outputs, so good next-token prediction doesn't guarantee good multi-step generation. (2) EVAL-SET MISMATCH: perplexity is only meaningful relative to a specific distribution, so a model with low perplexity on its eval set (say, web text) can produce bad outputs on the user's actual DISTRIBUTION (a different domain, or interactive prompts unlike the eval corpus) - low in-domain perplexity says nothing about out-of-domain quality. (3) Perplexity doesn't measure what users CARE ABOUT: users judge helpfulness, factuality, coherence, instruction-following, safety, and usefulness, none of which perplexity directly measures - a model can predict plausible-sounding next tokens (low perplexity) while being factually wrong, unhelpful, or misaligned with the user's intent. (4) Perplexity rewards matching the TRAINING/EVAL distribution, but users often want behavior DIFFERENT from raw web text (following instructions, being concise, refusing harmful requests) - which is exactly why models are fine-tuned/RLHF'd AFTER pretraining, a step that can INCREASE perplexity on raw text while dramatically improving user-perceived quality. So the reconciliation is that perplexity is a useful INTRINSIC proxy for pretraining progress and raw language-modeling ability, but it's not a measure of downstream usefulness - you must ALSO evaluate on the actual task with the metrics users care about (human eval, task benchmarks, factuality checks, instruction-following), exactly the intrinsic-vs-extrinsic evaluation distinction. The practical rule: use perplexity to track language-modeling capability during pretraining, but never conclude a model is 'good' for an application from perplexity alone - validate on the real objective.",
+          "deepDive": {
+            "q": "Given this gap, why is perplexity still universally reported and useful despite not measuring what users care about?",
+            "a": "Perplexity remains valuable and universally reported despite the gap because it's an excellent PROGRESS and COMPARISON metric for the core language-modeling capability, with properties that user-facing evaluations lack. (1) It's CHEAP, AUTOMATIC, and REPRODUCIBLE - computed directly from held-out text with no human judgment, so you can track it continuously during pretraining (every checkpoint) and compare models objectively, whereas human evaluation of output quality is slow, expensive, noisy, and hard to reproduce. (2) It's a SENSITIVE, FINE-GRAINED signal - perplexity changes smoothly and measurably with model scale, data, and training, giving a continuous training signal and underlying the scaling laws that predict how loss improves with compute/data/parameters; downstream task metrics are often coarser and noisier. (3) It CORRELATES with downstream capability during PRETRAINING - within a model family, lower pretraining perplexity generally does predict better downstream performance, so it's a useful (if imperfect) leading indicator that the model is learning, which is why it's the primary metric for the pretraining phase. (4) It measures the RIGHT THING for what pretraining optimizes - since pretraining IS next-token prediction, perplexity directly measures that objective's success, making it the natural metric for that stage. So the honest framing is that perplexity is the right tool for the PRETRAINING/language-modeling question ('is the model getting better at predicting text?') - cheap, sensitive, comparable - and a poor tool for the DEPLOYMENT question ('is this model good for users?'), which needs task-specific and human evaluation. Both are used at their appropriate stages: perplexity to develop and compare base models, downstream/human evals to assess usefulness after alignment. It persists because no single metric does both jobs, and for its actual job - measuring language-modeling progress - perplexity is efficient and effective, exactly the intrinsic-metric role that must be complemented by, not replaced by, extrinsic evaluation."
+          }
+        },
+        {
+          "q": "Explain the relationship between language modeling and data compression.",
+          "a": "Language modeling and lossless compression are two views of the same thing - a deep equivalence rooted in information theory. The connection: a good probability model of data is EXACTLY what you need to compress it well, because the fundamental result of information theory (Shannon) is that the optimal number of bits to encode a symbol with probability p is -log2(p), so the best achievable compression of a text is its cross-entropy under the true distribution (bits per symbol). A language model provides a probability for each token given its context - P(w_t | context) - and if you feed those probabilities to an arithmetic coder (an entropy coder that achieves near the information-theoretic bound), you can compress the text to approximately its cross-entropy under the model, in bits. So a BETTER language model (lower cross-entropy / lower perplexity) is LITERALLY a better compressor: the number of bits it takes to encode a text using the model equals the model's cross-entropy on that text times the number of tokens. This is why perplexity, cross-entropy, and bits-per-byte are all facets of the same quantity - bits-per-byte IS the compression rate the model achieves. The equivalence runs both ways: (1) training a language model to minimize cross-entropy is training it to compress text maximally, so language modeling IS learning to compress; (2) any good compressor implicitly contains a good predictive model of the data. This isn't a loose analogy - it's a mathematical identity (compression rate = cross-entropy under the model), which is why it's sometimes said that 'compression is prediction' and vice versa, and why some argue that a model that compresses text extremely well must 'understand' it (to predict/compress the next token, you must model the structure that generates it). Practically, this connection means: perplexity/cross-entropy measures compression ability, the best language models are the best text compressors, and the whole enterprise of language modeling can be framed as finding the model that assigns the shortest description (fewest bits) to the data - Occam's-razor / minimum-description-length made concrete.",
+          "deepDive": {
+            "q": "What does the 'compression = intelligence' argument claim, and what are its limits?",
+            "a": "The 'compression = intelligence' argument (associated with the minimum-description-length principle, Solomonoff induction, and popularized around LLMs and the Hutter Prize) claims that the ability to COMPRESS data well is equivalent to, or at least a strong proxy for, understanding/intelligence - because to compress data maximally you must model the regularities and structure that generate it, and modeling that structure IS a form of understanding. The chain of reasoning: optimal compression requires optimal prediction (established above); optimal prediction of complex data (like human text, which encodes reasoning, facts, and logic) requires capturing the underlying generative structure (the 'laws' producing the data); capturing that structure is what we mean by understanding/intelligence. So a system that compresses text near the theoretical limit must have internalized the regularities of language and the world it describes - hence 'compression is (or measures) intelligence', and improving compression (lowering cross-entropy) is progress toward understanding. This is a genuinely deep idea with real support: it explains why scaling next-token prediction (= improving compression) yields emergent capabilities, and MDL/Occam's-razor formalizes 'the best model is the one that most compresses the data'. The LIMITS: (1) It conflates predictive modeling of a data distribution with agency, goals, grounding, and reasoning-as-action - a great text compressor models the DISTRIBUTION of text, which includes human reasoning as expressed in text, but this isn't obviously the same as being able to reason reliably, act in the world, or have understanding grounded in anything beyond text statistics. (2) Perfect compression of a corpus is about that corpus's regularities, not truth or usefulness - a model can compress text well while being unable to distinguish true from false statements that are equally 'predictable'. (3) Some capabilities we associate with intelligence (planning, tool use, grounded perception) aren't obviously captured by text compression alone. (4) The equivalence is asymptotic/idealized; real compressors approximate it. So the honest position is that compression ability is a rigorous, meaningful measure of how well a model captures the STRUCTURE of its data - which is a large and important component of what we call understanding, and empirically predicts capability - but equating it fully with 'intelligence' overreaches by ignoring grounding, agency, and truth-tracking. It's the strongest available formalization of 'a better model of the data = a better understanding of it', valuable and largely-right for the modeling component of intelligence, while not the whole story - a fitting capstone to the information-theoretic view of language modeling this lesson builds."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Language model",
+        "back": "A probability distribution over token sequences, equivalently P(next token | context). Scores how likely text is; predicts what comes next."
+      },
+      {
+        "type": "definition",
+        "front": "N-gram model + Markov assumption",
+        "back": "Estimate P(w_t | previous n-1 words) by counting n-gram frequencies. Markov assumption: next token depends only on the last n-1 tokens, not full history."
+      },
+      {
+        "type": "formula",
+        "front": "Perplexity",
+        "back": "exp(per-token cross-entropy) = effective branching factor (how many equally-likely options per step). 1 = perfect, V = uniform over V tokens. Lower is better."
+      },
+      {
+        "type": "pitfall",
+        "front": "Zero-probability problem",
+        "back": "An unseen n-gram gets probability 0, zeroing the whole sequence (perplexity infinite). Fix with smoothing (add-alpha, Kneser-Ney, backoff) - mandatory."
+      },
+      {
+        "type": "definition",
+        "front": "Add-alpha smoothing = Bayesian prior",
+        "back": "Add alpha to every count = MAP estimate under a Dirichlet prior (pseudo-counts). alpha is the prior strength - the same idea as Naive Bayes' Laplace smoothing."
+      },
+      {
+        "type": "intuition",
+        "front": "Context-vs-sparsity trade-off",
+        "back": "Larger n = more context but exponentially more possible n-grams -> most unseen. N-grams can only COUNT seen contexts, never GENERALIZE - the gap neural LMs close."
+      },
+      {
+        "type": "pitfall",
+        "front": "Perplexity isn't cross-tokenizer comparable",
+        "back": "It's per-token, so a coarser tokenizer inflates it for the same capability. Compare with bits-per-byte/character (tokenizer-independent)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Low perplexity != good outputs",
+        "back": "It measures teacher-forced next-token prediction on an eval set - not generation quality, factuality, or usefulness. Complement with extrinsic/human eval."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Jurafsky & Martin, Speech and Language Processing (Ch. 3, N-gram LMs)",
+        "url": "https://web.stanford.edu/~jurafsky/slp3/3.pdf"
+      },
+      {
+        "title": "Chen & Goodman, An Empirical Study of Smoothing Techniques (1999)",
+        "url": "https://aclanthology.org/P96-1041/"
+      },
+      {
+        "title": "Bengio et al., A Neural Probabilistic Language Model (2003)",
+        "url": "https://www.jmlr.org/papers/v3/bengio03a.html"
+      },
+      {
+        "title": "Kaplan et al., Scaling Laws for Neural Language Models (2020)",
+        "url": "https://arxiv.org/abs/2001.08361"
+      }
+    ],
+    "demos": [
+      "markov",
+      "decoding"
+    ]
+  }
+};

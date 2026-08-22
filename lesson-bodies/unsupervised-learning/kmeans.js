@@ -1,0 +1,242 @@
+// GENERATED from content/lessons/unsupervised-learning/kmeans.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/unsupervised-learning/kmeans/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "kmeans": {
+    "level": "intro",
+    "body": {
+      "intuition": [
+        "K-means is the entry point to unsupervised learning: with no labels at all, it partitions data into k groups by a single, intuitive rule - each point belongs to the nearest cluster center, and each center is the mean of its points. Those two statements are circular (centers depend on assignments, assignments depend on centers), and the entire algorithm is just alternating between them until nothing changes. It's the simplest possible instance of the alternate-and-converge pattern that reappears in EM, and it's the first algorithm that forces you to think about what 'structure in data' even means when there's no answer key.",
+        "The objective being minimized is the within-cluster sum of squares (inertia): the total squared distance from every point to its assigned center. Lloyd's algorithm - the standard k-means procedure - is coordinate descent on that objective. Fixing the centers, the best assignment is nearest-center; fixing the assignments, the best center is the mean. Each step can only lower (or hold) the inertia, so the algorithm always converges - but only to a local minimum, which is why the starting centers matter enormously and why you run it several times.",
+        "The two hard questions k-means can't answer for you are baked into its assumptions. It requires you to choose k in advance (there's no labels to tell you how many clusters exist), and it assumes clusters are roughly spherical, equally-sized blobs - because 'nearest center by Euclidean distance' carves space into straight-edged Voronoi cells. When the true clusters are elongated, unequal, or non-convex, k-means confidently returns the wrong grouping, which is exactly why the later clustering methods (density-based, spectral) exist."
+      ],
+      "math": [
+        {
+          "h": "The objective: within-cluster sum of squares",
+          "paras": [
+            "K-means minimizes the total squared distance from each point to the center of its assigned cluster. This inertia objective is what Lloyd's algorithm descends; it's non-convex in the joint (assignments, centers) space, so descent reaches a local, not global, optimum."
+          ],
+          "tex": "J = \\sum_{i=1}^{n} \\lVert x_i - \\mu_{c_i} \\rVert^2 = \\sum_{k} \\sum_{i : c_i = k} \\lVert x_i - \\mu_k \\rVert^2",
+          "texNote": "c_i is the cluster assigned to point i; mu_k is cluster k's center. Minimizing J trades off assignment (which cluster) and centers (where) - Lloyd's alternates the two."
+        },
+        {
+          "h": "The two update steps are each optimal given the other",
+          "paras": [
+            "Lloyd's algorithm alternates two closed-form steps. With centers fixed, assigning each point to its nearest center minimizes its contribution to J. With assignments fixed, setting each center to the mean of its points minimizes J (the mean is the point minimizing summed squared distance). Each step is exact, so J is monotonically non-increasing."
+          ],
+          "tex": "c_i \\leftarrow \\arg\\min_k \\lVert x_i - \\mu_k \\rVert^2 \\qquad \\mu_k \\leftarrow \\frac{1}{|C_k|}\\sum_{i \\in C_k} x_i",
+          "texNote": "Assignment step (left) and update step (right). The mean is the minimizer of summed squared distance, which is exactly why the update is an average - and why k-means implicitly assumes Euclidean, spherical clusters."
+        }
+      ],
+      "code": [
+        {
+          "h": "Lloyd's algorithm from scratch",
+          "paras": [
+            "The whole algorithm: initialize centers, then alternate nearest-center assignment and mean update until assignments stop changing. Compared against sklearn on synthetic blobs."
+          ],
+          "code": "import numpy as np\nfrom sklearn.datasets import make_blobs\nfrom sklearn.cluster import KMeans\n\nX, _ = make_blobs(n_samples=500, centers=4, cluster_std=1.0, random_state=0)\n\ndef kmeans(X, k, iters=100, seed=0):\n    rng = np.random.default_rng(seed)\n    mu = X[rng.choice(len(X), k, replace=False)]        # random init\n    for _ in range(iters):\n        d2 = ((X[:, None, :] - mu[None, :, :]) ** 2).sum(-1)   # (n, k) distances\n        c = d2.argmin(1)                                       # nearest center\n        new_mu = np.array([X[c == j].mean(0) if (c == j).any() else mu[j] for j in range(k)])\n        if np.allclose(new_mu, mu): break                     # converged\n        mu = new_mu\n    inertia = ((X - mu[c]) ** 2).sum()\n    return c, mu, inertia\n\nc, mu, inertia = kmeans(X, 4)\nskl = KMeans(n_clusters=4, n_init=10, random_state=0).fit(X)\nprint('scratch inertia:', round(inertia, 1), '| sklearn inertia:', round(skl.inertia_, 1))",
+          "caption": "Assignment (argmin distance) then update (mean) - each step lowers inertia, so it always converges, but only to a local minimum."
+        },
+        {
+          "h": "Choosing k: the elbow and silhouette",
+          "paras": [
+            "Because k isn't given, you diagnose it: inertia always drops as k grows (more centers fit tighter), so look for the 'elbow' where the gain flattens, or use the silhouette score which balances cohesion against separation."
+          ],
+          "code": "import numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nfor k in range(2, 8):\n    km = KMeans(n_clusters=k, n_init=10, random_state=0).fit(X)\n    sil = silhouette_score(X, km.labels_)\n    print(f'k={k}: inertia={km.inertia_:8.1f}  silhouette={sil:.3f}')\n# inertia decreases monotonically (not a selector); the silhouette peaks near the true k",
+          "caption": "Inertia alone can't pick k (it always decreases) - the elbow heuristic and the silhouette score (peaks at good k) are the practical tools."
+        }
+      ],
+      "useCases": [
+        "Fast, scalable baseline clustering for exploratory analysis - customer/behavioral segmentation, grouping documents or embeddings, and compressing a dataset to k representative prototypes.",
+        "Vector quantization and image color compression - replace each point with its cluster center to reduce a continuous space to k codewords (the basis of product quantization in vector search).",
+        "Initializing more expensive models - k-means centers seed GMM means, and k-means++ style initialization is reused across clustering methods.",
+        "Feature engineering - cluster-distance features or a cluster-id one-hot can turn raw coordinates into useful inputs for a downstream supervised model."
+      ],
+      "pitfalls": [
+        "You must choose k in advance, and there's no ground truth to check it against - inertia always decreases with k so it can't select k; use the elbow heuristic, the silhouette score, or domain knowledge, and treat the result as one hypothesis, not the answer.",
+        "K-means assumes spherical, equally-sized, equally-dense clusters (Euclidean nearest-center = straight Voronoi boundaries) - it fails badly on elongated, unequal, or non-convex clusters, where DBSCAN or spectral clustering are the right tools.",
+        "Random initialization can converge to a poor local minimum - always use k-means++ initialization and multiple restarts (n_init), keeping the run with the lowest inertia.",
+        "It's sensitive to feature scaling and to outliers: an unscaled large-range feature dominates the distance (standardize first), and a single far outlier can drag a center away from the true group (the mean is not robust).",
+        "Every point is forced into exactly one cluster (hard assignment), even points that sit ambiguously between two clusters or are genuine noise - GMM gives soft probabilities and DBSCAN can label points as noise instead."
+      ],
+      "connections": [
+        {
+          "ref": "unsupervised-learning/gmm-em",
+          "text": "Gaussian mixtures with EM are the soft, probabilistic generalization of k-means; k-means is the hard-assignment, equal-spherical-covariance limit of a GMM."
+        },
+        {
+          "ref": "unsupervised-learning/hierarchical-density-clustering",
+          "text": "DBSCAN and hierarchical clustering handle the non-spherical, unknown-k, and noise cases where k-means' assumptions break."
+        },
+        {
+          "ref": "supervised-learning/knn",
+          "text": "Both are distance-based and Euclidean; kNN is supervised (labels vote), k-means is unsupervised (centers of unlabeled groups) - and both suffer the curse of dimensionality."
+        },
+        {
+          "ref": "foundations/linear-algebra",
+          "text": "The mean-as-minimizer-of-squared-distance and Voronoi partitioning are the linear-algebra/geometry underpinnings of the update rule."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What objective does k-means minimize?",
+          "a": "Within-cluster sum of squares (inertia) - total squared distance from each point to its assigned center."
+        },
+        {
+          "q": "What are the two steps of Lloyd's algorithm?",
+          "a": "Assignment (each point to its nearest center) and update (each center to the mean of its points), alternated until convergence."
+        },
+        {
+          "q": "Why does k-means always converge?",
+          "a": "Each step is exact coordinate descent on inertia, which can only decrease or stay equal - a monotone bounded sequence, so it converges (to a local minimum)."
+        },
+        {
+          "q": "Why run k-means multiple times?",
+          "a": "The objective is non-convex, so it converges to a local minimum that depends on initialization - keep the run with the lowest inertia."
+        },
+        {
+          "q": "What is k-means++?",
+          "a": "A smarter initialization that spreads initial centers apart (probability proportional to squared distance from existing centers), reducing bad local minima."
+        },
+        {
+          "q": "Why can't inertia be used to choose k?",
+          "a": "Inertia decreases monotonically as k grows (more centers fit tighter, reaching 0 at k=n) - use the elbow heuristic or silhouette score instead."
+        },
+        {
+          "q": "What cluster shapes does k-means assume?",
+          "a": "Spherical, roughly equal-sized, equal-density blobs - Euclidean nearest-center produces straight-edged Voronoi cells."
+        },
+        {
+          "q": "Why must you scale features before k-means?",
+          "a": "Distance sums over all features, so an unscaled large-range feature dominates the clustering - standardize first."
+        },
+        {
+          "q": "Is k-means robust to outliers?",
+          "a": "No - centers are means, which are pulled by outliers; k-medoids (using medians/medoids) is a more robust alternative."
+        },
+        {
+          "q": "Hard vs soft assignment - which does k-means use?",
+          "a": "Hard - each point belongs to exactly one cluster; GMM gives soft probabilistic memberships."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain why Lloyd's algorithm is guaranteed to converge but not guaranteed to find the global optimum.",
+          "a": "Lloyd's alternates two steps that are each optimal given the other: the assignment step assigns every point to its nearest center (minimizing that point's contribution to inertia given fixed centers), and the update step moves each center to the mean of its assigned points (the mean is exactly the point minimizing summed squared distance, so it minimizes inertia given fixed assignments). Because each step exactly minimizes the same objective J over one set of variables holding the other fixed, J is monotonically non-increasing across steps; and since J is bounded below by zero and there are only finitely many possible hard assignments, the sequence must converge in finitely many iterations. But this is coordinate descent on a non-convex objective (J is non-convex in the joint space of assignments and centers), so it converges to a local minimum determined by the starting centers - a different initialization can land in a different, possibly better or worse, local minimum. That's why global optimality isn't guaranteed and why multiple restarts (with k-means++ init) are standard.",
+          "deepDive": {
+            "q": "How does k-means++ initialization reduce the chance of a bad local minimum, and what does it cost?",
+            "a": "k-means++ chooses initial centers to be spread out rather than random: the first center is a random point, and each subsequent center is chosen from the remaining points with probability proportional to its squared distance from the nearest already-chosen center - so points far from existing centers (likely in their own true cluster) are much more likely to be picked as seeds. This makes it far less likely that two initial centers land in the same true cluster (leaving another cluster with no seed, a classic bad local minimum), and it comes with a provable guarantee that the expected inertia is within an O(log k) factor of optimal. The cost is one extra pass over the data per center chosen (O(nk) total) before the main iterations, which is negligible relative to the convergence it buys - which is why it's the default initialization in sklearn."
+          }
+        },
+        {
+          "q": "You run k-means on data with two clusters of very different sizes and densities, and it splits the large cluster while merging the small one. Why, and what would you use instead?",
+          "a": "This is k-means' equal-size/equal-density assumption failing. K-means minimizes total within-cluster squared distance, and a large, spread-out cluster contributes a huge amount of inertia; the algorithm can lower the objective more by splitting that big cluster in two (reducing its large inertia contribution) than by keeping a tight, small cluster separate - so it 'spends' its k centers where they reduce inertia most, which is on the large cluster, and lumps the small cluster in with nearby points. Geometrically, the nearest-center Voronoi boundary sits at the midpoint between centers regardless of the clusters' actual sizes or densities, so a dense small cluster next to a sparse large one gets its boundary drawn in the wrong place. The fix depends on the true structure: DBSCAN handles clusters of different densities and shapes (it grows clusters from dense regions and labels sparse points as noise), Gaussian Mixture Models allow per-cluster covariance (so clusters can be different sizes and elongated), and if the clusters are non-convex, spectral clustering (which clusters in a graph/eigenvector space) succeeds where Euclidean nearest-center fails.",
+          "deepDive": {
+            "q": "How does a GMM specifically relax the assumptions that cause this failure?",
+            "a": "A GMM models each cluster as a full Gaussian with its own mean AND its own covariance matrix and its own mixing weight, rather than k-means' implicit assumption of identical spherical covariance and equal weight for every cluster. The covariance lets a cluster be elongated or axis-scaled (not just spherical) and differently sized; the mixing weight lets clusters have different populations; and the soft responsibilities (each point gets a probability of belonging to each cluster, weighted by both distance and the cluster's covariance/weight) mean a point near a dense small cluster isn't automatically swallowed by a nearby large one - it's assigned by likelihood under each Gaussian, which accounts for the clusters' shapes and spreads. K-means is exactly the degenerate limit of a GMM where all covariances are equal and spherical (sigma -> 0) and assignments are hardened, which is why the GMM is the principled fix when that degeneracy is the problem."
+          }
+        },
+        {
+          "q": "Walk through the methods for choosing k, and explain why each has limitations.",
+          "a": "The elbow method plots inertia (within-cluster sum of squares) against k and looks for the 'elbow' - the k after which additional clusters yield diminishing reductions in inertia. Its limitation: inertia decreases monotonically and the elbow is often ambiguous or absent on real data, so it's a subjective visual judgment. The silhouette score measures, for each point, how much closer it is to its own cluster than to the nearest other cluster (cohesion vs separation), averaged over all points; you pick the k that maximizes it. It's more principled than the elbow but assumes convex, separated clusters (it can mislead on density-varying or non-convex data) and is O(n^2) to compute exactly. The gap statistic compares the observed inertia to what you'd expect under a null reference distribution of no clustering, choosing the k with the largest gap - more statistically grounded but computationally heavier (it requires clustering many reference datasets) and sensitive to the reference model chosen. The deepest limitation shared by all of them: there is often no single 'correct' k - the number of clusters can be genuinely ambiguous or scale-dependent, so these are diagnostics that propose hypotheses, and domain knowledge about how many groups should exist is usually the strongest signal.",
+          "deepDive": {
+            "q": "Why does the gap statistic use a null reference distribution, and what problem does that solve that the elbow doesn't?",
+            "a": "The elbow and silhouette both look only at the clustered data itself, so they can't tell you whether the apparent cluster structure is real or just the inevitable partitioning that k-means imposes on any data (even uniform noise gets split into k tidy Voronoi cells with decreasing inertia). The gap statistic addresses exactly this by comparing the observed within-cluster dispersion at each k against the expected dispersion under a null hypothesis of no real clusters - typically data drawn uniformly from the bounding box (or aligned PCA box) of your data. The 'gap' is how much lower your real data's inertia is than the null's at each k; if your data has genuine k* clusters, the gap grows sharply up to k* and then flattens, whereas for structureless data the gap stays near zero for all k. So it distinguishes real structure from the artifactual inertia reduction any partitioning produces - which is the failure mode (seeing clusters that aren't there) that a bare elbow plot can't guard against."
+          }
+        },
+        {
+          "q": "Explain the relationship between k-means and the EM algorithm / Gaussian Mixture Models.",
+          "a": "K-means and EM for a GMM share the same alternate-two-steps structure, and k-means is a limiting special case of the GMM. EM alternates an E-step (compute each point's soft responsibility - the posterior probability it belongs to each Gaussian, given the current parameters) and an M-step (update each Gaussian's mean, covariance, and weight using those responsibilities). K-means' assignment step is the E-step hardened: instead of soft probabilities, each point is assigned entirely (responsibility 1) to its single most-likely cluster, and k-means' update step is the M-step restricted to only updating means (with covariances fixed to identical spherical and weights fixed equal). Formally, k-means is the GMM-EM limit as all cluster covariances shrink to sigma^2 * I with sigma -> 0: as the Gaussians become infinitely tight, the soft responsibilities become hard (winner-take-all) because the nearest center's Gaussian dominates the likelihood by an unbounded margin, and the only parameters left to update are the means. So k-means is 'hard EM with equal spherical covariances', which is both why it's faster (no covariances, hard assignments) and why it inherits the spherical-equal-cluster limitation that the full GMM relaxes.",
+          "deepDive": {
+            "q": "Given this, when is k-means actually preferable to a full GMM?",
+            "a": "K-means is preferable when its assumptions roughly hold (clusters are compact and roughly spherical and similarly sized) and you value speed, simplicity, and scalability: it has far fewer parameters (only means, no k covariance matrices to estimate), each iteration is cheaper, it needs less data to estimate its parameters reliably (a full GMM's per-cluster covariance has O(d^2) parameters that can overfit or become singular in high dimensions with few points), and its hard assignments are directly interpretable. A full GMM is worth its extra cost when you specifically need soft/probabilistic memberships, when clusters are genuinely elongated or unequal (needing covariance), or when you want a generative density model rather than just a partition - but in high dimensions or with limited data, the GMM's covariance estimation can be unstable, and k-means (or a GMM restricted to diagonal/spherical covariance) is the more robust choice."
+          }
+        },
+        {
+          "q": "Why is k-means sensitive to feature scaling and to outliers, and how would you make clustering more robust to each?",
+          "a": "Both sensitivities stem from k-means using Euclidean distance and means. Feature scaling: the assignment step compares squared distances summed across all features, so a feature measured on a large numeric range (say income in dollars) contributes vastly more to the distance than one on a small range (say age in years) - the clustering is then effectively driven by the large-scale feature alone, ignoring the others. The fix is to standardize (z-score) or otherwise normalize features before clustering so each contributes comparably, or to use a distance metric that accounts for feature scales (e.g., Mahalanobis). Outliers: the update step sets each center to the mean of its points, and the mean is not robust - a single extreme point can drag a center substantially away from the bulk of its cluster, distorting the boundaries for all points. Remedies include k-medoids / PAM (which uses actual data points / medoids as centers and effectively a median-like criterion, far less pulled by outliers), removing or down-weighting detected outliers before clustering, using a robust scaler, or switching to DBSCAN, which explicitly labels low-density points as noise rather than forcing them into a cluster and distorting it.",
+          "deepDive": {
+            "q": "How does k-medoids differ from k-means, and why is it more robust but less scalable?",
+            "a": "K-medoids restricts each cluster's center to be an actual data point (a medoid) - the point within the cluster minimizing total distance to the other members - rather than the arithmetic mean, which can sit anywhere in space. Because the medoid is chosen to minimize summed distance (often with L1 or arbitrary metrics, not just squared L2), it behaves like a multivariate median and is far less influenced by a few extreme points than a mean, giving robustness to outliers; it also works with any distance/dissimilarity matrix (not just Euclidean), so it handles non-numeric or non-Euclidean data. The cost is scalability: finding the best medoid for a cluster requires evaluating swaps among points (the classic PAM algorithm is roughly O(k(n-k)^2) per iteration versus k-means' O(nk) per iteration), so k-medoids is much slower on large datasets - which is why k-means (fast, mean-based) dominates at scale and k-medoids is reserved for smaller data where robustness or a custom metric matters more than speed."
+          }
+        },
+        {
+          "q": "How does the curse of dimensionality affect k-means, and what would you do about it?",
+          "a": "K-means relies entirely on Euclidean distance to assign points to the nearest center, and the curse of dimensionality erodes exactly that: as dimensionality grows, distances between points concentrate - the nearest and farthest points become almost equidistant - so 'the nearest center' carries progressively less discriminative information, and the Voronoi partition becomes nearly arbitrary. Additionally, in high dimensions data is sparse and often only a subset of features actually carry cluster structure while the rest are noise; since k-means weights every dimension equally in the distance, the noise dimensions dilute the signal from the informative ones, and the clustering degrades toward noise. Remedies: reduce dimensionality before clustering with PCA (project onto the top principal components that capture the real variance, then cluster there) or a nonlinear embedding, perform feature selection to drop noise dimensions, or use methods designed for high dimensions (subspace/projected clustering, which finds clusters in different feature subspaces). In practice, 'PCA then k-means' is a common and effective pipeline precisely because it restores meaningful distances before the distance-based clustering runs.",
+          "deepDive": {
+            "q": "Why does clustering on PCA-reduced data sometimes work better than clustering the raw high-dimensional data, beyond just speed?",
+            "a": "Beyond the obvious speedup, PCA helps because it concentrates the meaningful variance into a few directions and discards low-variance directions that are often noise - so clustering in the reduced space computes distances using primarily the dimensions where real structure lives, restoring the distance contrast that the curse of dimensionality destroys in the full space. If the cluster-separating signal lies along high-variance directions (which is common, since clusters that are well-separated tend to be separated along directions of large variance), PCA preserves it while stripping the noise dimensions that were diluting it - effectively denoising the distance metric. The caveat is that this assumes the cluster structure aligns with high-variance directions; occasionally the discriminative signal is in a low-variance direction that PCA would discard, in which case PCA-then-k-means can hurt - so it's a strong default heuristic, not a guarantee, and worth validating against clustering the full (scaled) data when feasible."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "K-means objective",
+        "back": "Within-cluster sum of squares (inertia): J = sum over points of ||x_i - mu_{c_i}||^2. Lloyd's algorithm does coordinate descent on it."
+      },
+      {
+        "type": "definition",
+        "front": "Lloyd's algorithm (two steps)",
+        "back": "Assignment: each point to its nearest center. Update: each center to the mean of its points. Alternate until assignments stop changing."
+      },
+      {
+        "type": "intuition",
+        "front": "Why k-means always converges (but to a local min)",
+        "back": "Each step exactly minimizes inertia given the other, so J is monotone non-increasing and bounded - converges. But J is non-convex, so the minimum is local (init-dependent)."
+      },
+      {
+        "type": "definition",
+        "front": "k-means++",
+        "back": "Initialization that spreads seeds apart (prob proportional to squared distance from existing centers) - fewer bad local minima, O(log k) expected-optimal guarantee."
+      },
+      {
+        "type": "pitfall",
+        "front": "Choosing k",
+        "back": "Inertia always decreases with k (can't select k) - use the elbow heuristic, silhouette score, or gap statistic; there's often no single 'right' k."
+      },
+      {
+        "type": "pitfall",
+        "front": "K-means cluster-shape assumption",
+        "back": "Spherical, equal-sized, equal-density blobs (Euclidean Voronoi cells) - fails on elongated/unequal/non-convex clusters. Use GMM, DBSCAN, or spectral."
+      },
+      {
+        "type": "intuition",
+        "front": "K-means as a limit of GMM",
+        "back": "K-means = hard EM with equal spherical covariances (sigma -> 0). Assignment=hardened E-step, update=M-step restricted to means only."
+      },
+      {
+        "type": "pitfall",
+        "front": "K-means + outliers/scaling",
+        "back": "Centers are means (pulled by outliers -> k-medoids is robust); distance sums over features (unscaled large-range feature dominates -> standardize first)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Lloyd, Least squares quantization in PCM (1982)",
+        "url": "https://ieeexplore.ieee.org/document/1056489"
+      },
+      {
+        "title": "Arthur & Vassilvitskii, k-means++ (2007)",
+        "url": "https://theory.stanford.edu/~sergei/papers/kMeansPP-soda.pdf"
+      },
+      {
+        "title": "scikit-learn: Clustering (k-means)",
+        "url": "https://scikit-learn.org/stable/modules/clustering.html#k-means"
+      },
+      {
+        "title": "Tibshirani et al., Estimating the number of clusters (gap statistic, 2001)",
+        "url": "https://hastie.su.domains/Papers/gap.pdf"
+      }
+    ],
+    "demos": [
+      "kmeans",
+      "hierarchical-clustering",
+      "spectral-clustering"
+    ]
+  }
+};

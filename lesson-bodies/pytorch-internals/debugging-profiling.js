@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/pytorch-internals/debugging-profiling.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/pytorch-internals/debugging-profiling/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "debugging-profiling": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Every lesson in this module has ended the same way: the abstraction hid a mechanism, and when the mechanism fails there is no symptom that names it. This lesson is the method for that situation. Machine-learning bugs are unusually hard not because they are subtle but because THEY DO NOT ANNOUNCE THEMSELVES - a model with a third of its layers unregistered still trains, a loss with the wrong normalization still falls, a traced model still returns numbers. The training curve is a terrible detector, because almost everything produces a plausible one.",
+        "So the practice is to build instruments rather than to reason harder. For performance, the instrument is the PROFILER TIMELINE - not a table of operator times, but the picture showing device work, host work, and memory over time, where the gaps are the finding. A slow training run has one of three causes and they look completely different on a timeline: the GPU is idle waiting for data, the GPU is busy but doing memory-bound work, or the GPU is repeatedly stalled by a synchronization your Python code did not know it was requesting. Each has a different fix and guessing between them wastes days.",
+        "For correctness, the single most valuable technique is to OVERFIT ONE BATCH. Take four examples, turn off augmentation, regularization and shuffling, and train until the loss reaches essentially zero. If it cannot, the bug is in the model, the loss, or the optimizer - not in your data, your hyperparameters, or your learning-rate schedule, and you have eliminated most of the search space in about two minutes. If it can, the model is wired correctly and the problem is somewhere in the data pipeline or the generalization setup. That single test partitions the space more sharply than any other, it costs almost nothing, and it is skipped almost universally in favour of tuning."
+      ],
+      "math": [
+        {
+          "h": "The roofline: which resource are you actually limited by",
+          "paras": [
+            "A kernel's achievable performance is bounded by whichever runs out first - arithmetic throughput or memory bandwidth. Arithmetic intensity, the FLOPs performed per byte moved, decides which.",
+            "This is what determines whether an optimization can help. Fusing kernels reduces bytes moved and does nothing for FLOPs, so it helps memory-bound work and not compute-bound work."
+          ],
+          "tex": "I = \\frac{\\text{FLOPs}}{\\text{bytes}}, \\qquad \\text{attainable} = \\min\\big(P_{\\text{peak}},\\; I \\cdot \\beta_{\\text{mem}}\\big)",
+          "texNote": "Large matrix multiplications have high intensity and are compute-bound - they are what accelerators are designed for. Elementwise operations, normalizations, activations and reductions have intensity near one and are memory-bound, so their cost is the traffic rather than the arithmetic. A transformer step is a mix, which is why fusing the elementwise chains around the matmuls is worth real time and why the matmuls themselves are already near peak."
+        },
+        {
+          "h": "Amdahl's law, and why you must measure first",
+          "paras": [
+            "If a component is a fraction p of total time and you speed it up by a factor s, the overall gain is bounded. Making a 20% component infinitely fast caps the total improvement at 25%.",
+            "The practical consequence is that the ordering of your optimization work is determined entirely by the measurement, and optimizing without one has an expected payoff close to zero."
+          ],
+          "tex": "\\text{speedup} = \\frac{1}{(1-p) + p/s} \\;\\xrightarrow{\\;s\\to\\infty\\;}\\; \\frac{1}{1-p}",
+          "texNote": "The number worth internalizing: a component you cannot see is a component you cannot bound. If the data pipeline is 60% of step time, every model optimization you make is competing for the remaining 40% - and the single measurement that would have told you takes ten minutes. This is the argument for profiling before optimizing stated quantitatively rather than as advice."
+        },
+        {
+          "h": "Launch overhead: why many small kernels are the wrong shape",
+          "paras": [
+            "Each kernel launch has a fixed cost of a few microseconds. A model with thousands of small operations per step can spend more time launching than computing, and the GPU sits idle between launches.",
+            "This is what fusion and CUDA graphs address - not by making the arithmetic faster, but by reducing the number of launches."
+          ],
+          "tex": "T_{\\text{step}} \\approx \\sum_i \\max\\big(\\ell_{\\text{launch}},\\; t_i\\big) \\;\\xrightarrow{\\;t_i \\ll \\ell\\;}\\; k \\cdot \\ell_{\\text{launch}}",
+          "texNote": "When each kernel's execution is shorter than the launch overhead, step time is set by the NUMBER of operations rather than the work in them - and the signature on a timeline is unmistakable: a dense picket fence of tiny kernels with gaps between them. Small batch sizes make this worse, which is why a model can be launch-bound at batch 1 and compute-bound at batch 64."
+        }
+      ],
+      "code": [
+        {
+          "h": "The profiler, and the timeline signatures worth recognizing",
+          "paras": [
+            "The table of operator times is the least useful output. The timeline is the artifact - the gaps and their cadence identify the problem faster than any aggregate."
+          ],
+          "code": "from torch.profiler import profile, schedule, ProfilerActivity\n\nwith profile(\n    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],\n    schedule=schedule(wait=1, warmup=2, active=3),   # SKIP the first steps -\n                                                     # they include autotuning,\n                                                     # allocator growth and\n                                                     # possibly compilation\n    on_trace_ready=torch.profiler.tensorboard_trace_handler(\"./log\"),\n    record_shapes=True, profile_memory=True, with_stack=True,\n) as prof:\n    for i in range(6):\n        train_step(); prof.step()\n\nprint(prof.key_averages().table(sort_by=\"self_cuda_time_total\", row_limit=15))\nprof.export_chrome_trace(\"trace.json\")     # <- open in chrome://tracing or\n                                           #    Perfetto. THIS is the artifact.\n\n# TIMELINE SIGNATURES - what the picture means:\n#\n#  GPU row mostly EMPTY, long gaps ............ INPUT-BOUND. The loader cannot\n#                                               keep up. Fix the pipeline; a\n#                                               faster model changes nothing.\n#  Regular SAWTOOTH of idle at a fixed cadence . A per-step SYNCHRONIZATION.\n#                                               Look for .item(), .cpu(), a\n#                                               print, or an `if` on a tensor\n#                                               value. It drains the pipeline.\n#  Dense PICKET FENCE of tiny kernels ......... LAUNCH-BOUND. Too many small\n#                                               ops. Fuse (torch.compile),\n#                                               raise the batch, or CUDA graphs.\n#  Few LONG kernels, GPU ~100% busy ........... COMPUTE-BOUND. You are using\n#                                               the machine. Now the levers are\n#                                               algorithmic or precision.\n#  Large memcpy bars ......................... unnecessary host-device traffic,\n#                                               or a non-contiguous tensor\n#                                               forcing a copy.\n#\n# THE 80/20: look at the GPU row's OCCUPANCY before reading any table. Whether\n# the device is busy answers the first question, and the tables answer the\n# second - in that order, never the reverse.",
+          "caption": "Read the timeline before the table. Device occupancy answers the first question - is the GPU even working - and each idle pattern has a distinct cadence that names its cause, which no aggregate table can show."
+        },
+        {
+          "h": "The correctness ladder, in the order that eliminates the most",
+          "paras": [
+            "Each rung eliminates a large region of the search space. Running them in order is what turns an open-ended investigation into a bounded one."
+          ],
+          "code": "# 1. OVERFIT ONE BATCH. The highest-value test in machine learning.\nx, y = next(iter(loader))\nmodel.train()\nfor _ in range(300):\n    loss = criterion(model(x), y); loss.backward(); opt.step(); opt.zero_grad()\nprint(loss.item())      # must reach ~0\n#\n#   CANNOT reach ~0 -> the bug is in the MODEL, LOSS, or OPTIMIZER. Not the\n#                      data, not the hyperparameters, not the schedule. You\n#                      have eliminated most of the search space in 2 minutes.\n#   CAN reach ~0    -> wiring is fine; look at the data pipeline, the\n#                      augmentation, the train/val split, or generalization.\n\n# 2. DO ALL PARAMETERS GET GRADIENT?\nloss.backward()\ndead = [n for n, p in model.named_parameters()\n        if p.requires_grad and (p.grad is None or p.grad.abs().sum() == 0)]\nprint(\"NO GRADIENT:\", dead)     # names an unregistered module, a detached\n                                # branch, or an accidentally frozen submodule\n\n# 3. SANITY-CHECK THE LOSS AT INITIALIZATION.\n#    C-class cross-entropy on a fresh model must be about ln(C). If it is not,\n#    the labels, the reduction, or the output layer is wrong - and this check\n#    takes one forward pass.\nprint(loss.item(), math.log(num_classes))\n\n# 4. FIND THE FIRST NaN.\nwith torch.autograd.set_detect_anomaly(True):    # very slow; use for one run\n    loss.backward()                              # raises AT the op that\n                                                 # produced it, with the\n                                                 # forward traceback\n\n# 5. TRUTHFUL CUDA TRACEBACKS: CUDA_LAUNCH_BLOCKING=1\n#    Launches are async, so an error surfaces wherever the host next\n#    synchronizes - not where it happened.\n\n# 6. BISECT AGAINST A REFERENCE. Disable one thing at a time and find where\n#    the behaviour changes: AMP off, compile off, one GPU instead of many,\n#    num_workers=0, augmentation off, deterministic algorithms on.\n#    Each is one line and each halves the space.",
+          "caption": "Overfitting one batch is the highest-leverage test available and it is routinely skipped in favour of tuning. It partitions the problem into model-side and data-side in two minutes, which no amount of hyperparameter search can do."
+        }
+      ],
+      "useCases": [
+        "Any training run that is slower than expected, where the first question - is the GPU even busy - is answered in seconds and determines which of three unrelated investigations to start.",
+        "A model that will not learn, where the overfit-one-batch test immediately separates a wiring bug from a data or generalization problem, and the no-gradient check names the specific parameter when it is the former.",
+        "Cost reduction on a large training job, where Amdahl's law makes the profile the only defensible basis for choosing what to optimize - and where a 60% data pipeline invalidates every model-side improvement you were considering.",
+        "Validating that an optimization did what you think: comparing profiles before and after a change is how you confirm that torch.compile actually fused something, that the overlap you configured is happening, or that a fusion pass ran at all."
+      ],
+      "pitfalls": [
+        "Optimizing before profiling. Amdahl's law bounds your gain by the fraction you are improving, so effort spent on a component you have not measured has an expected payoff near zero - and a 60% data pipeline makes every model-side change nearly worthless.",
+        "Timing without torch.cuda.synchronize. CUDA launches are asynchronous, so timing around them measures Python's enqueue rate rather than the work, and the error always flatters the GPU. Warm up first as well, since early iterations include autotuning and allocator growth.",
+        "Profiling the first steps. They contain kernel autotuning, allocator segment growth, cuDNN benchmarking and possibly compilation, none of which represent steady state. Use the profiler schedule to skip and warm up.",
+        "Reading the operator table before the timeline. The table tells you which kernels are expensive; the timeline tells you whether the GPU was doing anything at all. If the device is idle 70% of the time, the table is a ranking of the wrong things.",
+        "Calling .item() every step. It is a full synchronization that drains the pipeline the CPU had built by running ahead, so you also lose the launch latency that was previously hidden. Accumulate on the device and transfer once per logging interval.",
+        "Trusting a CUDA error's traceback. Asynchronous execution means the error surfaces wherever the host next synchronizes, which is usually not where it occurred. CUDA_LAUNCH_BLOCKING=1 makes it truthful at a large cost in speed.",
+        "Tuning hyperparameters before checking that the model can overfit one batch. If it cannot, no hyperparameter will save it, and the search you are running is expensive noise around a wiring bug."
+      ],
+      "connections": [
+        {
+          "ref": "pytorch-internals/cuda-memory",
+          "text": "The memory half of the same discipline: the snapshot recorder is to memory what the profiler timeline is to time, and both replace bisection with a picture that names the cause directly."
+        },
+        {
+          "ref": "pytorch-internals/data-pipelines",
+          "text": "The most common finding a profile produces. Input-bound training is under-diagnosed precisely because DataLoader hides the pipeline so thoroughly that people do not think to suspect it."
+        },
+        {
+          "ref": "training-systems/torch-compile",
+          "text": "The main fix for launch-bound and memory-bound work, since fusion reduces both the number of launches and the bytes moved. The profile before and after is how you confirm it did anything, and dynamo.explain is how you find the graph breaks limiting it."
+        },
+        {
+          "ref": "pytorch-internals/custom-loss",
+          "text": "Where the numerical failures come from, and where the single most useful permanent metric lives: logging the pre-clip gradient norm every step warns of instability long before the loss does."
+        },
+        {
+          "ref": "mlops/monitoring",
+          "text": "The production continuation. Everything here is applied to a training run in front of you; monitoring applies the same instrument-first discipline to a system nobody is watching, where the failures are equally silent."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is the first question when training is slow?",
+          "a": "Is the GPU busy. Low utilization means you are input-bound or synchronization-bound and no model-side optimization will help."
+        },
+        {
+          "q": "Why must you warm up before profiling?",
+          "a": "The first iterations include kernel autotuning, cuDNN benchmarking, allocator segment growth and possibly compilation - none of which represent steady state."
+        },
+        {
+          "q": "What does an idle GPU with long gaps mean?",
+          "a": "Input-bound. The data pipeline cannot keep up, and the fix is in the loader rather than the model."
+        },
+        {
+          "q": "What does a regular sawtooth of GPU idle mean?",
+          "a": "A per-step synchronization - .item(), .cpu(), a print, or Python control flow on a tensor value - draining the pipeline the CPU had built by running ahead."
+        },
+        {
+          "q": "What does a dense picket fence of tiny kernels mean?",
+          "a": "Launch-bound. Each launch costs a few microseconds, so with thousands of small operations the step time is set by the count rather than the work."
+        },
+        {
+          "q": "What is arithmetic intensity?",
+          "a": "FLOPs per byte moved. High intensity means compute-bound; low means memory-bound, which is where fusion helps because it reduces traffic rather than arithmetic."
+        },
+        {
+          "q": "What does Amdahl's law say about optimization?",
+          "a": "Speeding up a component that is fraction p of the time caps your total gain at 1/(1-p). Making a 20% component infinitely fast buys at most 25%."
+        },
+        {
+          "q": "What is the overfit-one-batch test?",
+          "a": "Train on four examples with augmentation and regularization off until the loss reaches essentially zero. If it cannot, the bug is in the model, loss or optimizer."
+        },
+        {
+          "q": "What should cross-entropy be at initialization?",
+          "a": "About ln(C) for C classes. If it is not, the labels, the reduction, or the output layer is wrong - and it costs one forward pass to check."
+        },
+        {
+          "q": "How do you find which parameters get no gradient?",
+          "a": "After one backward, list parameters whose grad is None or all zero. That names an unregistered module, a detached branch, or an accidentally frozen submodule."
+        },
+        {
+          "q": "What does set_detect_anomaly do?",
+          "a": "Makes the backward pass raise at the operation that produced a NaN, with a traceback to where that operation was created. Very slow, so use it for one targeted run."
+        },
+        {
+          "q": "What does CUDA_LAUNCH_BLOCKING=1 do?",
+          "a": "Forces synchronization after every kernel launch, so CUDA errors surface at the operation that caused them rather than wherever the host next synchronized."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Your training run is slower than expected. Walk through the investigation.",
+          "a": "MEASURE FIRST, because 'slow' names no cause and there are three unrelated ones with three unrelated fixes. And Amdahl's law makes this quantitative rather than advisory: if I optimize a component that is 20% of the time, my ceiling is a 25% improvement, so working without a measurement has an expected payoff near zero. STEP 1: IS THE GPU BUSY? Watch utilization for a minute. This takes seconds and it splits the problem immediately. Sustained low utilization means the device is waiting, so the model is not the problem. STEP 2: PROFILE, AND READ THE TIMELINE, NOT THE TABLE. The operator table ranks kernels by time and is the less useful output; the timeline shows device work, host work and memory over time, and the GAPS are the finding. Four signatures cover most cases. Long empty stretches on the GPU row: INPUT-BOUND, fix the loader. A regular sawtooth of idle at a fixed cadence: a per-step SYNCHRONIZATION - a .item(), a print, a NaN check, an if on a tensor value - draining the pipeline that the CPU had built by running ahead, so you lose both the wait and the previously-hidden launch latency. A dense picket fence of tiny kernels: LAUNCH-BOUND, where step time is set by the number of operations rather than the work in them. Few long kernels with the device busy: COMPUTE-BOUND, which means you are actually using the machine. STEP 3: SEPARATE THE COMPONENTS IF THE TIMELINE IS AMBIGUOUS. Time the data loader alone with the model removed, and time the step alone on one reused batch with synchronize on both sides. Those two numbers tell you the split directly. STEP 4: FIXES, MATCHED TO THE FINDING. Input-bound: more workers, cheaper transforms, a better storage format, decoding on the device - and note more workers is an inverted V, not monotone. Synchronization-bound: log less often, accumulate metrics on the device, remove tensor-valued conditionals from the hot loop. Launch-bound: torch.compile to fuse, a larger batch, or CUDA graphs to eliminate launch overhead entirely for a static shape. Compute-bound: now the levers are precision, better kernels such as fused attention, or an algorithmic change - and this is the only case where a faster model is the right answer. STEP 5: CONFIRM. Profile again and check the change did what you expected. This is skipped constantly and it is how people accumulate optimizations that did nothing. THE THING I WOULD EMPHASIZE. The most common finding is input-bound, and it is under-diagnosed precisely because DataLoader hides the pipeline so completely that people do not think to suspect it. I have seen weeks spent on model optimizations for a job that was waiting on JPEG decoding, and the measurement that would have redirected it takes ten minutes.",
+          "deepDive": {
+            "q": "The timeline shows the GPU busy but throughput is still poor. What now?",
+            "a": "A busy GPU is not a productive GPU - it can be busy doing memory-bound work at a small fraction of peak arithmetic throughput. So the next question is WHICH RESOURCE is saturated. THE ROOFLINE FRAMING. Every kernel has an arithmetic intensity - FLOPs per byte moved - and its attainable performance is the lesser of peak compute and intensity times memory bandwidth. Large matrix multiplications have high intensity and run near peak; elementwise operations, normalizations, activations, and reductions have intensity near one and are limited entirely by bandwidth. A transformer step is a mixture, and a step dominated by the memory-bound half can keep the device 100% occupied while achieving a small fraction of its FLOPs. HOW I WOULD ESTABLISH IT. Compute the achieved FLOPs per second from the model's arithmetic and the measured step time, and compare against the device's spec. If you are at 15% of peak on a model that should be matmul-dominated, something is wrong. The profiler gives per-kernel time, and comparing the time spent in matmul kernels against everything else tells you the split directly - if the elementwise and normalization kernels together exceed the matmuls, you are memory-bound in aggregate. Nsight Compute gives achieved bandwidth and occupancy per kernel if you need to go further. THE FIXES FOR MEMORY-BOUND WORK, which is the usual finding. (1) FUSION. Chains of elementwise operations each read and write the full tensor; fusing them into one kernel moves the data once. torch.compile does this automatically and it is the highest-value single change for this pattern. (2) BETTER ALGORITHMS THAT REDUCE TRAFFIC RATHER THAN ARITHMETIC - flash attention is the canonical example, tiling so the attention matrix is never materialized, with identical arithmetic and far less traffic. (3) LOWER PRECISION, which halves the bytes moved and therefore directly speeds up memory-bound kernels - this is a large part of why bf16 helps beyond the tensor-core arithmetic. (4) LAYOUT: non-contiguous tensors force strided access or an explicit copy, and a stray permute or transpose before an operation can silently double the traffic. Check for unexpected contiguous calls in the profile. THE OTHER CAUSE OF BUSY-BUT-SLOW: SMALL KERNELS AT LOW OCCUPANCY. A kernel launched with too few blocks cannot fill the device's streaming multiprocessors, so it occupies the timeline while using a fraction of the hardware. Signature: batch size too small, or a model dimension that does not tile well. Fix: larger batch, or accept it and use CUDA graphs to at least remove the launch overhead between them. AND THE ONE PEOPLE MISS: the kernels may be the wrong ones. cuDNN algorithm selection, a convolution running a fallback because of an unusual shape or a channels-last mismatch, or an operation silently falling back to a generic implementation because of a dtype it does not have a fast path for. The profiler shows kernel NAMES, and a name containing 'fallback' or an unexpectedly generic kernel where you expected a tensor-core one is an immediate finding. THE HABIT. Compare against a theoretical bound rather than against your expectations. Knowing that a step should take X milliseconds given the arithmetic and the device's specification turns 'slower than expected' into a specific gap with a size, which is what makes the investigation terminate."
+          }
+        },
+        {
+          "q": "Your model is not learning - the loss is flat. How do you debug it?",
+          "a": "I WOULD RUN A LADDER OF CHECKS IN THE ORDER THAT ELIMINATES THE MOST, because each one partitions the space and the whole thing takes about twenty minutes. RUNG 1: OVERFIT ONE BATCH. Take four examples, turn off augmentation, dropout, weight decay and shuffling, and train on them repeatedly until the loss reaches essentially zero. This is the highest-value test in machine learning and it is skipped almost universally. If the model CANNOT drive four examples to zero loss, the bug is in the MODEL, the LOSS, or the OPTIMIZER - and you have eliminated the data pipeline, the hyperparameters, the schedule, and generalization entirely. If it CAN, the wiring is correct and the problem is on the data side. Two minutes, and it halves the problem. RUNG 2: IS THE LOSS SENSIBLE AT INITIALIZATION? For C-class cross-entropy on an untrained model it must be about ln(C). If it is 12 when it should be 2.3, the labels are wrong, the reduction is wrong, or the output layer is producing something unexpected. One forward pass. RUNG 3: DO ALL PARAMETERS RECEIVE GRADIENT? After one backward, list every parameter whose grad is None or identically zero. This immediately names an unregistered submodule stored in a plain Python list, a branch that was detached, or a submodule frozen by accident. It is one comprehension and it gives you a parameter NAME rather than a symptom. RUNG 4: IS THE OPTIMIZER SEEING THE PARAMETERS? Compare the count in optimizer.param_groups against model.parameters(). An optimizer constructed before some modules were created, or given a filtered list, silently updates nothing. Also confirm the parameters actually CHANGE - take a norm before and after a step. RUNG 5: GRADIENT MAGNITUDE. Log the global gradient norm. If it is 1e-12 the signal is vanishing - check initialization, the activation functions, and whether a normalization layer is missing. If it is 1e8 it is exploding and the loss is probably about to go NaN. Both are visible immediately and neither is visible in the loss. RUNG 6: LEARNING RATE. Only now, because a wrong learning rate is what people check FIRST and it is rarely the cause of a completely flat loss. Sweep it over several orders of magnitude - a flat loss at every rate points back to rungs 1 to 4. RUNG 7: THE DATA. Print actual batches. Are the labels aligned with the inputs? Is normalization applied? Is the target in the range the loss expects? A shuffled label-input correspondence produces exactly a flat loss and is invisible in every metric. THE COMMON CAUSES, ranked by what I actually find. Missing zero_grad or a missing optimizer.step. An unregistered module. Labels misaligned. A learning rate far too small. A frozen backbone from a leftover requires_grad_(False). And forgetting model.train(), so dropout and batch norm are in the wrong mode. THE POINT OF THE LADDER. Each rung is cheap and eliminates a category. Working in this order means you never spend a day on hyperparameters for a model with a wiring bug, which is the failure mode this ladder exists to prevent."
+        },
+        {
+          "q": "What would you log in every training run, and why?",
+          "a": "I would separate metrics into three groups: what tells you the run is working, what warns you before it breaks, and what lets you diagnose afterwards. Most people log only the first group. GROUP 1 - IS IT WORKING. Training loss, validation loss, and the task metric. Necessary and almost useless for diagnosis, because nearly every bug produces a plausible loss curve. GROUP 2 - EARLY WARNING, and this is the group that earns its keep. (1) GRADIENT NORM, pre-clip. clip_grad_norm_ RETURNS it, so it is free, and it is the single best early indicator of instability - a rising gradient norm precedes a loss spike by hundreds of steps. (2) CLIP FRACTION - what proportion of steps are being clipped. Near zero means the guard does nothing; near one means clipping has replaced your update rule. (3) LEARNING RATE, actually read from the optimizer rather than from your schedule's intent, because a warmup or scheduler bug is invisible otherwise. (4) PARAMETER NORM, or its change per step. A parameter norm growing without bound, or a step size that is a large fraction of the parameter magnitude, is a problem in progress. (5) For policy or generative models, an ENTROPY or diversity measure, since collapse is silent in the loss. GROUP 3 - RESOURCE AND DIAGNOSIS. (1) Peak memory per step, with an alert on the trend - a leak found on day one is a five-minute fix, and the same leak found when a week-long run dies at hour 140 has cost the run. (2) Step time, and separately data time versus compute time, so a pipeline regression is visible. (3) GPU utilization. (4) Throughput in examples per second, which is the number that actually matters for cost. WHAT I WOULD LOG PERIODICALLY RATHER THAN EVERY STEP. Per-layer gradient norms, which localize a vanishing or exploding gradient to a specific depth. Activation statistics - mean, standard deviation, dead-unit fraction - which catch initialization and normalization problems the loss cannot show. Weight histograms. These are expensive enough to warrant a cadence of every few hundred steps. THE IMPLEMENTATION CONSTRAINT that matters. Every .item() is a synchronization that drains the pipeline, so logging every scalar every step can measurably slow training. Accumulate on the DEVICE and transfer once per logging interval - you get every step's contribution at one synchronization per interval. This is what well-optimized training loops do and it is why naive logging shows up as a sawtooth in a profile. WHAT I WOULD ADD FOR A LONG RUN SPECIFICALLY. A pre-declared capability suite or held-out evaluation on a fixed cadence, and enough checkpointing to resume - including the data loader's position, which is usually forgotten and means a resume silently re-trains on data already seen. THE PRINCIPLE. The metrics worth logging are the ones that move BEFORE the thing you care about moves. Loss is a lagging indicator of nearly every failure in this module; gradient norm, memory trend, and entropy are leading ones, and they are all nearly free.",
+          "deepDive": {
+            "q": "How would you build a regression test suite for a training pipeline?",
+            "a": "The premise is that machine-learning failures are silent, so the tests worth writing are the ones that catch failures a training curve would not. I would build four tiers, fastest first. TIER 1 - STRUCTURAL, seconds, runs on every commit. Parameter count equals the expected arithmetic, which catches unregistered submodules, unintended weight sharing, and a config change that silently altered depth or width. Every parameter receives a non-zero gradient after one backward. Every parameter and buffer lands on the target device after .to(). A checkpoint round trip - save, construct fresh, load with strict=True, assert identical outputs on a fixed input - which catches missing buffers and non-deterministic construction. Output shapes for a couple of input shapes including batch size one. These are cheap, they are deterministic, and each targets a specific silent failure. TIER 2 - NUMERICAL CONTRACTS, seconds. Loss at initialization equals the theoretical value - ln(C) for C-class cross-entropy - which catches label and reduction errors. A masked loss is invariant to how much padding is in the batch, which catches the normalization bug. gradcheck in float64 for any custom autograd Function, since a hand-written backward is the one component whose failure is completely invisible. And a train-versus-eval difference test: a model with dropout must give different outputs across two train-mode calls and identical outputs in eval, which verifies the mode flag is actually wired through custom modules. TIER 3 - LEARNING BEHAVIOUR, a minute or two, runs on every pull request. OVERFIT A TINY BATCH: train on four examples for a few hundred steps and assert the loss falls below a threshold. This is the strongest single test of the whole pipeline - it exercises the model, the loss, the optimizer and the training loop together, and it fails if any of them is broken. Assert the parameters actually changed. And assert that a fixed seed gives a reproducible loss trajectory for a handful of steps, which catches accidental non-determinism entering the pipeline. TIER 4 - GOLDEN RUNS, minutes to hours, nightly. Train a small model on a small dataset to a known metric and assert it lands within a tolerance established from several seeds. This is the only tier that catches quality regressions from a library upgrade, a changed default, or a subtly wrong optimization, and it is the expensive one - so the tolerance must be set from the measured seed spread, not guessed, or it will be flaky and get disabled. Also record throughput and peak memory here and alert on regressions, since a performance regression is a real defect that no correctness test catches. WHAT I WOULD NOT DO. Put a long training run in the pull-request path; assert on exact floating-point values across hardware, since kernel differences make that flaky; or write tests that assert a metric improves, which is what research is for rather than what CI is for. THE SELECTION CRITERION, which is the transferable part. In ordinary software most failures are loud, so testing targets edge cases. In machine-learning code most failures are SILENT and still produce a plausible number, so testing should target the mechanisms the abstractions hide - registration, gradient flow, normalization, mode flags, serialization. That is a different criterion and it is why ML test suites that follow ordinary software instincts catch so little."
+          }
+        },
+        {
+          "q": "How do you debug a job that behaves differently in production than in development?",
+          "a": "The productive framing is that something in the environment differs and I need to find WHICH, so the method is bisection over the differences rather than reasoning about the model. STEP 1: ENUMERATE WHAT ACTUALLY DIFFERS, in writing. Library versions - PyTorch, CUDA, cuDNN, the tokenizer, the preprocessing library. Hardware - a different GPU architecture selects different kernels and produces legitimately different numerics. Batch size, which changes BatchNorm statistics and can change the results of reductions. Precision - AMP on in one place and not the other. Model mode - eval versus train. Determinism flags. And the data path: preprocessing, normalization constants, image decoding library, resize interpolation, tokenizer version. STEP 2: FIND A REPRODUCIBLE DIFFERENCE ON ONE EXAMPLE. Take a single input, run it through both environments, and compare the OUTPUT. If they differ, the model or its inputs differ and I can bisect. If they agree, the model is fine and the difference is in aggregation, batching, or the evaluation itself - which is a completely different investigation and knowing that immediately is worth a great deal. STEP 3: BISECT THE PIPELINE, not just the model. Compare intermediate values: the raw input bytes, the decoded tensor, the normalized tensor, the model's first-layer output, the logits. The first point of divergence names the component. In my experience the most common answer is PREPROCESSING - different normalization constants, RGB versus BGR, a different resize interpolation, a tokenizer version mismatch. A correct model with different preprocessing is indistinguishable from a broken model in the metrics and far more likely. STEP 4: THE USUAL SUSPECTS, ranked by how often they are the answer. (1) model.eval() not called, so dropout is active and BatchNorm uses batch statistics - and at batch size one in production that produces garbage while working fine at batch 64 in development. (2) Preprocessing mismatch, per step 3. (3) A different library version changing a default - an interpolation mode, an initialization, a fused kernel's numerics. (4) BATCH SIZE affecting BatchNorm, or affecting a reduction's order enough to matter. (5) Missing no_grad or inference_mode, which is a memory and speed difference rather than a correctness one but presents as production being slow or running out of memory. (6) A checkpoint that did not fully load, because strict=False was used and the return value discarded. STEP 5: THE STRUCTURAL FIX. Pin the environment - a container image with exact versions - and run the SAME evaluation code in both places, driven by the same configuration. Most of these differences exist because development and production have separately-evolved code paths for what should be one path. WHAT I WOULD BUILD TO PREVENT RECURRENCE. A golden-output test that runs in both environments: fixed inputs, expected outputs recorded at export time, asserted on every deployment. That single artifact converts this whole class of problem from an investigation into an alert, and it is the thing that would have caught every cause in step 4."
+        },
+        {
+          "q": "When is torch.compile worth using, and how do you tell whether it helped?",
+          "a": "WHAT IT DOES, which determines when it helps. Dynamo captures graphs from Python bytecode, breaking the graph where it cannot proceed, and Inductor generates fused kernels. The gains come from two things: FUSING memory-bound elementwise chains so tensors are read and written once instead of once per operation, and REDUCING KERNEL LAUNCHES. Both of those target specific profile signatures, which is how you know in advance whether it can help. WHEN IT HELPS A LOT. A model dominated by many small elementwise operations - normalizations, activations, residual adds, scaling - which is most of a transformer block outside the matmuls. A model that is launch-bound, showing a picket fence of tiny kernels. Small batch sizes, where launch overhead is a large fraction. Anything where the profile shows the GPU busy on low-intensity work. WHEN IT HELPS LITTLE OR NOT AT ALL. A model already dominated by large matrix multiplications running near peak - there is nothing to fuse and the launches are already amortized. A job that is INPUT-BOUND, where the GPU is idle and making it faster changes nothing. A model with many graph breaks, since fusion only happens within a graph. And anything where the dominant cost is communication. HOW I WOULD TELL WHETHER IT HELPED - and this is where people go wrong. (1) BENCHMARK CORRECTLY: warm up generously, because the first calls include compilation which can be tens of seconds, and synchronize around the timing. Comparing a compiled first iteration against an eager one measures compilation, not speed. (2) MEASURE STEADY-STATE THROUGHPUT over many steps, not a single step. (3) CHECK THE GRAPH BREAKS with torch._dynamo.explain, which reports how many graphs were produced and WHY each break happened. If your model compiled into forty graphs, most of the benefit is gone and the breaks are the thing to fix - usually a print, a data-dependent branch, or a call into a library Dynamo cannot trace. (4) WATCH FOR RECOMPILATION. Dynamo guards its specializations and recompiles on a miss, so varying input shapes can trigger repeated recompilation that costs more than the fusion saves. The logs report this, and dynamic=True is the fix when shapes genuinely vary. (5) PROFILE BEFORE AND AFTER and confirm the kernel count dropped and the elementwise time shrank. If the profile looks the same, nothing was fused regardless of what the wall clock says. THE COSTS TO WEIGH. Compilation time, which matters for short jobs and for interactive development. Debuggability inside the compiled region. Occasional numerical differences from fusion changing operation order - usually within tolerance, and worth verifying rather than assuming. And a longer feedback loop, since every code change triggers recompilation. WHAT I WOULD ACTUALLY DO. Profile first to see whether the signature is one compile can address. Try it - it is one line. Measure steady-state throughput properly. Check the graph-break count and fix the cheap ones. And verify numerics against eager on real inputs before shipping it, because a fusion that changes results outside tolerance is a correctness issue that no speed measurement reveals."
+        },
+        {
+          "q": "What makes debugging machine-learning code different from debugging ordinary software?",
+          "a": "THE CENTRAL DIFFERENCE: MOST FAILURES ARE SILENT. In ordinary software a bug usually produces an exception, a wrong output you can check against a specification, or a test failure. In machine-learning code, a model with a third of its layers unregistered still trains. A loss with the wrong normalization still falls. A traced model with a baked-in branch still returns numbers. A wrong hand-written backward still converges, slightly worse. The system's primary output - a loss curve - is a terrible detector, because almost every bug produces a plausible one. THE CONSEQUENCES FOR METHOD, which is what the difference actually implies. (1) YOU CANNOT RELY ON THE PROGRAM TELLING YOU. So you build instruments: the profiler timeline, the memory snapshot, gradient norms, parameter counts, activation statistics. The work shifts from reading errors to constructing observations. (2) TESTS MUST TARGET MECHANISMS, not behaviour. Asserting that a parameter count matches, that every parameter receives gradient, that a masked loss is invariant to padding - these check the machinery the abstractions hide, which is where the silent failures are. Ordinary software testing instincts, which target edge cases and error paths, catch very little here. (3) STOCHASTICITY BREAKS BISECTION. Two runs differ legitimately, so 'it got worse' may be seed variance rather than your change. You must establish the run-to-run spread before you can attribute anything, and that measurement is skipped constantly. (4) THE FEEDBACK LOOP IS LONG. A bug that manifests after six hours of training cannot be debugged by iteration, which is why the cheap early checks - overfit one batch, sanity-check the loss at initialization - have such high value: they move detection from hour six to minute two. (5) THE BUG MAY BE IN THE SPECIFICATION. A model that does something surprising is frequently optimal for a reward or loss you did not intend to write, which is a category that does not exist in ordinary software - the program is correct and the requirement was wrong, and no amount of code inspection finds it. THE PRACTICES THAT FOLLOW, in order of value. Overfit one batch, always, first - it separates model-side from data-side in two minutes. Assert structural properties in tests. Log leading indicators - gradient norm, memory trend - not just the lagging loss. Compare against a reference implementation or a previous run rather than against your expectations. And bisect over the ENVIRONMENT, since so many problems are a version, a mode flag, or a preprocessing constant rather than the model. WHAT I WOULD SAY LAST. This module has been a tour of abstractions that hide mechanisms - registration, the caching allocator, graph capture, collectives - and every one of them fails without a symptom that names it. That is not a criticism of the abstractions, which earn their keep. It is an argument that the corresponding skill is knowing what each one hid and having an instrument ready for it, which is a different skill from the one ordinary debugging teaches."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "The overfit-one-batch test",
+        "back": "4 examples, augmentation/regularization/shuffling OFF, train to ~0 loss. CANNOT -> the bug is in MODEL/LOSS/OPTIMIZER (data, hyperparameters and schedule eliminated). CAN -> wiring is fine, look at the data pipeline. Two minutes, halves the search space, almost universally skipped."
+      },
+      {
+        "type": "formula",
+        "front": "Amdahl's law",
+        "back": "speedup = 1/((1-p) + p/s) -> 1/(1-p). Making a 20% component INFINITELY fast caps the total gain at 25%. This is 'profile before optimizing' stated quantitatively - work on an unmeasured component has expected payoff near zero."
+      },
+      {
+        "type": "intuition",
+        "front": "Four timeline signatures",
+        "back": "Long EMPTY GPU stretches = input-bound. Regular SAWTOOTH of idle = a per-step SYNCHRONIZATION (.item(), print, tensor-valued `if`). Dense PICKET FENCE of tiny kernels = launch-bound. Few LONG kernels, GPU busy = compute-bound. Read the timeline BEFORE the table."
+      },
+      {
+        "type": "formula",
+        "front": "Roofline / arithmetic intensity",
+        "back": "I = FLOPs/bytes; attainable = min(peak_compute, I * bandwidth). Matmuls = high I, compute-bound, near peak. Elementwise/norms/reductions = I~1, MEMORY-bound. Fusion reduces BYTES not FLOPs - so it helps the second and not the first."
+      },
+      {
+        "type": "intuition",
+        "front": "A busy GPU is not a productive GPU",
+        "back": "It can be 100% occupied doing memory-bound work at a small fraction of peak FLOPs. Compute achieved FLOP/s from the model's arithmetic and the step time, and compare to spec. 15% of peak on a matmul-dominated model means something is wrong."
+      },
+      {
+        "type": "definition",
+        "front": "The loss-at-initialization check",
+        "back": "C-class cross-entropy on an untrained model must be ~ln(C). If it is 12 when it should be 2.3, the labels, the reduction, or the output layer is wrong. One forward pass, and it catches a whole category."
+      },
+      {
+        "type": "intuition",
+        "front": "The no-gradient sweep",
+        "back": "After one backward, list parameters where grad is None or all-zero. It NAMES an unregistered submodule (the plain-list bug), a detached branch, or an accidentally frozen module - a parameter name instead of a symptom. One comprehension."
+      },
+      {
+        "type": "pitfall",
+        "front": "Profile the WARM steps only",
+        "back": "The first iterations include kernel autotuning, cuDNN benchmarking, allocator segment growth, and possibly compilation. Use profiler schedule(wait, warmup, active). And synchronize around any manual timing, or you measure Python's enqueue rate."
+      },
+      {
+        "type": "intuition",
+        "front": "Log LEADING indicators, not just loss",
+        "back": "Loss is a LAGGING indicator of nearly every failure. Gradient norm (free from clip_grad_norm_), clip fraction, actual LR read from the optimizer, parameter norm, memory trend, and entropy all move BEFORE the loss does."
+      },
+      {
+        "type": "pitfall",
+        "front": "Logging can slow training measurably",
+        "back": "Every .item() is a full SYNCHRONIZATION that drains the pipeline the CPU built by running ahead. Accumulate metrics on the DEVICE and transfer once per interval - you keep every step's contribution at one sync per interval."
+      },
+      {
+        "type": "definition",
+        "front": "The correctness ladder",
+        "back": "(1) overfit one batch (2) loss = ln(C) at init (3) every param gets gradient (4) optimizer sees all params and they CHANGE (5) gradient norm sane (6) THEN learning rate (7) print actual batches. LR is what people check first and is rarely the cause of a FLAT loss."
+      },
+      {
+        "type": "intuition",
+        "front": "Why ML debugging differs from software debugging",
+        "back": "Most failures are SILENT and still produce a plausible loss curve. So: build INSTRUMENTS rather than read errors; test MECHANISMS not behaviour; establish seed spread before attributing anything; and remember the bug may be in the SPECIFICATION - a category ordinary software does not have."
+      }
+    ],
+    "refs": [
+      {
+        "title": "PyTorch: torch.profiler documentation",
+        "url": "https://pytorch.org/docs/stable/profiler.html"
+      },
+      {
+        "title": "PyTorch: Profiler recipe and trace analysis",
+        "url": "https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html"
+      },
+      {
+        "title": "Karpathy (2019), A Recipe for Training Neural Networks",
+        "url": "http://karpathy.github.io/2019/04/25/recipe/"
+      },
+      {
+        "title": "Williams, Waterman & Patterson (2009), Roofline: An Insightful Visual Performance Model",
+        "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
+      },
+      {
+        "title": "PyTorch: Frequently Asked Questions - debugging CUDA errors and memory",
+        "url": "https://pytorch.org/docs/stable/notes/faq.html"
+      }
+    ],
+    "demos": [
+      "optimizers",
+      "gradient-clipping",
+      "batch-norm",
+      "mixed-precision"
+    ]
+  }
+};

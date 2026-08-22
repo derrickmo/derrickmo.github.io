@@ -1,0 +1,277 @@
+// GENERATED from content/lessons/generative/ebm-score.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/generative/ebm-score/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "ebm-score": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "Every other model in this module bought tractability with a structural constraint. VAEs need an encoder and settle for a bound. Flows need invertible layers with computable Jacobians. Autoregressive models need an ordering. Energy-based models refuse all of that: define a scalar ENERGY E(x) with any network you like, let p(x) be proportional to exp(-E(x)), and you have a distribution. Low energy means high probability. The architecture is completely unconstrained.",
+        "The price is the normalizing constant Z - the integral of exp(-E(x)) over all of x-space, which is intractable for anything interesting. You cannot compute the likelihood, you cannot compute its gradient directly, and sampling requires MCMC. For years that made EBMs elegant and impractical. The escape is a single observation that is genuinely the most important idea in this lesson: TAKE THE GRADIENT OF THE LOG-DENSITY WITH RESPECT TO x, AND Z DISAPPEARS. Z is a constant with respect to x, so grad log p(x) = -grad E(x) exactly. The intractable quantity is annihilated by differentiation.",
+        "That quantity - grad log p(x), the SCORE - points uphill in probability, and it is all you need to sample by Langevin dynamics. So the strategy becomes: never model the density, model the score. Hyvarinen showed you can fit a score without knowing the density, Vincent showed that fitting a score is equivalent to DENOISING, Song and Ermon showed that denoising at many noise levels makes it work in high dimensions, and Ho et al.'s DDPM turned out to be exactly that with a different derivation. Diffusion models are score models. The chain from 'the normalizing constant is intractable' to 'therefore text-to-image works' runs through this lesson, and seeing it as one idea rather than four is the point."
+      ],
+      "math": [
+        {
+          "h": "The energy-based model and its intractable constant",
+          "paras": [
+            "Any scalar function of x defines a distribution once you normalize. The normalizer is an integral over the whole data space, which for images is hopeless."
+          ],
+          "tex": "p_\\theta(x) = \\frac{e^{-E_\\theta(x)}}{Z_\\theta}, \\qquad Z_\\theta = \\int e^{-E_\\theta(x)}\\,\\mathrm{d}x",
+          "texNote": "The maximum-likelihood gradient is E_data[grad E] - E_model[grad E]: push energy DOWN on real data, UP on samples from the model. The second term needs samples from p_theta, which needs MCMC - and that is the whole difficulty."
+        },
+        {
+          "h": "The score: differentiating away the normalizer",
+          "paras": [
+            "This is the central move. Z does not depend on x, so its gradient with respect to x is zero, and the score of an energy-based model is simply the negative gradient of the energy - computable with one backward pass."
+          ],
+          "tex": "\\nabla_x \\log p_\\theta(x) = \\nabla_x\\big[-E_\\theta(x) - \\log Z_\\theta\\big] = -\\nabla_x E_\\theta(x)",
+          "texNote": "One line, and it converts an intractable model into a tractable one - provided you are willing to work with the score instead of the density. Everything else in this lesson is a consequence."
+        },
+        {
+          "h": "Denoising score matching: the identity that becomes diffusion",
+          "paras": [
+            "Hyvarinen's original score-matching objective requires the trace of the Hessian, which costs O(d) backward passes - hopeless for images. Vincent's result replaces it with an equivalent objective on NOISE-PERTURBED data, where the target score is available in closed form."
+          ],
+          "tex": "\\mathbb{E}_{p_\\sigma}\\Big[\\big\\lVert s_\\theta(\\tilde{x}) - \\nabla_{\\tilde{x}}\\log p_\\sigma(\\tilde{x}\\mid x)\\big\\rVert^2\\Big], \\qquad \\nabla_{\\tilde{x}}\\log p_\\sigma(\\tilde{x}\\mid x) = -\\frac{\\tilde{x}-x}{\\sigma^2} = -\\frac{\\epsilon}{\\sigma}",
+          "texNote": "The target is just the added noise, scaled. So 'estimate the score' and 'predict the noise you added' are THE SAME TASK - which is why DDPM's loss, derived from a completely different variational argument, is denoising score matching."
+        },
+        {
+          "h": "Langevin dynamics: sampling from the score alone",
+          "paras": [
+            "Given the score you can sample without ever evaluating the density: walk uphill in log-probability and add noise. The noise is what makes it sample from p rather than converge to a mode."
+          ],
+          "tex": "x_{k+1} = x_k + \\frac{\\eta}{2}\\nabla_x \\log p(x_k) + \\sqrt{\\eta}\\,z_k, \\qquad z_k \\sim \\mathcal{N}(0,I)",
+          "texNote": "As step size goes to zero and steps to infinity this converges to p(x). In high dimensions plain Langevin mixes terribly - it cannot cross low-density regions between modes - which is exactly the problem ANNEALING over noise levels solves."
+        }
+      ],
+      "code": [
+        {
+          "h": "Why single-noise score matching fails, and what fixes it",
+          "paras": [
+            "The manifold problem is the reason score-based generation needed a specific trick to work at all, and understanding it explains the entire structure of diffusion."
+          ],
+          "code": "# THE PROBLEM (Song & Ermon, 2019). Three failures, one cause:\n#\n# 1. MANIFOLD. Real images occupy a low-dimensional manifold in pixel space.\n#    Off the manifold p(x) ~ 0, so grad log p(x) is UNDEFINED - and that is\n#    where Langevin sampling starts, from pure noise.\n#\n# 2. LOW-DENSITY REGIONS. Score matching's objective is weighted by p(x), so\n#    the estimate is poor exactly where there is little data - which is most\n#    of the space, and precisely where a sampler spends its early steps.\n#\n# 3. MIXING. Even with a perfect score, Langevin cannot cross the near-zero\n#    density valleys between modes in reasonable time. Mode weights come out\n#    wrong even when each mode is found.\n#\n# THE FIX: perturb the data with MANY noise levels at once.\n#   Large sigma  -> fills the whole space, score defined everywhere, modes\n#                   merge into one broad basin (easy to sample)\n#   Small sigma  -> close to the true data distribution (accurate)\n# Train ONE network conditioned on sigma, then ANNEAL from large to small.\n\nsigmas = torch.exp(torch.linspace(np.log(50.0), np.log(0.01), L))\n\ndef dsm_loss(model, x):\n    i = torch.randint(0, L, (x.size(0),), device=x.device)\n    sigma = sigmas[i].view(-1, 1, 1, 1)\n    noise = torch.randn_like(x)\n    x_tilde = x + sigma * noise\n    target = -noise / sigma                       # the closed-form score\n    return ((model(x_tilde, i) - target) ** 2 * sigma ** 2).mean()\n\n# Note the sigma^2 weighting: it makes the loss scale-invariant across noise\n# levels so no single sigma dominates. Reparameterize the network to predict\n# the NOISE instead of the score and this becomes, line for line, DDPM's loss.",
+          "caption": "Annealing over noise levels solves three problems at once - undefined scores off the manifold, poor estimates in low-density regions, and slow mixing. That single fix is why diffusion has a noise schedule at all."
+        },
+        {
+          "h": "The same model, three names",
+          "paras": [
+            "DDPM and NCSN were developed independently with different derivations and turned out to be the same thing. Seeing the translation is worth more than either derivation alone."
+          ],
+          "code": "# NCSN (score matching)          DDPM (variational)            unified (SDE)\n# ---------------------          ------------------            ------------\n# score s(x, sigma)              noise eps(x_t, t)             score of p_t\n# noise levels sigma_i           timesteps t                   continuous t\n# annealed Langevin              ancestral sampling            solve the SDE\n# variance EXPLODING             variance PRESERVING           VE- / VP-SDE\n#\n# The exact translation:\n#     s_theta(x_t, t)  =  -eps_theta(x_t, t) / sigma_t\n#\n# So a trained DDPM IS a score model - you get grad log p_t(x) for free by\n# dividing its output by -sigma_t. That is not an analogy; it is an identity.\n#\n# WHAT THE UNIFICATION BOUGHT (Song et al., 2021):\n#   * The PROBABILITY FLOW ODE - a deterministic sampler with the same\n#     marginals, which is what every fast sampler is built on.\n#   * EXACT LIKELIHOODS via the instantaneous change-of-variables formula,\n#     so score models became likelihood models too.\n#   * CONTROLLABLE generation by adding any grad log p(y|x) to the score,\n#     which is exactly classifier guidance.\n#   * Freedom to choose the forward SDE, since training only needs the score.\n#\n# One reframing turned two independently-derived methods into one family and\n# handed the field its sampler, its likelihood, and its conditioning mechanism.",
+          "caption": "s(x_t, t) = -eps(x_t, t)/sigma_t is an identity, not an analogy. The SDE framework that follows from it produced the probability flow ODE, exact likelihoods, and classifier guidance in one paper."
+        }
+      ],
+      "useCases": [
+        "Diffusion models, which are the deployed form of everything in this lesson - every text-to-image, video, and audio diffusion system is a denoising score matching model with a noise schedule that anneals.",
+        "Compositional generation: energies ADD, so summing two energy functions multiplies the distributions and gives you conjunction of constraints for free. This is the cleanest theoretical advantage of the energy view and it is used for compositional and controllable diffusion.",
+        "Inverse problems - inpainting, deblurring, super-resolution, MRI and CT reconstruction - where a learned score is a data PRIOR that combines with a known physical forward model, and the reconstruction is posterior sampling rather than regression.",
+        "Anomaly and out-of-distribution detection using energy as a score, and energy-based reinterpretations of discriminative classifiers (JEM), which improve calibration and robustness at some cost in training stability."
+      ],
+      "pitfalls": [
+        "Trying to train an EBM by maximum likelihood without appreciating the cost. The gradient needs samples from the model at every step, which means MCMC inside the training loop - expensive, and the chains are usually far from converged, so the gradient is biased.",
+        "Using single-noise-level score matching in high dimensions. Real data lies on a low-dimensional manifold, so the score is undefined off it, is poorly estimated in the low-density regions where sampling begins, and cannot mix between modes. Multiple noise levels fix all three.",
+        "Implementing Hyvarinen's original objective directly. The Hessian-trace term costs O(d) backward passes per example, which is hopeless for images. Use denoising score matching (which is also the diffusion objective) or sliced score matching.",
+        "Treating diffusion and score matching as separate topics. s(x_t, t) = -eps(x_t, t)/sigma_t is an identity - a trained DDPM gives you the score of the noised data distribution directly, which is what makes guidance and inverse-problem solvers work.",
+        "Expecting Langevin dynamics to mix in reasonable time on a multimodal distribution. It cannot cross low-density valleys, so mode weights come out wrong even when every mode is found. Annealing is the practical answer.",
+        "Forgetting the noise-level weighting in the loss. Without a sigma-squared-style weighting the objective is dominated by whichever noise levels have the largest gradient magnitudes, and training silently prioritizes the wrong regime.",
+        "Reading 'energy-based models can use any architecture' as 'energy-based models are easy'. The unconstrained architecture is paid for entirely in sampling and training difficulty, which is why the field routed around EBMs via the score rather than through them."
+      ],
+      "connections": [
+        {
+          "ref": "generative/ddpm",
+          "text": "DDPM's noise-prediction loss IS denoising score matching, derived independently from a variational argument - the two literatures converged on the same objective."
+        },
+        {
+          "ref": "generative/diffusion-guidance",
+          "text": "The probability flow ODE comes directly from the SDE framework here, and it is what turned sampling into a numerical integration problem with 50x fewer steps."
+        },
+        {
+          "ref": "generative/flows",
+          "text": "Flow matching is the modern reformulation - define a straight path from noise to data and regress its velocity, which makes schedule and parameterization fall out of one choice."
+        },
+        {
+          "ref": "generative/autoencoders",
+          "text": "A denoising autoencoder's residual estimates the score of the smoothed data distribution - the identity that connects the module's first lesson to its last."
+        },
+        {
+          "ref": "unsupervised-learning/bayesian-inference",
+          "text": "MCMC, Langevin dynamics, and the intractable-normalizer problem are standard Bayesian territory; the score trick is a specific and unusually clean escape from it."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is an energy-based model?",
+          "a": "p(x) proportional to exp(-E(x)) for any scalar network E. Low energy means high probability, and the architecture is completely unconstrained - which is the appeal."
+        },
+        {
+          "q": "What makes EBMs hard?",
+          "a": "The normalizing constant Z is an integral over all of x-space. You cannot compute the likelihood, and sampling requires MCMC."
+        },
+        {
+          "q": "What is the score?",
+          "a": "grad_x log p(x) - the gradient of the log-density with respect to the INPUT. It points uphill in probability and is all you need for Langevin sampling."
+        },
+        {
+          "q": "Why does the score avoid the normalizer?",
+          "a": "Z does not depend on x, so its gradient with respect to x is zero: grad log p(x) = -grad E(x). Differentiation annihilates the intractable constant."
+        },
+        {
+          "q": "What is Langevin dynamics?",
+          "a": "x <- x + (eta/2) * score + sqrt(eta) * noise. Walk uphill in log-probability with added noise; it converges to p(x) as the step size shrinks."
+        },
+        {
+          "q": "What is wrong with Hyvarinen's original score matching?",
+          "a": "It requires the trace of the Hessian of the log-density, which costs O(d) backward passes per example - hopeless in image dimensions."
+        },
+        {
+          "q": "What is denoising score matching?",
+          "a": "Perturb data with Gaussian noise and regress the score of the PERTURBED distribution, whose target is available in closed form: -(x_tilde - x)/sigma^2, i.e. the scaled noise."
+        },
+        {
+          "q": "So what is the connection to diffusion?",
+          "a": "Predicting the noise IS estimating the score: s(x_t, t) = -eps(x_t, t)/sigma_t. DDPM's loss is denoising score matching, derived variationally instead."
+        },
+        {
+          "q": "Why does score matching need multiple noise levels?",
+          "a": "Data lies on a low-dimensional manifold, so the score is undefined off it, poorly estimated in low-density regions where sampling starts, and unable to mix between modes. Annealing fixes all three."
+        },
+        {
+          "q": "What is the VE/VP distinction?",
+          "a": "Variance-EXPLODING (NCSN) adds noise of growing magnitude without rescaling the data; variance-PRESERVING (DDPM) scales the data down as it adds noise so total variance stays fixed. Two SDEs in the same family."
+        },
+        {
+          "q": "What did the SDE framework buy?",
+          "a": "The probability flow ODE (hence fast samplers), exact likelihoods via instantaneous change of variables, classifier guidance as score addition, and freedom to design the forward process."
+        },
+        {
+          "q": "What is compositionality in EBMs?",
+          "a": "Energies ADD, so summing two energy functions multiplies their distributions - conjunction of constraints for free. The cleanest theoretical advantage of the energy view."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the path from energy-based models to diffusion models.",
+          "a": "I would tell this as one idea developing rather than four techniques, because that is what it is. STEP 1 - THE ENERGY-BASED MODEL AND ITS PROBLEM. Define p(x) proportional to exp(-E(x)) with any network E. Maximally flexible - no invertibility constraint, no ordering, no encoder. The maximum-likelihood gradient is E_data[grad E] - E_model[grad E]: push energy down on real data and up on model samples. The second expectation needs samples from the model, which needs MCMC inside the training loop. Contrastive divergence truncates the chains, which makes it affordable and BIASED, and in practice training is slow and unstable. This is where EBMs sat for years - elegant, and not competitive. STEP 2 - THE SCORE TRICK. Observe that Z is constant with respect to x, so grad_x log p(x) = -grad_x E(x). The intractable object vanishes under differentiation. If you are willing to work with the SCORE rather than the density, everything becomes computable with one backward pass. And the score is enough to SAMPLE, via Langevin dynamics: step uphill in log-probability and add noise. So: never model the density, model the score. STEP 3 - FITTING A SCORE WITHOUT KNOWING THE DENSITY. Hyvarinen (2005) showed the objective E||s_theta(x) - grad log p_data(x)||^2, which appears to need the unknown true score, can be integrated by parts into a form requiring only the model - but it contains the TRACE OF THE HESSIAN, costing O(d) backward passes per example. Fine for small problems, hopeless for images. Two escapes. SLICED score matching projects onto random directions, giving an unbiased estimate with a few passes. DENOISING SCORE MATCHING (Vincent, 2011) is the one that mattered: perturb x with Gaussian noise and match the score of the PERTURBED distribution, whose target is available in closed form and is just the scaled noise. You are now solving a plain regression problem. STEP 4 - WHY IT STILL DID NOT WORK, AND THE FIX. Song & Ermon (2019) identified three coupled failures in high dimensions. The MANIFOLD problem: real data occupies a low-dimensional set, so the score is undefined off it - and that is exactly where sampling begins. The LOW-DENSITY problem: score matching's objective is weighted by p(x), so the estimate is worst where there is least data, which is most of the space. And MIXING: Langevin cannot cross the near-zero density valleys between modes, so mode weights are wrong even when modes are found. The fix for all three is one thing - MULTIPLE NOISE LEVELS. Large noise fills the space (score defined everywhere, modes merged into one basin); small noise is accurate. Train one network conditioned on the noise level and ANNEAL from large to small during sampling. That is NCSN, and it produced the first competitive score-based image samples. STEP 5 - THE CONVERGENCE. Ho et al.'s DDPM (2020) arrived from a completely different direction - a variational bound on a Markovian denoising process - and its simplified objective is a noise-prediction regression at many noise levels. That is denoising score matching. Two independent derivations, one algorithm. The translation is exact: s(x_t, t) = -eps(x_t, t)/sigma_t. STEP 6 - THE UNIFICATION. Song et al. (2021) framed both as discretizations of stochastic differential equations - NCSN is variance-exploding, DDPM variance-preserving - and that reframing paid for itself several times over. It gave the PROBABILITY FLOW ODE, which is what every fast sampler is built on. It gave EXACT LIKELIHOODS via instantaneous change of variables. It made conditioning trivial, since you can add any grad log p(y|x) to the score - which is classifier guidance. And it decoupled the forward process from training, since only the score is learned. WHAT I WOULD EMPHASIZE: the whole chain is driven by one move - refusing to model the density and modelling its gradient instead - and everything after is engineering around the consequences. It is also a good example of two literatures solving the same problem in different languages for years before someone wrote the dictionary.",
+          "deepDive": {
+            "q": "What is flow matching, and why did it replace the diffusion formulation in recent models?",
+            "a": "THE REFRAMING. Diffusion defines a stochastic forward process that gradually destroys data, then learns to reverse it, and everything - noise schedule, parameterization, loss weighting - is derived from that process. FLOW MATCHING starts somewhere else: define a PATH between the noise distribution and the data distribution, and learn the VELOCITY FIELD that transports samples along it. Generation is then solving an ODE from noise to data. RECTIFIED FLOW is the simplest instance and the one that matters practically: make the path a STRAIGHT LINE. Interpolate x_t = (1-t)x_0 + t*x_1 with x_0 noise and x_1 data, and the target velocity is simply x_1 - x_0, a constant along the path. The training objective is a plain regression: predict (x_1 - x_0) given x_t and t. That is it - no noise schedule to design, no parameterization choice, no variational bound. WHY THE STRAIGHTNESS MATTERS, which is the practical payoff. Sampling means integrating an ODE, and integration error depends on how CURVED the trajectory is. A perfectly straight path can be integrated exactly in ONE Euler step. Diffusion's probability-flow trajectories are curved, which is why they need many steps or a sophisticated solver. So flow matching attacks the few-step sampling problem in the TRAINING FORMULATION rather than post hoc with better solvers or distillation - and that is a more fundamental fix. In practice the learned marginal paths are not perfectly straight (the model must average over which data point each noise sample maps to), which is what REFLOW addresses: generate noise-data pairs with the trained model, retrain on those pairs, and the paths straighten further. WHAT ELSE IT BUYS. (1) SIMPLICITY - the objective is a conditional regression with no variational derivation and no schedule design, so there is much less to get wrong. The zero-terminal-SNR class of bug simply does not arise, because the endpoints are the endpoints by construction. (2) GENERALITY - it works between ARBITRARY distributions, not just noise-to-data, so it handles image-to-image and other transport problems in the same framework. (3) A cleaner connection to optimal transport, since the straight-line interpolation is the OT path for the pairing you sample. (4) Better empirical scaling in the reported comparisons. WHERE IT IS DEPLOYED: Stable Diffusion 3 and Flux both use rectified flow with transformer backbones, and the SD3 paper's ablation compares flow-matching variants against diffusion formulations at matched compute and finds the flow formulation better, with a resolution-dependent timestep shift as an important detail. THE HONEST CAVEATS. Flow matching and diffusion are closely related - the probability flow ODE of a diffusion model IS a flow, so this is a change of formulation rather than a different family, and several 'flow matching beats diffusion' comparisons are partly comparisons of schedule and weighting choices. The practical gains are real but incremental rather than categorical, and the biggest one is arguably that the formulation has fewer coupled defaults to get wrong. WHAT I TAKE FROM IT: the field spent years fixing diffusion's sampling cost downstream - better ODE solvers, then distillation - and flow matching asks whether the trajectory should have been straight in the first place. That is a good instance of a general move: when you are working hard to correct a system's output, check whether the formulation that produced it was the right one."
+          }
+        },
+        {
+          "q": "Why are energy-based models appealing in theory but rarely used in practice?",
+          "a": "THE APPEAL IS REAL AND WORTH STATING PROPERLY. (1) MAXIMAL FLEXIBILITY. Any scalar-output network is a valid energy function. No invertibility requirement (flows), no ordering (autoregressive), no encoder or bound (VAEs), no adversary (GANs). You can use whatever architecture suits the data. (2) COMPOSITIONALITY, which is the deepest advantage. Energies ADD, and adding log-densities multiplies distributions - so E1 + E2 gives you the product, i.e. the CONJUNCTION of two constraints, with no retraining. You can train energy functions for separate concepts and combine them at inference. Negation and disjunction have similar constructions. No other generative family offers this cleanly. (3) A NATURAL FIT FOR CONSTRAINTS AND INVERSE PROBLEMS: a physical constraint is an energy term you add. (4) They unify with discriminative models - a classifier's logits define an energy (JEM), which gives a generative model for free and improves calibration and robustness. WHY THEY ARE RARE, and the reasons compound. (1) TRAINING NEEDS MCMC IN THE LOOP. The likelihood gradient contains an expectation over the MODEL's distribution, so every update needs samples from the current model. Contrastive divergence truncates the chains to keep it affordable, which makes the gradient BIASED, and the bias interacts badly with the model becoming sharper. Persistent contrastive divergence helps and does not solve it. (2) INSTABILITY. Without care, energy diverges - the model drives training-data energy to negative infinity - so you need spectral normalization, gradient penalties, energy regularization, or replay buffers. The engineering burden resembles GAN stabilization, and for the same structural reason: there is no single well-posed objective being descended. (3) SLOW SAMPLING. Langevin dynamics needs many steps and mixes poorly between modes in high dimensions. (4) NO LIKELIHOOD, so you cannot evaluate, compare, or use them for density-based tasks without expensive estimation of Z (AIS). (5) HYPERPARAMETER SENSITIVITY: step sizes, chain lengths, buffer policies, and noise scales all interact. WHAT ACTUALLY HAPPENED, and this is the interesting part: THE FIELD ROUTED AROUND THE PROBLEM RATHER THAN SOLVING IT. Every difficulty above traces to the normalizing constant. Score-based methods sidestep Z entirely by modelling the gradient of the log-density, denoising score matching turns the fitting problem into plain regression, and annealing over noise levels fixes the mixing problem that made Langevin unusable. Diffusion models are the successful descendants of the EBM programme - they inherit the flexibility (any architecture), they keep the score, and they discard the intractable density and the MCMC training loop. So 'EBMs are not used' is misleading. The IDEAS are used constantly and the specific formulation is not. WHERE EXPLICIT EBMs STILL APPEAR: compositional generation, where the additive property is the whole point; energy-based reinterpretations of classifiers for calibration and OOD detection; structured prediction with constraints; and as a theoretical lens - describing diffusion, contrastive learning, and even some RL objectives in energy terms is often clarifying. THE LESSON I WOULD DRAW: when a framework is elegant but blocked by one specific obstacle, the productive move is often to find a formulation that never encounters the obstacle rather than to attack it directly. Z was never made tractable; it was made irrelevant."
+        },
+        {
+          "q": "How do you use a learned score model to solve an inverse problem like MRI reconstruction?",
+          "a": "THE SETUP. You have measurements y = A(x) + noise, where A is a KNOWN forward operator - undersampled Fourier measurements for MRI, a blur kernel for deblurring, a downsampling operator for super-resolution, a mask for inpainting. You want to recover x. The problem is ill-posed: many x are consistent with y, so you need a PRIOR over plausible x. WHY A SCORE MODEL IS THE RIGHT PRIOR. Classical reconstruction uses hand-designed priors - total variation, wavelet sparsity - that are crude compared to what a generative model learns. A supervised network trained on (y, x) pairs works but is tied to one specific A: change the sampling pattern or the acceleration factor and you retrain. A DIFFUSION PRIOR is trained ONCE on clean images with no knowledge of A, and then combines with any forward model at inference. That decoupling is the decisive practical advantage in medical imaging, where acquisition protocols vary constantly. THE FORMULATION. You want to sample from the posterior p(x|y), whose score decomposes by Bayes' rule: grad log p(x|y) = grad log p(x) + grad log p(y|x). The first term is exactly what your diffusion model provides. The second is the DATA-CONSISTENCY term, computable from the known forward model - for Gaussian measurement noise it is proportional to A^T(y - Ax)/sigma_y^2. So you run the usual reverse diffusion and add the data-consistency gradient at each step. Conceptually identical to classifier guidance, with a known physical likelihood instead of a learned classifier. THE COMPLICATION, and it is the crux. The diffusion prior gives you the score of the NOISY distribution p_t(x_t), but the likelihood term p(y|x) is defined on CLEAN x. You need p(y|x_t), which requires marginalizing over x given x_t and is intractable. The approaches differ in how they approximate it. (1) DPS (Diffusion Posterior Sampling) approximates using the model's predicted x0 at each step: compute x0_hat from the current x_t, evaluate the data-consistency gradient there, and backpropagate through the denoiser. Simple, general, and works well. (2) PROJECTION-BASED methods alternate a diffusion step with a hard projection onto the measurement-consistent set - for MRI, replacing the measured Fourier coefficients with their true values. Cheap and effective when A has convenient structure, which for MRI it does. (3) Decomposition methods (DDRM, DDNM) use the SVD of A to handle measured and unmeasured subspaces separately, which is elegant and requires a tractable SVD. (4) Variable-splitting approaches alternate denoising and data-consistency optimization. WHAT I WOULD BUILD FOR MRI SPECIFICALLY: train an unconditional diffusion model on clean reconstructed images from the anatomy of interest, then use projection-based data consistency in k-space at each reverse step - since for MRI the forward model is a Fourier transform with a mask, so enforcing consistency is exact and cheap. Add DPS-style guidance for the noise model if needed. THE THINGS I WOULD BE CAREFUL ABOUT, and in medical imaging they are not optional. (a) HALLUCINATION. A generative prior will happily invent anatomically plausible structure that is not supported by the measurements. That is the entire point of the prior and it is also the central clinical risk - an invented lesion, or a real one smoothed away. This must be tested explicitly, not assumed away. (b) UNCERTAINTY: sample the posterior MULTIPLE times and show the variance map. Regions of high variance are where the measurements did not constrain the answer, and that is exactly what a radiologist needs to know. This is a genuine advantage of posterior sampling over a regression network, which gives one answer with no indication of what it made up. (c) DISTRIBUTION SHIFT: a prior trained on one scanner, protocol, or population will bias reconstructions toward it, which is a fairness and safety issue. (d) EVALUATION must be diagnostic-task-based - lesion detectability, radiologist assessment - not PSNR/SSIM, which reward smoothness and are known to correlate poorly with clinical utility. A method that improves PSNR while erasing small lesions is worse, and PSNR will not say so."
+        },
+        {
+          "q": "What is contrastive divergence and why is it problematic?",
+          "a": "THE PROBLEM IT ADDRESSES. The maximum-likelihood gradient for an energy-based model is E_data[grad_theta E(x)] - E_model[grad_theta E(x)]. The first expectation is over your dataset - easy. The second is over the MODEL's own distribution, and sampling from p_theta requires MCMC, which would need to run to convergence at every gradient step. That is completely impractical. CONTRASTIVE DIVERGENCE (Hinton, 2002). Do it anyway, but truncate. Initialize the MCMC chain at a DATA point rather than at random, run only k steps (often k = 1), and use the resulting sample as the negative. The intuition is that starting from data means you are already near a high-probability region, so a few steps suffice to find where the model is putting mass it should not. The update is then: push energy down at the data point, up at the point k steps away. THE PROBLEMS, in order of severity. (1) IT IS BIASED. CD-k does not follow the gradient of the log-likelihood; it follows the gradient of something else, and the gap does not vanish with more data. Carreira-Perpinan & Hinton showed CD converges to a different fixed point than maximum likelihood. For many purposes the bias is tolerable; for density estimation it is not, and you cannot bound it easily. (2) IT ONLY EXPLORES LOCALLY. Because chains start at data, the model is never penalized for putting mass in regions FAR from any data - the chain never goes there to discover the problem. So spurious modes in empty parts of the space are invisible to training, which is exactly the failure that makes EBM samples poor. (3) THE CHAINS ARE NOT CONVERGED, so the negative samples are not from the model, and the whole 'contrast data against model samples' story does not really hold. (4) INSTABILITY: the energy landscape can diverge, with training-data energy driven toward negative infinity, and it needs regularization to prevent that. THE IMPROVEMENTS. PERSISTENT CD (PCD / Tieleman): maintain a persistent set of chains across parameter updates instead of restarting from data each time. The chains keep exploring and can wander into low-data regions, which fixes problem (2) substantially, and it is the standard choice. Its assumption - that the model changes slowly enough that the chains stay roughly equilibrated - requires a small learning rate. REPLAY BUFFERS (used in modern deep EBM work, e.g. Du & Mordatch) are PCD with a buffer of past samples, re-initializing a fraction from noise to maintain exploration. LANGEVIN dynamics as the sampler rather than Gibbs, with tuned step sizes and gradient clipping. And SPECTRAL NORMALIZATION or energy regularization to keep the landscape from diverging. THE HONEST ASSESSMENT. Modern deep EBMs with all of this machinery do train and do produce reasonable samples, but the recipe is delicate and the results have not been competitive with diffusion or autoregressive models at scale. Every difficulty here traces to the same root - needing samples from an intractable model during training - and the field's successful response was to change the objective so that sampling is never required in the training loop. Denoising score matching needs no MCMC at all: it is a regression against a closed-form target. THAT is why the score route won, and contrastive divergence is worth understanding mainly as the obstacle that motivated it. THE TRANSFERABLE POINT: whenever a training procedure requires sampling from the model being trained, expect bias, instability, and expense. Objectives that avoid it - score matching, noise-contrastive estimation, and the various contrastive losses in representation learning - are usually the ones that scale."
+        },
+        {
+          "q": "How do you get an exact likelihood out of a diffusion model?",
+          "a": "THE PUZZLE. Diffusion models are usually trained with a simplified denoising objective and evaluated with sample-quality metrics, and the variational derivation gives a BOUND on the likelihood rather than the likelihood itself. So it looks like they belong with VAEs in the 'bound only' category. The SDE framework shows otherwise, and the route is worth knowing because it is the cleanest payoff of the unification. THE MECHANISM - THE PROBABILITY FLOW ODE. Every diffusion SDE has a deterministic ODE whose solution has the SAME MARGINAL distribution at every time. That ODE is a CONTINUOUS NORMALIZING FLOW: an invertible, deterministic map between the noise distribution at t = T and the data distribution at t = 0. And for a continuous normalizing flow the change-of-variables formula applies in its instantaneous form: the log-density changes along the trajectory at a rate given by the NEGATIVE DIVERGENCE of the velocity field. So integrate the ODE from your data point out to t = T, accumulating the divergence term along the way, and you get log p(x) exactly - up to numerical integration error. THE PRACTICAL DIFFICULTY is the divergence, which is the trace of the Jacobian of the network with respect to its input. Computing it exactly costs one backward pass PER DIMENSION, which for images is hopeless. The standard fix is the HUTCHINSON TRACE ESTIMATOR: the trace of a matrix equals the expectation of v-transpose-A-v for a random vector v with unit covariance, so one vector-Jacobian product gives an unbiased estimate. Average a few samples to reduce variance. This makes the whole thing tractable at the cost of a stochastic likelihood estimate - unbiased in the trace, though the log is then slightly biased, which careful papers acknowledge. WHAT THIS BUYS. (1) DIFFUSION MODELS BECOME COMPARABLE with autoregressive models and normalizing flows on bits-per-dimension, which they were not before - and they are competitive. (2) It supplies a principled anomaly and OOD score, subject to the usual complexity confound. (3) It confirms that the score-based and likelihood-based views are the same object seen from different angles. (4) It enables MAXIMUM-LIKELIHOOD TRAINING of diffusion models, and Song et al. showed that a particular weighting of the denoising objective corresponds exactly to maximizing the likelihood - which explains why the 'simplified' unweighted loss gives better SAMPLES but worse likelihood than the weighted one. That is a clean instance of this module's recurring theme: the objective you choose selects a point on the quality-versus-likelihood trade, and the two are not the same axis. THE CAVEATS I would state. The number depends on the ODE solver's tolerance, so it is 'exact' only up to integration error and you must report the settings. The Hutchinson estimator adds variance. The DISCRETIZATION convention matters as it does for any bits-per-dimension figure - uniform versus variational dequantization changes the value materially. And computing it is expensive relative to a forward pass, so it is an evaluation tool rather than something you run per sample in production. AND THE CONNECTION BACK TO THE LESSON: this only exists because someone noticed that a stochastic denoising process has a deterministic counterpart. The same observation gave fast samplers. One reframing, two large payoffs - which is a decent argument for spending time on formulations rather than only on models."
+        },
+        {
+          "q": "Compare the ways different generative families avoid computing the normalizing constant.",
+          "a": "EVERY GENERATIVE MODEL FACES THE SAME OBSTACLE - a valid probability distribution must integrate to one, and enforcing that in high dimensions is hard. The families are best understood as five different escapes, and laying them side by side is the most compact way to see the whole design space. (1) AUTOREGRESSIVE - FACTORIZE. Decompose p(x) into a product of one-dimensional conditionals via the chain rule. Each conditional is normalized by a softmax over a small support, which is trivial. The global normalizer is then automatically one. COST: you must impose an ORDERING, and sampling is inherently sequential - O(d) network evaluations. This is the cleanest escape and it buys exact likelihoods, which is why autoregressive models have the best reported likelihoods of any family. (2) NORMALIZING FLOWS - CHANGE OF VARIABLES. Transform a simple normalized distribution through an INVERTIBLE map, and track the density exactly with the Jacobian determinant. COST: severe architectural constraints - every layer must be invertible with a tractable Jacobian determinant - which limits expressiveness per parameter, and the latent must have the same dimension as the data. Exact likelihood, fast sampling, constrained architecture. (3) VAEs - BOUND IT. Do not compute the likelihood; optimize a variational LOWER BOUND instead. COST: the bound has an unknown gap, so reported likelihoods are not comparable with exact-likelihood models, and the objective's tension between reconstruction and the KL produces blur and posterior collapse. (4) GANs - AVOID DENSITY ENTIRELY. Never represent p(x) at all; learn a sampler judged by a discriminator. COST: no likelihood of any kind, no principled evaluation, unstable adversarial training, and mode collapse because nothing in the objective requires coverage. (5) ENERGY-BASED / SCORE - DIFFERENTIATE IT AWAY. Model the SCORE, grad_x log p(x), which equals -grad_x E(x) because Z does not depend on x. COST: you have the gradient of the log-density, not the log-density, so sampling requires an iterative procedure (Langevin, or an ODE/SDE solve) and evaluating a likelihood requires extra machinery. THE PATTERN WORTH SEEING. Each family pays for tractability with a different currency: autoregressive pays in SAMPLING SPEED, flows pay in ARCHITECTURAL FREEDOM, VAEs pay in TIGHTNESS, GANs pay in EVALUABILITY AND COVERAGE, and score models pay in ITERATIVE SAMPLING. Those costs map almost exactly onto the generative trilemma's corners, which is not a coincidence - the trilemma is a statement about which currency you spend. WHY THE SCORE ROUTE WON FOR IMAGES. Its cost - iterative sampling - turned out to be the most reducible. Recognizing sampling as ODE integration cut a thousand steps to twenty with no retraining; distillation cut it to one to four. Nobody found comparable reductions in autoregressive sequentiality for high-resolution images, in flow architecture constraints, or in GAN mode collapse. And the score route uniquely keeps ARCHITECTURAL FREEDOM (any network can estimate a score) while providing a STABLE regression objective, which is the combination that scales. THE UNIFICATIONS worth knowing, because the boundaries are softer than the taxonomy suggests: the probability flow ODE makes a diffusion model a continuous normalizing flow, so score models DO give exact likelihoods; flow matching bridges flows and diffusion explicitly; VQ-VAE plus a transformer is a two-stage hybrid of compression and autoregression; and latent diffusion is autoencoder plus score model. The productive way to hold this is not five separate families but one design space with a small number of levers - what you model (density, score, sampler, or bound), what constraint you accept, and where you spend the cost."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Energy-based model",
+        "back": "p(x) = exp(-E(x))/Z for ANY scalar network E. Maximal architectural freedom; the price is that Z is an intractable integral over all of x-space."
+      },
+      {
+        "type": "intuition",
+        "front": "The score trick",
+        "back": "Z does not depend on x, so grad_x log p(x) = -grad_x E(x). DIFFERENTIATION ANNIHILATES THE NORMALIZER. This one line is what makes the whole score/diffusion programme possible."
+      },
+      {
+        "type": "definition",
+        "front": "Langevin dynamics",
+        "back": "x <- x + (eta/2)*grad log p(x) + sqrt(eta)*z. Samples from p using ONLY the score - no density evaluation. The added noise is what makes it sample rather than converge to a mode."
+      },
+      {
+        "type": "definition",
+        "front": "Denoising score matching",
+        "back": "Perturb x with noise and regress the perturbed score, whose target is closed-form: -(x_tilde - x)/sigma^2 = -eps/sigma. Estimating the score and predicting the added noise are THE SAME TASK."
+      },
+      {
+        "type": "intuition",
+        "front": "s(x_t,t) = -eps(x_t,t)/sigma_t",
+        "back": "An IDENTITY, not an analogy. A trained DDPM is a score model. This is why guidance (add grad log p(y|x) to the score) and inverse-problem solvers work at all."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why single-noise score matching fails",
+        "back": "Three coupled failures: the score is UNDEFINED off the data manifold (where sampling starts), poorly estimated in low-density regions (the objective is p-weighted), and Langevin cannot mix across low-density valleys."
+      },
+      {
+        "type": "intuition",
+        "front": "Why diffusion has a noise schedule",
+        "back": "Annealing over noise levels fixes all three failures at once - large sigma fills the space and merges modes, small sigma is accurate. The schedule is not a hyperparameter, it is the fix."
+      },
+      {
+        "type": "pitfall",
+        "front": "Hyvarinen's original objective",
+        "back": "Requires the TRACE OF THE HESSIAN of the log-density - O(d) backward passes per example, hopeless for images. Use denoising score matching or sliced score matching (random projections)."
+      },
+      {
+        "type": "definition",
+        "front": "VE vs VP SDEs",
+        "back": "Variance-EXPLODING (NCSN): add noise of growing magnitude, data unscaled. Variance-PRESERVING (DDPM): scale data down as noise is added so total variance is fixed. Two discretizations of one SDE family."
+      },
+      {
+        "type": "definition",
+        "front": "What the SDE unification bought",
+        "back": "The probability flow ODE (hence every fast sampler), EXACT likelihoods via instantaneous change-of-variables, classifier guidance as simple score addition, and freedom to design the forward process independently of training."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why contrastive divergence is problematic",
+        "back": "The ML gradient needs samples from the MODEL, so MCMC runs inside the training loop. CD truncates the chains: biased gradient, and because chains start at DATA the model is never penalized for mass far from data."
+      },
+      {
+        "type": "intuition",
+        "front": "Five escapes from the normalizer",
+        "back": "Autoregressive FACTORIZES (pays in sampling speed); flows use CHANGE OF VARIABLES (pays in architecture); VAEs BOUND it (pays in tightness); GANs AVOID density (pays in evaluability/coverage); score models DIFFERENTIATE it away (pays in iterative sampling - the most reducible cost, which is why they won)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Song & Ermon (2019), Generative Modeling by Estimating Gradients of the Data Distribution (NCSN)",
+        "url": "https://arxiv.org/abs/1907.05600"
+      },
+      {
+        "title": "Song et al. (2021), Score-Based Generative Modeling through Stochastic Differential Equations",
+        "url": "https://arxiv.org/abs/2011.13456"
+      },
+      {
+        "title": "Vincent (2011), A Connection Between Score Matching and Denoising Autoencoders",
+        "url": "https://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf"
+      },
+      {
+        "title": "Du & Mordatch (2019), Implicit Generation and Modeling with Energy-Based Models",
+        "url": "https://arxiv.org/abs/1903.08689"
+      },
+      {
+        "title": "Lipman et al. (2023), Flow Matching for Generative Modeling",
+        "url": "https://arxiv.org/abs/2210.02747"
+      }
+    ],
+    "demos": [
+      "mcmc",
+      "kernel-density",
+      "diffusion",
+      "importance-sampling"
+    ]
+  }
+};

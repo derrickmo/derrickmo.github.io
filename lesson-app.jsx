@@ -39,10 +39,18 @@ const REPO = CURR.repo;
 const BASE = window.__DM_BASE || "../../../";
 const MODULE_SLUG = window.__DM_MODULE_SLUG;
 const LESSON_SLUG = window.__DM_LESSON_SLUG;
-// Store-authored lesson body (Phase C): per-module data file lesson-bodies/<module>.js
-// sets window.DM_LESSON_BODIES = { [lessonSlug]: { level, body, interview, flashcards, refs } }.
-// It loads BEFORE this app in generated pages, so module-scope read is safe.
-const STORE_DATA = (window.DM_LESSON_BODIES || {})[LESSON_SLUG] || null;
+// Store-authored lesson body (Phase C): the per-lesson data file
+// lesson-bodies/<module>/<lesson>.js sets
+// window.DM_LESSON_BODIES = { [lessonSlug]: { level, body, interview, flashcards, refs } }.
+//
+// Read at RENDER time, not module scope. This used to be a module-scope const on the
+// assumption that the body script always executes first, which held only while the file
+// was a per-MODULE bundle shared by ten pages — Vite kept that as its own chunk. Once
+// PF-0020 split it per lesson, a body used by exactly one page gets inlined into that
+// page's entry chunk and no longer runs before this module, so the const captured null
+// and every lesson body silently vanished while the data sat on window. Same class of
+// bug as __DM_LESSON_CONTENT below; same fix.
+const storeData = () => (window.DM_LESSON_BODIES || {})[LESSON_SLUG] || null;
 const MODULE = CURR.findModule(MODULE_SLUG);
 const LESSON = MODULE && MODULE.lessons.find(l => l.slug === LESSON_SLUG);
 
@@ -81,8 +89,9 @@ const hasDrill = (d) => !!(d && (
 // Read at RENDER time: the flagship's lessons/<slug>.jsx loads AFTER this file, so
 // window.__DM_LESSON_CONTENT does not exist yet at module scope.
 function outlineParts() {
-  if (window.__DM_LESSON_CONTENT) return hasDrill(STORE_DATA) ? [...PARTS, ...DRILL_PARTS] : PARTS;
-  return hasStoreBody(STORE_DATA) ? STORE_PARTS : PARTS;
+  const d = storeData();
+  if (window.__DM_LESSON_CONTENT) return hasDrill(d) ? [...PARTS, ...DRILL_PARTS] : PARTS;
+  return hasStoreBody(d) ? STORE_PARTS : PARTS;
 }
 
 // ─── Layout primitives ────────────────────────────────────────
@@ -631,17 +640,18 @@ function LessonBody() {
   // lesson (interview/flashcards/refs, no store body), append it after the flagship's
   // six parts — that is how a legacy-jsx lesson gets interview content without losing
   // its hand-built visuals.
-  if (Content && hasDrill(STORE_DATA)) {
+  const data = storeData();
+  if (Content && hasDrill(data)) {
     return (
       <>
         <Content />
         <DrillSections
-          iv={STORE_DATA.interview} cards={STORE_DATA.flashcards} refs={STORE_DATA.refs}
+          iv={data.interview} cards={data.flashcards} refs={data.refs}
           nInterview="6" nFlashcards="7" />
       </>
     );
   }
-  if (!Content && STORE_DATA) return <StoreLessonBody data={STORE_DATA} />;
+  if (!Content && data) return <StoreLessonBody data={data} />;
   if (!Content) {
     return (
       <Section>

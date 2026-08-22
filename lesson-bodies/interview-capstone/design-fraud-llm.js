@@ -1,0 +1,292 @@
+// GENERATED from content/lessons/interview-capstone/design-fraud-llm.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/interview-capstone/design-fraud-llm/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "design-fraud-llm": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Two cases in one lesson because they share a structure the previous two do not: THE OPERATING POINT IS SET BY A COST, NOT BY A METRIC. Fraud has an explicit cost asymmetry and a human review queue with finite capacity. An LLM product has a per-request price and a latency budget you can compute. In both, the design question is 'what threshold' and 'what does it cost', and the model is downstream of that.",
+        "The fraud arithmetic is brutal and it is the whole case. At a 0.1% base rate, a model at 90% TPR and 1% FPR gives a precision of 0.083 - 92 of every 100 alerts are false, and you generate 10,890 alerts per million transactions to catch 900 frauds. Push FPR to 0.1% and precision reaches 0.445 at 1,799 alerts; push to 0.01% and precision is 0.857 at 700 alerts but you now catch only 600 of the 900. REVIEW CAPACITY, NOT AUC, SETS THE OPERATING POINT.",
+        "And the threshold follows from the costs rather than from convention. With a missed fraud costing $500 and a false alert costing $5, you act when the probability exceeds 5/(5+500) = 0.0099, not 0.5. That requires a CALIBRATED probability - so fraud is in the ads camp from the previous lesson, not the feed camp, and asking which camp you are in is the first question."
+      ],
+      "math": [
+        {
+          "h": "★ Extreme imbalance makes precision the binding constraint",
+          "paras": [
+            "At a low base rate, false positives are drawn from a vastly larger pool than true positives, so a small FPR still swamps the alert queue.",
+            "Base rate 0.1%. The alert count is what a review team experiences; the AUC is what the model card reports."
+          ],
+          "tex": "\\begin{array}{rrrrr} \\mathrm{TPR} & \\mathrm{FPR} & \\text{precision} & \\text{alerts/1M} & \\text{frauds caught}\\\\ 0.90 & 0.10 & 0.009 & 100{,}800 & 900\\\\ 0.90 & 0.01 & 0.083 & 10{,}890 & 900\\\\ 0.80 & 0.001 & 0.445 & 1{,}799 & 800\\\\ 0.60 & 0.0001 & \\mathbf{0.857} & \\mathbf{700} & 600 \\end{array}",
+          "texNote": "The last row catches two thirds of the frauds of the first row with 0.7% of the alerts. Which row is right is a question about review capacity and the cost of a missed fraud, and it cannot be answered by the model."
+        },
+        {
+          "h": "The threshold is a cost ratio, not a convention",
+          "paras": [
+            "Act when the expected cost of acting is below the expected cost of not acting. The result depends only on the ratio of the two error costs.",
+            "This is the calculation that makes a probability necessary rather than an ordering sufficient."
+          ],
+          "tex": "\\text{act iff } p\\cdot C_{FN} > (1-p)\\cdot C_{FP} \\iff p > \\frac{C_{FP}}{C_{FP}+C_{FN}} = \\frac{5}{5+500} = 0.0099",
+          "texNote": "Not 0.5. And because the rule consumes p as a probability, the model must be calibrated - conditional on whatever the decision conditions on, which for fraud means by merchant, geography, channel and amount band."
+        },
+        {
+          "h": "LLM products: output tokens dominate everything",
+          "paras": [
+            "Cost is roughly linear in tokens with output priced several times input; latency is dominated by decode, since prefill is parallel and decode is sequential.",
+            "At 40 tokens per second of decode, the arithmetic is unforgiving."
+          ],
+          "tex": "\\text{cost} = \\frac{1200\\cdot\\$3 + 300\\cdot\\$15}{10^6} = \\$0.0081/\\text{req} \\Rightarrow \\$127.7\\text{M/yr at }500\\ \\text{QPS}, \\qquad t_{\\text{decode}} = \\frac{300}{40} = 7.5\\ \\text{s vs prefill } 0.1\\ \\text{s}",
+          "texNote": "'Make it faster' means 'make the OUTPUT shorter', not the prompt. Streaming changes perceived latency and not total, which is why time-to-first-token is the metric users feel and the one worth optimizing separately."
+        }
+      ],
+      "code": [
+        {
+          "h": "The three cost levers, stacked",
+          "paras": [
+            "Each is independent and multiplicative, and the combination is the difference between a viable product and one that is not."
+          ],
+          "code": "# baseline: 1200 in + 300 out @ $3/$15 per Mtok, 500 QPS\n#   $0.00810/request  ->  $127.7M/year\n\n#   semantic cache, 40% hit rate        $0.00486   (-40%)\n#   input 1200 -> 400 tok (RETRIEVE,    $0.00570   (-30%)\n#     don't dump the whole document)\n#   + route 80% to a 10x cheaper model  $0.00160   (-80%)\n#   ------------------------------------------------------\n#   stacked                             $127.7M -> $25.2M/year\n\n# ★ Routing is the biggest single lever and the most commonly omitted in a\n#   design round: most requests in most products are easy, and a cascade with\n#   an escalation rule captures that. It is the model-cascade pattern from\n#   the serving material, applied to model SIZE rather than to funnel depth.",
+          "caption": "None of these levers is a model change. That is the point - the LLM design round is mostly a systems round wearing a model's clothes."
+        },
+        {
+          "h": "Fraud: what makes it different from every other classifier",
+          "paras": [
+            "The adversary adapts, which breaks the assumption every other case in this module relies on."
+          ],
+          "code": "# 1 THE LABEL IS DELAYED AND CENSORED\n#   chargebacks arrive in 30-90 days; blocked transactions have NO label\n#   (you never learn if they were fraud) -> selection on the outcome,\n#   which is module 23's collider. Keep a small RANDOM allow-through slice\n#   or your labels only describe transactions you approved.\n\n# 2 THE ADVERSARY ADAPTS\n#   concept shift is DELIBERATE and continuous. Module 24's result applies:\n#   no unlabelled monitor sees it - accuracy fell to 0.3375 there with every\n#   input statistic at control. A labelled sample is the only detector.\n\n# 3 THE COSTS ARE ASYMMETRIC AND KNOWN\n#   which is unusual and good: it means the threshold is DERIVABLE\n#   ($5 vs $500 -> act above 0.0099) rather than chosen.\n\n# 4 REVIEW CAPACITY IS A HARD CONSTRAINT\n#   the operating point is 'how many alerts can 40 analysts clear per day',\n#   and the model's job is to maximise caught fraud within that budget.",
+          "caption": "Item 1 is the one candidates miss: blocking a transaction destroys the label, so an aggressive model degrades its own training data over time."
+        }
+      ],
+      "useCases": [
+        "Fraud, abuse, spam, AML and content-policy enforcement - any rare-event detection with a human review queue and an adapting adversary.",
+        "Any classifier whose output feeds a cost-based decision, where the threshold is derivable from two numbers and is almost never 0.5.",
+        "LLM product design rounds, where the differentiating content is cost, latency, routing and evaluation rather than prompt engineering.",
+        "Capacity planning for a review or moderation team, where the alert volume implied by an operating point is the number that decides headcount."
+      ],
+      "pitfalls": [
+        "Reporting AUC for a rare-event problem. At a 0.1% base rate, a 1% FPR gives precision 0.083 - 92 of every 100 alerts are false, and the AUC can look excellent throughout.",
+        "Using 0.5 as a threshold. With $500 and $5 error costs the correct threshold is 0.0099, and the difference is two orders of magnitude.",
+        "Forgetting that a cost-based threshold needs a calibrated probability, conditional on whatever the decision conditions on - merchant, geography, channel, amount band.",
+        "Ignoring label censoring. Blocked transactions never get a label, so an aggressive model degrades its own training data - selection on the outcome, the collider from module 23.",
+        "Assuming drift detection will catch an adapting adversary. Concept shift is invisible to every unlabelled monitor, and in module 24's measurement accuracy fell to 0.3375 with all input statistics at control.",
+        "Designing an LLM product without the cost arithmetic. At 500 QPS a 1200-in, 300-out request is $127.7M a year, and routing alone takes it to a fifth of that.",
+        "Optimizing prompt length for latency. Decode dominates - 300 output tokens is 7.5 s against 0.1 s of prefill - so 'make it faster' means 'make the output shorter'."
+      ],
+      "connections": [
+        {
+          "ref": "ml-theory/imbalanced-data",
+          "text": "The modelling substance under the fraud half - resampling, class weights, and why the metric choice matters more than any of them at a 0.1% base rate."
+        },
+        {
+          "ref": "trustworthy-ai/distribution-shift",
+          "text": "Why an adapting adversary is the worst case: concept shift with the input distribution unchanged, which no unlabelled monitor detects."
+        },
+        {
+          "ref": "trustworthy-ai/conformal-prediction",
+          "text": "An alternative to a threshold - route to review when the prediction set is not a singleton, which turns the coverage parameter into a queue-volume decision."
+        },
+        {
+          "ref": "llm-systems/llm-eval",
+          "text": "The evaluation half of the LLM case, and why the scorer is the eval - the number you report is a property of the judge as much as of the model."
+        },
+        {
+          "ref": "rag-agents/guardrails",
+          "text": "The safety layer for an LLM product, and the reason its own false-negative rate is the number that decides whether it is doing anything."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "★ At a 0.1% base rate, what does a 1% FPR give you?",
+          "a": "Precision **0.083** — 92 of every 100 alerts are false. 10,890 alerts per million to catch 900 frauds."
+        },
+        {
+          "q": "What sets the operating point?",
+          "a": "Review capacity, not AUC. 'How many alerts can 40 analysts clear per day' is the constraint the model works within."
+        },
+        {
+          "q": "Give the precision/volume trade.",
+          "a": "TPR 0.90/FPR 0.01 → 0.083 precision, 10,890 alerts, 900 caught. TPR 0.60/FPR 0.0001 → **0.857** precision, **700** alerts, 600 caught."
+        },
+        {
+          "q": "★ Derive the decision threshold.",
+          "a": "Act iff p·C_FN > (1−p)·C_FP, i.e. p > C_FP/(C_FP+C_FN). At $5 vs $500: **p > 0.0099**, not 0.5."
+        },
+        {
+          "q": "What does that require of the model?",
+          "a": "A CALIBRATED probability, conditional on whatever the decision conditions on — merchant, geography, channel, amount band. Fraud is in the ads camp, not the feed camp."
+        },
+        {
+          "q": "What is the label problem in fraud?",
+          "a": "Delayed (chargebacks 30–90 days) AND censored: blocked transactions never get a label. Selection on the outcome — module 23's collider."
+        },
+        {
+          "q": "So what do you do about censoring?",
+          "a": "Keep a small RANDOM allow-through slice. Otherwise your labels only describe transactions you approved, and an aggressive model degrades its own training data."
+        },
+        {
+          "q": "Why is an adapting adversary the worst case?",
+          "a": "Concept shift is deliberate and continuous, and module 24 showed no unlabelled monitor sees it — accuracy fell to 0.3375 with every input statistic at control."
+        },
+        {
+          "q": "Give the LLM cost arithmetic.",
+          "a": "1200 in + 300 out at $3/$15 per Mtok = **$0.0081/request** → **$127.7M/year** at 500 QPS."
+        },
+        {
+          "q": "The three cost levers?",
+          "a": "Semantic cache at 40% hit (−40%), input 1200→400 tokens by retrieving rather than dumping (−30%), routing 80% to a 10× cheaper model (−80%). Stacked: $127.7M → **$25.2M**."
+        },
+        {
+          "q": "What dominates LLM latency?",
+          "a": "Decode. 300 output tokens at ~40 tok/s = **7.5 s**, against ~0.1 s of prefill for 1200 input tokens."
+        },
+        {
+          "q": "So how do you make it faster?",
+          "a": "Make the OUTPUT shorter — not the prompt. Streaming changes perceived latency, not total, so TTFT is the metric users feel."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Design a fraud detection system.",
+          "a": "CLARIFY FIRST, AND THE CLARIFYING QUESTIONS ARE THE DESIGN: what is the base rate, what does a missed fraud cost, what does a false alert cost, and how many alerts can the review team clear per day. Those four numbers determine the operating point before any model exists. FRAME: a per-transaction probability feeding a cost-based decision — block, review, or allow — which means this is a calibrated-probability problem, not a ranking problem. THE ARITHMETIC IS THE CASE. At a 0.1% base rate, a model at 90% TPR and 1% FPR has precision 0.083: 10,890 alerts per million transactions to catch 900 frauds, so 92 of every 100 alerts are false. Tightening to 0.1% FPR gives precision 0.445 at 1,799 alerts and 800 caught; to 0.01% FPR gives precision 0.857 at 700 alerts and 600 caught. THE LAST ROW CATCHES TWO THIRDS OF THE FRAUD OF THE FIRST WITH 0.7% OF THE ALERTS, and which row is right is a capacity and cost question the model cannot answer. THE THRESHOLD IS THEN DERIVED, not chosen: act when p exceeds C_FP/(C_FP + C_FN), which at $5 and $500 is 0.0099 rather than 0.5. LABELS: chargebacks arrive in 30 to 90 days, and blocked transactions never get one at all.",
+          "deepDive": {
+            "q": "What is the part of this case candidates most often miss?",
+            "a": "That last point is the one candidates miss and it is the most interesting part of the case. Blocking a transaction destroys its label — you never learn whether it was fraud — so the training data describes only transactions you approved, which is selection on the outcome and precisely module 23's collider. An aggressive model therefore degrades its own training data over time, and the degradation is invisible because the metrics computed on approved transactions look fine. The fix is a small random allow-through slice: deliberately approve a tiny fraction of transactions the model would have blocked, accept the fraud loss, and get unbiased labels. That is expensive in a way you can quantify — the slice's fraud rate times its volume times the average loss — and it is the only source of unbiased data about the region the model is most confident about. It is the same argument as the recommender's exploration slice and the experimentation module's permanent holdout, arriving for the third time, which is a good sign it is a general principle rather than a domain quirk."
+          }
+        },
+        {
+          "q": "How do you choose the operating point, and how would you explain it to a non-technical stakeholder?",
+          "a": "I WOULD NOT PRESENT A THRESHOLD — I WOULD PRESENT A TABLE WITH THREE COLUMNS THEY CARE ABOUT: alerts per day, frauds caught, and dollars. At a 0.1% base rate and a million transactions, the options run from 10,890 alerts catching 900 frauds, to 1,799 alerts catching 800, to 700 alerts catching 600. Multiply by the cost of a missed fraud and by the cost of an analyst-hour and each row becomes a net dollar figure, and the decision becomes obvious to someone with no interest in precision or recall. THE THRESHOLD ITSELF IS DERIVABLE once the two costs are stated: act when p exceeds C_FP/(C_FP + C_FN), which is 0.0099 at $5 and $500 — and showing that it is not 0.5 is usually the moment the conversation becomes productive, because it reveals that the default was arbitrary. I WOULD ALSO SEPARATE THE THREE ACTIONS. Block, review and allow are different decisions with different costs, so there are two thresholds rather than one, and the review band exists precisely because its cost is intermediate. Sizing that band to the review team's capacity is the actual design decision, and conformal prediction is a clean way to do it — route to review when the prediction set is not a singleton, which turns the coverage parameter directly into a queue volume.",
+          "deepDive": {
+            "q": "Which stakeholder conversation should you pre-empt?",
+            "a": "The stakeholder conversation has a predictable failure worth pre-empting: they will ask for both fewer false alerts and more fraud caught, and the honest answer is that those trade against each other along a curve you can show them, and the only way to move the curve rather than slide along it is a better model or better features. Having the curve in the room converts an argument into a choice. The second thing worth raising unprompted is that the costs themselves are estimates and usually contested — the cost of a false alert includes analyst time and customer friction, and the friction cost is real, hard to measure and frequently much larger than the analyst cost. Doing sensitivity analysis on the threshold with respect to that number, in the module 23 style, is cheap and it shows where the recommendation is fragile. If the optimal threshold barely moves as the friction cost ranges over an order of magnitude, the recommendation is robust and you can say so; if it moves a lot, then measuring friction is the highest-value next piece of work, which is a much better output than a threshold nobody trusts."
+          }
+        },
+        {
+          "q": "What makes fraud different from the other design cases?",
+          "a": "THE ADVERSARY ADAPTS, WHICH BREAKS THE ASSUMPTION EVERY OTHER CASE RELIES ON. A recommender's users do not change their preferences to defeat the ranker; fraudsters change their behaviour specifically because the model exists, so concept shift is deliberate, continuous and targeted at whatever the model currently uses. THAT IS THE WORST CASE FROM MODULE 24: P(y|x) moves while P(x) can stay put, and no unlabelled monitor detects it — in that measurement accuracy fell to 0.3375 while mean confidence, prediction rate, the score distribution and a domain classifier all sat at control values. So the only detector is labels, and labels are delayed by 30 to 90 days, which means you learn about an attack after it has run for a quarter. THE DESIGN CONSEQUENCES ARE CONCRETE. Retrain frequently and automatically, because the half-life of a feature's usefulness is short. Prefer features that are expensive for the adversary to change — device fingerprints, account age, network structure — over features that are cheap to change, because a model leaning on cheap features is defeated by editing a field. Keep an ensemble of diverse models so the adversary must defeat several mechanisms. And instrument for fast detection: a small fast-label channel, such as customer-reported fraud, beats waiting for chargebacks.",
+          "deepDive": {
+            "q": "Which point has the most practical bite?",
+            "a": "The feature-cost point is the one with the most practical bite and it generalizes to abuse and spam. Every feature has an adversarial cost — how much effort it takes to change — and a model's robustness is roughly the cost of the cheapest sufficient path to a false negative, which is the same logic as the threat-model discussion in module 24 with money instead of a norm ball. That reframes feature engineering: a feature that adds two points of AUC and costs the attacker nothing is worse than one that adds one point and costs them a new device. It also argues against interpretable-by-default models in this specific domain, since an adversary who learns the rule defeats it, which is an uncomfortable exception to the usual preference and worth naming honestly rather than eliding. The other structural point is that fraud is a two-sided cost problem — blocking a legitimate customer has a churn cost that is much larger and slower than the analyst cost — so the guardrail tier needs a false-positive-driven churn metric measured on a holdout, and that metric is the one that gets ignored until it is large."
+          }
+        },
+        {
+          "q": "Design an LLM-powered product feature. What actually matters?",
+          "a": "THE ROUND IS MOSTLY A SYSTEMS ROUND, AND THE DIFFERENTIATING CONTENT IS COST, LATENCY, ROUTING AND EVALUATION — not prompting. START WITH THE ARITHMETIC. A request with 1,200 input and 300 output tokens at $3 and $15 per million costs $0.0081, which at 500 QPS is $127.7 million a year. That number changes the conversation immediately, and the levers are all systems levers: a semantic cache at a 40% hit rate takes it down 40%; cutting input from 1,200 to 400 tokens by retrieving rather than dumping the whole document takes 30%; and routing 80% of traffic to a model ten times cheaper takes 80%. Stacked, $127.7M becomes $25.2M. ROUTING IS THE BIGGEST SINGLE LEVER and the most commonly omitted, because most requests in most products are easy and a cascade with an explicit escalation rule captures that. THEN LATENCY, where the key fact is that decode dominates: 300 output tokens at 40 tokens per second is 7.5 seconds against roughly 0.1 seconds of prefill for 1,200 input tokens. So 'make it faster' means 'make the OUTPUT shorter', and streaming changes perceived latency rather than total, which makes time-to-first-token a separate metric worth optimizing on its own.",
+          "deepDive": {
+            "q": "Where would you spend the remaining time?",
+            "a": "Evaluation is where I would spend the remaining time, because it is the part most likely to be missing and the part that determines whether you can ship a second version. The LLM-systems material's result applies directly: the scorer is the eval, and identical outputs scored by different rubrics produced wildly different numbers, so the eval design is a bigger decision than the model choice. Practically that means a fixed rubric written before the model exists, a held-out set the optimizer never sees, and measurement of the judge's own agreement with humans on a sample — because a model judge inherits length and position biases that swap-averaging partially corrects. The guardrail layer needs the same treatment: a guardrail's own false-negative rate is the number that decides whether it does anything, and it is routinely unmeasured. And the module 24 framing applies to the whole product — a red-team pass produces a findings list whose value depends on coverage, and 'we tested it' is a statement about the attacks you ran. Saying that in a design round is rare and it is the difference between someone who has shipped an LLM feature and someone who has prototyped one."
+          }
+        },
+        {
+          "q": "How would you evaluate and monitor an LLM feature in production?",
+          "a": "THREE LAYERS, AND THE FIRST IS THE ONE THAT DECIDES EVERYTHING. OFFLINE: a fixed rubric written before the model exists, a held-out set the optimizer never sees, and a measured agreement rate between the judge and humans on a sample — because the scorer is the eval, and a number produced by an unvalidated judge is a property of the judge. I would also rotate the held-out set, since running it after every checkpoint and selecting on it is selection even without training on it. ONLINE: the metrics users generate for free — edit rate, regeneration rate, abandonment, escalation to a human, thumbs-down — which are weak labels arriving continuously and are usually the earliest real signal of degradation. Plus explicit cost and latency SLOs, since both drift as prompts grow and models change under you. SAFETY: a guardrail layer with its OWN measured false-negative rate, plus continuous red-teaming reported with a coverage estimate rather than a findings list. AND A LABELLED SAMPLE, because module 24's result stands here too — no unlabelled monitor detects a quality regression that leaves the input distribution unchanged, and provider model updates do exactly that.",
+          "deepDive": {
+            "q": "What surprises teams building on someone else's model?",
+            "a": "That last point deserves emphasis because it is specific to building on someone else's model and it surprises teams. A provider silently updating a model version is a concept shift with the input distribution completely unchanged — your prompts are identical, your traffic is identical, and P(output | input) has moved. Every unlabelled monitor stays green by construction, and the first signal is usually a user complaint. The defences are pinning to a versioned model where the provider offers it, keeping a small golden set evaluated on a schedule regardless of whether anything changed, and treating any provider version bump as a deploy requiring the same evaluation as your own change. The cost of the golden set is small and it is the only thing that catches this class of failure early. The broader habit, which is the whole of module 24 compressed: decide in advance which failures you could detect with the monitoring you have, notice which ones you could not, and either buy the information or write down that you have accepted the exposure."
+          }
+        },
+        {
+          "q": "What do these two cases have in common that the earlier ones do not?",
+          "a": "THE OPERATING POINT IS SET BY A COST RATHER THAN BY A METRIC, AND IN BOTH THE COST IS COMPUTABLE. In the feed and search cases the design question was 'what should be ranked first', and the metric was a proxy for value with a long and uncertain path to money. Here the path is short: a missed fraud costs $500 and an alert costs $5, so the threshold is 0.0099; an LLM request costs $0.0081 and 500 QPS is $127.7 million a year, so routing is not an optimization but the product's viability. THAT CHANGES WHAT A GOOD ANSWER LOOKS LIKE — it should contain a number with a dollar sign early, and the model choice should be visibly downstream of it. BOTH ALSO CONSUME A PROBABILITY RATHER THAN AN ORDERING, which puts them in the ads camp from the previous lesson: fraud's threshold is a cost ratio and an LLM cascade's escalation rule is a confidence threshold, so both need calibration conditional on whatever the decision conditions on. AND BOTH HAVE AN ADVERSARIAL OR SHIFTING COMPONENT that the earlier cases lack, which is why both need a labelled monitoring channel rather than an input-distribution dashboard.",
+          "deepDive": {
+            "q": "Is there a triage that covers every design case here?",
+            "a": "The generalization worth carrying is a three-question triage that covers every design case in this module. First: does anything consume the probability, or only the order? That decides whether calibration is a requirement or an optional nicety, and it was worth 4.7% to 36.9% of revenue in the ads case. Second: where does the label come from, how delayed is it, and is it censored by the system's own actions? That was the feed's position bias, the ads cold-start trap, and fraud's blocked-transaction problem — the same structure three times, and each time the answer was a randomized slice logged at serving time. Third: what does an error cost, in each direction? That gives you the threshold, the guardrails and the stakeholder conversation, and in fraud it moved the threshold by two orders of magnitude from the default. Those three questions take under a minute and they locate the hard part of essentially any applied ML system, which is the most portable thing in this module."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "★ Rare-event arithmetic (base rate 0.1%)",
+        "back": "TPR 0.90/FPR 0.01 → precision **0.083**, 10,890 alerts/1M, 900 caught. TPR 0.60/FPR 0.0001 → precision **0.857**, **700** alerts, 600 caught. Two-thirds the fraud for 0.7% of the alerts."
+      },
+      {
+        "type": "intuition",
+        "front": "What sets the operating point?",
+        "back": "Review capacity and the cost asymmetry — not AUC. \"How many alerts can 40 analysts clear per day\" is the constraint; the model maximizes caught fraud within it."
+      },
+      {
+        "type": "formula",
+        "front": "★ The threshold is a cost ratio",
+        "back": "Act iff p·C_FN > (1−p)·C_FP ⟺ p > C_FP/(C_FP+C_FN). At $5 vs $500: **p > 0.0099**, not 0.5. Two orders of magnitude from the default."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Fraud's label is delayed AND censored",
+        "back": "Chargebacks take 30–90 days, and BLOCKED transactions never get a label at all. Selection on the outcome — module 23's collider — so an aggressive model degrades its own training data invisibly."
+      },
+      {
+        "type": "intuition",
+        "front": "The fix for censoring",
+        "back": "A small RANDOM allow-through slice: deliberately approve a tiny fraction the model would block, accept the loss, get unbiased labels. Third appearance of the randomized-slice argument in this module."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why an adapting adversary is the worst case",
+        "back": "Concept shift, deliberate and continuous, aimed at whatever the model currently uses. Module 24: no unlabelled monitor sees it (accuracy 0.3375, every input statistic at control). Labels are the only detector — and they're 30–90 days late."
+      },
+      {
+        "type": "intuition",
+        "front": "Feature choice under an adversary",
+        "back": "Every feature has an ADVERSARIAL COST. Robustness ≈ the cost of the cheapest sufficient path to a false negative. A +2 AUC feature that's free to change is worse than a +1 that costs them a new device."
+      },
+      {
+        "type": "formula",
+        "front": "★ LLM product cost",
+        "back": "1200 in + 300 out at $3/$15 per Mtok = **$0.0081/request** → **$127.7M/year** at 500 QPS. Put a dollar sign in the answer early; the model choice is downstream of it."
+      },
+      {
+        "type": "formula",
+        "front": "The three cost levers, stacked",
+        "back": "Semantic cache @40% hit (−40%) · input 1200→400 tok by RETRIEVING not dumping (−30%) · route 80% to a 10× cheaper model (−80%). $127.7M → **$25.2M**. Routing is the biggest and most often omitted."
+      },
+      {
+        "type": "intuition",
+        "front": "★ What dominates LLM latency",
+        "back": "DECODE. 300 output tokens at ~40 tok/s = **7.5 s**; prefill of 1200 input tokens ≈ **0.1 s**. \"Make it faster\" = make the OUTPUT shorter. Streaming moves perceived latency only — TTFT is what users feel."
+      },
+      {
+        "type": "pitfall",
+        "front": "The silent provider update",
+        "back": "A provider changing model versions is concept shift with your inputs IDENTICAL. Every unlabelled monitor stays green by construction. Defences: pin versions, a golden set on a schedule, treat a version bump as a deploy."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The three-question triage for any design case",
+        "back": "(1) Does anything consume the PROBABILITY or only the order? (2) Where does the label come from, how delayed, and is it CENSORED by the system's own actions? (3) What does an error cost in each direction? Under a minute; finds the hard part every time."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Dal Pozzolo, Caelen, Le Borgne, Waterschoot & Bontempi (2014), Learned Lessons in Credit Card Fraud Detection",
+        "url": "https://www.sciencedirect.com/science/article/abs/pii/S0957417414002619"
+      },
+      {
+        "title": "Elkan (2001), The Foundations of Cost-Sensitive Learning",
+        "url": "https://cseweb.ucsd.edu/~elkan/rescale.pdf"
+      },
+      {
+        "title": "Saito & Rehmsmeier (2015), The Precision-Recall Plot Is More Informative than the ROC Plot on Imbalanced Datasets",
+        "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0118432"
+      },
+      {
+        "title": "Chen et al. (2023), FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance",
+        "url": "https://arxiv.org/abs/2305.05176"
+      },
+      {
+        "title": "Kwon et al. (2023), Efficient Memory Management for Large Language Model Serving with PagedAttention",
+        "url": "https://arxiv.org/abs/2309.06180"
+      }
+    ],
+    "demos": [
+      "classification-metrics",
+      "roc",
+      "conformal",
+      "guardrails"
+    ]
+  }
+};

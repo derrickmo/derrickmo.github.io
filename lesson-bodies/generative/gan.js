@@ -1,0 +1,278 @@
+// GENERATED from content/lessons/generative/gan.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/generative/gan/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "gan": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Every model so far has needed an explicit likelihood - some formula for how probable a given image is - and paid for it. The GAN's idea is to skip the likelihood entirely. Train a GENERATOR to turn noise into images, train a DISCRIMINATOR to tell real from generated, and let them compete. The generator never computes p(x); it only ever receives the signal 'the discriminator could tell'. That is enough to produce astonishingly sharp samples, and it is why GANs dominated image generation for six years.",
+        "Sharpness comes from what the objective does NOT ask for. A likelihood-based model is severely punished for assigning near-zero probability to real data, so it spreads mass to cover everything and hedges when uncertain - which is what blur is. The adversarial objective asks only that samples be indistinguishable from real ones. Producing a hedge, an average, a blur, is immediately detectable and therefore punished. But nothing in the objective requires covering ALL the data, so a generator that produces three perfect kinds of image and ignores the other seven pays no price. That is MODE COLLAPSE, and it is not a bug in the implementation - it is the objective's blind spot.",
+        "The second thing to internalize is that there is NO LOSS TO WATCH. In ordinary training a falling loss means progress. Here the two losses are adversarial: if the generator improves, the discriminator's loss rises, and vice versa, so both curves hovering around a constant is what SUCCESS looks like - and it is also what total failure looks like. You cannot tell them apart from the curves. This is why GAN practice is dominated by stabilization machinery and by sample-based metrics like FID, and it is the deepest practical difference between adversarial and likelihood-based training. It is also worth knowing the most sobering result in the area: Lucic et al. gave many published GAN variants equal hyperparameter search budgets and found that none consistently beat the ORIGINAL formulation - most of the reported progress was search budget, not method."
+      ],
+      "math": [
+        {
+          "h": "The minimax game and what it optimizes",
+          "paras": [
+            "The discriminator maximizes its ability to separate real from fake; the generator minimizes it. At the optimal discriminator, the generator's objective becomes a divergence between the data and model distributions - which is where the theory both illuminates and misleads."
+          ],
+          "tex": "\\min_G \\max_D \\; \\mathbb{E}_{x\\sim p_{\\mathrm{data}}}\\!\\big[\\log D(x)\\big] + \\mathbb{E}_{z\\sim p_z}\\!\\big[\\log(1 - D(G(z)))\\big], \\qquad D^*(x) = \\frac{p_{\\mathrm{data}}(x)}{p_{\\mathrm{data}}(x)+p_g(x)}",
+          "texNote": "Substituting D* gives 2*JSD(p_data || p_g) - log 4, so the global optimum is p_g = p_data. The catch: this assumes an OPTIMAL discriminator and unlimited capacity, and real training never has either - so the theory describes a game nobody plays."
+        },
+        {
+          "h": "Why the original generator loss vanishes, and the non-saturating fix",
+          "paras": [
+            "Early in training the discriminator wins easily, D(G(z)) is near zero, and log(1 - D(G(z))) is flat there - so the generator gets almost no gradient exactly when it most needs one. The standard fix flips the objective to something with a strong gradient in that region."
+          ],
+          "tex": "\\text{saturating: } \\min_G \\mathbb{E}\\big[\\log(1 - D(G(z)))\\big] \\quad\\longrightarrow\\quad \\text{non-saturating: } \\max_G \\mathbb{E}\\big[\\log D(G(z))\\big]",
+          "texNote": "Same fixed point, completely different gradients. Essentially every implementation uses the non-saturating form, and it was proposed in the ORIGINAL paper - the minimax form is what the theory analyzes, not what anyone runs. Knowing that distinction is a common interview discriminator."
+        },
+        {
+          "h": "Wasserstein distance: why it gives gradients when JS does not",
+          "paras": [
+            "If the data lies on a low-dimensional manifold and the generated distribution lies on another, the two supports are almost surely disjoint - and JS divergence is CONSTANT at log 2 for disjoint supports, so its gradient is zero. Wasserstein distance instead measures how far mass must be MOVED, which varies smoothly even for disjoint supports."
+          ],
+          "tex": "W(p_r, p_g) = \\inf_{\\gamma \\in \\Pi(p_r,p_g)} \\mathbb{E}_{(x,y)\\sim\\gamma}\\big[\\lVert x-y\\rVert\\big] = \\sup_{\\lVert f\\rVert_L \\le 1} \\mathbb{E}_{p_r}[f(x)] - \\mathbb{E}_{p_g}[f(x)]",
+          "texNote": "The right-hand form (Kantorovich-Rubinstein duality) is what you implement: a CRITIC f constrained to be 1-Lipschitz, outputting an unbounded score rather than a probability. The critic's loss is then an estimate of W, which is the closest thing GANs have to a meaningful progress metric."
+        },
+        {
+          "h": "Enforcing the Lipschitz constraint: gradient penalty",
+          "paras": [
+            "WGAN originally clipped weights to a box, which crudely bounds the Lipschitz constant and badly distorts the critic. WGAN-GP instead penalizes the gradient norm at points interpolated between real and fake samples, using the fact that an optimal 1-Lipschitz critic has unit gradient norm almost everywhere along those lines."
+          ],
+          "tex": "\\mathcal{L}_D = \\mathbb{E}_{p_g}[D(\\tilde{x})] - \\mathbb{E}_{p_r}[D(x)] + \\lambda\\,\\mathbb{E}_{\\hat{x}}\\Big[\\big(\\lVert\\nabla_{\\hat{x}} D(\\hat{x})\\rVert_2 - 1\\big)^2\\Big], \\quad \\hat{x} = \\epsilon x + (1-\\epsilon)\\tilde{x}",
+          "texNote": "lambda = 10 is the standard value. Two implementation traps: the penalty is on points BETWEEN real and fake (not on either alone), and batch normalization in the critic breaks the per-sample gradient assumption - use layer norm or instance norm instead."
+        }
+      ],
+      "code": [
+        {
+          "h": "The training loop, with the details that decide whether it works",
+          "paras": [
+            "The loop is short; the annotations are the lesson. Nearly every failed GAN reimplementation is one of these details."
+          ],
+          "code": "import torch\n\nfor real in loader:\n    # ---- CRITIC: n_critic steps per generator step (WGAN-GP uses 5) ----\n    for _ in range(N_CRITIC):\n        z = torch.randn(B, Z_DIM, device=dev)\n        fake = G(z).detach()                  # DETACH - do not build G's graph\n        d_real, d_fake = D(real), D(fake)\n\n        gp = gradient_penalty(D, real, fake)  # on INTERPOLATED points\n        d_loss = d_fake.mean() - d_real.mean() + 10.0 * gp\n        opt_D.zero_grad(); d_loss.backward(); opt_D.step()\n\n    # ---- GENERATOR: one step ----\n    z = torch.randn(B, Z_DIM, device=dev)\n    g_loss = -D(G(z)).mean()                  # NOT detached: gradient flows to G\n    opt_G.zero_grad(); g_loss.backward(); opt_G.step()\n\n# THE DETAILS THAT MATTER, each a common failure:\n#  * .detach() on the critic step, or you update G with D's gradients.\n#  * NO batch norm in a WGAN-GP critic - the penalty assumes each sample's\n#    gradient is independent, and BN couples them. Use LayerNorm/InstanceNorm.\n#  * Adam betas (0.0, 0.9) or (0.5, 0.999), NOT the default (0.9, 0.999).\n#    High momentum interacts badly with a moving adversarial objective.\n#  * TWO-TIMESCALE (TTUR): a higher LR for D than G (e.g. 4e-4 vs 1e-4) is a\n#    reliable, nearly free stabilizer.\n#  * The generator's LAST layer is tanh, so scale real data to [-1, 1].\n#  * Track an EMA of G's weights and sample from THAT - typically worth\n#    several FID points and almost never mentioned in tutorials.",
+          "caption": "Detach, no batch norm in a gradient-penalty critic, non-default Adam betas, two-timescale learning rates, and an EMA of the generator. None is exotic; together they are most of the difference between a GAN that trains and one that does not."
+        },
+        {
+          "h": "You cannot read the loss curves - what to watch instead",
+          "paras": [
+            "The single most disorienting thing about GAN training, and the practical response to it."
+          ],
+          "code": "# WHAT THE CURVES LOOK LIKE:\n#   healthy training ......... d_loss ~ flat, g_loss ~ flat\n#   total failure ............ d_loss ~ flat, g_loss ~ flat\n# Adversarial losses are relative. Neither going down is progress, and both\n# hovering is what equilibrium AND collapse both look like.\n#\n# WHAT TO WATCH INSTEAD:\n#\n# 1. FID on a fixed sample, every N steps. The primary signal. Use the SAME\n#    number of samples every time (FID is biased downward with more samples,\n#    so 10k and 50k are not comparable).\n#\n# 2. THE WASSERSTEIN ESTIMATE (WGAN only): d_real.mean() - d_fake.mean()\n#    correlates with sample quality and DOES trend down. This was WGAN's most\n#    useful practical contribution and is often undersold relative to the\n#    theory.\n#\n# 3. A FIXED z GRID, rendered every N steps into a contact sheet. Cheap, and\n#    it makes mode collapse visible immediately - many z values mapping to\n#    near-identical images.\n#\n# 4. DISCRIMINATOR ACCURACY on held-out real vs fake:\n#      ~50%  -> D cannot tell: either equilibrium or D has collapsed\n#      ~100% -> D has won: G's gradient is vanishing, lower D's LR or capacity\n#      ~75%  -> a healthy working range\n#\n# 5. GRADIENT NORMS into G. If they collapse toward zero, G has stopped\n#    learning regardless of what the loss says.\n#\n# THE FAILURE SIGNATURES:\n#   mode collapse ....... FID plateaus high; the z grid shows repeats\n#   D too strong ........ D accuracy ~100%, G gradients -> 0\n#   D too weak .......... samples degrade while g_loss looks great\n#   oscillation ......... FID cycles up and down without converging",
+          "caption": "GAN training has no monotone objective to monitor, so the practical answer is FID on a fixed sample, a fixed-z contact sheet, discriminator accuracy, and (for WGAN) the Wasserstein estimate - which is the one adversarial quantity that genuinely trends."
+        }
+      ],
+      "useCases": [
+        "Single-step generation where latency is a hard constraint - real-time video effects, on-device generation, and interactive editing - which is the one axis where GANs still structurally beat diffusion, and why GAN-style adversarial objectives reappear in diffusion DISTILLATION.",
+        "Image-to-image translation and restoration: super-resolution, deblurring, colourization, inpainting, and unpaired translation (CycleGAN). Here the adversarial term supplies realism that a reconstruction loss cannot, and the paired input constrains coverage so mode collapse matters less.",
+        "As a LOSS rather than a model: patch discriminators are a standard component inside autoencoders (VQGAN, the Stable Diffusion VAE) and other systems, where they sharpen output that MSE would blur. This is arguably the GAN's most widespread surviving deployment.",
+        "Simulation and data augmentation in domains with scarce data - medical imaging, physics, and tabular synthesis - where the generator's samples supplement a small dataset, with the standard caution that it cannot create information the training set lacked."
+      ],
+      "pitfalls": [
+        "Reading the loss curves as progress. Adversarial losses are relative, so flat curves describe both equilibrium and total failure. Monitor FID on a FIXED sample size, a fixed-z contact sheet, discriminator accuracy, and (for WGAN) the Wasserstein estimate.",
+        "Missing mode collapse because samples look good. Individually beautiful samples that repeat across different z values are the signature. A likelihood model cannot do this; the adversarial objective has no term penalizing missing modes.",
+        "Using batch normalization in a WGAN-GP critic. The gradient penalty assumes per-sample gradients are independent and batch norm couples them. Use layer or instance normalization.",
+        "Leaving Adam at its default betas. (0.9, 0.999) interacts badly with a moving adversarial target; (0.0, 0.9) or (0.5, 0.999) are the standard settings, and a two-timescale learning rate (higher for D) is close to free.",
+        "Forgetting to detach the generator's output on the critic step, which back-propagates the critic's objective into the generator and produces a model that trains toward nothing coherent.",
+        "Comparing FID values computed with different sample counts. FID is a BIASED estimator that decreases with more samples, so 10k-sample and 50k-sample numbers are not comparable, and neither is a number from a different Inception implementation.",
+        "Expecting a likelihood. GANs provide none - no density, no ELBO, no principled anomaly score - which rules them out wherever you need to evaluate the probability of a given input rather than produce new ones.",
+        "Assuming a newer GAN variant will beat the original. Given equal hyperparameter search budgets, Lucic et al. found no variant consistently dominated; much of the published progress was search budget rather than method."
+      ],
+      "connections": [
+        {
+          "ref": "generative/vae",
+          "text": "The opposite corner of the trilemma: likelihood training is mode-covering and blurs, adversarial training is mode-seeking and sharpens. One asymmetry explains both characteristic failures."
+        },
+        {
+          "ref": "generative/autoencoders",
+          "text": "A patch discriminator is now a standard component of autoencoder training - the GAN survives most widely as a LOSS inside other models rather than as a model."
+        },
+        {
+          "ref": "generative/conditional-generation",
+          "text": "Conditional GANs introduced the projection and auxiliary-classifier machinery, and the fidelity-diversity trade they exposed reappears exactly as classifier-free guidance in diffusion."
+        },
+        {
+          "ref": "generative/diffusion-guidance",
+          "text": "FID, Inception Score, and precision/recall for generative models were all developed to evaluate GANs, and they carry their biases into diffusion evaluation unchanged."
+        },
+        {
+          "ref": "cnn/cnn-architectures",
+          "text": "DCGAN's architectural guidelines - strided convolutions instead of pooling, batch norm, no fully-connected layers - were the first recipe that made deep convolutional generation train reliably."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a GAN?",
+          "a": "A generator mapping noise to samples and a discriminator distinguishing real from generated, trained adversarially. The generator never computes a likelihood - its only signal is whether the discriminator was fooled."
+        },
+        {
+          "q": "What does the minimax objective optimize at the optimal discriminator?",
+          "a": "The Jensen-Shannon divergence between the data and model distributions (up to constants), so the global optimum is p_g = p_data. This assumes an optimal discriminator, which training never has."
+        },
+        {
+          "q": "What is the non-saturating loss?",
+          "a": "Maximize log D(G(z)) instead of minimizing log(1 - D(G(z))). Same fixed point, but a strong gradient when the discriminator is winning - which is exactly when the original form flattens out."
+        },
+        {
+          "q": "What is mode collapse?",
+          "a": "The generator produces only a few kinds of output, ignoring most of the data distribution. The objective never asks for coverage, so missing modes costs nothing."
+        },
+        {
+          "q": "Why can't you monitor GAN training with the loss?",
+          "a": "The losses are adversarial and relative - improvement in one raises the other. Flat curves are what BOTH equilibrium and total failure look like."
+        },
+        {
+          "q": "Why does WGAN use Wasserstein distance?",
+          "a": "When the real and generated distributions lie on disjoint low-dimensional manifolds, JS divergence is constant at log 2 and its gradient is zero. Wasserstein varies smoothly with how far mass must be moved."
+        },
+        {
+          "q": "What is the critic, as opposed to the discriminator?",
+          "a": "In WGAN, f outputs an unbounded SCORE rather than a probability, and must be 1-Lipschitz. Its output difference estimates the Wasserstein distance."
+        },
+        {
+          "q": "How is the Lipschitz constraint enforced?",
+          "a": "Originally by weight clipping, which distorts the critic badly. WGAN-GP penalizes (||grad D|| - 1)^2 at points interpolated between real and fake, with lambda = 10. Spectral normalization is the modern alternative."
+        },
+        {
+          "q": "Why no batch norm in a WGAN-GP critic?",
+          "a": "The gradient penalty assumes each sample's gradient is independent, and batch norm couples samples within a batch. Use layer or instance normalization."
+        },
+        {
+          "q": "What is TTUR?",
+          "a": "Two-timescale update rule: a higher learning rate for the discriminator than the generator (e.g. 4e-4 vs 1e-4). A cheap and reliable stabilizer."
+        },
+        {
+          "q": "What did 'Are GANs Created Equal?' find?",
+          "a": "Given equal hyperparameter search budgets, no published variant consistently outperformed the original GAN. Much reported progress was search budget rather than method."
+        },
+        {
+          "q": "Where do GANs still win?",
+          "a": "Single-step sampling - one forward pass versus diffusion's many - so real-time and on-device generation. And as a LOSS (patch discriminators) inside autoencoders and restoration models."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Why is GAN training unstable, and what actually fixes it?",
+          "a": "THE ROOT CAUSE IS THAT IT IS NOT AN OPTIMIZATION PROBLEM. Ordinary training descends a fixed objective and converges to a minimum. GAN training seeks a NASH EQUILIBRIUM of a two-player game, where each player's objective depends on the other's current parameters. Gradient descent on a minimax objective is not guaranteed to converge at all - even on simple bilinear games it can cycle forever around the equilibrium rather than approaching it, which is a fact about the dynamics rather than about neural networks. THE SPECIFIC FAILURE MODES, and what causes each. (1) VANISHING GRADIENTS. If the discriminator becomes too good, D(G(z)) goes to zero, and in the original saturating loss log(1 - D(G(z))) is flat there - the generator receives essentially no signal exactly when it is worst. This is why the non-saturating form exists and why it was in the original paper. (2) MODE COLLAPSE. The generator finds one output that reliably fools the current discriminator and maps most of z to it. The discriminator then learns to reject that output, so the generator moves to another, and the two cycle without covering the distribution. The structural cause is that the objective contains no coverage term. (3) OSCILLATION AND NON-CONVERGENCE, from the game dynamics above. (4) DISCRIMINATOR OVERFITTING when data is limited: it memorizes the training set, its signal to the generator becomes meaningless, and quality degrades. WHAT ACTUALLY FIXES IT, ordered by how much I trust it. ARCHITECTURAL AND OPTIMIZER HYGIENE first, because it is cheap and does most of the work: DCGAN's guidelines (strided convolutions rather than pooling, no fully-connected layers, normalization), Adam with betas (0.0, 0.9) or (0.5, 0.999) rather than the default, TTUR with a higher discriminator learning rate, and an EMA of the generator's weights for sampling - the last is worth several FID points and is nearly free. LIPSCHITZ CONSTRAINTS ON THE DISCRIMINATOR, which I would call the single most reliable class of fix. SPECTRAL NORMALIZATION (divide each weight matrix by its largest singular value) is my default: it is cheap, has no extra hyperparameter, and is far less fiddly than a gradient penalty. WGAN-GP works well but adds a lambda to tune and forbids batch norm in the critic. The reason these help is worth stating: constraining the discriminator prevents it from becoming arbitrarily sharp, which keeps the generator's gradient informative. LOSS FUNCTION CHOICE matters less than the literature suggests - hinge loss, WGAN, and non-saturating all work with adequate regularization, and Lucic et al.'s finding is precisely that the differences shrink to within search-budget variance once you tune properly. REGULARIZING WITH DATA: for limited data, adaptive discriminator augmentation (ADA, from StyleGAN2-ADA) applies differentiable augmentations to BOTH real and fake inputs with a strength tuned by how much the discriminator is overfitting. This was the breakthrough that made GANs trainable on a few thousand images and is the right tool whenever data is scarce. FOR MODE COLLAPSE SPECIFICALLY: minibatch discrimination or minibatch standard deviation (letting the discriminator see batch-level statistics, so a batch of identical outputs is detectable), unrolled GANs, and PacGAN. These help and none fully solves it. WHAT I WOULD SAY OVERALL: GAN stability was addressed by accumulating engineering practice rather than by any single theoretical fix, and the honest summary is that the field found a recipe (spectral norm, TTUR, EMA, augmentation, careful architecture) rather than a solution. That is part of why diffusion displaced GANs so quickly - a diffusion model optimizes one well-posed regression objective, and none of this applies.",
+          "deepDive": {
+            "q": "Explain mode collapse in depth: mechanism, detection, and mitigations.",
+            "a": "THE MECHANISM. The generator's objective is to maximize the probability that the discriminator judges its output real. Nothing in that requires diversity. If a single output x* strongly fools the CURRENT discriminator, mapping every z to x* is a locally optimal generator response - it maximizes the objective exactly. The discriminator then learns that x* is fake, and the generator jumps to a new x**. The two chase each other around a small set of outputs, and the joint dynamics can cycle indefinitely without covering the data. Note this is a rational response to the objective, not an optimization pathology, which is why architectural tinkering does not reliably fix it. THE DIVERGENCE VIEW, which makes the contrast with VAEs precise. Likelihood training minimizes roughly KL(p_data || p_model), which blows up wherever p_data is large and p_model is near zero - so it is MODE-COVERING and pays for it by spreading mass into implausible regions, i.e. blur. The reverse KL(p_model || p_data) blows up wherever the model puts mass with no data, so it is MODE-SEEKING: it prefers to concentrate on a subset it can model well and simply ignore the rest. GAN training in practice behaves much closer to the reverse direction. One asymmetry, two characteristic failures, and that framing transfers well beyond GANs. THE DEGREES, which matter for diagnosis. COMPLETE collapse - every z gives essentially the same image - is rare and obvious. PARTIAL collapse - the generator covers a handful of modes and drops the rest - is common and much harder to see, because the samples you look at are all good. And INTRA-MODE collapse - all faces are covered but every face has the same expression - is subtle and frequently goes unreported. DETECTION, and this is where most practitioners under-invest. (1) A FIXED-z CONTACT SHEET, rendered periodically. Cheap and immediately reveals repeats. (2) NEAREST-NEIGHBOUR checks: for each generated sample find its nearest generated neighbour; a distribution of distances concentrated near zero means duplicates. (3) PRECISION AND RECALL FOR GENERATIVE MODELS (Sajjadi et al.; Kynkaanniemi et al.), which is the right tool. Precision measures what fraction of generated samples fall in the real data's manifold (quality); RECALL measures what fraction of the real manifold is covered by generated samples (diversity). Mode collapse is exactly high precision with low recall, and FID - a single number mixing both - can look acceptable while recall is terrible. If you care about coverage, report precision and recall, not FID alone. (4) The BIRTHDAY PARADOX test (Arora & Zhang): sample a batch of size s and check for near-duplicates; if duplicates appear at batch size s, the effective support is roughly s^2. This gives an actual estimate of the number of modes and it repeatedly showed published GANs had support far smaller than their training sets. (5) If you have labels, classify generated samples and compare the class histogram against the data's. MITIGATIONS, none complete. MINIBATCH DISCRIMINATION / MINIBATCH STDDEV: give the discriminator access to batch-level statistics so a batch of near-identical outputs is detectable. Simple, effective, and standard in the StyleGAN line. UNROLLED GANs: update the generator against a discriminator unrolled several steps into the future, so the generator cannot exploit the current discriminator's transient weakness - directly targets the chase dynamic, and is expensive. PACGAN: give the discriminator several samples at once, so lack of diversity becomes visible. WGAN and other divergence changes reduce but do not eliminate it. VEEGAN and BiGAN-style approaches add an ENCODER, so the model must be able to map real data back into the latent space - which penalizes ignoring parts of the data and attacks the root cause more directly than the rest. Conditioning helps a great deal in practice, since conditional generation forces coverage of the conditioning variable. THE HONEST SUMMARY: mode collapse was never solved for unconditional GANs, only managed. It is the single clearest reason diffusion models displaced them - a likelihood-based objective is mode-covering by construction, so the failure mode does not exist, and the price (slow sampling) turned out to be much more tractable to fix."
+          }
+        },
+        {
+          "q": "Explain WGAN: what problem it solves and whether it delivered.",
+          "a": "THE PROBLEM IT DIAGNOSED, which is the paper's most valuable contribution. Arjovsky & Bottou's analysis: natural images lie on a low-dimensional manifold in pixel space, and the generator's output also lies on a low-dimensional manifold (the image of z under G). Two low-dimensional manifolds in a high-dimensional space intersect in a set of measure zero almost surely - their supports are effectively DISJOINT. For disjoint supports, JS divergence is exactly constant at log 2, and KL is infinite. A constant divergence has ZERO GRADIENT. So the theoretical objective the original GAN optimizes provides no learning signal in precisely the situation that always holds. That is a clean and genuinely illuminating diagnosis of why the discriminator getting too good kills training. THE PROPOSED FIX. Use the Wasserstein (earth-mover) distance instead. It measures the minimum cost of transporting mass from one distribution to the other, so it varies SMOOTHLY with how far apart the supports are and gives useful gradients even when they do not overlap. Via Kantorovich-Rubinstein duality it can be written as a supremum over 1-LIPSCHITZ functions of the difference in expected values, which is implementable: train a CRITIC f that outputs an unbounded score rather than a probability, constrain it to be 1-Lipschitz, and its output gap estimates W. ENFORCING LIPSCHITZ - the practical story. The original paper CLIPPED weights to a small box. It bounds the Lipschitz constant crudely and badly distorts the critic - it biases it toward simple functions and causes gradients to explode or vanish depending on the clipping value, which the authors acknowledged as a poor solution. WGAN-GP replaced it with a GRADIENT PENALTY: penalize (||grad_x D(x_hat)|| - 1)^2 at points interpolated between real and fake samples, using the fact that an optimal 1-Lipschitz critic has unit gradient norm along those lines. This works far better and became standard, with two implementation traps - the penalty must be on the interpolated points, and batch norm in the critic breaks the per-sample independence the penalty assumes. SPECTRAL NORMALIZATION later provided a cheaper alternative: divide each weight matrix by its top singular value, bounding the Lipschitz constant architecturally with no extra loss term or hyperparameter. It is my default today. DID IT DELIVER? Partly, and the honest accounting is more interesting than either the hype or the backlash. WHAT IT DELIVERED: (a) a MEANINGFUL LOSS - the critic's estimate of W correlates with sample quality and actually trends downward, which was the first time GAN practitioners had any monitorable quantity, and I would argue this was its biggest practical contribution; (b) genuinely improved stability, with much less sensitivity to architecture; (c) reduced mode collapse, though not eliminated; (d) the diagnostic framework itself, which reshaped how the field thought about GAN failure. WHAT IT DID NOT DELIVER: (a) the theory does not really hold in practice, because the critic is neither optimal nor exactly 1-Lipschitz, so what you are estimating is not the Wasserstein distance - it is something with similar behaviour; (b) Lucic et al.'s controlled comparison found WGAN-GP did not consistently beat a well-tuned non-saturating GAN with spectral normalization, which is the deflating result; (c) it is slower, needing multiple critic steps per generator step; (d) the best GANs that followed (StyleGAN and successors) mostly did NOT use the WGAN loss, preferring non-saturating or hinge losses with strong regularization. WHAT I WOULD CONCLUDE: WGAN's lasting contributions are the DIAGNOSIS (disjoint supports kill JS gradients) and the emphasis on constraining the discriminator's Lipschitz constant - which turned out to be the actually-important intervention, and which spectral normalization delivers more cheaply than the Wasserstein machinery. The specific distance mattered less than the constraint it forced you to impose. That is a common pattern in this literature and worth recognizing: a paper's theory motivates a regularizer, the regularizer is what works, and it works for reasons broader than the theory."
+        },
+        {
+          "q": "How do you evaluate a generative model with no likelihood?",
+          "a": "GANS PROVIDE NO DENSITY, so evaluation must be sample-based, and every available metric is a proxy with known failure modes. INCEPTION SCORE (IS). Feed samples to an Inception classifier; reward confident per-sample predictions (each image looks like SOMETHING) and a diverse marginal over classes. Its problems are severe enough that it should not be used alone: it never looks at the real data at all, so it cannot detect that your samples differ from your dataset; it is entirely defined by ImageNet classes, so it is meaningless for faces or medical images; and it is trivially gamed by a model producing one perfect example of each of the 1000 classes. FRECHET INCEPTION DISTANCE (FID). Fit a Gaussian to Inception features of real and generated samples and compute the Frechet distance between them. Better than IS because it compares against real data, it correlates reasonably with human judgment, and it detects several kinds of degradation. Its problems, which people routinely ignore: it is a BIASED estimator that decreases with more samples, so 10k-sample and 50k-sample FIDs are not comparable and both must state N; it assumes Gaussian features, which they are not; it depends on the exact Inception implementation, and the PyTorch and TensorFlow versions disagree; it is an ImageNet-feature metric applied to domains ImageNet knows nothing about; and it CONFLATES quality and diversity into one number, so a model with beautiful samples and poor coverage can match one with mediocre samples and full coverage. PRECISION AND RECALL FOR GENERATIVE MODELS, which is the fix for that last problem and is under-used. Estimate the real and generated manifolds with k-nearest-neighbour spheres in feature space. PRECISION = fraction of generated samples inside the real manifold (quality/fidelity). RECALL = fraction of real samples inside the generated manifold (coverage/diversity). Mode collapse is exactly high precision with low recall, and it is invisible in FID. If diversity matters to you, this pair should be your primary metric. Density and Coverage (Naeem et al.) are more robust variants. HUMAN EVALUATION, which remains the ground truth. Two-alternative forced choice against real images, or against a baseline model, with the usual discipline: enough items for a confidence interval, randomized order, measured inter-annotator agreement, and attention checks. HYPE (Human eYe Perceptual Evaluation) formalizes this by measuring the exposure time at which people can no longer distinguish generated from real. TASK-BASED evaluation, which I find the most honest when it is available. If the generated data is for augmentation, measure downstream task accuracy when training on it. If it is for a product, measure whether users accept the output. These are the only metrics that measure what you actually want. AND THE CHECKS THAT ARE ROUTINELY SKIPPED. (1) MEMORIZATION: for your best samples, find the nearest training image in feature space and look at it. A model that memorizes scores excellently on FID and is worthless. This should be standard practice and it is not. (2) The BIRTHDAY-PARADOX support estimate, which repeatedly showed published GANs had far smaller effective support than their training sets. (3) Coverage of known attributes, if you have labels. WHAT I WOULD REPORT: FID with a stated sample count and Inception version, precision and recall separately, a nearest-neighbour memorization check, and a human comparison against a baseline. AND THE CAUTION THAT FRAMES ALL OF IT, from Theis et al.: likelihood and sample quality are only loosely coupled in high dimensions - you can construct a model with near-optimal likelihood and terrible samples, or excellent samples and terrible likelihood. So there is no single number here, and a paper reporting one is choosing which failure to hide."
+        },
+        {
+          "q": "Diffusion has largely displaced GANs. Do GANs still matter?",
+          "a": "YES, IN SPECIFIC AND DEFENSIBLE PLACES, and the honest answer separates 'GANs as the headline image generator' - which is over - from 'adversarial training as a technique' - which is not. WHY DIFFUSION WON. Better sample quality at scale; genuinely better mode coverage, since a likelihood-style objective is mode-covering by construction; far more stable training (one regression objective, no game); much better controllability, because iterative generation gives you a hook at every step, which is what makes inpainting, guidance, and ControlNet natural; and better scaling behaviour with data and compute. Against those, diffusion's one structural disadvantage was SAMPLING SPEED - and that turned out to be the most fixable constraint of the three in the trilemma. Distillation, consistency models, and better ODE solvers took a thousand steps down to a handful, while nobody found a comparable fix for mode collapse. That asymmetry, more than anything, is the story. WHERE GANS STILL WIN. (1) SINGLE-STEP GENERATION. One forward pass, full stop. For real-time video effects, on-device generation, and interactive editing where latency is a hard constraint, this remains a structural advantage. (2) SUPER-RESOLUTION AND RESTORATION, where the input heavily constrains the output so coverage matters less, the adversarial term supplies the realism a reconstruction loss cannot, and speed matters. (3) SMALL-DATA REGIMES: StyleGAN2-ADA trains well on a few thousand images, which is a scale where diffusion models struggle. (4) The STYLEGAN LATENT SPACE remains exceptionally good for editing - W and W+ support semantic manipulation and GAN inversion in a way diffusion's data-shaped latent does not match, and a lot of face-editing tooling still rests on it. (5) Domains where the ecosystem simply has not moved - medical imaging, scientific simulation, tabular data. WHERE ADVERSARIAL TRAINING SURVIVES INSIDE OTHER MODELS, which I would argue is the more important answer. (a) PATCH DISCRIMINATORS as a perceptual loss inside autoencoders - the Stable Diffusion VAE and VQGAN both train adversarially, and without it their reconstructions would be blurry, which would cap the entire diffusion system. So there is a discriminator inside the most-deployed diffusion model in the world. (b) DIFFUSION DISTILLATION: adversarial diffusion distillation (SDXL-Turbo) and related methods use a discriminator to train few-step or one-step samplers, explicitly borrowing the GAN's speed advantage. (c) Speech and audio vocoders (HiFi-GAN and successors) are still adversarial and still standard, because the latency requirement is severe. (d) Domain adaptation and representation learning use adversarial objectives routinely. WHAT I WOULD SAY IN AN INTERVIEW. GANs lost the headline application and won a durable place as a COMPONENT. The adversarial loss is the best tool available for 'make this output lie on the data manifold', and that is a subproblem that appears inside many systems whose top-level objective is not adversarial. And the intellectual legacy is substantial regardless: implicit generative modelling, the mode-covering versus mode-seeking distinction, and most of the evaluation apparatus that diffusion papers now use were all developed here. The deeper lesson I would draw is about which constraints are worth accepting: three families each gave up one leg of the trilemma, and the one that gave up the most TRACTABLE constraint won. That is a useful way to think about any design that involves an apparently forced trade."
+        },
+        {
+          "q": "You need to generate synthetic training data for a small medical imaging dataset. Would you use a GAN?",
+          "a": "MY FIRST ANSWER IS THAT SYNTHETIC DATA IS PROBABLY NOT THE HIGHEST-VALUE INTERVENTION HERE, and I would say so before discussing architectures - because the framing matters more than the model. A generative model trained on your small dataset cannot create information that dataset does not contain. It can smooth and interpolate what is there, which sometimes helps as a regularizer, but the failure modes of the downstream classifier usually come from cases the dataset does not cover - and those are exactly what the generator also cannot produce. WHAT I WOULD DO FIRST, in order. (1) CLASSICAL AUGMENTATION tuned to the modality's real invariances - and in medical imaging this requires care, since horizontal flips are wrong when laterality is diagnostic and intensity jitter is wrong when absolute intensity carries meaning (CT Hounsfield units). Get this right and it often closes most of the gap. (2) TRANSFER LEARNING from a large pretrained model, plus SELF-SUPERVISED continued pretraining on unlabelled in-domain scans, of which there are usually far more than labelled ones. This is typically the single highest-return step. (3) ACTIVE LEARNING to direct any additional labelling budget. (4) Better use of the labels you have - cross-validation, careful splitting, ensembling. If someone proposes a GAN before these, the proposal is usually about novelty rather than performance. IF SYNTHETIC DATA IS STILL WANTED, the architecture question. I would NOT reach for an unconditional GAN. Reasons: mode collapse is especially dangerous here, because the modes it drops will be the rare pathologies you most need; GANs are data-hungry and a few hundred or thousand images is a hard regime; there is no likelihood, so you cannot even score how well the distribution is covered; and training instability makes the whole thing hard to validate. If I did use a GAN, StyleGAN2 with ADAPTIVE DISCRIMINATOR AUGMENTATION is the right choice - it was designed for exactly this data scale and it works. A conditional formulation (conditioned on pathology label, and on scanner or site if available) is essential, because conditioning forces coverage of the conditioning variable and directly counteracts the failure mode I am most worried about. A diffusion model is now a defensible alternative and has better coverage properties, at the cost of needing more data still and being slower. THE VALIDATION I WOULD INSIST ON, which is where these projects usually fail. (1) MEMORIZATION CHECK, first and non-negotiable: for a large sample of generated images, find the nearest training image in feature space and inspect the closest matches manually. A generator that memorizes patient scans is a privacy incident, not a data augmentation strategy, and 'it is synthetic' is not a defence if it reproduces a real patient. Differential privacy guarantees are worth considering if the data will leave the institution. (2) COVERAGE: precision and recall for generative models, or a class histogram against the real distribution. Confirm the rare classes actually appear. (3) CLINICAL REVIEW: have a radiologist look at samples. Generative models produce anatomically impossible structures that look plausible to a non-expert and are obvious to one, and a model that generates a lung with the wrong lobe count is worse than no model. (4) THE DOWNSTREAM TEST that actually settles it: train the classifier with and without synthetic data and evaluate on a REAL held-out set, split by patient and by site. If synthetic data does not improve real-data performance, it does not matter how good the samples look. And check whether the improvement survives when compared against classical augmentation at equal effort, which is the comparison that most often deflates the result. THE RISK I WOULD FLAG EXPLICITLY: synthetic data can encode and amplify the training set's biases - scanner, site, demographic - while giving the appearance of a larger, more diverse dataset. That is a specific way this can make things worse rather than merely failing to help, and it is worth naming before the project starts."
+        },
+        {
+          "q": "How do you make a GAN conditional, and what breaks?",
+          "a": "THE GOAL is to control what is generated - a class, a text description, another image - rather than sampling unconditionally. THE APPROACHES, and they differ in more than plumbing. (1) NAIVE CONCATENATION (the original cGAN): append a one-hot label or embedding to z for the generator and to the input for the discriminator. Simple, and weak - the discriminator can largely ignore the label, so the generator faces little pressure to actually respect it, and you get class-agnostic samples with a decorative conditioning input. (2) AUXILIARY CLASSIFIER (AC-GAN): the discriminator also predicts the class, and the generator is rewarded when its samples are classified correctly. This does enforce conditioning, and it has a known pathology worth knowing: the auxiliary classification term rewards the generator for producing EASILY CLASSIFIABLE samples, which pushes it toward prototypical, low-diversity outputs near each class centre. It reduces intra-class diversity as a direct consequence of the objective, and this has been measured repeatedly. (3) PROJECTION DISCRIMINATOR (Miyato & Koyama), which is the principled version and my default. Rather than adding a classification loss, incorporate the label through an INNER PRODUCT between the label embedding and the discriminator's feature vector, added to the unconditional score. This follows from the form of the optimal discriminator when the conditional and marginal distributions differ by a class-dependent factor, and empirically it gives better sample quality and much better within-class diversity than AC-GAN. This is what BigGAN uses. (4) CONDITIONAL NORMALIZATION: make the normalization layers' scale and shift functions of the condition - conditional batch norm for class labels, AdaIN for style, SPADE for spatial semantic maps. Very effective, and it injects the condition throughout the network rather than only at the input, which matters for spatially-structured conditions. (5) For IMAGE-TO-IMAGE, the condition is an image: pix2pix pairs a patch discriminator with an L1 reconstruction term, and CycleGAN adds a cycle-consistency loss so unpaired translation is possible. WHAT BREAKS. (a) THE CONDITION GETS IGNORED, the most common failure - the generator produces good images unrelated to the condition. Diagnose by generating with a fixed z and varying the condition: if the outputs barely change, conditioning has failed. Fix by strengthening how the discriminator uses the condition (projection rather than concatenation) or by injecting the condition at more layers. (b) INTRA-CLASS MODE COLLAPSE: all samples for a class look identical. Conditioning fixes coverage ACROSS classes and can make it worse WITHIN them, especially with an auxiliary classifier. Measure per-class diversity, not just overall FID. (c) CONDITION-DEPENDENT QUALITY: rare classes get far worse samples, because the discriminator has seen few real examples of them, so the generator's signal there is weak. Report FID per class - the aggregate hides it entirely. (d) The generator can IGNORE z instead of ignoring the condition - producing a deterministic function of the condition, which is one-to-one image translation dressed up as generation. This is very common in image-to-image models and is the reason pix2pix's authors observed the noise input being ignored. Mitigations: explicit diversity terms (BicycleGAN), or accepting determinism if it is acceptable for the application. (e) With free-form TEXT conditioning, the discriminator's job becomes very hard and naive approaches fail - which is part of why text-to-image did not really work with GANs at scale and diffusion with CLASSIFIER-FREE GUIDANCE succeeded. THE CONNECTION I WOULD DRAW: the fidelity-versus-diversity trade that conditional GANs exposed - the truncation trick, where sampling z from a narrowed distribution improves quality and reduces diversity - is exactly the same knob as classifier-free guidance weight in diffusion. Both are explicit dials trading coverage for per-sample quality, and both make the trilemma's trade adjustable at INFERENCE time rather than fixed at training time. That is the same idea appearing twice, and recognizing it is worth more than either implementation."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "GAN objective",
+        "back": "Generator maps noise to samples; discriminator separates real from fake; trained adversarially. At the OPTIMAL discriminator the generator minimizes JS divergence - but training never has an optimal discriminator, so the theory describes a game nobody plays."
+      },
+      {
+        "type": "definition",
+        "front": "Non-saturating loss",
+        "back": "Maximize log D(G(z)) rather than minimize log(1 - D(G(z))). Same fixed point, strong gradient when D is winning. It is in the ORIGINAL paper - the minimax form is analyzed, not run."
+      },
+      {
+        "type": "intuition",
+        "front": "Why GANs are sharp and VAEs blur",
+        "back": "Likelihood training ~ KL(p_data||p_model) is mode-COVERING: hedging is cheap, missing data is catastrophic -> blur. Adversarial training behaves mode-SEEKING: hedging is detectable, missing modes is free -> sharp but collapsed."
+      },
+      {
+        "type": "pitfall",
+        "front": "GAN losses are not progress signals",
+        "back": "They are adversarial and relative, so flat curves describe equilibrium AND total failure identically. Watch FID at a FIXED sample count, a fixed-z contact sheet, D accuracy (~75% healthy), and WGAN's Wasserstein estimate."
+      },
+      {
+        "type": "definition",
+        "front": "Why Wasserstein",
+        "back": "Real and generated data lie on low-dimensional manifolds that almost surely do not intersect. For disjoint supports JS is CONSTANT at log 2 - zero gradient. Wasserstein varies with how far mass must move, so it still gives signal."
+      },
+      {
+        "type": "definition",
+        "front": "WGAN-GP gradient penalty",
+        "back": "lambda*(||grad D(x_hat)|| - 1)^2 at points INTERPOLATED between real and fake, lambda=10. Two traps: it must be on interpolates, and batch norm in the critic breaks the per-sample independence it assumes."
+      },
+      {
+        "type": "intuition",
+        "front": "Spectral normalization",
+        "back": "Divide each weight matrix by its top singular value, bounding the Lipschitz constant architecturally. Cheaper than a gradient penalty, no extra hyperparameter - the modern default. The CONSTRAINT mattered more than the specific distance."
+      },
+      {
+        "type": "pitfall",
+        "front": "Mode collapse detection",
+        "back": "High precision, LOW recall (precision/recall for generative models) - invisible in FID, which merges both into one number. Also: fixed-z contact sheets, nearest-neighbour duplicate distances, and the birthday-paradox support estimate."
+      },
+      {
+        "type": "pitfall",
+        "front": "FID is a biased estimator",
+        "back": "It decreases with more samples, so 10k and 50k FIDs are not comparable - always state N and the Inception implementation. It also conflates quality and diversity, and assumes Gaussian features."
+      },
+      {
+        "type": "pitfall",
+        "front": "Are GANs created equal?",
+        "back": "Lucic et al.: with EQUAL hyperparameter search budgets, no published variant consistently beat the original. Much reported progress was search budget. Treat GAN loss-function comparisons without matched budgets as uninformative."
+      },
+      {
+        "type": "definition",
+        "front": "The training-hygiene checklist",
+        "back": "Detach G's output on the critic step; no BN in a GP critic; Adam betas (0.0,0.9) or (0.5,0.999); TTUR (higher LR for D); EMA of G's weights for sampling (several FID points, nearly free); tanh output so scale data to [-1,1]."
+      },
+      {
+        "type": "intuition",
+        "front": "Where GANs still matter",
+        "back": "Single-step sampling (real-time, on-device), restoration/super-resolution, small data (StyleGAN2-ADA), StyleGAN's editable W space - and above all as a LOSS: the patch discriminator inside Stable Diffusion's own VAE."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Goodfellow et al. (2014), Generative Adversarial Networks",
+        "url": "https://arxiv.org/abs/1406.2661"
+      },
+      {
+        "title": "Gulrajani et al. (2017), Improved Training of Wasserstein GANs (WGAN-GP)",
+        "url": "https://arxiv.org/abs/1704.00028"
+      },
+      {
+        "title": "Miyato et al. (2018), Spectral Normalization for Generative Adversarial Networks",
+        "url": "https://arxiv.org/abs/1802.05957"
+      },
+      {
+        "title": "Lucic et al. (2018), Are GANs Created Equal? A Large-Scale Study",
+        "url": "https://arxiv.org/abs/1711.10337"
+      },
+      {
+        "title": "Kynkaanniemi et al. (2019), Improved Precision and Recall Metric for Assessing Generative Models",
+        "url": "https://arxiv.org/abs/1904.06991"
+      }
+    ],
+    "demos": [
+      "gan",
+      "vae",
+      "embeddings",
+      "classification-metrics"
+    ]
+  }
+};

@@ -1,0 +1,272 @@
+// GENERATED from content/lessons/frontier-frameworks/torch-compile-triton.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/frontier-frameworks/torch-compile-triton/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "torch-compile-triton": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "Every compiler for tensor programs does the same three things, and the flags differ far more than the mechanisms. It CAPTURES a graph, so it can see more than one operation at a time. It FUSES memory-bound operations, so a chain of elementwise ops becomes one pass over memory instead of many. And it REDUCES LAUNCH OVERHEAD, so thousands of tiny operations stop paying a fixed cost each. Inductor, XLA, TVM and TensorRT are four answers to those three problems, which is why learning the problems transfers and learning the flags does not.",
+        "The fusion mechanism is worth deriving rather than accepting, because it explains almost all of the speedup. An elementwise operation does about one arithmetic operation per element loaded, so its arithmetic intensity is roughly one - against hardware ratios in the hundreds, that means it is entirely memory-bound and the accelerator is idle waiting for bytes. Measured, a chain of such operations takes time linear in the chain length, about 0.83 milliseconds per operation, because EACH ONE is a separate round trip to memory. Fusing thirty-two of them into a single pass cuts the traffic by thirty-two.",
+        "The second mechanism has a different shape and bites at small sizes. Every kernel launch carries a fixed cost of roughly 1.4 microseconds, which is invisible when the kernel does real work and dominant when it does not. Ten thousand small operations measured 53.5 times slower than one large one doing the same total arithmetic - the time was almost entirely launches. That is why fusion and graph capture matter disproportionately for small tensors, and why CUDA graphs exist at all."
+      ],
+      "math": [
+        {
+          "h": "Elementwise operations are always memory-bound",
+          "paras": [
+            "Arithmetic intensity is the ratio of computation to bytes moved, and for an elementwise op it is about one.",
+            "Hardware ratios are in the hundreds, so the accelerator idles."
+          ],
+          "tex": "I = \\frac{\\text{FLOPs}}{\\text{bytes}} \\approx 1 \\quad\\text{vs}\\quad \\frac{\\text{peak FLOP/s}}{\\text{bandwidth}} \\sim 10^2, \\qquad \\Rightarrow\\; \\text{bandwidth-bound, always}",
+          "texNote": "This is the roofline argument, and it settles the question before any benchmark: no amount of faster arithmetic helps an operation that is waiting for memory. The only lever is moving fewer bytes - which is what fusion does, and it is why the biggest compiler win is on the operations that look cheapest. It is also the same argument that makes LLM decode bandwidth-bound in 17-01, arriving at a much smaller scale."
+        },
+        {
+          "h": "Fusion turns N memory passes into one",
+          "paras": [
+            "Each unfused operation reads its input and writes its output, so a chain of N does N round trips.",
+            "Measured time is linear in chain length, which is the evidence."
+          ],
+          "tex": "t_{\\text{unfused}} \\approx N \\cdot \\frac{2 \\cdot \\text{bytes}}{\\text{BW}} \\;\\;(\\text{slope } 0.83\\ \\text{ms/op}), \\qquad t_{\\text{fused}} \\approx \\frac{2 \\cdot \\text{bytes}}{\\text{BW}} \\;\\;\\Rightarrow\\; 32\\times \\text{less traffic}",
+          "texNote": "The linear relationship is the diagnostic: if adding an elementwise operation adds a constant time regardless of what the operation computes, you are measuring memory traffic rather than arithmetic. Fusing keeps the intermediate values in registers or shared memory so they are never written out - which is why a fused chain costs about what one operation costs, and why compiler speedups on such code are large and easy."
+        },
+        {
+          "h": "Launch overhead dominates at small sizes",
+          "paras": [
+            "Each kernel launch has a fixed cost independent of the work it does.",
+            "When the work is small, the fixed cost is the whole story."
+          ],
+          "tex": "t = N(t_{\\text{launch}} + t_{\\text{work}}), \\quad t_{\\text{launch}} \\approx 1.4\\,\\mu s \\;\\;\\Rightarrow\\;\\; 10^4 \\text{ small ops} = 53.5\\times \\text{one big op}",
+          "texNote": "So a model built from many small operations can be overhead-bound rather than compute-bound or memory-bound - a third regime. The fixes are fusion, which reduces the count, and graph capture with replay, which amortizes the launch cost across a whole graph. This is why small-batch inference and tiny models often see the largest relative gains from compilation, which is the opposite of the intuition that compilers help most on big work."
+        }
+      ],
+      "code": [
+        {
+          "h": "The three things every tensor compiler does",
+          "paras": [
+            "The mechanisms are the durable content; the flags are not."
+          ],
+          "code": "# 1. CAPTURE a graph - so the compiler can see more than one op.\ngraph = symbolic_trace(model).graph      # torch.fx -> 5 op nodes here\n#    Everything downstream operates on this IR. Dynamo, XLA's tracer\n#    and ONNX export are all doing this step with different tradeoffs\n#    between coverage and strictness (22-06).\n\n# 2. ★ FUSE memory-bound ops - the biggest win, and derivable:\n#    an elementwise op does ~1 FLOP per element loaded -> arithmetic\n#    intensity ~1, against hardware ratios ~100. ALWAYS bandwidth-bound.\n#      unfused chain: time LINEAR in N, slope ~0.83 ms/op\n#                     (each op = a separate ROUND TRIP to memory)\n#      fused:         one pass -> 32 ops = 32x less traffic\n#    ★ THE DIAGNOSTIC: if adding an op adds constant time REGARDLESS of\n#      what it computes, you are measuring MEMORY, not arithmetic.\n\n# 3. REDUCE LAUNCH OVERHEAD - a third regime, at small sizes:\n#      t = N * (t_launch + t_work),  t_launch ~ 1.4 us\n#      10,000 small ops = 53.5x one big op doing the same arithmetic\n#    Fixes: fusion (fewer launches) and graph capture + replay (amortize\n#    them). This is why SMALL-batch inference often sees the LARGEST\n#    relative gain from compilation - the opposite of the intuition\n#    that compilers help most on big work.\n\n# THE REAL API, for reference (it did not execute in this environment -\n# inductor needs a host C compiler, and Triton was not installed):\n#   model = torch.compile(model, mode=\"max-autotune\")\n#   @triton.jit\n#   def kernel(X, Y, N, BLOCK: tl.constexpr): ...",
+          "caption": "Capture, fuse, amortize launches — the three mechanisms behind inductor, XLA, TVM and TensorRT alike, which is why the mechanisms transfer and the flags do not."
+        },
+        {
+          "h": "The Triton tile model, verified rather than trusted",
+          "paras": [
+            "The abstraction is per-block code with within-block parallelism handled for you."
+          ],
+          "code": "# THE TILE ABSTRACTION: you write code for ONE BLOCK of data; the\n# compiler handles parallelism WITHIN the block and schedules blocks\n# across the device. That is one level up from CUDA (per-thread) and\n# one level down from a framework op (whole tensor).\n\n# ★ VERIFY THE TILING IS RIGHT BY CHECKING IT AGAINST THE NAIVE FORM.\n#   Written block-wise in numpy, the result matched the naive\n#   computation EXACTLY - which is what tells you the indexing,\n#   masking and accumulation are correct before any GPU is involved:\nfor start in range(0, N, BLOCK):\n    idx  = start + arange(BLOCK)\n    mask = idx < N                    # ★ the tail block is where\n    x    = load(X + idx, mask=mask)   #   tiling bugs live\n    store(Y + idx, f(x), mask=mask)\nassert allclose(Y_blockwise, Y_naive)  # exact\n\n# ⚠ WHY THIS LESSON MEASURED MECHANISMS RATHER THAN torch.compile:\n#   inductor needs a host C compiler (absent here) and Triton was not\n#   installed, so torch.compile DOES NOT EXECUTE in this environment.\n#   Rather than report numbers from a path that did not run, the\n#   mechanisms were measured with tools that do run - fx for capture,\n#   timing for fusion and launch overhead, numpy for the tile model.\n#   ★ That is the honest move: measure what you can actually run, and\n#     say which parts are shown as API rather than executed.",
+          "caption": "Checking the block-wise form against the naive one catches indexing and masking bugs — especially in the tail block — before any GPU is involved."
+        }
+      ],
+      "useCases": [
+        "Speeding up a model whose profile shows many small elementwise operations, which is exactly the case fusion addresses and where the gains are largest.",
+        "Diagnosing whether a workload is compute-bound, bandwidth-bound or overhead-bound, which determines which of the three mechanisms will help.",
+        "Writing a custom kernel for an operation the framework does not fuse well, where the tile model is the right level of abstraction.",
+        "Reading any tensor compiler's documentation, since capture, fusion and launch amortization are what all of them are doing under different names."
+      ],
+      "pitfalls": [
+        "Assuming a compiler helps most on large work. Launch overhead dominates at small sizes, so small-batch inference and tiny models often see the largest relative gains.",
+        "Treating elementwise operations as cheap. They are bandwidth-bound with arithmetic intensity around one, so a chain of them is a chain of round trips to memory.",
+        "Optimizing arithmetic in a memory-bound region. No amount of faster math helps an operation waiting for bytes - the only lever is moving fewer of them.",
+        "Skipping the linearity diagnostic. If adding an operation adds constant time regardless of what it computes, you are measuring memory traffic and fusion is the fix.",
+        "Trusting a tiled kernel without checking it against the naive form. Indexing and masking bugs concentrate in the tail block, and the exact-match check catches them cheaply.",
+        "Benchmarking a compiled function with a warm cache. Compilation cost is real and shape-dependent, and a warm-cache measurement reports the steady state as though it were free.",
+        "Quoting compilation speedups without the recompile behaviour. Dynamic shapes trigger recompiles, and a path that recompiles frequently can be slower than eager."
+      ],
+      "connections": [
+        {
+          "ref": "training-systems/torch-compile",
+          "text": "The production behaviour of this machinery, including the recompile cliff that silently drops a job back to eager execution for the rest of the run."
+        },
+        {
+          "ref": "pytorch-internals/torch-fx",
+          "text": "Graph capture as an inspectable object, with the surgery passes that show what a compiler is doing when it fuses or rewrites."
+        },
+        {
+          "ref": "frontier-frameworks/jax-fundamentals",
+          "text": "The same tracing and shape-specialization mechanism, where the cold-versus-warm measurement problem is identical."
+        },
+        {
+          "ref": "llm-systems/llm-architectures",
+          "text": "Where the bandwidth-bound argument reappears at model scale - decode reads every weight to do one token's arithmetic, which is the same roofline reasoning."
+        },
+        {
+          "ref": "training-systems/profiling",
+          "text": "How to tell which regime you are in before optimizing, including MFU as the absolute metric and a budget that must account for all of step time."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What do all tensor compilers do?",
+          "a": "Capture a graph, fuse memory-bound operations, and reduce launch overhead. Inductor, XLA, TVM and TensorRT are four answers to those three problems."
+        },
+        {
+          "q": "Why are elementwise operations always bandwidth-bound?",
+          "a": "Their arithmetic intensity is about one FLOP per element loaded, against hardware compute-to-bandwidth ratios in the hundreds."
+        },
+        {
+          "q": "What does an unfused chain cost?",
+          "a": "Time linear in chain length - about 0.83 ms per operation measured - because each one is a separate round trip to memory."
+        },
+        {
+          "q": "What does fusion do about that?",
+          "a": "Keeps intermediates in registers or shared memory so they are never written out, turning N passes into one - 32 ops became 32 times less traffic."
+        },
+        {
+          "q": "What is the linearity diagnostic?",
+          "a": "If adding an operation adds constant time regardless of what it computes, you are measuring memory traffic rather than arithmetic."
+        },
+        {
+          "q": "What is the launch overhead?",
+          "a": "About 1.4 microseconds fixed per kernel, so ten thousand small operations measured 53.5 times slower than one large one doing the same arithmetic."
+        },
+        {
+          "q": "Which workloads gain most from compilation?",
+          "a": "Small ones, often - launch overhead dominates at small sizes, which is the opposite of the intuition that compilers help most on big work."
+        },
+        {
+          "q": "What is the third regime?",
+          "a": "Overhead-bound, alongside compute-bound and bandwidth-bound. It is fixed per-launch cost dominating, and graph capture with replay amortizes it."
+        },
+        {
+          "q": "What is the Triton tile abstraction?",
+          "a": "You write code for one block of data; the compiler handles parallelism within the block and schedules blocks across the device."
+        },
+        {
+          "q": "How do you check a tiled kernel is correct?",
+          "a": "Write the block-wise form in numpy and check it matches the naive computation exactly - which catches indexing and masking bugs before any GPU."
+        },
+        {
+          "q": "Where do tiling bugs concentrate?",
+          "a": "The tail block, where the mask matters because the last block is partially out of range."
+        },
+        {
+          "q": "Why did this lesson measure mechanisms rather than torch.compile?",
+          "a": "Inductor needed a host C compiler that was absent and Triton was not installed, so the mechanisms were measured with tools that actually ran."
+        }
+      ],
+      "standard": [
+        {
+          "q": "What does torch.compile actually do, and where do the gains come from?",
+          "a": "IT DOES THREE THINGS, AND ALMOST ALL THE GAIN COMES FROM THE SECOND AND THIRD. STEP ONE - GRAPH CAPTURE. Rather than executing operations one at a time as Python calls them, it traces the program into a graph. That is the enabling step: a compiler that can only see one operation cannot fuse anything. Dynamo does this by bytecode analysis with graph breaks where it cannot follow, which is why coverage is a real concern and why some code compiles into several graphs instead of one. STEP TWO - FUSION, which is the biggest win and is derivable rather than mysterious. An elementwise operation does roughly one arithmetic operation per element loaded, so its arithmetic intensity is about one, against hardware compute-to-bandwidth ratios in the hundreds. It is entirely memory-bound. Measured, a chain of such operations takes time LINEAR in the chain length - about 0.83 milliseconds per operation - because each one reads its input from memory and writes its output back. Fusing them keeps the intermediates in registers so they are never written out, and a chain of thirty-two becomes one pass with thirty-two times less traffic. THE DIAGNOSTIC that tells you this is what you are looking at: if adding an operation adds constant time regardless of WHAT it computes, you are measuring memory traffic, not arithmetic. STEP THREE - LAUNCH OVERHEAD. Every kernel launch costs roughly 1.4 microseconds regardless of the work it does. Ten thousand small operations measured 53.5 times slower than one large operation doing the same total arithmetic - almost all of that time was launches. This is a third regime alongside compute-bound and bandwidth-bound, and the fixes are fusion, which reduces the count, and graph capture with replay, which amortizes them. WHAT THIS IMPLIES ABOUT WHERE COMPILATION HELPS, and it inverts the usual intuition: small workloads often gain most in relative terms, because they are overhead-bound. A large matrix multiplication is already compute-bound and near peak - a compiler has little to add. A model of many small elementwise operations is dominated by traffic and launches, which is exactly what compilation removes. THE COSTS, which I would state alongside. Compilation takes real time on the first call, and it is shape-dependent - a new shape recompiles, and a path with many distinct shapes can spend more time compiling than it saves. Graph breaks reduce the fusion opportunity. And in production the failure mode to watch is the recompile cliff, where exceeding the cache limit silently drops back to eager for the rest of the run. AND THE HONEST NOTE ABOUT THIS LESSON: torch.compile did not execute in the environment it was written in - inductor needs a host C compiler and Triton was not installed. Rather than report numbers from a path that did not run, the mechanisms were measured with tools that do: fx for capture, timing for fusion and launch overhead, numpy for the tile model.",
+          "deepDive": {
+            "q": "A model is slow. How do you determine which of the three regimes you are in?",
+            "a": "BY MEASURING THE SHAPE OF THE COST RATHER THAN ITS SIZE, because each regime has a signature and they call for different fixes. REGIME 1 - COMPUTE-BOUND. The accelerator is doing arithmetic near peak. The signature is high measured FLOP utilization, and time that scales with the arithmetic - doubling the work doubles the time. If you are here, a compiler has little to offer and the levers are algorithmic: fewer FLOPs, lower precision, better parallelism. Large matrix multiplications and convolutions on big inputs live here. REGIME 2 - BANDWIDTH-BOUND. The device is waiting for bytes. The signature is the LINEARITY DIAGNOSTIC: adding an elementwise operation adds a constant time regardless of what that operation computes - measured at about 0.83 ms per operation in the chain - because you are counting memory round trips rather than arithmetic. Another signature is that changing the arithmetic precision changes speed roughly proportionally to the bytes moved, not to the FLOPs. The fix is fusion, and it is often dramatic. REGIME 3 - OVERHEAD-BOUND. The fixed per-launch cost dominates. The signature is that time scales with the NUMBER of operations rather than with their size - ten thousand small operations were 53.5 times one large one at the same total arithmetic - and that making the tensors bigger barely changes the total time. The fix is fusion to reduce the count and graph capture with replay to amortize the launches. HOW I WOULD ACTUALLY MEASURE. A profiler timeline is the fastest route: gaps between kernels point at overhead or at host-side stalls, long kernels with low occupancy point at bandwidth, and dense kernels at high utilization point at compute. If a profiler is unavailable, the two scaling experiments above - vary the operation COUNT at fixed size, and vary the SIZE at fixed count - separate the three regimes with nothing but a timer. THE ORDER I WOULD WORK IN. Establish the regime before optimizing, because the wrong lever in the wrong regime does nothing and is easy to mistake for the technique not working. Then apply the matching fix. Then RE-MEASURE, because optimizing a system re-orders its bottlenecks - removing memory traffic can move you into the overhead regime, and removing launches can expose a compute limit. That re-measure step is what people skip, and it is why optimization efforts often stall after one successful change. AND THE CONNECTION UPWARD: this is the same reasoning that makes LLM decode bandwidth-bound at model scale - reading every weight to do one token's arithmetic is an arithmetic intensity of about one, exactly like an elementwise op. The roofline argument is scale-free, which is why learning it once pays at both the kernel level and the serving level."
+          }
+        },
+        {
+          "q": "What is Triton for, and when would you write a kernel?",
+          "a": "IT IS AN ABSTRACTION LEVEL BETWEEN CUDA AND A FRAMEWORK OPERATION, and the level is the point. In CUDA you write per-THREAD code and manage indexing, shared memory and synchronization yourself. In a framework you call an operation over a whole tensor and get whatever the library implemented. Triton sits between: you write code for one BLOCK of data, and the compiler handles parallelism within the block and schedules blocks across the device. That removes most of the tedium and most of the opportunity to get synchronization wrong, while keeping the control that matters. WHEN WRITING A KERNEL IS JUSTIFIED. When the operation you need is a FUSION the compiler will not do - a sequence of elementwise and reduction steps that logically belong together but that the framework materializes separately. When the memory access pattern is unusual and the generic implementation is inefficient - custom sparsity, blocked layouts, paged gathers. When you need an operation that does not exist, which is how flash attention and paged attention both arrived: not faster arithmetic but a different memory schedule. And when profiling shows a specific kernel is the bottleneck AND you can articulate why the existing one is suboptimal - that last clause matters, because 'this seems slow' is not a plan. WHEN IT IS NOT JUSTIFIED, which is most of the time. If the operation is a standard matmul or convolution, the vendor library is very hard to beat and you will not. If you have not profiled, you do not know the kernel is the problem, and this lesson's own ordering says allocation and scheduling are more often the constraint. And if torch.compile already fuses the region, you would be reimplementing what you get for free. THE PRACTICE THAT MAKES IT SAFE, and it is the lesson's method: verify the TILED form against the NAIVE form before optimizing anything. Write the block-wise computation in numpy, check it matches the naive result exactly, and only then port it. The exact match is what tells you the indexing, masking and accumulation are right - and the bugs concentrate in the TAIL BLOCK, where the last block is partially out of range and the mask has to be correct. Getting a wrong answer fast is the failure mode here, and it is silent. THE DURABLE PART, which is why this belongs in this module: the tile model is not a Triton idea. Blocked computation with a per-block program and a scheduler is how GPU kernels are structured generally, and it is how you should think about the problem regardless of the language. Triton makes it convenient; the model is what transfers, and it is what lets you read a CUDA kernel or a Mojo kernel or whatever comes next and recognize what it is doing."
+        },
+        {
+          "q": "Why does fusion matter so much, and what limits it?",
+          "a": "IT MATTERS BECAUSE THE OPERATIONS IT TARGETS ARE THE ONES THAT LOOK CHEAPEST, and it is limited by what the compiler can see and prove. WHY IT MATTERS. An elementwise operation - an activation, an add, a scale, a mask - does about one arithmetic operation per element it loads. Arithmetic intensity of one, against hardware ratios in the hundreds, means it is entirely bandwidth-bound: the device is waiting for memory and the arithmetic is free. So a chain of these is a chain of round trips, measured as linear time in chain length at about 0.83 ms per operation. They are individually trivial and collectively expensive, which is exactly the pattern that a per-operation mental model misses. Fusing thirty-two of them into one pass cuts memory traffic by thirty-two, and that is where most of a compiler's gain on real models comes from. WHAT LIMITS IT. GRAPH BREAKS: if the compiler cannot trace through a piece of Python - data-dependent control flow, an unsupported call, a print - it splits the graph, and operations on either side of the break cannot fuse with each other. Reducing graph breaks is often the highest-value change to compiled code, and it is invisible unless you look for it. MATERIALIZATION POINTS: an intermediate that something else needs, or that is returned, must be written out. REDUCTIONS across the fusion boundary, which change the parallel structure and cannot always be merged with elementwise work. MEMORY LIMITS: fusing keeps intermediates in registers or shared memory, and a chain too long or too wide exceeds what is available, so the compiler spills and the benefit degrades. And OPERATIONS WITH DIFFERENT SHAPES or broadcast patterns, which may not fuse cleanly. WHAT THIS IMPLIES FOR HOW YOU WRITE MODEL CODE. Keeping the hot path traceable is worth real effort, because a graph break costs more than most micro-optimizations gain. Avoiding unnecessary materialization - not returning intermediates you do not need, not converting to Python scalars mid-graph - preserves fusion opportunities. And a chain of small operations that is logically one thing is a candidate to check: either the compiler fuses it, or it is a place a custom kernel would pay. HOW I WOULD VERIFY IT HAPPENED, rather than assume: look at the generated code or count the kernels in a profiler timeline. A fused region shows as one kernel; an unfused one shows as several. The linearity test also works from outside - if adding an operation to the chain still adds constant time after compilation, fusion did not happen and something is preventing it. AND THE REASON THIS IS THE DURABLE CONTENT: fusion is not a torch.compile feature, it is the answer to a hardware fact that is not going to change - that memory is much slower than arithmetic and the gap has widened for decades. Any compiler for this hardware will fuse, and understanding why lets you predict where it will and will not help."
+        },
+        {
+          "q": "How would you decide whether to compile a model at all?",
+          "a": "BY ESTABLISHING THE REGIME AND THE SHAPE STABILITY, because those two facts determine both the size of the win and whether it is achievable. THE REGIME QUESTION: is the workload compute-bound, bandwidth-bound or overhead-bound? Compile helps enormously in the last two and little in the first. A model dominated by large matrix multiplications is already near peak and there is not much to fuse; a model with many small elementwise operations is dominated by traffic and launches, which is exactly what compilation removes. The two scaling experiments settle it - vary operation count at fixed size, vary size at fixed count - and they need nothing but a timer. THE SHAPE QUESTION: how many distinct input shapes does this path see? Compilation is shape-specialized, so each new shape recompiles. A training loop with fixed shapes compiles once and amortizes forever - the decision is trivially yes. A serving path with variable-length inputs recompiles per length unless you bucket or pad, and a path with a long tail of unique shapes can spend more time compiling than it saves. That is the same mechanism as JAX's recompile-on-new-shape from 22-01, and the same fix applies. THE COSTS I WOULD ACCOUNT FOR. Compile time on the first call, which affects startup and can be substantial for a large model. Debuggability, since a compiled region is harder to inspect and stack traces get worse. Coverage, because graph breaks fragment the graph and reduce the benefit, sometimes to nothing. And in production, the recompile cliff from 16-02: exceeding the cache limit can silently drop the job back to eager for the remainder of the run, which shows up as a mysterious throughput regression with no error. THE DECISION I WOULD ACTUALLY MAKE. For training with fixed shapes: compile, measure, and keep it if the gain is real. For inference with bucketed shapes: compile, and monitor recompile counts as an operational metric. For a path with genuinely dynamic shapes and no bucketing option: measure carefully before committing, and expect the answer to be no. THE MEASUREMENT DISCIPLINE, which this module keeps returning to: benchmark COLD as well as warm. A warm-cache measurement reports the steady state and hides the compilation entirely, which is the flattering number and the one that will not reproduce in production. And report the shape distribution the benchmark used, because a fixed-shape microbenchmark on a variable-shape workload is measuring a different system. AND THE ORDERING POINT that applies here as elsewhere: compilation is a visible, interesting optimization, and in a serving system the allocation and scheduling decisions from 22-04 were worth 6.4x and 1.74x with no kernel work at all. Establish that the kernel layer is the binding constraint before spending effort there - which is the same lesson as chunking beating the embedding model, and endpointing beating the language model."
+        },
+        {
+          "q": "What does it mean that the compiler could not be run in this environment?",
+          "a": "IT MEANT REPORTING THE MECHANISMS INSTEAD OF A SPEEDUP, and I think that produced a better lesson than the alternative. THE SITUATION: inductor requires a host C compiler that was not present, and Triton was not installed. So torch.compile did not execute. THE TWO OPTIONS. One is to describe what torch.compile does and cite numbers from elsewhere, which would present figures nobody in the lesson measured - the exact practice this curriculum spends its time arguing against. The other is to measure the MECHANISMS with tools that do run, and to show the real API as reference rather than as a result. That is what was done: torch.fx for graph capture, direct timing for the fusion and launch-overhead effects, and numpy for the tile model. WHY THE RESULT IS STILL SUBSTANTIVE. The three findings are properties of the hardware and the workload, not of any compiler. Elementwise chains are bandwidth-bound because arithmetic intensity is about one - that is true regardless of who compiles it. Time linear in chain length at 0.83 ms per operation is a measurement of memory traffic. Ten thousand small operations at 53.5 times one large one is a measurement of launch overhead. A compiler's job is to remove those two costs, so measuring the costs tells you what the compiler is worth on your workload - arguably more directly than a speedup number from someone else's machine would. WHAT IS GENUINELY MISSING: the actual end-to-end speedup on this hardware, the quality of inductor's fusion decisions, and any experience of the tooling. Those are real gaps and the lesson should not pretend otherwise, which is why the API appears as reference with an explicit note that it did not run. THE GENERAL PRINCIPLE I would draw, since it applies well beyond this lesson: when you cannot run the thing, measure the mechanism it operates on rather than importing someone else's number. The imported number is unverifiable, hardware-specific and usually measured under favourable conditions - and it teaches nothing about WHY. The mechanism measurement is reproducible, tells you where the win would come from, and lets a reader estimate the gain for their own case. AND IT IS THE MODULE'S PEDAGOGY STATED OPENLY. The same constraint produced the Flax and Optax lesson without Flax or Optax, the vLLM lesson without vLLM, and the ONNX lesson without ONNX. In each case the library was absent and the mechanism was the content - and the capstone measures why that allocation of learning time is the right one, rather than asserting it as a preference."
+        },
+        {
+          "q": "How does this lesson serve the module's thesis?",
+          "a": "IT REDUCES A FAST-MOVING TOOLING AREA TO THREE MECHANISMS THAT WILL OUTLIVE ALL OF IT. Compilers for tensor programs are one of the most churn-heavy parts of this landscape - inductor, XLA, TVM, TensorRT, and whatever arrives next, each with its own flags, modes and failure cases. What every one of them does is capture a graph, fuse memory-bound operations, and amortize launch overhead. Learn those three and a new compiler's documentation becomes recognizable; learn the flags and you relearn each time. THE DERIVATION IS THE POINT, not the numbers. Fusion matters because elementwise operations have arithmetic intensity around one against hardware ratios in the hundreds - so they are bandwidth-bound, and a chain of them is a chain of round trips. That is a roofline argument, it follows from a hardware fact that has been getting more extreme for decades, and it is why the biggest compiler win is on the operations that look cheapest. Anyone who understands that can predict where compilation will help without running it. THE THIRD REGIME is the part most people are missing. Compute-bound and bandwidth-bound are familiar; OVERHEAD-bound - where a fixed 1.4 microseconds per launch dominates and ten thousand small operations cost 53.5 times one large one - is a distinct regime with its own fix, and it explains the counterintuitive fact that small workloads often gain most from compilation. THE MEASUREMENT DISCIPLINE carries over from 22-01 unchanged: benchmark cold as well as warm, because a warm cache reports the compiler as free. And the linearity diagnostic is a nice example of a measurement that identifies a MECHANISM rather than a magnitude - if adding an operation adds constant time regardless of what it computes, you know you are memory-bound without needing a profiler. AND THE ENVIRONMENT CONSTRAINT made the thesis explicit. torch.compile could not run here, so rather than importing a speedup from elsewhere, the lesson measured the costs a compiler removes and showed the API as reference. That is the module's pedagogy in the open: when you cannot run the tool, measure the mechanism it operates on - because the mechanism is reproducible, it explains WHY, and it lets a reader estimate the answer for their own hardware instead of trusting someone else's."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ All tensor compilers do three things",
+        "back": "CAPTURE a graph (see more than one op) · FUSE memory-bound ops · AMORTIZE launch overhead. Inductor, XLA, TVM, TensorRT are four answers to those three problems. Learn the problems — the flags don't transfer."
+      },
+      {
+        "type": "formula",
+        "front": "Elementwise ops are ALWAYS bandwidth-bound",
+        "back": "Arithmetic intensity ≈ 1 FLOP/byte vs hardware ratios ~100. So no amount of faster arithmetic helps — the only lever is moving fewer BYTES, which is what fusion does. Same roofline argument that makes LLM decode bandwidth-bound."
+      },
+      {
+        "type": "formula",
+        "front": "★ Fusion: N memory passes → one",
+        "back": "Unfused chain time is LINEAR in N (slope ~0.83 ms/op) because each op is a round trip. Fused keeps intermediates in registers → 32 ops = 32× less traffic. The biggest compiler win, on the ops that look cheapest."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The linearity DIAGNOSTIC",
+        "back": "If adding an op adds CONSTANT time regardless of what it computes, you're measuring memory traffic, not arithmetic — so fusion is the fix. Identifies the mechanism with nothing but a timer."
+      },
+      {
+        "type": "formula",
+        "front": "The third regime: OVERHEAD-bound",
+        "back": "t = N(t_launch + t_work), t_launch ≈ 1.4 µs → **10,000 small ops = 53.5× one big op** at the same arithmetic. Not compute-bound, not bandwidth-bound. Fixes: fusion (fewer launches) + graph capture & replay (amortize)."
+      },
+      {
+        "type": "intuition",
+        "front": "Compilers help MOST on small work",
+        "back": "The opposite of the intuition. A big matmul is already compute-bound and near peak — little to add. Many small elementwise ops are dominated by traffic and launches, which is exactly what compilation removes."
+      },
+      {
+        "type": "intuition",
+        "front": "Separating the three regimes with a timer",
+        "back": "Vary op COUNT at fixed size → overhead-bound if time tracks count. Vary SIZE at fixed count → bandwidth-bound if time tracks bytes. Neither → compute-bound. Then RE-MEASURE after fixing, because optimizing re-orders bottlenecks."
+      },
+      {
+        "type": "intuition",
+        "front": "The Triton tile model",
+        "back": "One level up from CUDA (per-thread), one below a framework op (whole tensor): you write per-BLOCK code, the compiler handles within-block parallelism and schedules blocks. The model transfers even if the language doesn't."
+      },
+      {
+        "type": "pitfall",
+        "front": "Verify tiling against the NAIVE form first",
+        "back": "Write the block-wise version in numpy and assert it matches exactly — that's what proves indexing, masking and accumulation are right. Bugs concentrate in the TAIL BLOCK, and getting a wrong answer FAST is a silent failure."
+      },
+      {
+        "type": "pitfall",
+        "front": "What limits fusion",
+        "back": "GRAPH BREAKS (ops either side can't fuse — often the highest-value fix and invisible unless you look) · materialization points · reductions across the boundary · register/shared-memory limits · mismatched shapes and broadcasts."
+      },
+      {
+        "type": "intuition",
+        "front": "Decide whether to compile from TWO facts",
+        "back": "The REGIME (compile helps bandwidth- and overhead-bound, little for compute-bound) and SHAPE STABILITY (fixed shapes → compile once; a long tail of unique shapes can spend more time compiling than it saves — bucket or don't)."
+      },
+      {
+        "type": "intuition",
+        "front": "★ When you can't run the tool, measure the MECHANISM",
+        "back": "torch.compile didn't execute here (no host C compiler, no Triton), so rather than importing someone else's speedup, the lesson measured the COSTS a compiler removes. Reproducible, explains WHY, and lets you estimate for your own hardware."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Ansel et al. (2024), PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation",
+        "url": "https://pytorch.org/assets/pytorch2-2.pdf"
+      },
+      {
+        "title": "Tillet, Kung & Cox (2019), Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations",
+        "url": "https://dl.acm.org/doi/10.1145/3315508.3329973"
+      },
+      {
+        "title": "Chen et al. (2018), TVM: An Automated End-to-End Optimizing Compiler for Deep Learning",
+        "url": "https://arxiv.org/abs/1802.04799"
+      },
+      {
+        "title": "Williams, Waterman & Patterson (2009), Roofline: An Insightful Visual Performance Model",
+        "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
+      },
+      {
+        "title": "PyTorch, torch.compile Documentation",
+        "url": "https://pytorch.org/docs/stable/torch.compiler.html"
+      }
+    ],
+    "demos": [
+      "kv-cache",
+      "batching",
+      "quantization",
+      "kv-cache-eviction"
+    ]
+  }
+};

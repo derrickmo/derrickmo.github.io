@@ -1,0 +1,290 @@
+// GENERATED from content/lessons/interview-capstone/derivations.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/interview-capstone/derivations/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "derivations": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "The depth round asks whether you understand WHY, and the test is not whether you can recite a result but whether you can PERTURB it - change an assumption and say what happens to the answer. Someone who memorized a derivation freezes at that question; someone who derived it once answers immediately.",
+        "The single most valuable thing in this lesson is a unification rather than a derivation. The gradient of logistic regression is X-transpose times (sigma(Xw) minus y), over n. The gradient of softmax cross-entropy is X-transpose times (P minus Y), over n. THE SAME SHAPE - features times (prediction minus target) - and that is not a coincidence: it holds for every generalized linear model paired with its canonical link. Saying that is worth more than reciting either derivation.",
+        "And every derivation should be verified numerically, because it costs ten lines and converts a belief into a check. Central differences against the analytic gradients agreed to 8.5e-11 for logistic regression, 1.3e-7 for softmax cross-entropy, and 1.5e-10 for the sigmoid identity. That habit is also the answer to a common follow-up: how do you know your gradient is right?"
+      ],
+      "math": [
+        {
+          "h": "★ The unification worth leading with",
+          "paras": [
+            "Both classic gradients have the same form, and the reason is structural: for an exponential-family likelihood with its canonical link, the derivative of the log-partition function IS the mean, so the chain rule collapses.",
+            "This is the answer that demonstrates understanding rather than recall, and it generalizes to Poisson regression, linear regression and any other GLM."
+          ],
+          "tex": "\\nabla_w \\mathcal{L} = \\tfrac{1}{n}X^\\top\\big(\\hat{y}-y\\big): \\quad \\text{logistic } \\hat{y}=\\sigma(Xw), \\quad \\text{softmax } \\hat{Y}=P, \\quad \\text{linear } \\hat{y}=Xw",
+          "texNote": "Verified numerically against central differences: logistic max absolute difference 8.489e-11, softmax cross-entropy 1.282e-07, both at the analytic form above. The softmax residual is larger only because the finite-difference step interacts with a flatter surface."
+        },
+        {
+          "h": "The identities that make everything else fast",
+          "paras": [
+            "A small set of results that appear inside most derivations. Knowing them turns a five-minute derivation into a one-minute one."
+          ],
+          "tex": "\\sigma'(z)=\\sigma(z)(1-\\sigma(z)) \\quad \\tfrac{\\partial}{\\partial z_i}\\mathrm{LSE}(z)=\\mathrm{softmax}(z)_i \\quad \\tfrac{\\partial}{\\partial X}\\|Xw-y\\|^2=2X^\\top(Xw-y) \\quad \\tfrac{\\partial}{\\partial A}\\log\\det A = A^{-\\top}",
+          "texNote": "The sigmoid identity verified to 1.522e-10 against central differences. The log-sum-exp derivative being the softmax is why cross-entropy gradients are so clean and why numerically stable implementations subtract the max without changing anything downstream."
+        },
+        {
+          "h": "The derivations worth being able to produce cold",
+          "paras": [
+            "Short enough to finish under pressure, load-bearing enough that the follow-ups are interesting."
+          ],
+          "tex": "\\text{bias-variance} \\cdot \\text{OLS normal equations} \\cdot \\text{logistic \\& softmax gradients} \\cdot \\text{backprop for one layer} \\cdot \\text{PCA as an eigenproblem} \\cdot \\text{the bayes rule/posterior update}",
+          "texNote": "Six items. Each takes two to four minutes on a whiteboard and each has a standard perturbation - what if the features are correlated, what if the link is not canonical, what if the covariance is singular - which is where the round actually goes."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ Verify every derivation numerically",
+          "paras": [
+            "Ten lines, and it converts a belief into a check. It is also the answer to 'how do you know your gradient is right'."
+          ],
+          "code": "def numgrad(f, x, eps=1e-6):\n    g = np.zeros_like(x)\n    for i in range(len(x)):\n        e = np.zeros_like(x); e[i] = eps\n        g[i] = (f(x+e) - f(x-e)) / (2*eps)      # CENTRAL differences: O(eps^2)\n    return g\n\n# logistic regression   analytic X^T(sigma(Xw)-y)/n   max|diff| 8.489e-11\n# softmax cross-entropy analytic X^T(P-Y)/n           max|diff| 1.282e-07\n# sigma'(z) = sigma(z)(1-sigma(z))                    max|diff| 1.522e-10\n\n# ★ USE CENTRAL, NOT FORWARD, differences. Forward is O(eps) and the\n#   accuracy floor is much worse - the truncation-vs-cancellation trade\n#   from module 22's autodiff lesson, where no eps reaches machine precision.\n# ★ A relative error below ~1e-7 for a smooth function is a pass. If it\n#   fails, check the loss reduction (mean vs sum) FIRST - that factor of n\n#   is the most common discrepancy by a wide margin.",
+          "caption": "Doing this unprompted in a take-home or on a whiteboard is a strong signal, because it is the habit of someone who has debugged a gradient rather than only written one."
+        },
+        {
+          "h": "The perturbations the round actually asks",
+          "paras": [
+            "The derivation is the setup. These are the questions, and they are where the round is won or lost."
+          ],
+          "code": "# OLS            what if X^T X is singular?  -> no unique solution; ridge\n#                adds lambda*I making it invertible, which is also the MAP\n#                estimate under a Gaussian prior. Say both.\n# LOGISTIC       what if the classes are separable? -> the MLE diverges,\n#                weights go to infinity; regularization is what makes it\n#                well-posed, not just better-generalizing\n# SOFTMAX        why subtract the max? -> exp overflows above ~88 in float32,\n#                and softmax is shift-invariant so it changes nothing\n# BIAS-VARIANCE  does it hold under distribution shift? -> no, the\n#                decomposition assumes a fixed data distribution\n# PCA            what if features have different units? -> the covariance\n#                is unit-dependent, so standardize or you get a units artefact\n# BACKPROP       why is reverse mode preferred? -> cost is O(outputs) forward\n#                passes vs O(inputs) backward; with one scalar loss and\n#                millions of parameters, reverse wins by that ratio",
+          "caption": "Each answer is one sentence and each demonstrates that the result was derived rather than absorbed."
+        }
+      ],
+      "useCases": [
+        "The ML depth round, where a single topic is probed until it breaks and the perturbation questions are the actual content.",
+        "Debugging a custom loss or layer, where a numerical gradient check finds in ten lines what hours of reading will not.",
+        "Reading a paper critically, since most methods are a modification to one of these six derivations and knowing the base makes the delta visible.",
+        "Teaching or reviewing, where asking someone to perturb an assumption immediately distinguishes memorization from understanding."
+      ],
+      "pitfalls": [
+        "Memorizing derivations without deriving them. The round's real content is the perturbation - what if the features are correlated, what if the link is not canonical - and memorization does not survive it.",
+        "Reciting logistic and softmax gradients as unrelated results. Both are X-transpose times prediction-minus-target over n, and the unification is worth more than either derivation.",
+        "Never checking a gradient numerically. Central differences agreed to 8.5e-11, 1.3e-7 and 1.5e-10 here, and the check is ten lines.",
+        "Using forward instead of central differences. Forward is O(eps) accurate against O(eps squared), and the accuracy floor is far worse - the truncation-versus-cancellation trade with no step size that reaches machine precision.",
+        "Debugging a failed gradient check without first suspecting the mean-versus-sum reduction. That factor of n is the most common discrepancy by a wide margin.",
+        "Answering 'why regularize' with generalization only. For separable logistic regression the MLE diverges, so regularization makes the problem well-posed, which is a stronger and more precise answer.",
+        "Deriving PCA without mentioning units. The covariance matrix is unit-dependent, so unstandardized features give an artefact of measurement scale rather than structure."
+      ],
+      "connections": [
+        {
+          "ref": "neural-nets/backprop",
+          "text": "The derivation that generalizes all the others, and the reverse-mode argument that explains why it is the cost model deep learning is built on."
+        },
+        {
+          "ref": "supervised-learning/glm",
+          "text": "Why the two gradients coincide - the exponential family with its canonical link, where the log-partition derivative is the mean."
+        },
+        {
+          "ref": "ml-theory/convex-optimization",
+          "text": "What the gradients are for, and why convexity of the logistic loss makes the separable-data divergence a well-posedness problem rather than an optimization one."
+        },
+        {
+          "ref": "frontier-frameworks/jax-fundamentals",
+          "text": "Why autodiff is exact where finite differences have an error floor, which is the reason a gradient check is a sanity check rather than the source of truth."
+        },
+        {
+          "ref": "unsupervised-learning/pca",
+          "text": "The eigenproblem derivation and the standardization question that is its standard perturbation."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "★ Give the logistic regression gradient.",
+          "a": "∇_w L = Xᵀ(σ(Xw) − y)/n. Verified against central differences to max|diff| 8.489e-11."
+        },
+        {
+          "q": "Give the softmax cross-entropy gradient.",
+          "a": "∇_W L = Xᵀ(P − Y)/n where P = softmax(XW) and Y is one-hot. Verified to 1.282e-07."
+        },
+        {
+          "q": "★ Why are they the same shape?",
+          "a": "Both are features times (prediction − target). It holds for every GLM with its CANONICAL link, because the log-partition derivative is the mean, so the chain rule collapses."
+        },
+        {
+          "q": "State σ'(z).",
+          "a": "σ(z)(1 − σ(z)). Verified numerically to 1.522e-10."
+        },
+        {
+          "q": "What is ∂LSE(z)/∂z_i?",
+          "a": "softmax(z)_i. That's why cross-entropy gradients are so clean."
+        },
+        {
+          "q": "How do you check a gradient?",
+          "a": "Central differences: (f(x+ε) − f(x−ε))/2ε, O(ε²). Relative error below ~1e-7 on a smooth function is a pass."
+        },
+        {
+          "q": "Why central, not forward?",
+          "a": "Forward is O(ε) with a much worse accuracy floor — the truncation-vs-cancellation trade where no step size reaches machine precision."
+        },
+        {
+          "q": "Gradient check fails. First suspect?",
+          "a": "The reduction — mean vs sum. That factor of n is the most common discrepancy by a wide margin."
+        },
+        {
+          "q": "OLS: what if XᵀX is singular?",
+          "a": "No unique solution. Ridge adds λI making it invertible — and that's also the MAP estimate under a Gaussian prior. Say both."
+        },
+        {
+          "q": "Logistic: what if the classes are separable?",
+          "a": "The MLE DIVERGES — weights go to infinity. Regularization makes the problem well-posed, not merely better-generalizing."
+        },
+        {
+          "q": "PCA: what if features have different units?",
+          "a": "The covariance matrix is unit-dependent, so you get an artefact of measurement scale. Standardize, or use the correlation matrix."
+        },
+        {
+          "q": "Why reverse-mode autodiff?",
+          "a": "Cost is O(outputs) backward passes vs O(inputs) forward. One scalar loss, millions of parameters — reverse wins by that ratio."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Derive the logistic regression gradient, then tell me something interesting about it.",
+          "a": "THE DERIVATION IS SHORT. The negative log-likelihood for one example is −[y log σ(z) + (1−y) log(1−σ(z))] with z = wᵀx. Using σ'(z) = σ(z)(1−σ(z)), the derivative of the first term with respect to z is −y(1−σ(z)) and of the second is (1−y)σ(z), which sum to σ(z) − y. The z-to-w step contributes x, so the per-example gradient is (σ(z) − y)x and the batch gradient is Xᵀ(σ(Xw) − y)/n. THE INTERESTING PART IS THAT THIS IS THE SAME SHAPE AS THE SOFTMAX CROSS-ENTROPY GRADIENT, Xᵀ(P − Y)/n, and the same shape as linear regression's Xᵀ(Xw − y)/n. FEATURES TIMES PREDICTION MINUS TARGET, three times. That is not a coincidence: for a generalized linear model paired with its canonical link, the derivative of the log-partition function IS the mean of the distribution, so the chain rule collapses and the awkward middle term cancels exactly. Which means if you know one of these you know all of them, and you can write down the Poisson regression gradient without deriving it. I'D ALSO SAY I VERIFY THESE NUMERICALLY — central differences agreed to 8.5e-11 for logistic and 1.3e-7 for softmax.",
+          "deepDive": {
+            "q": "What perturbation usually follows?",
+            "a": "The perturbation that usually follows is what happens with separable data, and the answer is more interesting than 'it overfits'. If a hyperplane separates the classes perfectly, the likelihood can always be increased by scaling the weights up — pushing every σ(z) closer to 0 or 1 — so the MLE does not exist and gradient descent drives the norm to infinity while the loss decreases forever. That makes regularization a WELL-POSEDNESS requirement rather than a generalization preference, which is a sharper answer than the usual one. It also connects to the implicit-bias literature: unregularized gradient descent on separable logistic loss converges in direction to the max-margin solution, slowly, which is one explanation for why heavily overparameterized models generalize despite fitting the training data exactly. The second common perturbation is correlated features, where the loss stays convex but the curvature becomes badly conditioned, so convergence slows and the individual coefficients become unstable while the predictions do not — which is the same phenomenon as SHAP splitting credit between duplicated features in module 24."
+          }
+        },
+        {
+          "q": "How do you know a gradient you derived is correct?",
+          "a": "I CHECK IT NUMERICALLY, AND IT IS TEN LINES. Central differences — (f(x+ε) − f(x−ε))/2ε — evaluated coordinate by coordinate, compared against the analytic gradient by maximum absolute or relative difference. Measured on the three results in this lesson: logistic regression 8.489e-11, softmax cross-entropy 1.282e-07, and the sigmoid identity 1.522e-10. A relative error below about 1e-7 on a smooth function is a pass. USE CENTRAL RATHER THAN FORWARD DIFFERENCES, because forward is O(ε) accurate and central is O(ε²), and the accuracy floor differs substantially — this is the truncation-versus-cancellation trade from the autodiff material, where shrinking ε reduces truncation error and amplifies floating-point cancellation, so no step size reaches machine precision and central differences simply have a better minimum. WHEN THE CHECK FAILS, the first thing to suspect is the reduction: a mean-versus-sum mismatch gives a clean factor of n and is by far the most common discrepancy. After that, an index transposition, a missing chain-rule factor, or a non-smooth point such as a ReLU exactly at zero, where the check legitimately fails and you should perturb away from the kink.",
+          "deepDive": {
+            "q": "Why does doing that unprompted signal so much?",
+            "a": "Doing this unprompted is a strong signal because it is the habit of someone who has debugged a gradient rather than only written one, and it transfers directly to real work — every custom loss, custom layer or hand-written backward pass should ship with a gradient check, and most do not. There is a subtlety worth knowing for the modern setting: with float32 the check is much noisier, so it is standard to run gradient checks in float64 even when training in float32 or bfloat16, and a check that fails in float32 and passes in float64 is telling you about precision rather than about your derivation. The related caution is that autodiff is exact where finite differences have an error floor, so the numerical check is a sanity check on your ANALYTIC work, not a source of truth — if your framework's autodiff and your hand derivation disagree, the framework is usually right and your derivation is the thing to re-examine. The exception is a custom op with an incorrectly registered backward, which is exactly the case the check exists to catch."
+          }
+        },
+        {
+          "q": "Walk me through PCA and its assumptions.",
+          "a": "PCA FINDS THE DIRECTIONS OF MAXIMUM VARIANCE, and there are two equivalent derivations worth being able to give. MAXIMIZE VARIANCE: find the unit vector w maximizing the variance of Xw, which is wᵀΣw subject to ‖w‖ = 1; the Lagrangian gives Σw = λw, so w is an eigenvector of the covariance and λ is the variance captured. MINIMIZE RECONSTRUCTION ERROR: find the rank-k subspace minimizing squared reconstruction error, which by Eckart–Young is the top-k eigenvectors — the same answer from a different objective, and saying they coincide is a better answer than either alone. In practice it is computed via the SVD of the centred data rather than by forming the covariance, because forming XᵀX squares the condition number. THE ASSUMPTIONS ARE WHERE THE ROUND GOES. It assumes variance means importance, which fails whenever a low-variance direction carries the signal. It is linear, so it cannot capture curved structure. It assumes centring, and forgetting to centre gives a first component pointing at the mean. AND IT IS UNIT-DEPENDENT: the covariance changes under rescaling, so unstandardized features produce an artefact of measurement scale rather than structure.",
+          "deepDive": {
+            "q": "Which single caveat would you lead with?",
+            "a": "The units point is the one I would lead with if asked for a single caveat, because it silently ruins real analyses — a dataset with a feature in dollars and another in millimetres has a first component that is essentially the dollar feature, and the plot looks meaningful. Using the correlation matrix instead of the covariance is equivalent to standardizing first and is the usual default for heterogeneous features. The 'variance equals importance' assumption deserves the same scrutiny: PCA is unsupervised, so it knows nothing about the target, and for a supervised task there is no guarantee the top components are the predictive ones — which is why PCA-then-regress can be worse than regressing on the raw features, and why partial least squares exists. The other common follow-up is how to choose k, where the honest answer is that the scree plot is a heuristic and the principled versions depend on what PCA is for — explained-variance thresholds for compression, cross-validated downstream performance for a supervised pipeline, and parallel analysis if you care about which components are distinguishable from noise."
+          }
+        },
+        {
+          "q": "Explain backpropagation and why reverse mode is the right choice.",
+          "a": "BACKPROP IS THE CHAIN RULE APPLIED IN A SPECIFIC ORDER. For a composition of functions, the derivative of the output with respect to any parameter is a product of Jacobians along the path, and the only question is the ORDER of multiplication — which is associative, so the answer is identical and the COST is not. FORWARD MODE propagates derivatives from inputs toward outputs and costs one pass per INPUT dimension. REVERSE MODE propagates from outputs backward and costs one pass per OUTPUT dimension. With a scalar loss and millions of parameters, reverse mode costs one backward pass and forward mode would cost millions, so the ratio is the parameter count. THAT IS THE WHOLE ARGUMENT, and it is why deep learning's cost model looks the way it does: roughly two to three times the forward cost for a backward pass, independent of parameter count. THE PRICE IS MEMORY — reverse mode must store the intermediate activations from the forward pass to use on the way back, which is why activation memory scales with depth times batch size and why gradient checkpointing exists, trading recomputation for memory. FOR ONE LAYER with z = Wx + b and a downstream gradient g, the parameter gradient is g xᵀ and the gradient passed back is Wᵀ g.",
+          "deepDive": {
+            "q": "Where do the follow-ups usually go?",
+            "a": "The memory point is worth developing because it is where the follow-ups usually go and where the practical consequences live. Activation memory, not parameter memory, is what limits batch size for most training runs, and the standard levers all trade against recomputation: gradient checkpointing stores a subset of activations and recomputes the rest, typically buying a large memory reduction for around 30% more compute; reversible architectures avoid storing activations entirely by making them recoverable; and activation offloading moves them to host memory at the cost of bandwidth. There is a nice connection to the inference side here too — training is compute-bound and dominated by matmuls, while autoregressive generation is memory-bandwidth-bound and dominated by weight and KV-cache movement, which is why the same hardware has completely different utilization profiles in the two regimes. Being able to state that contrast is a strong signal in a systems-flavoured depth round, and it costs one sentence."
+          }
+        },
+        {
+          "q": "What makes a depth round go well or badly?",
+          "a": "IT GOES WELL WHEN YOU CAN PERTURB THE RESULT AND BADLY WHEN YOU CAN ONLY STATE IT. The derivation is the setup; the round's real content is the follow-up — what if XᵀX is singular, what if the classes are separable, what if the link is not canonical, what if the features have different units, does this hold under distribution shift. Someone who derived a result once answers those immediately because the derivation shows where each assumption entered. Someone who memorized the endpoint freezes, and the freeze is more informative to the interviewer than the original answer was. SO THE PREPARATION IS TO DERIVE RATHER THAN READ, and specifically to derive with the perturbations attached: for each of the six core results, know the two or three standard modifications and what they do. THE SECOND THING THAT GOES WRONG IS SILENCE WHILE THINKING. A derivation has genuine pauses, and narrating the plan first — 'I'll write the per-example loss, differentiate with respect to the logit, then chain to the weights' — gives the interviewer the structure so the pauses read as work rather than as being stuck. That is this module's thesis in the round where it is least obvious.",
+          "deepDive": {
+            "q": "What do you do when you get stuck mid-derivation?",
+            "a": "There is a specific recovery worth having rehearsed, because getting stuck mid-derivation is common and survivable. Say where you are and what you are trying to do — 'I have the derivative with respect to the logit and I'm trying to chain it back to the weights; the shapes should end up as features by classes' — because shape checking is both a genuine debugging technique and a legible one. Interviewers frequently offer a nudge at that point, and taking one gracefully costs far less than grinding in silence; what they are scoring is whether you can work with someone. The other useful habit is to sanity-check the result before declaring it done: check the shape, check the sign by asking what happens when the prediction exceeds the target, and check a degenerate case such as a perfect prediction giving a zero gradient. Those three checks take fifteen seconds and catch most errors, and doing them out loud is exactly the kind of visible rigour that the whole module argues transmits."
+          }
+        },
+        {
+          "q": "Which derivations are worth the preparation time, and why those?",
+          "a": "SIX, CHOSEN BECAUSE THEY ARE SHORT ENOUGH TO FINISH UNDER PRESSURE AND LOAD-BEARING ENOUGH THAT THE FOLLOW-UPS ARE INTERESTING. THE BIAS-VARIANCE DECOMPOSITION, because it is the most-asked and because its assumption — a fixed data distribution — is the perturbation people miss. THE OLS NORMAL EQUATIONS, because singularity leads to ridge and ridge leads to the MAP-under-a-Gaussian-prior connection, which is three answers from one derivation. LOGISTIC AND SOFTMAX GRADIENTS TOGETHER, because the unification is the payoff and separable-data divergence is the perturbation. BACKPROP FOR ONE LAYER, because the reverse-mode cost argument generalizes to everything and the memory trade is the follow-up. PCA, because the two equivalent derivations coinciding is a good answer and the units caveat is a real-world failure. AND BAYES WITH A CONJUGATE UPDATE, because it makes the prior's role concrete and connects to when it stops mattering — three priors spanning 14× at n=10 and agreeing to three decimals at n=100,000. EACH TAKES TWO TO FOUR MINUTES on a whiteboard, so the whole set is an afternoon plus rehearsal.",
+          "deepDive": {
+            "q": "Why prefer a bounded set over broader coverage?",
+            "a": "The reason to prefer that bounded set over broader coverage is the same argument as the algorithms round: preparation fails when the list is unbounded and never converges. Six derivations with two perturbations each is thirty-six things, which is finishable in a weekend and produces a real sense of readiness rather than a vague one. It also pairs efficiently with the breadth round, since the perturbations ARE the failure modes that round asks for — separable data, singular covariance, unit dependence, fixed-distribution assumptions — so learning them once serves both, which is the third time in this module that two rounds have collapsed into one preparation. The honest limit is that a depth round can go anywhere, and a specialist interviewer will probe their own area past whatever you prepared. The response to that is the same as for an unknown breadth question: say where your knowledge ends, reason from the nearest structure you do know, and let them correct you — which reads better than a memorized answer to a question they did not quite ask."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "★ The unification worth leading with",
+        "back": "∇_w L = Xᵀ(ŷ − y)/n for logistic (ŷ=σ(Xw)), softmax (Ŷ=P) AND linear (ŷ=Xw). Features × (prediction − target). Holds for every GLM with its CANONICAL link — the log-partition derivative is the mean, so the chain rule collapses."
+      },
+      {
+        "type": "formula",
+        "front": "The identities that make derivations fast",
+        "back": "σ′(z) = σ(z)(1−σ(z)) · ∂LSE(z)/∂z_i = softmax(z)_i · ∂‖Xw−y‖²/∂w = 2Xᵀ(Xw−y) · ∂log det A/∂A = A⁻ᵀ."
+      },
+      {
+        "type": "formula",
+        "front": "★ Verify numerically — always",
+        "back": "Central differences (f(x+ε)−f(x−ε))/2ε, O(ε²). Measured: logistic **8.489e-11**, softmax CE **1.282e-07**, σ′ identity **1.522e-10**. Relative error < ~1e-7 on a smooth function is a pass."
+      },
+      {
+        "type": "pitfall",
+        "front": "Central, not forward differences",
+        "back": "Forward is O(ε) with a much worse accuracy floor — truncation vs cancellation, where no step size reaches machine precision. Also: run the check in float64 even when training in float32."
+      },
+      {
+        "type": "pitfall",
+        "front": "Gradient check failed — first suspect?",
+        "back": "The REDUCTION: mean vs sum, a clean factor of n, and by far the most common discrepancy. Then index transposition, a missing chain-rule factor, or a non-smooth point (ReLU exactly at 0)."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Logistic on separable data",
+        "back": "The MLE **does not exist** — scaling the weights up always increases the likelihood, so ‖w‖ → ∞. Regularization is a WELL-POSEDNESS requirement, not a generalization preference. (Unregularized GD converges in direction to max-margin.)"
+      },
+      {
+        "type": "intuition",
+        "front": "OLS with singular XᵀX",
+        "back": "No unique solution. Ridge adds λI making it invertible — and it is simultaneously the MAP estimate under a Gaussian prior on w. Say both; it's three answers from one derivation."
+      },
+      {
+        "type": "definition",
+        "front": "PCA, two derivations",
+        "back": "Maximize variance wᵀΣw s.t. ‖w‖=1 → Σw = λw. OR minimize rank-k reconstruction error → same top-k eigenvectors (Eckart–Young). Saying they COINCIDE beats either alone. Compute via SVD, not by forming XᵀX."
+      },
+      {
+        "type": "pitfall",
+        "front": "PCA's real-world failure",
+        "back": "It's UNIT-DEPENDENT — dollars vs millimetres gives a first component that is just the dollar feature, and the plot looks meaningful. Use the correlation matrix. Also: it's unsupervised, so top components need not be predictive."
+      },
+      {
+        "type": "formula",
+        "front": "Why reverse-mode autodiff",
+        "back": "Forward costs one pass per INPUT dim; reverse one per OUTPUT dim. Scalar loss + millions of parameters ⇒ reverse wins by the parameter count. Price: storing activations — hence checkpointing (~30% more compute for a large memory cut)."
+      },
+      {
+        "type": "intuition",
+        "front": "★ What the depth round actually tests",
+        "back": "Whether you can PERTURB the result, not state it. Memorization freezes at \"what if XᵀX is singular / the classes are separable / the units differ\" — and the freeze is more informative than the original answer."
+      },
+      {
+        "type": "intuition",
+        "front": "Recovering when stuck mid-derivation",
+        "back": "Say where you are and what you're aiming at — \"I have ∂/∂logit, chaining to weights, shapes should end up features × classes.\" Shape checking is a real technique AND a legible one, and it invites a nudge you can take gracefully."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Bishop (2006), Pattern Recognition and Machine Learning",
+        "url": "https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/"
+      },
+      {
+        "title": "Petersen & Pedersen, The Matrix Cookbook",
+        "url": "https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf"
+      },
+      {
+        "title": "Baydin, Pearlmutter, Radul & Siskind (2018), Automatic Differentiation in Machine Learning: A Survey",
+        "url": "https://arxiv.org/abs/1502.05767"
+      },
+      {
+        "title": "Soudry, Hoffer, Nacson, Gunasekar & Srebro (2018), The Implicit Bias of Gradient Descent on Separable Data",
+        "url": "https://arxiv.org/abs/1710.10345"
+      },
+      {
+        "title": "Chen, Xu, Zhang & Guestrin (2016), Training Deep Nets with Sublinear Memory Cost",
+        "url": "https://arxiv.org/abs/1604.06174"
+      }
+    ],
+    "demos": [
+      "backprop",
+      "gradient-descent",
+      "bayes",
+      "pca"
+    ]
+  }
+};

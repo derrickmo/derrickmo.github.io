@@ -1,0 +1,272 @@
+// GENERATED from content/lessons/frontier-frameworks/vllm-inference.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/frontier-frameworks/vllm-inference/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "vllm-inference": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "The idea behind paged attention is not from machine learning. It is virtual memory, from operating systems, applied to the KV cache - and recognizing that is what makes it obvious rather than clever. The problem is the same one that motivated paging in the first place: you have variable-sized objects whose final size is unknown when you allocate, and reserving the maximum for each one wastes most of your memory to internal fragmentation.",
+        "The waste is much larger than intuition suggests. Reserving a contiguous block for the maximum sequence length fit 97 concurrent requests at 15% UTILIZATION - meaning 85% of the memory reserved for KV cache never held a single token, because most requests finish far short of the maximum. Allocating instead in fixed 16-token blocks, with a table mapping logical positions to physical blocks, fit 621 requests at 98% utilization. That is a 6.4-fold increase in concurrency from an allocation strategy, with no change to the model, the kernels or the hardware.",
+        "The second measurement is about scheduling rather than allocation and it compounds with the first. In static batching, the whole batch runs until the LONGEST sequence finishes, so finished sequences sit idle occupying slots. Continuous batching evicts them each step and admits waiting requests immediately, which measured 1.74 times the throughput at 93% utilization against 54%. Both results have the same shape: the model was never the bottleneck, the memory management was."
+      ],
+      "math": [
+        {
+          "h": "Contiguous reservation wastes the gap between expected and maximum",
+          "paras": [
+            "If you must reserve for the worst case but usually need much less, utilization is the ratio of the two.",
+            "That ratio is small whenever the length distribution has a long tail, which it always does."
+          ],
+          "tex": "\\text{util} = \\frac{\\mathbb{E}[\\text{len}]}{\\text{len}_{\\max}} \\;\\Rightarrow\\; 15\\%, \\qquad \\text{concurrent requests} = \\Big\\lfloor \\frac{M}{\\text{KV}(\\text{len}_{\\max})} \\Big\\rfloor = 97",
+          "texNote": "The denominator is the maximum because you cannot know in advance how long a generation will run, and moving a sequence's cache later would be expensive. So every request pays for the longest thing it might become. With a typical output-length distribution that is most of the memory, and the measured 15% means 85% of the KV region held nothing at all."
+        },
+        {
+          "h": "Paging bounds the waste by the block size",
+          "paras": [
+            "Allocate fixed-size blocks on demand and keep a table from logical position to physical block.",
+            "Then a sequence wastes at most the unused remainder of its last block."
+          ],
+          "tex": "\\text{waste} \\le (\\text{block}-1) \\text{ per sequence} \\;\\Rightarrow\\; \\text{util } 98\\%, \\quad 621 \\text{ requests } (6.4\\times)",
+          "texNote": "The waste no longer depends on the maximum length at all - only on the block size, which you choose. This is exactly the operating-system argument for paging over fixed partitions, and the indirection has the same cost: an extra lookup per access, which the attention kernel must handle by gathering from non-contiguous blocks rather than reading a contiguous span."
+        },
+        {
+          "h": "Block size is a U-curve, for the classic reasons",
+          "paras": [
+            "Small blocks reduce fragmentation and increase table overhead and indirection.",
+            "Large blocks reduce overhead and bring fragmentation back."
+          ],
+          "tex": "\\text{cost}(\\text{block}) = \\underbrace{\\alpha/\\text{block}}_{\\text{table + indirection}} + \\underbrace{\\beta \\cdot \\text{block}}_{\\text{internal frag.}} \\;\\;\\Rightarrow\\;\\; \\text{min at } 16",
+          "texNote": "The measured minimum at 16 tokens is the same U-curve that sets an operating system's page size, arrived at from the same two competing terms. It is worth noticing that the optimum is a property of the workload's length distribution and the kernel's gather cost, not a universal constant - so it is a parameter to measure rather than a number to copy, even though 16 is a sensible default."
+        }
+      ],
+      "code": [
+        {
+          "h": "The allocation change, and what it buys",
+          "paras": [
+            "Two strategies for the same memory, differing only in how it is handed out."
+          ],
+          "code": "# STRATEGY 1 - CONTIGUOUS, reserve for the MAXIMUM length.\n#   You cannot know how long a generation will run, and relocating a\n#   sequence's cache later is expensive - so every request pays for the\n#   longest thing it might become.\n#     concurrent requests   97\n#     KV utilization        15%   <- 85% of reserved memory held NOTHING\n\n# ★ STRATEGY 2 - PAGED: fixed 16-token blocks, allocated on demand,\n#   with a table mapping logical position -> physical block.\nblock_table[seq_id] = [blk7, blk3, blk91, ...]   # NON-contiguous\n#     concurrent requests   621   (6.4x)\n#     KV utilization        98%\n#   Waste is now bounded by (block_size - 1) per sequence and no longer\n#   depends on the maximum length AT ALL.\n\n# ★ THE IDEA IS NOT FROM ML. This is VIRTUAL MEMORY: fixed partitions\n#   with internal fragmentation, replaced by pages plus a page table.\n#   Recognizing the precedent is what makes it obvious rather than\n#   clever - and it is why the technique will outlive the library that\n#   popularized it.\n\n# THE COST, the same one paging always has: an extra indirection. The\n# attention kernel must GATHER from non-contiguous blocks instead of\n# reading a contiguous span, which is why paged attention needs a\n# custom kernel rather than being a pure allocator change.\n\n# AND THE BONUS THE INDIRECTION ENABLES: blocks can be SHARED. Two\n# requests with the same prompt prefix point at the same physical\n# blocks (copy-on-write when they diverge) - so prefix sharing and\n# beam search become memory-cheap, which contiguous allocation cannot\n# express at all.",
+          "caption": "The 6.4× concurrency comes from an allocation strategy, not from the model, the kernels or the hardware — and the indirection it introduces is what makes prefix sharing possible."
+        },
+        {
+          "h": "Continuous batching, and the block-size U-curve",
+          "paras": [
+            "The scheduling change compounds with the allocation change, and the tuning parameter behaves classically."
+          ],
+          "code": "# STATIC BATCHING: form a batch, run until the LONGEST sequence\n# finishes. Sequences that finished early sit idle holding their slots.\n#     throughput  1.00x      utilization 54%\n#\n# ★ CONTINUOUS BATCHING: at every decode step, evict finished\n#   sequences and admit waiting ones.\n#     throughput  1.74x      utilization 93%\n#   The mechanism is just that a decode step is independent per\n#   sequence, so the batch's membership can change between steps -\n#   there is no reason to keep a finished sequence in it.\n\n# ★ BLOCK SIZE IS A U-CURVE, minimum at 16:\n#     too SMALL -> more blocks, bigger table, more indirection per access\n#     too LARGE -> internal fragmentation returns\n#   Exactly the two competing terms that set an OS page size. The\n#   optimum depends on YOUR length distribution and gather cost, so 16\n#   is a sensible default rather than a constant.\n\n# ⚠ WHAT THIS SIMULATION DOES AND DOESN'T MEASURE, stated plainly:\n#   it models ALLOCATION and SCHEDULING behaviour - occupancy,\n#   fragmentation, admission - which is where the 6.4x and 1.74x come\n#   from. It does NOT measure kernel performance, memory bandwidth or\n#   real latency. Those numbers are honest about the mechanism and are\n#   not a benchmark of any implementation.",
+          "caption": "Continuous batching works because a decode step is independent per sequence — so there is no reason for a finished one to keep its slot."
+        }
+      ],
+      "useCases": [
+        "Serving many concurrent requests against one model, where allocation strategy rather than model choice determines how many fit.",
+        "Workloads with highly variable output lengths, which is exactly where contiguous max-length reservation wastes the most.",
+        "Systems with heavy prompt reuse - shared system prompts, few-shot prefixes, branching generation - where block sharing turns duplication into pointers.",
+        "Capacity planning, where the concurrency you can support follows from the block arithmetic rather than from a benchmark on one request."
+      ],
+      "pitfalls": [
+        "Reserving KV memory for the maximum sequence length. Measured utilization was 15%, so most of the reserved region never held a token, and concurrency was six times lower than it needed to be.",
+        "Treating the 6.4x as a model or kernel improvement. It came entirely from how memory is handed out, which is why the same idea works for any model.",
+        "Keeping finished sequences in a static batch. They occupy slots until the longest sequence completes, which measured as 54% utilization against continuous batching's 93%.",
+        "Copying a block size of 16 without measuring. It is the minimum of a U-curve whose position depends on your length distribution and gather cost, not a universal constant.",
+        "Expecting paged allocation to be a pure allocator change. The attention kernel must gather from non-contiguous blocks, which is why it needs kernel support rather than only a memory manager.",
+        "Ignoring prefix sharing. Block indirection lets identical prompt prefixes point at the same physical blocks, which contiguous allocation cannot express at all.",
+        "Reading simulation numbers as a benchmark. The model captures allocation and scheduling behaviour, not kernel performance, bandwidth or real latency."
+      ],
+      "connections": [
+        {
+          "ref": "transformers/kv-cache",
+          "text": "Where the cache comes from and why it grows with sequence length - the object this lesson is about managing."
+        },
+        {
+          "ref": "frontier-frameworks/open-weight-models",
+          "text": "The arithmetic that shows the cache rivalling the weights at long context, which is what makes its allocation the binding constraint."
+        },
+        {
+          "ref": "llm-systems/speculative-decoding",
+          "text": "The other side of inference efficiency - amortizing the weight read across more tokens, which composes with better cache utilization."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "The complementary lever: fewer bytes per parameter and per cache entry, attacking the same memory-bandwidth constraint from the value side."
+        },
+        {
+          "ref": "mlops/model-serving",
+          "text": "The general serving concerns this sits inside - batching policy, admission control, tail latency and capacity planning."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What idea is paged attention borrowed from?",
+          "a": "Virtual memory. Fixed-size blocks plus a table mapping logical to physical, replacing contiguous reservation with internal fragmentation."
+        },
+        {
+          "q": "Why must contiguous allocation reserve the maximum?",
+          "a": "You cannot know how long a generation will run, and relocating a sequence's cache later is expensive - so every request pays for its worst case."
+        },
+        {
+          "q": "What was the measured utilization?",
+          "a": "15% contiguous against 98% paged, so 85% of the reserved KV region never held a token."
+        },
+        {
+          "q": "And the concurrency effect?",
+          "a": "97 requests contiguous against 621 paged - 6.4 times, from an allocation strategy with no change to model, kernels or hardware."
+        },
+        {
+          "q": "How much does paging waste?",
+          "a": "At most the block size minus one per sequence - and crucially, it no longer depends on the maximum length at all."
+        },
+        {
+          "q": "What does the indirection cost?",
+          "a": "An extra lookup per access, and the attention kernel must gather from non-contiguous blocks rather than read a contiguous span."
+        },
+        {
+          "q": "What does the indirection enable?",
+          "a": "Block sharing - identical prompt prefixes point at the same physical blocks with copy-on-write, which contiguous allocation cannot express."
+        },
+        {
+          "q": "What is static batching's problem?",
+          "a": "The batch runs until the longest sequence finishes, so sequences that completed early hold their slots idle."
+        },
+        {
+          "q": "What did continuous batching measure?",
+          "a": "1.74 times the throughput at 93% utilization against 54% - evicting finished sequences and admitting waiting ones every step."
+        },
+        {
+          "q": "Why is that possible at all?",
+          "a": "A decode step is independent per sequence, so batch membership can change between steps - there is no reason to keep a finished one."
+        },
+        {
+          "q": "Why is block size a U-curve?",
+          "a": "Small blocks add table overhead and indirection; large blocks bring back internal fragmentation. The measured minimum was 16."
+        },
+        {
+          "q": "What does the simulation not measure?",
+          "a": "Kernel performance, memory bandwidth and real latency. It models allocation and scheduling, which is where those two numbers come from."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain paged attention and why it works.",
+          "a": "IT IS VIRTUAL MEMORY APPLIED TO THE KV CACHE, and recognizing the precedent is what makes it obvious rather than clever. THE PROBLEM. During generation, each sequence accumulates a KV cache that grows one token at a time, and you do not know how long it will grow for. Contiguous allocation therefore has to RESERVE for the maximum possible length, because relocating a sequence's cache mid-generation would be expensive. So every request occupies the space of the longest thing it might become. THE WASTE, measured: 97 concurrent requests at 15% utilization. Eighty-five percent of the memory reserved for KV cache never held a single token, because output lengths have a long tail and most requests finish far short of the maximum. That is not a rounding error - it is most of the memory. THE FIX. Allocate in fixed-size blocks - 16 tokens - on demand, and keep a table mapping each sequence's logical positions to physical blocks. Now a sequence's blocks need not be contiguous, allocation happens as it grows, and the waste is bounded by the unused remainder of the last block rather than by the maximum length. Measured: 621 concurrent requests at 98% utilization, a 6.4-fold increase, with no change to the model, the kernels' arithmetic, or the hardware. WHY THE PRECEDENT MATTERS. This is exactly the argument operating systems made for paging over fixed partitions, and the trade is the same: you accept an indirection per access to eliminate fragmentation. That framing tells you what to expect - a page table, a page size to tune, and a cost paid in lookups - and it is why the technique will outlive whichever library popularized it. THE COST is that indirection. The attention kernel can no longer read a contiguous span; it must gather from scattered blocks, which is why paged attention requires kernel support rather than being purely an allocator change. THE BONUS the indirection enables, which is easy to miss and quite valuable: blocks can be SHARED. Two requests with the same system prompt or few-shot prefix point at the same physical blocks, with copy-on-write when they diverge. So prefix sharing and beam search become memory-cheap, and contiguous allocation cannot express that at all. THE SCHEDULING CHANGE THAT COMPOUNDS WITH IT: continuous batching. In static batching the batch runs until the longest sequence finishes, so completed sequences hold slots idle - measured at 54% utilization. Evicting them each step and admitting waiting requests gave 1.74 times throughput at 93%. It works because a decode step is independent per sequence, so there is no reason for batch membership to be fixed. AND THE HONEST SCOPE: these numbers come from a simulation of allocation and scheduling behaviour. They capture the mechanism - occupancy, fragmentation, admission - and they are not a benchmark of kernel performance, bandwidth or latency.",
+          "deepDive": {
+            "q": "You are designing an inference server from scratch. What are the decisions?",
+            "a": "I WOULD MAKE FIVE DECISIONS, AND THE FIRST TWO ACCOUNT FOR MOST OF THE THROUGHPUT. DECISION 1 - MEMORY ALLOCATION: paged, in fixed blocks, with a block table per sequence. This is the 6.4x, and it is the single largest structural win available because it addresses the fact that the KV cache rivals or exceeds the weights at realistic context lengths. Block size is a U-curve - small blocks add table overhead and indirection, large blocks bring back fragmentation - with a measured minimum at 16, though the optimum depends on your length distribution and gather cost, so I would sweep it on real traffic rather than copy it. DECISION 2 - BATCHING POLICY: continuous, evicting finished sequences and admitting waiting ones each step. That is the 1.74x, and it is available because decode steps are independent per sequence. The complication is PREFILL versus DECODE: prefill is compute-bound and processes a whole prompt at once, decode is memory-bandwidth-bound and produces one token. Mixing them naively means a long prefill stalls every decoding sequence, which shows up as latency spikes for users mid-generation. Chunked prefill - splitting a long prompt into pieces interleaved with decode steps - is the standard answer and it is a real design decision rather than an implementation detail. DECISION 3 - ADMISSION AND PREEMPTION. What happens when memory is exhausted mid-generation? Options are to preempt a sequence and recompute its cache later, to swap its blocks to host memory, or to refuse admission earlier so it does not happen. Each has a different tail-latency profile, and this is where a server's behaviour under load is actually determined. I would want admission control tied to available blocks rather than to a request count, since blocks are the real resource. DECISION 4 - PREFIX SHARING, which the block indirection makes possible. If most requests share a long system prompt, sharing those blocks is both a memory saving and a compute saving, since the shared prefix's prefill can be cached too. For chat products with a large fixed preamble this is substantial and it costs nothing but bookkeeping. DECISION 5 - QUANTIZATION of weights and of the cache, which changes the constants in every calculation above and interacts with everything - more concurrent sequences fit, which raises the batch, which improves the arithmetic intensity of decode. WHAT I WOULD MEASURE, and it is not tokens per second on one request. Concurrency at target latency, KV utilization, the prefill-decode time split, p95 time-to-first-token and p95 inter-token latency separately - because those two are different user experiences with different causes - and preemption rate. AND THE SEQUENCING I would recommend: get allocation and batching right first, since they are structural and independent of the model, then quantize, then look at kernels. Kernel optimization is the most visible work and the least likely to be the binding constraint, which is the same ordering lesson this curriculum keeps arriving at from other directions."
+          }
+        },
+        {
+          "q": "Why did the field converge on continuous batching?",
+          "a": "BECAUSE STATIC BATCHING WASTES THE MOST EXPENSIVE RESOURCE ON THE SLOWEST MEMBER, and the fix is available for free once you notice that decode steps are independent. THE PROBLEM WITH STATIC BATCHING. You form a batch of requests, run them together, and the batch completes when the LONGEST sequence finishes. A request that needed 20 tokens sits in the batch doing nothing until one that needs 2000 completes - occupying a slot, occupying its KV memory, and contributing no useful work. With a long-tailed output distribution, which is the normal case, most of the batch is idle most of the time. Measured utilization was 54%. THE FIX. A decode step computes one token for each sequence, and those computations are independent - nothing about sequence A's step depends on sequence B. So batch membership does not need to be fixed for the duration. At each step, remove sequences that emitted their end token, and admit waiting requests into the freed slots. Measured: 1.74 times the throughput at 93% utilization. WHY IT COMPOUNDS WITH PAGED ALLOCATION. Continuous batching only helps if you can actually give the freed memory to a new request, and with contiguous max-length reservation the freed block is a fixed-size hole that only fits another maximum-length reservation. Paging makes the memory genuinely fungible, so the two techniques multiply rather than add. That is why they arrived together. WHAT IT COMPLICATES. Requests now enter a batch that is mid-flight, which means the system must handle sequences at different stages simultaneously - and prefill for a newly admitted request is a compute-heavy operation that competes with the decode steps of everyone else. Done naively, admitting a request with a long prompt stalls every sequence currently generating, which users experience as a stutter mid-response. Chunked prefill exists for exactly this. There is also a fairness question: continuous admission can starve long requests if the policy always prefers short ones. AND THE GENERAL SHAPE worth extracting: static batching was a design inherited from training, where a batch is a natural unit because the whole batch participates in one gradient step. Generation has no such coupling - the batch is purely a device-utilization device - so importing the training-shaped abstraction cost most of the throughput. That is a recurring pattern in this curriculum: an abstraction that is correct in one regime is silently expensive in another, and the two regimes here are exactly training and inference from 17-01. Recognizing which regime you are in tells you which abstractions to distrust."
+        },
+        {
+          "q": "What does it mean that this was taught by simulation?",
+          "a": "IT MEANS THE NUMBERS DESCRIBE THE MECHANISM RATHER THAN AN IMPLEMENTATION, and being explicit about which is which is what makes them usable. WHAT THE SIMULATION MODELS: allocation and scheduling. Requests arrive with sampled prompt and output lengths, memory is handed out under one policy or another, sequences occupy and release blocks, and the scheduler admits and evicts. From that you get occupancy, fragmentation, concurrency and utilization - which is exactly where the 6.4x and the 1.74x come from, because both are consequences of how memory is handed out and when slots are freed. WHAT IT DOES NOT MODEL: kernel performance, memory bandwidth, the actual cost of gathering from non-contiguous blocks, or real latency. So it cannot tell you what tokens per second a given implementation achieves, and it would be wrong to quote it as a benchmark. WHY THAT IS STILL THE RIGHT WAY TO TEACH IT. The mechanism is the durable part. vLLM's specific implementation will change, its API will change, and competing engines will make different trade-offs - but 'contiguous reservation wastes the gap between expected and maximum length, and paging bounds waste by block size' is a fact about the allocation problem that holds for all of them. A reader who understands that can evaluate any inference engine's memory story, including engines that do not exist yet. And there is a second benefit specific to simulations: they are HONEST BY CONSTRUCTION in a way benchmarks are not. There is no warm cache to accidentally measure, no hardware variation, no vendor-tuned configuration. The result follows from the stated model, which is inspectable, so the reader can check whether the model matches their situation rather than trusting a number from someone else's machine. THE LIMIT I WOULD STATE ALONGSIDE IT. A simulation can only be as good as its assumptions - here, the length distribution, the arrival process and the memory budget. Change those and the numbers change, which is a feature if you are reasoning about your own workload and a trap if you quote the figures as universal. So the right use is to re-run it with YOUR length distribution, which is a few lines, rather than to cite 6.4x. AND THE PATTERN ACROSS THIS MODULE: Triton is taught by writing the tile model in numpy, ONNX by building a graph IR and interpreter, Flax and Optax by building the pytree and the transformation pair. In every case the library is absent and the mechanism is the content, and in every case the mechanism is what explains behaviour you will see in production. That constraint was imposed by the environment and it turned out to be the right pedagogy, which the capstone then measures rather than asserts."
+        },
+        {
+          "q": "How do prefill and decode differ, and why does it complicate serving?",
+          "a": "THEY ARE DIFFERENT COMPUTATIONS WITH OPPOSITE BOTTLENECKS SHARING ONE DEVICE, which is the central scheduling difficulty in LLM serving. PREFILL processes the entire prompt at once. Every token attends to every previous token, so it is a large matrix operation with high arithmetic intensity - the weights are read once and used for many tokens' worth of computation. It is COMPUTE-bound, it takes time proportional to prompt length, and it produces exactly one token of output. DECODE produces one token per step. It reads every weight and the entire KV cache to compute a single token's worth of arithmetic, so its arithmetic intensity is around one against hardware ratios in the hundreds. It is MEMORY-BANDWIDTH-bound, and the accelerator is largely idle waiting for bytes. THE CONSEQUENCE FOR BATCHING. Decode benefits enormously from batching, because the weight read is amortized across every sequence in the batch - this is the whole reason concurrency matters and why the paged-allocation win translates into throughput. Prefill benefits much less, because it is already compute-saturated. So the two halves of the same request want different batching policies. THE SCHEDULING PROBLEM. If a long prefill runs as one unit, every sequence currently decoding stalls for its duration. Users experience that as a stutter mid-response - the tokens stop arriving for a moment because someone else submitted a long prompt. This is a real and common complaint and it is a scheduling artefact rather than a capacity problem. THE STANDARD FIX is chunked prefill: split the prompt into pieces and interleave those pieces with decode steps, so the prefill's cost is spread across many steps and no single step is long. It costs a little total throughput and it dramatically improves inter-token latency consistency, which is the metric users actually feel. THE METRICS THIS FORCES YOU TO SEPARATE. Time-to-first-token is dominated by prefill and by queueing; inter-token latency is dominated by decode and by scheduling interference. They have different causes and different fixes, so a single 'latency' number describes neither - and a system can be excellent on one and unacceptable on the other. I would report and alert on both at p95. AND THE CONNECTION TO THE MODULE'S FRAMING: prefill and decode are the compute-bound and bandwidth-bound regimes from 17-01 appearing inside a single request. Every technique here follows from which side you are on - batching and paging help decode by increasing concurrency, chunking helps prefill by making it interruptible, and quantization helps decode by reducing bytes read. Knowing the regime tells you which lever applies, which is more useful than a list of techniques."
+        },
+        {
+          "q": "When would paged attention NOT be worth it?",
+          "a": "WHEN THE WASTE IT ELIMINATES IS SMALL, and that condition is more common than the headline number suggests. THE GAIN COMES FROM THE GAP between expected and maximum sequence length. Utilization under contiguous allocation is roughly the ratio of the two, so paging's benefit is largest when output lengths are long-tailed and the maximum is much larger than the typical. Reverse that and the benefit shrinks. WHERE IT IS SMALL. Fixed or narrow output lengths - a classifier, an extraction task, an embedding service, anything with a tight token budget - where reserving the maximum is reserving roughly what you use. Single-request or very low-concurrency serving, where memory is not the binding constraint and the indirection is pure cost. Very short contexts, where the whole cache is small relative to the weights. And offline batch processing, where you control the batching entirely and can sort by length to get most of the packing benefit for free. WHERE IT COSTS SOMETHING. The indirection is real: the attention kernel gathers from scattered blocks instead of reading a contiguous span, which is less friendly to memory access patterns. A well-tuned contiguous kernel can be faster per token than a paged one - the paged system wins on CONCURRENCY, not on single-stream speed. So for a latency-critical single-stream workload, contiguous may genuinely be better, and quoting the 6.4x there would be quoting a throughput result at a latency problem. There is also implementation complexity: a block allocator, a block table, preemption and eviction policies, and a custom kernel. If you are using an existing engine that is free; if you are building it, it is not. HOW I WOULD DECIDE. Compute the utilization you would get under contiguous allocation from your own length distribution - expected over maximum. If that is 15%, paging is transformative. If it is 80%, it is a modest gain for real complexity. That calculation takes minutes and it is the honest version of the decision. AND THE BROADER POINT, which is why the question is worth asking: a technique with a spectacular published number was measured on a workload where it shines. The number is real and it is conditional, and the condition here is a long-tailed length distribution with high concurrency. That is the module 21 discipline applied to a systems technique - find the regime, check whether you are in it, and do not import a result across a boundary it was never measured across."
+        },
+        {
+          "q": "How does this lesson serve the module's thesis?",
+          "a": "IT IS THE CLEAREST CASE OF AN INVARIANT WEARING A NEW NAME. Paged attention is presented as a machine-learning systems innovation, and it is virtual memory - fixed-size blocks and a page table replacing contiguous reservation, with the same trade of an indirection against fragmentation, and even the same U-curve setting the page size. A reader who knows the operating-systems precedent understands the technique in a sentence and can predict its properties: it will need a table, it will have a tunable block size, it will cost a lookup, and it will enable sharing. That prediction comes from the invariant, not from the library. WHY THAT MATTERS FOR THIS MODULE SPECIFICALLY. vLLM is a library with a version number and a roadmap, and other engines make different choices. What does not change is that generation produces variable-length objects whose final size is unknown at allocation time, and that reserving the maximum wastes the gap. Any engine, now or later, is answering that question - so understanding the question lets you evaluate any answer. THE SECOND CONTRIBUTION is a habit rather than a fact: the biggest wins in this lesson came from ALLOCATION and SCHEDULING, not from the model, the kernels or the hardware. 6.4x from how memory is handed out and 1.74x from when slots are freed. That is worth internalizing because kernel work is the most visible and prestigious optimization available and it was not the binding constraint - the same ordering lesson that appears in RAG, where chunking beats the embedding model, and in agents, where endpointing beats the model. Look at the boring stage first. THE THIRD is the honest scoping of a simulation. The numbers model allocation behaviour, not kernel performance, and saying so is what makes them useful - a reader can check whether the model's assumptions match their workload and re-run it with their own length distribution, which is a better relationship to a number than trusting a benchmark from someone else's hardware. AND THE CONDITION, since this module inherits module 21's discipline: paging's gain is the gap between expected and maximum length. It is transformative at 15% utilization and marginal at 80%, so the technique is conditional like everything else here - and the calculation that tells you which case you are in takes minutes."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ Paged attention IS virtual memory",
+        "back": "Fixed-size blocks + a table mapping logical→physical, replacing contiguous reservation with internal fragmentation. Same trade (an indirection to kill fragmentation), same U-curve setting the page size. The precedent is 1960s OS design."
+      },
+      {
+        "type": "formula",
+        "front": "Why contiguous allocation wastes so much",
+        "back": "util ≈ E[len]/len_max, because you can't know the final length and relocating a cache is expensive — so every request pays for its worst case. **Measured: 97 requests at 15% utilization** — 85% of the KV region held nothing."
+      },
+      {
+        "type": "formula",
+        "front": "★ What paging buys",
+        "back": "Waste ≤ (block−1) per sequence, and **no longer depends on max length at all**. Measured: **621 requests at 98% utilization = 6.4×** — from an allocation strategy, with no change to model, kernels or hardware."
+      },
+      {
+        "type": "intuition",
+        "front": "The indirection's bonus: SHARING",
+        "back": "Blocks can be shared — two requests with the same prompt prefix point at the same physical blocks, copy-on-write when they diverge. Prefix sharing and beam search become memory-cheap. Contiguous allocation cannot express this at all."
+      },
+      {
+        "type": "formula",
+        "front": "Continuous batching",
+        "back": "Static: the batch runs until the LONGEST sequence finishes, so completed ones hold slots idle → 54% util. Continuous: evict finished, admit waiting, every step → **1.74× throughput at 93%**. Possible because decode steps are independent per sequence."
+      },
+      {
+        "type": "intuition",
+        "front": "Why the two techniques MULTIPLY",
+        "back": "Continuous batching only helps if freed memory is usable — and under max-length reservation the freed slot is a fixed hole that fits only another max-length reservation. Paging makes memory fungible. That's why they arrived together."
+      },
+      {
+        "type": "formula",
+        "front": "Block size is a classic U-curve",
+        "back": "cost = α/block (table + indirection) + β·block (internal fragmentation) → minimum at 16. Same two competing terms that set an OS page size — and the optimum depends on YOUR length distribution, so 16 is a default, not a constant."
+      },
+      {
+        "type": "intuition",
+        "front": "Prefill vs decode: opposite bottlenecks, one device",
+        "back": "PREFILL: whole prompt at once, high arithmetic intensity, COMPUTE-bound. DECODE: one token, reads every weight + the cache, BANDWIDTH-bound. So decode loves batching and prefill doesn't — and a long prefill STALLS everyone decoding."
+      },
+      {
+        "type": "intuition",
+        "front": "Chunked prefill, and two separate latency metrics",
+        "back": "Split a long prompt into pieces interleaved with decode steps, so no step is long. And report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) SEPARATELY — different causes, different fixes, one number describes neither."
+      },
+      {
+        "type": "pitfall",
+        "front": "When paging is NOT worth it",
+        "back": "Narrow output lengths (classification, extraction), low concurrency, short contexts, offline batch you can sort by length. Compute E[len]/len_max for YOUR traffic: 15% → transformative, 80% → modest gain for real complexity."
+      },
+      {
+        "type": "pitfall",
+        "front": "It wins on CONCURRENCY, not single-stream speed",
+        "back": "The gather from scattered blocks is less friendly than a contiguous read, so a well-tuned contiguous kernel can be faster per token. Quoting 6.4× at a single-stream latency problem is quoting a throughput result at the wrong question."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The wins were ALLOCATION and SCHEDULING",
+        "back": "6.4× from how memory is handed out, 1.74× from when slots are freed — not from the model, kernels or hardware. Kernel work is the most visible optimization and was not the binding constraint. Look at the boring stage first."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Kwon et al. (2023), Efficient Memory Management for Large Language Model Serving with PagedAttention",
+        "url": "https://arxiv.org/abs/2309.06180"
+      },
+      {
+        "title": "Yu et al. (2022), Orca: A Distributed Serving System for Transformer-Based Generative Models (continuous batching)",
+        "url": "https://www.usenix.org/conference/osdi22/presentation/yu"
+      },
+      {
+        "title": "Agrawal et al. (2023), SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills",
+        "url": "https://arxiv.org/abs/2308.16369"
+      },
+      {
+        "title": "Pope et al. (2022), Efficiently Scaling Transformer Inference",
+        "url": "https://arxiv.org/abs/2211.05102"
+      },
+      {
+        "title": "Denning (1970), Virtual Memory (the operating-systems precedent)",
+        "url": "https://dl.acm.org/doi/10.1145/356571.356573"
+      }
+    ],
+    "demos": [
+      "paged-attention",
+      "kv-cache",
+      "kv-cache-eviction",
+      "speculative-decoding"
+    ]
+  }
+};

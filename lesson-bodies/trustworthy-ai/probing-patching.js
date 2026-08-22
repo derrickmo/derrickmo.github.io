@@ -1,0 +1,291 @@
+// GENERATED from content/lessons/trustworthy-ai/probing-patching.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/trustworthy-ai/probing-patching/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "probing-patching": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "A probe asks whether information is PRESENT in an activation. An intervention asks whether the output DEPENDS on it. Those are the correlational and the causal question, and this lesson is the causal module's thesis relocated inside a network - with the enormous advantage that here you can actually intervene.",
+        "The demonstration is as clean as this subject gets. Train a network on a task whose label depends on fact A only, with an irrelevant fact B also present in the input. A linear probe reads B out of the hidden layer at 1.0000 accuracy - perfect. Flip B in the input and the mean change in output probability is 0.000003, with the predicted label flipping on 0.0000% of examples. Flip A and the mean change is 0.999990 with 100% of labels flipping. A PERFECT PROBE AND EXACTLY ZERO CAUSAL EFFECT.",
+        "Both results are true and they answer different questions. 'The model represents B' is correct. 'The model uses B' is false. Every claim built on probing alone is the first kind wearing the language of the second, and the fix costs one forward pass: change the thing and see what happens."
+      ],
+      "math": [
+        {
+          "h": "What a probe measures",
+          "paras": [
+            "A probe is a small classifier fitted from activations to some property. Its accuracy is a statement about the DECODABILITY of that property from the representation, given the probe's capacity.",
+            "Decodability is necessary for use and nowhere near sufficient, because a representation can carry information the downstream computation ignores."
+          ],
+          "tex": "\\text{probe: } g_\\theta(h(x)) \\to z, \\qquad \\mathrm{acc}(g) \\text{ bounds } I(h(x); z) \\text{ from below - not } \\frac{\\partial f}{\\partial z}",
+          "texNote": "Measured: probe accuracy 1.0000 for the used fact A and 1.0000 for the unused fact B. The probe cannot distinguish them, because both are equally decodable and only one is consumed."
+        },
+        {
+          "h": "What an intervention measures",
+          "paras": [
+            "Patching replaces an activation with the value it takes on a counterfactual input, then measures the change in output. It is the do-operator, applied to a component you fully control.",
+            "This is the quantity causal inference spends whole modules trying to approximate, and inside a network it is directly computable."
+          ],
+          "tex": "\\Delta = \\mathbb{E}\\big|f(x)-f(x_{h\\leftarrow h'})\\big|: \\quad \\Delta_B = 3\\times10^{-6}\\ (0.0000\\%\\ \\text{label flips}), \\quad \\Delta_A = 0.999990\\ (100\\%)",
+          "texNote": "Five orders of magnitude between a fact the model represents perfectly and a fact it uses. No correlational method separates these two; the intervention separates them completely."
+        },
+        {
+          "h": "Probes need controls, exactly like any classifier",
+          "paras": [
+            "A probe's accuracy is meaningless without a baseline that says what accuracy is achievable by capacity alone."
+          ],
+          "tex": "\\text{random label on real activations}: 0.4998, \\qquad \\text{real label on random activations}: 0.4991",
+          "texNote": "Both at chance here, which is what a clean setup looks like. In a real model with high-dimensional activations and a strong probe, both baselines can rise well above chance, and a probe score not compared against them says nothing."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ The experiment in full",
+          "paras": [
+            "Label depends on A only. B is in the input, irrelevant to the task, and perfectly decodable from the hidden layer."
+          ],
+          "code": "# task accuracy                                   1.0000\n\n# PROBING - is the information there?\n#   probe accuracy for A (used by the task)       1.0000\n#   probe accuracy for B (NOT used)               1.0000   <- indistinguishable\n\n# PATCHING - does the output depend on it?\n#   flip B: mean |dP(class 1)| = 0.000003   labels flipped   0.0000%\n#   flip A: mean |dP(class 1)| = 0.999990   labels flipped 100.0000%\n\n# CONTROLS (without these a probe score means nothing)\n#   probe for a RANDOM label on real activations  0.4998\n#   probe for B on RANDOM activations             0.4991\n\n# ★ 'The model represents B' is TRUE. 'The model uses B' is FALSE.\n#   One forward pass separates them.",
+          "caption": "The gap is five orders of magnitude, and no amount of probing sophistication closes it, because probing is not measuring that quantity."
+        },
+        {
+          "h": "The patching toolkit",
+          "paras": [
+            "Variants differ in what they hold fixed, and each answers a slightly different counterfactual."
+          ],
+          "code": "# ACTIVATION PATCHING  run x_clean, cache activations; run x_corrupt,\n#   splice in ONE cached activation, measure the output recovery.\n#   -> 'is this component sufficient to restore the behaviour?'\n\n# ABLATION             zero it, or replace with the dataset MEAN, or\n#   resample from another input.\n#   -> 'is this component necessary?'  ★ zero-ablation puts the model\n#      OFF-DISTRIBUTION; mean- or resample-ablation is usually fairer\n\n# PATH PATCHING        patch a component's effect along SOME edges only\n#   -> separates direct effect from effect through a mediator, which is\n#      exactly the mediator question from module 23\n\n# ATTRIBUTION PATCHING linearize the patch with a gradient to approximate\n#   thousands of patches in one backward pass - cheap, and an approximation\n\n# ★ Report the ablation TYPE. Zero, mean and resample give different\n#   numbers and the difference is often larger than the effect claimed.",
+          "caption": "Path patching is the mediator-versus-total-effect distinction, and it is the reason circuit claims need more than a single ablation number."
+        }
+      ],
+      "useCases": [
+        "Testing whether a safety-relevant property a probe detects - deception, refusal intent, a capability - actually drives the output, before building monitoring on top of it.",
+        "Localizing a behaviour to a small set of components so a fix can be targeted, which is the practical payoff of circuit analysis.",
+        "Checking whether a fine-tune removed a capability or merely suppressed its expression, by probing for it and then patching to see if it can be reactivated.",
+        "Debugging a model that fails on a slice, by patching activations from a working input to find where the computation diverges."
+      ],
+      "pitfalls": [
+        "Reporting probe accuracy as evidence of use. A perfect 1.0000 probe accompanied a 0.000003 causal effect and 0.0000% label flips.",
+        "Running a probe without controls. Random-label and random-activation baselines were both at chance here; in a real high-dimensional model a strong probe can score well above chance on pure noise.",
+        "Using an over-powerful probe. A deep probe measures what is EXTRACTABLE with computation, not what the model has made available - which is why linear probes are the conservative default.",
+        "Zero-ablating and calling it necessity. Zeroing puts the model off-distribution, so the damage measured includes the shock of an impossible activation; mean- or resample-ablation is fairer.",
+        "Not reporting the ablation type. Zero, mean and resample ablation give materially different numbers, and the spread is frequently larger than the effect being claimed.",
+        "Single-component ablations in the presence of self-repair. Other paths compensate, so the measured effect understates importance and a component can look unimportant while being load-bearing.",
+        "Treating a circuit found on one prompt distribution as the model's algorithm. It is the algorithm for those inputs, and generalization to other inputs is a separate empirical claim."
+      ],
+      "connections": [
+        {
+          "ref": "causal-inference/causal-graphs",
+          "text": "Patching IS the do-operator, and path patching is the mediator-versus-total-effect distinction - the same framework, applied where intervention is free."
+        },
+        {
+          "ref": "trustworthy-ai/superposition-sae",
+          "text": "Where the units to intervene ON come from, and why neurons are the wrong ones - patching a direction is only as good as the direction."
+        },
+        {
+          "ref": "trustworthy-ai/attribution",
+          "text": "The correlational tier of the same ladder: attention weights and saliency generate hypotheses that patching then tests."
+        },
+        {
+          "ref": "advanced-nlp/interpretability",
+          "text": "The applied NLP treatment - induction heads, name-mover circuits, and what a published circuit analysis actually contains."
+        },
+        {
+          "ref": "causal-inference/potential-outcomes",
+          "text": "Why this setting is unusually lucky: the fundamental problem of causal inference does not bind, because you can run both potential outcomes on the same unit."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does a probe measure?",
+          "a": "Decodability — whether a property can be read out of an activation by a small classifier. Necessary for use, nowhere near sufficient."
+        },
+        {
+          "q": "What does patching measure?",
+          "a": "Dependence — replace an activation with its counterfactual value and measure the output change. It is the do-operator."
+        },
+        {
+          "q": "★ Give the headline result.",
+          "a": "Probe accuracy for an UNUSED fact: 1.0000. Flipping it: mean |ΔP| = 0.000003, labels flipped 0.0000%. Flipping the used fact: 0.999990 and 100%."
+        },
+        {
+          "q": "So is 'the model represents B' wrong?",
+          "a": "No — it's true. 'The model uses B' is the false claim. Probing supports the first and gets quoted as the second."
+        },
+        {
+          "q": "Which two controls does a probe need?",
+          "a": "A random-label probe on real activations (0.4998 here) and a real-label probe on random activations (0.4991). Both at chance = a clean setup."
+        },
+        {
+          "q": "Why prefer linear probes?",
+          "a": "A deep probe measures what's EXTRACTABLE with computation, not what the model made available. Linear is the conservative default."
+        },
+        {
+          "q": "Name the patching variants.",
+          "a": "Activation patching (sufficiency), ablation (necessity), path patching (direct vs mediated), attribution patching (gradient-linearized, cheap approximation)."
+        },
+        {
+          "q": "What's wrong with zero-ablation?",
+          "a": "It puts the model off-distribution, so the measured damage includes the shock of an impossible activation. Mean- or resample-ablation is fairer."
+        },
+        {
+          "q": "Why report the ablation type?",
+          "a": "Zero, mean and resample give materially different numbers — the spread is often larger than the effect being claimed."
+        },
+        {
+          "q": "What is self-repair and why does it matter?",
+          "a": "Other paths compensate for an ablated component, so single-component ablations systematically UNDERSTATE importance. Ablate sets, or disable the compensating path."
+        },
+        {
+          "q": "What is path patching for?",
+          "a": "Separating a component's direct effect from its effect through a mediator — module 23's mediator question, inside a network."
+        },
+        {
+          "q": "Why is interpretability luckier than causal inference?",
+          "a": "You can run BOTH potential outcomes on the same unit. The fundamental problem of causal inference does not bind — intervention is free and repeatable."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the difference between probing and patching, and why it matters.",
+          "a": "A PROBE ASKS WHETHER INFORMATION IS PRESENT; PATCHING ASKS WHETHER THE OUTPUT DEPENDS ON IT. A probe is a small classifier fitted from activations to some property, so its accuracy bounds the information content of the representation from below. Patching replaces an activation with the value it takes on a counterfactual input and measures the resulting change in output — the do-operator, applied to a component you fully control. THE GAP BETWEEN THEM IS NOT SUBTLE. In a network trained on a task whose label depends on fact A only, with an irrelevant fact B also present in the input: the probe read B out of the hidden layer at 1.0000 accuracy, identical to its 1.0000 on the fact the task actually uses. Flipping B changed the output probability by a mean of 0.000003 and flipped 0.0000% of predicted labels. Flipping A changed it by 0.999990 and flipped 100%. FIVE ORDERS OF MAGNITUDE between a fact the model represents perfectly and a fact it uses. Both measurements are correct. 'The model represents B' is true; 'the model uses B' is false; and essentially every claim built on probing alone is the first sentence wearing the grammar of the second.",
+          "deepDive": {
+            "q": "Why would a model represent something it never uses?",
+            "a": "Why would a model represent something it does not use? Because representations are shaped by the input and by pressure to be linearly separable early, not by the downstream task alone — early layers preserve much of the input, and information survives until something actively discards it. In real models this is pervasive: syntactic properties, speaker attributes, and formatting details are all decodable from hidden states of models that demonstrably do not condition on them for the task at hand. The practical consequence is that a probing result should be reported as 'decodable', not as 'encoded for the purpose of', and any downstream claim — this model is using demographic information, this model has learned a world model — needs an intervention. There is also a converse failure worth knowing: a probe can FAIL on information the model does use, if the information is stored non-linearly or in a direction the probe's inductive bias cannot find. So probe accuracy is neither necessary nor sufficient for use in general, which is a strong reason to treat it strictly as a hypothesis generator that tells you where to point the intervention."
+          }
+        },
+        {
+          "q": "How would you design a probing study so its results mean something?",
+          "a": "THREE THINGS, AND THE FIRST TWO ARE ROUTINELY MISSING. FIRST, CONTROLS. A probe accuracy is uninterpretable without a baseline for what capacity alone achieves: a random-label probe on real activations, and a real-label probe on random activations of the same dimension. In my setup both came in at chance, 0.4998 and 0.4991, which is what a clean result looks like. In a real model with thousands of dimensions and a strong probe, both baselines can sit well above chance, and a headline 0.85 against a 0.80 random-label control is close to no result at all. Hewitt and Liang's control tasks are the formal version — a probe with high selectivity is one that fits the real property much better than a random one. SECOND, PROBE CAPACITY. A deep probe measures what is extractable with computation, not what the model has made available, so linear probes are the conservative default and any nonlinear probe needs its capacity justified. THIRD, AND MOST IMPORTANTLY, AN INTERVENTION. If the claim is about use, probe to localize and then patch to test, because the probe cannot distinguish a fact the model consumes from one it merely carries.",
+          "deepDive": {
+            "q": "What can a layer sweep not show you?",
+            "a": "A fourth item worth adding is layer sweeps with an eye on what they can and cannot show. Probing every layer produces a curve, and the curve is often read as the model 'building up' a representation — but decodability rising across layers is also consistent with the property simply becoming more linearly separable while the computation ignores it throughout. The curve is a description of the representation's geometry, not of a process. Similarly, the amnesic-probing family of methods, which remove a property's direction from the representation and measure the downstream damage, is a genuine improvement because it intervenes; its caveat is that removing a direction can damage other things sharing that subspace, so it needs the same controls as ablation — remove a random direction of matched norm and compare. In practice the strongest probing papers now report the probe, the control, the selectivity, and an intervention, and the ones that report only the first number are making a claim their evidence does not reach."
+          }
+        },
+        {
+          "q": "Walk through how you would test a claim that a model has a specific internal circuit.",
+          "a": "I WOULD TREAT IT AS A CAUSAL CLAIM AND TEST IT THE WAY THE CAUSAL MODULE WOULD. FIRST, LOCALIZE CHEAPLY. Use attention patterns, attribution, or an SAE to generate candidates — all correlational, all fine for narrowing a search that would otherwise be intractable. SECOND, TEST SUFFICIENCY by activation patching: run a clean input, cache activations, run a corrupted input, splice in the candidate component, and measure how much of the clean behaviour is recovered. THIRD, TEST NECESSITY by ablation, and here the choice matters — zero-ablation puts the model off-distribution so the damage includes the shock of an impossible activation, while mean- or resample-ablation asks a fairer counterfactual. I would report which one I used and ideally all three, because the spread between them is frequently larger than the effect being claimed. FOURTH, SEPARATE DIRECT FROM MEDIATED EFFECTS with path patching, which is precisely the mediator question from module 23: a component can matter entirely through a downstream component, and reporting a total effect as a direct one is the same error as controlling for a mediator. FIFTH, CONTROLS AND GENERALIZATION: ablate random components of matched size, and test the circuit on prompts outside the distribution it was discovered on.",
+          "deepDive": {
+            "q": "Where are circuit claims weakest?",
+            "a": "That last step is where most circuit claims are weakest and it deserves emphasis. A circuit found on a narrow prompt template is the algorithm for that template; whether it is the model's general mechanism is a separate empirical question, and the honest papers test it explicitly on variants. Self-repair is the other major methodological hazard: ablating one component often produces a much smaller effect than expected because another path compensates, sometimes a path that only activates when the first is removed. That makes single-component ablation systematically understate importance and can make a load-bearing component look irrelevant. The mitigations are ablating sets rather than singletons, and measuring with the compensating path also disabled — which requires knowing about it, which is circular, which is why this remains genuinely hard. My honest summary is that sufficiency evidence via patching is usually strong, necessity evidence via ablation is usually weaker than reported, and generalization evidence is usually absent."
+          }
+        },
+        {
+          "q": "Why is interpretability methodologically luckier than causal inference?",
+          "a": "BECAUSE THE FUNDAMENTAL PROBLEM OF CAUSAL INFERENCE DOES NOT BIND. In the causal module, the defining difficulty was that a unit is either treated or not and the other potential outcome is erased, so every method was a different way of buying an untestable assumption to substitute one unit for another. INSIDE A NETWORK YOU CAN RUN BOTH POTENTIAL OUTCOMES ON THE SAME UNIT. You own the model, you can set any activation to any value, run the counterfactual forward pass, and observe the result exactly — at zero ethical cost, low compute cost, and with perfect repeatability. There is no confounding, because you set the value rather than observing it; there is no selection, because you choose the inputs; and there is no sampling error in the intervention itself. That is an enormous methodological advantage and it is why the measured gap in this lesson — 0.000003 against 0.999990 — is a fact rather than an estimate with an interval. SO THE FIELD'S CEILING IS MUCH HIGHER than causal inference's, and the reason its results are still contested is not that intervention is impossible but that THE UNITS TO INTERVENE ON ARE UNCLEAR, which is what the previous lesson was about: superposition means the natural basis is wrong, and the SAE that replaces it is not identified.",
+          "deepDive": {
+            "q": "What are the real limits, so the optimism stays calibrated?",
+            "a": "There are real limits worth naming so the optimism is calibrated. The intervention is exact, but the INPUT DISTRIBUTION you intervene over is a choice, and results on one prompt set need not transfer — that is a sampling problem, not a causal one, and it is the same external-validity issue every empirical field has. Off-distribution activations are a genuine confound: setting a component to a value it would never take makes the downstream computation's behaviour uninformative about normal operation, which is the argument for resample-ablation over zeroing. And scale is a practical barrier, since exhaustive patching is quadratic in components and attribution patching's gradient linearization is an approximation that can be badly wrong where the function is sharply nonlinear. But none of these is the fundamental problem — they are engineering and design issues with known mitigations, whereas an unmeasured confounder in an observational study is not fixable at all. The right attitude is that interpretability should be held to a HIGHER evidentiary standard than causal inference, precisely because it can meet one."
+          }
+        },
+        {
+          "q": "A team wants to monitor a safety property using a probe. What do you advise?",
+          "a": "PROBE TO DETECT, BUT VALIDATE WITH INTERVENTION BEFORE BUILDING ON IT, because the property you can detect may be one the model does not act on. The failure mode is concrete: a probe fires reliably on a direction associated with, say, deceptive intent, the team ships monitoring, and the model's actual outputs are driven by a different pathway the probe never sees — so the monitor has excellent apparent sensitivity on a curated set and no relationship to the behaviour you care about. The test is to intervene: ablate or steer the direction and confirm the behaviour changes in the predicted direction on held-out inputs. If ablating it does nothing to the behaviour, the probe is detecting a correlate, and correlates drift. THAT SAID, I WOULD NOT OVERSTATE THE REQUIREMENT. For MONITORING specifically, a reliable correlate has genuine operational value even if it is not the causal pathway — you are making a prediction, not an intervention, and predictions can ride on correlations. What matters is that the claim is stated operationally, 'this direction predicts this behaviour on this distribution', and evaluated as a predictor with a base rate, a false positive rate, and a held-out distribution. THE CAUSAL CLAIM IS ONLY REQUIRED IF YOU INTEND TO INTERVENE on the direction to suppress the behaviour.",
+          "deepDive": {
+            "q": "What is the crisp version of that advice?",
+            "a": "That distinction — predicting versus intervening — is the crisp version of the advice and it maps exactly onto the causal module. A correlate suffices for prediction and fails for intervention, which is the first thing that module established. If the plan is to detect and then escalate to a human, the probe is doing prediction and a validated correlate is fine. If the plan is to ablate the direction at inference to prevent the behaviour, that is an intervention and it needs interventional evidence, or you will suppress a correlate while the behaviour continues through another path. There are two further cautions for monitoring in production. First, a probe trained on activations from one distribution degrades under shift like everything else in this module, so it needs the same treatment: state the reference distribution, monitor the activation statistics, and re-validate. Second, if the monitor becomes a training signal or an optimization target, it stops being a measurement — the model is then selected against the probe, and a direction that predicts the behaviour will be routed around. That is Goodhart applied to interpretability, and it is the strongest argument for keeping some monitors held out and unused in training."
+          }
+        },
+        {
+          "q": "How does this lesson fit the module's thesis?",
+          "a": "IT IS THE CLEANEST INSTANCE, BECAUSE THE NUMBERS LEAVE NO ROOM. A probe accuracy of 1.0000 is a true, honest, correctly computed measurement. It establishes decodability. Read as 'the model uses this', it is wrong, and the intervention says so with a mean output change of 0.000003 and 0.0000% of labels flipped. THE GUARANTEE IS TRUE AND NARROWER THAN ITS NAME — the same shape as an ECE that averages over a population, a conformal coverage that is marginal, a fairness metric that equalizes exactly one column, an attribution that depends on a baseline, and an SAE reconstruction that does not identify features. WHAT MAKES THIS LESSON DIFFERENT is that the wider claim is not merely unsupported, it is CHECKABLE and cheap to check. One forward pass with a modified activation separates decodability from use completely. So this is the module's most optimistic lesson: the gap between what is measured and what is claimed is, here, closable — and the reason it often is not closed is habit rather than difficulty. THE TRANSFERABLE HABIT is to ask, of any interpretability result, whether the evidence is correlational or interventional, and to notice that the language almost always implies the second while the method almost always delivers the first.",
+          "deepDive": {
+            "q": "What do the two interpretability lessons establish together?",
+            "a": "It is worth connecting the two interpretability lessons explicitly, because together they define what the field can currently support. Lesson 24-05 established that the UNITS are not identified — an SAE's reconstruction can be near-perfect while recovering 5 of 24 true features, and the feature count tracks your dictionary size. This lesson establishes that USE is testable once you have a unit. Put together: interventions are trustworthy, and the objects you intervene on are hypotheses. That combination supports operational claims — this direction predicts, this ablation changes behaviour on this distribution — and does not yet support ontological ones about what the model 'really' represents. Being precise about which kind of claim you are making is most of the intellectual honesty available in this area right now, and it is also the difference between a result that survives replication and one that does not. The parallel with the causal module's ending is exact: name the estimand, name the assumption, price what you cannot test, and report the trade-off rather than a single number."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ Probing vs patching",
+        "back": "Probe = is the information PRESENT (correlational). Patch = does the output DEPEND on it (causal, the do-operator). Module 23's thesis relocated inside a network — where you can actually intervene."
+      },
+      {
+        "type": "formula",
+        "front": "★ A perfect probe with zero causal effect",
+        "back": "Label depends on A only; B is irrelevant. Probe accuracy for B: **1.0000** (same as for A). Flip B: mean |ΔP| = **0.000003**, labels flipped **0.0000%**. Flip A: 0.999990, 100%."
+      },
+      {
+        "type": "intuition",
+        "front": "Which claim does probing support?",
+        "back": "\"The model REPRESENTS B\" — true. \"The model USES B\" — false. Nearly every probing claim is the first sentence wearing the grammar of the second."
+      },
+      {
+        "type": "pitfall",
+        "front": "The two controls a probe needs",
+        "back": "Random-label probe on real activations (0.4998 here) and real-label probe on random activations (0.4991). In a real high-dim model BOTH can sit well above chance — selectivity, not raw accuracy, is the result."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why prefer LINEAR probes?",
+        "back": "A deep probe measures what's EXTRACTABLE with computation, not what the model made available. Capacity must be justified, not maximized."
+      },
+      {
+        "type": "intuition",
+        "front": "Why would a model represent what it doesn't use?",
+        "back": "Representations are shaped by the input and by early linear separability, not by the task alone — information survives until something actively discards it. Syntax, speaker traits and formatting are all decodable from models that ignore them."
+      },
+      {
+        "type": "definition",
+        "front": "The patching toolkit",
+        "back": "Activation patching (sufficiency) · ablation (necessity) · path patching (direct vs mediated — module 23's mediator question) · attribution patching (gradient-linearized, cheap, approximate)."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Zero-ablation is not a fair counterfactual",
+        "back": "Zeroing puts the model OFF-DISTRIBUTION, so the damage includes the shock of an impossible activation. Prefer mean- or resample-ablation — and always report which, since the spread often exceeds the claimed effect."
+      },
+      {
+        "type": "pitfall",
+        "front": "Self-repair",
+        "back": "Other paths compensate for an ablated component, sometimes only activating once it's removed. Single-component ablation systematically UNDERSTATES importance — a load-bearing component can look irrelevant."
+      },
+      {
+        "type": "pitfall",
+        "front": "A circuit found on one prompt template",
+        "back": "…is the algorithm for that template. Generalization is a SEPARATE empirical claim, and it's the step most often missing. Test on variants outside the discovery distribution."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Why interpretability is luckier than causal inference",
+        "back": "You can run BOTH potential outcomes on the same unit — set any activation, zero ethical cost, perfectly repeatable. No confounding (you set it), no selection. The hard part is which UNITS to intervene on (→ 24-05)."
+      },
+      {
+        "type": "intuition",
+        "front": "Monitoring: predicting vs intervening",
+        "back": "A validated CORRELATE suffices to predict-and-escalate. Ablating a direction to SUPPRESS a behaviour is an intervention and needs interventional evidence. And a monitor used as a training signal stops being a measurement (Goodhart)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Meng, Bau, Andonian & Belinkov (2022), Locating and Editing Factual Associations in GPT (ROME)",
+        "url": "https://arxiv.org/abs/2202.05262"
+      },
+      {
+        "title": "Wang et al. (2022), Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small",
+        "url": "https://arxiv.org/abs/2211.00593"
+      },
+      {
+        "title": "Hewitt & Liang (2019), Designing and Interpreting Probes with Control Tasks",
+        "url": "https://arxiv.org/abs/1909.03368"
+      },
+      {
+        "title": "Belinkov (2022), Probing Classifiers: Promises, Shortcomings, and Advances",
+        "url": "https://direct.mit.edu/coli/article/48/1/207/107571"
+      },
+      {
+        "title": "Zhang & Nanda (2024), Towards Best Practices of Activation Patching in Language Models",
+        "url": "https://arxiv.org/abs/2309.16042"
+      }
+    ],
+    "demos": [
+      "probing-classifier",
+      "activation-patching",
+      "attention-rollout",
+      "saliency"
+    ]
+  }
+};

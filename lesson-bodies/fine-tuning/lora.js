@@ -1,0 +1,275 @@
+// GENERATED from content/lessons/fine-tuning/lora.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/fine-tuning/lora/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "lora": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "The previous lesson left a constraint table with one row unexplained: instead of choosing WHICH parameters may move, constrain the SHAPE of the update. LoRA's claim is that the update a fine-tune needs is intrinsically low-rank, so you can write it as a product of two thin matrices and train those instead. Freeze W, learn B and A with inner dimension r, and use W + BA. For a 4096 x 4096 projection at r = 8, that is 65,536 trainable numbers in place of 16.8 million - about 0.4%.",
+        "The premise was not a guess. Aghajanyan et al. had already measured the INTRINSIC DIMENSION of fine-tuning by restricting the update to a random low-dimensional subspace and asking how few dimensions still reached 90% of full fine-tuning's performance. For RoBERTa on several tasks the answer was in the low hundreds, out of hundreds of millions of parameters. And the larger the pretrained model, the SMALLER the intrinsic dimension - which is the counterintuitive part, and the reason the technique gets better rather than worse as models grow. LoRA replaced the random subspace with a learned one and made the whole thing practical.",
+        "Two properties make it the default rather than merely a good idea. First, B is initialized to ZERO, so BA = 0 at step 0 and the adapted model is EXACTLY the pretrained model - no shock from a random new module, which is the feature-distortion problem of the previous lesson solved by construction. Second, the update is a plain matrix, so after training you can ADD it into W and serve a model with identical architecture and identical latency. Adapters that insert layers cannot do that. Now name the proxy: LoRA's headline claim is parity with full fine-tuning on a set of ADAPTATION benchmarks - GLUE, WikiSQL, instruction tuning - and on those it holds up well. Biderman et al. later ran the same comparison on CONTINUED PRETRAINING in code and mathematics, where the model has to absorb material it does not already know, and found LoRA substantially behind, with the gap not closing as rank rose into the hundreds. They also found it forgot less. Those are not two findings. A constrained update learns less and destroys less, and which side of that you want is a property of your task, not of the method."
+      ],
+      "math": [
+        {
+          "h": "The low-rank update, and why it is free at inference",
+          "paras": [
+            "W0 is frozen. A is r x k, B is d x r, and only those two train. The forward pass is the original projection plus a detour through an r-dimensional bottleneck.",
+            "The second line is the property adapters do not have. Because the update is a matrix of the same shape as W0, it can be folded in after training - the deployed model has the original architecture, the original parameter count, and the original latency."
+          ],
+          "tex": "h = W_0 x + \\tfrac{\\alpha}{r} B A x, \\qquad B \\in \\mathbb{R}^{d\\times r},\\; A \\in \\mathbb{R}^{r\\times k},\\; r \\ll \\min(d,k) \\\\[4pt] \\text{merge: } W' = W_0 + \\tfrac{\\alpha}{r} BA \\;\\Rightarrow\\; \\text{zero added latency}",
+          "texNote": "A is initialized from a small random distribution and B is initialized to ZERO, so the product is zero and the model at step 0 is bit-for-bit the pretrained one. The gradient is still non-zero - dL/dA depends on B and dL/dB depends on A, and since A is non-zero the B gradient moves first - so training starts immediately but from an exact identity."
+        },
+        {
+          "h": "The parameter count, which is the entire commercial case",
+          "paras": [
+            "Compare what you store and optimize. The saving is a ratio of a sum to a product, so it grows as the matrices do - which is why LoRA gets more compelling at larger scale rather than less."
+          ],
+          "tex": "\\frac{|\\Delta W_{\\text{LoRA}}|}{|W|} = \\frac{r(d+k)}{dk} \\;\\xrightarrow{\\;d=k\\;}\\; \\frac{2r}{d}",
+          "texNote": "At d = k = 4096 and r = 8 this is 2(8)/4096, about 0.4%. Applied to a 7B model across all linear layers with r = 16, a typical adapter is tens of megabytes against 14 GB of weights. Combined with the 16-bytes-per-trainable-parameter accounting from the previous lesson, gradient and optimizer state effectively vanish - and that, not compute, is what LoRA buys."
+        },
+        {
+          "h": "The scaling factor, and the reason rsLoRA exists",
+          "paras": [
+            "The alpha/r factor is what lets you change r without re-tuning the learning rate: as r grows, more terms contribute to each output, so the sum is divided down. Except that the original 1/r is too aggressive.",
+            "Kalajdzievski's observation is that under 1/r the effective gradient scale COLLAPSES as rank rises, so higher-rank adapters silently learn less - which made the widely repeated 'higher rank does not help' result partly an artefact of the scaling rather than a fact about rank."
+          ],
+          "tex": "\\text{LoRA: } \\gamma_r = \\frac{\\alpha}{r} \\qquad\\text{vs}\\qquad \\text{rsLoRA: } \\gamma_r = \\frac{\\alpha}{\\sqrt{r}}",
+          "texNote": "The practical consequence you should carry into any experiment: alpha and r are NOT independent knobs. Doubling r while holding alpha fixed halves the effective update scale under the original rule, so a rank sweep at fixed alpha is confounded with a learning-rate sweep. Either scale alpha with r, or use the sqrt(r) rule, or you are not measuring what you think you are."
+        }
+      ],
+      "code": [
+        {
+          "h": "LoRALinear from scratch - the whole method is about twenty lines",
+          "paras": [
+            "There is no hidden machinery. A frozen linear layer, two small matrices, a scale, and a merge function. Writing it once removes most of the mystique and makes the failure modes obvious."
+          ],
+          "code": "class LoRALinear(nn.Module):\n    def __init__(self, base: nn.Linear, r: int = 8, alpha: int = 16, p: float = 0.0):\n        super().__init__()\n        self.base = base\n        for prm in self.base.parameters():\n            prm.requires_grad = False              # W0 is frozen, always\n        d, k = base.out_features, base.in_features\n        self.A = nn.Parameter(torch.empty(r, k))\n        self.B = nn.Parameter(torch.zeros(d, r))   # <- ZERO: BA = 0 at init\n        nn.init.kaiming_uniform_(self.A, a=math.sqrt(5))\n        self.scale = alpha / r\n        self.drop = nn.Dropout(p)\n        self.merged = False\n\n    def forward(self, x):\n        out = self.base(x)\n        if not self.merged:\n            out = out + self.drop(x) @ self.A.T @ self.B.T * self.scale\n        return out\n\n    @torch.no_grad()\n    def merge(self):\n        \"\"\"Fold the update into W0. After this the layer IS a plain nn.Linear.\"\"\"\n        self.base.weight += self.scale * (self.B @ self.A)\n        self.merged = True\n\n# WHY B = 0 AND NOT BOTH ZERO: if A and B were both zero, dL/dA ~ B = 0 and\n# dL/dB ~ A = 0, so nothing ever moves - a dead adapter. One of the two must\n# be non-zero to break the symmetry; zeroing B is the choice that also makes\n# the model at step 0 identical to the base.\n#\n# WHY THIS MATTERS: it is the feature-distortion problem from 13-01 solved by\n# construction. There is no random new module shocking the pretrained one.",
+          "caption": "The whole method. B = 0 makes the adapted model identical to the base at step 0; A must be non-zero or no gradient flows at all. merge() folds the update into W0, which is why LoRA adds zero inference latency and adapters do not."
+        },
+        {
+          "h": "Where to attach it, and how to sweep rank without fooling yourself",
+          "paras": [
+            "The two decisions that actually move results. The original paper attached LoRA to the attention query and value projections only - a choice made under a 2021 parameter budget - and much of the folklore about rank comes from that setting rather than from modern practice."
+          ],
+          "code": "# TARGET MODULES. In a transformer block the MLP holds about two thirds of\n# the parameters (8d^2 vs 4d^2 for attention), so attention-only LoRA leaves\n# most of the model unreachable.\n#\n#   q_proj, v_proj ................. the original paper's choice\n#   q,k,v,o ........................ all of attention\n#   q,k,v,o + gate,up,down ......... modern default; consistently better\n#                                    per trainable parameter on instruction\n#                                    tuning, and what QLoRA recommends\n#\n# RANK. The paper found r = 1 or 2 already competitive for q,v on GPT-3, and\n# its subspace-similarity analysis showed the top directions learned at r = 8\n# and r = 64 largely COINCIDE - the extra rank was mostly unused capacity.\n\n# THE CONFOUND that invalidates most casual rank sweeps:\nfor r in [4, 8, 16, 32, 64]:\n    cfg = LoraConfig(r=r, lora_alpha=16)     # <-- WRONG: alpha fixed\n    # effective scale = alpha/r, so r=64 trains at 1/16 the scale of r=4.\n    # You are sweeping the learning rate and calling it a rank sweep.\n\nfor r in [4, 8, 16, 32, 64]:\n    cfg = LoraConfig(r=r, lora_alpha=2 * r)  # hold alpha/r constant\n    # or use rsLoRA's alpha/sqrt(r), which keeps the gradient scale stable\n    # as r grows instead of collapsing it.\n\n# WHAT THE HONEST SWEEP SHOWS. On ADAPTATION tasks, rank saturates early -\n# the LoRA paper's finding survives. On CONTINUED PRETRAINING in a new\n# domain, Biderman et al. found LoRA behind full fine-tuning and the gap did\n# NOT close at ranks into the hundreds. Different regime, different answer.",
+          "caption": "Two decisions do the work: attach to the MLP as well as attention (it holds two thirds of the parameters), and hold alpha/r fixed when sweeping rank - otherwise the sweep is confounded with a learning-rate sweep and you will conclude that rank does not matter."
+        }
+      ],
+      "useCases": [
+        "Serving many fine-tunes from one base model - the property that made LoRA a product rather than a technique. Adapters are tens of megabytes, so thousands can sit in memory beside one copy of the weights, and systems like S-LoRA batch requests for DIFFERENT adapters together, which is impossible with full fine-tunes.",
+        "Fine-tuning a large model on a single consumer GPU, since the 14 of 16 bytes per parameter that are gradient and optimizer state apply only to the adapter. This is the ordinary path for anyone adapting a 7B-to-70B model outside a well-funded lab.",
+        "Style, format and behaviour adaptation - instruction following, tone, structured output, persona - where the model already has the capability and the fine-tune is teaching it which behaviour to select. This is the regime where the low-rank constraint costs least, and it is most fine-tuning in practice.",
+        "Rapid experimentation and rollback: adapters are small enough to version like configuration, compose or swap per request, and remove entirely by not loading them. Full fine-tunes are 14 GB artefacts with none of those properties."
+      ],
+      "pitfalls": [
+        "Sweeping rank at fixed alpha. The effective scale is alpha/r, so raising r lowers the update magnitude proportionally - your rank sweep is a learning-rate sweep in disguise, and it will tell you rank does not help. Hold alpha/r constant or use rsLoRA's alpha/sqrt(r).",
+        "Applying LoRA to attention only. That was a 2021 budget decision. The MLP holds roughly two thirds of a transformer block's parameters (8d^2 against 4d^2), so attention-only adapters leave most of the model untouched; targeting all linear layers is the modern default and generally better per trainable parameter.",
+        "Initializing both A and B to zero. Then dL/dA is proportional to B and dL/dB to A, both zero, and the adapter never moves. Exactly one must be non-zero - conventionally A random, B zero, which also makes the step-0 model identical to the base.",
+        "Merging an adapter into a quantized base and expecting it to be lossless. The merge is exact in the precision you do it in; folding a bf16 update into 4-bit weights requires dequantizing, adding, and requantizing, and the requantization error is not the training error you measured. Serve QLoRA adapters unmerged, or merge into the fp16 base.",
+        "Assuming LoRA equals full fine-tuning because a paper said so. That parity claim was made on ADAPTATION benchmarks. On continued pretraining in code and mathematics, Biderman et al. measured a substantial gap that higher rank did not close. Ask which regime you are in before inheriting the conclusion.",
+        "Losing track of which base a saved adapter belongs to. An adapter is meaningless without its exact base checkpoint, and the failure mode when they mismatch is degraded output rather than an error. Pin the base model revision in the adapter metadata.",
+        "Treating LoRA's reduced forgetting as free. It is the same property as reduced learning - a constrained update changes less of the model in both the directions you wanted and the ones you did not. If your task genuinely requires new knowledge, that trade is working against you."
+      ],
+      "connections": [
+        {
+          "ref": "fine-tuning/full-fine-tuning",
+          "text": "LoRA is one row of that lesson's constraint table - rank(Delta) <= r - and its memory case is that lesson's 16-bytes-per-trainable-parameter accounting applied to a 0.4% adapter."
+        },
+        {
+          "ref": "unsupervised-learning/pca",
+          "text": "Same underlying claim in a different setting: a high-dimensional object is well approximated in a few directions. The intrinsic-dimension measurement that motivated LoRA is the fine-tuning version of asking how many principal components you actually need."
+        },
+        {
+          "ref": "fine-tuning/qlora",
+          "text": "QLoRA is LoRA plus a 4-bit frozen base. It works precisely because the base is frozen and therefore never a gradient target, so its precision only has to suffice for a forward pass."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "The other way to make a large model fit. Quantization compresses the weights you have; LoRA compresses the update you are learning - they attack different terms and compose, which is the whole of QLoRA."
+        },
+        {
+          "ref": "fine-tuning/adapters",
+          "text": "The direct comparison. Bottleneck adapters insert layers and therefore add sequential depth at inference; LoRA's update merges into W and adds none. That difference, not accuracy, is why LoRA won."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is LoRA in one sentence?",
+          "a": "Freeze the pretrained weight W0 and learn a low-rank update BA with inner dimension r, so h = W0 x + (alpha/r) BA x and only B and A train."
+        },
+        {
+          "q": "How many parameters does a LoRA layer add?",
+          "a": "r(d + k) against dk for the full matrix. At d = k = 4096 and r = 8 that is about 0.4%."
+        },
+        {
+          "q": "How are A and B initialized and why?",
+          "a": "A random, B zero. So BA = 0 and the model at step 0 is exactly the base. Both zero would be a dead adapter, since each one's gradient is proportional to the other."
+        },
+        {
+          "q": "Why does LoRA add no inference latency?",
+          "a": "The update is a matrix of the same shape as W0, so after training you can fold it in: W' = W0 + (alpha/r)BA. The deployed model has the original architecture and latency."
+        },
+        {
+          "q": "What is the intrinsic-dimension result behind LoRA?",
+          "a": "Aghajanyan et al. showed fine-tuning restricted to a random subspace of a few hundred dimensions reaches ~90% of full fine-tuning, and that larger pretrained models have SMALLER intrinsic dimension."
+        },
+        {
+          "q": "What does alpha do?",
+          "a": "It sets the update scale through the factor alpha/r, which is what lets you change r without re-tuning the learning rate. It is not independent of r."
+        },
+        {
+          "q": "What is rsLoRA?",
+          "a": "Scale by alpha/sqrt(r) instead of alpha/r. Under the original rule the effective gradient scale collapses as rank rises, so high-rank adapters silently underperform."
+        },
+        {
+          "q": "Which modules should LoRA target?",
+          "a": "All linear layers, including the MLP. The original paper used only q and v projections, but the MLP holds about two thirds of a block's parameters."
+        },
+        {
+          "q": "Does LoRA make training faster?",
+          "a": "Barely. It cuts memory - gradients and optimizer state - but you still run the full forward pass and still backpropagate through the frozen layers to reach the adapter."
+        },
+        {
+          "q": "What did Biderman et al. (2024) find?",
+          "a": "LoRA learns less and forgets less. On continued pretraining in code and maths it trailed full fine-tuning substantially, and higher rank did not close the gap; on instruction tuning it was much closer."
+        },
+        {
+          "q": "Why is LoRA good for serving many fine-tunes?",
+          "a": "Adapters are tens of megabytes, so thousands fit beside one base model, and systems like S-LoRA can batch requests for different adapters together. Full fine-tunes are separate multi-gigabyte models."
+        },
+        {
+          "q": "What breaks when you merge a LoRA into a quantized base?",
+          "a": "You must dequantize, add, and requantize; the requantization error is not the error you measured during training. Serve unmerged, or merge into the fp16 base."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain LoRA end to end - the motivation, the mechanism, and what it costs.",
+          "a": "THE MOTIVATION IS A MEASUREMENT, not an intuition. Aghajanyan et al. asked how many dimensions fine-tuning actually needs: restrict the update to a random d-dimensional subspace and find the smallest d reaching 90% of full fine-tuning. For RoBERTa the answer was in the low hundreds out of hundreds of millions of parameters, and - the striking part - the LARGER the pretrained model, the smaller that number. So the update a fine-tune needs is intrinsically tiny, and the only reason full fine-tuning materializes all of it is that nobody had a practical way to constrain it. LoRA's contribution is replacing the random subspace with a LEARNED one. THE MECHANISM. Freeze W0. Learn B (d x r) and A (r x k), and compute h = W0 x + (alpha/r) B A x. Only B and A carry gradients. A is initialized randomly, B to ZERO, so the product is zero and the model at step 0 is bit-for-bit the base model - which is not cosmetic: it solves the feature-distortion problem from the previous lesson by construction, because there is no randomly-initialized module shocking the pretrained one. Both zero would not work, since dL/dA is proportional to B and dL/dB to A, so the adapter would never move; exactly one must break the symmetry. WHAT IT COSTS AND SAVES. The parameter ratio is r(d+k)/dk, about 0.4% at d = k = 4096, r = 8. Combined with the sixteen-bytes-per-trainable-parameter accounting, gradients and optimizer state effectively disappear, which is what lets a 7B fine-tune fit on one consumer GPU. It does NOT make training much faster - the full forward pass still runs and gradients still flow back through every frozen layer to reach the adapters. Memory is the win; compute is roughly unchanged. THE PROPERTY THAT MADE IT WIN. The update has the same shape as W0, so you can MERGE it: W' = W0 + (alpha/r)BA, and serve a model with the original architecture and identical latency. Bottleneck adapters, which insert layers, cannot do this and pay a permanent latency cost. Equally, keeping adapters unmerged makes multi-tenant serving possible - thousands of small adapters beside one base, with systems like S-LoRA batching across different adapters in one pass. THE HONEST BOUNDARY. The parity-with-full-fine-tuning claim was measured on ADAPTATION benchmarks and holds there. Biderman et al. ran the same comparison on continued pretraining in code and mathematics and found LoRA clearly behind, with the gap not closing at ranks into the hundreds - while also forgetting less of the base model's other abilities. Those are one property seen twice: a constrained update changes less, in the directions you wanted and the ones you did not. Which side you want depends on whether the task needs the model to know something new or to behave differently, and most production fine-tuning is the latter.",
+          "deepDive": {
+            "q": "Someone reports that increasing LoRA rank from 8 to 64 made their results worse. What do you check first, and what does the answer imply?",
+            "a": "FIRST CHECK, and it explains this most of the time: did they hold alpha fixed? The update is scaled by alpha/r. Going from r = 8 to r = 64 at constant alpha divides the effective update magnitude by eight. They did not run a rank sweep; they ran a learning-rate sweep with the rate falling as rank rose, and 'higher rank is worse' is the expected result of that experiment regardless of what rank does. THE FIX is to hold alpha/r constant - set alpha = 2r, say - or adopt rsLoRA's alpha/sqrt(r). Kalajdzievski's argument is that even a constant alpha/r is wrong: as r grows, the sum over r terms concentrates and the gradient scale that reaches the adapter collapses, so 1/r over-damps. The sqrt(r) rule keeps the update's scale stable in r, and under it higher ranks train properly rather than silently stalling. WHY THIS MATTERS BEYOND THE BUG. A large share of the received wisdom that 'rank barely matters, use 8' comes from sweeps with this confound. The LoRA paper's own subspace-similarity analysis is better evidence for the claim - it showed the top singular directions learned at r = 8 and r = 64 largely coincide, meaning the extra rank was genuinely unused rather than mis-scaled - but that was on adaptation tasks. SECOND CHECK: what is the task? If they are doing continued pretraining on a new domain rather than adaptation, the expected shape is the opposite - low rank should be the binding constraint - and if they still see no gain from rank, something else is wrong: probably that they are targeting attention only, so two thirds of the parameters are unreachable at any rank. THIRD CHECK: overfitting. Higher rank is more capacity; on a small dataset the extra capacity fits the training set and the validation number moves the wrong way. This is diagnosable in one look at the training-versus-validation curves and is a real cause rather than an artefact. WHAT I WOULD TAKE AWAY. The general lesson is that alpha and r are coupled, and any hyperparameter sweep over one member of a coupled pair, with the other held fixed, measures the coupling rather than the parameter. That pattern is not specific to LoRA - it is the same error as sweeping batch size at fixed learning rate - and noticing it is most of the skill."
+          }
+        },
+        {
+          "q": "When would you NOT use LoRA?",
+          "a": "FOUR CASES, and they follow from what the constraint actually is. CASE 1: THE MODEL MUST LEARN GENUINELY NEW MATERIAL. Continued pretraining on a low-resource language, a proprietary code dialect, a scientific domain with its own notation. Biderman et al. measured this directly: on code and mathematics continued pretraining, LoRA trailed full fine-tuning substantially and raising rank into the hundreds did not close it. The low-rank constraint is a real constraint and this is where it binds. The distinction I would draw is between teaching the model to KNOW something and teaching it to DO something - LoRA is excellent at the second. CASE 2: THE MODEL IS SMALL. The entire case for PEFT is that 16 bytes per parameter is fatal at 7B and up. At 100M parameters full fine-tuning needs about 1.6 GB of state and there is nothing to solve; LoRA adds an abstraction, a merge step, and a hyperparameter pair for no benefit. Much PEFT advice is implicitly about large models and gets applied to small ones with the premise dropped. CASE 3: YOU NEED TO CHANGE STRUCTURE, not weights. Extending the vocabulary, resizing embeddings, changing positional encoding for longer context, adding a modality. LoRA modifies existing linear layers; it does not help you add or reshape them. In practice these fine-tunes are hybrids - full training of the new embedding rows, LoRA elsewhere. CASE 4: ONE MODEL, MAXIMUM QUALITY, NO MEMORY CONSTRAINT. Much of LoRA's practical value is multi-tenant serving and single-GPU training. If you deploy exactly one model and have the hardware, those are worth nothing to you and you should take whatever the unconstrained update gives. A FIFTH THING I WOULD MENTION. Even when I intend to ship LoRA, I want the unconstrained fine-tune run once at whatever scale I can afford, purely as a CEILING. Otherwise 'LoRA matched full fine-tuning' is a claim I inherited from a paper about a different task, and the whole point of this module is not doing that."
+        },
+        {
+          "q": "How does LoRA change how you SERVE fine-tuned models?",
+          "a": "This is where LoRA stopped being a training trick and became infrastructure, and it is the part interviewers most often find under-explained. THE PROBLEM IT SOLVES. With full fine-tuning, N customers means N complete models. At 14 GB each you fit one or two per GPU, you cannot batch across customers because they are different models, and utilization is terrible - most adapters serve occasional traffic while occupying a whole accelerator. THE LORA PICTURE. One copy of the base weights, plus N adapters at tens of megabytes. A thousand adapters is tens of gigabytes of adapter against 14 GB of base, so they all fit in host memory and the hot ones fit on device. THE KEY TRICK, and the reason this is not obvious: you must serve UNMERGED. If you merge, you are back to N models. Unmerged, the forward pass is h = W0 x + (alpha/r) B_i A_i x for request i, and the W0 x term is SHARED ACROSS THE WHOLE BATCH regardless of which adapter each request uses. Only the small BA detour is per-request. So you can batch requests for DIFFERENT fine-tunes into one forward pass - which is impossible with any other adaptation method. Systems like S-LoRA and Punica implement exactly this, with custom kernels for the batched heterogeneous low-rank term and paging of adapters between host and device. WHAT IT COSTS. Serving unmerged is slower per token than serving merged, because you pay the extra BA matmuls and they are small, awkwardly-shaped operations that use the accelerator poorly. So there is a genuine decision: merge for a single high-traffic adapter where latency dominates; keep unmerged for the long tail where utilization dominates. Many production systems do both. THE COMPARISON THAT MAKES THE POINT. Bottleneck adapters cannot be merged at all - they insert layers - so they pay the latency cost permanently AND, because their operation is sequential rather than an additive side path, they are harder to batch heterogeneously. Prompt tuning is even better on the serving axis (the per-task state is just some prefix embeddings, trivially batched) but worse on quality and stability. That three-way trade - merge-ability, batch-ability, quality - is the real comparison table for PEFT methods, and accuracy on a saturated benchmark is not.",
+          "deepDive": {
+            "q": "Walk through what actually happens in a batched heterogeneous-adapter forward pass. Where does the efficiency come from, and where does it go?",
+            "a": "SETUP. A batch of B requests, each tagged with an adapter index. The base weight W0 is one shared tensor; adapters are stored as a stacked tensor of A's (B x r x k, gathered per request) and B's. THE SHARED PART. h_base = X W0^T is a single dense GEMM over the whole batch - the same operation you would run with no adapters at all, at full arithmetic intensity, and it is the overwhelming majority of the FLOPs. This is where the efficiency comes from: the expensive part of the model is adapter-independent, so heterogeneity costs nothing there. THE PER-REQUEST PART. Each request needs (alpha/r) B_i A_i x_i with its own matrices. Implemented naively that is a Python loop of B tiny matmuls - terrible. The systems work is in doing it as a single batched operation: gather the relevant A and B slices, and run a grouped or segmented GEMM (Punica's SGMV kernel is the well-known instance) that computes all B low-rank detours in one launch. WHERE THE EFFICIENCY GOES. Three places. (1) ARITHMETIC INTENSITY. These are r-dimensional operations with r around 8 to 64. They are memory-bound - you move the adapter weights and do almost no arithmetic per byte - so they run far below peak, and their cost is closer to their memory traffic than their FLOP count suggests. (2) ADAPTER RESIDENCY. With enough distinct adapters in flight, you page them from host memory, and PCIe transfer can dominate. Hence adapter caching and admission policies - the same shape of problem as KV-cache management. (3) RAGGED BATCHES. If the batch contains many distinct adapters with one request each, the grouped GEMM degenerates toward the naive loop. Throughput is best when a modest number of adapters are hot, and worst on a perfectly uniform long tail. THE DESIGN CONSEQUENCE. This is why r is a SERVING parameter as well as a quality one - it directly sets the per-request memory traffic - and why production systems often standardize on one rank across all tenants, so the batched kernel has a uniform shape. It is also why a merged single-tenant deployment can still be the right answer: if one adapter takes 90% of traffic, merge it and serve the tail unmerged. THE GENERAL POINT. The trick works because LoRA's update is an ADDITIVE SIDE PATH rather than a modification of the shared computation. Any adaptation method with that structure inherits the property; any method that changes the main path - bottleneck adapters, modified attention, extra layers - does not. Structure, not accuracy, decided which PEFT method became infrastructure."
+          }
+        },
+        {
+          "q": "Is LoRA a regularizer? Argue both sides.",
+          "a": "It behaves like one and it is worth being precise about how, because the loose version of this claim leads people astray. THE CASE THAT IT IS. LoRA restricts the update to a rank-r subspace, which is a hard constraint on the hypothesis class - strictly smaller than full fine-tuning's. It keeps the adapted weights close to the pretrained ones, since the update's magnitude is bounded by what a thin product can express at the learning rates used. Empirically it shows all the signatures: better relative performance on small datasets, worse on large ones, and Biderman et al.'s direct measurement that it FORGETS LESS of the base model's other abilities than full fine-tuning does. They also report it maintains more diverse generations, which is the classic 'stayed nearer the prior' signature. Under the standard framing, the pretrained model is a prior and LoRA constrains you to a neighbourhood of it, which is exactly what a regularizer does. THE CASE THAT THE FRAMING MISLEADS. A regularizer usually implies a bias-variance trade you can tune toward the sweet spot: dial the strength, find the optimum. LoRA's constraint is not that. It is a constraint on the SHAPE of the update, not its magnitude, and rank is a poor proxy for strength - the paper's own subspace analysis found the directions learned at r = 8 and r = 64 largely coincide, so raising rank often adds nothing rather than smoothly relaxing the constraint. Meanwhile weight decay, dropout and early stopping are all still available and are actual strength knobs. More importantly, calling it a regularizer suggests the constraint costs nothing when the data is small and everything is fine - but the continued-pretraining result shows a regime where the constraint costs a lot and MORE DATA DOES NOT HELP, because the limitation is expressive rather than statistical. That is not what a regularizer does. WHAT I WOULD ACTUALLY SAY. LoRA has a regularizing EFFECT, arising from proximity to the pretrained weights rather than from rank per se - which is why the effect largely survives at high rank, and why methods that explicitly penalize distance from the base (KL anchoring in RLHF, L2-to-base, WiSE-FT's interpolation) produce a similar benefit without any rank constraint. The useful operational statement is Biderman's: learns less, forgets less, one property. If forgetting is your binding concern, that is a feature you can rely on. If capability acquisition is, it is the cost, and no amount of rank buys your way out."
+        },
+        {
+          "q": "How would you set up an experiment to decide whether LoRA is good enough for your task?",
+          "a": "The point of the experiment is to measure what the constraint COST, so it has to include the unconstrained run. Everything else follows from that. THE ARMS. (1) Base model, zero-shot and few-shot - the floor, and it decides whether fine-tuning is warranted at all. (2) Full fine-tuning, at whatever scale I can afford; if the target model is too large, run it on a smaller model of the same family and treat the LoRA-to-full gap there as an estimate. (3) LoRA at two or three ranks with alpha/r held constant, targeting all linear layers. (4) Optionally LP-FT-style staging, since the same random-head logic applies to any new head. THE EVALUATION, which matters more than the arms. Three columns, always. IN-DISTRIBUTION on a properly deduplicated, ideally time-based split of the fine-tuning data. OUT-OF-DISTRIBUTION on something the fine-tuning data did not generate - production traffic if I have it. And a PRE-DECLARED CAPABILITY SUITE run on the base model before anything, re-run on every arm, to price the forgetting. Without the third column I cannot see LoRA's main advantage, and without the second I will pick whichever arm has the most trainable parameters. THE HYPERPARAMETER DISCIPLINE. Tune the learning rate separately per arm - LoRA's optimum is typically an order of magnitude higher than full fine-tuning's (1e-4 versus 1e-5 is a common pairing), and comparing them at a shared rate is a very common way to make a method look bad. Hold alpha/r fixed across ranks. Fix the data, the number of epochs, and the seed across arms, and run more than one seed if the differences are small, because fine-tuning variance on modest datasets is routinely larger than the effects being compared. THE DECISION RULE, written down in advance. If LoRA is within a pre-stated tolerance in distribution, no worse out of distribution, and better on the capability suite, ship LoRA - and note that the third condition is where it usually wins outright. If it trails materially in distribution, the diagnostic question is which REGIME I am in: an adaptation task where I should check target modules and learning rate before blaming rank, or a knowledge-acquisition task where the constraint is genuinely binding and no LoRA configuration will fix it. THE COST OF SKIPPING THIS. Without the full-fine-tuning arm, 'LoRA was fine' is not a measurement, it is a transfer of a conclusion from a paper about a different task - and this module exists because that transfer fails often enough to be worth one extra training run."
+        },
+        {
+          "q": "How do LoRA, bottleneck adapters, and prompt tuning compare?",
+          "a": "They differ in WHERE the update lives, and every practical consequence follows from that one fact rather than from accuracy. WHERE THE UPDATE LIVES. LoRA: an additive low-rank term on existing weight matrices, h = W0 x + (alpha/r)BA x. Bottleneck adapters: new small down-project-nonlinearity-up-project modules inserted INSIDE each block, in the residual stream. Prompt and prefix tuning: learned continuous vectors prepended to the input or to the keys and values at every layer - the weights are untouched entirely. MERGE-ABILITY. LoRA merges into W0 and adds exactly zero inference latency. Adapters cannot - they are extra sequential operations in the forward path, and Houlsby-style adapters cost real latency, which matters most at small batch sizes where you are latency-bound rather than throughput-bound. Prompt tuning adds no parameters to the network but consumes CONTEXT LENGTH, which is its own cost and grows with sequence handling. BATCHING ACROSS TASKS. LoRA is an additive side path, so the expensive shared W0 x term is task-independent and requests using different adapters batch together in one pass - this is what S-LoRA exploits and it is LoRA's decisive practical advantage. Adapters modify the main path sequentially and are much harder to batch heterogeneously. Prompt tuning is trivially batchable, since different prefixes are just different tokens, which makes it the best of the three on this axis. PARAMETER COUNT. All three are small; prompt tuning is by far the smallest (thousands of parameters), adapters and LoRA are comparable at typical settings. SCALE DEPENDENCE, which is the one people miss. Prompt tuning is strongly scale-dependent - it is weak below roughly 1B parameters and reaches full-fine-tuning parity only around 10B and above - so a small-model experiment will tell you it does not work. LoRA and adapters work across scales. Prompt tuning is also the most optimization-unstable of the three. WHY LORA WON. Not accuracy. Unified benchmark comparisons find these methods broadly comparable on adaptation tasks once each is tuned, which is itself informative - the accuracy axis is saturated and therefore not the deciding one. LoRA won because it merges to zero latency, batches heterogeneously, has two comprehensible hyperparameters, and requires no architectural surgery. That is a systems argument, and recognizing that the deciding argument was a systems argument is the answer I would want to give."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "The LoRA forward pass and merge",
+        "back": "h = W0 x + (alpha/r) B A x, with B in R^(d x r), A in R^(r x k), r << min(d,k). Merge: W' = W0 + (alpha/r)BA - which is why LoRA adds zero inference latency."
+      },
+      {
+        "type": "pitfall",
+        "front": "A rank sweep at fixed alpha is a learning-rate sweep",
+        "back": "The scale is alpha/r, so r: 8 -> 64 at constant alpha divides the update by 8. Hold alpha/r constant (alpha = 2r) or use rsLoRA's alpha/sqrt(r). Much of 'rank does not matter' folklore comes from this confound."
+      },
+      {
+        "type": "intuition",
+        "front": "Why B = 0 and A random",
+        "back": "BA = 0 at init, so the step-0 model is bit-for-bit the base - the feature-distortion problem solved by construction. Both zero would be dead: dL/dA ~ B and dL/dB ~ A, so nothing moves. Exactly one must break the symmetry."
+      },
+      {
+        "type": "definition",
+        "front": "Intrinsic dimension of fine-tuning",
+        "back": "Aghajanyan et al.: restricting the update to a random subspace of a few HUNDRED dimensions reaches ~90% of full fine-tuning on RoBERTa - and larger pretrained models have SMALLER intrinsic dimension. LoRA learns the subspace instead of sampling it."
+      },
+      {
+        "type": "formula",
+        "front": "LoRA parameter ratio",
+        "back": "r(d+k)/dk, which for d=k is 2r/d. At d=4096, r=8: ~0.4%. The saving is a sum over a product, so it grows with model size - LoRA gets better at scale, not worse."
+      },
+      {
+        "type": "pitfall",
+        "front": "LoRA on attention only leaves most of the model unreachable",
+        "back": "A transformer block's MLP is ~8d^2 parameters against attention's ~4d^2 - two thirds of the block. The original paper's q,v-only choice was a 2021 budget decision; target all linear layers."
+      },
+      {
+        "type": "intuition",
+        "front": "LoRA learns less and forgets less",
+        "back": "Biderman et al. 2024: substantially behind full FT on continued pretraining in code/maths (gap does NOT close at high rank), closer on instruction tuning, and it preserves base capabilities better. One property, seen twice - a constrained update changes less in every direction."
+      },
+      {
+        "type": "definition",
+        "front": "Why LoRA enables multi-tenant serving",
+        "back": "Serve UNMERGED: W0 x is shared across the whole batch and only the small BA detour is per-request, so requests for DIFFERENT adapters batch into one forward pass. Impossible for any method that modifies the main path. This is what S-LoRA/Punica exploit."
+      },
+      {
+        "type": "pitfall",
+        "front": "PEFT saves memory, not compute",
+        "back": "The full forward pass still runs and gradients still flow back THROUGH every frozen layer to reach the adapters. Only the 14-of-16 bytes that are grads + optimizer state disappear. LoRA's headline is GPU memory, never training speed."
+      },
+      {
+        "type": "formula",
+        "front": "rsLoRA",
+        "back": "Scale by alpha/sqrt(r), not alpha/r. Under 1/r the effective gradient scale collapses as rank grows, so high-rank adapters silently under-train - making 'higher rank does not help' partly an artefact of the scaling rule."
+      },
+      {
+        "type": "pitfall",
+        "front": "Merging into a quantized base is not lossless",
+        "back": "You must dequantize, add, requantize - and the requantization error is not the error you measured in training. Serve QLoRA adapters unmerged, or merge into the fp16 base and requantize deliberately."
+      },
+      {
+        "type": "intuition",
+        "front": "Why LoRA beat adapters - it was a systems argument",
+        "back": "Accuracy is comparable once each is tuned. LoRA won on structure: it merges to zero latency, it is an ADDITIVE SIDE PATH so heterogeneous requests batch, and it needs no architectural surgery. Adapters insert sequential layers and can do none of that."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Hu et al. (2021), LoRA: Low-Rank Adaptation of Large Language Models",
+        "url": "https://arxiv.org/abs/2106.09685"
+      },
+      {
+        "title": "Aghajanyan et al. (2020), Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning",
+        "url": "https://arxiv.org/abs/2012.13255"
+      },
+      {
+        "title": "Biderman et al. (2024), LoRA Learns Less and Forgets Less",
+        "url": "https://arxiv.org/abs/2405.09673"
+      },
+      {
+        "title": "Kalajdzievski (2023), A Rank Stabilization Scaling Factor for Fine-Tuning with LoRA (rsLoRA)",
+        "url": "https://arxiv.org/abs/2312.03732"
+      },
+      {
+        "title": "Sheng et al. (2023), S-LoRA: Serving Thousands of Concurrent LoRA Adapters",
+        "url": "https://arxiv.org/abs/2311.03285"
+      }
+    ],
+    "demos": [
+      "lora",
+      "pca",
+      "quantization",
+      "pruning"
+    ]
+  }
+};

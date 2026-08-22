@@ -1,0 +1,289 @@
+// GENERATED from content/lessons/mlops/monitoring.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/mlops/monitoring/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "monitoring": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Monitoring is the seam between DEPLOYMENT AND REALITY, and it is the one where the industry has built the most machinery around the wrong quantity. A drift detector monitors P(x). Your alert says the model may be degraded. Those are different things, and they come apart in both directions.",
+        "Measured on the same model: a covariate shift moving ten of twenty input features by a full standard deviation produced a Bonferroni-corrected p-value that underflowed to zero with ten features flagged - a maximal alarm - while accuracy sat at 0.7446 against a baseline of 0.7506. Then a concept shift that left P(x) EXACTLY unchanged took accuracy to 0.3375, worse than chance, and every detector stayed quiet.",
+        "And it is not a tooling gap. On that concept shift the mean confidence was 0.7473 against a control's 0.7466, a KS test on the predicted scores gave p = 0.911, and a domain classifier scored AUC 0.5223. EVERY UNLABELLED SIGNAL WAS BLIND, because the model saw exactly the inputs it was trained on and responded exactly as before. Only the labels moved, so only labels can see it - which makes a labelling budget a monitoring component rather than a nice-to-have."
+      ],
+      "math": [
+        {
+          "h": "★ The detector fires when nothing is wrong",
+          "paras": [
+            "Under pure covariate shift with a well-specified model the optimal predictor is unchanged, so the alarm is correct about P(x) and irrelevant to the decision it triggers."
+          ],
+          "tex": "\\begin{array}{lrl} \\text{shift} & \\text{accuracy} & \\text{Bonferroni } p\\\\ 0.0 & 0.7437 & 6.5\\times10^{-1}\\ \\text{quiet}\\\\ 0.3 & 0.7429 & 3.2\\times10^{-156}\\ \\textbf{ALARM}\\\\ 1.0 & 0.7446 & 0.0\\ \\textbf{ALARM} \\end{array}",
+          "texNote": "Baseline accuracy 0.7506. Ten of twenty features flagged, p-values underflowing, and accuracy varying by less than one point across every row."
+        },
+        {
+          "h": "★ And is silent when everything is",
+          "paras": [
+            "Concept shift with the input distribution held bit-for-bit identical. The p-value is the same in every row because the inputs are the same in every row."
+          ],
+          "tex": "\\begin{array}{lrl} \\text{concept flip} & \\text{accuracy} & \\text{Bonferroni } p\\\\ 0.00 & 0.7453 & 3.8\\times10^{-1}\\ \\text{quiet}\\\\ 0.50 & 0.5448 & 3.8\\times10^{-1}\\ \\text{quiet}\\\\ 1.00 & \\mathbf{0.3375} & 3.8\\times10^{-1}\\ \\textbf{quiet} \\end{array}",
+          "texNote": "And no other unlabelled monitor sees it either: mean confidence 0.7473 against a control's 0.7466, KS on predicted scores p = 0.911, domain-classifier AUC 0.5223. This is information-theoretic, not a gap in the tooling."
+        },
+        {
+          "h": "Uncorrected per-feature testing is an alarm generator",
+          "paras": [
+            "At production sample sizes every difference is significant, and a wide feature table multiplies the opportunities."
+          ],
+          "tex": "\\text{A/A, IDENTICAL distributions, } \\alpha=0.01: \\quad 10 \\to 0,\\quad 200 \\to 1,\\quad 1000 \\to \\mathbf{6}\\ \\text{features flagged}",
+          "texNote": "Six true nulls flagged on a thousand features with no shift whatsoever. Teams learn the dashboard is noise, which is the worst outcome because the one alarm that matters is ignored too."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ What to build, in priority order",
+          "paras": [
+            "The ordering is close to the reverse of how monitoring stacks are usually assembled."
+          ],
+          "code": "# 1 A CONTINUOUS RANDOM LABELLED SAMPLE\n#     a few hundred uniformly-sampled production cases labelled per week\n#     bounds accuracy to a couple of points and is the ONLY thing that\n#     detects concept shift. Stratify by the segments decisions partition\n#     on. ★ the sample must be RANDOM - labelling low-confidence cases\n#     gives a biased, pessimistic estimate (and human-reviewed cases are\n#     selection-biased, which is module 23's collider)\n\n# 2 PIPELINE INTEGRITY, written as INVARIANTS not statistical tests\n#     null rates, cardinality, ranges, schema, freshness, row counts\n#     -> these fire on real bugs, have low false-positive rates, and catch\n#        the failures that do the most damage fastest\n\n# 3 OUTPUT AND CONFIDENCE MONITORING, with EFFECT-SIZE thresholds\n#     score distribution, prediction rate, conformal set size\n#     -> a cheap early hint, explicitly NOT a performance metric\n\n# 4 PROXY OUTCOMES - weak labels arriving free and continuously\n#     correction rate, escalation rate, appeal rate, retry, abandonment\n#     -> often the earliest real signal of degradation\n\n# ★ NOT FIRST: a per-feature statistical drift dashboard over a wide table.",
+          "caption": "Items two and four are the ones that earn their keep daily; item one is the only one that can see the failure that matters most."
+        },
+        {
+          "h": "Making the alarms mean something",
+          "paras": [
+            "Four rules that convert a noise generator into a system people act on."
+          ],
+          "code": "# CORRECT FOR MULTIPLICITY, or monitor one multivariate statistic\n#   1000 features at raw alpha=0.01 flags ~6 on IDENTICAL distributions\n\n# ALERT ON EFFECT SIZE, NOT p-VALUES\n#   at production n everything is significant and almost nothing matters\n\n# PRUNE FEATURES THE MODEL DOES NOT USE\n#   drift in an unused feature is not a finding, and it is roughly half\n#   of most drift dashboards\n\n# TIE EVERY ALERT TO A DECISION before creating it\n#   which model consumes this, what would you do differently, who is paged\n#   -> alerts failing that test become a dashboard nobody is paged for\n\n# ★ AND RE-DERIVE ON EVERY RETRAIN: the calibration temperature, any\n#   conformal calibration set, tuned thresholds and the monitoring\n#   BASELINES themselves are properties of the model-plus-distribution\n#   pair. A threshold set for 700 alerts/day silently becomes 2,000.",
+          "caption": "The re-derivation step is a half-day of pipeline work that prevents a category of failure whose symptom appears weeks after its cause."
+        }
+      ],
+      "useCases": [
+        "Deciding when to retrain, where the honest trigger is a labelled performance estimate and an input monitor is at best a cheap early hint.",
+        "Catching pipeline breaks - a feature silently null, a unit change, an upstream schema migration - which is what input monitoring is genuinely excellent at.",
+        "Detecting a provider model update, where a third-party version change is a concept shift with your inputs completely unchanged and every unlabelled monitor green.",
+        "Sizing a labelling budget, since a few hundred random production cases a week bounds accuracy better than any unlabelled stack."
+      ],
+      "pitfalls": [
+        "Treating a drift alarm as a performance alarm. A maximal covariate-shift alarm accompanied accuracy of 0.7446 against a 0.7506 baseline - a difference of six tenths of a point.",
+        "Treating drift silence as reassurance. Concept shift drove accuracy to 0.3375 with the detector's p-value identical to the no-shift case in every row.",
+        "Believing a better unlabelled monitor exists for concept shift. Mean confidence, prediction rate, score distribution and a domain classifier were all at control values while accuracy collapsed.",
+        "Running uncorrected per-feature tests on a wide table. Six of a thousand features flagged at alpha 0.01 on identical distributions, which trains everyone to ignore the dashboard.",
+        "Alerting on p-values at production sample sizes, where every difference is significant and the question is whether it is large enough to matter.",
+        "Labelling the cases the model was least confident about. That gives a biased, pessimistic estimate; a small uniform random sample beats a large convenience sample.",
+        "Not re-deriving downstream artifacts after a retrain. Calibration, conformal calibration sets, tuned thresholds and monitoring baselines are all properties of the model-plus-distribution pair and go silently stale."
+      ],
+      "connections": [
+        {
+          "ref": "trustworthy-ai/distribution-shift",
+          "text": "The full treatment of the three shifts and the information-theoretic reason no unlabelled statistic detects a concept change."
+        },
+        {
+          "ref": "mlops/model-serving",
+          "text": "Where the production parity check lives - replaying logged serving traffic through the training pipeline is a monitoring job."
+        },
+        {
+          "ref": "trustworthy-ai/conformal-prediction",
+          "text": "Set size as an unlabelled monitoring signal, and the exchangeability assumption that shift invalidates silently."
+        },
+        {
+          "ref": "causal-inference/ab-testing",
+          "text": "Why the labelled sample must be random, and the sizing arithmetic that says a few hundred a week is enough."
+        },
+        {
+          "ref": "mlops/cicd",
+          "text": "Where the retrain trigger and the re-derivation of downstream artifacts are enforced rather than remembered."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does a drift detector monitor?",
+          "a": "P(x). Your alert says the model may be degraded. Those are different quantities and they come apart in BOTH directions."
+        },
+        {
+          "q": "★ Give the covariate-shift result.",
+          "a": "Ten of twenty features shifted 1σ: Bonferroni p underflowed to **0**, ten features flagged — and accuracy was **0.7446** against a 0.7506 baseline."
+        },
+        {
+          "q": "★ Give the concept-shift result.",
+          "a": "P(x) held identical: accuracy 0.7453 → 0.5448 → **0.3375** (below chance), with the detector's p-value **3.8e-01 in every row**."
+        },
+        {
+          "q": "Does any unlabelled monitor see it?",
+          "a": "No. Mean confidence 0.7473 (control 0.7466), KS on predicted scores p=0.911, domain-classifier AUC 0.5223 — all at control while accuracy collapsed."
+        },
+        {
+          "q": "Why is that not a tooling gap?",
+          "a": "Information-theoretic. The model saw exactly its training inputs and responded exactly as before. Only the labels moved, so only labels can see it."
+        },
+        {
+          "q": "What does that imply for budget?",
+          "a": "A labelling budget is a MONITORING COMPONENT, not a nice-to-have. A few hundred random production cases a week bounds accuracy to a couple of points."
+        },
+        {
+          "q": "Why must the labelled sample be random?",
+          "a": "Labelling low-confidence cases gives a biased, pessimistic estimate; human-reviewed cases are selection-biased — module 23's collider. A small uniform sample beats a large convenience one."
+        },
+        {
+          "q": "★ What do uncorrected per-feature tests produce?",
+          "a": "False alarms: **6 of 1000 features flagged at α=0.01 on IDENTICAL distributions**. Teams learn the dashboard is noise — so the one alarm that matters is ignored too."
+        },
+        {
+          "q": "p-value or effect size?",
+          "a": "Effect size. At production n everything is statistically significant and almost nothing is important."
+        },
+        {
+          "q": "What is input monitoring genuinely good for?",
+          "a": "PIPELINE BREAKS — a feature silently null, cents→dollars, a schema migration. Write them as INVARIANTS, not statistical tests: low false-positive rate, fastest-damaging failures."
+        },
+        {
+          "q": "Name the free weak labels.",
+          "a": "Correction rate, escalation rate, appeal rate, retry, abandonment. High-volume, continuous, and often the earliest real degradation signal."
+        },
+        {
+          "q": "★ What must be re-derived on every retrain?",
+          "a": "Calibration temperature, conformal calibration set, tuned thresholds, and the monitoring BASELINES. All are properties of the model-plus-distribution pair. A threshold set for 700 alerts/day silently becomes 2,000."
+        }
+      ],
+      "standard": [
+        {
+          "q": "What would you actually build for production monitoring?",
+          "a": "FOUR LAYERS, IN ROUGHLY THE REVERSE ORDER OF HOW STACKS ARE USUALLY ASSEMBLED. FIRST, A CONTINUOUS RANDOM LABELLED SAMPLE — a few hundred uniformly-sampled production cases labelled per week, stratified by the segments decisions partition on. It bounds accuracy to a couple of points and it is the ONLY thing that detects concept shift. The sample must be random: labelling the model's least-confident cases gives a biased, pessimistic estimate, and labelling whatever a human happened to review is selection-biased, which is the collider problem in a monitoring costume. SECOND, PIPELINE INTEGRITY written as INVARIANTS rather than statistical tests — null rates, cardinality, ranges, schema, freshness, row counts. These fire on real bugs, have low false-positive rates, and catch the failures that do the most damage fastest. THIRD, OUTPUT AND CONFIDENCE MONITORING with effect-size thresholds and multiplicity control, as a cheap early hint that is explicitly not a performance metric. FOURTH, PROXY OUTCOMES — correction rate, escalation, appeals, retries, abandonment — which are weak labels arriving free and continuously and are frequently the earliest real signal. WHAT I WOULD NOT BUILD FIRST is a per-feature statistical drift dashboard over a wide table.",
+          "deepDive": {
+            "q": "What is the number behind that?",
+            "a": "That last point needs the number behind it: on A/A comparisons with identical distributions and no shift whatsoever, a thousand features at a raw alpha of 0.01 flagged six. So an uncorrected per-feature dashboard produces a steady stream of true nulls, and the organizational cost is that people learn the dashboard is noise — which means the one alarm that matters will be ignored along with the rest. If such a dashboard exists it needs multiplicity correction or a single multivariate statistic, effect-size thresholds instead of p-values, restriction to features the model actually uses, and an owner and documented action per alert. That last criterion — tie every alert to a decision before creating it — is the one that prunes most of them: which model consumes this feature, what would you do differently if this fired, and who gets paged. Alerts that fail that test belong on a dashboard nobody is paged for, and demoting them is a strict improvement because it restores the signal value of the ones that remain."
+          }
+        },
+        {
+          "q": "Your drift dashboard is red. Walk me through it.",
+          "a": "I'D ASK WHAT ACCURACY IS DOING FIRST, BECAUSE THE DASHBOARD CANNOT ANSWER THAT. If a labelled sample exists the investigation ends in minutes; if it does not, that absence is the actual finding and it is what I would fix. THE MEASUREMENT THAT JUSTIFIES THE SKEPTICISM: a covariate shift moving ten of twenty features by a full standard deviation produced a Bonferroni-corrected p-value that underflowed to zero, with ten features flagged — and accuracy was 0.7446 against a baseline of 0.7506. A maximal alarm about a six-tenths-of-a-point change. Under pure covariate shift with a well-specified model the optimal predictor is unchanged, so the alarm is correct about P(x) and irrelevant to the decision it triggered. THEN I'D CHECK WHETHER THE MODEL USES THE DRIFTED FEATURES, since drift in an unused feature is not a finding and is roughly half of most dashboards. THEN WHETHER THIS IS A PIPELINE BREAK rather than a world change — a feature silently null, a unit change from cents to dollars, an upstream schema migration, a new client version writing a different default. That is what input monitoring is genuinely excellent at and it is the most likely useful explanation. AND I'D LOOK AT EFFECT SIZE rather than the p-value, because at production sample sizes everything is significant.",
+          "deepDive": {
+            "q": "Which conversation is more dangerous than that one?",
+            "a": "The mirror-image conversation is the more dangerous one and worth pre-empting: the dashboard is GREEN and someone concludes the model is fine. Measured, a concept shift with P(x) held bit-for-bit identical took accuracy from 0.7453 to 0.3375 — below chance — with the detector's p-value identical to the no-shift control in every row, and with mean confidence at 0.7473 against a control's 0.7466, a KS test on predicted scores at p = 0.911, and a domain classifier at AUC 0.5223. Every unlabelled signal at control while the model was wrong on two-thirds of inputs. So green on an input-monitoring dashboard carries almost no information about performance, and saying that plainly is more useful than any refinement of the dashboard. The one production case where this bites hardest and is most surprising is a third-party model update: your prompts are identical, your traffic is identical, and P(output | input) has moved, so every unlabelled monitor stays green by construction and the first signal is a user complaint."
+          }
+        },
+        {
+          "q": "How would you detect that a model has degraded without labels?",
+          "a": "YOU LARGELY CANNOT FOR THE CASE THAT MATTERS MOST, AND SAYING SO IS THE HONEST ANSWER. I tested four monitors against a concept shift that took accuracy from 0.7460 to 0.3375: mean confidence came in at 0.7473 against a control's 0.7466, prediction rate 0.5031 against 0.4938, a KS test on the predicted score distribution p = 0.911, and a domain classifier separating training from production inputs at AUC 0.5223. ALL FOUR AT CONTROL VALUES, because the model saw exactly the inputs it was trained on and responded to them exactly as before. Only the labels moved, and that is information-theoretic rather than a gap in the tooling. WHAT PARTIALLY WORKS: confidence and score-distribution monitoring catch some covariate shifts that DO hurt, particularly where the model is pushed into regions it is uncertain about, so they are worth having as an early hint. Conformal set size is a better version of the same signal. And PROXY OUTCOMES are often the earliest real evidence — a user who edits the suggestion, a reviewer who overturns a decision, a retry, an abandonment — because they are weak labels arriving free and in volume. THE ANSWER THAT WORKS IS A LABELLING BUDGET, planned at design time rather than requested after an incident.",
+          "deepDive": {
+            "q": "Which channel deserves more investment than it gets?",
+            "a": "The proxy-outcome channel deserves more investment than it usually gets because it is nearly free and it is genuinely predictive. Most systems have implicit feedback arriving continuously and unlogged: corrections, escalations, complaints, retries, abandonment. None is a clean label and all are high-volume, and their RATE is frequently a sharper degradation signal than any input statistic. The caution is that they have their own confounders — a UI change alters the correction rate with no model change — so each needs its own baseline and its own change-management discipline. On the labelled side, the design detail that matters most is randomness, and the second is stratification: a uniform sample stratified by the segments your decisions partition on lets you catch a subgroup regression that an aggregate hides, which is the failure this curriculum has found in every module. A few hundred labels a week, stratified, is a small ongoing cost and it is the difference between knowing your accuracy and inferring it."
+          }
+        },
+        {
+          "q": "When do you retrain?",
+          "a": "ON A LABELLED PERFORMANCE ESTIMATE CROSSING A THRESHOLD TIED TO A BUSINESS DECISION — not on a drift signal, because drift and performance move independently in both directions. A drift-triggered retrain fires on harmless covariate shift, which the measurement showed at accuracy 0.7446 against a 0.7506 baseline, and misses concept shift entirely, which took accuracy to 0.3375 with every detector quiet. IF LABELS ARE GENUINELY UNAVAILABLE, a fixed schedule is usually better than a drift trigger: it is predictable, it can be tested, and it does not create a feedback loop where noisy alarms drive model churn. The cadence should come from measured decay — retrain, hold out a time-forward window, and see how fast performance falls — which is a one-time measurement that replaces an argument. AND I'D COUNT THE COSTS THAT GET IGNORED: every retrain invalidates the calibration temperature, any conformal calibration set, thresholds tuned for the old model, and the monitoring baselines themselves, because all of those are properties of the model-plus-distribution pair. A threshold set to produce 700 alerts a day silently becomes 2,000, and nobody changed the threshold. Re-derivation has to be a required pipeline step rather than a checklist item.",
+          "deepDive": {
+            "q": "Which risk is invisible offline?",
+            "a": "The feedback-loop risk is the one that is invisible offline and worth naming. If the model's predictions influence which data you collect — who is shown what, whose application is reviewed, which transactions are approved — then retraining on production logs trains on a distribution the previous model created, and small biases compound across generations. That is a causal problem rather than a drift problem: the logged data is confounded by the policy that generated it, which is exactly the setting the causal module established, and the mitigations are the same — logged propensities and a permanent random holdout. The holdout does double duty here, providing both unbiased training data and an unbiased performance estimate, which makes it easier to justify than either alone. The other guard is to compare a retrained model against the incumbent on a frozen benchmark AND on fresh labelled production data: the first catches regressions and the second catches the case where both models look fine on the old distribution and only one handles the new one."
+          }
+        },
+        {
+          "q": "How does this lesson fit the module's theme?",
+          "a": "IT IS THE SEAM BETWEEN DEPLOYMENT AND REALITY, AND THE ONE WHERE THE STANDARD INSTRUMENT MEASURES THE WRONG SIDE OF IT. A drift detector reports, correctly and honestly, that the input distribution changed. The alert routes to a page saying the model may be degraded. Those are different statements, and the measurements show them coming apart in both directions: a maximal alarm at 0.7446 accuracy against a 0.7506 baseline, and total silence at 0.3375. THE CONTRACT AT THIS SEAM is that the deployed model still performs as validated, and the violation is silent because a model that has become wrong produces outputs in exactly the same format at exactly the same rate. NOTHING ABOUT THE SYSTEM CHANGES OBSERVABLY. WHAT DISTINGUISHES THIS SEAM FROM THE OTHERS IN THE MODULE is that the gap is not closable by engineering: export parity can be asserted, skew can be checked by replay, environment can be pinned — but no unlabelled statistic can detect a concept change, which I verified against four of them. SO THE RESPONSE IS DIFFERENT IN KIND: buy the missing information with a labelling budget, or document that you have accepted the exposure.",
+          "deepDive": {
+            "q": "How should that distinction drive the budget?",
+            "a": "That distinction between closable and unclosable gaps is the most useful thing to carry from this lesson, and it determines where the budget goes. A closable gap is a reporting or engineering failure and the fix is discipline: assert the parity, replay the traffic, pin the digest, compute the per-slice metric. An unclosable gap is an information limit and the fix is acquisition. Confusing them produces a characteristic and expensive error — building ever-more-elaborate unlabelled monitoring in the hope of catching concept shift, which cannot work, while consuming the budget that labels would have used. Sorting a monitoring stack into those two categories is a short exercise and it tends to reallocate money immediately, usually from dashboards toward labelling and toward the per-slice reporting that was three lines away. That reallocation is the single most valuable output of this lesson, and it is unpopular because dashboards are visible and a labelling line item is not."
+          }
+        },
+        {
+          "q": "What is the most common monitoring mistake you see?",
+          "a": "BUILDING THE PER-FEATURE DRIFT DASHBOARD FIRST AND THE LABELLED SAMPLE NEVER. It is the most visible artifact, it is what the tooling makes easy, and it monitors the quantity least connected to the decision. The consequences compound: it generates false alarms at production sample sizes — six of a thousand features flagged at alpha 0.01 on identical distributions — so people learn to ignore it, which means the rare true alarm is ignored too. Meanwhile the failure that actually costs money is invisible to it by construction. THE SECOND MOST COMMON is not re-deriving downstream artifacts after a retrain, which produces a category of incident whose symptom appears weeks after its cause and looks like drift: a calibration that no longer holds, a threshold producing three times the intended alert volume, a conformal calibration set that is invalid, and monitoring baselines that alarm continuously or never. THE THIRD is monitoring aggregates only, so a subgroup regression is averaged away — the failure this curriculum has found in every single module, arriving here as a dashboard design decision. ALL THREE ARE CHEAP TO FIX and none of them is fixed by better statistics.",
+          "deepDive": {
+            "q": "What specific engineering recommendation follows?",
+            "a": "The re-derivation problem is worth a specific engineering recommendation because it is so tractable: enumerate, once, everything in your system that was fitted to a model or to a distribution — calibration parameters, conformal quantiles, decision thresholds, alerting baselines, and any cached statistics — and make recomputing them a required step in the deployment pipeline that fails the deploy if it cannot run. That enumeration takes an hour for a given system and it prevents an entire class of post-deployment surprises. It also has a diagnostic use: when something behaves oddly a week after a deploy, the list is the first thing to check, and it usually contains the answer. The broader point for this module is that most monitoring value comes from making silent things loud at the moment they happen — a startup assertion, a schema invariant, a re-derivation failure — rather than from statistical inference over production data after the fact. Inference over production data is what you resort to when you did not build the assertion."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "pitfall",
+        "front": "★ The detector fires when nothing is wrong",
+        "back": "Ten of 20 features shifted 1σ → Bonferroni p underflowed to **0**, ten flagged. Accuracy: **0.7446** vs a 0.7506 baseline. A maximal alarm about six tenths of a point."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ …and is silent when everything is",
+        "back": "Concept shift, P(x) IDENTICAL: accuracy 0.7453 → 0.5448 → **0.3375** (below chance), detector p-value **3.8e-01 in every row** — the same as the no-shift control."
+      },
+      {
+        "type": "pitfall",
+        "front": "No unlabelled monitor sees concept shift",
+        "back": "At accuracy 0.3375: mean confidence 0.7473 (control 0.7466) · pred rate 0.5031 · KS on scores p=0.911 · domain-clf AUC 0.5223. **Information-theoretic, not a tooling gap.**"
+      },
+      {
+        "type": "intuition",
+        "front": "★ What to build, in priority order",
+        "back": "(1) A continuous RANDOM LABELLED SAMPLE — the only thing that sees concept shift. (2) Pipeline integrity as INVARIANTS. (3) Output/confidence with effect-size thresholds. (4) Proxy outcomes. **NOT first: a per-feature drift dashboard.**"
+      },
+      {
+        "type": "pitfall",
+        "front": "Why the labelled sample must be RANDOM",
+        "back": "Labelling low-confidence cases → biased, pessimistic. Labelling human-reviewed cases → selection bias, module 23's collider. A small uniform stratified sample beats a large convenience sample."
+      },
+      {
+        "type": "formula",
+        "front": "Uncorrected per-feature testing",
+        "back": "A/A, IDENTICAL distributions, α=0.01: 10 features → 0 flagged · 200 → 1 · **1000 → 6**. Teams learn the dashboard is noise, so the one alarm that matters is ignored too."
+      },
+      {
+        "type": "intuition",
+        "front": "Four rules that make alarms mean something",
+        "back": "Correct for multiplicity (or one multivariate statistic) · alert on EFFECT SIZE not p-values · prune features the model doesn't use (~half the dashboard) · **tie every alert to a decision, an action and an owner BEFORE creating it**."
+      },
+      {
+        "type": "intuition",
+        "front": "What input monitoring IS good for",
+        "back": "PIPELINE BREAKS: a feature silently null, cents→dollars, a schema migration, a new client default. Write them as INVARIANTS, not statistical tests — low false-positive rate, fastest-damaging failures."
+      },
+      {
+        "type": "definition",
+        "front": "Proxy outcomes — free weak labels",
+        "back": "Correction rate, escalation, appeals, retries, abandonment. High-volume, continuous, often the EARLIEST real signal. Caveat: they have their own confounders — a UI change moves the correction rate with no model change."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Re-derive on every retrain",
+        "back": "Calibration temperature · conformal calibration set · tuned thresholds · monitoring BASELINES. All are properties of the model-plus-distribution pair. A threshold set for 700 alerts/day silently becomes 2,000, and nobody changed it."
+      },
+      {
+        "type": "intuition",
+        "front": "When to retrain",
+        "back": "On a LABELLED performance estimate tied to a business decision. If labels are unavailable, a fixed SCHEDULE beats a drift trigger — predictable, testable, and it doesn't let noisy alarms drive model churn."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Closable vs unclosable gaps",
+        "back": "Export parity, skew, environment: CLOSABLE by engineering — assert, replay, pin. Concept shift: UNCLOSABLE — buy the information (labels) or document the exposure. Confusing them funds dashboards that cannot work."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Rabanser, Gunnemann & Lipton (2019), Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift",
+        "url": "https://arxiv.org/abs/1810.11953"
+      },
+      {
+        "title": "Breck, Cai, Nielsen, Salib & Sculley (2017), The ML Test Score",
+        "url": "https://research.google/pubs/pub46555/"
+      },
+      {
+        "title": "Lipton, Wang & Smola (2018), Detecting and Correcting for Label Shift with Black Box Predictors",
+        "url": "https://arxiv.org/abs/1802.03916"
+      },
+      {
+        "title": "Google SRE Book, Monitoring Distributed Systems",
+        "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
+      },
+      {
+        "title": "Garg, Balakrishnan, Lipton, Neyshabur & Sedghi (2022), Leveraging Unlabeled Data to Predict Out-of-Distribution Performance",
+        "url": "https://arxiv.org/abs/2201.04234"
+      }
+    ],
+    "demos": [
+      "drift-detection",
+      "calibration",
+      "conformal",
+      "classification-metrics"
+    ]
+  }
+};

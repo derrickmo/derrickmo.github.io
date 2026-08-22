@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/llm-systems/distillation.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/llm-systems/distillation/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "distillation": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Distillation is the module's explicit cross-regime technique: it converts TRAINING compute into INFERENCE savings. You spend a large teacher's compute once - training it, and generating from it - and receive a smaller model that is cheaper to serve for the rest of its life. That is the same objective as the inference-aware scaling result, reached by a different route: rather than training a small model longer on raw data, you train it on a large model's outputs.",
+        "The mechanism is that a soft distribution carries more information than a label. A one-hot target says the answer is class seven. The teacher's distribution says it is class seven with probability 0.8, class three with 0.15, and everything else negligible - which additionally tells the student that three resembles seven and the rest do not. Hinton called those relative probabilities among the wrong answers the dark knowledge, and they are why a student trained on soft targets can outperform the same student trained on the hard labels the teacher itself learned from. Temperature is the knob that exposes them: dividing the logits by T before the softmax flattens the distribution and makes the small probabilities visible, and the loss must then be multiplied by T squared because the soft-target gradient scales as one over T squared.",
+        "And then the honest limit, which this curriculum has already established from the fine-tuning side. Imitating a teacher's SAMPLED OUTPUTS transfers surface behaviour reliably and capability only where the student already has the substrate - Gudibande et al. measured imitation models rated competitive by human judges while barely moving on checkable benchmarks, and found that scaling the imitation DATA did not close the gap while scaling the STUDENT did. So the bottleneck is the student, not the teaching. What changed the picture for reasoning is not more imitation but VERIFIED imitation: generate many candidate solutions, check the answers, and train only on the correct ones. That converts the target from the teacher's output distribution into the teacher's CORRECT-ANSWER distribution, which is rejection sampling and is closer to reinforcement learning with a sparse verifier than to behavioural cloning."
+      ],
+      "math": [
+        {
+          "h": "The distillation loss, and why T squared",
+          "paras": [
+            "Soften both teacher and student with a temperature, take the KL divergence between them, and mix with the ordinary hard-label loss. The temperature makes the small probabilities - the dark knowledge - large enough to supply gradient.",
+            "The T squared factor is necessary rather than cosmetic: the gradient of the softened cross-entropy scales as one over T squared, so without it the soft term's contribution shrinks as you raise the temperature and the mixing coefficient stops meaning anything."
+          ],
+          "tex": "\\mathcal{L} = \\alpha\\,T^2\\, \\mathrm{KL}\\!\\Big(\\sigma\\big(\\tfrac{z_t}{T}\\big) \\,\\Big\\|\\, \\sigma\\big(\\tfrac{z_s}{T}\\big)\\Big) \\;+\\; (1-\\alpha)\\, \\mathrm{CE}(z_s, y)",
+          "texNote": "Read the T squared as restoring scale: differentiate the softened cross-entropy and a factor of 1/T appears from each of the softmax argument and the chain rule, so multiplying by T squared keeps the soft term's gradient magnitude comparable across temperatures. Omit it and raising T silently reduces the distillation signal, which is the most common implementation error here."
+        },
+        {
+          "h": "Why a soft target carries more than a label",
+          "paras": [
+            "A one-hot label over C classes carries at most log C bits and says nothing about the relationships among the alternatives. A full distribution specifies the teacher's relative confidences.",
+            "The gap is largest exactly where the teacher is uncertain, which is where the label is least informative about the underlying structure."
+          ],
+          "tex": "H(y_{\\text{hard}}) = 0 \\;\\;\\text{vs}\\;\\; H\\big(\\sigma(z_t/T)\\big) > 0, \\qquad \\text{information per example} \\;\\uparrow\\; \\text{with } T",
+          "texNote": "This is why distillation can beat training the student directly on the same labels: the student is receiving a richer supervision signal per example, encoding which classes the teacher considers similar. It also explains why distillation helps most in the low-data regime - each example is doing more work - and why it helps less when the student already has abundant labelled data."
+        },
+        {
+          "h": "The regime trade this technique makes",
+          "paras": [
+            "Teacher training and generation are paid once; the smaller student's inference saving is paid on every request. The break-even is a straightforward comparison and it is what justifies the technique commercially.",
+            "Note the structure is identical to the inference-aware scaling objective - both move cost from serving to training."
+          ],
+          "tex": "\\underbrace{C_{\\text{teacher}} + C_{\\text{gen}}}_{\\text{once}} \\;<\\; \\underbrace{2\\,(N_{\\text{big}} - N_{\\text{small}})\\, D_{\\text{inf}}}_{\\text{saved on every token, forever}}",
+          "texNote": "At any substantial serving volume the right-hand side dominates easily, which is why distillation is standard for anything deployed at scale. The interesting cases are the ones where it does not: low-volume deployments, or where the teacher's generation cost is large because the task needs many samples per example - which is exactly the verified-imitation recipe, where you generate many candidates and keep few."
+        }
+      ],
+      "code": [
+        {
+          "h": "The loss, and the three details people get wrong",
+          "paras": [
+            "Short, and each of the three annotations below is an error I have seen produce a distillation that silently does almost nothing."
+          ],
+          "code": "def kd_loss(student_logits, teacher_logits, targets, T=4.0, alpha=0.9):\n    # 1. SOFTEN BOTH. The teacher's small probabilities are the dark knowledge\n    #    and they are invisible at T = 1.\n    s = F.log_softmax(student_logits / T, dim=-1)\n    t = F.softmax(teacher_logits / T, dim=-1)\n\n    # 2. reduction='batchmean', NOT 'mean'. PyTorch's kl_div with 'mean'\n    #    averages over EVERY ELEMENT including the class dimension, which\n    #    divides the loss by the vocabulary size - so the distillation term is\n    #    thousands of times too small and appears to do nothing.\n    soft = F.kl_div(s, t, reduction=\"batchmean\")\n\n    # 3. MULTIPLY BY T^2. The softened gradient scales as 1/T^2, so without\n    #    this, raising the temperature silently WEAKENS the signal and alpha\n    #    stops meaning what you think.\n    hard = F.cross_entropy(student_logits, targets)\n    return alpha * T * T * soft + (1 - alpha) * hard\n\n# TEMPERATURE: T = 1 gives the teacher's actual distribution, which is usually\n# too peaked to reveal much. T in the 2-10 range exposes the relative ordering\n# of the wrong classes. Very high T flattens toward uniform and the signal\n# degrades again - so it is an interior optimum, worth sweeping.\n#\n# WHY IT CAN BEAT TRAINING ON THE LABELS DIRECTLY: the student receives a\n# DISTRIBUTION per example rather than a single index - strictly more\n# information, encoding which classes the teacher considers similar. That is\n# also why the benefit is largest in the LOW-DATA regime and smallest when the\n# student already has abundant labels.",
+          "caption": "Three details, each of which silently disables the technique: forgetting to soften, using the wrong KL reduction so the term is divided by the vocabulary size, and omitting T squared so raising the temperature weakens rather than strengthens the signal."
+        },
+        {
+          "h": "Distilling a language model, and where imitation stops working",
+          "paras": [
+            "Token-level matching is the direct translation and is often impractical. What the field actually does - and its documented limit - is the more useful content."
+          ],
+          "code": "# TOKEN-LEVEL KD: match the teacher's next-token distribution at every\n# position. Highest-information signal, and it needs the teacher's FULL LOGITS\n# over the vocabulary - which is a large tensor per position and is usually\n# unavailable if the teacher is behind an API.\nloss = kd_loss(student(x).logits, teacher(x).logits, targets, T=2.0)\n\n# SEQUENCE-LEVEL KD: generate from the teacher and train the student on those\n# sequences with ordinary cross-entropy. Cheap, needs only sampled text, and\n# it is what almost everyone actually does.\nsynthetic = [teacher.generate(p) for p in prompts]\nloss = F.cross_entropy(student(synthetic).logits, synthetic_targets)\n\n# ---- THE DOCUMENTED LIMIT, and it is the important part ----\n# Fine-tuning an open model on a much stronger model's SAMPLED outputs:\n#   crowdworkers rated the imitations COMPETITIVE with the target\n#   targeted capability benchmarks barely moved\n#   scaling the imitation DATA did not close the gap - scaling the STUDENT did\n# So sequence-level imitation transfers STYLE reliably and CAPABILITY only\n# where the student already has the substrate. The bottleneck is the student,\n# not the amount of teaching.\n\n# ---- WHAT CHANGED FOR REASONING: VERIFIED imitation ----\ncandidates = [teacher.generate(p) for _ in range(k)]      # sample MANY\nkept = [c for c in candidates if check(extract(c), answer)] # CHECK them\ntrain_on(kept)                                             # keep only correct\n#\n# This is REJECTION SAMPLING. The target distribution is no longer the\n# teacher's OUTPUT distribution but its CORRECT-ANSWER distribution, so the\n# supervision now selects trajectories by OUTCOME rather than by surface. That\n# is closer to RL with a sparse verifier than to behavioural cloning, and it is\n# why reasoning distillation works where plain imitation did not.\n#\n# HOW TO TELL WHICH YOU GOT: evaluate on CHECKABLE tasks, not preference.\n# Preference judging on short comparisons largely measures style, which is\n# exactly what imitation transfers - so it cannot distinguish the two cases.",
+          "caption": "Sequence-level imitation transfers style and not capability - measured. Verified imitation changes the target from the teacher's output distribution to its correct-answer distribution, which is why reasoning distillation works where plain imitation did not."
+        }
+      ],
+      "useCases": [
+        "Producing a servable model from a large one, which is the primary use and the explicit cross-regime trade - spend teacher compute once and save on every request for the model's life.",
+        "Reasoning models, where the recipe is generate-many, verify, and train on the correct trajectories - which is what makes small models capable at mathematics and code where plain imitation fails.",
+        "Low-data supervised settings, where the teacher's soft targets carry more information per example than the labels and the benefit is largest precisely because examples are scarce.",
+        "Compressing an ensemble into a single model, which is distillation's original framing: the ensemble's averaged distribution is the teacher, and the student recovers most of its quality at one model's inference cost."
+      ],
+      "pitfalls": [
+        "Using kl_div with reduction='mean'. It averages over every element including the class dimension, dividing the loss by the vocabulary size - so the distillation term is thousands of times too small and the technique appears to do nothing. Use batchmean.",
+        "Omitting the T squared factor. The softened gradient scales as one over T squared, so without it raising the temperature silently weakens the distillation signal and the mixing coefficient stops meaning what you intended.",
+        "Expecting sequence-level imitation to transfer capability. It transfers style reliably and capability only where the student has the substrate - and scaling the imitation data does not close the gap, while scaling the student does.",
+        "Evaluating a distilled model by preference judging. Short preference comparisons largely measure style, which is exactly what imitation transfers, so that instrument cannot distinguish a capability gain from a surface one. Use checkable tasks.",
+        "Distilling into a student far too small for the task. There is a floor: below some capacity the student cannot represent the teacher's function regardless of how much data you generate, and reasoning distillation in particular degrades sharply at small scale.",
+        "Using a single temperature without sweeping. Too low and the dark knowledge is invisible; too high and the distribution flattens toward uniform and the signal degrades again. The optimum is interior.",
+        "Training on unfiltered teacher outputs for a checkable task. Verification is what turned reasoning distillation from ineffective to effective, and it costs only the generation of extra candidates - skipping it discards the whole advantage."
+      ],
+      "connections": [
+        {
+          "ref": "fine-tuning/instruction-tuning",
+          "text": "Where the imitation limit is established from the other side: style transfers, capability does not, and the resolution is that imitating a SAMPLE can only select what the base can already produce while optimizing against a verifier can move it."
+        },
+        {
+          "ref": "llm-systems/scaling-laws",
+          "text": "The same cross-regime objective by a different route. Both distillation and inference-aware scaling move cost from serving to training, and the choice between training a small model longer and distilling a large one is an empirical comparison."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "The other way to make a model cheaper to serve, attacking a different term: distillation reduces the parameter count, quantization reduces the bytes per parameter, and they compose."
+        },
+        {
+          "ref": "fine-tuning/dpo-grpo",
+          "text": "Why verified imitation works: filtering by outcome makes the supervision select trajectories rather than reproduce a surface, which is the imitation-versus-optimization distinction and puts rejection-sampling distillation closer to RL than to cloning."
+        },
+        {
+          "ref": "mlops/model-serving",
+          "text": "Where the saving is realized. A distilled model reduces parameters, which reduces bytes read per token in the bandwidth-bound decode regime - and therefore raises the servable batch and lowers cost per token."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is knowledge distillation?",
+          "a": "Training a small student to match a large teacher's output distribution rather than only the hard labels, so it receives the teacher's relative confidences as supervision."
+        },
+        {
+          "q": "What is dark knowledge?",
+          "a": "The relative probabilities the teacher assigns to the WRONG classes, which encode which classes it considers similar - information a one-hot label does not contain."
+        },
+        {
+          "q": "What does temperature do?",
+          "a": "Dividing logits by T before the softmax flattens the distribution, making the small probabilities large enough to supply gradient. T of 2 to 10 is typical."
+        },
+        {
+          "q": "Why multiply the soft loss by T squared?",
+          "a": "The softened cross-entropy's gradient scales as one over T squared, so without the factor, raising the temperature silently weakens the distillation signal."
+        },
+        {
+          "q": "Why is reduction='batchmean' required?",
+          "a": "PyTorch's kl_div with 'mean' averages over every element including the class dimension, dividing the loss by the vocabulary size so the term is thousands of times too small."
+        },
+        {
+          "q": "Why can a student beat training on the same labels directly?",
+          "a": "A distribution carries more information per example than an index, encoding the teacher's similarity structure. The gap is largest in the low-data regime."
+        },
+        {
+          "q": "What is sequence-level distillation?",
+          "a": "Generating text from the teacher and training the student on it with ordinary cross-entropy - cheap, needs only sampled outputs, and is what most people actually do."
+        },
+        {
+          "q": "What does token-level distillation need that sequence-level does not?",
+          "a": "The teacher's full logits over the vocabulary at every position, which is a large tensor and is unavailable if the teacher is behind an API."
+        },
+        {
+          "q": "What is the documented limit of imitation?",
+          "a": "It transfers style reliably and capability only where the student has the substrate. Scaling imitation data does not close the gap; scaling the student does."
+        },
+        {
+          "q": "What changed for reasoning distillation?",
+          "a": "Verification. Generate many candidates, check the answers, and train only on correct ones - which makes the target the teacher's correct-answer distribution."
+        },
+        {
+          "q": "Why is that different in kind?",
+          "a": "It selects trajectories by outcome rather than reproducing a surface, which is closer to reinforcement learning with a sparse verifier than to behavioural cloning."
+        },
+        {
+          "q": "How should a distilled model be evaluated?",
+          "a": "On checkable tasks. Preference judging largely measures style, which is exactly what imitation transfers, so it cannot distinguish a capability gain from a surface one."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you build a distillation pipeline for a production model?",
+          "a": "THE STAGES, and the decisions in each. (1) CHOOSE THE STUDENT SIZE FIRST, from the serving constraint rather than from what seems reasonable. Compute the KV cache and weight memory at your target context and concurrency, and pick the largest student that leaves room for the batch you need. That number is what determines cost per token, and choosing it last means retrofitting. (2) DECIDE WHAT SUPERVISION YOU CAN ACTUALLY GET. If you control the teacher you can use token-level logits, which is the richest signal - but the full vocabulary distribution per position is a very large tensor, so in practice you store top-k logits plus a residual, which recovers most of the information at a fraction of the storage. If the teacher is behind an API you get sampled text only, and you are in the sequence-level regime with its documented limits. This decision determines everything downstream. (3) CHOOSE THE PROMPT DISTRIBUTION, which is where most of the quality lives and gets the least attention. The student learns the teacher's behaviour ON THE PROMPTS YOU GENERATE FROM. If those come from a different distribution than production traffic, you have distilled the wrong function. I would sample real traffic where possible and cover the task types deliberately, including the hard cases and the ones where the right answer is a refusal or a clarifying question. (4) VERIFY WHERE YOU CAN. For any checkable subset - code that runs, mathematics with an answer, structured output that parses - generate many candidates, filter to correct ones, and train on those. This is the difference between transferring style and transferring capability, and it costs only extra generation. For the unverifiable remainder, accept that you are transferring behaviour. (5) MIX IN REAL DATA. Training exclusively on model output risks distribution narrowing, and keeping a real-data component is the cheap mitigation. (6) TRAIN, with the temperature and alpha swept, batchmean reduction, and the T squared factor. WHAT I WOULD MEASURE, and the design is the substance. Checkable-task accuracy as the primary metric, never preference win-rate, since preference measures style and style is what imitation transfers regardless. Pass-at-k on the student before and after, which distinguishes teaching selection from teaching capability. Agreement with the teacher on held-out prompts, as a direct measure of what transferred. And the capability suite from before distillation, because the student may have lost things the teacher never had to demonstrate. THE OPERATIONAL PART people skip. Version the teacher and pin it, because a teacher upgrade silently changes your training distribution. Store the generated corpus rather than regenerating, so runs are reproducible and the expensive part is paid once. And keep the verification results, since the filtered-out candidates are useful negative data for later work."
+        },
+        {
+          "q": "Explain knowledge distillation and when it works.",
+          "a": "THE MECHANISM. Train a small student to match a large teacher's output DISTRIBUTION rather than the hard labels. The loss is a temperature-softened KL between the two distributions, mixed with an ordinary cross-entropy on the true labels. WHY IT WORKS - the information argument. A one-hot label says the answer is class seven and nothing else. The teacher's distribution says class seven with probability 0.8, class three with 0.15, and the rest negligible - which additionally tells the student that three RESEMBLES seven. Hinton called those relative probabilities among wrong answers the dark knowledge, and they are why a student trained on soft targets can outperform the same student trained on the hard labels the teacher itself learned from. The student is receiving strictly more information per example. THE TEMPERATURE AND ITS SUBTLETY. At T = 1 the teacher's distribution is usually too peaked for the small probabilities to matter. Dividing logits by T flattens it and exposes the ordering. But you must then multiply the soft loss by T SQUARED, because the softened cross-entropy's gradient scales as one over T squared - omit it and raising the temperature silently weakens the very signal you were trying to strengthen. That, plus using batchmean rather than mean for the KL reduction, are the two implementation errors that make distillation appear not to work. WHEN IT WORKS BEST. Low-data regimes, since each example carries more information. Compressing an ensemble, which was the original framing - the ensemble's averaged distribution is the teacher. And any case where the student has the CAPACITY to represent the teacher's function and merely needs a better training signal. THE LIMIT, which is the substance for language models. Sequence-level imitation - generating from the teacher and training on the text - transfers style reliably and capability only where the student already has the substrate. Gudibande et al. measured this directly: imitation models were rated competitive by crowdworkers while targeted capability benchmarks barely moved, and crucially, scaling the imitation DATA did not close the gap while scaling the STUDENT did. That last detail is decisive - it says the bottleneck is the student's capacity, not the amount of teaching, so more generation is the wrong lever. WHAT CHANGED FOR REASONING. Not more imitation but VERIFIED imitation: sample many candidate solutions from the teacher, CHECK the final answers against ground truth, and train only on the correct ones. That changes the target from the teacher's output distribution to its CORRECT-ANSWER distribution. It is rejection sampling, and it selects trajectories by outcome rather than reproducing a surface - which puts it closer to reinforcement learning with a sparse verifier than to behavioural cloning. It is also why this recipe works in mathematics and code and is harder to apply where nothing is checkable. HOW I WOULD EVALUATE. On checkable tasks, never on preference judging - because short preference comparisons largely measure style, which is precisely what imitation transfers, so that instrument is structurally unable to distinguish the two cases.",
+          "deepDive": {
+            "q": "Derive why the soft loss needs a T squared factor.",
+            "a": "THE SETUP. Let z be logits, and define the softened distribution p_i = softmax(z/T)_i. The distillation loss is the cross-entropy between the teacher's softened distribution q and the student's p. THE GRADIENT. For cross-entropy with softmax, the gradient with respect to the LOGIT is the familiar difference between prediction and target - but here the softmax argument is z/T, so the chain rule brings a factor of 1/T. Specifically, d/dz_i of the cross-entropy H(q, softmax(z/T)) equals (1/T)(p_i - q_i). WHERE THE SECOND FACTOR COMES FROM. That is only one 1/T. The second appears because the DIFFERENCE p_i - q_i itself shrinks with temperature. Expand the softmax for large T: softmax(z/T)_i is approximately 1/C times (1 + (z_i - z_bar)/T) to first order, since z/T becomes small and the exponential linearizes. So the deviation of p from uniform is itself of order 1/T, and likewise for q, which means p_i - q_i is of order 1/T. Combining, the gradient is of order 1/T times 1/T, which is 1/T squared. THE CONSEQUENCE. Without correction, raising the temperature from 1 to 4 divides the distillation gradient by about sixteen, so the soft term contributes proportionally less to the total gradient. Since you raised T precisely to expose more information, the uncorrected version undoes the intervention - which is why the symptom is that increasing the temperature makes distillation weaker rather than stronger, and it is a genuinely confusing symptom because it inverts the expectation. Multiplying by T squared restores the soft term's gradient magnitude to be comparable across temperatures, so alpha means the same thing at every T and the temperature sweep measures what you think. THE SUBTLETY WORTH ADDING. In the high-temperature limit, with the linearization above, the softened KL becomes approximately proportional to the squared difference of the MEAN-CENTRED LOGITS - so distillation at high temperature reduces to logit matching, which is a nice connection: it says the technique's high-T limit is regression on logits rather than anything distributional. And at T = 1 you get the teacher's true distribution, which is the low-T limit. The interesting regime is between them, which is why the optimum is interior and why sweeping T is worth doing. WHAT THIS PREDICTS about hyperparameter interaction. Because T squared restores the scale, alpha and T become approximately independent knobs - alpha controls the mix between soft and hard supervision, T controls how much of the distribution's tail is exposed. Without the factor they are entangled, so someone tuning both without the correction is searching a badly-conditioned space and will find a result that does not transfer. That is a good example of why a scaling factor that looks cosmetic is worth deriving."
+          }
+        },
+        {
+          "q": "Would you distil a large model or train a small one longer?",
+          "a": "THEY ARE THE SAME OBJECTIVE BY DIFFERENT ROUTES, which is the first thing to say. Both move cost from serving to training: the inference-aware scaling result says train a smaller model on more raw tokens; distillation says train a smaller model on a larger model's outputs. Both end with a cheap-to-serve model and a large one-time training bill. THE ARGUMENTS FOR DISTILLATION. (1) A RICHER SIGNAL PER TOKEN. The teacher's distribution carries more information than a one-hot next-token target, so each training token does more work. In principle that means fewer tokens for the same quality. (2) YOU MAY ALREADY HAVE THE TEACHER. If the large model exists, its training cost is sunk and only generation remains - which changes the arithmetic entirely. (3) IT WORKS WHERE DATA IS EXHAUSTED. If you are at the data wall, more raw tokens are not available but teacher-generated tokens are, which makes distillation a direct response to the constraint that limits the alternative. (4) VERIFIED GENERATION can produce supervision that does not exist in raw data at all - correct reasoning chains for problems whose solutions were never written down. THE ARGUMENTS FOR TRAINING LONGER ON RAW DATA. (1) NO TEACHER CEILING. A distilled student is bounded by its teacher; a model trained on raw data is bounded only by the data and its own capacity. (2) NO IMITATION LIMIT. Sequence-level imitation transfers style and not capability, and scaling imitation data does not close that gap - so if the student lacks the substrate, generation is the wrong lever and more raw tokens may be the right one. (3) SIMPLICITY - no generation pipeline, no filtering, no teacher to maintain. (4) MODEL-COLLAPSE CONCERNS if a large fraction of training data is model-generated, which is a real risk with evidence behind it. WHAT I WOULD ACTUALLY DO, and the honest answer is both. The strong recipes combine them: pretrain on raw data at a compute-optimal-or-beyond token count, then use VERIFIED teacher generation for post-training on the capabilities where a verifier exists. That puts raw data where it is irreplaceable - broad knowledge - and distillation where it is uniquely good - specific capabilities with checkable outputs. THE COMPARISON I WOULD RUN if forced to choose. Fit a scaling curve for the student on raw data and measure the distilled student at matched compute, on CHECKABLE tasks rather than preference. And I would attend to the failure signature: if the distilled student matches on style and not on checkable performance, that is the imitation limit and more generation will not help - which is a diagnosis the preference-based comparison cannot produce."
+        },
+        {
+          "q": "Explain the different types of distillation.",
+          "a": "THREE FAMILIES, distinguished by WHAT is being matched. (1) RESPONSE OR LOGIT-BASED, which is the classical form. Match the teacher's output distribution, softened by temperature. Simplest, needs only the teacher's outputs, and it is what people mean by distillation unqualified. Its limitation is that it supervises only the final layer - the student is free to reach the same answer by any internal route, which is fine for capacity-matched students and less so when the student is much smaller. (2) FEATURE-BASED, which matches INTERMEDIATE representations. FitNets introduced this: pick layers in the teacher and student, add a projection to reconcile their dimensions, and penalize the difference. It supervises the internal computation rather than just the output, which gives a much denser signal and helps when the student is deep enough to have comparable structure. The difficulties are real: which layers to pair is a design choice with no principled answer, the projection adds parameters used only during training, and the representations may be in genuinely different bases so matching them exactly is over-constraining. (3) RELATION-BASED, which matches the RELATIONSHIPS between examples rather than the examples themselves - the pairwise distances or angles in the representation space. The argument is that what matters is the geometry, not the coordinates, so requiring the student to reproduce the teacher's similarity structure is a weaker and more appropriate constraint than requiring identical activations. This side-steps the different-bases problem. FOR LANGUAGE MODELS SPECIFICALLY, the axis that matters more is TOKEN-LEVEL versus SEQUENCE-LEVEL. Token-level matches the next-token distribution at every position - the highest-information signal, and it requires the teacher's full vocabulary logits per position, which is a very large tensor and is simply unavailable if the teacher is an API. Sequence-level generates text from the teacher and trains on it with ordinary cross-entropy: far cheaper, needs only samples, and is what almost everyone does. The trade is information density against practicality, and sequence-level is where the imitation limit bites. THE VARIANTS WORTH KNOWING BEYOND THAT. SELF-DISTILLATION, where teacher and student are the same architecture - which improves results for reasons that are still debated and is a genuinely odd result. ONLINE or MUTUAL distillation, where several models train together and teach each other, removing the need for a pretrained teacher. And DISTILLATION DURING PRETRAINING rather than after, which some recent large-model recipes use. WHICH I WOULD CHOOSE. For language models, sequence-level with VERIFICATION where the task is checkable, because that is what has been shown to transfer capability. Token-level if I control the teacher and can afford the logits, because the signal is strictly richer. Feature-based when the student is much smaller and needs the internal guidance, accepting the layer-pairing design cost. And I would always evaluate on checkable tasks rather than preference, since the choice of distillation type does not change the fact that preference judging measures style.",
+          "deepDive": {
+            "q": "Why does self-distillation - teaching a model of identical architecture - improve results at all?",
+            "a": "IT IS GENUINELY ODD, and worth taking seriously because the obvious explanations do not work. The student has the same capacity as the teacher and is trained on the same data, so no capacity argument applies and no information is being compressed. Yet the student frequently outperforms the teacher, and repeating the procedure gives further gains for a few rounds before plateauing. THE EXPLANATIONS THAT HAVE BEEN OFFERED, and I would present them as candidates rather than a settled account. (1) LABEL SMOOTHING AND REGULARIZATION. The teacher's soft distribution is a smoothed version of the hard label, and smoothing is a known regularizer. This explains part of the effect and it is not the whole story, because self-distillation typically beats plain label smoothing. (2) THE DARK KNOWLEDGE IS REAL EVEN FROM AN EQUAL MODEL. The teacher's relative confidences encode genuine information about class similarity that the hard labels do not - and that information came from the teacher's own training, so it is a way of feeding the model's learned structure back as supervision. The student gets the labels PLUS a summary of what the teacher learned about their relationships. (3) A MULTI-VIEW ARGUMENT. One account holds that data has multiple predictive features per class, that a single model learns a random subset of them, and that distillation transfers the teacher's subset to the student in addition to whatever the student would have learned - so the student ends with a union. This predicts diminishing returns over rounds, which is observed, and it is the most satisfying account I know of. (4) AN IMPLICIT ENSEMBLE EFFECT. The teacher's distribution reflects an average over its training trajectory in some sense, so the student is fitting something smoother than any single snapshot. (5) OPTIMIZATION. The soft targets may simply present an easier loss landscape - a smoother objective that the student descends more effectively than the sharp one-hot objective. WHAT THE PHENOMENON IMPLIES PRACTICALLY. Self-distillation is a cheap and reliable few-percent improvement in the classification setting, it requires no additional data and no larger model, and it plateaus after a few rounds. In the language-model setting the analogous practice is training on your own model's VERIFIED outputs, which is a different mechanism - there the filter is doing the work, selecting the model's correct trajectories - and conflating the two is a mistake worth avoiding. WHY I WOULD FLAG THE UNCERTAINTY. This is one of the places where a reliable empirical result outruns its explanation, and several plausible mechanisms are consistent with the evidence. I would rather say that clearly than pick one and present it as established - and I would note that the multi-view account makes the sharpest testable prediction, which is the right reason to prefer it if forced to choose."
+          }
+        },
+        {
+          "q": "When does distillation fail?",
+          "a": "FIVE FAILURE MODES, and the first is the one that matters most for language models. (1) THE STUDENT LACKS THE SUBSTRATE. Sequence-level imitation transfers surface behaviour and only transfers capability where the student can already represent the underlying computation. The decisive evidence is that scaling the imitation DATA did not close the capability gap while scaling the STUDENT did - which localizes the bottleneck to capacity rather than teaching. The practical signature is a model that sounds like the teacher and is confidently wrong more often, because it learned the teacher's register including its confidence, which was calibrated to competence the student does not have. (2) THE EVALUATION CANNOT SEE THE FAILURE. Preference judging on short comparisons largely measures style, so it rates an imitation as competitive when nothing has transferred. This is not really a failure of distillation but a failure to detect one, and it is why I would insist on checkable tasks. (3) THE CAPACITY GAP IS TOO LARGE. Distilling a very large teacher into a very small student degrades sharply rather than gracefully - there is a floor below which the function simply is not representable. Reasoning distillation in particular falls off at small scale, and the usual response is an intermediate teaching assistant model to bridge the gap in stages. (4) THE TASK IS NOT CHECKABLE. Verified imitation is what made reasoning distillation work, and it requires a verifier. Where nothing can be checked - open-ended writing, judgement, tone - you are back to plain imitation with its limits, and the honest expectation is style transfer. (5) IMPLEMENTATION ERRORS THAT SILENTLY DISABLE IT. The KL reduction dividing by the vocabulary size, the missing T squared, a temperature that is too low to expose anything. Each produces a run that trains fine and distils almost nothing, and none raises an error. THE SIXTH ONE I WOULD RAISE AS A CONCERN RATHER THAN A FINDING. Training extensively on model-generated data risks distribution narrowing - the student inherits the teacher's modes and loses the tails, and iterating that across generations is the model-collapse concern. The evidence suggests it is a real risk when synthetic data dominates and much less of one when it supplements real data, so the mitigation is to keep real data in the mixture rather than to avoid synthetic entirely. HOW I WOULD DIAGNOSE which failure I have. Run the pass-at-k test on the STUDENT: if it solves a problem at k = 50 but not k = 1, the capability is present and distillation taught selection - a real gain. If it fails at large k, the substrate is absent and no amount of teacher data will help. That single experiment separates the capacity failure from the teaching failure, and it is the same diagnostic that separates style from capability in the fine-tuning setting."
+        },
+        {
+          "q": "How does distillation fit this module's two-regime framing?",
+          "a": "IT IS THE EXPLICIT CROSS-REGIME TECHNIQUE, and that is the cleanest way to place it. THE TRADE. You spend TRAINING-regime resources - the teacher's training compute if it does not already exist, plus the generation compute to produce the supervision - and you receive an INFERENCE-regime saving: a model with fewer parameters, which in the bandwidth-bound decode regime means fewer bytes read per token, which means a higher servable batch, which means lower cost per token, forever. The break-even is a straightforward comparison and at any substantial serving volume the inference side dominates easily. WHY THAT MATTERS STRUCTURALLY. Most techniques in this module live in one regime. Scaling laws and data pipelines are training-side. Quantization, grouped-query attention and speculative decoding are inference-side. Distillation is one of the few that deliberately moves cost across the boundary, which makes it a natural companion to the inference-aware scaling objective - both are answers to the same question of how to buy a cheap-to-serve model with expensive-to-buy training. THE COMPARISON THAT FOLLOWS. Given a serving target, you can reach it by training a small model longer on raw data or by distilling a large one, and the choice is empirical. The scaling-law route has no teacher ceiling and no imitation limit; the distillation route has a richer per-token signal and works when raw data is exhausted. In practice strong recipes use both: raw data for broad knowledge, verified teacher generation for specific checkable capabilities. THE COMPOSITION WITH THE OTHER INFERENCE TECHNIQUES. Distillation reduces the parameter COUNT; quantization reduces the bytes PER parameter; both reduce bytes read per token and they compose multiplicatively. Speculative decoding is different in kind - it amortizes the read over more tokens rather than shrinking it - and it composes with both. So the inference toolkit has three distinct mechanisms against one bottleneck, and knowing that they attack the same quantity by different means is what lets you predict that they stack. THE OBSERVATION I WOULD END ON. The reason distillation has become central to how capable small models are produced is exactly the inference-aware argument: serving cost is paid forever and training cost is paid once, so any technique that shifts work across that boundary is favourable at scale. That is a systems argument, not a modelling one, and it explains why the most capable small models are distilled rather than trained from scratch - which looks surprising until you price the two regimes separately."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "The distillation loss",
+        "back": "L = alpha * T^2 * KL(softmax(z_t/T) || softmax(z_s/T)) + (1-alpha) * CE(z_s, y). Soften BOTH, use reduction='batchmean', and do NOT omit the T^2."
+      },
+      {
+        "type": "intuition",
+        "front": "Why T^2 is necessary, not cosmetic",
+        "back": "The softened gradient scales as 1/T^2 - one factor from the chain rule on z/T, one because (p - q) itself shrinks like 1/T as the softmax linearizes. Without it, RAISING the temperature WEAKENS the signal, which inverts the expectation and is confusing."
+      },
+      {
+        "type": "pitfall",
+        "front": "kl_div reduction='mean' silently kills distillation",
+        "back": "It averages over EVERY element INCLUDING the class dimension, so the loss is divided by the VOCABULARY SIZE - thousands of times too small. Use 'batchmean'. This and the missing T^2 are why distillation 'does nothing'."
+      },
+      {
+        "type": "definition",
+        "front": "Dark knowledge",
+        "back": "The teacher's relative probabilities on the WRONG classes, encoding which classes it considers similar. A one-hot label carries none of it. This is why a student on soft targets can beat the same student on the hard labels the teacher learned from."
+      },
+      {
+        "type": "intuition",
+        "front": "Distillation helps most in the LOW-DATA regime",
+        "back": "The advantage is more INFORMATION PER EXAMPLE - a distribution instead of an index. So the benefit shrinks as labelled data becomes abundant, and it is largest when examples are scarce."
+      },
+      {
+        "type": "intuition",
+        "front": "Token-level vs sequence-level KD",
+        "back": "TOKEN-LEVEL matches the next-token distribution at every position - richest signal, needs the teacher's FULL vocabulary logits (unavailable behind an API). SEQUENCE-LEVEL generates text and trains with ordinary CE - cheap, and where the imitation limit bites."
+      },
+      {
+        "type": "pitfall",
+        "front": "The imitation limit",
+        "back": "Sequence-level imitation transfers STYLE reliably, CAPABILITY only where the student has the substrate. Decisive detail: scaling the imitation DATA did not close the gap while scaling the STUDENT did - so the bottleneck is capacity, not teaching."
+      },
+      {
+        "type": "intuition",
+        "front": "VERIFIED imitation is different in kind",
+        "back": "Sample many candidates, CHECK the answers, train only on correct ones. The target becomes the teacher's CORRECT-ANSWER distribution, selecting trajectories by OUTCOME rather than reproducing a surface. Rejection sampling - closer to RL with a sparse verifier than to cloning."
+      },
+      {
+        "type": "pitfall",
+        "front": "Never evaluate a distilled model by preference",
+        "back": "Short preference comparisons largely measure STYLE - exactly what imitation transfers - so the instrument is structurally unable to distinguish a capability gain from a surface one. Use CHECKABLE tasks."
+      },
+      {
+        "type": "intuition",
+        "front": "The pass-at-k diagnostic for distillation",
+        "back": "If the STUDENT solves a problem at k=50 but not k=1, the capability is present and distillation taught SELECTION - a real gain. If it fails at large k, the substrate is ABSENT and no amount of teacher data will help."
+      },
+      {
+        "type": "formula",
+        "front": "Distillation's regime trade",
+        "back": "(C_teacher + C_generation), paid ONCE, versus 2*(N_big - N_small)*D_inference, saved on EVERY token FOREVER. The explicit cross-regime technique - and the same objective as inference-aware scaling, reached by a different route."
+      },
+      {
+        "type": "intuition",
+        "front": "Three mechanisms, one bottleneck",
+        "back": "Decode is bandwidth-bound. DISTILLATION cuts the parameter COUNT; QUANTIZATION cuts bytes PER parameter (they compose multiplicatively); SPECULATIVE DECODING amortizes the read over MORE TOKENS. Different means, same quantity - which is why they stack."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Hinton, Vinyals & Dean (2015), Distilling the Knowledge in a Neural Network",
+        "url": "https://arxiv.org/abs/1503.02531"
+      },
+      {
+        "title": "Kim & Rush (2016), Sequence-Level Knowledge Distillation",
+        "url": "https://arxiv.org/abs/1606.07947"
+      },
+      {
+        "title": "Sanh et al. (2019), DistilBERT, a distilled version of BERT",
+        "url": "https://arxiv.org/abs/1910.01108"
+      },
+      {
+        "title": "Gudibande et al. (2023), The False Promise of Imitating Proprietary LLMs",
+        "url": "https://arxiv.org/abs/2305.15717"
+      },
+      {
+        "title": "Gu et al. (2023), MiniLLM: Knowledge Distillation of Large Language Models",
+        "url": "https://arxiv.org/abs/2306.08543"
+      }
+    ],
+    "demos": [
+      "distillation",
+      "model-cascade",
+      "pruning",
+      "quantization"
+    ]
+  }
+};

@@ -1,0 +1,290 @@
+// GENERATED from content/lessons/interview-capstone/cs-algorithms.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/interview-capstone/cs-algorithms/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "cs-algorithms": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "ML roles still ask classical algorithms, and the set that actually appears is small - perhaps eight patterns. The useful reframing is that most of them show up INSIDE ML systems, so learning them as interview trivia wastes the transfer: a beam search is a heap, a tokenizer is a trie or a greedy longest-match, an ANN index is a graph search, and a training data dedupe is a hash set with a similarity twist.",
+        "The quantitative point is why complexity answers need the n attached. The ratio of n squared to n log n is 100x at a thousand, 753x at ten thousand, and 50,172x at a million. 'It is quadratic but n is small' is a legitimate argument and it is only legitimate once you say what n is - which is the same discipline as naming the reference class in module 24, applied to a runtime claim.",
+        "The behaviour that decides this round is the same as the last: state the approach and its complexity BEFORE writing, test on a case you can verify by hand, and say the trade you are taking. A correct solution produced in silence is a low-signal answer, and this is the round where silence is most tempting because the problems feel like puzzles with a right answer."
+      ],
+      "math": [
+        {
+          "h": "★ Why the n matters more than the exponent",
+          "paras": [
+            "The gap between quadratic and linearithmic is not a constant factor you can engineer away; it grows without bound and it grows fast.",
+            "Quote the ratio, not the symbol - it converts an abstract objection into a decision."
+          ],
+          "tex": "\\begin{array}{lrrr} n & n\\log_2 n & n^2 & \\text{ratio}\\\\ 10^3 & 9{,}966 & 10^6 & 100\\times\\\\ 10^4 & 132{,}877 & 10^8 & 753\\times\\\\ 10^5 & 1{,}660{,}964 & 10^{10} & 6{,}021\\times\\\\ 10^6 & 19{,}931{,}569 & 10^{12} & \\mathbf{50{,}172\\times} \\end{array}",
+          "texNote": "At a thousand, a quadratic algorithm is often the right engineering call - simpler, fewer bugs, 100x of nothing is still nothing. At a million it is never the right call, and the number is what makes the distinction sayable."
+        },
+        {
+          "h": "The complexities worth having automatic",
+          "paras": [
+            "Not to recite, but so that you can state a bound in ten seconds and be right, which is the behaviour being scored."
+          ],
+          "tex": "\\text{hash } O(1)^* \\ \\cdot\\ \\text{heap push/pop } O(\\log n) \\ \\cdot\\ \\text{sort } O(n\\log n) \\ \\cdot\\ \\text{BFS/DFS } O(V{+}E) \\ \\cdot\\ \\text{Dijkstra } O(E\\log V) \\ \\cdot\\ \\text{edit distance } O(nm)",
+          "texNote": "The asterisk on hash matters: O(1) is amortized and expected, and the worst case is O(n) under adversarial keys - which is a real consideration in any system where an attacker controls the input, and is worth a sentence when it applies."
+        },
+        {
+          "h": "The eight patterns that cover most prompts",
+          "paras": [
+            "Grouped by the recognition cue rather than by the data structure, because recognizing which one applies is the hard part under time pressure."
+          ],
+          "tex": "\\text{hashing} \\cdot \\text{two pointers / sliding window} \\cdot \\text{heap for top-}k \\cdot \\text{binary search on the ANSWER} \\cdot \\text{BFS/DFS} \\cdot \\text{Dijkstra/A*} \\cdot \\text{DP on a grid} \\cdot \\text{intervals via sorting}",
+          "texNote": "Binary search on the answer is the least obvious and the most reusable: when a feasibility check is cheap and monotone in a parameter, search the parameter rather than the data. It turns many optimization prompts into O(n log range)."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ Where each one lives inside an ML system",
+          "paras": [
+            "Learning them with the ML use attached both fixes them in memory and gives you a better answer when asked."
+          ],
+          "code": "# HASH SET / MAP        exact dedupe of training data; vocabulary lookup;\n#                       feature hashing (the trick, not the structure)\n# HEAP                  top-k retrieval; BEAM SEARCH is a heap per step;\n#                       streaming top-k over a firehose\n# TRIE / longest-match  tokenizers - WordPiece is greedy longest-match over\n#                       a vocabulary; prefix autocomplete\n# BFS / DFS             graph feature extraction; connected components for\n#                       entity resolution; dependency order in a pipeline DAG\n# DIJKSTRA / A*         routing; ★ HNSW's search is a greedy best-first walk\n#                       over a proximity graph - an ANN index IS graph search\n# DP ON A GRID          edit distance for fuzzy matching and dedupe; DTW for\n#                       time series; Viterbi is DP over a trellis\n# SORTING + INTERVALS   session windowing; NMS in detection is sort-by-score\n#                       then greedy suppression\n# BINARY SEARCH ON THE  finding a threshold that hits a target alert volume;\n#   ANSWER              quantile-based capacity planning\n\n# ★ 'This is the same search HNSW does' is a better answer than a correct\n#   implementation with no context, and it costs one sentence.",
+          "caption": "Every row is a real ML use, which is why this round is less disconnected from the job than it feels."
+        },
+        {
+          "h": "The recognition cues",
+          "paras": [
+            "Under time pressure the bottleneck is identifying the pattern, not implementing it. These are the tells."
+          ],
+          "code": "# 'find a pair/triple summing to X'      -> hash set, or sort + two pointers\n# 'longest/shortest contiguous ...'      -> sliding window\n# 'k largest / k closest / merge k ...'  -> heap\n# 'minimum X such that P(X) holds'       -> binary search on the answer\n#   (works iff P is MONOTONE in X - say that out loud)\n# 'shortest path, unweighted'            -> BFS   (weighted -> Dijkstra)\n# 'count ways / min cost over a grid'    -> DP, and state the recurrence\n#   before writing any code\n# 'overlapping ranges / scheduling'      -> sort by start or end, sweep\n\n# ★ SAY THE CUE. 'The phrase minimum-such-that with a monotone check means\n#   binary search on the answer' is worth more than silently doing it,\n#   because it shows a transferable rule rather than a memorized solution.",
+          "caption": "Naming the cue is what converts a solved problem into evidence that you will solve the next one."
+        }
+      ],
+      "useCases": [
+        "The algorithms round in an ML interview loop, which is common at large companies and where the set of prompts is narrow.",
+        "Recognizing that an ML component is a classical algorithm - beam search as a heap, HNSW as graph search, NMS as sort-and-sweep - which makes both easier to reason about.",
+        "Capacity and threshold problems in real systems, where binary search on the answer turns 'what threshold gives 700 alerts a day' into three lines.",
+        "Reviewing a pipeline for accidental quadratic behaviour, where the ratio table is what turns a code-review comment into an argument."
+      ],
+      "pitfalls": [
+        "Quoting a complexity without the n. The quadratic-to-linearithmic ratio is 100x at a thousand and 50,172x at a million, so the same objection is minor or fatal depending on a number you must state.",
+        "Treating hash operations as unconditionally O(1). It is amortized and expected, with an O(n) adversarial worst case, which matters wherever an attacker controls the keys.",
+        "Optimizing before a correct solution exists. In a timed round a working quadratic answer with a stated improvement beats an unfinished optimal one.",
+        "Writing DP code before stating the recurrence. The recurrence is the answer; the code is transcription, and getting them in the wrong order produces most DP failures.",
+        "Missing that binary search applies. The cue is 'minimum X such that P(X)' with P monotone, and it is the least recognized of the eight patterns.",
+        "Learning these as interview trivia. Most appear inside ML systems, and the transfer is lost if you never connect beam search to a heap or an ANN index to graph search.",
+        "Solving in silence. This is the round where silence is most tempting because the problems feel like puzzles, and it is where a correct answer transmits the least."
+      ],
+      "connections": [
+        {
+          "ref": "foundations/complexity",
+          "text": "The substance - asymptotic analysis, amortization, and why the constant factors sometimes dominate at realistic n."
+        },
+        {
+          "ref": "interview-capstone/coding-patterns",
+          "text": "The numerical sibling of this round, where the constraint is memory and vectorization rather than data structures."
+        },
+        {
+          "ref": "rag-agents/embeddings-vector-stores",
+          "text": "HNSW as a greedy best-first walk over a proximity graph, which is the clearest case of a classical algorithm living inside an ML system."
+        },
+        {
+          "ref": "transformers/kv-cache",
+          "text": "Beam search as a heap per decoding step, and the memory arithmetic that decides how wide a beam you can afford."
+        },
+        {
+          "ref": "rnn-nlp/tokenization",
+          "text": "Greedy longest-match over a vocabulary, which is a trie problem wearing an NLP label."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "★ Why must a complexity answer include n?",
+          "a": "n²/(n log₂ n) is **100×** at 10³, 753× at 10⁴, 6,021× at 10⁵ and **50,172×** at 10⁶. \"Quadratic but small\" is valid only once you state the number."
+        },
+        {
+          "q": "Is a hash lookup O(1)?",
+          "a": "Amortized and expected. Worst case is O(n) under adversarial keys — which matters wherever an attacker controls the input."
+        },
+        {
+          "q": "Name the eight patterns.",
+          "a": "Hashing · two pointers/sliding window · heap for top-k · binary search on the ANSWER · BFS/DFS · Dijkstra/A* · DP on a grid · intervals via sorting."
+        },
+        {
+          "q": "Which is least recognized?",
+          "a": "Binary search on the answer. Cue: \"minimum X such that P(X)\" with P monotone in X. Turns many optimization prompts into O(n log range)."
+        },
+        {
+          "q": "Cue for a sliding window?",
+          "a": "\"Longest/shortest contiguous …\" — a contiguous subarray or substring with a constraint."
+        },
+        {
+          "q": "Cue for a heap?",
+          "a": "\"k largest / k closest / merge k sorted …\". In ML: top-k retrieval and beam search, which is a heap per decoding step."
+        },
+        {
+          "q": "Where does graph search live in ML?",
+          "a": "HNSW — an ANN index search IS a greedy best-first walk over a proximity graph. Saying so is a better answer than a correct implementation with no context."
+        },
+        {
+          "q": "Where does DP on a grid live in ML?",
+          "a": "Edit distance for fuzzy matching and dedupe; DTW for time series; Viterbi as DP over a trellis."
+        },
+        {
+          "q": "Where does sort-and-sweep live in ML?",
+          "a": "Non-maximum suppression in detection — sort by score, then greedily suppress overlaps. Also session windowing."
+        },
+        {
+          "q": "What do you do before writing DP code?",
+          "a": "State the recurrence. The recurrence IS the answer; the code is transcription, and reversing the order produces most DP failures."
+        },
+        {
+          "q": "Optimal or finished?",
+          "a": "Finished. In a timed round a working quadratic solution with a stated improvement beats an unfinished optimal one."
+        },
+        {
+          "q": "What's the round's characteristic failure?",
+          "a": "Silence — most tempting here because the problems feel like puzzles with a right answer, and most costly because a correct answer alone transmits little."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you prepare for the algorithms round as an ML candidate?",
+          "a": "BY LEARNING A SMALL SET WITH THE ML USE ATTACHED, because that both fixes them in memory and produces a better answer. The set is about eight patterns: hashing, two pointers and sliding window, a heap for top-k, binary search on the answer, BFS and DFS, Dijkstra and A*, DP on a grid, and intervals via sorting. THE ML MAPPING IS REAL AND WORTH KNOWING: a hash set is training-data dedupe and vocabulary lookup; a heap is top-k retrieval and beam search, which is literally a heap per decoding step; a trie with greedy longest-match is what WordPiece tokenization does; BFS and DFS are connected components for entity resolution and dependency order in a pipeline DAG; HNSW's search is a greedy best-first walk over a proximity graph, so an ANN index IS graph search; edit distance is fuzzy matching and dedupe, and Viterbi is DP over a trellis; non-maximum suppression is sort by score then sweep. SAYING THE CONNECTION IS WORTH MORE THAN THE IMPLEMENTATION — 'this is the same search HNSW does' costs one sentence and demonstrates transfer, which is what the round is actually probing. AND I'D PRACTISE THE RECOGNITION rather than the coding, because under time pressure identifying the pattern is the bottleneck, not typing it.",
+          "deepDive": {
+            "q": "What actually fires under pressure?",
+            "a": "The recognition cues are worth memorizing as phrases because they are what fires under pressure: 'find a pair summing to X' means a hash set or sort-plus-two-pointers; 'longest contiguous' means sliding window; 'k largest or merge k' means a heap; 'minimum X such that P(X)' with monotone P means binary search on the answer; 'shortest path unweighted' means BFS and weighted means Dijkstra; 'count ways or minimum cost over a grid' means DP and you state the recurrence first; 'overlapping ranges' means sort and sweep. Saying the cue out loud — 'the phrase minimum-such-that with a monotone check means I should binary search the answer' — is strictly better than silently applying it, because it demonstrates a transferable rule rather than a memorized solution, and it gives the interviewer something to score in the first thirty seconds. That is lesson 25-01's variance argument again: the fastest thing you can do in any round is make your reasoning audible early, and a named cue is the cheapest way to do it."
+          }
+        },
+        {
+          "q": "When is a quadratic algorithm the right answer?",
+          "a": "WHEN THE n IS SMALL AND YOU CAN SAY WHAT IT IS. The ratio of n squared to n log n is 100× at a thousand, 753× at ten thousand, 6,021× at a hundred thousand and 50,172× at a million. At a thousand, a quadratic solution is frequently the correct engineering call: it is simpler, has fewer edge cases, is easier to review, and a hundred times a negligible number is still negligible. At a million it is never right. SO THE ANSWER 'IT IS QUADRATIC BUT n IS SMALL' IS LEGITIMATE AND INCOMPLETE UNTIL YOU STATE n, which is the same discipline as naming a reference class in module 24 — a claim about performance is meaningless without the population it applies to. IN AN INTERVIEW I'd give the quadratic solution when it is what I can complete correctly, state its complexity and the improvement I would make, and let the interviewer decide whether to spend the time. A finished correct answer with a stated path to better beats an unfinished optimal one in almost every case, and the exceptions are rounds explicitly framed as optimization problems. THE THING THAT LOSES THE ROUND is producing a quadratic solution without noticing, because that is a claim about your judgement rather than about your time budget.",
+          "deepDive": {
+            "q": "Where does accidental quadratic behaviour hide in real systems?",
+            "a": "There is a real-systems version of this that comes up in review and is worth having: accidental quadratic behaviour hidden inside library calls. A loop doing a list membership test is quadratic; repeated string concatenation in a loop is quadratic; a pandas apply that does a lookup against another frame per row is quadratic; and each looks linear on the page. The tell is a nested cost where only one loop is visible, and the diagnostic is to ask what the inner operation costs rather than counting visible loops. At the n these pipelines run at — often a million rows — the 50,172× figure is what turns a five-second job into a week, which is why 'it worked on the sample' is such a reliable precursor to an incident. Quoting the ratio in a code review converts a stylistic objection into an argument with a number, and that is usually what makes it actionable. It is the same move as naming the cost in a design round: the number is what turns a preference into a decision."
+          }
+        },
+        {
+          "q": "Explain binary search on the answer and why it is underused.",
+          "a": "IT APPLIES WHEN YOU WANT THE SMALLEST OR LARGEST PARAMETER SATISFYING A CONDITION, THE CONDITION IS CHEAP TO CHECK, AND IT IS MONOTONE IN THE PARAMETER. Instead of searching the data you search the PARAMETER SPACE: pick a candidate value, run the feasibility check, and halve the range. The cost becomes O(check × log range), which is usually a large improvement over anything that enumerates. IT IS UNDERUSED BECAUSE THE CUE IS SUBTLE — the problem does not look like a search problem, it looks like an optimization problem, and the phrase to listen for is 'minimum X such that' or 'maximum X such that'. MONOTONICITY IS THE CONDITION TO STATE OUT LOUD, because it is what makes the method valid and it is where the approach fails: if the feasibility check is not monotone in the parameter, halving is unjustified and you will confidently return a wrong answer. THE ML USES ARE COMMON AND CONCRETE: finding the score threshold that yields a target alert volume, which is exactly the fraud case's capacity constraint; finding the k for a quantile under a memory budget; and calibrating any cutoff to hit a target rate when the rate is monotone in the cutoff.",
+          "deepDive": {
+            "q": "Where does that show up inside an ML system?",
+            "a": "The alert-threshold use is worth walking because it connects two lessons. In the fraud design case the operating point was set by review capacity — 'how many alerts can 40 analysts clear per day' — and the model produces a score, so the question is which threshold yields that volume. Alert volume is monotone decreasing in the threshold, so binary search over the threshold with a feasibility check that counts alerts on a held-out sample solves it in about twenty iterations regardless of data size, and it generalizes immediately to 'what threshold hits this precision' or 'this recall'. That is a three-line function that replaces a manual sweep, and it is the kind of thing that comes up in real work far more often than in interviews. The general habit worth extracting is to notice when a problem has a monotone knob, because a monotone knob is always searchable and often the entire solution — the same structure appears in the alpha-spending boundaries from module 23 and the coverage parameter in conformal prediction, where you are choosing a parameter to hit a target rate."
+          }
+        },
+        {
+          "q": "You are asked a problem you do not recognize. What do you do?",
+          "a": "WORK THE EXAMPLE BY HAND FIRST, OUT LOUD, BEFORE TRYING TO CLASSIFY IT. Take a small concrete input, produce the correct output manually, and narrate what you did — because whatever procedure you used by hand is usually a sketch of the algorithm, and it gives the interviewer something to follow while you think. THEN STATE THE BRUTE FORCE and its complexity, which guarantees you have a correct answer on the board and establishes the baseline any improvement is measured against. THEN LOOK FOR THE CUE among the eight patterns: is there a monotone parameter, is there a contiguous-subarray structure, is there repeated work between overlapping subproblems, is there a graph hiding in the relations. THEN NAME THE CONSTRAINT that makes the brute force too slow, because the improvement almost always attacks a specific redundancy — recomputing a window sum, re-sorting, re-exploring a state. WHAT I WOULD NOT DO is sit silently pattern-matching, which is the failure this module keeps returning to: it produces no signal for the interviewer, and it feels much longer to them than to you.",
+          "deepDive": {
+            "q": "Why is working a small case by hand more useful than it sounds?",
+            "a": "The by-hand step is more useful than it sounds and it is worth being deliberate about. When you compute a small case manually you naturally exploit structure — you skip states you know are dominated, you reuse a partial sum, you notice the answer only depends on the last two values — and each of those is the seed of the optimization. Saying 'when I did this by hand I never needed to look further back than two steps' is how a DP recurrence gets discovered in an interview, and it is a much more convincing answer than producing the recurrence from memory, because it demonstrates the derivation rather than the recall. It also handles the genuinely novel problem, which memorization cannot. The related habit is to ask a clarifying question about the input size early, because the target complexity is usually implied by it: n up to a million rules out anything quadratic and points at sorting or hashing, while n up to a few hundred permits DP over pairs. Reading the constraint as a hint is standard practice and candidates often ignore the number entirely."
+          }
+        },
+        {
+          "q": "How much should an ML candidate invest in this round?",
+          "a": "ENOUGH TO BE RELIABLE, AND LESS THAN MOST CANDIDATES DO — because it is the round with the most available practice material and the least room for differentiation. The set is eight patterns; the prompts at ML roles are usually easier than at pure software roles; and the marginal return falls off quickly once you can recognize the cues and implement them without fumbling. FROM LESSON 25-01, THE ALLOCATION SHOULD FOLLOW CONTROLLABLE VARIANCE, and this round has less of it than system design or the project deep-dive, both of which are chronically underprepared. So my ordering would be: get to reliable here, then spend the remaining time on design cases and on writing up your projects, which is where the same hours move the outcome more. THE EXCEPTION IS IF THIS ROUND IS WHERE YOU ARE FAILING, which is diagnosable from the shape of your outcomes — consistent early-round rejections point at fundamentals rather than at presentation. And the honest condition from 25-01 applies here as everywhere: none of this substitutes for being able to do the work, it just stops you losing loops you should have won.",
+          "deepDive": {
+            "q": "Is there an efficiency that makes this cheaper to prepare?",
+            "a": "There is a specific efficiency worth naming. Because the eight patterns map onto ML components — heap to beam search, graph search to HNSW, DP to Viterbi and edit distance, sort-and-sweep to NMS — you can prepare this round and the breadth round with the same hours by learning each pattern together with where it lives in a system. That halves the cost of both and produces better answers in each, since the algorithm answer gains context and the ML answer gains mechanism. It is the same argument module 22 made about learning mechanisms rather than APIs: the durable unit is the pattern, and the surface it appears on is incidental. Practically, an afternoon per pattern with one implementation and one ML connection covers the whole set in about a week of evenings, which is a bounded and finishable plan — and finishable matters, because the failure mode in preparation is an unbounded problem list that never converges and crowds out the rounds with more variance to reduce."
+          }
+        },
+        {
+          "q": "What is the honest role of this round in an ML loop?",
+          "a": "IT IS A FLOOR CHECK, NOT A DIFFERENTIATOR, AND TREATING IT AS EITHER EXTREME IS A MISTAKE. It exists because writing correct code under mild pressure is genuinely necessary for the job, and because it is the cheapest reliable filter a company has — the prompts are standardized, the scoring is comparatively objective, and the inter-interviewer variance is lower than for design rounds, which is exactly why loops keep it. THAT LOW VARIANCE IS ALSO WHY IT DIFFERENTIATES LESS: from lesson 25-01, the rounds where structure pays are the high-variance ones, and this is the round where a correct answer looks the same from most interviewers. SO THE STRATEGY IS ASYMMETRIC — failing it is disqualifying and excelling at it buys little, which means the right target is reliable rather than exceptional. THE COMMON MISTAKE IN BOTH DIRECTIONS is dismissing it as irrelevant to ML work, which is wrong on the merits since these patterns are inside the systems, or over-investing hundreds of hours in it while never rehearsing a design case aloud. The second is more common among strong ML candidates and is the more expensive error.",
+          "deepDive": {
+            "q": "What does this round genuinely fail to measure?",
+            "a": "It is worth noting what the round genuinely fails to measure, since that is the fair version of the criticism. It does not measure whether you can scope an ambiguous problem, choose a metric, own a decision under uncertainty, or notice that a label is confounded — all of which are larger parts of the job and are what the design and project rounds exist for. It also has a known adverse-selection problem: it rewards recent practice, so it systematically favours candidates who have interviewed lately over those who have been shipping, which is a real bias rather than a signal. Knowing that is useful for interpreting your own results — a rejection at this round after two years of production work is weak evidence about your engineering and strong evidence that you did not practise. The remedy is bounded and known, which makes it one of the few interview problems with a clean solution, and that is the most useful thing to take from the round: it is the part of the process most responsive to a week of deliberate preparation."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "★ Why a complexity claim needs n",
+        "back": "n²/(n log₂ n): **100×** at 10³ · 753× at 10⁴ · 6,021× at 10⁵ · **50,172×** at 10⁶. Quadratic is often right at a thousand and never right at a million."
+      },
+      {
+        "type": "definition",
+        "front": "The eight patterns",
+        "back": "Hashing · two pointers/sliding window · heap for top-k · **binary search on the ANSWER** · BFS/DFS · Dijkstra/A* · DP on a grid · intervals via sorting."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Where each lives inside ML",
+        "back": "Heap → beam search (a heap per step) · trie/longest-match → WordPiece · graph search → **HNSW is greedy best-first over a proximity graph** · DP → edit distance, DTW, Viterbi · sort+sweep → NMS."
+      },
+      {
+        "type": "definition",
+        "front": "Binary search on the answer",
+        "back": "Smallest/largest parameter satisfying a cheap, MONOTONE feasibility check. Search the PARAMETER, not the data: O(check × log range). State the monotonicity out loud — it's what makes it valid."
+      },
+      {
+        "type": "intuition",
+        "front": "Its best ML use",
+        "back": "Find the score threshold hitting a target alert volume (the fraud case's capacity constraint) — volume is monotone in threshold, so ~20 iterations regardless of data size. Three lines replacing a manual sweep."
+      },
+      {
+        "type": "definition",
+        "front": "The recognition cues",
+        "back": "\"pair summing to X\" → hash/two pointers · \"longest contiguous\" → sliding window · \"k largest / merge k\" → heap · \"minimum X such that\" → binary search · \"count ways over a grid\" → DP (state the recurrence FIRST)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Is a hash lookup O(1)?",
+        "back": "Amortized and EXPECTED. Worst case O(n) under adversarial keys — a real consideration anywhere an attacker controls the input."
+      },
+      {
+        "type": "pitfall",
+        "front": "Accidental quadratic behaviour",
+        "back": "`x in list` in a loop · repeated string concatenation · a pandas apply doing a per-row lookup. Only ONE loop is visible. Ask what the INNER operation costs, don't count loops."
+      },
+      {
+        "type": "intuition",
+        "front": "Unrecognized problem — what first?",
+        "back": "Work a small example BY HAND, out loud. Whatever you did manually is a sketch of the algorithm (\"I never looked back more than two steps\" → the DP recurrence). Then brute force + complexity, then look for the cue."
+      },
+      {
+        "type": "intuition",
+        "front": "Read the constraint as a hint",
+        "back": "n up to 10⁶ rules out quadratic → sorting or hashing. n up to a few hundred permits DP over pairs. The stated input size implies the target complexity, and candidates routinely ignore it."
+      },
+      {
+        "type": "intuition",
+        "front": "Optimal or finished?",
+        "back": "FINISHED. A working quadratic answer with a stated improvement beats an unfinished optimal one. What loses the round is producing a quadratic solution without NOTICING — that's a judgement claim, not a time-budget one."
+      },
+      {
+        "type": "intuition",
+        "front": "★ This round's honest role",
+        "back": "A FLOOR CHECK, not a differentiator — low interviewer variance, so structure pays less here than in design. Failing is disqualifying, excelling buys little. Target reliable, then spend the hours on design and project write-ups."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Cormen, Leiserson, Rivest & Stein, Introduction to Algorithms (4th ed.)",
+        "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/"
+      },
+      {
+        "title": "Sedgewick & Wayne, Algorithms (4th ed.)",
+        "url": "https://algs4.cs.princeton.edu/home/"
+      },
+      {
+        "title": "Malkov & Yashunin (2018), Efficient and Robust Approximate Nearest Neighbor Search Using HNSW",
+        "url": "https://arxiv.org/abs/1603.09320"
+      },
+      {
+        "title": "Crosby & Wallach (2003), Denial of Service via Algorithmic Complexity Attacks",
+        "url": "https://www.usenix.org/legacy/events/sec03/tech/full_papers/crosby/crosby.pdf"
+      },
+      {
+        "title": "Skiena, The Algorithm Design Manual (3rd ed.)",
+        "url": "https://www.algorist.com/"
+      }
+    ],
+    "demos": [
+      "bfs-dfs-astar",
+      "dijkstra",
+      "edit-distance",
+      "knapsack"
+    ]
+  }
+};

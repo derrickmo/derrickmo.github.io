@@ -1,0 +1,250 @@
+// GENERATED from content/lessons/neural-nets/perceptron-mlp.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/neural-nets/perceptron-mlp/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "perceptron-mlp": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "The perceptron is the atom of a neural network: one neuron that takes a weighted sum of its inputs, adds a bias, and fires (outputs 1) if the sum crosses a threshold. Geometrically it draws a single hyperplane through input space and classifies by which side you land on. It's the 1958 model that started neural networks - and its famous failure (it can't learn XOR) is exactly what motivates everything that follows: to represent nonlinear decision boundaries you must STACK neurons into layers with a nonlinearity between them.",
+        "Stacking gives a multi-layer perceptron (MLP): an input layer, one or more hidden layers, and an output layer, where every neuron in a layer connects to every neuron in the next (fully connected / dense). Each hidden layer transforms its input into a new representation; the nonlinearity between layers is what lets these transforms compose into something more than one big linear map. The MLP is the canonical feedforward network - the thing people mean by 'a neural network' before convolutions or attention specialize it - and it is a universal approximator: with one hidden layer of enough units it can approximate any continuous function.",
+        "The key mental shift from perceptron to MLP is 'learned features'. A single perceptron applies fixed logic to raw inputs. An MLP's hidden layer LEARNS a new set of coordinates - features - in which the problem becomes linearly separable, and the output layer draws a simple boundary in those learned coordinates. XOR is the minimal example: no line separates it in the raw (x1, x2) plane, but a hidden layer can map it to a space where a line does. Depth extends this: each layer learns features built on the previous layer's features, so networks build complex concepts hierarchically from simple ones."
+      ],
+      "math": [
+        {
+          "h": "The perceptron: one neuron, one hyperplane",
+          "paras": [
+            "A perceptron computes a weighted sum of inputs plus a bias and passes it through a step (threshold) function. The decision boundary is the hyperplane w.x + b = 0; the weight vector w is normal (perpendicular) to that boundary and the bias b shifts it away from the origin. The classic perceptron LEARNING RULE nudges the weights toward any misclassified point, and the perceptron convergence theorem guarantees it finds a separating hyperplane in finitely many steps IF the data is linearly separable - and never converges otherwise (the XOR failure)."
+          ],
+          "tex": "\\hat{y} = \\text{step}(w^\\top x + b), \\qquad \\text{update: } w \\leftarrow w + \\eta\\,(y - \\hat{y})\\,x",
+          "texNote": "step(z) = 1 if z >= 0 else 0. The update only changes w on misclassified points (when y != y_hat). Converges iff the data is linearly separable - which XOR is not."
+        },
+        {
+          "h": "The MLP: layers of neurons with a nonlinearity between them",
+          "paras": [
+            "An MLP stacks fully-connected layers. Each hidden layer applies a weight matrix and bias, then an elementwise nonlinearity phi; the output layer maps the last hidden representation to predictions (with softmax for classification). Width is the number of units in a layer; depth is the number of layers. A dense layer from n inputs to m outputs has n*m weights plus m biases - which is why MLPs on high-dimensional raw inputs (like images) blow up in parameters, motivating convolution."
+          ],
+          "tex": "h_1 = \\phi(W_1 x + b_1), \\quad h_2 = \\phi(W_2 h_1 + b_2), \\quad \\dots, \\quad \\hat{y} = \\text{softmax}(W_L h_{L-1} + b_L)",
+          "texNote": "Each W_l is a dense (fully-connected) weight matrix. Parameter count of a layer = (in_features x out_features) + out_features. phi is shared within a layer; the output activation depends on the task."
+        }
+      ],
+      "code": [
+        {
+          "h": "The perceptron learning rule from scratch",
+          "paras": [
+            "The original perceptron algorithm: for each misclassified point, move the weights toward it. On linearly separable data (AND, OR) it converges; on XOR it loops forever, which is the empirical demonstration of its fundamental limitation."
+          ],
+          "code": "import numpy as np\n\ndef perceptron(X, y, epochs=20, eta=1.0):\n    w, b = np.zeros(X.shape[1]), 0.0\n    for _ in range(epochs):\n        errors = 0\n        for xi, yi in zip(X, y):\n            pred = 1 if w @ xi + b >= 0 else 0\n            update = eta * (yi - pred)              # nonzero only if misclassified\n            w += update * xi; b += update\n            errors += int(update != 0)\n        if errors == 0: break                       # converged (separable)\n    return w, b, errors\n\nX = np.array([[0,0],[0,1],[1,0],[1,1]], float)\nfor name, y in [('AND',[0,0,0,1]), ('OR',[0,1,1,1]), ('XOR',[0,1,1,0])]:\n    w, b, err = perceptron(X, np.array(y))\n    print(f'{name}: final errors = {err}  ({\"separable\" if err==0 else \"NEVER converges\"})')",
+          "caption": "AND and OR converge to zero errors; XOR never does - a single perceptron cannot separate it. This failure is the historical motivation for multi-layer networks."
+        },
+        {
+          "h": "A minimal MLP solves XOR (PyTorch)",
+          "paras": [
+            "One hidden layer with a nonlinearity is all it takes. The hidden layer learns a representation in which XOR becomes linearly separable, and the output neuron draws the boundary there."
+          ],
+          "code": "import torch, torch.nn as nn\nX = torch.tensor([[0.,0],[0,1],[1,0],[1,1]])\ny = torch.tensor([[0.],[1],[1],[0]])\n\nmlp = nn.Sequential(nn.Linear(2, 8), nn.Tanh(), nn.Linear(8, 1))  # hidden + nonlinearity\nopt = torch.optim.Adam(mlp.parameters(), lr=0.1)\nfor _ in range(500):\n    opt.zero_grad()\n    loss = nn.functional.binary_cross_entropy_with_logits(mlp(X), y)\n    loss.backward(); opt.step()\n\nprint('XOR predictions:', torch.sigmoid(mlp(X)).round().squeeze().tolist())  # [0,1,1,0]",
+          "caption": "nn.Linear(2,8) -> Tanh -> nn.Linear(8,1): the single hidden layer + nonlinearity is exactly the ingredient a lone perceptron lacks."
+        }
+      ],
+      "useCases": [
+        "Tabular / structured-data models: MLPs are still a strong default for fixed-length feature vectors (fraud scoring, recommendation feature towers, tabular regression) where there's no spatial or sequential structure to exploit.",
+        "The output/head of larger networks: the final classification or regression head on top of a CNN or transformer is an MLP - the fully-connected layers that map learned features to predictions.",
+        "The feedforward sublayer inside transformers: every transformer block contains a position-wise MLP (two dense layers with a nonlinearity), so understanding MLPs is prerequisite to understanding modern architectures.",
+        "Pedagogy and prototyping: the MLP is the simplest network that exhibits every core phenomenon (hidden representations, nonlinearity, depth, overfitting), so it's the standard testbed for learning and for quick baselines."
+      ],
+      "pitfalls": [
+        "Expecting a single perceptron / linear layer to solve nonlinear problems: it can only draw one hyperplane. If your data isn't linearly separable, you need a hidden layer with a nonlinearity - no amount of training fixes a linear model on XOR.",
+        "Stacking dense layers with no nonlinearity between them: two consecutive nn.Linear with nothing in between is algebraically one linear layer - a common accidental bug that silently caps the model at linear capacity.",
+        "Parameter explosion on raw high-dimensional input: a dense layer from a flattened 224x224x3 image (150k inputs) to 1000 units is 150 million weights - MLPs ignore spatial structure and don't scale to images, which is exactly why convolution exists.",
+        "Treating width and depth as interchangeable: they trade off differently - width adds capacity within a representation level, depth adds representational levels (hierarchy). Very wide-shallow and narrow-deep nets of the same parameter count behave differently.",
+        "Forgetting MLPs have no built-in inductive bias: unlike CNNs (translation equivariance) or transformers (attention over sets), a fully-connected layer treats every input dimension independently, so it needs more data to learn structure a specialized architecture gets for free."
+      ],
+      "connections": [
+        {
+          "ref": "neural-nets/activation-functions",
+          "text": "The nonlinearity between MLP layers is the activation function; the next lesson is a deep dive on which one to choose and why it decides whether a deep MLP trains at all."
+        },
+        {
+          "ref": "neural-nets/nn-walkthrough",
+          "text": "The MLP is the concrete architecture the end-to-end training loop runs on - this lesson supplies the 'model' that the four-step loop optimizes."
+        },
+        {
+          "ref": "cnn/convolution",
+          "text": "Convolution is a weight-shared, locally-connected alternative to the dense MLP layer that adds translation equivariance and slashes parameters - the fix for the MLP-on-images parameter explosion."
+        },
+        {
+          "ref": "transformers/transformer-block",
+          "text": "Every transformer block contains a position-wise MLP as its feedforward sublayer, so the dense-layer mechanics here reappear inside the most modern architectures."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a perceptron?",
+          "a": "A single artificial neuron: it computes a weighted sum of inputs plus a bias and outputs 1 if the sum crosses a threshold, defining one linear decision boundary (hyperplane)."
+        },
+        {
+          "q": "What is the geometric meaning of a perceptron's weights and bias?",
+          "a": "The weight vector w is normal (perpendicular) to the decision hyperplane w.x + b = 0; the bias b shifts that hyperplane away from the origin."
+        },
+        {
+          "q": "Why can't a single perceptron learn XOR?",
+          "a": "XOR is not linearly separable - no single hyperplane separates its classes - and a perceptron can only draw one hyperplane."
+        },
+        {
+          "q": "What is a multi-layer perceptron (MLP)?",
+          "a": "A feedforward network of fully-connected layers (input, one or more hidden, output) with a nonlinearity between layers - the canonical neural network."
+        },
+        {
+          "q": "What makes a layer 'fully connected' / 'dense'?",
+          "a": "Every neuron in the layer is connected to every neuron in the previous layer, so it's a full weight matrix multiply (n inputs x m outputs)."
+        },
+        {
+          "q": "How many parameters does a dense layer have?",
+          "a": "in_features x out_features weights plus out_features biases."
+        },
+        {
+          "q": "What is the difference between width and depth?",
+          "a": "Width is the number of units in a layer (capacity at one representation level); depth is the number of layers (number of hierarchical representation levels)."
+        },
+        {
+          "q": "What does a hidden layer actually do?",
+          "a": "It learns a new representation (features) of the input in which the task becomes easier - ideally linearly separable for the output layer to finish."
+        },
+        {
+          "q": "Does the perceptron learning rule always converge?",
+          "a": "Only if the data is linearly separable (perceptron convergence theorem); on non-separable data like XOR it never converges."
+        },
+        {
+          "q": "Why don't MLPs scale to raw images?",
+          "a": "A dense layer on a flattened image has millions of parameters and ignores spatial structure; convolution shares weights locally to fix both problems."
+        },
+        {
+          "q": "Where do MLPs still appear in modern architectures?",
+          "a": "As classification/regression heads on top of CNNs/transformers, and as the position-wise feedforward sublayer inside every transformer block."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the perceptron, its learning rule, and the convergence theorem, and why XOR broke it historically.",
+          "a": "A perceptron is a single neuron: given input x it computes w.x + b and outputs 1 if that's >= 0, else 0 - so it partitions input space with a single hyperplane (w is the normal to the boundary, b the offset). The PERCEPTRON LEARNING RULE is an online mistake-driven update: for each training point, predict; if correct, do nothing; if wrong, move the weights toward the correct answer by w <- w + eta*(y - y_hat)*x (and b similarly). Intuitively, on a false negative it adds the input to the weights (rotating the boundary toward classifying that point positive), and on a false positive it subtracts. The PERCEPTRON CONVERGENCE THEOREM (Rosenblatt / Novikoff) guarantees that IF the data is linearly separable, this rule finds a separating hyperplane in a finite number of updates, bounded by (R/gamma)^2 where R is the data radius and gamma the margin - a clean, provable result that generated huge early excitement. The historical crisis came from Minsky and Papert's 1969 book Perceptrons, which pointed out the flip side: a single perceptron can only represent LINEARLY SEPARABLE functions, and XOR - true when exactly one input is on - is not linearly separable (its two positive points sit on opposite corners of the unit square, unseparable by any line). So the learning rule never converges on XOR; it oscillates forever. Minsky and Papert further noted that while a multi-layer network COULD represent XOR, there was then no known way to train the hidden layers. This is widely credited with cooling funding and interest (the first 'AI winter'). The resolution came in the 1980s with BACKPROPAGATION, which made training multi-layer networks (MLPs) practical - and an MLP with one hidden layer and a nonlinearity solves XOR trivially. So the arc is: perceptron (elegant but linear-only) -> XOR shows the limit -> multi-layer perceptron + backprop restores the field.",
+          "deepDive": {
+            "q": "How does the perceptron relate to logistic regression and the SVM - all three draw a hyperplane, so what differs?",
+            "a": "All three are linear classifiers producing a hyperplane w.x + b = 0, but they differ in the LOSS/objective and thus what boundary they pick and what they output. The PERCEPTRON minimizes (implicitly) the number of misclassifications via its mistake-driven rule; it outputs a hard 0/1, has no notion of confidence, and stops at ANY separating hyperplane (no preference among them) - on separable data the boundary it lands on depends on initialization and data order. LOGISTIC REGRESSION replaces the step with a sigmoid and minimizes cross-entropy (log loss); it outputs a calibrated PROBABILITY, and its boundary is the maximum-likelihood one - it keeps pushing to make confident-correct predictions, so even after separation it moves the boundary to increase margin-like confidence (and can overfit / weights diverge on perfectly separable data without regularization). The SVM minimizes hinge loss with an L2 penalty, which selects the MAXIMUM-MARGIN separating hyperplane - the unique boundary farthest from the nearest points of both classes - giving the best worst-case generalization guarantee, and it depends only on the support vectors. So: perceptron = any separator, hard output, mistake-driven; logistic regression = probabilistic, log-loss, MLE boundary; SVM = max-margin, hinge loss, geometrically optimal. Crucially, all three are LINEAR and all three fail on XOR in the raw input space - the perceptron's limitation is shared by its cousins; escaping it requires either a nonlinear feature map (kernels for the SVM) or learned hidden layers (the MLP), which is the through-line to neural networks."
+          }
+        },
+        {
+          "q": "Concretely, how does a one-hidden-layer MLP solve XOR when a perceptron cannot?",
+          "a": "The MLP solves XOR by LEARNING A NEW REPRESENTATION in the hidden layer where the problem becomes linearly separable, then drawing a linear boundary there. Here's the concrete construction. XOR(x1,x2) = 1 when exactly one input is 1. Build two hidden units: let h1 = phi(x1 + x2 - 0.5) approximate the OR of the inputs (fires when at least one input is on), and h2 = phi(x1 + x2 - 1.5) approximate the AND (fires only when both are on). Now in the (h1, h2) hidden space, the four inputs map to distinct, linearly separable positions: (0,0)->(off,off), (0,1) and (1,0)->(on,off), (1,1)->(on,on). XOR is exactly 'OR AND NOT AND' = h1 - h2, so the output neuron y = phi(h1 - h2) separates the classes with a single hyperplane in the hidden space. The hidden layer has done the essential work: it transformed the input coordinates into new coordinates (features) where a linear output can succeed. This is the general principle of what hidden layers do - they don't just add parameters, they learn a change of representation that untangles the data. Geometrically, the nonlinearity lets the network 'fold' or 'warp' the input space so that regions that were interleaved (XOR's checkerboard) become separated. A perceptron has no hidden layer, so it's stuck classifying in the raw input coordinates where XOR is unseparable. In practice you don't hand-design h1/h2 - backprop discovers weights that implement some equivalent representation - but the hand construction proves existence and shows WHY one hidden layer suffices: XOR needs exactly the ability to compute intermediate logical features (OR, AND) and combine them, which is precisely 'linear -> nonlinear -> linear'.",
+          "deepDive": {
+            "q": "How many hidden units does XOR minimally need, and what does that tell you about capacity vs. representability?",
+            "a": "XOR is representable with just TWO hidden units (as in the OR/AND construction above) using a nonlinearity - that's the minimum for a standard one-hidden-layer MLP. Some formulations manage it with clever weight choices, but 2 is the clean, robust minimum: you need at least two hidden features because XOR requires combining two distinct linear sub-decisions (you can't get a non-convex 'exactly one' region from a single linear feature). This illustrates a general point about CAPACITY vs. REPRESENTABILITY: the number of hidden units needed to REPRESENT a function is a property of the function's complexity (how many linear regions / how much folding it requires), not just of the input dimension. XOR needs 2; a function with k separate 'bumps' needs on the order of k hidden units in one layer. But there's a subtlety between representability and trainability: while 2 units CAN represent XOR, training a 2-unit network to actually find that solution is finicky - the loss surface has bad regions and the tiny network is sensitive to initialization, so it sometimes gets stuck. In practice people use more units than the theoretical minimum (say 8 for XOR) because the OVER-PARAMETERIZATION makes the loss surface friendlier - more units means more redundant paths to a solution, so gradient descent reliably finds one. This previews a deep modern theme: over-parameterized networks (far more parameters than needed to fit the data) are EASIER to optimize and, surprisingly, often generalize well anyway - contradicting classical intuition that excess capacity must overfit. So XOR's minimal 2 units teaches representability's lower bound, while the practical choice of 8 teaches that extra capacity buys optimization ease, a trade-off that scales up to why real networks are massively over-parameterized."
+          }
+        },
+        {
+          "q": "What is the trade-off between making a network wider versus deeper, given a fixed parameter budget?",
+          "a": "Width and depth both add capacity but in qualitatively different ways, and the trade-off is one of the central architecture decisions. WIDTH (more units per layer) increases capacity WITHIN a representation level - it lets a layer detect more features / carve more linear pieces at the same level of abstraction, and it makes optimization easier (wider layers have friendlier loss surfaces, more redundant paths to good solutions, and the universal approximation theorem is a width statement - one wide-enough hidden layer can represent anything). But width is INEFFICIENT for compositional functions: to represent a deeply-nested function, a shallow-wide net may need exponentially many units because it can't reuse intermediate computations. DEPTH (more layers) adds representational LEVELS - each layer builds features on top of the previous layer's features, enabling hierarchical composition (edges -> shapes -> objects), and depth is exponentially more parameter-efficient for the structured, compositional functions that real data exhibits (proven depth-separation results: some functions need polynomial units with depth but exponential units when shallow). The cost of depth is OPTIMIZATION DIFFICULTY: deep networks suffer vanishing/exploding gradients and are harder to train, which is why depth only became practical with careful initialization, normalization (BatchNorm/LayerNorm), and residual connections. So the trade-off at fixed budget: for problems with hierarchical/compositional structure (vision, language), DEPTH usually wins - it matches the data's structure and is more efficient - but you must pay the engineering cost to make deep nets trainable. For simpler or lower-dimensional tabular problems, moderate width and shallow depth often suffice and train more easily. The empirical practice: modern architectures are deep (dozens to hundreds of layers) BECAUSE the tricks to train depth now exist; before residual connections, people couldn't reliably train past ~20 layers, so the field was effectively forced toward width. The interview-ready summary: width = capacity per level + easy optimization but inefficient for composition; depth = hierarchical/compositional efficiency but hard to optimize (mitigated by normalization + residuals); real problems are compositional, so depth wins once you can train it.",
+          "deepDive": {
+            "q": "Why did residual (skip) connections make very deep networks trainable, in terms of the MLP mechanics here?",
+            "a": "Residual connections make a layer compute x + f(x) instead of just f(x) - the layer learns a RESIDUAL (a correction to its input) and there's an identity 'skip' path around the transformation. This fixes the core obstacle to depth, which is that gradients degrade as they backpropagate through many layers. Consider the backward pass: without skips, the gradient reaching an early layer is a PRODUCT of many Jacobians (one per layer), and a long product of matrices with norm slightly below 1 vanishes exponentially (or slightly above 1, explodes) - so early layers in a deep plain MLP receive almost no usable gradient and barely learn (this is why plain nets stopped improving, even got WORSE, past ~20 layers - a degradation problem, not just overfitting). With a residual block y = x + f(x), the derivative dy/dx = I + df/dx has that identity term, so the gradient has a path that flows straight through with a factor of 1 - the product of Jacobians becomes a product of (I + something) terms, which does NOT vanish because the identity keeps a direct highway from the loss back to every layer. Concretely, the gradient to an early layer always contains an undiminished copy of the downstream gradient (via the sum of identity paths), so even a 100+ layer network gets a healthy learning signal everywhere. There's also a representational argument: the identity map is now the DEFAULT (a block does nothing if f=0), so adding layers can't hurt - a deeper residual net can always match a shallower one by learning zero residuals, making extra depth 'free' to add. This is exactly why ResNets scaled to 152+ layers when plain nets couldn't get past ~20, and why residual connections are now universal (every transformer block has them around both the attention and MLP sublayers). In MLP terms: the skip connection turns the fragile long-product gradient of a deep stack into a robust sum-of-paths gradient, restoring trainability that pure depth destroys."
+          }
+        },
+        {
+          "q": "What inductive biases does an MLP have (or lack), and why does that matter compared to CNNs or transformers?",
+          "a": "An INDUCTIVE BIAS is the set of assumptions a model architecture builds in about the structure of the data - it's what lets a model generalize from finite data rather than needing to see every case. The MLP's defining characteristic is that it has almost NO structural inductive bias: a fully-connected layer treats every input dimension as an independent, interchangeable feature with its own weight, making no assumption about relationships between dimensions. This has two consequences. The COST: an MLP must LEARN any structure in the data purely from examples, so it's data-hungry and doesn't exploit known regularities. On images, for instance, an MLP doesn't know that a cat shifted a few pixels right is still a cat - it would have to learn that invariance separately for every position from data, which is wildly inefficient. The (occasional) BENEFIT: with no built-in assumptions, an MLP is maximally general - for genuinely unstructured, fixed-length tabular data where dimensions really are heterogeneous and un-ordered (a customer's age, income, tenure...), the MLP's lack of spatial/sequential bias is appropriate, and it's a fine default. CNNs bake in two biases perfect for images: LOCALITY (features depend on nearby pixels, via small receptive fields) and TRANSLATION EQUIVARIANCE (weight sharing means a feature detector works the same everywhere), so a CNN learns from far less data and generalizes across positions for free. TRANSFORMERS bake in a bias suited to sets/sequences: PERMUTATION EQUIVARIANCE with attention that models pairwise interactions between all elements, plus (via positional encodings) a flexible notion of order - ideal for language and increasingly for vision at scale. The general principle (a bias-variance framing): a STRONGER, well-matched inductive bias reduces the data needed and improves generalization WHEN the assumption fits the data, but HURTS when it doesn't (a CNN's locality bias is wrong for problems with no spatial structure). MLPs sit at the low-bias/high-flexibility end, which is why they need more data and why specialized architectures (CNNs, transformers) dominate their respective domains - they encode the right assumptions. This also explains a modern trend: with ENOUGH data and compute, lower-bias architectures (transformers, even MLP-Mixers) can match or beat higher-bias ones, because they learn the structure from data rather than assuming it - the bias matters most in the limited-data regime.",
+          "deepDive": {
+            "q": "Given that transformers have weaker inductive bias than CNNs yet now win on vision, what does that say about the bias-vs-data trade-off?",
+            "a": "It's a clean demonstration that inductive bias and data are SUBSTITUTES: a strong, correct inductive bias is most valuable when data is SCARCE, and its advantage shrinks (or reverses) as data grows, because a flexible model can LEARN the structure that the biased model assumed. CNNs encode locality and translation equivariance - assumptions that are genuinely true of images - so in the small/medium-data regime a CNN generalizes much better than a vision transformer (ViT), which must learn those spatial regularities from scratch. Indeed, ViTs trained on ImageNet-scale data (~1M images) initially UNDERPERFORM comparable CNNs, exactly because they lack the helpful bias and don't have enough data to learn it. But when ViTs are pretrained on much larger datasets (JFT-300M, hundreds of millions of images), they MATCH and then EXCEED CNNs - with enough data, the transformer learns spatial structure (and more flexible long-range and content-dependent interactions that the CNN's fixed locality can't express), so its weaker prior becomes an asset: it isn't CONSTRAINED by assumptions that, while mostly right, are sometimes limiting (e.g., some visual relationships are long-range, which convolution captures only slowly through depth). This mirrors the bias-variance trade-off: a high-bias model (CNN) has lower variance and wins with little data; a low-bias model (transformer/MLP) has higher variance, needs more data to tame it, but has a higher ceiling because it can fit structure the biased model can't. The broad lesson driving modern ML: as data and compute scale, the field moves toward LOWER-bias, more general architectures (CNN -> transformer, hand-crafted features -> learned features, and even 'MLP-Mixer' style all-MLP vision models that work at scale), because learning the structure beats assuming it once you can afford the data. But in low-data regimes - which is most real-world problems outside big tech - the right inductive bias (or a pretrained model that supplies it) is still decisive. So the MLP's near-zero bias isn't strictly good or bad; it's a position on a trade-off curve whose optimal point moves toward less bias as data grows."
+          }
+        },
+        {
+          "q": "How do you count the parameters and estimate the compute of an MLP, and why does this matter for design?",
+          "a": "For a fully-connected layer mapping n inputs to m outputs, the PARAMETER count is n*m weights plus m biases = m*(n+1). For a whole MLP you sum this over layers: e.g., a net with layers [784 -> 256 -> 128 -> 10] has 784*256+256 (~201k) + 256*128+128 (~33k) + 128*10+10 (~1.3k) ~ 235k parameters. The COMPUTE per example, measured in multiply-accumulate operations (MACs / FLOPs), for a dense layer is n*m (the matrix-vector product dominates; the bias add and activation are negligible), and for a batch of B examples it's B*n*m. So compute per layer ~ parameter count (for dense layers, params and FLOPs-per-example are both n*m), which is a handy rule: an MLP's forward FLOPs per example roughly equals its parameter count, and training is ~3x that (forward + backward is about 2-3x forward). Why this matters for DESIGN: (1) The FIRST layer on raw high-dimensional input dominates - flattening a 224x224x3 image gives 150,528 inputs, so even a modest 1000-unit first layer is ~150M parameters in ONE layer, which is memory- and compute-prohibitive and ignores spatial structure. This single calculation is the quantitative case for convolution (a conv layer shares a small kernel across all positions, so its parameters are (kernel_size x channels_in x channels_out), INDEPENDENT of image size - orders of magnitude fewer). (2) Parameter count drives MEMORY (storing weights + optimizer state, ~3-4x the weights for Adam) and the risk of overfitting (more parameters = more capacity to memorize, needing more data or regularization). (3) It lets you budget: given a compute or latency target, you can back out how wide/deep you can afford. (4) It exposes where to economize - most MLP parameters are usually in the widest layers or the input layer, so those are the levers. Being able to do this arithmetic in your head - 'a dense layer is in x out weights, FLOPs ~ params, first layer on images explodes' - is a standard interview expectation and the reasoning that justifies why we don't use plain MLPs on images or long sequences.",
+          "deepDive": {
+            "q": "Compare the parameter count of an MLP layer to a convolutional layer on the same image input - how big is the difference and why?",
+            "a": "The difference is enormous and is the entire quantitative reason convolution exists. Take a 224x224x3 input image. An MLP FIRST LAYER that flattens it (150,528 inputs) to even 1,000 hidden units has 150,528 x 1,000 ~ 150 MILLION parameters in that one layer. A CONVOLUTIONAL layer that produces, say, 64 output channels with 3x3 kernels from the 3-channel input has only (3 x 3 x 3 x 64) + 64 = 1,792 parameters - about 84,000x FEWER - and it produces a full 224x224x64 feature map, preserving spatial structure. The reason for this gap is WEIGHT SHARING plus LOCAL CONNECTIVITY. The MLP layer has an INDEPENDENT weight for every (input pixel, output unit) pair - full connectivity means the parameter count scales with the input size times the layer size. A convolution instead uses a small kernel (3x3x3 = 27 weights per output channel) that is SLID across all spatial positions - the SAME 27 weights are reused at every location (weight sharing), and each output only looks at a local 3x3 neighborhood (local connectivity), so the parameter count is (kernel_area x in_channels x out_channels), completely INDEPENDENT of the image's height and width. This encodes the two correct inductive biases for images - locality (nearby pixels are related) and translation equivariance (a feature detector should work the same anywhere) - and as a bonus collapses the parameter count from 'scales with pixels' to 'constant in image size'. The consequences compound: fewer parameters means less memory, less overfitting, and less data needed, AND the shared computation is far more efficient. This single comparison - 150M vs ~1.8k parameters for the first layer - is the standard motivating calculation for why images use CNNs (or patch-based transformers) rather than MLPs, and it's why the MLP-on-images approach was abandoned early despite MLPs being universal approximators: universality doesn't help if the parameter count is physically untrainable. The same logic (sharing structure to cut parameters) recurs everywhere - RNNs share weights across time, transformers share the attention mechanism across positions - all escaping the dense layer's 'a weight for every pair' blowup."
+          }
+        },
+        {
+          "q": "In practice, how do you choose the number of hidden layers and units for an MLP, and what's the modern philosophy on network sizing?",
+          "a": "Choosing MLP architecture is largely empirical, guided by a few principles, and the modern philosophy has shifted notably from the classical view. THE CLASSICAL approach was to find the 'right-sized' network - big enough to fit the data (avoid underfitting) but small enough to avoid overfitting - treating capacity as a Goldilocks problem to tune carefully, often with rules of thumb (e.g., hidden units between the input and output sizes, or a pyramid tapering from wide to narrow). THE MODERN approach, born from the empirical success of large networks, is different: make the network LARGE (over-parameterized) so it CAN fit the data easily, then control overfitting with REGULARIZATION (weight decay, dropout, data augmentation, early stopping) rather than by restricting capacity. This works because over-parameterized networks are (surprisingly) easier to optimize and, with good regularization, generalize well (connected to the double-descent phenomenon - past the interpolation threshold, bigger can generalize better). So the modern instinct is 'start big enough to overfit, then regularize,' not 'find the minimal size.' PRACTICAL GUIDELINES: (1) START FROM PROVEN ARCHITECTURES - for most problems, copy a known-good architecture for your data type rather than designing from scratch; for tabular MLPs, a few (2-4) hidden layers of moderate width (128-512 units) is a common starting point. (2) DEPTH - more layers add representational hierarchy but are harder to train; for MLPs on tabular data, deep isn't usually necessary (2-4 layers), whereas for perceptual/structured data you use specialized deep architectures (CNNs/transformers) rather than deep MLPs. (3) WIDTH - wider layers add capacity and ease optimization; a common pattern is constant width or a gentle taper. (4) The DIAGNOSTIC LOOP is what actually drives sizing: train, look at the train-vs-validation gap; if UNDERFITTING (both losses high), increase capacity (more/wider layers) or train longer; if OVERFITTING (large gap), add regularization first, and only reduce capacity if regularization isn't enough. (5) TUNE with the validation set (or cross-validation), and use hyperparameter search (random search, Bayesian optimization) over layer count/width if it matters. (6) PRACTICAL CONSTRAINTS - compute/memory/latency budgets cap how big you can go (recall a dense layer is in x out parameters), and the parameter count should be sane relative to your dataset size. THE OVERARCHING philosophy: don't agonize over finding the perfect size a priori - pick a reasonable starting architecture (or a proven one), make it large enough to fit the training data, then use regularization and the train-val-gap diagnostic to iterate. Capacity is cheap to add and overfitting is controllable with regularization, so the bias has shifted toward 'big model + strong regularization' over 'carefully minimal model.' The one caveat is efficiency-constrained deployment (edge/mobile), where you DO minimize size (via smaller architectures, pruning, distillation). The interview-ready summary: choose MLP size empirically - start from proven architectures, prefer over-parameterizing and controlling overfitting with regularization (the modern view) rather than finding a minimal 'right size,' and let the train-vs-validation gap drive iteration (underfit -> more capacity/training; overfit -> more regularization); depth adds hierarchy but is harder to train, width adds capacity and eases optimization, and real constraints are compute/memory/latency and dataset size.",
+          "deepDive": {
+            "q": "Why are over-parameterized networks often EASIER to optimize than smaller ones, which seems counterintuitive?",
+            "a": "It's genuinely counterintuitive - more parameters means a higher-dimensional, seemingly harder optimization problem - yet over-parameterized networks are empirically EASIER to train (more reliably reach low loss) than tightly-sized ones, for several interlocking reasons rooted in the geometry of high-dimensional loss landscapes. (1) FEWER BAD LOCAL MINIMA / more good solutions: in a small network, there may be few weight configurations that fit the data, and the loss landscape has bad local minima where gradient descent gets stuck. In a large over-parameterized network, there are MANY (a high-dimensional manifold of) weight settings that fit the training data equally well, so there are vastly more 'good' solutions and more paths to reach them - gradient descent is likely to find one. Theoretical and empirical work suggests that in sufficiently over-parameterized nets, most local minima are near-global (low loss), and the truly bad minima become rare or vanish. (2) SADDLE POINTS, NOT MINIMA, are the real obstacle in high dimensions, and over-parameterization helps navigate them: in high-dimensional spaces, critical points are overwhelmingly SADDLE POINTS (some directions up, some down) rather than local minima (all directions up - which requires all eigenvalues positive, exponentially unlikely in high dimensions). Over-parameterized networks have more directions to 'escape' any saddle (more downhill directions available), so gradient descent (with SGD noise) slides off saddles rather than stalling. (3) The LOSS LANDSCAPE is SMOOTHER / more connected: over-parameterization tends to make the landscape more benign - wider networks have been shown to have loss surfaces with fewer sharp barriers, and there's evidence that the low-loss regions are CONNECTED (you can walk between different good solutions along low-loss paths - 'mode connectivity'), so there's essentially one big connected basin of good solutions rather than many isolated ones. (4) The NEURAL TANGENT KERNEL (NTK) regime: in the infinite-width limit, training dynamics become nearly LINEAR and CONVEX-like (the network behaves like a linear model in a fixed feature space), so gradient descent provably converges to a global minimum - and very wide finite networks approximate this benign regime, which is a theoretical account of why width eases optimization. (5) REDUNDANCY provides many equivalent paths: with excess parameters, there are many redundant ways to represent the same function, so if one 'route' to a good solution is blocked (a neuron dies, a direction is hard), others remain - the optimization isn't bottlenecked on a unique fragile configuration the way a minimal network is. The upshot is a REVERSAL of classical intuition: classically, more parameters = more capacity = more overfitting = worse, so you'd minimize size; but the modern finding is that more parameters = EASIER OPTIMIZATION (more good solutions, smoother/more-connected landscape, easier saddle escape) AND, with regularization or implicit bias, not necessarily worse generalization (double descent). This is precisely WHY the modern recipe is 'over-parameterize then regularize' - the large model is easier to train to low loss, and generalization is handled separately by regularization and the implicit bias of SGD toward flat/simple solutions. It resolves the apparent paradox: the higher-dimensional problem is 'harder' in a naive dimension-counting sense but EASIER in the sense that matters (gradient descent reliably finds good solutions), because high-dimensional over-parameterized landscapes are geometrically friendlier - dominated by escapable saddles and connected low-loss basins rather than trapping local minima. This is one of the deeper and more surprising lessons of modern deep learning, and it's why practitioners don't fear making networks 'too big' for optimization reasons - bigger usually trains more easily, and overfitting (a separate concern) is managed with regularization."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Perceptron",
+        "back": "A single neuron: outputs step(w.x + b). Draws one linear decision boundary (hyperplane); w is normal to it, b is the offset. The 1958 origin of neural nets."
+      },
+      {
+        "type": "formula",
+        "front": "Perceptron learning rule",
+        "back": "w <- w + eta*(y - y_hat)*x, updated only on misclassified points. Converges iff data is linearly separable (perceptron convergence theorem)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why the perceptron fails on XOR",
+        "back": "XOR is not linearly separable (positive class on opposite corners); a single hyperplane can't separate it, so the learning rule never converges. Motivated multi-layer nets."
+      },
+      {
+        "type": "definition",
+        "front": "Multi-layer perceptron (MLP)",
+        "back": "A feedforward stack of fully-connected layers with a nonlinearity between them: input -> hidden(s) -> output. The canonical neural network; a universal approximator."
+      },
+      {
+        "type": "intuition",
+        "front": "What a hidden layer does",
+        "back": "Learns a new representation (features) in which the task becomes easier - e.g., maps XOR into a space where it's linearly separable, then the output draws a linear boundary."
+      },
+      {
+        "type": "formula",
+        "front": "Dense layer parameter count",
+        "back": "in_features x out_features weights + out_features biases = m*(n+1). Forward FLOPs per example ~ n*m ~ the parameter count."
+      },
+      {
+        "type": "intuition",
+        "front": "Width vs depth",
+        "back": "Width = capacity within a level + easier optimization; depth = hierarchical/compositional levels + exponential efficiency for structured functions, but harder to train (needs norm + residuals)."
+      },
+      {
+        "type": "pitfall",
+        "front": "MLP parameter explosion on images",
+        "back": "A dense layer on a flattened 224x224x3 image (150k inputs) x 1000 units ~ 150M params in ONE layer, ignoring spatial structure. This is why images use convolution (weight sharing)."
+      },
+      {
+        "type": "intuition",
+        "front": "MLP inductive bias",
+        "back": "Almost none - a dense layer treats every input dimension independently. Flexible but data-hungry; CNNs add locality/translation-equivariance, transformers add attention over sets."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Rosenblatt (1958), The Perceptron",
+        "url": "https://psycnet.apa.org/record/1959-09865-001"
+      },
+      {
+        "title": "Minsky & Papert, Perceptrons (1969) - the XOR limitation",
+        "url": "https://mitpress.mit.edu/9780262630221/perceptrons/"
+      },
+      {
+        "title": "Nielsen, Neural Networks and Deep Learning, Ch. 1 (perceptrons to sigmoid neurons)",
+        "url": "http://neuralnetworksanddeeplearning.com/chap1.html"
+      },
+      {
+        "title": "He et al. (2015), Deep Residual Learning (why depth needs skip connections)",
+        "url": "https://arxiv.org/abs/1512.03385"
+      }
+    ],
+    "demos": [
+      "perceptron",
+      "neural-playground"
+    ]
+  }
+};

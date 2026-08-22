@@ -1,0 +1,269 @@
+// GENERATED from content/lessons/multimodal/zero-shot.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/multimodal/zero-shot/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "zero-shot": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "A conventional classifier's output layer is a fixed set of numbered slots, and adding a class means retraining. CLIP's zero-shot trick removes that constraint with one observation: if images and text live in a shared embedding space, then the TEXT ENCODER can manufacture a classifier on demand. Embed 'a photo of a dog', 'a photo of a cat', and any other class name you like, and classify an image by which text embedding it is closest to. The classes are described rather than enumerated, so the label set becomes a runtime argument.",
+        "The result that made this famous is that zero-shot CLIP matched a fully supervised ResNet-50 on ImageNet without seeing a single ImageNet training image. What that headline obscures is how much of the performance comes from PROMPT ENGINEERING, which is not a detail here but a core part of the method. Using the bare class name 'dog' is meaningfully worse than 'a photo of a dog', because CLIP's training captions are sentences, not nouns, and a bare word sits in a part of the text-embedding space the model rarely visited. Ensembling many prompt templates and averaging their embeddings adds several more points. You are not choosing wording; you are choosing where in text space to place your classifier.",
+        "The deeper thing to understand about this shared space is that it is NOT shared in the way the phrase suggests. Image embeddings and text embeddings occupy two SEPARATE, non-overlapping cones - the MODALITY GAP - so an image's cosine similarity to its own caption is around 0.3 while its similarity to another image is around 0.6. The contrastive objective only ever asked that matching pairs be closer to each other than to mismatched pairs; it never asked that the two modalities occupy the same region. Zero-shot classification works because comparisons are made WITHIN a modality's relationship to text, and this is why absolute CLIP similarity scores are close to meaningless as a threshold and only the RANKING is trustworthy."
+      ],
+      "math": [
+        {
+          "h": "The text encoder as a classifier factory",
+          "paras": [
+            "Zero-shot classification is a nearest-neighbour lookup in embedding space. Written out, the text embeddings play exactly the role a linear layer's weight matrix would - which is the cleanest way to see what is happening."
+          ],
+          "tex": "\\hat{y} = \\arg\\max_{k} \\; \\frac{\\langle f_I(x),\\, f_T(t_k)\\rangle}{\\lVert f_I(x)\\rVert\\,\\lVert f_T(t_k)\\rVert}, \\qquad W = \\big[\\,\\bar{f}_T(t_1)\\;\\cdots\\;\\bar{f}_T(t_K)\\,\\big]^{\\top}",
+          "texNote": "W is a K x d matrix of normalized text embeddings, and the prediction is argmax of W times the normalized image embedding. It IS a linear classifier - the text encoder just computed its weights instead of gradient descent."
+        },
+        {
+          "h": "Prompt ensembling: average in embedding space, not in probability space",
+          "paras": [
+            "Multiple templates per class, embedded and averaged BEFORE normalization, then renormalized. This is cheap - the text side is computed once and cached - and it is worth several points."
+          ],
+          "tex": "\\bar{f}_T(c) = \\frac{\\frac{1}{M}\\sum_{m=1}^{M} f_T\\big(\\tau_m(c)\\big)}{\\big\\lVert \\frac{1}{M}\\sum_{m=1}^{M} f_T\\big(\\tau_m(c)\\big)\\big\\rVert}",
+          "texNote": "tau_m are templates ('a photo of a {}', 'a blurry photo of a {}', 'art of the {}'). CLIP's 80-template ImageNet ensemble is worth roughly +3.5% over a single prompt, and averaging EMBEDDINGS beats averaging the resulting probabilities."
+        },
+        {
+          "h": "The modality gap, measured",
+          "paras": [
+            "The two modalities occupy separate cones. You can measure the gap directly as the distance between the mean embeddings, and it is large and stable - it does not close with more training."
+          ],
+          "tex": "\\Delta = \\Big\\lVert \\tfrac{1}{N}\\sum_i \\bar{f}_I(x_i) - \\tfrac{1}{N}\\sum_i \\bar{f}_T(t_i) \\Big\\rVert, \\qquad \\cos(\\text{img},\\text{its caption}) \\approx 0.3 \\;\\ll\\; \\cos(\\text{img},\\text{img}) \\approx 0.6",
+          "texNote": "The contrastive objective only requires matched pairs to rank above mismatched ones - it never requires the modalities to overlap. Consequence: absolute similarity scores are not comparable across modalities and make poor thresholds; only the ranking within a comparison is meaningful."
+        }
+      ],
+      "code": [
+        {
+          "h": "Zero-shot classification, with the prompt handling that actually matters",
+          "paras": [
+            "The mechanism is ten lines. The templates are what separate a working system from a disappointing one, and the text side costs nothing at inference because it is cached."
+          ],
+          "code": "import torch, clip\n\nTEMPLATES = [\n    \"a photo of a {}.\", \"a blurry photo of a {}.\", \"a photo of the large {}.\",\n    \"a photo of the small {}.\", \"art of the {}.\", \"a cropped photo of a {}.\",\n]   # CLIP's ImageNet set has 80; even 6 recovers most of the gain\n\n@torch.no_grad()\ndef build_classifier(classnames, model, tokenizer):\n    weights = []\n    for c in classnames:\n        emb = model.encode_text(tokenizer([t.format(c) for t in TEMPLATES]))\n        emb = emb / emb.norm(dim=-1, keepdim=True)   # normalize EACH\n        emb = emb.mean(0)                            # then average\n        weights.append(emb / emb.norm())             # then renormalize\n    return torch.stack(weights)                      # (K, d) - computed ONCE\n\nW = build_classifier(classnames, model, tokenizer)\n\n@torch.no_grad()\ndef classify(images):\n    f = model.encode_image(images)\n    f = f / f.norm(dim=-1, keepdim=True)\n    return (100.0 * f @ W.T).softmax(-1)             # 100 = CLIP's learned scale\n\n# WHAT THE PROMPTS ARE WORTH (CLIP paper, ImageNet zero-shot):\n#   bare class name .................. baseline\n#   \"a photo of a {}\" ................ +1.3%\n#   80-template ensemble ............. +3.5%\n#   class-name disambiguation ........ more again on fine-grained sets\n#\n# The last one is underrated: CLIP has never heard of the ImageNet class\n# \"crane\" as a bird versus a machine, and \"boxer\" as a dog versus a fighter.\n# Renaming to \"crane bird\" fixes a whole class of errors that look like\n# vision failures and are actually LABEL AMBIGUITY.",
+          "caption": "The text tower computes the classifier weights once and caches them, so zero-shot inference costs exactly one image forward pass. Prompt templates and class-name disambiguation are worth several points and are the part people skip."
+        },
+        {
+          "h": "The modality gap, and why absolute scores mislead",
+          "paras": [
+            "Ten lines that change how you use CLIP similarity. If you have ever tried to threshold a CLIP score and found no value works, this is why."
+          ],
+          "code": "img_emb = normalize(model.encode_image(images))     # (N, d)\ntxt_emb = normalize(model.encode_text(captions))    # (N, d), matched pairs\n\nprint(\"matched image-text  \", (img_emb * txt_emb).sum(-1).mean().item())\nprint(\"image-image (random)\", (img_emb @ img_emb.T).mean().item())\nprint(\"text-text  (random) \", (txt_emb @ txt_emb.T).mean().item())\nprint(\"centroid distance   \", (img_emb.mean(0) - txt_emb.mean(0)).norm().item())\n\n#   matched image-text ....... ~0.30      <- an image and ITS OWN caption\n#   image-image (random) ..... ~0.60      <- two UNRELATED images\n#   text-text  (random) ...... ~0.55\n#   centroid distance ........ ~0.82      <- the modality GAP\n#\n# An image is more similar to a random other image than to its own caption.\n# The embeddings sit in two separate cones and the contrastive loss never\n# asked them to overlap - it only asked matched pairs to RANK above\n# mismatched ones.\n#\n# CONSEQUENCES YOU WILL HIT:\n#  * A CLIPScore of 0.31 is not \"31% match\". There is no absolute scale, and\n#    a fixed threshold will not transfer across prompts, domains, or models.\n#  * Compare LIKE WITH LIKE: rank captions for one image, or images for one\n#    caption. Do not compare an image-text score against an image-image one.\n#  * For retrieval, calibrate the threshold per query, or use rank position.\n#  * The gap is stable and does not close with more training - it is a\n#    property of the objective plus initialization, not a convergence issue.",
+          "caption": "An image's similarity to its own caption (~0.30) is LOWER than to a random unrelated image (~0.60). The shared space is two adjacent cones, which is why CLIP scores rank well and threshold badly."
+        }
+      ],
+      "useCases": [
+        "Cold-start classification with no labelled data and a label set that changes at runtime - content moderation categories, product taxonomies, and any setting where new classes appear faster than you can label them.",
+        "Open-vocabulary detection and segmentation, where CLIP's text tower supplies the class embeddings and a detector proposes regions, giving detection of categories never annotated in the training set.",
+        "Data curation and filtering at scale: scoring image-text pairs to build training sets (LAION was filtered with CLIP), finding mislabelled examples, and retrieving candidates for annotation.",
+        "Semantic image search and deduplication over large catalogues, where the embedding is the index and the query can be text or an image - subject to the ranking-not-thresholding caution."
+      ],
+      "pitfalls": [
+        "Thresholding on absolute CLIP similarity. The modality gap means an image scores ~0.30 against its own caption and ~0.60 against a random image, so there is no meaningful absolute scale and a fixed threshold will not transfer across prompts, domains, or model versions. Rank, do not threshold.",
+        "Using bare class names as prompts. CLIP was trained on sentences, so 'a photo of a {}' is worth over a point on ImageNet and an 80-template ensemble roughly 3.5 - and averaging EMBEDDINGS beats averaging probabilities.",
+        "Ignoring class-name ambiguity. 'Crane', 'boxer', and 'mouse' mean different things, and the model has no way to know which you meant. Disambiguating the class string fixes errors that look like vision failures.",
+        "Assuming zero-shot generalizes uniformly. CLIP is strong on common natural-image categories and weak on fine-grained, specialized, and abstract tasks - satellite imagery, medical scans, counting, and any concept rare in web alt-text.",
+        "Believing 'zero-shot' means the model has not seen the task. CLIP's 400M web pairs almost certainly contain examples resembling most benchmarks, and the CLIP paper's own de-duplication analysis is the honest treatment - treat the term as 'no task-specific supervision', not 'no exposure'.",
+        "Reaching for zero-shot when you have labels. A linear probe on CLIP features with even 4-16 examples per class typically beats zero-shot, and full fine-tuning beats that. Zero-shot's niche is genuinely no data.",
+        "Fine-tuning CLIP naively for a downstream task and losing robustness. Fine-tuning distorts the pretrained features and degrades out-of-distribution performance; WiSE-FT (interpolating fine-tuned and zero-shot weights) recovers much of it and often improves both."
+      ],
+      "connections": [
+        {
+          "ref": "multimodal/clip",
+          "text": "The contrastive pretraining that produces the shared space - zero-shot classification is the payoff, and the modality gap is a direct consequence of that objective."
+        },
+        {
+          "ref": "advanced-nlp/nli",
+          "text": "NLI-based zero-shot classification is the same reframing in text: turn classification into a task the model was already trained on, and let the label's SEMANTICS do the work."
+        },
+        {
+          "ref": "multimodal/multimodal-eval",
+          "text": "CLIPScore inherits the modality gap, which is why it is a ranking signal rather than an absolute measure of image-text agreement."
+        },
+        {
+          "ref": "advanced-cv/image-retrieval",
+          "text": "Zero-shot classification and retrieval are the same nearest-neighbour operation in the same space, with the query coming from a different tower."
+        },
+        {
+          "ref": "advanced-nlp/fine-tuning-transformers",
+          "text": "The zero-shot-versus-probe-versus-fine-tune ladder, and the OOD feature-distortion result that motivates WiSE-FT, are exactly the transfer-learning trade-offs from the NLP side."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "How does CLIP do zero-shot classification?",
+          "a": "Embed each class name in a prompt template with the text encoder, embed the image, and take the nearest text embedding by cosine similarity. The text tower computes the classifier's weights."
+        },
+        {
+          "q": "Why is it literally a linear classifier?",
+          "a": "Stacking the normalized class-text embeddings gives a K x d matrix, and the prediction is argmax of that matrix times the normalized image embedding - the same form as a linear layer, with weights computed rather than trained."
+        },
+        {
+          "q": "Why does 'a photo of a {}' beat the bare class name?",
+          "a": "CLIP was trained on sentence-like captions, so a bare noun lands in a region of text-embedding space the model rarely saw. It is worth over a point on ImageNet."
+        },
+        {
+          "q": "What is prompt ensembling?",
+          "a": "Embed each class under many templates and average the EMBEDDINGS (then renormalize) rather than the probabilities. CLIP's 80-template ImageNet set is worth roughly +3.5%."
+        },
+        {
+          "q": "What is the modality gap?",
+          "a": "Image and text embeddings occupy two separate, non-overlapping cones. An image's cosine similarity to its own caption is ~0.30 while two random images score ~0.60."
+        },
+        {
+          "q": "Why does the gap exist?",
+          "a": "The contrastive objective only requires matched pairs to rank above mismatched pairs within a batch. It never requires the two modalities to occupy the same region, and the gap is stable rather than a convergence artifact."
+        },
+        {
+          "q": "What is the practical consequence?",
+          "a": "Absolute similarity scores are meaningless as thresholds and do not transfer across prompts, domains, or models. Only the RANKING within a like-for-like comparison is trustworthy."
+        },
+        {
+          "q": "When does zero-shot lose to a linear probe?",
+          "a": "Almost immediately. With 4-16 labelled examples per class a linear probe on CLIP features typically beats zero-shot, and fine-tuning beats that."
+        },
+        {
+          "q": "Where is CLIP zero-shot weak?",
+          "a": "Fine-grained distinctions, specialized domains (satellite, medical), counting, spatial relations, and abstract or systematic tasks - anything rare or absent in web alt-text."
+        },
+        {
+          "q": "Is 'zero-shot' an accurate description?",
+          "a": "Only as 'no task-specific supervision'. With 400M web pairs the training data almost certainly contains examples resembling most benchmarks; the CLIP paper's own overlap analysis is the honest treatment."
+        },
+        {
+          "q": "What is WiSE-FT?",
+          "a": "Linearly interpolate the fine-tuned weights with the original zero-shot weights. It recovers much of the robustness fine-tuning destroys and often improves in-distribution accuracy too."
+        },
+        {
+          "q": "How do you fix class-name ambiguity?",
+          "a": "Rewrite the class string. 'Crane' becomes 'crane bird', 'boxer' becomes 'boxer dog'. These errors look like vision failures and are label ambiguity."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain how CLIP enables zero-shot classification, and what its limits are.",
+          "a": "THE MECHANISM. CLIP trains an image encoder and a text encoder jointly with a contrastive objective on ~400M web image-text pairs: within a batch, the matched image-text pair should score higher than all mismatched pairs, in both directions. The result is two towers producing embeddings in a common space. For zero-shot classification you then take each class name, put it in a prompt template, embed it, and classify an image by nearest text embedding. WHY THIS IS DIFFERENT FROM CONVENTIONAL CLASSIFICATION. A standard classifier's output layer is a fixed set of numbered slots with no semantic content - class 3 is class 3. Here the class is described in TEXT, so the model brings everything it learned about the words to bear, and the label set becomes a runtime argument. Adding a class costs one text-encoder forward pass, not a retraining run. Formally the stacked class embeddings ARE a linear classifier's weight matrix; the text encoder computed the weights instead of gradient descent finding them. THE HEADLINE RESULT and its caveat. Zero-shot CLIP matched a fully supervised ResNet-50 on ImageNet with no ImageNet training images - genuinely striking. But it was ImageNet-comparable, not ImageNet-beating, and across the 27-dataset suite in the paper the picture is uneven: strong on common natural-image categories, much weaker on specialized ones. WHAT MAKES IT WORK IN PRACTICE, which is more than the mechanism. PROMPTS matter substantially - 'a photo of a {}' over a bare noun is worth over a point, and an 80-template ensemble roughly 3.5, because CLIP's training text was sentences. CLASS-NAME DISAMBIGUATION matters more than people expect: ImageNet's 'crane' is ambiguous between bird and machine, and fixing the string fixes errors that look like vision failures. And the DISTRIBUTION of the pretraining data determines what works - concepts common in web alt-text work, concepts rare in it do not. THE LIMITS, in order of practical importance. (1) IT LOSES TO ALMOST ANY SUPERVISION. With 4-16 labelled examples per class a linear probe on CLIP features beats zero-shot; with more, fine-tuning beats that. Zero-shot's genuine niche is no data at all, or a label set that changes faster than you can label. (2) SYSTEMATIC WEAKNESSES: counting, spatial relations, attribute binding, and fine-grained distinctions are all poor, because contrastive captions rarely specify them and the objective does not require compositional understanding - a bag-of-concepts representation suffices to win most contrastive comparisons. (3) DOMAIN LIMITS: medical imaging, satellite, industrial inspection, and scientific data are weak because they are rare in web pairs. (4) THE MODALITY GAP means absolute scores are not interpretable and cannot be thresholded reliably. (5) 'ZERO-SHOT' OVERSTATES the claim - at web scale the training data plausibly contains near-duplicates of benchmark content, and the CLIP paper's own de-duplication analysis is the honest place to look. HOW I WOULD USE IT: as a strong cold-start baseline and a labelling engine. Prompt it, look at the errors, use it to pre-label data cheaply, then train a probe or fine-tune with WiSE-FT-style interpolation to keep the robustness. That sequence gets the flexibility early and the accuracy later, which is the same lifecycle as prompting-then-distilling in NLP.",
+          "deepDive": {
+            "q": "What exactly is the modality gap, why does it arise, and does it matter?",
+            "a": "THE OBSERVATION (Liang et al., 2022). In a trained CLIP model, image embeddings and text embeddings do not mingle. They occupy two distinct, narrow cones in the shared space, separated by a large and stable distance. Concretely, an image's cosine similarity to its OWN caption is around 0.30 while its similarity to a random unrelated image is around 0.60 - a matched cross-modal pair is LESS similar than an arbitrary within-modal pair. If your mental model was 'a shared space where a dog photo lands near the word dog', that model is wrong in an important way. WHERE IT COMES FROM - two contributions, and the paper separates them cleanly. (1) INITIALIZATION. Even at random initialization, before any training, two different encoder architectures map their inputs into different narrow cones. This is a consequence of deep networks with random weights producing outputs concentrated in a small region of the sphere - a 'cone effect' that gets narrower with depth. So the gap EXISTS BEFORE TRAINING BEGINS. (2) THE OBJECTIVE DOES NOT REMOVE IT. Contrastive learning with a temperature parameter has many optima. It requires that matched pairs score higher than mismatched pairs, which is a RANKING constraint, and a configuration with both modalities in separate cones satisfies it perfectly well as long as the relative ordering is right. There is no term pulling the modalities together in an absolute sense. The authors showed you can artificially shift one modality's embeddings to close the gap and downstream performance changes - sometimes improving, sometimes not - confirming the gap is a real, manipulable property rather than a measurement artifact. WHY IT MATTERS PRACTICALLY. (a) ABSOLUTE SIMILARITY IS UNINTERPRETABLE. A CLIPScore of 0.31 does not mean 31% agreement; there is no scale. Any pipeline that thresholds a raw CLIP similarity - 'accept the caption if score > 0.3' - is on unstable ground, because the appropriate value shifts with the prompt, the domain, and the model checkpoint. Rank instead, or calibrate per query against a set of known-bad references. (b) YOU CANNOT COMPARE ACROSS MODALITY PAIRS. An image-text score and an image-image score are on different scales, so a system that mixes them (say, a retrieval index containing both) will systematically favour one kind of match. (c) It complicates using CLIP embeddings as a shared space for GENERATION - DALL-E 2's prior model exists precisely to map from text embeddings to image embeddings, which would be unnecessary if the space were truly shared. That architectural choice is direct evidence of the gap. (d) It affects fairness and calibration analyses that assume a common metric. WHAT IT DOES NOT MEAN. It does not mean CLIP is broken or that zero-shot classification is unsound. Classification compares one image against SEVERAL text embeddings, all in the same cone, so the gap is a constant offset that cancels in the argmax. Retrieval within a fixed query modality is fine for the same reason. The gap breaks absolute interpretation, not relative comparison. CAN IT BE CLOSED? Several attempts exist - adding a term that aligns the modality means, shifting embeddings post hoc, or architectural changes - and the results are mixed: closing the gap does not reliably improve downstream performance, and sometimes hurts. That is itself informative. It suggests the gap is not a defect to be repaired but a natural configuration of a ranking objective, and that the representations are doing their job in a geometry that simply is not the one the phrase 'shared embedding space' evokes. THE TRANSFERABLE LESSON: when a loss constrains only RELATIVE quantities, do not assume the ABSOLUTE ones are meaningful. This applies to every contrastive method, to reward models trained on preferences, and to any ranking-based objective."
+          }
+        },
+        {
+          "q": "You need to classify product images into 200 categories with no labelled data. Walk through your approach.",
+          "a": "STEP 1 - START WITH ZERO-SHOT AND MEASURE IT HONESTLY. Build the CLIP zero-shot classifier over the 200 category names, run it on a sample, and hand-label a few hundred images to get a real accuracy number. This takes a day and gives the baseline everything else is judged against. Without this number the rest of the project is guesswork. STEP 2 - FIX THE CLASS STRINGS, which is where the first large gain usually is. Product taxonomies are full of internal jargon, abbreviations, and ambiguous single words that CLIP cannot interpret - a category called 'TOPS' or 'MISC-ACC' means nothing. Rewrite each category as a natural description of what the product IS: 'a photo of a women's short-sleeve blouse' rather than 'TOPS-SS-W'. This is not cosmetic. In my experience it is the single highest-return intervention on a real taxonomy, and it costs an afternoon with the category list. STEP 3 - PROMPT ENSEMBLE, with templates matched to the imagery. Product photos are usually white-background studio shots, so templates like 'a product photo of a {} on a white background' fit better than CLIP's generic ImageNet set. Average embeddings, not probabilities. STEP 4 - HANDLE THE TAXONOMY'S STRUCTURE. Two hundred categories almost certainly form a hierarchy with confusable siblings. Classify HIERARCHICALLY - first the coarse group, then within it - which turns one 200-way decision into two much easier ones and dramatically reduces confusion between distant classes. Also look for categories that are genuinely not visually distinguishable (two SKU groups that differ only by material or by price band); no vision model will separate those, and identifying them early prevents blaming the model for a taxonomy problem. STEP 5 - GET SOME LABELS, because this is the step that actually decides the outcome. Use the zero-shot model's confidence to select what to annotate - the uncertain and the confidently-wrong cases - and label maybe 10-20 per class. With 16 examples per class a LINEAR PROBE on frozen CLIP features will typically beat zero-shot comfortably, and a probe trains in seconds. This is the highest-value few days available. STEP 6 - THE LADDER FROM THERE. Linear probe → few-shot methods that combine the probe with the zero-shot classifier as a prior (Tip-Adapter, CoOp-style prompt learning) → full fine-tuning once you have thousands of labels, with WiSE-FT interpolation to keep out-of-distribution robustness. Each rung needs more data and gives more accuracy. STEP 7 - EXPLOIT WHAT THE DOMAIN GIVES YOU FOR FREE. Product catalogues usually have TITLES and DESCRIPTIONS. Those are text, and CLIP can embed them - so you can classify from text, from image, or from both, and the text is often more reliable. If titles exist, a text classifier may beat any vision approach and should be the real baseline. Similarly, if products have SKUs with any structure, that is supervision you already own. Bringing this up early distinguishes someone who has done this from someone who has only read about CLIP. WHAT I WOULD REPORT: zero-shot accuracy, probe accuracy at several label budgets, per-category breakdown (the aggregate will hide that a third of the categories are near-zero), and the confusion structure. And the practical recommendation is almost always the same shape: zero-shot gets you running in a day, and 20 labels per class gets you most of the way to a supervised system - so the answer to 'we have no labelled data' is usually 'let us get a little'."
+        },
+        {
+          "q": "Compare zero-shot, linear probing, few-shot adaptation, and fine-tuning on CLIP features.",
+          "a": "THE LADDER, by data requirement. ZERO-SHOT: no labels. Build the classifier from class names. Costs one text forward pass per class, cached forever. Its unique property is that the label set is a RUNTIME argument. LINEAR PROBE: a few labels per class. Freeze the encoder, train a logistic regression on the embeddings. Trains in seconds on CPU, needs no GPU for training at all, and is remarkably strong - CLIP's linear probes were competitive with fully fine-tuned supervised models across its benchmark suite. FEW-SHOT ADAPTATION: a middle ground designed for the 1-16 shot regime. CoOp and CoCoOp learn the prompt's context tokens rather than the classifier weights, keeping the text encoder's semantics. Tip-Adapter builds a cache of few-shot features and BLENDS its prediction with the zero-shot classifier, which is training-free in its base form. The key idea in this family is using the zero-shot classifier as a PRIOR so that a handful of examples adjusts rather than replaces it. FULL FINE-TUNING: thousands of labels. Highest ceiling, and the most ways to go wrong. THE CROSSOVER POINTS, roughly. Zero-shot is beaten by a linear probe at around 4-16 examples per class on typical benchmarks, though the exact point depends heavily on how well the domain matches CLIP's pretraining - on a domain CLIP knows well, zero-shot holds up longer; on satellite or medical imagery, a probe wins almost immediately because zero-shot is poor there anyway. Few-shot methods beat plain probes in the 1-8 shot range, where the zero-shot prior is doing real work; above ~16 shots the advantage shrinks. THE NON-OBVIOUS TRADE, which is where the interesting content is. FINE-TUNING DEGRADES ROBUSTNESS. CLIP's zero-shot classifier is unusually robust to distribution shift - it holds up on ImageNet-R, ImageNet-Sketch, and ObjectNet far better than supervised models. Fine-tuning on ImageNet improves in-distribution accuracy and DESTROYS much of that robustness, because fine-tuning distorts the pretrained features to fit the target distribution. This is the same feature-distortion mechanism as LP-FT in NLP. The fix is WiSE-FT: linearly interpolate the fine-tuned weights with the original zero-shot weights, w = alpha*w_ft + (1-alpha)*w_zs. Remarkably this often improves BOTH in-distribution and out-of-distribution accuracy at intermediate alpha - you are not trading, you are recovering something fine-tuning threw away. Anyone fine-tuning CLIP should be doing this; it costs one line. HOW I WOULD CHOOSE. No labels or a runtime-variable label set: zero-shot. A handful of labels and a need for speed: linear probe, always, because it takes minutes and establishes whether anything more is warranted. 1-8 shots and you want the last points: a few-shot adapter that uses the zero-shot prior. Thousands of labels and a stable task: fine-tune, with WiSE-FT. Deployment under distribution shift: keep the zero-shot classifier in the mix regardless, because its robustness is a real asset. THE HABIT I WOULD PUSH: always report the linear probe. It is nearly free, and if a fine-tune does not clearly beat a probe on frozen features, the fine-tune is not earning its complexity, its training cost, or its robustness loss."
+        },
+        {
+          "q": "Why is CLIP bad at counting and spatial relations?",
+          "a": "THE OBSERVATION. CLIP struggles with 'three dogs' versus 'two dogs', with 'a cat to the left of a dog', and with attribute binding ('a red cube and a blue sphere'). It behaves closer to a BAG OF CONCEPTS than a compositional model, and the ARO and Winoground benchmarks were built to measure exactly this - Winoground pairs differ only in word ORDER with the same words, and CLIP-family models perform near chance on it. THE REASONS, and they stack. (1) THE TRAINING SIGNAL DOES NOT REQUIRE IT. Contrastive learning asks the model to pick the matching caption from a batch of mostly UNRELATED alternatives. If the batch contains a dog photo, a car photo, and a beach photo, recognizing which concepts are present is entirely sufficient - you never need to know how many or where. The model learns exactly what the task demands, and the task is easy. Hard negatives that differ only in count or arrangement essentially never occur in a random batch, so there is no gradient pressure toward compositionality. (2) THE CAPTIONS RARELY SPECIFY IT. Web alt-text says 'dogs playing in a park', not 'three dogs, two on the left'. Counting and spatial language are sparse in the training distribution, so even a model capable of learning them has little to learn from. (3) THE POOLED EMBEDDING DISCARDS STRUCTURE. CLIP compresses an image to a single vector. A single vector can encode which concepts are present; encoding their count and arrangement compositionally in a fixed vector is much harder, and nothing rewards it. This is a genuine architectural limitation of dual-encoder designs. (4) THE TEXT TOWER IS ORDER-INSENSITIVE IN PRACTICE. Studies have shown CLIP's text encoder gives similar embeddings to shuffled captions, which is the direct signature of bag-of-words behaviour. WHAT FIXES IT, and how well. (a) HARD NEGATIVES IN TRAINING: construct captions that differ only in count, order, or attribute binding and use them as negatives. NegCLIP does this and substantially improves compositional benchmarks - which confirms the diagnosis, since supplying the missing gradient pressure supplies the missing capability. (b) CROSS-ATTENTION ARCHITECTURES: models that let text tokens attend to image regions (BLIP, and the whole VLM family) handle composition far better than dual encoders, because the interaction happens before pooling rather than after. This is the strongest structural fix and it costs the ability to precompute embeddings, which is why dual encoders survive for retrieval. (c) GENERATIVE VLMs with a language model on top do better again, because generation forces the model to produce a specific description rather than to rank. (d) Explicit region-level supervision. WHAT I WOULD TAKE FROM THIS. The failure is not mysterious and it is not about scale. It is a direct consequence of an objective that asks for RANKING among easy negatives, and a representation that pools before comparing. That is the module's recurring point: the objective determines the capability, and 'the model does not do X' usually means 'nothing in training required X'. It also explains the architectural split in the field - dual encoders for retrieval where precomputation matters, cross-attention or generative models where compositional understanding matters, and increasingly a two-stage funnel using both."
+        },
+        {
+          "q": "How would you evaluate whether a zero-shot classifier is good enough to deploy?",
+          "a": "THE FIRST THING I WOULD ESTABLISH is what 'good enough' means in decision terms, because zero-shot accuracy on a benchmark is not it. What action follows the prediction, what does a mistake cost, and is there a human in the loop? Those determine the metric and the operating point. THE EVALUATION I WOULD BUILD. (1) A REAL LABELLED TEST SET from your own distribution, hand-labelled, a few hundred to a few thousand examples. There is no substitute, and 'we have no labels' is not a reason to skip it - you need labels for EVALUATION even when you do not need them for training, and this is the most common corner cut in zero-shot projects. (2) PER-CLASS BREAKDOWN, always. Zero-shot accuracy is wildly uneven across classes, far more so than a supervised model's, because it depends on how well each class name is represented in the pretraining distribution. An aggregate of 78% routinely hides a third of the classes near zero. Report per-class recall and precision and look at the worst ones. (3) CALIBRATION. CLIP's softmax over the class embeddings, scaled by its learned temperature, is not calibrated for your task. If you intend to threshold on confidence - to route to a human, or to abstain - you must fit a calibration map on held-out data and check the reliability diagram. A well-ranked but badly-calibrated classifier is fine for ordering and dangerous for thresholding. (4) THE RISK-COVERAGE CURVE rather than a single accuracy. Plot accuracy on the retained subset against the fraction retained as you raise the confidence threshold. This is the deployment-relevant view: it tells you 'we can auto-classify 60% of traffic at 95% accuracy and route the rest', which is an actual product decision. (5) THE BASELINES that make the number interpretable: majority class, a random classifier, and - if any labels exist at all - a linear probe on the same features. If a 16-shot probe beats zero-shot substantially, the honest recommendation is to spend a week labelling rather than to deploy zero-shot. (6) ROBUSTNESS CHECKS: performance on the harder slices you expect in production - unusual lighting, occlusion, low resolution, the long tail of your catalogue. And a check on PROMPT SENSITIVITY: re-run with different templates and see how much the number moves. If it swings by several points, your reported figure is partly a prompt-selection artifact, and note that choosing prompts on your test set is test-set fitting. THE FAILURE MODES SPECIFIC TO ZERO-SHOT that I would look for by hand. Class-name ambiguity producing systematic confusions. Classes that are semantically close in text space but visually distinct (or the reverse). Classes absent from the pretraining distribution, which fail completely rather than gracefully. And the absence of an 'other' option - a zero-shot classifier over K classes will confidently assign one of them to an image belonging to none, so if your production stream contains out-of-taxonomy inputs you need an explicit rejection mechanism, which the standard setup does not provide. WHAT I WOULD RECOMMEND IN THE WRITE-UP: deploy zero-shot behind a confidence threshold with human review for the remainder, log everything, use the logged human decisions as labels, and plan to replace it with a probe or a fine-tune within a quarter. Zero-shot is an excellent way to start a system and rarely the right way to run one."
+        },
+        {
+          "q": "What is prompt learning, and when is it worth it over hand-written prompts?",
+          "a": "THE IDEA. Instead of writing 'a photo of a {}', LEARN the context tokens. CoOp (Context Optimization) replaces the hand-written words with continuous learnable vectors placed around the class-name token, freezes both encoders, and optimizes only those vectors with a few labelled examples. The class name stays as real text so the method still generalizes across classes; only the surrounding context is learned. WHY IT WORKS. Hand-written prompts are a discrete search over a space you cannot explore systematically - people try a dozen templates and pick the best on a validation set, which is both crude and a form of fitting. Learned context does gradient descent in a continuous space and finds prompts that no one would write, because they are not words. The gains are consistent: CoOp reports substantial improvements over hand-crafted prompts in the 1-16 shot regime across many datasets, with the largest gains on specialized domains where generic templates fit worst. THE PROBLEM, and it is the interesting part. CoOp OVERFITS TO THE CLASSES IT WAS TRAINED ON. Learn context on the base classes of a dataset and evaluate on unseen classes from the same dataset, and performance can fall BELOW hand-written prompts. The learned context has absorbed dataset-specific information rather than a general way of describing images, which defeats the point of using CLIP - you have traded away the open-vocabulary property to gain a few points on a closed set. CoCoCoOp's answer is to make the context CONDITIONAL on the image: a small network produces an instance-specific shift to the context vectors, which generalizes much better to unseen classes at some cost in the base-class accuracy. That base-versus-new trade-off is the central tension in this literature and is worth being able to state. WHEN IT IS WORTH IT. (1) You have a FIXED, CLOSED label set and a few labelled examples per class - then class overfitting is not a cost you care about, and the gains are real. (2) A SPECIALIZED DOMAIN where generic templates are a poor fit and you cannot easily guess better wording - satellite imagery, medical, industrial. (3) Extremely LOW-SHOT settings (1-8 per class), where a linear probe is unstable but the prompt has few enough parameters to fit reliably. WHEN IT IS NOT. (1) If the label set must stay OPEN - the whole reason to use CLIP - prefer hand-written prompts or CoCoOp. (2) If you have more than ~16 examples per class, a linear probe or an adapter is simpler, faster, and usually at least as good. (3) If interpretability matters: hand-written prompts can be read and debugged; learned vectors cannot, and when they fail you have no handle on why. (4) If you have essentially no labels, since prompt learning is still supervised - it needs examples, so it is not a zero-shot method despite living in the zero-shot literature. HOW I WOULD FRAME IT: prompt learning is PEFT for the text tower - a tiny number of parameters adapting a frozen model, exactly analogous to prompt tuning in NLP and subject to the same trade. And the practical baseline it must beat is not 'a bad hand-written prompt' but 'an ensemble of reasonable hand-written prompts plus a linear probe', which is cheap and strong. Many reported gains shrink against that comparison, so I would insist on running it."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "CLIP zero-shot classification",
+        "back": "Embed each class name in a prompt template, embed the image, take the nearest text embedding. The stacked class embeddings ARE a linear classifier's weight matrix - the text encoder computed the weights instead of gradient descent."
+      },
+      {
+        "type": "pitfall",
+        "front": "The modality gap",
+        "back": "Image and text embeddings occupy SEPARATE cones. An image scores ~0.30 against its own caption and ~0.60 against a random unrelated image. The contrastive loss only constrains RANKING, never absolute overlap - and the gap exists at random init (the cone effect)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Never threshold a raw CLIP score",
+        "back": "0.31 does not mean '31% match' - there is no absolute scale, and the right value shifts with prompt, domain, and checkpoint. Rank within a like-for-like comparison, or calibrate per query."
+      },
+      {
+        "type": "intuition",
+        "front": "Prompt engineering is worth real points",
+        "back": "ImageNet zero-shot: 'a photo of a {}' = +1.3% over the bare name; an 80-template ensemble = +3.5%. Average EMBEDDINGS (normalize each, mean, renormalize), not probabilities. The text side is cached, so it is free at inference."
+      },
+      {
+        "type": "pitfall",
+        "front": "Class-name ambiguity",
+        "back": "'Crane' (bird/machine), 'boxer' (dog/fighter), 'mouse' (animal/device). These look like vision failures and are LABEL ambiguity - rewriting the class string fixes them. Highest-return fix on a real product taxonomy."
+      },
+      {
+        "type": "intuition",
+        "front": "Zero-shot loses to almost any supervision",
+        "back": "A linear probe on frozen CLIP features beats zero-shot at roughly 4-16 examples per class, and trains in seconds. Zero-shot's genuine niche is NO data, or a label set that changes at runtime."
+      },
+      {
+        "type": "definition",
+        "front": "WiSE-FT",
+        "back": "Interpolate fine-tuned and zero-shot weights: w = alpha*w_ft + (1-alpha)*w_zs. Fine-tuning destroys CLIP's distribution-shift robustness; interpolation recovers it and often improves ID accuracy too. One line - always do it."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why CLIP can't count or bind attributes",
+        "back": "Contrastive batches contain UNRELATED negatives, so recognizing which concepts are present always suffices - counting and arrangement get no gradient pressure. Plus captions rarely specify them and pooling to one vector discards structure. NegCLIP's hard negatives confirm the diagnosis."
+      },
+      {
+        "type": "intuition",
+        "front": "'Zero-shot' overstates the claim",
+        "back": "It means no TASK-SPECIFIC supervision, not no exposure. With 400M web pairs the training data plausibly contains near-duplicates of benchmark content - the CLIP paper's own overlap analysis is the honest treatment."
+      },
+      {
+        "type": "definition",
+        "front": "CoOp / prompt learning",
+        "back": "Learn the context tokens around the class name as continuous vectors with a few labels; both encoders stay frozen. PEFT for the text tower. Beware: it OVERFITS to the trained classes and can fall below hand-written prompts on unseen ones - CoCoOp conditions on the image to fix this."
+      },
+      {
+        "type": "pitfall",
+        "front": "Zero-shot has no 'other' class",
+        "back": "A K-way zero-shot classifier confidently assigns one of the K classes to an image belonging to NONE. If production contains out-of-taxonomy inputs you must add an explicit rejection mechanism - the standard setup provides none."
+      },
+      {
+        "type": "intuition",
+        "front": "Report per-class, not aggregate",
+        "back": "Zero-shot accuracy is far more uneven across classes than a supervised model's, because it tracks how well each class name is represented in web alt-text. An aggregate of 78% routinely hides a third of classes near zero."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Radford et al. (2021), Learning Transferable Visual Models From Natural Language Supervision (CLIP)",
+        "url": "https://arxiv.org/abs/2103.00020"
+      },
+      {
+        "title": "Liang et al. (2022), Mind the Gap: Understanding the Modality Gap in Multi-modal Contrastive Representation Learning",
+        "url": "https://arxiv.org/abs/2203.02053"
+      },
+      {
+        "title": "Wortsman et al. (2022), Robust fine-tuning of zero-shot models (WiSE-FT)",
+        "url": "https://arxiv.org/abs/2109.01903"
+      },
+      {
+        "title": "Zhou et al. (2022), Learning to Prompt for Vision-Language Models (CoOp)",
+        "url": "https://arxiv.org/abs/2109.01134"
+      },
+      {
+        "title": "Yuksekgonul et al. (2023), When and Why Vision-Language Models Behave Like Bags-of-Words (ARO)",
+        "url": "https://arxiv.org/abs/2210.01936"
+      }
+    ],
+    "demos": [
+      "embeddings",
+      "contrastive-learning",
+      "vector-search",
+      "knn"
+    ]
+  }
+};

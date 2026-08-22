@@ -1,0 +1,277 @@
+// GENERATED from content/lessons/multimodal/siamese.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/multimodal/siamese/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "siamese": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Classification needs a fixed set of classes with examples of each. Some problems do not fit that shape at all: face verification, where a new employee joins tomorrow and you have one photo; signature matching; near-duplicate detection; product matching across catalogues. What these share is that the question is not 'which of K classes is this' but 'are these two things the same'. METRIC LEARNING answers that directly - learn an embedding in which distance means similarity, and then the decision is a threshold rather than a classifier.",
+        "A SIAMESE network is the architecture: run both inputs through the SAME network with SHARED WEIGHTS and compare the outputs. Weight sharing is not an implementation convenience, it is the point - it guarantees the two branches compute the same function, so the comparison is meaningful and the embedding is symmetric. Feed it pairs with a contrastive loss (pull same together, push different apart beyond a margin) or TRIPLETS with an anchor, a positive, and a negative, asking that the anchor be closer to the positive than to the negative by a margin.",
+        "The margin is what stops the trivial solution. Without it, mapping every input to a single constant satisfies 'same things are close' perfectly and is useless - the same collapse that haunts every negative-free representation method. But the margin creates a second problem that dominates practice: once training gets going, MOST TRIPLETS ARE ALREADY SATISFIED and contribute exactly zero gradient. With N examples there are O(N^3) triplets and the overwhelming majority are uninformative, so a naive implementation spends almost all its compute on examples it has already learned. Everything interesting about training these models is MINING - choosing which triplets to look at - and the counterintuitive finding is that mining the HARDEST negatives causes collapse, which is why FaceNet used semi-hard ones instead."
+      ],
+      "math": [
+        {
+          "h": "Contrastive loss: pairs with a margin on the negatives",
+          "paras": [
+            "For a pair with label y = 1 (same) or 0 (different), pull same-pairs together with no lower bound and push different-pairs apart only until they exceed a margin. The hinge on the negative term is what makes it finite - once a pair is far enough, stop caring."
+          ],
+          "tex": "\\mathcal{L} = y\\,d^2 + (1-y)\\,\\max(0,\\; m - d)^2, \\qquad d = \\lVert f(x_1) - f(x_2)\\rVert_2",
+          "texNote": "Without the margin the negative term would push dissimilar pairs infinitely apart, which is unbounded and degenerate. With it, the loss only cares about violations - which is also why most pairs eventually contribute nothing."
+        },
+        {
+          "h": "Triplet loss: a relative constraint, not an absolute one",
+          "paras": [
+            "The triplet formulation asks only that the anchor be CLOSER to the positive than to the negative, by a margin. That is a weaker and more useful requirement than fixing absolute distances, because it does not impose a global scale."
+          ],
+          "tex": "\\mathcal{L} = \\max\\Big(0,\\;\\lVert f(a)-f(p)\\rVert^2 - \\lVert f(a)-f(n)\\rVert^2 + \\alpha\\Big)",
+          "texNote": "alpha ~ 0.2 with L2-normalized embeddings, where all distances lie in [0, 2]. Embeddings are normalized to the unit sphere precisely so the margin has a consistent meaning - without normalization the network can satisfy the margin by scaling everything up, which teaches nothing."
+        },
+        {
+          "h": "Why mining dominates: the triplet count and the zero-gradient problem",
+          "paras": [
+            "The combinatorics are brutal and get worse as training succeeds. A triplet that already satisfies the margin contributes exactly zero gradient, so the fraction of useful work collapses over time."
+          ],
+          "tex": "|\\mathcal{T}| = O(N^3), \\qquad \\nabla\\mathcal{L} = 0 \\;\\;\\text{whenever}\\;\\; d(a,n)^2 - d(a,p)^2 > \\alpha",
+          "texNote": "After a few epochs the ACTIVE fraction of randomly-sampled triplets typically falls below 1%. Batch composition therefore matters more than almost any other hyperparameter, and it is why the P-K sampling scheme (P identities, K images each) is standard."
+        },
+        {
+          "h": "Semi-hard mining: the negative that is close but not too close",
+          "paras": [
+            "Hardest negatives - those closer to the anchor than the positive - produce large gradients that frequently point toward collapse, especially early and with noisy labels. FaceNet's answer selects negatives that violate the margin but are still FARTHER than the positive."
+          ],
+          "tex": "n^{\\star} = \\arg\\min_{n}\\;\\big\\{ d(a,n) \\;:\\; d(a,n) > d(a,p) \\big\\}, \\qquad d(a,p) < d(a,n) < d(a,p)+\\alpha",
+          "texNote": "This is the informative band: hard enough to give gradient, not so hard that a mislabelled or genuinely ambiguous example dominates the update. The whole design is a variance-versus-signal trade on the negative."
+        }
+      ],
+      "code": [
+        {
+          "h": "Batch-hard mining, which is what you should actually implement",
+          "paras": [
+            "Hermans et al. showed that mining WITHIN a well-constructed batch - hardest positive and hardest negative per anchor - outperforms elaborate offline mining schemes and is far simpler. The batch sampler is the real algorithm."
+          ],
+          "code": "import torch\n\n# P-K SAMPLING: P identities x K images each. This is the actual algorithm -\n# it guarantees every anchor has K-1 positives and (P-1)*K negatives IN BATCH.\n# P=18, K=4 (batch 72) is a common setting.\n\ndef batch_hard_triplet(emb, labels, margin=0.3):\n    emb = torch.nn.functional.normalize(emb, dim=1)\n    d = torch.cdist(emb, emb)                          # (B, B)\n    same = labels[:, None] == labels[None, :]\n    eye  = torch.eye(len(labels), dtype=torch.bool, device=emb.device)\n\n    # hardest POSITIVE: the same-identity example that is FARTHEST\n    hardest_pos = (d * (same & ~eye)).max(1).values\n\n    # hardest NEGATIVE: the different-identity example that is CLOSEST\n    hardest_neg = (d + 1e6 * same).min(1).values\n\n    return torch.relu(hardest_pos - hardest_neg + margin).mean()\n\n# WHY THIS BEATS OFFLINE MINING:\n#  * no separate mining pass over the dataset, so no stale embeddings\n#  * mining is against the CURRENT model, which is what you want\n#  * hardness is bounded by the batch, which acts as natural regularization -\n#    the hardest negative in a batch of 72 is rarely a pathological one\n#\n# THE TRAP: the batch SAMPLER is the algorithm. With random sampling, most\n# anchors have no positive in the batch at all and the loss is meaningless.\n# If your triplet model is not learning, check the sampler before the loss.",
+          "caption": "Batch-hard mining with P-K sampling. The batch bounds how hard the mined negative can be, which is a natural regularizer that offline hardest-negative mining lacks - and the sampler, not the loss, is where implementations go wrong."
+        },
+        {
+          "h": "Diagnosing a triplet model that will not train",
+          "paras": [
+            "Four numbers that identify essentially every failure mode in this family. The active-triplet fraction is the one people never log and always need."
+          ],
+          "code": "with torch.no_grad():\n    emb = torch.nn.functional.normalize(model(batch), dim=1)\n    d = torch.cdist(emb, emb)\n    same = labels[:, None] == labels[None, :]\n\n    active = (loss_per_triplet > 0).float().mean()      # fraction still learning\n    pos_d  = d[same & ~eye].mean()\n    neg_d  = d[~same].mean()\n    spread = emb.std(0).mean()                          # per-dimension spread\n\nprint(f\"active {active:.3f}  pos {pos_d:.3f}  neg {neg_d:.3f}  spread {spread:.4f}\")\n\n#  active ~0.00, pos~neg~0, spread~0 .... COLLAPSE. Every input maps to the\n#                                         same point. Usually caused by\n#                                         hardest-negative mining, too high a\n#                                         learning rate, or no margin.\n#  active ~0.00, pos < neg, healthy ..... converged, or the mining is too easy\n#                                         to find remaining violations\n#  active ~1.00 and stuck ............... margin too large, or labels are noisy\n#                                         enough that the task is unsatisfiable\n#  active 0.05-0.30 ..................... healthy training\n#\n# COLLAPSE IS THE CHARACTERISTIC FAILURE and it is silent in the loss - the\n# loss goes to exactly the margin and looks like it converged. Log the\n# embedding SPREAD every epoch; it is the only signal that separates\n# \"converged\" from \"collapsed\".",
+          "caption": "Loss reaching the margin looks like convergence and is also what collapse looks like. Embedding spread and the active-triplet fraction are what distinguish them, and neither is in a default training log."
+        }
+      ],
+      "useCases": [
+        "Face verification and re-identification, where the identity set is open and grows continuously - the canonical application, and the one that produced FaceNet, batch-hard mining, and the margin-based softmax losses that superseded them.",
+        "Signature, fingerprint, and biometric matching, and any one-shot or few-shot verification task where a new identity arrives with a single reference example and retraining is not an option.",
+        "Product and entity matching across catalogues, near-duplicate detection, and plagiarism or copy detection, where the question is 'is this the same item' rather than 'what category is this'.",
+        "Retrieval embeddings generally: the same machinery, with a contrastive rather than triplet loss, underlies modern text and image retrievers - the loss changed, the framing did not."
+      ],
+      "pitfalls": [
+        "Mining the HARDEST negatives globally. It is the intuitive choice and it causes collapse - the hardest negatives are disproportionately mislabelled or genuinely ambiguous, so their large gradients push the model toward a degenerate solution. Use semi-hard, or batch-hard where the batch bounds the difficulty.",
+        "Sampling batches randomly. With random sampling most anchors have no positive in the batch and the loss is meaningless. P-K sampling (P identities, K images each) IS the algorithm; if a triplet model is not learning, check the sampler before the loss.",
+        "Not logging the ACTIVE TRIPLET FRACTION. After a few epochs the fraction of randomly-sampled triplets producing any gradient typically falls below 1%, so almost all compute is wasted - and nothing in the loss curve shows it.",
+        "Mistaking collapse for convergence. When every embedding maps to the same point, the loss sits at exactly the margin and looks converged. Log the embedding standard deviation; it is the only signal that separates the two.",
+        "Forgetting to L2-normalize the embeddings. Without normalization the network can satisfy any margin by scaling everything up, which teaches nothing about relative structure and makes the margin meaningless.",
+        "Using accuracy to evaluate a verification system. The operating point is a threshold on distance, so report the ROC and the true-accept rate at a fixed false-accept rate (TAR@FAR) - a face system at 99% accuracy may be unusable at the false-accept rate a security application requires.",
+        "Reaching for triplet loss by default in 2020s work. Margin-based softmax losses (ArcFace, CosFace) beat it substantially on face recognition, and InfoNCE-style losses with many negatives beat it for retrieval. Triplet loss is the right thing to UNDERSTAND and often not the right thing to use."
+      ],
+      "connections": [
+        {
+          "ref": "multimodal/simclr-byol",
+          "text": "SimCLR is this idea with augmented views supplying the positives instead of labels, and InfoNCE using many negatives at once instead of one - the same geometry, a better-conditioned loss."
+        },
+        {
+          "ref": "multimodal/clip",
+          "text": "CLIP's contrastive loss is the cross-modal version: the positive is the matching caption and the negatives are the rest of the batch, which is why batch size mattered so much."
+        },
+        {
+          "ref": "advanced-cv/image-retrieval",
+          "text": "The embedding this lesson trains is exactly what a retrieval index stores, and the ANN search that follows is a separate engineering problem with its own recall trade-offs."
+        },
+        {
+          "ref": "ml-theory/imbalanced-data",
+          "text": "Mining is a sampling problem: which of an enormous, highly imbalanced set of comparisons to spend gradient on, and the answer is neither uniform nor extreme."
+        },
+        {
+          "ref": "advanced-cv/dino-mae",
+          "text": "Representation collapse is the shared failure across all of this - triplet loss prevents it with a margin, contrastive methods with negatives, BYOL and DINO with asymmetry and centering."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a Siamese network?",
+          "a": "Two (or more) branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both branches compute the same function, which is what makes the comparison meaningful."
+        },
+        {
+          "q": "Why use metric learning instead of classification?",
+          "a": "When the class set is open or grows - faces, products, signatures - or when you have one example per identity. The decision becomes a distance threshold rather than a fixed output layer."
+        },
+        {
+          "q": "What is contrastive loss?",
+          "a": "For a pair: pull same-label pairs together, push different-label pairs apart until they exceed a margin. The hinge means once a negative pair is far enough, it stops contributing."
+        },
+        {
+          "q": "What is triplet loss?",
+          "a": "max(0, d(a,p)^2 - d(a,n)^2 + alpha) over an anchor, positive, and negative. It constrains only the RELATIVE ordering, which is weaker and more useful than fixing absolute distances."
+        },
+        {
+          "q": "Why is a margin necessary?",
+          "a": "Without it, mapping every input to a constant satisfies 'same things are close' perfectly. The margin makes the trivial solution non-optimal - it is the anti-collapse term."
+        },
+        {
+          "q": "Why L2-normalize the embeddings?",
+          "a": "Otherwise the network can satisfy any margin by scaling all embeddings up, which teaches nothing. Normalizing to the unit sphere makes the margin's meaning consistent."
+        },
+        {
+          "q": "Why does mining dominate triplet training?",
+          "a": "There are O(N^3) triplets and a satisfied triplet contributes EXACTLY zero gradient. After a few epochs under 1% of random triplets are active, so almost all compute is wasted without mining."
+        },
+        {
+          "q": "Why not mine the hardest negatives?",
+          "a": "They are disproportionately mislabelled or genuinely ambiguous, and their large gradients push toward collapse. FaceNet used SEMI-hard negatives - violating the margin but still farther than the positive."
+        },
+        {
+          "q": "What is batch-hard mining?",
+          "a": "Within a batch, take the hardest positive and hardest negative per anchor. Simpler than offline mining, mines against the CURRENT model, and the batch naturally bounds how pathological the negative can be."
+        },
+        {
+          "q": "What is P-K sampling?",
+          "a": "Sample P identities and K images each, so every anchor has K-1 positives and (P-1)K negatives in batch. This sampler is the real algorithm - random sampling leaves most anchors without a positive."
+        },
+        {
+          "q": "How do you detect embedding collapse?",
+          "a": "The loss sits at exactly the margin and looks converged. Log the per-dimension embedding STANDARD DEVIATION - if it goes to zero, everything mapped to one point."
+        },
+        {
+          "q": "Should you use triplet loss today?",
+          "a": "Usually not. Margin-based softmax losses (ArcFace, CosFace) beat it for faces, and InfoNCE with many negatives beats it for retrieval. It is the right thing to understand and often not to use."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain triplet loss and why mining is the central difficulty.",
+          "a": "THE LOSS. Take an anchor, a positive of the same identity, and a negative of a different one. Require that the anchor-positive distance be smaller than the anchor-negative distance by a margin alpha, and hinge at zero: L = max(0, d(a,p)^2 - d(a,n)^2 + alpha). Two design points are worth stating. It is a RELATIVE constraint - it never says how far apart anything should be in absolute terms, only which is closer - which is more appropriate than an absolute one because there is no natural scale for 'same person'. And embeddings are L2-NORMALIZED to the unit sphere, so distances live in [0, 2] and the margin has consistent meaning; without normalization the model satisfies any margin by inflating everything. WHY MINING DOMINATES, and this is really the whole subject. (1) COMBINATORICS: N examples give O(N^3) triplets. You cannot enumerate them and you must choose. (2) ZERO GRADIENT: the hinge means a triplet already satisfying the margin contributes EXACTLY nothing. Early in training most triplets are violated; after a few epochs the model has learned the easy structure and the active fraction of randomly-sampled triplets falls below 1%. So a naive implementation spends over 99% of its compute on examples it has already learned - the loss curve looks flat and it is not converged, it is starved. (3) The distribution of triplet difficulty is extremely skewed, so uniform sampling is close to the worst possible choice. THE MINING SPECTRUM, and the counterintuitive part. EASY negatives (already satisfying the margin) give no gradient. HARDEST negatives - the ones closest to the anchor, closer even than the positive - give the largest gradient and CAUSE COLLAPSE. FaceNet reported this directly: training on hardest negatives led to a degenerate solution early in training. The reason is that in any real dataset the hardest negatives are disproportionately LABEL NOISE (two photos of the same person labelled as different people) or genuinely ambiguous cases. Optimizing hard against those drags the whole embedding toward a constant. SEMI-HARD is FaceNet's answer: negatives that violate the margin but are still FARTHER from the anchor than the positive is - hard enough to give signal, not so hard as to be pathological. THE MODERN PRACTICE, which simplified this considerably. Hermans et al.'s 'In Defense of the Triplet Loss' showed that BATCH-HARD mining - within a batch, take the hardest positive and hardest negative for each anchor - outperforms elaborate offline schemes. Three reasons it works: it mines against the CURRENT model rather than stale offline embeddings; there is no separate mining pass; and crucially the BATCH BOUNDS THE DIFFICULTY - the hardest negative among 72 samples is much less likely to be pathological than the hardest among a million. That bounding is an accidental but important regularizer. It requires P-K SAMPLING (P identities, K images each), and I would emphasize that the SAMPLER is the algorithm: with random batches most anchors have no positive at all and the loss is meaningless. If a triplet model is not learning, check the sampler before touching the loss. WHAT I WOULD MONITOR: the active triplet fraction (healthy is roughly 5-30%), mean positive and negative distances, and the embedding standard deviation - because COLLAPSE LOOKS LIKE CONVERGENCE. When every embedding is identical the loss sits at exactly the margin and the curve flattens, which is indistinguishable from success in the loss alone. AND THE HONEST CODA: the field largely moved past triplet loss. Margin-based softmax losses (ArcFace, CosFace) treat this as classification with an angular margin and beat triplet loss substantially on face recognition, partly because they use ALL classes as implicit negatives every step and so sidestep mining entirely. InfoNCE does the same for retrieval with in-batch negatives. Triplet loss remains the clearest way to understand what metric learning is doing, and the mining story is a genuinely useful lesson about where the difficulty in a method actually lives.",
+          "deepDive": {
+            "q": "Why did margin-based softmax losses replace triplet loss for face recognition?",
+            "a": "THE PROBLEM WITH TRIPLET LOSS AT SCALE. (1) MINING IS THE ENTIRE ENGINEERING PROBLEM - batch composition, hardness selection, and margin tuning all interact, and getting any of them wrong gives collapse or stalled training. (2) SLOW CONVERGENCE: each update sees a handful of comparisons, so information about the global structure of the embedding space arrives slowly. (3) It only ever enforces LOCAL constraints - this anchor closer to this positive than this negative - and never directly shapes the global geometry. THE ALTERNATIVE FRAMING. Train a classifier over the training identities with a softmax, then throw the classification head away and use the penultimate features as the embedding. This sounds crude and works surprisingly well, because a softmax over K classes implicitly contrasts each example against ALL K-1 other class centroids at every step - it is a much denser signal than one triplet. The catch is that plain softmax optimizes SEPARABILITY, not DISCRIMINABILITY: it only needs the classes to be separable, and gives no pressure toward large margins between them, so the features generalize poorly to identities never seen in training - which is the whole use case. THE FIX - ANGULAR MARGINS. Normalize both the feature and the class weight vectors, so the logit becomes the COSINE of the angle between them, scaled by a factor s. Then inject a margin into that angle for the true class, so the model must push the correct class not merely to the top but past a margin. The variants differ in where the margin goes: SPHEREFACE multiplies the angle (cos(m*theta)); COSFACE subtracts from the cosine (cos(theta) - m); ARCFACE adds to the angle (cos(theta + m)), which gives a constant linear margin on the hypersphere and is the cleanest geometrically. ArcFace is the usual default, with s ~ 64 and m ~ 0.5. WHY THIS BEATS TRIPLET LOSS. (1) NO MINING. Every example is contrasted against every class centroid every step - the hard-negative problem dissolves because you never choose. (2) DENSE SIGNAL: one forward pass gives K-1 comparisons instead of one. (3) GLOBAL GEOMETRY: the class weight vectors act as learned centroids distributed over the sphere, so the loss shapes the whole space rather than local neighbourhoods. (4) STABILITY: it is ordinary classification training, with none of triplet loss's collapse modes. (5) The margin is a single interpretable hyperparameter instead of a margin plus a mining strategy plus a batch scheme. THE COSTS, which are real. (a) You need CLASS LABELS for training - identities, not just pairs - so it does not apply when you only have same/different supervision. (b) The classification layer is K x d parameters, and with millions of identities that layer dominates memory, requiring partial-FC or sharded softmax tricks. (c) It assumes a fixed training identity set, though the learned EMBEDDING still generalizes to unseen identities, which is the point. (d) The scale s and margin m interact and need tuning. WHERE EACH IS STILL RIGHT: margin-softmax when you have identity labels and a large training set (face recognition, essentially always now). Triplet or contrastive when supervision is only PAIRWISE (this pair matches, this pair does not), when the label set is enormous and unstable, or in cross-modal settings where there are no shared classes - which is why CLIP is contrastive and not ArcFace. THE PATTERN WORTH NAMING: a hard SAMPLING problem was dissolved by changing the loss so that no sampling is needed. That move - replace 'choose good comparisons' with 'compare against everything cheaply' - recurs in noise-contrastive estimation, in full-softmax versus sampled-softmax debates, and in the shift from triplet to InfoNCE in self-supervised learning."
+          }
+        },
+        {
+          "q": "Design a face verification system for building access. What are the decisions?",
+          "a": "THE TASK IS VERIFICATION, NOT IDENTIFICATION, and getting that straight first changes everything. Identification asks 'who is this among N enrolled people' - a 1:N search. Verification asks 'is this the person whose badge was presented' - a 1:1 comparison against one enrolled template. Verification is far easier and far safer, and for building access it is the right framing because the badge supplies the claimed identity. If the system must work badge-free, it becomes 1:N identification and the false-accept problem gets N times worse, which is a decision to make explicitly with the security owner rather than an implementation detail. THE PIPELINE. (1) DETECTION and landmark alignment - crop and warp the face to a canonical pose. This step matters more than people expect; alignment quality is a large fraction of end-to-end accuracy. (2) LIVENESS / ANTI-SPOOFING, which I would raise as the first-order concern rather than an add-on. A face recognition system with no liveness check is defeated by a printed photograph, and for physical access control that is the actual threat model, not embedding accuracy. Options span passive (texture and reflection analysis, which is cheap and beatable), active challenge-response (blink, turn), depth or infrared sensing (much stronger, needs hardware), and I would push for a depth or IR camera if the security requirement is real. (3) EMBEDDING with a pretrained face model - ArcFace-family, trained on a large public identity set. I would not train from scratch; the public models are strong and the data requirements are enormous. (4) COMPARISON against the enrolled template by cosine similarity, thresholded. THE OPERATING POINT IS THE CENTRAL DECISION and it belongs to the security owner, not to me. Report the ROC and pick a point by the FALSE ACCEPT RATE the application tolerates - for building access that might be 1 in 100,000 or lower, and at that FAR the true-accept rate might be 95%, meaning one in twenty legitimate attempts is rejected and needs a fallback. That trade must be stated in those terms. Reporting 'accuracy' here is close to meaningless: at a 1e-5 FAR, accuracy is dominated by the negative class and tells you nothing. And there must be a FALLBACK path (PIN, guard, badge-only) or the system fails closed on its own false rejections. THE FAIRNESS ISSUE, which is not optional. Face recognition systems have well-documented and large accuracy disparities across demographic groups - NIST's FRVT evaluations measured false-match rates varying by more than an order of magnitude across groups for many algorithms. A single global threshold therefore delivers different real security and different real inconvenience to different people. I would insist on measuring per-group TAR at the operating FAR on a representative evaluation set, reporting it, and treating a large disparity as a blocking issue rather than a footnote. This is the single most likely way the project causes harm. ENROLLMENT AND OPERATIONS. Multiple enrollment images per person if possible (different lighting, with and without glasses), template storage as embeddings with clear retention and deletion policy, re-enrollment when appearance changes, and a defined process for removing departed employees. And template PROTECTION: an embedding is biometric data, it cannot be reissued like a password, and a leaked template database is a permanent harm - so encryption at rest, no export, and consideration of cancellable-biometric schemes. WHAT I WOULD FLAG TO THE STAKEHOLDERS: the legal position (biometric data is specially regulated in many jurisdictions, with consent and notice requirements), the demographic disparity measurement, the liveness threat model, and the fallback path. Those four determine whether this should be built at all, and they are more consequential than any modelling choice in the system."
+        },
+        {
+          "q": "How do you evaluate a metric-learning model?",
+          "a": "THE FIRST THING is that the evaluation depends on the TASK the embedding serves, and the two main ones are measured completely differently. VERIFICATION (1:1, 'are these the same'). The output is a distance and the decision is a threshold, so the evaluation is a binary classifier's. Report the ROC curve, and specifically the TRUE ACCEPT RATE AT A FIXED FALSE ACCEPT RATE - TAR@FAR=1e-3, 1e-4, 1e-6, depending on the application. This is the only presentation that lets a stakeholder choose an operating point. Accuracy is close to useless here because the negative pairs vastly outnumber the positives, so a trivial 'always different' classifier scores well. Equal Error Rate is a common single-number summary and it hides which side of the trade you are on. IDENTIFICATION (1:N, 'who is this'). Rank-1 accuracy, and the CMC curve (cumulative match characteristic) showing accuracy at rank k. Crucially, distinguish CLOSED-SET (the query is guaranteed to be enrolled) from OPEN-SET (the query may be nobody), because open-set requires a rejection threshold and is far harder - most published rank-1 numbers are closed-set and overstate what deployment will do. RETRIEVAL, if the embedding serves search. Recall@k, mean average precision, and normalized discounted cumulative gain. Recall@1 is a common headline and Recall@k for larger k reflects a re-ranking pipeline better. THE EVALUATION-DESIGN ISSUES that decide whether any of these numbers mean anything. (1) THE SPLIT MUST BE BY IDENTITY, not by image. If the same person appears in train and test, you are measuring memorization. This is the single most common fatal error in metric-learning evaluation and it inflates results dramatically. (2) OPEN-SET REALISM: the test identities should be ones the model never saw, because that is the deployment condition. (3) THE NEGATIVE PAIR DISTRIBUTION determines the FAR axis. Pairs drawn from an easy population give optimistic numbers; the honest evaluation uses the hardest negatives you expect - same demographic, similar appearance, family members for faces. (4) SCALE: FAR of 1e-6 cannot be estimated from a thousand negative pairs. You need at least tens of millions of comparisons to measure a low FAR, and papers reporting 1e-6 from small test sets are extrapolating. THE ANALYSES I WOULD ADD BEYOND THE HEADLINE. PER-GROUP breakdown - by demographic, by capture condition, by image quality. Aggregate metrics hide large disparities and, for biometrics specifically, those disparities are the main harm channel. FAILURE-CASE REVIEW: look at the highest-scoring false accepts and the lowest-scoring false rejects by hand; they usually reveal a data or preprocessing problem rather than a modelling one. EMBEDDING HEALTH: the standard deviation across dimensions and the singular-value spectrum, which detect partial collapse that the task metrics can mask. And ROBUSTNESS to the perturbations you expect - compression, resolution, pose, occlusion, lighting. AND THE THING I WOULD SAY FIRST IN A REVIEW: report the operating point, not just the curve summary. 'TAR 97.2% at FAR 1e-5, measured on 40 million negative pairs with identity-disjoint splits' is a claim someone can act on. '99.6% accuracy' is not a claim about anything."
+        },
+        {
+          "q": "Compare triplet loss with InfoNCE. Why did contrastive methods move to InfoNCE?",
+          "a": "THE STRUCTURAL DIFFERENCE. Triplet loss compares an anchor against ONE positive and ONE negative. InfoNCE compares an anchor against one positive and MANY negatives simultaneously, in the form of a softmax cross-entropy: the positive should receive high probability among all the candidates in the batch. Written out, InfoNCE is -log[ exp(sim(a,p)/tau) / sum_j exp(sim(a,x_j)/tau) ]. WHY MANY NEGATIVES HELP, which is the core of the answer. (1) A DENSER SIGNAL PER UPDATE. One triplet gives one comparison; InfoNCE with batch size 256 gives 255 comparisons per anchor at essentially the same compute, because the negatives are already in the batch and the similarity matrix is one matrix multiply. That is a large difference in information per gradient step. (2) IT DISSOLVES THE MINING PROBLEM. With triplet loss you must CHOOSE a negative, and that choice is the whole difficulty - too easy gives no gradient, too hard causes collapse. With InfoNCE the softmax automatically WEIGHTS negatives by their difficulty: hard negatives get high probability mass and therefore large gradients, easy ones get almost none. You get adaptive hardness weighting for free, without selecting anything. This is the single most important advantage. (3) BETTER-CONDITIONED GRADIENTS: the softmax is smooth, whereas the triplet hinge is either fully on or fully off, which makes the effective batch size erratic. (4) A THEORETICAL GROUNDING - InfoNCE is a lower bound on the mutual information between the two views, which triplet loss has no analogue for. Whether that framing explains its success is debated, but it gave the area a common language. (5) THE TEMPERATURE tau is an interpretable and powerful knob: low tau sharpens the distribution and concentrates gradient on the hardest negatives, high tau spreads it. It is effectively a continuous hardness dial replacing a discrete mining strategy, which is a much better parameterization. THE COSTS. (1) INfoNCE benefits strongly from LARGE BATCHES, since the batch supplies the negatives - which is why SimCLR needed 4096 and why that was a real infrastructure requirement. MoCo's momentum queue exists precisely to decouple negative count from batch size, and CLIP's large-batch training is the same constraint. (2) FALSE NEGATIVES: in-batch negatives may actually be positives (two different images of the same class), and InfoNCE penalizes them regardless. With class labels available you can mask them; without labels, this caps representation quality and is a known limitation. (3) The temperature needs tuning and the results are sensitive to it. WHERE TRIPLET LOSS IS STILL RIGHT: when supervision is genuinely PAIRWISE and you cannot form batches with multiple positives; when memory forbids large batches; and when you need an explicit interpretable margin for an operating point. In practice those cases are uncommon. THE BROADER ARC, which is the point I would end on: the field moved from 'select good comparisons' (mining) to 'compare against everything and let the loss weight them' (softmax over many negatives), and then in the supervised face-recognition case to 'compare against every class centroid' (ArcFace). Each step removes a sampling decision by making the comparison cheaper and denser. That is a recurring and generalizable move - when a method's difficulty is concentrated in choosing what to compare, look for a formulation that compares against everything."
+        },
+        {
+          "q": "What is representation collapse in metric learning, and how do the different methods prevent it?",
+          "a": "THE FAILURE. Any objective of the form 'make similar things close' has a trivial global optimum: map every input to the SAME POINT. All distances are zero, similarity is perfect, and the representation carries no information. Every method that learns from similarity must include something that makes this solution unattractive, and comparing those mechanisms is one of the more illuminating tours of representation learning. THE MECHANISMS, family by family. (1) MARGINS AND NEGATIVES - contrastive and triplet loss. The margin term explicitly requires dissimilar pairs to be at least alpha apart, which the constant solution violates maximally. This is the most direct fix and the most obvious. Its weakness is that it depends on having good negatives, which brings the mining problem: with only easy negatives the constraint is satisfied trivially and provides no shaping, and with the hardest negatives the model collapses for a different reason - label noise dominating the gradient. (2) MANY NEGATIVES WITH A SOFTMAX - InfoNCE. Same principle, better conditioned: the loss requires the positive to beat all the negatives, and the softmax weights them by difficulty automatically. The failure mode shifts from collapse to FALSE NEGATIVES capping quality. (3) CLASS CENTROIDS WITH ANGULAR MARGINS - ArcFace and family. Collapse is impossible because the classification objective requires distinguishing K classes, and the angular margin additionally forces separation. Needs identity labels. (4) ASYMMETRY WITH STOP-GRADIENT - BYOL and SimSiam, which use NO negatives at all. An online network with an extra predictor head is trained to match a target network that receives no gradient. Remove either the predictor or the stop-gradient and it collapses immediately. Why this works is still not fully settled; the leading account is that predictor-plus-stop-gradient makes the dynamics resemble an alternating optimization in which the constant solution is not an attractor. Worth knowing as an honest 'it works and the theory is partial'. (5) CENTERING AND SHARPENING - DINO. Centering the teacher output prevents any dimension dominating but pushes toward UNIFORM; sharpening with a low temperature prevents uniformity but pushes toward a CONSTANT one-hot. The two failure modes point in opposite directions and cancel, so both are required - removing either collapses the model, which is a common reimplementation bug. (6) EXPLICIT STATISTICS - VICReg and Barlow Twins. Rather than preventing collapse implicitly, constrain the representation's statistics directly: VICReg adds a VARIANCE term requiring each dimension to maintain variance above a threshold, which forbids constancy by construction, plus a covariance term preventing redundancy. Barlow Twins pushes the cross-correlation matrix toward the identity. These are the most transparent about what they are doing, need no negatives, asymmetry, or momentum encoder, and cost a little peak performance. (7) GENERATIVE OBJECTIVES sidestep it entirely - a masked autoencoder cannot reconstruct pixels from a constant representation, so the failure mode does not exist. That is a real structural advantage of generative pretraining. THE DISTINCTION THAT MATTERS PRACTICALLY: there are TWO collapses. COMPLETE collapse (constant output) is obvious and is what the mechanisms above prevent. DIMENSIONAL collapse is subtler - the representation occupies a low-dimensional subspace, so it has not degenerated but is wasting capacity, and it degrades downstream performance while the training loss looks fine. Detect it by computing the SINGULAR VALUE SPECTRUM of a batch of embeddings; a rapidly decaying spectrum is the signature. Barlow Twins and VICReg address it directly through their decorrelation terms. That diagnostic is cheap and it is the kind of check that distinguishes someone who has trained these models from someone who has read about them - which is exactly why it comes up in interviews."
+        },
+        {
+          "q": "You need to match products across two retail catalogues with no labelled matches. How would you approach it?",
+          "a": "THE FIRST MOVE IS TO NOTICE THIS IS NOT PRIMARILY A VISION PROBLEM. Product catalogues have titles, descriptions, brands, categories, prices, and often identifiers - and text plus structured fields will get you further than images for most of the catalogue. I would build the text and structured baseline first, and I would say so before proposing embeddings, because leading with a Siamese network here would be solving the wrong problem. THE LADDER. (1) EXACT IDENTIFIERS. GTIN, UPC, EAN, MPN, ISBN. Where these exist and are populated they resolve matches perfectly and instantly. In most real catalogues coverage is partial and quality is uneven, but the covered fraction is free and should be handled before anything learned. Also check for format inconsistencies - leading zeros, check digits, hyphens - which cause spurious misses. (2) BLOCKING, which is the scalability decision and is easy to overlook. Two catalogues of a million items each give 10^12 pairs; you cannot score them all. Block by category, brand, or a cheap key so only plausible pairs are compared, then score within blocks. Getting blocking wrong caps recall no matter how good the matcher is, and it is where most of the engineering effort actually goes. (3) TEXT SIMILARITY on titles and descriptions: TF-IDF or BM25 as a baseline, then embedding similarity with a sentence encoder. Product titles are a peculiar dialect - abbreviations, model numbers, pack sizes, colour codes - so a general encoder underperforms and character-level or hybrid lexical-plus-dense matching is usually better. Model numbers in particular are where lexical matching beats embeddings decisively, since an embedding will happily treat 'XR-450' and 'XR-460' as near-identical and they are different products. (4) STRUCTURED FIELD AGREEMENT: brand, category, pack size, weight, price ratio. These are strong features and cheap. (5) IMAGES, which is where the Siamese network comes in - and it is genuinely useful, because the same product often has near-identical or literally identical vendor photography across catalogues. A pretrained embedding (CLIP, or a copy-detection model like DINOv2 or SSCD) plus approximate nearest-neighbour search finds those, and it works with NO training. Image matching is also the best signal when titles differ wildly between vendors, which is common. (6) COMBINE the signals in a scorer. With no labels, a hand-weighted rule over the strong signals gets you started. WHERE THE LABELS COME FROM, since 'no labelled matches' is the stated constraint but need not stay true. Bootstrap: high-confidence matches from identifiers and from near-identical images ARE labels, and they are plentiful and reliable enough to train a supervised matcher for the rest. This is the key unlock, and it converts an unsupervised problem into a weakly-supervised one within a day. Then use the trained matcher's uncertain cases to direct a small human labelling effort - a few thousand reviewed pairs go a very long way for entity matching. THE EVALUATION, which is harder than the modelling. Precision and recall on a hand-labelled sample, chosen by stratified sampling across confidence bands rather than uniformly (uniform sampling of 10^12 pairs finds essentially no positives). Report the precision-recall curve and choose the threshold from the business cost: a false match that merges two different products is usually far worse than a missed match, because it corrupts pricing and inventory downstream. I would also measure recall separately on the head and the long tail - head products match easily and dominate any aggregate. THE FAILURE MODES TO PLAN FOR: product VARIANTS (same model, different colour or size) are the hardest case and require deciding explicitly whether they count as matches, which is a business question not a modelling one; BUNDLES and multipacks; refurbished versus new; and stock photography shared across genuinely different products, which is the specific way image matching fails and the reason it must be combined with text rather than trusted alone."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Siamese network",
+        "back": "Branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both compute the same function - that is what makes the distance meaningful, not an implementation convenience."
+      },
+      {
+        "type": "definition",
+        "front": "Triplet loss",
+        "back": "max(0, d(a,p)^2 - d(a,n)^2 + alpha). A RELATIVE constraint - only which is closer, never absolute distances. Embeddings L2-normalized so the margin has consistent meaning (otherwise the model just scales everything up)."
+      },
+      {
+        "type": "intuition",
+        "front": "Why a margin at all",
+        "back": "Without it, mapping every input to a CONSTANT satisfies 'similar things are close' perfectly and carries no information. The margin is the anti-collapse term, and every similarity-based method needs some equivalent."
+      },
+      {
+        "type": "pitfall",
+        "front": "Mining is the whole problem",
+        "back": "O(N^3) triplets, and a satisfied triplet gives EXACTLY zero gradient. After a few epochs under 1% of random triplets are active - the loss curve looks flat and the model is starved, not converged. Log the ACTIVE FRACTION (healthy 5-30%)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Hardest-negative mining collapses",
+        "back": "The hardest negatives are disproportionately MISLABELLED or genuinely ambiguous, so their large gradients drag the embedding to a constant. FaceNet used SEMI-hard: violating the margin but still farther than the positive."
+      },
+      {
+        "type": "definition",
+        "front": "Batch-hard + P-K sampling",
+        "back": "Sample P identities x K images; per anchor take the hardest in-batch positive and negative. Mines against the CURRENT model, no offline pass, and the BATCH BOUNDS the difficulty - an accidental but crucial regularizer. The sampler IS the algorithm."
+      },
+      {
+        "type": "pitfall",
+        "front": "Collapse looks like convergence",
+        "back": "When all embeddings coincide, the loss sits at exactly the margin and the curve flattens - identical to success. Log the per-dimension embedding STANDARD DEVIATION; it is the only signal that separates them."
+      },
+      {
+        "type": "intuition",
+        "front": "Why InfoNCE beat triplet loss",
+        "back": "Many negatives at once (one matmul), and the softmax AUTOMATICALLY weights them by difficulty - hard ones get the gradient, easy ones get none. Mining dissolves; temperature becomes a continuous hardness dial. Cost: needs large batches, and false negatives."
+      },
+      {
+        "type": "definition",
+        "front": "ArcFace / margin softmax",
+        "back": "Normalize features AND class weights so logits are cosines, then add an angular margin to the true class. Contrasts against ALL K-1 class centroids every step - no mining at all. Beats triplet loss for faces; needs identity labels."
+      },
+      {
+        "type": "pitfall",
+        "front": "Verification metrics",
+        "back": "Report ROC and TAR@FAR (1e-3 ... 1e-6), never accuracy - negatives swamp positives so 'always different' scores well. And a FAR of 1e-6 cannot be estimated from a thousand pairs; you need tens of millions of comparisons."
+      },
+      {
+        "type": "pitfall",
+        "front": "Split by IDENTITY, not by image",
+        "back": "If the same person/product appears in train and test you are measuring memorization, and the inflation is dramatic. The single most common fatal error in metric-learning evaluation."
+      },
+      {
+        "type": "intuition",
+        "front": "Dimensional collapse",
+        "back": "Not a constant output, but the embedding occupying a low-dimensional subspace - wasting capacity while the loss looks fine. Detect via the SINGULAR VALUE SPECTRUM of a batch of embeddings; fast decay is the signature."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Schroff et al. (2015), FaceNet: A Unified Embedding for Face Recognition and Clustering",
+        "url": "https://arxiv.org/abs/1503.03832"
+      },
+      {
+        "title": "Hermans et al. (2017), In Defense of the Triplet Loss for Person Re-Identification",
+        "url": "https://arxiv.org/abs/1703.07737"
+      },
+      {
+        "title": "Deng et al. (2019), ArcFace: Additive Angular Margin Loss for Deep Face Recognition",
+        "url": "https://arxiv.org/abs/1801.07698"
+      },
+      {
+        "title": "Hadsell et al. (2006), Dimensionality Reduction by Learning an Invariant Mapping",
+        "url": "https://www.cs.toronto.edu/~hinton/csc2535_06/readings/hadsell-chopra-lecun-06.pdf"
+      },
+      {
+        "title": "Musgrave et al. (2020), A Metric Learning Reality Check",
+        "url": "https://arxiv.org/abs/2003.08505"
+      }
+    ],
+    "demos": [
+      "contrastive-learning",
+      "embeddings",
+      "knn",
+      "tsne"
+    ]
+  }
+};

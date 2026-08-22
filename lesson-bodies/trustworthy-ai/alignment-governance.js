@@ -1,0 +1,292 @@
+// GENERATED from content/lessons/trustworthy-ai/alignment-governance.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/trustworthy-ai/alignment-governance/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "alignment-governance": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Alignment is the engineering problem of optimizing a system against a measurement of what you want, when the measurement is not what you want. Every technique in this module is a measurement, and this lesson is about what happens when something OPTIMIZES against one - which is the moment a good measurement stops being one.",
+        "The measured version of Goodhart's law: a reward model that scores 'longer and more substantive is better' tracks true quality across the range it was trained on - true quality rises from 0.593 to 2.536 as policy length goes from 150 to 350 tokens, and the proxy rises with it. Push past the training range and they invert. THE PROXY IS MAXIMIZED AT 2,500 TOKENS, WHERE TRUE QUALITY IS -49.319, against a peak of 2.536 at 350. The proxy reports +9.017 MORE reward for the catastrophically worse policy, and rises monotonically the entire way.",
+        "That is why governance is not paperwork bolted onto the engineering. The KL penalty in RLHF is a budget on how far you may trust a proxy off-distribution; a held-out evaluation is the only thing that can find the turn; and a named owner for the metric choice is what stops the budget being tuned on the proxy itself. Governance IS the mechanism that keeps a measurement a measurement."
+      ],
+      "math": [
+        {
+          "h": "★ Goodhart, measured",
+          "paras": [
+            "A policy parameterized by its output length. The reward model was fitted where responses are 150-450 tokens and is excellent there.",
+            "Optimization moves the policy out of that range, and the proxy has no way to report that it has left the region it was fitted on."
+          ],
+          "tex": "\\begin{array}{rrr} \\text{policy length} & \\text{PROXY (optimized)} & \\text{TRUE (wanted)}\\\\ 250 & 1.054 & 2.010\\\\ 350 & 1.474 & \\mathbf{2.536}\\\\ 600 & 2.523 & 1.292\\\\ 1200 & 5.041 & -8.705\\\\ 2500 & \\mathbf{10.491} & \\mathbf{-49.319} \\end{array}",
+          "texNote": "Correlation between proxy and true is +0.27 across the deployed range and -0.96 across the full range. The reward model is not broken; it is being evaluated outside the distribution it was fitted on, and nothing in its output says so."
+        },
+        {
+          "h": "The KL budget is the control, and it cannot be tuned on the proxy",
+          "paras": [
+            "RLHF's KL penalty against the reference policy is exactly a budget on optimization pressure - how far you may move before the proxy stops being trustworthy.",
+            "Choosing the budget requires measuring the TRUE objective on held-out data, because the proxy is monotone in the wrong direction."
+          ],
+          "tex": "\\max_\\pi\\ \\mathbb{E}_{\\pi}[r_\\phi(x,y)] - \\beta\\,\\mathrm{KL}\\big(\\pi\\,\\|\\,\\pi_{\\text{ref}}\\big)",
+          "texNote": "Beta is not a hyperparameter to sweep on reward. Sweeping it on reward selects the smallest beta, which is the most misaligned policy. It must be selected on a held-out measurement of the thing you actually want."
+        },
+        {
+          "h": "★ Best-of-n and policy optimization are not the same pressure",
+          "paras": [
+            "Selecting the top fraction from a FIXED pool cannot leave the pool's support. Optimizing a policy moves the distribution, and only the second produces the turn.",
+            "This was not obvious to me until the first two versions of the experiment failed to reproduce Goodhart at all."
+          ],
+          "tex": "\\text{best-of-}n: \\ \\text{true} \\nearrow \\text{monotonically } 1.491 \\to 8.018 \\ \\text{at top } 0.1\\% \\qquad \\text{policy shift: true} \\nearrow \\text{then} \\searrow \\text{to } -49.3",
+          "texNote": "Best-of-n reranking is meaningfully safer than RL at the same nominal optimization pressure, because it is bounded by what the base policy can already produce. That is a real argument for inference-time selection over weight updates when the reward model is weakly trusted."
+        }
+      ],
+      "code": [
+        {
+          "h": "Ensembling the reward model delays the turn and does not remove it",
+          "paras": [
+            "Averaging removes independent error. Shared bias is not independent error."
+          ],
+          "code": "#  reward models averaged   TRUE quality at the top 0.2%\n#          1                        7.467\n#          4                        7.643\n#         16                        7.714\n\n# ★ Diminishing, and it converges to the ensemble's SHARED bias, not to the\n#   true objective. Every model in the ensemble learned 'longer is better'\n#   from the same annotators on the same distribution.\n\n# WHAT ACTUALLY HELPS\n#   * a KL budget selected on a HELD-OUT measure of the true objective\n#   * reward models trained on DIFFERENT annotator pools / rubrics\n#   * held-out evaluations the optimizer never sees\n#   * inference-time selection (bounded) rather than weight updates (unbounded)",
+          "caption": "Ensembling is a variance fix applied to a bias problem. It buys a little and the shape of the failure is unchanged."
+        },
+        {
+          "h": "★ The module in one table: every guarantee and its reference class",
+          "paras": [
+            "The deliverable of this module. The left column is what people say; the right column is what was measured."
+          ],
+          "code": "# CLAIM                      HOLDS OVER                        MEASURED GAP\n# 'calibrated' (ECE 0.011)   a population you chose            minority ECE 0.153\n# '90% coverage'             MARGINALLY, over exchangeable     per-class 0.727-0.990\n#                            draws                             minority 0.773\n# 'fair' (equal opportunity) ONE column of the confusion        PPV gap -0.231\n#                            matrix                            (impossibility)\n# 'feature importance'       a baseline + a parameterization    2.371 -> 1.186 on a\n#                                                              rewrite; 0.000 vs 2.344\n# 'the SAE found N features' your dictionary size               5/24 at the best fit\n# 'the model represents X'   DECODABILITY, not use             probe 1.000, effect 3e-6\n# 'robust'                   ONE norm ball, one radius          0.806 / 0.671 / 0.719\n#                                                              / 0.850 across four\n# 'no drift detected'        P(x), not accuracy                 acc 0.338, detector quiet\n# 'red team found nothing'   the attacks you ran                86 of 300 classes left\n# 'reward went up'           the proxy, off-distribution        true -49.3 at proxy max\n\n# ★ Not one of these numbers is wrong. Every one is quoted about a wider set\n#   than the one it was computed on.",
+          "caption": "Ten lessons, one failure mode. The fix in every row is to state the reference class in the same sentence as the number."
+        }
+      ],
+      "useCases": [
+        "Setting a KL budget or an optimization-pressure limit for any RLHF or preference-optimization run, using a held-out measurement rather than the reward curve.",
+        "Writing a model card or system card that a reader can act on, by stating each guarantee's reference class rather than its headline number.",
+        "Structuring an internal review so the unresolvable choices - which fairness metric, which threat model, which residual risk is acceptable - have named owners and documented rationales.",
+        "Choosing between inference-time selection and weight updates when the reward signal is weakly trusted, where boundedness is the deciding property."
+      ],
+      "pitfalls": [
+        "Tuning the KL coefficient on reward. Sweeping beta against the proxy selects the smallest beta, which is the most misaligned policy - the proxy rose monotonically to 10.491 while true quality fell to -49.319.",
+        "Reading a high proxy-true correlation as safety. Correlation was positive across the deployed range and -0.96 across the full range, and optimization is what moves you between them.",
+        "Trusting reward-model ensembles to solve reward hacking. Sixteen models averaged moved true quality from 7.467 to 7.714 and converged toward the shared bias, not the true objective.",
+        "Treating best-of-n and policy optimization as the same optimization pressure. Best-of-n rose monotonically to 8.018 because it cannot leave the base policy's support; policy shift turned over completely.",
+        "Letting every evaluation become a training target. An eval the optimizer sees stops being a measurement, which is this module's thesis applied to the process rather than to a metric.",
+        "Treating governance as documentation. The KL budget, the held-out eval, and the named owner are load-bearing engineering controls, and removing them changes the model's behaviour.",
+        "Publishing a model card of headline numbers with no reference classes, which is the artefact this whole module argues against."
+      ],
+      "connections": [
+        {
+          "ref": "fine-tuning/rlhf-ppo",
+          "text": "The mechanics being governed - PPO, the KL term, and reward-model training - where beta is presented as a hyperparameter and this lesson explains why it is a policy control."
+        },
+        {
+          "ref": "fine-tuning/reward-modeling",
+          "text": "Where the proxy comes from, and why annotator pool and rubric design determine the bias that ensembling cannot remove."
+        },
+        {
+          "ref": "trustworthy-ai/red-teaming",
+          "text": "The other place a measurement becomes a target: a patched suite's pass rate measures regression, exactly as an optimized reward measures the proxy."
+        },
+        {
+          "ref": "causal-inference/ab-testing",
+          "text": "The same discipline arriving from the other direction - pre-registration, held-out measurement, and a decision rule fixed before the data is seen."
+        },
+        {
+          "ref": "mlops/ml-strategy",
+          "text": "Where these controls live organizationally, and how a review process turns an unresolvable trade-off into a documented, owned decision."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "State Goodhart's law for ML.",
+          "a": "When a measure becomes a target it ceases to be a good measure. Operationally: optimizing a proxy moves you off the distribution where the proxy was validated."
+        },
+        {
+          "q": "★ Give the measured version.",
+          "a": "True quality peaks at 2.536 (350 tokens). The proxy is maximized at 2,500 tokens where true quality is **−49.319** — and reports +9.017 MORE reward there."
+        },
+        {
+          "q": "What was the proxy–true correlation?",
+          "a": "+0.27 across the deployed range, **−0.96** across the full range. Optimization is what moves you from the first to the second."
+        },
+        {
+          "q": "Can the proxy signal the turn?",
+          "a": "No — it rises monotonically the whole way. Only a held-out measurement of the TRUE objective shows it."
+        },
+        {
+          "q": "What is the KL penalty in RLHF really doing?",
+          "a": "Budgeting how far you may trust a proxy off-distribution: max_π E[r_φ] − β·KL(π‖π_ref)."
+        },
+        {
+          "q": "How should β be selected?",
+          "a": "On a held-out measurement of the true objective. Sweeping β on REWARD selects the smallest β — the most misaligned policy."
+        },
+        {
+          "q": "★ Why is best-of-n safer than RL at the same pressure?",
+          "a": "It cannot leave the base policy's support. Best-of-n rose monotonically to 8.018; policy shift turned over to −49.3. Bounded vs unbounded."
+        },
+        {
+          "q": "Do reward-model ensembles fix reward hacking?",
+          "a": "Barely. 1 → 4 → 16 models gave true quality 7.467 → 7.643 → 7.714, converging to the SHARED bias. Averaging removes independent error, not shared bias."
+        },
+        {
+          "q": "Why is shared bias shared?",
+          "a": "Every model in the ensemble learned from the same annotators, the same rubric, and the same distribution."
+        },
+        {
+          "q": "What happens to an eval the optimizer can see?",
+          "a": "It stops being a measurement. Some evals must be held out and never trained against — the same reason some red-team findings must stay unpatched."
+        },
+        {
+          "q": "Is governance documentation?",
+          "a": "No. The KL budget, the held-out eval and the named owner are load-bearing engineering controls — remove them and the model's behaviour changes."
+        },
+        {
+          "q": "★ What is the module's transferable question?",
+          "a": "Over what set does this hold, and is that the set I care about? State the reference class in the same sentence as the number."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain Goodhart's law with a concrete measurement, and what follows for RLHF.",
+          "a": "OPTIMIZING A PROXY MOVES YOU OFF THE DISTRIBUTION WHERE THE PROXY WAS VALIDATED, AND THE PROXY CANNOT REPORT THAT. I built the canonical version: a reward model that has learned 'longer and more substantive is better', scoring policies parameterized by output length. Across the range where it was fitted — 150 to 450 tokens — it tracks true quality closely, with true quality rising from 0.593 to a peak of 2.536 at 350 tokens and the proxy rising alongside. Past that range they invert. THE PROXY IS MAXIMIZED AT 2,500 TOKENS, WHERE TRUE QUALITY IS −49.319, and it reports +9.017 more reward there than at the true optimum. Correlation between proxy and true is positive across the deployed range and −0.96 across the full range. The reward model is not broken and was never wrong about anything it was asked in training; it is being evaluated outside its fitting distribution, and optimization is precisely the process that takes it there. WHAT FOLLOWS FOR RLHF IS THAT THE KL PENALTY IS NOT A REGULARIZATION HYPERPARAMETER — it is a budget on how far you may trust the proxy, and it is the primary safety control in the objective. And it cannot be tuned on reward, because sweeping beta against the proxy selects the smallest beta, which is the most misaligned policy.",
+          "deepDive": {
+            "q": "Why is this trap so easy to fall into with standard tooling?",
+            "a": "That last point is the practical trap and it is easy to fall into with standard tooling, because reward curves are what the training loop plots. A beta sweep with model selection on final reward is a procedure that reliably chooses the worst model, and it looks like ordinary hyperparameter tuning while doing so. The correct procedure requires a held-out measurement of the thing you actually want — human evaluation, a genuinely independent judge, or a downstream task metric — evaluated at several betas, with the selection made there. In practice teams also monitor the KL itself as a live signal, since a run whose KL is climbing steeply is spending its budget, and the characteristic reward-hacking trajectory is reward rising while KL rises faster. Worth adding that reward-model overoptimization has a measured scaling shape in the literature: Gao, Schulman and Hilton fit true-reward curves against KL and find the familiar rise-then-fall, with the peak moving further out for larger reward models. That is the useful practical summary — a bigger reward model buys you more optimization budget, and it does not remove the turn."
+          }
+        },
+        {
+          "q": "Why is best-of-n sampling safer than policy optimization, and how confident are you?",
+          "a": "BECAUSE IT IS BOUNDED BY THE BASE POLICY'S SUPPORT. Best-of-n generates from the unmodified policy and selects the highest-scoring sample, so it can only ever return something the base policy would have produced anyway — it reweights within a distribution rather than moving it. Policy optimization changes the weights, so it can reach regions the base policy would essentially never sample, which is exactly where a reward model has no training signal. I MEASURED BOTH. Under best-of-n selection from a fixed pool, true quality rose monotonically all the way to the top 0.1%, from a baseline of 1.491 to 8.018 — no turn at any selection pressure I tested. Under policy shift, true quality peaked at 2.536 and fell to −49.319. Same reward model, same true objective, completely different failure profile. I AM FAIRLY CONFIDENT IN THE MECHANISM and I would state the limit honestly: best-of-n is bounded, not safe. If the base policy already produces bad-but-high-reward outputs at some rate, best-of-n will find them, and its effective KL grows like log n so at very large n it approaches the same regime. The practical reading is that inference-time selection is the right default when the reward model is weakly trusted, and it costs n times the inference.",
+          "deepDive": {
+            "q": "How confident are you in that distinction?",
+            "a": "I should say plainly that this distinction was not obvious to me — it emerged because my first two attempts to reproduce Goodhart failed. Selecting the top fraction from a fixed sample produced monotone improvement no matter how hard I selected, and I initially read that as a failed simulation. It was not: it was the correct behaviour of best-of-n, and the turn only appeared once I modelled the policy as MOVING the distribution rather than selecting within it. That reframed the result from 'my simulation is broken' into the actual finding, which is that the two forms of optimization pressure are qualitatively different and only one of them produces the classic turnover. The generalizable lesson is the same one from the certification bug earlier in this module: an experiment that refuses to reproduce a textbook effect is usually telling you the setup differs from the textbook's in a way that matters, and identifying that difference is worth more than the reproduction would have been. The practical corollary for a team is that 'we use best-of-n' and 'we use RLHF' should not be treated as the same risk posture even at matched reward improvements."
+          }
+        },
+        {
+          "q": "What would you put in a system card, given everything in this module?",
+          "a": "EVERY NUMBER WITH ITS REFERENCE CLASS IN THE SAME SENTENCE. That single rule generates most of the content. Not 'calibrated, ECE 0.011' but 'ECE 0.011 over the evaluation population; 0.153 for the smallest subgroup, which is 12% of users'. Not '90% coverage' but '90% marginal coverage over exchangeable draws; per-class coverage 0.73 to 0.99; minority-group coverage 0.77'. Not 'fair' but 'equal opportunity holds; PPV gap is −0.231 by construction, because the base rates differ and the three parities are mutually incompatible'. Not 'robust' but 'robust to L∞ perturbations at ε = 0.08, with accuracy 0.81 there, 0.67 at twice the budget, and 0.72 under an L2 attack'. Not 'no drift detected' but 'input-distribution monitoring is green; performance is estimated from N labelled samples per week with a confidence interval of X'. Not 'red-teamed' but 'we ran N probes across these categories, found M distinct issue classes, and estimate at least K remain'. SECOND, THE UNRESOLVABLE CHOICES WITH OWNERS: which fairness criterion and why, which threat model, what residual risk was accepted and by whom. THIRD, WHAT WOULD CHANGE THE ASSESSMENT — the specific finding that would make you withdraw the model.",
+          "deepDive": {
+            "q": "Why insist on the reference class rather than simply more numbers?",
+            "a": "The reason to insist on the reference class rather than more numbers is that it changes what a reader can do. A headline number invites trust or distrust; a number with its reference class invites the reader to ask whether their situation is inside it, which is the only question that matters for their decision. It also makes the document falsifiable in a useful way — a claim about a stated population can be checked by someone with access to a different population, and that is how these documents improve. The failure mode to design against is a card that is comprehensive and unreadable, since a fifty-page appendix nobody reads is not better than a headline. My preference is a short front page of decisions and their owners, with a table of guarantees and reference classes, and depth in appendices. And the section that is almost always missing and most valuable is 'what we did not test', which is the same omission as the red-team report's effort section, and it is the one that lets a reader reason about residual risk rather than take it on faith."
+          }
+        },
+        {
+          "q": "How do you keep evaluations honest inside an organization that is optimizing?",
+          "a": "BY MAKING SOME MEASUREMENTS STRUCTURALLY UNAVAILABLE TO THE OPTIMIZER. This module's thesis applies to the process as much as to any metric: an evaluation the optimizer can see becomes a training target and stops being a measurement. So the controls are organizational rather than statistical. HOLD OUT EVALUATIONS COMPLETELY — sets that are never used for model selection, never reported per-checkpoint, and rotated when they leak. HOLD OUT RED-TEAM FINDINGS, patching most and reserving a stratified sample, for the identical reason: patch everything and the suite's pass rate measures regression, not risk. SEPARATE REPORTING LINES, so the team measuring is not the team shipping, which matters less because of suppressed findings than because of a slow drift toward testing what is likely to pass. PRE-REGISTER the decision rule — which metric, which threshold, which population — before the run, since choosing the primary metric after seeing results is the peeking failure from the experimentation lesson and leaves no trace in the logs. AND ROTATE the held-out sets, because any fixed set eventually leaks through repeated decisions even when nobody trains on it directly.",
+          "deepDive": {
+            "q": "How does leakage defeat ordinary holdout discipline?",
+            "a": "The subtle version of leakage is worth naming because it defeats naive holdout discipline. Even if nobody trains on the held-out set, running it after every checkpoint and choosing which checkpoint to ship is selection ON that set, and with enough checkpoints you have effectively fitted to it — the same mechanism as multiple comparisons in the experimentation lesson, arriving through model selection rather than through metrics. The mitigations are to limit the number of times the holdout is consulted, to budget those consultations explicitly like an alpha budget, and to rotate. The broader point is that these are all instances of one pattern: any measurement that participates in a feedback loop with the thing it measures degrades, and the rate depends on how tight the loop is. Governance, in the sense worth defending, is the design of those loops — which measurements feed back, how fast, and which are deliberately isolated. That framing makes it an engineering activity with observable consequences rather than a compliance artefact, which is the only version that survives contact with a shipping deadline."
+          }
+        },
+        {
+          "q": "Summarize what this module establishes.",
+          "a": "TEN LESSONS, ONE FAILURE MODE: EVERY GUARANTEE IS TRUE, AND NARROWER THAN ITS NAME. Calibration's ECE of 0.011 was an average over a population I chose, hiding a minority ECE of 0.153. Conformal's 90% coverage was marginal, with per-class coverage from 0.727 to 0.990. A fairness metric equalizes exactly one column of the confusion matrix and the impossibility theorem forces the others apart. An attribution depends on a baseline and a parameterization — 2.371 became 1.186 from a rewrite that changed no predictions. An SAE's near-perfect reconstruction recovered 5 of 24 true features. A probe at 1.0000 accuracy accompanied a causal effect of 0.000003. 'Robust' meant four different numbers across four threat models. A drift detector was quiet at 0.338 accuracy. A red team covering 71% left 86 classes. And a reward that rose monotonically to its maximum sat at true quality −49.319. NOT ONE OF THOSE NUMBERS IS WRONG. Every one is quoted about a wider set than the one it was computed on. THE TRANSFERABLE QUESTION IS: over what set does this hold, and is that the set I care about — and the discipline is to state the reference class in the same sentence as the number.",
+          "deepDive": {
+            "q": "Which of these gaps can actually be closed?",
+            "a": "The one distinction worth carrying beyond the module is between CLOSABLE and UNCLOSABLE gaps, because it determines what to do. Most of these are closable and the fix is reporting discipline: per-subgroup calibration is three lines, Mondrian conformal moves coverage to a partition you choose, the SHAP variant and baseline can be stated, the threat model can be named, the coverage estimate is a groupby over data you already logged. Those are failures of convention, not of possibility. One is genuinely unclosable: no unlabelled statistic can detect concept shift, which I verified against four monitors while accuracy fell to 0.338, and the only response is to buy the missing information with a labelling budget. Confusing the two misallocates effort in a specific and common way — teams build elaborate unlabelled monitoring that cannot work while shipping aggregate numbers whose per-slice version was three lines away. Sorting your own guarantees into those two buckets is a short exercise and it tends to reallocate the budget immediately, usually from dashboards toward labels and toward the reference classes you were not printing."
+          }
+        },
+        {
+          "q": "What is the honest state of alignment as an engineering discipline?",
+          "a": "IT HAS REAL CONTROLS AND NO SOLUTION, AND THE CONTROLS ARE WORTH TAKING SERIOUSLY. What genuinely works: a KL budget selected on a held-out measurement, which bounds how far a proxy is trusted; inference-time selection instead of weight updates when the reward model is weakly trusted, because best-of-n is bounded by the base policy's support while RL is not; held-out evaluations the optimizer never sees; annotator and rubric diversity, since ensembling removes independent error and leaves shared bias, moving true quality only 7.467 to 7.714 from 1 to 16 models; and red-teaming with a coverage estimate rather than a findings list. WHAT DOES NOT WORK: assuming a high proxy-true correlation survives optimization, when it was +0.27 in-range and −0.96 overall; assuming ensembles solve reward hacking; treating any of this as solved. THE HONEST FRAMING is that alignment as practiced today is the discipline of optimizing against imperfect measurements with explicit budgets on how far you trust them — which is a real engineering activity with measurable controls, and is not the same as having a specification of what you want. The gap between those two is the open problem, and it is not closed by any technique in this module.",
+          "deepDive": {
+            "q": "What does this module deliberately not cover?",
+            "a": "It is worth being clear about what this module does and does not cover, since the field's public conversation ranges much wider. Everything here concerns systems you can measure, optimize and intervene on, and the controls all depend on having a true-objective measurement that is at least sometimes available — human evaluation, a downstream metric, a held-out judgment. Arguments about systems capable enough to make that measurement unreliable, whether through deception, situational awareness, or optimization pressure applied to the evaluators themselves, are outside what any experiment I can run addresses, and I would not extrapolate these results to them. What I would carry forward is the methodological posture rather than the specific numbers: name the measurement, name what it is a proxy for, bound the optimization pressure applied against it, hold something out, and state the reference class. That posture is what makes the difference between a system whose failures are surprising and one whose failures are the ones you wrote down in advance — which is a lower bar than alignment and a much better position than most deployed systems occupy."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "★ Goodhart, measured",
+        "back": "TRUE quality peaks at **2.536** (350 tokens). The PROXY is maximized at 2,500 tokens where TRUE is **−49.319** — and reports **+9.017 more reward** there. Proxy rises monotonically the entire way."
+      },
+      {
+        "type": "intuition",
+        "front": "Was the reward model broken?",
+        "back": "No. It was excellent where fitted (corr +0.27 in-range) and inverted outside it (−0.96 overall). OPTIMIZATION is the process that takes you there, and nothing in the proxy's output says you've left."
+      },
+      {
+        "type": "formula",
+        "front": "The KL budget",
+        "back": "max_π E_π[r_φ] − β·KL(π‖π_ref). β is not a regularization hyperparameter — it's a BUDGET on how far you trust the proxy off-distribution, and the primary safety control in the objective."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Never tune β on reward",
+        "back": "Sweeping β against the proxy selects the SMALLEST β — the most misaligned policy — and it looks exactly like ordinary hyperparameter tuning. Select on a held-out measure of the TRUE objective."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Best-of-n vs policy optimization",
+        "back": "Best-of-n is BOUNDED by the base policy's support: true quality rose monotonically 1.491 → 8.018. Policy shift is unbounded: peaked then fell to −49.3. Different risk postures at matched reward gains."
+      },
+      {
+        "type": "pitfall",
+        "front": "Is best-of-n safe?",
+        "back": "Bounded, not safe. If the base policy already emits bad-but-high-reward outputs at some rate, best-of-n finds them — and its effective KL grows like log n, so very large n approaches the same regime."
+      },
+      {
+        "type": "pitfall",
+        "front": "Do reward-model ensembles fix reward hacking?",
+        "back": "Barely. 1 → 4 → 16 models: true quality 7.467 → 7.643 → 7.714, converging to the SHARED bias. Averaging removes INDEPENDENT error; every model learned 'longer is better' from the same annotators."
+      },
+      {
+        "type": "pitfall",
+        "front": "The subtle holdout leak",
+        "back": "Even without training on it, running a holdout every checkpoint and choosing which to ship IS selection on it. Budget the consultations like an alpha budget, and rotate the set."
+      },
+      {
+        "type": "definition",
+        "front": "What governance actually is",
+        "back": "The design of feedback loops: which measurements feed back, how fast, and which are deliberately isolated. The KL budget, the held-out eval and the named owner are load-bearing engineering controls, not paperwork."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The system-card rule",
+        "back": "Every number with its reference class IN THE SAME SENTENCE. Not \"ECE 0.011\" but \"ECE 0.011 over the eval population; 0.153 for the smallest subgroup (12% of users)\". Plus: what we did NOT test."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The module in one line",
+        "back": "EVERY GUARANTEE IS TRUE AND NARROWER THAN ITS NAME. ECE 0.011/0.153 · coverage 0.902/0.727 · PPV gap −0.231 · SHAP 2.371→1.186 · SAE 5/24 · probe 1.000 vs effect 3e−6 · robust ×4 · drift quiet at acc 0.338 · 86 of 300 classes left · reward max at true −49.3."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Closable vs unclosable — the whole module's action",
+        "back": "CLOSABLE (a reporting failure — fix with discipline): subgroup calibration, Mondrian coverage, SHAP variant, threat model, red-team coverage. UNCLOSABLE (an information limit — buy it or document it): concept shift. Confusing them misallocates the entire budget."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Gao, Schulman & Hilton (2023), Scaling Laws for Reward Model Overoptimization",
+        "url": "https://arxiv.org/abs/2210.10760"
+      },
+      {
+        "title": "Amodei et al. (2016), Concrete Problems in AI Safety",
+        "url": "https://arxiv.org/abs/1606.06565"
+      },
+      {
+        "title": "Bai et al. (2022), Constitutional AI: Harmlessness from AI Feedback",
+        "url": "https://arxiv.org/abs/2212.08073"
+      },
+      {
+        "title": "Mitchell et al. (2019), Model Cards for Model Reporting",
+        "url": "https://arxiv.org/abs/1810.03993"
+      },
+      {
+        "title": "NIST (2023), AI Risk Management Framework (AI RMF 1.0)",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+      }
+    ],
+    "demos": [
+      "reward-model",
+      "dpo",
+      "fairness",
+      "guardrails"
+    ]
+  }
+};

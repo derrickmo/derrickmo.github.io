@@ -1,0 +1,273 @@
+// GENERATED from content/lessons/rag-agents/agent-loops.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rag-agents/agent-loops/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "agent-loops": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "An agent is a loop in which the MODEL decides the control flow. A pipeline's sequence of steps is written by you; an agent's is chosen at runtime by a component whose behaviour you cannot fully specify. That is the entire distinction, and everything attractive and everything dangerous about agents follows from it. The attraction is generality - one loop handles tasks you did not enumerate. The danger is that you have replaced a specified control flow with a sampled one.",
+        "The structural consequence is MULTIPLICATION, and it is the module's second idea arriving in force. In a pipeline of ceilings, the worst stage bounds you. In a loop, per-step reliability COMPOUNDS: a step that succeeds 95% of the time, run ten times, gives about 60% end-to-end. At twenty steps it is 36%. This is not a pessimistic estimate, it is arithmetic, and it explains why demos that look excellent at three steps become unusable at fifteen. Nothing about the model changed; the exponent did.",
+        "So the engineering follows a direction most agent discussions skip: the goal is FEWER STEPS AND MORE RELIABLE ONES, not more autonomy. Every step you can remove from the loop and specify in code is a factor removed from the product. That leads to an honest recommendation - most products described as agents are better built as a constrained pipeline with one or two model decision points, and reaching for a fully autonomous loop should require an argument about why the task genuinely cannot be enumerated."
+      ],
+      "math": [
+        {
+          "h": "Why long loops fail - the compounding",
+          "paras": [
+            "If every step must succeed and steps are roughly independent, end-to-end success is the product.",
+            "Inverting it gives the per-step reliability a target demands, which is the more useful direction."
+          ],
+          "tex": "P_{\\text{task}} = \\prod_{i=1}^{n} s_i = s^n, \\qquad s_{\\text{required}} = P_{\\text{target}}^{1/n}",
+          "texNote": "At s=0.95: five steps gives 0.77, ten gives 0.60, twenty gives 0.36. Inverted, a 90% success target over twenty steps demands s of 0.995 per step - which is a far harder engineering problem than it looks, and usually not achievable with a sampled decision. The two levers are visible in the formula and only two: raise s, or reduce n. Reducing n by moving steps into deterministic code is almost always the cheaper one."
+        },
+        {
+          "h": "What retries buy, and what they cost",
+          "paras": [
+            "Retrying a step with independent failures turns a per-step reliability into a much higher one.",
+            "The cost is not free and it is the reason budgets exist."
+          ],
+          "tex": "s_{\\text{eff}} = 1 - (1-s)^{r}, \\qquad \\mathbb{E}[\\text{calls}] = \\frac{1 - (1-s)^r}{s} \\approx \\frac{1}{s}",
+          "texNote": "Three attempts at s=0.8 gives an effective 0.992, which converts a shaky step into a solid one and is why observe-and-retry is the highest-value pattern in the loop. But retries only help for INDEPENDENT failures - a malformed schema retried identically fails identically, so the retry must carry the error back as an observation. And the expected call count rises, which is why an unbounded retry policy plus an unbounded loop is how an agent spends a thousand dollars on one request."
+        },
+        {
+          "h": "Termination is a requirement, not a safety net",
+          "paras": [
+            "A policy with any probability of not finishing will, over enough runs, produce a run that never finishes.",
+            "The budget is what converts an unbounded liability into a bounded cost."
+          ],
+          "tex": "\\text{cost} \\le B \\cdot c_{\\text{step}} \\quad\\text{guaranteed}, \\qquad\\text{vs}\\qquad \\mathbb{E}[\\text{cost}] = \\frac{c_{\\text{step}}}{p_{\\text{halt}}} \\;\\to\\; \\infty \\;\\text{ as } p_{\\text{halt}} \\to 0",
+          "texNote": "Without a hard step budget B the expected cost is inversely proportional to the halting probability, and the distribution is heavy-tailed - the median run is cheap and the tail is unbounded. So the budget is not defensive programming, it is the only thing making cost a knowable quantity. The same argument applies to wall-clock time and to tool-call counts, and each needs its own cap."
+        }
+      ],
+      "code": [
+        {
+          "h": "The loop, with the four things that make it production-safe",
+          "paras": [
+            "The skeleton is short. What separates a demo from a system is the four guards around it."
+          ],
+          "code": "def run(task, tools, budget=10, cost_cap=0.50):\n    history, spent = [], 0.0\n    for step in range(budget):                 # ★ 1. HARD STEP BUDGET\n        action = model.decide(task, history)   # the model picks control flow\n\n        if action.type == \"finish\":\n            return action.answer\n\n        # ★ 2. VALIDATE BEFORE EXECUTE - turns crashes into retryable\n        #    rejections, and the error goes back as an OBSERVATION so the\n        #    retry is DIFFERENT (identical retries fail identically).\n        ok, err = validate(action, schema=tools[action.name].schema)\n        if not ok:\n            history.append(Observation(error=err))   # feed it back\n            continue\n\n        # ★ 3. AUTHORIZE - allowlist per task, confirm above a risk bar\n        if not allowed(action, task):\n            history.append(Observation(error=\"tool not permitted\"))\n            continue\n\n        obs = tools[action.name](**action.args)\n        history.append(obs)\n\n        spent += obs.cost                       # ★ 4. COST CAP - the\n        if spent > cost_cap:                    #    distribution is\n            return partial(history)             #    HEAVY-TAILED\n\n    return partial(history)   # budget exhausted: DEGRADE, don't hang\n\n# WHY EACH GUARD EXISTS, in one line:\n#   budget    - a non-halting policy WILL produce a non-halting run\n#   validate  - ~10% of malformed calls become clean retries, not 500s\n#   authorize - bounds what a confused OR compromised loop can reach\n#   cost cap  - median run is cheap; the tail is what bankrupts you",
+          "caption": "The loop is a dozen lines; the guards are what make it a system. Each one converts an unbounded failure into a bounded, observable one."
+        },
+        {
+          "h": "The three control strategies, and when each wins",
+          "paras": [
+            "The choice is about how much the environment deviates from what the plan assumed."
+          ],
+          "code": "# PLAN-THEN-EXECUTE - plan once, run the steps.\n#   + cheapest (1 planning call), predictable, auditable before execution\n#   - a static plan SHATTERS when the environment misbehaves: one failed\n#     step and every later step is built on a false assumption\n\n# ReAct (reason -> act -> observe, replan EVERY step)\n#   + robust to a misfiring environment - it sees each result and adapts\n#   - most expensive (a model call per step), can loop or wander, and\n#     the extra decisions are extra factors in s^n\n\n# ★ HYBRID - plan once, REPLAN ONLY ON DEVIATION. The production default.\nplan = model.plan(task)\nfor step in plan:\n    obs = execute(step)\n    if deviates(obs, step.expected):    # only NOW pay for a model call\n        plan = model.replan(task, history)\n#   Gets most of ReAct's robustness at a small fraction of the calls,\n#   because in a well-behaved environment the replan branch rarely fires.\n\n# ★ AND THE OPTION PEOPLE SKIP - DON'T LOOP AT ALL.\n#   If the task decomposes the same way every time, write the pipeline:\n#     retrieve -> extract (1 model call) -> validate -> format\n#   n drops from 12 to 1, s^n stops being the governing quantity, and\n#   the whole thing becomes testable. Most \"agent\" products are this.\n#   Reaching for autonomy should require an ARGUMENT that the task\n#   genuinely cannot be enumerated - not an assumption that it can't.",
+          "caption": "Hybrid is the default because replanning is only worth paying for when the environment actually deviated - and the option above all of them is to remove the loop entirely."
+        }
+      ],
+      "useCases": [
+        "Tasks whose steps genuinely cannot be enumerated in advance - open-ended research, debugging, multi-system operations where the next action depends on what the last one returned.",
+        "Multi-hop retrieval, where the second query can only be written once the first hop's answer is known, and a single retrieval pass structurally cannot find the evidence.",
+        "Tool-mediated workflows where the model routes among a set of typed capabilities, which is the narrow, high-reliability end of the agent spectrum and where most production value currently is.",
+        "Deciding NOT to build an agent, which is the most common correct outcome: if the task decomposes identically every time, a pipeline with one or two model calls is cheaper, testable and dramatically more reliable."
+      ],
+      "pitfalls": [
+        "Ignoring the compounding. Ten steps at 95% is 60%, twenty is 36% - so a demo that works at three steps tells you almost nothing about fifteen, and the gap is arithmetic rather than a model deficiency.",
+        "Adding autonomy instead of removing steps. Every step moved from the loop into deterministic code removes a factor from the product, and that is usually the cheapest available reliability gain.",
+        "Running without a hard step budget. A policy with any probability of not halting will eventually not halt, and the expected cost is inversely proportional to the halting probability.",
+        "Retrying identically. A malformed call retried unchanged fails identically; the error must go back into the context as an observation so the next attempt differs.",
+        "Executing tool calls without validating them first. Validation converts a class of crashes into clean, retryable rejections and keeps a malformed argument from reaching a real system.",
+        "Giving the loop every tool. A per-task allowlist bounds what a confused or compromised agent can reach, and it costs nothing when the task's tool set is known.",
+        "Evaluating only final outcomes. Two agents with identical success rates can differ enormously in steps taken, cost and how they got there - trajectory-level evaluation is what distinguishes them.",
+        "Assuming a plan survives contact with the environment. A static plan built on one failed step compounds a false assumption through every step after it, which is why deviation-triggered replanning exists."
+      ],
+      "connections": [
+        {
+          "ref": "rag-agents/multi-agent",
+          "text": "The same multiplication applied across agents rather than steps, plus coordination overhead that grows faster than the agent count."
+        },
+        {
+          "ref": "rag-agents/guardrails",
+          "text": "The inversion of this lesson's arithmetic - independent defensive layers multiply the attacker's failure probability instead of yours, so composition finally works in your favour."
+        },
+        {
+          "ref": "llm-systems/structured-output",
+          "text": "How a tool call is made parseable by construction, and the honest limit - constraining the format guarantees validity, never correctness of the arguments."
+        },
+        {
+          "ref": "agentic-ai/agent-loop",
+          "text": "The dedicated treatment: the loop measured against ground truth, step-budget staircases, termination guards and the measured cost of robustness."
+        },
+        {
+          "ref": "reinforcement-learning/imitation-learning",
+          "text": "The other place where compounding over a trajectory dominates - behaviour cloning's error grows with the square of the horizon for the same structural reason."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What makes something an agent rather than a pipeline?",
+          "a": "The model decides the control flow at runtime, instead of the sequence being written by you in advance."
+        },
+        {
+          "q": "Ten steps at 95% reliability - what is end-to-end?",
+          "a": "About 60%. At twenty steps it is 36%. The compounding is arithmetic, not pessimism."
+        },
+        {
+          "q": "What per-step reliability does 90% over twenty steps require?",
+          "a": "About 99.5% per step, which is usually not achievable with a sampled decision - which is why reducing the step count is the better lever."
+        },
+        {
+          "q": "What are the only two levers on s^n?",
+          "a": "Raise per-step reliability or reduce the number of steps. Moving steps into deterministic code is almost always cheaper."
+        },
+        {
+          "q": "Why must a retry differ from the original attempt?",
+          "a": "Identical retries fail identically. The error has to go back into the context as an observation so the next attempt is different."
+        },
+        {
+          "q": "What does three retries at 80% buy?",
+          "a": "An effective 99.2%, for independent failures - which is why observe-and-retry is the highest-value pattern in the loop."
+        },
+        {
+          "q": "Why is a step budget mandatory?",
+          "a": "A policy with any probability of not halting will eventually produce a run that does not halt, and expected cost scales as one over the halting probability."
+        },
+        {
+          "q": "Why validate a tool call before executing it?",
+          "a": "It converts crashes into clean retryable rejections and stops a malformed argument from reaching a real system."
+        },
+        {
+          "q": "Plan-then-execute versus ReAct?",
+          "a": "Static plans are cheap and auditable but shatter when the environment misbehaves; ReAct replans every step, which is robust and expensive."
+        },
+        {
+          "q": "What is the production default?",
+          "a": "Hybrid - plan once, replan only on deviation. Most of ReAct's robustness at a fraction of the model calls."
+        },
+        {
+          "q": "Why is a per-task tool allowlist worth it?",
+          "a": "It bounds what a confused or compromised loop can reach, and it costs nothing when the task's tool set is known in advance."
+        },
+        {
+          "q": "Why is outcome-only evaluation insufficient?",
+          "a": "Two agents with identical success rates can differ hugely in steps, cost and trajectory quality - which only trajectory-level evaluation sees."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you decide whether to build an agent at all?",
+          "a": "I WOULD START FROM THE ARITHMETIC, because it makes the decision quantitative rather than architectural taste. If every step must succeed and steps are roughly independent, end-to-end success is s to the n. At 95% per step, five steps is 77%, ten is 60%, twenty is 36%. Inverted: a 90% target over twenty steps needs 99.5% per step, which is a very hard engineering problem for a sampled decision. So the question 'should this be an agent' is largely 'how many model-decided steps does it need, and can I live with the product'. THE TEST I WOULD APPLY. Does the task decompose the SAME WAY every time? If yes, write the pipeline - retrieve, extract with one model call, validate, format - and n drops from a dozen to one. The whole thing becomes testable, cheap, and predictable, and s stops being raised to a power. In my experience most products described as agents are this, and they were built as loops because the loop was the interesting artefact rather than because the task required it. WHEN AN AGENT IS GENUINELY RIGHT. When the next action depends on what the previous one returned in a way you cannot enumerate - open-ended research, debugging, operations across systems whose state you do not know in advance. Multi-hop retrieval is the clean example in this module: the second query can only be written once the first hop's answer is known, so no single-pass architecture finds the evidence. When the task space is genuinely open and enumerating it would be a larger project than the loop. THE MIDDLE GROUND, which is where I would put most real systems: a constrained pipeline with ONE OR TWO model decision points. A router that picks among five typed tools, then deterministic code. A retrieval step with one optional follow-up query. This keeps n small, keeps the failure modes enumerable, and captures most of the flexibility people actually want. HOW I WOULD FRAME THE DECISION TO A TEAM. Every step you remove from the loop and specify in code removes a FACTOR from the product - that is usually the cheapest reliability gain available, and it is the opposite direction from where the discussion normally goes, which is toward more autonomy. So I would ask what the minimum viable autonomy is rather than what the maximum feasible autonomy is. AND THE HONEST CAVEAT: this reasoning assumes steps must all succeed and fail independently. Real loops have recoverable steps, where observe-and-retry converts a shaky step into a solid one, and correlated failures, where one bad decision poisons the rest. The first makes agents better than the arithmetic suggests, the second makes them worse. But the arithmetic is the right starting point because it puts the burden of proof in the right place: on the case FOR the loop.",
+          "deepDive": {
+            "q": "You have an agent at 60% task success. How do you improve it?",
+            "a": "FIRST I WOULD FIND OUT WHETHER 60% IS A STEP PROBLEM OR A DECISION PROBLEM, because those have opposite fixes and the aggregate cannot distinguish them. THE INSTRUMENTATION THAT SETTLES IT: log every step - the decision, the tool called, the arguments, the observation, whether it succeeded - and compute per-step success rates and the distribution of trajectory lengths. Two shapes emerge. If per-step reliability is high but trajectories are long, you have a COMPOUNDING problem, and 0.97 to the 15 is 0.63, so the model is fine and the architecture is the issue. If per-step reliability is low at a specific step, you have a LOCAL problem and it is usually fixable directly. Most 60% agents I would expect to be the first, and the fix is architectural rather than a better prompt. IF IT IS COMPOUNDING - reduce n. Which steps happen on EVERY trajectory? Those are not decisions, they are a pipeline the model is re-deriving each time, so move them into code. Which steps are retrieval that could be done once up front? Can the task be decomposed into two short loops with a checkpoint rather than one long one - because two loops of five at 0.95 with a verified handoff beats one loop of ten. Each removed step is a factor removed. IF IT IS A SPECIFIC STEP - fix that step. Common causes, roughly in order: malformed tool calls, which constrained decoding and validate-before-execute largely eliminate; ambiguous tool descriptions, where the model picks the wrong tool because two sound similar - renaming and sharpening descriptions is a genuinely large and underrated gain; missing error feedback, where a failure is not returned as an observation so the retry repeats it; and context loss on long trajectories, where the relevant early observation has scrolled out of the usable window. THE HIGHEST-VALUE PATTERN, if it is not already there: OBSERVE-AND-RETRY with the error fed back. Three attempts at 0.8 gives an effective 0.992. It costs tool calls, which is the honest trade - robustness is purchased with cost - but it is the single largest reliability lever inside the loop. THEN THE VERIFICATION LAYER, which is where compounding gets attacked structurally rather than incrementally. If a step's output can be CHECKED cheaply - a schema, a test, a lookup, a constraint - then check it and retry on failure, and that step's effective reliability approaches one. Steps that can be verified compound far more gently than steps that cannot, so a productive framing is: how do I make more of my steps verifiable? That is often a tool-design question rather than a model question. AND THE MEASUREMENT DISCIPLINE THROUGHOUT: fix the eval suite first, size it so a difference is detectable - a 5-point change on 50 tasks is inside the noise - and use paired per-task comparisons. Otherwise the improvement loop is itself unreliable, which is a compounding problem of a different kind."
+          }
+        },
+        {
+          "q": "How do you design the tool interface for an agent?",
+          "a": "AS AN API FOR A CONFUSED BUT WELL-MEANING CALLER, which is the most useful mental model I know for this. The model has the tool description, the schema and the conversation - it does not have your intentions, your codebase or your conventions. Every ambiguity you leave is a place it will guess, and it guesses plausibly rather than correctly. THE DESIGN RULES. (1) FEW TOOLS, SHARPLY DISTINGUISHED. Selection error rises with the number of tools and rises fast when two of them sound similar. Two tools called search_documents and find_files will be confused; merging them or renaming to something unambiguous is one of the cheapest accuracy gains available and it is routinely overlooked because it feels like cosmetics. (2) DESCRIPTIVE NAMES AND PARAMETERS. The model conditions on them literally, so cancel_subscription(subscription_id) beats do_action(id, type). This is free. (3) ENUMS OVER FREE STRINGS wherever the value set is closed - it turns generation into selection, the grammar enforces it, and downstream code stops needing normalization. (4) MAKE THE FAILURE PATH EXPRESSIBLE. If the schema requires a value the model does not have, the constraint guarantees it will invent one - there is no legal alternative. Nullable fields, an explicit unknown, or a confidence field give it somewhere to be honest. (5) RICH, ACTIONABLE ERRORS. 'Invalid date format, expected YYYY-MM-DD, got 03/04/2024' lets the next attempt differ; 'Error 400' guarantees the retry repeats the failure. The error is not for your logs, it is INPUT to the next decision, and writing it that way changes retry success substantially. (6) IDEMPOTENCY AND DRY RUN. Agents retry. A non-idempotent tool called twice sends two emails or issues two refunds, so either make it idempotent with a key or make it require confirmation. A dry-run mode that returns what WOULD happen is enormously useful for both evaluation and safety. THE VALIDATION LAYER, separate from the schema. Validate before executing, and return the rejection as an observation. That converts roughly the class of malformed calls that would otherwise be exceptions into clean retryable events, and it keeps a bad argument from reaching a real system. Constrained decoding guarantees the JSON parses; it does NOT guarantee the arguments are sensible, and conflating those is a common mistake. THE AUTHORIZATION LAYER, separate again. A per-task allowlist means a task that only needs to read cannot write, which bounds both confusion and compromise, and it costs nothing when the task's tool set is known. Anything above a risk threshold should require confirmation rather than being uniformly gated - confirm by risk, not by policy blanket, or the friction makes the product unusable. AND THE THING I WOULD MEASURE: tool-selection accuracy and argument-validity rate as separate numbers. They have different causes - selection is about descriptions, validity is about schemas and constrained decoding - and a single 'tool call success' metric hides which one is failing."
+        },
+        {
+          "q": "How would you evaluate an agent?",
+          "a": "AT THREE LEVELS, BECAUSE OUTCOME-ONLY EVALUATION IS BLIND to most of what distinguishes a good agent from a bad one. Two agents can both succeed 80% of the time while one takes four steps and the other takes nine, one costs a tenth of the other, and one arrives correctly while the other stumbles into the right answer. Those are different products and the success rate cannot tell them apart. LEVEL 1 - OUTCOME. Did the task get done, on a fixed suite with verifiable success criteria. Verifiability is the key property: prefer tasks where success is checkable programmatically - a file exists with the right content, a query returns the right row, a test passes - because those cannot be gamed by a plausible-sounding trajectory. Report the confidence interval, since agent suites are usually small and a 5-point difference on 50 tasks is noise. LEVEL 2 - TRAJECTORY. Steps taken, tools called, cost, wall-clock, and whether the path was sensible. This is where the interesting differences live. I would use a decomposed RUBRIC rather than a holistic judge, because a holistic judge on trajectories has a documented LENGTH BIAS - it rates long wandering trajectories as thorough - and a checklist of specific properties recovers far more of the true quality. Concretely: did it call the right tool first, did it recover from the failure it encountered, did it avoid redundant calls, did it stop when it had the answer. LEVEL 3 - ROBUSTNESS. The suite should include tasks that go wrong on purpose: a tool that fails intermittently, a tool that returns malformed data, a task with no solution, a task whose obvious approach is blocked. The behaviours I want to measure are recovery, and the ability to STOP - an agent that spends the full budget on an impossible task is failing differently from one that recognizes it and reports back, and only a suite containing impossible tasks measures that. This tier is skipped most often and it is where production behaviour actually diverges from demo behaviour. WHAT I WOULD REPORT AS A PANEL: success rate with a CI, median and p95 steps, median and p95 cost, recovery rate on the flaky subset, correct-abstention rate on the impossible subset, and the rate of budget exhaustion. Any one of those alone is misleading. THE STATISTICAL POINT that matters more here than in most evaluation: agent runs are HIGH VARIANCE. The same task and the same agent can take different paths, so a single run per task is a noisy measurement and comparing two agents on one run each is close to meaningless. I would run each task several times and report the distribution, budget permitting - and if budget does not permit, I would say so rather than presenting a single run as a measurement. AND THE FEEDBACK LOOP: every production failure becomes a suite task. Agent failures are diverse and hard to anticipate, so the suite grows from incidents more than from imagination."
+        },
+        {
+          "q": "What are the failure modes specific to agent loops?",
+          "a": "THEY DIVIDE INTO THREE FAMILIES, and it helps to name them because each has a different guard. FAMILY ONE - NOT STOPPING. The loop that never terminates, which shows up as: repeating the same failing action because the error was not fed back as an observation; oscillating between two states, doing and undoing; declaring victory prematurely, which is the inverse failure and often worse because it is silent; and spending the whole budget refining something already good enough. THE GUARDS: a hard step budget, a cost cap, loop detection on repeated state, and an explicit success criterion the model can check against rather than judge. The budget is the only one that is a guarantee rather than a mitigation, which is why it is non-negotiable. FAMILY TWO - COMPOUNDING AND DRIFT. An error early in the trajectory is not detected, and every later step is built on it - a plan-then-execute agent is especially exposed since a static plan built on a false assumption propagates it through every remaining step. Context loss is the same family: on a long trajectory the relevant early observation scrolls out of the usable window, or sits in the middle where the model attends to it less reliably, so the agent forgets what it learned at step two. THE GUARDS: verify intermediate results wherever verification is cheap, replan on deviation rather than on schedule, and manage the history explicitly - summarize, or keep a structured scratchpad of facts rather than raw transcript, since the transcript grows faster than its information content. FAMILY THREE - ACTING WRONGLY IN THE WORLD. Calling a destructive tool with bad arguments; performing a non-idempotent action twice because of a retry; following an instruction that arrived inside retrieved content, which is prompt injection and is the sharpest case because the agent has tools; and exceeding the user's actual intent because a plausible next step was available. THE GUARDS: least-privilege allowlists per task, confirmation above a risk threshold, idempotency keys, dry-run modes, and treating all tool OUTPUT as untrusted data rather than as instructions - which is a structural fix rather than a detection one, and structural fixes are the only ones that hold. THE CROSS-CUTTING PROBLEM is that most of these are SILENT. A loop that quietly gives a plausible partial answer after exhausting its budget looks like a success in the logs. So the instrumentation matters as much as the guards: log every step with its decision and observation, alert on budget-exhaustion rate, track trajectory length distribution and watch its tail, and sample trajectories for offline rubric scoring. AND THE FRAMING I WOULD LEAVE: every guard here converts an unbounded failure into a bounded, observable one. That is the actual job - not preventing failure, which a sampled control flow cannot promise, but ensuring failures are bounded in cost, bounded in blast radius, and visible when they happen."
+        },
+        {
+          "q": "How do agents change the retrieval story from earlier in this module?",
+          "a": "THEY TURN RETRIEVAL FROM A SINGLE PASS INTO A LOOP, which fixes a structural limitation and introduces the compounding one. WHAT IT FIXES. A one-shot retriever finds passages similar to the QUERY, so a multi-hop question - where the bridging entity is unknown at query time - is structurally out of reach no matter how well the retriever is tuned. An agentic retriever can search, read what it found, and write the next query using the answer from the first hop. That is a genuine capability gain, not an optimization, and it is the clearest case in this module where a loop earns its cost. Similarly it can decide WHICH source to query - documents, a database, an API - which turns 18-02's observation that some questions are really SQL queries into something the system can act on at runtime. WHAT IT COSTS. Every hop is a factor. Two hops at 0.9 retrieval reliability is 0.81 before the generator is involved; three is 0.73. So agentic retrieval is worth it for the questions that need it and a strict downgrade for the questions that do not - which argues for ROUTING rather than making everything agentic: classify the question, use one-shot retrieval for the simple majority, and reserve the loop for the cases a single pass cannot serve. That keeps n at one for most traffic. WHAT CHANGES IN EVALUATION, and this is the part most easily got wrong. Per-passage recall stops being the right metric, because a multi-hop question requires ALL the needed passages - an agent that reliably finds hop one and never hop two scores respectably on per-passage recall while answering nothing correctly. Score the QUESTION. And the per-stage decomposition from 18-05 needs extending: recall becomes recall-at-trajectory-end, and you want the distribution of hops taken alongside it, because an agent solving everything in four hops that could be done in two is paying four factors for a two-factor problem. WHAT STAYS EXACTLY THE SAME. The ceilings. If the answer is not in the corpus, no loop finds it. If chunking split the fact across a boundary, no number of hops reassembles it. If extraction dropped the table, the agent searches a corpus that does not contain the answer, and it will search energetically and expensively before failing. So the ingestion and chunking work from earlier in the module is not superseded by agency - it is the substrate the agent operates on, and an agentic system built on a bad substrate fails the same way with more steps and a larger bill. THAT IS THE HONEST SUMMARY: agency raises the ceiling for questions whose shape a single pass cannot address, and it raises the cost and variance for everything else. Route accordingly."
+        },
+        {
+          "q": "How does this lesson relate to the module's framing?",
+          "a": "IT INTRODUCES THE SECOND OF THE MODULE'S TWO STRUCTURES, and it is worth stating the contrast precisely because the two behave differently. The first structure was CEILINGS: in a pipeline of stages, the worst stage bounds the whole, so the engineering question is which stage is binding and the failure mode is spending effort on a non-binding one. That structure is forgiving in one respect - improving a non-binding stage wastes effort but does not hurt. The second structure is MULTIPLICATION: in a loop, per-step reliability compounds, so adding a step is not neutral, it is a factor. Ten steps at 0.95 is 0.60. Twenty is 0.36. Here, adding capability actively degrades reliability, which is the opposite of the intuition that more autonomy means more capability. THE ENGINEERING DIRECTION THAT FOLLOWS is the module's most useful practical claim: the goal is fewer steps and more reliable ones. Every step moved out of the loop and specified in code removes a factor from the product, and that is usually cheaper than raising per-step reliability - especially since the required per-step reliability grows brutally with n, needing 99.5% to hit a 90% target across twenty steps. So the default should be the minimum viable autonomy, and reaching for a full loop should require an argument that the task genuinely cannot be enumerated. WHERE IT GOES NEXT. 18-07 applies the same multiplication across AGENTS instead of steps, and adds coordination overhead that grows faster than the agent count - so the same conclusion arrives in a stronger form: use the fewest agents the task requires. 18-08 shows the structure in the LATENCY dimension, where a cascade's budget is a sum across stages and each one spends from a fixed total, which is multiplication's additive cousin. AND THE INVERSION IN 18-09 is what makes the framing complete rather than merely pessimistic. Independent guardrail layers multiply the ATTACKER's failure probability rather than yours: three imperfect layers at 0.6, 0.8 and 0.9 detection reduce attack success from 1.0 to 0.008. Same arithmetic, opposite sign, and the difference is whether the components must ALL succeed - a pipeline - or whether any ONE succeeding is enough - a defence. Recognizing which structure you are in tells you whether adding a component helps or hurts, and that single question is what the module is teaching you to ask."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Agent vs pipeline, precisely",
+        "back": "The MODEL decides the control flow at runtime instead of you writing the sequence. Everything attractive (generality) and everything dangerous (a sampled control flow) follows from that one difference."
+      },
+      {
+        "type": "formula",
+        "front": "★ The compounding",
+        "back": "P = sⁿ. At s=0.95: 5 steps→0.77, 10→0.60, 20→0.36. Inverted, a 90% target over 20 steps needs s=0.995 per step. Only two levers exist: raise s, or reduce n."
+      },
+      {
+        "type": "intuition",
+        "front": "The direction most agent discussions skip",
+        "back": "The goal is FEWER, more reliable steps — not more autonomy. Every step moved out of the loop into code removes a FACTOR from the product, and that's usually cheaper than raising per-step reliability."
+      },
+      {
+        "type": "formula",
+        "front": "What retries buy",
+        "back": "s_eff = 1 − (1−s)^r. Three tries at 0.8 → 0.992. But only for INDEPENDENT failures: an identical retry fails identically, so the error must go back as an OBSERVATION. Cost rises — robustness is purchased."
+      },
+      {
+        "type": "formula",
+        "front": "Why the step budget is mandatory",
+        "back": "Without B: E[cost] = c/p_halt → ∞ as p_halt → 0, and the distribution is heavy-tailed (cheap median, unbounded tail). The budget is the only thing making cost a KNOWABLE quantity. Same for time and tool calls."
+      },
+      {
+        "type": "intuition",
+        "front": "The four guards around the loop",
+        "back": "BUDGET (a non-halting policy will produce a non-halting run) · VALIDATE-before-execute (crashes → retryable rejections) · AUTHORIZE (allowlist bounds a confused OR compromised loop) · COST CAP (the tail, not the median)."
+      },
+      {
+        "type": "intuition",
+        "front": "The three control strategies",
+        "back": "PLAN-THEN-EXECUTE: cheap, auditable, SHATTERS when the environment misbehaves. ReAct: robust, a model call per step, extra factors in sⁿ. ★ HYBRID (replan only on DEVIATION): the production default."
+      },
+      {
+        "type": "pitfall",
+        "front": "The option above all three",
+        "back": "DON'T LOOP. If the task decomposes the same way every time, write the pipeline — n drops from 12 to 1 and sⁿ stops governing. Most \"agent\" products are this. Autonomy should require an ARGUMENT, not an assumption."
+      },
+      {
+        "type": "intuition",
+        "front": "Tools = an API for a confused but well-meaning caller",
+        "back": "Few, sharply-distinguished tools (selection error rises when two sound alike) · descriptive names · enums over free strings · a legal way to say \"unknown\" · ACTIONABLE errors (they're INPUT to the next decision, not log lines) · idempotency."
+      },
+      {
+        "type": "pitfall",
+        "front": "Constrained decoding ≠ correct arguments",
+        "back": "It guarantees the JSON PARSES. It says nothing about whether the arguments are sensible. Validation is a separate layer, and authorization is a third — conflating them is a common and expensive mistake."
+      },
+      {
+        "type": "intuition",
+        "front": "Evaluate at three levels",
+        "back": "OUTCOME (verifiable tasks + CI) · TRAJECTORY (steps, cost, path — use a RUBRIC; holistic judges have a documented LENGTH bias) · ROBUSTNESS (flaky tools, impossible tasks — does it STOP?). Runs are high-variance: repeat them."
+      },
+      {
+        "type": "intuition",
+        "front": "The module's two structures, contrasted",
+        "back": "CEILINGS: the worst stage bounds you; improving a non-binding stage wastes effort but doesn't hurt. MULTIPLICATION: each added step is a FACTOR — capability actively degrades reliability. Guardrails (18-09) invert the sign."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Yao et al. (2022), ReAct: Synergizing Reasoning and Acting in Language Models",
+        "url": "https://arxiv.org/abs/2210.03629"
+      },
+      {
+        "title": "Schick et al. (2023), Toolformer: Language Models Can Teach Themselves to Use Tools",
+        "url": "https://arxiv.org/abs/2302.04761"
+      },
+      {
+        "title": "Shinn et al. (2023), Reflexion: Language Agents with Verbal Reinforcement Learning",
+        "url": "https://arxiv.org/abs/2303.11366"
+      },
+      {
+        "title": "Liu et al. (2023), AgentBench: Evaluating LLMs as Agents",
+        "url": "https://arxiv.org/abs/2308.03688"
+      },
+      {
+        "title": "Anthropic (2024), Building Effective Agents",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    ],
+    "demos": [
+      "react-agent",
+      "agent-router",
+      "constrained-decoding",
+      "guardrails"
+    ]
+  }
+};

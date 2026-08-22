@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/pytorch-internals/nn-module-patterns.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/pytorch-internals/nn-module-patterns/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "nn-module-patterns": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "nn.Module looks like a plain Python class and it is not. It overrides __setattr__, so every assignment is intercepted: assign an nn.Parameter and it is registered in a parameter dictionary; assign another Module and it joins the child-module tree; assign anything else and it is an ordinary attribute. That single interception is what makes .parameters(), .to(device), .state_dict(), .train() and .cuda() work at all - they are recursive walks over a tree the assignments built for you.",
+        "And it is the source of this module's most expensive silent bug. Write self.layers = [nn.Linear(d, d) for _ in range(6)] and the list is an ordinary attribute. The six Linears are NOT registered. They never appear in .parameters(), so the optimizer never sees them; .to('cuda') never moves them, so you get a device mismatch or - worse, if the input happens to be on CPU - you do not; .state_dict() omits them, so a checkpoint silently loses a third of the model. Meanwhile the forward pass still calls them and the loss still falls, because the registered parts learn. You have trained a model with six layers frozen at random initialization and nothing anywhere said so. nn.ModuleList exists exactly to fix this.",
+        "The pattern repeats. Buffers are the same mechanism for non-learnable state that must still move with the model and appear in checkpoints. train() and eval() flip a flag that only two common layers read, and forgetting eval() at validation means BatchNorm updates its running statistics on validation data - corrupting the model with information from the set you are measuring on, which is quiet contamination rather than a crash. load_state_dict(strict=False) returns the keys it could not match and returns them as a value people discard. Every one of these is the module's theme: the abstraction did something helpful and hid the mechanism, and when the mechanism fails it fails without a symptom that names it."
+      ],
+      "math": [
+        {
+          "h": "What assignment actually registers",
+          "paras": [
+            "nn.Module's __setattr__ dispatches on type. Three destinations, and everything else falls through to the instance dictionary where none of the recursive machinery can see it.",
+            "This is the whole mechanism, and knowing it lets you predict exactly which containers work and which silently do not."
+          ],
+          "tex": "\\text{setattr}(m, n, v) \\to \\begin{cases} m.\\_parameters[n] = v & v \\in \\text{Parameter} \\\\ m.\\_modules[n] = v & v \\in \\text{Module} \\\\ m.\\_buffers[n] = v & \\text{via register\\_buffer} \\\\ m.\\_\\_dict\\_\\_[n] = v & \\textbf{otherwise - INVISIBLE} \\end{cases}",
+          "texNote": "A Python list, dict, or tuple of Modules lands in the last row. So does a Parameter stored inside a list. The containers nn.ModuleList, nn.ModuleDict, nn.ParameterList and nn.ParameterDict exist solely to route those cases into the first three rows - they are not stylistic alternatives, they are the difference between a registered and an unregistered submodule."
+        },
+        {
+          "h": "state_dict is a flattening of the tree",
+          "paras": [
+            "Keys are the dotted attribute path from the root, so a checkpoint's key structure IS your attribute naming. Rename an attribute and every existing checkpoint stops matching that key.",
+            "load_state_dict returns the mismatches rather than raising when strict is False - and that return value is the only thing standing between you and a silently half-loaded model."
+          ],
+          "tex": "\\text{state\\_dict}[\\,\\underbrace{\\text{\"encoder.layers.3.attn.qkv.weight\"}}_{\\text{attribute path}}\\,] = W \\\\[4pt] \\text{load\\_state\\_dict}(\\ldots,\\, \\text{strict=False}) \\;\\to\\; (\\text{missing\\_keys},\\, \\text{unexpected\\_keys})",
+          "texNote": "Buffers appear here too, which is why BatchNorm's running statistics survive a save-load round trip - they are state the model needs and are not parameters. Register a buffer with persistent=False to keep it out, which is right for things like a causal mask that can be recomputed and would otherwise bloat every checkpoint and break when the sequence length changes."
+        },
+        {
+          "h": "Why forgetting .eval() is a correctness bug, not a style issue",
+          "paras": [
+            "BatchNorm computes genuinely different functions in the two modes, and in training mode it also MUTATES state. Dropout differs too, but only in the output - it changes nothing persistent.",
+            "So a validation pass in training mode both measures the wrong thing and modifies the model using the validation data."
+          ],
+          "tex": "\\text{train: } \\hat{x} = \\frac{x - \\mu_{\\mathcal{B}}}{\\sqrt{\\sigma^2_{\\mathcal{B}} + \\epsilon}}, \\;\\; \\mu_{\\text{run}} \\leftarrow (1-\\alpha)\\mu_{\\text{run}} + \\alpha \\mu_{\\mathcal{B}} \\\\[4pt] \\text{eval: } \\hat{x} = \\frac{x - \\mu_{\\text{run}}}{\\sqrt{\\sigma^2_{\\text{run}} + \\epsilon}} \\qquad \\text{(no update)}",
+          "texNote": "Two consequences of the training branch that people miss. The output depends on the OTHER examples in the batch, so predictions are not independent - which breaks any evaluation assuming per-example inference. And the running statistics are updated, so validating in training mode leaks the validation distribution into the deployed model permanently."
+        }
+      ],
+      "code": [
+        {
+          "h": "The registration bug, and the containers that fix it",
+          "paras": [
+            "The most expensive four lines in the module. The broken version runs, trains, and produces a plausible loss curve while a third of the network never moves."
+          ],
+          "code": "class Broken(nn.Module):\n    def __init__(self, d, n):\n        super().__init__()\n        self.layers = [nn.Linear(d, d) for _ in range(n)]   # <-- PLAIN LIST\n        self.head   = nn.Linear(d, 1)\n    def forward(self, x):\n        for l in self.layers: x = l(x).relu()                # still CALLED...\n        return self.head(x)                                  # ...never TRAINED\n\n# len(list(Broken(64, 6).parameters()))  ->  2   (just the head!)\n# The 6 Linears are absent from .parameters(), so the optimizer never sees\n# them; absent from .to('cuda'), so they stay on CPU; absent from\n# .state_dict(), so the checkpoint loses them. The loss still falls.\n\nclass Correct(nn.Module):\n    def __init__(self, d, n):\n        super().__init__()\n        self.layers = nn.ModuleList(nn.Linear(d, d) for _ in range(n))\n        self.head   = nn.Linear(d, 1)\n        # NON-LEARNABLE state that must still move with .to() and be saved:\n        self.register_buffer(\"scale\", torch.tensor(d ** -0.5))\n        # ...and state you'd rather NOT ship in every checkpoint:\n        self.register_buffer(\"mask\", causal_mask(1024), persistent=False)\n\n# THE ONE-LINE ASSERTION THAT WOULD HAVE CAUGHT IT - put it in a test:\nassert sum(p.numel() for p in model.parameters()) == EXPECTED_PARAM_COUNT\n#\n# Counting parameters is the cheapest structural check available and it\n# catches unregistered submodules, tied weights you did not intend, and\n# accidental duplication. Almost nobody writes it.",
+          "caption": "A plain list of Modules is invisible to every recursive walk - optimizer, device move, checkpoint - while still being called in forward. The parameter-count assertion is the cheapest structural test that exists and it catches this class of bug instantly."
+        },
+        {
+          "h": "Hooks, and reading load_state_dict's return value",
+          "paras": [
+            "Hooks are the supported way to observe or modify a module without editing it. And the strict=False return value is the difference between knowing your checkpoint loaded and assuming it."
+          ],
+          "code": "# HOOKS: observe or modify without touching the module's code.\nfeats = {}\ndef grab(name):\n    def hook(mod, inp, out): feats[name] = out.detach()\n    return hook\n\nhandles = [m.register_forward_hook(grab(n))\n           for n, m in model.named_modules() if isinstance(m, nn.Linear)]\n# ... run the model, read feats ...\nfor h in handles: h.remove()      # <-- REMOVE THEM. A retained hook that\n                                  # closes over tensors keeps them (and their\n                                  # graph) alive - a memory leak with no symptom\n                                  # beyond gradual growth.\n\n# register_full_backward_hook gives grad_input/grad_output for the same job\n# on the backward pass - the standard tool for finding where gradients vanish.\n\n# ---- CHECK WHAT ACTUALLY LOADED ----\nmissing, unexpected = model.load_state_dict(ckpt, strict=False)\nif missing or unexpected:\n    print(\"MISSING  :\", missing)     # in the model, absent from the checkpoint\n    print(\"UNEXPECTED:\", unexpected) # in the checkpoint, absent from the model\n    raise RuntimeError(\"partial load - decide deliberately\")\n#\n# strict=False is used constantly for transfer learning and fine-tuning, and\n# its return value is discarded almost as constantly. A renamed attribute, a\n# 'module.' prefix left over from DataParallel, or a changed head silently\n# leaves those weights at random init - and the model still runs.\n\n# TIED WEIGHTS behave correctly by default:\nmodel.decoder.weight = model.embedding.weight   # same object\n# .parameters() DEDUPLICATES by identity, so the shared tensor appears once and\n# the optimizer updates it once. This is why weight tying needs no special\n# handling - but it also means a parameter count will not reveal the sharing.",
+          "caption": "Two habits worth building: remove every hook you register, since a retained one holds the graph alive, and always inspect what load_state_dict(strict=False) returns - a leftover 'module.' prefix or a renamed attribute leaves weights at random init while the model runs fine."
+        }
+      ],
+      "useCases": [
+        "Any model with a repeated block - transformers, ResNets, U-Nets - where nn.ModuleList or nn.Sequential is what makes a variable-depth stack correct rather than merely convenient.",
+        "Feature extraction and interpretability work, where forward hooks let you capture intermediate activations from a model you did not write and cannot modify, which is the standard approach for probing and for Grad-CAM-style attribution.",
+        "Transfer learning and fine-tuning, where strict=False loading with a deliberate inspection of the missing and unexpected keys is the difference between initializing a new head on purpose and losing half the backbone by accident.",
+        "Weight tying between input embedding and output projection in language models, which works automatically because .parameters() deduplicates by identity - one of the rare cases where the abstraction's hidden behaviour is exactly right."
+      ],
+      "pitfalls": [
+        "Storing submodules in a plain Python list, dict or tuple. They are not registered, so they are invisible to .parameters(), .to(), and .state_dict() while still being called in forward - a third of your model silently frozen at initialization. Use nn.ModuleList or nn.ModuleDict.",
+        "Forgetting model.eval() before validation. BatchNorm then uses batch statistics AND updates its running estimates from validation data, which both measures the wrong function and permanently contaminates the model with the set you are measuring on.",
+        "Forgetting model.train() after validation. The reverse, and equally silent: the rest of training runs with dropout disabled and BatchNorm frozen, so your regularization quietly stops.",
+        "Discarding load_state_dict(strict=False)'s return value. A renamed attribute, a leftover 'module.' prefix from DataParallel, or a changed head leaves those weights at random initialization and the model still runs. Inspect missing and unexpected keys every time.",
+        "Creating layers inside forward. Each call constructs new modules with fresh random parameters that the optimizer has never seen, so nothing learns and memory grows. Layers belong in __init__; use lazy modules if the shape is genuinely unknown until the first call.",
+        "Registering hooks without removing them. The handle exists for a reason - a retained forward hook closing over outputs keeps those tensors and their autograd graph alive, producing steady memory growth with no other symptom.",
+        "Assuming .to(device) behaves like a tensor's. Module.to is IN-PLACE and returns self; Tensor.to is out-of-place and returns a new tensor. Writing tensor.to(device) without assigning the result is a genuinely common bug that leaves the tensor where it was."
+      ],
+      "connections": [
+        {
+          "ref": "pytorch-internals/custom-autograd",
+          "text": "The other half of what a Module hides. Registration builds the parameter tree; autograd builds the graph that connects it - and a custom Function is where you take over the second while the first keeps working."
+        },
+        {
+          "ref": "pytorch-internals/torch-fx",
+          "text": "fx traces the module tree into a graph you can rewrite programmatically, which only works because the tree exists as a data structure. Unregistered submodules are invisible to fx for exactly the same reason they are invisible to the optimizer."
+        },
+        {
+          "ref": "neural-nets/regularization",
+          "text": "train/eval mode is where dropout's two behaviours live. The mode flag is the mechanism, and forgetting to set it is how regularization silently stops or how evaluation silently becomes stochastic."
+        },
+        {
+          "ref": "neural-nets/pytorch-fundamentals",
+          "text": "The tensor-level foundation this builds on. The in-place versus out-of-place asymmetry between Module.to and Tensor.to is the kind of detail that only makes sense once you know a Module is a container and a tensor is a value."
+        },
+        {
+          "ref": "mlops/testing",
+          "text": "The parameter-count assertion and the load_state_dict key check are unit tests. Structural tests for models are rare and unusually high-value, because the failures they catch are exactly the ones that produce a plausible loss curve."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does nn.Module's __setattr__ do?",
+          "a": "It dispatches on type: Parameters go to _parameters, Modules to _modules, buffers to _buffers via register_buffer, and everything else to the ordinary instance dictionary where the recursive machinery cannot see it."
+        },
+        {
+          "q": "What goes wrong with self.layers = [nn.Linear(...), ...]?",
+          "a": "The list is an ordinary attribute, so the Linears are unregistered - invisible to .parameters(), .to(), and .state_dict() - while still being called in forward. They stay frozen at initialization."
+        },
+        {
+          "q": "What is nn.ModuleList for?",
+          "a": "Routing a sequence of modules into the registration mechanism. It is not a style choice; it is the difference between registered and invisible submodules."
+        },
+        {
+          "q": "What is a buffer?",
+          "a": "Non-learnable state that should still move with .to(device) and appear in state_dict - BatchNorm running statistics, fixed positional encodings, precomputed masks."
+        },
+        {
+          "q": "What does persistent=False do on a buffer?",
+          "a": "Keeps it out of state_dict. Right for anything recomputable, like a causal mask, which would otherwise bloat checkpoints and break when sequence length changes."
+        },
+        {
+          "q": "What do train() and eval() actually change?",
+          "a": "A boolean flag that in practice only Dropout and BatchNorm-style layers read. Dropout stops dropping; BatchNorm switches to running statistics and stops updating them."
+        },
+        {
+          "q": "Why is forgetting eval() a correctness bug?",
+          "a": "BatchNorm both normalizes with batch statistics - making predictions depend on other examples in the batch - and updates its running estimates from validation data, contaminating the model permanently."
+        },
+        {
+          "q": "What does load_state_dict(strict=False) return?",
+          "a": "A tuple of missing keys and unexpected keys. Discarding it is how a renamed attribute or a leftover 'module.' prefix silently leaves weights at random initialization."
+        },
+        {
+          "q": "How does weight tying work?",
+          "a": "Assign the same tensor to two attributes. .parameters() deduplicates by identity, so the shared parameter appears once and is updated once - no special handling needed."
+        },
+        {
+          "q": "Why must hooks be removed?",
+          "a": "The handle's remove() unregisters it. A retained forward hook that closes over outputs keeps those tensors and their graph alive, producing steady memory growth."
+        },
+        {
+          "q": "What happens if you create a layer in forward?",
+          "a": "New modules with fresh random parameters are built on every call, the optimizer never sees them, nothing learns, and memory grows."
+        },
+        {
+          "q": "How does Module.to differ from Tensor.to?",
+          "a": "Module.to is in-place and returns self; Tensor.to is out-of-place and returns a new tensor. Calling tensor.to(device) without assigning the result does nothing."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain how nn.Module registration works and the bugs it causes.",
+          "a": "THE MECHANISM. nn.Module overrides __setattr__, so every attribute assignment is intercepted and dispatched on type. An nn.Parameter goes into the module's _parameters dictionary. Another nn.Module goes into _modules, building a tree. register_buffer puts a tensor into _buffers. Anything else falls through to the plain instance dictionary. WHY THAT MATTERS. Everything convenient about Modules is a recursive walk over that tree. .parameters() walks _parameters and recurses into _modules - that is what the optimizer receives. .to(device) walks and moves every parameter and buffer in place. .state_dict() walks and builds a flat dictionary keyed by dotted attribute path. .train() and .eval() walk and set a flag. If something is not in the tree, it participates in none of this. THE CANONICAL BUG. self.layers = [nn.Linear(d, d) for _ in range(6)] stores a plain Python list, which is an ordinary attribute. The six Linears are unregistered. So: the optimizer never receives their parameters, so they never update; .to('cuda') never moves them, so either you get a device error or - if inputs happen to be on CPU - you silently run part of the model on CPU; .state_dict() omits them, so a checkpoint loses them entirely and reloading gives fresh random weights. And forward still CALLS them, so the model runs and the loss still falls, because the registered parts compensate. You have a model with a third of its depth frozen at initialization and no error anywhere. THE FIX is nn.ModuleList, nn.ModuleDict, nn.ParameterList - containers whose only job is to route their contents into the registration mechanism. THE RELATED CASES. A Parameter stored inside a list has the same problem. A tensor that should be state - BatchNorm's running mean, a positional encoding - assigned as a plain attribute will not move device or save; it needs register_buffer. And creating layers inside forward constructs fresh parameters every call, so nothing learns. HOW I WOULD CATCH IT. A single assertion on total parameter count, in a test: sum(p.numel() for p in model.parameters()) == expected. It is the cheapest structural check available, it catches unregistered submodules immediately, and it also catches unintended weight sharing and accidental duplication. Almost nobody writes it, and it would prevent the most expensive class of bug in this lesson. THE THEME. This is the module's spine in its clearest form: the abstraction hid the registration mechanism to make model definition pleasant, and when the mechanism fails it fails without any symptom that names it - the loss curve looks fine.",
+          "deepDive": {
+            "q": "You load a pretrained checkpoint and the model performs at chance. Walk through the diagnosis.",
+            "a": "Performance at chance after loading means the weights are effectively random, so I would establish WHERE the load failed before theorizing. STEP 1: DID IT LOAD AT ALL? Call load_state_dict with strict=True. If it raises, the error names the mismatched keys and I am done in seconds. Most people use strict=False for flexibility and then never look at what it returned, which converts a loud failure into a silent one. So: missing, unexpected = model.load_state_dict(ckpt, strict=False) and PRINT BOTH. If missing is large, most of the model was never loaded. STEP 2: THE COMMON KEY MISMATCHES, which cover the majority of cases. (a) A 'module.' prefix on every key, left over from a checkpoint saved from a DataParallel or DDP-wrapped model - the wrapper adds a level to the attribute path. Strip it. (b) An 'model.' or '_orig_mod.' prefix from a compiled model, since torch.compile wraps the module. (c) Renamed attributes between the code version that saved and the one loading - keys are attribute paths, so renaming self.fc to self.head invalidates every checkpoint. (d) A changed head for a new number of classes, which SHOULD be missing and is the one legitimate case - but then only those keys should be missing. STEP 3: DID IT LOAD INTO THE RIGHT OBJECT? A subtle one: if you build the model, wrap it (DDP, compile, a Lightning module), and then load into the wrapper versus the inner module, the paths differ. Load into the unwrapped module before wrapping. STEP 4: VERIFY NUMERICALLY RATHER THAN STRUCTURALLY. Even with all keys matched, check that the weights actually changed: take a parameter's norm before and after loading. If identical, nothing was assigned. This catches the case where you loaded into a copy or where an in-place expectation was wrong. STEP 5: IF THE WEIGHTS ARE RIGHT, THE PROBLEM IS ELSEWHERE, and now the diagnosis shifts. Is the model in eval mode? A model with BatchNorm in training mode with batch size 1 produces garbage, because the batch statistics are computed from a single example. Is the PREPROCESSING the same as at training time - normalization constants, channel order, resize interpolation? A pretrained vision model given un-normalized inputs performs near chance and this is extremely common. Is the input dtype and range what the model expects. STEP 6: THE MINIMAL CHECK I would run first in future. Load the checkpoint, put the model in eval, run the ORIGINAL training data through it, and confirm the loss matches what was recorded at save time. That single check distinguishes 'the weights are wrong' from 'everything downstream of the weights is wrong', and it takes two minutes. THE HABIT WORTH BUILDING. Treat load_state_dict's return value as an error to be handled, not a value to be ignored - raise on unexpected missing keys and explicitly allow-list the ones you intend, such as a new head. That converts this entire class of silent failure back into a loud one, which is what it should have been."
+          }
+        },
+        {
+          "q": "What are hooks and when would you use them?",
+          "a": "WHAT THEY ARE. Callbacks registered on a Module that fire during forward or backward, giving you access to inputs, outputs and gradients without modifying the module's code. Three main kinds: forward_pre_hook fires before forward and can modify the inputs; forward_hook fires after and sees inputs and outputs, and can replace the output; full_backward_hook fires during backward and sees the gradients with respect to the module's inputs and outputs. Registration returns a HANDLE whose remove() unregisters it. WHEN I WOULD USE THEM. (1) FEATURE EXTRACTION from a model you did not write and should not modify - grabbing intermediate activations from a pretrained backbone for probing, for retrieval, or for a downstream head. This is the most common use and it is exactly what hooks are for. (2) INTERPRETABILITY. Grad-CAM needs both the activations of a target layer and the gradients flowing into it, which is a forward hook plus a backward hook and nothing else. Activation patching and probing work the same way. (3) DEBUGGING GRADIENT FLOW. A backward hook logging gradient norms per layer is the standard tool for finding where gradients vanish or explode, and it localizes the problem to a layer immediately rather than leaving you with an aggregate. (4) MONITORING ACTIVATION STATISTICS - mean, standard deviation, fraction of dead ReLUs, per layer - which catches initialization and normalization problems that the loss curve does not show. (5) INJECTING BEHAVIOUR: quantization observers, activation clipping, noise injection, and profiling instrumentation are all implemented as hooks in real libraries. THE PITFALLS, and they matter. (1) REMOVE THEM. A retained forward hook that stores outputs keeps those tensors alive, and if they carry an autograd graph you keep the whole graph. This is a steady memory leak whose only symptom is growth. Use a context manager or a try/finally. (2) DETACH what you store, unless you specifically want the graph. feats[name] = out means you retain the graph; out.detach() means you do not. (3) HOOKS AND torch.compile or fx interact awkwardly - hooks are Python-level side effects, and a traced or compiled graph may not run them where you expect. Do not rely on hooks inside a compiled region. (4) BACKWARD HOOK SEMANTICS are subtle: use register_full_backward_hook rather than the deprecated register_backward_hook, whose behaviour with modules having multiple inputs was genuinely wrong. WHEN I WOULD NOT USE THEM. If I control the module's code, an explicit return of intermediates is clearer, testable, and survives compilation. Hooks are for when you do not control the code, or when the instrumentation should be removable without touching the model - which is a real and common requirement.",
+          "deepDive": {
+            "q": "Explain parametrizations - what problem do they solve that a hook or a custom Module does not?",
+            "a": "THE PROBLEM. Sometimes you want a weight to be a FUNCTION of an underlying parameter rather than a free parameter itself. Weight normalization writes W = g * V / ||V||, learning direction and magnitude separately. Spectral normalization writes W = W_raw / sigma(W_raw), dividing by the largest singular value to bound the Lipschitz constant. Orthogonal parametrization keeps W on the orthogonal manifold. In each case the thing the layer uses is not the thing the optimizer updates. WHY THE OBVIOUS APPROACHES ARE UNSATISFACTORY. Writing a custom Module means reimplementing the layer, so you now maintain your own Linear or Conv2d and lose everything that special-cases the standard ones - fused kernels, quantization support, fx patterns. Using a forward_pre_hook to overwrite the weight before each call works and is roughly what the old weight_norm implementation did, and it is fragile: the weight attribute is mutated in place, state_dict contains the raw parameter under a surprising name, and removing the reparametrization cleanly is awkward. torch.nn.utils.parametrize DOES IT PROPERLY. You register a small Module on a parameter, and PyTorch replaces the attribute with a property that computes the parametrized value on access, keeping the original as an ordinary parameter under module.parametrizations. The gradient flows through the parametrization function automatically, because it is just autograd. Key properties: (1) THE ORIGINAL LAYER IS UNTOUCHED - you parametrize an existing nn.Linear rather than replacing it. (2) COMPOSABLE - multiple parametrizations chain in order. (3) CLEAN REMOVAL - parametrize.remove_parametrizations bakes the current value back into a plain parameter, which is exactly what you want before exporting or deploying. (4) CACHING - a context manager caches the computed value so you do not recompute the normalization on every access within a forward pass, which matters when the parametrization is expensive. (5) state_dict CONTAINS THE UNDERLYING PARAMETER, so checkpoints are of the free variable and the constraint is re-applied on load, which is the correct semantics. THE SUBTLETY WORTH KNOWING. Spectral norm's sigma is estimated by POWER ITERATION with a persistent vector carried across steps - so it has state, which is a buffer, and the estimate is only accurate because it is warm-started each iteration. That means it behaves differently in eval mode and that calling the layer twice in one step advances the iteration. This is a case where a parametrization is not a pure function of the parameter, and knowing that explains otherwise confusing non-determinism. WHERE I WOULD USE IT. Spectral norm for GAN discriminators and anywhere you want a Lipschitz bound; orthogonal parametrization for RNN recurrent matrices to control gradient scaling; and any constrained optimization where projecting after each step is the alternative - parametrization is generally better than projection because the constraint holds exactly at every point rather than being restored afterwards."
+          }
+        },
+        {
+          "q": "Why does forgetting model.eval() matter, and what exactly changes?",
+          "a": "WHAT THE FLAG DOES. train() and eval() set a boolean, self.training, recursively on the module tree. Most layers ignore it. In practice two families read it and they are the two that matter. DROPOUT. In training it zeroes a random fraction of activations and scales the rest by 1/(1-p) so the expected value is preserved - inverted dropout. In eval it is the identity. If you evaluate in training mode, your predictions are STOCHASTIC: run the same input twice and get different answers, and your validation metric has noise that has nothing to do with the model. BATCHNORM, and this is the serious one, because it does two different things. First, the normalization statistics: in training it uses the current batch's mean and variance; in eval it uses the running estimates accumulated during training. Second - and this is the part people forget - in training mode it UPDATES those running estimates from the batch it just saw. So evaluating in training mode has two consequences. (1) THE OUTPUT DEPENDS ON THE OTHER EXAMPLES IN THE BATCH. Your prediction for one input changes depending on what it was batched with, which violates the assumption behind essentially every evaluation protocol and makes single-example inference wrong. At batch size 1 the variance is degenerate and the output is garbage. (2) THE MODEL IS MUTATED USING VALIDATION DATA. The running statistics now contain information from the set you are measuring on, and that contamination is permanent - it goes into the checkpoint and into production. It is a quiet form of test-set leakage that no metric reveals. THE REVERSE BUG is equally silent: forgetting model.train() after validation means the rest of your training runs with dropout disabled and BatchNorm frozen, so your regularization stops and your normalization statistics stop tracking the shifting activation distribution. Training continues, converges differently, and nothing says why. HOW I WOULD PREVENT IT. Use a context manager or a helper that sets the mode and restores it, rather than calling eval() and train() by hand in a loop - the failure is a missing line, so remove the possibility of missing it. And pair eval() with torch.no_grad() or inference_mode(), which are orthogonal: no_grad controls whether the graph is built, eval controls layer behaviour, and using one without the other is a common confusion. Neither implies the other. A CHECK WORTH HAVING. Assert model.training is False inside your evaluation function. One line, and it converts a silent correctness bug into a loud one. THE BROADER POINT. This is a case where an abstraction unified two genuinely different mathematical functions behind one call, which is convenient and correct - and the cost is that switching between them is a side effect you can forget, with no error when you do."
+        },
+        {
+          "q": "How would you implement a model with a variable number of layers and shared weights?",
+          "a": "TWO SEPARATE REQUIREMENTS, and it is worth separating them because they use different mechanisms. VARIABLE DEPTH: nn.ModuleList. Construct the layers in __init__ from a depth argument and store them in a ModuleList so they are registered. If the forward pass is a simple chain, nn.Sequential is even better since it supplies the forward for you; ModuleList is what you want when the loop does anything else - residual connections that skip differently, a layer index passed to each block, or early exit. The important thing is that neither a plain list nor a dict works, for the registration reason. WEIGHT SHARING: assign the same module object to multiple positions. Because .parameters() deduplicates by identity, the shared parameters appear once and the optimizer updates them once - which is exactly right. Concretely, self.block = Block(d) once, then call it n times in a loop, gives a universal-transformer-style recurrent depth with one block's worth of parameters. Or tie an embedding to an output projection by assigning the same tensor to both attributes, which is standard in language models and needs no special handling. THE SUBTLETIES I WOULD MENTION. (1) SHARED MODULES WITH STATE. If the shared block contains BatchNorm, its running statistics are shared across all invocations and are updated once per call - so a block used six times updates its statistics six times per step with six different activation distributions. That is usually wrong. LayerNorm has no running state and is safe, which is one reason recurrent-depth architectures use it. (2) GRADIENTS ACCUMULATE CORRECTLY. Calling the same module n times means autograd accumulates n gradient contributions into the same parameter, which is the correct semantics and needs no intervention. (3) PARAMETER COUNTING WILL NOT SHOW THE SHARING, since dedup makes it look like a small model - so a parameter-count assertion cannot distinguish intended tying from accidental aliasing, and I would test the intent explicitly with an identity check. (4) CHECKPOINT KEYS follow the attribute path, so a shared module saved once loads once - no issue, but be aware that converting a shared architecture to an unshared one invalidates checkpoints in a way that is not obvious from the key names. THE VARIANT WORTH KNOWING: PARTIAL SHARING, where you share most of a block but give each position its own small adapter or its own layer norm. That is implemented as one shared module plus a ModuleList of per-position modules, and it is the structure behind several parameter-efficient architectures. WHAT I WOULD ACTUALLY CHECK after building it. Print the total parameter count and compare against the arithmetic for both the shared and unshared versions - if it matches the unshared number, the sharing did not happen, and if it matches the shared number when you wanted independent layers, you have accidentally aliased. That check takes one line and it is the only thing that distinguishes the two designs from the outside."
+        },
+        {
+          "q": "What is the difference between eval(), no_grad(), and inference_mode()?",
+          "a": "THEY ARE ORTHOGONAL and confusing them is common, so I would state clearly that you generally need at least two of them and that none implies another. eval() CHANGES LAYER BEHAVIOUR. It sets self.training = False recursively, which makes Dropout the identity and makes BatchNorm use running statistics instead of batch statistics and stop updating them. It has NOTHING to do with gradients - an eval-mode model still builds a full autograd graph and still allocates all the intermediate tensors for backward. no_grad() CHANGES GRAPH CONSTRUCTION. Inside the context, operations do not record grad_fn, so no graph is built and the intermediate activations that backward would need are freed as soon as they are unused. This is a large memory saving and a modest speedup. It has NOTHING to do with layer behaviour - a model in training mode inside no_grad still applies dropout and still updates BatchNorm running statistics, which is exactly the silent contamination case. inference_mode() IS A STRONGER no_grad. It also skips version counting and view tracking, the bookkeeping autograd uses to detect in-place modifications of tensors it needs. That makes it faster and lower-overhead than no_grad, at a cost: tensors created inside inference mode are marked and CANNOT later be used in autograd at all - not just 'they have no gradient', but using them in a graph raises an error. So it is right for pure serving and wrong if the outputs will feed anything that needs differentiation. THE PRACTICAL COMBINATIONS. Validation during training: model.eval() plus torch.no_grad(). I would use no_grad rather than inference_mode here because validation outputs sometimes flow into things that touch autograd, and the error when they do is confusing. Pure serving: model.eval() plus torch.inference_mode() for the extra speed. Computing gradients with respect to the INPUT - adversarial examples, saliency, Grad-CAM: model.eval() but NOT no_grad, since you need the graph. This combination is the one that reveals the orthogonality most clearly. Training: model.train() and no context manager. THE BUGS EACH OMISSION CAUSES. eval() without no_grad: correct outputs, wasted memory - and at large batch sizes this alone can cause an out-of-memory during validation, which is a very common and confusing failure since validation is supposed to be cheaper than training. no_grad without eval(): stochastic predictions from dropout and, worse, BatchNorm running statistics updated from validation data - a permanent contamination with no error. Neither: both problems. THE CHECK I WOULD ADD. Assert model.training is False and torch.is_grad_enabled() is False at the top of the evaluation function. Two lines, and they convert both silent failures into loud ones - which is the recurring recommendation in this module, because every failure here is one that still produces a plausible number."
+        },
+        {
+          "q": "How would you write structural tests for a model?",
+          "a": "Model bugs are unusually hard to catch because a broken model still produces a loss curve, so the tests worth writing are the ones that check STRUCTURE rather than performance. Here is the set I would actually write, ordered by value per line. (1) PARAMETER COUNT. assert the total equals the arithmetic you expect from the architecture. This single assertion catches unregistered submodules - the plain-list bug - accidental weight sharing, duplicated blocks, and a wrong depth or width from a config change. It is the highest-value test in this list and almost nobody writes it. (2) ALL PARAMETERS RECEIVE GRADIENT. Run one forward-backward on random input, then assert every parameter with requires_grad has a non-None .grad and, ideally, a non-zero norm. This catches dead branches, a module called but detached, a forward path that skips a layer under some config, and a frozen-by-accident submodule. When it fails it names the exact parameter, which is far better than a training curve. (3) DEVICE AND DTYPE CONSISTENCY. After model.to(device), assert every parameter and buffer is on that device. This catches unregistered modules from the other direction and catches buffers created as plain attributes. (4) CHECKPOINT ROUND TRIP. Save, construct a fresh model, load with strict=True, and assert the outputs on a fixed input are identical. This catches missing buffers, non-deterministic construction, and any state the model needs that is not in state_dict. It is the test that would have prevented most of the silent-load failures in this lesson. (5) SHAPE CONTRACT. Assert output shape for a couple of representative input shapes, including a batch of one and, for sequence models, a length that is not a nice power of two. (6) train/eval DIFFERENCE. Assert that a model containing dropout produces different outputs across two calls in train mode and identical outputs in eval mode. This directly tests that the mode flag is wired through, and it catches a custom module that ignores self.training. (7) DETERMINISM GIVEN A SEED, for the construction path - same seed, same initial parameters. WHAT I WOULD NOT TEST. Numerical performance on a benchmark, in a unit test - that belongs in a separate, slower evaluation job. And gradient correctness via gradcheck for standard layers, since they are already tested upstream; reserve gradcheck for CUSTOM autograd Functions, where a hand-written backward genuinely can be wrong. THE PRINCIPLE BEHIND THE LIST. Every one of these tests targets a failure that is SILENT - the model still runs and still trains. That is the correct criterion for what deserves a structural test in machine-learning code, and it is a different criterion from ordinary software testing, where most failures are loud. In this module particularly, the abstraction's job is to hide the mechanism, so the tests must check the mechanism directly."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "nn.Module intercepts __setattr__",
+        "back": "Parameter -> _parameters, Module -> _modules, register_buffer -> _buffers, ANYTHING ELSE -> plain __dict__ where .parameters()/.to()/.state_dict() cannot see it. Every convenience is a recursive walk over that tree."
+      },
+      {
+        "type": "pitfall",
+        "front": "The plain-list bug",
+        "back": "self.layers = [nn.Linear(...) for _ in range(6)] leaves them UNREGISTERED: optimizer never sees them, .to() never moves them, state_dict omits them - but forward still CALLS them. A third of the model frozen at init, loss curve looks fine. Use nn.ModuleList."
+      },
+      {
+        "type": "intuition",
+        "front": "The cheapest structural test that exists",
+        "back": "assert sum(p.numel() for p in model.parameters()) == EXPECTED. Catches unregistered submodules, accidental weight sharing, duplicated blocks, and wrong depth/width from a config change. One line. Almost nobody writes it."
+      },
+      {
+        "type": "pitfall",
+        "front": "Forgetting eval() is a CORRECTNESS bug",
+        "back": "BatchNorm in train mode (a) normalizes with BATCH statistics, so a prediction depends on what it was batched with, and (b) UPDATES running stats from validation data - permanent contamination that goes into the checkpoint. The reverse (no train()) silently disables regularization."
+      },
+      {
+        "type": "definition",
+        "front": "eval() vs no_grad() vs inference_mode()",
+        "back": "ORTHOGONAL. eval() = layer BEHAVIOUR (dropout, BN). no_grad() = no GRAPH built (memory). inference_mode() = stronger no_grad (skips version/view tracking; outputs can NEVER re-enter autograd). Need eval WITHOUT no_grad for input gradients (saliency, adversarial)."
+      },
+      {
+        "type": "definition",
+        "front": "Buffers",
+        "back": "register_buffer = non-learnable state that still moves with .to() and appears in state_dict (BN running stats, positional encodings). persistent=False keeps it OUT of the checkpoint - right for recomputable things like a causal mask."
+      },
+      {
+        "type": "pitfall",
+        "front": "Read load_state_dict(strict=False)'s return value",
+        "back": "It returns (missing_keys, unexpected_keys) and people discard it. A 'module.' prefix from DDP, an '_orig_mod.' from torch.compile, or a renamed attribute leaves weights at RANDOM INIT and the model still runs. Raise unless the missing keys are an allow-listed new head."
+      },
+      {
+        "type": "intuition",
+        "front": "state_dict keys ARE attribute paths",
+        "back": "'encoder.layers.3.attn.qkv.weight' is the dotted path from the root. So renaming an attribute invalidates every existing checkpoint for that key - the naming is part of your serialization contract, not an implementation detail."
+      },
+      {
+        "type": "intuition",
+        "front": "Weight tying needs no special handling",
+        "back": ".parameters() DEDUPLICATES by identity, so assigning the same tensor to two attributes gives one parameter updated once. But note: a parameter COUNT cannot then distinguish intended tying from accidental aliasing - test identity explicitly."
+      },
+      {
+        "type": "pitfall",
+        "front": "Shared modules containing BatchNorm",
+        "back": "A block called n times shares its running statistics and updates them n times per step from n different activation distributions - usually wrong. LayerNorm has no running state, which is one reason recurrent-depth architectures use it."
+      },
+      {
+        "type": "pitfall",
+        "front": "Remove your hooks",
+        "back": "A retained forward hook that stores outputs keeps those tensors AND their autograd graph alive - steady memory growth with no other symptom. Detach what you store, use try/finally, and note hooks interact badly with torch.compile and fx."
+      },
+      {
+        "type": "pitfall",
+        "front": "Module.to is IN-PLACE; Tensor.to is NOT",
+        "back": "model.to(device) mutates and returns self. tensor.to(device) returns a NEW tensor - writing it without assigning does nothing. A genuine asymmetry that follows from a Module being a container and a tensor being a value."
+      }
+    ],
+    "refs": [
+      {
+        "title": "PyTorch: Modules - notes on nn.Module semantics",
+        "url": "https://pytorch.org/docs/stable/notes/modules.html"
+      },
+      {
+        "title": "PyTorch: torch.nn.Module API reference",
+        "url": "https://pytorch.org/docs/stable/generated/torch.nn.Module.html"
+      },
+      {
+        "title": "PyTorch: torch.nn.utils.parametrize - parametrizations tutorial",
+        "url": "https://pytorch.org/tutorials/intermediate/parametrizations.html"
+      },
+      {
+        "title": "Salimans & Kingma (2016), Weight Normalization",
+        "url": "https://arxiv.org/abs/1602.07868"
+      },
+      {
+        "title": "Miyato et al. (2018), Spectral Normalization for Generative Adversarial Networks",
+        "url": "https://arxiv.org/abs/1802.05957"
+      }
+    ],
+    "demos": [
+      "neural-playground",
+      "weight-init",
+      "batch-norm",
+      "backprop"
+    ]
+  }
+};

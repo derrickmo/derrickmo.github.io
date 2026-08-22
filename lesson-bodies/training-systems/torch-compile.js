@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/training-systems/torch-compile.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/training-systems/torch-compile/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "torch-compile": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "torch.compile is three components. DYNAMO analyses Python bytecode at runtime and captures what it can into an FX graph, recording GUARDS - the conditions under which that capture is valid. AOTAUTOGRAD then traces the backward pass ahead of time, so the compiler sees forward and backward together, which is why it can fuse the backward at all - something TorchScript never did. INDUCTOR generates the actual kernels: Triton for GPU, C++ with OpenMP for CPU. The exchange is compile time and debuggability for throughput, and as always the rate depends on your configuration.",
+        "The design decision that made it work is that Dynamo is allowed to GIVE UP LOCALLY. TorchScript's two paths were both all-or-nothing on a whole function: scripting must compile everything or it errors, tracing must record everything or it silently omits it. Dynamo inserts a GRAPH BREAK at anything it cannot handle - a data-dependent branch, a print, a call into arbitrary Python - falls back to the interpreter there, then resumes capturing after. So a function becomes several graphs with Python between them rather than one graph or a failure. That single choice is why it works on real research code, and it is why the model that raises TraceError under fx.symbolic_trace runs correctly under torch.compile.",
+        "The gains come from two mechanisms and knowing which one applies tells you in advance whether compiling will help. FUSION: a chain of elementwise operations each reads and writes the whole tensor, so fusing n of them into one kernel turns 2n memory round trips into 2. That is enormous for memory-bound work - normalizations, activations, residual adds, the whole non-matmul half of a transformer block - and worth nothing for a large matrix multiply already running near peak. LAUNCH REDUCTION: fewer kernels means less fixed overhead, which matters most at small batch sizes. So a model dominated by big matmuls gains little; a model with many small elementwise operations gains a lot. That is a prediction you can make from a profile before you spend a minute on compilation."
+      ],
+      "math": [
+        {
+          "h": "What fusion actually saves",
+          "paras": [
+            "An elementwise operation on a tensor of N elements reads N and writes N. A chain of n such operations, each launched separately, moves 2nN elements. Fused into one kernel, it moves 2N.",
+            "The arithmetic is identical - fusion changes traffic, not FLOPs - which is why it helps memory-bound work and does nothing for compute-bound work."
+          ],
+          "tex": "\\text{unfused: } 2nN \\text{ elements moved} \\;\\longrightarrow\\; \\text{fused: } 2N, \\qquad \\text{speedup} \\approx n \\;\\text{ when memory-bound}",
+          "texNote": "For a residual block's tail - add, layer-norm, activation, scale - n is four or five, so the fused version moves a quarter to a fifth of the bytes. That is the single largest source of torch.compile's gains on transformers, and it explains why the benefit concentrates in exactly the operations people think of as cheap."
+        },
+        {
+          "h": "Guards, specialization, and the recompilation cliff",
+          "paras": [
+            "A captured graph is valid only under the conditions that held at capture: input shapes, dtypes, the values of Python variables that affected the trace, the types of arguments. Dynamo records those as guards and checks them on every call.",
+            "A guard miss triggers recompilation for the new conditions. Past a cache limit, Dynamo stops compiling and falls back to eager - permanently and quietly."
+          ],
+          "tex": "\\text{call} \\to \\begin{cases} \\text{run cached graph} & \\text{guards hold} \\\\ \\text{recompile, cache} & \\text{miss, cache} < L \\\\ \\textbf{fall back to eager} & \\text{miss, cache} \\ge L \\end{cases}",
+          "texNote": "The third row is the trap. A model called with many distinct input shapes recompiles repeatedly, hits the cache size limit, and then runs in EAGER MODE for the rest of the job - slower than if you had never compiled, with no error. This is what dynamic=True prevents, by capturing a graph with symbolic shapes that covers a range instead of one shape each."
+        },
+        {
+          "h": "When compilation pays for itself",
+          "paras": [
+            "Compilation is a one-time cost per graph and per guard configuration, and the saving is per step. The break-even is straightforward, and it is why compile is right for training runs and often wrong for short scripts.",
+            "Recompilations reset the calculation, which is why an uncontrolled recompile loop can make a job slower overall."
+          ],
+          "tex": "\\text{worth it} \\iff n_{\\text{steps}} \\cdot \\Delta t_{\\text{step}} \\;>\\; k_{\\text{compiles}} \\cdot t_{\\text{compile}}",
+          "texNote": "With compilation on the order of tens of seconds and a saving of a few milliseconds per step, break-even is in the thousands of steps - trivially met by any real training run and easily missed by a short evaluation script or an interactive session. Note that k, the number of compilations, is the term you control by managing shapes."
+        }
+      ],
+      "code": [
+        {
+          "h": "See the graphs, find the breaks, fix them",
+          "paras": [
+            "The most useful thing you can do with torch.compile is count its graphs. A custom backend that returns the graph unchanged compiles nothing and reveals everything."
+          ],
+          "code": "graphs = []\ndef counting_backend(gm, example_inputs):\n    graphs.append(gm)          # capture, compile NOTHING, run eager\n    return gm.forward\n\n# A straight-line MLP: ONE graph, and numerically identical to eager.\ncompiled = torch.compile(mlp, backend=counting_backend)\ncompiled(x); print(len(graphs))            # 1\n\n# NOW A GRAPH BREAK - the canonical cause:\ndef broken(x):\n    s = x.sum().item()         # <-- .item() forces a device->host SYNC and\n    if s > 0:                  #     produces a PYTHON float, so the branch is\n        return x * 2           #     data-dependent in a way Dynamo cannot\n    return x - 1               #     capture. BREAK.\n\ngraphs.clear(); torch.compile(broken, backend=counting_backend)(x)\nprint(len(graphs))                          # 3  (break splits it in three)\nprint(torch._dynamo.explain(broken)(x))     # graph_break_count = 2, WITH the\n                                            # reason and the source line\n\n# THE FIX - keep it tensor-only so there is nothing to break on:\ndef fixed(x):\n    return torch.where(x.sum() > 0, x * 2, x - 1)   # no .item(), no Python if\ngraphs.clear(); torch.compile(fixed, backend=counting_backend)(x)\nprint(len(graphs))                          # 1  - back to a single graph\n\n# THE CONTRAST WITH fx, which is the whole design argument:\n#   fx.symbolic_trace(broken)  -> raises TraceError (Proxy has no bool)\n#   torch.jit.trace(broken)    -> silently BAKES IN one branch\n#   torch.compile(broken)      -> runs BOTH branches correctly, via a break\n# Dynamo is the only one of the three that is never wrong.\n\n# FIND BREAKS IN A REAL MODEL:\n#   TORCH_LOGS=graph_breaks python train.py\n#   torch._dynamo.explain(model)(*inputs)     # count + reasons + source lines",
+          "caption": "Counting graphs is the highest-value diagnostic here. Three graphs where you expected one means two breaks, and dynamo.explain names the reason and the line - which is the difference between compile helping and compile doing almost nothing."
+        },
+        {
+          "h": "Guards, recompilation, and the silent fallback",
+          "paras": [
+            "The failure that costs the most is not a crash - it is compiling repeatedly, exhausting the cache, and running eager for the rest of the job while you believe it is compiled."
+          ],
+          "code": "# SHAPE SPECIALIZATION: each distinct shape is a separate compilation.\nm = torch.compile(model)                      # dynamic=False by default-ish\nfor n in (16, 32, 64, 16, 32):\n    m(torch.randn(n, 128))\n#   -> 3 compilations (one per DISTINCT shape); the repeats are cache hits.\n\nm = torch.compile(model, dynamic=True)\n#   -> fewer compilations: one symbolic-shape graph covering a range. Note it\n#      is often 2 rather than 1 - some residual specialization remains - so\n#      do not expect a single graph and be suspicious of claims that you get one.\n\n# THE TRAP - the recompile cliff:\n#   Many distinct shapes -> repeated recompilation -> the cache size limit is\n#   reached -> Dynamo STOPS COMPILING and falls back to EAGER for the rest of\n#   the run. Slower than never compiling, and there is NO ERROR.\n#   Watch for it:  TORCH_LOGS=recompiles python train.py\n#   Fixes: dynamic=True, or PAD/BUCKET your shapes so there are few distinct\n#   ones - the same bucketing that fixes allocator fragmentation.\n\n# MODES, and what each trades:\ntorch.compile(model)                             # default: fusion, safe\ntorch.compile(model, mode=\"reduce-overhead\")     # + CUDA graphs: removes launch\n                                                 # overhead entirely. Requires\n                                                 # STATIC shapes and stable input\n                                                 # addresses; best at small batch\ntorch.compile(model, mode=\"max-autotune\")        # benchmarks kernel variants at\n                                                 # compile time: much slower to\n                                                 # compile, faster to run\n\n# VERIFY NUMERICS. Fusion changes the ORDER of floating-point operations, so\n# small differences are expected and large ones are a bug:\nwith torch.no_grad():\n    d = (model(x) - compiled(x)).abs().max()\nassert d < 1e-4, d      # and check the DISTRIBUTION, not only the max",
+          "caption": "The recompile cliff is the expensive failure: past the cache limit Dynamo silently reverts to eager for the rest of the run, so you are slower than if you had never compiled. TORCH_LOGS=recompiles is how you see it."
+        }
+      ],
+      "useCases": [
+        "Transformer training, where the non-matmul half of each block is a chain of memory-bound elementwise operations and fusing them is the single largest available speedup short of better attention kernels.",
+        "Any model with many small operations, where launch overhead is a large fraction of step time - which includes most models at small batch sizes and anything with a deep stack of cheap layers.",
+        "Inference serving with reduce-overhead mode and CUDA graphs, where shapes are fixed and eliminating launch overhead entirely matters most at the batch size of one that interactive serving actually runs at.",
+        "As a free first experiment: it is one line, it is reversible, and the profile before and after tells you whether your model was memory-bound in a way you had not measured."
+      ],
+      "pitfalls": [
+        "Assuming it is compiled when it has fallen back. Repeated recompilation from varying shapes exhausts the cache size limit, after which Dynamo runs eager for the rest of the job with no error - slower than never compiling. Check TORCH_LOGS=recompiles.",
+        "Ignoring graph breaks. Fusion only happens WITHIN a graph, so a function split into forty graphs gets almost none of the benefit. torch._dynamo.explain reports the count and the reason, and fixing the cheap breaks is usually where the gain is.",
+        "Calling .item() inside the compiled region. It forces a device-to-host synchronization and produces a Python value, which is both a graph break and a pipeline stall. Keep the hot path tensor-only, using torch.where rather than a Python if.",
+        "Benchmarking the first iteration. It includes compilation, which can be tens of seconds. Warm up generously, then measure steady state with synchronization - otherwise you are timing the compiler.",
+        "Expecting a speedup on a matmul-dominated model. Fusion reduces bytes moved, not FLOPs, so a model already near peak on large matrix multiplies has almost nothing to gain. Profile first and predict.",
+        "Skipping the numerical check. Fusion changes the order of floating-point operations, so outputs differ slightly by design - but a large difference means a real problem, and only comparing against eager on real inputs distinguishes the two.",
+        "Compiling a short-lived script. The break-even is thousands of steps at typical compile costs, so an evaluation script or an interactive session can easily spend more time compiling than it saves."
+      ],
+      "connections": [
+        {
+          "ref": "pytorch-internals/torch-fx",
+          "text": "Dynamo emits FX graphs to its backend, so fx did not lose to torch.compile - it became the intermediate representation underneath it. The difference is the capture mechanism, not the graph."
+        },
+        {
+          "ref": "pytorch-internals/torchscript",
+          "text": "The predecessor and the contrast that explains the design. Tracing silently bakes in a branch, scripting refuses to compile, and Dynamo breaks the graph and guards its assumptions - which is why it is the only one that is never wrong."
+        },
+        {
+          "ref": "training-systems/profiling",
+          "text": "How to predict whether compiling will help and confirm that it did. A profile showing many small memory-bound kernels predicts a large gain; one showing few large matmuls predicts almost none."
+        },
+        {
+          "ref": "training-systems/mixed-precision",
+          "text": "Additive, and for the same reason: both attack memory traffic. Mixed precision halves the bytes per element and fusion reduces the number of round trips, so the combination multiplies rather than overlapping."
+        },
+        {
+          "ref": "transformers/flash-attention",
+          "text": "The hand-written version of the same idea, and the limit of what a compiler can do - flash attention is an algorithmic restructuring using the online-softmax identity, not a fusion of the graph as written, which is why a compiler could not have found it."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are torch.compile's three components?",
+          "a": "Dynamo captures graphs from Python bytecode with guards, AOTAutograd traces the backward ahead of time, and Inductor generates kernels - Triton for GPU, C++ with OpenMP for CPU."
+        },
+        {
+          "q": "What is a graph break?",
+          "a": "A point where Dynamo cannot capture, so it falls back to the interpreter and resumes capturing after. The function becomes several graphs with Python between them."
+        },
+        {
+          "q": "Why is breaking better than failing or tracing?",
+          "a": "Scripting refuses to compile and tracing silently bakes in one branch. Breaking always produces correct results, which is why Dynamo works on real research code."
+        },
+        {
+          "q": "What are guards?",
+          "a": "The conditions under which a captured graph is valid - shapes, dtypes, the values of Python variables that affected the trace. Dynamo checks them on every call."
+        },
+        {
+          "q": "What happens on a guard miss?",
+          "a": "Recompilation for the new conditions, cached alongside the old. Past a cache size limit, Dynamo stops compiling and falls back to eager permanently."
+        },
+        {
+          "q": "Why is the eager fallback dangerous?",
+          "a": "It is silent. You believe the model is compiled while it runs slower than if you had never compiled it. TORCH_LOGS=recompiles reveals it."
+        },
+        {
+          "q": "What does fusion save?",
+          "a": "Memory traffic, not FLOPs. A chain of n elementwise operations moves 2nN elements unfused and 2N fused, so it helps memory-bound work and not compute-bound work."
+        },
+        {
+          "q": "Why does AOTAutograd matter?",
+          "a": "It traces the backward ahead of time, so the compiler sees forward and backward together and can fuse the backward - which TorchScript never did."
+        },
+        {
+          "q": "What does dynamic=True do?",
+          "a": "Captures a graph with symbolic shapes covering a range rather than compiling one per distinct shape. Often gives two graphs rather than one, since some specialization remains."
+        },
+        {
+          "q": "What does reduce-overhead mode do?",
+          "a": "Adds CUDA graphs, eliminating launch overhead entirely. It requires static shapes and stable input addresses, and it helps most at small batch sizes."
+        },
+        {
+          "q": "How do you find graph breaks?",
+          "a": "torch._dynamo.explain reports the count, the reasons and the source lines, and TORCH_LOGS=graph_breaks logs them during a run."
+        },
+        {
+          "q": "Why must you verify numerics after compiling?",
+          "a": "Fusion changes the order of floating-point operations, so small differences are expected by design. Only comparing against eager distinguishes those from a real bug."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you use torch.compile in a serving deployment rather than in training?",
+          "a": "THE CONSTRAINTS ARE DIFFERENT, and they change which mode and which concerns matter. In training you have thousands of steps to amortize compilation and shapes are usually stable. In serving you have variable request shapes, latency targets rather than throughput targets, and a process that must start quickly. WHAT CHANGES IN YOUR FAVOUR. (1) SHAPES CAN BE CONTROLLED. Serving typically batches requests, and you choose the batch sizes - so you can BUCKET to a small set, say 1, 2, 4, 8, 16, padding up to the nearest. That turns an unbounded shape space into a handful of compilations, which is exactly what the recompile cliff needs. (2) reduce-overhead MODE BECOMES THE RIGHT CHOICE. It adds CUDA graphs, which capture the entire kernel launch sequence once and replay it, eliminating launch overhead completely. Launch overhead is a large fraction of latency at batch one - which is precisely the interactive-serving case - so this is where the mode earns its keep. Its requirements are static shapes and stable input addresses, both of which a bucketed serving path can guarantee. (3) COMPILATION CAN BE MOVED OFF THE CRITICAL PATH. Warm up at startup by running each bucket shape before accepting traffic. Otherwise your first request of each shape pays tens of seconds, which is a terrible tail latency and a classic production surprise. WHAT CHANGES AGAINST YOU. (1) STARTUP TIME. Compiling every bucket at boot delays readiness, which matters for autoscaling - a replica that takes two minutes to become useful is a scaling problem. Compilation caching helps and is worth configuring. (2) MEMORY. Each compiled shape variant holds its own artifacts, and CUDA graphs additionally pin their memory pool, so many buckets cost real memory that competes with the KV cache. (3) DEBUGGABILITY in production is worse, and a numerical difference discovered in production is expensive. WHAT I WOULD ACTUALLY BUILD. Bucket the batch dimension to a small fixed set and pad. Compile with reduce-overhead. Warm every bucket at startup, before the readiness probe passes. Verify numerics against eager on a golden set as part of the deployment, since fusion reorders floating-point operations and a difference outside tolerance is a correctness issue no latency measurement reveals. And keep an eager fallback path behind a flag, so a compilation problem in production is a config change rather than a rollback. THE HONEST CAVEAT. For LLM serving specifically, the dominant costs are attention and the KV cache, and a dedicated inference engine will generally beat torch.compile on a stock model - paged attention, continuous batching and speculative decoding are systems-level wins that a compiler cannot find. So I would use torch.compile for serving models where no specialized runtime exists, and reach for the specialized runtime where one does. That is the same reasoning as everywhere in this module: know which resource binds, and choose the tool that targets it."
+        },
+        {
+          "q": "Explain how torch.compile works and why it succeeded where TorchScript did not.",
+          "a": "THE STACK. Three components. DYNAMO hooks Python's frame evaluation and analyses BYTECODE at runtime, capturing tensor operations into an FX graph and recording GUARDS - the conditions under which that capture is valid, such as input shapes, dtypes, and the values of Python variables that influenced the trace. AOTAUTOGRAD traces the backward pass ahead of time, so the compiler sees the forward and backward graphs together. INDUCTOR is the code generator: it fuses operations and emits Triton kernels for GPU or C++ with OpenMP for CPU. WHAT IT BUYS. Two mechanisms. FUSION: a chain of elementwise operations each reads and writes the entire tensor, so fusing n of them turns 2n memory round trips into 2. For a residual block's tail - add, norm, activation, scale - that is a factor of four or five on the bytes moved, and since those operations are memory-bound, it is close to a factor of four or five on their time. LAUNCH REDUCTION: fewer kernels means less fixed per-launch overhead, which dominates at small batch sizes. Note that AOTAutograd means both apply to the BACKWARD pass too, which is roughly two thirds of training time and which TorchScript never touched. WHY IT SUCCEEDED - the design decision. TorchScript had two paths and both were all-or-nothing on a whole function. Scripting compiles your source but only accepts a typed subset of Python, so it REFUSES real code. Tracing records the operations that executed, so it silently BAKES IN whichever branch the example took and produces an artifact that is wrong for other inputs. Dynamo instead is allowed to GIVE UP LOCALLY: at anything it cannot capture, it inserts a GRAPH BREAK, falls back to the interpreter, and resumes capturing after. A function becomes several graphs with Python between them rather than one graph or a failure. THE SECOND HALF OF WHY: GUARDS. Tracing ASSUMES its specialization remains valid forever. Dynamo CHECKS, on every call, and recompiles on a miss. So the correctness problem that made tracing dangerous simply does not arise - a data-dependent branch becomes either a guard that triggers recompilation or a graph break, and in both cases the answer is right. The concrete illustration: a model with an if on a tensor value raises TraceError under fx, is silently corrupted by torch.jit.trace, and runs correctly under torch.compile. THE COSTS, since this is an exchange. Compilation time, tens of seconds, paid per graph and per guard configuration - so break-even is thousands of steps and a short script can lose. Reduced debuggability inside compiled regions. Graph breaks limiting the fusion opportunity, since the compiler only sees within a graph. And the recompilation cliff: many distinct shapes cause repeated recompilation until the cache limit is hit, after which Dynamo runs EAGER for the rest of the job, silently, slower than never compiling.",
+          "deepDive": {
+            "q": "Walk through what happens on the first call to a compiled function, and on a call that misses its guards.",
+            "a": "FIRST CALL. (1) Dynamo intercepts the Python frame before it executes. It symbolically evaluates the BYTECODE, maintaining a representation of the stack and locals where tensors are tracked symbolically and other values are tracked as concrete Python objects. (2) Tensor operations are appended to an FX graph. Non-tensor operations - a Python integer computation, an attribute access - are evaluated concretely, and if their result affects the graph, a GUARD is recorded so that a future call with a different value recompiles. (3) At any bytecode it cannot handle - a call into an untraceable library, a data-dependent branch on a tensor value, a print - Dynamo stops, emits the graph captured so far, generates bytecode that calls that compiled graph, executes the problematic operation in the interpreter, and starts a NEW capture after it. That is the graph break. (4) Each captured graph goes to AOTAutograd, which traces the backward by running the forward with tensors that record their autograd operations, producing a joint forward-backward graph and then partitioning it into a forward graph, the saved tensors, and a backward graph. The partitioning is itself an optimization: it chooses what to save versus recompute, which is a min-cut problem and is why AOTAutograd sometimes recomputes cheap operations in the backward rather than storing their outputs. (5) Inductor lowers each graph, fuses what it can, and generates Triton or C++ source, which is compiled and cached. (6) The compiled artifact is stored keyed by the guards. THE GUARD SET is worth being concrete about. It includes tensor shapes, dtypes, devices, whether tensors require grad, whether they are contiguous, the types of Python arguments, the values of Python scalars that were used in a way affecting the graph, and the identities of certain objects. That is a lot of conditions, which is why guard misses are more common than people expect. A GUARD MISS. (1) On entry, Dynamo evaluates the guards for each cached entry - this check is fast, it is generated code rather than interpretation. (2) If none match, it recompiles from step 1 with the new conditions and adds another cache entry. (3) If the number of cache entries for that code object exceeds a limit, Dynamo marks the frame as unsuitable and STOPS COMPILING IT - permanently, for the rest of the process, falling back to eager. WHY THE CLIFF EXISTS AND WHY IT IS THE EXPENSIVE FAILURE. The limit is there because unbounded recompilation would be worse - each compile is tens of seconds. But the fallback is silent, so a job with varying sequence lengths can spend two minutes recompiling and then run the remaining ten hours in eager mode while the operator believes it is compiled. The diagnosis is TORCH_LOGS=recompiles, which reports each recompilation with the guard that failed - and that guard names the fix. THE FIXES, in order. dynamic=True, so shapes are symbolic and one graph covers a range. Bucketing or padding inputs so there are few distinct shapes - the same bucketing that fixes allocator fragmentation, which is a nice convergence. Marking specific dimensions dynamic with mark_dynamic rather than making everything symbolic, which keeps specialization where it is valuable. And raising the cache limit, which is a last resort and usually the wrong answer since it treats the symptom."
+          }
+        },
+        {
+          "q": "You compiled your model and saw no speedup. What do you check?",
+          "a": "IN ORDER, because each check is cheap and eliminates a category. CHECK 1: DID IT ACTUALLY COMPILE, or did it fall back? Run with TORCH_LOGS=recompiles. If you see repeated recompilation, and especially if you see the cache limit being hit, Dynamo has reverted to eager for the rest of the run - and you are now SLOWER than if you had never compiled. This is the most consequential possibility and it is silent, which is why it goes first. The cause is varying input shapes, and the fixes are dynamic=True, bucketing shapes, or marking specific dimensions dynamic. CHECK 2: HOW MANY GRAPHS? torch._dynamo.explain reports the graph count, the break count, and the reason and source line for each break. Fusion only happens WITHIN a graph, so a function split into forty graphs gets almost no benefit. The common causes are .item() calls, data-dependent Python branches, prints, and calls into libraries Dynamo cannot trace. Fixing two or three cheap breaks - replacing an if on a tensor value with torch.where, moving a logging call out of the hot path - often recovers most of the benefit. CHECK 3: WAS THE MODEL EVER MEMORY-BOUND? This is the check that determines whether compiling COULD have helped. Fusion reduces bytes moved and not FLOPs, so a model dominated by large matrix multiplies already running near peak has almost nothing to gain. Profile and look at the split between matmul kernels and everything else; if the elementwise and normalization kernels are a small fraction of the time, the ceiling on compile's benefit is that fraction, by Amdahl. This is a prediction you can make BEFORE compiling. CHECK 4: WAS THE JOB INPUT-BOUND? If the GPU was idle waiting for data, making the compute faster changes nothing. Look at device utilization. This is a common and frustrating discovery and it is not a compile problem. CHECK 5: WAS THE BENCHMARK CORRECT? Timing the first iterations includes compilation, which can be tens of seconds and swamps everything. Warm up generously, synchronize around the timing, and measure steady state over many steps. An improperly warmed benchmark can show compilation making the model dramatically slower, which is true and irrelevant. CHECK 6: BATCH SIZE. Launch overhead is a large fraction at small batch and negligible at large, so the launch-reduction half of the benefit varies enormously. If you benchmarked at a large batch and deploy at batch one, or vice versa, the numbers do not transfer. CHECK 7: MODE. The default mode is conservative. reduce-overhead adds CUDA graphs, which eliminates launch overhead entirely and can be a large additional win at small batch - though it requires static shapes. max-autotune benchmarks kernel variants at compile time, costing much more compile time for a faster result. WHAT I WOULD DO WITH THE ANSWERS. If it fell back, fix the shapes. If there are many breaks, fix the cheap ones. If the model was never memory-bound or the job was input-bound, stop - compile is not the lever and the profile has told you which one is. That last outcome is a success, not a failure: you spent ten minutes and learned where the time actually goes."
+        },
+        {
+          "q": "How do graph breaks affect performance, and how do you eliminate them?",
+          "a": "WHY THEY COST. The compiler can only optimize WITHIN a graph. Fusion combines adjacent operations, so a break in the middle of a chain means the operations before and after cannot be fused together and each side pays its own memory round trips. Beyond that, each break has direct overhead: the compiled region must return control to the interpreter, the interpreter executes the problematic operation, and a new compiled region is entered - which involves guard checks and, on GPU, potentially synchronization. And crucially, a break involving .item() or any device-to-host transfer forces a SYNCHRONIZATION, draining the pipeline the CPU had built by running ahead, which costs far more than the operation itself. THE COMMON CAUSES, in the order I meet them. (1) .item(), .cpu(), .tolist(), or printing a tensor - anything that converts a tensor to a Python value. (2) A Python if or while whose condition depends on a tensor value. (3) Calls into libraries Dynamo cannot trace - numpy in some forms, arbitrary third-party code, some custom operations. (4) Certain data structure manipulations and dynamic attribute access. (5) Exceptions and try/except in the hot path. HOW TO FIND THEM. torch._dynamo.explain on your model with real inputs gives the count, the reason for each break, and the source line - this is the tool and it is precise. TORCH_LOGS=graph_breaks logs them during a real run, which catches breaks that only occur on some inputs. HOW TO ELIMINATE THEM. (1) KEEP THE HOT PATH TENSOR-ONLY. Replace an if on a tensor value with torch.where, so the computation stays in the graph. Replace a Python accumulator with a tensor accumulator. This is usually the single most effective change and it also removes the synchronization. (2) MOVE LOGGING AND METRICS OUT of the compiled region, or accumulate on the device and transfer once per interval rather than per step. (3) MARK BOUNDARIES DELIBERATELY. If a section genuinely cannot be compiled, wrap it with torch._dynamo.disable so the break is explicit and where you chose it, rather than discovered. Compiling the sub-modules that are clean rather than the whole model is often better than fighting one untraceable piece. (4) USE torch.cond FOR GENUINE DATA-DEPENDENT CONTROL FLOW that must stay in the graph - it is the supported way to express a branch on a tensor value. (5) SOME BREAKS ARE FINE. A break at the very start or end of a step costs almost nothing, since there is nothing to fuse across it. The ones worth fixing are those in the middle of a chain of elementwise work. THE JUDGEMENT I WOULD APPLY. Count the breaks, look at where they are, and fix the two or three that sit in the middle of the hot path. Chasing every break to zero is usually not worth it - the distribution of benefit is very uneven, and the profile tells you which region has the fusable work. That is the same Amdahl reasoning as everywhere else in this module.",
+          "deepDive": {
+            "q": "What does AOTAutograd do, and why does compiling the backward matter so much?",
+            "a": "THE PROBLEM IT SOLVES. Dynamo captures the FORWARD pass. But in training, the backward pass is roughly twice the forward's cost, so a compiler that only sees the forward can address at most a third of the work. Worse, the backward is generated dynamically by autograd at runtime from the graph the forward built, so there is no static backward function to capture in the ordinary way. WHAT IT DOES. AOTAutograd runs the captured forward graph with special tensors that record autograd operations, producing a JOINT forward-and-backward graph ahead of time. Then it PARTITIONS that joint graph into three things: a forward graph, the set of intermediate tensors that must be saved, and a backward graph consuming them. Both graphs then go to Inductor for fusion and code generation. WHY THE PARTITION IS INTERESTING, and this is the part worth knowing. Choosing what to SAVE versus what to RECOMPUTE in the backward is a genuine optimization, and AOTAutograd solves it as a min-cut problem on the joint graph. Eager autograd saves whatever each operation's backward declares it needs. The partitioner can instead decide that recomputing a cheap elementwise operation in the backward is better than storing its output - trading a little compute for less memory traffic and less memory. That is gradient checkpointing's trade, applied automatically and at fine granularity rather than at segment boundaries. It is a real reason compiled training can use less activation memory than eager, which surprises people who expect a compiler to only change speed. WHY COMPILING THE BACKWARD MATTERS SO MUCH IN PRACTICE. The backward of a fused elementwise chain is itself a chain of elementwise operations, and it is memory-bound for the same reason. Fusing it gives the same factor-of-n reduction in traffic. Since the backward is about two thirds of training time, this is where the majority of torch.compile's training speedup comes from - and it is precisely what TorchScript never provided, which is a large part of why TorchScript was never much use for training. THE COMPLICATION IT INTRODUCES. Because the backward is compiled ahead of time from the joint graph, anything that changes the backward's structure at runtime is a problem - a custom autograd Function historically needed care, hooks may not run where you expect, and double backward has its own handling. These are the places where compiled training has rough edges, and they are all consequences of having decided the backward's shape in advance. THE MENTAL MODEL I WOULD OFFER. Dynamo answers 'what is the program', AOTAutograd answers 'what is the program including its derivative, and what should be stored versus recomputed', and Inductor answers 'what kernels should run'. Three separate questions, three separate components, and the middle one is the reason this stack helps training rather than only inference."
+          }
+        },
+        {
+          "q": "When is torch.compile NOT worth using?",
+          "a": "FIVE CASES, and being able to name them is what distinguishes understanding the trade from enabling it reflexively. CASE 1: THE JOB IS SHORT. Compilation is tens of seconds per graph and per guard configuration, and the saving is a few milliseconds per step, so break-even is in the thousands of steps. An evaluation script, a quick experiment, a unit test, or an interactive session can easily spend more time compiling than it saves. For a long training run the compile cost is noise; for a five-minute job it is the dominant term. CASE 2: THE MODEL IS ALREADY COMPUTE-BOUND ON LARGE MATMULS. Fusion reduces bytes moved, not FLOPs. A model whose time is dominated by big matrix multiplies running near peak has essentially nothing for the compiler to take, and by Amdahl your ceiling is the small fraction spent elsewhere. This is predictable from a profile before you try. CASE 3: THE JOB IS INPUT-BOUND OR COMMUNICATION-BOUND. If the GPU is idle waiting for the data pipeline, or the step is dominated by an all-reduce, making the compute faster changes nothing at all. Again predictable from a profile, and again the finding redirects you to the real bottleneck. CASE 4: SHAPES VARY WIDELY AND CANNOT BE BUCKETED. Then you are in recompilation territory, and past the cache limit Dynamo falls back to eager silently - so you get compile-time cost, no benefit, and a false belief that the model is optimized. dynamic=True mitigates this, and if the variation is extreme it may not be enough. CASE 5: YOU ARE ACTIVELY DEBUGGING. Compiled regions are harder to inspect - print behaves differently, breakpoints do not work as expected, and stack traces are less useful. During development the faster feedback loop of eager mode is usually worth more than the throughput. THE CASES WHERE I WOULD BE CAUTIOUS RATHER THAN NEGATIVE. Custom autograd Functions and hooks have historically had rough edges under compilation, so if your model relies on them heavily, verify carefully. Numerics change slightly because fusion reorders floating-point operations - usually within tolerance, and worth checking rather than assuming, particularly for anything numerically delicate. And in a production deployment I would want the compiled path verified against eager on a golden set, because a fusion that changes results outside tolerance is a correctness issue no speed measurement would reveal. THE DECISION PROCEDURE I WOULD ACTUALLY USE. Profile first and ask whether the signature is one compile can address - many small memory-bound kernels, or a picket fence of launches. If yes, try it; it is one line. Measure steady-state throughput properly with warm-up. Check the graph-break count and fix the cheap ones. Verify numerics. If the profile said the model was matmul-bound or the job was input-bound, skip it and go fix the actual bottleneck. That is the module's discipline applied: know which resource binds before spending anything."
+        },
+        {
+          "q": "How does torch.compile relate to the other capture mechanisms you have seen?",
+          "a": "ALL OF THEM ANSWER THE SAME QUESTION - how do you get a graph out of a Python program - and they differ in what they do when the program is not a graph. That framing organizes the whole comparison. TORCHSCRIPT TRACING runs the model with real tensors and records what executed. It sees actual values, so a data-dependent branch is resolved once and BAKED IN, silently, and shape specialization is often silent too. Failure mode: WRONG. TORCHSCRIPT SCRIPTING compiles the source into a typed IR, so control flow survives - at the cost of accepting only a statically-typed subset of Python. Failure mode: REFUSES. TORCH.FX traces symbolically with Proxy objects. A proxy has no value, so branching on it raises TraceError rather than picking a branch. It produces a Python-level graph designed for TRANSFORMATION - fusing, quantizing, pruning - rather than deployment. Failure mode: LOUDLY INCAPABLE, which is a genuine improvement over tracing. DYNAMO analyses bytecode, captures what it can, inserts a graph break at what it cannot, and GUARDS its specializations, rechecking them per call. Failure mode: LOCALLY INCAPABLE, GLOBALLY CORRECT. TORCH.EXPORT is the deployment-side successor to TorchScript, producing a full-graph ahead-of-time representation with EXPLICIT dynamic shapes - you declare which dimensions vary rather than hoping the trace generalizes - and it FAILS LOUDLY rather than baking in. THE PROGRESSION READ AS A STORY ABOUT FAILURE MODES. The industry converged on the last two because the failure of the first - a silently incorrect deployed artifact - is the worst one available, and being told what your model cannot do is far better than being given something that quietly does the wrong thing. That is the sentence I would want to land. THE RELATIONSHIPS THAT ARE NOT COMPETITION. Dynamo EMITS FX GRAPHS to its backend, so fx was not replaced - it was promoted to being the IR underneath the thing that succeeded it, and demoted from being a capture mechanism, where its static-graph limit was a real problem. And torch.export and torch.compile share machinery: export is essentially Dynamo capture with the requirement that there be no graph breaks, plus explicit dynamic-shape declarations. HOW I WOULD CHOOSE. Speed during training, staying in Python: torch.compile. Rewriting a model - quantization, pruning, feature extraction: fx, because its graph is meant to be edited. Deploying without Python, new project: torch.export then AOTInductor or ExecuTorch. Deploying without Python, existing system: TorchScript, because rewriting has no payoff. A non-PyTorch runtime: ONNX. THE THING THAT MAKES THE COMPARISON USEFUL rather than a list: once you know that the distinguishing question is what happens at the boundary of what is capturable, you can predict a mechanism's failure mode from its design without having used it."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "The torch.compile stack",
+        "back": "DYNAMO: captures graphs from Python BYTECODE + records GUARDS. AOTAUTOGRAD: traces the BACKWARD ahead of time and partitions save-vs-recompute. INDUCTOR: generates kernels (Triton on GPU, C++/OpenMP on CPU)."
+      },
+      {
+        "type": "intuition",
+        "front": "Why Dynamo succeeded where TorchScript did not",
+        "back": "It is allowed to GIVE UP LOCALLY - a graph BREAK rather than failing (scripting) or lying (tracing) - and it GUARDS its specializations, rechecking per call instead of assuming. It is the only one of the three that is never WRONG."
+      },
+      {
+        "type": "formula",
+        "front": "What fusion saves",
+        "back": "n elementwise ops on N elements: 2nN moved unfused -> 2N fused. Speedup ~n when memory-bound. It changes TRAFFIC, not FLOPs - so it helps norms/activations/residual adds and does nothing for a big matmul near peak."
+      },
+      {
+        "type": "pitfall",
+        "front": "The recompile cliff - the expensive silent failure",
+        "back": "Many distinct shapes -> repeated recompilation -> the cache size limit is hit -> Dynamo STOPS COMPILING and runs EAGER for the rest of the job. Slower than never compiling, no error. Check TORCH_LOGS=recompiles."
+      },
+      {
+        "type": "intuition",
+        "front": "Count the graphs first",
+        "back": "A custom backend `(gm, ex) -> gm.forward` captures and compiles NOTHING, so you can count. Or torch._dynamo.explain: graph count, break count, REASON and SOURCE LINE. Fusion only happens WITHIN a graph, so 40 graphs = almost no benefit."
+      },
+      {
+        "type": "pitfall",
+        "front": ".item() is a graph break AND a sync",
+        "back": "It converts a tensor to a Python value, so Dynamo cannot capture the branch that follows - and it drains the pipeline. Fix: keep the hot path tensor-only, `torch.where(x.sum()>0, a, b)` instead of a Python `if`."
+      },
+      {
+        "type": "definition",
+        "front": "Guards",
+        "back": "The conditions a captured graph is valid under: shapes, dtypes, devices, requires_grad, contiguity, argument types, and Python scalar VALUES that affected the trace. Checked every call - which is why guard misses are more common than expected."
+      },
+      {
+        "type": "intuition",
+        "front": "Why AOTAutograd matters most for training",
+        "back": "The backward is ~2/3 of training time and is generated dynamically, so a forward-only compiler addresses at most a third. AOTAutograd traces it ahead of time - and its save-vs-recompute PARTITION is a min-cut that can lower activation memory too."
+      },
+      {
+        "type": "formula",
+        "front": "When compiling pays for itself",
+        "back": "n_steps * delta_t_step > k_compiles * t_compile. At ~tens of seconds to compile and ~ms saved per step, break-even is THOUSANDS of steps - trivial for a training run, easily lost by an eval script. You control k by managing shapes."
+      },
+      {
+        "type": "definition",
+        "front": "The three modes",
+        "back": "default: fusion, safe. reduce-overhead: + CUDA GRAPHS, removing launch overhead entirely - needs STATIC shapes, best at small batch. max-autotune: benchmarks kernel variants at compile time - much slower to compile, faster to run."
+      },
+      {
+        "type": "pitfall",
+        "front": "Verify numerics after compiling",
+        "back": "Fusion REORDERS floating-point operations, so small differences are expected BY DESIGN and a large one is a bug. Compare against eager on real inputs and look at the DISTRIBUTION of differences, not only the max."
+      },
+      {
+        "type": "intuition",
+        "front": "The capture mechanisms, as failure modes",
+        "back": "jit.trace: silently WRONG. jit.script: REFUSES. fx: loudly incapable (TraceError). Dynamo: locally incapable (break), globally correct, guards checked. torch.export: fails loudly, dynamic shapes DECLARED. The field converged on never being wrong."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Ansel et al. (2024), PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation",
+        "url": "https://dl.acm.org/doi/10.1145/3620665.3640366"
+      },
+      {
+        "title": "PyTorch: torch.compiler documentation",
+        "url": "https://pytorch.org/docs/stable/torch.compiler.html"
+      },
+      {
+        "title": "PyTorch: TorchDynamo deep dive - guards, graph breaks and recompilation",
+        "url": "https://pytorch.org/docs/stable/torch.compiler_deepdive.html"
+      },
+      {
+        "title": "PyTorch: torch.compile troubleshooting",
+        "url": "https://pytorch.org/docs/stable/torch.compiler_troubleshooting.html"
+      },
+      {
+        "title": "Triton: an open-source language and compiler for GPU kernels",
+        "url": "https://triton-lang.org/"
+      }
+    ],
+    "demos": [
+      "batching",
+      "kv-cache",
+      "quantization",
+      "moe"
+    ]
+  }
+};

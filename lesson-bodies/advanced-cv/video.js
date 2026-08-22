@@ -1,0 +1,240 @@
+// GENERATED from content/lessons/advanced-cv/video.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/advanced-cv/video/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "video": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "Video is images plus time, and the first surprise is how much of it you get for free: a single well-chosen frame classifies many action datasets almost as well as the full clip, because 'playing guitar' is identifiable from one frame containing a guitar. That is not a triumph, it is a warning - it means benchmark numbers can be high while the model has learned nothing temporal, and for years the field's progress was partly measured on datasets where appearance was a sufficient shortcut. The genuinely temporal questions - did the person pick the cup UP or put it DOWN, is this door opening or closing - are where video understanding actually lives, and they need models that reason about ORDER and MOTION.",
+        "The architectural history is a series of answers to 'how do I add time without paying too much?'. TWO-STREAM networks (2014) sidestepped learning motion entirely by computing OPTICAL FLOW with a classical algorithm and running a second 2D network on it. C3D used full 3D convolutions and was expensive and, crucially, could not inherit ImageNet pretraining. I3D fixed that with INFLATION - copy each 2D kernel across the temporal axis and divide by its length, so the 3D network starts from ImageNet weights. R(2+1)D factorized the 3D kernel into spatial then temporal, which is cheaper and adds a nonlinearity between them. SlowFast used two pathways at different frame rates, encoding the observation that semantics change slowly while motion changes fast. Video transformers now lead, using factorized space-time attention because joint attention over all patches in all frames is quadratic in a very large number.",
+        "The engineering reality is that video is a DATA problem before it is a modelling problem. A minute of 1080p30 is 1,800 frames; decoding is often the training bottleneck rather than the GPU; datasets are enormous and expensive to store and annotate; and the labels are frequently weak (one label for a ten-second clip). That is exactly why self-supervised pretraining took over here faster than in images - VideoMAE and its relatives learn from unlabelled video, of which there is effectively an unlimited supply. And the evaluation trap is worth stating early: always compare against a SINGLE-FRAME baseline, because if your temporal model does not beat it, it is not using time."
+      ],
+      "math": [
+        {
+          "h": "The cost of adding a time axis",
+          "paras": [
+            "A 3D convolution multiplies both the kernel size and the number of positions by the temporal extent, so cost grows with the clip length twice over. Attention is worse: token count is frames times patches, and attention is quadratic in tokens - which is why joint space-time attention is unaffordable and factorization is universal."
+          ],
+          "tex": "\\underbrace{k^3 C_{in}C_{out} \\cdot THW}_{\\text{3D conv}} \\;\\;\\text{vs}\\;\\; \\underbrace{k^2 C_{in}C_{out} \\cdot HW}_{\\text{2D, per frame}}, \\qquad \\underbrace{\\mathcal{O}\\big((T \\cdot N)^2 D\\big)}_{\\text{joint attention}} \\;\\to\\; \\underbrace{\\mathcal{O}\\big(T N^2 D + T^2 N D\\big)}_{\\text{factorized}}",
+          "texNote": "T = frames, N = patches per frame. For T=16 and N=196, joint attention has 3,136 tokens and ~10M attention entries per head; factorizing into spatial-then-temporal reduces this by roughly an order of magnitude and is what every practical video transformer does."
+        },
+        {
+          "h": "Optical flow: the brightness-constancy equation",
+          "paras": [
+            "Classical optical flow assumes a pixel's brightness is unchanged as it moves. Differentiating that assumption gives one linear equation in two unknowns per pixel - the APERTURE PROBLEM - so every method adds a constraint: Lucas-Kanade assumes flow is constant in a small window, Horn-Schunck adds a global smoothness penalty."
+          ],
+          "tex": "I(x, y, t) = I(x + \\Delta x,\\, y + \\Delta y,\\, t + \\Delta t) \\;\\Rightarrow\\; I_x u + I_y v + I_t = 0",
+          "texNote": "u, v = the flow components, I_x, I_y, I_t = image gradients. One equation, two unknowns: locally you can only recover motion PERPENDICULAR to an edge, which is why a moving vertical bar viewed through a small aperture appears to move horizontally regardless of its true direction."
+        }
+      ],
+      "code": [
+        {
+          "h": "The baseline you must beat",
+          "paras": [
+            "Before any temporal architecture, run a single-frame model and a frame-averaging model. If your expensive video model does not clearly beat these, it is not using time - and on several popular benchmarks that has been the embarrassing finding."
+          ],
+          "code": "import torch\n\n@torch.no_grad()\ndef single_frame_baseline(model2d, clip):            # clip: (B, T, C, H, W)\n    mid = clip[:, clip.shape[1] // 2]                 # ONE middle frame\n    return model2d(mid)\n\n@torch.no_grad()\ndef late_fusion_baseline(model2d, clip):\n    B, T = clip.shape[:2]\n    logits = model2d(clip.flatten(0, 1)).view(B, T, -1)\n    return logits.mean(1)                             # average per-frame predictions\n\n# Representative action-recognition results (same backbone, same pretraining):\n#\n#   method                    Kinetics-400   Something-Something-v2\n#   single frame                  70.1              8.9\n#   late fusion (avg 16)          72.4             14.2\n#   3D CNN / video transformer    78.9             67.1\n#                                 ^^^^             ^^^^\n#                            +8.8 over 1 frame  +58 over 1 frame\n#\n# The two datasets tell completely different stories. Kinetics is largely solvable\n# from APPEARANCE (a guitar implies 'playing guitar'), so temporal modelling adds\n# under 9 points. Something-Something is built from ACTION PAIRS that differ only in\n# direction ('pushing X' vs 'pulling X'), so a single frame is near-useless (8.9%)\n# and the whole score IS temporal reasoning. Report the baseline, or you cannot tell\n# which situation you are in.",
+          "caption": "The single-frame baseline is the essential control. On Kinetics it reaches 70% - so a temporal model's headline 79% is mostly appearance; on Something-Something it reaches 9%, so that benchmark genuinely measures temporal reasoning."
+        },
+        {
+          "h": "I3D inflation: inheriting ImageNet weights",
+          "paras": [
+            "The trick that made 3D CNNs practical. Copying a 2D kernel across the temporal axis and dividing by the temporal length means the 3D network, applied to a static (repeated-frame) video, computes EXACTLY what the 2D network computed - so it starts from ImageNet performance rather than from noise."
+          ],
+          "code": "def inflate_conv2d_to_3d(conv2d, time_kernel=3):\n    \"\"\"2D kernel (O,I,H,W) -> 3D (O,I,T,H,W), preserving the function on static video.\"\"\"\n    w2 = conv2d.weight.data                                  # (O, I, H, W)\n    w3 = w2.unsqueeze(2).repeat(1, 1, time_kernel, 1, 1)     # copy across time\n    w3 = w3 / time_kernel                                    # <- divide, so the SUM matches\n    conv3d = nn.Conv3d(conv2d.in_channels, conv2d.out_channels,\n                       (time_kernel, *conv2d.kernel_size),\n                       stride=(1, *conv2d.stride),\n                       padding=(time_kernel // 2, *conv2d.padding), bias=False)\n    conv3d.weight.data = w3\n    return conv3d\n\n# verify the bootstrapping property: on a STATIC clip the 3D net reproduces the 2D net\nimg = torch.randn(1, 3, 64, 64)\nclip = img.unsqueeze(2).repeat(1, 1, 3, 1, 1)                # same frame, repeated\nprint((conv2d(img) - inflate_conv2d_to_3d(conv2d)(clip)[:, :, 1]).abs().max())  # ~1e-7\n\n# why it mattered: C3D (trained from scratch) underperformed two-stream methods for\n# years because video datasets are far smaller than ImageNet. I3D inherited image\n# pretraining and immediately jumped ahead - the constraint was never architectural.",
+          "caption": "Inflation: copy each 2D kernel across time and divide by the temporal extent, so on a static clip the 3D network reproduces the 2D one exactly. This let video models inherit ImageNet pretraining, which is what made 3D CNNs competitive."
+        }
+      ],
+      "useCases": [
+        "Action recognition and video classification - content moderation, sports analytics, media tagging, surveillance - which is the benchmark task and the one where the appearance-versus-motion caveat bites hardest.",
+        "Temporal localization and segmentation: finding WHEN something happens in a long video (highlight detection, ad insertion points, surgical phase recognition), which is a harder and more practical problem than clip classification.",
+        "Tracking and multi-object association: detection per frame plus association over time, where per-frame accuracy matters less than identity consistency - and where per-frame metrics systematically mislead.",
+        "Video-language models and retrieval: captioning, question answering, and search over video, which now dominate the field's attention and where the temporal question becomes 'how many frames can I afford to feed an LLM?'."
+      ],
+      "pitfalls": [
+        "Not reporting a single-frame baseline: on Kinetics-400 one frame reaches ~70% against a video model's ~79%, so most of the headline number is appearance. Without the baseline you cannot tell whether your temporal architecture contributed anything.",
+        "Splitting by frame or by clip instead of by VIDEO: consecutive frames and overlapping clips from the same source are near-duplicates, so a random split leaks badly and inflates results - the same group-leakage problem as patients or users, and it is pervasive in video work.",
+        "Ignoring the data pipeline: decoding video is frequently the training bottleneck rather than the GPU. Pre-decode to frames or a fast format, use hardware decoding, and profile the loader before optimizing the model.",
+        "Evaluating tracking with per-frame detection metrics: mAP is computed per frame and is blind to FLICKER and identity switches, which are what break downstream systems. Use MOTA/IDF1 or a temporal-consistency measure.",
+        "Assuming optical flow is free: two-stream methods owe much of their accuracy to flow, but computing it classically is slow and non-differentiable, which is why the field moved to learning motion implicitly - quoting two-stream results without their flow-computation cost overstates their practicality."
+      ],
+      "connections": [
+        {
+          "ref": "cnn/1d-3d-convolutions",
+          "text": "The 3D convolution cost analysis, the R(2+1)D factorization, and I3D inflation are developed there - this lesson is their application to the video task and its datasets."
+        },
+        {
+          "ref": "advanced-cv/yolo",
+          "text": "Most video pipelines are detection plus association, so the detector's per-frame behaviour - and its temporal instability - is the front end of tracking."
+        },
+        {
+          "ref": "advanced-cv/dino-mae",
+          "text": "VideoMAE extends masked autoencoding to space-time tubes with an even higher mask ratio, and self-supervision matters more here because video labels are scarce and weak."
+        },
+        {
+          "ref": "multimodal/multimodal-fusion",
+          "text": "Video-language models combine frame features with text, where the binding constraint becomes how many frames fit in the context - a token-budget problem rather than a vision one."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why is a single-frame baseline essential in video?",
+          "a": "Because many action datasets are largely solvable from appearance - one frame reaches ~70% on Kinetics-400 versus a video model's ~79%, so without the baseline you cannot tell whether temporal modelling contributed."
+        },
+        {
+          "q": "What is Something-Something designed to test?",
+          "a": "Genuine temporal reasoning: its classes are action pairs differing only in direction ('pushing X' vs 'pulling X'), so a single frame scores ~9% and the whole benchmark measures motion understanding."
+        },
+        {
+          "q": "What is the two-stream architecture?",
+          "a": "One 2D network on RGB frames (appearance) and another on stacked optical FLOW (motion), fused at the end. It sidestepped learning motion by computing it classically."
+        },
+        {
+          "q": "What is I3D inflation?",
+          "a": "Initialize a 3D network from a 2D ImageNet model by copying each kernel across the temporal axis and dividing by its length - so on a static clip it computes exactly the 2D result."
+        },
+        {
+          "q": "Why did C3D underperform?",
+          "a": "Trained from scratch, and video datasets are far smaller than ImageNet - so it could not inherit image pretraining. The constraint was data, not architecture, which inflation then fixed."
+        },
+        {
+          "q": "What is R(2+1)D?",
+          "a": "Factorize a kxkxk convolution into spatial (1,k,k) then temporal (k,1,1): fewer parameters, an extra nonlinearity between them, and the spatial half can start from 2D weights."
+        },
+        {
+          "q": "What is SlowFast?",
+          "a": "Two pathways - a SLOW one at low frame rate with many channels (semantics change slowly) and a FAST one at high frame rate with few channels (motion changes quickly) - with lateral connections."
+        },
+        {
+          "q": "Why factorize attention in video transformers?",
+          "a": "Tokens = frames x patches, and attention is quadratic: 16 frames x 196 patches = 3,136 tokens. Factorizing into spatial-then-temporal attention cuts cost by roughly an order of magnitude."
+        },
+        {
+          "q": "What is optical flow?",
+          "a": "A per-pixel motion field between frames, classically derived from brightness constancy: I_x u + I_y v + I_t = 0 - one equation, two unknowns, hence the aperture problem."
+        },
+        {
+          "q": "What is the aperture problem?",
+          "a": "Locally you can only recover motion PERPENDICULAR to an edge, so a moving bar seen through a small window appears to move perpendicular to itself regardless of its true direction. Every flow method adds a constraint to resolve it."
+        },
+        {
+          "q": "How should video data be split?",
+          "a": "By VIDEO (or by source/session), never by frame or overlapping clip - consecutive frames are near-duplicates, so random splits leak badly and inflate every metric."
+        },
+        {
+          "q": "What is VideoMAE?",
+          "a": "Masked autoencoding for video: mask space-time tubes at a very high ratio (~90%, higher than images because video is even more redundant) and reconstruct. Self-supervision matters more here since labels are scarce."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How do video architectures add temporal modelling, and what does each approach cost?",
+          "a": "THE PROBLEM. Video is a sequence of images, and the naive options are both bad: process frames independently and you lose all temporal information; process the whole clip jointly with 3D operations and the cost multiplies by the clip length twice over (bigger kernels AND more positions). Every architecture is a scheme for getting temporal information affordably. THE FAMILIES, chronologically, and what each cost. (1) SINGLE FRAME / LATE FUSION. Run a 2D CNN per frame and average the predictions. Cheap, inherits image pretraining directly, and is a shockingly strong baseline - about 70% on Kinetics-400 from ONE frame. It captures no temporal order at all, which is why it fails on datasets built to require it. (2) TWO-STREAM (Simonyan and Zisserman, 2014). One 2D network on RGB (appearance), a second on stacked OPTICAL FLOW (motion), fused late. The insight was that motion could be computed by a classical algorithm rather than learned, so no 3D operations were needed. It worked very well and dominated for years. COST: optical flow is expensive to compute (often more expensive than the network), non-differentiable, and a separate preprocessing stage - so the pipeline is awkward and not end-to-end. (3) C3D / FULL 3D CONVOLUTION. Use 3x3x3 kernels throughout. Conceptually clean but expensive, and critically it CANNOT inherit ImageNet pretraining - so despite more capacity it underperformed two-stream, because video datasets are far smaller than image datasets. This is the clearest demonstration that the binding constraint was data rather than architecture. (4) I3D - INFLATION (Carreira and Zisserman, 2017). The fix: initialize a 3D network from a 2D ImageNet model by copying each kernel across the temporal axis and dividing by the temporal extent, so on a static clip the 3D network reproduces the 2D one exactly. Now the model starts from ImageNet performance and only has to learn the temporal part. This single trick made 3D CNNs competitive and is the most important idea in the lineage. (5) FACTORIZED 3D - R(2+1)D and P3D. Replace kxkxk with spatial 1xkxk then temporal kx1x1. Fewer parameters at the same receptive field, an EXTRA NONLINEARITY between the spatial and temporal steps (which the ablations show is where most of the gain comes from), easier optimization, and the spatial half can be initialized from 2D weights. R(2+1)D beats full 3D at matched capacity, which shows the constraint is a better inductive bias rather than merely a cost saving. (6) SLOWFAST (2019). Two pathways with different frame rates and capacities: a SLOW path at low frame rate with many channels (semantic content changes slowly - what objects are present) and a FAST path at high frame rate with few channels (motion changes quickly but needs less representational capacity), joined by lateral connections. This encodes the observation that space and time have different statistics and deserve different sampling - the deepest version of the 'time is not a spatial axis' point. (7) VIDEO TRANSFORMERS - TimeSformer, ViViT, Video Swin. Tokenize space-time patches and apply attention, almost always FACTORIZED (spatial attention then temporal attention) because joint attention over 16 frames x 196 patches = 3,136 tokens is quadratically expensive. Note this is the same factorization idea as R(2+1)D, applied to attention instead of convolution. With large-scale pretraining - especially self-supervised VideoMAE, which solves the label-scarcity problem - these now lead most benchmarks. THE THROUGHLINE worth stating: every successful design either factorizes the space-time operation (cheaper plus extra nonlinearity), treats the two axes asymmetrically (because their statistics differ), or finds a way to inherit or manufacture pretraining. Nobody just scales up 3x3x3 convolutions, because that pays maximum cost for an isotropy assumption that is false and gets no pretraining benefit. AND THE EVALUATION DISCIPLINE that must accompany any of this: report the single-frame and late-fusion baselines. On Kinetics the gap is under 9 points, so most of a video model's score is appearance; on Something-Something the gap is ~58 points, so the benchmark genuinely measures temporal reasoning. Which situation you are in determines whether your architectural work matters at all.",
+          "deepDive": {
+            "q": "Why do so many video benchmarks fail to require temporal reasoning, and how would you build one that does?",
+            "a": "THE PROBLEM, quantified. On Kinetics-400 a single randomly-chosen frame classified by a 2D CNN reaches roughly 70% top-1, while a strong video model reaches roughly 79%. So temporal modelling - the entire justification for 3D convolutions, two-stream networks, and video transformers - contributes under nine points. The reason is that the classes are largely identifiable from APPEARANCE and CONTEXT: 'playing guitar' is implied by a guitar, 'swimming' by a pool, 'skiing' by snow. The label correlates with objects and scenes rather than with motion. This is a SHORTCUT in exactly the sense of the shortcut-learning literature: the model uses the cue that is most predictive and easiest to extract, and on these datasets that cue is static. THE CONSEQUENCES were substantial. For several years, architectural improvements were being measured on a benchmark that could not distinguish temporal modelling from better image features, so gains from bigger backbones and better pretraining were credited to temporal architectures. Papers that reported only the final number, without a frame baseline, were reporting something largely uninformative about the claim they were making. HOW SOMETHING-SOMETHING FIXED IT. The Something-Something dataset (Goyal et al., 2017) is built from templated action descriptions performed with arbitrary objects - 'pushing something from left to right', 'pulling something from right to left', 'putting something into something', 'taking something out of something'. Crucially the classes come in PAIRS that are identical in appearance and differ only in temporal direction or order. A single frame is nearly useless (~9% versus ~67% for a video model), because the objects, scene, and person are the same in both classes of a pair. Reversing the video literally changes the label. That construction is the key idea: make appearance UNINFORMATIVE by design, so the only remaining signal is temporal. HOW I WOULD BUILD ONE, generalizing that principle. (1) DEFINE CLASSES IN PAIRS OR GROUPS THAT SHARE APPEARANCE and differ only in temporal structure - direction (open/close, up/down), order (A-then-B versus B-then-A), speed, or repetition count. (2) DECORRELATE OBJECTS AND SCENES FROM LABELS: use the same object in both classes, and vary objects widely within a class, so object identity carries no label information. (3) VALIDATE THE BENCHMARK ITSELF with adversarial baselines BEFORE releasing it - measure single-frame accuracy, shuffled-frame accuracy, and reversed-video accuracy. If a single frame does well, appearance is a shortcut; if SHUFFLING frames does not hurt, order is not required (a nice, cheap test that many datasets fail); if the model does equally well on reversed clips, direction is not being used. These three ablations are the benchmark's own quality control, and running them is the difference between a dataset that measures what it claims and one that does not. (4) CHECK FOR OTHER SHORTCUTS: camera motion correlating with class, audio leaking the label (if audio is included), clip length or compression artifacts differing systematically between classes. (5) SPLIT BY VIDEO AND BY ACTOR/SOURCE, since near-duplicate leakage inflates everything. THE BROADER LESSON, which is the transferable part: a benchmark measures what it makes NECESSARY, not what it is named after. Before trusting a dataset - yours or anyone else's - run the ablations that would reveal a shortcut, and report the trivial baselines alongside your result. This is the same discipline as the pixel-permutation test for CNNs and the label-shuffle test for leakage: destroy the structure you believe is being used and confirm performance collapses. If it does not, the structure was not being used, and whatever you built to exploit it is not what produced your number."
+          }
+        },
+        {
+          "q": "Explain optical flow: what it is, how it is computed, and its role in modern video models.",
+          "a": "WHAT IT IS. Optical flow is a dense per-pixel MOTION FIELD between two frames: for each pixel, the (u, v) displacement to its corresponding location in the next frame. It is an estimate of apparent motion in the image plane, which is not the same as true 3D motion - a rotating uniform sphere produces zero optical flow because no brightness pattern moves, and a moving shadow produces flow with no object motion at all. THE CLASSICAL FORMULATION. Assume BRIGHTNESS CONSTANCY: a point's intensity does not change as it moves, I(x, y, t) = I(x+dx, y+dy, t+dt). Taking a first-order Taylor expansion gives the optical flow constraint equation I_x*u + I_y*v + I_t = 0 - ONE equation with TWO unknowns per pixel. This underdetermination is the APERTURE PROBLEM: locally you can only recover the flow component PERPENDICULAR to an image gradient, which is why a moving bar viewed through a small aperture appears to move perpendicular to its own orientation regardless of its true direction. Every classical method adds an assumption to close the system. LUCAS-KANADE assumes flow is constant within a small window, giving an overdetermined least-squares problem per window - fast, sparse, and reliable at corners (where the gradient structure is rich, which is exactly what Harris corners detect) and unreliable in uniform regions. HORN-SCHUNCK adds a global SMOOTHNESS penalty on the flow field, giving a dense solution via variational optimization. Both fail on large displacements, which is handled with COARSE-TO-FINE pyramids: estimate flow at low resolution where the displacement is small in pixels, then refine upward. THE LEARNED ERA. FlowNet showed a CNN could regress flow directly, trained on synthetic data (Flying Chairs) because dense flow ground truth is essentially unobtainable in the real world - a nice example of synthetic data being the only option. PWC-Net incorporated classical structure (pyramid, warping, cost volume) into the architecture and was much better. RAFT (2020) is the current reference: it builds an all-pairs correlation volume and iteratively refines the flow field with a recurrent update operator, and it is both more accurate and more robust than everything before it. Learned methods are now faster AND better than classical ones, which was not true a decade ago. ITS ROLE IN VIDEO MODELS - and here the honest answer is that it declined. Two-stream networks depended on flow entirely, and it worked: the flow stream contributed a large share of their accuracy, effectively handing the network motion information it would otherwise have had to learn. But flow computation was expensive (often more than the network itself), non-differentiable, and a separate preprocessing stage that made the pipeline awkward. As 3D CNNs gained ImageNet pretraining via inflation and as datasets grew, models learned motion representations IMPLICITLY and the explicit flow stream stopped being worth its cost. Modern video transformers use no flow at all. WHERE IT IS STILL USED, because it did not disappear: video compression and frame interpolation (where the motion field IS the product); video stabilization; tracking and object association; robotics and visual odometry; and as a supervisory or consistency signal - for instance enforcing temporal consistency in video stylization or segmentation by warping the previous frame's output with flow and penalizing disagreement. That last use is worth remembering, because temporal consistency remains an unsolved problem for per-frame models and flow is the standard tool for it. THE PATTERN I WOULD DRAW: explicitly computing a hand-designed intermediate representation (flow) beat learning it end to end while data was scarce, and lost once data and pretraining were sufficient - the same arc as SIFT versus learned features, and the same trade-off between priors and data that runs through the whole module."
+        },
+        {
+          "q": "How would you build a system to detect a specific action in long untrimmed videos?",
+          "a": "This is TEMPORAL LOCALIZATION rather than clip classification, and it is substantially harder than the benchmark task - which is worth saying explicitly, because most published video work assumes trimmed clips. THE PROBLEM SHAPE. Input: hours of continuous video. Output: time intervals where the action occurs, with confidence. The action may occupy 3 seconds in an 8-hour recording, so the class imbalance is extreme, the temporal boundaries are ambiguous (when exactly does 'opening a door' begin?), and you cannot afford to run an expensive model over everything. STEP 0 - PIN DOWN THE REQUIREMENT. How precisely must boundaries be located - to the second, or is 'somewhere in this 30-second window' enough? What is the cost of a miss versus a false alarm (this sets the operating point and is usually very asymmetric in surveillance or safety settings)? Is it real-time/streaming or offline batch? How much labelled data exists, and at what granularity - full temporal boundaries, or just 'this video contains the action' (weak labels)? THE ARCHITECTURE - a two-stage funnel, mirroring detection. STAGE 1, CHEAP CANDIDATE GENERATION over the whole video: extract features on a sliding window (or per second) with a lightweight model, and produce candidate segments. Options: sliding-window classification with a low threshold; a proposal network trained to predict actionness; or simply frame-level scoring followed by thresholding and grouping contiguous high-scoring regions. Optimize this stage for RECALL - a missed candidate can never be recovered. STAGE 2, EXPENSIVE RESCORING of candidates with a proper video model (a video transformer over the candidate window plus context), which refines both the classification and the boundaries. This is the same recall-then-precision structure as detection, and for the same reason. BOUNDARY REFINEMENT deserves its own attention because it is where the metric is won or lost: regress start and end offsets rather than relying on the window grid, and note that annotation boundaries are themselves noisy (annotators disagree by seconds), which caps achievable precision - so measure inter-annotator agreement on boundaries before setting a target. THE PRACTICAL ENGINEERING. Precompute FEATURES ONCE for the whole video and reuse them across stages and experiments - re-decoding video is the dominant cost and doing it repeatedly will dominate your iteration time. Use a temporal model over the feature sequence (a temporal convolution or transformer over per-second features) rather than re-running the backbone, which is how systems like BMN and ActionFormer are structured. Handle streaming with a sliding buffer and causal models if real-time is required. THE EVALUATION, which differs from classification. Use mAP at temporal IoU thresholds (the standard is averaging over tIoU 0.5:0.05:0.95, analogous to COCO), and report the tIoU breakdown because loose localization and missed detections are different failures. Also report FALSE ALARMS PER HOUR, which is what an operator actually experiences and what determines whether the system is usable - a detector with good mAP and 40 false alarms per hour will be switched off. THE PRACTICAL SHORTCUT WORTH CONSIDERING, and I would raise it early: if labelled temporal boundaries are scarce, WEAKLY-SUPERVISED localization (train on video-level labels, localize via the temporal attention or CAM of the classifier) often gets surprisingly far and requires far cheaper annotation. And if the action has a reliable proxy - a specific object appearing, a sound, a sensor event - a cheap detector on that proxy plus verification may beat an end-to-end video model at a fraction of the cost. Checking for that shortcut before building the full pipeline is worth an afternoon."
+        },
+        {
+          "q": "Why is the data pipeline often the bottleneck in video, and what do you do about it?",
+          "a": "THE ARITHMETIC. One minute of 1080p30 video is 1,800 frames; decoded to raw RGB that is roughly 11 GB per minute. A modest dataset of 200,000 ten-second clips is 60 million frames. Video is stored COMPRESSED (H.264/H.265), and decoding is computationally expensive and inherently SEQUENTIAL within a group of pictures - you cannot jump to an arbitrary frame without decoding from the preceding keyframe. So the loader must decode, seek, resize, and augment at a rate that keeps a GPU fed, and it very often cannot. The symptom is a GPU sitting at 30% utilization while CPU cores are saturated, and the usual response - optimizing the model - makes no difference at all. THE FIXES, roughly in order of impact. (1) PRE-DECODE AND CACHE. Decode once to individual JPEG frames, or to a format designed for random access (short single-clip video files, or a packed binary format like WebDataset/TFRecord shards). Trades disk space for throughput, and disk is cheap relative to GPU time. Decoding JPEGs is far faster than seeking in an H.264 stream. (2) REDUCE WHAT YOU DECODE. Most training samples a handful of frames per clip (8-32), so decoding all 300 frames of a ten-second clip is enormous waste. Sample sparsely - and note that SPARSE SAMPLING (a few frames spread across the clip, as in TSN) works nearly as well as dense sampling for many tasks, which is both an efficiency and a modelling result. Store at the resolution you train at, not the source resolution. (3) HARDWARE DECODING. NVDEC on NVIDIA GPUs, or DALI, moves decoding off the CPU entirely and can be transformative when decoding dominates. (4) PARALLELISM AND PREFETCH: many workers, prefetch queues, pinned memory, and ensuring augmentation happens on the GPU where possible. (5) SHARDED SEQUENTIAL READS rather than random access: WebDataset-style sharding streams large sequential files, which is far friendlier to disk and network storage than random seeks, at the cost of only approximate shuffling (shuffle within a buffer). This matters enormously on cloud object storage, where random small reads are slow and expensive. HOW TO DIAGNOSE, because the fix depends on where the time goes: measure GPU utilization first (if it is low, the model is not the problem), then time the loader in isolation (iterate the dataloader without training and measure samples per second), then profile within the loader to separate decode, resize, and augmentation. This takes twenty minutes and reliably redirects effort. THE STORAGE AND COST DIMENSION, which is a real constraint at scale: video datasets are terabytes, so where the data lives determines the architecture. Streaming from object storage requires sequential sharded formats; local NVMe is fastest but limited; and re-downloading for every experiment is a hidden cost that dominates iteration speed. Budgeting for a local cache of the working subset is usually worth it. THE BROADER POINT worth making in an interview: video is the clearest case in ML where the SYSTEMS problem dominates the modelling problem, and where a researcher who only optimizes the model will be slower than one who profiles the pipeline. The same reasoning applies to any large-data modality - the question 'is my GPU actually busy?' should precede every model-side optimization, and in video the answer is very often no."
+        },
+        {
+          "q": "How do video-language models handle the frame-budget problem?",
+          "a": "THE PROBLEM. To feed video to a language model you tokenize frames - typically with a ViT producing ~196 patch tokens per frame, or a resampler producing fewer. A one-minute clip at even 1 frame per second is 60 frames; at 196 tokens each that is 11,760 tokens for a MINUTE of video, before any text. A ten-minute video is unaffordable, and attention is quadratic in the total. So every video-language model is fundamentally answering 'how do I spend a fixed token budget across time?'. THE STRATEGIES. (1) SPARSE FRAME SAMPLING - the simplest and still the most common. Sample N frames uniformly (N = 8, 16, 32) regardless of video length. Cheap and surprisingly effective for questions about global content, and terrible for anything requiring fine temporal detail or a specific moment - if the answer is in a frame you did not sample, no amount of model quality helps. (2) TOKEN REDUCTION PER FRAME - the highest-leverage lever. A PERCEIVER RESAMPLER or Q-Former (as in Flamingo and BLIP-2) uses a fixed set of learned latent queries that cross-attend to the frame's patch tokens, compressing 196 tokens to, say, 32 or 64 regardless of resolution. Token merging and pooling do similar work more cheaply. This decouples the token budget from the frame count and is what makes longer videos tractable. (3) TEMPORAL POOLING AND MERGING: average or attention-pool tokens across adjacent frames, exploiting the fact that consecutive frames are highly redundant - most tokens barely change, so paying full price for each is wasteful. Some methods explicitly merge similar tokens across time. (4) HIERARCHICAL / TWO-STAGE PROCESSING: a cheap pass over the whole video to find relevant segments, then a detailed pass over those - the same retrieve-then-rerank funnel as everywhere else, applied to time. This is the most promising direction for long videos and is essentially temporal retrieval. (5) MEMORY AND STREAMING architectures that maintain a compressed running state rather than attending over all frames, which is necessary for genuinely long or unbounded video. (6) LONG-CONTEXT MODELS: just use a model with a very large context and accept the cost - viable now for moderate lengths and still quadratic. THE HONEST STATE OF THE ART, which I would be careful to convey: video-language models are much weaker at TEMPORAL reasoning than their benchmark numbers suggest. Many video QA benchmarks are answerable from a single frame plus language priors, so a model that samples 8 frames and essentially ignores order can score well - the same appearance-shortcut problem as action recognition, one level up. The diagnostic is the same: report the single-frame baseline, and test with questions whose answers depend on ORDER ('did she pick it up before or after...'). Benchmarks built to require temporal reasoning show a much larger gap between models and humans than the headline video-QA numbers imply. AND THE PRACTICAL ADVICE for building such a system: decide first whether your questions genuinely need fine temporal resolution. If they are about content ('what is in this video'), sparse sampling with a strong image encoder is efficient and sufficient. If they are about events, order, or a specific moment, you need retrieval over time - find the relevant segment first, then analyse it densely - because uniformly spreading a fixed budget over a long video guarantees you miss the moment that matters."
+        },
+        {
+          "q": "Your action recognition model scores 78% but fails in deployment. What went wrong?",
+          "a": "I would work through five hypotheses, ordered by how often they turn out to be the answer. (1) THE SPLIT LEAKED - check first, because it is cheap and common. Were clips from the same source VIDEO in both train and test? Overlapping clips, or different clips from one recording, are near-duplicates: same actor, lighting, camera, background. A model can score highly by recognizing the recording rather than the action. Diagnostic: re-split strictly by video (better, by actor or by recording session) and re-evaluate. If 78% collapses, you have found it, and the model was never as good as reported. (2) THE BENCHMARK DID NOT MEASURE WHAT YOU NEED - the video-specific trap. If your training data is Kinetics-like, a large share of that 78% is APPEARANCE: the model recognizes the guitar, the pool, the ski slope. Deployment in a setting where the scene does not disambiguate the action (a single fixed camera in one room, where every action shares a background) removes the shortcut and performance collapses. Diagnostic: measure the single-frame baseline on YOUR deployment data - if a single frame does nearly as well in training and much worse in deployment, appearance was carrying the model. This is the most under-diagnosed cause in video and worth checking early. (3) DOMAIN SHIFT in the concrete sense: different camera angle, mounting height, frame rate, resolution, compression, lighting, or actor demographics than the training footage. Video models are notably sensitive to viewpoint, since the same action from overhead versus eye level looks entirely different and datasets are typically shot from a narrow range of angles. Diagnostic: hand-annotate a few hundred clips from actual deployment footage and evaluate - that number is the truth, and comparing it to the test number quantifies the shift. (4) THE TASK IS DIFFERENT FROM THE BENCHMARK TASK. Benchmarks use TRIMMED clips containing exactly one action; deployment is untrimmed continuous video where the model must also decide WHEN something happens and reject the overwhelming majority of frames containing nothing of interest. A classifier trained on trimmed clips has never seen 'no action' and will confidently classify background as something. This is a mismatch of problem formulation rather than of accuracy, and the fix is to reformulate as temporal localization with an explicit background class, not to improve the classifier. (5) TEMPORAL AND OPERATING-POINT ISSUES: the model runs per-clip with a sliding window and produces flickering, inconsistent predictions that a downstream rule cannot use; or the confidence threshold was inherited from the benchmark configuration rather than tuned for the deployment's cost structure. HOW I WOULD SEQUENCE IT: annotate a few hundred deployment clips and evaluate on them (highest-information action, and it separates 'evaluation was wrong' from 'world is different'); re-split by video and re-evaluate the original test set; compute the single-frame baseline on both sets; then check the formulation (trimmed versus untrimmed) and the operating point. THE FIX will usually be some combination of: fine-tune on annotated deployment footage (a few hundred clips often suffices and is the highest-return action); reformulate as localization with a background class; add temporal smoothing or require N-frame consistency; and re-tune the threshold on realistic footage. AND THE PROCESS CHANGE I would push for: the standard evaluation should include untrimmed deployment-like footage split by recording, with the single-frame baseline reported alongside - because the current setup optimized a proxy that did not predict the outcome, and it will keep doing so until the evaluation matches the deployment."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "pitfall",
+        "front": "Always report the single-frame baseline",
+        "back": "Kinetics-400: one frame ~70% vs video model ~79% - most of the score is APPEARANCE. Something-Something: one frame ~9% vs ~67% - genuinely temporal. Without the baseline you cannot tell which you have."
+      },
+      {
+        "type": "formula",
+        "front": "Cost of adding time",
+        "back": "3D conv: k^3*C_in*C_out*THW (kernel AND positions grow). Attention: tokens = T*N, cost quadratic - 16 frames x 196 patches = 3,136 tokens. Hence factorized space-then-time attention everywhere."
+      },
+      {
+        "type": "definition",
+        "front": "I3D inflation",
+        "back": "Copy each 2D kernel across the temporal axis and DIVIDE by its length, so on a static clip the 3D net reproduces the 2D net exactly. Let video models inherit ImageNet pretraining - the constraint was data, not architecture."
+      },
+      {
+        "type": "definition",
+        "front": "The architecture lineage",
+        "back": "Two-stream (RGB + classical optical flow) -> C3D (full 3D, no pretraining, underperformed) -> I3D (inflation) -> R(2+1)D (factorized, extra nonlinearity) -> SlowFast (asymmetric pathways) -> video transformers + VideoMAE."
+      },
+      {
+        "type": "formula",
+        "front": "Optical flow constraint",
+        "back": "Brightness constancy gives I_x*u + I_y*v + I_t = 0 - ONE equation, TWO unknowns per pixel. Hence the APERTURE PROBLEM: locally you recover only motion perpendicular to an edge. Lucas-Kanade adds a window assumption; Horn-Schunck adds smoothness."
+      },
+      {
+        "type": "intuition",
+        "front": "Why explicit flow declined",
+        "back": "Two-stream depended on it, but flow is expensive, non-differentiable, and a separate stage. Once inflation gave 3D CNNs pretraining and data grew, models learned motion implicitly. Flow survives in compression, interpolation, tracking, and temporal-consistency losses."
+      },
+      {
+        "type": "pitfall",
+        "front": "Split by VIDEO, never by frame or clip",
+        "back": "Consecutive frames and overlapping clips are near-duplicates - same actor, lighting, camera. A random split lets the model recognize the RECORDING. Split by video, better by actor/session."
+      },
+      {
+        "type": "pitfall",
+        "front": "The data pipeline is usually the bottleneck",
+        "back": "Decoding is expensive and sequential within a GOP. Check GPU utilization FIRST - if it is 30%, the model is not the problem. Fixes: pre-decode to frames/shards, sparse frame sampling, NVDEC/DALI, sequential sharded reads."
+      },
+      {
+        "type": "intuition",
+        "front": "Trimmed vs untrimmed",
+        "back": "Benchmarks use trimmed clips with exactly one action; deployment is continuous video needing WHEN plus a background class. A model never trained on 'nothing happening' will confidently label background - a formulation mismatch, not an accuracy problem."
+      },
+      {
+        "type": "intuition",
+        "front": "Video-LM frame budget",
+        "back": "196 tokens/frame x 60 frames = ~12k tokens per MINUTE. Strategies: sparse sampling, per-frame token reduction (Perceiver resampler / Q-Former to ~32), temporal merging, and hierarchical retrieve-then-analyse over time."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Carreira & Zisserman (2017), Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset (I3D)",
+        "url": "https://arxiv.org/abs/1705.07750"
+      },
+      {
+        "title": "Feichtenhofer et al. (2019), SlowFast Networks for Video Recognition",
+        "url": "https://arxiv.org/abs/1812.03982"
+      },
+      {
+        "title": "Goyal et al. (2017), The 'Something Something' Video Database for Learning and Evaluating Visual Common Sense",
+        "url": "https://arxiv.org/abs/1706.04261"
+      },
+      {
+        "title": "Tong et al. (2022), VideoMAE: Masked Autoencoders are Data-Efficient Learners for Self-Supervised Video Pre-Training",
+        "url": "https://arxiv.org/abs/2203.12602"
+      }
+    ],
+    "demos": [
+      "optical-flow",
+      "convolution",
+      "attention"
+    ]
+  }
+};

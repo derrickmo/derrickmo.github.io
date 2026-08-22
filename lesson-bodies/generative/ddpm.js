@@ -1,0 +1,179 @@
+// GENERATED from content/lessons/generative/ddpm.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/generative/ddpm/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "ddpm": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are the two processes in a diffusion model?",
+          "a": "A fixed forward process that adds Gaussian noise over T steps until the data is pure noise, and a learned reverse process that removes it one step at a time."
+        },
+        {
+          "q": "Why is the forward process fixed rather than learned?",
+          "a": "Because it has no parameters to get wrong and it gives a closed form. There is nothing to train and nothing to destabilize — all the modelling capacity goes into the reverse."
+        },
+        {
+          "q": "State the closed form for x_t.",
+          "a": "x_t = sqrt(alpha_bar_t) x_0 + sqrt(1 - alpha_bar_t) eps, with alpha_bar_t the cumulative product of (1 - beta). Any noise level is one step from the data."
+        },
+        {
+          "q": "Why does that closed form matter so much practically?",
+          "a": "It makes training O(1) per sample: draw a random t, jump straight to x_t, predict the noise. Without it you would have to simulate t steps for every training example."
+        },
+        {
+          "q": "What does the network actually predict?",
+          "a": "Usually the noise eps that was added. Equivalent parameterizations predict x_0 or the velocity v; eps-prediction gives the best-conditioned loss across noise levels in practice."
+        },
+        {
+          "q": "What is the training loss?",
+          "a": "Plain MSE between the true and predicted noise, at a uniformly sampled timestep. The full variational bound reduces to this up to weighting, and the simplified unweighted version works better."
+        },
+        {
+          "q": "Why a U-Net?",
+          "a": "The task is image-to-image at the same resolution — noisy in, noise out — so you want a multi-scale encoder-decoder with skips that preserve spatial detail. Attention blocks get added at low resolutions for global coherence."
+        },
+        {
+          "q": "How does the model know the noise level?",
+          "a": "The timestep is embedded — sinusoidal, then an MLP — and injected into every block. One network handles all noise levels, and it must, since the task is very different at t=1 and t=T."
+        },
+        {
+          "q": "Why is sampling slow?",
+          "a": "The reverse process is sequential by construction: T network evaluations, historically 1000. Nothing about it parallelizes across steps."
+        },
+        {
+          "q": "How do you get from 1000 steps to 20?",
+          "a": "DDIM makes the sampler deterministic and non-Markovian so you can skip steps, and higher-order ODE solvers do better with the same budget. No retraining is needed — it is a discretization choice."
+        },
+        {
+          "q": "Diffusion versus GAN, briefly?",
+          "a": "Diffusion trades sampling speed for mode coverage and training stability. A GAN samples in one pass and can collapse; diffusion covers the distribution and pays per sample."
+        },
+        {
+          "q": "What is classifier-free guidance?",
+          "a": "Train conditionally and unconditionally in one model by dropping the condition sometimes, then extrapolate at sampling: eps = eps_uncond + w(eps_cond - eps_uncond). It trades diversity for prompt adherence."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Derive the training objective and explain why the simple MSE is what people actually use.",
+          "a": "Start from the variational bound on the log-likelihood, as with a VAE, treating the noisy latents as the latent variables. Because the forward process is fixed Gaussian and Markovian, the bound decomposes into a sum of KL divergences between the true reverse posterior q(x_{t-1} | x_t, x_0) and the learned p(x_{t-1} | x_t) at each step, plus boundary terms. Both distributions are Gaussian, so each KL has a closed form and reduces to a weighted squared difference between the two means. Reparameterizing the mean in terms of the noise turns each term into a weighted MSE between the true eps and the predicted eps, with a coefficient depending on the noise schedule. Ho et al.'s empirical finding was that DROPPING that weighting — training the unweighted MSE at a uniformly sampled t — produced markedly better samples. The interpretation is that the principled weights down-weight the high-noise steps, which are exactly the steps that determine global structure, so the unweighted loss implicitly re-balances the objective toward the parts of the trajectory that matter perceptually. That is worth being able to say precisely, because it is a case where the theoretically-derived objective is not the one that works, and the reason is a mismatch between likelihood and perceptual quality rather than a flaw in the derivation.",
+          "deepDive": {
+            "q": "How does this connect to score matching?",
+            "a": "They are the same thing in different notation. The score of the noised distribution is grad log q(x_t), and for the Gaussian forward process that equals -eps / sqrt(1 - alpha_bar_t) — an identity, not an approximation. So a network trained to predict eps is a scaled score estimator, and DDPM is denoising score matching at multiple noise levels. Song and Ermon's continuous-time SDE view unifies both: the forward process is an SDE, the reverse is the corresponding reverse-time SDE driven by the score, and DDPM and score-based models are two discretizations of it."
+          }
+        },
+        {
+          "q": "Why is sampling slow, and what actually fixes it?",
+          "a": "The reverse process is a chain: producing x_{t-1} requires x_t, so the T evaluations are strictly sequential and no amount of hardware parallelizes across them. With T = 1000 that is a thousand full U-Net forward passes for one image, which is why a model that trains comparably to a GAN samples orders of magnitude slower. Three families of fix, and they are genuinely different. The first is better discretization, and it is free: DDIM reinterprets the reverse process as a deterministic non-Markovian one whose marginals match, which means you can take large strides through the trajectory without retraining, and higher-order solvers — DPM-Solver and friends — treat the reverse process as an ODE and apply standard numerical integration to get good samples in 10 to 20 steps. Nothing about the model changes; the sampler was simply using the crudest possible integrator. The second is distillation, which does change the model: progressive distillation repeatedly trains a student to take two teacher steps in one, halving the count each round, and consistency models train a network to map any point on a trajectory directly to its endpoint, reaching one to four steps. The third is changing what you diffuse in rather than how you sample: latent diffusion runs the whole process in a compressed autoencoder space where each step is roughly fifty times cheaper, which multiplies with everything else. In practice production systems use all three.",
+          "deepDive": {
+            "q": "If DDIM is free, why was DDPM ever used with 1000 steps?",
+            "a": "Because the original formulation is a Markov chain whose reverse steps were derived assuming you take all of them, and the stochastic sampler needs small steps to stay accurate. DDIM's contribution was noticing that a whole family of non-Markovian forward processes shares the same marginals — so the SAME trained network is valid under a different sampler with fewer, larger, deterministic steps. It is a reinterpretation of the trained model, which is why it applies retroactively to models trained before it existed."
+          }
+        },
+        {
+          "q": "Explain classifier-free guidance and the trade it makes.",
+          "a": "Train one network on both the conditional and unconditional task by randomly dropping the conditioning — replacing the text embedding with a null token maybe 10% of the time. At sampling, evaluate both and extrapolate: eps = eps_uncond + w (eps_cond - eps_uncond). At w = 1 you get the ordinary conditional model; above that you are moving further along the direction that conditioning adds, which sharpens prompt adherence. Interpreted as sampling, it is drawing from a distribution proportional to p(x) p(c|x)^w — you are over-weighting the likelihood of the condition, which is why it is not a free improvement. The trade shows up in two measurable places. Diversity falls as w rises: outputs become more prototypical and less varied, which is the same mode-seeking behaviour that makes the pictures look better and the distribution narrower. And the FID-versus-CLIP-score frontier reveals the disagreement directly — FID is typically minimized around w of 1 to 3, while human preference peaks much higher, around 7 or 8. That gap is the honest headline: guidance strength is a knob tuned to a perceptual objective that the standard distributional metric actively disagrees with, so reporting a single FID for a guided model without stating w is close to meaningless. The other practical detail is that high guidance pushes predictions out of range and produces saturation artifacts, which is what dynamic thresholding exists to fix."
+        },
+        {
+          "q": "How do you evaluate a diffusion model?",
+          "a": "Carefully, because the standard metric is weaker than its ubiquity suggests. FID compares Gaussian fits to Inception features of real and generated sets — it is sensitive to both quality and diversity, which is its main virtue over Inception Score, and it has real problems: it depends on the sample count, so numbers computed with different N are not comparable; it inherits ImageNet-classifier biases, so it is measuring similarity in a feature space that was not designed for this; and it is a distributional score that says nothing about any individual sample. For a conditional model the crucial point is that a single number cannot capture the guidance trade at all, so the right report is a FRONTIER: sweep w and plot FID against a prompt-adherence measure like CLIP score, then compare models by whose curve dominates. Beyond that, evaluate what the metric structurally cannot see — mode coverage via precision and recall for generative models, or coverage of known attributes if you have labelled structure; memorization, since diffusion models can reproduce training images and that is both a quality and a legal question, checked by nearest-neighbour retrieval against the training set; and human evaluation for anything user-facing, because the FID-preference gap means the automatic metric is measuring a different thing from the one you ship on."
+        },
+        {
+          "q": "Where does the diffusion formulation fail or need modification?",
+          "a": "Three places worth knowing. First, discrete data: the whole construction rests on adding Gaussian noise, which does not exist for text or graphs. Discrete diffusion replaces it with a corruption process over categories — masking or transition matrices — and it works, but it lost the elegant closed form and has not displaced autoregressive models for text. Second, the noise schedule matters more than it appears and the standard linear schedule has a specific defect: at the final timestep the signal-to-noise ratio is not actually zero, so the model is trained expecting a faint trace of the image and at sampling time is given pure noise — a train-test mismatch that biases generated images toward the average brightness of the training set. Zero-terminal-SNR schedules fix it, and it is a good example of a subtle assumption failing quietly. Third, the perceptual-versus-likelihood tension runs through everything: the unweighted loss, guidance, and the choice of latent space are all decisions that improve samples while making the likelihood worse, so a diffusion model tuned for images is not the model you would build to estimate densities. If the application genuinely needs calibrated likelihoods — anomaly detection, compression — a normalizing flow or an autoregressive model is the better tool, and that is the honest boundary of the method."
+        },
+        {
+          "q": "You are asked to build image generation for a product. What do you actually build?",
+          "a": "Almost certainly not a diffusion model from scratch. Start from an open pretrained latent diffusion checkpoint, because the expensive part — a text encoder and a base model trained on hundreds of millions of pairs — is already done and reproducing it is a compute budget nobody approves. The work is then adaptation and serving. For adaptation, LoRA on the attention projections handles style and subject with a few dozen images and produces a small artifact you can swap per user or per brand, which matters for economics as much as quality; full fine-tuning is for a genuine domain shift and needs far more data and care. For control beyond text, ControlNet-style conditioning on edges, depth or pose is the standard answer, and it is what most product requirements actually want when they say 'consistent'. For serving, the levers in order: run in latent space, use a modern ODE solver at 20 to 30 steps rather than the naive 1000, batch aggressively since diffusion is compute-bound and batches well unlike LLM decode, and consider a distilled few-step model if latency is the binding constraint. Then the parts nobody puts in the design and everybody needs: a safety classifier on both prompt and output, provenance metadata on generated images, and a decision about training-data licensing — which for a commercial product is a real constraint on which checkpoint you are allowed to start from."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "Forward process closed form",
+        "back": "x_t = sqrt(alpha_bar_t) x_0 + sqrt(1 - alpha_bar_t) eps. Any noise level in one step, which is what makes training O(1) per sample."
+      },
+      {
+        "type": "formula",
+        "front": "Training loss",
+        "back": "E ||eps - eps_theta(x_t, t)||^2 at uniformly sampled t. The variational bound reduces to this up to a weighting that works better dropped."
+      },
+      {
+        "type": "intuition",
+        "front": "Why the fixed forward process helps",
+        "back": "No parameters to learn or destabilize, and it yields a closed form. All capacity goes to the reverse process."
+      },
+      {
+        "type": "formula",
+        "front": "eps and the score",
+        "back": "grad log q(x_t) = -eps / sqrt(1 - alpha_bar_t). An identity — so eps-prediction IS a scaled score estimator and DDPM is multi-level denoising score matching."
+      },
+      {
+        "type": "formula",
+        "front": "Classifier-free guidance",
+        "back": "eps = eps_uncond + w(eps_cond - eps_uncond). Samples from p(x)p(c|x)^w — over-weighting the condition, which is why diversity falls."
+      },
+      {
+        "type": "intuition",
+        "front": "Why DDIM is retroactive",
+        "back": "A family of non-Markovian forward processes shares the same marginals, so the SAME trained network is valid under a deterministic few-step sampler. A reinterpretation, not a retrain."
+      },
+      {
+        "type": "intuition",
+        "front": "Three ways to speed up sampling",
+        "back": "Better integrator (free), distillation (changes the model), latent space (changes what you diffuse). They multiply, and production uses all three."
+      },
+      {
+        "type": "definition",
+        "front": "Timestep embedding",
+        "back": "Sinusoidal embedding plus MLP, injected into every block. One network covers all noise levels, and it must — the task at t=1 and t=T is very different."
+      },
+      {
+        "type": "pitfall",
+        "front": "Quoting FID for a guided model",
+        "back": "FID is minimized around w=1-3 while human preference peaks near 7-8. A single FID without stating w is close to meaningless — report the frontier."
+      },
+      {
+        "type": "pitfall",
+        "front": "Comparing FID across sample counts",
+        "back": "FID depends on N and on the Inception feature space. Different N means different numbers; it also says nothing about any individual sample."
+      },
+      {
+        "type": "pitfall",
+        "front": "Linear schedule terminal SNR",
+        "back": "Final-step SNR is not zero, so the model trains expecting a faint image trace and samples from pure noise. Biases outputs toward mean brightness; zero-terminal-SNR fixes it."
+      },
+      {
+        "type": "pitfall",
+        "front": "Using diffusion for likelihoods",
+        "back": "The unweighted loss, guidance and latent space all improve samples while worsening likelihood. For calibrated densities use a flow or an autoregressive model."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Ho, Jain & Abbeel (2020) — Denoising Diffusion Probabilistic Models",
+        "url": "https://arxiv.org/abs/2006.11239"
+      },
+      {
+        "title": "Song, Meng & Ermon (2020) — Denoising Diffusion Implicit Models (DDIM)",
+        "url": "https://arxiv.org/abs/2010.02502"
+      },
+      {
+        "title": "Ho & Salimans (2022) — Classifier-Free Diffusion Guidance",
+        "url": "https://arxiv.org/abs/2207.12598"
+      },
+      {
+        "title": "Song et al. (2021) — Score-Based Generative Modeling through SDEs",
+        "url": "https://arxiv.org/abs/2011.13456"
+      },
+      {
+        "title": "Lin et al. (2023) — Common Diffusion Noise Schedules and Sample Steps are Flawed",
+        "url": "https://arxiv.org/abs/2305.08891"
+      }
+    ],
+    "demos": []
+  }
+};

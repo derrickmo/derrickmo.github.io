@@ -1,0 +1,242 @@
+// GENERATED from content/lessons/supervised-learning/model-comparison.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/supervised-learning/model-comparison/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "model-comparison": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "This lesson is the capstone of the classical-ML module: given a problem and the toolbox of algorithms from the previous lessons, how do you actually choose? The uncomfortable but liberating answer is the No Free Lunch theorem - averaged over all possible problems, no algorithm beats any other. There is no universally best model; the right choice depends on the structure of your specific data, which means model selection is an empirical question answered by disciplined measurement, not by loyalty to a favorite algorithm.",
+        "The tool that makes that measurement honest is cross-validation. A single train/test split gives one noisy estimate of performance that depends heavily on which examples happened to land in the test set; k-fold cross-validation rotates every example through the test position exactly once, averaging k estimates to get a lower-variance, more trustworthy number - plus a spread that tells you how uncertain that number is. Comparing models means comparing their cross-validated scores with that uncertainty in mind, not their single-split scores.",
+        "The deepest trap in model selection is that the act of selecting biases your estimate of how good the winner is. If you try 40 model/hyperparameter combinations and report the cross-validation score of the best one, that score is optimistic - you've picked the maximum over noisy estimates, so some of the 'winner's' apparent superiority is just luck. Nested cross-validation and a held-out-once test set exist precisely to give an honest final number after all the selecting is done. Getting this right is the difference between a model that works in the notebook and one that works in production."
+      ],
+      "math": [
+        {
+          "h": "k-fold cross-validation reduces the variance of the estimate",
+          "paras": [
+            "A single split estimates generalization error from one test set; k-fold averages k such estimates, each using a different fold as the test set, so every example is tested exactly once. Averaging k estimates lowers the variance of the performance estimate (roughly by a factor related to k), and the spread across folds is itself an estimate of that uncertainty."
+          ],
+          "tex": "\\widehat{\\text{err}}_{CV} = \\frac{1}{k}\\sum_{j=1}^{k} \\text{err}\\big(\\text{model trained on all folds but } j,\\; \\text{tested on fold } j\\big)",
+          "texNote": "Every example serves in the test fold exactly once; the mean is a lower-variance error estimate and the fold-to-fold spread quantifies its uncertainty."
+        },
+        {
+          "h": "Selection bias: the maximum over noisy estimates is optimistic",
+          "paras": [
+            "If you evaluate M candidate models, each cross-validation score is the true error plus noise; taking the best (minimum error) among M noisy estimates systematically underestimates the true error of the selected model, because you're partly selecting on favorable noise. The more candidates you try, the larger this optimism - which is why the selection score is not an honest performance estimate."
+          ],
+          "tex": "\\mathbb{E}\\big[\\min_m \\widehat{\\text{err}}_m\\big] \\;<\\; \\min_m \\mathbb{E}\\big[\\widehat{\\text{err}}_m\\big] \\qquad \\text{(optimism grows with the number of candidates } M)",
+          "texNote": "The expected minimum of noisy estimates is below the true minimum - selecting the best of many candidates capitalizes on favorable noise, so the winner's CV score is biased low."
+        }
+      ],
+      "code": [
+        {
+          "h": "Comparing algorithms with cross-validation and its spread",
+          "paras": [
+            "The right way to compare: cross-validated mean AND standard deviation for each candidate, so a difference is judged against the noise, not taken at face value."
+          ],
+          "code": "import numpy as np\nfrom sklearn.datasets import load_iris\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.svm import SVC\nfrom sklearn.model_selection import cross_val_score\n\nX, y = load_iris(return_X_y=True)\nmodels = {'logreg': LogisticRegression(max_iter=1000),\n          'rf': RandomForestClassifier(random_state=0),\n          'svm': SVC()}\n\nfor name, m in models.items():\n    scores = cross_val_score(m, X, y, cv=10)\n    print(f'{name}: {scores.mean():.3f} +/- {scores.std():.3f}')  # compare means AGAINST the spread",
+          "caption": "Report mean +/- std across folds - a 0.01 gap inside a +/- 0.03 spread is not a real difference. Never compare single-split numbers."
+        },
+        {
+          "h": "Nested CV for an honest estimate after tuning",
+          "paras": [
+            "Hyperparameter tuning must happen inside an inner loop; the outer loop scores the fully-tuned pipeline on data it never touched during tuning - the only way to get an unbiased number after selecting."
+          ],
+          "code": "from sklearn.model_selection import GridSearchCV, cross_val_score\nfrom sklearn.svm import SVC\n\n# inner loop: tune C and gamma; outer loop: honest performance of the whole tuning procedure\ninner = GridSearchCV(SVC(), {'C': [0.1, 1, 10], 'gamma': ['scale', 0.01, 0.1]}, cv=5)\nnested_scores = cross_val_score(inner, X, y, cv=5)   # outer CV wraps the tuning\n\nprint('nested CV score:', nested_scores.mean().round(3))\n# this is the honest estimate; the inner GridSearchCV's own best_score_ would be optimistic",
+          "caption": "The outer cross_val_score never sees the data used to pick C and gamma - so its number isn't inflated by the selection, unlike GridSearchCV.best_score_."
+        }
+      ],
+      "useCases": [
+        "Every real project's model-selection phase: systematically comparing candidate algorithms and hyperparameters on cross-validated metrics is the disciplined core of applied ML.",
+        "Deciding whether a heavier model (gradient boosting, a neural net) is worth its cost over a simple baseline - the comparison must be on honest held-out numbers with uncertainty, not a single lucky split.",
+        "Take-home assignments and ML interviews, where demonstrating leak-free validation, appropriate metrics, and honest uncertainty is often what actually distinguishes a strong candidate (25-10).",
+        "Detecting when a reported improvement is real versus noise or selection bias - the same discipline underlies A/B testing (23-07) and staying current with the literature (22-10)."
+      ],
+      "pitfalls": [
+        "Comparing models on a single train/test split: the number is noisy and split-dependent, so a 'winner' can flip with a different random seed - use k-fold cross-validation and compare means against their spread.",
+        "Leaking test information into training: fitting scalers, imputers, feature selection, or hyperparameters on the full dataset before splitting inflates every fold's score - all fitting must happen inside the training fold (25-10's leakage trap).",
+        "Reporting the selection score as the performance estimate: the cross-validation score of the best-of-many candidates is optimistically biased - use nested CV or a final held-out test set touched exactly once for the honest number.",
+        "Ignoring the uncertainty of the estimate: a 0.5% cross-validation gain within a 2% fold-to-fold spread is not a real difference - report confidence intervals and, when it matters, a paired significance test.",
+        "Wrong CV scheme for the data structure: plain k-fold leaks across time (use time-series splits) or across groups (use grouped CV when rows share a subject/user), silently inflating scores for temporally or hierarchically correlated data."
+      ],
+      "connections": [
+        {
+          "ref": "supervised-learning/linear-regression",
+          "text": "The bias-variance tradeoff introduced with regularization is the lens for why different algorithms win on different data - model selection is choosing the right point on that spectrum."
+        },
+        {
+          "ref": "supervised-learning/ensembles",
+          "text": "Stacking's out-of-fold procedure is cross-validation used to prevent leakage - the same discipline this lesson centers on, applied to combining models."
+        },
+        {
+          "ref": "interview-capstone/portfolio-capstone",
+          "text": "The take-home capstone (25-10) is this lesson applied end-to-end: baseline-first, leak-free validation, honest uncertainty, and a quantified writeup."
+        },
+        {
+          "ref": "foundations/complexity",
+          "text": "Algorithm selection weighs accuracy against training/inference cost - the complexity lens on which model is affordable at your scale."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does the No Free Lunch theorem say about model selection?",
+          "a": "Averaged over all possible problems, no algorithm outperforms any other - so the best model depends on your specific data's structure, decided empirically."
+        },
+        {
+          "q": "Why is k-fold cross-validation better than a single train/test split?",
+          "a": "It averages k estimates (each example tested once), giving a lower-variance, less split-dependent performance estimate plus a spread that quantifies uncertainty."
+        },
+        {
+          "q": "What does the fold-to-fold spread in CV tell you?",
+          "a": "The uncertainty of the performance estimate - a difference between models smaller than the spread is not a real difference."
+        },
+        {
+          "q": "What is selection bias in model comparison?",
+          "a": "The best-of-many candidates' CV score is optimistically biased low, because taking the minimum over noisy estimates partly selects on favorable noise."
+        },
+        {
+          "q": "What is nested cross-validation for?",
+          "a": "An honest performance estimate after tuning: the inner loop selects hyperparameters, the outer loop scores the whole procedure on data it never saw during tuning."
+        },
+        {
+          "q": "Why is GridSearchCV.best_score_ an optimistic estimate?",
+          "a": "It's the maximum over the tried hyperparameters' CV scores - selection bias makes it lower than the true error; use a held-out set or nested CV for the honest number."
+        },
+        {
+          "q": "When must you use time-series or grouped CV instead of plain k-fold?",
+          "a": "When rows are temporally ordered (don't test on the past after training on the future) or share a group/subject - plain k-fold leaks across these correlations."
+        },
+        {
+          "q": "What's the cardinal rule to avoid data leakage in CV?",
+          "a": "All fitting - scalers, imputers, feature selection, hyperparameters - must happen inside the training fold only, never on the full dataset before splitting."
+        },
+        {
+          "q": "How many times should you touch the final test set?",
+          "a": "Exactly once, at the very end, after all model selection - repeatedly evaluating on it turns it into a validation set and reintroduces selection bias."
+        },
+        {
+          "q": "What besides accuracy factors into algorithm selection?",
+          "a": "Training/inference cost, interpretability, data size, calibration needs, robustness, and maintainability - accuracy is one axis among several."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the No Free Lunch theorem and what it does and doesn't imply for practical model selection.",
+          "a": "The No Free Lunch theorem states that, averaged uniformly over all possible problems (all possible data-generating functions), every learning algorithm has the same expected performance - so no algorithm is universally superior; any algorithm that does better than another on one set of problems must do correspondingly worse on some other set. What it implies practically: there is no 'best model' in the abstract, so the belief that (say) gradient boosting or deep learning is always the right choice is theoretically unfounded; the right model depends entirely on how well its inductive biases match the structure of your specific data, which is an empirical question you answer by measuring. What it does NOT imply: it does not mean all algorithms are equally good on the problems you actually care about. Real-world problems are not a uniform sample over all possible functions - they have structure (smoothness, locality, low intrinsic dimension, hierarchical features) that some algorithms exploit far better than others. So NFL is a caution against dogma and a mandate for empirical comparison, not a claim that model choice doesn't matter - on your actual data, it matters a great deal, you just can't know the answer a priori.",
+          "deepDive": {
+            "q": "Given NFL, why do methods like gradient boosting and deep learning nonetheless dominate their respective domains?",
+            "a": "Because real problems aren't drawn uniformly from all possible functions - they share exploitable structure, and these methods encode inductive biases matched to that structure. Gradient-boosted trees dominate tabular data because their axis-aligned, threshold-based splits match how heterogeneous tabular features tend to interact (piecewise-constant relationships, mixed types, feature interactions), and their sequential residual-fitting efficiently reduces bias on such data. Deep networks dominate perception because convolution encodes translation-equivariance and locality (matched to images) and attention encodes long-range token interactions (matched to language) - biases that fit the compositional, hierarchical structure of natural signals. NFL isn't violated: these methods would do no better than random averaged over ALL functions including pathological ones, but they're superbly matched to the structured, non-uniform slice of problems humans actually care about. The practical takeaway is to pick the model whose inductive bias matches your data's structure - and to verify that match empirically rather than assuming it."
+          }
+        },
+        {
+          "q": "Walk through how you'd rigorously compare three candidate algorithms on a dataset, from splitting to a defensible final recommendation.",
+          "a": "First, hold out a final test set immediately and set it aside - it will be touched exactly once at the very end. On the remaining development data, run k-fold cross-validation (say 10-fold, or stratified for imbalanced classification) for each of the three algorithms, and for any that need hyperparameters, do the tuning inside a nested inner CV loop so the outer scores aren't inflated by selection. Critically, build each model as a pipeline where all preprocessing (scaling, imputation, feature selection) is fit inside each training fold only, never on the full data - otherwise every fold leaks. For each algorithm, report the outer cross-validated metric as mean +/- standard deviation across folds, using a metric appropriate to the problem (PR-AUC/F1 for imbalanced classification, RMSE/MAE for regression - not just accuracy). Compare the means against their spreads: if the best two differ by less than their fold-to-fold variability, treat them as tied and break the tie on secondary criteria (simplicity, inference cost, interpretability, robustness) - optionally run a paired significance test (e.g., paired comparison across the shared folds) to check whether the gap is statistically real. Select the winner, retrain it on all the development data, and only then evaluate once on the held-out test set to report the honest final number. The recommendation states the chosen model, its held-out performance with uncertainty, and why it was chosen over the runners-up (accuracy AND operational considerations).",
+          "deepDive": {
+            "q": "Why report a paired test across shared folds rather than just comparing the two means and their independent standard deviations?",
+            "a": "Because the fold scores for two models on the same k-fold split are paired - both models were evaluated on the exact same fold partitions, so a hard fold (unusual test examples) tends to lower both models' scores together, and an easy fold raises both. That shared fold-difficulty variance is common noise that a paired analysis cancels: by looking at the per-fold differences (model A's score minus model B's score on each identical fold), you remove the fold-to-fold difficulty variation and isolate the systematic difference between the models, giving a far more sensitive comparison than treating the two models' scores as independent samples with their own (inflated) standard deviations. This is the same reason paired t-tests are more powerful than unpaired ones - controlling for the shared source of variation (here, which examples landed in each fold) lets you detect a real but small model difference that would be buried in the larger between-fold noise if you compared the marginal means independently."
+          }
+        },
+        {
+          "q": "Explain why the cross-validation score of the best model out of 50 you tried is an optimistic estimate of its true performance, and how to get an honest number.",
+          "a": "Each of the 50 candidates' cross-validation scores is an estimate of its true performance plus some random noise (from the particular data and fold split). When you take the best - the minimum error, or maximum accuracy - among 50 noisy estimates, you're not just selecting the genuinely best model; you're partly selecting the one that got the luckiest noise draw. The expected value of the minimum of many noisy estimates is below the true minimum, and this optimism grows with the number of candidates you tried - so the winner's reported CV score systematically overstates how good it will be on fresh data. This is exactly the multiple-comparisons / max-over-noise effect that also shows up in A/B testing (23-07) and headline-chasing (22-10). To get an honest number: reserve a final test set that plays no role in the selection and evaluate the chosen model on it exactly once (its score is unbiased because the selection never saw it); or use nested cross-validation, where an outer loop scores the entire selection-plus-tuning procedure on outer-fold data untouched by the inner selection. Either way, the honest estimate comes from data that was not involved in choosing the winner - the selection score itself must be treated as a search heuristic, not a performance report.",
+          "deepDive": {
+            "q": "How does the magnitude of this optimism scale with the number of candidates and the noisiness of the CV estimate?",
+            "a": "The optimism grows with both the number of candidates M and the per-estimate noise (standard error of the CV score). Roughly, the expected gap between the selection score and the true performance of the selected model scales with the standard deviation of the CV estimates times a factor that increases (slowly, like the expected maximum of M draws) with M - so more candidates and noisier estimates both inflate it. This means the effect is worst exactly when you'd least notice: small datasets (large CV noise) combined with large hyperparameter grids or many model families (large M) produce big optimism, which is why an extensive automated search on a small dataset can report a great CV score that evaporates on the test set. The practical mitigations follow directly - reduce M (search coarsely, use domain knowledge to prune), reduce per-estimate noise (more folds, more data, repeated CV), and always confirm on held-out data whose size gives a tight enough confidence interval to trust the final number, the same reasoning 25-10 makes concrete with its true-zero tuning-optimism experiment."
+          }
+        },
+        {
+          "q": "A data scientist reports 95% cross-validated accuracy, but the model performs at 78% in production. List the most likely causes and how you'd investigate each.",
+          "a": "Several classic gaps between CV and production could explain a 17-point drop, and I'd check them roughly in order of likelihood: (1) Data leakage in the CV pipeline - preprocessing (scaling/imputation), feature selection, or hyperparameter tuning done on the full dataset before splitting, or a leaky feature that encodes the target (or won't be available at prediction time). Investigate by rebuilding the pipeline so every fit happens strictly inside the training fold and by auditing each feature for whether it's a legitimate pre-prediction input. (2) Selection/tuning optimism - if the 95% is the best-of-many-configurations CV score, it's biased; re-estimate with nested CV or a truly held-out set. (3) Distribution shift - production data differs from the training distribution (covariate or concept shift, 24-08), so a model validated on historical data underperforms on new data; investigate by comparing feature distributions (PSI, KS tests) and label relationships between the CV data and production. (4) Temporal or group leakage in the CV scheme - plain k-fold on time-ordered or grouped data lets the model 'see the future' or the same user in train and test, inflating CV; check whether the data has temporal/group structure that demands time-series or grouped CV. (5) Train-serve skew - the feature computation differs between training and serving (different code paths, missing-value handling, stale features), which I'd catch by comparing the exact feature values a production example gets versus what the training pipeline would have produced. The 95%-vs-78% pattern - excellent offline, mediocre online - is the signature 25-02 flags for leakage/skew specifically.",
+          "deepDive": {
+            "q": "Of these causes, which produces the specific pattern of near-perfect CV but a large, consistent production drop, versus a noisy or gradually-degrading one?",
+            "a": "A large, immediate, consistent drop from near-perfect CV most strongly points to leakage or train-serve skew, because those inflate the offline number by giving the model information at training/validation time that it simply doesn't have at serving time - so the moment you deploy, that crutch is gone and performance falls to its true level abruptly and reproducibly (the 25-02 leakage example collapses AUC from 1.000 to below the honest baseline exactly this way). Distribution shift and temporal leakage tend to produce a different signature: shift often causes a gradual degradation as production data drifts further from training, and temporal leakage causes a drop that's large but tied to the time-ordering (backtesting with proper time-series splits reproduces it). Selection optimism usually produces a smaller gap (a few points, matching the max-over-noise magnitude) rather than 17 points. So the size and abruptness of the drop are diagnostic: a sharp ~17-point cliff that reproduces on every production batch says 'the offline number was contaminated' (leakage/skew), whereas a slow slide says 'the world moved' (shift) - and the fix differs accordingly (fix the pipeline vs monitor-and-retrain)."
+          }
+        },
+        {
+          "q": "Beyond predictive accuracy, what factors should drive algorithm selection, and how would you weigh them for (a) a real-time fraud system and (b) a regulated credit-scoring model?",
+          "a": "Accuracy is necessary but rarely sufficient - the full set of axes includes: inference latency and throughput (can it score in the time budget?), training cost and retraining frequency, interpretability/auditability (can you explain a decision?), calibration (do you need trustworthy probabilities for a cost decision?), robustness to shift and adversaries, data requirements (do you have enough labels?), maintainability and operational complexity, and fairness/regulatory constraints. The weighting flips by context. (a) Real-time fraud: latency is often a hard constraint (score in milliseconds), calibrated probabilities matter because the threshold is a cost decision (25-05), robustness to adversarial adaptation is important (attackers probe the system), and you can tolerate a black box if it's fast and accurate since decisions are automated and reviewed downstream - so a well-tuned gradient-boosted tree or a compact neural net often wins, with interpretability handled post-hoc (SHAP) for the review queue rather than being a first-order constraint. (b) Regulated credit scoring: interpretability and auditability are often first-order (legally, you may have to explain adverse decisions and demonstrate the model doesn't use prohibited features or produce disparate impact), calibration matters for fair thresholds, and robustness/stability over time matters for consistent treatment - so a simpler, inherently-interpretable, monotonic model (regularized logistic regression, a monotonic GAM, or a shallow scorecard) is often preferred even at a small accuracy cost, because a marginally-more-accurate black box may be non-compliant or unexplainable. The general principle: identify the binding constraints (latency here, explainability there) first, then maximize accuracy subject to them - accuracy is optimized within the feasible region the other requirements define, not in isolation.",
+          "deepDive": {
+            "q": "How does this connect to the interpretability-accuracy tradeoff and post-hoc explanation from the trees lesson?",
+            "a": "It's the same tradeoff elevated to a selection criterion. In regulated settings the requirement isn't just 'some explanation exists' but often 'the model's decision logic is itself inspectable and defensible', and as 24-04 emphasizes, post-hoc explanations (SHAP on a black box) are approximations of the model's behavior, not the model's actual reasoning - they can be locally unfaithful or unstable, which may not satisfy a regulator who needs the decision rule itself to be transparent and stable. So for credit scoring you may be required to choose an inherently-interpretable model (where the explanation IS the computation) rather than a black box plus post-hoc explanation, accepting the accuracy cost as the price of genuine, auditable transparency. For the fraud system, post-hoc explanation on a black box is usually adequate because the explanation supports a human reviewer rather than serving as a legal justification, so you can take the more accurate black box. The lesson is that 'interpretability' isn't one requirement - the strength of transparency you need (inherent vs post-hoc-sufficient) is itself a selection constraint that can decide the model family before accuracy is even considered."
+          }
+        },
+        {
+          "q": "When would you choose a simple model (logistic regression) over a more powerful one (gradient boosting or a neural net) even though the complex model scores slightly higher in cross-validation?",
+          "a": "A small CV edge for a complex model is often not worth its costs, and several situations justify choosing the simpler model: (1) The gain is within the noise - if gradient boosting beats logistic regression by 0.3% but the fold-to-fold spread is 2%, the difference may not be real, and you shouldn't pay complexity costs for a possibly-illusory gain (confirm with a paired test / held-out set). (2) Interpretability or auditability is required - a regulated or high-stakes setting may need the transparent, monotonic logic of logistic regression regardless of a small accuracy loss. (3) Operational constraints - the simple model is faster to train, cheaper to serve, easier to monitor and debug, and degrades more gracefully; in a system where latency, cost, or maintainability bind, those often outweigh a fractional accuracy gain. (4) Robustness to shift - simpler models with fewer parameters sometimes generalize more stably as the data distribution drifts, and are easier to retrain and validate. (5) Small data - with limited examples, the complex model's apparent edge may be overfitting/selection optimism that won't hold up, while the simpler model's stronger inductive bias is safer. (6) The simple model is a better baseline to iterate from - it's easier to reason about what to fix. The honest engineering stance (echoing 22-10) is that added complexity must clear a bar: it should deliver a gain that's statistically real, materially valuable to the decision, and worth the deployment/maintenance/interpretability cost - and a slightly-higher CV score alone rarely clears that bar.",
+          "deepDive": {
+            "q": "How do you decide whether a CV improvement is 'real and material' enough to justify the added complexity?",
+            "a": "Two separate questions: is it real, and is it material. For 'real', quantify the uncertainty - compute a confidence interval on the score difference (via the paired fold differences or a bootstrap), and treat the gain as real only if the interval excludes zero (or a paired significance test rejects no-difference); a gap smaller than the CV noise is not evidence of superiority. For 'material', translate the accuracy/AUC gain into the units of the actual decision - dollars of fraud caught, users affected, revenue - and compare that value against the concrete costs of the complex model (inference latency budget, compute spend, engineering and monitoring time, interpretability loss); a statistically-real 0.3% gain can be hugely material at massive scale (worth serving an ensemble) or completely immaterial at small scale (not worth a second model). Only when the gain is both statistically real AND its business value exceeds the total added cost should complexity win - otherwise the simpler model is the correct engineering choice, the same cost-benefit framing 25-10 and 22-10 apply to any 'should we adopt this heavier thing' decision."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "No Free Lunch theorem",
+        "back": "Averaged over all possible problems, no algorithm beats any other - the best model depends on your data's structure, decided empirically."
+      },
+      {
+        "type": "intuition",
+        "front": "Why k-fold CV over a single split?",
+        "back": "Averages k estimates (each example tested once) for a lower-variance, less split-dependent number; the fold spread quantifies its uncertainty."
+      },
+      {
+        "type": "formula",
+        "front": "Selection bias in model comparison",
+        "back": "E[min of M noisy CV scores] < true min - the best-of-many winner's score is optimistically biased; optimism grows with M."
+      },
+      {
+        "type": "definition",
+        "front": "Nested cross-validation",
+        "back": "Inner loop tunes hyperparameters, outer loop scores the whole procedure on data untouched by tuning - the honest estimate after selecting."
+      },
+      {
+        "type": "pitfall",
+        "front": "Data leakage in validation",
+        "back": "Fitting scalers/imputers/feature-selection/hyperparameters on the full data before splitting inflates every fold - fit inside the training fold only."
+      },
+      {
+        "type": "pitfall",
+        "front": "Wrong CV scheme",
+        "back": "Plain k-fold leaks across time (use time-series splits) or across groups/subjects (use grouped CV) - correlated rows inflate the score."
+      },
+      {
+        "type": "pitfall",
+        "front": "Touching the test set repeatedly",
+        "back": "Evaluate the final test set exactly once, after all selection - repeated use turns it into a validation set and reintroduces optimism."
+      },
+      {
+        "type": "intuition",
+        "front": "Selection is more than accuracy",
+        "back": "Weigh latency, cost, interpretability, calibration, robustness, data size, maintainability - identify binding constraints, then maximize accuracy within them."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Wolpert, The Lack of A Priori Distinctions Between Learning Algorithms (1996)",
+        "url": "https://www.mitpressjournals.org/doi/10.1162/neco.1996.8.7.1341"
+      },
+      {
+        "title": "scikit-learn: Cross-validation & nested CV",
+        "url": "https://scikit-learn.org/stable/modules/cross_validation.html"
+      },
+      {
+        "title": "Cawley & Talbot, On Over-fitting in Model Selection (JMLR 2010)",
+        "url": "https://www.jmlr.org/papers/v11/cawley10a.html"
+      },
+      {
+        "title": "Hastie, Tibshirani, Friedman - Elements of Statistical Learning (Ch. 7)",
+        "url": "https://hastie.su.domains/ElemStatLearn/"
+      }
+    ],
+    "demos": [
+      "cross-validation",
+      "bias-variance-decomp",
+      "classification-metrics"
+    ]
+  }
+};

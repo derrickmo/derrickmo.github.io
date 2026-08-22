@@ -1,0 +1,291 @@
+// GENERATED from content/lessons/causal-inference/time-series-causality.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/causal-inference/time-series-causality/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "time-series-causality": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "Time gives you something the cross-sectional methods lack: causes come before effects, so the arrow direction is often settled for free. It also gives you a new way to be wrong, because a hidden driver that hits two series at different lags manufactures exactly the pattern that 'X precedes and predicts Y' is supposed to detect.",
+        "The demonstration is the module's cleanest false positive. Two series with NO causal arrow between them, both driven by a hidden common factor - one at lag 1, one at lag 2. Granger's test reports X causing Y with F = 2119.66 and p = 1.1e-16. The reverse direction is correctly null at F = 0.45. Controlling for the hidden driver kills it, F = 0.60, p = 0.662. A CLEAN, ONE-DIRECTIONAL, OVERWHELMING RESULT that is entirely an artefact of lag structure.",
+        "Difference-in-differences and synthetic control do better because they buy identification from a parallel-trends assumption rather than from precedence. And they land in the same place the module always lands: the assumption is untestable, the pre-period check is the only diagnostic, and it is underpowered exactly where it matters. A pre-trend that biases the estimate by 12% is caught 18.5% of the time - barely above the 5% floor."
+      ],
+      "math": [
+        {
+          "h": "Granger causality tests precedence, not causation",
+          "paras": [
+            "The test asks whether past values of X improve prediction of Y beyond Y's own past. That is a genuine and useful question. It is not the interventional question, and a common driver with staggered lags satisfies it without any arrow existing.",
+            "Controlling for the driver removes the result, which is the same backdoor logic as everywhere else - and requires you to have measured it."
+          ],
+          "tex": "H_0: \\beta_1=\\cdots=\\beta_p=0 \\ \\text{in}\\ Y_t=\\alpha_0+\\sum_i \\alpha_i Y_{t-i}+\\sum_j \\beta_j X_{t-j}+\\varepsilon_t",
+          "texNote": "Measured with no X-Y arrow present: X to Y gives F = 2119.66, p = 1.1e-16; Y to X gives F = 0.45, p = 0.77; and X to Y controlling for the hidden driver U gives F = 0.60, p = 0.662."
+        },
+        {
+          "h": "Difference-in-differences and the assumption it buys",
+          "paras": [
+            "Take the change in the treated unit and subtract the change in the control unit. Any time-invariant difference between them cancels, which is what makes the method attractive.",
+            "What does not cancel is a difference in TRENDS. Parallel trends is the assumption, and it is a counterfactual claim about what the treated unit would have done, so it cannot be verified."
+          ],
+          "tex": "\\hat{\\tau}_{DiD}=(\\bar{Y}^{T}_{post}-\\bar{Y}^{T}_{pre})-(\\bar{Y}^{C}_{post}-\\bar{Y}^{C}_{pre}), \\qquad \\mathbb{E}[Y^T(0)_{post}-Y^T(0)_{pre}]=\\mathbb{E}[Y^C_{post}-Y^C_{pre}]",
+          "texNote": "The assumption is about the treated unit's counterfactual trend, which is by definition unobserved. The pre-period is evidence about it, not a test of it."
+        },
+        {
+          "h": "The pre-trend test is underpowered exactly where it matters",
+          "paras": [
+            "2,000 simulations per row, 12 pre-periods, 12 post-periods, true effect 5.0. The pre-trend test regresses the treated-minus-control gap on time over the pre period."
+          ],
+          "tex": "\\begin{array}{lccc} \\text{drift/period} & \\text{mean DiD} & \\text{bias} & \\text{pre-trend test rejects}\\\\ 0.00 & 4.995 & -0.1\\% & 5.0\\%\\\\ 0.05 & 5.595 & +11.9\\% & \\mathbf{18.5\\%}\\\\ 0.10 & 6.195 & +23.9\\% & 51.5\\%\\\\ 0.25 & 7.995 & +59.9\\% & 99.8\\% \\end{array}",
+          "texNote": "A violation that inflates the estimate by 12% passes the only available check 81.5% of the time. Failing to reject a pre-trend is usually evidence that the pre period is short, not that the trends are parallel."
+        }
+      ],
+      "code": [
+        {
+          "h": "Synthetic control, and what its weights do not mean",
+          "paras": [
+            "Fit a convex combination of donor units to match the treated unit over the pre-period, then read the post-period gap as the effect."
+          ],
+          "code": "# fit simplex weights on the PRE period only (T0 = 30 of 40 periods)\n\n# pre-period RMSE of the synthetic control   0.2415      excellent fit\n# post-period average gap                    2.417       true effect 2.500\n\n# ★ BUT THE WEIGHTS ARE NOT THE DONORS\n#   recovered: donor2 0.39  donor5 0.33  donor10 0.11  donor14 0.09\n#   TRUE:      donor2 0.40  donor5 0.30  donor9  0.20  donor14 0.10\n#   donor9 (true weight 0.20) got ~0; donor10 (true weight 0) got 0.11\n\n# The donors span a low-dimensional factor space, so many weightings fit\n# the pre-period equally well. The FIT is identified; the WEIGHTS are not.\n# Do not interpret them, and do not tell a story about which units matter.",
+          "caption": "This is a small, specific version of the module's thesis: the procedure recovered the right answer for a reason that was not the reason it appeared to have."
+        },
+        {
+          "h": "The inference that makes synthetic control usable",
+          "paras": [
+            "With one treated unit there is no sampling distribution, so significance comes from placebo permutation: apply the identical procedure to every donor as if it had been treated."
+          ],
+          "code": "for j in donors:                     # pretend donor j was treated\n    fit synthetic control for j from the OTHER donors\n    record its post-period gap\n\n# placebo |gap| across 20 donors:  median 0.093  p90 0.176  max 0.203\n# treated |gap|:                   2.417\n# permutation p-value = (rank + 1)/(n + 1) = 0.048\n\n# ★ Note the resolution limit: with 20 donors the smallest achievable\n#   p-value is 1/21 = 0.048. The donor pool size CAPS your inference,\n#   which is a design constraint, not an analysis choice.",
+          "caption": "The placebo distribution is genuinely external evidence - it could have come out badly - which puts it in a different class from a balance table or a first-stage F."
+        }
+      ],
+      "useCases": [
+        "Geographic or market-level rollouts where user-level randomization is impossible because of interference, and a small number of treated markets is all you get.",
+        "Policy and pricing changes evaluated after the fact, where a staggered rollout across regions supplies both timing and comparison units.",
+        "Measuring a one-off event with no control group at all - an outage, a competitor's launch, a regulatory change - by constructing a synthetic comparison from unaffected units.",
+        "Long-run effects that outlast an experiment's holdout, where a synthetic control on aggregate series extends measurement past the point the randomization was retired."
+      ],
+      "pitfalls": [
+        "Reading Granger causality as causality. With no arrow present, a hidden driver at staggered lags produced F = 2119.66 and p = 1.1e-16 in one direction - clean, overwhelming, and false.",
+        "Treating a failed pre-trend test as evidence of parallel trends. A violation biasing the estimate by 12% was caught 18.5% of the time, barely above the 5% false-positive floor.",
+        "Interpreting synthetic control weights as which units matter. The fit was excellent and the weights were wrong: a donor with true weight 0.20 got approximately zero while one with true weight zero got 0.11.",
+        "Extrapolating outside the donors' range. Synthetic control requires the treated unit to sit inside the convex hull of the donor pool; if it is an outlier, no convex combination matches it and the pre-period fit will show it.",
+        "Ignoring the resolution limit of placebo inference. With 20 donors the smallest achievable p-value is 1/21 = 0.048, so the pool size caps the strength of any conclusion.",
+        "Using two-way fixed effects for staggered adoption without checking the weights. With heterogeneous, time-varying effects, already-treated units act as controls and the estimator can produce a negatively-weighted average with the wrong sign.",
+        "Choosing the post-period window after seeing the series. Effects that decay or ramp make the estimate a function of the window, and picking it post hoc is the specification-search version of peeking."
+      ],
+      "connections": [
+        {
+          "ref": "causal-inference/confounding",
+          "text": "The common-driver structure that produces the Granger false positive is a fork with a lag on each arm - the same backdoor path, drawn in time."
+        },
+        {
+          "ref": "causal-inference/ab-testing",
+          "text": "Why these methods exist: interference at the market level forces coarse randomization or none at all, and this is what you do when none is available."
+        },
+        {
+          "ref": "causal-inference/instrumental-variables",
+          "text": "The other way to buy identification without measuring the confounder, and the direct comparison - timing versus exclusion, both untestable, priced differently."
+        },
+        {
+          "ref": "causal-inference/bayesian-workflow",
+          "text": "Bayesian structural time series as the model-based version of synthetic control, where the counterfactual is a fitted forecast with a posterior attached."
+        },
+        {
+          "ref": "ml-applications/time-series",
+          "text": "The forecasting machinery this borrows from, aimed at prediction rather than at a counterfactual, and the reason a good forecast is not automatically a good control."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does Granger causality actually test?",
+          "a": "Whether past X improves prediction of Y beyond Y's own past — predictive precedence, not intervention."
+        },
+        {
+          "q": "Show it failing.",
+          "a": "Two series with NO arrow between them, driven by a hidden factor at lags 1 and 2: X→Y gives F=2119.66, p=1.1e-16. Controlling for the driver: F=0.60, p=0.662."
+        },
+        {
+          "q": "Why is a one-directional false positive worse than an ambiguous one?",
+          "a": "Ambiguity invites suspicion. A clean, overwhelming, single-direction result invites belief — and the lag structure alone decides which direction you get."
+        },
+        {
+          "q": "State the DiD estimator and its assumption.",
+          "a": "(ΔY treated) − (ΔY control). Assumption: parallel trends — the treated unit's COUNTERFACTUAL trend equals the control's. Untestable by construction."
+        },
+        {
+          "q": "What does DiD cancel out?",
+          "a": "Any time-invariant difference between the units. What it does not cancel is a difference in TRENDS."
+        },
+        {
+          "q": "How powerful is the pre-trend test?",
+          "a": "Weak where it matters: a drift biasing the estimate +11.9% was rejected only 18.5% of the time (nominal floor 5.0%). At +23.9% bias, 51.5%."
+        },
+        {
+          "q": "So what does a passing pre-trend test mean?",
+          "a": "Usually that the pre period is short. Failing to reject an assumption is not evidence for it."
+        },
+        {
+          "q": "What is synthetic control?",
+          "a": "A convex combination of donor units fitted to match the treated unit over the pre-period; the post-period gap is the effect estimate."
+        },
+        {
+          "q": "Are the synthetic control weights interpretable?",
+          "a": "No. Sim: pre-RMSE 0.2415 and effect 2.417 (truth 2.5), but a donor with true weight 0.20 got ~0 and one with true weight 0 got 0.11. The fit is identified; the weights are not."
+        },
+        {
+          "q": "How do you get a p-value with one treated unit?",
+          "a": "Placebo permutation — run the identical procedure on each donor as if it were treated. Sim: placebo |gaps| median 0.093, max 0.203; treated 2.417; p = 0.048."
+        },
+        {
+          "q": "What caps placebo inference?",
+          "a": "Donor pool size. With 20 donors the smallest achievable p-value is 1/21 = 0.048 — a design constraint, not an analysis choice."
+        },
+        {
+          "q": "What breaks two-way fixed effects under staggered adoption?",
+          "a": "Already-treated units serve as controls, so with heterogeneous time-varying effects the estimator is a weighted average with NEGATIVE weights and can flip sign."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain Granger causality and why the name is misleading.",
+          "a": "IT TESTS PREDICTIVE PRECEDENCE. The procedure regresses Y on its own lags, then adds lags of X, and tests whether the X coefficients are jointly zero — so it answers 'does past X help predict Y beyond Y's own history'. That is a genuine and useful question for forecasting. It is not the interventional question, and the gap between them is exactly the module's subject. THE FAILURE MODE IS A COMMON DRIVER WITH STAGGERED LAGS. In simulation I generated two series with NO causal arrow between them at all, both driven by a hidden autoregressive factor — one at lag 1, the other at lag 2. Granger's test reported X causing Y with F = 2119.66 and p = 1.1e-16, while the reverse direction was correctly null at F = 0.45, p = 0.77. Controlling for the hidden driver removed it entirely: F = 0.60, p = 0.662. WHAT MAKES THIS PARTICULARLY DANGEROUS IS THE CLEANLINESS. A bidirectional or marginal result invites suspicion; a single-direction result with a p-value of 1e-16 invites belief, and the direction was determined purely by which lag the common factor happened to hit first. The name is misleading because Granger himself was explicit that this was a definition of predictive causality within a closed system, and the closure assumption — no relevant omitted series — is the whole thing.",
+          "deepDive": {
+            "q": "What does Granger causality assume that you cannot verify?",
+            "a": "The closure assumption is the same ignorability assumption in different notation: the test is valid as a causal claim only if there are no omitted common drivers, which is exactly what you cannot verify. Adding more series to the VAR helps in the same way adding covariates helps in the cross-sectional case, with the same limitation and the same collider risk. Two further wrinkles worth knowing. First, temporal aggregation destroys the ordering: if the true causal lag is faster than your sampling interval — the effect happens in minutes and you have daily data — the precedence structure can invert entirely, so daily data can show Y preceding X when the mechanism is X causing Y within the hour. Second, filtering and seasonal adjustment can induce or destroy Granger relationships, so results are sensitive to preprocessing in ways that are easy to miss. Where the test IS genuinely useful is as a falsification tool rather than a discovery tool: if you believe X causes Y and past X does not help predict Y at all, that is evidence against your belief. Negative results are informative here; positive ones are close to worthless without a closure argument."
+          }
+        },
+        {
+          "q": "Explain difference-in-differences and how you would defend the parallel trends assumption.",
+          "a": "DID SUBTRACTS TWO CHANGES: the treated unit's before-to-after change minus the control unit's. Any time-invariant difference between the units cancels, which is exactly what makes it attractive — you do not need the units to be comparable in LEVEL, only in TREND. The assumption is that the treated unit's COUNTERFACTUAL trend would have matched the control's, and that is a statement about an unobserved quantity, so it cannot be verified. HOW I WOULD DEFEND IT: first, plot the pre-period series and test for a differential pre-trend. Second, run placebo tests on periods before treatment, where the effect must be zero. Third, use a negative-control outcome the treatment could not affect. Fourth, report sensitivity — Rambachan and Roth's approach reports the effect under bounded deviations from parallel trends rather than assuming exact parallelism. AND I WOULD BE HONEST ABOUT THE PRE-TREND TEST'S POWER, because it is the diagnostic everyone leans on. Measured over 2,000 simulations with 12 pre-periods: a drift that inflated the estimate by 11.9% was detected 18.5% of the time against a 5.0% floor; at 23.9% bias detection was 51.5%. So a violation large enough to change a decision passes the check four times in five.",
+          "deepDive": {
+            "q": "How much does a clean pre-trend plot actually establish?",
+            "a": "That power result reframes what a pre-trend plot is for. It is evidence, and weak evidence, not a test — and 'we checked for pre-trends and found none' should be read as 'our pre period was short'. There is a worse version of the problem: conditioning the analysis on having passed a pre-trend test introduces its own selection, because you are keeping the samples where the pre-period noise happened to look flat, which biases the post-period estimate. Roth's work on this is the reference, and the practical implication is to report the pre-trend test's power alongside its result — 'we could have detected a differential trend of 0.15 per period with 80% probability' is a far more useful sentence than a p-value. The other big issue in modern practice is staggered adoption: the standard two-way fixed effects estimator uses already-treated units as controls for later-treated ones, and when effects are heterogeneous and time-varying that produces a weighted average with NEGATIVE weights, which can flip the sign of a uniformly positive effect. Goodman-Bacon decomposed exactly where those comparisons come from, and Callaway–Sant'Anna and Sun–Abraham give estimators that avoid them. If someone shows me a staggered-rollout DiD run as plain two-way fixed effects, that is the first thing I ask about."
+          }
+        },
+        {
+          "q": "When would you use synthetic control, and how do you do inference with one treated unit?",
+          "a": "WHEN YOU HAVE ONE OR A FEW TREATED UNITS, MANY UNTREATED ONES, AND A LONG PRE-PERIOD — typically market or geography level, where interference rules out user-level randomization. Instead of picking a comparison unit by judgment, you fit a convex combination of donors to match the treated unit's pre-period trajectory, and read the post-period gap as the effect. In simulation the pre-period RMSE was 0.2415 and the post-period gap was 2.417 against a true effect of 2.500. THE INFERENCE PROBLEM IS THAT THERE IS NO SAMPLING DISTRIBUTION — one treated unit means n = 1. The standard solution is placebo permutation: apply the identical procedure to every donor as if it had been treated, building a distribution of gaps under no treatment. Measured across 20 donors, placebo absolute gaps had a median of 0.093, a 90th percentile of 0.176 and a maximum of 0.203, against a treated gap of 2.417, giving a permutation p-value of 0.048. THAT INFERENCE IS GENUINELY EXTERNAL EVIDENCE — it could have come out badly — which puts it in a different class from a balance table or a first-stage F. And it has a hard resolution limit: with 20 donors the smallest achievable p-value is 1/21 = 0.048, so the pool size caps the conclusion.",
+          "deepDive": {
+            "q": "Can you interpret the donor weights a synthetic control picks?",
+            "a": "The finding I would foreground is that the WEIGHTS ARE NOT IDENTIFIED even when the effect is. In the simulation the recovered weights were donor2 at 0.39, donor5 at 0.33, donor10 at 0.11 and donor14 at 0.09, while the true generating weights were donor2 0.40, donor5 0.30, donor9 0.20 and donor14 0.10. A donor with true weight 0.20 got approximately zero and one with true weight zero got 0.11. The donors span a low-dimensional factor space, so many weightings fit the pre-period equally well, and the optimisation picks one arbitrarily. The estimate was still good, because what matters is that the synthetic unit tracks the factors, not that it uses the 'right' donors. So the practical rule is: never tell a story about which units the method selected, and be suspicious of papers that do. Two other requirements: the treated unit must lie inside the convex hull of the donor pool, or no combination can match it and the pre-period fit will reveal it; and donors must themselves be untreated and unaffected by the treatment, which fails if the intervention spills across markets. Ratios of post- to pre-period RMSE are the standard way to normalise placebo comparisons when donors fit at different qualities."
+          }
+        },
+        {
+          "q": "A team ran a marketing campaign in three cities and wants the effect. How do you approach it?",
+          "a": "I WOULD ASK FIRST WHETHER THE THREE CITIES WERE CHOSEN AT RANDOM, because that single fact determines everything downstream. If they were selected because they were underperforming, mean reversion alone produces an apparent positive effect and no method here repairs selection on the outcome's transitory component. If they were chosen for operational convenience, that is much better and the story is arguable. THEN I WOULD BUILD A SYNTHETIC CONTROL FOR EACH CITY from the untreated ones, fitting weights on the pre-period only, and report the post-period gaps with placebo permutation inference across the donor pool. Three treated units is actually helpful — I can require the effect to appear in all three, which is a much stronger claim than one city crossing a threshold. I WOULD CHECK FIVE THINGS: pre-period fit quality, since a poor fit voids the comparison; whether each treated city sits inside the donor hull; whether any donor city was contaminated by spillover from the campaign; a placebo in time, pretending the campaign started earlier; and a negative-control outcome the campaign could not affect. AND I WOULD PUSH FOR RANDOMIZED CITY SELECTION NEXT TIME, because with even ten or twenty markets randomized, the analysis becomes a straightforward experiment and all of this becomes unnecessary.",
+          "deepDive": {
+            "q": "What is the most common way this analysis goes wrong in industry?",
+            "a": "The mean-reversion point deserves emphasis because it is the most common way this analysis goes wrong in industry, and it is invisible unless you ask. Campaigns are targeted at markets that are struggling, struggling markets have negative transitory shocks, and transitory shocks revert — so the post-period improvement is partly guaranteed regardless of the campaign. Synthetic control partially handles this, since the donors are fitted to the treated unit's pre-period INCLUDING its dip, but only if the dip is a common factor rather than idiosyncratic. The test is a placebo in time: pretend treatment started a year earlier and see whether the method finds an effect. On the forward-looking recommendation, geo-experiments with randomized market assignment are well-established and much cheaper than teams expect — the power calculation is over markets rather than users, which sounds fatal but is manageable with paired designs and pre-period covariates, and CUPED-style adjustment on market history helps a great deal. The argument that usually lands is the cost of the alternative: every non-randomized campaign generates a quarter of analyst time and an answer nobody fully believes, which is more expensive than holding out five markets."
+          }
+        },
+        {
+          "q": "Compare the identification strategies in this module. When do you reach for which?",
+          "a": "EACH BUYS THE SAME THING — permission to treat a comparison as causal — AT A DIFFERENT PRICE. RANDOMIZATION buys ignorability by construction, and its assumptions are largely checkable at the platform level, so it is the default whenever it is possible. ADJUSTMENT AND MATCHING assume you measured the confounders, which is untestable, and their diagnostics report on their own inputs — balance improved to 0.016 while the estimate was 81% wrong. INSTRUMENTS assume a variable with exactly one path to the outcome, untestable, with the only available diagnostic testing strength rather than validity: F stayed at 30,731 across violations that walked the estimate from 2.003 to 2.503. DIFFERENCE-IN-DIFFERENCES assumes parallel counterfactual trends, untestable, with a pre-period check that catches a 12% bias 18.5% of the time. SYNTHETIC CONTROL assumes the donor pool spans the treated unit's factor structure, and is the only observational method here whose inference is genuinely external, via placebo permutation. SO MY ORDERING IS: experiment if you can; if interference forbids user-level randomization, randomize markets; if you cannot randomize at all, prefer designs that exploit timing or an arbitrary rule over designs that assume you measured everything, because 'a policy changed on this date' is an easier claim to defend than 'our covariate list is complete'.",
+          "deepDive": {
+            "q": "Is there something better than choosing the right method?",
+            "a": "The strongest move available is not choosing well among these but TRIANGULATING across them. If a synthetic control, a difference-in-differences on a different comparison group and a matched cohort all land near the same estimate, that is real evidence — not because any one is trustworthy, but because their assumptions fail in different directions and would have to be wrong in a coordinated way to agree. Where they disagree, the disagreement itself is informative and localises the problem. This is the closest thing the field has to a test set, and it is underused because it costs three analyses instead of one. The related discipline is to calibrate observational methods against experimental truth WHENEVER an experiment exists: run the observational estimator on the pre-experiment period and compare it to the randomized answer. That gives your organisation a measured sense of how far observational estimates in your system tend to be from the truth, which is far more valuable than any general methodological prior. In most consumer systems the gap is larger than people expect, and knowing your own number is worth more than knowing the literature's."
+          }
+        },
+        {
+          "q": "This is the module's last lesson. What should someone take from it?",
+          "a": "THE ASSUMPTION IS THE ESTIMATE. Every method here computes a number, and the number's meaning comes entirely from a claim the data cannot check: ignorability for adjustment, exclusion for instruments, parallel trends for DiD, factor-span for synthetic control, closure for Granger, and, for a randomized experiment, a set of design properties. The estimator is the easy part, and the last two decades of methodological progress — double machine learning, causal forests, modern DiD — has improved estimation while moving identification not at all. SECOND, THE DIAGNOSTICS SYSTEMATICALLY CHECK THE WRONG THING, and this repeated across every lesson: R-squared rose 0.898 to 0.987 as the causal estimate degraded 87%; balance went to 0.016 while the estimate was 81% high; the first-stage F sat at 30,731 through violations that added 25%; R-hat was 1.0002 on a model whose predictive check returned 0.0000; a bootstrap gave a width-0.109 interval around a wrong-signed number; and a pre-trend test caught a 12% bias 18.5% of the time. The pattern is that a diagnostic sharing an input with the procedure it checks cannot be independent evidence about it. THIRD, WHAT TO DO ANYWAY: argue the assignment mechanism, run falsification tests that could fail, report sensitivity so the assumption is PRICED, and triangulate across designs whose assumptions break differently.",
+          "deepDive": {
+            "q": "What did building this module teach about reading your own results?",
+            "a": "An honesty note about building this module, since it bears on how to read results generally. The Granger simulation was written expecting a symmetric artefact — a spurious result in BOTH directions, which would have made a tidy point about ambiguity. It came out one-directional and overwhelming instead: F = 2119.66 with p = 1.1e-16 forward, and a clean null of F = 0.45 backward. The first instinct was that the simulation was miscalibrated. It was not. The lag structure of the hidden driver picks a direction, and the result is a clean, confident, entirely false causal claim — which is a WORSE finding than the one expected, because a symmetric artefact would at least look suspicious. A one-directional p-value of 1e-16 looks like a discovery. Two other results in this module came from the same kind of surprise: the synthetic control recovered the effect while getting the donor weights wrong, and matching made imbalance on the unmeasured confounder WORSE rather than merely failing to help. In each case the expectation was wrong in the direction of the module's own thesis, which is the useful lesson to end on — the expected artefact is the one you would have caught."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ What Granger causality tests",
+        "back": "Predictive PRECEDENCE: does past X improve prediction of Y beyond Y's own past? A useful forecasting question. Not the interventional one, and valid causally only under CLOSURE (no omitted driver)."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ The clean false positive",
+        "back": "Two series, NO arrow between them, hidden driver at lags 1 and 2: X→Y gives F=2119.66, p=1.1e-16. Reverse correctly null (F=0.45). Control for the driver: F=0.60, p=0.662."
+      },
+      {
+        "type": "intuition",
+        "front": "Why one-directional is worse than ambiguous",
+        "back": "A bidirectional or marginal artefact invites suspicion. A single-direction p=1e-16 invites BELIEF — and the lag structure alone decided the direction."
+      },
+      {
+        "type": "formula",
+        "front": "Difference-in-differences",
+        "back": "τ̂ = (ΔY treated) − (ΔY control). Cancels any TIME-INVARIANT difference between units. Does NOT cancel a difference in trends — that's the assumption."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Pre-trend test power",
+        "back": "12 pre-periods, 2,000 sims: drift biasing +11.9% → rejected 18.5% (floor 5.0%). +23.9% → 51.5%. +59.9% → 99.8%. A decision-changing violation passes 4 times in 5."
+      },
+      {
+        "type": "intuition",
+        "front": "What a passing pre-trend test means",
+        "back": "Usually that the pre period is short. Failing to reject an assumption is not evidence for it — and conditioning the analysis on passing introduces its own selection."
+      },
+      {
+        "type": "definition",
+        "front": "Synthetic control",
+        "back": "Fit simplex weights over donor units to match the treated unit's PRE-period; the post-period gap is the effect. Sim: pre-RMSE 0.2415, gap 2.417 (truth 2.5)."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Synthetic control weights are NOT identified",
+        "back": "Recovered donor2 0.39 / donor5 0.33 / donor10 0.11 / donor14 0.09 vs TRUE 0.40 / 0.30 / donor9 0.20 / 0.10. A 0.20-weight donor got ~0; a 0-weight donor got 0.11. The fit is identified; the weights aren't."
+      },
+      {
+        "type": "definition",
+        "front": "Placebo permutation inference",
+        "back": "With n=1 treated unit there's no sampling distribution — run the identical procedure on each donor as if treated. Sim: placebo |gaps| median 0.093 / max 0.203 vs treated 2.417 → p = 0.048."
+      },
+      {
+        "type": "pitfall",
+        "front": "The donor-pool resolution limit",
+        "back": "Smallest achievable placebo p-value is 1/(n_donors+1). With 20 donors that's 0.048 — a DESIGN constraint fixed before any analysis."
+      },
+      {
+        "type": "pitfall",
+        "front": "Two-way fixed effects under staggered adoption",
+        "back": "Already-treated units act as controls for later-treated ones. With heterogeneous time-varying effects the estimator carries NEGATIVE weights and can flip sign. Use Callaway–Sant'Anna or Sun–Abraham."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The module in one line",
+        "back": "THE ASSUMPTION IS THE ESTIMATE. R² 0.898→0.987 as the estimate degraded 87%; balance 0.016 at 81% error; F=30,731 through a 25% violation; R-hat 1.0002 on a rejected model; a width-0.109 CI on the wrong sign. Diagnostics sharing an input with the procedure aren't evidence about it."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Granger (1969), Investigating Causal Relations by Econometric Models and Cross-spectral Methods",
+        "url": "https://www.jstor.org/stable/1912791"
+      },
+      {
+        "title": "Abadie, Diamond & Hainmueller (2010), Synthetic Control Methods for Comparative Case Studies",
+        "url": "https://www.tandfonline.com/doi/abs/10.1198/jasa.2009.ap08746"
+      },
+      {
+        "title": "Goodman-Bacon (2021), Difference-in-Differences with Variation in Treatment Timing",
+        "url": "https://www.sciencedirect.com/science/article/pii/S0304407621001445"
+      },
+      {
+        "title": "Callaway & Sant'Anna (2021), Difference-in-Differences with Multiple Time Periods",
+        "url": "https://www.sciencedirect.com/science/article/pii/S0304407620303948"
+      },
+      {
+        "title": "Rambachan & Roth (2023), A More Credible Approach to Parallel Trends",
+        "url": "https://academic.oup.com/restud/article/90/5/2555/7039335"
+      }
+    ],
+    "demos": [
+      "forecasting",
+      "kalman-filter",
+      "markov",
+      "drift-detection"
+    ]
+  }
+};

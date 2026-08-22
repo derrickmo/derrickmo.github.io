@@ -1,0 +1,239 @@
+// GENERATED from content/lessons/rnn-nlp/tokenization.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rnn-nlp/tokenization/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "tokenization": {
+    "level": "intro",
+    "body": {
+      "intuition": [
+        "Before any language model can do arithmetic on text, the text has to become numbers - and the very first design decision is what counts as a 'unit'. Tokenization is that decision: how to chop a string into a sequence of discrete tokens that get mapped to integer IDs. It sounds mundane, but it silently shapes everything downstream: the vocabulary size, how gracefully the model handles rare or unseen words, how many tokens a sentence costs (which is literally what you pay per API call), and even which tasks are hard (arithmetic and spelling are famously awkward partly because of how numbers and characters get split).",
+        "The two naive extremes both fail. Word-level tokenization gives short sequences and meaningful units, but the vocabulary is unbounded (every typo, name, and morphological variant is a new word) and any word not seen in training becomes a useless 'unknown' token - catastrophic for morphologically rich languages and real-world text. Character-level tokenization has a tiny fixed vocabulary and never hits an unknown character, but sequences become very long and each token carries almost no meaning, making the model work harder to learn anything. Subword tokenization is the sweet spot the whole field converged on: keep common words whole, break rare words into meaningful pieces, and guarantee that any string can be represented by falling back to smaller units.",
+        "Byte-Pair Encoding (BPE) is the dominant algorithm and the cleanest to understand: start from individual characters (or bytes), then repeatedly find the most frequent adjacent pair and merge it into a new token, building up a vocabulary of increasingly large subwords until you reach a target size. WordPiece (used by BERT) is a close variant that merges by likelihood gain rather than raw frequency, and SentencePiece is a framework that runs BPE or unigram tokenization directly on raw text (including the spaces) so it's language-agnostic and reversible. Understanding BPE - a greedy merge loop over pair frequencies - demystifies the component every modern LLM starts with."
+      ],
+      "math": [
+        {
+          "h": "The vocabulary-vs-sequence-length trade-off",
+          "paras": [
+            "Tokenization trades vocabulary size against sequence length. A larger vocabulary means shorter sequences (fewer tokens per sentence) but a bigger, sparser embedding table; a smaller vocabulary means longer sequences but denser reuse of each token. The total compute of a transformer scales with sequence length (quadratically in attention), so token efficiency - how many tokens a given text costs - directly affects cost and context usage."
+          ],
+          "tex": "\\text{word-level: } |V| \\to \\infty,\\; L \\text{ small} \\qquad \\text{char-level: } |V| \\approx 100,\\; L \\text{ large} \\qquad \\text{subword: } |V| \\sim 10^4\\text{--}10^5,\\; L \\text{ moderate}",
+          "texNote": "|V| is vocabulary size, L is sequence length. Subword tokenization picks a middle point: a bounded vocabulary that still keeps sequences reasonably short, with no true out-of-vocabulary failures."
+        },
+        {
+          "h": "BPE: greedily merge the most frequent adjacent pair",
+          "paras": [
+            "BPE starts with a base vocabulary of characters/bytes and iteratively grows it. At each step it counts how often each adjacent token pair co-occurs across the corpus, merges the single most frequent pair into a new token, and records the merge rule. Repeating this M times yields base + M vocabulary items; the ordered list of merges IS the tokenizer, applied greedily to new text."
+          ],
+          "tex": "(a, b)^\\star = \\arg\\max_{(a,b)} \\text{count}(a b \\text{ adjacent}), \\qquad V \\leftarrow V \\cup \\{ ab \\}, \\quad \\text{repeat } M \\text{ times}",
+          "texNote": "Each iteration adds one token (the most frequent pair merged). The merge list is learned once on a corpus, then applied deterministically; the target vocab size M is the main hyperparameter."
+        }
+      ],
+      "code": [
+        {
+          "h": "Byte-Pair Encoding from scratch",
+          "paras": [
+            "The whole training algorithm: count adjacent pairs, merge the most frequent, repeat. This is the exact procedure GPT-style tokenizers use (over bytes rather than characters)."
+          ],
+          "code": "from collections import Counter\n\ndef get_pairs(tokens):\n    return Counter(zip(tokens, tokens[1:]))\n\ndef train_bpe(text, num_merges):\n    tokens = list(text)                    # start from characters\n    merges = []\n    for _ in range(num_merges):\n        pairs = get_pairs(tokens)\n        if not pairs: break\n        best = max(pairs, key=pairs.get)   # most frequent adjacent pair\n        merges.append(best)\n        # merge every occurrence of `best` into a single token\n        merged, i = [], 0\n        while i < len(tokens):\n            if i < len(tokens)-1 and (tokens[i], tokens[i+1]) == best:\n                merged.append(tokens[i] + tokens[i+1]); i += 2\n            else:\n                merged.append(tokens[i]); i += 1\n        tokens = merged\n    return merges, tokens\n\nmerges, toks = train_bpe('low lower lowest ' * 20, num_merges=10)\nprint('learned merges:', merges[:5])   # ('l','o'), ('lo','w'), ... builds up 'low'\nprint('final token count:', len(toks), 'vs', len('low lower lowest ' * 20), 'chars')",
+          "caption": "Count adjacent pairs, merge the most frequent, repeat - the merge list IS the tokenizer. Real BPE runs over raw bytes so any string is representable."
+        },
+        {
+          "h": "Token count is what you pay - and it varies wildly",
+          "paras": [
+            "The same information costs a different number of tokens depending on the text, which matters because compute, cost, and context limits are all measured in tokens - not characters or words."
+          ],
+          "code": "# with a real tokenizer (e.g. tiktoken for GPT models):\n# import tiktoken; enc = tiktoken.get_encoding('cl100k_base')\n\nexamples = {\n    'common English': 'the quick brown fox',\n    'rare/technical': 'antidisestablishmentarianism',\n    'code/symbols':  'x = [i**2 for i in range(10)]',\n    'other language': 'sesquipedalian',\n}\n# enc.encode(text) returns the token IDs; len() is the token cost\n# common words -> ~1 token each; rare words split into many subword pieces;\n# a long rare word can cost 5-8 tokens while a common word costs 1\nfor name, txt in examples.items():\n    print(f'{name:16s}: {len(txt)} chars')  # tokens != chars: subword pieces vary by familiarity",
+          "caption": "Common words are one token; rare/long words fragment into several subwords. Token count (not character count) drives cost, latency, and context budget."
+        }
+      ],
+      "useCases": [
+        "Every LLM and modern NLP model starts with a subword tokenizer - it's the literal first layer of GPT, BERT, LLaMA, and every transformer, converting text to the integer IDs the embedding table indexes.",
+        "Cost and context management - API pricing and context-window limits are measured in tokens, so understanding tokenization is how you estimate cost, fit prompts into a window, and explain why some text is unexpectedly expensive.",
+        "Handling multilingual and out-of-distribution text - subword/byte tokenization guarantees any string (new words, code, emoji, other scripts) is representable without an 'unknown token' failure, which is why byte-level BPE is standard.",
+        "Diagnosing model quirks - many LLM weaknesses (poor arithmetic, spelling/counting-letters tasks, sensitivity to whitespace) trace back to how the tokenizer splits numbers, characters, and spaces."
+      ],
+      "pitfalls": [
+        "Tokenization is not word-splitting: a single 'word' can be several tokens and a token can span a word boundary or a partial word - reasoning about the model in 'words' misleads you about cost and behavior.",
+        "Numbers and characters tokenize inconsistently - '123' and '1234' may split completely differently, and letters inside a word aren't individually accessible, which is a large part of why LLMs struggle with arithmetic and character-level tasks (counting letters, reversing strings).",
+        "Whitespace and leading spaces matter: in byte-level BPE the space is part of the token (' the' vs 'the' are different tokens), so prompt formatting and trailing spaces can silently change tokenization and model behavior.",
+        "The tokenizer is trained on a specific corpus and frozen - text from a very different domain or language than the training corpus fragments into many more tokens (worse efficiency), which is a real cost/performance penalty for underrepresented languages.",
+        "Vocabulary size is a fixed design choice with real trade-offs (embedding-table size and softmax cost vs sequence length); you can't compare two models' token counts or 'context length in words' without knowing their tokenizers."
+      ],
+      "connections": [
+        {
+          "ref": "rnn-nlp/word-vectors",
+          "text": "Once text is tokens, each token ID indexes an embedding vector - the next lesson is how those vectors are learned to carry meaning."
+        },
+        {
+          "ref": "rnn-nlp/classical-lm",
+          "text": "Perplexity and language-model probabilities are defined per token, so the tokenizer determines the units the model predicts - and cross-tokenizer perplexity isn't comparable."
+        },
+        {
+          "ref": "rnn-nlp/text-generation",
+          "text": "Decoding produces one token at a time, so generation speed and the granularity of sampling are set by the tokenizer."
+        },
+        {
+          "text": "Module 08's transformers consume token-embedding sequences; attention cost is quadratic in the token count, so tokenization efficiency directly affects transformer compute."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does tokenization do?",
+          "a": "Splits text into discrete tokens mapped to integer IDs - the first step turning text into the numbers a model can process."
+        },
+        {
+          "q": "Why not use word-level tokenization?",
+          "a": "The vocabulary is unbounded (every typo/name/variant is new) and any unseen word becomes a useless unknown token - bad for rare words and morphologically rich languages."
+        },
+        {
+          "q": "Why not use character-level tokenization?",
+          "a": "Tiny fixed vocabulary and no unknowns, but sequences get very long and each token carries little meaning, making learning harder and compute higher."
+        },
+        {
+          "q": "What is Byte-Pair Encoding (BPE)?",
+          "a": "Start from characters/bytes, repeatedly merge the most frequent adjacent pair into a new token until a target vocabulary size - the merge list is the tokenizer."
+        },
+        {
+          "q": "How does WordPiece differ from BPE?",
+          "a": "It merges the pair that most increases the training-data likelihood (a likelihood criterion) rather than raw frequency; used by BERT."
+        },
+        {
+          "q": "What is SentencePiece?",
+          "a": "A tokenizer framework that runs BPE or unigram directly on raw text (spaces included), making it language-agnostic and losslessly reversible - no pre-tokenization needed."
+        },
+        {
+          "q": "Why is byte-level BPE used?",
+          "a": "Working over raw bytes guarantees every possible string (any language, emoji, code) is representable with no unknown-token failures."
+        },
+        {
+          "q": "Why do LLMs struggle with arithmetic and counting letters?",
+          "a": "Numbers split inconsistently into subwords and individual characters within a token aren't accessible, so digit/character-level operations are awkward for the model."
+        },
+        {
+          "q": "Do leading spaces matter in tokenization?",
+          "a": "Yes - in byte-level BPE the space is part of the token, so ' the' and 'the' are different tokens; formatting can change tokenization."
+        },
+        {
+          "q": "Why is token count more relevant than word or character count?",
+          "a": "Cost, latency, and context-window limits are all measured in tokens, and one word can be several tokens depending on familiarity."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Walk through how BPE is trained and then applied to new text, and explain why it handles unseen words gracefully.",
+          "a": "Training: start with the corpus represented as sequences of base units (characters, or more commonly bytes so nothing is out-of-vocabulary). Count how often each adjacent pair of tokens co-occurs across the whole corpus, find the single most frequent pair, and merge it everywhere into a new token, recording that merge rule. Repeat this greedy merge step until you reach the target vocabulary size (base units + number of merges) - early merges capture common letter pairs, later merges build up common subwords and whole frequent words. The output is an ordered list of merge rules plus the resulting vocabulary. Application: to tokenize new text, split it into base units and then apply the learned merges in order (greedily merging the highest-priority applicable pairs), which deterministically reproduces the subword segmentation. It handles unseen words gracefully because of the base-unit fallback: a word never seen in training doesn't become an 'unknown' token - it's segmented into whatever known subword pieces (down to individual bytes in the worst case) the merge rules produce. So a novel word like a new technical term or a rare name gets broken into meaningful, reusable subword fragments the model has seen in other contexts, rather than being lost - which is the key advantage over word-level tokenization.",
+          "deepDive": {
+            "q": "Why does BPE apply merges in the order they were learned, and what would go wrong otherwise?",
+            "a": "The merge order encodes a priority: earlier (more frequent) merges are applied before later ones, so tokenization is deterministic and matches the segmentation the vocabulary was built to represent. Concretely, when tokenizing new text you repeatedly find the highest-priority (earliest-learned) merge rule that applies to any adjacent pair in the current sequence and apply it, then repeat - this greedy, priority-ordered process reconstructs the same subword units seen in training. If you applied merges in an arbitrary order (or all-at-once by frequency in the new text), you could get a different, inconsistent segmentation of the same word across contexts, which would fragment the vocabulary's meaning - the model would see the same string tokenized different ways, wasting capacity and hurting learning. The ordered merge list makes tokenization a fixed, reproducible function, so a given string always maps to the same token sequence, which is essential for the embedding table to build stable representations of each subword."
+          }
+        },
+        {
+          "q": "Explain the vocabulary-size trade-off in tokenization: what does a larger vocabulary buy and cost?",
+          "a": "Vocabulary size sits between two competing pressures. A LARGER vocabulary means each token covers more text (common words and even phrases become single tokens), so sequences are SHORTER for the same content - fewer tokens to process, which reduces the number of attention/compute steps (and attention is quadratic in sequence length, so this compounds), lowers API cost, and fits more content into a fixed context window. But a larger vocabulary costs more in the embedding table and the output softmax: the model needs an embedding vector per token and a final linear layer producing a logit per token, both O(|V| * hidden_dim), so a huge vocabulary inflates parameter count and the cost of the output projection, and rare tokens get few training examples (sparse, poorly-learned embeddings). A SMALLER vocabulary is the reverse: a compact, densely-trained embedding table and cheap softmax, but longer sequences (each piece of text costs more tokens), raising per-sequence compute and eating context budget, and pushing more of the modeling burden onto composing many small pieces. So the choice balances sequence length and per-step efficiency against embedding/softmax cost and how well each token is trained - modern LLMs land around 10^4 to 10^5 tokens as the empirical sweet spot, large enough to keep sequences short but not so large that the embedding table dominates or tokens are undertrained.",
+          "deepDive": {
+            "q": "How does a larger vocabulary interact specifically with the output softmax cost, and what techniques address it?",
+            "a": "The final layer of a language model projects the hidden state to a logit for every token in the vocabulary and applies a softmax, costing O(|V| * hidden_dim) per predicted position - so a very large vocabulary makes this output projection and normalization a significant fraction of compute and memory (the weight matrix alone is |V| * hidden_dim parameters). Techniques to mitigate it historically included the hierarchical softmax (organize the vocabulary as a tree so predicting a token costs O(log |V|) instead of O(|V|), used in word2vec) and sampled/noise-contrastive approximations during training (only compute the softmax over the true token plus a sample of negatives, avoiding the full normalization - also used in word2vec's negative sampling). For modern transformers, weight tying (sharing the input embedding matrix with the output projection) halves the parameter cost, and the vocabulary is kept in the sweet-spot range rather than made enormous. The tension is fundamental: a bigger vocabulary shortens sequences (helping the quadratic attention cost) but grows the linear-in-|V| embedding/softmax cost, so the optimal vocabulary size balances these two opposing compute terms - which is why it's a deliberately tuned hyperparameter, not maximized."
+          }
+        },
+        {
+          "q": "A user complains that an LLM can't reliably count the letters in a word or do multi-digit arithmetic. Explain how tokenization contributes to this, and what it implies.",
+          "a": "Both failures trace substantially to tokenization hiding the sub-token structure the task needs. For counting letters: the tokenizer maps a word to one or a few subword tokens, and the individual characters inside a token are not separately represented - the model sees, say, the single token for 'strawberry' (or a couple of subword pieces), not a sequence of individual letters, so 'how many r's' requires the model to have memorized the spelling of that token rather than being able to inspect its characters directly. The information is there implicitly (the embedding encodes the string) but not in an easily-countable form. For arithmetic: numbers tokenize inconsistently - '123', '1234', and '12345' can split into completely different subword pieces (e.g., '123' as one token but '1234' as '12'+'34' or '123'+'4' depending on the merges), so the model can't rely on a stable per-digit representation with consistent place value; the same digit in different positions or different-length numbers gets different tokens, making the carrying and place-value logic that arithmetic requires very hard to learn. The implication is that these are not fundamental reasoning failures so much as representation mismatches: the tokenizer discards the uniform character/digit-level structure the task depends on. It also implies fixes - some models add digit-level tokenization for numbers, or chain-of-thought prompting that spells out digits/characters explicitly helps by forcing the sub-token structure into the token stream where the model can operate on it - and it's a caution that the tokenizer is a real, consequential modeling choice, not a neutral preprocessing step.",
+          "deepDive": {
+            "q": "Why might tokenizing each digit separately help arithmetic, and what does it cost?",
+            "a": "Tokenizing each digit as its own token (so '1234' becomes four tokens '1','2','3','4') gives the model a uniform, position-aligned representation of numbers: every digit is the same token regardless of the number's length or the digit's position, so the model can learn consistent place-value and carrying operations across the digit sequence rather than facing a different subword segmentation for every number. This is why some models (and prompting tricks that space out digits) improve arithmetic - the regular structure matches the algorithm arithmetic actually requires. The cost is sequence length and efficiency: numbers become much longer token sequences (a 10-digit number is 10 tokens instead of 1-3), consuming more context and compute, and it only helps the numeric case while every other kind of text still uses subword tokenization. So it's a targeted trade-off - spend more tokens on numbers to make their structure learnable - which is exactly the general tokenization theme that the choice of units directly determines which tasks are easy or hard, and there's no single tokenization that's optimal for everything."
+          }
+        },
+        {
+          "q": "Compare BPE, WordPiece, and the unigram (SentencePiece) approaches - how each decides on the vocabulary.",
+          "a": "All three produce subword vocabularies but differ in the criterion and direction of construction. BPE is bottom-up and frequency-driven: it starts from base units and greedily merges the most FREQUENT adjacent pair at each step, building larger tokens until the target size - simple, deterministic, and the merges define the tokenizer. WordPiece (BERT) is also bottom-up and merge-based, but instead of raw frequency it merges the pair that most increases the LIKELIHOOD of the training corpus under a unigram language model of the tokens - i.e., it picks the merge that best 'explains' the data, which tends to favor merges that are frequent relative to the frequency of their parts, a slightly more principled criterion than raw count. The unigram model (the other SentencePiece option, from Kudo) is top-down and probabilistic: it starts with a large candidate vocabulary and iteratively PRUNES tokens, removing those whose loss (drop in corpus likelihood under a unigram token model) is smallest, until the target size - and crucially it keeps a probability per token, so at tokenization time it can consider MULTIPLE possible segmentations of a word and pick the most probable (or sample among them, enabling 'subword regularization'). SentencePiece is the framework wrapping BPE or unigram to run directly on raw text including spaces (treating the input as a raw character stream, making it language-agnostic and reversible). Practically: BPE is the most common (GPT family, and the mechanism is easiest to reason about), WordPiece is BERT's, and unigram/SentencePiece is favored for multilingual and non-space-delimited languages and when you want a probabilistic model of segmentation.",
+          "deepDive": {
+            "q": "What is subword regularization and why does the unigram model enable it while BPE doesn't naturally?",
+            "a": "Subword regularization is a training-time data augmentation where the SAME word is deliberately tokenized in DIFFERENT valid ways across training examples, so the model sees multiple segmentations of the same string and learns representations robust to how a word happens to be split. The unigram model enables this naturally because it's probabilistic: it assigns a probability to each token and can enumerate the multiple possible segmentations of a word (there are usually several valid ways to break a word into vocabulary subwords) with their probabilities, so during training you can SAMPLE a segmentation from that distribution rather than always taking the single most-probable one. BPE doesn't naturally support this because its greedy, priority-ordered merge process is DETERMINISTIC - a given string maps to exactly one segmentation, so there's no built-in distribution over segmentations to sample from (though a stochastic 'BPE-dropout' variant randomly skips merges to inject similar variability). The benefit of subword regularization is improved robustness and a mild regularization effect - the model doesn't overfit to one arbitrary segmentation and handles noisy or unusually-split text better - which is why the probabilistic unigram approach is attractive for low-resource and multilingual settings where segmentation ambiguity is high and robustness matters."
+          }
+        },
+        {
+          "q": "Why is byte-level tokenization (over raw bytes rather than Unicode characters) the modern default, and what problem does it solve?",
+          "a": "Byte-level tokenization operates on the raw UTF-8 bytes of the text rather than on Unicode characters, and its key property is that the base vocabulary is just the 256 possible byte values - which is small, fixed, and covers absolutely everything, because any string in any language, any emoji, any symbol, and any code is ultimately a sequence of bytes. This guarantees there is NEVER a true out-of-vocabulary failure: even a character the tokenizer's training corpus never saw is representable as its constituent bytes, so byte-level BPE can encode any possible input string. It solves the problem that character-level tokenization over Unicode faces - Unicode has ~150,000 characters across all scripts, so a character-level base vocabulary is either huge or incomplete, and rare scripts/emoji would be unknown; working at the byte level sidesteps this entirely with a 256-symbol base. On top of these bytes, BPE merges build up common subwords as usual, so common English text still tokenizes efficiently into whole-word tokens while exotic input degrades gracefully to byte sequences rather than failing. The cost is that non-Latin scripts (whose characters are multiple UTF-8 bytes each) can tokenize into more tokens than a script-native tokenizer would, a fairness/efficiency penalty for underrepresented languages - but the universality and the elimination of unknown tokens made byte-level BPE (used by GPT-2 onward) the robust default, especially for models expected to handle arbitrary web text, code, and many languages.",
+          "deepDive": {
+            "q": "What is the token-efficiency fairness issue byte-level tokenization creates across languages, and why does it matter?",
+            "a": "Because byte-level BPE's merges are learned from a training corpus that's typically English-dominated, common English words become single efficient tokens, but text in underrepresented languages - especially those using non-Latin scripts where each character is 2-4 UTF-8 bytes - gets far fewer learned merges and fragments into many more tokens per unit of meaning. Concretely, the same sentence's worth of information can cost several times more tokens in, say, an Indic or Southeast Asian language than in English. This matters for three reasons: (1) COST - since API pricing and compute are per-token, speakers of underrepresented languages pay more for the same content, an equity issue; (2) CONTEXT - the effective context window (measured in tokens) holds less actual text in these languages, so the model can 'see' less of a document; (3) PERFORMANCE - longer token sequences for the same content are harder to model and the undertrained subword pieces carry weaker representations, contributing to worse quality in those languages. It's a concrete, measurable downstream consequence of a tokenizer trained on skewed data, and it's why multilingual models invest in more balanced tokenizer training corpora and larger/more balanced vocabularies - the tokenizer, far from a neutral preprocessing step, encodes and propagates the representation imbalance of its training data."
+          }
+        },
+        {
+          "q": "You're building a model for a specialized domain (say chemistry or source code) where standard tokenization fragments key terms badly. What are your options?",
+          "a": "The problem is that a general-purpose tokenizer trained on web text has no merges for your domain's frequent terms, so chemical formulae, gene names, or code identifiers shatter into many subword (or byte) pieces - hurting efficiency and forcing the model to reassemble meaningful units from fragments. Options, roughly in increasing cost: (1) Add special/domain tokens to the existing vocabulary - extend the tokenizer with a curated set of important domain terms as new tokens (and correspondingly extend the embedding table with new rows initialized sensibly), keeping the base tokenizer intact so general text still works; this is cheap and common for adding a handful of known-important terms or control tokens. (2) Train a domain-specific tokenizer from scratch on a domain corpus - if the whole application is in-domain (a code model, a biomedical model), learning BPE/unigram merges directly on domain text produces a vocabulary where the frequent domain units are single efficient tokens (this is why code models often use tokenizers trained on code, which handle indentation, camelCase, and operators far better). (3) Continue tokenizer/model pretraining on domain data so the existing subword pieces get better-trained representations even without new tokens. The trade-offs: adding tokens or retraining the tokenizer changes the vocabulary, so you generally must retrain or at least fine-tune the model's embeddings (and can't directly reuse a pretrained model's weights for the new tokens without initialization care), and a fully domain-specific tokenizer sacrifices some general-text efficiency. The decision hinges on how in-domain the application is: a few extra special tokens for a mostly-general model, versus a from-scratch domain tokenizer for a dedicated domain model.",
+          "deepDive": {
+            "q": "When you add new tokens to a pretrained model's vocabulary, why can't you just use random embeddings for them, and how do you initialize them well?",
+            "a": "A pretrained model's embedding space is already highly structured - existing token embeddings occupy a learned geometry where the rest of the network expects inputs to live, and the output softmax expects logits calibrated to that space. Dropping in randomly-initialized embeddings for new tokens places them at arbitrary, out-of-distribution points, so early in fine-tuning those tokens produce meaningless activations that can destabilize training and take a long time to move into the right region, and their output logits are miscalibrated relative to existing tokens. Better initializations exploit the fact that a new token usually has a meaning expressible in existing tokens: a common, effective heuristic is to initialize the new token's embedding as the AVERAGE of the embeddings of the subword tokens it would have been split into under the old tokenizer (so a new single token for a term starts near the centroid of its old pieces, already in a sensible region of the space), and similarly initialize its output-projection row. This gives the new token a warm start that's semantically close to its decomposition, so fine-tuning only has to refine rather than discover its representation from noise - dramatically faster and more stable than random initialization. It's the same principle as any transfer-learning initialization: start new parameters near where the existing structure implies they should be, not at random."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Tokenization",
+        "back": "Splitting text into discrete tokens mapped to integer IDs - the first step converting text into numbers a model processes. Shapes vocab size, sequence length, and cost."
+      },
+      {
+        "type": "intuition",
+        "front": "Word vs char vs subword",
+        "back": "Word: unbounded vocab + unknown-word failures. Char: tiny vocab but very long sequences, weak tokens. Subword (BPE): bounded vocab, no true unknowns, moderate length - the winner."
+      },
+      {
+        "type": "definition",
+        "front": "Byte-Pair Encoding (BPE)",
+        "back": "Start from chars/bytes; repeatedly merge the most frequent adjacent pair into a new token until a target vocab size. The ordered merge list IS the tokenizer."
+      },
+      {
+        "type": "definition",
+        "front": "WordPiece vs BPE",
+        "back": "WordPiece (BERT) merges the pair that most increases corpus likelihood; BPE merges the most frequent pair. Both bottom-up and merge-based."
+      },
+      {
+        "type": "definition",
+        "front": "SentencePiece / unigram",
+        "back": "Runs BPE or a probabilistic unigram model on raw text (spaces included) - language-agnostic, reversible; unigram keeps token probabilities enabling multiple segmentations."
+      },
+      {
+        "type": "intuition",
+        "front": "Why byte-level BPE?",
+        "back": "A 256-byte base vocabulary covers every possible string (any language/emoji/code) - no true out-of-vocabulary failures, at some token-efficiency cost for non-Latin scripts."
+      },
+      {
+        "type": "pitfall",
+        "front": "Tokens != words",
+        "back": "One word can be several tokens; a token can span a boundary; leading spaces are part of the token (' the' != 'the'). Reason in tokens, not words, for cost and behavior."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why LLMs struggle at arithmetic/counting letters",
+        "back": "Numbers split inconsistently across lengths and characters inside a token aren't accessible - the tokenizer hides the uniform digit/char structure those tasks need."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Sennrich et al., Neural Machine Translation of Rare Words with Subword Units (BPE, 2016)",
+        "url": "https://aclanthology.org/P16-1162/"
+      },
+      {
+        "title": "Kudo, Subword Regularization / Unigram LM (2018)",
+        "url": "https://aclanthology.org/P18-1007/"
+      },
+      {
+        "title": "Kudo & Richardson, SentencePiece (2018)",
+        "url": "https://aclanthology.org/D18-2012/"
+      },
+      {
+        "title": "Hugging Face: Tokenizers course (BPE/WordPiece/Unigram)",
+        "url": "https://huggingface.co/learn/nlp-course/chapter6/1"
+      }
+    ],
+    "demos": [
+      "tokenizer"
+    ]
+  }
+};

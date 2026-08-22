@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/fine-tuning/unsloth.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/fine-tuning/unsloth/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "unsloth": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Everything in this module reduced a resource. LoRA removed fourteen of the sixteen bytes per parameter; QLoRA compressed the two that were left; gradient checkpointing attacks activations. What remains is the actual execution of the step, and there the constraint is not arithmetic - it is MEMORY TRAFFIC. A fine-tuning step on a modern accelerator spends much of its time moving tensors between high-bandwidth memory and the compute units, and the standard implementation moves them far more than necessary because each operation is a separate kernel that reads its inputs, writes its output, and hands off. Fusing a chain of operations into one kernel does the same arithmetic while reading and writing once. That is what Unsloth is: hand-written Triton kernels and hand-derived backward passes for the fine-tuning hot path.",
+        "One example is worth more than the general principle because it is enormous and it is invisible until you look. Cross-entropy over a large vocabulary materializes a logits tensor of shape batch x sequence x vocabulary. At a batch of 8, a sequence of 2048, and a vocabulary of 128,000, that is roughly two billion entries - about four gigabytes in bf16, with another copy for the softmax and another for the gradient. The loss is a scalar. All of that memory exists only because the implementation computes the full logits before reducing them. A fused or chunked cross-entropy computes the loss in blocks and never materializes the whole thing, and on a long-context fine-tune it can be the single largest saving available - larger than anything the adapter method contributes.",
+        "And this is the module's capstone, so the last move is to turn the discipline on the tooling itself. Efficiency claims are proxy claims: 'two times faster' and 'seventy percent less memory' are measurements of a specific configuration against a specific baseline, and neither number is meaningful without both. Faster than what - the library's defaults, or the same library with SDPA attention and a fused optimizer already enabled? At what batch size, sequence length, model, and GPU, given that fusion helps most exactly where memory traffic dominates and least where it does not? And 'no accuracy loss' is almost always evidenced by matching training loss on the same data, which is a proxy for the model being equivalent, not a demonstration of it. None of this means the claims are wrong - fused kernels genuinely work, the mechanism is sound, and the wins are real. It means that the correct response to a benchmark table is to reproduce it on your own configuration, which takes twenty minutes and is the only version of the number that applies to you."
+      ],
+      "math": [
+        {
+          "h": "Why fusion helps: arithmetic intensity, not FLOPs",
+          "paras": [
+            "A kernel is compute-bound if it does enough arithmetic per byte moved to keep the units busy, and memory-bound otherwise. Elementwise operations - normalization, activation functions, rotary embeddings, scaling - do almost no arithmetic per byte and are therefore memory-bound.",
+            "Fusion does not reduce the arithmetic at all. It reduces the number of round trips to memory, which is what those operations were actually waiting on."
+          ],
+          "tex": "I = \\frac{\\text{FLOPs}}{\\text{bytes moved}}, \\qquad t \\;\\approx\\; \\max\\!\\left(\\frac{\\text{FLOPs}}{P_{\\text{peak}}},\\; \\frac{\\text{bytes}}{B_{\\text{mem}}}\\right)",
+          "texNote": "For a chain of n elementwise ops on a tensor, the unfused version moves roughly 2n tensor-sized reads and writes; the fused version moves 2. The arithmetic is identical, so the speedup comes entirely from the second term of the max - which also tells you when fusion will NOT help: on a step already dominated by large dense matmuls, there is little traffic to remove."
+        },
+        {
+          "h": "The logits tensor, which is usually the largest allocation in the step",
+          "paras": [
+            "The vocabulary projection produces a tensor proportional to the vocabulary size, and modern vocabularies are large. It exists only to be reduced to a scalar.",
+            "Chunked cross-entropy splits the sequence dimension, computes the loss and gradient blockwise, and never holds the full tensor - the same idea as FlashAttention's tiling, applied to the output head."
+          ],
+          "tex": "M_{\\text{logits}} = B \\cdot T \\cdot V \\cdot b \\;\\times\\; \\{\\text{logits} + \\text{softmax} + \\text{grad}\\} \\\\[4pt] B{=}8,\\; T{=}2048,\\; V{=}128\\text{k},\\; b{=}2 \\;\\Rightarrow\\; \\approx 4\\,\\text{GB per copy}",
+          "texNote": "Three copies of a 4 GB tensor to compute one scalar. This scales with sequence length and with vocabulary, both of which have grown, so it is a bigger problem now than when the standard implementation was written. On long-context fine-tuning it frequently dominates every other allocation - including the ones LoRA and QLoRA were introduced to remove."
+        },
+        {
+          "h": "Gradient checkpointing must be segmented",
+          "paras": [
+            "Store activations only at segment boundaries and recompute within a segment during the backward pass. The detail that people get wrong: checkpointing EVERY layer stores a boundary per layer and therefore saves almost nothing.",
+            "With L layers in segments of size s, you store L/s boundaries and recompute s layers at a time, which is minimized at s of about the square root of L."
+          ],
+          "tex": "M(s) \\;\\propto\\; \\frac{L}{s} + s \\;\\;\\Longrightarrow\\;\\; s^{*} = \\sqrt{L}, \\qquad M^{*} \\propto 2\\sqrt{L} \\quad\\text{vs}\\quad L",
+          "texNote": "The classic sublinear-memory result: O(sqrt(L)) activation memory for roughly one extra forward pass, so about 30 to 40% more compute. The cost is real and it compounds with QLoRA, where the recomputed forward pass dequantizes the weights again - which is why the two techniques together are slower per step than either alone by more than you would guess."
+        }
+      ],
+      "code": [
+        {
+          "h": "The budget, before any library",
+          "paras": [
+            "Compute what the step should cost before installing anything. Most 'I need a faster framework' problems are configuration problems, and the arithmetic tells you which term is actually binding."
+          ],
+          "code": "def budget(P, P_train, B, T, V, L, d, bytes_=2, ckpt=False):\n    weights   = P * bytes_                              # frozen or not\n    train_st  = P_train * 16                            # grad + fp32 master + Adam\n    acts      = B * T * L * d * bytes_ * (1 if not ckpt else 1 / L**0.5) * 12\n    logits    = B * T * V * bytes_ * 3                  # logits + softmax + grad\n    return {k: v / 2**30 for k, v in\n            dict(weights=weights, train_state=train_st,\n                 activations=acts, logits=logits).items()}\n\n# 7B, QLoRA (4-bit base, r=16), B=8, T=2048, V=128k:\n#   weights ......... ~3.5 GB   (4.127 bits/param)\n#   train_state ..... ~0.1 GB   (LoRA only - this is what PEFT bought)\n#   activations ..... several GB, or ~sqrt(L) less with checkpointing\n#   logits .......... ~4 GB     <- OFTEN THE LARGEST SINGLE TERM\n#\n# READ THAT LAST ROW. After LoRA and 4-bit quantization have done their work,\n# the biggest allocation left can be a tensor that exists only to be reduced\n# to one number. That is what fused/chunked cross-entropy removes, and it is\n# why kernel work matters even after the parameter-efficiency work is done.\n\n# WHICH TERM IS BINDING DECIDES WHAT TO DO:\n#   train_state dominates -> use LoRA           (13-02)\n#   weights dominate      -> quantize the base  (13-03)\n#   activations dominate  -> checkpoint, micro-batch\n#   logits dominate       -> chunked cross-entropy, shorter T",
+          "caption": "Run the arithmetic first. After LoRA and QLoRA have removed the parameter terms, the logits tensor is frequently the largest allocation left - and no adapter method touches it."
+        },
+        {
+          "h": "How to verify an efficiency claim - the capstone discipline",
+          "paras": [
+            "The library is a case study; this protocol is the transferable part. A speedup number without a stated baseline configuration is not a measurement, and reproducing it on your own setup takes about twenty minutes."
+          ],
+          "code": "# THE FOUR QUESTIONS ANY EFFICIENCY CLAIM MUST ANSWER:\n#   1. FASTER THAN WHAT? The library's defaults, or a TUNED baseline with\n#      SDPA/Flash attention, a fused optimizer, and bf16 already enabled?\n#      Those are very different denominators.\n#   2. AT WHAT CONFIGURATION? Model, batch size, sequence length, GPU.\n#      Fusion helps most where memory traffic dominates - small batches,\n#      long sequences, large vocabularies - and least where dense matmuls do.\n#   3. WHAT IS HELD FIXED? Same effective batch? Same number of optimizer\n#      steps, or same wall-clock? Same precision? Same seed?\n#   4. WHAT DOES 'NO ACCURACY LOSS' MEAN? Usually: matching training loss on\n#      the same data - a PROXY for equivalence, not a demonstration of it.\n\n# THE MEASUREMENT, on YOUR configuration:\nfor name, cfg in [(\"baseline-default\", plain),\n                  (\"baseline-tuned\",   plain_with_sdpa_and_fused_adam),\n                  (\"fused-kernels\",    optimized)]:\n    torch.cuda.reset_peak_memory_stats()\n    t = time_n_steps(cfg, n=50, warmup=10)          # WARM UP: kernel autotune\n    print(name, f\"{t:.2f}s/step\",                    # and compilation are not\n          f\"{torch.cuda.max_memory_allocated()/2**30:.1f} GB\")   # steady state\n\n# AND THE EQUIVALENCE CHECK, which is the part everyone skips:\n#   - same seed, same data order -> compare loss curves, not just final loss\n#   - generate from both checkpoints on the same prompts and diff\n#   - run the downstream eval, because 'the loss matched' is a proxy too\n\n# THE HONEST SUMMARY OF THIS CLASS OF TOOLS: the mechanism is sound, the\n# wins are real, and the size of the win is a property of YOUR configuration.\n# Reproduce, do not inherit.",
+          "caption": "The protocol, not the library, is the transferable part. Note the tuned baseline in the middle row - a speedup measured against a library's defaults and one measured against an already-optimized configuration are different claims, and only the second one is about the kernels."
+        }
+      ],
+      "useCases": [
+        "Single-GPU fine-tuning of a 7B-to-70B model, which is where this class of tooling is aimed and where the memory savings decide whether the job runs at all rather than merely how fast it runs.",
+        "Long-context fine-tuning, where the logits tensor and the activations both scale with sequence length and the fused cross-entropy is worth more than every parameter-efficiency technique combined.",
+        "Rapid iteration on modest hardware - the practical effect of a genuine two-fold speedup is twice as many hypotheses tested per week, which usually matters more to a project than a few points on any single run.",
+        "Learning where training time actually goes. Reading a fused kernel and its hand-derived backward pass is the most direct way to understand which parts of a transformer step are memory-bound, and that understanding transfers to every framework."
+      ],
+      "pitfalls": [
+        "Inheriting a benchmark number instead of reproducing it. Fusion helps most where memory traffic dominates - small batches, long sequences, large vocabularies - and least on a step already dominated by dense matmuls. The published speedup is a property of the published configuration.",
+        "Comparing against an untuned baseline. A speedup measured against library defaults includes whatever the defaults left on the table - SDPA or Flash attention, a fused optimizer, bf16, an appropriate batch size. Always benchmark a THIRD configuration: the plain library, tuned.",
+        "Accepting matching training loss as proof of equivalence. It is a proxy. Fix the seed and the data order, compare loss CURVES rather than final values, generate from both checkpoints on the same prompts, and run the downstream evaluation.",
+        "Checkpointing every layer. That stores a boundary per layer and saves almost nothing; checkpointing must be SEGMENTED, with segments of about sqrt(L), to get the sublinear-memory result for roughly one extra forward pass.",
+        "Forgetting that checkpointing and QLoRA compound badly. The recomputed forward pass dequantizes the 4-bit weights again, so the combined step is slower than either technique alone would suggest. Budget for it rather than discovering it.",
+        "Benchmarking without a warm-up. Kernel autotuning, compilation, and allocator warm-up all happen on the first steps, so timing from step zero measures startup rather than steady state - and the direction of the error favours whichever configuration compiles less.",
+        "Assuming the open-source single-GPU story extends to your cluster. Several tools in this space are single-GPU in their free tier, with multi-GPU behind a commercial licence or simply unsupported. Check before designing a training plan around one."
+      ],
+      "connections": [
+        {
+          "ref": "fine-tuning/qlora",
+          "text": "The step-time cost introduced there - dequantizing on every matmul, and again during checkpointed recomputation - is exactly what fused kernels attack, and it is why this tooling grew up around QLoRA specifically."
+        },
+        {
+          "ref": "transformers/flash-attention",
+          "text": "The canonical instance of the principle: identical arithmetic, tiled so the attention matrix is never materialized, giving a large speedup and a memory reduction from traffic alone. Chunked cross-entropy is the same idea applied to the output head."
+        },
+        {
+          "ref": "training-systems/gradient-checkpointing",
+          "text": "The other lever on activations, and the one with an explicit compute price. The sqrt(L) segmentation result is there; the interaction with 4-bit weights - recomputation pays the dequantization twice - is what makes it expensive here."
+        },
+        {
+          "ref": "training-systems/torch-compile",
+          "text": "The general-purpose alternative: a compiler that finds fusions automatically rather than a library of hand-written kernels. Hand-written wins where the author knew something the compiler cannot infer, and loses on coverage and on keeping up with new architectures."
+        },
+        {
+          "ref": "frontier-frameworks/finetuning-stacks",
+          "text": "Where this tool sits among TRL, PEFT, Axolotl, LLaMA-Factory and Liger Kernel - and the more durable question of how to evaluate a fast-moving tooling ecosystem without re-benchmarking it every quarter."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does Unsloth actually do?",
+          "a": "Replaces hot-path operations in a fine-tuning step with hand-written Triton kernels and hand-derived backward passes, fusing chains of operations so tensors are read and written once instead of once per operation."
+        },
+        {
+          "q": "Why does kernel fusion speed things up?",
+          "a": "It removes memory traffic, not arithmetic. Elementwise operations are memory-bound - almost no FLOPs per byte moved - so their cost is round trips to memory, and fusing a chain does them in one."
+        },
+        {
+          "q": "What is arithmetic intensity?",
+          "a": "FLOPs per byte moved. Low intensity means memory-bound and fusion helps; high intensity means compute-bound and it does not."
+        },
+        {
+          "q": "Why is the logits tensor a problem?",
+          "a": "It is batch x sequence x vocabulary - about 4 GB at B=8, T=2048, V=128k in bf16, with copies for the softmax and gradient - and it exists only to be reduced to one scalar."
+        },
+        {
+          "q": "What does chunked cross-entropy do?",
+          "a": "Computes the loss and gradient in blocks along the sequence so the full logits tensor is never materialized - FlashAttention's tiling idea applied to the output head."
+        },
+        {
+          "q": "Why must gradient checkpointing be segmented?",
+          "a": "Checkpointing every layer stores a boundary per layer and saves almost nothing. Segments of about sqrt(L) give O(sqrt(L)) activation memory for roughly one extra forward pass."
+        },
+        {
+          "q": "Why do checkpointing and QLoRA compound badly?",
+          "a": "The recomputed forward pass dequantizes the 4-bit weights a second time, so the combined step is slower than either technique alone would suggest."
+        },
+        {
+          "q": "What is the first question to ask about a speedup claim?",
+          "a": "Faster than what. Against library defaults, or against a tuned baseline with SDPA attention, a fused optimizer, and bf16 already enabled - those are very different denominators."
+        },
+        {
+          "q": "When does fusion help least?",
+          "a": "When the step is already dominated by large dense matmuls, which are compute-bound. Large batches and short sequences move the balance that way."
+        },
+        {
+          "q": "What does 'no accuracy loss' usually mean in these claims?",
+          "a": "Matching training loss on the same data - a proxy for the models being equivalent, not a demonstration. Compare loss curves, generate from both, and run the downstream evaluation."
+        },
+        {
+          "q": "Why warm up before benchmarking?",
+          "a": "Kernel autotuning, compilation and allocator warm-up all happen on the first steps, so timing from step zero measures startup, and the error favours whichever configuration compiles less."
+        },
+        {
+          "q": "What is the alternative to hand-written kernels?",
+          "a": "A compiler like torch.compile, which finds fusions automatically. Hand-written wins where the author knew something the compiler cannot infer; it loses on coverage and on new architectures."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Where does time and memory actually go in a fine-tuning step, and how would you decide what to optimize?",
+          "a": "I would enumerate the terms, measure which one binds, and only then choose a technique - because almost every 'I need a faster framework' problem is really a configuration problem. THE MEMORY TERMS. (1) WEIGHTS: P times bytes per parameter. 2 for fp16, about 0.5 for 4-bit NF4. Present regardless of what is trainable. (2) TRAINING STATE: 16 bytes per TRAINABLE parameter - fp16 gradients, the fp32 master copy, and Adam's two moments. This is what LoRA removes, and with an adapter it is negligible. (3) ACTIVATIONS: scales with batch times sequence times depth, not with parameter count. Attacked by gradient checkpointing and micro-batching. (4) LOGITS: batch times sequence times VOCABULARY, times three for the logits, softmax and gradient. At B=8, T=2048, V=128k that is about 4 GB per copy - and after LoRA and 4-bit quantization have done their work, it is frequently the LARGEST remaining allocation. It exists only to be reduced to one scalar. THE TIME TERMS. Dense matmuls in attention and the MLP, which are compute-bound and where the FLOPs are. Elementwise operations - normalization, activations, rotary embeddings, scaling - which are memory-bound and whose cost is round trips to HBM rather than arithmetic. Dequantization, if the base is 4-bit, on every matmul and again during checkpointed recomputation. And data loading, which is embarrassingly often the real answer and is checked last. THE DECISION RULE, which follows directly. If training state dominates, use LoRA. If weights dominate, quantize the base. If activations dominate, checkpoint with segments of about sqrt(L) and micro-batch. If logits dominate, use a chunked cross-entropy or shorten the sequence. If the step is memory-bandwidth-bound on elementwise work, fused kernels are the answer - and only then. HOW I WOULD MEASURE RATHER THAN GUESS. torch.cuda.max_memory_allocated for the peak, the PyTorch profiler for a per-kernel time breakdown, and a check of whether the GPU is actually saturated - if utilization is low, the problem is upstream in the data pipeline and no kernel work will help. I would also compute the arithmetic FIRST, from the formula, because a two-line calculation tells you which term is binding before you install anything. WHY THE ORDER MATTERS. These techniques attack disjoint terms, so applying the wrong one gives no benefit and people conclude the technique does not work. And they interact: checkpointing plus QLoRA pays the dequantization twice, so the combined step is slower than either suggests. Knowing which term you are attacking is most of the skill; the tools are the easy part.",
+          "deepDive": {
+            "q": "Walk through the fused cross-entropy in detail. Why is it such a large win now when it was not a concern historically?",
+            "a": "THE STANDARD IMPLEMENTATION. Take the final hidden states, B x T x d. Multiply by the output embedding, d x V, producing logits B x T x V. Compute log-softmax over V, producing another B x T x V. Gather the target log-probabilities and reduce to a scalar. Backward needs the softmax probabilities, so a third tensor of that size exists or is recomputed. Three tensors proportional to B*T*V, to produce one number. THE FUSED VERSION. Process the B*T tokens in CHUNKS. For each chunk: compute its logits, compute its contribution to the loss, compute the gradient with respect to that chunk's hidden states immediately, accumulate, and free the chunk's logits before moving on. Peak memory is now proportional to chunk_size*V rather than B*T*V, and with a chunk of a few hundred tokens that is a reduction of one to two orders of magnitude. The arithmetic is identical - the same matmul and the same softmax - and the trick is only in never holding all of it at once. It is exactly FlashAttention's structure: tile, reduce online, never materialize the large intermediate. The online-softmax formulation is what makes it exact rather than approximate, since you can accumulate the max and the sum of exponentials across chunks and correct at the end. WHY IT MATTERS NOW AND NOT BEFORE - three changes, all in the same direction. (1) VOCABULARIES GREW. BERT had about 30,000 tokens; modern models have 128,000 to 256,000, and multilingual models more. The term is LINEAR in V, so it has grown four to eight times from this alone. (2) SEQUENCE LENGTHS GREW. Fine-tuning at 512 tokens was normal; now 4k, 8k, 32k are ordinary. Another linear factor, and a large one. (3) EVERYTHING ELSE SHRANK. This is the decisive one. When you were full-fine-tuning a 300M model, optimizer state was the dominant term by far and nobody looked at the logits. LoRA removed fourteen of sixteen bytes per parameter, QLoRA compressed the rest, and checkpointing cut activations - so a term that was once a small fraction of the budget is now, on a long-context QLoRA run, frequently the biggest single allocation. It did not become expensive; everything around it became cheap. THE GENERAL LESSON, and it is the one I would want to land. Optimizing a system re-orders its bottlenecks, and the term that binds after three rounds of optimization is usually not the one anybody was thinking about at the start. The habit that catches this is re-profiling after every significant change rather than carrying forward a mental model formed on the original configuration. Most of the surprising wins in systems work are of this shape: not a clever new technique, but noticing that an old assumption about where the cost lives stopped being true."
+          }
+        },
+        {
+          "q": "A tool claims 2x faster training and 70% less memory with no accuracy loss. How do you evaluate that?",
+          "a": "I would treat it as a proxy claim - which is what it is - and ask what was measured, against what, and whether it applies to me. THE FOUR QUESTIONS. (1) FASTER THAN WHAT? This is the one that matters most. A speedup against a library's DEFAULTS includes whatever the defaults left on the table: eager attention instead of SDPA or Flash, an unfused optimizer, fp32 where bf16 would do, a badly chosen batch size. A speedup against an ALREADY-TUNED baseline is a claim about the kernels. These are very different numbers and the first is much easier to produce. (2) AT WHAT CONFIGURATION? Model, batch size, sequence length, GPU, precision. The mechanism is removing memory traffic, so the benefit is largest where memory traffic dominates - small batches, long sequences, large vocabularies - and smallest on a step dominated by big dense matmuls. The published configuration is usually, and understandably, one where the mechanism shines. (3) WHAT WAS HELD FIXED? Same effective batch size? Same number of optimizer steps, or the same wall-clock? Same precision? A memory reduction that comes partly from a smaller micro-batch is not the same claim as one at matched batch. (4) WHAT DOES 'NO ACCURACY LOSS' MEAN? Almost always: the training loss curve matched. That is a proxy for the resulting models being equivalent, and a reasonable one, but a hand-derived backward pass is exactly the kind of thing that can be subtly wrong in a way a loss curve absorbs. HOW I WOULD ACTUALLY TEST IT, in about twenty minutes. Three configurations, not two: the plain library at defaults, the plain library TUNED, and the tool. Same model, same data, my real sequence length and batch size. Warm up ten steps before timing fifty, because autotuning and compilation happen early and timing from step zero measures startup. Record seconds per step and peak allocated memory for each. The gap between rows two and three is the honest answer for my setup. THE EQUIVALENCE CHECK, which people skip. Fix the seed and the data order, and compare loss CURVES rather than final values - a divergence that closes by the end is still a bug. Generate from both checkpoints on the same prompts and diff the outputs. Run the downstream evaluation, because matching loss is a proxy too. WHAT I EXPECT TO FIND, and I want to be fair here. The mechanism is sound, fused kernels genuinely work, and the memory savings in particular tend to hold up well because they are structural rather than incidental - a tensor you never allocate is never allocated on anyone's hardware. The speedup is the number that varies most with configuration. So my prior is that the memory claim is roughly right for me and the speed claim needs measuring. THE TRANSFERABLE POINT. This is the module's discipline applied to its own tooling. Every lesson here has been about naming the proxy behind a number, and a benchmark table is a proxy for 'this will be faster for you'. The response is not scepticism, it is reproduction - and it is cheap enough that there is no excuse for inheriting the number instead."
+        },
+        {
+          "q": "When would you use hand-written kernels versus torch.compile?",
+          "a": "They are answers to the same question with different failure modes, and I would frame the choice around coverage versus peak performance. WHAT EACH IS. torch.compile captures the graph with Dynamo, lowers it through Inductor, and generates fused Triton kernels automatically. Hand-written libraries provide specific kernels an expert wrote for specific operations, often with the backward pass derived by hand rather than by autograd. WHERE HAND-WRITTEN WINS. (1) WHEN THE AUTHOR KNEW SOMETHING THE COMPILER CANNOT INFER. FlashAttention is the canonical case: the online-softmax reformulation is a mathematical restructuring of the computation, not a fusion of the graph as written. A compiler optimizes the graph it is given; it does not rewrite your algorithm. Chunked cross-entropy is the same kind of move. (2) MANUAL BACKWARD PASSES. Autograd composes the backward of each operation; a human can derive the backward of the whole fused block and often find cancellations and reuses autograd cannot. (3) MEMORY LAYOUT AND RECOMPUTE DECISIONS that depend on knowing the specific shapes and access patterns of a transformer block. WHERE torch.compile WINS. (1) COVERAGE. It works on your architecture, including the one you modified this morning. Hand-written kernels support a list of models, and a custom attention variant or a new normalization silently falls off the fast path - sometimes without telling you. (2) MAINTENANCE. Every new model architecture needs new hand-written kernels; the compiler adapts. In a fast-moving field that is a large difference over a year. (3) NO EXTRA DEPENDENCY, and no risk of a hand-derived backward being subtly wrong. (4) IT COMPOSES with the rest of the PyTorch ecosystem - FSDP, custom autograd functions, distributed training - where specialized libraries frequently have gaps, including the common one where the open-source tier is single-GPU only. THE PRACTICAL ANSWER. Use both: most of these libraries are implemented ON TOP of Triton and coexist with compilation, and the strong configuration is Flash or SDPA attention plus a fused cross-entropy plus torch.compile for everything else. The specialized library is worth it when it targets your exact model and your exact bottleneck, and it is a liability when it constrains which models you can use or which distributed strategy you can adopt. WHAT I WOULD ACTUALLY CHECK FIRST. Whether torch.compile works at all on my setup, because it frequently does not deliver on CPU or without a working Triton installation, and it can fall back to eager silently. And whether my model is on the library's supported list - if it is not, the comparison is moot. Then measure all of it on my configuration, because the ranking between these options is a property of the model, the shapes and the hardware, and nobody's benchmark table is about my job.",
+          "deepDive": {
+            "q": "What would make you distrust a hand-written fused kernel, and how would you validate one?",
+            "a": "WHAT WOULD WORRY ME. (1) A HAND-DERIVED BACKWARD PASS. This is the highest-risk component in the whole category. Autograd is mechanically correct by construction; a human derivation can be subtly wrong - a missing term that only matters when a particular input is negative, a wrong reduction axis that cancels for square shapes, an incorrect treatment of a masked position. And the symptom is not a crash, it is a slightly wrong gradient, which training absorbs. The loss still goes down. (2) NUMERICAL SHORTCUTS. Fused kernels often skip intermediate upcasts to fp32 to save traffic. Usually fine, occasionally not - accumulating a softmax or a normalization statistic in bf16 changes results in ways that appear only at long sequence lengths or unusual value ranges. (3) SILENT FALLBACKS AND SILENT NON-FALLBACKS. Either the library quietly reverts to a slow path (you lose the speed, harmless) or it quietly applies a kernel to a case it was not validated for (you lose correctness, not harmless). (4) EDGE CASES: sequence lengths that are not nice multiples, padded batches, unusual head dimensions, and anything to do with masking. Tiled kernels have boundary conditions and boundaries are where kernel bugs live. HOW I WOULD VALIDATE, in order of cost. (1) GRADCHECK against the reference implementation on small tensors in float64. This is the single most valuable test and it directly targets the highest-risk component. Do it for the awkward shapes too - odd lengths, single-element batches, fully-masked rows - not only the round ones. (2) FORWARD EQUIVALENCE against the reference at the real dtype, checking max absolute and relative error, and confirming the error is at rounding scale rather than merely small. (3) A SHORT TRAINING-EQUIVALENCE RUN: same seed, same data order, both implementations, compare the loss curves step by step. A correct kernel gives curves that track closely from step one and diverge only slowly from floating-point non-determinism. A subtly wrong gradient shows as an early, systematic separation - which is why comparing curves beats comparing final loss. (4) GENERATE from both checkpoints on the same prompts and diff. (5) THE DOWNSTREAM EVALUATION, because everything above is still a proxy. WHAT I WOULD DO IN PRACTICE. Widely-used kernels - Flash attention, the well-established fused cross-entropies - have had this validation done by many people and I would trust them at the level of running a smoke test. A newer or less-used kernel, or one for an architecture the library recently added support for, gets the gradcheck. The asymmetry is deliberate: the cost of the check is minutes and the cost of a subtly wrong gradient is a training run whose result you cannot explain and whose loss curve looked fine throughout. THE PRINCIPLE. Performance work is the one area where a correctness bug is systematically likely to go unnoticed, because the artefact still trains, the loss still falls, and every metric you look at is downstream of the thing that broke. That is an argument for validating against a reference rather than against your expectations."
+          }
+        },
+        {
+          "q": "You are given a fine-tuning job that runs out of memory. Walk through your response.",
+          "a": "MEASURE FIRST, in two minutes, because the fix depends entirely on which term is binding and guessing wastes hours. Run one step with torch.cuda.max_memory_allocated, and if it will not complete a step, compute the budget from the formula: weights = P times bytes per parameter; training state = 16 bytes per trainable parameter; activations proportional to batch times sequence times depth; logits proportional to batch times sequence times vocabulary, times three. Those four numbers tell me what to do. THEN, BY WHICH TERM DOMINATES. (1) TRAINING STATE DOMINATES - I am full-fine-tuning. Switch to LoRA. This is the largest single lever available, taking fourteen of sixteen bytes per parameter to nearly nothing, and it costs the low-rank constraint. (2) WEIGHTS DOMINATE - the model itself does not fit. Quantize the base to 4-bit NF4 with double quantization: roughly four times smaller, at the cost of a slower step and some quantization error. (3) ACTIVATIONS DOMINATE - long sequences or a large batch. Gradient checkpointing with segments of about sqrt(L), for roughly 30 to 40% more compute, plus micro-batching with gradient accumulation to keep the effective batch while cutting the peak. (4) LOGITS DOMINATE - and check this explicitly, because it is the one people do not think of and it is frequently the largest term after the others have been reduced. Batch times sequence times a 128k vocabulary, times three copies. Fix: a chunked or fused cross-entropy, which removes it almost entirely. THE CHEAP THINGS I WOULD TRY IN PARALLEL, since they cost nothing. Confirm the optimizer is not fp32 throughout. Check for anything accumulating across steps - a metrics list holding tensors that still carry graph references is a classic slow leak that presents as OOM after N steps rather than immediately, and the tell is that step one succeeds. Set expandable_segments in the allocator if the failure is fragmentation, which shows as an OOM while nvidia-smi reports free memory. Lower the sequence length if the data does not need it, since two terms scale with it. THE LAST RESORTS. Paged optimizer states, which absorb spikes by falling back to host memory - a robustness measure rather than a capacity plan, since PCIe becomes the bottleneck if it runs steadily. Then sharding across devices with FSDP or ZeRO-3, which divides everything at the cost of parameter all-gathers, roughly 1.5x DDP's communication. WHAT I WOULD NOT DO FIRST. Install a faster framework. It may well help - fused cross-entropy in particular is a real and large fix - but installing a dependency before knowing which term is binding is how people end up with a complex stack that did not address their actual problem. The arithmetic is two lines and it tells you the answer."
+        },
+        {
+          "q": "How should a team evaluate fast-moving fine-tuning tooling without re-benchmarking every quarter?",
+          "a": "By separating what changes from what does not, and only tracking the first. WHAT DOES NOT CHANGE - the principles worth investing in. The memory budget: 16 bytes per trainable parameter, weights times bytes, activations proportional to batch times sequence times depth, logits proportional to batch times sequence times vocabulary. The roofline distinction between memory-bound and compute-bound work, which tells you what fusion can and cannot buy. The sqrt(L) checkpointing result. These are arithmetic and they will be true in five years. A team that understands them can evaluate any new tool in an afternoon; a team that has memorized a tool's flags cannot. WHAT DOES CHANGE - and should be re-checked, but cheaply. Which library is fastest, which supports your architecture, which handles multi-GPU in its open tier, which has kept up with the current model families. THE INVESTMENT I WOULD MAKE. A REPRODUCIBLE INTERNAL BENCHMARK: your model, your sequence length, your batch size, your hardware, run as a script, producing seconds per step and peak memory for a set of configurations including a properly TUNED baseline. Build it once. Then evaluating a new tool is running one script, and the answer is about your job rather than someone's blog post. This is the highest-leverage thing a team can build here and it is a day of work. THE POLICY I WOULD ADOPT. Default to the mainstream stack - PyTorch, TRL, PEFT - because coverage and composability beat peak performance for most teams most of the time, and a specialized library that does not support your next model is a migration you did not budget for. Adopt a specialized tool when the internal benchmark shows a large win on your actual configuration AND the tool supports the architectures on your roadmap AND its licensing works for your deployment - noting that several tools in this space are single-GPU in their free tier. THE TRAP TO AVOID. Adopting on benchmark numbers and discovering the constraint later: the unsupported architecture, the missing multi-GPU path, the incompatibility with your distributed strategy, the hand-derived backward that has not been validated for your sequence lengths. Those are the costs that actually hurt, and none of them appear in a speed table. HOW I WOULD FRAME IT TO A TEAM. Efficiency claims are proxy claims, exactly like every other claim in this module. The proxy is 'faster on our benchmark' and the thing you want is 'faster on our job, correct, and still supported next year'. The response is not to distrust the numbers but to spend one day building the instrument that produces YOUR number - and then the question stops being contentious and becomes a measurement."
+        },
+        {
+          "q": "What is the single most important idea from this module, and how does this lesson complete it?",
+          "a": "THE IDEA. Every method here optimizes a PROXY for the thing you actually want, and the discipline is to name the proxy, then name the measurement that shows when optimizing it stopped helping. Run through it. Full fine-tuning's proxy is the fine-tuning set's own test split, which rises monotonically with trainable parameters - and Kumar et al. showed it ranks methods in the wrong order out of distribution. LoRA's proxy is parity on adaptation benchmarks, and Biderman et al. showed it does not hold for continued pretraining, where the constraint genuinely binds. QLoRA's proxy is benchmark parity, and the paper is candid that its two evaluations disagree with each other. The adapter comparison's proxy is GLUE accuracy - saturated, so it cannot rank anything, and the axes that decide the choice are latency and batchability, which nobody reports. Prompt tuning's proxy is parity at scale, which hides a permanent per-request context cost. Instruction tuning's proxy is a preference judgment, and Gudibande showed imitation models win it while gaining no capability. Reward modelling makes the proxy LITERAL - it is a model of the objective, by construction - and Gao et al. measured the gold score peaking and falling as you optimize it. DPO inherits the preference dataset as its proxy and pays for it with off-policy drift. That is nine lessons of the same structure. HOW THIS ONE COMPLETES IT. By turning the discipline on the tooling that implements all of it. 'Two times faster, seventy percent less memory, no accuracy loss' is three proxy claims: a speedup against an unstated baseline configuration, a memory reduction under unstated conditions, and an equivalence argument resting on matching training loss. The mechanism behind them is sound and the wins are real - I want to be clear that the answer is not scepticism. The answer is that the number applies to the configuration it was measured on, and reproducing it on yours takes twenty minutes. WHY THAT IS THE RIGHT ENDING. The module could have ended by saying 'be careful with metrics', which everyone already agrees with and nobody acts on. Ending on the tooling makes the point unavoidable, because the tooling is the layer people trust most reflexively - it is infrastructure, it is not making a scientific claim, and it comes with a benchmark table that looks like a fact. Applying the same question there as everywhere else is what makes it a habit rather than a caveat. THE ONE-SENTENCE VERSION I WOULD LEAVE SOMEONE WITH. Fine-tuning results are the most over-claimed in machine learning, because the evaluation is almost always drawn from the fine-tuning distribution - and the fix is never a better method, it is an evaluation the fine-tuning data did not define."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Why kernel fusion helps",
+        "back": "It removes MEMORY TRAFFIC, not FLOPs. Elementwise ops (norms, activations, RoPE, scaling) are memory-bound - almost no arithmetic per byte. A chain of n ops moves ~2n tensor round-trips unfused, 2 fused. Same arithmetic."
+      },
+      {
+        "type": "formula",
+        "front": "The logits memory bomb",
+        "back": "B*T*V*bytes, times ~3 (logits + softmax + grad). At B=8, T=2048, V=128k, bf16: ~4 GB PER COPY - to produce one scalar. Often the LARGEST allocation left after LoRA and 4-bit quantization have done their work."
+      },
+      {
+        "type": "definition",
+        "front": "Chunked / fused cross-entropy",
+        "back": "Process tokens in chunks: compute each chunk's logits, its loss contribution, and its input gradient, then free before the next. Peak drops from B*T*V to chunk*V. Exact via online softmax - FlashAttention's tiling applied to the output head."
+      },
+      {
+        "type": "formula",
+        "front": "Gradient checkpointing must be SEGMENTED",
+        "back": "M(s) ~ L/s + s, minimized at s* = sqrt(L), giving O(sqrt(L)) activation memory for ~1 extra forward pass (30-40% more compute). Checkpointing EVERY layer stores a boundary per layer and saves almost nothing."
+      },
+      {
+        "type": "pitfall",
+        "front": "Checkpointing + QLoRA compound badly",
+        "back": "The recomputed forward pass DEQUANTIZES the 4-bit weights a second time. The combined step is slower than either technique alone would suggest - budget for it rather than discovering it."
+      },
+      {
+        "type": "pitfall",
+        "front": "'Faster than what?'",
+        "back": "A speedup against library DEFAULTS includes whatever the defaults left on the table (eager attention, unfused optimizer, fp32). A speedup against a TUNED baseline is a claim about the kernels. Always benchmark three rows: default, tuned, tool."
+      },
+      {
+        "type": "intuition",
+        "front": "Which memory term binds decides the fix",
+        "back": "train_state dominates -> LoRA. weights dominate -> quantize the base. activations dominate -> checkpoint + micro-batch. logits dominate -> chunked cross-entropy. They attack DISJOINT terms, so the wrong one gives zero benefit."
+      },
+      {
+        "type": "pitfall",
+        "front": "'No accuracy loss' is a proxy claim",
+        "back": "It almost always means matching TRAINING LOSS on the same data. Fix the seed and data order and compare loss CURVES (an early systematic separation = wrong gradient), generate from both checkpoints, and run the downstream eval."
+      },
+      {
+        "type": "intuition",
+        "front": "Why the logits term matters NOW",
+        "back": "Vocabularies grew (30k -> 128k+), sequences grew (512 -> 8k+), and EVERYTHING ELSE SHRANK (LoRA, QLoRA, checkpointing). It did not become expensive - the terms around it became cheap. Optimizing a system re-orders its bottlenecks."
+      },
+      {
+        "type": "pitfall",
+        "front": "Warm up before benchmarking",
+        "back": "Kernel autotuning, compilation and allocator warm-up all happen on the first steps. Timing from step zero measures startup - and the error systematically favours whichever configuration compiles less."
+      },
+      {
+        "type": "intuition",
+        "front": "Hand-written kernels vs torch.compile",
+        "back": "Hand-written wins when the author RESTRUCTURED THE ALGORITHM (FlashAttention's online softmax) - a compiler optimizes the graph it is given, it does not rewrite your maths. torch.compile wins on coverage, maintenance, and composing with FSDP."
+      },
+      {
+        "type": "pitfall",
+        "front": "Validate a hand-derived backward pass",
+        "back": "The highest-risk component in this category: a subtly wrong gradient does not crash, the loss still falls, and every metric is downstream of what broke. Gradcheck in float64 against the reference, including awkward shapes (odd lengths, fully-masked rows)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Dao et al. (2022), FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+        "url": "https://arxiv.org/abs/2205.14135"
+      },
+      {
+        "title": "Hsu et al. (2024), Liger Kernel: Efficient Triton Kernels for LLM Training",
+        "url": "https://arxiv.org/abs/2410.10989"
+      },
+      {
+        "title": "Chen et al. (2016), Training Deep Nets with Sublinear Memory Cost (gradient checkpointing)",
+        "url": "https://arxiv.org/abs/1604.06174"
+      },
+      {
+        "title": "Unsloth documentation",
+        "url": "https://docs.unsloth.ai/"
+      },
+      {
+        "title": "Triton: an open-source language and compiler for GPU kernels",
+        "url": "https://triton-lang.org/"
+      }
+    ],
+    "demos": [
+      "quantization",
+      "mixed-precision",
+      "paged-attention",
+      "batching"
+    ]
+  }
+};

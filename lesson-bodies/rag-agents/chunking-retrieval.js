@@ -1,0 +1,272 @@
+// GENERATED from content/lessons/rag-agents/chunking-retrieval.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rag-agents/chunking-retrieval/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "chunking-retrieval": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Chunking is the least glamorous decision in a RAG system and it sets the highest ceiling. The chunk is the unit that gets embedded, so it is the unit that can be retrieved - and a fact that spans a boundary is unretrievable at any k, by any embedding model, forever. No downstream component can recover it, because the information was never packaged in a way that could be found. That makes this a stage above the one in 18-01: the embedding decides how well you search the units, and chunking decides what the units ARE.",
+        "The decision is a genuine tension rather than a best practice. SMALL chunks give a focused embedding - one topic, one vector, high precision - but they strip context: a pronoun with no antecedent, a table row without its header, a conclusion without the condition it depends on. LARGE chunks preserve context but their embedding is an average over several topics, which dilutes the signal for all of them, and they spend context budget you may want for other passages. Both directions fail, and they fail differently, which is why this is measured rather than reasoned.",
+        "The modern resolution is to stop treating those as the same unit. You can EMBED a small precise chunk and RETRIEVE its larger parent for the context, or embed a sentence and return a window around it. Once you notice that the retrieval unit and the context unit do not have to be the same object, most of the tension dissolves - and the remaining question, whether a lexical or a dense index finds the unit, has the same answer as most either/or questions in retrieval: use both, because they fail on different queries."
+      ],
+      "math": [
+        {
+          "h": "BM25 - three ideas, still competitive after thirty years",
+          "paras": [
+            "Rare terms carry more information; term frequency SATURATES; and long documents get a length correction.",
+            "It is worth reading as three deliberate design decisions rather than as a formula to memorize."
+          ],
+          "tex": "\\mathrm{BM25}(q,d) = \\sum_{t \\in q} \\underbrace{\\mathrm{IDF}(t)}_{\\text{rarity}} \\cdot \\frac{f(t,d)\\,(k_1+1)}{f(t,d) + k_1\\left(1 - b + b\\,\\frac{|d|}{\\overline{|d|}}\\right)}",
+          "texNote": "SATURATION is the part that matters most: as f grows the term tends to a limit of k_1+1, so ten occurrences are not ten times as relevant as one - which is exactly right, and is why raw term frequency loses to BM25. b controls length normalization (b=1 fully normalizes, b=0 not at all; ~0.75 is standard). And IDF gives a rare term MORE weight, which is precisely the behaviour a dense embedding gets wrong on identifiers and proper nouns, since those are underrepresented in pretraining and land in poorly-shaped regions of the space."
+        },
+        {
+          "h": "Reciprocal rank fusion - combining rankings, not scores",
+          "paras": [
+            "Two retrievers produce scores on incomparable scales, so normalizing them is a nuisance with no principled answer.",
+            "RRF sidesteps it entirely by using only the RANK each system assigned."
+          ],
+          "tex": "\\mathrm{RRF}(d) = \\sum_{r \\in \\text{retrievers}} \\frac{1}{K + \\mathrm{rank}_r(d)}, \\qquad K \\approx 60",
+          "texNote": "Because it consumes ranks, no score normalization is needed and the fusion is robust to one retriever's scores being poorly calibrated. The constant K damps the influence of the very top ranks so a single retriever cannot dominate. It is a couple of lines to implement, it usually beats either input, and it is the reason hybrid retrieval is a default rather than an optimization."
+        },
+        {
+          "h": "Why overlap is cheap insurance",
+          "paras": [
+            "If an answer span must fall entirely inside one chunk, the probability it survives depends on the span's length relative to the chunk's.",
+            "Overlap re-packages the boundary regions so a span cut by one boundary is intact in the neighbouring chunk."
+          ],
+          "tex": "\\Pr[\\text{span intact}] \\approx 1 - \\frac{L_{\\text{span}}}{L_{\\text{chunk}}} \\;\\; \\text{(no overlap)}, \\qquad \\text{cost of overlap } o: \\; \\frac{L_{\\text{chunk}}}{L_{\\text{chunk}} - o}\\times \\text{storage}",
+          "texNote": "A 100-token answer in 400-token chunks has roughly a one-in-four chance of being cut by a boundary - high enough to matter and easy to miss, since the failures look like ordinary retrieval misses. An overlap of 10-20% costs proportionally more storage and embedding calls and removes most boundary losses, which is why it is the standard default. The deeper fix is small-to-big retrieval, where the boundary stops being load-bearing at all."
+        }
+      ],
+      "code": [
+        {
+          "h": "The chunking strategies, in the order I would try them",
+          "paras": [
+            "Each one addresses a specific failure of the previous, and the last two are the ones worth reaching for."
+          ],
+          "code": "# 1. FIXED SIZE + OVERLAP - the baseline, and a strong one.\n#    ~200-500 tokens, 10-20% overlap. Split on TOKENS not characters\n#    (the embedding model's limit is in tokens). Beats its reputation.\n\n# 2. RECURSIVE / STRUCTURAL - split on the document's own boundaries,\n#    falling back progressively: sections -> paragraphs -> sentences.\n#    Respects the structure the AUTHOR already imposed. Default choice\n#    for prose, markdown, code (split on function/class boundaries).\n\n# 3. SEMANTIC - embed sentences, cut where consecutive similarity DROPS.\n#    Elegant; in practice a modest and inconsistent gain over (2) at\n#    much higher ingestion cost. Measure before adopting it.\n\n# 4. ★ SMALL-TO-BIG (parent document) - the one that dissolves the\n#    tension, because the retrieval unit and the context unit STOP\n#    BEING THE SAME OBJECT:\nembed_unit  = small_chunk        # precise vector, high retrieval precision\nreturn_unit = parent_section     # full context for the generator\n#    Sentence-window is the same idea: embed a sentence, return +-N around it.\n\n# 5. ★ CONTEXTUAL CHUNKS - prepend a short doc-level context line to each\n#    chunk BEFORE embedding, so the chunk is self-describing:\ntext_to_embed = f\"[From {doc_title}, section {heading}] {chunk}\"\n#    This directly fixes the small-chunk failure - the orphaned pronoun,\n#    the table row without its header - and it is cheap.\n\n# WHAT NEVER WORKS: reasoning about which is best. Chunking is EMPIRICAL.\n# Run each on the SAME labelled query set and compare recall@k. The\n# ordering differs by corpus, and the gap between the best and worst is\n# routinely larger than the gap between two embedding models.",
+          "caption": "Strategies 4 and 5 are the ones worth reaching for: one separates the retrieval unit from the context unit, the other makes a small chunk self-describing. Both attack the same root cause."
+        },
+        {
+          "h": "Hybrid retrieval, and the measurement that justifies it",
+          "paras": [
+            "Dense and lexical fail on disjoint query types, which is the entire argument for running both."
+          ],
+          "code": "# THE FAILURE MODES ARE COMPLEMENTARY - that's the whole point:\n#   DENSE misses : exact identifiers (ERR-4471), part numbers, rare proper\n#                  nouns, codes - it SMOOTHS what must match exactly\n#   BM25  misses : paraphrase (\"can't log in\" vs \"authentication failure\"),\n#                  synonyms, anything with no lexical overlap\n\ndef hybrid(query, k=50, K=60):\n    dense = dense_index.search(query, k)      # semantic\n    lex   = bm25_index.search(query, k)       # exact terms\n    scores = defaultdict(float)\n    for ranking in (dense, lex):              # RRF: ranks, not scores,\n        for rank, doc in enumerate(ranking):  # so no normalization needed\n            scores[doc] += 1.0 / (K + rank + 1)\n    return sorted(scores, key=scores.get, reverse=True)[:k]\n\n# THE MEASUREMENT THAT MAKES THIS A DECISION RATHER THAN A HABIT:\n#   report recall@k for dense, bm25 AND hybrid on the same eval set, and\n#   look at the per-QUERY breakdown, not just the mean. The mean hides the\n#   structure - what you want to see is the set of queries bm25 gets and\n#   dense misses. If that set is empty on your traffic, skip the complexity.\n#   If it's 20% of queries, hybrid isn't an optimization, it's required.\n\n# AND THE CEILING CHECK AGAIN, per strategy:\n#   chunking strategy -> recall@k -> the bound on end-to-end accuracy.\n#   Changing chunking often moves recall MORE than changing the embedding\n#   model does, which is the opposite of where attention usually goes.",
+          "caption": "The per-query breakdown is the useful artefact: the mean tells you hybrid helps, the breakdown tells you which queries it rescues and whether that set matters on your traffic."
+        }
+      ],
+      "useCases": [
+        "Ingesting a document corpus for RAG, where the chunking choice sets the recall ceiling before any model is involved.",
+        "Retrieval over technical documentation and code, where identifiers and error codes make lexical search non-optional and hybrid is the only complete answer.",
+        "Corpora with strong structure - legal contracts, clinical notes, API references - where structural chunking preserves the boundaries the author already meant.",
+        "Diagnosing an underperforming RAG system, where re-running the chunking comparison on a labelled query set is usually a bigger and cheaper win than a model upgrade."
+      ],
+      "pitfalls": [
+        "Treating chunking as a configuration detail. It sets the ceiling above retrieval - a fact split across a boundary is unretrievable at any k - and changing it often moves recall more than changing the embedding model.",
+        "Chunking by characters when the embedding model's limit is in tokens. The two diverge badly on code, non-English text and anything with numbers, so chunks silently overflow and get truncated.",
+        "Small chunks without context injection. A chunk beginning with 'It also requires...' is unretrievable and useless when retrieved; prepending the document title and heading fixes it cheaply.",
+        "Large chunks assumed to be safer. Their embedding averages several topics and dilutes the signal for each, so retrieval precision falls and you spend context budget on irrelevant text.",
+        "Skipping lexical retrieval because embeddings are newer. Dense retrieval smooths exactly what must match exactly, so identifiers, part numbers and rare proper nouns fail - and those are often the highest-intent queries.",
+        "Normalizing and blending two retrievers' scores. The scales are not comparable; reciprocal rank fusion combines ranks instead and avoids the problem entirely.",
+        "Comparing chunking strategies by inspection. It is an empirical question with a corpus-dependent answer - run each on the same labelled query set and compare recall@k."
+      ],
+      "connections": [
+        {
+          "ref": "rag-agents/embeddings-vector-stores",
+          "text": "The stage below this one: chunking decides what the units are, embedding decides how well you search among them. Both are ceilings on everything downstream."
+        },
+        {
+          "ref": "rag-agents/advanced-rag",
+          "text": "Where the remaining retrieval gaps get attacked - reranking for precision after the fact, HyDE for the query/document asymmetry before it."
+        },
+        {
+          "ref": "rag-agents/rag-eval",
+          "text": "The labelled query set that makes every decision in this lesson measurable, and the per-stage decomposition that says whether chunking is the binding constraint."
+        },
+        {
+          "ref": "rnn-nlp/tokenization",
+          "text": "Why chunk sizes are counted in tokens rather than characters, and why the two diverge most on exactly the technical text that matters here."
+        },
+        {
+          "ref": "ml-applications/search-ranking",
+          "text": "BM25's home territory, plus the classical retrieval-then-ranking funnel that RAG rediscovered with different components."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why does chunking set a ceiling?",
+          "a": "The chunk is the unit that gets embedded and retrieved, so a fact spanning a boundary cannot be retrieved at any k by any model. Nothing downstream recovers it."
+        },
+        {
+          "q": "What is the small-versus-large chunk tension?",
+          "a": "Small chunks embed precisely but lose context; large chunks preserve context but average several topics into one vector, diluting the signal and spending context budget."
+        },
+        {
+          "q": "What dissolves that tension?",
+          "a": "Small-to-big retrieval - embed the small precise chunk, return its larger parent. The retrieval unit and the context unit do not have to be the same object."
+        },
+        {
+          "q": "What is contextual chunking?",
+          "a": "Prepending a document-level context line - title, section heading - to each chunk before embedding, so a small chunk becomes self-describing."
+        },
+        {
+          "q": "Why chunk by tokens rather than characters?",
+          "a": "The embedding model's limit is in tokens, and the two diverge badly on code, numbers and non-English text, so character chunks silently overflow and get truncated."
+        },
+        {
+          "q": "How much overlap, and why?",
+          "a": "Typically 10-20%. A 100-token answer in 400-token chunks has roughly a one-in-four chance of being cut by a boundary, and those failures look like ordinary retrieval misses."
+        },
+        {
+          "q": "What are BM25's three ideas?",
+          "a": "IDF weighting for rare terms, term-frequency SATURATION so ten occurrences are not ten times as relevant, and length normalization."
+        },
+        {
+          "q": "What does dense retrieval systematically miss?",
+          "a": "Exact identifiers, part numbers, error codes and rare proper nouns - it smooths precisely what must match exactly, while IDF treats a rare term as more informative."
+        },
+        {
+          "q": "What does BM25 miss?",
+          "a": "Paraphrase and synonymy - anything with no lexical overlap, like 'cannot log in' against 'authentication failure'."
+        },
+        {
+          "q": "Why reciprocal rank fusion instead of blending scores?",
+          "a": "Two retrievers' scores are on incomparable scales. RRF uses only the ranks, so no normalization is needed and it is robust to one system being poorly calibrated."
+        },
+        {
+          "q": "How do you compare chunking strategies?",
+          "a": "Empirically - run each on the same labelled query set and compare recall@k. The best strategy is corpus-dependent and cannot be reasoned out."
+        },
+        {
+          "q": "Which usually moves recall more, chunking or the embedding model?",
+          "a": "Chunking, often - which is the opposite of where attention usually goes, since the model is the visible and interesting component."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you choose a chunking strategy for a new corpus?",
+          "a": "EMPIRICALLY, AND THAT IS THE ACTUAL ANSWER RATHER THAN A DODGE - the best strategy depends on the document structure, the query distribution and the embedding model's context limit, and the gap between the best and worst choice is routinely larger than the gap between two embedding models. So the process matters more than the prior. WHAT I WOULD DO FIRST: build the labelled query set - a few hundred realistic questions each paired with the passage that answers it. Everything below is a comparison on that set, and without it every choice is a preference. THE LADDER I WOULD RUN. (1) FIXED SIZE WITH OVERLAP, 200-500 tokens, 10-20% overlap, as the baseline. It performs better than its reputation and it establishes the number every other strategy has to beat. Chunk on TOKENS, not characters - the model's limit is in tokens and the two diverge badly on code and non-English text. (2) RECURSIVE / STRUCTURAL splitting, falling back through sections, paragraphs, then sentences. This respects the boundaries the author already imposed, and for prose, markdown and code (where function and class boundaries are natural units) it is usually my default. (3) SMALL-TO-BIG, which is where the real gain typically is. Embed a small precise chunk for retrieval, return the parent section for context. This resolves the tension rather than trading within it - you get the precise vector AND the surrounding context - and it is why I reach for it before anything cleverer. (4) CONTEXTUAL CHUNKING, prepending the document title and section heading to each chunk before embedding. It directly fixes the small-chunk failure mode where a chunk starts with an unresolvable pronoun, and it is cheap. (5) SEMANTIC CHUNKING - embed sentences, cut where similarity drops. Elegant, and in my experience a modest and inconsistent gain over structural splitting at much higher ingestion cost. I would measure it, not assume it. WHAT THE CORPUS TELLS ME BEFORE I MEASURE. Heavily structured documents - contracts, API references, clinical notes - argue for structural chunking, because their sections are already semantic units. Conversational transcripts argue for turn-based chunks with speaker labels. Tables are the hard case and usually need special handling: a row without its header row is meaningless, so I would keep the header with each chunk or serialize rows into sentences. Code should split on syntactic boundaries and keep imports or signatures as context. HOW I WOULD REPORT IT: recall@k per strategy, plus the per-query breakdown so I can see WHICH queries each strategy loses. And I would re-run this comparison when the corpus or the query mix changes materially, because it is a property of both, not a setting to fix once."
+        },
+        {
+          "q": "Why is BM25 still used, and when does it beat a neural retriever?",
+          "a": "BECAUSE IT SOLVES A DIFFERENT PROBLEM WELL, and because its three design ideas were correct. IDF says a rare term is more informative - a term appearing in three of ten million documents is nearly a unique key. SATURATION says term frequency has diminishing returns: ten occurrences of a word are not ten times as relevant as one, and capping that was a genuine improvement over raw counts. LENGTH NORMALIZATION corrects for long documents accumulating matches by size alone. None of that has been superseded; it is orthogonal to what embeddings do. WHERE IT BEATS DENSE RETRIEVAL OUTRIGHT. Exact identifiers - error codes, part numbers, SKUs, case citations, variable names. This is the important one, because embeddings SMOOTH the space: near-identical strings land near each other, which is exactly wrong when the whole query is a code and a one-character difference means a different object. Rare terms and proper nouns behave the same way - they are underrepresented in pretraining so their vectors are poorly placed, while IDF gives them MORE weight, which is the opposite direction. Domain jargon the embedding model never saw. Short keyword queries with little context to embed. And a practical one: a NEW corpus with no training data, where BM25 works immediately with no model, no embedding cost and no index build beyond an inverted index. WHERE DENSE WINS. Paraphrase and synonymy - 'cannot log in' against 'authentication failure' shares no terms - conceptual similarity, and cross-lingual retrieval. THE HONEST FRAMING: they fail on DISJOINT query sets, which is why hybrid is not a compromise but the complete answer. Reciprocal rank fusion combines them using ranks rather than scores, which sidesteps the fact that BM25 scores and cosine similarities live on incomparable scales, and it is about five lines. HOW I WOULD DECIDE WHETHER TO PAY FOR IT: run both on the eval set and look at the per-query breakdown rather than the means. What I want is the set of queries BM25 gets and dense misses. If it is empty on my traffic, hybrid is complexity for nothing. If it is a fifth of queries - which is common in technical support, e-commerce and legal search - then dense-only is failing a fifth of users, and the aggregate score partly hides it because those queries are often the highest-intent ones. AND THE ONE PEOPLE FORGET: BM25 is also a strong BASELINE for judging whether the neural system is earning its cost. If your expensive embedding pipeline barely beats an inverted index on your data, that is a finding, and it is better to learn it in week one."
+        },
+        {
+          "q": "A RAG system misses answers that are clearly in the corpus. How do you find out why?",
+          "a": "I WOULD LOCALIZE IT TO A STAGE BEFORE INVESTIGATING ANY STAGE, because 'misses answers that are in the corpus' is consistent with at least four distinct causes and they have different fixes. THE FIRST CHECK - IS IT REALLY IN THE INDEX? Search the raw index for a distinctive phrase from the answer. Surprisingly often the text never made it: PDF extraction dropped a table or mangled a multi-column layout, HTML boilerplate crowded it out, or OCR corrupted it. A rising chunk count is not evidence that the content is correct. This costs two minutes and it resolves a meaningful share of cases. THE SECOND - IS IT SPLIT? Look at the chunk that should contain the answer. If the answer spans a boundary, or if the chunk contains the answer but not the terms that identify what it is about - the classic 'It also requires prior authorization' with the subject two chunks back - then chunking is the binding constraint. The tells are specific: answers that are mid-document, answers in tables, and answers that depend on a heading for their meaning. FIXES: overlap, structural splitting, contextual prefixes, or small-to-big. THE THIRD - IS IT A LEXICAL/SEMANTIC MISMATCH? Check whether the query and the passage share vocabulary. If the query uses an identifier or a rare term, dense retrieval is the wrong tool for it and BM25 would find it instantly; run the query against a lexical index and see. If BM25 finds it and dense does not, you have diagnosed the case for hybrid with evidence rather than assertion. THE FOURTH - IS IT THE INDEX ITSELF? Compare against brute-force exact search. If exact search ranks the passage in the top-k and the ANN index does not, the recall/latency operating point is set too aggressively - raise ef_search or nprobe. And check whether a metadata FILTER is involved, because post-filtering collapses recall silently while still returning plausible results. THE FIFTH, once retrieval is exonerated - IS IT RETRIEVED BUT UNUSED? Put the gold passage alone in the context. If the answer is then correct, retrieval is delivering and the prompt is losing it, which points at context position, conflicting passages, or the instruction. WHAT I EXPECT TO FIND, stated honestly: on most systems I have seen, retrieval is the binding stage, and within retrieval, chunking is more often the cause than the embedding model. The reason the intuition points elsewhere is that chunking is a boring ingestion-time parameter and the model is the visible, expensive component - so effort flows to the model while the ceiling sits upstream of it.",
+          "deepDive": {
+            "q": "How do you handle documents that do not chunk cleanly - tables, code, transcripts, long PDFs?",
+            "a": "EACH ONE BREAKS A DIFFERENT ASSUMPTION OF NAIVE CHUNKING, so they need different handling rather than a better general splitter. TABLES break the assumption that meaning is local. A row without its header row means nothing - '2024 | 4.2% | approved' is unretrievable and useless if retrieved. The options, roughly in order of how well they work: repeat the header with every chunk of the table; SERIALIZE each row into a sentence ('In 2024, the rate was 4.2% and the status was approved'), which embeds far better because it now contains the terms someone would search for; or keep the table whole and treat it as one unit with a generated summary as the embedded text. For genuinely tabular data, the deeper answer is that it should be in a database and queried with SQL - a top-k of passages cannot answer an aggregation question, and no chunking strategy fixes that. CODE breaks the assumption that text is linear prose. Split on syntactic boundaries - function, class, module - not on token counts, and carry the signature and relevant imports into each chunk as context. A function body without its name and arguments is much harder to retrieve. Docstrings are high-value embedding text because they are written in the vocabulary a searcher would use, while the body is written in the vocabulary of the implementation. TRANSCRIPTS break the assumption that a chunk has one author and stable topic. Chunk by turn or by a small window of turns, keep speaker labels in the embedded text, and expect heavy pronoun and ellipsis use - which makes contextual prefixes ('In a call between A and B about renewal...') unusually valuable here. Topic segmentation is a real option when the transcript is long. LONG PDFs break several assumptions at once and mostly at EXTRACTION rather than chunking. Multi-column layout read in the wrong order produces interleaved nonsense; headers and footers repeat as content on every page; figures and captions are separated; page breaks cut sentences. I would validate extraction by reading a sample of the extracted text before touching the chunker, because a chunking comparison on corrupted text measures nothing. For scanned documents, OCR quality dominates everything else - lexical retrieval on OCR text also degrades badly since a single character error breaks an exact match, which is one of the few cases where dense retrieval is more robust. THE GENERAL PRINCIPLE across all four: the goal is a chunk that is SELF-CONTAINED and SELF-DESCRIBING - it should make sense read alone, and it should contain the terms someone would use to look for it. Whenever the natural unit fails that test, the fix is to add context to the embedded text (a heading, a summary, a serialization) rather than to change the size. AND THE PROCESS POINT: build the eval set from the DIFFICULT documents, not the clean ones. A chunking comparison run only on well-formed prose will select a strategy that fails on exactly the documents that were already the problem."
+          }
+        },
+        {
+          "q": "How would you decide between hybrid retrieval and a better embedding model?",
+          "a": "BY LOOKING AT WHICH QUERIES FAIL, because the two interventions fix disjoint failure sets and the aggregate recall number does not distinguish them. THE MEASUREMENT THAT DECIDES IT. Run dense, BM25 and hybrid on the same labelled query set. Then produce the per-query breakdown rather than the means - specifically, the set of queries BM25 retrieves and dense does not. That set has a characteristic composition: identifiers, error codes, part numbers, rare proper nouns, domain jargon, exact-phrase lookups. If it is large, hybrid is not an optimization, it is required, and no embedding model upgrade will fix those queries because the failure is structural - embeddings smooth what must match exactly. If it is nearly empty, hybrid is complexity with no return and the money goes to the model. WHY I WOULD USUALLY TRY HYBRID FIRST. It is cheap - an inverted index and about five lines of reciprocal rank fusion. It has no re-embedding cost, whereas changing the embedding model obliges you to re-embed the entire corpus, which at ten million passages is a real job with a real bill and a migration plan. And its gain is largely additive with a later model upgrade, since it covers a failure mode the model does not address. WHEN A BETTER EMBEDDING MODEL IS THE RIGHT CALL. When the failures are semantic - the query paraphrases the passage and neither retriever finds it - and particularly when your domain vocabulary is genuinely unlike the pretraining distribution. In that case I would consider FINE-TUNING the embedder with contrastive learning on query-passage pairs, which you can often mine from existing logs, tickets or FAQ pairs, rather than shopping for a bigger general model. A few thousand in-domain pairs with hard negatives can beat a much larger generic model on your data. THE ORDER I WOULD ACTUALLY WORK IN, given that all three interventions compete for the same effort: fix chunking first (usually the largest single move and the cheapest to test), add hybrid second (cheap, structural coverage), and change or fine-tune the embedding model third (most expensive, most inertia). That ordering is the opposite of the usual instinct, which starts at the model because it is the interesting component. AND THE CHECK THAT KEEPS IT HONEST: after each change, re-measure recall@k AND end-to-end accuracy together. If recall improves and end-to-end does not, the ceiling has moved above the binding constraint and further retrieval work is wasted - the problem is now downstream, and I should stop working on this half of the system."
+        },
+        {
+          "q": "What does 'retrieval' mean once the context window is very large?",
+          "a": "IT CHANGES THE TRADE-OFF WITHOUT REMOVING THE NEED, and the honest answer separates what long context genuinely solves from what it does not. WHAT IT SOLVES. For a corpus that FITS - a single contract, a codebase module, one long report - retrieval is unnecessary complexity, and putting the whole thing in context is both simpler and better, because you remove the chunking ceiling and the retrieval ceiling in one move. That is a real category and it is bigger than it was. Long context also makes retrieval more forgiving: you can retrieve top-50 rather than top-5, which raises recall directly and shifts the burden from precision to the model's ability to find what matters inside the context. WHAT IT DOES NOT SOLVE. (1) COST AND LATENCY. Attention over a long prompt is not free, prefill dominates time-to-first-token, and the KV cache scales with sequence length, which bounds how many concurrent requests you can serve. Stuffing a million tokens per query to answer from two paragraphs is an expensive way to be right. (2) SCALE. Corpora are frequently terabytes; the context window is not the corpus. Retrieval remains the mechanism that gets you from a terabyte to a promptable amount of text, and no plausible window changes that. (3) THE MIDDLE. Models attend unevenly across long contexts, with measurably worse use of information in the middle, so a fact buried at position 400,000 is not equivalent to the same fact at position 500. That means placing retrieved content well still matters and the advertised window is not a uniform capability. (4) FRESHNESS, PERMISSIONS AND PROVENANCE. Retrieval is how you serve current data, enforce who may see which document, and cite a source. None of those are context-length problems - they are architecture problems, and permission-filtered retrieval in particular has no long-context analogue. WHERE I THINK THIS ACTUALLY LANDS. The retrieval STAGE stays; the chunking stage gets easier, because larger chunks and larger k are both affordable, and the small-to-big pattern becomes even more natural since returning a big parent is now cheap. The question shifts from 'which five chunks' to 'which fifty, in what order, and can I afford them' - which is a better question, but it is still retrieval. AND THE MEASUREMENT DISCIPLINE IS UNCHANGED: recall@k still bounds end-to-end accuracy, so you still measure per stage. A larger window raises the ceiling; it does not remove it, and it does not tell you where you are sitting relative to it."
+        },
+        {
+          "q": "How does this lesson fit the module's framing?",
+          "a": "IT IS THE HIGHEST CEILING IN THE STACK, and it makes the module's first structure concrete. The claim in 18-01 was that an upstream stage bounds every downstream one, and retrieval bounds generation exactly: answer accuracy is at most recall@k. This lesson sits one level above that, because chunking bounds RETRIEVAL - a fact split across a boundary is unretrievable at any k, by any embedding model, at any index setting. So the ceilings compose: chunking bounds retrieval bounds generation, and an end-to-end number tells you nothing about which of the three is binding. THE PRACTICAL CONSEQUENCE, and it is the one I would want someone to take away: attention flows to the stage that is most visible and most expensive, which is the generator, while the binding constraint is usually two stages upstream at the cheapest and least interesting one. The chunking parameter is a number in an ingestion script. Changing it frequently moves recall more than swapping the embedding model does, and it costs an afternoon rather than a re-embedding project. That inversion between where the problem is and where the effort goes is the thing worth remembering. THE SECOND STRUCTURE - MULTIPLICATION - has a small appearance here too, in a form that is easy to miss. Retrieval is not one probability, it is a chain: the text must survive EXTRACTION, then survive CHUNKING intact, then be found by the INDEX, then survive any FILTER. Each is a factor below one, and the product is what recall@k measures. That is why the diagnostic ladder starts at 'is it in the index at all' rather than at the embedding - you are looking for which factor collapsed, and the first ones are the cheapest to check. AND IT SETS UP 18-05 DIRECTLY. Everything in this lesson is a comparison on a labelled query set, which means the evaluation lesson is not an epilogue to the module but a prerequisite for acting on any of it. Without recall@k measured per stage, every choice here - chunk size, overlap, structural versus fixed, hybrid versus dense - is a preference rather than a decision, and the module's whole argument is that these systems are exactly the kind where preferences go wrong quietly."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Chunking is the HIGHEST ceiling",
+        "back": "The chunk is the unit that gets embedded, so it is the unit that can be retrieved. A fact spanning a boundary is unretrievable at ANY k by ANY model. Chunking bounds retrieval bounds generation."
+      },
+      {
+        "type": "intuition",
+        "front": "The small-vs-large tension",
+        "back": "SMALL: precise embedding, but strips context (orphan pronoun, table row without header). LARGE: keeps context, but the vector AVERAGES several topics and dilutes each. Both fail, differently - so measure."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Small-to-big dissolves the tension",
+        "back": "The retrieval unit and the context unit DO NOT have to be the same object. Embed the small precise chunk; return the parent section. Sentence-window is the same idea. Reach for this before anything cleverer."
+      },
+      {
+        "type": "formula",
+        "front": "BM25's three ideas",
+        "back": "IDF (rare = informative) × SATURATION (f/(f+k₁·len-norm): ten occurrences ≠ 10× relevant) × length normalization (b≈0.75). Saturation is the part that beats raw term frequency."
+      },
+      {
+        "type": "formula",
+        "front": "Reciprocal rank fusion",
+        "back": "RRF(d) = Σ_r 1/(K + rank_r(d)), K≈60. Combines RANKS not scores, so no normalization between incomparable scales, robust to one retriever being miscalibrated. ~5 lines, usually beats both inputs."
+      },
+      {
+        "type": "formula",
+        "front": "Why overlap is cheap insurance",
+        "back": "P(span intact) ≈ 1 − L_span/L_chunk. A 100-token answer in 400-token chunks is cut ~25% of the time - and those failures look like ordinary retrieval misses. 10-20% overlap removes most of it."
+      },
+      {
+        "type": "intuition",
+        "front": "The failure modes are COMPLEMENTARY",
+        "back": "DENSE misses exact identifiers, part numbers, error codes, rare proper nouns - it smooths what must match exactly. BM25 misses paraphrase and synonymy. Disjoint sets → hybrid is the complete answer, not a compromise."
+      },
+      {
+        "type": "pitfall",
+        "front": "Chunk on TOKENS, not characters",
+        "back": "The embedding model's limit is in tokens, and the two diverge badly on code, numbers and non-English text - so character-based chunks silently overflow and get truncated."
+      },
+      {
+        "type": "intuition",
+        "front": "Contextual chunking",
+        "back": "Prepend doc title + section heading to each chunk BEFORE embedding: \"[From X, section Y] ...\". Directly fixes the chunk that begins \"It also requires...\" - unretrievable and useless if retrieved. Cheap."
+      },
+      {
+        "type": "pitfall",
+        "front": "The documents that don't chunk cleanly",
+        "back": "TABLES: a row without its header means nothing → repeat headers or SERIALIZE rows to sentences. CODE: split syntactically, carry the signature. TRANSCRIPTS: by turn, keep speakers. PDFs: fix EXTRACTION first - validate before chunking."
+      },
+      {
+        "type": "intuition",
+        "front": "The work order most people get backwards",
+        "back": "(1) chunking - biggest move, cheapest test. (2) hybrid - cheap, covers a structural gap. (3) embedding model - most expensive, and changing it means RE-EMBEDDING everything. The instinct starts at (3)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Compare per-QUERY, not by the mean",
+        "back": "The useful artefact is the set of queries BM25 gets and dense misses. Empty on your traffic → skip hybrid. A fifth of queries → dense-only is failing them, and the aggregate partly hides it because those are often the highest-intent ones."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Robertson & Zaragoza (2009), The Probabilistic Relevance Framework: BM25 and Beyond",
+        "url": "https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf"
+      },
+      {
+        "title": "Cormack, Clarke & Buettcher (2009), Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods",
+        "url": "https://dl.acm.org/doi/10.1145/1571941.1572114"
+      },
+      {
+        "title": "Lewis et al. (2020), Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+        "url": "https://arxiv.org/abs/2005.11401"
+      },
+      {
+        "title": "Gao et al. (2023), Retrieval-Augmented Generation for Large Language Models: A Survey",
+        "url": "https://arxiv.org/abs/2312.10997"
+      },
+      {
+        "title": "Anthropic (2024), Introducing Contextual Retrieval",
+        "url": "https://www.anthropic.com/news/contextual-retrieval"
+      }
+    ],
+    "demos": [
+      "rag-chunking",
+      "vector-search",
+      "tokenizer",
+      "embeddings"
+    ]
+  }
+};

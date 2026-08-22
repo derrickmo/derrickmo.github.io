@@ -1,0 +1,290 @@
+// GENERATED from content/lessons/interview-capstone/breadth-rapid-fire.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/interview-capstone/breadth-rapid-fire/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "breadth-rapid-fire": {
+    "level": "intro",
+    "body": {
+      "intuition": [
+        "The breadth round is testing one thing: have you USED this, or only read about it. The reliable tell is whether you can name a failure mode. Anyone can define regularization; someone who has shipped it says which regularizer they reached for, what it did to the coefficients, and when it made things worse.",
+        "So the answer template is three beats and it fits in forty seconds. WHAT IT IS in one sentence, WHEN IT BREAKS with a specific condition, and A NUMBER if you have one. The third beat is what this curriculum uniquely supplies - twenty-four modules of measured results that turn a definition into evidence.",
+        "The numbers are the point of this lesson. 'Temperature scaling fixes calibration' is a definition; 'one scalar took ECE from 0.087 to 0.011 with accuracy unchanged to four decimals, and the aggregate hid a minority subgroup at 0.153' is an answer that could only come from having done it. Nothing else in this module produces that difference so cheaply."
+      ],
+      "math": [
+        {
+          "h": "The three-beat template",
+          "paras": [
+            "Length is the most common error in this round. A rapid-fire question wants forty seconds, and a two-minute answer reads as inability to prioritize - which is itself the thing being scored.",
+            "The failure mode is the beat that distinguishes usage from reading, and it is the one to lead with if you only get two."
+          ],
+          "tex": "\\text{WHAT (1 sentence)} \\;\\to\\; \\text{WHEN IT BREAKS (a specific condition)} \\;\\to\\; \\text{A NUMBER (if you have one)}",
+          "texNote": "Then stop. Silence after a complete answer is fine and reads as confidence; filling it with elaboration reads as uncertainty and invites a harder follow-up on ground you chose badly."
+        },
+        {
+          "h": "★ The numbers worth carrying, part one",
+          "paras": [
+            "Each is a measured result from this curriculum, and each converts a definition into evidence."
+          ],
+          "tex": "\\begin{array}{ll} \\text{temperature scaling} & \\text{ECE } 0.087\\to0.011,\\ \\text{accuracy unchanged}\\\\ \\text{aggregate calibration} & \\text{overall } 0.011\\ \\text{vs minority } 0.153\\\\ \\text{conformal coverage} & 0.902\\ \\text{marginal, } 0.727\\text{--}0.990\\ \\text{per class}\\\\ \\text{adding controls} & R^2\\ 0.898\\to0.987\\ \\text{while the estimate degrades } 87\\%\\\\ \\text{propensity balance} & 0.436\\to0.016\\ \\text{with the estimate } 81\\%\\ \\text{high} \\end{array}",
+          "texNote": "Notice the shape they share: a metric improving while the thing you wanted got worse. That pattern is the single most reusable idea in the curriculum and it answers a surprising range of questions."
+        },
+        {
+          "h": "★ The numbers worth carrying, part two",
+          "paras": [
+            "Systems and modelling results, where the arithmetic is usually the whole answer."
+          ],
+          "tex": "\\begin{array}{ll} \\text{KV cache at 32k, batch 8} & \\sim\\!137\\ \\text{GB vs } 35\\ \\text{GB of int4 weights}\\\\ \\text{paged attention} & 15\\%\\to98\\%\\ \\text{utilization},\\ 6.4\\times\\\\ \\text{LoRA rank elbow} & r{=}1\\ \\text{MSE } 0.96,\\ r{=}2\\to0.0000\\ \\text{at } 12\\%\\ \\text{of params}\\\\ \\text{uplift vs response model} & \\text{AUC } 0.513\\ \\text{earns } 12.4\\times\\ \\text{AUC } 0.895\\\\ \\text{peeking} & 5\\%\\to25\\%\\ \\text{false positives over } 20\\ \\text{looks} \\end{array}",
+          "texNote": "You do not need all of these. Five or six deployed accurately is worth more than twenty half-remembered, and a number you are unsure of should be given as an order of magnitude or not at all."
+        }
+      ],
+      "code": [
+        {
+          "h": "The failure mode for each classic question",
+          "paras": [
+            "This is the beat that separates having used a thing from having read about it, and it is memorizable."
+          ],
+          "code": "# REGULARIZATION    L1 zeroes correlated features ARBITRARILY - which one\n#                   survives is a coin flip, so don't read selection as\n#                   importance (same shape as SHAP splitting duplicated credit)\n# BATCH NORM        breaks at batch size 1 and leaks batch statistics across\n#                   examples; train/eval behaviour differs, which is a\n#                   classic silent inference bug\n# DROPOUT           interacts badly with batch norm; the variance shift is\n#                   why models regress when both are used naively\n# CROSS-VALIDATION  leaks under grouping and under time - random k-fold on\n#                   user-level data or a time series is optimistic\n# EARLY STOPPING    is model selection on the validation set, so the\n#                   validation score is no longer an unbiased estimate\n# CLASS WEIGHTS     change the implied threshold; you have moved the operating\n#                   point, not fixed the imbalance\n# AUC               is threshold-free and therefore silent about the operating\n#                   point you will actually ship (base rate 0.1% -> 1% FPR is\n#                   8.3% precision)\n# ENSEMBLES         remove INDEPENDENT error and leave shared bias - 1 to 16\n#                   reward models moved true quality 7.467 -> 7.714",
+          "caption": "Every entry is a condition, not a caveat. 'It can be tricky' is not a failure mode; 'it breaks at batch size 1' is."
+        },
+        {
+          "h": "Handling the question you cannot answer",
+          "paras": [
+            "It will happen, and the response is scored more than the gap is."
+          ],
+          "code": "# SAY YOU DON'T KNOW, THEN REASON FROM SOMETHING ADJACENT\n#   'I haven't used X. Structurally it looks like Y, which works by Z -\n#    is that the right intuition?'\n\n# WHAT THIS BUYS\n#   * it is honest, and an interviewer who catches a bluff discounts\n#     everything you said before it\n#   * reasoning by analogy is the thing the round is actually probing\n#   * it invites a correction, which turns a gap into a short exchange\n\n# ★ THE ASYMMETRY IS LARGE. One admitted gap costs almost nothing; one\n#   detected bluff costs the round, because it converts every other\n#   answer from evidence into a claim that now needs checking.",
+          "caption": "The bluff is the highest-variance move available and the variance is all downside, which is the opposite of what this module is trying to achieve."
+        }
+      ],
+      "useCases": [
+        "The breadth round itself, where fifteen to twenty questions in forty-five minutes rewards prioritization as much as knowledge.",
+        "The opening minutes of any technical conversation, where a short accurate answer with a failure mode establishes credibility faster than a long one.",
+        "Self-diagnosis before a loop: run the list, and every entry where you cannot name a failure mode is a topic you have read rather than used.",
+        "Teaching or reviewing, where 'when does this break' is the fastest way to find out whether someone understands a technique."
+      ],
+      "pitfalls": [
+        "Answering at length. A rapid-fire question wants forty seconds, and a two-minute answer demonstrates an inability to prioritize, which is part of what is being measured.",
+        "Giving a definition with no failure mode. That is the exact signature of having read about something rather than used it, and it is what the round is designed to detect.",
+        "Quoting a number you are unsure of. An order of magnitude offered as an order of magnitude is fine; a precise-sounding wrong number is worse than none.",
+        "Bluffing. One admitted gap costs almost nothing and one detected bluff costs the round, because every prior answer becomes a claim requiring verification.",
+        "Elaborating into silence after a complete answer. It reads as uncertainty and invites a follow-up on ground you did not choose.",
+        "Treating AUC as an operating-point answer. It is threshold-free, so at a 0.1% base rate it is compatible with 8.3% precision at a 1% FPR.",
+        "Memorizing twenty numbers badly. Five or six deployed accurately beats twenty half-remembered, and the failure modes matter more than the numbers."
+      ],
+      "connections": [
+        {
+          "ref": "ml-theory/bias-variance",
+          "text": "The most-asked concept in the round, and the one where the failure mode - that the decomposition assumes a fixed data distribution - is rarely offered."
+        },
+        {
+          "ref": "trustworthy-ai/calibration",
+          "text": "The source of the cleanest number to carry: one scalar, ECE 0.087 to 0.011, accuracy unchanged, and an aggregate hiding a subgroup at 0.153."
+        },
+        {
+          "ref": "causal-inference/causal-graphs",
+          "text": "Where the most reusable pattern comes from: a fit statistic improving while the estimate degrades, which answers a surprising range of questions."
+        },
+        {
+          "ref": "interview-capstone/derivations",
+          "text": "The depth round, which probes the same topics from the other direction - not what breaks, but why it works."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "A worked example of the answer shape: what it is, the int2 cliff where it breaks, and per-tensor versus per-channel as the number."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "★ What is the breadth round testing?",
+          "a": "Whether you've USED this or only read about it. The reliable tell is whether you can name a FAILURE MODE."
+        },
+        {
+          "q": "Give the answer template.",
+          "a": "WHAT it is (one sentence) → WHEN it breaks (a specific condition) → A NUMBER if you have one. Then stop."
+        },
+        {
+          "q": "How long should an answer be?",
+          "a": "About forty seconds. A two-minute answer demonstrates an inability to prioritize, which is itself being scored."
+        },
+        {
+          "q": "L1 regularization — the failure mode?",
+          "a": "It zeroes correlated features ARBITRARILY — which one survives is a coin flip — so don't read selection as importance."
+        },
+        {
+          "q": "Batch norm — the failure mode?",
+          "a": "Breaks at batch size 1, leaks batch statistics across examples, and train/eval behaviour differs — a classic silent inference bug."
+        },
+        {
+          "q": "Cross-validation — the failure mode?",
+          "a": "Leaks under grouping and under time. Random k-fold on user-level data or on a time series is optimistic."
+        },
+        {
+          "q": "Early stopping — the failure mode?",
+          "a": "It's model selection on the validation set, so that score is no longer an unbiased estimate of generalization."
+        },
+        {
+          "q": "Class weights — the failure mode?",
+          "a": "They change the implied threshold. You've moved the operating point, not fixed the imbalance."
+        },
+        {
+          "q": "AUC — the failure mode?",
+          "a": "Threshold-free, so it's silent about the operating point you'll ship. At a 0.1% base rate, 1% FPR is 8.3% precision."
+        },
+        {
+          "q": "Ensembles — the failure mode?",
+          "a": "They remove INDEPENDENT error and leave shared bias. 1 → 16 reward models moved true quality only 7.467 → 7.714."
+        },
+        {
+          "q": "★ What do you do when you don't know?",
+          "a": "Say so, then reason from something adjacent: \"I haven't used X; structurally it looks like Y, which works by Z — is that right?\""
+        },
+        {
+          "q": "Why never bluff?",
+          "a": "The asymmetry. One admitted gap costs almost nothing; one detected bluff converts every prior answer from evidence into a claim that needs checking."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How do you structure an answer in a rapid-fire round?",
+          "a": "THREE BEATS IN ABOUT FORTY SECONDS. WHAT IT IS, in one sentence. WHEN IT BREAKS, with a specific condition. AND A NUMBER, if I have one. Then stop. THE SECOND BEAT IS THE ONE THAT MATTERS, because the round is testing whether I have used the technique or only read about it, and a failure mode is the reliable tell — anyone can define regularization, and someone who has shipped it says that L1 zeroes correlated features arbitrarily so the survivor is a coin flip and selection should not be read as importance. THE THIRD BEAT IS WHAT THIS CURRICULUM UNIQUELY SUPPLIES. 'Temperature scaling fixes calibration' is a definition. 'One scalar took ECE from 0.087 to 0.011 with accuracy unchanged to four decimals, and the aggregate number hid a minority subgroup sitting at 0.153' is an answer that could only come from having done it. THE LENGTH DISCIPLINE IS PART OF THE ANSWER: a two-minute response to a rapid-fire question reads as an inability to prioritize, which is part of what is being scored, and elaborating into a silence after a complete answer reads as uncertainty and invites a follow-up on ground I did not choose.",
+          "deepDive": {
+            "q": "What if you genuinely know a lot about the topic?",
+            "a": "There is a specific and useful move for the case where you know a lot about the topic: give the forty-second answer, then offer the depth explicitly — 'there's more on the calibration-versus-subgroup interaction if that's useful'. That hands the interviewer control over pacing, which is what they need in a round with fifteen questions to get through, and it signals that the depth exists without spending their budget. It also avoids the most common failure among strong candidates, which is answering the question they wish had been asked. The mirror-image discipline is to stop cleanly: after a complete three-beat answer, silence is fine and reads as confidence. Candidates find that silence uncomfortable and fill it, and the filling is almost always the weakest part of the answer, because it is unplanned and drifts toward whatever they thought of last. Practising the stop is worth as much as practising the content, and it is the same variance-reduction argument that runs through this whole module."
+          }
+        },
+        {
+          "q": "Which numbers from this curriculum would you actually carry into a loop?",
+          "a": "FIVE OR SIX, DEPLOYED ACCURATELY, rather than twenty half-remembered — and I would pick them to cover the widest range of questions. ONE: temperature scaling took ECE from 0.087 to 0.011 with accuracy unchanged, and the aggregate 0.011 hid a minority subgroup at 0.153. That single result answers calibration, subgroup evaluation, and why aggregate metrics mislead. TWO: adding controls to a regression drove R-squared from 0.898 to 0.987 while the causal estimate degraded 87% — the best-fitting model was the most wrong one — which answers anything about causal versus predictive modelling. THREE: an uplift score with AUC 0.513 earned 12.4× more incremental conversions than a response model with AUC 0.895, which answers targeting, metric choice, and why offline metrics mislead. FOUR: peeking at an A/B test 20 times took the false positive rate from 5% to 25%, which answers experimentation. FIVE: the KV cache at 32k context and batch 8 is around 137 GB against 35 GB of int4 weights — the model fits and the workload does not — which answers LLM serving. THAT SET SPANS CALIBRATION, CAUSALITY, METRICS, EXPERIMENTATION AND SYSTEMS with five facts.",
+          "deepDive": {
+            "q": "Why those five in particular?",
+            "a": "The reason those five work well is that each carries a transferable SHAPE rather than a domain fact, and the shape is what generalizes to a question you did not prepare. Temperature scaling is 'the aggregate hides the subgroup'. The R-squared result is 'a fit statistic improving while the thing you want degrades'. The uplift result is 'a metric anti-correlated with the decision'. Peeking is 'the decision rule is part of the statistic'. The KV cache is 'the bottleneck is not where the parameter count suggests'. Those five shapes answer a very wide range of questions, including ones about techniques you have never touched, because you can reason from the shape to the likely failure. That is also the honest reason to prefer a small accurate set: a number you are unsure of should be given as an order of magnitude or omitted, since a precise-sounding wrong figure is worse than no figure — it converts a strong answer into one the interviewer now has to discount, which is the same asymmetry as bluffing."
+          }
+        },
+        {
+          "q": "A question comes up on something you have never used. What do you say?",
+          "a": "I SAY I HAVEN'T USED IT, AND THEN I REASON FROM SOMETHING ADJACENT — 'I haven't worked with X. Structurally it looks like Y, which works by Z; is that the right intuition?' THREE THINGS THAT BUYS. It is honest, and honesty here is not a moral point but a strategic one: an interviewer who catches a bluff discounts everything said before it, so one detected bluff converts a whole round of evidence into claims requiring verification. It demonstrates reasoning by analogy, which is closer to what the round is probing than recall is — the job involves encountering unfamiliar techniques constantly, and the useful skill is mapping them onto structures you know. And it invites a correction, which turns a gap into a short collaborative exchange rather than a dead thirty seconds. THE ASYMMETRY IS THE WHOLE ARGUMENT: one admitted gap costs almost nothing, because nobody expects coverage of everything, and one detected bluff is close to disqualifying. In lesson 25-01's terms, bluffing is the highest-variance move available to a candidate and the variance is entirely downside, which is precisely the opposite of what this module is trying to do.",
+          "deepDive": {
+            "q": "Is there a version of that answer that goes further?",
+            "a": "There is a version of this that goes further and is worth having: name what would DISTINGUISH the possibilities. 'I'd guess it behaves like Y under condition A and like Z under condition B — do you know which regime it's usually in?' That demonstrates that you know what the relevant axis is even without knowing the answer, which is a stronger signal than a correct recalled definition would have been, because recall is cheap and knowing the axis is not. It also produces a genuinely useful conversation, which affects the interviewer's impression through a channel no rubric captures. The related discipline is to distinguish between 'I don't know' and 'I don't remember the number' — the second is fine to say and to bound, as in 'it's a factor of several, not an order of magnitude', while the first should not be dressed up as the second. Precision about your own uncertainty is itself evidence of the calibration this curriculum spent a module on, and interviewers notice it even when they could not name why."
+          }
+        },
+        {
+          "q": "What are the most commonly asked breadth topics, and what is the failure mode for each?",
+          "a": "THE SET IS SMALL AND THE FAILURE MODES ARE MEMORIZABLE. BIAS-VARIANCE: the decomposition assumes a fixed data distribution, so it says nothing under shift, and double descent shows the classic U-curve is not the whole story. REGULARIZATION: L1 zeroes correlated features arbitrarily, so which one survives is a coin flip. BATCH NORM: breaks at batch size 1, leaks statistics across examples in a batch, and behaves differently in train and eval — a classic silent inference bug. DROPOUT: interacts badly with batch norm through a variance shift, which is why naively using both regresses. CROSS-VALIDATION: leaks under grouping and under time, so random k-fold on user-level or temporal data is optimistic. EARLY STOPPING: is model selection on the validation set, so that score stops being unbiased. CLASS WEIGHTS: change the implied threshold, so you have moved the operating point rather than fixed the imbalance. AUC: is threshold-free and therefore silent about the operating point you ship — at a 0.1% base rate, a 1% FPR is 8.3% precision. ENSEMBLES: remove independent error and leave shared bias, measured at 7.467 to 7.714 from one model to sixteen.",
+          "deepDive": {
+            "q": "What do several of those failure modes have in common?",
+            "a": "Two meta-points about that list. First, notice that several failure modes are the same failure mode: early stopping, cross-validation leakage and selecting a checkpoint on a holdout are all 'a measurement participating in the selection stops being a measurement', which is module 24's thesis and the Goodhart result from 24-10. Recognizing that lets you answer three questions with one idea and say so, which reads far better than three memorized caveats. Second, the strongest version of any of these answers connects the failure mode to a decision: 'batch norm's train/eval difference is why I check inference-mode outputs against training-mode on a fixed batch before every deploy' turns a caveat into a practice, and a practice is evidence of having been burned. That is the highest-signal form available in this round and it costs one clause. The preparation exercise that produces it is to go through the list and, for each, write the check you would actually run — which takes an hour and converts the whole set from recall into experience-shaped answers."
+          }
+        },
+        {
+          "q": "How would you prepare for this round efficiently?",
+          "a": "BY RUNNING THE LIST AND FINDING THE GAPS, WHICH IS FASTER THAN STUDYING BROADLY. Take the twenty or thirty concepts that actually get asked and, for each, try to say the three beats out loud on a timer: what it is, when it breaks, and a number. EVERY ENTRY WHERE I CANNOT NAME A FAILURE MODE IS A TOPIC I HAVE READ RATHER THAN USED, and that is exactly what the round will detect — so the gaps the exercise finds are precisely the ones worth closing, and closing them means reading about failures rather than definitions, which is a different and more efficient search. THE SECOND HALF IS THE DELIVERY, because this round has a length discipline that content preparation does not address: forty seconds, three beats, then stop. That needs rehearsal out loud, ideally with someone timing, because the failure is not knowing too little but saying too much. THIRD, I'D FIX FIVE OR SIX NUMBERS accurately rather than twenty vaguely, chosen to span calibration, causality, metrics, experimentation and systems. AND I'D PRACTISE THE 'I DON'T KNOW' RESPONSE explicitly, because it is the one that has to be smooth under pressure and is never rehearsed.",
+          "deepDive": {
+            "q": "What makes that exercise better than a reading list?",
+            "a": "The gap-finding exercise has a useful property: it is bounded and finishable, which matters because the failure mode in interview preparation is an unbounded reading list that never converges and crowds out the rounds with more controllable variance. Thirty concepts at two minutes each is an hour, and the output is a specific list of maybe five topics to study rather than a vague sense of underpreparedness. It also produces a calibration check on your own knowledge, which is worth having independently — most people discover that the topics they feel weakest about are fine and the ones they never think about are the gaps, because familiarity and understanding come apart. That is the same self-assessment calibration problem module 24 discussed, applied to yourself, and the exercise is the reliability diagram. Finally, this round pairs efficiently with the algorithms round: several patterns there map onto ML components here, so learning each with its ML use covers both, which is the same consolidation argument that makes the whole module cheaper than it looks."
+          }
+        },
+        {
+          "q": "What does this round reveal that the others do not?",
+          "a": "COVERAGE AND HONESTY, AND IT IS THE ONLY ROUND THAT REALLY PROBES EITHER. A design round tests depth on one problem; a coding round tests one narrow skill; a project deep-dive tests what you personally did. THE BREADTH ROUND SAMPLES THE WHOLE SURFACE, and because it moves fast it also samples your behaviour at the boundary of your knowledge — which is why the 'I don't know' response matters disproportionately here. That behaviour is genuinely predictive of working with someone: an engineer who bluffs in an interview bluffs in a design review, and the cost there is much higher than a bad hire decision. THE SECOND THING IT REVEALS IS WHETHER YOUR KNOWLEDGE IS INDEXED OR MERELY STORED. Fifteen questions in forty-five minutes gives no time to reconstruct from first principles, so it tests retrieval rather than derivation — which is the complement of the depth round, and it is why the two exist together. IN THIS MODULE'S TERMS it is a high-frequency, low-depth sample of a large space, which makes it a coverage estimate in exactly module 24's sense: fifteen questions from a space of hundreds, and the interviewer is extrapolating.",
+          "deepDive": {
+            "q": "What follows practically from the round being a small sample?",
+            "a": "That last framing has a practical implication worth acting on. Because the round is a small sample from a large space, its variance is high — fifteen questions is not many, and which fifteen you get is close to random. So an unusually bad breadth round is weak evidence, and an unusually good one is weak evidence too, which is consistent with the loop arithmetic from 25-01 where a single interview had an AUC of 0.778. The practical consequence for a candidate is not to over-update from one round, and the practical consequence for an interviewer is that the round should be scored on the pattern of answers rather than on the count correct — a candidate who answers ten of fifteen well and says 'I don't know' cleanly on the other five is a better signal than one who answers twelve with three confident errors, even though the count favours the second. Interviewers who score the count rather than the pattern get the ranking backwards, and it is worth knowing that a good interviewer is not counting."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ What the breadth round tests",
+        "back": "Have you USED this, or only read about it. The reliable tell is whether you can name a FAILURE MODE. Anyone can define regularization."
+      },
+      {
+        "type": "definition",
+        "front": "★ The three-beat template",
+        "back": "WHAT it is (one sentence) → WHEN it breaks (a SPECIFIC condition) → A NUMBER if you have one. ~40 seconds. **Then stop** — silence after a complete answer reads as confidence."
+      },
+      {
+        "type": "formula",
+        "front": "Five numbers that span the curriculum",
+        "back": "Temp scaling ECE 0.087→0.011 (minority 0.153) · R² 0.898→0.987 while the estimate degrades 87% · uplift AUC 0.513 earns 12.4× AUC 0.895 · peeking 5%→25% · KV cache ~137 GB vs 35 GB of int4 weights."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Why those five",
+        "back": "Each carries a transferable SHAPE, not a domain fact: aggregate hides subgroup · fit improves while the target degrades · metric anti-correlated with the decision · the decision rule is part of the statistic · the bottleneck isn't where parameters suggest."
+      },
+      {
+        "type": "pitfall",
+        "front": "L1, batch norm, dropout — failure modes",
+        "back": "L1 zeroes correlated features ARBITRARILY (survivor is a coin flip). Batch norm breaks at batch size 1, leaks batch statistics, train≠eval. Dropout + batch norm interact via a variance shift."
+      },
+      {
+        "type": "pitfall",
+        "front": "CV, early stopping, class weights — failure modes",
+        "back": "CV leaks under grouping and under time. Early stopping is model selection on the validation set, so it's no longer unbiased. Class weights move the implied THRESHOLD — the operating point, not the imbalance."
+      },
+      {
+        "type": "pitfall",
+        "front": "AUC and ensembles — failure modes",
+        "back": "AUC is threshold-free, so it's silent about the operating point you ship (0.1% base rate, 1% FPR → 8.3% precision). Ensembles remove INDEPENDENT error only: 1 → 16 models moved true quality just 7.467 → 7.714."
+      },
+      {
+        "type": "intuition",
+        "front": "Several failure modes are ONE failure mode",
+        "back": "Early stopping, CV leakage, checkpoint selection on a holdout: *a measurement participating in the selection stops being a measurement*. Saying that answers three questions with one idea."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The \"I don't know\" response",
+        "back": "\"I haven't used X. Structurally it looks like Y, which works by Z — is that right?\" Honest, demonstrates reasoning by analogy (what's actually being probed), and invites a correction."
+      },
+      {
+        "type": "pitfall",
+        "front": "Why never bluff",
+        "back": "The asymmetry. One admitted gap costs almost nothing; one DETECTED bluff converts every prior answer from evidence into a claim needing verification. Highest-variance move available, all downside."
+      },
+      {
+        "type": "intuition",
+        "front": "The preparation exercise",
+        "back": "Run the list on a timer, three beats out loud. Every entry where you can't name a failure mode is a topic you READ rather than used. Bounded (~1 hour), finishable, and it outputs a specific list of five gaps."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Why one bad breadth round is weak evidence",
+        "back": "Fifteen questions sampled from a space of hundreds — high variance, consistent with a single interview's AUC of 0.778. A good interviewer scores the PATTERN, not the count: 10/15 with clean \"I don't know\"s beats 12/15 with three confident errors."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Ng, Machine Learning Yearning",
+        "url": "https://info.deeplearning.ai/machine-learning-yearning-book"
+      },
+      {
+        "title": "Google, Rules of Machine Learning: Best Practices for ML Engineering",
+        "url": "https://developers.google.com/machine-learning/guides/rules-of-ml"
+      },
+      {
+        "title": "Belkin, Hsu, Ma & Mandal (2019), Reconciling Modern Machine-Learning Practice and the Bias-Variance Trade-Off",
+        "url": "https://www.pnas.org/doi/10.1073/pnas.1903070116"
+      },
+      {
+        "title": "Ioffe & Szegedy (2015), Batch Normalization",
+        "url": "https://arxiv.org/abs/1502.03167"
+      },
+      {
+        "title": "Li, Chen, Hu & Yang (2019), Understanding the Disharmony between Dropout and Batch Normalization",
+        "url": "https://arxiv.org/abs/1801.05134"
+      }
+    ],
+    "demos": [
+      "bias-variance-decomp",
+      "overfitting",
+      "cross-validation",
+      "roc"
+    ]
+  }
+};

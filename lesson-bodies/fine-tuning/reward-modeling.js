@@ -1,0 +1,275 @@
+// GENERATED from content/lessons/fine-tuning/reward-modeling.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/fine-tuning/reward-modeling/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "reward-modeling": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "SFT can only imitate demonstrations, and for most of what we want from a model there is no demonstration. Nobody can write the ideal response to an open-ended question, but almost anyone can look at two responses and say which is better. Preferences are cheap where demonstrations are expensive, and they carry information demonstrations cannot: a demonstration says 'this is good', a comparison says 'this is better than that', which is the only kind of statement that can rank the model's own outputs.",
+        "The Bradley-Terry model is how you turn comparisons into a number. Assume each response has a latent scalar quality, and the probability of preferring one to another is the logistic function of their difference. Fit that by maximum likelihood and you have a reward model: a language model with the head replaced by a scalar, trained with what is exactly logistic regression on reward differences. Two structural facts follow immediately and are worth holding onto. Only DIFFERENCES are identified - adding a constant to every response's reward for a given prompt changes nothing - so reward scores are meaningful only within a prompt and are not comparable across prompts. And the accuracy ceiling is human agreement: annotators agree with each other roughly 70 to 75% of the time on preference data, so a reward model at 70% held-out accuracy is not obviously bad, it is near the noise floor of its supervision.",
+        "This is the lesson where the module's spine stops being an analogy. The reward model IS the proxy - explicitly, by construction, and everyone involved knows it. Gao, Schulman and Hilton made the consequence precise by using a large 'gold' reward model as synthetic ground truth, training proxy reward models against its labels, and then optimizing policies against the proxies. The proxy score rises monotonically. The gold score rises, peaks, and then DECLINES, and they fit the whole curve as a function of the square root of the KL divergence from the initial policy - so the point at which optimization starts destroying value is predictable rather than mysterious, and it moves with the size of the reward model and the amount of preference data. Optimizing a learned proxy past a certain point makes the real thing worse. That is Goodhart's law with a functional form, measured, in the exact setting we deploy it in."
+      ],
+      "math": [
+        {
+          "h": "The Bradley-Terry model and its loss",
+          "paras": [
+            "Each response has a latent scalar reward; the probability of preferring the winner is the sigmoid of the reward gap. Maximizing the likelihood of the observed comparisons gives the training objective.",
+            "Notice the second line is logistic regression where the 'feature' is the difference of two network outputs. Everything you know about logistic regression - calibration, separability, the behaviour when classes are easy - applies directly."
+          ],
+          "tex": "\\Pr[\\,y_w \\succ y_l \\mid x\\,] = \\sigma\\big(r_\\phi(x, y_w) - r_\\phi(x, y_l)\\big) \\\\[6pt] \\mathcal{L}(\\phi) = -\\,\\mathbb{E}_{(x, y_w, y_l)}\\Big[\\log \\sigma\\big(r_\\phi(x,y_w) - r_\\phi(x,y_l)\\big)\\Big]",
+          "texNote": "The gradient pushes the winner's score up and the loser's down, weighted by how wrong the model currently is - so confidently-correct pairs contribute almost nothing and the model trains on the pairs it disagrees with. That is also why a dataset of easy pairs teaches very little: after a few epochs the margin saturates and there is no gradient left."
+        },
+        {
+          "h": "Only differences are identified",
+          "paras": [
+            "The likelihood depends on r only through differences within a prompt, so the reward is determined up to an arbitrary per-prompt shift. This is not a technicality - it governs how you may use the scores."
+          ],
+          "tex": "r'(x,y) = r(x,y) + c(x) \\;\\Longrightarrow\\; \\mathcal{L}(\\phi') = \\mathcal{L}(\\phi) \\quad \\text{for any } c(x)",
+          "texNote": "Consequences: a reward of 3.2 means nothing on its own; comparing rewards ACROSS prompts is meaningless unless you have deliberately constrained the shift; and in PPO you must standardize or whiten rewards per batch, or the value function spends its capacity modelling a per-prompt offset that carries no information. Most reward-scale confusion in practice traces to forgetting this line."
+        },
+        {
+          "h": "Overoptimization: Goodhart with a functional form",
+          "paras": [
+            "Gao et al. used a large gold reward model as synthetic ground truth, trained proxy reward models on its labels, and optimized against the proxies while watching both scores. The gold score is not monotone in optimization pressure.",
+            "The natural x-axis is not steps or reward but the square root of the KL divergence from the initial policy - a measure of how far you have moved, which is exactly the quantity the KL penalty in RLHF controls."
+          ],
+          "tex": "d = \\sqrt{\\mathrm{KL}(\\pi \\,\\|\\, \\pi_{\\text{init}})}, \\qquad R_{\\text{gold}}(d) \\approx \\begin{cases} d\\,(\\alpha - \\beta d) & \\text{best-of-}n \\\\ d\\,(\\alpha - \\beta \\log d) & \\text{RL} \\end{cases}",
+          "texNote": "Both forms rise then fall, so there is an optimum distance to travel and going further is actively harmful. The coefficients improve with reward-model SIZE and with the amount of preference DATA, which is the actionable finding: a bigger, better-trained reward model does not remove overoptimization, it moves the peak further out. And the KL axis is why the KL penalty is a first-class part of the RLHF objective rather than a regularizer someone added for stability."
+        }
+      ],
+      "code": [
+        {
+          "h": "The reward model, and the K-way batching detail that matters",
+          "paras": [
+            "The architecture is a language model with a scalar head reading the final token. The non-obvious part is how comparisons are batched: InstructGPT collects K responses per prompt and trains on ALL K-choose-2 pairs in a single forward pass, rather than treating each pair as an independent example."
+          ],
+          "code": "class RewardModel(nn.Module):\n    def __init__(self, base):          # usually initialized from the SFT model\n        super().__init__()\n        self.base = base\n        self.head = nn.Linear(base.config.hidden_size, 1, bias=False)\n\n    def forward(self, ids, mask):\n        h = self.base(ids, attention_mask=mask).last_hidden_state\n        last = mask.sum(1) - 1                       # index of the final real token\n        return self.head(h[torch.arange(len(ids)), last]).squeeze(-1)\n\n# PAIRWISE LOSS - literally logistic regression on the reward difference:\nloss = -F.logsigmoid(rm(x, y_w) - rm(x, y_l)).mean()\n\n# K-WAY COMPARISONS, and why the batching is not incidental.\n# Collect K responses per prompt, rank them, form all C(K,2) pairs.\n#   - Treating pairs as INDEPENDENT examples means each response appears in\n#     K-1 pairs across different batches, so the model sees it K-1 times and\n#     OVERFITS - InstructGPT reports exactly this.\n#   - Putting all C(K,2) pairs from one prompt in ONE forward pass means each\n#     response is encoded ONCE, so it is one gradient contribution, and it is\n#     also (K-1)x cheaper in compute.\nr = rm(x.repeat(K), ys)                    # K scores, one forward pass\nloss = -F.logsigmoid(r[i_win] - r[i_lose]).mean()   # all C(K,2) pairs from them\n\n# CEILING CHECK before despairing at 70% accuracy: human annotators agree\n# with each other roughly 70-75% of the time on this data. A reward model at\n# 70% is near the noise floor of its own supervision, not obviously broken.",
+          "caption": "The K-way batching is a real result, not an optimization: independent pairs make each response appear K-1 times and the model overfits. One prompt, one forward pass, all pairs - cheaper and better."
+        },
+        {
+          "h": "The overoptimization experiment, and the length check you should run first",
+          "paras": [
+            "Two diagnostics. The first is Gao et al.'s design, which is the only way to observe overoptimization directly since real ground truth is unavailable. The second takes two minutes and explains a surprising fraction of reward-model behaviour."
+          ],
+          "code": "# --- DIAGNOSTIC 1: does optimizing my proxy help the real thing? ---\n# You cannot measure this without ground truth, so MANUFACTURE it:\ngold = big_reward_model()                       # stand-in for true preference\nprefs = [(x, *label_by(gold, ys)) for x, ys in prompts]\nproxy = train_reward_model(prefs)               # what you would deploy\nfor kl in optimization_pressure:                # BoN with rising n, or RL steps\n    pi = optimize(policy, proxy, kl_budget=kl)\n    print(kl, score(proxy, pi), score(gold, pi))\n#   proxy score: rises monotonically, always.\n#   gold  score: rises, PEAKS, then DECLINES.\n# The gap between those two columns is the entire subject.\n\n# --- DIAGNOSTIC 2: is my reward model just measuring length? ---\nr = [rm(x, y) for x, y in val_pairs]\nprint(\"corr(reward, token_count) =\", pearson(r, [len(y) for _, y in val_pairs]))\nprint(\"accuracy on LENGTH-MATCHED pairs =\",\n      acc(rm, [p for p in val_pairs if abs(len_diff(p)) < 10]))\n#\n# Reward models routinely show strong positive length correlation, and much\n# of RLHF's apparent improvement can be reproduced by optimizing for length\n# alone (Singhal et al.). If accuracy collapses toward chance once pairs are\n# length-matched, the model learned a proxy for a proxy - and the policy will\n# find that out long before you do.",
+          "caption": "The first diagnostic requires manufacturing ground truth because real ground truth does not exist - which is why overoptimization went unmeasured for so long. The second costs two minutes and frequently explains most of what a reward model is doing."
+        }
+      ],
+      "useCases": [
+        "The scoring component of every RLHF pipeline, where the policy needs a reward for arbitrary generated text and no human is in the loop at generation time - the reward model exists to make human judgment queryable millions of times.",
+        "Best-of-n and rejection sampling at inference, which needs no reinforcement learning at all: generate n candidates, score them, return the best. It is the cheapest way to convert a reward model into quality, and it is trivially reversible.",
+        "Filtering and curating training data - ranking synthetic instruction data, selecting which generated chains of thought to keep, pruning a corpus - where the reward model acts as a learned quality classifier rather than an RL signal.",
+        "Automated evaluation and regression testing, scoring candidate model versions on a fixed prompt set. Useful and dangerous in the same way as any proxy: fine as a monitor, hazardous the moment it becomes the optimization target."
+      ],
+      "pitfalls": [
+        "Optimizing against the reward model without a KL constraint. Gao et al. measured the gold score rising, peaking, and then declining as a function of KL distance from the initial policy - so unconstrained optimization of a learned proxy reliably destroys the thing it was proxying for.",
+        "Not checking length correlation. Reward models routinely learn that longer is better, and much of RLHF's apparent improvement has been reproduced by optimizing for length alone. Report the reward-length correlation and accuracy on length-matched pairs before trusting anything else.",
+        "Comparing reward scores across prompts. The likelihood identifies only differences within a prompt, so the reward is defined up to an arbitrary per-prompt shift. Cross-prompt comparisons and un-normalized rewards in PPO are both consequences of forgetting this.",
+        "Panicking at 70% validation accuracy. Human annotators agree with each other roughly 70-75% of the time, so that figure is near the noise ceiling of the supervision rather than evidence of a broken model. Judge against inter-annotator agreement, not against 100%.",
+        "Training on pairs as independent examples. With K-way comparisons, each response then appears in K-1 separate batches and the model overfits - InstructGPT reports exactly this. Put all C(K,2) pairs from one prompt in a single forward pass, which is both better and cheaper.",
+        "Assuming a bigger reward model removes overoptimization. It does not; it moves the peak further out. More preference data does the same. The failure mode is structural, so the response is to bound the optimization, not to improve the proxy and then optimize harder.",
+        "Ignoring the distribution the reward model was trained on. It scores responses from the SFT policy accurately and becomes unreliable exactly where the policy has moved away from that distribution - which is precisely where an optimizing policy will take it. The proxy degrades fastest where it is being pushed hardest."
+      ],
+      "connections": [
+        {
+          "ref": "supervised-learning/logistic-regression",
+          "text": "The Bradley-Terry loss IS logistic regression on the difference of two network outputs. Everything from that lesson transfers: calibration, the behaviour of the gradient on easy versus hard examples, and what happens when the classes become separable."
+        },
+        {
+          "ref": "fine-tuning/rlhf-ppo",
+          "text": "The consumer of this model, and where the KL penalty earns its place. The overoptimization curve is a function of KL distance from the initial policy, so that penalty is not a stability hack - it is the control on the axis along which the proxy fails."
+        },
+        {
+          "ref": "fine-tuning/dpo-grpo",
+          "text": "DPO starts from the same Bradley-Terry likelihood and shows that the optimal policy under a KL-regularized reward objective can be written in closed form, so the reward model can be skipped - which removes this lesson's failure mode and introduces different ones."
+        },
+        {
+          "ref": "ml-theory/calibration",
+          "text": "A reward model is a probabilistic classifier over preferences, so it can be calibrated and usually is not. Its confidence is what best-of-n and rejection sampling implicitly rely on, which makes miscalibration a silent quality tax on both."
+        },
+        {
+          "ref": "trustworthy-ai/alignment-governance",
+          "text": "Overoptimization is the concrete, measured form of the specification-gaming concern. Here it has a functional form and a predictable peak, which makes it a rare case where an alignment worry is an engineering parameter."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why use preferences instead of demonstrations?",
+          "a": "Comparing is far easier than demonstrating for open-ended tasks, and a comparison carries information a demonstration cannot: it ranks the model's own outputs, which is what you need to improve on them."
+        },
+        {
+          "q": "What is the Bradley-Terry model?",
+          "a": "Each item has a latent scalar quality and the probability of preferring one to another is the sigmoid of their difference. Fitting it by maximum likelihood gives the reward model."
+        },
+        {
+          "q": "What is the reward-model loss?",
+          "a": "-log sigma(r(x, y_win) - r(x, y_lose)), averaged over comparisons. It is logistic regression where the feature is a difference of network outputs."
+        },
+        {
+          "q": "What is the reward model's architecture?",
+          "a": "A language model with the LM head replaced by a scalar head reading the final token, usually initialized from the SFT checkpoint."
+        },
+        {
+          "q": "Why are reward scores not comparable across prompts?",
+          "a": "The likelihood depends only on differences within a prompt, so the reward is identified up to an arbitrary per-prompt shift. Only within-prompt comparisons are meaningful."
+        },
+        {
+          "q": "What accuracy should a reward model reach?",
+          "a": "Around 70% on held-out preferences is typical, and human annotators agree with each other only about 70-75% of the time - so that is near the noise ceiling, not a failure."
+        },
+        {
+          "q": "What is reward-model overoptimization?",
+          "a": "Optimizing a policy against a learned reward model makes the proxy score rise monotonically while the true objective rises, peaks, and then declines."
+        },
+        {
+          "q": "How did Gao et al. measure it?",
+          "a": "They used a large gold reward model as synthetic ground truth, trained proxy reward models on its labels, and tracked both scores as optimization pressure increased."
+        },
+        {
+          "q": "What is the natural x-axis for overoptimization?",
+          "a": "The square root of the KL divergence from the initial policy - which is exactly the quantity the KL penalty in RLHF controls."
+        },
+        {
+          "q": "Does a bigger reward model fix overoptimization?",
+          "a": "No - it moves the peak further out. More preference data does the same. The failure is structural, so you bound the optimization rather than improve the proxy and push harder."
+        },
+        {
+          "q": "What is the length bias in reward models?",
+          "a": "They routinely learn that longer responses are better, and much of RLHF's apparent gain has been reproduced by optimizing for length alone. Check the reward-length correlation early."
+        },
+        {
+          "q": "Why batch all K-choose-2 pairs from one prompt together?",
+          "a": "Treating pairs as independent examples makes each response appear in K-1 batches and the model overfits. One forward pass per prompt encodes each response once and is also cheaper."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Compare best-of-n sampling with RLHF as ways to spend a reward model.",
+          "a": "They extract value from the same artefact at opposite ends of the pipeline, and best-of-n is systematically underrated. WHAT BEST-OF-N IS. Sample n responses from the policy, score them all with the reward model, return the highest. No training, no gradients, no RL infrastructure - it is a decoding-time procedure. WHY IT IS BETTER THAN IT SOUNDS. (1) It is REVERSIBLE. The policy is untouched, so a bad reward model costs you nothing permanent; turn n down to 1 and you are back to the base behaviour exactly. RLHF bakes the reward model's errors into the weights. (2) It is IMMUNE to the identifiability problem. Best-of-n compares responses to the SAME prompt, so the reward's arbitrary per-prompt shift cancels exactly - none of the normalization care that PPO needs applies. (3) It is a strong baseline. Gao et al. measured both against a gold reward model and best-of-n is competitive with RL at matched KL over a useful range - which is a striking result given how much less machinery it requires, and it means any RLHF result should be reported against a best-of-n baseline at comparable KL. (4) It is TUNABLE AT INFERENCE. n is a quality-versus-cost dial you can set per request, per customer, or per traffic tier, without retraining anything. WHAT IT COSTS. n times the generation compute, on every request, forever. That is the whole trade: best-of-n moves the cost from training to serving, and RLHF moves it from serving to training. At high volume, RLHF amortizes and best-of-n does not. THE OVEROPTIMIZATION COMPARISON, which is the interesting part. Both overoptimize; they just do it along different curves. Best-of-n's KL from the base policy grows roughly logarithmically in n, so pushing n from 4 to 64 moves you a bounded distance - you cannot easily run off the cliff. RL can travel arbitrarily far, which is why it needs an explicit KL penalty as a first-class part of the objective. Gao et al. fit different functional forms to the two for exactly this reason. So best-of-n is not immune to Goodhart; it is naturally rate-limited, which makes it much harder to get badly wrong. HOW I WOULD ACTUALLY USE THEM. Start with best-of-n, always. It tells me whether the reward model is worth anything before I build an RL pipeline, and the n-versus-quality curve is a direct measurement of how much signal the reward model contains. Then use RLHF if the serving cost of n is unaffordable and the quality gain justifies the pipeline. And there is a third option that gets the best of both: REJECTION-SAMPLING FINE-TUNING - run best-of-n offline, keep the winners, and fine-tune on them with plain SFT. That converts best-of-n's quality into the weights at a fraction of RL's complexity, and it is what several production pipelines actually do."
+        },
+        {
+          "q": "Explain reward modeling end to end: why it exists, how it is trained, and how it fails.",
+          "a": "WHY IT EXISTS. SFT imitates demonstrations, and for most of what we want there is no demonstration - nobody can write the ideal answer to an open-ended question. But almost anyone can compare two responses. Preferences are cheap where demonstrations are expensive, and they carry a different kind of information: a comparison ranks the model's OWN outputs, which is the only signal that can improve on them rather than merely reproduce a target. A reward model turns a finite set of human comparisons into a function you can query millions of times. HOW IT IS TRAINED. Assume each response has a latent scalar quality and that the probability of preferring one over another is the logistic function of their difference - that is Bradley-Terry. The loss is -log sigmoid(r_win - r_lose), which is exactly logistic regression on a difference of network outputs. Architecturally it is a language model with the LM head replaced by a scalar head reading the final token, usually initialized from the SFT checkpoint so it shares the policy's representation. One practical detail I would mention because it is a real result rather than an optimization: with K-way comparisons, put all C(K,2) pairs from a prompt in ONE forward pass. Treating them as independent examples makes each response appear in K-1 different batches, and InstructGPT reports overfitting from exactly that. TWO STRUCTURAL FACTS. Only DIFFERENCES are identified - the reward is defined up to a per-prompt shift - so cross-prompt comparisons are meaningless and rewards must be normalized before use in PPO. And the accuracy ceiling is inter-annotator agreement, roughly 70-75%, so a reward model at 70% held-out accuracy is near the noise floor of its supervision rather than broken. HOW IT FAILS - the substance of the answer. (1) OVEROPTIMIZATION, measured directly by Gao et al. using a gold reward model as synthetic ground truth: the proxy score rises monotonically while the gold score rises, PEAKS, and declines, fitted as a function of the square root of the KL from the initial policy. There is an optimal distance to move and going further actively destroys value. Crucially, larger reward models and more data move the peak out but do not remove the effect. (2) LENGTH BIAS. Reward models routinely learn that longer is better, and much of RLHF's apparent improvement has been reproduced by optimizing for length alone. (3) DISTRIBUTION SHIFT, which compounds the first. The reward model is accurate on responses resembling its training distribution, and an optimizing policy moves AWAY from that distribution by construction - so the proxy degrades fastest exactly where it is being pushed hardest. THE SUMMARY. The reward model is the module's theme made literal: it is a proxy by construction, everyone knows it, and the entire engineering discipline around it consists of bounding how far you are allowed to optimize against it.",
+          "deepDive": {
+            "q": "Why does overoptimization happen, mechanistically? Why does a better reward model not solve it?",
+            "a": "THE MECHANISM, in three steps. (1) The reward model is fitted on a FINITE sample of comparisons drawn from the SFT policy's output distribution. Within that region it approximates true preference well. Outside it, its behaviour is determined by whatever the network extrapolates, which is arbitrary and unconstrained by any data. (2) Optimizing the policy against it means SEARCHING for high-reward outputs. That search is adversarial by construction, not by intent - the optimizer explores the space, and the highest-scoring points it finds are disproportionately points where the reward model is WRONG in the upward direction, because errors in that direction are exactly what an argmax selects for. This is the winner's-curse structure and it is the whole story: you are not sampling the reward model's error, you are maximizing over it. (3) So the policy drifts off the reward model's training distribution, into regions where the error is largest and positive, and the proxy score keeps climbing while true quality falls. The gold-score curve rising, peaking, and falling is the sum of a real improvement term and a growing exploitation term. WHY A BETTER REWARD MODEL DOES NOT SOLVE IT. Gao et al. measured this directly: scaling the reward model and the preference data improves the coefficients - the peak is higher and further out - but the SHAPE is unchanged. The reason is that the problem is not approximation error at a point, it is the existence of ANY region where the model over-scores, combined with an optimizer whose job is to find such regions. A better model shrinks those regions but cannot eliminate them with finite data, and a stronger optimizer searches harder for whatever remains. Improving the proxy and then optimizing correspondingly harder gets you back to the same place - which is why 'we will fix it with a bigger reward model' is not a plan. WHAT ACTUALLY HELPS, in order of how much. (1) BOUND THE DISTANCE. The KL penalty is not a stability hack; it constrains movement along the exact axis on which the failure is parameterized. Choosing the penalty is choosing where on the curve to stop, which is why it is the most important hyperparameter in the stack. (2) EARLY STOPPING on a held-out signal that is not the proxy - human evaluation, or a genuinely independent metric. If your only signal is the proxy, you cannot see the peak. (3) REWARD-MODEL ENSEMBLES and pessimism: score with several models and take a conservative aggregate, so the policy has to find a point where they all err upward. This helps and does not eliminate, since ensembles trained on the same data share error modes. (4) ITERATED DATA COLLECTION. Collect fresh preferences ON THE CURRENT POLICY'S OUTPUTS and retrain, which drags the reward model's training distribution along behind the policy. This is what production RLHF pipelines actually do, and it addresses the distribution-shift half of the mechanism directly. (5) VERIFIABLE REWARDS where available. If the reward is a checker rather than a learned model, there is no proxy to exploit - which is why RL on mathematics and code has scaled so much more cleanly than RL on open-ended preference. THE GENERALIZATION. This is Goodhart's law with a measured functional form, in the setting we care about. The lesson transfers to every learned metric used as an optimization target: click models, engagement predictors, LLM judges. Optimizing a learned proxy is safe only within the region where it was fitted, and the optimizer's job is to leave that region."
+          }
+        },
+        {
+          "q": "Your reward model gets 68% accuracy on held-out preferences. Is that good?",
+          "a": "Probably close to as good as the data allows, and the answer is entirely about what the ceiling is. THE CEILING. Human annotators agree with each other roughly 70-75% of the time on preference data. Where two humans disagree, there is no fact for the model to be right about, so the achievable accuracy is bounded near that agreement rate. A model at 68% is therefore not obviously underperforming - it is close to the noise floor of its supervision. Reporting 68% against an implicit target of 100% is the mistake; the target is inter-annotator agreement, and if I have not measured that on MY data I should before drawing any conclusion. WHAT I WOULD CHECK INSTEAD OF THE HEADLINE NUMBER. (1) ACCURACY BY MARGIN. Split the validation set by how strongly annotators agreed - unanimous versus split decisions. A good reward model should be near-perfect on the pairs humans agree on unanimously and near chance where humans split. If it is at 68% uniformly across both, it is not modelling preference well; it has averaged into a mediocre middle. This single breakdown is far more informative than the aggregate. (2) LENGTH CORRELATION, always. Compute the correlation between reward and token count, and re-measure accuracy on LENGTH-MATCHED pairs. If accuracy falls toward chance once length is controlled, the 68% was substantially a length detector, and the policy will discover that faster than I will. (3) CALIBRATION. The model outputs a probability of preference through the sigmoid of the gap. Is it calibrated? Best-of-n and rejection sampling implicitly rely on the score ordering being trustworthy, and an overconfident reward model degrades both silently. (4) SLICES. Accuracy by prompt category, by response type, by whether a refusal is involved. Aggregate accuracy hides a subpopulation where the model is at chance, and if that subpopulation is where the policy will spend its time, the aggregate is not the relevant number. (5) BEHAVIOUR OUT OF DISTRIBUTION. Score some deliberately degenerate outputs - repetitive text, very long padding, confident nonsense - and check they score low. The reward model will be queried on exactly this kind of thing by an optimizing policy, and it was probably never trained on any of it. WHAT WOULD ACTUALLY WORRY ME. Not 68%. A high length correlation, uniform accuracy across agreement levels, or high scores on degenerate outputs - any of those means the model will fail in the way that matters even if I improved the headline accuracy. THE DECISION. The useful question is not 'is 68% good' but 'is this reward model good enough to optimize against, and how far'. Those are different questions, and the second is answered by the KL budget and by held-out human evaluation during training, not by validation accuracy at all."
+        },
+        {
+          "q": "Someone proposes replacing pairwise preferences with 1-5 quality ratings. Evaluate.",
+          "a": "I would push back, and the reasons are well-established from the human-judgment literature rather than specific to language models. WHY PAIRWISE IS BETTER. (1) NO SHARED SCALE IS NEEDED. Absolute ratings require every annotator to hold the same internal mapping from quality to numbers, and they do not. One rater's 4 is another's 3. Ratings drift over a session, anchor on whatever was seen first, and cluster in the middle. A comparison asks only 'which of these two', which requires no calibration between people at all. (2) IT MATCHES THE DECISION. Preference judgments are naturally comparative; asking someone to assign an absolute number forces an extra, harder cognitive step and the noise it adds is not random - it is systematic per annotator, which is worse. (3) THE MODEL ONLY NEEDS THE ORDERING. Bradley-Terry recovers a latent scalar from comparisons alone, so absolute ratings supply information the objective does not use, at the cost of the noise required to produce it. (4) FEWER TIES AND DEGENERATE RESPONSES. Rating scales produce heavy clustering at 3 and 4; comparisons force a decision. WHAT RATINGS DO BUY, honestly. They are more sample-efficient per judgment - N items rated gives N data points, whereas N items compared pairwise gives you as many pairs as you choose to form but each carries less information. They give absolute quality information, so you can answer 'is this good' and not only 'is this better', which comparisons genuinely cannot. And they let you filter data by an absolute threshold. THE DESIGN I WOULD ACTUALLY PROPOSE. K-way ranking, which is what InstructGPT used: show the annotator K responses to one prompt, have them rank all K, and derive all C(K,2) pairs. It is much more efficient than isolated pairs - one annotation session produces many comparisons - it keeps the comparative judgment that humans do reliably, and it makes the annotator's cognitive load reasonable at K of 4 to 9. Then batch all pairs from a prompt into one forward pass, which is both statistically necessary and cheaper. THE HYBRID, if absolute quality is genuinely needed. Collect comparisons for the reward model and a small separate set of absolute ratings for CALIBRATION and reporting - to answer 'is our model actually good' rather than 'did it beat the baseline'. Do not mix them into one objective. THE UNDERLYING POINT. The choice of annotation format is a measurement-design decision, and it determines the noise floor of everything downstream. A reward model cannot be better than its labels, and its labels cannot be better than the question the annotator was asked. Spending effort on the elicitation format is usually higher-leverage than spending it on the model.",
+          "deepDive": {
+            "q": "How would you improve the QUALITY of the preference data itself, given that the reward model cannot exceed it?",
+            "a": "This is where the leverage is, and it gets far less attention than modelling. (1) MEASURE INTER-ANNOTATOR AGREEMENT FIRST, and keep measuring it. Without it I do not know my ceiling, cannot tell a model failure from a data failure, and cannot detect annotator drift. It should be a monitored metric, not a one-time study - and per-annotator, so I can see who diverges. (2) FIX THE INSTRUCTIONS BEFORE FIXING THE MODEL. Most disagreement is not irreducible human variation; it is annotators optimizing different unstated criteria. Is a longer, more thorough answer better, or is concision a virtue? Should a refusal beat a helpful but risky answer? If the guidelines do not say, annotators will each decide, and their disagreement enters the model as noise that no amount of data averages away - because it is not zero-mean, it is a mixture of different objectives. Writing the criteria down, with worked examples of hard cases, typically moves agreement more than any modelling change. (3) COLLECT ON-POLICY AND ITERATE. Preferences over old outputs become less relevant as the policy moves, and the reward model's failure mode is precisely off-distribution error. Production pipelines re-collect on the current policy's generations and retrain, which drags the training distribution along behind the policy. This is the single highest-value process change. (4) TARGET THE INFORMATIVE PAIRS. The Bradley-Terry gradient vanishes on confidently-correct pairs, so a dataset of easy comparisons teaches almost nothing after a few epochs. Actively select pairs where the current reward model is UNCERTAIN or where an ensemble disagrees, which is standard active learning and is well suited here because generating candidates is cheap and labelling is not. (5) DELIBERATELY COVER THE FAILURE MODES YOU FEAR. Include length-matched pairs so the model cannot use length as a shortcut. Include pairs where the longer answer is worse. Include degenerate outputs - repetition, padding, confident fabrication - scored low, because an optimizing policy will produce exactly these and the reward model has probably never seen them. This is constructing the data so the shortcut and the task DISAGREE, which is the same discipline as building an out-of-distribution evaluation. (6) MULTIPLE ANNOTATORS ON A SUBSET, so you can model annotator noise explicitly, weight examples by agreement, and detect systematic per-annotator bias rather than averaging it in. (7) CHECK WHO YOUR ANNOTATORS ARE. Preference data encodes the preferences of the people who produced it, including their expertise and their incentives. If they are paid per task, speed pressure shows up as a bias toward whatever is quick to judge - which is usually surface features, which is where length bias comes from. THE POINT I WOULD END ON. Every failure mode in this lesson - length bias, poor off-distribution behaviour, the accuracy ceiling - is a data property before it is a model property. The reward model faithfully learns what the labels encode, and the labels encode the question you asked and the incentives of whoever answered it."
+          }
+        },
+        {
+          "q": "How do you detect and prevent reward hacking in a production RLHF pipeline?",
+          "a": "DETECTION, in the order I would build it. (1) TRACK PROXY AND NON-PROXY SIGNALS SEPARATELY, on the same axis. Reward-model score will rise; that tells you nothing. What you need beside it is at least one signal the policy is not optimizing: periodic human evaluation on a fixed prompt set, checkable-task accuracy, or a held-out reward model trained on different data. Divergence between the two curves is the definition of the failure, and if you only log the proxy you are structurally unable to see it. (2) PLOT AGAINST KL, not against steps. Overoptimization is parameterized by distance from the initial policy, so KL is the meaningful x-axis and it makes runs comparable across learning rates and batch sizes. (3) MONITOR THE SURFACE STATISTICS that are the usual hacks: mean output length, repetition rate, refusal rate, format-violation rate, the frequency of hedging phrases and of specific stock openings. Reward hacking is usually visible in these long before it is visible in an aggregate quality score, and they are nearly free to log. (4) READ SAMPLES, on a schedule, from the current policy. This is unglamorous and it catches things no metric names - a model that has learned to end every answer with a flattering question, or to restate the prompt at length. Every practitioner who has run RLHF has a story that starts with reading outputs. (5) SCORE DEGENERATE OUTPUTS with the reward model deliberately, as a canary: if repetitive padding starts scoring well, the reward model has drifted into a region where it is exploitable. PREVENTION. (1) THE KL PENALTY, chosen deliberately rather than inherited. It is the control on the axis along which the failure is parameterized, and choosing it is choosing where on the overoptimization curve to stop. This is the most important hyperparameter in the stack and it deserves a sweep with human evaluation at several points. (2) EARLY STOPPING on the non-proxy signal, which requires having built one. (3) REWARD ENSEMBLES with a pessimistic aggregate - minimum or mean-minus-variance - so the policy must find a point where every member errs upward. Partial help, since members trained on the same data share error modes, but cheap. (4) ITERATED PREFERENCE COLLECTION on current-policy outputs, retraining the reward model as the policy moves. This attacks the distribution-shift half of the mechanism and is what production pipelines actually do. (5) LENGTH CONTROL, explicitly - normalize reward by length, or include length-matched pairs in the preference data - given how reliably length is the hack that appears. (6) VERIFIABLE REWARDS WHEREVER POSSIBLE. If part of the objective can be checked rather than learned - tests pass, JSON parses, the arithmetic is right - that part cannot be hacked in the same way, and mixing verifiable and learned rewards limits the exposure. THE ORGANIZATIONAL POINT, which matters as much as the technical one. If the reward-model score is the number reported to leadership, it will become the target of the whole team and not merely the policy. Goodhart applies to the organization as well, and the countermeasure is the same: report the non-proxy signal in the same table, every time."
+        },
+        {
+          "q": "What does it mean that the reward is identified only up to a per-prompt shift, and where does that bite?",
+          "a": "THE FACT. The Bradley-Terry likelihood depends on the reward only through differences within a prompt: adding any function c(x) to every response's reward for prompt x leaves the loss exactly unchanged. So the fitted reward is determined only up to that shift, and nothing in training pins it down. What the model actually learns for the absolute level is arbitrary - whatever the optimization happened to land on, driven by initialization and regularization rather than by data. WHERE IT BITES. (1) CROSS-PROMPT COMPARISONS ARE MEANINGLESS. 'This response scored 3.2 and that one 1.8' says nothing if they are responses to different prompts. So you cannot rank prompts by difficulty using reward, cannot threshold reward globally to filter data, and cannot say a model is 'better on prompt A than prompt B'. People do all three routinely. (2) PPO NEEDS NORMALIZED REWARDS. If you feed raw rewards into the advantage computation, the per-prompt offset is a large, uninformative component of the signal. The value function will spend capacity modelling it - which is not wrong, since the baseline is supposed to absorb it, but it makes the value function's job harder and the advantage estimate noisier. Whitening rewards within a batch, or per prompt, removes the nuisance directly. Most reward-scale confusion in RLHF implementations traces to this. (3) REWARD SCALE INTERACTS WITH THE KL COEFFICIENT. The objective is reward minus beta times KL, so the meaning of beta depends on the reward's scale, which is arbitrary and can drift between reward-model training runs. A beta tuned for one reward model may be wildly wrong for its retrained successor even if the successor is better. Normalizing the reward makes beta transferable, and skipping that is a common source of 'the same hyperparameters stopped working'. (4) BEST-OF-N IS UNAFFECTED, which is a useful check on understanding: it compares responses to the SAME prompt, so the shift cancels exactly and none of this matters. That is one reason best-of-n is a more robust way to spend a reward model than RL. HOW TO HANDLE IT. Normalize per prompt where you can - subtract the mean reward over the sampled responses for that prompt, which is exactly what GRPO does as its core mechanism and one reason it is stable. Whiten within batch otherwise. If you genuinely need cross-prompt comparability, you have to add information the preference data does not contain: absolute ratings on a calibration set, or comparisons that deliberately span prompts, which annotators find much harder to make. THE WIDER LESSON. Identifiability is worth checking for any learned objective. Ask what transformations of the model's output leave the loss unchanged, because those are precisely the directions where the model's output carries no information - and any downstream use that reads those directions is reading noise with a confident-looking number attached."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "Bradley-Terry preference model and loss",
+        "back": "P(y_w > y_l | x) = sigma(r(x,y_w) - r(x,y_l)); loss = -E[log sigma(r_w - r_l)]. It is logistic regression on a difference of network outputs - all of logistic regression's properties transfer."
+      },
+      {
+        "type": "intuition",
+        "front": "Why preferences beat demonstrations",
+        "back": "For open-ended tasks nobody can write the ideal answer, but anyone can compare two. And a comparison RANKS THE MODEL'S OWN OUTPUTS - the only kind of signal that can improve on them rather than reproduce a target."
+      },
+      {
+        "type": "pitfall",
+        "front": "Reward is identified only up to a per-prompt shift",
+        "back": "r'(x,y) = r(x,y) + c(x) leaves the loss unchanged. So: no cross-prompt comparisons, whiten rewards before PPO, and beta in (reward - beta*KL) depends on an arbitrary scale. Best-of-n is unaffected - the shift cancels."
+      },
+      {
+        "type": "pitfall",
+        "front": "Reward-model overoptimization",
+        "back": "Gao et al.: with a gold RM as ground truth, the PROXY score rises monotonically while the GOLD score rises, PEAKS, then declines - fitted against d = sqrt(KL from init). Goodhart's law with a functional form."
+      },
+      {
+        "type": "intuition",
+        "front": "Why a bigger reward model does not fix overoptimization",
+        "back": "It moves the peak out; the shape is unchanged. The failure is not approximation error at a point - it is that an optimizer MAXIMIZES OVER the error, so it selects regions where the RM errs upward. Better proxy + harder optimization = same place."
+      },
+      {
+        "type": "pitfall",
+        "front": "Check length correlation before anything else",
+        "back": "RMs routinely learn longer = better, and much of RLHF's apparent gain has been reproduced by optimizing for LENGTH ALONE (Singhal et al.). Report corr(reward, token_count) and accuracy on LENGTH-MATCHED pairs."
+      },
+      {
+        "type": "intuition",
+        "front": "70% RM accuracy is near the ceiling",
+        "back": "Human annotators agree with each other only ~70-75% of the time. Where two humans disagree there is no fact to be right about. Judge against inter-annotator agreement, not against 100% - and measure it on YOUR data."
+      },
+      {
+        "type": "pitfall",
+        "front": "Batch all C(K,2) pairs from one prompt together",
+        "back": "Treating pairs as independent examples makes each response appear in K-1 separate batches and the model OVERFITS (InstructGPT reports this). One forward pass per prompt encodes each response once - better AND (K-1)x cheaper."
+      },
+      {
+        "type": "intuition",
+        "front": "The proxy degrades fastest where it is pushed hardest",
+        "back": "The RM is accurate on the SFT policy's distribution. An optimizing policy moves AWAY from that distribution by construction. So reward-model error grows exactly along the direction optimization travels - the two effects compound."
+      },
+      {
+        "type": "definition",
+        "front": "Accuracy by annotator-agreement level",
+        "back": "The most informative RM diagnostic. A good RM is near-perfect where annotators were unanimous and near chance where they split. Uniform 68% across both means it averaged into a mediocre middle rather than modelling preference."
+      },
+      {
+        "type": "intuition",
+        "front": "Prefer K-way ranking to 1-5 ratings",
+        "back": "Absolute ratings require a shared internal scale nobody has - they drift, anchor, and cluster at 3-4, and the noise is SYSTEMATIC per annotator. K-way ranking (K=4-9) keeps the comparative judgment humans do reliably and yields C(K,2) pairs per session."
+      },
+      {
+        "type": "intuition",
+        "front": "What actually bounds overoptimization",
+        "back": "In order: the KL penalty (the control on the failure axis), early stopping on a NON-proxy signal, pessimistic RM ensembles, iterated preference collection on current-policy outputs, and verifiable rewards where the answer can be checked instead of learned."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Christiano et al. (2017), Deep Reinforcement Learning from Human Preferences",
+        "url": "https://arxiv.org/abs/1706.03741"
+      },
+      {
+        "title": "Gao, Schulman & Hilton (2022), Scaling Laws for Reward Model Overoptimization",
+        "url": "https://arxiv.org/abs/2210.10760"
+      },
+      {
+        "title": "Stiennon et al. (2020), Learning to Summarize from Human Feedback",
+        "url": "https://arxiv.org/abs/2009.01325"
+      },
+      {
+        "title": "Singhal et al. (2023), A Long Way to Go: Investigating Length Correlations in RLHF",
+        "url": "https://arxiv.org/abs/2310.03716"
+      },
+      {
+        "title": "Lambert et al. (2024), RewardBench: Evaluating Reward Models for Language Modeling",
+        "url": "https://arxiv.org/abs/2403.13787"
+      }
+    ],
+    "demos": [
+      "reward-model",
+      "roc",
+      "calibration",
+      "classification-metrics"
+    ]
+  }
+};

@@ -1,0 +1,240 @@
+// GENERATED from content/lessons/advanced-cv/ocr.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/advanced-cv/ocr/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "ocr": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "OCR sounds solved and mostly is for clean printed text on a flat page - engines have handled that since the 1990s. What is not solved, and what 'Document AI' means, is everything around it: photographs of receipts at an angle, handwritten forms, tables whose structure carries the meaning, multi-column layouts, low-resolution scans, and the step that actually matters commercially - turning recognized characters into STRUCTURED FIELDS a downstream system can use. Reading the characters is the easy half; knowing that this number is the invoice total and that one is the tax is the half that pays.",
+        "The classical pipeline has three stages and it is worth knowing because production systems still use it: DETECT text regions, RECOGNIZE the characters in each, and then UNDERSTAND the layout and extract fields. Detection is object detection with a twist - text is thin, elongated, arbitrarily rotated, and often curved, so standard box detectors do poorly and specialized methods (EAST, DBNet, segmentation-based approaches) predict rotated or polygonal regions. Recognition is a sequence problem: a cropped word image maps to a character string of unknown length, which is exactly the setting CTC was invented for.",
+        "The recent shift is that end-to-end models are collapsing these stages. Donut and its successors skip OCR entirely - a vision encoder reads the document image and a text decoder emits the structured output directly, with no character-level supervision anywhere. Multimodal LLMs now do the same thing zero-shot. This is genuinely better for complex layouts and for extraction tasks, and it comes with a real cost that matters in production: an OCR pipeline gives you character positions and confidences you can audit, while an end-to-end model gives you a string that might be a hallucination. Which failure mode you can tolerate should drive the choice."
+      ],
+      "math": [
+        {
+          "h": "CTC: aligning a character sequence to an image without alignment labels",
+          "paras": [
+            "A word image of width W produces T column features, but the label is a string of length L < T with no indication of which columns produce which character. CTC introduces a BLANK symbol and sums the probability over every alignment (path) that collapses to the target - so the model can be trained with only the string as supervision."
+          ],
+          "tex": "p(\\mathbf{y}\\mid \\mathbf{x}) = \\sum_{\\pi \\in \\mathcal{B}^{-1}(\\mathbf{y})} \\prod_{t=1}^{T} p(\\pi_t \\mid \\mathbf{x}), \\qquad \\mathcal{B}(\\text{'h-e-e-}\\varnothing\\text{-l-l-o'}) = \\text{'hello'}",
+          "texNote": "B collapses a path by merging repeats then deleting blanks. The blank is what allows genuine double letters - 'hello' needs a blank between the two l's, or they would merge to one. The sum over exponentially many paths is computed in O(TL) by dynamic programming (forward-backward)."
+        },
+        {
+          "h": "Character and word error rate",
+          "paras": [
+            "OCR quality is measured by edit distance, not accuracy, because outputs are variable-length strings. CER is the normalized Levenshtein distance at character level; WER at word level. Note WER is the harsher metric - one wrong character makes the whole word wrong - and that both can exceed 1 when the model inserts a lot."
+          ],
+          "tex": "\\mathrm{CER} = \\frac{S + D + I}{N}, \\qquad \\mathrm{WER} = \\frac{S_w + D_w + I_w}{N_w}",
+          "texNote": "S/D/I = substitutions, deletions, insertions from the optimal alignment; N = reference length. A 2% CER can mean a 10% WER on ordinary text (average word length ~5), so quoting CER alone flatters a system - and for field extraction, neither is the metric that matters."
+        }
+      ],
+      "code": [
+        {
+          "h": "CRNN + CTC: the standard recognition model",
+          "paras": [
+            "A CNN reduces the image to a sequence of column features, a recurrent (or transformer) layer adds context along the line, and CTC handles the alignment. The height collapses to 1 while the width becomes the sequence axis - that reshape is the whole architectural idea."
+          ],
+          "code": "import torch, torch.nn as nn\n\nclass CRNN(nn.Module):\n    \"\"\"Image of a text line -> sequence of character logits, trained with CTC.\"\"\"\n    def __init__(self, n_classes, img_h=32):\n        super().__init__()\n        self.cnn = nn.Sequential(              # downsample HEIGHT to 1, keep width\n            nn.Conv2d(1, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),      # 32 -> 16\n            nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),    # 16 ->  8\n            nn.Conv2d(128, 256, 3, padding=1), nn.BatchNorm2d(256), nn.ReLU(),\n            nn.MaxPool2d((2, 1), (2, 1)),                                    #  8 ->  4, W kept\n            nn.Conv2d(256, 512, 3, padding=1), nn.BatchNorm2d(512), nn.ReLU(),\n            nn.MaxPool2d((4, 1), (4, 1)))                                    #  4 ->  1\n        self.rnn = nn.LSTM(512, 256, bidirectional=True, num_layers=2, batch_first=True)\n        self.fc = nn.Linear(512, n_classes + 1)          # +1 for the CTC BLANK\n\n    def forward(self, x):                                 # (B, 1, 32, W)\n        f = self.cnn(x).squeeze(2).permute(0, 2, 1)       # (B, W/4, 512) - width = time\n        return self.fc(self.rnn(f)[0])                    # (B, T, n_classes+1)\n\ncriterion = nn.CTCLoss(blank=0, zero_infinity=True)\nlogits = model(images).log_softmax(2).permute(1, 0, 2)    # CTC wants (T, B, C)\nloss = criterion(logits, targets, input_lengths, target_lengths)\n\n# greedy decode: argmax per step, merge repeats, drop blanks\ndef ctc_greedy(logits, idx_to_char):\n    ids = logits.argmax(-1)\n    out, prev = [], -1\n    for i in ids:\n        if i != prev and i != 0: out.append(idx_to_char[i.item()])\n        prev = i\n    return ''.join(out)",
+          "caption": "CRNN: the CNN collapses image height to 1 so width becomes the sequence axis, a BiLSTM adds line context, and CTC aligns without per-character labels. Note the blank index and the (T,B,C) permutation - both are standard sources of silent bugs."
+        },
+        {
+          "h": "The metrics that actually matter for extraction",
+          "paras": [
+            "CER and WER measure transcription, but most document systems are judged on whether the extracted FIELDS are right. A pipeline with excellent CER can still get the invoice total wrong, and that is the only number the business cares about."
+          ],
+          "code": "from rapidfuzz.distance import Levenshtein\n\ndef cer(pred, ref):\n    return Levenshtein.distance(pred, ref) / max(len(ref), 1)\n\ndef field_metrics(preds, golds, fields):\n    \"\"\"Exact-match accuracy per extracted field - the deployment metric.\"\"\"\n    out = {}\n    for f in fields:\n        correct = sum(normalize(p.get(f)) == normalize(g.get(f)) for p, g in zip(preds, golds))\n        out[f] = correct / len(golds)\n    return out\n\n# same document set, two systems:\n#                        CER     WER    total_amount   invoice_date   vendor\n#   OCR + rules         0.021   0.094      0.87            0.91         0.79\n#   OCR + layout model  0.021   0.094      0.94            0.96         0.92\n#   end-to-end (Donut)  n/a     n/a        0.96            0.95         0.94\n#\n# Identical OCR quality, very different extraction accuracy - because the hard part\n# is LAYOUT UNDERSTANDING, not character recognition. And note CER 2.1% -> WER 9.4%:\n# one bad character ruins a word, so CER alone flatters a system by ~4x.",
+          "caption": "CER measures transcription; field-level exact match measures the product. Two systems with identical CER differ by 13 points on total_amount extraction, because the difficulty is layout understanding rather than character recognition."
+        }
+      ],
+      "useCases": [
+        "Invoice, receipt, and form processing - the largest commercial application, where the output is structured fields feeding an accounting or ERP system and the metric is field accuracy plus the human-review rate.",
+        "Document digitization and search: making scanned archives, contracts, and books searchable, where transcription quality is the product and CER is the right metric.",
+        "Identity and compliance workflows - passports, licences, KYC documents - where the constraints are latency, accuracy on a narrow document class, and auditability rather than open-domain generality.",
+        "Scene text in the wild: reading signs, licence plates, and product packaging from photographs, where detection under rotation, curvature, and poor lighting is the hard part rather than recognition."
+      ],
+      "pitfalls": [
+        "Reporting CER without WER or field accuracy: a 2% CER typically means a ~9-10% WER (one bad character ruins a word), and neither predicts whether the invoice total was extracted correctly - which is the only number a business cares about.",
+        "Using axis-aligned boxes for text detection: text is thin, elongated, frequently rotated, and sometimes curved, so a standard detector's boxes contain large amounts of neighbouring content. Use rotated boxes or polygon/segmentation-based detectors.",
+        "Skipping preprocessing on photographed documents: deskewing, perspective correction, and binarization still matter enormously for camera-captured pages, and a five-line geometric correction often beats a model change.",
+        "Ignoring reading order in multi-column layouts: naive top-to-bottom concatenation interleaves columns and produces text that is individually correct and collectively meaningless - a failure that character-level metrics do not detect at all.",
+        "Trusting an end-to-end model's output without provenance: OCR pipelines give character positions and confidences you can audit and threshold, while a generative model can HALLUCINATE plausible field values with no signal that it did. For high-stakes extraction, that difference should drive the architecture choice."
+      ],
+      "connections": [
+        {
+          "ref": "rnn-nlp/sequence-labeling",
+          "text": "CTC solves the same alignment-free sequence problem as in speech recognition, and the CRNN's BiLSTM-over-column-features is structurally the same model as a sequence tagger."
+        },
+        {
+          "ref": "advanced-cv/yolo",
+          "text": "Text detection is object detection with rotated or polygonal outputs, so the anchor, NMS, and evaluation machinery carries over - with the caveat that standard axis-aligned boxes fit text poorly."
+        },
+        {
+          "ref": "multimodal/vlm-captioning",
+          "text": "End-to-end document models (Donut) and multimodal LLMs treat OCR as image-to-text generation, which removes the pipeline and introduces hallucination as a new failure mode."
+        },
+        {
+          "ref": "rag-agents/chunking-retrieval",
+          "text": "Document AI is usually the front end of a retrieval system, and layout-aware extraction determines whether the chunks that reach the retriever are coherent."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are the stages of a classical OCR pipeline?",
+          "a": "Detect text regions, recognize the characters in each region, then understand layout and extract structured fields. Preprocessing (deskew, perspective correction, binarization) precedes all of it for photographed pages."
+        },
+        {
+          "q": "Why is text detection harder than generic object detection?",
+          "a": "Text is thin, highly elongated, arbitrarily rotated, sometimes curved, and densely packed - so axis-aligned boxes fit it poorly and specialized rotated-box or segmentation methods (EAST, DBNet) are used."
+        },
+        {
+          "q": "What is CTC?",
+          "a": "Connectionist Temporal Classification: introduces a BLANK symbol and sums probability over all alignments that collapse to the target string, so a sequence model can be trained without per-character alignment labels."
+        },
+        {
+          "q": "What does the CTC blank do?",
+          "a": "It separates repeated characters. Collapsing merges repeats, so 'hello' needs a blank between the two l's - without it they would collapse to a single l."
+        },
+        {
+          "q": "What is a CRNN?",
+          "a": "CNN reduces a text-line image to a sequence of column features (height collapsed to 1), a BiLSTM or transformer adds context along the line, and CTC handles alignment to the character string."
+        },
+        {
+          "q": "What is CER versus WER?",
+          "a": "Normalized edit distance at character and word level. WER is harsher - one wrong character ruins a word - so 2% CER typically means ~9-10% WER on ordinary text."
+        },
+        {
+          "q": "Why is field accuracy the metric that matters?",
+          "a": "Most document systems output structured fields, and two systems with identical CER can differ by 10+ points on 'was the invoice total right' - because the hard part is layout understanding, not character recognition."
+        },
+        {
+          "q": "What is LayoutLM?",
+          "a": "A transformer that jointly embeds text, its 2D POSITION on the page, and (in later versions) image features - so the model can use spatial layout, which pure text models cannot."
+        },
+        {
+          "q": "What is Donut?",
+          "a": "An OCR-FREE document model: a vision encoder reads the page image and a text decoder emits structured output directly, trained end to end with no character-level supervision."
+        },
+        {
+          "q": "What is the risk of end-to-end document models?",
+          "a": "HALLUCINATION - they can emit a plausible field value that is not in the document, with no character positions or confidences to audit. Pipelines give provenance; generative models do not."
+        },
+        {
+          "q": "Why does reading order matter?",
+          "a": "In multi-column layouts, naive top-to-bottom concatenation interleaves columns, producing text that is individually correct and collectively meaningless - and character metrics do not detect it."
+        },
+        {
+          "q": "What preprocessing still matters?",
+          "a": "Deskewing, perspective correction (for photographed pages), and resolution normalization. A geometric correction is often worth more than a model change on camera-captured documents."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Walk through a document-processing system end to end. Where does the difficulty actually lie?",
+          "a": "THE PIPELINE, and where each stage's difficulty sits. (1) PREPROCESSING. For scanned pages this is minimal; for PHOTOGRAPHED documents it matters enormously - perspective correction (a receipt shot at an angle), deskewing, cropping to the page, resolution normalization, and sometimes binarization or contrast enhancement. This is unglamorous classical CV (edge detection, Hough transform for the page outline, homography estimation) and it is frequently worth more than a model change. Difficulty: low, impact: high. (2) TEXT DETECTION. Find the regions containing text. Harder than generic object detection because text is thin, elongated, arbitrarily rotated, sometimes curved, and densely packed, so axis-aligned boxes contain large amounts of neighbouring text. Specialized methods - EAST (rotated boxes), DBNet (segmentation with differentiable binarization), CRAFT (character-region affinity) - predict rotated or polygonal regions. Difficulty: moderate, and largely solved for printed documents. (3) TEXT RECOGNITION. A cropped line or word image to a character string. The standard is CRNN + CTC (CNN to column features, BiLSTM for context, CTC for alignment) or an attention-based encoder-decoder; modern systems increasingly use transformer decoders (TrOCR). This is the part people think of as 'OCR' and it is largely SOLVED for clean printed text - CER under 1-2%. Handwriting, degraded scans, and unusual scripts remain hard. (4) LAYOUT ANALYSIS AND READING ORDER. Group text into paragraphs, columns, headers, tables, and figures, and determine the order a human would read them. This is where naive systems fail invisibly: concatenating a two-column page top-to-bottom interleaves the columns and produces text that is character-perfect and semantically destroyed. Difficulty: high and under-appreciated. (5) INFORMATION EXTRACTION - mapping recognized text to STRUCTURED FIELDS (invoice total, date, vendor, line items). This is what the business actually wants, and it is the hardest stage. Approaches: rules and regexes on positions (brittle but auditable and still widely used); layout-aware transformers (LayoutLM family) that embed text together with its 2D coordinates and image features; or end-to-end generative models. WHERE THE DIFFICULTY ACTUALLY LIES - the answer to the question. Not in character recognition. A representative comparison: three systems with IDENTICAL CER (2.1%) score 0.87, 0.94, and 0.96 on extracting the invoice total, because they differ in layout understanding, not in reading characters. Nearly all the remaining error in a modern document system is (a) layout and reading order, (b) field association - which of the six numbers on this receipt is the total - and (c) handling the long tail of document formats. That is why the field renamed itself 'Document AI' rather than OCR. THE MODERN ALTERNATIVE worth stating: end-to-end models (Donut, and now multimodal LLMs) skip stages 2-5 entirely - image in, structured JSON out, trained on document-output pairs with no character supervision. They handle complex layouts better because layout is learned rather than engineered, and they need no OCR at all. THE TRADE-OFF I would emphasize when choosing: a pipeline gives you PROVENANCE - character positions, per-character confidences, the ability to highlight where a value came from and to route low-confidence fields to human review. A generative model gives you a string that may be a plausible hallucination with no signal that it is. For an invoice system where a wrong total costs money and an auditor may ask where a number came from, that difference usually decides the architecture regardless of the accuracy comparison.",
+          "deepDive": {
+            "q": "Explain CTC in depth: the alignment problem, the algorithm, and its limitations.",
+            "a": "THE ALIGNMENT PROBLEM. A text-line image is converted by a CNN into T column feature vectors (say T=50 for a word image). The label is a string of L characters (say 'hello', L=5). Nothing tells you which columns correspond to which character - the letters have different widths, there is whitespace, and the segmentation is exactly what you would need a model to produce. Requiring per-column labels would mean annotating character bounding boxes for every training image, which is prohibitively expensive. CTC's contribution is training with only the STRING as supervision. THE CONSTRUCTION. Extend the character set with a special BLANK symbol. The network outputs, at each of the T steps, a distribution over (characters + blank). Define a collapsing function B that maps a length-T path to a string by (1) merging consecutive REPEATED symbols, then (2) deleting blanks. So 'h-h-e-blank-l-l-blank-l-o' collapses to 'hello'. Note the order matters: merging first, then deleting blanks, is what allows genuine double letters - the two l's in 'hello' must be separated by a blank in the path, or they would merge into one. This is the single most important detail about the blank and the thing people misremember. THE LOSS is the negative log of the total probability of ALL paths that collapse to the target: p(y|x) = sum over pi in B^-1(y) of the product of per-step probabilities. There are exponentially many such paths, but the sum is computed in O(TL) by a forward-backward dynamic program over an extended label sequence (the target with blanks interleaved), which is structurally the same algorithm as the HMM forward-backward. It is differentiable, so it trains by backpropagation like any other loss. DECODING. GREEDY decoding takes the argmax at each step and collapses - fast, and suboptimal because the most likely PATH is not the most likely STRING (many paths collapse to the same string, so their probabilities should be summed). BEAM SEARCH over collapsed strings is better, and CTC beam search can incorporate an external LANGUAGE MODEL, which is a substantial gain for natural text and is standard in speech. THE KEY ASSUMPTION AND ITS CONSEQUENCES - this is what the question is really after. CTC assumes CONDITIONAL INDEPENDENCE of outputs given the input: the distribution at step t does not depend on what was emitted at step t-1. Three consequences follow. (1) It cannot model output dependencies internally, so it has no implicit language model - 'th' being followed by 'e' is not something the CTC layer knows, which is why an external LM at decode time helps so much. (2) It requires MONOTONIC alignment: outputs must appear in the same order as inputs. This is perfect for OCR and speech (left-to-right, no reordering) and makes CTC unusable for translation, where reordering is essential - a good illustration of why the right tool depends on the alignment structure. (3) It requires T >= L (more time steps than characters), which fails on very narrow images or very long strings and produces the notorious inf/NaN loss - hence PyTorch's zero_infinity flag, and hence the need to check that your CNN's width downsampling leaves enough steps. THE ALTERNATIVES and when they win. ATTENTION-BASED encoder-decoders learn the alignment implicitly and CAN model output dependencies (the decoder is autoregressive, so it has a built-in language model), which usually gives better accuracy on natural text - but they can attend anywhere, so they are prone to attention drift and to skipping or repeating characters on long or degraded inputs, and they are slower (sequential decoding). RNN-TRANSDUCER adds a prediction network to CTC to model output dependencies while keeping monotonicity and streaming, which is why it dominates production speech recognition. And modern OCR increasingly uses transformer decoders (TrOCR) for accuracy where latency permits. THE PRACTICAL GOTCHAS worth naming, since they cause real bugs: the blank index convention (0 in PyTorch, and mismatching it silently trains garbage), the (T, B, C) tensor layout CTCLoss expects versus the (B, T, C) everything else uses, and passing log-probabilities rather than logits. Each of these fails quietly rather than loudly."
+          }
+        },
+        {
+          "q": "Compare pipeline OCR with end-to-end document models. When would you choose each?",
+          "a": "THE PIPELINE: detect text -> recognize characters -> analyse layout -> extract fields, with each stage separately trained or engineered. THE END-TO-END MODEL: image in, structured output (JSON, markdown, key-value pairs) out, from a single vision-encoder plus text-decoder trained on document-output pairs - Donut being the canonical example, and multimodal LLMs now doing the same thing zero-shot. ARGUMENTS FOR END-TO-END. (1) LAYOUT IS LEARNED RATHER THAN ENGINEERED, so complex documents - multi-column, nested tables, forms with visual grouping - are handled without hand-written rules, and this is where pipelines struggle most. (2) NO ERROR PROPAGATION: in a pipeline, a detection miss means the recognizer never sees the text, and there is no recovery. End-to-end models can use global context to infer a field even from partially degraded input. (3) NO OCR DEPENDENCY, which matters for scripts or document types where OCR is weak, and removes an entire component from the system. (4) SIMPLER ENGINEERING: one model to train, deploy, and monitor rather than four. (5) EMPIRICALLY BETTER on extraction benchmarks for complex documents. ARGUMENTS FOR THE PIPELINE, which are mostly about operations rather than accuracy. (1) PROVENANCE AND AUDITABILITY - the decisive one for many applications. A pipeline can tell you that '$1,204.50' was read from a specific box at specific coordinates with a specific confidence. You can highlight it in the UI, let a human verify it, and answer an auditor's question about where a number came from. An end-to-end model gives you a string. (2) HALLUCINATION. A generative decoder can emit a plausible, well-formatted value that does not appear in the document, and there is no signal distinguishing that from a correct read. For financial, legal, or medical extraction that is a qualitatively different risk from a misread character, and it is the reason many regulated deployments still use pipelines. (3) CONFIDENCE AND SELECTIVE REVIEW: character-level confidences let you route only uncertain fields to human review, which is how these systems are economically viable - a 94%-accurate system with reliable confidence is more useful than a 96%-accurate one without, because you know which 6% to check. Generative confidence (token probability) correlates poorly with correctness. (4) DEBUGGABILITY: when a pipeline fails you can see which stage; when an end-to-end model fails you retrain. (5) DATA REQUIREMENTS: end-to-end models need many document-output pairs, while pipeline components can be trained separately on cheaper data (synthetic text lines for the recognizer, which is essentially free). HOW I WOULD CHOOSE. High-stakes extraction with audit requirements, need for field-level confidence and human-in-the-loop review, or a narrow document class where rules work -> PIPELINE, possibly with a layout-aware transformer (LayoutLM) for the extraction stage to get most of the layout benefit while keeping provenance. Complex and varied layouts, moderate stakes, extraction is the goal and transcription is not -> END-TO-END. Exploration or low volume -> a multimodal LLM zero-shot, which is remarkably good and requires no training at all. THE HYBRID I WOULD ACTUALLY BUILD for most production cases: run OCR to get text with positions (provenance), and feed BOTH the image and the OCR text-with-coordinates to a layout-aware model or an LLM for extraction. You get the layout understanding of the learned model AND the ability to verify that every extracted value appears in the OCR output at a specific location - which catches hallucinations by construction. That grounding check is cheap and it converts the main objection to generative extraction into a solvable engineering problem."
+        },
+        {
+          "q": "How do you evaluate a document AI system properly?",
+          "a": "THE METRICS, layered from transcription to product. (1) CHARACTER ERROR RATE - normalized Levenshtein distance between predicted and reference text. The standard transcription metric, and the one most often quoted. (2) WORD ERROR RATE - the same at word level, and considerably harsher: one wrong character ruins a word, so 2% CER typically means 9-10% WER on ordinary text (average word length ~5). Quoting CER alone flatters a system by roughly a factor of four, which is why systems are often marketed on CER. (3) FIELD-LEVEL EXACT MATCH - for each extracted field (total, date, vendor, line items), did the system get it exactly right after normalization? THIS IS USUALLY THE PRODUCT METRIC, and it can diverge sharply from CER: three systems with identical 2.1% CER scored 0.87, 0.94, and 0.96 on invoice-total extraction, because the difference was layout understanding. (4) DOCUMENT-LEVEL ACCURACY - fraction of documents where EVERY required field is correct, which is what determines whether a human must review the document at all. This is much lower than per-field accuracy (all fields must be simultaneously right) and is the number that drives the business case. (5) THE HUMAN-REVIEW RATE at a given confidence threshold, and the accuracy of documents that pass without review - because these systems are almost always human-in-the-loop, and the economics are 'what fraction can we automate at an acceptable error rate'. THE NORMALIZATION QUESTION, which is where evaluations get sloppy: is '$1,204.50' equal to '1204.5'? Is '01/02/2024' equal to '2024-01-02'? Field comparison requires a normalization function per field type, and different choices move reported accuracy by several points. State the normalization explicitly, and be suspicious of comparisons that do not. THE EVALUATION-DESIGN ISSUES. (a) THE TEST SET MUST REFLECT THE REAL DOCUMENT MIX - the long tail of formats is where systems fail, and a test set drawn from the three most common vendors will overstate performance badly. Stratify by document type, source, and quality. (b) SPLIT BY DOCUMENT SOURCE (vendor, template, scanner), not randomly - multiple invoices from the same vendor share a template, so a random split lets the model memorize layouts and inflates results exactly like group leakage elsewhere. (c) REPORT THE DIFFICULTY BREAKDOWN: clean scans versus phone photos, printed versus handwritten, simple versus tabular, since aggregate numbers hide that the hard class is the one your users have. (d) MEASURE READING ORDER separately for multi-column documents, because character metrics are completely blind to interleaved columns. (e) ESTABLISH THE HUMAN CEILING - annotators disagree on ambiguous fields and misread degraded scans, so measure inter-annotator agreement and know what 'perfect' means. THE CALIBRATION DIMENSION, which is specific to this application and often decisive: because the workflow is selective automation, the CONFIDENCE must be trustworthy. Report accuracy as a function of confidence threshold and the resulting automation rate - 'at threshold 0.9 we auto-process 72% of documents with 99.2% field accuracy' is the sentence the business needs, and it requires calibrated confidences rather than raw model scores. A system with slightly lower headline accuracy but well-calibrated confidence can automate more, which is the counterintuitive result worth knowing."
+        },
+        {
+          "q": "How would you handle handwriting, which is much harder than printed text?",
+          "a": "WHY IT IS HARDER, specifically. (1) ENORMOUS VARIABILITY: every writer is different, and the same writer varies with speed, fatigue, and instrument. Printed text has a small number of fonts; handwriting has as many styles as writers. (2) NO CLEAN CHARACTER SEGMENTATION: cursive letters connect, so there are no natural boundaries - which is precisely why segmentation-free approaches (CTC, attention) are essential rather than optional here. (3) AMBIGUITY THAT REQUIRES CONTEXT: many handwritten characters are genuinely ambiguous in isolation (a/o, u/v, 1/7, 5/S, rn/m), and humans read them using linguistic context, not shape alone. (4) LOW SIGNAL on degraded scans, historical documents, or forms filled in ballpoint on carbon paper. (5) FAR LESS TRAINING DATA than printed text, and annotation requires reading the handwriting, which is slow. THE APPROACHES, in order of how much they typically help. (1) EXPLOIT LINGUISTIC CONTEXT AGGRESSIVELY - the highest-leverage move, because it is what humans do. CTC's conditional-independence assumption is a real weakness here, so either use an attention/transformer decoder (which has an implicit autoregressive language model) or keep CTC and add an EXTERNAL LANGUAGE MODEL in beam-search decoding. On handwriting, LM integration is worth many points, far more than it is for clean printed text. For constrained fields (a country name, a product code, a date), a LEXICON or format constraint applied during decoding is even stronger - restricting the output to valid strings can transform accuracy on a narrow field. (2) SYNTHETIC DATA AND AUGMENTATION. Render text in many handwriting fonts, and augment with elastic distortion, slant variation, stroke-width changes, and background textures - handwriting recognition benefits from synthetic pretraining more than most vision tasks because real annotated data is so scarce. Then fine-tune on real data. (3) WRITER ADAPTATION if you have multiple samples per writer (common in forms processing or historical archives): fine-tuning or conditioning on writer identity gives substantial gains, since the within-writer variation is far smaller than between-writer. (4) TRANSFORMER-BASED RECOGNIZERS (TrOCR-style: a ViT encoder plus a pretrained text decoder) which inherit a strong language model from text pretraining and are currently the strongest general approach. (5) ONLINE versus OFFLINE distinction, worth knowing: if you have pen-stroke trajectories (a tablet or smart pen) rather than only a static image, recognition is dramatically easier - the temporal stroke order removes most of the segmentation ambiguity, and online recognition error rates are far below offline. If the product can capture strokes, that is a bigger win than any model. (6) HUMAN-IN-THE-LOOP DESIGN, which is the honest answer for high-stakes handwriting: accept that accuracy will not reach printed-text levels, and design the workflow around confidence-based routing to human review, with the model's job being to reduce the review burden rather than eliminate it. WHAT I WOULD SET AS EXPECTATIONS: for constrained handwritten fields with a lexicon (names from a known list, dates, amounts) accuracy can be very high. For unconstrained cursive prose, expect CER in the several-percent range even with good models, and expect historical documents to be worse. Measure inter-annotator agreement on your own data first - on difficult handwriting, human annotators disagree more than people expect, and knowing that ceiling prevents chasing an unattainable target."
+        },
+        {
+          "q": "How has the multimodal LLM era changed document AI?",
+          "a": "WHAT CHANGED. Multimodal LLMs (GPT-4V-class models, Claude with vision, Gemini, and open models like Qwen-VL and InternVL) can read a document image and answer questions about it, extract structured fields, or transcribe it - ZERO-SHOT, with no training, no OCR component, and no pipeline. For many document tasks that were previously a multi-week engineering project, the baseline is now a prompt. That is a genuine discontinuity, and the practical consequences are large. WHAT THEY DO WELL. (1) COMPLEX AND UNSEEN LAYOUTS: because layout understanding is learned from web-scale data rather than engineered, they handle documents whose format nobody anticipated - which is exactly where rule-based pipelines fail. (2) SEMANTIC EXTRACTION: 'what is the total including tax' requires understanding, not just reading, and an LLM does this natively while a pipeline needs a rule. (3) NO TRAINING DATA REQUIRED for a new document type, which collapses the time-to-first-result from weeks to minutes and makes low-volume document types economically viable for the first time. (4) FLEXIBLE OUTPUT: JSON, markdown, tables, summaries - specified in the prompt rather than by retraining. WHERE THEY ARE STILL WEAK, and this is the part that matters for a production answer. (1) HALLUCINATION - the central problem. A model can emit a plausible, correctly-formatted invoice number that is not on the page, with no signal that it invented it. For financial or legal extraction this is qualitatively worse than a misread character, because a misread is usually detectably wrong while a hallucination is plausibly wrong. (2) NO PROVENANCE: no character positions, no per-field confidence you can trust, so you cannot highlight the source of a value, cannot route uncertain fields to review reliably, and cannot answer an auditor. (3) DENSE TEXT AND RESOLUTION LIMITS: a full page of small text may exceed the model's effective visual resolution, and performance degrades on dense documents in ways that are hard to predict. Many models tile high-resolution images, which helps but costs tokens. (4) COST AND LATENCY: several seconds and meaningful cost per page versus milliseconds for a specialized pipeline, which matters at volume - processing a million documents a day is a very different economic proposition. (5) CONSISTENCY: the same document can yield slightly different output across calls, which complicates downstream systems expecting determinism. (6) LONG DOCUMENTS: a 50-page contract exceeds what fits usefully, requiring chunking and the retrieval machinery that reintroduces engineering. THE ARCHITECTURE I WOULD ACTUALLY BUILD TODAY, which resolves most of this: run a fast OCR to get text WITH POSITIONS, then give the LLM both the image and the positioned text, and require every extracted value to be GROUNDED - verified to appear in the OCR output at a specific location. That gives you the LLM's layout and semantic understanding, the pipeline's provenance and auditability, and a construction-level defence against hallucination. Add confidence-based routing to human review, and evaluate at the field and document level with the automation rate as the headline number. WHAT I THINK THE HONEST SUMMARY IS: multimodal LLMs have made the EASY 80% of document AI trivial and have not solved the parts that made it hard in production - auditability, calibrated confidence, cost at volume, and the long tail. The right response is not to choose between paradigms but to use the LLM for understanding and a pipeline for grounding, which is the same pattern as retrieval-augmented generation: a generative model for flexibility, an extractive component for verifiability."
+        },
+        {
+          "q": "You need to process 100,000 invoices per day from 500 different vendors. Design the system.",
+          "a": "THE SHAPE OF THE PROBLEM. 100k/day is roughly 70 per minute sustained, higher at peaks - so throughput matters but per-document latency does not need to be interactive (a few seconds is fine, and batch processing is acceptable). 500 vendors means 500 templates plus a long tail of variants, which is the real difficulty: no single rule set covers them, and new vendors arrive continuously. The output is structured fields feeding an accounting system, so errors cost money and must be auditable. THE ARCHITECTURE I WOULD PROPOSE. (1) INGESTION AND PREPROCESSING: accept PDFs (many will be digital-native, where text can be extracted directly with no OCR at all - a large and often-missed optimization, since perhaps half of invoices arrive as digital PDFs) and images (which need deskew, perspective correction, and resolution normalization). Route digital PDFs down a cheap text-extraction path and only send raster images to OCR. (2) VENDOR IDENTIFICATION AND TEMPLATE ROUTING - the key design decision at this scale. Identify the vendor (from a logo, a header, a tax ID, or a layout embedding) and route to a vendor-specific extractor where one exists. For the top 50 vendors covering perhaps 70% of volume, template-based or fine-tuned extraction is very accurate and very cheap. For the tail, fall back to a general layout-aware model or an LLM. This tiered approach is what makes the economics work: you do not pay LLM prices for the 70% that a template handles. (3) EXTRACTION for the tail: OCR with positions, then a layout-aware model (LayoutLM-family) or a multimodal LLM, with every extracted value GROUNDED against the OCR output at a specific location - which gives provenance and catches hallucination by construction. (4) VALIDATION RULES, which are cheap and catch a large share of errors: do the line items sum to the subtotal? Does subtotal plus tax equal the total? Is the date plausible? Is the vendor known and the format consistent with previous invoices from them? Arithmetic consistency checks on invoices are unusually powerful because the document contains redundant information - use it. (5) CONFIDENCE-BASED ROUTING: fields below a confidence threshold, or documents failing validation, go to a human review queue with the source location highlighted. This is not a fallback, it is the core of the design - the product is 'automate X% safely', not 'be accurate'. (6) FEEDBACK LOOP: human corrections become training data, and per-vendor accuracy is tracked so that a vendor whose template changed is detected quickly (a sudden drop in one vendor's confidence is the signal). THE METRICS THAT DRIVE THE BUSINESS CASE: automation rate (fraction processed with no human touch), field accuracy on auto-processed documents (which must be very high - this is the number that determines whether the system is trusted), review queue volume and time per review, and cost per document across the tiers. I would report 'at threshold T we auto-process 78% of documents at 99.4% field accuracy, with 22% going to review averaging 40 seconds each' - that sentence is the deliverable. THE OPERATIONAL CONCERNS at this volume: horizontal scaling with a queue (documents are independent, so this is embarrassingly parallel); per-vendor monitoring so template changes are caught within a day; a versioned model registry so a regression can be rolled back; and retention of the original image alongside the extraction for audit. AND THE THING I WOULD PUSH BACK ON if proposed: sending every document to a large multimodal LLM. At 100k/day the cost is substantial and the latency and rate limits become an operational risk, while 70% of the volume is handled far better by a cheap deterministic path. The tiered design is not a compromise, it is the correct answer - and recognizing that the distribution of vendors is heavily skewed is what makes it possible."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "The Document AI pipeline",
+        "back": "Preprocess (deskew/perspective) -> detect text regions -> recognize characters -> layout + reading order -> extract structured fields. The difficulty is in the LAST TWO stages, not in character recognition."
+      },
+      {
+        "type": "formula",
+        "front": "CTC loss",
+        "back": "p(y|x) = sum over all paths collapsing to y of their probabilities, with a BLANK symbol. Collapse = merge repeats THEN delete blanks - which is why 'hello' needs a blank between the l's. O(TL) by forward-backward."
+      },
+      {
+        "type": "intuition",
+        "front": "CTC's conditional-independence assumption",
+        "back": "Outputs are independent given the input, so CTC has NO implicit language model - hence external LM beam search helps a lot. It also requires MONOTONIC alignment (fine for OCR/speech, unusable for translation) and T >= L."
+      },
+      {
+        "type": "definition",
+        "front": "CRNN",
+        "back": "CNN collapses image HEIGHT to 1 so width becomes the sequence axis, BiLSTM adds line context, CTC aligns to the string. Gotchas: blank index convention, the (T,B,C) permutation, and log-probs not logits."
+      },
+      {
+        "type": "formula",
+        "front": "CER vs WER",
+        "back": "Normalized edit distance at character vs word level. WER is much harsher - one bad character ruins a word - so 2% CER is typically ~9-10% WER. Quoting CER alone flatters a system by ~4x."
+      },
+      {
+        "type": "pitfall",
+        "front": "Field accuracy is the product metric",
+        "back": "Three systems with IDENTICAL 2.1% CER scored 0.87 / 0.94 / 0.96 on invoice-total extraction - the difference is LAYOUT understanding, not character recognition. Also report document-level (all fields right) accuracy."
+      },
+      {
+        "type": "pitfall",
+        "front": "Text detection needs rotated/polygon boxes",
+        "back": "Text is thin, elongated, rotated, sometimes curved and densely packed, so axis-aligned boxes include neighbouring text. Use EAST (rotated), DBNet (segmentation), or CRAFT."
+      },
+      {
+        "type": "pitfall",
+        "front": "Reading order is invisible to CER",
+        "back": "Naive top-to-bottom concatenation of a two-column page interleaves the columns - character-perfect and semantically destroyed. Character metrics cannot detect it; you must evaluate reading order separately."
+      },
+      {
+        "type": "intuition",
+        "front": "Pipeline vs end-to-end trade-off",
+        "back": "End-to-end (Donut, MLLMs) handles complex layouts better and needs no OCR. Pipelines give PROVENANCE - positions, confidences, auditability - and cannot hallucinate a value that is not on the page. Choose by which failure you can tolerate."
+      },
+      {
+        "type": "intuition",
+        "front": "The hybrid that resolves it",
+        "back": "Run OCR for text WITH POSITIONS, feed image + positioned text to an LLM, and require every extracted value to be GROUNDED at a specific location. LLM layout understanding + pipeline auditability + hallucination check by construction."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Graves et al. (2006), Connectionist Temporal Classification",
+        "url": "https://www.cs.toronto.edu/~graves/icml_2006.pdf"
+      },
+      {
+        "title": "Shi, Bai & Yao (2015), An End-to-End Trainable Neural Network for Image-based Sequence Recognition (CRNN)",
+        "url": "https://arxiv.org/abs/1507.05717"
+      },
+      {
+        "title": "Kim et al. (2022), OCR-free Document Understanding Transformer (Donut)",
+        "url": "https://arxiv.org/abs/2111.15664"
+      },
+      {
+        "title": "Xu et al. (2020), LayoutLM: Pre-training of Text and Layout for Document Image Understanding",
+        "url": "https://arxiv.org/abs/1912.13318"
+      }
+    ],
+    "demos": [
+      "edge-detection",
+      "morphological-ops",
+      "template-matching"
+    ]
+  }
+};

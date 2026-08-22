@@ -1,0 +1,273 @@
+// GENERATED from content/lessons/agentic-ai/agent-evaluation.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/agentic-ai/agent-evaluation/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "agent-evaluation": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "Every claim in this module rests on a measurement, so the module owes you a measurement of its own instruments. The setup is the same as everywhere else - seeded rollouts where the correct trajectory is known by construction - but the object being graded is the evaluation method rather than the agent. Three findings come out, and each one invalidates a common practice.",
+        "The first is that OUTCOME-ONLY EVALUATION IS BLIND. Two agents both succeed 0.80 of the time. One reaches the answer soundly 0.78 of the time in four steps; the other reaches it soundly 0.43 of the time in nine. Same headline number, completely different systems - one is reliable and cheap, the other is frequently arriving at the right answer for the wrong reasons and paying double for it. The second agent will fail differently and unpredictably when the task shifts, and nothing in the success rate says so.",
+        "The second is that the obvious fix - ask a model to judge the trajectory - is much weaker than a decomposed checklist. A holistic judge recovered true trajectory quality at 0.59; a rubric of specific checks recovered it at 0.95. And the judge's error is not random: it has a LENGTH BIAS, rating 58% of wasteful-bad trajectories as good, because a long trajectory reads as thorough. So the instrument most likely to be reached for is systematically biased toward exactly the behaviour you want to penalize."
+      ],
+      "math": [
+        {
+          "h": "Success rate cannot distinguish two different agents",
+          "paras": [
+            "Outcome is a projection that discards how the answer was reached.",
+            "Two agents can agree on it exactly and differ on everything that matters."
+          ],
+          "tex": "\\begin{array}{lccc} & \\text{success} & \\text{SOUND success} & \\text{steps} \\\\ \\text{agent A} & 0.80 & 0.78 & 4 \\\\ \\text{agent B} & 0.80 & \\mathbf{0.43} & 9 \\end{array}",
+          "texNote": "Agent B is right almost half the time for reasons that do not generalize, and it pays roughly double the steps to be so. Under an outcome-only comparison the two are indistinguishable, so a team optimizing that metric could migrate from A to B and record no change - while shipping a system that is more expensive and far more fragile to distribution shift."
+        },
+        {
+          "h": "A rubric beats a holistic judge, and the judge's error has a direction",
+          "paras": [
+            "Decomposing the judgement into specific checks recovers most of the true signal.",
+            "The holistic judge's residual error is a systematic bias rather than noise."
+          ],
+          "tex": "\\text{corr with truth: } \\underbrace{0.95}_{\\text{rubric}} \\;\\;\\text{vs}\\;\\; \\underbrace{0.59}_{\\text{holistic judge}}, \\qquad \\text{judge rates } 58\\% \\text{ of WASTEFUL-BAD as good}",
+          "texNote": "Length bias is the mechanism: a long trajectory with many steps reads as thorough, so the judge rewards exactly the wandering behaviour that costs money and indicates confusion. Because the error is directional rather than random, averaging over more trajectories does not remove it - it converges to the wrong answer. A checklist of concrete questions - did it call the right tool first, did it recover from the failure, did it avoid redundant calls, did it stop when it had the answer - does not have that failure mode."
+        },
+        {
+          "h": "A small suite gets the ORDERING wrong, not just the number",
+          "paras": [
+            "The standard error of a success-rate estimate follows the binomial formula exactly.",
+            "The consequence for comparisons is much worse than the consequence for point estimates."
+          ],
+          "tex": "\\mathrm{SE} = \\sqrt{\\tfrac{p(1-p)}{n}}, \\qquad \\Pr[\\text{mis-rank } 0.85 \\text{ below } 0.75] = \\underbrace{0.51}_{n=5} \\;\\to\\; \\underbrace{<0.01}_{n=200}",
+          "texNote": "At five tasks, a genuinely better agent is ranked below a worse one about half the time - the comparison is a coin flip, so a decision made on it carries no information. That is a stronger statement than 'the number is noisy': the noise is large enough to invert the conclusion. Report confidence intervals, use paired per-task comparisons since task difficulty dominates the variance, and size the suite from the effect you need to detect."
+        }
+      ],
+      "code": [
+        {
+          "h": "The three levels, and what each catches",
+          "paras": [
+            "Outcome is necessary and nowhere near sufficient; the other two are where agents differ."
+          ],
+          "code": "# LEVEL 1 - OUTCOME. Did the task get done? Prefer VERIFIABLE tasks -\n#   a file exists with the right content, a test passes, a query\n#   returns the right row - because those cannot be gamed by a\n#   plausible-sounding trajectory.\n#   ★ AND IT IS BLIND: two agents at 0.80 success differed 0.78 vs\n#     0.43 on SOUND success and 4 vs 9 steps. Identical headline,\n#     different systems.\n\n# LEVEL 2 - TRAJECTORY. Use a RUBRIC, not a holistic judge:\n#     rubric (decomposed checklist)  corr 0.95 with truth\n#     holistic LLM judge             corr 0.59\n#     ★ and the judge rates 58% of WASTEFUL-BAD trajectories as \"good\"\n#       - LENGTH BIAS: long reads as thorough.\n#   The rubric is just specific questions:\nrubric = [\n  \"called the right tool FIRST?\",\n  \"recovered from the failure it hit?\",\n  \"avoided redundant/repeated calls?\",\n  \"STOPPED once it had the answer?\",\n  \"used the evidence it retrieved?\",\n]\n#   ⚠ The judge's error is DIRECTIONAL, so averaging over more\n#     trajectories converges to the WRONG answer rather than the right\n#     one. More data does not fix a bias.\n\n# LEVEL 3 - ROBUSTNESS. Tasks that go wrong ON PURPOSE:\n#   a tool that fails intermittently   -> measure RECOVERY\n#   a tool returning malformed data    -> measure graceful handling\n#   an IMPOSSIBLE task                 -> measure whether it STOPS\n#   an obvious approach that's blocked  -> measure re-planning\n#   ★ The impossible-task tier is the one skipped most often, and\n#     \"spends the whole budget\" vs \"recognizes and reports\" is the\n#     difference between two products that score identically on\n#     everything else.",
+          "caption": "The rubric's advantage is structural: specific checks have no length bias, while a holistic judge's error points systematically at the behaviour you most want to penalize."
+        },
+        {
+          "h": "Sizing the suite - the part that decides whether any of it means anything",
+          "paras": [
+            "The binomial standard error is exact here, and its consequence for rankings is severe."
+          ],
+          "code": "SE = sqrt(p*(1-p)/n)      # measured std tracked this EXACTLY\n\n# ★ THE CONSEQUENCE IS THE ORDERING, not the point estimate:\n#   comparing a TRUE 0.85 agent against a TRUE 0.75 agent,\n#   P(ranking them backwards):\n#       n=5    -> 0.51     <- a COIN FLIP. The comparison carries no\n#                             information at all.\n#       n=50   -> ~0.10\n#       n=200  -> <0.01\n#   So a 20-task suite does not merely give a noisy number - it gives\n#   the WRONG WINNER often enough to make the decision meaningless.\n\n# WHAT TO DO:\n#  * report a CONFIDENCE INTERVAL with every agent score, always\n#  * use a PAIRED per-task test for A-vs-B: task difficulty dominates\n#    the variance and pairing removes it, which is worth more than\n#    doubling n\n#  * size n from the EFFECT you need to detect, decided in advance\n#  * run each task SEVERAL TIMES - agent runs are high variance, so\n#    one run per task is itself a noisy measurement of that task\n\n# AND REPORT COST ALONGSIDE, or the comparison is incomplete: an agent\n# that wins by 2 points at 3x the tokens is a different product, and\n# an unbounded-budget agent can buy accuracy that a fixed-budget one\n# cannot. Compare at MATCHED cost or state the difference.",
+          "caption": "At five tasks a genuinely better agent loses the comparison half the time — the small-suite problem inverts conclusions rather than merely blurring them."
+        }
+      ],
+      "useCases": [
+        "Comparing two agent configurations, where a paired test on an adequately sized suite is the difference between a decision and a coin flip.",
+        "Detecting an agent that is right for the wrong reasons, which sound-success and step count reveal and the success rate cannot.",
+        "Building a regression suite before changing a model or prompt, since agent behaviour can shift in both directions and outcome-only tests miss most of it.",
+        "Auditing a published agent result, where the questions are suite size, cost control, and whether trajectory quality was measured at all."
+      ],
+      "pitfalls": [
+        "Evaluating on outcome alone. Two agents at identical success rates differed 0.78 versus 0.43 on sound success and 4 versus 9 steps - the metric cannot see the difference.",
+        "Using a holistic LLM judge for trajectories. It recovered true quality at 0.59 against a rubric's 0.95, and its error is a length bias that rewards wandering.",
+        "Averaging away a judge's bias. The error is directional, so more trajectories converge to the wrong answer rather than the right one - more data does not fix a bias.",
+        "Drawing conclusions from a small suite. At five tasks a genuinely better agent is ranked below a worse one about half the time, so the comparison carries no information.",
+        "Comparing two means instead of pairing. Task difficulty dominates the variance, and a paired per-task test is worth more than doubling the suite size.",
+        "Running each task once. Agent trajectories are high variance, so a single run is a noisy measurement of that task and the noise compounds across a small suite.",
+        "Omitting impossible tasks. Whether an agent recognizes a hopeless task and stops, or spends the entire budget, is invisible unless the suite contains one.",
+        "Reporting accuracy without cost. An agent winning by two points at three times the tokens is a different product, and an unbounded budget buys accuracy a fixed one cannot."
+      ],
+      "connections": [
+        {
+          "ref": "rag-agents/rag-eval",
+          "text": "The same decomposition discipline applied to retrieval systems, including the faithful-versus-correct distinction that is the RAG analogue of sound success."
+        },
+        {
+          "ref": "llm-systems/llm-eval",
+          "text": "The general treatment of judge biases - position, length, self-preference - and the diagnostic question of what change a metric would fail to detect."
+        },
+        {
+          "ref": "agentic-ai/observability",
+          "text": "Where the per-step instrumentation that makes trajectory scoring possible comes from, and where cost is measured properly rather than assumed."
+        },
+        {
+          "ref": "agentic-ai/agent-loop",
+          "text": "Why the toy environment has an oracle and production does not - this lesson is how you recover a grading signal once the oracle is gone."
+        },
+        {
+          "ref": "ml-theory/evaluation-metrics",
+          "text": "The underlying statistics: what a metric can express, why confidence intervals are not optional, and how thresholds encode a cost decision."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why is outcome-only evaluation insufficient?",
+          "a": "Two agents at 0.80 success differed 0.78 versus 0.43 on sound success and 4 versus 9 steps. The headline number cannot distinguish them."
+        },
+        {
+          "q": "What is sound success?",
+          "a": "Reaching the right answer for the right reasons. An agent right by luck will fail unpredictably when the task shifts, and the success rate does not say so."
+        },
+        {
+          "q": "Rubric or holistic judge for trajectories?",
+          "a": "Rubric. A decomposed checklist recovered true quality at 0.95 against a holistic judge's 0.59."
+        },
+        {
+          "q": "What is the holistic judge's characteristic bias?",
+          "a": "Length. It rated 58% of wasteful-bad trajectories as good, because a long trajectory reads as thorough."
+        },
+        {
+          "q": "Why can't you average that bias away?",
+          "a": "It is directional rather than random, so more trajectories converge to the wrong answer. More data does not fix a bias."
+        },
+        {
+          "q": "What goes in a trajectory rubric?",
+          "a": "Specific checks - right tool first, recovered from failure, no redundant calls, stopped when done, used the evidence retrieved."
+        },
+        {
+          "q": "What is the standard error of a success rate?",
+          "a": "The square root of p times one minus p over n - and the measured spread tracked that formula exactly."
+        },
+        {
+          "q": "What happens comparing a 0.85 agent to a 0.75 agent at n equals 5?",
+          "a": "You rank them backwards about 51% of the time. The comparison is a coin flip and carries no information."
+        },
+        {
+          "q": "And at n equals 200?",
+          "a": "Under 1%. Suite size determines whether a comparison means anything, so size it from the effect you need to detect."
+        },
+        {
+          "q": "Why use a paired test?",
+          "a": "Task difficulty dominates the variance, so comparing per-task outcomes removes it - worth more than doubling the suite."
+        },
+        {
+          "q": "Why run each task several times?",
+          "a": "Agent trajectories are high variance, so a single run is itself a noisy measurement of that task."
+        },
+        {
+          "q": "Which robustness tier is skipped most often?",
+          "a": "Impossible tasks. Whether an agent recognizes one and stops, or burns the whole budget, is invisible without them."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you evaluate an agent properly?",
+          "a": "AT THREE LEVELS, AND WITH A SUITE LARGE ENOUGH THAT THE COMPARISON MEANS SOMETHING - and the second half of that sentence is the one most often ignored. LEVEL 1 - OUTCOME, on VERIFIABLE tasks. Did it get done, checked programmatically: a file has the right content, a test passes, a query returns the right row. Verifiability matters because it cannot be gamed by a plausible-sounding trajectory. But outcome is measurably BLIND: two agents both at 0.80 success differed 0.78 versus 0.43 on sound success and took 4 versus 9 steps. One is reliable and cheap; the other is frequently right for reasons that will not generalize and pays double for it. A team optimizing the success rate could migrate from the first to the second and record no change. LEVEL 2 - TRAJECTORY, and here the method matters more than the effort. A decomposed RUBRIC recovered true trajectory quality at 0.95; a holistic LLM judge managed 0.59. And the judge's residual error is not noise - it is a LENGTH BIAS, rating 58% of wasteful-bad trajectories as good, because a long trajectory reads as thorough. That is the worst possible direction for the bias, since wandering is exactly the behaviour you want to penalize. Because it is directional, averaging over more trajectories converges to the wrong answer, so the usual remedy of more data does not apply. The rubric is not sophisticated - did it call the right tool first, did it recover from the failure it hit, did it avoid redundant calls, did it stop once it had the answer - and specific questions have no length bias. LEVEL 3 - ROBUSTNESS, using tasks designed to go wrong. An intermittently failing tool, to measure recovery. Malformed tool output. A blocked obvious approach, to measure replanning. And IMPOSSIBLE tasks, which is the tier skipped most often and the one that separates products: an agent that spends its entire budget on a hopeless task behaves very differently from one that recognizes it and reports back, and every other metric scores them the same. THE STATISTICS, which decide whether any of the above is meaningful. The standard error of a success rate follows the binomial formula exactly, and the consequence for COMPARISONS is severe: at five tasks, a genuinely better agent (0.85) is ranked below a worse one (0.75) about half the time. That is not a noisy number, it is an inverted conclusion. So: report confidence intervals always, use paired per-task tests since task difficulty dominates the variance, run each task several times because trajectories are high variance, and size the suite from the effect you need to detect. AND REPORT COST alongside accuracy, or the comparison is incomplete - an agent that wins by two points at three times the tokens is a different product, and an agent with an unbounded budget can buy accuracy that a bounded one cannot.",
+          "deepDive": {
+            "q": "Design an evaluation suite for a production agent from scratch.",
+            "a": "I WOULD BUILD IT FROM REAL TRAFFIC AND SIZE IT FROM THE DECISION IT HAS TO SUPPORT, because those two choices determine everything else. STEP 1 - SAMPLE REAL TASKS. Production traffic if it exists, pilot or dogfood traffic if not. Stratify by task type and by the compositional depth from 21-01, since a suite of shallow tasks tells you nothing about deep ones and the depth distribution is what determines whether the loop is even needed. STEP 2 - MAKE SUCCESS VERIFIABLE wherever possible. This is the highest-leverage design decision in the whole suite. A task whose completion can be checked programmatically gives an unfoolable signal and can be re-run cheaply on every change; a task requiring judgement needs a rubric and human calibration. I would deliberately over-weight verifiable tasks early, and add judged ones as the suite matures. STEP 3 - SIZE IT. Decide the smallest difference worth acting on - say five points - then size n so that difference is detectable. The binomial standard error gives this directly, and the mis-ranking result is the argument: at five tasks a ten-point true difference is called backwards half the time. Twenty tasks is a demo, not an evaluation. And multiply by repeats, because a single run per task is itself noisy. STEP 4 - ADD THE ROBUSTNESS TIERS deliberately, since they will not appear in sampled traffic. Flaky tools, malformed outputs, impossible tasks, blocked paths, ambiguous requests where the right response is a clarifying question. These are where production behaviour diverges most from demo behaviour. STEP 5 - WRITE THE RUBRIC, five or six concrete checks, and CALIBRATE it against human labels on a subset so you know its agreement. An unvalidated rubric is an unknown instrument, same as an unvalidated judge. STEP 6 - FIX THE COST PROTOCOL, which is the part that makes results comparable at all: cap the budget, and report tokens and wall-clock alongside accuracy. Without a cost cap, one configuration can buy accuracy with retries and the comparison is between budgets rather than between agents. WHAT I WOULD REPORT as the standing panel: success with a CI, sound-success, median and p95 steps, median and p95 cost, recovery rate on the flaky subset, correct-stop rate on the impossible subset, and budget-exhaustion rate. Any single row of that is misleading alone. HOW I WOULD MAINTAIN IT. Every production failure becomes a permanent task - agent failures are diverse and hard to imagine in advance, so the suite grows from incidents far more than from design. Re-sample real traffic periodically, because the query distribution drifts and a fixed suite quietly becomes a measure of last year's product. And keep a held-out slice touched rarely, since a suite you tune against repeatedly stops being an unbiased estimate - the same selection-over-noise effect that inflates any repeatedly-optimized benchmark. THE ORDERING POINT: build this BEFORE you need it. The usual sequence is to ship, hit a problem, then construct the evaluation that would have caught it - at which point you are building the instrument and diagnosing the failure at the same time, which is the worst moment for both."
+          }
+        },
+        {
+          "q": "Why is a rubric better than an LLM judge here?",
+          "a": "BECAUSE THE JUDGE'S ERROR IS A BIAS AND THE RUBRIC'S IS NOISE, and those behave completely differently as you collect more data. THE MEASURED GAP: a decomposed rubric correlated 0.95 with true trajectory quality; a holistic judge managed 0.59. That is not a small margin - the judge is recovering roughly a third of the signal, which for a ranking decision is close to unusable. WHY THE JUDGE FAILS. Judging a whole trajectory is a hard, underspecified task. The judge has to hold the goal, the sequence of actions, the observations and some notion of efficiency in mind simultaneously and emit one verdict. What it falls back on are surface features, and the dominant one is LENGTH: it rated 58% of wasteful-bad trajectories as good, because a long trajectory with many steps reads as thorough and careful. So the instrument systematically rewards the behaviour that costs the most money and most often indicates confusion. WHY THAT IS WORSE THAN IT SOUNDS. A directional error does not average out. If you score a thousand trajectories, you converge tightly on the wrong answer, and the tightness reads as confidence. Every instinct that says 'collect more data' is wrong here. Worse, if the judge becomes an optimization target - selecting prompts or configurations by judge score - you are explicitly selecting for length, which is a reward-hacking loop with a predictable outcome. WHY THE RUBRIC WORKS. It replaces one hard judgement with several easy ones: did it call the right tool first, did it recover from the failure it encountered, did it avoid redundant calls, did it stop once it had the answer, did it use the evidence it retrieved. Each is nearly mechanical, several are checkable programmatically without a model at all, and none of them has a length bias - in fact 'avoided redundant calls' and 'stopped when done' penalize length directly, which is the correct direction. THE GENERAL PRINCIPLE, which recurs across this curriculum: decompose the judgement before making it. The same move improves faithfulness scoring in RAG - claim-level rather than answer-level - and for the same reason: small specific questions are answered more reliably than large vague ones, and they localize the problem when they fail. WHAT I WOULD STILL USE A JUDGE FOR. Open-ended quality where no rubric item captures it, as one input among several. Triage - flagging trajectories for human review. And generating candidate rubric items by reading failures. But not as the arbiter, and never without reporting its measured agreement with human labels on a subset. AND THE CHECK THAT MAKES ANY OF THIS HONEST: whatever scores your trajectories, validate it against human labels and report the agreement. The rubric at 0.95 is only trustworthy because it was compared against known ground truth; on real data you do not have that, so the calibration subset is what stands in for it."
+        },
+        {
+          "q": "How large does an agent evaluation suite need to be?",
+          "a": "LARGER THAN ALMOST EVERY SUITE I HAVE SEEN, and the argument is about the ORDERING rather than the point estimate, which makes it much stronger than the usual plea for bigger samples. THE STANDARD ARGUMENT is that a small sample gives a noisy number: the standard error is the square root of p times one minus p over n, so at n of twenty and p of 0.5 it is about eleven points. People hear that and accept a wide interval. THE STRONGER ARGUMENT is what that noise does to a COMPARISON, which is what evaluations are actually for. Comparing a genuinely better agent at 0.85 against a worse one at 0.75, the probability of ranking them backwards is about 0.51 at five tasks - a coin flip. At fifty tasks it is around a tenth. At two hundred it is under one percent. So a small suite does not merely blur the result; it inverts the conclusion often enough that the decision is uninformed. A team choosing between two architectures on a twenty-task suite is, quite literally, guessing. HOW I WOULD SIZE IT. Decide the smallest difference worth acting on - if a three-point difference would not change any decision, do not size for it. Then choose n so that difference is detectable at the confidence you need. And multiply by REPEATS, because agent trajectories are high variance: the same agent on the same task takes different paths, so one run is a noisy measurement of that task before any suite-level noise is considered. Three to five runs per task is a reasonable default when budget allows. WHAT BUYS YOU MORE THAN A BIGGER SUITE. A PAIRED test on per-task outcomes. Task difficulty dominates the variance - some tasks are hard for everything - and pairing removes that component entirely. In practice this is worth more than doubling n and it costs nothing but running both agents on the same tasks, which you were doing anyway. Using it should be the default, and comparing two independent means should be the exception. WHAT TO DO WHEN YOU CANNOT AFFORD IT, since agent evaluations are genuinely expensive - each task is a full trajectory with many model calls. Be explicit: report the interval, state that the comparison cannot resolve differences below some size, and do not present a five-point gap on forty tasks as a result. That is a legitimate position honestly stated. What is not legitimate is presenting an underpowered comparison as a finding, which is common and which the mis-ranking number makes indefensible. AND THE CONNECTION TO PUBLISHED RESULTS: many agent benchmark differences are reported on suites where this analysis would show the ranking is unreliable, especially when combined with the selection effect of choosing the best of several configurations. When I read an agent result, suite size and whether repeats were run are the first two things I look for, and their absence tells me how much weight the number can carry."
+        },
+        {
+          "q": "How do you evaluate an agent when there is no ground truth?",
+          "a": "BY MANUFACTURING VERIFIABILITY WHERE YOU CAN AND USING PROXIES DELIBERATELY WHERE YOU CANNOT, which is the transition this module is built around - the toy environments have an oracle precisely so the mechanisms can be graded, and production does not. WHAT TO MANUFACTURE. Prefer tasks whose completion is CHECKABLE even if the path is not: a test suite passes, a file matches an expected structure, a record is in the right state, an extracted value matches a known source. Many real tasks can be reformulated this way with a little effort, and doing so converts an unmeasurable workflow into a regression test you can run forever. I would spend real effort here before reaching for judgement-based scoring, because the payoff compounds. WHAT TO USE AS PROXIES, ordered by how much I would trust them. SELF-CONSISTENCY: run the task several times and measure agreement. Agreement is not correctness - correlated agents agree on wrong answers, which the multi-agent measurements show - but DISAGREEMENT is a strong signal of unreliability and it needs no labels. VERIFIABLE SUB-STEPS: even when the final outcome is unjudgeable, individual steps often are - the tool call succeeded, the retrieved document exists, the number appears in the source. TRAJECTORY RUBRIC items that are mechanical: redundant calls, budget exhaustion, repeated identical actions, stopping condition reached. These need no ground truth at all and they correlate with quality. And HUMAN SPOT-CHECKS on a sample, which is the only real signal and is worth calibrating everything else against. WHAT PRODUCTION GIVES YOU THAT THE TOY DOES NOT. Implicit user feedback - a user rephrasing immediately, abandoning, escalating to a human, or undoing what the agent did. Those are unlabelled but very informative, and undo events in particular are close to a ground-truth negative. Downstream outcomes: did the ticket get resolved, did the code get merged, did the transaction complete. Those are slow and noisy and they are the thing you actually care about. HOW I WOULD ASSEMBLE IT. A small labelled suite, maintained and grown from incidents, as the regression gate. Label-free proxies monitored continuously on live traffic. Human review of a sampled slice, prioritized by the proxies - low self-consistency, high step count, budget exhaustion - which is how you get the most information per hour of expensive attention. And every production failure converted into a permanent suite task. THE HONEST STATEMENT I would attach: these proxies measure whether the agent behaved sensibly, not whether it was right. The gap between those is exactly the sound-success gap this lesson measures - 0.80 success can be 0.78 or 0.43 sound - and without an oracle you cannot close it, only sample it. Saying so is better than presenting a proxy dashboard as if it were correctness."
+        },
+        {
+          "q": "What would you look for in someone else's reported agent results?",
+          "a": "FIVE THINGS, EACH OF WHICH IS ROUTINELY MISSING, and their absence tells you how much weight the number can carry. (1) SUITE SIZE AND REPEATS. The mis-ranking result makes this decisive: at five tasks a ten-point true difference is called backwards half the time, and agent trajectories are high variance so a single run per task adds more noise on top. A result on a twenty-task suite with one run each cannot support a claim about which system is better, regardless of the gap. I would look for a confidence interval, and its absence is itself informative. (2) COST CONTROL. An agent with an unbounded budget can buy accuracy with retries, longer reasoning and best-of-n sampling. If two systems are compared without matched cost, the comparison may be between budgets rather than between architectures - which is the compute-matched baseline problem from multi-agent evaluation, and some reported gains do not survive it. Tokens and wall-clock should be reported beside accuracy. (3) WHETHER TRAJECTORY QUALITY WAS MEASURED AT ALL. Outcome-only results cannot distinguish an agent that is reliable from one that is frequently right for the wrong reasons at double the steps - measured, 0.78 versus 0.43 sound success behind an identical 0.80. A paper reporting only success rates has not shown that the better-scoring system is the better system. (4) HOW TRAJECTORIES WERE SCORED, if they were. A holistic LLM judge has a length bias that rated 58% of wasteful-bad trajectories as good, so a judge-scored result is biased toward verbose agents in a way that does not average out. I would want to see a rubric, and its agreement with human labels. (5) CONTAMINATION AND SELECTION. Was the benchmark public and possibly in training data? How many configurations were tried before the reported one - because best-of-many-configurations on a noisy metric produces a gap that is mostly selection, and it regresses on replication. A result where the number of tuning attempts is unstated should be discounted accordingly. WHAT WOULD INCREASE MY CONFIDENCE: verifiable tasks rather than judged ones, held-out or freshly-constructed tasks rather than a public benchmark, a stated cost budget, paired comparisons, intervals, and a failure analysis that says what still breaks. That last one is disproportionately informative - a result presented with its remaining failures categorized is one where someone looked at the trajectories rather than the dashboard. AND THE GENERAL POSTURE: agent evaluation is young, expensive and easy to get wrong in ways that flatter the system, so the prior on a reported gap should be weak. That is not cynicism - it is the same discount the module applies to its own claims, which is why every result here comes with the ground truth it was graded against and the regime in which it held."
+        },
+        {
+          "q": "How does this lesson relate to the rest of the module?",
+          "a": "IT TURNS THE MODULE'S METHOD ON ITSELF, which is the point at which the method becomes trustworthy rather than merely repeated. Every other lesson makes a measured claim about an agent technique. This one asks whether the measurements themselves are sound, and finds that the two most natural approaches are not: outcome-only evaluation cannot distinguish two very different agents, and the obvious fix of asking a model to judge trajectories recovers only 0.59 of the true signal with a bias pointing at the behaviour you most want to penalize. THE THREE FINDINGS EACH INVALIDATE A COMMON PRACTICE, which is what makes them worth the space. Reporting success rate alone - blind. Using a holistic judge - biased, and biased in a direction that does not average out. Drawing conclusions from a small suite - the ordering is a coin flip at n of five, so the decision is uninformed rather than merely uncertain. Every one of those is standard practice in agent write-ups, including many published ones. WHAT IT ENABLES ELSEWHERE. The ladder in 21-01, the frontier in 21-04, the crossovers in 21-06 are all comparisons, and comparisons are only meaningful with adequate power and an unbiased instrument. So this lesson is retroactively the justification for the others - and it is also the reason those experiments used deterministic seeded environments with known ground truth, which removes the variance that makes real agent comparisons so hard. THE TRANSITION IT MARKS. The toy environments have an oracle by construction. Production does not, and this is where you learn what stands in for it: verifiable tasks manufactured deliberately, mechanical rubric items that need no labels, self-consistency as an unreliability signal, and human spot-checks calibrating the rest. 21-08 continues that transition by supplying the per-step instrumentation without which trajectory scoring is impossible after the fact. THE HABIT I WOULD WANT KEPT. When you read - or write - a claim that one agent is better than another, ask three questions: how many tasks, at what cost, and was the trajectory measured. Most of the time at least one answer is missing, and knowing which one tells you exactly how much the claim is worth. That is the same discipline as asking what regime a technique holds in, applied to the evidence rather than the technique."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "★ Outcome-only evaluation is BLIND",
+        "back": "Two agents, identical 0.80 success — SOUND success 0.78 vs 0.43, steps 4 vs 9. One is reliable and cheap; the other is often right for reasons that won't generalize, at double the cost. The headline can't tell them apart."
+      },
+      {
+        "type": "formula",
+        "front": "★ Rubric 0.95 vs holistic judge 0.59",
+        "back": "A decomposed checklist recovers true trajectory quality; a whole-trajectory judgement recovers about a third of the signal. Replace one hard judgement with several easy, near-mechanical ones."
+      },
+      {
+        "type": "pitfall",
+        "front": "The judge's LENGTH BIAS",
+        "back": "It rated 58% of WASTEFUL-BAD trajectories as \"good\" — long reads as thorough. So the instrument rewards exactly the wandering you want to penalize, and if it becomes an optimization target you are selecting for length."
+      },
+      {
+        "type": "pitfall",
+        "front": "You cannot average away a BIAS",
+        "back": "The judge's error is directional, so more trajectories converge TIGHTLY ON THE WRONG ANSWER — and the tightness reads as confidence. Every instinct that says \"collect more data\" is wrong here."
+      },
+      {
+        "type": "formula",
+        "front": "★ Small suites invert the ORDERING",
+        "back": "SE = √(p(1−p)/n). Comparing a true 0.85 agent to a true 0.75 agent, P(ranking backwards): n=5 → 0.51 (a COIN FLIP) · n=50 → ~0.10 · n=200 → <0.01. Not a noisy number — an inverted conclusion."
+      },
+      {
+        "type": "intuition",
+        "front": "Pairing beats doubling n",
+        "back": "Task difficulty dominates the variance and some tasks are hard for everything. A PAIRED per-task test removes that component entirely, costs nothing extra, and should be the default rather than the exception."
+      },
+      {
+        "type": "intuition",
+        "front": "Run each task SEVERAL times",
+        "back": "Agent trajectories are high variance — the same agent on the same task takes different paths — so one run is a noisy measurement of that task BEFORE any suite-level noise. 3–5 repeats when budget allows."
+      },
+      {
+        "type": "intuition",
+        "front": "The rubric items",
+        "back": "Right tool FIRST? · recovered from the failure it hit? · avoided redundant calls? · STOPPED once it had the answer? · used the evidence retrieved? Several are checkable with no model at all — and two penalize length directly, which is the correct direction."
+      },
+      {
+        "type": "pitfall",
+        "front": "The tier everyone skips: IMPOSSIBLE tasks",
+        "back": "An agent that burns the full budget on a hopeless task vs one that recognizes it and reports back score identically on everything else. Also test flaky tools (recovery), malformed output, and blocked obvious paths (replanning)."
+      },
+      {
+        "type": "pitfall",
+        "front": "Report COST or the comparison is incomplete",
+        "back": "An agent winning by 2 points at 3× the tokens is a different product — and an unbounded budget buys accuracy with retries and best-of-n that a bounded one cannot. Compare at MATCHED cost or state the difference."
+      },
+      {
+        "type": "intuition",
+        "front": "Evaluating without an oracle",
+        "back": "MANUFACTURE verifiability (a test passes, a record's state, an extracted value). Then proxies: self-consistency (disagreement signals unreliability), mechanical rubric items, undo/rephrase/escalation events. Calibrate all of it against sampled human review."
+      },
+      {
+        "type": "intuition",
+        "front": "Reading someone else's agent result",
+        "back": "Suite size + repeats + CI · matched COST · was the trajectory measured at all · how it was scored (judge → length bias) · contamination and how many configs were tried. Absence of any one tells you how much the number can carry."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Jimenez et al. (2023), SWE-bench: Can Language Models Resolve Real-World GitHub Issues?",
+        "url": "https://arxiv.org/abs/2310.06770"
+      },
+      {
+        "title": "Mialon et al. (2023), GAIA: A Benchmark for General AI Assistants",
+        "url": "https://arxiv.org/abs/2311.12983"
+      },
+      {
+        "title": "Kapoor et al. (2024), AI Agents That Matter",
+        "url": "https://arxiv.org/abs/2407.01502"
+      },
+      {
+        "title": "Zhuge et al. (2024), Agent-as-a-Judge: Evaluate Agents with Agents",
+        "url": "https://arxiv.org/abs/2410.10934"
+      },
+      {
+        "title": "Zheng et al. (2023), Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+        "url": "https://arxiv.org/abs/2306.05685"
+      }
+    ],
+    "demos": [
+      "classification-metrics",
+      "calibration",
+      "conformal",
+      "react-agent"
+    ]
+  }
+};

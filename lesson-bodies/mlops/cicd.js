@@ -1,0 +1,291 @@
+// GENERATED from content/lessons/mlops/cicd.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/mlops/cicd/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "cicd": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "CI/CD is the seam between A COMMIT AND PRODUCTION, and the ML-specific difficulty is that the thing being promoted is not only code. THREE ARTIFACTS CAN CHANGE INDEPENDENTLY - the code, the data, and the model - and a pipeline that gates only on code changes lets the other two through ungated.",
+        "That asymmetry is why 'we have CI' is a weaker statement here than in ordinary software. A retrain triggered by a schedule can ship a new model with no commit, no review and no diff, which means the deployment path with the least oversight is the one that runs most often. The fix is to treat a model version as a release artifact subject to the same gates as a code release, which is a policy decision rather than a tooling one.",
+        "And the gate that does the real work is not a test - it is a CANARY comparing PREDICTIONS on the same requests. The serving lesson measured why: a skewed pipeline left AUC identical to four decimals at 0.7823 while 0.69% of decisions flipped, so a metric-based gate passes a change that alters what the system does. Compare the thing the system consumes."
+      ],
+      "math": [
+        {
+          "h": "★ Three artifacts, three triggers",
+          "paras": [
+            "Ordinary CI assumes a commit is the only way production changes. In an ML system there are three, and only one of them has a pull request attached.",
+            "A pipeline that gates on code alone has two ungated paths."
+          ],
+          "tex": "\\text{production} = f(\\underbrace{\\text{code}}_{\\text{PR, review, CI}},\\ \\underbrace{\\text{data}}_{\\text{often ungated}},\\ \\underbrace{\\text{model}}_{\\text{often ungated}})",
+          "texNote": "A scheduled retrain changes production with no commit and no reviewer. That path deserves the strictest gate precisely because it has the least human attention, and it usually has the least."
+        },
+        {
+          "h": "The gate ladder, in increasing cost and confidence",
+          "paras": [
+            "Each level catches a class the previous one cannot, and each costs more wall-clock. The ordering is what keeps the pipeline fast enough to use."
+          ],
+          "tex": "\\text{lint/unit (s)} \\to \\text{data validation (s)} \\to \\text{parity checks (min)} \\to \\text{eval thresholds (min)} \\to \\text{shadow (hours)} \\to \\text{canary (days)}",
+          "texNote": "Put the cheap, high-yield checks first so failures surface in seconds. A pipeline where the first signal arrives in forty minutes is a pipeline people work around, and a bypassed gate is worse than no gate because it creates false confidence."
+        },
+        {
+          "h": "★ Why the metric gate is not enough",
+          "paras": [
+            "An evaluation threshold compares summary statistics. The serving lesson's skew changed no summary statistic and changed decisions.",
+            "The gate has to compare at the level the system consumes."
+          ],
+          "tex": "\\mathrm{AUC}_{\\text{old}} = 0.7823 = \\mathrm{AUC}_{\\text{new}}, \\qquad \\text{decisions changed} = 0.69\\%",
+          "texNote": "So the gate that catches it is a prediction-level comparison on identical inputs - shadow traffic - rather than a metric threshold. Metrics gate quality; prediction diffs gate behaviour, and they are different questions."
+        }
+      ],
+      "code": [
+        {
+          "h": "The pipeline, and where each gate belongs",
+          "paras": [
+            "Ordered by cost so that the fast checks fail fast."
+          ],
+          "code": "# ON EVERY COMMIT (seconds)\n#   lint, type check, unit tests on data transforms and feature code\n#   ★ a test that the SERVING preprocessing matches the TRAINING one\n#     on fixed inputs - the cheapest skew check there is\n\n# ON EVERY DATA REFRESH (seconds)\n#   schema validation, null/range/cardinality invariants, row counts\n#   ★ gate the DATA, not just the code - this is one of the two\n#     ungated paths\n\n# ON EVERY MODEL BUILD (minutes)\n#   train on a small fixed subset, assert it converges (a smoke train)\n#   EXPORT PARITY: numerical drift AND decision agreement AND the\n#     low-margin decile specifically\n#   EVALUATION THRESHOLDS: aggregate AND per-slice, against the incumbent\n#   ★ re-derive calibration, conformal sets, tuned thresholds\n\n# BEFORE PROMOTION (hours to days)\n#   SHADOW: score live traffic, compare PREDICTIONS with the incumbent\n#   CANARY: serve a small share, watch guardrails, ramp\n#   ROLLBACK: one action, tested, previous artifact retained",
+          "caption": "The commit-time preprocessing parity test is the highest value-per-second item in the list, because it catches the failure mode that costs the most and runs in milliseconds."
+        },
+        {
+          "h": "What makes a rollback real",
+          "paras": [
+            "A rollback plan that has never been executed is a hypothesis. Three properties make it a plan."
+          ],
+          "code": "# 1 ONE ACTION - repoint to the previous immutable artifact.\n#     if it requires a rebuild, it is not a rollback\n# 2 THE PREVIOUS ARTIFACT IS RETAINED, by digest, along with its\n#     calibration, thresholds and monitoring baselines\n#     ★ rolling back weights while leaving the NEW thresholds in place\n#       produces a third configuration that was never tested\n# 3 IT HAS BEEN EXERCISED - a rollback that has never run in production\n#     is as likely to be broken as any untested path, and it will be\n#     invoked for the first time during an incident\n\n# ★ AND STATE THE TRIGGER IN ADVANCE: what number, at what level, for\n#   how long, decided before the deploy. A rollback criterion invented\n#   during an incident is negotiated rather than applied.",
+          "caption": "The third-configuration problem is the one people meet in practice: partial rollbacks produce a state that neither the old nor the new evaluation covers."
+        }
+      ],
+      "useCases": [
+        "Any model that redeploys more than occasionally, where the retrain path is the one carrying the most risk and the least review.",
+        "Enforcing the parity, evaluation and re-derivation steps that are otherwise checklist items people skip under deadline.",
+        "Making promotion auditable, so the question 'why did we believe this was safe' has an answer produced at the time rather than reconstructed afterwards.",
+        "Bounding blast radius, since canary and rollback are what convert an undetected defect from an outage into a small, reversible degradation."
+      ],
+      "pitfalls": [
+        "Gating only on code. Data and model are two independent paths into production, and a scheduled retrain ships with no commit and no reviewer.",
+        "Using an evaluation threshold as the final gate. A skewed pipeline left AUC identical at 0.7823 while 0.69% of decisions flipped, so metrics gate quality and not behaviour.",
+        "Putting slow checks first. A pipeline whose first signal arrives in forty minutes gets worked around, and a bypassed gate is worse than no gate because it creates false confidence.",
+        "Comparing only aggregate metrics during shadow or canary. Compare predictions on the same requests, which is the only check that sees a behaviour change with unchanged metrics.",
+        "Rolling back the model without its thresholds and calibration. That produces a third configuration that neither evaluation covered.",
+        "Treating an untested rollback as a plan. It will be executed for the first time during an incident, which is the worst moment to discover it does not work.",
+        "Deciding the rollback trigger during the incident. State the number, the level and the duration before deploying, or the criterion gets negotiated rather than applied."
+      ],
+      "connections": [
+        {
+          "ref": "mlops/testing",
+          "text": "What the fast gates actually run - data validation, invariance tests, and the behavioural checks that unit tests cannot express."
+        },
+        {
+          "ref": "mlops/model-serving",
+          "text": "Why a prediction-level comparison is the gate that matters, and the shadow-traffic mechanism that implements it."
+        },
+        {
+          "ref": "mlops/docker",
+          "text": "The immutable artifact that makes promotion and rollback meaningful - a digest to repoint at rather than a build to repeat."
+        },
+        {
+          "ref": "mlops/monitoring",
+          "text": "The re-derivation step, and why calibration, conformal sets, thresholds and baselines must be recomputed as part of the deploy."
+        },
+        {
+          "ref": "causal-inference/ab-testing",
+          "text": "The canary's statistics - guardrails with a reversed burden of proof, and the peeking discipline that makes an early read meaningful."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "★ What's ML-specific about CI/CD?",
+          "a": "THREE artifacts can change production independently — code, data, model — and only code has a pull request attached. A pipeline gating on code alone has two ungated paths."
+        },
+        {
+          "q": "Which path has the least oversight?",
+          "a": "The scheduled retrain: it ships a new model with no commit, no review and no diff — and it runs most often. It deserves the strictest gate and usually has the weakest."
+        },
+        {
+          "q": "Give the gate ladder.",
+          "a": "lint/unit (s) → data validation (s) → parity checks (min) → eval thresholds (min) → shadow (hours) → canary (days). Cheap and high-yield first."
+        },
+        {
+          "q": "Why does ordering matter?",
+          "a": "A pipeline whose first signal arrives in forty minutes gets worked around — and a BYPASSED gate is worse than no gate, because it creates false confidence."
+        },
+        {
+          "q": "★ Why isn't a metric threshold enough?",
+          "a": "A skewed pipeline left **AUC identical at 0.7823** while **0.69% of decisions flipped**. Metrics gate QUALITY; prediction diffs gate BEHAVIOUR."
+        },
+        {
+          "q": "So what's the gate that catches it?",
+          "a": "A prediction-level comparison on identical inputs — shadow traffic — rather than a summary statistic."
+        },
+        {
+          "q": "What's the highest value-per-second check?",
+          "a": "A commit-time test that the SERVING preprocessing matches the TRAINING one on fixed inputs. Runs in milliseconds, catches the costliest failure mode."
+        },
+        {
+          "q": "What must a model build gate on?",
+          "a": "A smoke train that converges · export parity (drift, decision agreement, AND the low-margin decile) · evaluation thresholds aggregate AND per-slice against the incumbent · re-derivation of downstream artifacts."
+        },
+        {
+          "q": "What makes a rollback real?",
+          "a": "ONE action repointing to a retained immutable artifact · the previous artifact kept WITH its calibration and thresholds · and it has actually been EXERCISED."
+        },
+        {
+          "q": "★ What's the third-configuration problem?",
+          "a": "Rolling back the weights while leaving the NEW thresholds in place produces a state that neither the old nor the new evaluation covered."
+        },
+        {
+          "q": "When do you decide the rollback trigger?",
+          "a": "Before deploying — what number, at what level, for how long. A criterion invented during an incident gets negotiated rather than applied."
+        },
+        {
+          "q": "Why is an untested rollback not a plan?",
+          "a": "It's as likely to be broken as any untested path, and it will run for the first time during an incident — the worst moment to find out."
+        }
+      ],
+      "standard": [
+        {
+          "q": "What makes CI/CD for ML different from ordinary software CI/CD?",
+          "a": "THREE ARTIFACTS CAN CHANGE PRODUCTION INDEPENDENTLY, AND ONLY ONE HAS A PULL REQUEST. In ordinary software a commit is the only way production changes, so gating on commits covers everything. In an ML system, production is a function of the code, the DATA and the MODEL — and a scheduled retrain ships a new model with no commit, no diff and no reviewer. THAT MEANS THE DEPLOYMENT PATH WITH THE LEAST OVERSIGHT IS THE ONE THAT RUNS MOST OFTEN, which is exactly backwards, and it is why 'we have CI' is a weaker statement here. The fix is a policy decision rather than a tooling one: treat a model version as a release artifact subject to the same gates as a code release, and gate the data refresh too. THE SECOND DIFFERENCE IS THAT THE FINAL GATE IS NOT A TEST. An evaluation threshold compares summary statistics, and the serving lesson measured a skewed pipeline leaving AUC identical to four decimals at 0.7823 while 0.69% of decisions flipped — so a metric gate passes a change that alters what the system does. The gate that catches it is a prediction-level comparison on identical requests, which means shadow traffic rather than a threshold.",
+          "deepDive": {
+            "q": "Which check would you put first?",
+            "a": "The ordering of gates matters more than in ordinary CI because ML checks span six orders of magnitude in wall-clock: a lint check is milliseconds and a canary is days. Putting the cheap high-yield checks first is what keeps the pipeline usable, and the specific item I would put first is a unit test asserting that the serving preprocessing matches the training preprocessing on a handful of fixed inputs. It runs in milliseconds and it targets the failure mode that costs the most, which makes it the best value-per-second in the whole pipeline. The failure mode to design against is a slow pipeline getting bypassed — an ML pipeline where the first signal arrives forty minutes after push will be worked around, and a bypassed gate is strictly worse than no gate because the organization believes the check ran. That argues for splitting into a fast path that must pass before merge and a slow path that runs before promotion, with the promotion gates enforced by automation so the label on the registry means something rather than asserting something."
+          }
+        },
+        {
+          "q": "What would you gate a model promotion on?",
+          "a": "FOUR THINGS, IN INCREASING COST. FIRST, A SMOKE TRAIN: train on a small fixed subset and assert it converges, which catches broken data plumbing, a bad learning rate, or a shape error in seconds rather than after a full run. SECOND, EXPORT PARITY — and specifically three numbers, not one: numerical drift, decision agreement, and decision agreement restricted to the LOW-MARGIN population, because the export lesson measured every disagreement concentrated in the lowest-margin decile at 0.0040 with 0.0000 in deciles two through five. An aggregate agreement of 0.9996 is reassuring about the rows that were never at risk. THIRD, EVALUATION THRESHOLDS against the incumbent, aggregate AND per-slice, because an aggregate improvement is compatible with a regression on a subgroup — the failure this curriculum has found in every module. FOURTH, RE-DERIVATION: the calibration temperature, any conformal calibration set, tuned thresholds and the monitoring baselines are all properties of the model-plus-distribution pair, and a deploy that does not recompute them ships a model whose downstream configuration is stale. THEN SHADOW AND CANARY, which are the only gates that see behaviour rather than summary statistics.",
+          "deepDive": {
+            "q": "Which gate would you insist on automating rather than documenting?",
+            "a": "The re-derivation gate is the one I would most insist on automating rather than documenting, because its failure is delayed and confusing. A retrained model shifts the score distribution, so a threshold tuned to produce seven hundred alerts a day now produces two thousand or two hundred, and nobody changed the threshold — the symptom appears as an unexplained volume shift a week later and gets attributed to traffic. Making recomputation a required pipeline step that fails the deploy if it cannot run converts a class of mysterious incidents into a clear build failure. The complementary practice is to store the evaluation artifacts alongside the model in the registry — slice metrics, calibration curve, parity numbers, fairness table — so the deployed artifact carries its own evidence and the question 'why did we believe this was safe' has an answer produced at the time. Reconstructing that after an incident, from notebooks, is exactly the situation the tracking lesson exists to prevent."
+          }
+        },
+        {
+          "q": "How would you structure a canary for a model?",
+          "a": "SHADOW FIRST, THEN CANARY, AND COMPARE PREDICTIONS AT BOTH STAGES. Shadow means running the new model on live traffic without serving its output, which costs only compute and is the strongest available check: the comparison is against the incumbent on the SAME requests, so it sees behaviour changes that aggregate metrics cannot. That is the lesson from the serving measurement — identical AUC, 0.69% of decisions changed — and it is why a shadow phase catches things a metric gate cannot. THEN CANARY: serve a small share of traffic, watch the guardrails, and ramp. The statistics here are the experimentation module's: guardrails with the burden of proof REVERSED, so you need evidence of no harm and a wide interval is a failure rather than a pass; and a peeking discipline, because watching a canary continuously against a fixed threshold inflates the false-positive rate the same way it does in an A/B test — 5% to 25% over twenty looks. AND THE TRIGGER STATED IN ADVANCE: which number, at what level, sustained for how long, decided before the deploy, because a rollback criterion invented during an incident is negotiated rather than applied.",
+          "deepDive": {
+            "q": "How does the peeking problem apply to a canary?",
+            "a": "The peeking point is worth taking seriously because canaries are watched continuously by construction, so the naive procedure is the worst case for it. The practical accommodations are to define the decision window in advance, to use a sequential boundary rather than a fixed threshold if you want to stop early, and to distinguish clearly between the automatic rollback triggers — which should be blunt, fast and about availability and error rates rather than about subtle metric movements — and the promotion decision, which is a slower, statistical judgement. Conflating them produces either a canary that rolls back on noise or one that never rolls back at all. The other structural point is that a canary measures the new model on a mixture of traffic that the incumbent is also serving, so interference is possible in systems with feedback: in a recommender, the canary's outputs change what users do, which changes the incumbent's inputs. That is the interference problem from the experimentation module, and where it applies, the honest design is a proper holdout rather than a percentage split."
+          }
+        },
+        {
+          "q": "What does a real rollback require?",
+          "a": "THREE PROPERTIES, AND MOST ROLLBACK PLANS HAVE ONE. ONE ACTION: repoint to the previous immutable artifact by digest. If rolling back requires a rebuild, a retrain, or a sequence of manual steps, it is not a rollback — it is a recovery, and it takes long enough that the incident is decided before it completes. THE PREVIOUS ARTIFACT RETAINED, together with its calibration parameters, thresholds and monitoring baselines, because rolling back the weights while leaving the new thresholds in place produces a THIRD CONFIGURATION that neither the old nor the new evaluation covered — and that is a state you have no evidence about, entered during an incident. AND IT MUST HAVE BEEN EXERCISED. A rollback path that has never run in production is as likely to be broken as any other untested path, and it will be invoked for the first time under pressure. Forcing a rollback periodically, in a low-traffic window, is cheap insurance and it is the same argument as testing a backup restore rather than assuming it works. PLUS THE TRIGGER DECIDED IN ADVANCE — what number, at what level, for how long — because a criterion invented during an incident gets negotiated by whoever has the most at stake.",
+          "deepDive": {
+            "q": "What does the third-configuration problem generalize to?",
+            "a": "The third-configuration problem generalizes past rollback and is worth carrying: any partial revert of a coupled system produces a state nobody tested. It applies to reverting the model but not the feature pipeline, reverting the code but not the config, or reverting one service in a chain. The structural defence is to make the deployable unit contain everything that was validated together — model, preprocessing, thresholds, calibration — so that a revert moves all of it or none. That is the same argument as versioning the preprocessing object with the weights, arriving at the operational layer, and it is why the registry lesson insisted the deployable unit is bigger than the model. Where that coupling is impractical, the minimum is to enumerate the coupled artifacts and make the rollback procedure move them together explicitly, which is a short checklist that someone must own — and, following this module's theme, it should be automation rather than a document, because a document is not executed during an incident."
+          }
+        },
+        {
+          "q": "How does this lesson fit the module's theme?",
+          "a": "THE SEAM IS BETWEEN A COMMIT AND PRODUCTION, AND THE ML-SPECIFIC FAILURE IS THAT THE SEAM HAS THREE INPUTS WHILE THE MACHINERY WAS BUILT FOR ONE. Code, data and model change independently; ordinary CI gates the first; and the other two reach production ungated — silently, in the module's sense, because a scheduled retrain producing a worse model raises nothing, has no diff, and appears in no review queue. THE CONTRACT is that everything reaching production has passed the gates, and it is violated silently because two of the three paths were never wired to a gate at all. WHAT THIS LESSON ADDS is that even the gate people do build is measuring the wrong thing: an evaluation threshold compares summary statistics, and the serving measurement showed AUC identical to four decimals while 0.69% of decisions changed. SO THE PIPELINE CAN BE GREEN AT EVERY STAGE while shipping a behaviour change — which is the module's signature applied to the machinery that exists to prevent exactly that. THE FIX IS THE MODULE'S: compare the thing the system consumes, at the level it consumes it.",
+          "deepDive": {
+            "q": "How would you evaluate a proposed MLOps tool?",
+            "a": "There is a useful way to evaluate any proposed MLOps tool that falls out of this module and lands most naturally here: does it convert a silent failure into a loud one, and at which seam? Data validation converts a silent schema change into a build failure. A parity check converts silent export drift into a red test. A startup assertion converts a silent CPU fallback into a crash loop. A canary converts a silent behaviour change into a bounded, observed one. A drift dashboard, by contrast, converts a silent input change into a loud alarm about a quantity that may not matter — which is why it ranks low despite being the most visible tool in the category. Applying that criterion to a roadmap tends to reorder it toward cheap assertions and away from dashboards, and it gives a defensible answer to 'why are we building this' that is more specific than best practice. It is also, in this module's terms, the through-line: every practice here exists because ML components fail by disagreeing quietly rather than by erroring."
+          }
+        },
+        {
+          "q": "How much CI/CD does a project actually need?",
+          "a": "IT SHOULD SCALE WITH HOW MUCH THE OUTPUT IS RELIED ON, AND THE GRADUATION POINTS ARE FAIRLY CLEAR. FOR EXPLORATORY WORK, almost none: a lockfile and version control, because the cost of ceremony exceeds the cost of the mistakes at that stage. ONCE A RESULT WILL BE DEPENDED ON — a number in a document, a model heading to review — add the reproducibility gates: pinned environment, tracked runs, a smoke train. ONCE IT SERVES TRAFFIC, the full ladder becomes justified: data validation, parity checks, per-slice evaluation, re-derivation, shadow, canary and a tested rollback. ONCE IT SERVES TRAFFIC AND RETRAINS AUTOMATICALLY, the retrain path needs the strictest gates of all, because it is the highest-frequency and lowest-oversight path into production. THE FAILURE TO AVOID IN BOTH DIRECTIONS is a team that puts a research notebook behind a six-stage pipeline and stops iterating, and a team that lets an automated retrain deploy to millions of users with no gate because the pipeline was built for code. THE RIGHT QUESTION IS NOT 'DO WE HAVE CI' but 'which of the three artifacts can reach production without passing a gate', and the answer is usually two of them.",
+          "deepDive": {
+            "q": "What is the most useful audit question for an existing system?",
+            "a": "That framing — name the ungated paths — is the most useful audit question for an existing system and it takes ten minutes. Walk the ways production can change: a merged pull request, a scheduled retrain, a data refresh, a config change, a feature-flag flip, a dependency update in a base image, a third-party model version bump. For each, ask what gate it passes. In most systems at least three of those paths are ungated, and the config change and the base-image update are the two people are most surprised by — a config change can alter a threshold, which is a behaviour change with no code and no model change at all. Bringing configuration under the same review and canary discipline as code is unglamorous and closes a genuine hole. It is also the point at which this module's theme becomes an operating principle rather than an observation: enumerate the seams, ask what is asserted at each, and make the unasserted ones loud."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "★ What's ML-specific about CI/CD",
+        "back": "THREE artifacts change production independently — code, DATA, MODEL — and only code has a pull request. A pipeline gating on commits has two ungated paths."
+      },
+      {
+        "type": "pitfall",
+        "front": "The path with the least oversight",
+        "back": "The scheduled RETRAIN: a new model with no commit, no diff, no reviewer — and it runs most often. It deserves the strictest gate and usually has the weakest."
+      },
+      {
+        "type": "definition",
+        "front": "The gate ladder",
+        "back": "lint/unit (s) → data validation (s) → parity checks (min) → eval thresholds (min) → shadow (hours) → canary (days). Cheap and high-yield first, because a slow pipeline gets BYPASSED — and a bypassed gate is worse than none."
+      },
+      {
+        "type": "formula",
+        "front": "★ Why a metric threshold isn't enough",
+        "back": "A skewed pipeline: **AUC identical at 0.7823**, **0.69% of decisions flipped**. Metrics gate QUALITY; prediction diffs gate BEHAVIOUR. The pipeline can be green at every stage while shipping a behaviour change."
+      },
+      {
+        "type": "intuition",
+        "front": "The best value-per-second check",
+        "back": "A commit-time unit test asserting SERVING preprocessing matches TRAINING preprocessing on fixed inputs. Milliseconds to run; targets the costliest failure mode in the module."
+      },
+      {
+        "type": "definition",
+        "front": "What a model build must gate on",
+        "back": "A smoke train that converges · export parity (drift + decision agreement + **the low-margin decile**) · eval thresholds aggregate AND per-slice vs the incumbent · **re-derivation** of calibration, conformal sets, thresholds and baselines."
+      },
+      {
+        "type": "intuition",
+        "front": "Shadow before canary",
+        "back": "Shadow runs the new model on live traffic WITHOUT serving it, comparing predictions against the incumbent on the SAME requests. Costs only compute, and it's the strongest check available."
+      },
+      {
+        "type": "pitfall",
+        "front": "Canaries and peeking",
+        "back": "Watching continuously against a fixed threshold inflates false positives exactly as in an A/B test (5% → 25% over twenty looks). Separate BLUNT automatic rollback triggers from the slower statistical promotion decision."
+      },
+      {
+        "type": "definition",
+        "front": "What makes a rollback real",
+        "back": "(1) ONE action repointing to a retained immutable digest — if it needs a rebuild it's a recovery, not a rollback. (2) The previous artifact retained WITH its calibration and thresholds. (3) It has actually been EXERCISED."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ The third-configuration problem",
+        "back": "Rolling back weights while leaving the NEW thresholds in place produces a state neither evaluation covered — entered during an incident, with no evidence about it. Any partial revert of a coupled system does this."
+      },
+      {
+        "type": "intuition",
+        "front": "Decide the trigger in advance",
+        "back": "What number, at what level, sustained how long — before the deploy. A rollback criterion invented during an incident gets NEGOTIATED by whoever has the most at stake."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The audit question, and the tool criterion",
+        "back": "Not \"do we have CI\" but **\"which of the three artifacts can reach production without a gate?\"** — usually two. And for any tool: does it convert a SILENT failure into a LOUD one, and at which seam?"
+      }
+    ],
+    "refs": [
+      {
+        "title": "Google Cloud, MLOps: Continuous Delivery and Automation Pipelines in Machine Learning",
+        "url": "https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning"
+      },
+      {
+        "title": "Breck, Cai, Nielsen, Salib & Sculley (2017), The ML Test Score",
+        "url": "https://research.google/pubs/pub46555/"
+      },
+      {
+        "title": "Forsgren, Humble & Kim (2018), Accelerate: The Science of Lean Software and DevOps",
+        "url": "https://itrevolution.com/product/accelerate/"
+      },
+      {
+        "title": "Google SRE Book, Release Engineering and Canarying",
+        "url": "https://sre.google/sre-book/release-engineering/"
+      },
+      {
+        "title": "Johari, Koomen, Pekelis & Walsh (2017), Peeking at A/B Tests",
+        "url": "https://dl.acm.org/doi/10.1145/3097983.3097992"
+      }
+    ],
+    "demos": [
+      "canary-rollout",
+      "autoscaling",
+      "drift-detection",
+      "cross-validation"
+    ]
+  }
+};

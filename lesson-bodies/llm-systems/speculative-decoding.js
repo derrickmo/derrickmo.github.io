@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/llm-systems/speculative-decoding.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/llm-systems/speculative-decoding/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "speculative-decoding": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "This technique is unintelligible without the module's central fact and obvious with it. Generating one token requires READING every weight in the model and the entire KV cache to perform one token's worth of arithmetic - arithmetic intensity of about one, against hardware whose ratio of compute to bandwidth is in the hundreds. So the accelerator is idle almost the whole time, waiting on memory. And crucially, a forward pass over k tokens costs almost exactly what a forward pass over one token costs, because you read the same weights either way and the extra arithmetic is free capacity you were not using.",
+        "That is the entire opportunity. If you can GUESS the next k tokens cheaply and VERIFY them in a single forward pass of the big model, the verification is nearly free and any tokens you guessed correctly are pure profit. The standard construction uses a small DRAFT model - the same family, much smaller - to generate k tokens autoregressively, which is cheap because the draft is small, and then runs the target model once over all of them to check.",
+        "The part that makes it more than a heuristic is that it is EXACT. With the right acceptance rule - accept token i with probability equal to the ratio of the target's probability to the draft's, capped at one, and on rejection sample from the normalized positive residual between the two distributions - the sequence produced has EXACTLY the target model's distribution. Not approximately: the same distribution, provably. So you are not trading quality for speed, which is unusual and is why the technique was adopted so quickly. What you are trading is compute you were not using anyway, and the honest caveat is that this stops being true at large batch, where you are already compute-bound and the free capacity has been spent - which makes speculation a latency technique more than a throughput one."
+      ],
+      "math": [
+        {
+          "h": "Why k tokens cost the same as one",
+          "paras": [
+            "The forward pass reads the parameters once regardless of how many positions it processes. With one position the arithmetic is negligible against that read; with k positions it is k times negligible.",
+            "So the cost is flat in k until k grows large enough that the arithmetic starts to matter - which for the small k speculation uses, it does not."
+          ],
+          "tex": "t(k) \\approx \\max\\!\\Big(\\underbrace{\\tfrac{2P}{\\beta_{\\text{mem}}}}_{\\text{read the weights}},\\; \\underbrace{\\tfrac{2Pk}{P_{\\text{peak}}}}_{\\text{arithmetic}}\\Big) \\;\\approx\\; t(1) \\quad \\text{for } k \\ll \\tfrac{P_{\\text{peak}}}{\\beta_{\\text{mem}}}",
+          "texNote": "The crossover is at k of order the hardware's FLOP-to-bandwidth ratio, which is in the hundreds - so for the k of four to eight that speculation uses, verification of k tokens genuinely costs about one token's time. This is the same fact that makes batching effective, applied along the sequence dimension instead of the batch dimension."
+        },
+        {
+          "h": "The acceptance rule, and why the output is exact",
+          "paras": [
+            "Accept the draft's token with probability equal to the ratio of target to draft probability, capped at one. If rejected, resample from the difference between the two distributions, clipped at zero and renormalized.",
+            "That construction is modified rejection sampling, and it makes the resulting token's distribution exactly the target's - which is the property that makes this lossless rather than an approximation."
+          ],
+          "tex": "\\text{accept } x \\text{ w.p. } \\min\\!\\Big(1, \\tfrac{p(x)}{q(x)}\\Big); \\;\\text{else draw from}\\; p'(x) = \\frac{\\max\\big(0,\\, p(x)-q(x)\\big)}{\\sum_{x'} \\max\\big(0,\\, p(x')-q(x')\\big)}",
+          "texNote": "p is the target, q is the draft. The proof is a short case analysis: summing the probability of accepting x with the probability of rejecting and then drawing x from the residual gives exactly p(x). Note that the draft's quality affects only the ACCEPTANCE RATE and never the output distribution - a terrible draft makes the technique slow, never wrong, which is a very forgiving property."
+        },
+        {
+          "h": "Expected tokens per step, and the speedup",
+          "paras": [
+            "With per-token acceptance probability alpha, the run of accepted tokens is geometric and truncated at k, plus one token always produced by the target itself.",
+            "The speedup is that expected yield divided by the cost of one target pass plus k draft passes."
+          ],
+          "tex": "\\mathbb{E}[\\text{tokens}] = \\frac{1 - \\alpha^{k+1}}{1 - \\alpha}, \\qquad \\text{speedup} \\approx \\frac{\\mathbb{E}[\\text{tokens}]}{1 + k\\,c}, \\quad c = \\tfrac{t_{\\text{draft}}}{t_{\\text{target}}}",
+          "texNote": "Read the trade in k: larger k raises the ceiling on tokens per step and costs more draft passes, so there is an interior optimum that depends on alpha and on the draft-to-target cost ratio. At alpha around 0.8 and a draft costing a twentieth of the target, k of four to six is typically near-optimal and yields something like a two-to-three-fold speedup - and note the yield saturates as alpha^(k+1) vanishes, so pushing k further only adds draft cost."
+        }
+      ],
+      "code": [
+        {
+          "h": "The draft-verify loop, with the acceptance rule that makes it exact",
+          "paras": [
+            "The whole algorithm. The rejection branch is the part that must be right - a simpler rule that merely accepts on argmax match would change the output distribution and forfeit the technique's main property."
+          ],
+          "code": "def speculative_step(target, draft, ctx, k=5):\n    # 1. DRAFT k tokens autoregressively. Cheap - the draft is small.\n    drafted, q_probs = [], []\n    cur = ctx\n    for _ in range(k):\n        q = draft(cur).softmax(-1)\n        x = torch.multinomial(q, 1)\n        drafted.append(x); q_probs.append(q[x])\n        cur = torch.cat([cur, x])\n\n    # 2. VERIFY all k in ONE target forward pass. This costs about what ONE\n    #    token costs, because the pass is BANDWIDTH-bound: you read the same\n    #    weights whether you score 1 position or k.\n    p_all = target(torch.cat([ctx] + drafted)).softmax(-1)   # k+1 distributions\n\n    # 3. ACCEPT / REJECT, left to right.\n    accepted = []\n    for i, x in enumerate(drafted):\n        p, q = p_all[i][x], q_probs[i]\n        if torch.rand(1) < min(1.0, p / q):\n            accepted.append(x)                    # accept and continue\n        else:\n            # REJECT: resample from the normalized POSITIVE RESIDUAL.\n            resid = (p_all[i] - q_dist[i]).clamp(min=0)\n            accepted.append(torch.multinomial(resid / resid.sum(), 1))\n            return accepted                       # stop - the rest are invalid\n\n    # 4. All k accepted -> the target's own next token is FREE, since its\n    #    distribution at position k+1 was already computed in the same pass.\n    accepted.append(torch.multinomial(p_all[k], 1))\n    return accepted\n\n# THE EXACTNESS PROPERTY: P(output = x) works out to exactly p(x) - accept x\n# with probability min(1, p/q) times q(x), plus reject-then-draw-x-from-residual.\n# So the DRAFT'S QUALITY AFFECTS ONLY THE SPEED, never the distribution. A bad\n# draft makes this slow; it can never make it wrong. Unusually forgiving.\n#\n# THE COMMON WRONG IMPLEMENTATION: accepting when the draft's argmax equals the\n# target's argmax. Simple, and it CHANGES THE OUTPUT DISTRIBUTION - you have\n# silently switched to greedy-ish decoding and forfeited the property that made\n# the technique worth using.",
+          "caption": "The rejection branch is what makes this lossless: resampling from the positive residual rather than from the target directly is what makes the total probability come out to exactly p(x). Accepting on argmax match is simpler and quietly changes what you are sampling from."
+        },
+        {
+          "h": "What determines the speedup, and when it stops working",
+          "paras": [
+            "The acceptance rate is everything, and the batch-size interaction is the caveat that decides whether this belongs in your serving stack at all."
+          ],
+          "code": "# EXPECTED TOKENS PER STEP = (1 - alpha^(k+1)) / (1 - alpha)\n#   alpha = 0.6, k = 5  ->  ~2.3 tokens/step\n#   alpha = 0.8, k = 5  ->  ~3.4\n#   alpha = 0.9, k = 5  ->  ~4.1     (saturating - larger k adds little)\n# SPEEDUP ~ E[tokens] / (1 + k * draft_cost_ratio)\n\n# WHAT RAISES ALPHA - it is all about draft-target agreement:\n#   SAME FAMILY and SAME TOKENIZER          <- essential; a mismatched\n#                                              tokenizer makes this unworkable\n#   draft ~10-20x smaller                   <- big enough to agree, small\n#                                              enough to be cheap\n#   draft trained/distilled ON the target   <- the strongest single lever\n#   easy, predictable text                  <- alpha varies enormously by\n#                                              content: boilerplate and code\n#                                              accept far better than novel prose\n\n# ---- THE HONEST CAVEAT: THE BATCH INTERACTION ----\n# Speculation spends SPARE COMPUTE. At batch 1 there is a great deal of it and\n# the extra tokens are nearly free. As batch size grows, arithmetic intensity\n# rises toward compute-bound and the spare capacity DISAPPEARS - the verify\n# pass now genuinely costs k times as much, and the draft passes cost real time.\n#\n#   small batch (interactive)  -> large speedup; this is a LATENCY technique\n#   large batch (throughput)   -> gains shrink and can go NEGATIVE\n#\n# So it is not a throughput technique, and a serving system may reasonably\n# enable it under low load and disable it under high load.\n\n# VARIANTS THAT REMOVE THE SEPARATE DRAFT MODEL:\n#   MEDUSA        extra heads on the target predicting several future tokens,\n#                 verified as a tree - no second model to serve or align\n#   EAGLE         draft at the FEATURE level rather than the token level, which\n#                 raises alpha substantially for a small extra head\n#   LOOKAHEAD     n-gram guesses from the generation so far - no draft at all\n#   PROMPT LOOKUP copy candidate continuations FROM THE PROMPT. Free, trivial,\n#                 and very effective for summarization, editing and RAG, where\n#                 the output overlaps the input heavily.",
+          "caption": "Prompt lookup is worth knowing because it costs nothing: when the output overlaps the input - summarization, editing, retrieval-augmented answering - copying candidate spans from the prompt gives a high acceptance rate with no draft model at all."
+        }
+      ],
+      "useCases": [
+        "Interactive serving at low batch size, where latency is the metric and the accelerator has abundant spare arithmetic - the regime this technique was designed for and where the gains are largest.",
+        "Summarization, editing and retrieval-augmented generation, where the output overlaps the input heavily and prompt lookup gives a high acceptance rate with no draft model and no additional memory.",
+        "Code completion, where the text is highly predictable and a small draft agrees with the target often, pushing the acceptance rate and therefore the speedup well above the general-text case.",
+        "Any deployment where a small model of the same family already exists, since draft-target agreement is the dominant factor and a same-family, same-tokenizer draft is most of the work."
+      ],
+      "pitfalls": [
+        "Accepting when the draft and target argmaxes agree. It is the obvious simplification and it changes the output distribution - you have silently switched to a different decoding scheme and forfeited the exactness that justified the technique.",
+        "Resampling from the target on rejection rather than from the positive residual. That also breaks exactness; the residual construction is precisely what makes the total probability come out to the target's.",
+        "Using a draft with a different tokenizer. The verification compares distributions over the same vocabulary, so a mismatch makes the scheme unworkable rather than merely inefficient. Same family and same tokenizer is close to a precondition.",
+        "Expecting a throughput gain at high batch. Speculation spends spare arithmetic, and at large batch you are already compute-bound so there is none - the gains shrink and can turn negative. It is a latency technique.",
+        "Tuning k upward indefinitely. Expected tokens saturate as the acceptance rate to the k-th power vanishes, so beyond the knee you are paying more draft passes for almost nothing. The optimum is interior and depends on the acceptance rate.",
+        "Ignoring the draft's memory cost. A second model must be resident, which competes with the KV cache for the memory that determines your batch size - so the technique's benefit has to be weighed against a smaller servable batch.",
+        "Measuring the speedup on easy text only. The acceptance rate varies enormously with content - boilerplate and code accept far better than novel prose - so a benchmark on predictable text overstates what production will see."
+      ],
+      "connections": [
+        {
+          "ref": "llm-systems/llm-architectures",
+          "text": "Where the bandwidth-bound argument is established. Speculative decoding is unintelligible without it and obvious with it: a k-token forward pass costs what a one-token pass costs because the weight read dominates either way."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "The other attack on the same bottleneck. Quantization reduces bytes read per token; speculation amortizes the read over more tokens. Orthogonal mechanisms, and they compose."
+        },
+        {
+          "ref": "llm-systems/distillation",
+          "text": "Where a good draft model comes from. Draft-target agreement is what determines the acceptance rate, and distilling the draft from the target is the strongest single lever on it."
+        },
+        {
+          "ref": "mlops/model-serving",
+          "text": "Where the batch-size interaction is resolved operationally - continuous batching, paged attention and admission control decide the batch, and the batch decides whether speculation is helping or hurting."
+        },
+        {
+          "ref": "transformers/kv-cache",
+          "text": "The cache complication: rejected tokens' entries must be discarded and the cache truncated to the accepted prefix, which is straightforward with paged allocation and fiddly without it."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "Why does speculative decoding work at all?",
+          "a": "Decoding is memory-bandwidth-bound, so a forward pass over k tokens costs about what a pass over one token costs - you read the same weights either way."
+        },
+        {
+          "q": "What is the algorithm?",
+          "a": "A small draft model generates k tokens autoregressively, the target model scores all of them in one pass, and you accept the longest valid prefix."
+        },
+        {
+          "q": "What is the acceptance rule?",
+          "a": "Accept the drafted token with probability min(1, target probability over draft probability); on rejection, sample from the normalized positive residual between the distributions."
+        },
+        {
+          "q": "Why is the output exact?",
+          "a": "The accept-or-resample-from-residual construction is modified rejection sampling, so the resulting token's distribution is exactly the target's - not an approximation."
+        },
+        {
+          "q": "What does a bad draft model cost you?",
+          "a": "Speed only. Draft quality affects the acceptance rate and never the output distribution, so a poor draft makes it slow and can never make it wrong."
+        },
+        {
+          "q": "What is the common wrong implementation?",
+          "a": "Accepting when the draft and target argmaxes agree. Simpler, and it changes the output distribution - you have silently switched to a different decoding scheme."
+        },
+        {
+          "q": "What is the expected tokens per step?",
+          "a": "(1 - alpha^(k+1)) / (1 - alpha) for per-token acceptance probability alpha. At alpha 0.8 and k 5 that is about 3.4 tokens."
+        },
+        {
+          "q": "What raises the acceptance rate?",
+          "a": "Draft-target agreement: same family, same tokenizer, a draft ten to twenty times smaller, and ideally one distilled from the target."
+        },
+        {
+          "q": "Why does speculation stop helping at large batch?",
+          "a": "It spends spare arithmetic, and at large batch you are already compute-bound with none spare - so the gains shrink and can turn negative. It is a latency technique."
+        },
+        {
+          "q": "Why is there an optimal k?",
+          "a": "Expected tokens saturate as alpha to the k-th power vanishes, while each additional draft token costs a draft pass. So the yield plateaus and the cost does not."
+        },
+        {
+          "q": "What is prompt lookup decoding?",
+          "a": "Drafting by copying candidate continuations from the prompt. Free, needs no model, and very effective where the output overlaps the input - summarization, editing, RAG."
+        },
+        {
+          "q": "What is Medusa?",
+          "a": "Extra prediction heads on the target model itself, guessing several future tokens and verified as a tree - removing the need for a separate draft model to serve and align."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain speculative decoding and prove that it is exact.",
+          "a": "THE PREMISE, which makes the whole thing legible. Autoregressive decoding is MEMORY-BANDWIDTH-BOUND: producing one token requires reading every weight and the entire KV cache, to do one token's worth of arithmetic. Arithmetic intensity is about one against hardware ratios in the hundreds, so the accelerator is mostly idle. And the consequence that matters: a forward pass over k positions costs about what a pass over one position costs, because the weight read dominates and the extra arithmetic uses capacity you were not using. THE ALGORITHM. A small DRAFT model generates k tokens autoregressively - cheap, because it is small. The TARGET model then scores all k+1 positions in a SINGLE forward pass, which costs roughly one token's time. Then you walk the drafted tokens left to right and accept or reject each. THE ACCEPTANCE RULE. For a drafted token x with target probability p(x) and draft probability q(x): accept with probability min(1, p(x)/q(x)). If rejected, stop and sample the replacement from the normalized POSITIVE RESIDUAL, max(0, p - q) divided by its sum - then discard the remaining drafted tokens. If all k are accepted, the target's own distribution at position k+1 was already computed in the same pass, so that token is free too. THE EXACTNESS PROOF, which is short. Consider the probability that the final token is x. Two disjoint routes. FIRST, the draft proposed x and it was accepted: probability q(x) times min(1, p(x)/q(x)), which equals min(q(x), p(x)). SECOND, the draft proposed something else and it was rejected, and then x was drawn from the residual. The total rejection probability is the sum over y of q(y) times (1 - min(1, p(y)/q(y))), which simplifies to the sum over y of max(0, q(y) - p(y)) - and that equals the residual's normalizer, since the two distributions both sum to one so the positive and negative discrepancies are equal in total mass. Multiplying by the residual's probability of x, max(0, p(x) - q(x)) over that normalizer, gives simply max(0, p(x) - q(x)). Adding the two routes: min(q, p) plus max(0, p - q) equals p, in both cases - if p is less than q the first term is p and the second is zero; if p exceeds q the first is q and the second is p - q. So the total is exactly p(x). THE CONSEQUENCE, which is the technique's most attractive property: THE DRAFT'S QUALITY AFFECTS ONLY THE SPEED. A poor draft gives a low acceptance rate and therefore a small speedup, and it can never change the output distribution. That is unusually forgiving and it means you can deploy speculation without any quality validation of the draft. THE PERFORMANCE MODEL. Expected tokens per step is (1 - alpha^(k+1))/(1 - alpha), and the speedup is that divided by one plus k times the draft-to-target cost ratio. At an acceptance rate around 0.8 with k of five, that is about 3.4 tokens per target pass, giving a two-to-three-fold speedup in practice. THE CAVEAT I WOULD RAISE UNPROMPTED. This spends SPARE COMPUTE, and spare compute exists only at small batch. As batching pushes you toward compute-bound, the verification genuinely costs k times as much and the draft passes cost real time - so the gain shrinks and can go negative. Speculative decoding is a LATENCY technique, not a throughput one, and a serving system may reasonably enable it under low load and disable it under high load.",
+          "deepDive": {
+            "q": "How would you choose and build a draft model?",
+            "a": "THE OBJECTIVE IS AGREEMENT, NOT QUALITY, and separating those is the key insight. The acceptance rate is determined by how often the draft's distribution resembles the target's, not by how good the draft is in absolute terms. A draft that is excellent but disagrees with the target is worse than a mediocre one that agrees. THE HARD REQUIREMENTS. (1) THE SAME TOKENIZER. Verification compares probabilities over the same vocabulary at the same positions, so a mismatch makes the scheme unworkable rather than merely inefficient. There is work on cross-tokenizer speculation but it is substantially more complicated and lossier. (2) The same context handling and position scheme, so the draft is conditioned equivalently. THE SIZE CHOICE, which is a genuine optimization. The draft's cost enters the speedup as k times the cost ratio, so it must be much smaller - typically ten to twenty times. But smaller drafts agree less, lowering alpha. Since expected tokens rise sublinearly in alpha while cost rises linearly in the draft size, there is an interior optimum, and in practice something in the range of a twentieth to a tenth of the target is where people land. I would sweep it rather than assume. HOW TO GET A GOOD DRAFT, in order of effect. (1) DISTIL IT FROM THE TARGET. This is the strongest single lever, and it is a different objective from ordinary distillation: you are optimizing for AGREEMENT with the target's distribution, which is exactly what token-level KD does. A draft distilled on the target's outputs on production-like prompts will have a much higher acceptance rate than an off-the-shelf small model of the same size. (2) USE THE SAME FAMILY, since a smaller model from the same pretraining run shares the tokenizer, the data distribution and much of the learned structure. Many model families ship small variants precisely for this. (3) TRAIN IT ON THE PRODUCTION PROMPT DISTRIBUTION, because acceptance varies enormously by content and you want agreement where your traffic lives. THE ALTERNATIVES THAT AVOID A SEPARATE MODEL, and they are increasingly the practical answer. MEDUSA adds extra prediction heads to the target itself, each guessing a further-ahead token, verified as a tree of candidates. No second model to serve, align or keep in memory - and that memory matters, since a resident draft competes with the KV cache for the space that determines your batch size. EAGLE drafts at the FEATURE level rather than the token level, predicting the target's next hidden state, which raises the acceptance rate substantially for a small head. LOOKAHEAD generates n-gram candidates from the generation so far with no model at all. And PROMPT LOOKUP simply copies candidate spans from the prompt, which is free and remarkably effective wherever output overlaps input - summarization, editing, retrieval-augmented answering - because in those tasks large stretches of the output are literally present in the input. HOW I WOULD EVALUATE A DRAFT. Measure the acceptance rate on REAL traffic, broken down by request type, because the variance is large - code and boilerplate accept far better than novel prose, and an average over a mixed workload hides that. Then compute the expected speedup from the formula and check it against measured end-to-end latency, since the formula ignores the overhead of the accept-reject bookkeeping and the KV-cache truncation on rejection. If measured falls well short of predicted, that overhead is where to look."
+          }
+        },
+        {
+          "q": "Why does speculative decoding interact badly with batching?",
+          "a": "BECAUSE IT SPENDS A RESOURCE THAT BATCHING ALSO SPENDS, and once batching has spent it there is none left. THE MECHANISM. At batch one, decoding has arithmetic intensity of about one - you read all the weights to do one token's arithmetic - so the accelerator's arithmetic units are almost entirely idle. Verifying k tokens uses some of that idle capacity, so it is nearly free. That is the whole basis of the technique. Batching raises arithmetic intensity roughly linearly: with b sequences you read the weights once and do b times the arithmetic. Somewhere around a batch in the hundreds, depending on the hardware's FLOP-to-bandwidth ratio, you cross into compute-bound. At that point the arithmetic units are busy, there is no spare capacity, and verifying k tokens genuinely costs about k times as much as verifying one - while the draft passes cost real time on top. THE CONSEQUENCE. The speedup is largest at batch one and decays as batch grows, and past the compute-bound crossover it can go NEGATIVE - you are doing strictly more arithmetic for the same output. So speculative decoding is a LATENCY technique. It reduces time to produce a token for a single request; it does not increase the total tokens per second a server can produce under load, and it can reduce it. THE OPERATIONAL CONSEQUENCE, which is how real systems handle it. Make it load-dependent: enable speculation when the batch is small and disable it when the server is busy. That is a scheduler policy rather than a model configuration, and it recognizes that the technique's value is a function of the current load rather than of the model. Some systems do this dynamically per step. THE SECOND INTERACTION, on memory. The draft model must be RESIDENT, and memory is what bounds the batch size in serving - so the draft is competing for the space that would otherwise hold KV cache for more concurrent requests. A draft that is a twentieth of the target is a modest cost, but it is a cost paid against the quantity that determines throughput. This is a further argument for the draft-free variants - Medusa's extra heads, prompt lookup - which add little or no resident memory. THE THIRD INTERACTION, which is a systems detail. Different sequences in a batch accept different numbers of tokens, so after a speculative step the sequences are at different lengths and the batch becomes ragged. Handling that efficiently requires the scheduler to cope with variable per-step progress, which continuous batching already does but which adds complexity. THE WAY I WOULD FRAME THE DECISION. Ask what your service is optimizing. If it is interactive latency at modest concurrency - a coding assistant, a chat interface with few simultaneous users - speculation is excellent. If it is throughput under heavy load - batch processing, a high-traffic API - it is at best neutral and possibly harmful, and the same engineering effort spent on batching, paged attention and quantization will do more. That is the module's framing applied: know which resource binds before spending anything."
+        },
+        {
+          "q": "What other techniques make LLM inference faster, and how do they relate?",
+          "a": "I WOULD ORGANIZE THEM BY WHICH TERM THEY ATTACK, since decoding's constraint is bytes read per generated token and everything is an assault on some part of that. REDUCE BYTES PER PARAMETER: quantization. Four-bit weights are four times fewer bytes to stream, which is a near-proportional decode speedup. Mature, post-hoc, composes with everything. REDUCE THE NUMBER OF PARAMETERS: distillation, and structured pruning. Both require training or fine-tuning and both change the model. REDUCE THE CACHE READ PER TOKEN: grouped-query attention, decided at pretraining time and unchangeable afterwards; KV-cache quantization, which is post-hoc and increasingly important at long context; and cache eviction or sliding-window attention, which bound what is read. AMORTIZE THE READ OVER MORE TOKENS: two ways, and they are the interesting ones. BATCHING amortizes over more SEQUENCES and is the single highest-leverage serving technique - continuous batching, admitting new requests as others finish rather than waiting for a whole batch, is what makes it work with variable-length generation. SPECULATIVE DECODING amortizes over more POSITIONS within one sequence. They spend the same resource, which is why they interact as they do. RECOVER WASTED MEMORY: paged attention, which is not a speedup mechanism directly but removes the fragmentation that was wasting a large share of KV-cache memory - and since memory bounds the batch and the batch bounds throughput, it converts into throughput. It is this curriculum's caching-allocator problem rediscovered one level up, with the same fix operating systems reached: fixed-size pages plus an indirection table. AVOID THE WORK ENTIRELY: prefix caching, so a shared system prompt is prefilled once and reused across requests; semantic caching for repeated queries; and model cascades, routing easy requests to a small model and escalating only when needed. These are often the largest wins available and they are architectural rather than kernel-level. HOW THEY COMPOSE. Quantization, distillation and GQA all reduce bytes and stack multiplicatively. Batching and speculation both amortize and therefore COMPETE - they draw on the same spare capacity. Paged attention enables larger batches, which strengthens batching and weakens speculation. So the composition is not simply additive and the interactions have signs. WHAT I WOULD DO FIRST on a real deployment. Batching with paged attention, because it is the largest single lever and it addresses the throughput metric that usually matters. Then quantization, because it is post-hoc and mature. Then prefix caching if there is a shared prompt, which is often free and substantial. Then speculation, only if the workload is latency-sensitive at low concurrency. That ordering follows from asking which resource binds - which is the same discipline as everywhere in this curriculum, applied to serving.",
+          "deepDive": {
+            "q": "Explain the prefill and decode distinction and why serving systems separate them.",
+            "a": "TWO PHASES WITH OPPOSITE CHARACTERISTICS, in the same request. PREFILL processes the entire prompt at once. All prompt positions go through the model in parallel, so the weights are amortized over the prompt length exactly as training amortizes over batch times sequence. Arithmetic intensity is high, the matmuls are large, and prefill is COMPUTE-BOUND - it behaves like training. Its cost scales with prompt length, and its latency determines TIME TO FIRST TOKEN. DECODE produces one token at a time, each conditioned on everything before it. One position per forward pass, so the weights are read for one token's arithmetic. Arithmetic intensity is about one and decode is MEMORY-BANDWIDTH-BOUND. Its cost scales with the number of generated tokens, and it determines INTER-TOKEN LATENCY. WHY THAT MATTERS OPERATIONALLY - four consequences. (1) THEY HAVE DIFFERENT OPTIMAL BATCH SIZES. Prefill is already compute-bound, so batching it adds little and mainly increases memory pressure. Decode is bandwidth-bound and batching is transformative. A scheduler that batches them identically is wrong for one of them. (2) MIXING THEM IN ONE BATCH IS AWKWARD. A batch containing one prefill of two thousand tokens and thirty decodes of one token each has wildly heterogeneous work per sequence, and the whole batch waits for the prefill. That is why a long prompt arriving mid-stream causes a latency spike for every other in-flight request - a real and commonly-observed production symptom. The fix is CHUNKED PREFILL: split the prompt into pieces and interleave them with decode steps, so no single prefill monopolizes a step. (3) THEY HAVE DIFFERENT SERVICE-LEVEL OBJECTIVES. Time to first token is a prefill metric; inter-token latency is a decode metric. Optimizing one can hurt the other, and a system reporting only end-to-end latency cannot see the trade. Both should be measured and targeted separately. (4) DISAGGREGATED SERVING, which is the logical endpoint: run prefill and decode on SEPARATE hardware pools, sized and configured differently, passing the KV cache between them. Prefill wants compute; decode wants bandwidth and memory. Separating them lets each pool be tuned and scaled independently, and it is increasingly done at scale. THE INTERACTION WITH SPECULATION, since that is this lesson's subject. Speculation applies only to DECODE - prefill is already processing many positions in parallel and is compute-bound, so there is no spare capacity to speculate into. That is a clean statement of when the technique is applicable and it follows directly from the regime distinction. THE INTERACTION WITH CACHING. Prefill's output is the KV cache for the prompt, so if the prompt has a shared prefix - a system prompt, a retrieved document reused across queries - that prefill can be done ONCE and reused. Prefix caching is therefore a prefill optimization specifically, and for workloads with long shared prompts it is often the single largest available win, larger than anything on the decode side. WHY I FIND THIS THE MOST USEFUL FRAME for serving. The two phases have opposite bottlenecks, and almost every serving technique targets exactly one of them. Knowing which phase a technique addresses tells you immediately whether it applies to your workload - a long-prompt short-output workload is prefill-dominated and speculation will do nothing for it, while a short-prompt long-output workload is the reverse."
+          }
+        },
+        {
+          "q": "How would you measure whether speculative decoding is helping?",
+          "a": "THE METRICS, and the choice matters because the wrong one gives a confident wrong answer. (1) ACCEPTANCE RATE, per position and overall. This is the fundamental quantity - everything else follows from it - and it should be logged continuously, not measured once. Break it down BY REQUEST TYPE, because the variance is large: code and boilerplate accept far better than novel prose, so an average over mixed traffic hides which workloads are benefiting. (2) MEAN TOKENS PER TARGET FORWARD PASS, which is the direct efficiency measure and can be compared against the theoretical (1 - alpha^(k+1))/(1 - alpha). A gap between measured and predicted means the acceptance is position-dependent - later drafted tokens accept less often, because errors compound in the draft's own autoregressive generation - which the geometric model does not capture. (3) END-TO-END LATENCY, which is the thing you actually care about: time to first token and inter-token latency, reported separately, since speculation affects only the second. (4) THROUGHPUT UNDER LOAD, measured at your actual concurrency - because this is where speculation can be NEGATIVE and where a batch-one benchmark is actively misleading. THE MEASUREMENT DESIGN, which is where this goes wrong. Benchmark at YOUR batch size and YOUR request mix, not at batch one on curated prompts. Speculation's benefit is a strong function of both, so a benchmark that fixes them at the favourable end produces a number that will not survive production. I would sweep batch size and plot speedup against it, which shows the crossover directly and tells the scheduler where to switch the feature off. THE CORRECTNESS CHECK, which is separate and should not be skipped despite the exactness proof. Generate with and without speculation from the same seed and compare the output DISTRIBUTIONS - not the exact strings, since the sampling paths differ, but statistics over many generations: mean length, token-frequency distribution, and downstream task performance. The theory says these should match; an implementation bug in the acceptance rule would show as a systematic difference, and the argmax-matching mistake in particular would show as noticeably less diverse output. That is a cheap test for a bug whose symptom is otherwise invisible. WHAT I WOULD TUNE FROM THE MEASUREMENTS. k, against the measured acceptance rate, remembering the yield saturates. The draft size, against the cost ratio. And the load threshold at which to disable it. All three are read off the curves rather than guessed. THE THING I WOULD WATCH FOR IN PRODUCTION. Acceptance rate DRIFTING - if the traffic mix changes, or the target model is updated without updating the draft, agreement falls and the speedup quietly evaporates while the draft's cost remains. That is a slow degradation with no error, so it needs a monitored metric rather than a one-time validation. Pairing a target-model deployment with a draft-model check is the operational discipline that prevents it."
+        },
+        {
+          "q": "How would you choose and obtain a draft model?",
+          "a": "THE DRAFT MODEL IS THE ENTIRE DESIGN DECISION, because the speedup is a product of two quantities the draft controls in opposite directions: the ACCEPTANCE RATE, which wants the draft to be as close to the target as possible, and the DRAFT COST, which wants it to be as cheap as possible. Make the draft too weak and few tokens are accepted; make it too strong and you have paid a large fraction of the target's cost to save it. THE RULE OF THUMB is a draft roughly an order of magnitude smaller than the target - a 7B target with a 1B or smaller draft, or a 70B target with a 7B draft. At that ratio the draft's forward pass is small relative to the target's, so even a moderate acceptance rate wins. THE OPTIONS, in increasing order of effort. (1) A SMALLER MODEL FROM THE SAME FAMILY, trained on the same data with the same tokenizer. This is the easiest and often the best, because acceptance depends on distributional agreement and same-family models agree. THE TOKENIZER MUST MATCH EXACTLY - the algorithm compares probabilities over a shared vocabulary, so a different tokenizer is not a smaller detail, it is disqualifying. (2) A DISTILLED DRAFT, trained specifically to match the target's output distribution. Distillation's objective is exactly acceptance rate, so this is the principled choice and it measurably raises acceptance over an off-the-shelf small model. It costs a training run. (3) SELF-SPECULATION - use the target itself with layers skipped, or with early-exit, as its own draft. No separate model to maintain and the tokenizer matches by construction. (4) N-GRAM OR RETRIEVAL DRAFTING - no model at all, just propose continuations from the prompt or a cache. Nearly free, and it works surprisingly well on tasks with heavy copying, such as summarization, editing and code completion where much of the output is present in the input. (5) MEDUSA-STYLE MULTIPLE HEADS on the target, predicting several positions ahead. HOW I WOULD ACTUALLY DECIDE. Measure the acceptance rate on REAL traffic for each candidate - it is workload-dependent and the ordering changes by task, with copy-heavy workloads favouring the cheap retrieval approach and open-ended generation favouring a trained draft. Then compute the expected speedup with the draft's cost included and pick the maximum. THE DETAIL PEOPLE MISS: k, the number of speculated tokens, should be TUNED per workload too, and it interacts with acceptance - a high acceptance rate justifies a larger k, while a low one wastes target compute on tokens that will be rejected. The expected accepted length is roughly geometric in the acceptance rate, so k past a few times that expectation buys nothing."
+        },
+        {
+          "q": "Why is this the purest illustration of the module's framing?",
+          "a": "BECAUSE THE TECHNIQUE IS UNINTELLIGIBLE WITHOUT THE FRAMING AND OBVIOUS WITH IT, which is a strong test of whether a framing is doing real work. WITHOUT IT, the proposal sounds absurd. You are going to run a SECOND model to guess tokens, then run the big model anyway to check them, and this will be FASTER? That is strictly more computation for the same output. Every instinct trained on compute-bound thinking says this cannot help. WITH IT, it is immediate. Decoding is memory-bandwidth-bound with arithmetic intensity around one: you read every weight to produce one token, and the arithmetic units are idle almost the entire time. A forward pass over k positions costs the same as over one, because the weight read dominates. So the verification is nearly free, the draft is small and therefore cheap, and any correctly-guessed tokens are pure profit. The technique is not doing more work in any sense that costs you - it is using capacity that was being wasted. WHAT THIS DEMONSTRATES ABOUT THE TWO REGIMES. The same operation - a forward pass - has completely different economics depending on regime. In training, processing k times as many positions costs k times as much, because you are compute-bound and the arithmetic is what you pay for. In single-stream decoding it costs the same, because you are bandwidth-bound. Someone carrying training intuition into inference would never invent speculative decoding, and someone with the regime distinction would find it natural. THE PREDICTIONS THE FRAMING MAKES, which is the stronger evidence that it is right. It predicts that speculation helps at SMALL batch and stops helping at large batch - because batching is the other way to raise arithmetic intensity, and once it has been raised there is no spare capacity. That is exactly what is observed. It predicts that speculation is a LATENCY technique rather than a throughput one, which is how serving systems treat it. It predicts that speculation does not apply to PREFILL, since prefill already processes many positions in parallel and is compute-bound. And it predicts that quantization and speculation COMPOSE, since one reduces bytes read and the other amortizes the read - different terms. All four fall out of the framing rather than needing separate discovery. THE GENERAL LESSON I WOULD DRAW. A good systems framing does not merely organize what you already know; it makes techniques derivable and their limits predictable. Knowing that decoding is bandwidth-bound with intensity one lets you estimate decode latency from parameter count and memory bandwidth, predict which optimizations will help, and recognize when someone's proposal is a training-regime intuition misapplied. That is worth more than any individual technique in this module."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "Why speculative decoding works at all",
+        "back": "Decode is BANDWIDTH-bound (intensity ~1), so a forward pass over k positions costs about what a pass over ONE costs - you read the same weights either way. Verification is nearly free; correctly-guessed tokens are pure profit."
+      },
+      {
+        "type": "formula",
+        "front": "The acceptance rule",
+        "back": "Accept drafted x with probability min(1, p(x)/q(x)) where p = target, q = draft. On REJECTION, sample from the normalized POSITIVE RESIDUAL max(0, p - q), then discard the remaining drafts."
+      },
+      {
+        "type": "formula",
+        "front": "Why the output is EXACT",
+        "back": "P(x) = min(q,p) [accepted] + max(0, p-q) [rejected then drawn from residual] = p(x), in both cases. So the DRAFT'S QUALITY AFFECTS ONLY SPEED - a bad draft is slow, never wrong. Unusually forgiving."
+      },
+      {
+        "type": "pitfall",
+        "front": "The common wrong implementation",
+        "back": "Accepting when draft and target ARGMAXES agree. Simpler, and it CHANGES the output distribution - you have silently switched to a different decoding scheme and forfeited exactness. Same for resampling from p rather than the residual."
+      },
+      {
+        "type": "formula",
+        "front": "Expected tokens per step",
+        "back": "(1 - alpha^(k+1))/(1 - alpha). alpha=0.8, k=5 -> ~3.4 tokens. Speedup ~ that / (1 + k*draft_cost_ratio). The yield SATURATES as alpha^(k+1) vanishes, so there is an interior optimal k."
+      },
+      {
+        "type": "intuition",
+        "front": "The objective for a draft is AGREEMENT, not quality",
+        "back": "Acceptance depends on how often the draft's distribution resembles the target's. An excellent draft that disagrees is worse than a mediocre one that agrees. Same tokenizer is a PRECONDITION; distilling the draft FROM the target is the strongest lever."
+      },
+      {
+        "type": "pitfall",
+        "front": "Speculation is a LATENCY technique, not throughput",
+        "back": "It spends SPARE arithmetic, which exists only at small batch. Batching raises intensity toward compute-bound, and past the crossover verification genuinely costs k times as much - gains shrink and can go NEGATIVE. Make it load-dependent."
+      },
+      {
+        "type": "intuition",
+        "front": "The draft competes for the memory that sets your batch",
+        "back": "A resident draft model occupies space that would otherwise hold KV cache - and cache bounds concurrent sequences, which bounds throughput. A further argument for the draft-FREE variants."
+      },
+      {
+        "type": "definition",
+        "front": "The draft-free variants",
+        "back": "MEDUSA: extra heads on the target predicting several future tokens, verified as a tree. EAGLE: draft at the FEATURE level, raising alpha for a small head. LOOKAHEAD: n-gram guesses, no model. PROMPT LOOKUP: copy spans FROM THE PROMPT - free, and excellent for summarization/editing/RAG."
+      },
+      {
+        "type": "intuition",
+        "front": "Prefill vs decode have OPPOSITE bottlenecks",
+        "back": "PREFILL processes all prompt positions in parallel - COMPUTE-bound, like training, sets time-to-first-token. DECODE is one position at a time - BANDWIDTH-bound, sets inter-token latency. Speculation applies only to DECODE. Chunked prefill stops a long prompt stalling every in-flight request."
+      },
+      {
+        "type": "intuition",
+        "front": "Batching and speculation COMPETE",
+        "back": "Both amortize the weight read - batching over more SEQUENCES, speculation over more POSITIONS. They draw on the same spare capacity, so their composition has a NEGATIVE sign. Quantization is orthogonal (bytes per parameter) and composes cleanly."
+      },
+      {
+        "type": "pitfall",
+        "front": "Watch for acceptance-rate DRIFT",
+        "back": "If the traffic mix changes, or the target is updated without updating the draft, agreement falls - the speedup evaporates while the draft's cost remains. Slow degradation, no error. Pair every target deployment with a draft check."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Leviathan, Kalman & Matias (2023), Fast Inference from Transformers via Speculative Decoding",
+        "url": "https://arxiv.org/abs/2211.17192"
+      },
+      {
+        "title": "Chen et al. (2023), Accelerating Large Language Model Decoding with Speculative Sampling",
+        "url": "https://arxiv.org/abs/2302.01318"
+      },
+      {
+        "title": "Cai et al. (2024), Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads",
+        "url": "https://arxiv.org/abs/2401.10774"
+      },
+      {
+        "title": "Li et al. (2024), EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty",
+        "url": "https://arxiv.org/abs/2401.15077"
+      },
+      {
+        "title": "Kwon et al. (2023), Efficient Memory Management for LLM Serving with PagedAttention",
+        "url": "https://arxiv.org/abs/2309.06180"
+      }
+    ],
+    "demos": [
+      "speculative-decoding",
+      "kv-cache",
+      "paged-attention",
+      "batching"
+    ]
+  }
+};

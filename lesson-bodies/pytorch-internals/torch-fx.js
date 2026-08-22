@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/pytorch-internals/torch-fx.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/pytorch-internals/torch-fx/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "torch-fx": {
+    "level": "advanced",
+    "body": {
+      "intuition": [
+        "torch.fx turns a Module into a data structure you can edit. symbolic_trace runs the forward pass with PROXY objects instead of tensors - every operation on a proxy records a node rather than computing anything - and the result is a Graph of six node kinds, which fx can then regenerate as ordinary Python and recompile into a working Module. So the round trip is model, graph, edited graph, model, and the output is a normal nn.Module you can train, script, or deploy.",
+        "The reason this matters is that a large family of things you want to do to a neural network are GRAPH REWRITES, and a Python function is not something you can pattern-match against. Fusing every convolution with the batch norm that follows it. Replacing every activation with a different one. Inserting quantization observers after every operation that needs one. Deleting a branch. Extracting intermediate activations by name. Each of these needs to know which operation feeds which, and that is a property of the graph, not of the source text. This is why fx-graph-mode quantization exists and why the eager-mode alternative makes you place stubs and fusion lists by hand.",
+        "And fx has one hard limit that is worth meeting deliberately, because it is the same limit as tracing in the previous lesson wearing different clothes. Proxies cannot be evaluated as booleans, so a forward pass containing if x.sum() > 0 does not silently bake in a branch - it raises a TraceError. That is a real improvement over torch.jit.trace: fx fails loudly where tracing lies. But it is still a STATIC graph, so genuinely dynamic control flow cannot be represented at all, and the answer is either to restructure the model, or to move up to torch.compile, whose Dynamo captures from bytecode and simply breaks the graph around what it cannot handle. Knowing that fx is where PyTorch learned to represent models as data - and where it also learned that a static graph is not enough - is the point of the lesson."
+      ],
+      "math": [
+        {
+          "h": "The Graph IR: six node kinds and nothing else",
+          "paras": [
+            "A traced graph is a list of nodes, each with an opcode, a target, and args referring to earlier nodes. That is the entire representation, and its smallness is what makes writing transformations tractable.",
+            "Every transformation in this lesson is some combination of reading these, rewriting a target, inserting a node, and re-pointing the args of downstream nodes."
+          ],
+          "tex": "\\text{op} \\in \\{\\,\\texttt{placeholder},\\; \\texttt{get\\_attr},\\; \\texttt{call\\_function},\\; \\texttt{call\\_method},\\; \\texttt{call\\_module},\\; \\texttt{output}\\,\\}",
+          "texNote": "placeholder is a forward argument, get_attr reads a parameter or buffer, call_module invokes a submodule by qualified name, call_function calls a free function such as torch.add, call_method calls a tensor method, and output returns. Note the consequence for nn.Module design from the previous lesson: a submodule stored in a plain Python list is not addressable by qualified name, so it cannot become a call_module node - it is invisible to fx for exactly the same reason it is invisible to the optimizer."
+        },
+        {
+          "h": "Conv-BN fusion, which is exact",
+          "paras": [
+            "In eval mode batch normalization is a fixed affine map, so it can be folded into the preceding convolution's weights and bias with no approximation at all. This is the canonical fx transformation and the one worth deriving.",
+            "Both operations are linear in eval mode, so their composition is a single linear operation - the fusion is just writing down which one."
+          ],
+          "tex": "W' = W \\cdot \\frac{\\gamma}{\\sqrt{\\sigma^2 + \\epsilon}}, \\qquad b' = (b - \\mu)\\cdot\\frac{\\gamma}{\\sqrt{\\sigma^2+\\epsilon}} + \\beta",
+          "texNote": "The scale factor multiplies each output channel's filter. Measured on a real model this reproduces the original outputs to about 1e-7 - floating-point noise, not approximation - while removing every BatchNorm node from the graph. Two conditions are load-bearing: the module must be in EVAL mode, since training-mode BN uses batch statistics and is not a fixed map; and the BN must consume the conv's output and nothing else must, or folding changes what the other consumer sees."
+        },
+        {
+          "h": "The Interpreter pattern",
+          "paras": [
+            "fx.Interpreter re-executes a graph node by node, which gives you a hook at every operation. Subclass it, override run_node, and you have per-node instrumentation without touching the model.",
+            "This is how shape propagation, per-operation profiling, and many analysis passes are implemented - the graph is executed once with the semantics you choose."
+          ],
+          "tex": "\\text{Interpreter}(G).\\texttt{run}(x): \\quad \\text{env}[n] \\leftarrow \\texttt{run\\_node}(n) \\;\\; \\text{for } n \\in G \\text{ in topological order}",
+          "texNote": "The environment maps each node to its computed value, so overriding run_node lets you record the output shape and dtype, time the operation, accumulate statistics, or substitute a different implementation entirely. It is the cleanest way to answer questions like which layer produces the largest activation tensor, which is exactly the question you need answered when hunting a memory problem."
+        }
+      ],
+      "code": [
+        {
+          "h": "Trace, inspect, and fuse - with the verification that must accompany it",
+          "paras": [
+            "The round trip, and the transformation that pays for the whole lesson. Every graph rewrite must be checked numerically against the original, because a rewrite that is subtly wrong still runs."
+          ],
+          "code": "gm = torch.fx.symbolic_trace(model)      # -> GraphModule\ngm.graph.print_tabular()                 # opcode | name | target | args\nprint(gm.code)                           # the REGENERATED Python - readable\n\ndef fuse_conv_bn(gm: torch.fx.GraphModule) -> torch.fx.GraphModule:\n    modules = dict(gm.named_modules())\n    for node in gm.graph.nodes:\n        if node.op != \"call_module\": continue\n        bn = modules.get(node.target)\n        if not isinstance(bn, nn.BatchNorm2d): continue\n        prev = node.args[0]\n        if prev.op != \"call_module\": continue\n        conv = modules.get(prev.target)\n        if not isinstance(conv, nn.Conv2d): continue\n        if len(prev.users) > 1: continue      # <-- the conv feeds something ELSE\n                                              #     too; folding would change\n                                              #     what that consumer sees\n        fused = fuse(conv, bn)                # W' = W*g/sqrt(v+eps), b' = ...\n        replace_module(gm, prev.target, fused)\n        node.replace_all_uses_with(prev)      # BN's consumers now read the conv\n        gm.graph.erase_node(node)\n    gm.graph.lint(); gm.recompile()           # lint BEFORE recompile\n    return gm\n\n# VERIFY. Always. A wrong rewrite still runs.\ngm.eval(); fused_gm = fuse_conv_bn(copy.deepcopy(gm)).eval()\nx = torch.randn(4, 3, 64, 64)\nprint((gm(x) - fused_gm(x)).abs().max())   # ~1e-7 - float noise, not error\nprint(sum(1 for n in fused_gm.graph.nodes\n          if isinstance(dict(fused_gm.named_modules()).get(n.target), nn.BatchNorm2d)))\n#                                          # 0 - every BN node is gone\n#\n# TWO CONDITIONS ARE LOAD-BEARING: eval mode (training-mode BN uses BATCH\n# statistics and is not a fixed affine map), and the conv having exactly one\n# consumer. Skipping the second check silently changes the model.",
+          "caption": "Exact to floating-point noise, with every BatchNorm node removed. The len(prev.users) > 1 guard is the one people omit: if the convolution also feeds a skip connection, folding the BN into it changes what that other consumer receives."
+        },
+        {
+          "h": "Retargeting, insertion, and the two gotchas that cost real time",
+          "paras": [
+            "Rewriting a node's target and inserting a new node are the other two primitives. Both have a sharp edge that produces a confusing failure the first time."
+          ],
+          "code": "# 1. RETARGET: swap every ReLU for GELU.\nfor node in gm.graph.nodes:\n    if node.op == \"call_function\" and node.target is F.relu:\n        node.target = F.gelu\n        node.kwargs = {}          # <-- GOTCHA. F.relu traces with\n                                  # kwargs {'inplace': False}; F.gelu has no\n                                  # such argument, so recompile() produces code\n                                  # that raises TypeError at CALL time, not at\n                                  # rewrite time. Clear the kwargs.\n\n# 2. INSERT a node after another (the observer pattern - how quantization\n#    inserts its range-watchers):\nfor node in list(gm.graph.nodes):\n    if node.op == \"call_module\" and is_conv(node):\n        with gm.graph.inserting_after(node):\n            new = gm.graph.call_function(torch.clamp, (node,), {\"min\": -1e4, \"max\": 1e4})\n        node.replace_all_uses_with(new)   # <-- GOTCHA. This rewires EVERY use\n                                          # of `node`, INCLUDING new's own\n                                          # argument - so `new` now takes\n                                          # ITSELF as input. A self-loop.\n        new.args = (node,)                # restore it. (Or use the\n                                          # propagate_meta / replace-with-\n                                          # exclusion helpers.)\n\ngm.graph.lint(); gm.recompile()\n\n# 3. THE INTERPRETER: per-node instrumentation without touching the model.\nclass ShapeAndTimeProf(torch.fx.Interpreter):\n    def run_node(self, n):\n        t0 = time.perf_counter(); out = super().run_node(n)\n        if isinstance(out, torch.Tensor):\n            self.log.append((n.name, tuple(out.shape), time.perf_counter() - t0))\n        return out\n#   -> answers 'which layer produces the largest activation tensor', which is\n#      exactly the question you need when hunting a memory problem.\n\n# 4. THE LIMIT, met deliberately:\nclass DynamicNet(nn.Module):\n    def forward(self, x):\n        if x.sum() > 0: return x * 2      # bool(Proxy) is not defined\n        return x - 1\ntorch.fx.symbolic_trace(DynamicNet())     # raises TraceError\n#\n# fx FAILS LOUDLY where torch.jit.trace would silently bake in one branch.\n# That is a real improvement - but it is still a STATIC graph. Genuinely\n# dynamic control flow needs torch.compile, whose Dynamo breaks the graph\n# around what it cannot capture instead of refusing.",
+          "caption": "Both gotchas produce confusing failures: leftover kwargs raise a TypeError at call time rather than at rewrite time, and replace_all_uses_with rewires the new node's own argument into a self-loop. Restore new.args after the call."
+        }
+      ],
+      "useCases": [
+        "Quantization, which is the flagship application - fx-graph-mode quantization finds conv-bn-relu patterns automatically and inserts observers, replacing the eager-mode workflow of placing stubs and fusion lists by hand.",
+        "Structured pruning and architecture surgery: removing channels or whole blocks requires knowing what consumes what, so the dependency structure a graph gives you is exactly the information the rewrite needs.",
+        "Feature extraction by name - torchvision's create_feature_extractor is an fx pass that returns intermediate node outputs, which is more robust than hooks because it produces a real Module rather than relying on side effects.",
+        "Analysis passes: propagating shapes and dtypes through a model without running it at full size, counting FLOPs per operation, and finding which layer materializes the largest activation - all Interpreter subclasses of a few dozen lines."
+      ],
+      "pitfalls": [
+        "Fusing a conv-BN pair where the convolution has more than one consumer. If the conv also feeds a skip connection, folding the BN into its weights changes what that other consumer receives. Check len(node.users) before rewriting.",
+        "Fusing BatchNorm in training mode. The fusion is exact only because eval-mode BN is a fixed affine map; in training mode it uses batch statistics and is not. Always call .eval() before the pass and verify numerically afterwards.",
+        "Retargeting a node without clearing stale kwargs. F.relu traces with inplace=False in its kwargs, and F.gelu has no such parameter - so the rewritten graph compiles fine and raises TypeError when called, which points at the wrong place entirely.",
+        "Calling replace_all_uses_with after inserting a node. It rewires every use of the old node including the new node's own argument, producing a self-loop. Restore new.args afterwards, or use the helper that excludes the replacement.",
+        "Forgetting graph.lint() and recompile(). Editing the graph does not change the module's forward until you recompile, so a pass can appear to do nothing; lint first, because it catches structural corruption like the self-loop with a clear message.",
+        "Expecting fx to trace dynamic control flow. Proxies cannot be evaluated as booleans, so any data-dependent branch raises TraceError. This is better than silently baking in a branch, and it still means fx cannot represent that model - restructure it or move to torch.compile.",
+        "Rewriting without a numerical check. A subtly wrong graph transformation still runs and still trains, slightly worse, with nothing to indicate the pass was incorrect. Compare against the original on real inputs after every pass."
+      ],
+      "connections": [
+        {
+          "ref": "pytorch-internals/torchscript",
+          "text": "The same capture problem with different aims. TorchScript captures for DEPLOYMENT and produces a typed IR you cannot easily edit; fx captures for TRANSFORMATION and produces a Python-level graph designed to be rewritten. Both hit the same wall on dynamic control flow."
+        },
+        {
+          "ref": "training-systems/torch-compile",
+          "text": "The successor that resolves the limit. Dynamo captures from bytecode and inserts a graph break rather than raising, so it handles code fx refuses - and it emits FX graphs to its backend, so fx remains the representation underneath."
+        },
+        {
+          "ref": "llm-systems/quantization",
+          "text": "The application that motivated much of fx. Quantization is pattern matching plus node insertion plus module replacement, which is precisely what a graph makes possible and a Python function does not."
+        },
+        {
+          "ref": "pytorch-internals/nn-module-patterns",
+          "text": "Why registration matters here too: a submodule in a plain Python list has no qualified name, so it can never become a call_module node. It is invisible to fx for the same reason it is invisible to the optimizer."
+        },
+        {
+          "ref": "pytorch-internals/debugging-profiling",
+          "text": "The Interpreter pattern is a profiling tool - per-node timing and shape propagation in a few dozen lines - and it answers questions the standard profiler does not, such as which operation materializes the largest tensor."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does torch.fx do?",
+          "a": "symbolic_trace runs the forward pass with Proxy objects that record operations instead of computing, producing a Graph you can edit and recompile back into a working nn.Module."
+        },
+        {
+          "q": "What are the six node opcodes?",
+          "a": "placeholder, get_attr, call_function, call_method, call_module, and output. That is the entire IR, which is what makes writing transformations tractable."
+        },
+        {
+          "q": "Why is a graph needed for quantization?",
+          "a": "Quantization is pattern matching plus node insertion plus module replacement. A Python function is not a data structure you can match patterns against, which is why eager-mode quantization needs manual stubs."
+        },
+        {
+          "q": "What is the conv-BN fusion formula?",
+          "a": "W' = W * gamma / sqrt(var + eps) and b' = (b - mean) * gamma / sqrt(var + eps) + beta. In eval mode it is exact to floating-point noise."
+        },
+        {
+          "q": "Why must the model be in eval mode to fuse BN?",
+          "a": "Eval-mode BatchNorm is a fixed affine map, so it composes with the convolution into a single linear operation. Training-mode BN uses batch statistics and is not fixed."
+        },
+        {
+          "q": "When can you not fuse a conv-BN pair?",
+          "a": "When the convolution has more than one consumer. Folding changes its output, so anything else reading it would receive something different."
+        },
+        {
+          "q": "What happens if you retarget F.relu to F.gelu without clearing kwargs?",
+          "a": "F.relu traces with inplace=False in its kwargs and gelu has no such argument, so the graph recompiles fine and raises TypeError when called."
+        },
+        {
+          "q": "What is the replace_all_uses_with trap?",
+          "a": "It rewires every use of the old node, including the newly inserted node's own argument - creating a self-loop. Restore new.args afterwards."
+        },
+        {
+          "q": "What does fx.Interpreter give you?",
+          "a": "Node-by-node re-execution with a hook at every operation, so you can time each one, record shapes, or substitute implementations without touching the model."
+        },
+        {
+          "q": "What happens when fx meets data-dependent control flow?",
+          "a": "It raises TraceError, because a Proxy cannot be evaluated as a boolean. It fails loudly where torch.jit.trace would silently bake in one branch."
+        },
+        {
+          "q": "Why is failing loudly better than tracing's behaviour?",
+          "a": "Because a silently baked-in branch produces an artifact that confidently computes the wrong function for half its inputs, with no error anywhere."
+        },
+        {
+          "q": "Why must you call recompile after editing a graph?",
+          "a": "The GraphModule's forward is generated Python. Editing the graph does not change it until you regenerate, so the pass otherwise appears to do nothing."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you extract intermediate features with fx, and why prefer that to hooks?",
+          "a": "THE FX APPROACH. Trace the model, then build a new GraphModule whose output node returns a dictionary of the nodes you want instead of just the final one. torchvision packages this as create_feature_extractor, which takes a model and a mapping from node names to output keys and returns a Module producing that dictionary. Under the hood it is: trace, find the named nodes, rewrite the output node's args to include them, prune anything downstream that is now unreachable with eliminate_dead_code, and recompile. WHY IT BEATS HOOKS - four reasons, and they are all consequences of producing a real Module rather than relying on side effects. (1) IT IS A VALUE, NOT A SIDE EFFECT. A hook writes into a dictionary you own, so extraction depends on running the model and then reading state elsewhere. The fx version RETURNS the features, so it composes normally - it can be passed around, wrapped, and reasoned about, and there is no ordering dependency between running and reading. (2) IT SURVIVES EXPORT AND COMPILATION. Hooks are Python-level callbacks; a scripted, exported, or compiled model may not run them where you expect, and a traced graph will not contain them at all. An fx feature extractor is a Module whose forward genuinely returns those tensors, so it exports like any other model. This is the decisive difference for anything heading to production. (3) DEAD CODE CAN BE ELIMINATED. If you only need features from the first half of a network, the fx version can prune the rest entirely, so you do not pay to compute a classifier head you are discarding. A hook cannot do that - the model still runs to completion. On a large backbone used only for early features that is a substantial saving. (4) NODE NAMES ARE STABLE AND ENUMERABLE. get_graph_node_names gives you every addressable point, including the outputs of functional operations that are not modules at all - a bare F.relu or an addition in a residual connection has no module to attach a hook to, and fx addresses it fine. WHEN HOOKS ARE STILL RIGHT. When the model is not traceable, which is the main case - anything with data-dependent control flow raises TraceError, and hooks do not care. When you need to MODIFY behaviour dynamically at runtime rather than build a fixed variant. When you want instrumentation you can attach and remove without constructing a second model, such as temporary debugging. And when the thing you want is on the backward pass, since fx captures the forward and gradients are a different question - a backward hook remains the tool for gradient inspection. WHAT I WOULD ACTUALLY DO. For a production feature extractor - a backbone feeding a downstream head, a perceptual loss, a distillation setup where you need intermediate activations from a teacher - use fx, because it produces a Module I can export and because pruning the unused tail is free. For ad-hoc debugging and interpretability on a model I am still exploring, use hooks, because they require no tracing and no rebuild. The two are not competing so much as suited to build-time versus run-time instrumentation."
+        },
+        {
+          "q": "Explain what torch.fx is and what it enables.",
+          "a": "THE MECHANISM. symbolic_trace runs your forward pass, but instead of tensors it passes PROXY objects. Every operation on a proxy records a node in a graph and returns a new proxy rather than computing anything. The result is an fx.Graph - a list of nodes, each with an opcode, a target and args pointing at earlier nodes - wrapped in a GraphModule whose forward is REGENERATED PYTHON. So the round trip is module, graph, edited graph, regenerated module, and the output is an ordinary nn.Module you can train, script, or deploy. You can even read the generated source with gm.code, which is unusually pleasant for a compiler IR. THE IR IS SIX OPCODES: placeholder for a forward argument, get_attr for a parameter or buffer, call_module for a submodule by qualified name, call_function for a free function, call_method for a tensor method, and output. That smallness is the design's main virtue - a transformation is a loop over nodes with a few if statements, not a compiler pass. WHAT IT ENABLES, and the reason to care: a large class of things you want to do to a network are GRAPH REWRITES, and a Python function is not something you can pattern-match against. (1) QUANTIZATION - find conv-bn-relu patterns, insert observers, replace with quantized modules. This is the flagship application and it is why fx-graph-mode quantization replaced the eager workflow of placing stubs by hand. (2) OPERATOR FUSION, of which conv-BN folding is canonical: in eval mode BN is a fixed affine map, so it folds into the preceding convolution's weights exactly - to about 1e-7, which is floating-point noise rather than approximation - and every BN node disappears from the graph. (3) ARCHITECTURE SURGERY: swapping activations, removing branches, structured pruning, which needs the dependency structure. (4) FEATURE EXTRACTION by node name, which produces a real Module rather than relying on hooks. (5) ANALYSIS: shape propagation, FLOP counting, and per-node profiling via the Interpreter pattern. THE LIMIT, which I would raise unprompted because it is the interesting part. Proxies cannot be evaluated as booleans, so a forward containing if x.sum() > 0 raises TraceError. That is a genuine improvement over torch.jit.trace, which would silently record whichever branch the example took and produce an artifact that is wrong for half its inputs. fx fails loudly. But it is still a STATIC graph and cannot represent dynamic control flow at all, so the options are to restructure the model or to move to torch.compile - whose Dynamo captures from bytecode and inserts a graph break around what it cannot handle. Notably, Dynamo emits FX graphs to its backend, so fx remains the representation underneath even in the successor.",
+          "deepDive": {
+            "q": "Derive conv-BN fusion and state precisely when it is valid.",
+            "a": "THE TWO OPERATIONS. A convolution is y = W * x + b, linear in x. Batch normalization in EVAL mode is z = gamma * (y - mu) / sqrt(sigma^2 + eps) + beta, where mu, sigma^2, gamma and beta are all fixed tensors - so it is an affine map applied per channel. THE COMPOSITION. Substitute: z = gamma * (W*x + b - mu) / sqrt(sigma^2 + eps) + beta. Let s = gamma / sqrt(sigma^2 + eps), a per-output-channel scalar. Then z = s*(W*x) + s*(b - mu) + beta = (s*W)*x + (s*(b-mu) + beta). That is exactly a convolution with W' = s*W and b' = s*(b - mu) + beta, where s multiplies each output channel's entire filter. Since convolution is linear and the scaling is per output channel, scaling the filter is equivalent to scaling the output - which is what makes the fold work. No approximation anywhere; the residual is floating-point rounding, measured around 1e-7. WHEN IT IS VALID - four conditions, and each is a real check rather than a formality. (1) EVAL MODE. In training, BN normalizes by the CURRENT BATCH's statistics, which depend on the input, so it is not a fixed affine map and there is nothing to fold. Fusing a training-mode BN silently replaces a data-dependent normalization with a constant one - the model still runs and trains differently. (2) THE CONV MUST HAVE EXACTLY ONE CONSUMER. If its output also feeds a skip connection or a second branch, folding changes what that consumer sees, because the conv's output is now pre-scaled. This is the check people omit, and in a ResNet it matters. (3) NOTHING BETWEEN THEM. The BN must consume the conv's output directly. A nonlinearity in between breaks the composition, because the composition of two linear maps is linear and conv-relu-bn is not. (4) THE CONVOLUTION MUST HAVE A BIAS, or you must add one - if it was created with bias=False, which is standard precisely BECAUSE a following BN makes the bias redundant, the fused module needs a bias parameter created for it. Forgetting this is a common implementation bug. WHY THIS IS WORTH DOING. It removes an operation from every block, and more importantly it removes a MEMORY ROUND TRIP - BN is memory-bound, reading and writing the full activation tensor for very little arithmetic. On CPU I have seen modest wins around 1.3x on a small model, and the honest statement is that the gain depends heavily on the model and the hardware, so it should be measured rather than assumed. The parameter-count saving is negligible; the win is in bandwidth and in having fewer kernel launches. THE GENERALIZATION worth naming. The same argument fuses any fixed affine operation into an adjacent linear one - scaling, a fixed LayerNorm at inference in some formulations, a constant multiply. The pattern is: two linear maps in sequence compose into one, and if either has fixed parameters you can do the composition at build time rather than at every forward pass. That is partial evaluation, which is also what torch.jit.freeze does, and recognizing them as the same idea is more useful than memorizing either."
+          }
+        },
+        {
+          "q": "How would you write and validate a graph transformation pass?",
+          "a": "THE STRUCTURE OF A PASS, which is always the same four steps. (1) TRACE, and be explicit about what you are tracing - a fresh copy, since passes mutate in place and you will want the original for comparison. (2) ITERATE over graph.nodes, matching the pattern you care about. Matching means checking node.op, node.target, and the ops and targets of node.args - so a conv-bn pattern is a call_module node whose module is a BatchNorm whose single argument is a call_module node whose module is a Conv2d. (3) REWRITE: change a target, insert a node with graph.inserting_after or inserting_before, re-point consumers with replace_all_uses_with, erase the dead node. Note you should collect the matches into a list BEFORE mutating, because mutating the graph while iterating it is asking for trouble. (4) LINT AND RECOMPILE. graph.lint() checks structural invariants - topological order, no self-loops, all args resolvable - and gives a clear message when you have corrupted the graph. recompile() regenerates the forward; without it, the module still runs the old code and the pass appears to have done nothing. THE VALIDATION, which matters more than the pass. (1) NUMERICAL EQUIVALENCE against the original on real inputs, at a stated tolerance. For an equivalence-preserving pass like fusion, expect floating-point noise around 1e-6 or better, and be suspicious of anything larger. For a pass that deliberately changes semantics - swapping activations - you cannot check equivalence, so check the properties you intended: that the new op appears everywhere, that the old one appears nowhere, and that the model still trains. (2) STRUCTURAL ASSERTIONS: count the nodes you expected to remove and assert zero remain; count the nodes you expected to insert. This catches a pass that matched nothing, which is the most common failure and is completely silent - the model works perfectly because nothing happened. (3) IDEMPOTENCE where it should hold: running the pass twice should equal running it once. A pass that keeps inserting nodes on every application has a matching bug. (4) EDGE CASES IN THE GRAPH: a conv with two consumers, a BN not preceded by a conv, a model where the pattern appears zero times, and a model where it appears at the very start or very end. THE FAILURE MODE I WOULD WARN ABOUT MOST. A pass that silently matches nothing. The model is unchanged, everything works, and you believe you have optimized it. Always assert on the number of rewrites performed, and log it. Second most common: a pass that is correct on the model you tested and wrong on a slightly different architecture, because you did not check the guard conditions - the multiple-consumers case being the standard example. THE WORKFLOW I WOULD USE. Write the pass against a tiny model where I can print_tabular the whole graph and read it, verify there, then run on the real model with structural assertions. Debugging a graph transformation on a 200-layer network is unpleasant; on a five-node graph it is trivial, and the pass logic is the same."
+        },
+        {
+          "q": "Compare fx, TorchScript tracing, and Dynamo as capture mechanisms.",
+          "a": "ALL THREE ANSWER THE SAME QUESTION - how do you get a graph out of a Python program - and they differ in how they capture and in what they do when the program is not a graph. TORCHSCRIPT TRACING runs the model with real tensors and records the operations that executed. It sees actual values, so it can be fooled: a data-dependent branch is resolved once and BAKED IN, silently, and shape specialization is often silent too. It produces a TorchScript IR aimed at deployment - typed, serializable, runnable without Python - and not designed for you to edit. TORCH.FX traces SYMBOLICALLY with Proxy objects rather than tensors. Because a proxy has no value, any attempt to branch on it raises TraceError rather than picking a branch. So fx cannot be fooled the way tracing can - it fails loudly. Its output is a Python-level graph with six node kinds and a regenerated forward you can read, designed explicitly for TRANSFORMATION rather than deployment. Its limit is the same as tracing's in extent - it captures a static graph - but the failure mode is honest. DYNAMO analyses Python BYTECODE. It captures what it can into an FX graph and inserts a GRAPH BREAK at anything it cannot - a data-dependent branch, a print, a call into numpy - then resumes capturing after. So a function becomes several graphs with Python between them rather than one graph or a failure. And it records GUARDS: the conditions under which the captured graph is valid, checked on every call, triggering recompilation on a miss. That is the crucial difference from tracing, which ASSUMES its specialization remains valid while Dynamo VERIFIES it. THE PROGRESSION IS A STORY ABOUT FAILURE MODES, which is how I would frame it. Tracing: silently wrong. fx: loudly incapable. Dynamo: locally incapable, globally correct. Each generation kept the ability to capture a graph and changed what happens at the boundary of what is capturable, and the winner is the one that never produces a wrong answer. Given that the alternative's failure was a silently incorrect deployed artifact, that ordering is exactly right. WHAT THIS MEANS PRACTICALLY. Want to REWRITE a model - fuse, quantize, prune, extract features: fx, because its graph is designed to be edited and its failures are honest. Want to DEPLOY without Python: torch.export for new work, TorchScript for existing systems. Want SPEED in training while staying in Python: torch.compile. AND THE DETAIL THAT TIES IT TOGETHER: Dynamo emits FX graphs to its backend. So fx did not lose - it became the intermediate representation of the thing that succeeded it, which is a good outcome for a design and a good indication that the six-opcode IR was the right abstraction.",
+          "deepDive": {
+            "q": "If Dynamo handles dynamic control flow, is there still a reason to use fx directly?",
+            "a": "Yes, several, and they follow from the two serving different purposes: Dynamo is a COMPILER FRONT END and fx is a PROGRAM TRANSFORMATION toolkit. REASON 1: YOU WANT THE ARTIFACT, NOT THE SPEED. fx gives you a GraphModule - a real nn.Module with regenerated Python you can read, save, further modify, script, or hand to someone. torch.compile gives you a callable whose optimization lives in the process and is regenerated per run. If the deliverable is a MODIFIED MODEL - a quantized one, a pruned one, one with a swapped activation - fx is the tool and compile is not. REASON 2: DETERMINISM AND INSPECTABILITY. An fx pass produces exactly the graph you wrote, and you can print it. Dynamo's behaviour depends on guards, recompilation, and what it chose to break on, which varies with input shapes and with the version. For a build step that must be reproducible - producing a deployment artifact in CI - that variability is a problem rather than a feature. REASON 3: YOU ARE WRITING THE TRANSFORMATION, not consuming one. Quantization toolchains, pruning libraries, model-surgery tools, and academic work on architecture modification all need to match patterns and rewrite. Dynamo does not expose that as a user-facing workflow; it hands FX graphs to a BACKEND, which is a different integration point and a lower-level one. REASON 4: ANALYSIS WITHOUT EXECUTION. ShapeProp and Interpreter subclasses let you propagate shapes, count FLOPs, or find the largest activation tensor without running the model at full scale. That is an fx capability used constantly in tooling and it has no compile equivalent. REASON 5: SIMPLICITY. fx is a few hundred lines of concept - six opcodes and a node list. Understanding what a pass will do is straightforward. Dynamo's bytecode analysis, guard system and recompilation logic are considerably more machinery, and when something goes wrong you are debugging a compiler. WHERE THEY COMPOSE, which is the practical answer for most people. Use fx to transform the model - fuse, quantize, prune - then torch.compile the RESULT for speed. The two are complementary layers rather than competitors, and this ordering is what production pipelines actually do. WHAT I WOULD SAY ABOUT DIRECTION. The ecosystem is consolidating around torch.export's representation for deployment capture and Dynamo for training, and fx's role is settling into being the IR underneath both plus the toolkit for writing passes. So fx is not being replaced; it is being demoted from a capture mechanism - where its static-graph limit was a real problem - to a representation and transformation layer, where that limit does not bite because the capture is someone else's job. That is a healthy outcome and it is worth understanding, because it tells you which part of fx to invest in learning: the graph manipulation, not symbolic_trace itself."
+          }
+        },
+        {
+          "q": "How does fx-graph-mode quantization differ from eager-mode quantization?",
+          "a": "THE UNDERLYING REASON THEY DIFFER: quantization requires knowing the model's STRUCTURE, and eager mode does not have any. EAGER MODE puts the burden on you. You must insert QuantStub at every point where float data enters the quantized region and DeQuantStub where it leaves. You must supply an explicit list of module names to fuse - conv, bn, relu triples specified by string. You must replace functional calls like F.relu with module versions, because a free function has no module to swap. And you must add FloatFunctional wrappers around arithmetic like additions in residual connections, because a bare + cannot carry a quantization observer. Every one of these is manual, model-specific, and easy to get subtly wrong - and getting it wrong usually means part of the model quietly stays in float, so the model works and is slower and larger than you think. FX GRAPH MODE does all of that by traversal. It traces to a graph, PATTERN-MATCHES conv-bn-relu and its variants automatically, inserts observers at the right places by looking at what feeds what, handles functional calls and arithmetic because they are nodes like any other, and determines the quantized-float boundaries from the graph structure. You supply a qconfig mapping - which parts should be quantized and how - and the pass does the placement. It is dramatically less work and dramatically less error-prone. WHAT FX MODE COSTS. It requires the model to be TRACEABLE, so a model with data-dependent control flow raises TraceError and you are back to restructuring or to eager mode. In practice this is the main reason people fall back. It also gives you less fine-grained manual control, though qconfig mappings can be specified per module or per pattern, which covers most needs. THE STEPS, so the shape is clear. prepare_fx inserts observers according to the qconfig. You then run CALIBRATION data through it to collect activation ranges - this is post-training quantization; for quantization-aware training the inserted modules are fake-quantize nodes that are differentiated through with a straight-through estimator instead. Then convert_fx replaces the float operations with quantized ones and removes the observers. THE DIRECTION, stated honestly. Both of these are the older APIs; the current direction is quantization built on torch.export's representation - PT2 export quantization - which keeps the graph-based automation and moves to the capture mechanism the ecosystem is standardizing on. The conceptual content is unchanged: it is still pattern matching, observer insertion, and module replacement on a graph. WHAT I WOULD TAKE FROM THE COMPARISON GENERALLY. The eager-versus-graph gap here is the clearest illustration of this module's theme. Eager mode hid the model's structure to make it pleasant to write, and quantization is a task that NEEDS that structure - so the cost of the abstraction is paid, in full, as manual annotation. Recovering the graph recovers the automation."
+        },
+        {
+          "q": "You wrote an fx pass and the model output is unchanged. What went wrong?",
+          "a": "Unchanged output after a semantics-changing pass means the pass did nothing, and there are four candidates I would check in order - all of which are silent, which is why this is a good question. CANDIDATE 1: YOU DID NOT RECOMPILE. A GraphModule's forward is generated Python source. Editing graph.nodes changes the graph and NOT the compiled forward, so the module keeps running the old code. Call gm.recompile() after the edits - and call gm.graph.lint() first, because it validates the structure and gives a clear message if you corrupted it. This is the most common cause by a wide margin and it produces exactly this symptom. CANDIDATE 2: THE PATTERN MATCHED NOTHING. The loop ran, no node satisfied the conditions, and the pass silently did nothing. Causes: checking node.target against a module instance rather than looking it up in named_modules; assuming activations are call_module nodes when the model uses functional F.relu, which traces as call_function; or a guard condition being stricter than intended. FIX AND PREVENTION: count the rewrites and assert on the count. A pass that reports 'rewrote 0 nodes' is immediately diagnosable; a pass that reports nothing is not. I would treat this as mandatory in any pass. CANDIDATE 3: YOU MUTATED A COPY. symbolic_trace returns a new GraphModule; if you traced, transformed, and then ran the ORIGINAL model, nothing changed because you are running a different object. Easy to do when the pass returns a new module and the call site ignores the return value. CANDIDATE 4: THE PASS RAN ON THE WRONG THING. Tracing a wrapper - a DataParallel, a Lightning module, a compiled module - gives you a graph of the wrapper, whose only node may be a call to the inner module. Trace the inner nn.Module. HOW I WOULD DIAGNOSE IN THIRTY SECONDS. print gm.graph.print_tabular() before and after, and diff. That shows immediately whether the graph changed at all, which splits candidates 1 and 3 (graph changed, module did not run it) from candidate 2 (graph unchanged). Then print gm.code, which shows the regenerated forward - if the graph changed and the code did not, it is the recompile. THE RELATED CASE worth mentioning: output unchanged after an EQUIVALENCE-PRESERVING pass like conv-BN fusion is CORRECT and expected - that pass is supposed to leave outputs identical to floating-point noise. So the structural assertion is the only way to verify it did anything: count the BatchNorm nodes and assert zero remain. This is a good illustration of why numerical checks alone are insufficient for validating a pass, and why every pass needs both a numerical check and a structural one."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "How symbolic_trace works",
+        "back": "Runs forward with PROXY objects instead of tensors - each operation records a node and returns a new proxy rather than computing. Output is a GraphModule whose forward is REGENERATED PYTHON (readable via gm.code)."
+      },
+      {
+        "type": "definition",
+        "front": "The six fx opcodes",
+        "back": "placeholder (forward arg), get_attr (param/buffer), call_function, call_method, call_module (by QUALIFIED NAME), output. A submodule in a plain Python list has no qualified name, so it can never become a call_module node - invisible to fx for the same reason it is invisible to the optimizer."
+      },
+      {
+        "type": "formula",
+        "front": "Conv-BN fusion",
+        "back": "s = gamma/sqrt(var+eps); W' = s*W, b' = s*(b - mean) + beta. Both are linear in EVAL mode, so their composition is one linear op. Exact to ~1e-7 (float noise), and every BN node disappears."
+      },
+      {
+        "type": "pitfall",
+        "front": "Four conditions for valid conv-BN fusion",
+        "back": "(1) EVAL mode - training BN uses batch statistics and is not a fixed map. (2) The conv has EXACTLY ONE consumer (a skip connection breaks it). (3) Nothing between them. (4) The conv needs a bias - if created with bias=False (standard, since BN made it redundant) you must add one."
+      },
+      {
+        "type": "pitfall",
+        "front": "Retargeting leaves stale kwargs",
+        "back": "F.relu traces with kwargs {'inplace': False}; F.gelu has no such argument. The graph recompiles FINE and raises TypeError at CALL time, pointing nowhere useful. Set node.kwargs = {} after changing node.target."
+      },
+      {
+        "type": "pitfall",
+        "front": "replace_all_uses_with creates a self-loop",
+        "back": "After inserting `new` that consumes `node`, calling node.replace_all_uses_with(new) rewires EVERY use - including new's OWN argument. `new` now takes itself as input. Restore new.args = (node,) afterwards."
+      },
+      {
+        "type": "pitfall",
+        "front": "Edited the graph and nothing changed?",
+        "back": "You did not recompile(). The forward is GENERATED source; editing graph.nodes does not change it. Call lint() then recompile(). Second candidate: the pattern matched NOTHING - so always COUNT the rewrites and assert on the count."
+      },
+      {
+        "type": "intuition",
+        "front": "Every pass needs BOTH checks",
+        "back": "NUMERICAL (vs the original, ~1e-6 for equivalence-preserving passes) AND STRUCTURAL (count nodes removed/inserted). A fusion pass that did nothing passes the numerical check perfectly - identical output is the expected result."
+      },
+      {
+        "type": "intuition",
+        "front": "fx fails LOUDLY where tracing lies",
+        "back": "bool(Proxy) is undefined, so `if x.sum() > 0` raises TraceError instead of silently baking in one branch. A real improvement - but fx still captures only a STATIC graph. Dynamic control flow needs torch.compile."
+      },
+      {
+        "type": "definition",
+        "front": "fx.Interpreter",
+        "back": "Re-executes the graph node by node with a hook at every operation (override run_node). Used for shape propagation, FLOP counting, per-node timing, and answering 'which layer materializes the largest activation tensor' - the question you need when hunting memory."
+      },
+      {
+        "type": "intuition",
+        "front": "The capture progression, as failure modes",
+        "back": "TRACING: silently wrong. FX: loudly incapable (TraceError). DYNAMO: locally incapable (graph break), globally correct, and it GUARDS its specializations instead of assuming them. The winner is the one that never returns a wrong answer."
+      },
+      {
+        "type": "intuition",
+        "front": "Why eager-mode quantization is manual",
+        "back": "It has no graph, so YOU must place QuantStub/DeQuantStub, list fusion patterns by name, replace F.relu with module versions, and wrap residual adds in FloatFunctional. fx does all of it by traversal - and getting eager wrong leaves part of the model silently in float."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Reed et al. (2022), torch.fx: Practical Program Capture and Transformation for Deep Learning in Python",
+        "url": "https://arxiv.org/abs/2112.08429"
+      },
+      {
+        "title": "PyTorch: torch.fx documentation",
+        "url": "https://pytorch.org/docs/stable/fx.html"
+      },
+      {
+        "title": "PyTorch: FX Graph Mode Quantization",
+        "url": "https://pytorch.org/docs/stable/quantization.html"
+      },
+      {
+        "title": "Ioffe & Szegedy (2015), Batch Normalization",
+        "url": "https://arxiv.org/abs/1502.03167"
+      },
+      {
+        "title": "PyTorch: TorchDynamo overview - graph breaks and guards",
+        "url": "https://pytorch.org/docs/stable/torch.compiler_deepdive.html"
+      }
+    ],
+    "demos": [
+      "pruning",
+      "quantization",
+      "batch-norm",
+      "distillation"
+    ]
+  }
+};

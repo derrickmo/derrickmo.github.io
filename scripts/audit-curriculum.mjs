@@ -142,14 +142,18 @@ for (const mod of fs.readdirSync('content/lessons').sort()) {
       const html = fs.readFileSync(page, 'utf8');
       if (!html.includes(`__DM_LESSON_SLUG = "${slug}"`)) say(`page does not carry __DM_LESSON_SLUG="${slug}"`);
       if (html.includes('__DM_CONCEPT_SLUG')) say(`page still carries __DM_CONCEPT_SLUG (sub-lesson not superseded)`);
-      if (!html.includes(`lesson-bodies/${mod}.js`)) say(`page does not load lesson-bodies/${mod}.js`);
+      if (!html.includes(`lesson-bodies/${mod}/${j.slug}.js`)) say(`page does not load lesson-bodies/${mod}/${j.slug}.js`);
       // Exactly ONE bundle, and it must be this module's. The generator builds every
       // store page from learn/foundations/linear-algebra/index.html, which is itself a
       // flagship page — once that lesson gained a drill layer, its bundle tag leaked
       // into all ~220 generated pages (2026-08-16). It rendered correctly only because
       // the correct bundle is assigned last, i.e. it was a load-order accident.
+      // Since PF-0020 the bodies are per LESSON, not per module, so a page must load
+      // exactly its own: lesson-bodies/<module>/<lesson>.js. More than one still means
+      // the template-inheritance leak this check was written for.
       const bundles = [...html.matchAll(/lesson-bodies\/([^"]+)\.js/g)].map(m => m[1]);
-      if (bundles.length !== 1 || bundles[0] !== mod) say(`page loads bundles [${bundles.join(', ')}] — expected exactly ["${mod}"]`);
+      const wantB = `${mod}/${j.slug}`;
+      if (bundles.length !== 1 || bundles[0] !== wantB) say(`page loads bundles [${bundles.join(', ')}] — expected exactly ["${wantB}"]`);
       // generator folds to ASCII then HTML-escapes (gen-lesson-pages.mjs:26-27)
       const asc = s => String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[^\x00-\x7F]/g, '');
       const esc = s => asc(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

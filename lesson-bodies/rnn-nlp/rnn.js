@@ -1,0 +1,239 @@
+// GENERATED from content/lessons/rnn-nlp/rnn.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rnn-nlp/rnn/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "rnn": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "A feedforward network sees a fixed-size input all at once, but language is a variable-length sequence where order and context matter. Recurrent neural networks were the first neural answer: process the sequence one element at a time, and carry a hidden state - a summary of everything seen so far - forward from step to step. At each position the RNN combines the current input with the previous hidden state to produce a new hidden state, so the same small set of weights is applied repeatedly, letting one network handle sequences of any length while remembering the past.",
+        "The defining feature is weight sharing across time: it's the SAME recurrent cell applied at every position, just fed a different input and the running hidden state. This is what makes RNNs parameter-efficient (a fixed number of weights regardless of sequence length) and able to generalize across positions - the network learns one update rule and reuses it. Unrolling the recurrence over the sequence turns it into a deep computation graph (as deep as the sequence is long), which is trained by ordinary backpropagation applied through that unrolled graph - 'backpropagation through time'.",
+        "But that same recurrence is the RNN's fatal weakness. To learn a dependency between step 1 and step 100, the gradient must flow backward through 100 repeated multiplications by the recurrent weight, and repeated multiplication either shrinks the signal toward zero (vanishing gradients - the network can't learn long-range dependencies) or blows it up (exploding gradients - training diverges). This vanishing/exploding gradient problem is why plain RNNs struggle to remember anything more than a handful of steps back, and it's the precise problem that LSTMs and GRUs (next lesson) were invented to solve, before attention/transformers sidestepped recurrence entirely."
+      ],
+      "math": [
+        {
+          "h": "The recurrence: one shared cell over time",
+          "paras": [
+            "At each timestep t, the RNN computes a new hidden state from the current input x_t and the previous hidden state h_{t-1}, using shared weight matrices. An output can be read off the hidden state at each step (or only at the end). The same W_xh, W_hh, W_hy are reused at every timestep - that's the 'recurrent' weight sharing."
+          ],
+          "tex": "h_t = \\tanh(W_{xh} x_t + W_{hh} h_{t-1} + b_h), \\qquad y_t = W_{hy} h_t + b_y",
+          "texNote": "h_t summarizes the sequence up to t. W_hh (the hidden-to-hidden weight) is applied every step - repeated multiplication by it during backprop is the source of vanishing/exploding gradients."
+        },
+        {
+          "h": "Backpropagation through time and the gradient chain",
+          "paras": [
+            "Training unrolls the recurrence and backpropagates. The gradient of a loss at step t with respect to an early hidden state involves a product of Jacobians of the recurrence - one factor per timestep - so the long-range gradient is a product of many terms, which shrinks or grows exponentially with the distance."
+          ],
+          "tex": "\\frac{\\partial \\mathcal{L}_t}{\\partial h_k} = \\frac{\\partial \\mathcal{L}_t}{\\partial h_t} \\prod_{i=k+1}^{t} \\frac{\\partial h_i}{\\partial h_{i-1}}, \\qquad \\Big\\lVert \\frac{\\partial h_i}{\\partial h_{i-1}} \\Big\\rVert \\ne 1 \\Rightarrow \\text{vanish/explode}",
+          "texNote": "The product of (t-k) Jacobians: if each has norm < 1 the product vanishes exponentially (can't learn long range); if > 1 it explodes. This is the core RNN limitation."
+        }
+      ],
+      "code": [
+        {
+          "h": "An RNN cell forward pass from scratch",
+          "paras": [
+            "The whole recurrence: loop over the sequence, updating the hidden state with the same weights each step. This is exactly what a framework's RNN layer does internally."
+          ],
+          "code": "import numpy as np\n\ndef rnn_forward(inputs, h0, Wxh, Whh, Why, bh, by):\n    h = h0\n    hs, ys = [], []\n    for x in inputs:                                  # one step per sequence element\n        h = np.tanh(Wxh @ x + Whh @ h + bh)          # SAME weights every step\n        y = Why @ h + by\n        hs.append(h); ys.append(y)\n    return hs, ys\n\n# shapes: x_t (input_dim,), h (hidden_dim,), Wxh (hidden,input), Whh (hidden,hidden)\nH, D = 8, 4\nWxh, Whh, Why = np.random.randn(H,D)*0.1, np.random.randn(H,H)*0.1, np.random.randn(2,H)*0.1\nhs, ys = rnn_forward([np.random.randn(D) for _ in range(10)], np.zeros(H),\n                      Wxh, Whh, Why, np.zeros(H), np.zeros(2))\nprint('processed', len(hs), 'steps; final hidden summarizes the whole sequence')",
+          "caption": "The recurrent cell applies the SAME W_xh, W_hh, W_hy at every timestep, carrying the hidden state forward - parameter count is independent of sequence length."
+        },
+        {
+          "h": "Gradient clipping: the standard fix for exploding gradients",
+          "paras": [
+            "Exploding gradients are cheap to fix - just rescale the gradient when its norm exceeds a threshold, preserving direction while capping magnitude. Vanishing gradients are the harder problem (LSTMs address them)."
+          ],
+          "code": "import numpy as np\n\ndef clip_grad_norm(grads, max_norm):\n    total = np.sqrt(sum((g**2).sum() for g in grads))\n    if total > max_norm:\n        scale = max_norm / (total + 1e-8)\n        grads = [g * scale for g in grads]           # same direction, capped magnitude\n    return grads\n\n# during BPTT, clip the flattened gradients before the optimizer step:\n# grads = clip_grad_norm(grads, max_norm=5.0)\nprint('clipping bounds exploding gradients; vanishing gradients need architecture (LSTM/GRU)')",
+          "caption": "Gradient clipping rescales an over-large gradient to a max norm, preventing divergence - it fixes EXPLODING gradients but not vanishing ones, which need gated cells."
+        }
+      ],
+      "useCases": [
+        "The foundational architecture for sequence modeling - character/word language models, time-series forecasting, and sequence labeling all started with RNNs, and the hidden-state-summary idea underlies later sequence models.",
+        "Streaming/online processing - because an RNN processes one step at a time and maintains a fixed-size state, it's naturally suited to real-time streaming input (unlike transformers, which reprocess the whole context), still relevant for low-latency/on-device settings.",
+        "Teaching the sequence-modeling mindset - hidden state as memory, weight sharing across time, and backpropagation through time are concepts that carry directly into LSTMs, GRUs, and even the recurrence-free reasoning behind attention.",
+        "Encoder-decoder sequence-to-sequence models (with attention) for translation and summarization were RNN-based before transformers, and the seq2seq framing (a flagship lesson in this module) originated here."
+      ],
+      "pitfalls": [
+        "Vanishing gradients: gradients backpropagated through many timesteps shrink exponentially (repeated multiplication by Jacobians with norm < 1), so plain RNNs cannot learn dependencies more than a handful of steps apart - the central limitation.",
+        "Exploding gradients: the same repeated multiplication can blow up (Jacobian norm > 1), causing NaN losses - fixable with gradient clipping (rescale to a max norm), unlike vanishing gradients.",
+        "Sequential computation prevents parallelism: each hidden state depends on the previous one, so an RNN can't be parallelized across the sequence during training (only across the batch) - a key reason transformers, which process all positions in parallel, won at scale.",
+        "The hidden state is a fixed-size bottleneck: everything about the past must be compressed into one vector, so long or information-dense sequences lose detail - the motivation for attention, which lets the model look back at all positions directly.",
+        "Truncated backpropagation through time (a practical necessity for long sequences to bound memory/compute) limits how far back gradients flow, further capping the effective memory even before vanishing gradients bite."
+      ],
+      "connections": [
+        {
+          "ref": "rnn-nlp/lstm-gru",
+          "text": "LSTMs and GRUs add gating and a cell state with a near-identity gradient path, directly solving the vanishing-gradient problem that limits plain RNNs to short-range dependencies."
+        },
+        {
+          "ref": "foundations/calculus",
+          "text": "Backpropagation through time is the chain rule applied to the unrolled recurrence; the product of Jacobians is exactly the vanishing/exploding-gradient mechanism from the calculus lesson."
+        },
+        {
+          "ref": "rnn-nlp/seq2seq-attention",
+          "text": "Attention was introduced to fix the fixed-size hidden-state bottleneck of RNN encoder-decoders by letting the decoder look at all encoder states - the flagship lesson."
+        },
+        {
+          "text": "Module 08's transformers replace recurrence entirely with attention, gaining full parallelism across the sequence and direct long-range connections - the successor to everything here."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is a recurrent neural network?",
+          "a": "A network that processes a sequence one step at a time, carrying a hidden state (summary of the past) forward and combining it with each new input using shared weights."
+        },
+        {
+          "q": "What does the hidden state represent?",
+          "a": "A fixed-size summary of everything the RNN has seen up to the current step - its memory of the sequence so far."
+        },
+        {
+          "q": "What is weight sharing across time?",
+          "a": "The SAME recurrent cell (same weight matrices) is applied at every timestep - so parameter count is independent of sequence length and the update rule generalizes across positions."
+        },
+        {
+          "q": "What is backpropagation through time (BPTT)?",
+          "a": "Unrolling the recurrence into a deep graph and applying ordinary backpropagation through it - the chain rule over the sequence's timesteps."
+        },
+        {
+          "q": "What is the vanishing gradient problem?",
+          "a": "Gradients through many timesteps are a product of Jacobians; if each has norm < 1 the product shrinks exponentially, so RNNs can't learn long-range dependencies."
+        },
+        {
+          "q": "What is the exploding gradient problem?",
+          "a": "The same product of Jacobians blows up when norms > 1, giving NaN/divergent training - fixed by gradient clipping (rescale to a max norm)."
+        },
+        {
+          "q": "How do you fix exploding gradients?",
+          "a": "Gradient clipping - rescale the gradient to a maximum norm, preserving direction but capping magnitude. (Vanishing gradients need architecture changes.)"
+        },
+        {
+          "q": "Why can't RNNs be parallelized across the sequence?",
+          "a": "Each hidden state depends on the previous one, so timesteps must be computed in order - only the batch dimension parallelizes, unlike transformers."
+        },
+        {
+          "q": "What is the hidden-state bottleneck?",
+          "a": "The entire past must be compressed into one fixed-size vector, so long/dense sequences lose information - the motivation for attention."
+        },
+        {
+          "q": "What is truncated BPTT?",
+          "a": "Backpropagating only a fixed number of steps back (to bound memory/compute on long sequences), which further limits how far gradients - and thus learning - reach."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the RNN forward pass and why weight sharing across time is important.",
+          "a": "The forward pass processes the sequence element by element. It maintains a hidden state h, initialized (usually to zeros), and at each timestep t it computes a new hidden state by combining the current input x_t with the previous hidden state h_{t-1}: h_t = tanh(W_xh x_t + W_hh h_{t-1} + b_h), and optionally produces an output y_t = W_hy h_t + b_y. The hidden state is thus a running summary of the sequence so far, updated at each step, and the final hidden state (or the sequence of outputs) is the RNN's representation. The critical design choice is that the SAME weight matrices W_xh, W_hh, W_hy are used at EVERY timestep - the recurrence applies one shared cell repeatedly. Weight sharing matters for three reasons: (1) Parameter efficiency - the number of parameters is fixed regardless of sequence length, so the same small network handles sequences of any length (a 5-word or 500-word sentence), which a feedforward network with position-specific weights could not do. (2) Generalization across positions - because the model learns ONE update rule applied everywhere, a pattern learned at one position transfers to all positions (like convolution's translation-invariance for sequences), so the model doesn't have to relearn 'a verb follows a subject' separately for each position. (3) Handling variable length - a fixed set of weights with a recurrence naturally consumes arbitrary-length input, which is essential for language. The cost of this elegance is that the repeated application of the same recurrent weight during backpropagation is exactly what causes the vanishing/exploding gradient problem.",
+          "deepDive": {
+            "q": "How is an RNN's weight sharing across time analogous to a CNN's weight sharing across space, and where do they differ?",
+            "a": "Both RNNs and CNNs achieve parameter efficiency and translation-invariance through weight sharing, applying the same small set of weights across a dimension of the input. A CNN shares a convolutional filter across SPATIAL positions - the same filter slides over every location of an image, so a feature (an edge, a texture) is detected the same way wherever it appears, giving translation-invariance in space with a fixed, small parameter count. An RNN shares its recurrent cell across TEMPORAL positions - the same cell processes every timestep, so a temporal pattern is handled the same way wherever it occurs in the sequence, giving a form of translation-invariance in time. The deep analogy is 'one reusable operator applied across a structured dimension'. The key differences: (1) A CNN applies its filters INDEPENDENTLY and in PARALLEL across positions (each output depends only on a local receptive field), so it's fully parallelizable, whereas an RNN's applications are SEQUENTIAL and DEPENDENT - each step needs the previous hidden state - so it can't parallelize across time (a major practical disadvantage). (2) A CNN's receptive field is local and grows only with depth/dilation, while an RNN's hidden state can in principle carry information arbitrarily far (though vanishing gradients prevent this in practice). (3) The RNN's sequential dependency is what enables its unbounded memory in principle but also causes the vanishing/exploding gradient problem, which CNNs (with their parallel, shallow-per-position structure) don't suffer in the same way. So they're two instances of the same weight-sharing principle applied to different structured dimensions, with the RNN's temporal dependency being both its power (memory) and its curse (sequential, gradient issues)."
+          }
+        },
+        {
+          "q": "Derive why RNNs suffer from vanishing and exploding gradients, and explain the consequence for what they can learn.",
+          "a": "The problem comes from backpropagation through time and the repeated multiplication it entails. Consider a loss at timestep t and its gradient with respect to a much earlier hidden state h_k (k << t). By the chain rule, this gradient must propagate backward through every intermediate hidden state, so it contains the product of the per-step Jacobians dh_i/dh_{i-1} for i from k+1 to t - that's (t - k) factors multiplied together. Each Jacobian dh_i/dh_{i-1} = diag(tanh'(...)) * W_hh (the derivative of the recurrence), so the long-range gradient is essentially a product of (t-k) copies of (a diagonal derivative term times the recurrent weight matrix W_hh). Now the crux: multiplying many matrices together makes the result's magnitude grow or shrink EXPONENTIALLY in the number of factors, governed by the spectral radius / largest singular value of the repeated Jacobian. If those Jacobians have norm consistently LESS than 1 (the common case, since tanh' <= 1 and typical weight scales), the product shrinks toward zero exponentially with (t-k) - the VANISHING gradient - so the gradient signal from a distant timestep is essentially zero by the time it reaches the early state. If they have norm GREATER than 1, the product blows up exponentially - the EXPLODING gradient - giving NaN losses and divergence. The consequence for learning is severe and specific: because the long-range gradient vanishes, the network receives almost no learning signal about dependencies spanning many timesteps, so a plain RNN effectively cannot learn to connect events far apart in the sequence (it forgets beyond a handful of steps) - which for language means it can't reliably track long-range agreement, distant context, or long-term structure. Exploding gradients are the less fundamental of the two because they're easily fixed by gradient clipping; vanishing gradients are the deep limitation that motivated gated architectures.",
+          "deepDive": {
+            "q": "Given that tanh' <= 1 always, why don't RNNs ALWAYS have vanishing (never exploding) gradients?",
+            "a": "Because the per-step Jacobian is the diagonal derivative term MULTIPLIED BY the recurrent weight matrix W_hh, and W_hh's singular values can be large enough to overcome the <= 1 contribution of tanh'. Specifically, the Jacobian dh_i/dh_{i-1} = diag(tanh'(z_i)) * W_hh: the diagonal tanh' factors are each in (0, 1], which alone would shrink the gradient, but if W_hh has large singular values (norm > 1), their product with the tanh' terms can still exceed 1, so the overall Jacobian norm can be greater than 1 and the gradient explodes rather than vanishes. Whether you get vanishing or exploding depends on the interplay: with small recurrent weights (or when the hidden units are saturated so tanh' is near 0), the Jacobians are well below 1 and gradients vanish; with large recurrent weights (norm of W_hh large) and unsaturated units, the Jacobians can exceed 1 and gradients explode. In practice, careful initialization (e.g., orthogonal initialization of W_hh, which keeps singular values near 1) is used precisely to keep the Jacobian norm close to 1 and delay both problems, but it can't eliminate them over long ranges - which is why the real solution is architectural (LSTM/GRU gating creates a near-identity gradient path through the cell state), not just careful scaling. So RNNs can suffer either problem depending on the weight scale, and the saturating nonlinearity biases them toward vanishing while large weights bias toward exploding."
+          }
+        },
+        {
+          "q": "Why can't RNNs be parallelized across the sequence during training, and why did this matter for the rise of transformers?",
+          "a": "An RNN's computation is inherently SEQUENTIAL along the time dimension because each hidden state depends on the immediately preceding one: h_t = f(x_t, h_{t-1}). You cannot compute h_100 until you've computed h_99, which needs h_98, and so on back to h_1 - there's a strict data dependency chain of length equal to the sequence length. So even with unlimited parallel hardware, you must process the timesteps in order, one after another; the only parallelism available is across the BATCH dimension (process many independent sequences simultaneously) and within each step's matrix multiply, but NOT across the positions of a single sequence. This is a fundamental architectural constraint, not an implementation detail. It mattered enormously for the rise of transformers because it made RNNs slow to train on modern parallel hardware (GPUs/TPUs), which are built to do massive parallel computation - an RNN leaves that parallelism on the table along the sequence axis, so training on long sequences is slow (time proportional to sequence length, unavoidably serial). Transformers replaced recurrence with self-attention, which computes the representation of every position as a function of all positions SIMULTANEOUSLY - there's no left-to-right dependency, so all positions in a sequence are processed in parallel in one matrix operation. This let transformers fully exploit GPU/TPU parallelism, training far faster on far longer sequences and far larger datasets, which was a decisive enabler of the scale that made large language models possible. In short, the RNN's sequential bottleneck capped how fast and how large you could train sequence models, and removing it (via attention's parallelism) was one of the key reasons transformers won - even though attention costs more compute per layer (quadratic in sequence length), its parallelizability made it far more scalable in wall-clock time.",
+          "deepDive": {
+            "q": "Transformers are quadratic in sequence length while RNNs are linear - so why are transformers still faster to train in practice?",
+            "a": "It's the classic distinction between total computational COMPLEXITY (FLOPs) and WALL-CLOCK time on parallel hardware - the two diverge because of parallelizability. An RNN does O(sequence_length) work but that work is SERIAL - it must be done step by step, so the wall-clock time is proportional to sequence length no matter how many parallel processors you have (you're bottlenecked by the dependency chain, using a tiny fraction of a GPU's parallel capacity at each step). A transformer's self-attention does O(sequence_length^2) work (every position attends to every other), which is MORE total FLOPs for long sequences, BUT that work is fully PARALLEL - all the pairwise interactions can be computed simultaneously in a few large matrix multiplications, which is exactly what GPUs/TPUs excel at. So on parallel hardware, the transformer completes its larger-but-parallel workload in far fewer wall-clock steps (roughly constant depth regardless of sequence length) than the RNN takes to grind through its smaller-but-serial workload. For the sequence lengths and hardware common in practice, the transformer's parallelism wins decisively on training speed despite the quadratic cost - which is why 'quadratic but parallel beats linear but serial' held until sequences got long enough that the quadratic term itself became the bottleneck (motivating the efficient-attention work in later modules). It's a concrete example of the complexity-vs-constant-factor / complexity-vs-parallelism distinction: the asymptotically-cheaper algorithm can be slower in practice when it can't use the hardware's parallelism."
+          }
+        },
+        {
+          "q": "What is the fixed-size hidden-state bottleneck in RNN encoder-decoder models, and how did attention address it?",
+          "a": "In an RNN encoder-decoder (seq2seq) model for tasks like translation, the encoder reads the entire input sequence and compresses it into a single fixed-size vector - the final hidden state - which is then handed to the decoder to generate the output. The bottleneck is that this ONE vector must contain everything the decoder needs to know about the entire input, regardless of how long or information-dense the input is. For a short sentence this is fine, but for a long sentence, cramming all the meaning, word order, and detail into a single fixed-dimensional vector loses information - the model literally cannot fit it all, and performance degrades sharply as input length grows (empirically, translation quality dropped for long sentences precisely because of this compression). It's an information-theoretic constraint: a fixed-capacity channel can't losslessly carry unbounded information. Attention addressed this directly by removing the single-vector requirement. Instead of forcing the encoder to compress everything into the final hidden state, attention keeps ALL of the encoder's hidden states (one per input position) available, and at each decoding step the decoder computes a weighted combination of all those encoder states - 'attending' more to the input positions relevant to the current output word. So when translating a particular word, the decoder can look directly back at the relevant source words rather than relying on a lossy summary. This gives the decoder direct access to the full input with dynamic, content-based focus, eliminating the fixed-size bottleneck (the effective 'memory' now scales with input length) and dramatically improving long-sequence performance - and this attention mechanism, first bolted onto RNN seq2seq models, was the seed that grew into the transformer, where attention replaces recurrence entirely.",
+          "deepDive": {
+            "q": "How does attention's solution to the bottleneck relate to the difference between a lossy summary and a retrievable memory?",
+            "a": "It's exactly the distinction between compressing information into a fixed summary versus keeping a retrievable store you can query. The RNN encoder's final hidden state is a LOSSY SUMMARY - a single fixed-size vector that must encode the whole input in a fixed number of dimensions, so as input grows, information is necessarily discarded or blurred together (like trying to summarize a long document in one fixed-length sentence). Attention instead treats the encoder's per-position hidden states as a RETRIEVABLE MEMORY - a set of key-value entries, one per input position, that the decoder can query at each step, pulling out (via the attention weights) precisely the information relevant to what it's currently generating. Nothing is pre-compressed away; the full detail remains available and is selectively accessed on demand. This is why attention scales with input length gracefully (more input = more memory entries, not a more-overloaded fixed vector) while the RNN summary degrades. The mental model - 'summary vs queryable memory' - recurs throughout modern ML: it's the same reason retrieval-augmented generation keeps documents in an external store rather than cramming them into weights, and the same reason a fixed-size context vector is a bottleneck wherever it appears. Attention's core contribution was replacing 'compress then hope it's enough' with 'keep everything and retrieve what's relevant', which is a fundamentally more scalable way to handle information, and it's the conceptual heart of why transformers can integrate information across long contexts that RNNs could not."
+          }
+        },
+        {
+          "q": "Given all their limitations, when might an RNN still be the right choice over a transformer today?",
+          "a": "RNNs retain genuine advantages in specific regimes where their weaknesses don't bite and their strengths matter. (1) Streaming / online / real-time inference: an RNN maintains a fixed-size hidden state and processes one input at a time in constant time and memory per step, so it's naturally suited to unbounded streaming input (live audio, sensor streams, incremental processing) where you get elements one at a time and must respond immediately - a transformer, by contrast, attends over the whole context and its cost grows with context length, so pure streaming is less natural (though cached/incremental variants exist). (2) Very long or unbounded sequences with tight memory budgets: the RNN's cost is O(sequence_length) with O(1) state, while a transformer's attention is O(sequence_length^2) in compute and O(sequence_length) in memory (the KV cache), so for extremely long sequences on constrained hardware, the RNN's linear cost and constant memory can win - which is exactly why modern linear-recurrence / state-space models (S4, Mamba) revived RNN-like recurrence for long-context efficiency. (3) Small-data / small-model / on-device settings: a small RNN can be more parameter- and compute-efficient than a transformer for simple sequence tasks, and its small fixed state suits embedded/edge deployment. (4) Low-latency incremental decoding where reprocessing context is costly. So the honest picture is that transformers dominate for most large-scale NLP because of parallel training and long-range modeling, but the RNN's constant-memory, linear-time, streaming-friendly recurrence is a real advantage that modern efficient-sequence-model research (state-space models) has deliberately brought back - the recurrence idea isn't obsolete, it's been refined to fix the gradient problem while keeping the efficiency.",
+          "deepDive": {
+            "q": "How do modern state-space models (like Mamba/S4) keep the RNN's efficiency while fixing its gradient and parallelism problems?",
+            "a": "State-space models (SSMs) like S4 and Mamba are essentially a redesigned recurrence that keeps the RNN's key efficiency properties - linear-time processing and constant-size state (so O(sequence_length) compute and O(1) memory per step at inference, ideal for long sequences and streaming) - while overcoming the two things that killed plain RNNs. First, the vanishing-gradient / long-range problem: SSMs use a carefully-parameterized LINEAR recurrence (a continuous-time state-space formulation, discretized) with structured state matrices designed so that information and gradients propagate stably over very long ranges - the linear, structured dynamics avoid the pathological exponential shrink/growth of the nonlinear RNN's repeated Jacobian products, giving them genuinely long memory that plain RNNs lack. Second, the parallelism problem: because the recurrence is LINEAR (no nonlinearity between steps in the core recurrence), it can be computed either as a recurrence (efficient at inference, one step at a time) OR reformulated as a convolution / parallel scan that processes the whole sequence in parallel during TRAINING - so they get transformer-like training parallelism (exploiting GPUs) while retaining RNN-like sequential efficiency at inference, the best of both. Mamba adds input-dependent (selective) state dynamics to make the SSM content-aware like attention. The upshot is that SSMs are a modern answer to 'can we have the RNN's efficiency without its fatal flaws?' - they demonstrate that recurrence wasn't fundamentally wrong, just that the plain-RNN implementation had fixable problems (nonlinear-recurrence gradient instability and non-parallelizability), and by re-engineering the recurrence to be linear, structured, and stably-initialized, they recover long-range modeling and parallel training at far better long-context efficiency than quadratic attention."
+          }
+        },
+        {
+          "q": "Describe the different RNN input/output configurations (one-to-many, many-to-one, many-to-many) and what a bidirectional RNN adds.",
+          "a": "RNNs flex to different sequence tasks by choosing where inputs enter and where outputs are read off the hidden-state sequence. (1) ONE-TO-MANY: a single input produces a sequence output - e.g., image captioning (one image -> a sentence), where the input initializes the hidden state and the RNN generates output tokens step by step. (2) MANY-TO-ONE: a sequence produces a single output - e.g., sentiment classification or sequence classification, where you feed the whole sequence and read the output only from the FINAL hidden state (which summarizes everything). (3) MANY-TO-MANY, aligned: a sequence produces an equal-length output with one output per input - e.g., part-of-speech tagging or named-entity recognition, where you read an output at every timestep. (4) MANY-TO-MANY, unaligned (seq2seq/encoder-decoder): an input sequence maps to a different-length output sequence - e.g., translation, where an encoder RNN consumes the input into a summary and a decoder RNN generates the output; this is the configuration that needed attention to fix the fixed-vector bottleneck. A BIDIRECTIONAL RNN adds crucial capability for the tasks where the whole sequence is available at once (not streaming generation): it runs TWO RNNs, one processing the sequence left-to-right and one right-to-left, and concatenates their hidden states at each position. This means each position's representation incorporates context from BOTH directions - what came before AND what comes after - rather than only the past. That matters because meaning often depends on future context: to tag or understand a word, the words after it are as informative as the words before (e.g., disambiguating 'bank' needs the following words). Bidirectional RNNs were standard for sequence labeling and were the basis of ELMo's contextual embeddings; the catch is they require the ENTIRE sequence upfront (you can't run the backward pass on streaming input) and can't be used for left-to-right generation, so they're for encoding/understanding tasks, not autoregressive generation.",
+          "deepDive": {
+            "q": "Why can't a bidirectional RNN be used for autoregressive language generation, and how does this constraint reappear in transformers?",
+            "a": "A bidirectional RNN can't do autoregressive generation because its backward pass requires seeing the ENTIRE sequence, including future tokens, to compute each position's representation - but in generation you're PRODUCING the future tokens one at a time and don't have them yet. Concretely, to generate token t you can only condition on tokens 1..t-1 (the past); a bidirectional model's representation of position t depends on tokens t+1, t+2, ... which don't exist during left-to-right generation, so it's fundamentally incompatible with the generate-one-token-at-a-time setting. It also would be 'cheating' if used for training a generator - the model could see the answer (the future token) it's supposed to predict. This exact constraint reappears in transformers as the distinction between ENCODER (bidirectional) and DECODER (causal/masked) attention. Encoder-style transformers like BERT use bidirectional self-attention - every position attends to all positions, past and future - which is great for UNDERSTANDING tasks (classification, tagging, embeddings) where the whole input is available, mirroring the bidirectional RNN. Decoder-style transformers like GPT use CAUSAL (masked) self-attention - each position can only attend to earlier positions, enforced by masking out future positions - precisely so the model can be trained to predict the next token without seeing it and can generate autoregressively at inference. So the bidirectional-vs-causal split, and the reason generation needs the causal/one-directional version, is the same principle in both architectures: bidirectional context helps understanding but breaks generation, so generative models must restrict themselves to past context only. This is why BERT (bidirectional) is an encoder for understanding and GPT (causal) is a decoder for generation - the RNN-era insight carried directly over."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Recurrent neural network",
+        "back": "Processes a sequence one step at a time, carrying a hidden state (summary of the past) forward and combining it with each input using shared weights."
+      },
+      {
+        "type": "formula",
+        "front": "RNN recurrence",
+        "back": "h_t = tanh(W_xh x_t + W_hh h_{t-1} + b_h); y_t = W_hy h_t + b_y. SAME weights every step - parameter count independent of sequence length."
+      },
+      {
+        "type": "definition",
+        "front": "Backpropagation through time (BPTT)",
+        "back": "Unroll the recurrence into a deep graph and apply the chain rule through the timesteps. The gradient to an early state is a product of per-step Jacobians."
+      },
+      {
+        "type": "pitfall",
+        "front": "Vanishing gradient",
+        "back": "Product of (t-k) Jacobians with norm < 1 shrinks exponentially, so RNNs can't learn long-range dependencies - the central limitation, fixed by LSTM/GRU gating."
+      },
+      {
+        "type": "pitfall",
+        "front": "Exploding gradient",
+        "back": "The Jacobian product blows up (norm > 1) -> NaN/divergence. Fixed by gradient clipping (rescale to a max norm) - unlike vanishing gradients."
+      },
+      {
+        "type": "pitfall",
+        "front": "No sequence parallelism",
+        "back": "Each hidden state needs the previous one, so timesteps are serial (only the batch parallelizes) - a key reason transformers (fully parallel) won at scale."
+      },
+      {
+        "type": "pitfall",
+        "front": "Fixed-size hidden-state bottleneck",
+        "back": "The whole past is compressed into one vector, losing detail on long sequences - the motivation for attention (keep all states, retrieve what's relevant)."
+      },
+      {
+        "type": "intuition",
+        "front": "RNN weight sharing = CNN's, over time",
+        "back": "Same cell applied at every timestep (like a CNN filter over space): parameter-efficient + position-general. But sequential (not parallel) and gradient-unstable."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Elman, Finding Structure in Time (1990)",
+        "url": "https://onlinelibrary.wiley.com/doi/10.1207/s15516709cog1402_1"
+      },
+      {
+        "title": "Karpathy, The Unreasonable Effectiveness of Recurrent Neural Networks (2015)",
+        "url": "https://karpathy.github.io/2015/05/21/rnn-effectiveness/"
+      },
+      {
+        "title": "Pascanu et al., On the difficulty of training RNNs (vanishing/exploding gradients, 2013)",
+        "url": "https://arxiv.org/abs/1211.5063"
+      },
+      {
+        "title": "Gu & Dao, Mamba: Linear-Time Sequence Modeling with Selective State Spaces (2023)",
+        "url": "https://arxiv.org/abs/2312.00752"
+      }
+    ],
+    "demos": [
+      "rnn-gates"
+    ]
+  }
+};

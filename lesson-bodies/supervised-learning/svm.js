@@ -1,0 +1,240 @@
+// GENERATED from content/lessons/supervised-learning/svm.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/supervised-learning/svm/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "svm": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "A support vector machine draws a linear boundary like logistic regression, but it answers a different question about which boundary is best. Logistic regression picks the boundary that maximizes label likelihood; an SVM picks the one that maximizes the *margin* - the distance from the boundary to the nearest data point of either class. The intuition is that a boundary sitting in the widest possible 'street' between the classes is the most robust to new data: small perturbations of the points won't flip their side.",
+        "The name comes from a striking fact: the boundary is determined entirely by the handful of points closest to it - the support vectors sitting on the edges of the margin. Every other point could be deleted without changing the solution. This makes the SVM's decision function sparse in the training data, and it's why the geometry - maximizing the gap to just the borderline cases - is the whole story rather than fitting all points equally.",
+        "Two ideas make SVMs powerful beyond a plain linear separator. Soft margins allow some points to violate the margin (or be misclassified) with a penalty, so the method works when classes overlap - a single hyperparameter C trades margin width against training violations. And the kernel trick lets an SVM draw a linear boundary in a high- (even infinite-) dimensional feature space without ever computing the coordinates there, so a straight line in that implicit space becomes a curved boundary in the original one - the same 'linear in engineered features' idea from logistic regression, made implicit and efficient."
+      ],
+      "math": [
+        {
+          "h": "The max-margin objective and hinge loss",
+          "paras": [
+            "Maximizing the margin is equivalent to minimizing the norm of the weight vector subject to every point being on the correct side by at least a unit distance. The soft-margin version relaxes this with slack, which turns out to be exactly a hinge loss plus L2 regularization: pay nothing if a point is correctly classified beyond the margin, pay linearly for how far it intrudes."
+          ],
+          "tex": "\\min_{w,b}\\; \\tfrac{1}{2}\\lVert w\\rVert^2 + C\\sum_i \\max\\!\\big(0,\\; 1 - y_i(w^\\top x_i + b)\\big) \\qquad y_i \\in \\{-1, +1\\}",
+          "texNote": "The first term widens the margin (small ||w||); the hinge term penalizes margin violations. C sets the trade-off: large C = fewer violations, narrower margin."
+        },
+        {
+          "h": "The kernel trick: inner products, not coordinates",
+          "paras": [
+            "The dual form of the SVM depends on the data only through inner products between points. A kernel replaces that inner product with a function K(x, x') that equals the inner product in some (implicit) higher-dimensional feature space - so you get a linear separator in that space without ever computing the mapping. The RBF (Gaussian) kernel corresponds to an infinite-dimensional space."
+          ],
+          "tex": "f(x) = \\sum_i \\alpha_i y_i\\, K(x_i, x) + b \\qquad K_{\\text{RBF}}(x, x') = \\exp\\!\\big(-\\gamma\\lVert x - x'\\rVert^2\\big)",
+          "texNote": "Only the support vectors have alpha_i > 0, so the sum runs over them; K computes an implicit high-dimensional inner product directly, no feature coordinates needed."
+        }
+      ],
+      "code": [
+        {
+          "h": "Linear vs RBF SVM on non-separable data",
+          "paras": [
+            "On make_moons, a linear SVM can't separate the two interleaved crescents, but an RBF kernel draws the curved boundary that a linear-in-implicit-space separator implies."
+          ],
+          "code": "from sklearn.datasets import make_moons\nfrom sklearn.svm import SVC\nfrom sklearn.model_selection import cross_val_score\n\nX, y = make_moons(n_samples=400, noise=0.2, random_state=0)\n\nlinear = SVC(kernel='linear', C=1.0)\nrbf    = SVC(kernel='rbf', C=1.0, gamma='scale')\n\nprint('linear SVM CV acc:', cross_val_score(linear, X, y, cv=5).mean())  # ~0.87, limited by a straight line\nprint('rbf    SVM CV acc:', cross_val_score(rbf,    X, y, cv=5).mean())  # ~0.96, curves around the moons\n\nrbf.fit(X, y)\nprint('n support vectors:', rbf.n_support_.sum(), 'of', len(X))  # only the borderline points matter",
+          "caption": "The RBF kernel fits a nonlinear boundary; only the support vectors (points near the boundary) define it - the rest are irrelevant."
+        },
+        {
+          "h": "The C and gamma knobs control the bias-variance tradeoff",
+          "paras": [
+            "C trades margin width against violations; gamma sets the reach of each RBF support vector. Both are the SVM's overfitting dials, tuned by cross-validation."
+          ],
+          "code": "from sklearn.svm import SVC\nfrom sklearn.model_selection import cross_val_score\n\nfor C in [0.1, 1.0, 100.0]:\n    acc = cross_val_score(SVC(kernel='rbf', C=C, gamma='scale'), X, y, cv=5).mean()\n    print(f'C={C:>5}: CV acc={acc:.3f}')  # too small underfits (wide soft margin), too large overfits\n\nfor g in [0.01, 1.0, 100.0]:\n    acc = cross_val_score(SVC(kernel='rbf', C=1.0, gamma=g), X, y, cv=5).mean()\n    print(f'gamma={g:>6}: CV acc={acc:.3f}')  # large gamma = tight, wiggly boundary that overfits",
+          "caption": "Large C or large gamma both increase model complexity (risk of overfitting); small values regularize. Grid-search them together."
+        }
+      ],
+      "useCases": [
+        "Strong classifier for small-to-medium datasets with clear margins, especially in high-dimensional spaces where the number of features exceeds the number of samples (text, bioinformatics) - the margin regularization handles high dimensionality gracefully.",
+        "Text classification with linear kernels on TF-IDF features, where SVMs were the dominant method before deep learning and remain a fast, strong baseline.",
+        "Any problem where you want a maximum-margin, robust boundary and can afford the O(n^2)-O(n^3) training cost - the sparsity in support vectors also makes the final model compact.",
+        "The hinge loss and margin concept reappear in modern deep learning (e.g., margin-based losses for metric learning and contrastive objectives, Module 12)."
+      ],
+      "pitfalls": [
+        "SVMs scale poorly to large n: kernel SVM training is roughly O(n^2) to O(n^3), so they become impractical past ~100k examples - linear SVMs (or SGD-based approximations) scale better but lose the kernel nonlinearity.",
+        "The RBF kernel requires feature scaling: distances ||x - x'|| dominate the kernel, so unscaled features let one large-range feature swamp the rest - always standardize before an RBF SVM.",
+        "Raw SVM outputs are signed distances, not probabilities - getting calibrated probabilities requires an extra step (Platt scaling / sklearn's probability=True), which also slows training and can be poorly calibrated.",
+        "C and gamma interact and must be tuned jointly (grid or random search): large gamma makes each support vector's influence local and the boundary wiggly, and large C punishes violations hard - either alone or together can overfit.",
+        "Overselling SVMs vs simpler models: on large tabular datasets, gradient-boosted trees usually match or beat a kernel SVM at a fraction of the training cost - the SVM's sweet spot is smaller, higher-dimensional, margin-clean problems."
+      ],
+      "connections": [
+        {
+          "ref": "supervised-learning/logistic-regression",
+          "text": "Both draw a linear boundary, but the SVM maximizes margin (hinge loss) where logistic regression maximizes likelihood (log loss) - a clean contrast in 'best boundary' criteria."
+        },
+        {
+          "ref": "foundations/linear-algebra",
+          "text": "The margin is a distance from a hyperplane (||w|| and inner products); the kernel trick replaces explicit inner products with a kernel function."
+        },
+        {
+          "ref": "supervised-learning/knn",
+          "text": "kNN is the non-parametric, all-points classifier; the SVM is its sparse, margin-based counterpart that keeps only the borderline support vectors."
+        },
+        {
+          "ref": "supervised-learning/model-comparison",
+          "text": "SVM vs trees vs logistic regression is a recurring 'which algorithm when' comparison - the model-selection lesson formalizes how to choose."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What does an SVM maximize?",
+          "a": "The margin - the distance from the decision boundary to the nearest training point of either class."
+        },
+        {
+          "q": "What are support vectors?",
+          "a": "The training points on (or violating) the margin edges - they alone determine the boundary; all other points could be removed without changing it."
+        },
+        {
+          "q": "What does the C hyperparameter control?",
+          "a": "The soft-margin trade-off: large C penalizes margin violations hard (narrow margin, risk of overfitting), small C allows more violations (wider margin, more regularization)."
+        },
+        {
+          "q": "What is the kernel trick?",
+          "a": "Replacing inner products with a kernel K(x,x') that equals an inner product in an implicit high-dimensional space - a linear boundary there, nonlinear in the original space, without computing the mapping."
+        },
+        {
+          "q": "What loss does a soft-margin SVM minimize?",
+          "a": "Hinge loss plus L2 regularization: max(0, 1 - y*(w.x + b)) summed over points, plus (1/2)||w||^2."
+        },
+        {
+          "q": "What space does the RBF kernel implicitly map to?",
+          "a": "An infinite-dimensional feature space - which is why it can fit very flexible boundaries."
+        },
+        {
+          "q": "Why must you scale features before an RBF SVM?",
+          "a": "The kernel depends on distances ||x - x'||, so an unscaled large-range feature dominates - standardize first."
+        },
+        {
+          "q": "Do SVMs output probabilities?",
+          "a": "Not natively - they output signed distances; calibrated probabilities need an extra step like Platt scaling."
+        },
+        {
+          "q": "How do SVMs scale with dataset size?",
+          "a": "Poorly - kernel SVM training is ~O(n^2) to O(n^3), impractical past ~100k samples; linear SVMs scale better."
+        },
+        {
+          "q": "SVM vs logistic regression - key difference in objective?",
+          "a": "SVM maximizes margin (hinge loss, cares only about borderline points); logistic regression maximizes likelihood (log loss, all points contribute)."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the max-margin objective geometrically, and why maximizing the margin is equivalent to minimizing the norm of the weight vector.",
+          "a": "For a linear boundary w^T x + b = 0, the signed distance from a point x to the boundary is (w^T x + b)/||w||. If we scale w and b so that the closest points satisfy |w^T x + b| = 1 (the canonical form), then the margin - the distance from the boundary to those closest points - is exactly 1/||w|| on each side, for a total street width of 2/||w||. Maximizing that margin means maximizing 1/||w||, which is the same as minimizing ||w|| (or ||w||^2 for a smooth convex objective), subject to the constraint that every point is correctly classified with margin at least 1: y_i(w^T x_i + b) >= 1. So the geometric goal (widest street between the classes) becomes the clean convex program 'minimize (1/2)||w||^2 subject to the margin constraints'. Intuitively, a smaller ||w|| means the linear function changes more slowly as you move away from the boundary, so it takes a larger displacement to reach the +/-1 level sets - a wider margin.",
+          "deepDive": {
+            "q": "How does the soft-margin formulation modify this, and what does the slack variable represent?",
+            "a": "Real data isn't perfectly separable, so we introduce a non-negative slack variable xi_i per point measuring how much it violates its margin constraint: y_i(w^T x_i + b) >= 1 - xi_i. A point with xi_i = 0 is correctly classified beyond the margin, 0 < xi_i < 1 is inside the margin but on the correct side, and xi_i > 1 is misclassified. The objective becomes minimize (1/2)||w||^2 + C*sum_i xi_i - trading margin width against total violation, where C weights how much violations cost. At the optimum, sum_i xi_i's contribution is exactly the total hinge loss, which is why the soft-margin SVM is equivalent to minimizing hinge loss + L2 regularization; C is the inverse regularization strength (large C = penalize violations heavily = less regularization)."
+          }
+        },
+        {
+          "q": "Explain the kernel trick in detail: what it computes, why it's efficient, and what makes a valid kernel.",
+          "a": "The dual formulation of the SVM optimization depends on the training data only through pairwise inner products x_i^T x_j - the primal weight vector never has to be formed explicitly. The kernel trick exploits this: replace every inner product x_i^T x_j with K(x_i, x_j), a function that equals the inner product phi(x_i)^T phi(x_j) in some (possibly very high- or infinite-dimensional) feature space defined by a mapping phi, without ever computing phi(x) itself. So you get a linear separator in the rich feature space - a nonlinear boundary in the original space - at the cost of evaluating K, which is typically as cheap as a dot product in the original dimension. This is efficient precisely because the implicit feature space can be huge (infinite for RBF) while K stays cheap. A function is a valid kernel if it corresponds to an inner product in some feature space, which by Mercer's theorem holds iff K is symmetric and positive semi-definite (the Gram matrix K_ij is PSD for any set of points) - RBF, polynomial, and linear kernels all satisfy this.",
+          "deepDive": {
+            "q": "Why does the RBF kernel correspond to an infinite-dimensional feature space, and what does gamma control there?",
+            "a": "The RBF kernel exp(-gamma||x - x'||^2) can be expanded (via the Taylor series of the exponential) into an infinite sum of polynomial terms of all degrees, which means its implicit feature map phi has infinitely many coordinates - one reason it can fit arbitrarily flexible boundaries. Gamma controls the 'width' of each support vector's influence: a large gamma makes the kernel drop off sharply with distance, so each support vector only affects a small neighborhood and the boundary becomes wiggly and local (high variance, overfitting risk); a small gamma makes the influence broad and smooth (higher bias). So gamma is effectively the bandwidth of a similarity function, and it's the SVM's flexibility dial in the implicit feature space, tuned jointly with C."
+          }
+        },
+        {
+          "q": "You train an RBF SVM and it gets 100% training accuracy but poor test accuracy. Diagnose using C and gamma, and describe how you'd fix it.",
+          "a": "100% training accuracy with poor test accuracy is overfitting, and for an RBF SVM the two knobs that cause it are large C and/or large gamma. A large gamma makes each support vector's influence extremely local, so the model can wrap a tight bubble around individual training points - it memorizes rather than generalizes. A large C punishes any margin violation so heavily that the optimizer forgoes a wide, smooth margin in favor of contorting the boundary to classify every training point correctly, again memorizing. The fix is to regularize by reducing both and selecting via cross-validation: grid-search C and gamma together (they interact) over a log-spaced range, choosing the pair that maximizes held-out (not training) accuracy - this will generally push toward a smaller gamma (smoother boundary) and a moderate C (tolerate some violations for a wider margin). I'd also confirm the features are scaled (unscaled features silently inflate the effective gamma on large-range dimensions) and check the number of support vectors: if nearly every training point is a support vector, that's a strong signal the model is memorizing and needs more regularization.",
+          "deepDive": {
+            "q": "Why is 'nearly every point is a support vector' a red flag for generalization?",
+            "a": "In a well-fit SVM only the borderline points - those on or near the margin - are support vectors, and a small support-vector fraction means the decision function is determined by a compact, robust subset of the data (a form of sparsity that tends to generalize). When almost every training point becomes a support vector, the boundary is being pinned by essentially all the data including interior points, which happens when gamma is so large that each point carves out its own local region - the model has effectively become a nearest-neighbor lookup over the training set, with the corresponding high variance. It's the SVM analogue of a decision tree grown to one leaf per example: near-perfect training fit, little generalization, and a clear signal to increase regularization (lower gamma/C)."
+          }
+        },
+        {
+          "q": "Compare the hinge loss (SVM) and log loss (logistic regression) as functions of the margin y*f(x), and explain the practical consequences of the difference.",
+          "a": "Plot both against the functional margin m = y*(w^T x + b). Hinge loss is max(0, 1 - m): it's exactly zero for any point classified correctly with margin >= 1, and increases linearly for m < 1. Log loss is log(1 + exp(-m)): it's never exactly zero - even a confidently-correct point (large positive m) contributes a small positive loss that decays exponentially, and it also decays smoothly rather than hitting a hard corner. The practical consequences: (1) Because hinge loss is zero beyond the margin, the SVM solution depends only on the support vectors (points with m <= 1) - deleting well-classified points changes nothing, giving sparsity; log loss's never-zero tail means every point exerts some pull, so logistic regression's boundary shifts (slightly) with all points. (2) Log loss's smoothness and probabilistic grounding give calibrated probability outputs directly; the hinge loss's hard zero gives a decision boundary but not probabilities. (3) Both are convex upper bounds on 0/1 loss, so both are trainable surrogates, but hinge's kink at m=1 makes it non-differentiable there (subgradient methods), while log loss is smooth everywhere.",
+          "deepDive": {
+            "q": "Given these differences, when would you specifically prefer the SVM's hinge loss over logistic regression?",
+            "a": "Prefer hinge/SVM when you want a maximum-margin boundary that's robust to the exact placement of well-separated points and don't need probability estimates - especially in high-dimensional, margin-clean problems (text with linear kernels, small-n/large-d bioinformatics) where the margin regularization shines and the support-vector sparsity yields a compact model. Prefer logistic regression when you need calibrated probabilities for downstream expected-value decisions (ad CTR, risk scoring per 25-04), when you want every point to inform the estimate (more stable with class overlap), or when you need the model to scale to very large n where log-loss with SGD is cheaper than kernel-SVM training. On linearly-separable, well-margined data they often perform similarly - the choice is driven by whether you need probabilities and by the data's size/dimensionality regime."
+          }
+        },
+        {
+          "q": "An SVM works beautifully on your 5,000-example prototype but is far too slow when you scale to 5 million examples. What's happening and what are your options?",
+          "a": "Kernel SVM training scales roughly between O(n^2) and O(n^3) in the number of training examples, because it must work with the n-by-n kernel (Gram) matrix - computing, storing, and optimizing over pairwise similarities. At 5,000 examples that's a 25-million-entry matrix (fine); at 5 million it's a 25-trillion-entry matrix (impossible to even store), and the optimization time explodes. Options, roughly in order: (1) Use a linear SVM instead of a kernel one - linear SVM solvers (LIBLINEAR, or SGD-based) scale roughly linearly in n and handle millions of examples, at the cost of giving up the kernel's nonlinearity. (2) Approximate the kernel with explicit finite-dimensional features - random Fourier features (for RBF) or the Nystrom method construct a low-dimensional feature map that approximates the kernel, then train a fast linear SVM on those features, recovering most of the nonlinear power at linear cost. (3) Subsample or use a coreset - train the kernel SVM on a representative subset, since only support vectors matter anyway. (4) Switch models entirely - gradient-boosted trees often match or beat a kernel SVM on large tabular data at far lower training cost, so at this scale the SVM may simply be the wrong tool.",
+          "deepDive": {
+            "q": "How do random Fourier features let a linear model approximate an RBF SVM?",
+            "a": "Rahimi and Recht's random Fourier features exploit Bochner's theorem: a shift-invariant kernel like the RBF is the Fourier transform of a probability distribution, so the kernel K(x,x') = phi(x)^T phi(x') can be approximated by z(x)^T z(x') where z(x) is a finite vector of randomized cosine features z(x) = sqrt(2/D)*cos(omega_i^T x + b_i) with omega_i sampled from that distribution (a Gaussian for RBF) and b_i uniform. As the number of random features D grows, this Monte-Carlo estimate converges to the true RBF kernel. So you map every example once into D explicit features and then train an ordinary fast linear SVM (or logistic regression) on them - turning an O(n^2) kernel method into an O(nD) linear one that scales to millions of points while keeping most of the RBF's nonlinear expressiveness."
+          }
+        },
+        {
+          "q": "How would you extend a binary SVM to a multiclass problem, and what are the tradeoffs of the common strategies?",
+          "a": "SVMs are inherently binary (they find one separating hyperplane), so multiclass is handled by decomposing into binary problems. One-vs-rest (OvR) trains K binary SVMs, each separating one class from all the others, and predicts the class whose SVM gives the highest decision score - it needs only K classifiers (cheap) but each is trained on an imbalanced problem (one class vs the union of all others) and the K scores aren't directly comparable in scale. One-vs-one (OvO) trains a binary SVM for every pair of classes (K*(K-1)/2 of them) and predicts by majority vote across all pairwise contests - each classifier is trained on a smaller, balanced two-class subset (faster per classifier, and the total work can be less than OvR despite more classifiers because each sees less data), but the number of classifiers grows quadratically in K, which matters when K is large. sklearn's SVC uses OvO by default; LinearSVC uses OvR. In practice OvO is common for kernel SVMs (small per-classifier data, quadratic training cost makes smaller subsets attractive) and OvR for linear ones.",
+          "deepDive": {
+            "q": "Why might OvO actually train faster than OvR for a kernel SVM despite training many more classifiers?",
+            "a": "Because kernel SVM training is superlinear (roughly O(n^2)-O(n^3)) in the number of training examples, and each OvO classifier only sees the examples from its two classes - about 2n/K points if classes are balanced - rather than all n. Training cost per OvO classifier is therefore roughly O((2n/K)^2), and with K(K-1)/2 classifiers the total is about K(K-1)/2 * (2n/K)^2 ~ 2n^2, i.e. roughly independent of K and comparable to a single full-data quadratic training pass; OvR trains K classifiers each on all n points, costing K * O(n^2). So the superlinear scaling means splitting into many small problems (OvO) is cheaper than a few large ones (OvR) for kernel SVMs - the same reason splitting a big quadratic job into small pieces wins whenever cost grows faster than linearly in the piece size."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "What does an SVM maximize?",
+        "back": "The margin - the distance from the decision boundary to the nearest point of either class. The widest 'street' between the classes."
+      },
+      {
+        "type": "definition",
+        "front": "Support vectors",
+        "back": "The borderline points on/violating the margin edges - they alone define the boundary; all other points can be deleted without changing it."
+      },
+      {
+        "type": "formula",
+        "front": "Soft-margin SVM objective",
+        "back": "min (1/2)||w||^2 + C*sum hinge(y_i(w.x_i+b)) - margin width vs violations. = hinge loss + L2 regularization."
+      },
+      {
+        "type": "definition",
+        "front": "Kernel trick",
+        "back": "Replace inner products with K(x,x') = an inner product in an implicit high-dim space - linear boundary there, nonlinear here, no coordinates computed."
+      },
+      {
+        "type": "formula",
+        "front": "RBF kernel",
+        "back": "exp(-gamma*||x-x'||^2) - maps to an infinite-dimensional space; gamma is the bandwidth (large = local/wiggly, small = smooth)."
+      },
+      {
+        "type": "intuition",
+        "front": "C and gamma as overfitting dials",
+        "back": "Large C = punish violations hard (narrow margin); large gamma = local, wiggly boundary. Both increase complexity - tune jointly by CV."
+      },
+      {
+        "type": "pitfall",
+        "front": "SVM scaling with n",
+        "back": "Kernel SVM training is ~O(n^2)-O(n^3), impractical past ~100k points - use linear SVM or random Fourier features to scale."
+      },
+      {
+        "type": "intuition",
+        "front": "Hinge vs log loss",
+        "back": "Hinge is exactly zero beyond the margin (only support vectors matter, no probabilities); log loss never hits zero (all points contribute, gives probabilities)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Cortes & Vapnik, Support-Vector Networks (1995)",
+        "url": "https://link.springer.com/article/10.1007/BF00994018"
+      },
+      {
+        "title": "scikit-learn: Support Vector Machines",
+        "url": "https://scikit-learn.org/stable/modules/svm.html"
+      },
+      {
+        "title": "Rahimi & Recht, Random Features for Large-Scale Kernel Machines (2007)",
+        "url": "https://papers.nips.cc/paper/2007/hash/013a006f03dbc5392effeb8f18fda755-Abstract.html"
+      },
+      {
+        "title": "Hastie, Tibshirani, Friedman - Elements of Statistical Learning (Ch. 12)",
+        "url": "https://hastie.su.domains/ElemStatLearn/"
+      }
+    ],
+    "demos": [
+      "svm"
+    ]
+  }
+};

@@ -1,0 +1,292 @@
+// GENERATED from content/lessons/ml-applications/audio-classification.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/ml-applications/audio-classification/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "audio-classification": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Audio classification is mostly a decision about REPRESENTATION, and the standard answer is to stop treating it as audio. Convert the waveform to a log-mel spectrogram and you have a 2D array where one axis is time and the other is frequency, at which point a vision architecture applies directly and the whole CNN toolkit transfers.",
+        "That transfer is not free, and knowing where it breaks is the substance. A spectrogram is not an image: the axes mean different things, so vertical and horizontal translation are not the same operation - shifting in time is a delay and shifting in frequency is a pitch change, and only one of those usually preserves the label. Every augmentation and pooling decision follows from that asymmetry.",
+        "And this domain has the module's cleanest leak, because the recording is a group. A model that sees clips from the same speaker or the same recording session in both train and test learns the fingerprint rather than the label - measured on grouped data with a strong per-group signature and a weak true signal, AUC 0.9999 on a random clip split against 0.5807 on a group split. THAT IS +0.4192 OF OPTIMISM from the same data, model and features, and it is the single most common way an audio result fails to reproduce."
+      ],
+      "math": [
+        {
+          "h": "The representation, and why mel and log",
+          "paras": [
+            "The short-time Fourier transform gives time-frequency energy. The mel scale compresses frequency to match human perceptual resolution, and the log compresses amplitude to match perceptual loudness and to turn multiplicative gain into an additive offset.",
+            "That last property is why log-mel is robust to recording volume: a gain change becomes a constant added to every bin, which normalization removes."
+          ],
+          "tex": "X(t,f)=\\Big|\\sum_n x[n]\\,w[n-t]\\,e^{-2\\pi i fn/N}\\Big|^2 \\;\\to\\; \\text{mel filterbank} \\;\\to\\; \\log(\\cdot+\\epsilon)",
+          "texNote": "MFCCs add a DCT on top to decorrelate the mel bands, which mattered for GMM-HMM systems that assumed diagonal covariance. Neural networks do not need that decorrelation and it discards information, so log-mel is the modern default and MFCCs are largely legacy."
+        },
+        {
+          "h": "The window trade is the aliasing trade",
+          "paras": [
+            "Window length sets time-frequency resolution and you cannot have both. A short window resolves onsets and smears pitch; a long window resolves pitch and smears onsets.",
+            "Choose it from what the label depends on, not from a default."
+          ],
+          "tex": "\\Delta t \\cdot \\Delta f \\gtrsim \\frac{1}{4\\pi} \\quad\\Rightarrow\\quad \\text{25 ms window / 10 ms hop} \\approx 40\\ \\text{Hz resolution}",
+          "texNote": "25 ms with a 10 ms hop is the speech default and it is a choice about speech, not a law. For music or machine sounds where fine pitch matters, a longer window is correct; for transient detection a shorter one is."
+        },
+        {
+          "h": "★ The recording is the group",
+          "paras": [
+            "Clips from one recording share channel, microphone, room, noise floor and speaker characteristics - a fingerprint far stronger than most label signals.",
+            "Measured on grouped data with exactly that structure: a strong per-group signature and a weak true label signal."
+          ],
+          "tex": "\\text{random CLIP split: AUC } \\mathbf{0.9999} \\qquad \\text{GROUP (speaker/recording) split: AUC } \\mathbf{0.5807}",
+          "texNote": "Optimism of +0.4192, same data, same model, same features. Any label that is a property of the speaker - accent, condition, identity, sentiment tendency - becomes a lookup on the fingerprint the moment a speaker appears on both sides."
+        }
+      ],
+      "code": [
+        {
+          "h": "Augmentation, and the one that respects the axes",
+          "paras": [
+            "The asymmetry between the axes decides which augmentations are valid, and the standard recipe encodes it."
+          ],
+          "code": "# SPECAUGMENT - masks applied directly on the spectrogram\n#   TIME MASKING       zero a band of time steps   -> simulates dropout/occlusion\n#   FREQUENCY MASKING  zero a band of mel bins     -> forces distributed reliance\n#   TIME WARPING       mild stretch along time     -> tempo invariance\n#   ★ note what is ABSENT: no frequency SHIFT, because shifting frequency is a\n#     pitch change and for speech that changes speaker identity, not nothing.\n\n# WAVEFORM-DOMAIN (before the transform)\n#   speed / tempo perturbation (0.9x, 1.0x, 1.1x) - the classic ASR recipe\n#   room impulse responses and additive noise at controlled SNR\n#   ★ these change the CHANNEL, which is exactly the nuisance variable the\n#     group split is protecting against - so they are the right augmentation\n#     for a model that must generalize across recordings.\n\n# ★ HORIZONTAL AND VERTICAL FLIPS ARE WRONG. Time reversal is not audio and\n#   frequency inversion is not a sound. Vision defaults do not transfer.",
+          "caption": "The augmentation list is the axis asymmetry written down. Anything that treats the two axes symmetrically is importing an image prior that does not hold."
+        },
+        {
+          "h": "The pipeline, and where the group must be tracked",
+          "paras": [
+            "The split has to be enforced upstream of every aggregate, exactly as in the recommender case."
+          ],
+          "code": "# 1 SPLIT BY RECORDING / SPEAKER FIRST, before anything else touches the data\n#     -> AUC 0.9999 vs 0.5807 is what this step is worth\n# 2 compute normalization statistics on the TRAINING split only\n#     ★ per-recording normalization (CMVN) is fine and is computed per clip;\n#       a GLOBAL mean/variance fitted on all data is a leak\n# 3 log-mel, window chosen from what the label depends on\n# 4 SpecAugment on the training split only\n# 5 a 2D CNN, or a pretrained audio backbone fine-tuned\n# 6 report per-GROUP metrics, not per-clip\n#     ★ a clip-level average over 30 clips from one speaker is one\n#       independent observation wearing thirty hats - the confidence\n#       interval computed from clip count is far too narrow\n\n# ★ Step 6 is the one people miss after fixing step 1: the split is right\n#   and the error bars are still computed as though clips were independent.",
+          "caption": "Getting the split right and the standard error wrong is a common half-fix, and it produces confident comparisons between models that are indistinguishable."
+        }
+      ],
+      "useCases": [
+        "Keyword spotting and wake words, where the model runs continuously on-device and the constraint is compute rather than accuracy.",
+        "Acoustic event detection - machine faults, glass breaking, infant cries - where the label is a property of the event and the recording conditions are the nuisance.",
+        "Speaker and language identification, where the fingerprint that causes the leakage problem is itself the target and the split must instead hold out sessions.",
+        "Medical and industrial audio, where recordings come from a small number of devices or patients and the group split is the difference between a publishable result and a real one."
+      ],
+      "pitfalls": [
+        "Splitting by clip rather than by speaker or recording. Measured optimism of +0.4192 - AUC 0.9999 against 0.5807 - because the recording fingerprint becomes a lookup table.",
+        "Computing normalization statistics over the whole dataset. Per-clip normalization is fine; a global mean and variance fitted before the split is the same aggregate leak as everywhere else in this module.",
+        "Reporting clip-level confidence intervals after a group split. Thirty clips from one speaker are one independent observation, so intervals computed from clip count are far too narrow.",
+        "Applying vision augmentations unchanged. Horizontal flip is time reversal and vertical flip is frequency inversion, and neither is a sound.",
+        "Shifting in frequency as an augmentation. That is a pitch change, which for speech alters speaker identity rather than leaving the label invariant.",
+        "Using MFCCs by default. The DCT existed to decorrelate for diagonal-covariance GMMs, discards information, and neural networks do not need it - log-mel is the modern default.",
+        "Choosing the window length from a tutorial. 25 ms with a 10 ms hop is a decision about speech, and music or transient detection want different values."
+      ],
+      "connections": [
+        {
+          "ref": "multimodal/audio-representations",
+          "text": "The signal-processing substance - STFT, mel filterbanks, and what each transform preserves and discards."
+        },
+        {
+          "ref": "cnn/cnn-architectures",
+          "text": "The architectures that transfer to spectrograms, and the translation-equivariance prior that transfers along one axis and not the other."
+        },
+        {
+          "ref": "ml-theory/data-augmentation",
+          "text": "The general framing - augmentation encodes an invariance you believe in - which is what makes the axis asymmetry decisive here."
+        },
+        {
+          "ref": "ml-applications/semi-supervised",
+          "text": "Where audio's labelling cost leads: unlabelled audio is abundant and transcription is expensive, which is the setting semi-supervised methods were built for."
+        },
+        {
+          "ref": "multimodal/stt-tts",
+          "text": "The sequence version of the same representation, where the model outputs a transcript rather than a class and alignment becomes the problem."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is the standard audio representation?",
+          "a": "Log-mel spectrogram: STFT → mel filterbank → log. Turns audio into a 2D time-frequency array so vision architectures apply."
+        },
+        {
+          "q": "Why log?",
+          "a": "It matches perceptual loudness AND turns multiplicative gain into an additive offset — so a volume change becomes a constant that normalization removes."
+        },
+        {
+          "q": "Why mel rather than linear frequency?",
+          "a": "It compresses frequency resolution to match human perception, concentrating resolution where it carries information for speech and most natural sounds."
+        },
+        {
+          "q": "Should you use MFCCs?",
+          "a": "Usually not. The DCT existed to decorrelate for diagonal-covariance GMM-HMMs; it discards information and neural nets don't need it. Log-mel is the modern default."
+        },
+        {
+          "q": "What does window length trade?",
+          "a": "Time against frequency resolution — you cannot have both. Short windows resolve onsets and smear pitch; long windows do the reverse. 25 ms / 10 ms hop is a SPEECH choice, not a law."
+        },
+        {
+          "q": "★ Give the group-split result.",
+          "a": "Random CLIP split AUC **0.9999** vs GROUP (speaker/recording) split **0.5807** — optimism **+0.4192** on the same data, model and features."
+        },
+        {
+          "q": "Why is the recording such a strong group?",
+          "a": "Clips share channel, microphone, room, noise floor and speaker characteristics — a fingerprint far stronger than most label signals."
+        },
+        {
+          "q": "★ What's the half-fix people stop at?",
+          "a": "Fixing the split and still computing CLIP-level confidence intervals. Thirty clips from one speaker is ONE independent observation — the interval is far too narrow."
+        },
+        {
+          "q": "Which augmentations does SpecAugment use?",
+          "a": "Time masking, frequency masking, mild time warping. Note what's absent: no frequency SHIFT, because that's a pitch change."
+        },
+        {
+          "q": "Why are flips wrong?",
+          "a": "Horizontal flip is time reversal and vertical flip is frequency inversion. Neither is a sound — the axes mean different things, so vision defaults don't transfer."
+        },
+        {
+          "q": "Which augmentation targets the leakage nuisance?",
+          "a": "Waveform-domain: room impulse responses, additive noise at controlled SNR, speed perturbation. They vary the CHANNEL, which is exactly what the group split protects against."
+        },
+        {
+          "q": "Is per-clip normalization a leak?",
+          "a": "No — it's computed within a clip. A GLOBAL mean/variance fitted across the dataset before splitting is, like any pre-split aggregate."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How would you build an audio classifier, and where does the vision analogy break?",
+          "a": "CONVERT TO A LOG-MEL SPECTROGRAM AND USE A 2D CNN, WHICH IS THE STANDARD ANSWER AND IS CORRECT. The STFT gives time-frequency energy, the mel filterbank compresses frequency to match perceptual resolution, and the log compresses amplitude — the log is doing more work than it appears, because it turns a multiplicative gain into an additive offset, so a recording-volume change becomes a constant that normalization removes. At that point you have a 2D array and the entire vision toolkit transfers. WHERE THE ANALOGY BREAKS IS THAT THE AXES ARE NOT INTERCHANGEABLE. In an image, horizontal and vertical translation are the same kind of operation; in a spectrogram, shifting along time is a delay and shifting along frequency is a pitch change, and only the first usually preserves the label. THAT ASYMMETRY DECIDES THE AUGMENTATIONS: SpecAugment uses time masking, frequency masking and mild time warping, and conspicuously does NOT use frequency shifting — because for speech, changing pitch changes speaker identity rather than nothing. Horizontal and vertical flips are simply wrong: time reversal is not audio and frequency inversion is not a sound. AND THE WINDOW LENGTH IS A MODELLING CHOICE — 25 ms with a 10 ms hop is a decision about speech, and music or transient detection want different values.",
+          "deepDive": {
+            "q": "Where else does the vision analogy strain?",
+            "a": "There is a second place the analogy strains that is worth knowing: pooling and receptive fields. In an image, pooling over both axes equally is sensible because objects are roughly isotropic; in a spectrogram, pooling over frequency merges harmonics that carry timbre while pooling over time merges phonemes, and those are different losses. Architectures that treat the axes differently — separable convolutions with asymmetric kernels, or frequency-wise recurrence — often outperform a stock ResNet for that reason. The other consideration is that global pooling over time gives clip-level invariance to WHEN the event occurred, which is right for classification and wrong for detection, where you need the location; that is the same distinction as classification versus detection in vision and it usually decides the head rather than the backbone. The modern default for many tasks is now a pretrained audio backbone fine-tuned on the target task, which sidesteps most of these choices and inherits whatever the pretraining corpus's biases were — worth checking when the deployment domain is far from it, such as industrial machine sound."
+          }
+        },
+        {
+          "q": "How do you split audio data, and why does it matter so much here?",
+          "a": "BY RECORDING OR SPEAKER, BEFORE ANYTHING ELSE TOUCHES THE DATA, AND THE MEASURED COST OF GETTING IT WRONG IS THE LARGEST IN THIS MODULE. On grouped data with exactly this structure — a strong per-group signature and a weak true label signal — a random clip split gave AUC 0.9999 and a group split gave 0.5807. That is +0.4192 of optimism from the same data, the same model and the same features. THE MECHANISM IS THAT THE RECORDING IS AN EXTREMELY STRONG GROUP: clips from one session share microphone, channel response, room acoustics, noise floor and speaker characteristics, and that fingerprint is far more identifiable than most label signals. So if any label is a property of the speaker — accent, medical condition, identity, an individual's tendency toward a sentiment — putting one speaker on both sides of the split turns the fingerprint into a lookup table. THE SECOND HALF, WHICH PEOPLE MISS AFTER FIXING THE SPLIT, IS THE ERROR BARS: thirty clips from one speaker are one independent observation wearing thirty hats, so a confidence interval computed from clip count is far too narrow and will declare differences between indistinguishable models. Report per-group metrics and compute intervals over groups.",
+          "deepDive": {
+            "q": "What if the grouping variable was never recorded?",
+            "a": "There is a subtlety worth raising for datasets assembled from public sources, which is most academic audio data: the group may not be labelled. If clips were scraped and speaker identity was not recorded, you cannot split by speaker even though the dependency exists, and the standard mitigation is to cluster on speaker embeddings and split by cluster — imperfect, and much better than nothing. The same applies to recording session, which often correlates with upload date or file naming and can be recovered approximately. It is worth checking whether the benchmark you are comparing against did any of this, because a leaderboard where the standard split is clip-level is measuring something different from what your production system needs, and a model that wins there may lose on a group-split evaluation. That is not a criticism of the benchmark so much as a warning about transferring its numbers — which is the same reference-class discipline the trustworthy-AI module built, arriving here as a question about how a dataset was partitioned."
+          }
+        },
+        {
+          "q": "What augmentations would you use and why?",
+          "a": "TWO FAMILIES, AND THE CHOICE FOLLOWS FROM WHAT INVARIANCE YOU BELIEVE IN. ON THE SPECTROGRAM, SpecAugment: time masking, frequency masking and mild time warping. Time masking simulates occlusion and dropout of a temporal region; frequency masking forces the model to distribute reliance across bands rather than depending on one; time warping buys mild tempo invariance. What is deliberately absent is frequency SHIFTING, because that is a pitch change and for speech it alters speaker identity — the augmentation would be teaching an invariance that is false. IN THE WAVEFORM DOMAIN, before the transform: speed and tempo perturbation, additive noise at controlled signal-to-noise ratios, and convolution with room impulse responses. THOSE ARE THE MOST VALUABLE ONES FOR THIS DOMAIN because they vary the CHANNEL — microphone, room, noise floor — which is precisely the nuisance variable the group split is protecting against. So they attack the same problem from the other side: the split stops you fooling yourself, and channel augmentation makes the model actually robust to the thing you stopped fooling yourself about. AND VISION DEFAULTS DO NOT TRANSFER: horizontal flip is time reversal, vertical flip is frequency inversion, and neither is a sound.",
+          "deepDive": {
+            "q": "What is the practical core of this, and what does it generalize to?",
+            "a": "The pairing of group split and channel augmentation is the practical core of this lesson and it generalizes. Whenever there is a nuisance variable that groups your data — recording, hospital, camera, site — you have two complementary tools: split on it so your evaluation is honest, and augment along it so your model is robust. Doing only the first gives you an honest measurement of a fragile model; doing only the second gives you a possibly-robust model you cannot measure. Domain-adversarial training is the more aggressive version of the second, explicitly penalizing the model for being able to predict the group from its representation, which is worth reaching for when the group effect is strong and the label signal is weak — exactly the regime where the leak was worth 0.42 of AUC. It has a real cost, since forcing group-invariance can remove genuine signal when the group correlates with the label for legitimate reasons, so it needs the group-split evaluation to tell whether it helped. That mutual dependence — the fix needs the honest measurement to be evaluable — is the reason the split comes first in the pipeline."
+          }
+        },
+        {
+          "q": "Your audio model scored well in the paper's benchmark and poorly in production. What happened?",
+          "a": "THREE HYPOTHESES, IN THE ORDER I'D CHECK THEM. FIRST, THE SPLIT: if the benchmark's standard partition is clip-level and your production population is new speakers, the benchmark number is a transductive-style result and yours is inductive — measured, that difference was 0.9999 against 0.5807 on data with this structure. That single check explains most cases and is a five-minute investigation. SECOND, THE CHANNEL: benchmark audio is typically cleaner, more consistently recorded and narrower in device diversity than production audio, so the model has learned a channel-conditioned decision boundary. The tell is that performance varies enormously by device, room or SNR bucket, which is a groupby away, and the fix is channel augmentation plus a device-stratified evaluation. THIRD, THE LABEL DISTRIBUTION: benchmarks are usually balanced and production is not, so a model with good accuracy on a balanced set can have poor precision at the base rate you deploy at — which is the imbalance arithmetic from the fraud case, where a 1% FPR at a 0.1% base rate gives precision 0.083. I'D ALSO CHECK THE ERROR BARS, because a benchmark comparison computed over clips rather than speakers may never have been a real difference.",
+          "deepDive": {
+            "q": "Which hypothesis deserves the most attention?",
+            "a": "The channel hypothesis deserves the most attention because it is the one that produces the strangest symptoms. A model that has partly learned the channel will show performance that correlates with device model, firmware version, or even geography, none of which are causally related to the label — and those correlations are invisible unless you log the metadata and slice on it. Logging device and capture parameters alongside every inference is cheap and it is the difference between diagnosing this in an afternoon and rebuilding blind. The related trap is that fixing it by adding production data to training can WORSEN the leak if the new data has its own group structure that the split does not respect; the discipline has to be applied to every data source rather than once. And the general shape here is the module's: the recording is the channel through which examples inform each other, so both the split and the robustness work have to be organized around it, and a pipeline that treats clips as independent rows will fail in both directions at once."
+          }
+        },
+        {
+          "q": "How does this lesson fit the module's theme?",
+          "a": "AUDIO GIVES THE MODULE'S LARGEST MEASURED GAP AND ITS CLEAREST GROUP STRUCTURE. The recording is a nuisance variable that is enormously identifiable — microphone, room, noise floor, voice — and any label that is a property of the speaker becomes a lookup on that fingerprint the moment a speaker appears on both sides of the split. The measurement is stark: AUC 0.9999 on a random clip split against 0.5807 on a group split, +0.4192 of optimism with nothing changed but which rows went where. THE STRUCTURE THAT MAKES THE DOMAIN TRACTABLE — that a recording is coherent, that a speaker sounds like themselves — IS EXACTLY THE STRUCTURE THAT BREAKS THE EVALUATION. WHAT AUDIO ADDS to the module's argument is the second half that survives a correct split: the ERROR BARS. Thirty clips from one speaker are one independent observation, so a group split with clip-level confidence intervals is a half-fix that produces confident comparisons between indistinguishable models. That is the same shape as the recommender lesson's feature leak — fix one channel, leave another open — and it is why 'we used a group split' is necessary and not sufficient.",
+          "deepDive": {
+            "q": "What is the general statement, now that there are three instances?",
+            "a": "The general statement, which now has three instances in this module, is that dependence has to be handled in three places rather than one: the SPLIT decides which rows are held out, the FEATURES decide what information those rows carry, and the STANDARD ERROR decides how many independent observations you actually have. Time series violate all three through ordering; recommenders through user identity; audio through the recording. Fixing only the split is the common half-measure because it is the visible one, and the other two are silent — a leaked feature inflates the point estimate and a wrong error bar inflates confidence in it, and neither raises an exception. The one-sentence habit worth carrying out of this module: next to every metric, state the unit you held out, confirm no aggregate crossed that boundary, and compute the interval over that same unit. Three clauses, and they make a number mean something."
+          }
+        },
+        {
+          "q": "When is a spectrogram the wrong representation?",
+          "a": "WHEN PHASE MATTERS, WHEN THE TASK IS GENERATION, AND WHEN THE TIME SCALE IS WRONG FOR ANY SINGLE WINDOW. A magnitude spectrogram discards phase, which is invisible for most classification tasks and fatal for synthesis and for anything depending on precise timing relationships between channels — source separation and spatial audio both need it, which is why those systems either model phase explicitly or operate on the waveform. FOR GENERATION, inverting a magnitude spectrogram requires phase reconstruction, and the artefacts of doing so approximately are exactly why waveform-domain and neural-vocoder approaches took over. THE TIME-SCALE PROBLEM is subtler: a single window length fixes the time-frequency trade-off, so a task depending on both fine transients and fine pitch cannot be served well by any one choice, and the answers are multi-resolution representations or learned front-ends that adapt the filterbank. AND THERE IS A GROWING CASE FOR LEARNED FRONT-ENDS generally — a convolution over the raw waveform can learn a filterbank suited to the task rather than one designed around human perception, which matters most when the sounds are not the ones human hearing evolved for, such as machine faults or ultrasound.",
+          "deepDive": {
+            "q": "How far should you take that claim about learned front-ends?",
+            "a": "That last point is worth stating carefully because it is easy to over-claim. Learned front-ends have repeatedly been shown to converge toward something mel-like on speech, which is a nice validation of the mel scale and an argument AGAINST bothering for speech tasks — you pay optimization difficulty to rediscover a known answer. Where they pay is exactly where the perceptual motivation does not apply: industrial and biological sounds outside the human range, sensor data that is audio-shaped but not audio, and tasks where the relevant structure is narrowband and high-frequency. The practical rule is to use log-mel as the default and treat a learned front-end as a hypothesis to test when the domain is not human hearing, rather than as a general upgrade. It is the same discipline as everything else in this module: the representation encodes a prior about the structure, and the prior should match the domain rather than the tooling's defaults."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "The standard representation",
+        "back": "Log-mel spectrogram: STFT → mel filterbank → log. Mel matches perceptual frequency resolution; **log turns multiplicative gain into an additive offset**, so volume changes become a constant normalization removes."
+      },
+      {
+        "type": "pitfall",
+        "front": "Should you use MFCCs?",
+        "back": "Usually not. The DCT existed to decorrelate for diagonal-covariance GMM-HMMs. It discards information and neural nets don't need it — log-mel is the modern default and MFCCs are largely legacy."
+      },
+      {
+        "type": "formula",
+        "front": "The window trade",
+        "back": "Δt·Δf ≳ 1/4π — you cannot have both. Short windows resolve onsets and smear pitch; long windows do the reverse. **25 ms / 10 ms hop is a decision about SPEECH**, not a law."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ The recording is the group",
+        "back": "Random CLIP split AUC **0.9999** vs GROUP split **0.5807** — **+0.4192 optimism**, same data, model and features. Clips share mic, channel, room, noise floor and voice: a fingerprint stronger than most label signals."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ The half-fix after the split",
+        "back": "CLIP-level confidence intervals. Thirty clips from one speaker is ONE independent observation wearing thirty hats — the interval is far too narrow and declares differences between indistinguishable models."
+      },
+      {
+        "type": "intuition",
+        "front": "Why the vision analogy breaks",
+        "back": "The axes aren't interchangeable. Time shift = delay (label-preserving). Frequency shift = PITCH CHANGE (for speech, a different speaker). Every augmentation and pooling decision follows from that asymmetry."
+      },
+      {
+        "type": "definition",
+        "front": "SpecAugment — and what's absent",
+        "back": "Time masking, frequency masking, mild time warping. **No frequency SHIFT** — that's a pitch change and would teach a false invariance. And no flips: time reversal isn't audio, frequency inversion isn't a sound."
+      },
+      {
+        "type": "intuition",
+        "front": "★ The augmentation that targets the leak",
+        "back": "Waveform-domain: room impulse responses, additive noise at controlled SNR, speed perturbation. They vary the CHANNEL — the exact nuisance the group split protects against. Split = honest measurement; augmentation = actual robustness."
+      },
+      {
+        "type": "pitfall",
+        "front": "Normalization: which is a leak?",
+        "back": "Per-clip normalization (CMVN) is fine — computed within a clip. A GLOBAL mean/variance fitted across the dataset before splitting is a pre-split aggregate, same as everywhere in this module."
+      },
+      {
+        "type": "intuition",
+        "front": "When the group isn't labelled",
+        "back": "Scraped datasets often lack speaker IDs. Cluster on speaker embeddings and split by cluster — imperfect, much better than nothing. And check what split the BENCHMARK used before transferring its numbers."
+      },
+      {
+        "type": "intuition",
+        "front": "When a spectrogram is wrong",
+        "back": "Phase matters (source separation, spatial audio) · generation (inverting magnitude needs phase reconstruction — hence neural vocoders) · a single window can't serve both fine transients and fine pitch."
+      },
+      {
+        "type": "intuition",
+        "front": "★ Dependence must be handled in THREE places",
+        "back": "The SPLIT (which rows are held out) · the FEATURES (what information they carry) · the STANDARD ERROR (how many independent observations you have). Fixing only the split is the visible half-measure; the other two fail silently."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Park et al. (2019), SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition",
+        "url": "https://arxiv.org/abs/1904.08779"
+      },
+      {
+        "title": "Hershey et al. (2017), CNN Architectures for Large-Scale Audio Classification",
+        "url": "https://arxiv.org/abs/1609.09430"
+      },
+      {
+        "title": "Gemmeke et al. (2017), AudioSet: An Ontology and Human-Labeled Dataset for Audio Events",
+        "url": "https://research.google/pubs/pub45857/"
+      },
+      {
+        "title": "Zeghidour et al. (2021), LEAF: A Learnable Frontend for Audio Classification",
+        "url": "https://arxiv.org/abs/2101.08596"
+      },
+      {
+        "title": "Gong, Chung & Glass (2021), AST: Audio Spectrogram Transformer",
+        "url": "https://arxiv.org/abs/2104.01778"
+      }
+    ],
+    "demos": [
+      "spectrogram",
+      "mfcc",
+      "pitch-detection",
+      "aliasing"
+    ]
+  }
+};

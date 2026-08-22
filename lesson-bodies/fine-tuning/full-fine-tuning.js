@@ -1,0 +1,274 @@
+// GENERATED from content/lessons/fine-tuning/full-fine-tuning.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/fine-tuning/full-fine-tuning/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "full-fine-tuning": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "You have a pretrained model and a task it was not trained on. There are two extremes. FREEZE the backbone and train only a new head on top of its features - feature extraction, and when the head is a single linear layer, linear probing. Or UNFREEZE everything and let gradients rewrite every weight - full fine-tuning. Every other method in this module is a point between those two, defined by how much of the update it allows and where.",
+        "The choice looks like a compute question and is usually presented as one: full fine-tuning is more expensive and more accurate, so spend if you can afford it. Then Kumar et al. ran the evaluation that mattered. Across ten distribution-shift benchmarks, full fine-tuning beat linear probing IN DISTRIBUTION and LOST to it OUT OF DISTRIBUTION. Not marginally: their LP-FT recipe - linear-probe first, then fine-tune - came out about 1 point better than full fine-tuning in distribution and about 10 points better out of distribution. The extra capacity was not buying generalization. It was buying fit to the fine-tuning set, and paying for it somewhere the fine-tuning set could not see.",
+        "The mechanism is worth internalizing because it recurs. At the start of fine-tuning the new head is RANDOM, so its outputs are wrong, so the loss is large, so the gradients flowing back into the backbone are large - and they arrive before the head has learned to use the features it is being fed. The backbone gets rewritten to compensate for a bad head. Features that were fine get distorted, and the distortion is largest in the directions the fine-tuning data does not constrain, which is precisely where out-of-distribution performance lives. Linear-probing first puts the head somewhere sensible, so when you unfreeze, the gradients entering the backbone are small and the pretrained features survive. That is the whole of LP-FT, and it costs one extra warm-up stage. This is the module's spine in its first form: the PROXY you are optimizing is the fine-tuning set's own test split, drawn from the same distribution as the fine-tuning data, and fine-tuning essentially always improves it. Whether it improved the MODEL is a different question, and only an evaluation the fine-tuning data did not define can answer it."
+      ],
+      "math": [
+        {
+          "h": "The adaptation spectrum is a constraint on the update, not a different algorithm",
+          "paras": [
+            "Every method in this module writes the adapted weights as the pretrained weights plus an update, and differs only in which updates it permits. Seeing them this way makes the comparisons in the rest of the module mechanical rather than a list of tricks."
+          ],
+          "tex": "\\theta = \\theta_0 + \\Delta \\quad\\text{s.t.}\\quad \\begin{cases} \\Delta_{\\text{backbone}} = 0 & \\text{feature extraction} \\\\ \\Delta_{\\ell} = 0 \\;\\; \\forall \\ell < k & \\text{partial unfreezing} \\\\ \\operatorname{rank}(\\Delta_W) \\le r & \\text{LoRA} \\\\ \\Delta \\in \\mathbb{R}^{|\\theta|} & \\text{full fine-tuning} \\end{cases}",
+          "texNote": "Read the constraint column as a prior on what the task should be allowed to change. Feature extraction says the pretrained representation is already right and only the readout is wrong. Full fine-tuning says nothing is protected. The intermediate rows are bets that the useful update is small in some structured sense - confined to the top layers, or low-rank - and those bets are what the rest of the module tests."
+        },
+        {
+          "h": "What full fine-tuning actually costs",
+          "paras": [
+            "The number that decides most real projects. Under standard mixed-precision training with Adam, every parameter you unfreeze carries roughly sixteen bytes of training state, not two - and only two of those sixteen are the weights themselves.",
+            "This is why parameter-efficient methods exist at all. The saving is not in the forward pass, which still runs the full model; it is in gradients and optimizer state, which scale with the number of TRAINABLE parameters rather than total ones."
+          ],
+          "tex": "M \\;\\approx\\; \\underbrace{2P}_{\\text{fp16 weights}} \\;+\\; \\underbrace{2P_{\\text{train}}}_{\\text{fp16 grads}} \\;+\\; \\underbrace{4P_{\\text{train}}}_{\\text{fp32 master}} \\;+\\; \\underbrace{8P_{\\text{train}}}_{\\text{Adam } m,\\, v} \\;+\\; A",
+          "texNote": "With everything trainable this is 16 bytes per parameter plus activations A: a 7B model needs about 112 GB of optimizer and gradient state, which fits on no single accelerator you are likely to have. Freeze the backbone and the last three terms collapse to almost nothing, leaving the 2P of frozen weights plus activations - the same forward cost, a fraction of the memory."
+        },
+        {
+          "h": "Discriminative learning rates: fine-tuning with a gradient of caution",
+          "paras": [
+            "ULMFiT's contribution, and still the default in strong fine-tuning recipes. Rather than choosing between frozen and unfrozen, scale the learning rate geometrically with depth so early layers - which hold the general features - move slowly, and late layers, which hold the task-specific ones, move fast."
+          ],
+          "tex": "\\eta_{\\ell} \\;=\\; \\eta_{L} \\cdot \\xi^{\\,L-\\ell}, \\qquad \\xi \\in [0.8,\\, 0.95]",
+          "texNote": "Layer L is the top. With xi = 0.9 and 24 layers, layer 0 trains at about 8% of the top layer's rate - close to frozen without being frozen, so it can still adapt if the task genuinely demands it. Note that xi = 0 recovers feature extraction and xi = 1 recovers full fine-tuning, so the whole spectrum is one hyperparameter."
+        }
+      ],
+      "code": [
+        {
+          "h": "Four adaptation modes on one backbone, with the number that decides the budget",
+          "paras": [
+            "The same model adapted four ways. The only thing that changes is which parameters carry requires_grad, and the trainable-parameter count is the quantity that determines memory, not accuracy."
+          ],
+          "code": "def count_trainable(model):\n    tr = sum(p.numel() for p in model.parameters() if p.requires_grad)\n    tot = sum(p.numel() for p in model.parameters())\n    return tr, tot, 100.0 * tr / tot\n\n# 1. FEATURE EXTRACTION - freeze the backbone, train the head only.\nfor p in model.backbone.parameters():\n    p.requires_grad = False\n\n# 2. PARTIAL UNFREEZING - the top k blocks adapt, the rest hold.\nfor blk in model.backbone.blocks[-k:]:\n    for p in blk.parameters():\n        p.requires_grad = True\n\n# 3. DISCRIMINATIVE / LAYER-WISE LR DECAY - everything trains, at different speeds.\nxi, base = 0.9, 2e-5\ngroups = [{\"params\": blk.parameters(), \"lr\": base * xi ** (L - i)}\n          for i, blk in enumerate(model.backbone.blocks)]\ngroups.append({\"params\": model.head.parameters(), \"lr\": base * 10})\nopt = torch.optim.AdamW(groups)\n\n# 4. FULL FINE-TUNING - one learning rate, everything moves.\nopt = torch.optim.AdamW(model.parameters(), lr=2e-5)\n\n# Trainable share on a typical encoder + linear head:\n#   feature extraction ....... ~0.2%    <- the head is almost nothing\n#   top-2 blocks ............. ~15%\n#   LLRD ..................... 100%     (trainable, but not equally mobile)\n#   full fine-tuning ......... 100%\n#\n# Memory tracks the FIRST column. Accuracy on the fine-tuning distribution\n# tracks it too, weakly and monotonically, which is exactly why that column\n# is a bad thing to select on by itself.",
+          "caption": "The four modes differ only in which parameters carry requires_grad. Trainable share sets the memory budget; note that it also correlates with in-distribution accuracy, which is what makes selecting on in-distribution accuracy so misleading."
+        },
+        {
+          "h": "LP-FT, and the evaluation that makes the case for it",
+          "paras": [
+            "Two extra lines of training code and one extra evaluation set. The evaluation is the part that matters: without an out-of-distribution split, all three methods look like a straightforward accuracy ranking and you will pick the wrong one."
+          ],
+          "code": "# ---- LP-FT (Kumar et al. 2022): probe first, THEN fine-tune ----\nfreeze(model.backbone)\ntrain(model, epochs=E_probe, lr=1e-3)      # head only; backbone untouched\nunfreeze(model.backbone)\ntrain(model, epochs=E_ft, lr=2e-5)         # now everything, gently\n\n# WHY IT WORKS: at step 0 of a normal fine-tune the head is RANDOM, so the\n# loss is large, so large gradients hit the backbone before the head has\n# learned to read it. The backbone gets rewritten to compensate for a bad\n# head, distorting features most in the directions the fine-tuning data does\n# not constrain - which is where OOD performance lives. Probing first makes\n# the head good, so the gradients entering the backbone start small.\n\n# ---- THE EVALUATION THAT SEPARATES THEM ----\nfor name, m in [(\"linear probe\", lp), (\"full FT\", ft), (\"LP-FT\", lpft)]:\n    print(name, evaluate(m, test_id), evaluate(m, test_ood))\n\n#                        in-distribution     out-of-distribution\n#   linear probe .......... lower ............ HIGHER\n#   full fine-tuning ...... higher ........... LOWER\n#   LP-FT ................. highest .......... highest\n#\n# Averaged over the ten shift benchmarks in the paper, LP-FT came out about\n# 1 point above full FT in-distribution and about 10 points above it OOD.\n#\n# Read the middle row. Full fine-tuning WINS on the split drawn from the\n# fine-tuning distribution and LOSES on the one that is not. If you only\n# built the first column - and the first column is the one your fine-tuning\n# data hands you for free - you would ship the worse model and your metric\n# would agree with you.",
+          "caption": "LP-FT is two lines. The reason to bother is in the second table: full fine-tuning wins in-distribution and loses out-of-distribution, so the evaluation your fine-tuning set gives you for free ranks the methods in the wrong order."
+        }
+      ],
+      "useCases": [
+        "Adapting one backbone to many tasks under a serving constraint - feature extraction lets every task share one set of frozen weights and one KV-cache-friendly forward pass, with per-task heads costing kilobytes, which is why it survives in production long after it stopped being state of the art on paper.",
+        "Small labelled datasets, where full fine-tuning has enough capacity to memorize the training set before it learns anything transferable, and freezing acts as the strongest regularizer available - the classic few-hundred-example regime.",
+        "Domain adaptation where the target distribution is genuinely far from pretraining - medical imaging, legal text, industrial sensor data - and the pretrained features really are wrong rather than merely mis-read, which is the case where full fine-tuning earns its cost.",
+        "Establishing a baseline before reaching for anything clever: a linear probe on frozen features takes minutes, sets the floor that every PEFT method in this module must clear, and frequently reveals that the pretrained representation already solves the task."
+      ],
+      "pitfalls": [
+        "Reporting only in-distribution accuracy. It is the split your fine-tuning data defines, it rises monotonically with trainable parameters, and it ranked full fine-tuning above linear probing on benchmarks where linear probing generalized better by 10 points. Build an evaluation the fine-tuning distribution did not generate, or you are measuring fit rather than adaptation.",
+        "Fine-tuning from a random head at full learning rate. This is the exact mechanism behind feature distortion - large early gradients from a head that cannot yet read the features. Warm up, probe first, or freeze for the first epoch; all three cost almost nothing.",
+        "Leaving BatchNorm in training mode inside a 'frozen' backbone. requires_grad = False stops the gradients but NOT the running-statistics update, so the frozen encoder silently drifts with every forward pass and your reproducibility disappears. Call .eval() on the backbone as well - this is one of the most common silent bugs in transfer-learning code.",
+        "Using the pretraining learning rate. Fine-tuning rates are typically 10 to 100 times smaller (2e-5 rather than 1e-3 for a transformer encoder); at pretraining rates the first few hundred steps destroy the representation you paid for, and the loss curve looks fine because the model relearns the task from scratch.",
+        "Assuming more trainable parameters means more capability. Full fine-tuning of a 7B model needs roughly 112 GB of gradient and optimizer state, and on most adaptation tasks it is matched by methods touching under 1% of the weights - the extra capacity is spent on the fine-tuning distribution, which is the definition of the problem here.",
+        "Ignoring catastrophic forgetting because the target metric looks good. A model fine-tuned hard on one task loses measurable ability on everything else, and nothing in your fine-tuning loop is looking. Keep a held-out capability suite from BEFORE the fine-tune and re-run it after.",
+        "Treating the choice as permanent. WiSE-FT showed you can INTERPOLATE the zero-shot and fine-tuned weights after the fact and recover much of the robustness while keeping most of the target-task gain - a post-hoc knob that costs one weighted average and is almost never tried."
+      ],
+      "connections": [
+        {
+          "ref": "fine-tuning/lora",
+          "text": "LoRA is the next row of the constraint table: instead of choosing which layers may move, it constrains the SHAPE of the update to be low-rank, which turns out to buy the memory saving of freezing with much of the accuracy of full fine-tuning."
+        },
+        {
+          "ref": "cnn/transfer-learning",
+          "text": "The vision version of the same spectrum, and where the freeze-then-unfreeze habit comes from. The mechanism explaining why it works - protecting the backbone from a random head - is the same here."
+        },
+        {
+          "ref": "trustworthy-ai/distribution-shift",
+          "text": "This lesson's central result IS a distribution-shift result. The formal treatment of why in-distribution accuracy cannot certify out-of-distribution behaviour is there; the fine-tuning consequence is here."
+        },
+        {
+          "ref": "ml-theory/bias-variance",
+          "text": "Freezing is a capacity constraint, and the classic account explains why it helps at small n. It does NOT explain the LP-FT result, which is about the trajectory rather than the hypothesis class - a useful reminder that the bias-variance story is not the whole of generalization."
+        },
+        {
+          "ref": "llm-systems/llm-eval",
+          "text": "'Build an evaluation the training data did not define' is stated as a fine-tuning rule here and as a general discipline there. Every failure in this module is first a failure to have that evaluation."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is feature extraction versus full fine-tuning?",
+          "a": "Feature extraction freezes the pretrained backbone and trains only a new head on its features. Full fine-tuning updates every weight. Everything else is a constraint on the update in between."
+        },
+        {
+          "q": "What is linear probing?",
+          "a": "Feature extraction where the head is a single linear layer. It is the standard measure of how linearly separable a representation already is, and the cheapest baseline for any adaptation task."
+        },
+        {
+          "q": "How much memory does full fine-tuning need per parameter?",
+          "a": "About 16 bytes under mixed precision with Adam: 2 for fp16 weights, 2 for fp16 gradients, 4 for the fp32 master copy, and 8 for Adam's two moments. A 7B model needs roughly 112 GB."
+        },
+        {
+          "q": "Where does the memory saving of freezing come from?",
+          "a": "Gradients and optimizer state, which scale with TRAINABLE parameters. The forward pass is unchanged - the full model still runs - so activations and weights stay."
+        },
+        {
+          "q": "What did Kumar et al. (2022) find?",
+          "a": "Full fine-tuning beat linear probing in-distribution but lost out-of-distribution. Their LP-FT recipe came out roughly 1 point better ID and 10 points better OOD than full fine-tuning, averaged over ten shift benchmarks."
+        },
+        {
+          "q": "What is LP-FT?",
+          "a": "Linear-probe the head with the backbone frozen, then unfreeze and fine-tune everything. Two lines of code that recover most of the robustness lost by fine-tuning from a random head."
+        },
+        {
+          "q": "Why does fine-tuning from a random head hurt?",
+          "a": "The random head makes the loss large, so large gradients hit the backbone before the head can read the features. The backbone gets rewritten to compensate for a bad head, distorting features in directions the fine-tuning data does not constrain."
+        },
+        {
+          "q": "What is discriminative or layer-wise learning-rate decay?",
+          "a": "Scale the learning rate geometrically with depth, eta_l = eta_L * xi^(L-l) with xi around 0.9, so general early features move slowly and task-specific late ones move fast. It interpolates the whole freeze/unfreeze spectrum with one knob."
+        },
+        {
+          "q": "When does feature extraction beat full fine-tuning?",
+          "a": "Small datasets, target distribution close to pretraining, many tasks sharing one backbone under a serving constraint, and any case where out-of-distribution robustness matters more than in-distribution accuracy."
+        },
+        {
+          "q": "What is the BatchNorm trap in frozen backbones?",
+          "a": "requires_grad = False stops gradients but not running-statistics updates. The frozen encoder still drifts on every forward pass unless you also call .eval() on it."
+        },
+        {
+          "q": "What is catastrophic forgetting in this context?",
+          "a": "Fine-tuning hard on one task measurably degrades capabilities the model had before, and nothing in the fine-tuning loop is watching. It needs a held-out capability suite run before and after."
+        },
+        {
+          "q": "What is WiSE-FT?",
+          "a": "Weight-space interpolation between the zero-shot and fine-tuned models after training. It recovers much of the robustness while keeping most of the target-task gain, for the cost of one weighted average."
+        }
+      ],
+      "standard": [
+        {
+          "q": "How do you decide between freezing and full fine-tuning for a new task?",
+          "a": "I would frame it as choosing a CONSTRAINT ON THE UPDATE rather than picking a method, because that makes the comparison to LoRA and adapters mechanical later. Write theta = theta_0 + Delta; feature extraction sets the backbone part of Delta to zero, partial unfreezing zeroes the lower layers, LoRA constrains its rank, full fine-tuning leaves it free. THE THREE INPUTS. First, DATASET SIZE. With a few hundred examples full fine-tuning has enough capacity to fit the training set before learning anything transferable, and freezing is the strongest regularizer on the table. With hundreds of thousands, the constraint starts costing more than it saves. Second, DISTANCE FROM PRETRAINING. If the target domain is genuinely far - medical imaging, legal text, an unusual sensor modality - the pretrained features are actually wrong rather than merely mis-read, and only updating the backbone fixes that. If the domain is close, the representation is already right and you are only learning a readout. Third, THE SERVING CONSTRAINT, which people forget in the training discussion. A frozen backbone means N tasks share one set of weights and one forward pass with per-task heads costing kilobytes. Full fine-tuning means N full model copies. That single fact keeps feature extraction in production long after it stopped winning papers. WHAT I WOULD ACTUALLY DO. Start with a linear probe, because it takes minutes and it sets the floor every other method has to clear - and it frequently reveals the representation already solves the task. Then LP-FT rather than a naive fine-tune, since it is two extra lines. Then a PEFT method if memory is the binding constraint. THE PART THAT CHANGES THE ANSWER. Whatever I choose, I need an evaluation the fine-tuning distribution did not generate, because in-distribution accuracy rises monotonically with trainable parameters and will therefore always recommend the least constrained method. Kumar et al. is the concrete demonstration: on their benchmarks the in-distribution column ranked full fine-tuning above linear probing while the out-of-distribution column reversed it, by about 10 points. Selecting on the free metric ships the worse model with the metric agreeing.",
+          "deepDive": {
+            "q": "Walk through the feature-distortion mechanism precisely. Why does the ORDER of probing and fine-tuning matter so much when the final objective is identical?",
+            "a": "Because the objective is identical but the TRAJECTORY is not, and where you end up in a non-convex landscape is a function of the path. SETUP. Let the model be a head w on top of features f_theta(x). At initialization, theta = theta_0 is pretrained and good; w is random. The gradient into the backbone is dL/dtheta = (dL/df)(df/dtheta), and the first factor is proportional to the head's error signal. A random head has a large error on every example, so dL/df is large, so the backbone receives a large gradient IMMEDIATELY - at the point when the model has no information about which features are actually useful for this task. WHAT THAT LARGE EARLY GRADIENT DOES. It moves theta in whatever direction reduces the loss given the current bad head. Some of that is real learning. But the fine-tuning data only constrains the features in the directions it spans - the subspace it can distinguish. In the orthogonal directions, the gradient is essentially arbitrary and the features drift freely. Those orthogonal directions are exactly where OOD examples live, because an OOD example is one that differs from the fine-tuning distribution in a direction that distribution did not vary. So the fine-tuning process degrades the features precisely where you have no way to notice. Kumar et al. formalize this in an overparameterized linear setting: fine-tuning from a random head provably distorts the pretrained features in the directions the ID data does not span, while linear probing cannot distort them at all because it does not touch them. WHY THE ORDER FIXES IT. After probing, w is near-optimal FOR THE FROZEN FEATURES, so dL/df is small. When you unfreeze, the backbone receives a small gradient - the model is already close to as good as those features allow, so the update is a refinement rather than a repair. The features move a little, in directions the data does constrain, and the orthogonal drift is small. WHAT THIS GENERALIZES TO. Any time you attach a randomly-initialized module to a pretrained one, the random module's early error is the pretrained module's problem. Adapter and LoRA papers zero-initialize one of the two projection matrices for exactly this reason - the adapter starts as the identity, so the model at step 0 is unchanged and there is no shock. The 'freeze for the first epoch' and 'warm up the learning rate' habits are the same fix arrived at empirically. And WiSE-FT attacks the same problem from the other end: rather than controlling the trajectory, average the endpoints. Being able to say 'this is one instance of the random-new-module-shocks-the-pretrained-one pattern' is the answer that shows you understand it rather than remember it."
+          }
+        },
+        {
+          "q": "A colleague fine-tuned an LLM on their support tickets. Accuracy on their held-out tickets went from 71% to 89%. What questions do you ask?",
+          "a": "The number is real and it is also the least informative measurement available, because it is the split their fine-tuning data handed them. My questions run in order of how likely they are to change the decision. FIRST: what did it FORGET? Fine-tuning hard on a narrow distribution degrades capability outside it, and their evaluation cannot see that by construction. I would want a capability suite run on the base model BEFORE the fine-tune and re-run after - general instruction-following, a couple of reasoning benchmarks, and whatever adjacent tasks the model is also expected to do in production. This is the single most common gap and it is usually not measured at all. SECOND: is the held-out split actually held out? Support tickets have near-duplicates constantly - the same issue reported by different customers, templated responses, a canned macro. A random split puts near-duplicates on both sides and 89% is partly memorization. I want dedup by content hash and MinHash near-dedup, and ideally a TIME-BASED split, since the production distribution is always the future and a random split is always the past. THIRD: what is the baseline? Not the base model zero-shot - a few-shot prompt with good exemplars, and retrieval over the ticket history. Fine-tuning is frequently compared against nothing and wins. If a prompt with five examples gets 86%, the fine-tune bought three points for a training pipeline, a serving copy, and a retraining obligation. FOURTH: what changed - style or capability? A model fine-tuned on ticket responses reliably learns the FORMAT: the greeting, the length, the register. That shows up in any metric sensitive to surface form and is much of what the 18 points can be. I would look at whether errors changed in KIND or only in presentation. This is the same finding as the imitation-model result in the instruction-tuning lesson. FIFTH: how was it trained? Was the loss masked to the response tokens only, or computed over the prompt too? Was it LP-FT or a naive fine-tune from a random head? What learning rate - at pretraining rates the first few hundred steps flatten the representation and the model relearns the task from scratch, which still fits the training data. WHAT I WOULD PROPOSE. Keep the fine-tune, add three things: a pre/post capability suite, a time-based split, and a few-shot baseline in the same table. If it survives all three it is a good result and now it is a defensible one."
+        },
+        {
+          "q": "Derive the memory cost of full fine-tuning and use it to explain why PEFT exists.",
+          "a": "THE ACCOUNTING, per parameter, for standard mixed-precision training with Adam. (1) WEIGHTS in fp16: 2 bytes. These are needed regardless - the forward pass runs the whole model whether or not it is trainable. (2) GRADIENTS in fp16: 2 bytes, allocated only for parameters with requires_grad. (3) The fp32 MASTER COPY: 4 bytes. This exists because fp16 has about 10 bits of mantissa, so a small update added to a large weight rounds away entirely; the optimizer keeps a full-precision copy and the fp16 weights are a cast of it. Trainable parameters only. (4) ADAM STATE: the first moment m and second moment v, both fp32, 4 bytes each, 8 total. Trainable parameters only. TOTAL: 16 bytes per trainable parameter, of which only 2 are the weights. Plus activations, which scale with batch size and sequence length rather than parameter count and are attacked separately by gradient checkpointing. THE CONSEQUENCE. A 7B model: 14 GB of weights, and 98 GB of gradients plus optimizer state - about 112 GB total before activations. No single accelerator you are likely to have holds that, so full fine-tuning a 7B model is a multi-GPU sharded job (which is what ZeRO and FSDP are for) rather than something you do on one card. THE PEFT INSIGHT. Terms 2, 3 and 4 - fourteen of the sixteen bytes - scale with TRAINABLE parameters, not total. If only 0.1% of parameters are trainable, they nearly vanish: you are left with 14 GB of frozen fp16 weights, about 0.1 GB of training state, and activations. Suddenly it is one consumer GPU. THE PART PEOPLE GET WRONG. PEFT does not make the forward or backward pass cheap. You still run the full model forward, and you still BACKPROPAGATE THROUGH all of it to reach the trainable parts - the gradient has to flow through the frozen layers even though it is not stored for them. So compute per step drops only modestly; it is memory that collapses. That distinction explains why LoRA's headline claim is about GPU memory and trainable parameters rather than training speed, and it is why the further techniques in this module - 4-bit quantization of the frozen base in QLoRA, gradient checkpointing for activations - attack the two terms PEFT does NOT reduce.",
+          "deepDive": {
+            "q": "Given that fixed accounting, rank the levers you would pull to fit a 70B fine-tune into a constrained budget, and say what each costs.",
+            "a": "In the order I would actually pull them, with the price of each. (1) FREEZE THE BASE, TRAIN A LOW-RANK UPDATE. Removes fourteen of the sixteen bytes per parameter. 70B goes from about 1.1 TB of training state to roughly 140 GB of frozen fp16 weights plus a negligible adapter. Cost: the update is constrained to be low-rank, which measurably reduces how much genuinely new material the model can absorb - and, symmetrically, reduces how much it forgets. Biggest single lever by a wide margin. (2) QUANTIZE THE FROZEN BASE TO 4 BITS. The base is frozen, so it never needs to be a gradient target and its precision only has to be good enough to compute a forward pass and pass gradients through. 140 GB becomes about 35 GB. Cost: a real but small quality reduction from quantization error, and dequantization overhead on every forward pass, so it is slower per step. This is QLoRA. (3) GRADIENT CHECKPOINTING. The activation term A is untouched by everything above and at long sequence lengths it dominates. Store activations only at segment boundaries and recompute the rest in the backward pass. Cost: roughly one extra forward pass, so about 30 to 40% more compute for a large memory reduction. Note it must be SEGMENTED - checkpointing every layer individually saves almost nothing because you store a boundary for each one. (4) SHORTEN THE SEQUENCE OR MICRO-BATCH IT. Activations scale with batch x sequence, so gradient accumulation buys the same effective batch at a fraction of the peak. Cost: more steps, and any batch-statistic-dependent layer behaves differently. (5) PAGED OPTIMIZER STATES. Move optimizer state to CPU and page it in. Cost: PCIe bandwidth becomes the bottleneck; useful as a spike absorber for the memory peaks rather than a steady-state plan. (6) SHARD ACROSS DEVICES (FSDP / ZeRO-3). Divide whatever remains by the number of devices. Cost: communication - ZeRO-3 adds parameter all-gathers in forward and backward, roughly 1.5x DDP's traffic. THE ORDERING PRINCIPLE. Attack the largest term first, and prefer levers that trade a property you can MEASURE (quantization error, recompute time) over ones that trade a property you cannot (how much capability the low-rank constraint cost you on tasks you did not evaluate). That last point is why I would still run the unconstrained fine-tune at small scale if at all possible, purely to know what the constraint cost."
+          }
+        },
+        {
+          "q": "What is catastrophic forgetting, and how would you detect and mitigate it in a fine-tuning pipeline?",
+          "a": "WHAT IT IS. Training a network on task B degrades its performance on task A, because the weights encoding A are simply reused for B - there is no mechanism protecting them. In the sequential-task setting this can be near-total; in LLM fine-tuning it is usually partial but substantial, and it hits general instruction-following, safety behaviour, and adjacent capabilities that nobody evaluated. WHY IT IS UNDER-DETECTED. Every metric in a fine-tuning pipeline is computed on the fine-tuning distribution. Forgetting happens by definition off that distribution. The pipeline is structurally incapable of seeing it, which is the module's spine again: the proxy improves, the thing you wanted does not. DETECTION - and this is the part I would insist on. Fix a CAPABILITY SUITE before you start: a handful of general benchmarks, the model's safety refusals, a sample of tasks the model is also expected to do in production, and a fixed set of prompts whose outputs you diff qualitatively. Run it on the base model, run it after each fine-tune, and put both columns in the same table as your target metric. If the target metric has a column and the capability suite does not, forgetting is not being managed, it is being ignored. MITIGATIONS, roughly by cost. (1) CONSTRAIN THE UPDATE. LoRA and other PEFT methods forget less than full fine-tuning, and this is measured, not folklore - Biderman et al. found LoRA both learns less and forgets less on the same tasks, which is one property, not two. If forgetting is your binding concern, that trade is on your side. (2) REPLAY. Mix a few percent of general pretraining-style or instruction data into the fine-tuning mixture. Cheap, effective, and the standard practice in production SFT. (3) KL OR L2 ANCHORING TO THE BASE. Penalize divergence from the original weights or the original output distribution. The KL-to-reference term in RLHF does exactly this job and is one of the reasons that stack does not collapse. (4) EWC AND ITS RELATIVES. Weight the L2 penalty by the Fisher information, so parameters that mattered for the old task are held harder. Principled, and in practice it needs the old task's data or a proxy for it, which is often the blocker. (5) POST-HOC WEIGHT INTERPOLATION. WiSE-FT: average base and fine-tuned weights. One weighted average, no retraining, gives you a dial between the two behaviours - and it is nearly free to try. THE THING I WOULD SAY LAST. Some forgetting is correct. If you fine-tune a model to always answer in JSON, it SHOULD lose the ability to answer in prose. The question is never 'did anything change' but 'did anything change that we were relying on', and only a pre-declared capability suite answers that."
+        },
+        {
+          "q": "Your fine-tuned model beats the base model on your benchmark but users say it got worse. How do you investigate?",
+          "a": "This is the most common shape of fine-tuning failure and the users are usually right, because their distribution is the real one and the benchmark is a proxy that you built. I would work through four hypotheses in order of frequency. HYPOTHESIS 1: THE BENCHMARK IS INSIDE THE FINE-TUNING DISTRIBUTION AND THE USERS ARE NOT. Check how the benchmark was constructed. If it was split off the same collection the fine-tuning data came from, it measures fit to that collection, and any way in which real traffic differs - longer inputs, different phrasing, topics that were rare in the corpus - is uncovered. Fix: build an evaluation set by SAMPLING PRODUCTION TRAFFIC and labelling it, which is the only evaluation whose distribution is guaranteed correct. HYPOTHESIS 2: FORGETTING. The model got better at the target and worse at everything adjacent that users also do. Diagnostic: run the base and the fine-tune side by side on a broad capability suite and on real user prompts, and diff. This usually shows up immediately and is usually the answer when 'it got worse' is vague rather than specific. HYPOTHESIS 3: A DISTRIBUTIONAL PROPERTY THE METRIC DOES NOT SCORE. Fine-tuning changes verbosity, hedging, refusal rate, format adherence, and calibration - and accuracy metrics are blind to all of them. A model that got 3 points more accurate and 40% more verbose is worse to use. Diagnostic: measure output length, refusal rate and format-violation rate before and after; they are one line each and they explain a surprising share of these complaints. HYPOTHESIS 4: THE COMPLAINTS ARE CONCENTRATED. 'Users say it got worse' is often a subpopulation - one language, one customer segment, one input format that collapsed. Aggregate accuracy hides this completely. Diagnostic: SLICE the evaluation by every dimension you have and look for a slice that moved the other way. HOW I WOULD RUN IT. Collect the actual complaints first and read fifty of them before touching a metric, because they will usually name the hypothesis for me. Then build the production-sampled evaluation set, because whatever the cause, I will need it to verify the fix, and its absence is the reason the problem shipped. WHAT I WOULD SAY ABOUT PROCESS. The deeper failure is that the benchmark was accepted as the arbiter without asking what distribution it was drawn from. That question is free at the start and expensive here."
+        },
+        {
+          "q": "When would you deliberately choose full fine-tuning over any parameter-efficient method?",
+          "a": "There are real cases, and being able to name them is what separates understanding the trade from repeating that PEFT is better. CASE 1: LARGE-SCALE DOMAIN ADAPTATION - genuinely new material. If you have billions of tokens of a domain the base model barely saw - a low-resource language, proprietary code in an unusual dialect, a scientific literature with its own notation - you are not adapting a readout, you are teaching the model things it does not know. Biderman et al.'s measurement is the relevant evidence: on continued pretraining in a new domain, LoRA underperformed full fine-tuning substantially, and the gap did not close by raising the rank into the hundreds. The low-rank constraint is a real constraint, and this is the regime where it binds. CASE 2: THE MODEL IS SMALL ENOUGH THAT THE MEMORY ARGUMENT EVAPORATES. PEFT exists because 16 bytes per parameter is fatal at 7B and above. At 100M parameters that is 1.6 GB and there is nothing to solve; adding an adapter buys complexity and a serving abstraction for no benefit. Most PEFT advocacy is implicitly about large models and gets copied down to small ones without the premise. CASE 3: MAXIMUM QUALITY AND ONE DEPLOYED MODEL. If you serve exactly one fine-tuned model, the multi-adapter serving story - which is much of LoRA's practical appeal - is worth nothing to you, and you should take whatever quality the unconstrained update gives. CASE 4: YOU NEED TO CHANGE SOMETHING STRUCTURAL. Extending the vocabulary, changing the positional encoding for longer context, altering the architecture. Adapters bolt onto an existing structure; they do not help you modify it. CASE 5: AS A CEILING MEASUREMENT. Even when you intend to ship PEFT, running the unconstrained fine-tune at small scale tells you what the constraint COST. Without it, 'LoRA matched full fine-tuning' is an assumption you inherited from a paper on a different task. THE HONEST FRAMING. The LoRA paper's claim was parity on a set of adaptation tasks, and it holds well there. It was never a claim about every use of fine-tuning, and the cases above are the ones where it was over-generalized. The trade is: constrained update, less learned and less forgotten, far less memory, trivial multi-task serving. Which side wins depends on whether your task needs the model to know something new or merely to behave differently."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "pitfall",
+        "front": "Fine-tuning can underperform out-of-distribution",
+        "back": "Kumar et al. 2022: full FT beat linear probing IN-distribution and LOST out-of-distribution. LP-FT (probe, then fine-tune) was about 1 pt better ID and 10 pts better OOD than full FT across ten shift benchmarks."
+      },
+      {
+        "type": "intuition",
+        "front": "Why fine-tuning from a random head distorts features",
+        "back": "Random head -> large loss -> large gradients into the backbone BEFORE the head can read the features. The backbone is rewritten to compensate for a bad head, and drifts freely in the directions the fine-tuning data does not span - which is exactly where OOD lives."
+      },
+      {
+        "type": "formula",
+        "front": "Memory per parameter, mixed-precision Adam",
+        "back": "16 bytes: 2 fp16 weights + 2 fp16 grads + 4 fp32 master + 8 Adam m,v. Only the first 2 apply to FROZEN params - which is the entire basis of PEFT. 7B model = ~112 GB."
+      },
+      {
+        "type": "definition",
+        "front": "The adaptation spectrum as one equation",
+        "back": "theta = theta_0 + Delta, differing only in the constraint on Delta: backbone part = 0 (feature extraction), lower layers = 0 (partial unfreezing), rank <= r (LoRA), unconstrained (full FT)."
+      },
+      {
+        "type": "formula",
+        "front": "Discriminative / layer-wise LR decay (ULMFiT)",
+        "back": "eta_l = eta_L * xi^(L-l), xi in [0.8, 0.95]. xi=0 recovers feature extraction, xi=1 recovers full FT - the whole spectrum in one hyperparameter. With xi=0.9 over 24 layers, layer 0 trains at ~8% of the top rate."
+      },
+      {
+        "type": "pitfall",
+        "front": "The frozen-BatchNorm bug",
+        "back": "requires_grad=False stops gradients but NOT running-statistics updates. A 'frozen' backbone still drifts on every forward pass. You must also call .eval() on it. One of the most common silent bugs in transfer-learning code."
+      },
+      {
+        "type": "definition",
+        "front": "LP-FT",
+        "back": "Linear-probe the head with the backbone frozen, then unfreeze and fine-tune everything. Two extra lines. Works because after probing, dL/df is small, so the gradient entering the backbone is a refinement rather than a repair."
+      },
+      {
+        "type": "pitfall",
+        "front": "PEFT does not make training FAST",
+        "back": "It cuts MEMORY (grads + optimizer state), not compute. You still run the full forward pass and still backpropagate THROUGH the frozen layers to reach the trainable parts. Which is why QLoRA (weights) and gradient checkpointing (activations) attack the terms PEFT leaves alone."
+      },
+      {
+        "type": "definition",
+        "front": "WiSE-FT",
+        "back": "Interpolate zero-shot and fine-tuned weights AFTER training: theta = (1-a)theta_0 + a*theta_ft. Recovers much of the robustness while keeping most of the target gain, for the cost of one weighted average. Almost never tried."
+      },
+      {
+        "type": "intuition",
+        "front": "Why in-distribution accuracy always recommends less constraint",
+        "back": "It rises monotonically with trainable parameters, because more capacity fits the fine-tuning distribution better - and the ID test split IS that distribution. So selecting on it always picks the least constrained method, correctly measuring fit and telling you nothing about adaptation."
+      },
+      {
+        "type": "pitfall",
+        "front": "Catastrophic forgetting is structurally invisible",
+        "back": "Every metric in a fine-tuning pipeline is computed on the fine-tuning distribution; forgetting happens off it. Fix a capability suite BEFORE training, run it on the base model, and put both columns beside the target metric."
+      },
+      {
+        "type": "intuition",
+        "front": "When full fine-tuning genuinely wins",
+        "back": "When the model must LEARN SOMETHING NEW rather than behave differently: large-scale domain adaptation, new languages, structural changes (vocabulary, positional encoding). Biderman et al. found LoRA underperforms full FT on continued pretraining, and raising rank does not close it."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Kumar et al. (2022), Fine-Tuning can Distort Pretrained Features and Underperform Out-of-Distribution",
+        "url": "https://arxiv.org/abs/2202.10054"
+      },
+      {
+        "title": "Howard & Ruder (2018), Universal Language Model Fine-tuning for Text Classification (ULMFiT)",
+        "url": "https://arxiv.org/abs/1801.06146"
+      },
+      {
+        "title": "Yosinski et al. (2014), How transferable are features in deep neural networks?",
+        "url": "https://arxiv.org/abs/1411.1792"
+      },
+      {
+        "title": "Wortsman et al. (2022), Robust fine-tuning of zero-shot models (WiSE-FT)",
+        "url": "https://arxiv.org/abs/2109.01903"
+      },
+      {
+        "title": "Kirkpatrick et al. (2017), Overcoming catastrophic forgetting in neural networks (EWC)",
+        "url": "https://arxiv.org/abs/1612.00796"
+      }
+    ],
+    "demos": [
+      "overfitting",
+      "bias-variance-decomp",
+      "lr-schedule",
+      "drift-detection"
+    ]
+  }
+};

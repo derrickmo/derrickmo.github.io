@@ -1,0 +1,179 @@
+// GENERATED from content/lessons/rnn-nlp/seq2seq-attention.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/rnn-nlp/seq2seq-attention/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "seq2seq-attention": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is the bottleneck in a plain encoder-decoder?",
+          "a": "The entire source sequence is compressed into one fixed-size vector. Information about early tokens has to survive the whole encoder, so quality falls off sharply as the source gets longer."
+        },
+        {
+          "q": "What does attention replace it with?",
+          "a": "A per-decoder-step weighted sum over ALL encoder states. Nothing has to be compressed into one vector, so source length stops being the binding constraint."
+        },
+        {
+          "q": "Write the Bahdanau score.",
+          "a": "e_ij = v^T tanh(W_s s_{i-1} + W_h h_j) — a small MLP over the decoder state and each encoder state. Softmax over j gives the weights; the context is the weighted sum of h_j."
+        },
+        {
+          "q": "Bahdanau versus Luong attention?",
+          "a": "Bahdanau is additive, scores with an MLP, and uses the PREVIOUS decoder state so the context feeds into the current step. Luong is multiplicative, cheaper as a matmul, and uses the current state."
+        },
+        {
+          "q": "Why did dot-product attention win?",
+          "a": "It is a single matrix multiply, which maps onto hardware far better than an MLP per pair. Same expressive job, much better arithmetic intensity."
+        },
+        {
+          "q": "Why divide by sqrt(d_k)?",
+          "a": "A dot product of two d_k-dimensional vectors with unit-variance entries has variance d_k. Without the scaling the softmax saturates at large d_k and gradients vanish."
+        },
+        {
+          "q": "What does the alignment matrix show you?",
+          "a": "Which source positions each output token attended to. For translation it recovers a soft word alignment nobody supervised — the classic evidence that the mechanism does what it claims."
+        },
+        {
+          "q": "Is attention an explanation?",
+          "a": "Weakly. Jain and Wallace showed alternative attention distributions can produce near-identical outputs, so it is not THE explanation. Wiegreffe and Pinter argued that tests a uniqueness claim nobody needs. Treat it as a plausible trace, not proof."
+        },
+        {
+          "q": "What is teacher forcing and what does it cost?",
+          "a": "Feeding the ground-truth previous token during training. It makes training parallel and stable, and it creates exposure bias: at inference the model conditions on its own outputs, a distribution it never trained on."
+        },
+        {
+          "q": "How does this relate to self-attention?",
+          "a": "It is the same operation with the source and target being the same sequence. Bahdanau attention is the parent — the transformer's contribution was dropping the recurrence and keeping only this."
+        },
+        {
+          "q": "Why is beam search used here rather than greedy decoding?",
+          "a": "Greedy commits to a locally best token that can foreclose a better sequence. Beam keeps k hypotheses and scores whole sequences, with a length penalty because raw log-probability favours short outputs."
+        },
+        {
+          "q": "What killed seq2seq with RNNs?",
+          "a": "Not attention — attention rescued it. What killed it was the sequential recurrence, which cannot be parallelized across positions. Removing the RNN and keeping attention is the transformer."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Derive the bottleneck problem and explain precisely what attention changes.",
+          "a": "In the plain formulation the encoder consumes the source and its final hidden state c becomes the decoder's initial state. That vector is a fixed d-dimensional summary of a source of arbitrary length, so as the source grows the amount of information per token that can survive falls, and for a recurrent encoder the early tokens must additionally survive many update steps that can overwrite them. The empirical signature is unmistakable: BLEU is roughly flat for short sentences and degrades sharply past about 20 to 30 tokens, and Cho et al. documented exactly that curve. Attention removes the bottleneck by removing the requirement to summarize at all. At each decoder step i the model scores every encoder state h_j against the current decoder state, softmaxes the scores into weights alpha_ij, and forms a context vector c_i as the weighted sum. Two consequences follow. First, capacity no longer has to be constant in source length, because the decoder can reach any encoder position directly. Second, the path length between a source token and the output that needs it becomes O(1) rather than O(sequence length), which is the gradient argument as much as the information one — a token 40 positions back is now one hop away in the computation graph instead of forty. The measured result was that the length-degradation curve flattened, which is the cleanest kind of evidence: a specific architectural claim producing a specific predicted change in a specific plot.",
+          "deepDive": {
+            "q": "Is attention really soft alignment, or is that a post-hoc reading?",
+            "a": "For translation it is closer to genuine than the sceptical reading suggests, because the alignments recover known linguistic structure — including reordering across language pairs with different word order — and nobody supervised them. But the honest position is narrower than 'attention is alignment'. The weights are one of many distributions that produce this output, they are a per-head and per-layer object rather than a single coherent alignment in multi-head models, and in a deep stack the residual stream carries information that never passes through the attention weights at all. So: strong evidence the mechanism is doing the job it was designed for, weak evidence about why a particular token was produced."
+          }
+        },
+        {
+          "q": "Explain exposure bias and say honestly how much it matters.",
+          "a": "Training uses teacher forcing: at every step the decoder conditions on the GROUND-TRUTH previous token, which makes the loss decomposable and every position trainable in parallel. At inference the model conditions on its own previous output, so the moment it makes a mistake it is conditioning on a prefix it never saw during training, and errors can compound — the model is off-distribution and has no gradient signal telling it how to recover. That is exposure bias, and it is the same shape as the covariate-shift argument in imitation learning, where behaviour cloning fails because the learner visits states the expert never demonstrated. The proposed fixes follow that lineage: scheduled sampling gradually feeds the model's own predictions during training, and there are RL-style approaches that optimize a sequence-level objective directly. The honest part is that scheduled sampling has a known theoretical problem — Huszar showed the objective it optimizes is not consistent, so it can converge to the wrong model — and in practice its gains were inconsistent. The bigger empirical point is that exposure bias turned out to matter less than a decade of papers assumed: large pretrained models trained with plain teacher forcing on enormous corpora produce long coherent sequences without any of these corrections, which suggests the problem was substantially one of undertrained models rather than of the objective."
+        },
+        {
+          "q": "How would you debug a seq2seq model that produces fluent but wrong output?",
+          "a": "Fluent-but-wrong is a specific signature: the decoder's language model is working and its connection to the source is not. So I would test that connection directly rather than looking at loss curves. The sharpest check is source ablation — corrupt or shuffle the source and see whether the output changes. If it barely does, the model has learned to generate plausible target-language text conditioned on almost nothing, which is a real and common failure and explains fluency and wrongness at once. Next, look at the alignment matrix on failing examples. Healthy translation alignments are roughly monotonic with local reordering; a model that has collapsed shows diffuse weights, or all mass on the first or last token, or on a separator. Then check for the specific pathologies: repeated n-grams point at a decoding problem rather than a modelling one, so try a length penalty or coverage; dropped content — where the output is fluent and omits a clause — usually shows as source positions receiving near-zero total attention across all output steps, and summing the attention each source token receives is a direct measurement of that. Finally verify the boring things that produce exactly this symptom: an off-by-one in the shifted decoder input means the model is being trained to predict the token it was just given, which produces confident fluent nonsense, and a mismatched tokenizer between training and inference does the same."
+        },
+        {
+          "q": "Walk from Bahdanau attention to the transformer.",
+          "a": "Bahdanau attention has three ingredients: a query from the decoder state, keys and values from the encoder states, and a scoring function that turns a query-key pair into a weight. The transformer keeps all three and changes what surrounds them. First it replaces the additive MLP score with a scaled dot product, which is the same job as a single matmul and therefore vastly better on hardware — this is an efficiency change, not a capability one. Second it applies the mechanism to the sequence with ITSELF as source, which is self-attention, so the encoder no longer needs recurrence to mix information across positions. That is the load-bearing step: once every position can reach every other in one operation, the RNN is redundant, and removing it makes the whole sequence trainable in parallel rather than step by step. Third it adds multiple heads, so the model can attend to several different relations simultaneously rather than averaging them into one distribution. What has to be added back is position, because attention is permutation-equivariant and the recurrence was silently supplying order — hence positional encodings. And what is preserved is exactly the thing Bahdanau introduced: an O(1) path between any two positions. Seen this way the transformer is less a new idea than the removal of the component that prevented the existing idea from scaling.",
+          "deepDive": {
+            "q": "If the transformer is mostly a removal, what was actually new?",
+            "a": "Three things that had to be invented to make the removal work. Multi-head attention, so one layer can represent several distinct relations instead of averaging them into a single distribution. Positional encoding, because dropping the recurrence removed the only thing that carried order and attention is permutation-equivariant without it. And the scaling by sqrt(d_k), which sounds like a detail and is what keeps the softmax out of saturation at the widths the architecture needed. The residual-and-layernorm scaffolding came from ResNet. So the honest framing is that the components were largely assembled rather than invented, and the contribution was identifying which one had to go."
+          }
+        },
+        {
+          "q": "How do you evaluate a sequence-to-sequence model properly?",
+          "a": "Start by separating what the metric can and cannot see. BLEU compares n-gram overlap against references and is the historical default, but it is insensitive to meaning-preserving rewording, sensitive to tokenization and preprocessing to the point that the same system can score several points apart under different pipelines, and unreliable at the sentence level even when it is usable in aggregate. That preprocessing sensitivity is why sacreBLEU exists and why a BLEU number without its signature is not comparable to anything. Learned metrics — COMET, BLEURT — correlate substantially better with human judgement because they score semantic adequacy rather than surface overlap, and they are the reasonable default now, with the caveat that they are models and therefore have their own biases and their own distribution shift. Beyond the metric, three practices matter more than the choice. Always report the human-human ceiling if you have multiple references, because a system at 0.6 means something very different when annotators agree at 0.65 than at 0.95. Evaluate on the failure modes explicitly — length buckets, rare words, named entities, numbers — since aggregate scores hide exactly the errors that matter operationally. And if an LLM judge is used, control for its position and verbosity biases by swap-averaging, which cancels position bias exactly and reveals length bias rather than hiding it."
+        },
+        {
+          "q": "When would you still use an RNN-based seq2seq model today?",
+          "a": "The honest answer is: rarely, and the cases are specific. Streaming with a hard latency constraint is the strongest one — an RNN's state is O(1) in sequence length and it emits as it consumes, whereas a transformer's KV cache grows linearly and full attention over a long stream is expensive, which is why streaming ASR and online systems still use recurrent or chunked-recurrent formulations. Very small deployment budgets are another: a small RNN can beat a small transformer when the model is tiny enough that parallel training was never the constraint and the memory footprint is. And extremely long sequences where quadratic attention is prohibitive push toward recurrent or state-space formulations — which is not a step backwards but the reason S4 and Mamba are interesting, since they recover linear-time sequential processing while remaining parallelizable at training time via a scan. That last point is worth stating carefully in an interview, because it reframes the history: the transformer did not win because recurrence is a bad idea, it won because THAT recurrence could not be parallelized during training. Architectures that get both properties are an active area rather than a settled question."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "The seq2seq bottleneck",
+        "back": "The whole source is compressed into one fixed vector. BLEU is flat for short sentences and degrades sharply past ~20-30 tokens."
+      },
+      {
+        "type": "formula",
+        "front": "Bahdanau score",
+        "back": "e_ij = v^T tanh(W_s s_{i-1} + W_h h_j); alpha = softmax_j(e); context c_i = sum_j alpha_ij h_j."
+      },
+      {
+        "type": "intuition",
+        "front": "What attention actually buys",
+        "back": "Capacity no longer constant in source length, AND an O(1) path between any source token and the output that needs it — an information argument and a gradient argument at once."
+      },
+      {
+        "type": "formula",
+        "front": "Why divide by sqrt(d_k)",
+        "back": "A dot product of unit-variance d_k-vectors has variance d_k. Unscaled, softmax saturates at large d_k and the gradient vanishes."
+      },
+      {
+        "type": "definition",
+        "front": "Teacher forcing",
+        "back": "Condition on the ground-truth previous token during training. Makes the loss decomposable and training parallel; creates exposure bias."
+      },
+      {
+        "type": "intuition",
+        "front": "Additive vs multiplicative",
+        "back": "Bahdanau scores with an MLP on the previous decoder state; Luong with a dot product on the current one. Dot product won on arithmetic intensity, not expressiveness."
+      },
+      {
+        "type": "intuition",
+        "front": "Bahdanau to transformer",
+        "back": "Keep query/key/value and the O(1) path; swap the MLP score for a matmul, point it at the sequence itself, add heads. Then the RNN is redundant."
+      },
+      {
+        "type": "intuition",
+        "front": "Why position encodings became necessary",
+        "back": "Attention is permutation-equivariant. The recurrence had been supplying order for free; removing it means order must be injected explicitly."
+      },
+      {
+        "type": "pitfall",
+        "front": "Reading attention as explanation",
+        "back": "Alternative distributions produce near-identical outputs. Strong evidence the mechanism works; weak evidence about why a token was produced."
+      },
+      {
+        "type": "pitfall",
+        "front": "Fluent but wrong output",
+        "back": "The decoder's LM works and its link to the source does not. Ablate the source: if the output barely changes, that is the diagnosis."
+      },
+      {
+        "type": "pitfall",
+        "front": "A BLEU number without its signature",
+        "back": "Tokenization and preprocessing move BLEU by several points, so an unsignatured score is not comparable to anything. Use sacreBLEU; prefer learned metrics."
+      },
+      {
+        "type": "pitfall",
+        "front": "Assuming recurrence was the flaw",
+        "back": "The transformer won because that recurrence could not be parallelized in TRAINING, not because recurrence is bad. S4 and Mamba pursue both properties."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Bahdanau, Cho & Bengio (2014) — Neural Machine Translation by Jointly Learning to Align and Translate",
+        "url": "https://arxiv.org/abs/1409.0473"
+      },
+      {
+        "title": "Luong, Pham & Manning (2015) — Effective Approaches to Attention-based NMT",
+        "url": "https://arxiv.org/abs/1508.04025"
+      },
+      {
+        "title": "Sutskever, Vinyals & Le (2014) — Sequence to Sequence Learning with Neural Networks",
+        "url": "https://arxiv.org/abs/1409.3215"
+      },
+      {
+        "title": "Vaswani et al. (2017) — Attention Is All You Need",
+        "url": "https://arxiv.org/abs/1706.03762"
+      },
+      {
+        "title": "Post (2018) — A Call for Clarity in Reporting BLEU Scores (sacreBLEU)",
+        "url": "https://arxiv.org/abs/1804.08771"
+      }
+    ],
+    "demos": []
+  }
+};

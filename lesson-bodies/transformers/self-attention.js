@@ -1,0 +1,179 @@
+// GENERATED from content/lessons/transformers/self-attention.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/transformers/self-attention/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "self-attention": {
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are Q, K and V, in one line each?",
+          "a": "Q is what this position is looking for, K is what each position advertises, V is the content that actually gets mixed. Q and K decide the weights; V decides what is returned."
+        },
+        {
+          "q": "Write scaled dot-product attention.",
+          "a": "softmax(QK^T / sqrt(d_k)) V, with the softmax taken row-wise over keys so each query's weights sum to 1."
+        },
+        {
+          "q": "Why divide by sqrt(d_k)?",
+          "a": "A dot product of two independent d_k-dimensional vectors with unit-variance entries has variance d_k, so raw logits scale like sqrt(d_k). Dividing keeps them O(1) as width grows."
+        },
+        {
+          "q": "What actually breaks if you drop the scaling at large d_k?",
+          "a": "Logits get large, softmax saturates toward one-hot, its Jacobian goes to zero, and gradients through the attention weights vanish. It is a training failure, not an accuracy nuisance."
+        },
+        {
+          "q": "Time and memory cost over n tokens?",
+          "a": "O(n^2 * d) time and O(n^2) memory for the attention matrix. Note the parameter count is independent of n — only the activation is quadratic."
+        },
+        {
+          "q": "Is self-attention permutation equivariant?",
+          "a": "Yes. Permute the input rows and the output rows permute identically, so the layer alone cannot distinguish orderings of the same multiset of tokens."
+        },
+        {
+          "q": "So why is positional encoding required?",
+          "a": "Because that equivariance means the bare layer sees a bag of tokens. Order has to be injected into the representations, since attention will never recover it on its own."
+        },
+        {
+          "q": "How is causal masking implemented, and why that way?",
+          "a": "Add -inf to the disallowed logits BEFORE the softmax, so renormalization spans only legal positions. Zeroing weights after the softmax leaves rows that no longer sum to 1."
+        },
+        {
+          "q": "What do multiple heads buy you?",
+          "a": "h heads of width d/h cost about the same total compute, but let different subspaces attend to different relations instead of averaging every relation into one pattern."
+        },
+        {
+          "q": "Self-attention vs cross-attention?",
+          "a": "Self-attention draws Q, K and V from one sequence. Cross-attention draws Q from one sequence and K, V from another — that is how a decoder reads an encoder."
+        },
+        {
+          "q": "Does FlashAttention change the result?",
+          "a": "No. It is exact. It tiles the computation and recomputes pieces so the n-by-n matrix is never materialized, trading extra FLOPs for far less memory traffic."
+        },
+        {
+          "q": "Are attention weights an explanation of the decision?",
+          "a": "Not reliably. Different weight distributions can produce the same output, so a large weight is evidence of routing, not proof of causal importance."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Derive the sqrt(d_k) scaling, and say precisely what fails without it.",
+          "a": "Model the query and key entries as independent, zero-mean, unit-variance. Their dot product q.k is a sum of d_k such products, so it has mean 0 and variance d_k, i.e. a typical magnitude of sqrt(d_k). Feed that straight into a softmax and the spread of the logits grows with width: at d_k = 64 the logits are already several units apart, and the softmax approaches a one-hot. The damage is in the backward pass. The softmax Jacobian is diag(p) - p p^T, which goes to zero as p approaches one-hot, so gradients to Q and K vanish and the layer stops learning to route. Dividing by sqrt(d_k) normalizes the logit variance back to 1 so the softmax stays in its responsive regime independently of head width.",
+          "deepDive": {
+            "q": "What if the entries are not unit variance?",
+            "a": "Then sqrt(d_k) is the wrong constant in principle — the right scale is the standard deviation of the logits. In practice LayerNorm before the projections keeps the inputs near unit scale, so sqrt(d_k) remains the correct fixed choice; that is a reason the normalization placement and the scaling are coupled design decisions rather than independent ones."
+          }
+        },
+        {
+          "q": "Walk through the tensor shapes of a multi-head forward pass.",
+          "a": "Start with X of shape (B, n, d). Project to Q, K, V of shape (B, n, d) each, then reshape to (B, h, n, d_h) with d_h = d/h. The scores QK^T give (B, h, n, n) — this is the tensor that is quadratic in sequence length and the one that dominates memory. Softmax over the last axis, multiply by V of shape (B, h, n, d_h) to get (B, h, n, d_h), transpose and merge the heads back to (B, n, d), then apply the output projection W_O of shape (d, d). The parameter count is 4 d^2 regardless of n; only the (B, h, n, n) activation grows with sequence length."
+        },
+        {
+          "q": "Why separate K and V at all, rather than attending directly over the inputs?",
+          "a": "Separating them decouples matching from content. K lives in the space where similarity to Q is measured, V lives in the space of what gets written to the residual stream — a token can be easy to find for one reason and contribute something quite different. It also breaks symmetry: with a single shared matrix the score between positions i and j would be forced toward symmetry, whereas language is full of asymmetric relations, where a verb should attend to its subject far more than the reverse. Separate projections make the score bilinear in the input, x_i^T W_Q^T W_K x_j, which is an arbitrary (low-rank) bilinear form rather than an inner product.",
+          "deepDive": {
+            "q": "What does tying K and V actually cost?",
+            "a": "You force the retrieval key and the transmitted content to be the same vector, so any token that must be findable by many different queries has to compromise between being findable and being useful. Empirically it costs quality at equal parameter count, which is why the untied form persists despite tying being cheaper."
+          }
+        },
+        {
+          "q": "Explain the quadratic bottleneck and how it is genuinely addressed in practice.",
+          "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention — low-rank, kernelized or sparse — changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
+        },
+        {
+          "q": "What is a KV cache, and how does it change inference cost?",
+          "a": "At generation time the keys and values of previous tokens do not change, so recomputing them for every new token repeats work. The cache stores K and V for all past positions; each new token computes only its own Q, K and V, appends them, and attends over the cache. Per-token cost drops from O(n^2) to O(n), making generation linear overall. The price is memory: the cache is 2 * layers * heads * d_h * n * batch values, which for long contexts and large batches becomes the dominant memory consumer and the real constraint on serving. That is what motivates multi-query and grouped-query attention, which share K and V across heads to shrink the cache."
+        },
+        {
+          "q": "What goes wrong in very deep stacks of pure attention, and what prevents it?",
+          "a": "Attention output is a convex combination of value vectors, which is a smoothing operation. Stacked without help, it drives token representations toward each other — the rank of the representation matrix collapses, provably doubly exponentially in depth for pure attention, and every position ends up nearly identical, which destroys the model's ability to distinguish tokens. Three components counteract it, and the point is that they are not incidental: residual connections preserve a path that is not averaged, the position-wise MLPs apply a nonlinearity that is not a convex combination and can re-separate collapsed representations, and LayerNorm keeps scales controlled. This is a good example of an architecture whose famous component does not work without its unfamous ones."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "formula",
+        "front": "Scaled dot-product attention",
+        "back": "softmax(QK^T / sqrt(d_k)) V, softmax taken row-wise over keys."
+      },
+      {
+        "type": "formula",
+        "front": "Why the denominator is sqrt(d_k)",
+        "back": "Var(q.k) = d_k for independent unit-variance entries, so logits scale like sqrt(d_k); dividing restores unit logit variance."
+      },
+      {
+        "type": "definition",
+        "front": "Q, K, V",
+        "back": "Query = what I am looking for; Key = what I advertise; Value = what I contribute. Q and K set the weights, V is the payload."
+      },
+      {
+        "type": "definition",
+        "front": "Permutation equivariance",
+        "back": "Permuting input rows permutes output rows identically — which is exactly why positional information must be added."
+      },
+      {
+        "type": "definition",
+        "front": "KV cache",
+        "back": "Stored keys and values for past positions, so each new token costs O(n) instead of O(n^2). Cost is memory, not compute."
+      },
+      {
+        "type": "intuition",
+        "front": "Attention as lookup",
+        "back": "A soft dictionary lookup: similarity between a query and every key produces weights, and the answer is the weighted average of the values."
+      },
+      {
+        "type": "intuition",
+        "front": "Why more than one head",
+        "back": "One head must average all relations into a single pattern. h heads of width d/h cost the same and can specialize by subspace."
+      },
+      {
+        "type": "intuition",
+        "front": "Why FlashAttention is faster while doing more work",
+        "back": "The bottleneck was memory traffic, not FLOPs. Tiling plus recomputation avoids materializing the n-by-n matrix."
+      },
+      {
+        "type": "pitfall",
+        "front": "Masking after the softmax",
+        "back": "Zeroing disallowed weights post-softmax leaves rows that do not sum to 1. Add -inf to the logits BEFORE the softmax."
+      },
+      {
+        "type": "pitfall",
+        "front": "Dropping the scaling at large width",
+        "back": "Softmax saturates toward one-hot, its Jacobian goes to zero, gradients vanish and routing stops being learned."
+      },
+      {
+        "type": "pitfall",
+        "front": "Reading attention weights as explanation",
+        "back": "Different weight distributions can yield the same output. Weight shows routing, not causal importance."
+      },
+      {
+        "type": "pitfall",
+        "front": "Assuming attention alone builds depth",
+        "back": "Pure stacked attention collapses representations toward uniformity. Residuals, MLPs and LayerNorm are what make depth work."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Vaswani et al. (2017) — Attention Is All You Need",
+        "url": "https://arxiv.org/abs/1706.03762"
+      },
+      {
+        "title": "Dao et al. (2022) — FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+        "url": "https://arxiv.org/abs/2205.14135"
+      },
+      {
+        "title": "Dong et al. (2021) — Pure Attention Loses Rank Doubly Exponentially with Depth",
+        "url": "https://arxiv.org/abs/2103.03404"
+      },
+      {
+        "title": "Jain & Wallace (2019) — Attention is not Explanation",
+        "url": "https://arxiv.org/abs/1902.10186"
+      },
+      {
+        "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
+        "url": "https://transformer-circuits.pub/2021/framework/index.html"
+      }
+    ],
+    "demos": []
+  }
+};

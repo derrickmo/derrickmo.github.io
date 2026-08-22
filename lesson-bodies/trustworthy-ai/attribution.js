@@ -1,0 +1,290 @@
+// GENERATED from content/lessons/trustworthy-ai/attribution.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/trustworthy-ai/attribution/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "attribution": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Attribution answers 'how much did each input contribute to this output', and the reason it is harder than it sounds is that CONTRIBUTION IS NOT WELL DEFINED until you say what you are comparing against. Shapley values are the principled answer - the unique allocation satisfying efficiency, symmetry, dummy and additivity - and even they require a baseline distribution, which is the choice that decides the answer.",
+        "The sharpest demonstration is that attribution is a property of the REPRESENTATION, not only of the model. Take a linear model with weights 3, 2, 0 and mean |SHAP| of 2.371, 1.612, 0.000. Now write the identical function with the first feature split into two identical copies at weight 1.5 each. Predictions are bit-for-bit unchanged, and each copy now attributes 1.186 - BOTH RANKING BELOW the second feature at 1.612. Nothing about the model changed. The feature ranking inverted.",
+        "And the module's thesis applies with force: every attribution method computes something real and narrower than 'the explanation'. Interventional SHAP tells you what happens if you resample a feature independently. Conditional SHAP tells you what a feature tells you ABOUT the output. At rho = 0.99 the first says an unused feature has importance 0.000 and the second gives it 2.344, for a coefficient of exactly zero. Both are correct. They answer different questions."
+      ],
+      "math": [
+        {
+          "h": "Shapley values, and the baseline that decides them",
+          "paras": [
+            "The Shapley value averages a feature's marginal contribution over all orderings of the other features. It is the unique attribution satisfying four reasonable axioms, which is why it dominates the field.",
+            "But the value function v(S) requires evaluating the model on a subset of features, and a model needs all its inputs - so you must decide how to fill the missing ones. That decision is not part of the axioms."
+          ],
+          "tex": "\\phi_i = \\sum_{S\\subseteq N\\setminus\\{i\\}} \\frac{|S|!\\,(|N|-|S|-1)!}{|N|!}\\big[v(S\\cup\\{i\\})-v(S)\\big]",
+          "texNote": "Interventional: v(S) = E_{x_{-S}}[f(x_S, x_{-S})] with the complement drawn MARGINALLY - a do-operation. Conditional: draw from p(x_{-S} | x_S) - an observation. Same axioms, different value function, different answers."
+        },
+        {
+          "h": "★ The same function, two representations, an inverted ranking",
+          "paras": [
+            "Splitting one feature into two identical copies is a re-parameterization, not a model change. Efficiency then forces the credit to be shared."
+          ],
+          "tex": "f = 3x_0+2x_1: \\ \\bar{|\\phi|} = (2.371,\\ 1.612,\\ 0) \\quad\\longrightarrow\\quad f = 1.5x_{0a}+1.5x_{0b}+2x_1: \\ \\bar{|\\phi|} = (1.186,\\ 1.186,\\ 1.612)",
+          "texNote": "Predictions identical to machine precision. Each copy of the dominant feature now ranks BELOW the secondary one. Symmetry and efficiency together guarantee this - it is a consequence of the axioms, not a bug in the implementation."
+        },
+        {
+          "h": "Interventional versus conditional, measured",
+          "paras": [
+            "A model using only x0, with x1 correlated to it at varying strength. x1's coefficient is exactly zero in every row."
+          ],
+          "tex": "\\begin{array}{lrr} \\rho & \\phi_{x_1}\\ \\text{interventional} & \\phi_{x_1}\\ \\text{conditional}\\\\ 0.00 & 0.000 & 0.000\\\\ 0.50 & 0.000 & 1.191\\\\ 0.90 & 0.000 & 2.165\\\\ 0.99 & 0.000 & \\mathbf{2.344} \\end{array}",
+          "texNote": "The interventional value says the model does not use x1, which is true. The conditional value says x1 is nearly as informative about the output as x0, which is also true. Choose the one matching your question: debugging the model, or understanding the data."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ The sanity check, and why some methods fail it",
+          "paras": [
+            "Adebayo et al.'s test: randomize the model's parameters and recompute the map. If it barely changes, the map was never about the model."
+          ],
+          "code": "# rank correlation between the saliency map BEFORE and AFTER\n# destroying the model's weights\n\n#      method        randomize last layer    randomize ALL layers\n#    gradient              -0.041                   0.095\n#  input x grad             0.420                   0.493\n\n# ★ PLAIN GRADIENT correctly collapses to ~0 - it genuinely depends on\n#   the weights, so destroying them destroys the explanation.\n# ★ INPUT x GRADIENT stays high, because the |x| factor is a property\n#   of the INPUT and survives replacing the model with noise.\n\n# That is the mechanism behind the published finding that several popular\n# saliency methods act as edge detectors: the structure you are admiring\n# is in the image, not in the model.",
+          "caption": "Run this before trusting any attribution map. It is three lines, it has no false positives worth worrying about, and it disqualifies methods that look most convincing."
+        },
+        {
+          "h": "What attention is and is not",
+          "paras": [
+            "Attention weights are a real quantity computed by the model. Reading them as an explanation adds a claim they do not support."
+          ],
+          "code": "# WHAT ATTENTION WEIGHTS ARE\n#   a normalized similarity used to mix VALUE vectors at one layer\n\n# WHAT THEY ARE NOT\n#   * a measure of importance - a large weight on a token whose value\n#     vector is near zero moves the output almost not at all\n#   * unique - different attention patterns can give identical outputs\n#   * end-to-end - one layer's weights say nothing about the residual\n#     stream carrying information around it\n\n# ROLLOUT multiplies attention matrices across layers (with a residual\n# term) to approximate token-to-token influence. Better than raw weights,\n# still correlational: it tracks where information COULD flow, not\n# whether the output DEPENDS on it.\n\n# ★ The causal test is ABLATION or PATCHING - change it and see. That is\n#   lesson 24-06, and it is the do-operator from module 23.",
+          "caption": "The upgrade path from attention to rollout to patching is exactly the upgrade from correlation to causation, and it costs a forward pass per intervention."
+        }
+      ],
+      "useCases": [
+        "Debugging a model that is right for the wrong reason - a leaked identifier, a hospital tag in a scan, a timestamp that encodes the label - where a single high-attribution feature ends the investigation.",
+        "Regulatory adverse-action notices, where the requirement is a reason a person can act on, and the interventional question 'what would have changed the decision' is closer to that than the conditional one.",
+        "Feature selection and pipeline pruning, where the interventional value is the right choice because it answers what happens if the feature is removed.",
+        "Understanding the data rather than the model - which is the conditional question, and legitimate as long as it is labelled as such."
+      ],
+      "pitfalls": [
+        "Reading feature ranking as a property of the model. Splitting a feature into two identical copies left predictions bit-for-bit identical and dropped its attribution from 2.371 to 1.186 each, inverting the ranking against a weaker feature.",
+        "Not knowing which SHAP variant your library ran. At rho = 0.99 the interventional value for an UNUSED feature was 0.000 and the conditional value was 2.344 - both correct, and only one answers your question.",
+        "Trusting a saliency map that has not passed the model-randomization test. Input x gradient retained rank correlation 0.420 to 0.493 after the weights were replaced with noise.",
+        "Treating attention weights as explanations. They are a similarity used to mix values at one layer, and a large weight on a near-zero value vector moves the output almost not at all.",
+        "Using the training-set mean as a SHAP baseline without thinking. The baseline defines what 'absent' means, and an all-mean input is often off-manifold and outside anything the model saw.",
+        "Interpreting attributions from a model with correlated features as causal. Attribution says what the MODEL uses; whether the world works that way is the previous module's question entirely.",
+        "Averaging attributions over a dataset and calling it global importance without noting that opposite-signed local effects cancel, which is the same aggregation failure as subgroup calibration."
+      ],
+      "connections": [
+        {
+          "ref": "causal-inference/causal-graphs",
+          "text": "Interventional SHAP is a do-operation and conditional SHAP is an observation - the same distinction, and the reason the two disagree by 2.344 on an unused feature."
+        },
+        {
+          "ref": "trustworthy-ai/probing-patching",
+          "text": "The causal upgrade: patching intervenes on an activation and measures the output change, which is what attention rollout only approximates."
+        },
+        {
+          "ref": "trustworthy-ai/superposition-sae",
+          "text": "Why input-space attribution has a ceiling - if the model's real units are directions in activation space rather than input features, no input attribution can name them."
+        },
+        {
+          "ref": "trustworthy-ai/fairness",
+          "text": "Where attribution gets used as evidence in an audit, and why 'the protected feature had low attribution' is a claim about the feature list, not about the behaviour."
+        },
+        {
+          "ref": "ml-applications/shap",
+          "text": "The applied treatment - TreeSHAP, plotting conventions, and the practical cost of exact versus sampled Shapley on real feature counts."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What are Shapley values?",
+          "a": "The average marginal contribution of a feature over all orderings of the others — the unique attribution satisfying efficiency, symmetry, dummy and additivity."
+        },
+        {
+          "q": "What do the axioms NOT determine?",
+          "a": "The value function v(S) — how you fill in the absent features. That baseline choice decides the answer and is not part of the axioms."
+        },
+        {
+          "q": "Interventional vs conditional SHAP?",
+          "a": "Interventional draws the absent features MARGINALLY (a do-operation); conditional draws from p(x_{−S} | x_S) (an observation)."
+        },
+        {
+          "q": "★ Show they disagree.",
+          "a": "Model uses only x0; x1 has coefficient exactly 0. At ρ=0.99: interventional φ(x1) = 0.000, conditional = 2.344. Both correct, different questions."
+        },
+        {
+          "q": "Which should you use for debugging a model?",
+          "a": "Interventional — it answers what the model uses. Conditional answers what a feature tells you about the output, i.e. a question about the data."
+        },
+        {
+          "q": "★ What happens if you duplicate a feature?",
+          "a": "Credit splits. f = 3x₀+2x₁ gives |φ| = (2.371, 1.612); rewriting as 1.5x₀ₐ+1.5x₀ᵦ+2x₁ gives (1.186, 1.186, 1.612) with IDENTICAL predictions — the ranking inverts."
+        },
+        {
+          "q": "Is that a bug?",
+          "a": "No — symmetry plus efficiency force it. Attribution is a property of the REPRESENTATION, not only of the model."
+        },
+        {
+          "q": "What is the model-randomization sanity check?",
+          "a": "Randomize the model's weights and recompute the map. If the map barely changes, it was never explaining the model (Adebayo et al. 2018)."
+        },
+        {
+          "q": "Give the measured result.",
+          "a": "Rank correlation after randomizing all layers: plain gradient 0.095 (collapses ✓), input×gradient 0.493 (survives) — the |x| factor is a property of the input."
+        },
+        {
+          "q": "Are attention weights explanations?",
+          "a": "No. They're a normalized similarity mixing value vectors at one layer. A large weight on a near-zero value vector barely moves the output."
+        },
+        {
+          "q": "What does attention rollout add?",
+          "a": "Multiplies attention across layers with a residual term to approximate token-to-token influence. Still correlational — where information COULD flow, not what the output depends on."
+        },
+        {
+          "q": "What's the causal test?",
+          "a": "Ablation or activation patching — change it and measure the output. That's lesson 24-06, and it's module 23's do-operator applied inside the network."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain Shapley values and the baseline problem.",
+          "a": "A SHAPLEY VALUE IS A FEATURE'S AVERAGE MARGINAL CONTRIBUTION OVER ALL ORDERINGS of the other features, and it is the unique attribution satisfying four axioms: efficiency (attributions sum to the prediction minus the baseline), symmetry (identical contributions get identical credit), dummy (an unused feature gets zero), and additivity (attributions of a sum of models add). That uniqueness is why it dominates the field — it is not one heuristic among many, it is the answer given those requirements. THE PROBLEM IS THAT THE AXIOMS DO NOT DETERMINE THE VALUE FUNCTION. Computing v(S) means evaluating the model on a subset of features, and a model needs all its inputs, so you must decide what 'absent' means. Interventional SHAP draws the absent features from their MARGINAL distribution, which is a do-operation, and answers 'what does the model use'. Conditional SHAP draws from p(x_{−S} | x_S), which is an observation, and answers 'what does this feature tell me about the output'. MEASURED, THEY DISAGREE COMPLETELY: with a model whose second feature has coefficient exactly zero, at ρ = 0.99 the interventional attribution is 0.000 and the conditional is 2.344. Both are correct. Most practitioners do not know which one their library ran.",
+          "deepDive": {
+            "q": "How do you choose between interventional and conditional?",
+            "a": "The choice has a clean rule once you name the question. Debugging the model, feature pruning, and adverse-action explanations all want INTERVENTIONAL, because they ask what happens if the feature changes or is removed — and adverse-action notices in particular need a reason the applicant could act on, which is a counterfactual. Understanding the data-generating process wants CONDITIONAL, and it should be labelled as a statement about the data rather than the model. The practical trap is that interventional SHAP evaluates the model at off-manifold points — resampling one feature independently can produce an input combination that never occurs, like a pregnancy flag on a male record — so the model is being asked about inputs it never saw, and its answer there is extrapolation. Conditional SHAP stays on-manifold and pays by attributing to features the model demonstrably ignores. There is no version that avoids both problems, and TreeSHAP's default in several libraries has changed between versions, which means published SHAP plots from different years are not necessarily comparable. Checking which variant you ran is a two-minute task that changes conclusions."
+          }
+        },
+        {
+          "q": "Why is feature ranking by attribution unreliable?",
+          "a": "BECAUSE ATTRIBUTION IS A PROPERTY OF THE REPRESENTATION, NOT ONLY OF THE MODEL, and the demonstration takes one line. Take f = 3x₀ + 2x₁ with mean |SHAP| of 2.371 and 1.612 — x₀ dominates, as it should. Now write the identical function as 1.5x₀ₐ + 1.5x₀ᵦ + 2x₁, where x₀ₐ and x₀ᵦ are two copies of the same column. Predictions are identical to machine precision; it is the same function. Each copy now attributes 1.186, so BOTH RANK BELOW x₁ at 1.612. The most important input in the model now appears twice, in third and fourth place. THIS IS NOT AN IMPLEMENTATION BUG — symmetry says identical features get identical credit and efficiency says the total is fixed, so the credit must split. The axioms force it. AND DUPLICATION IS NOT AN ARTIFICIAL SCENARIO: near-duplicates are everywhere in real feature stores — the same signal at two aggregation windows, a raw value and its log, a field and its imputed version, embeddings that overlap. Any of those dilutes attribution across the group. THE PRACTICAL CONSEQUENCE is that attribution rankings are comparable within a fixed feature set and not across pipelines, and a feature that drops in the ranking after a pipeline change may have gained a correlated sibling rather than lost influence.",
+          "deepDive": {
+            "q": "What can you do about it?",
+            "a": "The mitigations are partial and worth knowing. Grouped Shapley values treat a set of related columns as a single player, which restores the ranking and requires you to define the groups — a domain judgment, and the right one when the group is genuinely one concept measured several ways. Owen values generalise this to a hierarchy. Both need you to know the structure in advance, which is fine for engineered features and hard for learned embeddings. The broader lesson is that any attribution obeying efficiency has this property: a fixed total must be divided, so adding a correlated feature necessarily reduces someone's share regardless of whether the model's behaviour changed. That is a general consequence of conservation rather than a defect of Shapley in particular. It also makes a specific audit argument invalid: 'the protected attribute had low attribution' is unpersuasive when a dozen correlated proxies are present, because the credit for that concept is spread across all of them and no single one looks important. Grouping the proxies is the right analysis, and it typically changes the picture substantially."
+          }
+        },
+        {
+          "q": "How do you know whether to trust a saliency map?",
+          "a": "RUN THE MODEL-RANDOMIZATION TEST BEFORE TRUSTING ANYTHING. Compute the map, then replace the model's parameters with random ones — first the last layer, then all of them — and recompute. If the map is substantially unchanged, it was never explaining the model. MEASURED: plain gradient saliency had rank correlation −0.041 after randomizing the last layer and 0.095 after randomizing everything, which is the correct behaviour — destroy the weights and you destroy the explanation. Input × gradient retained 0.420 and 0.493. The reason is structural: the |x| factor is a property of the INPUT, so it survives replacing the model with noise, and any map dominated by input magnitude will keep looking like the input no matter what the model does. THAT IS THE MECHANISM behind the published finding that several popular saliency methods behave as edge detectors — the structure you are admiring is in the image. It also explains why these maps are so persuasive: they look like the object because they are partly a picture of the object, and a human evaluator reads that as the model attending to the right thing. THE SECOND TEST IS A DATA-RANDOMIZATION CHECK: retrain on shuffled labels and confirm the map changes. A map that survives both randomizations is a visualization of the input with extra steps.",
+          "deepDive": {
+            "q": "What is the general principle behind that check?",
+            "a": "The general principle is worth extracting because it applies well beyond saliency: an explanation should be sensitive to the thing it claims to explain, and that sensitivity is testable. It is the same logic as the causal module's habit of asking whether a diagnostic could have come out badly — a map guaranteed to look plausible regardless of the model is not evidence. It also connects to a practical point about human evaluation: plausibility and faithfulness are different properties, and human raters score plausibility. A map highlighting the dog in a dog image looks right whether or not the model used those pixels, so 'the explanations looked reasonable to our annotators' is close to no evidence at all. The faithfulness tests that do mean something are deletion and insertion curves — remove the top-k attributed pixels and measure how fast the prediction degrades, or add them to a blank input and measure how fast it recovers — because those intervene and measure the model's actual dependence. They have their own off-manifold problem, since a deleted region is an unusual input, which is a real caveat rather than a reason to skip them."
+          }
+        },
+        {
+          "q": "Someone shows you attention weights as an explanation of an LLM's output. Respond.",
+          "a": "ATTENTION WEIGHTS ARE A REAL QUANTITY THE MODEL COMPUTES, AND READING THEM AS AN EXPLANATION ADDS A CLAIM THEY DO NOT SUPPORT. What they are: a normalized similarity used to mix value vectors at one layer. What they are not, in three specific ways. FIRST, THEY ARE NOT IMPORTANCE — the output depends on the attention weight TIMES the value vector, so a large weight on a token whose value vector is near zero moves the output almost not at all, and the weight alone hides that. SECOND, THEY ARE NOT UNIQUE: different attention patterns can produce identical outputs, so 'the model attended here' is not a statement the output pins down. THIRD, THEY ARE NOT END-TO-END — one layer's weights say nothing about the residual stream carrying information around that layer, and in a deep model most information routing is not visible in any single attention matrix. ATTENTION ROLLOUT IS A GENUINE IMPROVEMENT, multiplying attention across layers with a residual term to approximate token-to-token influence, and it remains correlational: it tracks where information COULD flow, not whether the output depends on it. THE CAUSAL TEST IS PATCHING — replace an activation and measure the change in output — which is the do-operator from the causal module applied inside the network, and it costs one forward pass per intervention.",
+          "deepDive": {
+            "q": "How should you characterise the 'attention is not explanation' debate?",
+            "a": "The 'attention is not explanation' debate is worth being able to characterise accurately rather than citing one side. Jain and Wallace showed that adversarially-chosen alternative attention distributions can produce nearly identical outputs, which undercuts attention as THE explanation. Wiegreffe and Pinter responded that this tests a strong uniqueness claim nobody needs, and that attention is still informative under a weaker reading, particularly when the alternatives are constrained to be reachable by training. The reasonable synthesis is that attention is a useful HYPOTHESIS GENERATOR and a poor piece of evidence: use it to decide what to patch, then patch. That is also the right sequencing for cost, since patching is expensive per intervention and attention is free, so attention narrows the search space that ablation then tests. Worth adding that for modern models the more informative object is often not attention at all but the residual stream decomposition — logit lens, direct logit attribution — which measures how much each component moves the actual output logits, and is closer to a causal quantity by construction."
+          }
+        },
+        {
+          "q": "What is attribution good for, given all these caveats?",
+          "a": "IT IS EXCELLENT AT ONE THING: FINDING MODELS THAT ARE RIGHT FOR THE WRONG REASON. When a model has learned a shortcut — a leaked identifier, a hospital tag in a radiograph, a timestamp encoding the label, a whitespace pattern separating classes — attribution finds it immediately, because the shortcut feature attributes enormously and a human recognises instantly that it should not. That single use case justifies the tooling, and it is a HYPOTHESIS-GENERATION use where a false positive costs a few minutes and a true positive saves a launch. IT IS ALSO GENUINELY REQUIRED IN SOME DOMAINS, where regulation demands a reason a person can act on, and the interventional question — what would have had to differ for the decision to change — is the closest available thing. Counterfactual explanations are often better suited than attributions there, because they name an achievable change rather than a share of credit. WHERE IT IS WEAK is everything that sounds like the main use: ranking features reliably (representation-dependent, 2.371 → 1.186 from a rewrite), establishing causal claims about the world (it describes the model, not the world), and satisfying a stakeholder who wants to know whether to trust the model, which attribution does not answer. THE RULE I WOULD GIVE is that attribution generates hypotheses and interventions test them.",
+          "deepDive": {
+            "q": "How does that set up the rest of the module?",
+            "a": "That rule is the through-line for the rest of the module. Attribution is a correlational statement about a model's inputs; patching is an interventional statement about its internals; and the difference is exactly the difference the causal module spent ten lessons on, now applied to a system where — unusually — you CAN intervene freely. That is the genuinely hopeful part of interpretability: unlike an economist studying a labour market, you own the model, you can set any activation to any value, run the counterfactual, and observe the result at zero ethical cost and low compute cost. The fundamental problem of causal inference does not apply inside a network, because you can run both potential outcomes. So the field's methodological ceiling is much higher than in causal inference proper, and the reason interpretability results are still contested is not that intervention is impossible but that the units to intervene ON are unclear — which is precisely what the next two lessons are about, with superposition explaining why neurons are the wrong unit and patching supplying the causal test once you have a better one."
+          }
+        },
+        {
+          "q": "How does this lesson fit the module's thesis?",
+          "a": "IT SHOWS THE PATTERN IN A CASE WHERE EVEN THE AXIOMS DO NOT SAVE YOU. Shapley values are uniquely determined by four reasonable requirements, which is about as strong a foundation as an attribution method can have, and the guarantee is still narrower than 'the explanation'. Interventional SHAP truly reports what the model uses when features are resampled independently; conditional SHAP truly reports what a feature tells you about the output. On an unused feature at ρ = 0.99, those are 0.000 and 2.344. Both are correct. The name 'feature importance' does not distinguish them, and the library default decides which one you got. THE SECOND INSTANCE IS SHARPER: the ranking is a property of the representation, so the same function written two ways gives 2.371 and 1.186 for the same input, inverting the order. That is the axioms working correctly. SO THE MODULE'S QUESTION — over what set does this hold — becomes, here, over what BASELINE and what FEATURE PARAMETERIZATION. Both are choices, both are usually invisible in the plot, and both change the answer more than most modelling decisions do. The habit is to state the variant, the baseline, and the grouping alongside any attribution figure, the way you would state the binning alongside an ECE.",
+          "deepDive": {
+            "q": "What parallel does this share with calibration, conformal and fairness?",
+            "a": "There is one more parallel worth drawing across the module so far. Calibration's ECE was an average over a chosen population. Conformal's coverage was an average over a chosen exchangeable distribution. A fairness metric is a parity over a chosen partition. And an attribution is a contrast against a chosen baseline. In every case the method computes an honest number relative to a reference that the reporting convention omits, and in every case supplying the reference is cheap — a per-slice table, a Mondrian partition, the full trade-off matrix, the SHAP variant and baseline. None of these is technically difficult; all of them are routinely left out, and leaving them out is what converts a correct measurement into a misleading claim. If a reader takes one operational habit from this module it should be to name the reference class in the same sentence as the number, every time, because the number without it is not wrong so much as unfalsifiable."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "Shapley values",
+        "back": "Average marginal contribution over all orderings — the UNIQUE attribution satisfying efficiency, symmetry, dummy, additivity. The axioms do NOT determine v(S), i.e. what 'absent' means."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Interventional vs conditional SHAP",
+        "back": "Model uses ONLY x₀; x₁'s coefficient is exactly 0. At ρ=0.99: interventional φ(x₁) = **0.000**, conditional = **2.344**. Both correct — do-operation vs observation. Most people don't know which their library ran."
+      },
+      {
+        "type": "intuition",
+        "front": "Which SHAP variant for which question?",
+        "back": "Debugging / pruning / adverse-action → INTERVENTIONAL (what the model uses; counterfactual). Understanding the data → CONDITIONAL, and label it as a claim about the data."
+      },
+      {
+        "type": "formula",
+        "front": "★ Duplicate a feature, invert the ranking",
+        "back": "f = 3x₀+2x₁ → |φ| = (2.371, 1.612). Rewrite as 1.5x₀ₐ+1.5x₀ᵦ+2x₁ → (1.186, 1.186, 1.612). Predictions bit-for-bit identical; the dominant feature now ranks THIRD and FOURTH."
+      },
+      {
+        "type": "intuition",
+        "front": "Why duplication splits credit",
+        "back": "Symmetry (identical features, identical credit) + efficiency (fixed total) FORCE it. Any attribution obeying conservation has this property. Near-duplicates are everywhere: two windows, raw+log, field+imputation."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ The model-randomization sanity check",
+        "back": "Randomize the weights, recompute the map. Rank corr after randomizing ALL layers: plain gradient **0.095** (collapses ✓), input×gradient **0.493** (survives). The |x| factor belongs to the INPUT."
+      },
+      {
+        "type": "intuition",
+        "front": "Why saliency maps are so persuasive",
+        "back": "They look like the object because they are partly a PICTURE of the object. Human raters score PLAUSIBILITY; faithfulness is a different property. \"The explanations looked reasonable\" is near-zero evidence."
+      },
+      {
+        "type": "pitfall",
+        "front": "Three things attention weights are not",
+        "back": "(1) Not importance — output depends on weight × VALUE vector; a big weight on a near-zero value moves nothing. (2) Not unique — different patterns, identical outputs. (3) Not end-to-end — silent on the residual stream."
+      },
+      {
+        "type": "definition",
+        "front": "Attention → rollout → patching",
+        "back": "Raw weights (one layer, correlational) → rollout (across layers with a residual term; where information COULD flow) → PATCHING (intervene, measure output change). The correlation→causation ladder, one forward pass per intervention."
+      },
+      {
+        "type": "pitfall",
+        "front": "The off-manifold problem",
+        "back": "Interventional SHAP resamples one feature independently, creating inputs that never occur (a pregnancy flag on a male record) — the model's answer there is extrapolation. Conditional stays on-manifold and credits features the model ignores."
+      },
+      {
+        "type": "intuition",
+        "front": "★ What attribution is actually good for",
+        "back": "Finding models RIGHT FOR THE WRONG REASON — leaked IDs, hospital tags, timestamps. A hypothesis-generation use where a false positive costs minutes and a true positive saves a launch. **Attribution generates hypotheses; interventions test them.**"
+      },
+      {
+        "type": "intuition",
+        "front": "Why interpretability's ceiling is higher than causal inference's",
+        "back": "You OWN the model — set any activation, run both potential outcomes, zero ethical cost. The fundamental problem of causal inference does not apply inside a network. The hard part is knowing which UNITS to intervene on (→ 24-05)."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Lundberg & Lee (2017), A Unified Approach to Interpreting Model Predictions",
+        "url": "https://arxiv.org/abs/1705.07874"
+      },
+      {
+        "title": "Adebayo et al. (2018), Sanity Checks for Saliency Maps",
+        "url": "https://arxiv.org/abs/1810.03292"
+      },
+      {
+        "title": "Janzing, Minorics & Blobaum (2020), Feature Relevance Quantification in Explainable AI: A Causal Problem",
+        "url": "https://proceedings.mlr.press/v108/janzing20a.html"
+      },
+      {
+        "title": "Jain & Wallace (2019), Attention is not Explanation",
+        "url": "https://arxiv.org/abs/1902.10186"
+      },
+      {
+        "title": "Wiegreffe & Pinter (2019), Attention is not not Explanation",
+        "url": "https://arxiv.org/abs/1908.04626"
+      }
+    ],
+    "demos": [
+      "shap",
+      "saliency",
+      "attention-rollout",
+      "decision-tree"
+    ]
+  }
+};

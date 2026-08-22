@@ -1,0 +1,276 @@
+// GENERATED from content/lessons/training-systems/training-stability.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/training-systems/training-stability/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "training-stability": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "Stability is the exchange in this module whose value depends most sharply on context. Every guard - clipping, finite checks, skip-steps, warmup, a lower learning rate - costs a little throughput and a little complexity, and buys protection against events that may never happen. On a job you can restart in ten minutes, that is a bad trade. On a three-week run across a thousand accelerators, where a single poisoned step can silently destroy days of work and where nobody is watching at three in the morning, it is the best trade in the module.",
+        "The failures come in four kinds and each has a signature. NUMERICAL: an overflow to infinity, then a subtraction giving NaN, then propagation through every parameter it touches - the fix is stable formulations and keeping sensitive operations in fp32, which mostly happens upstream of this lesson. OPTIMIZATION: gradients explode and a step destroys the parameters, usually from a learning rate that is too high or a missing warmup. DATA: one corrupted batch, and the measured consequence is stark - injecting corrupted inputs into 12% of batches left an unguarded run with ZERO percent finite weights, a completely dead model, while the same run with a finite check before the optimizer step kept 100% finite weights, converged, and simply skipped about seven steps. INSTABILITY AT SCALE: the loss spikes that appear in large language-model training and that the public training logbooks document in detail.",
+        "The single highest-value habit is the cheapest one: CHECK THAT THE GRADIENTS ARE FINITE BEFORE YOU STEP, and skip if they are not. It costs one reduction per step and it converts a fatal, unrecoverable poisoning into a logged anomaly. Everything else is a matter of degree - how much clipping, how long a warmup, how often to checkpoint - and those are calibrated against how expensive a failure is. The second habit is monitoring the leading indicators rather than the loss, because gradient norm, loss scale and clip fraction all move hundreds of steps before the loss does, and by the time the loss shows a problem the parameters are already damaged."
+      ],
+      "math": [
+        {
+          "h": "Global-norm clipping preserves direction",
+          "paras": [
+            "Compute one norm across all parameters, and if it exceeds the threshold, scale every gradient by the same factor. The direction of the update is unchanged and only its length is capped.",
+            "Per-element value clipping does not have this property - it clamps components independently and therefore rotates the update, which is why norm clipping is what people mean by gradient clipping unqualified."
+          ],
+          "tex": "g \\leftarrow g \\cdot \\min\\!\\left(1, \\frac{\\tau}{\\lVert g \\rVert_2}\\right), \\qquad \\lVert g \\rVert_2 = \\sqrt{\\textstyle\\sum_p \\lVert g_p \\rVert_2^2}",
+          "texNote": "Note the norm is GLOBAL across all parameters, not per-tensor - a per-tensor clip would change the relative scale between layers, which is information the gradient carried. And the returned pre-clip norm is the most useful free metric in training: it rises hundreds of steps before a loss spike, which makes it a leading indicator rather than a lagging one."
+        },
+        {
+          "h": "The dynamic loss scaler as a control loop",
+          "paras": [
+            "The scaler is searching for the largest factor that does not overflow, and the search is the same shape as network congestion control: multiplicative decrease on failure, multiplicative increase after a run of successes.",
+            "The asymmetry is deliberate. Backing off must be immediate because an overflow costs a step; probing upward can be gradual because being conservative only costs precision."
+          ],
+          "tex": "S \\leftarrow \\begin{cases} S/2 \\;\\text{and skip the step} & \\exists\\, g_i \\notin \\mathbb{R} \\\\ 2S & \\text{after } N \\text{ consecutive clean steps} \\end{cases}",
+          "texNote": "So a healthy run shows the scale sawtoothing - climbing, overshooting, halving - and skipping the occasional step. That is the control loop working. What is NOT healthy is the scale collapsing toward zero and staying there, which means gradients genuinely overflow at any usable scale and points at a real instability rather than an over-eager probe."
+        },
+        {
+          "h": "When a guard is worth its cost",
+          "paras": [
+            "A guard costs a small fraction of throughput on every step and saves the expected cost of a failure. Comparing the two is what makes this a decision rather than a habit.",
+            "The asymmetry that decides most real cases is that an unguarded numerical failure is not merely a lost step - it poisons every parameter and destroys everything since the last checkpoint."
+          ],
+          "tex": "\\text{guard if } \\underbrace{c_{\\text{guard}} \\cdot T}_{\\text{throughput tax}} \\;<\\; \\underbrace{p_{\\text{fail}} \\cdot T \\cdot \\big(t_{\\text{ckpt interval}} + t_{\\text{detect}}\\big)}_{\\text{expected work lost}}",
+          "texNote": "Put numbers in: a finite check costs well under one percent of step time. If a poisoning event has even a one-in-a-million chance per step and would cost the hours since the last checkpoint plus however long before a human notices, the guard pays for itself many times over on any long run. On a ten-minute job it does not, which is the honest reason short experiments skip all of this."
+        }
+      ],
+      "code": [
+        {
+          "h": "The guard, and what it is worth measured",
+          "paras": [
+            "One reduction per step, and it is the difference between a dead run and a logged anomaly. The measurement is worth reproducing because the outcome is not marginal."
+          ],
+          "code": "def finite_grads(model):\n    return all(p.grad is None or torch.isfinite(p.grad).all()\n               for p in model.parameters())\n\n# ... after backward, after unscale, after clip:\nif finite_grads(model):\n    opt.step()\nelse:\n    skipped += 1\n    log.warning(\"non-finite gradients at step %d - SKIPPING\", step)\nopt.zero_grad(set_to_none=True)      # zero either way, or the bad gradient\n                                     # persists into the next accumulation\n\n# MEASURED, injecting NaN/Inf into the inputs of 12% of batches:\n#   NO GUARD  -> 0% of weights finite. The model is DEAD - one poisoned step\n#                propagates NaN through every parameter it touches, and every\n#                subsequent step multiplies NaN by NaN. Unrecoverable.\n#   GUARDED   -> 100% of weights finite, run converges, ~7 steps skipped.\n#\n# THAT is the asymmetry. The guard costs one reduction per step; the failure\n# costs everything since the last checkpoint. And note the failure is SILENT\n# in the sense that nothing raises - the loss simply becomes NaN and stays.\n\n# THE SAME LOGIC IS INSIDE THE fp16 SCALER, which skips on overflow. If you\n# use bf16 - no scaler - you must add this check yourself. It is the most\n# commonly missing guard in a bf16 training loop, precisely because deleting\n# the scaler also deleted the skip logic people had been getting for free.\n\n# GO FURTHER ON A LONG RUN: also check the LOSS before backward, so a bad\n# batch is caught before it produces gradients at all.\nif not torch.isfinite(loss):\n    log.warning(\"non-finite LOSS at step %d - skipping batch\", step)\n    opt.zero_grad(set_to_none=True); continue",
+          "caption": "Zero-percent finite weights against one hundred percent, from a single reduction per step. And the trap for bf16 users: deleting the GradScaler also deletes the skip-on-overflow logic it was providing, so the check must be added explicitly."
+        },
+        {
+          "h": "Clipping, and the metrics that warn before the loss does",
+          "paras": [
+            "Clipping bounds the damage from a rare large gradient. The monitoring is what tells you the damage was coming, and every metric here is nearly free."
+          ],
+          "code": "# MEASURED on a deep MLP: at lr=3.0 the run diverges - gradient norm explodes\n# and the first NaN appears around step 5. With global-norm clipping at tau=1.0\n# the same configuration stays finite and converges. Clipping did not fix the\n# learning rate; it bounded the damage while the schedule caught up.\ngn = clip_grad_norm_(model.parameters(), max_norm=1.0)   # returns PRE-clip norm\n\n# THE MONITORING SET - all cheap, all LEADING indicators:\nlog({\n  \"grad_norm\":    gn,                       # rises hundreds of steps before a\n                                             # loss spike. The single best signal.\n  \"clip_frac\":    float(gn > 1.0),          # ~0 = the guard does nothing;\n                                             # ~1 = clipping has REPLACED your\n                                             # update rule with normalized steps\n  \"loss_scale\":   scaler.get_scale(),       # sawtooth = healthy control loop;\n                                             # collapsing and staying low = real\n                                             # overflow, not an over-eager probe\n  \"param_norm\":   total_param_norm(model),  # unbounded growth is a problem in\n                                             # progress\n  \"act_max\":      max_activation,           # approaching fp16's 65504 is the\n                                             # forward-pass overflow warning\n  \"skipped\":      skipped,                  # a RISING skip rate is instability\n})\n\n# WHAT TO DO WHEN A SPIKE HAPPENS ANYWAY, which at scale it will. The\n# operational answer from the public LLM training logbooks:\n#   1. CHECKPOINT OFTEN, so a rollback is cheap.\n#   2. On a spike: ROLL BACK to the last good checkpoint and SKIP the data\n#      batches that preceded it. This is standard practice in large runs,\n#      and it works - the spike is frequently reproducible from that data.\n#   3. If spikes recur: lower the LR, lengthen warmup, or apply an\n#      architectural fix (qk-layernorm, a z-loss on the logits, embedding\n#      normalization) rather than fighting each one individually.\n#\n# HONEST NOTE: the exact divergence step and the corrupted-batch fraction that\n# kills a run shift with seed, learning rate and depth. The QUALITATIVE result\n# - unguarded poisoning is total, guarded is a logged skip - is robust; the\n# specific numbers above are one measured configuration.",
+          "caption": "Gradient norm is the single best leading indicator and it is returned for free by the clipping call. The clip fraction matters too: near zero means the guard is inert, near one means clipping has quietly replaced your optimizer with normalized steps."
+        }
+      ],
+      "useCases": [
+        "Long pretraining runs, where a single unguarded poisoned step destroys everything since the last checkpoint and where nobody is watching - the setting in which every guard in this lesson pays for itself many times over.",
+        "Mixed-precision training in fp16, where the loss scaler's skip-on-overflow logic is doing exactly this job already, and where switching to bf16 removes the scaler and therefore removes the skip unless you add it back explicitly.",
+        "Any pipeline consuming data you do not fully control - scraped corpora, user uploads, sensor streams - where a corrupted sample is a matter of when rather than whether, and detect-and-skip is the difference between an anomaly and a dead run.",
+        "Reinforcement learning and preference optimization, where the objective is non-stationary and gradient magnitudes vary enormously, making clipping and finite checks load-bearing rather than precautionary."
+      ],
+      "pitfalls": [
+        "Stepping the optimizer without checking that the gradients are finite. One poisoned step propagates NaN through every parameter it touches and every subsequent step multiplies NaN by NaN - measured at zero percent finite weights against one hundred percent for the guarded run.",
+        "Switching from fp16 to bf16 and losing the skip logic. The GradScaler was checking for non-finite gradients and skipping; deleting it deletes that, so the explicit check must be added. This is the most commonly missing guard in a bf16 loop.",
+        "Treating occasional skipped steps or a sawtoothing loss scale as a bug. That is the control loop probing for the largest usable factor. A scale that collapses and STAYS low is the real signal, and it means genuine overflow.",
+        "Clipping without logging the pre-clip norm. clip_grad_norm_ returns it for free, and it is the best leading indicator available - rising hundreds of steps before the loss shows anything. Not logging it wastes the most valuable free metric in training.",
+        "Setting the clip threshold without measuring. A threshold far above your typical gradient norm never fires and provides no protection; one far below it clips every step and has replaced your optimizer with normalized steps. Log the clip fraction and aim for it to bite on the tail only.",
+        "Using clipping to mask a bad learning rate. It bounds the damage from a rare large gradient; if the clip fraction is near one, gradients are exploding every step and the cause is the learning rate, the initialization, or a missing normalization.",
+        "Not checkpointing often enough to make a rollback cheap. The operational answer to a loss spike at scale is to roll back and skip the offending data, and that is only available if the checkpoint interval is short relative to how long a failure takes to notice."
+      ],
+      "connections": [
+        {
+          "ref": "training-systems/mixed-precision",
+          "text": "Where most of these failures come from. fp16's narrow range creates the overflow and underflow this lesson manages, and the dynamic loss scaler is already implementing the skip-step guard - which is why moving to bf16 removes both the problem and, inadvertently, the protection."
+        },
+        {
+          "ref": "pytorch-internals/custom-loss",
+          "text": "The upstream fixes: stable formulations, fused losses, epsilon inside the square root rather than clamping the output. Numerical stability is best achieved by not generating the failure, and this lesson is what remains after that."
+        },
+        {
+          "ref": "training-systems/profiling",
+          "text": "The same instrument-first discipline applied to correctness rather than speed. Gradient norm, loss scale and clip fraction are to stability what the profiler timeline is to throughput - and all three are leading rather than lagging."
+        },
+        {
+          "ref": "llm-systems/llm-architectures",
+          "text": "The architectural answers to recurring instability at scale - qk-layernorm, z-loss on the logits, embedding normalization - which are preferable to fighting individual spikes because they remove the cause rather than the symptom."
+        },
+        {
+          "ref": "mlops/monitoring",
+          "text": "The production continuation. Everything here is a leading indicator logged during a run someone can watch; monitoring applies the same thinking to systems nobody is watching, where the alert threshold is the design decision."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "What is the cheapest high-value stability guard?",
+          "a": "Check that all gradients are finite before calling optimizer.step, and skip the step if not. One reduction per step, and it converts a fatal poisoning into a logged anomaly."
+        },
+        {
+          "q": "What happens without that guard?",
+          "a": "One poisoned step propagates NaN through every parameter it touches, and every subsequent step multiplies NaN by NaN. Measured: zero percent finite weights against one hundred percent guarded."
+        },
+        {
+          "q": "Why does switching to bf16 lose protection?",
+          "a": "The fp16 GradScaler was checking for non-finite gradients and skipping the step. Deleting the scaler deletes that logic, so the explicit check must be added back."
+        },
+        {
+          "q": "What is global-norm gradient clipping?",
+          "a": "Compute one L2 norm across all parameters and scale every gradient by min(1, tau/norm) if it exceeds tau. The direction is preserved and only the length is capped."
+        },
+        {
+          "q": "Why not clip per-element?",
+          "a": "Clamping components independently rotates the update, changing its direction. Norm clipping caps the step length while preserving the direction the gradient indicated."
+        },
+        {
+          "q": "Why is the pre-clip gradient norm the best free metric?",
+          "a": "clip_grad_norm_ returns it, and it rises hundreds of steps before a loss spike - a leading indicator where the loss is a lagging one."
+        },
+        {
+          "q": "What does the clip fraction tell you?",
+          "a": "Near zero, the guard never fires and provides no protection. Near one, clipping has replaced your update rule with normalized steps. You want it biting on the tail only."
+        },
+        {
+          "q": "Is a sawtoothing loss scale a problem?",
+          "a": "No - that is the control loop probing for the largest usable factor and occasionally overshooting. A scale that collapses and stays low is the real warning."
+        },
+        {
+          "q": "What is the operational response to a loss spike at scale?",
+          "a": "Roll back to the last good checkpoint and skip the data batches that preceded the spike. It is standard practice in large runs and it usually works."
+        },
+        {
+          "q": "Why does checkpoint frequency matter for stability?",
+          "a": "Because rollback is the recovery mechanism, and its cost is however much work happened since the last checkpoint plus the time before anyone noticed."
+        },
+        {
+          "q": "When is all this machinery not worth it?",
+          "a": "On short jobs you can simply restart. The guards cost throughput and complexity to protect against rare events, so the trade depends on what a failure costs."
+        },
+        {
+          "q": "What architectural fixes address recurring instability?",
+          "a": "qk-layernorm, a z-loss penalizing large logits, and embedding normalization - which remove the cause rather than fighting each spike individually."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Your large training run produces NaN after two days. Walk through the response and the prevention.",
+          "a": "THE IMMEDIATE RESPONSE, in order. (1) STOP AND PRESERVE STATE. Do not restart blindly - the checkpoint, the logs and the data ordering are the evidence, and a restart from the same point often reproduces the failure, which is useful. (2) ROLL BACK to the last checkpoint whose metrics were healthy, not merely the last checkpoint - if the loss had been degrading for a while, the most recent one may already be damaged. (3) IDENTIFY THE DATA. If your loader is deterministic and checkpointed, you know exactly which batches preceded the failure. The standard operational move from the public large-run logbooks is to roll back and SKIP those batches, and it frequently works, which tells you something: the spike is often reproducible from specific data rather than being purely stochastic. (4) RESTART with the guards on if they were not. THE DIAGNOSIS, from the logs you should already have. Look at the gradient norm trajectory - if it was climbing for hundreds of steps, this was an optimization instability building, and the loss was the last thing to show it. If it was flat and then NaN appeared instantly, the cause is a singularity or a corrupted input rather than a gradual divergence. Look at the loss scale if using fp16: repeated halving before the failure means gradients were overflowing. Look at the maximum activation if you logged it: approaching fp16's ceiling is the forward-pass overflow warning. THE FOUR CAUSES, matched to those signatures. NUMERICAL - an overflow in a loss or attention computation, fixed upstream with stable formulations and fp32 for sensitive operations. OPTIMIZATION - the learning rate is too high or warmup too short, and the gradient norm was rising. DATA - a corrupted sample, which the finite check would have turned into a skipped step. SCALE INSTABILITY - the loss spikes that large language-model training exhibits, where the answer is rollback plus an architectural fix if they recur. THE PREVENTION, which is the substance of a good answer. (1) THE FINITE CHECK BEFORE step. Measured: injecting corruption into 12% of batches left an unguarded run with zero percent finite weights - completely dead - while the guarded run kept 100% finite, converged, and skipped about seven steps. One reduction per step. If you use bf16 you must add this yourself, because deleting the GradScaler deleted the skip logic. (2) GRADIENT CLIPPING with a threshold set from the measured distribution, plus logging the pre-clip norm and the clip fraction. (3) FREQUENT CHECKPOINTS, because rollback is the recovery mechanism and its cost is bounded by the interval. (4) THE LEADING-INDICATOR DASHBOARD: gradient norm, clip fraction, loss scale, parameter norm, maximum activation, skip count. Every one is nearly free and every one moves before the loss. (5) DETERMINISTIC DATA ORDERING with the position checkpointed, so you can identify and skip the offending batches - without it, the rollback-and-skip recovery is not available to you. THE FRAMING I WOULD END ON. Two days of a large run is expensive enough that the guards are obviously worth their cost, and the reason they were absent is almost always that the pipeline was developed on short jobs where they were not. That is a defensible origin and a bad reason to still be there.",
+          "deepDive": {
+            "q": "Why do loss spikes happen in large language-model training specifically, and what actually fixes them?",
+            "a": "THE PHENOMENON. Large transformer pretraining runs exhibit sudden loss spikes - the loss jumps by a large factor over a few steps and then either recovers over hundreds of steps or diverges permanently. They are documented in detail in the public training logbooks, and they are common enough that rollback-and-skip is a standard operational procedure rather than an exceptional response. WHAT IS KNOWN ABOUT THE MECHANISM, and I would be honest that it is not fully settled. Several contributing factors are well established. (1) ATTENTION LOGIT GROWTH. The query-key dot products can grow large during training, pushing the softmax toward saturation - a near-one-hot attention distribution. That produces very small gradients through the softmax and a sharp loss surface, and small perturbations then cause large changes. This is the best-characterized cause and it has the clearest fix. (2) OUTPUT LOGIT MAGNITUDE. Unbounded growth in the final logits makes the softmax numerically delicate and the loss landscape sharp. (3) THE ADAM SECOND MOMENT going stale. If a parameter receives near-zero gradients for a long stretch, v decays and the effective step size for that parameter grows; a subsequent ordinary gradient then produces an enormous update. This is a genuine mechanism and it explains why spikes can appear after long quiet periods. (4) SPECIFIC DATA - some batches genuinely trigger them, which is why skipping the batch on rollback often works. THE FIXES, in order of how well they address the cause rather than the symptom. (a) QK-LAYERNORM: normalize the queries and keys before the dot product, which bounds the attention logits directly. This is the targeted fix for cause (1), it was adopted after being demonstrated at scale, and it is now common in large models. (b) Z-LOSS: add a small penalty on the log-partition-function of the output softmax, which keeps the logits from drifting large without changing the argmax. Targets cause (2), and it is cheap. (c) EMBEDDING NORMALIZATION and careful initialization scaling, which address the same growth from the other end. (d) LOWER LEARNING RATE OR LONGER WARMUP, which works and costs training efficiency - the blunt instrument. (e) EPSILON IN ADAM raised, which mitigates cause (3) by bounding how large the effective step can get. WHAT DOES NOT FIX IT. Gradient clipping alone bounds the damage from a spike without preventing it, and if spikes recur you are riding the clip rather than training. And simply rolling back repeatedly is an operational treadmill rather than a solution - if you have skipped data three times, the architecture or the schedule is the problem. THE METHODOLOGICAL POINT worth making, because it is the most useful part. Wortsman et al. showed that these instabilities can be REPRODUCED AT SMALL SCALE by using high learning rates, which turns a phenomenon you could previously only study on a thousand-GPU run into something you can study on one machine. That is a genuinely important result: it means the fixes can be developed and validated cheaply, and it is why the architectural mitigations above have reasonable evidence behind them rather than being folklore from a handful of expensive runs. If I were responsible for a large run, I would develop the stability configuration on small-scale proxies with elevated learning rates before committing the compute."
+          }
+        },
+        {
+          "q": "How would you set the gradient-clipping threshold?",
+          "a": "BY MEASUREMENT, not by convention, and the measurement is free because clip_grad_norm_ returns the pre-clip norm. THE PROCEDURE. Run a few hundred steps with a very large threshold so nothing is clipped, and log the gradient norm. Look at its distribution - not just the mean, because gradient norms are heavy-tailed and the mean is not the interesting statistic. You want to see the body of the distribution and the tail. Then set the threshold somewhere above the body and below the tail, so it clips the rare large gradient and leaves ordinary steps untouched. WHY THE DEFAULT OF 1.0 IS A DEFAULT AND NOT A PRINCIPLE. If your typical gradient norm is 0.05, a threshold of 1.0 never fires and you have no protection at all - you have the illusion of a guard. If your typical norm is 40, a threshold of 1.0 clips every single step, which means every update has the same length and only the direction varies. That is not gradient clipping, it is normalized gradient descent, which is a different optimizer with different behaviour that you did not choose. Both failure modes are common and both are invisible unless you log the clip fraction. THE METRIC THAT SETTLES IT: CLIP FRACTION - what proportion of steps are being clipped. Near zero means inert. Near one means you have replaced your update rule. Somewhere in the low single-digit percent is the intent: the guard bites on the tail only. I would log it permanently and treat a rising clip fraction as a signal to investigate rather than as the guard working. WHAT THE THRESHOLD INTERACTS WITH. The LEARNING RATE, obviously - clipping bounds the step length, so a high learning rate with aggressive clipping is a normalized-step optimizer. The BATCH SIZE, since larger batches give smaller-variance gradients and therefore a tighter distribution, so a threshold tuned at one batch size may not transfer. And LOSS SCALING under fp16: you must unscale before clipping or the threshold is compared against numbers tens of thousands of times too large and the clip never fires - which is the silent-disable failure. WHAT CLIPPING DOES NOT DO, and I would state this clearly. It bounds the damage from a rare large gradient; it does not address why gradients are large. If the clip fraction is high, the cause is upstream - a learning rate that is too high, a missing warmup, a bad initialization, an unstable loss formulation, or a missing normalization layer - and clipping is masking it while training slowly and badly. So a high clip fraction is a diagnosis to pursue, not a configuration to accept. THE PRACTICAL DEFAULT I WOULD GIVE. Start at 1.0 because it is the convention and many recipes assume it, log the norm and the clip fraction from step one, and adjust once you have seen the distribution. That takes one run and it converts an inherited number into a measured one."
+        },
+        {
+          "q": "Explain the skip-step guard and why it matters more than it appears to.",
+          "a": "THE MECHANISM. After backward and after unscaling, check that every gradient is finite. If any is not, skip the optimizer step, zero the gradients, log it, and continue. Roughly five lines. WHY IT MATTERS SO MUCH - the asymmetry. A non-finite gradient applied to a parameter makes that parameter non-finite. On the next forward pass that parameter produces non-finite activations, which produce non-finite gradients for other parameters, and within a step or two the entire model is NaN. Every subsequent step multiplies NaN by NaN. There is no recovery: the loss is NaN forever and the run is dead. So the cost of NOT guarding is not one bad step, it is everything since the last checkpoint plus however long before someone notices. THE MEASUREMENT that makes this concrete. Injecting NaN or Inf into the inputs of 12% of batches: the unguarded run ended with ZERO percent of weights finite - completely dead - while the same configuration with the check kept 100% finite, converged normally, and skipped about seven steps. That is not a marginal improvement, it is the difference between a result and nothing. THE COST. One reduction over the gradients per step, which is well under a percent of step time, and which can be folded into the clipping pass since that already computes a global norm - a non-finite gradient makes the norm non-finite, so checking the returned norm is finite is nearly free. WHERE PEOPLE ALREADY HAVE IT WITHOUT KNOWING. The fp16 GradScaler does exactly this: it checks for non-finite gradients, skips the step, and halves the scale. So an fp16 training loop has the guard for free. THE TRAP IS MOVING TO bf16, which is otherwise strictly better - deleting the scaler also deletes the skip logic, and the loop that was protected is now not. This is the single most commonly missing guard in a bf16 training loop and the reason is precisely that it was previously invisible. GOING FURTHER ON A LONG RUN. Check the LOSS before backward, so a bad batch is caught before it generates gradients at all - cheaper and it localizes the problem to the data rather than the optimization. Track the skip RATE, because occasional skips are fine and a rising rate is instability. And decide what happens if skips become frequent: at some threshold the right response is to halt rather than to keep skipping, because a run that is skipping a quarter of its steps is not training. THE JUDGEMENT ABOUT WHEN IT IS WORTH IT, which is this module's framing. The guard costs a fraction of a percent of throughput to protect against an event that destroys everything since the last checkpoint. On a ten-minute job that is a bad trade and you should just restart. On a three-week thousand-GPU run it is the best trade available, and the reason it is often missing is that the code was developed on short jobs and nobody revisited the assumption when the scale changed."
+        },
+        {
+          "q": "What would you monitor to catch instability before it becomes a failure?",
+          "a": "THE PRINCIPLE: the loss is a LAGGING indicator of nearly every failure in this lesson. By the time it moves, the parameters are already damaged. So the metrics worth logging are the ones that move first, and they are all nearly free. THE LEADING SET, in order of value. (1) GRADIENT NORM, pre-clip. Returned for free by clip_grad_norm_. It typically rises for hundreds of steps before a loss spike, which makes it the single best early signal available. Plot it on a log scale, since the interesting behaviour spans orders of magnitude. (2) CLIP FRACTION. Near zero means the guard is inert; near one means clipping has replaced the update rule; a RISING fraction means gradients are growing and something upstream is wrong. (3) LOSS SCALE, if using fp16. A sawtooth is the control loop working. A collapse that persists means gradients genuinely overflow at any usable scale, which is a real instability rather than an over-eager probe. (4) SKIP COUNT AND RATE. Occasional skips are normal; a rising rate is the run degrading. (5) PARAMETER NORM, or its change per step. Unbounded growth is a problem in progress, and the ratio of update magnitude to parameter magnitude is a useful scale-free version. (6) MAXIMUM ACTIVATION from a couple of representative layers. Approaching fp16's ceiling of about 65,504 is the forward-pass overflow warning, and the forward is where the loss scaler does not protect you. THE PERIODIC SET, too expensive for every step. Per-layer gradient norms, which localize a vanishing or exploding gradient to a depth rather than leaving you with an aggregate. Activation statistics - mean, standard deviation, dead-unit fraction. Attention logit magnitudes for a transformer, since attention-logit growth is a well-characterized cause of large-scale instability. Every few hundred steps is enough. THE IMPLEMENTATION CONSTRAINT that decides whether this is practical. Every .item() is a device-to-host synchronization that drains the pipeline the CPU had built by running ahead - so naively logging six scalars every step can measurably slow training. Accumulate them on the DEVICE and transfer once per logging interval. That gives you every step's value at one synchronization per interval, and it is what well-optimized loops do. THE ALERTING, since a long run has nobody watching. Alert on gradient norm exceeding a multiple of its recent median, on the skip rate crossing a threshold, on the loss scale staying below a floor, and on peak memory trending upward. Those four catch most of what this module's failures look like in progress. WHAT I WOULD SAY ABOUT WHY THIS IS SKIPPED. It is skipped because on a short run you watch the loss and restart if it breaks, which works. The habit does not transfer when the run gets long, and the cost of not having the metrics is that the post-mortem has nothing to go on - which is the situation people are usually in when they ask why their run diverged."
+        },
+        {
+          "q": "How do stability techniques interact with the rest of this module?",
+          "a": "WITH MIXED PRECISION - the tightest coupling, and it runs in an uncomfortable direction: mixed precision CREATES most of what this lesson manages. fp16's narrow range produces the overflow and underflow, and the dynamic loss scaler is itself a stability mechanism - a control loop searching for the largest factor that does not overflow, with a skip-step guard built in. Moving to bf16 removes the cause AND removes the protection, so the finite check must be added explicitly. That is a genuine systems argument that gets lost in the usual bf16-is-better summary. WITH GRADIENT ACCUMULATION. An overflow detected at the step boundary discards the WHOLE accumulated gradient, not just the offending micro-batch - so a bad micro-batch costs k micro-batches of work. That argues for smaller accumulation counts under fp16, and it is another point in bf16's favour. Also: clipping must happen once, at the boundary, on the accumulated gradient, not per micro-step. WITH DDP AND FSDP. Two interactions. The finite check should be consistent ACROSS RANKS - if rank 3 sees a non-finite gradient and skips while the others step, the replicas diverge and you now have a silent correctness problem on top of the original one. The correct pattern is to all-reduce the finite flag so every rank makes the same decision, which costs one small collective. And note that the gradient all-reduce itself will propagate a NaN from one rank to all of them, so a corrupted sample on any rank poisons the whole job - which raises the value of the guard considerably at scale. WITH CHECKPOINTING. Checkpoint frequency IS the stability budget, because rollback is the recovery mechanism. The interval should be set from how much work you are willing to lose, and it should include the data-loader position or the rollback-and-skip recovery is unavailable. WITH torch.compile. Compiled regions are harder to instrument, and a NaN inside one is harder to localize - so when debugging an instability, disabling compilation is a reasonable early step, accepting the slowdown for the visibility. WITH THE LEARNING-RATE SCHEDULE. Warmup is a stability mechanism, not a formality: it exists because the linearization behind the linear scaling rule is invalid early when weights move fast, and skipping it is a leading cause of divergence in the first few hundred steps of a scaled-up run. THE PATTERN ACROSS ALL OF THESE. Stability is not a separate concern layered on top - it is a property of how the other techniques are configured and ordered. Most of the failures in this lesson are produced by another technique in the module, which is why the capstone treats the pipeline as one system rather than a list of independent optimizations.",
+          "deepDive": {
+            "q": "Why must the skip decision be consistent across ranks, and how would you implement that?",
+            "a": "THE PROBLEM. In data-parallel training, every rank holds a replica of the model and they must stay IDENTICAL - that is the invariant the whole scheme rests on. Ranks start identical, receive the same averaged gradient, and apply the same update, so they remain identical. If rank 3 decides to skip a step because it saw a non-finite gradient while the other ranks step, that invariant is broken: rank 3's parameters now differ from everyone else's, permanently. FROM THAT POINT ON the ranks are averaging gradients computed from DIFFERENT models. Training continues and converges worse, with no error anywhere - it is exactly the failure mode of forgetting to broadcast parameters at startup, arriving later. And it compounds, because every subsequent skip on any rank widens the divergence. WHY IT IS EASY TO GET WRONG. The natural implementation is a local check: look at my gradients, skip if bad. Locally correct, globally wrong. And it is easy to believe the check is redundant because the all-reduce already averaged the gradients - which is where the second subtlety comes in. WHAT THE ALL-REDUCE ACTUALLY DOES TO A NaN. It PROPAGATES it. A NaN in one rank's gradient makes the sum NaN, so after the all-reduce EVERY rank has a non-finite gradient. So in the common case all ranks see the same thing and would make the same decision anyway. The divergence risk arises where the check is done BEFORE the all-reduce, or where a rank's check is on a different quantity - and in FSDP, where each rank only holds a shard of the gradient, a rank can genuinely see finite values in its shard while another sees a NaN in a different shard. That case is real and it is the one to design for. THE CORRECT IMPLEMENTATION. Compute a local flag - one if all my gradients are finite, zero otherwise - and all-reduce it with a MIN or a product. Every rank then has the same global flag and makes the same decision. It is one collective on a single scalar, so the cost is a fraction of the gradient all-reduce you are already doing. In practice you can fold it in: the gradient norm computation for clipping already produces a global reduction, and a NaN anywhere makes that norm non-finite, so checking that the reduced norm is finite gives you a globally-consistent decision for free. That is the implementation I would use. WHAT PYTORCH'S OWN MACHINERY DOES. The GradScaler's step method checks for non-finite gradients and skips, and in a distributed setting the standard usage relies on the fact that the all-reduce has already propagated any NaN to all ranks, so the decisions agree. FSDP's mixed-precision handling is more careful about this because of the sharding case. The lesson is to know WHY it agrees rather than to assume it does - because the moment you write your own check, or place it before the collective, or shard the gradients, the assumption stops holding. THE GENERAL PRINCIPLE. In data-parallel training, any DECISION that affects the parameters must be made identically on every rank. Skips, clipping thresholds if adaptive, learning-rate changes triggered by a condition, early stopping - all of them. The safe pattern is to compute the decision on the reduced quantity, or to compute it locally and broadcast it. Rank-dependent decisions that touch the parameters are a class of bug worth recognizing by shape."
+          }
+        },
+        {
+          "q": "When would you deliberately skip these guards?",
+          "a": "THIS DESERVES A STRAIGHT ANSWER, because the guards are not free and reflexively adding all of them is its own error. CASE 1: SHORT EXPERIMENTS. A ten-minute run that you can restart costs less to rerun than the guards cost to maintain and reason about. During exploratory work, a run that dies is information and restarting is cheap. The guards matter when a failure is expensive, and on a short job it is not. This is the honest reason most research code lacks them, and it is defensible until the run gets long - which is exactly when nobody revisits it. CASE 2: WHEN THE GUARD IS MASKING SOMETHING YOU NEED TO SEE. If I am debugging why a model diverges, I might deliberately remove clipping so the divergence happens promptly and visibly rather than being bounded into a slow degradation. Clipping makes a broken configuration look like a working-but-poor one, which is worse for diagnosis. Same for the skip guard: during a bisection, letting the NaN propagate tells me the step at which it originated. CASE 3: WHEN THE COST IS ACTUALLY MEASURABLE. Most guards are well under a percent, but not all. Logging six scalars per step with .item() is a synchronization per scalar per step and can be several percent - so the fix is to accumulate on device and log per interval, not to stop logging. And per-layer gradient norms every step are genuinely expensive; every few hundred steps is enough. The judgement is about the frequency, not the metric. CASE 4: WHEN A GUARD CHANGES THE OPTIMIZATION. This is the one people miss. Aggressive clipping at a high clip fraction is not a safety net, it is a different optimizer - normalized gradient descent - and if I am trying to reproduce a published result I need to know whether their clipping was inert or load-bearing. So I would not add clipping to a reproduction without checking whether the original had it. WHAT I WOULD NEVER SKIP ON A LONG RUN. The finite check before the step, because the failure it prevents is total and unrecoverable and the cost is one reduction. And logging the gradient norm, because it is returned for free by a call you are already making and it is the only leading indicator you get for nothing. Those two are close to unconditional above some run length. THE DECISION RULE I WOULD STATE. Compare the guard's throughput cost against the expected work lost - the failure probability times the checkpoint interval plus the detection delay. On a short run the second term is small and the guards lose. On a long run the second term is enormous because the detection delay alone can be hours, and they win by orders of magnitude. That calculation is the module's framing applied to robustness, and it is why the same code can be right for one job and wrong for another."
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "intuition",
+        "front": "The finite check before opt.step",
+        "back": "MEASURED with 12% corrupted batches: UNGUARDED -> 0% of weights finite (dead, unrecoverable - every step multiplies NaN by NaN). GUARDED -> 100% finite, converged, ~7 steps skipped. Cost: one reduction per step."
+      },
+      {
+        "type": "pitfall",
+        "front": "Moving to bf16 silently removes your skip guard",
+        "back": "The fp16 GradScaler was checking for non-finite gradients and SKIPPING the step. Deleting the scaler deletes that logic. This is the most commonly missing guard in a bf16 loop, precisely because it was previously invisible."
+      },
+      {
+        "type": "formula",
+        "front": "Global-norm clipping",
+        "back": "g <- g * min(1, tau/||g||_2) with the norm taken GLOBALLY across all parameters. Direction preserved, only length capped. Per-element clipping ROTATES the update - which is why norm clipping is what 'gradient clipping' means unqualified."
+      },
+      {
+        "type": "intuition",
+        "front": "Gradient norm is the best free leading indicator",
+        "back": "clip_grad_norm_ RETURNS the pre-clip norm. It typically rises for HUNDREDS of steps before a loss spike - the loss is a lagging indicator of nearly every failure here. Plot it on a log scale."
+      },
+      {
+        "type": "pitfall",
+        "front": "The clip threshold must be measured, not inherited",
+        "back": "Typical norm 0.05 with tau=1.0 -> never fires, no protection. Typical norm 40 with tau=1.0 -> clips EVERY step, so you have silently switched to normalized gradient descent. Log the CLIP FRACTION; you want it biting the tail only (low single-digit %)."
+      },
+      {
+        "type": "definition",
+        "front": "The loss scaler is a control loop",
+        "back": "Multiplicative decrease on failure (halve + SKIP), multiplicative increase after N clean steps - the same shape as congestion control. A SAWTOOTH is healthy. A collapse that PERSISTS means genuine overflow, not an over-eager probe."
+      },
+      {
+        "type": "formula",
+        "front": "When a guard is worth its cost",
+        "back": "guard if c_guard * T < p_fail * T * (checkpoint_interval + detection_delay). On a 10-minute job the right side is tiny and guards lose. On a 3-week run the DETECTION DELAY alone is hours, and they win by orders of magnitude."
+      },
+      {
+        "type": "pitfall",
+        "front": "The skip decision must be IDENTICAL across ranks",
+        "back": "If rank 3 skips while others step, the replicas DIVERGE permanently and then average gradients of different models - no error, worse convergence. Fix: all-reduce the finite flag (MIN), or check the already-reduced global gradient norm, which is free."
+      },
+      {
+        "type": "intuition",
+        "front": "Why loss spikes happen at LLM scale",
+        "back": "Attention LOGIT GROWTH saturating the softmax; unbounded output logits; Adam's second moment going stale after quiet stretches so a normal gradient produces a huge update; and specific data. Fixes: qk-layernorm, z-loss, embedding norm - not just a lower LR."
+      },
+      {
+        "type": "definition",
+        "front": "Rollback-and-skip",
+        "back": "The standard operational response to a loss spike at scale: roll back to the last HEALTHY checkpoint (not merely the last one) and SKIP the data batches that preceded it. It works often, which tells you spikes are frequently data-triggered. Needs a checkpointed loader position."
+      },
+      {
+        "type": "intuition",
+        "front": "Instabilities reproduce at small scale",
+        "back": "Wortsman et al.: large-run instabilities can be reproduced on one machine by using HIGH LEARNING RATES. That turns a phenomenon you could only study on 1000 GPUs into something you can develop fixes against cheaply - which is why the architectural mitigations have real evidence."
+      },
+      {
+        "type": "pitfall",
+        "front": "A high clip fraction is a diagnosis, not a guard working",
+        "back": "Clipping bounds the DAMAGE from a rare large gradient; it does not address why gradients are large. If it fires every step, the cause is upstream - learning rate, missing warmup, bad init, unstable loss, missing normalization - and clipping is masking it."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Wortsman et al. (2023), Small-scale Proxies for Large-scale Transformer Training Instabilities",
+        "url": "https://arxiv.org/abs/2309.14322"
+      },
+      {
+        "title": "Pascanu, Mikolov & Bengio (2013), On the Difficulty of Training Recurrent Neural Networks",
+        "url": "https://arxiv.org/abs/1211.5063"
+      },
+      {
+        "title": "Chowdhery et al. (2022), PaLM: Scaling Language Modeling with Pathways (loss spikes and rewind)",
+        "url": "https://arxiv.org/abs/2204.02311"
+      },
+      {
+        "title": "Zhang et al. (2022), OPT: Open Pre-trained Transformer Language Models (training logbook)",
+        "url": "https://arxiv.org/abs/2205.01068"
+      },
+      {
+        "title": "Dehghani et al. (2023), Scaling Vision Transformers to 22 Billion Parameters (qk-layernorm)",
+        "url": "https://arxiv.org/abs/2302.05442"
+      }
+    ],
+    "demos": [
+      "gradient-clipping",
+      "mixed-precision",
+      "optimizers",
+      "weight-init"
+    ]
+  }
+};

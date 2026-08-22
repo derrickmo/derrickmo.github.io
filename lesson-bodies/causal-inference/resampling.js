@@ -1,0 +1,292 @@
+// GENERATED from content/lessons/causal-inference/resampling.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/causal-inference/resampling/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
+
+window.DM_LESSON_BODIES = {
+  "resampling": {
+    "level": "core",
+    "body": {
+      "intuition": [
+        "The bootstrap's idea is that the sample is the best available stand-in for the population, so resampling from it with replacement imitates drawing fresh samples from the world. That gets you a sampling distribution for almost any statistic without deriving anything, which is why it is one of the most useful tools in applied statistics.",
+        "It also inherits the limits of that stand-in exactly. Coverage of a 95% interval for the mean came out at 94.0% at n=50 and 96.5% at n=500, and for the median 95.2% - the tool works. Coverage for the MAXIMUM of a uniform distribution was 0.0% at n=50, 0.0% at n=500 and 0.0% at n=5,000, because a bootstrap resample can never contain a value larger than the sample maximum, so the upper end of the interval is structurally below the truth. More data does not repair it.",
+        "The lesson's central point is narrower and more important than either. Bootstrap the confounded estimate from the module's first lesson - 1,000 resamples of a study whose true effect is +4.99 - and you get a beautifully tight 95% interval of [-1.958, -1.848]. THE INTERVAL IS CORRECT AND THE NUMBER HAS THE WRONG SIGN. Resampling quantifies uncertainty about the ESTIMATOR. It has nothing whatsoever to say about the ASSUMPTION."
+      ],
+      "math": [
+        {
+          "h": "The bootstrap principle, and where it stops",
+          "paras": [
+            "Replace the unknown population distribution F with the empirical distribution F-hat, then compute the sampling distribution of the statistic under F-hat by simulation.",
+            "This works when the statistic is a smooth functional of the distribution. It fails for statistics that depend on the extreme tail, on the boundary of the support, or on a parameter at the edge of its space."
+          ],
+          "tex": "\\hat{F}_n \\to F \\ \\text{(Glivenko-Cantelli)}, \\qquad \\mathcal{L}(T(X)\\mid F) \\approx \\mathcal{L}(T(X^*)\\mid \\hat{F}_n)",
+          "texNote": "Coverage measured: mean 94.0% at n=50 and 96.5% at n=500, median 95.2% at n=500, maximum of a uniform 0.0% at every n tested. The failure is not slow convergence - it is inconsistency."
+        },
+        {
+          "h": "Permutation tests are exact under a sharp null",
+          "paras": [
+            "If the labels are exchangeable under the null, every reassignment of labels is equally likely, so the reference distribution is the observed data itself and the test's level is guaranteed by construction rather than by an approximation.",
+            "The null being tested is sharp: no effect for ANY unit, which is stronger than a null on the mean."
+          ],
+          "tex": "p = \\frac{1+\\#\\{|T(\\pi(\\text{labels}))| \\geq |T_{\\text{obs}}|\\}}{1+B}",
+          "texNote": "Measured false positive rates on A/A data with heavy-tailed outcomes: permutation 5.3% at n=10 and 5.3% at n=30 against a nominal 5%, while Welch's t was 1.4% and 2.9% - conservative rather than liberal, which costs power."
+        },
+        {
+          "h": "Conservatism is not safety",
+          "paras": [
+            "A test spending only a fraction of its alpha budget looks safe and is paying for it in detection.",
+            "Same lognormal data, same sample size, a real shift of +2.0."
+          ],
+          "tex": "\\text{FPR: perm } 5.3\\% \\ \\text{vs Welch } 2.9\\% \\qquad \\Longrightarrow \\qquad \\text{power: perm } \\mathbf{43.4\\%} \\ \\text{vs Welch } 37.2\\%",
+          "texNote": "The 6.2 point power gap is the direct price of the t-test's unused alpha on skewed data. Neither test is invalid here; one is simply using the error budget it was given."
+        }
+      ],
+      "code": [
+        {
+          "h": "★ A tight interval around a wrong number",
+          "paras": [
+            "The confounded design from lesson one: true ATE +4.99, naive difference in means −1.91, one thousand bootstrap resamples."
+          ],
+          "code": "for b in range(1000):\n    s = rng.integers(0, N, N)            # resample WITH replacement\n    est[b] = Y[s][T[s]==1].mean() - Y[s][T[s]==0].mean()\n\n# true ATE                      4.993\n# point estimate               -1.906\n# bootstrap 95% CI    [-1.958, -1.848]     width 0.109\n# covers the truth?              NO\n\n# ★ The bootstrap did its job PERFECTLY. It reported the sampling\n#   variability of the naive estimator, which is genuinely tiny.\n#   The estimator is biased, and bias is invisible to resampling\n#   because every resample inherits the same selection.",
+          "caption": "Resampling is an answer to 'how much would this number move if I collected the data again the same way'. If the way is wrong, it moves very little, very confidently."
+        },
+        {
+          "h": "Where the bootstrap is not consistent",
+          "paras": [
+            "Coverage measured over 400 simulated datasets per row, 600 resamples each."
+          ],
+          "code": "# WORKS      mean    n=50   -> 94.0%     n=500 -> 96.5%\n#            median  n=500  -> 95.2%\n\n# FAILS      max of Uniform(0,1)\n#            n=50   -> 0.0%     n=500 -> 0.0%     n=5000 -> 0.0%\n#   the bootstrap max can never exceed the SAMPLE max, so the upper\n#   limit sits below the truth at every sample size\n\n# THE FAMILY OF FAILURES\n#   * extremes / boundary of support     (max, min, range)\n#   * parameters on a boundary           (variance component = 0)\n#   * dependent data resampled i.i.d.    (time series, clusters, network)\n#   * n too small for the tail you need  (heavy tails, rare events)\n# fixes: block/cluster bootstrap for dependence, subsampling (m out of n)\n#        for non-smooth statistics, extreme-value theory for tails",
+          "caption": "The i.i.d. bootstrap on time series or clustered data is the most common version of this error in practice, and it produces intervals that are far too narrow."
+        }
+      ],
+      "useCases": [
+        "Confidence intervals for statistics with no convenient closed form - medians, ratios, Gini coefficients, differences of quantiles, or any metric computed by a multi-step pipeline.",
+        "Standard errors for a full procedure rather than a final step, such as a matching pipeline where the matching itself is a source of variance the analytic formula ignores.",
+        "Small-sample or badly skewed A/B metrics, where a permutation test holds its nominal level exactly while parametric tests become conservative and lose power.",
+        "Cluster and block bootstrapping for correlated data - users with many sessions, time series, or experiments randomized at the market level."
+      ],
+      "pitfalls": [
+        "Reading a tight bootstrap interval as evidence of correctness. One thousand resamples of a confounded estimate returned [-1.958, -1.848] on a truth of +4.99 - bias is invisible to resampling because every resample inherits it.",
+        "Bootstrapping the maximum, minimum or range. Coverage was 0.0% at every sample size tested, and the failure is inconsistency rather than slow convergence.",
+        "Resampling rows i.i.d. when the data is clustered or serially correlated. The resulting intervals are far too narrow; use a block or cluster bootstrap that resamples the dependent unit.",
+        "Treating a permutation test's null as a null on the mean. It tests the SHARP null of no effect for any unit, so rejection can be driven by a difference in variance or shape.",
+        "Assuming a conservative test is the safe choice. Welch's t held 2.9% against a nominal 5% on skewed data and paid 6.2 points of power on the same data.",
+        "Using too few resamples for a small p-value. A permutation p-value has resolution 1/(B+1), so B = 400 cannot report anything below about 0.0025 regardless of the evidence.",
+        "Bootstrapping after model selection while ignoring the selection step. If the model was chosen using the data, the whole selection has to be inside the resampling loop or the interval is optimistic."
+      ],
+      "connections": [
+        {
+          "ref": "causal-inference/potential-outcomes",
+          "text": "The bias-versus-variance distinction that this lesson makes operational: resampling addresses the second axis and is silent on the first."
+        },
+        {
+          "ref": "causal-inference/ab-testing",
+          "text": "Permutation tests as the assumption-light option for skewed experiment metrics, and where the extra power actually comes from."
+        },
+        {
+          "ref": "causal-inference/propensity-matching",
+          "text": "Why matched-pair standard errors need the whole procedure bootstrapped: the matching step is a source of variance the naive formula treats as fixed."
+        },
+        {
+          "ref": "ml-theory/cross-validation",
+          "text": "The other resampling scheme, aimed at generalization error rather than at a sampling distribution, and sharing the failure mode when the data is dependent."
+        },
+        {
+          "ref": "supervised-learning/ensembles",
+          "text": "Resampling used to build a predictor instead of an interval - bagging is the bootstrap turned into a variance-reduction device."
+        }
+      ]
+    },
+    "interview": {
+      "quickGrind": [
+        {
+          "q": "State the bootstrap principle.",
+          "a": "Substitute the empirical distribution for the unknown population, then simulate the statistic's sampling distribution by resampling with replacement."
+        },
+        {
+          "q": "What does a bootstrap interval quantify?",
+          "a": "Sampling variability of the estimator. Not bias, not model error, not identification."
+        },
+        {
+          "q": "Give the headline demonstration of that limit.",
+          "a": "1,000 resamples of a confounded estimate gave [−1.958, −1.848] on a true effect of +4.99 — correct interval, wrong sign."
+        },
+        {
+          "q": "Why is bias invisible to the bootstrap?",
+          "a": "Every resample is drawn from the same sample, so it inherits the same selection. The resamples vary; the bias does not."
+        },
+        {
+          "q": "Name a statistic the bootstrap fails on.",
+          "a": "The maximum. Coverage 0.0% at n=50, 500 and 5,000 — a resample can never exceed the sample max, so the upper limit sits below the truth."
+        },
+        {
+          "q": "Is that failure fixed by more data?",
+          "a": "No. It is inconsistency, not slow convergence. Use subsampling (m out of n) or extreme-value theory instead."
+        },
+        {
+          "q": "What null does a permutation test actually test?",
+          "a": "The SHARP null: no effect for any unit. Stronger than a null on the mean — rejection can come from a difference in shape or variance."
+        },
+        {
+          "q": "Why is a permutation test exact?",
+          "a": "Under exchangeability every label reassignment is equally likely, so the reference distribution is the data itself — the level holds by construction."
+        },
+        {
+          "q": "Permutation vs Welch t on heavy-tailed A/A data?",
+          "a": "Permutation 5.3% (nominal 5%); Welch 1.4% at n=10 and 2.9% at n=30 — conservative, not liberal."
+        },
+        {
+          "q": "What does that conservatism cost?",
+          "a": "Power. On lognormal data with a real +2.0 shift: permutation 43.4% vs Welch 37.2%."
+        },
+        {
+          "q": "How do you bootstrap dependent data?",
+          "a": "Resample the dependent UNIT — block bootstrap for time series, cluster bootstrap for grouped rows. i.i.d. row resampling gives intervals that are far too narrow."
+        },
+        {
+          "q": "What is the resolution limit of a permutation p-value?",
+          "a": "1/(B+1). With B=400 you cannot report below about 0.0025 no matter how strong the evidence."
+        }
+      ],
+      "standard": [
+        {
+          "q": "Explain the bootstrap and be precise about what it can and cannot tell you.",
+          "a": "THE BOOTSTRAP SUBSTITUTES THE SAMPLE FOR THE POPULATION. You have one dataset and want the sampling distribution of some statistic, which classically requires deriving it analytically. Instead you treat the empirical distribution as the population, draw resamples of the same size with replacement, recompute the statistic on each, and use the spread of those values as the sampling distribution. Glivenko-Cantelli justifies it: the empirical distribution converges to the true one, so for statistics that are smooth functionals of the distribution the imitation is asymptotically right. It works well — measured coverage of a nominal 95% interval was 94.0% for the mean at n=50, 96.5% at n=500, and 95.2% for the median. WHAT IT QUANTIFIES IS EXACTLY ONE THING: how much this estimator would move if you collected data the same way again. It says nothing about whether collecting it that way was a good idea. THE DEMONSTRATION I WOULD GIVE is bootstrapping the confounded estimate from earlier in the module — true effect +4.99, naive difference −1.91. One thousand resamples returned a 95% interval of [−1.958, −1.848], width 0.109, excluding the truth entirely. The bootstrap performed flawlessly; it reported that the naive estimator is very stable, which is true, and irrelevant.",
+          "deepDive": {
+            "q": "Why can the bootstrap never see bias?",
+            "a": "The reason bias is structurally invisible is worth being able to state cleanly: every resample is drawn from the same original sample, so every resample inherits the same selection mechanism. The resampling varies which rows you got; it cannot vary how rows came to be treated. That makes the bootstrap a variance tool by construction, and it means a narrow bootstrap interval on an observational estimate is one of the more misleading artefacts you can produce, because it has all the visual grammar of rigour. There is a partial exception worth knowing: the bootstrap CAN estimate the bias of an estimator relative to the resampling distribution, which is how bias-corrected accelerated intervals work and how the jackknife estimates small-sample bias. But that only captures bias arising from the estimator's nonlinearity — the plug-in bias of a ratio, say. It cannot capture bias arising from the sampling or assignment mechanism, because that mechanism is baked into the data and reproduced identically in every resample. Two different meanings of the word bias, and conflating them is a common source of overconfidence."
+          }
+        },
+        {
+          "q": "Where does the bootstrap fail, and what do you use instead?",
+          "a": "IT FAILS WHEN THE STATISTIC IS NOT A SMOOTH FUNCTIONAL OF THE DISTRIBUTION. The cleanest example is the maximum: sampling from Uniform(0,1), whose true supremum is 1.0, bootstrap coverage of a nominal 95% interval was 0.0% at n=50, 0.0% at n=500 and 0.0% at n=5,000. The reason is structural rather than statistical — a bootstrap resample can only contain values already in the sample, so the bootstrap maximum never exceeds the sample maximum, and the upper end of the interval sits below the truth by construction. It is inconsistency, not slow convergence, so more data does not fix it. THE FAMILY IS BROADER THAN EXTREMES: parameters on the boundary of their space, such as a variance component that is truly zero; statistics driven by the tail when n is too small to contain the tail; and, by far the most common in practice, DEPENDENT DATA RESAMPLED AS IF IT WERE I.I.D. If rows are sessions from the same user, or consecutive days of a time series, resampling rows destroys the dependence and the resulting intervals are far too narrow. THE FIXES ARE SPECIFIC: block bootstrap for serial dependence, cluster bootstrap resampling the whole user or market, subsampling (m out of n without replacement) for non-smooth statistics, and extreme-value theory for genuine tail questions.",
+          "deepDive": {
+            "q": "Which bootstrap failure is the easiest to miss?",
+            "a": "The dependence case deserves the most attention because it is silent and pervasive. Analytics data is almost never row-independent — users generate many events, events cluster in sessions, sessions cluster in days, and experiments are frequently randomized at a level coarser than the row. Resampling rows treats every event as independent evidence, which inflates the effective sample size by roughly the number of events per unit and shrinks the interval by its square root, so a factor of 25 events per user makes the interval about five times too narrow. The right unit to resample is the unit of randomization, always, and that is a rule worth applying mechanically. For serial dependence, block length is the parameter that matters and it needs to be long enough to contain the correlation structure — too short and you are back to i.i.d., too long and you have very few effective blocks. Also worth noting that if the model was SELECTED using the data, the selection step must live inside the resampling loop, otherwise the interval describes a model that was chosen with knowledge of the outcome and is optimistic for exactly the reason a training-set score is optimistic."
+          }
+        },
+        {
+          "q": "When would you use a permutation test rather than a t-test?",
+          "a": "WHEN THE DISTRIBUTIONAL ASSUMPTION IS DOUBTFUL AND EXCHANGEABILITY IS DEFENSIBLE. A permutation test is exact by construction: under the null the labels are exchangeable, so every reassignment is equally likely, and comparing the observed statistic to the distribution over reassignments gives a test whose level is guaranteed rather than approximated. That makes it the natural choice for small samples, heavy-tailed metrics, or statistics with no tractable null distribution — a difference in medians, a difference in 95th percentiles, or the output of a whole pipeline. Measured on A/A data with lognormal outcomes, the permutation test held 4.6% at n=10 and 5.3% at n=30 against a nominal 5%, while Welch's t came in at 1.4% and 2.9%. NOTE THE DIRECTION: the t-test was CONSERVATIVE, not liberal, which people often read as the safe outcome. IT IS NOT FREE. On the same lognormal data with a real shift of +2.0, permutation power was 43.4% and Welch power was 37.2% — the unused alpha budget shows up directly as 6.2 points of lost detection. In an experimentation context that is real money, because it is the difference between shipping a genuine improvement and calling it a null.",
+          "deepDive": {
+            "q": "Which null is a permutation test actually rejecting?",
+            "a": "The important caveat is what null you are actually testing. A permutation test tests the SHARP null — no effect for any unit whatsoever — which is stronger than the null of no average effect. The practical consequence is that rejection can be driven by a difference in variance or shape rather than in location, so on data where the treatment changes dispersion but not the mean, a permutation test can reject while the mean difference is genuinely zero. If the mean is the estimand, studentizing the test statistic largely repairs this and gives asymptotic validity for the weak null too. Two operational notes: the p-value has resolution 1/(B+1), so B = 400 cannot report anything below roughly 0.0025 regardless of the evidence, and you should always use the (1 + count)/(1 + B) form rather than count/B, which can report an impossible zero. And permutation requires exchangeability under the null, which randomization supplies directly — this is a genuinely nice property, since the same coin flip that identified the effect also licenses the inference, with no distributional assumption in between."
+          }
+        },
+        {
+          "q": "How would you compute standard errors for a multi-step analysis pipeline?",
+          "a": "BOOTSTRAP THE ENTIRE PIPELINE, NOT THE LAST STEP. The common error is to treat everything upstream of the final estimate as fixed — the fitted propensity model, the matching, the imputation, the feature selection, the choice of specification — and then compute an analytic standard error on the final number. That standard error answers 'how variable is this last step given everything before it', which is not the question. If the propensity model was fitted on this data, a different sample would have produced a different model, different matches, and a different estimate, and all of that variability belongs in the interval. SO THE PROCEDURE IS: resample at the unit of randomization or independence, then re-run everything — refit the propensity model, redo the matching, recompute the estimate — and take the spread across replicates. It is expensive, which is the honest reason people skip it, and the fix is fewer replicates rather than a shortcut, since even 200 replicates of the full pipeline beats 10,000 of the last step. I WOULD ALSO INCLUDE THE MODEL SELECTION if there was any, because selecting a specification on the data and then reporting the interval for the selected one is the same optimism as a training-set score.",
+          "deepDive": {
+            "q": "Where is the bootstrap known to be invalid outright?",
+            "a": "There are cases where the full bootstrap is known to be problematic and it is worth recognising them rather than trusting it blindly. Matching estimators are one: Abadie and Imbens showed the standard bootstrap is not valid for nearest-neighbour matching with a fixed number of matches, because the matching function is not smooth enough, and they derived analytic variance formulas instead. Cross-validation is another awkward case, since the folds are dependent and naive bootstrapping of CV estimates understates variance. So the honest guidance is: bootstrap the whole pipeline as the default, know the specific estimators where it is invalid, and when in doubt validate the procedure by simulation — generate data with a known answer, run the entire pipeline including the interval, and check coverage. That simulation habit is the most useful thing in this lesson and it generalises far beyond resampling: if you can write down the data generating process, you can measure whether your uncertainty quantification is honest, rather than assuming it. It is also the only way to catch the interaction effects between steps, which is where multi-step pipelines actually go wrong."
+          }
+        },
+        {
+          "q": "A colleague reports a bootstrap interval as evidence their observational estimate is reliable. Respond.",
+          "a": "I WOULD SEPARATE THE TWO QUESTIONS THAT ARE BEING RUN TOGETHER: how much would this number move on a fresh sample collected the same way, and is the way we collected it capable of answering the question. The bootstrap answers the first with real authority and is completely silent on the second. THE DEMONSTRATION IS ONE SLIDE. Take a study where the true effect is +4.99 and the assignment is confounded, so the naive difference is −1.91. Run a thousand bootstrap resamples: the 95% interval is [−1.958, −1.848], width 0.109, and it excludes the truth by seven units and the correct sign. Nothing malfunctioned. The estimator really is that stable, because every resample inherits the identical selection mechanism — resampling varies which rows you drew, and it cannot vary how those rows came to be treated. A TIGHT INTERVAL ON A BIASED ESTIMATE IS THE WORST OF BOTH WORLDS, because it has the visual grammar of rigour and encodes none of it, and it is more persuasive to a reader than the point estimate alone would have been. SO WHAT I WOULD ASK FOR INSTEAD is a sensitivity analysis quantifying how much unmeasured confounding would overturn the sign, a negative-control outcome, and the overlap diagnostics — the things that speak to the assumption rather than to the variance.",
+          "deepDive": {
+            "q": "What pattern does this share with the rest of the module?",
+            "a": "This is worth generalising because the pattern recurs across the whole module. Every method here has a diagnostic that is genuinely informative about one thing and routinely read as evidence about another: the first-stage F measures instrument strength and gets read as validity; a balance table measures the matching procedure's success on its own inputs and gets read as absence of confounding; R-squared measures fit and gets read as causal correctness; and a bootstrap interval measures sampling variability and gets read as reliability. In each case the diagnostic is computed from the same data and under the same assumption as the estimate, so it cannot be independent evidence about that assumption. The sorting question that catches all four is: could this number have come out badly for a reason the procedure does not control? A bootstrap interval could not — it is guaranteed to be narrow when the estimator is stable, which biased estimators typically are. The diagnostics that pass this test are the ones drawing on something external: a negative control, a pre-period placebo, a prediction the DAG makes that the fitting never touched, or a comparison against an experiment."
+          }
+        },
+        {
+          "q": "What is the role of simulation in your workflow, given all of this?",
+          "a": "IT IS THE ONLY PLACE WHERE THE COUNTERFACTUAL IS AVAILABLE, SO IT IS WHERE I CHECK MY OWN TOOLS. Every result in this module comes from data whose ground truth I generated, and that is not a pedagogical convenience — it is the only setting in which you can measure whether a procedure recovers the right answer, because in real data the right answer is exactly the thing missing. So my working habit is: before trusting a pipeline on real data, write down a generative process that resembles it, run the entire pipeline including the interval, and check calibration and coverage. That catches problems nothing else catches. It is how you find that your bootstrap interval covers at 0% for the statistic you chose, that your cluster structure makes your intervals five times too narrow, that your propensity pipeline returns a confident answer with a hidden confounder, or that your sequential boundary is not spending alpha the way you think. THE SECOND ROLE IS SENSITIVITY: simulate the world where your assumption is FALSE by a specified amount, and report what the estimate becomes. That converts an untestable claim into a range a reader can price, and it is the closest thing to falsification available for the parts of the analysis no data can check.",
+          "deepDive": {
+            "q": "Which single simulation check catches the most pipeline bugs?",
+            "a": "The habit worth naming explicitly is the negative-result discipline: run your pipeline on data generated with NO effect and confirm it returns no effect at the nominal rate. That single check catches an enormous fraction of real pipeline bugs — leaked outcome information, double-counted units, a filter applied post-treatment, a metric definition that partially encodes the assignment — and it is far cheaper than any of the alternatives. It is the A/A test generalised from experiments to analysis code, and the same argument applies: the failure it catches is invisible in production because everything looks plausible. The mirror discipline is the positive control: inject a known effect of known size and confirm the pipeline recovers it, which catches attenuation from dilution, mismatched joins and unit errors. Together those two are worth more than most of the statistical sophistication downstream, and they are the part of the workflow that survives changes in method. It is also, in the module's framing, a way of buying a small piece of what the field otherwise lacks — a place where you can be told you are wrong."
+          }
+        }
+      ]
+    },
+    "flashcards": [
+      {
+        "type": "definition",
+        "front": "The bootstrap principle",
+        "back": "Substitute the empirical distribution F̂ₙ for the unknown F, then simulate the statistic's sampling distribution by resampling with replacement. Justified by Glivenko–Cantelli for SMOOTH functionals."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ A tight interval around a wrong number",
+        "back": "1,000 resamples of a confounded estimate: 95% CI [−1.958, −1.848], width 0.109, on a TRUE effect of +4.99. The bootstrap worked perfectly — it reported that a biased estimator is very stable."
+      },
+      {
+        "type": "intuition",
+        "front": "Why is bias invisible to resampling?",
+        "back": "Every resample is drawn from the SAME sample, so each inherits the identical selection mechanism. Resampling varies which rows you drew; it can't vary how rows came to be treated."
+      },
+      {
+        "type": "pitfall",
+        "front": "★ Where the bootstrap is INCONSISTENT",
+        "back": "Max of Uniform(0,1): coverage 0.0% at n=50, 500 AND 5,000. A resample can never exceed the sample max. Not slow convergence — inconsistency. Use subsampling (m of n) or EVT."
+      },
+      {
+        "type": "definition",
+        "front": "The bootstrap failure family",
+        "back": "Extremes/boundary of support; parameters on a boundary; tails when n is too small; and — most common in practice — DEPENDENT data resampled i.i.d. (sessions, time series, clusters)."
+      },
+      {
+        "type": "pitfall",
+        "front": "i.i.d. bootstrap on clustered data",
+        "back": "25 events per user ⇒ effective n inflated ~25× ⇒ interval ~5× too narrow. Always resample the unit of randomization: block bootstrap (serial), cluster bootstrap (grouped)."
+      },
+      {
+        "type": "definition",
+        "front": "Why permutation tests are exact",
+        "back": "Under the null the labels are exchangeable, so every reassignment is equally likely — the reference distribution IS the data. Level holds by construction, no distributional assumption."
+      },
+      {
+        "type": "pitfall",
+        "front": "What null does permutation test?",
+        "back": "The SHARP null — no effect for ANY unit. Stronger than a null on the mean, so rejection can come from a difference in variance or shape. Studentize the statistic to recover the weak null."
+      },
+      {
+        "type": "formula",
+        "front": "★ Conservatism is not safety",
+        "back": "Lognormal A/A: permutation 5.3% FPR vs Welch t 2.9% (nominal 5%). With a real +2.0 shift: permutation POWER 43.4% vs Welch 37.2%. The unused alpha is paid in lost detection."
+      },
+      {
+        "type": "pitfall",
+        "front": "Permutation p-value mechanics",
+        "back": "Resolution is 1/(B+1) — B=400 can't report below ~0.0025. Always use (1+count)/(1+B), never count/B, which can report an impossible zero."
+      },
+      {
+        "type": "intuition",
+        "front": "Bootstrapping a multi-step pipeline",
+        "back": "Resample at the independence unit and re-run EVERYTHING — refit the propensity model, redo the matching, redo any model selection. 200 full-pipeline replicates beat 10,000 of the last step."
+      },
+      {
+        "type": "intuition",
+        "front": "★ A/A and positive-control discipline",
+        "back": "Run the pipeline on NO-effect data and confirm the nominal rate; inject a KNOWN effect and confirm recovery. Catches leakage, double-counted units, post-treatment filters, dilution, unit errors — cheaply."
+      }
+    ],
+    "refs": [
+      {
+        "title": "Efron (1979), Bootstrap Methods: Another Look at the Jackknife",
+        "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full"
+      },
+      {
+        "title": "Efron & Tibshirani (1993), An Introduction to the Bootstrap",
+        "url": "https://www.routledge.com/An-Introduction-to-the-Bootstrap/Efron-Tibshirani/p/book/9780412042317"
+      },
+      {
+        "title": "Bickel, Gotze & van Zwet (1997), Resampling Fewer Than n Observations",
+        "url": "https://www.jstor.org/stable/24306073"
+      },
+      {
+        "title": "Abadie & Imbens (2008), On the Failure of the Bootstrap for Matching Estimators",
+        "url": "https://onlinelibrary.wiley.com/doi/10.3982/ECTA6474"
+      },
+      {
+        "title": "Good (2005), Permutation, Parametric, and Bootstrap Tests of Hypotheses",
+        "url": "https://link.springer.com/book/10.1007/b138696"
+      }
+    ],
+    "demos": [
+      "clt",
+      "reservoir-sampling",
+      "importance-sampling",
+      "cross-validation"
+    ]
+  }
+};

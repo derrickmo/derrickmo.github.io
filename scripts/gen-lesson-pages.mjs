@@ -16,7 +16,7 @@
 //   node scripts/gen-lesson-pages.mjs
 //
 // Idempotent. Run npm run build + gen-sitemap.mjs afterward.
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -83,28 +83,46 @@ const drillTotal = Object.values(drill).flat().length;
 console.log(`authored store lessons: ${total} across ${Object.keys(authored).length} module(s)`);
 if (drillTotal) console.log(`flagship drill layers:  ${drillTotal} across ${Object.keys(drill).length} module(s)`);
 
-// ── 1. per-module body data files ───────────────────────────────────────────
+// ── 1. per-LESSON body data files ───────────────────────────────────────────
+// One file per lesson, not one per module (PF-0020). The bundles used to hold all ten
+// of a module's lessons, so a reader opening one downloaded ten — ~90% waste on first
+// paint, and why the /learn/ median was 512 KB against /visualize/'s 12 KB. Each page
+// now loads only its own body; the shape is unchanged, so lesson-app.jsx still reads
+// window.DM_LESSON_BODIES[lessonSlug] and needs no edit.
 mkdirSync(join(ROOT, "lesson-bodies"), { recursive: true });
+const bodyHref = (mslug, lslug) => `lesson-bodies/${mslug}/${lslug}.js`;
+let bodyFiles = 0;
 for (const slug of [...new Set([...Object.keys(authored), ...Object.keys(drill)])].sort()) {
-  const lessons = authored[slug] || [];
-  const data = {};
-  for (const l of lessons.sort((a, b) => a.id.localeCompare(b.id))) {
-    data[l.slug] = { level: l.level, body: l.body, interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] };
+  mkdirSync(join(ROOT, "lesson-bodies", slug), { recursive: true });
+  const entries = [];
+  for (const l of (authored[slug] || []).sort((a, b) => a.id.localeCompare(b.id))) {
+    entries.push([l, { level: l.level, body: l.body, interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] }]);
   }
   // drill-only entries: NO body and NO level, so lesson-app's hasStoreBody() stays
   // false and the flagship keeps its own outline + body.
   for (const l of (drill[slug] || []).sort((a, b) => a.id.localeCompare(b.id))) {
-    data[l.slug] = { interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] };
+    entries.push([l, { interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] }]);
   }
-  const js = `// GENERATED from content/lessons/${slug}/ by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
-// Store-authored lesson bodies for module "${slug}". Loaded by the lesson pages
-// BEFORE lesson-app.jsx, which renders window.DM_LESSON_BODIES[lessonSlug].
+  for (const [l, payload] of entries) {
+    const js = `// GENERATED from content/lessons/${slug}/${l.slug}.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
+// One lesson's body, loaded only by learn/${slug}/${l.slug}/ BEFORE lesson-app.jsx,
+// which renders window.DM_LESSON_BODIES[lessonSlug].
 
-window.DM_LESSON_BODIES = ${JSON.stringify(data, null, 2)};
+window.DM_LESSON_BODIES = ${JSON.stringify({ [l.slug]: payload }, null, 2)};
 `;
-  writeFileSync(join(ROOT, "lesson-bodies", `${slug}.js`), js, "utf8");
+    writeFileSync(join(ROOT, "lesson-bodies", slug, `${l.slug}.js`), js, "utf8");
+    bodyFiles++;
+  }
   const nd = (drill[slug] || []).length;
-  console.log(`  lesson-bodies/${slug}.js (${lessons.length} lesson(s)${nd ? ` + ${nd} drill layer(s)` : ""})`);
+  console.log(`  lesson-bodies/${slug}/ (${(authored[slug] || []).length} lesson(s)${nd ? ` + ${nd} drill layer(s)` : ""})`);
+}
+console.log(`  ${bodyFiles} per-lesson body file(s)`);
+
+// Retire the old per-module bundles so nothing can keep loading ten lessons at once.
+for (const f of readdirSync(join(ROOT, "lesson-bodies"))) {
+  if (!f.endsWith(".js")) continue;                       // only the flat module files
+  rmSync(join(ROOT, "lesson-bodies", f));
+  console.log(`  removed stale bundle lesson-bodies/${f}`);
 }
 
 // ── 1b. patch FLAGSHIP pages to load their module bundle ────────────────────
@@ -116,12 +134,20 @@ for (const [mslug, lessons] of Object.entries(drill)) {
     const page = join(ROOT, "learn", mslug, l.slug, "index.html");
     if (!existsSync(page)) { console.error(`!! flagship page missing: learn/${mslug}/${l.slug}/index.html`); continue; }
     let html = readFileSync(page, "utf8");
-    if (html.includes(`lesson-bodies/${mslug}.js`)) continue;      // already wired
+    const want = `../../../${bodyHref(mslug, l.slug)}`;
+    if (html.includes(`src="${want}"`)) continue;                  // already wired
     const before = html;
-    html = html.replace(
-      /(<script type="module" src="\.\.\/\.\.\/\.\.\/lesson-app\.jsx"><\/script>)/,
-      `<script type="module" src="../../../lesson-bodies/${mslug}.js"></script>\n  $1`
-    );
+    // Migrate a pre-PF-0020 module-bundle tag in place; otherwise insert a new one.
+    // Without this the old tag would survive and the page would load BOTH.
+    if (/<script type="module" src="\.\.\/\.\.\/\.\.\/lesson-bodies\/[^"]+\.js"><\/script>/.test(html)) {
+      html = html.replace(/<script type="module" src="\.\.\/\.\.\/\.\.\/lesson-bodies\/[^"]+\.js"><\/script>/,
+        `<script type="module" src="${want}"></script>`);
+    } else {
+      html = html.replace(
+        /(<script type="module" src="\.\.\/\.\.\/\.\.\/lesson-app\.jsx"><\/script>)/,
+        `<script type="module" src="${want}"></script>\n  $1`
+      );
+    }
     if (html === before) { console.error(`!! could not wire drill layer into learn/${mslug}/${l.slug}/ (no lesson-app.jsx script tag)`); continue; }
     writeFileSync(page, html, "utf8");
     console.log(`  wired drill layer -> learn/${mslug}/${l.slug}/index.html`);
@@ -161,7 +187,7 @@ for (const [mslug, lessons] of Object.entries(authored)) {
     // scripts: body data BEFORE lesson-app; drop the flagship content jsx
     html = html.replace(
       /(<script type="module" src="\.\.\/\.\.\/\.\.\/lesson-app\.jsx"><\/script>)/,
-      `<script type="module" src="../../../lesson-bodies/${mslug}.js"></script>\n  $1`
+      `<script type="module" src="../../../${bodyHref(mslug, l.slug)}"></script>\n  $1`
     );
     html = html.replace(/\s*<script type="module" src="\.\.\/\.\.\/\.\.\/lessons\/[^"]+\.jsx"><\/script>/, "");
     mkdirSync(dir, { recursive: true });
