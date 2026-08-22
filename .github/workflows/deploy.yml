@@ -28,12 +28,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # The sitemap is generated from dist/, so it has to be rebuilt before the output is
-      # verified against it - otherwise a new page ships with a stale sitemap.
-      - run: node scripts/gen-sitemap.mjs
       # PF-0008: dist/ used to be published unconditionally, so a file that never reached
       # the deploy (og-default.png sat at the repo root for months) was invisible until a
       # reader hit it. Every assertion here maps to a bug this repo has actually had.
+      #
+      # Note this compares the built routes against the COMMITTED sitemap, which is the
+      # point: it fails when someone adds a page without regenerating public/sitemap.xml.
+      # Do not "fix" a failure by running gen-sitemap.mjs here - it writes to public/, not
+      # dist/, so it would not change the comparison, and wiring it to do so would make
+      # the check self-fulfilling and stop it catching anything.
       - name: Verify build output
         run: node scripts/verify-build-output.mjs
       - uses: actions/configure-pages@v5
