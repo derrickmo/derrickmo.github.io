@@ -30,12 +30,12 @@ const LEVELS = new Set(["intro", "core", "advanced"]);
 const CARD_TYPES = new Set(["definition", "formula", "intuition", "pitfall"]);
 
 let errors = 0, warnings = 0, files = 0;
-// CA-0005: deepDive must be {q,a}. 288 entries in five modules still ship a bare
-// string, which the renderer now tolerates but which is off-schema. Counted as a
-// tracked debt rather than a warning so the warning channel stays empty and any
-// real warning is signal; pass --strict-deepdive (or set it as the default once the
-// data migration lands) to make it an error.
-const STRICT_DEEPDIVE = process.argv.includes("--strict-deepdive");
+// CA-0005: deepDive must be {q,a}. The 288 bare strings that shipped in five modules
+// are migrated, so this is now an ERROR by default — the shape cannot regress. The
+// renderer still tolerates a string (lesson-app.jsx), which is deliberate: defence in
+// depth, not a licence to author one. --legacy-deepdive downgrades it to a count if a
+// bulk import ever needs to land before it is cleaned up.
+const STRICT_DEEPDIVE = !process.argv.includes("--legacy-deepdive");
 let legacyDeepDive = 0;
 const err = (f, msg) => { console.log(`  ✗ ${f}: ${msg}`); errors++; };
 const warn = (f, msg) => { console.log(`  ⚠ ${f}: ${msg}`); warnings++; };
@@ -304,6 +304,6 @@ if (jsxDebt) console.log(`  legacy-jsx lessons (Phase-C debt): ${jsxDebt}`);
 const subCount = Object.values(SUB).reduce((a, m) => a + Object.keys(m.lessons).length, 0);
 console.log(`  concepts: ${seenConcepts.size}/${subCount} migrated` +
   (supersededConcepts ? ` (+${supersededConcepts} superseded by a store lesson — retired collisions, intended)` : ""));
-if (legacyDeepDive) console.log(`  legacy string deepDive (CA-0005 debt, renders but off-schema): ${legacyDeepDive}`);
+if (legacyDeepDive) console.log(`  legacy string deepDive (CA-0005, off-schema): ${legacyDeepDive}`);
 console.log(`errors: ${errors}   warnings: ${warnings}`);
 process.exit(errors ? 1 : 0);
