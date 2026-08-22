@@ -91,7 +91,7 @@ function HexPortrait({ src, size = 360 }) {
           transform="translate(50,50) scale(1.22) translate(-50,-50)" strokeDasharray="0.5 1" />
       </svg>
       <div style={{ position: "absolute", inset: 0, clipPath: hexClip, WebkitClipPath: hexClip }}>
-        <img src={src} alt="Derrick Mo"
+        <img src={src} alt="Derrick Mo" width={size} height={size} decoding="async"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
       </div>
       <svg width={size} height={size} viewBox="0 0 100 100" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -125,7 +125,7 @@ function About() {
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
       <Container style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "minmax(0, 0.85fr) minmax(0, 1.15fr)", gap: mobile ? 36 : 64, alignItems: "center" }}>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <HexPortrait src={window.__DM_CARTOON || "assets/derrick-cartoon.png"} size={mobile ? 240 : 380} />
+          <HexPortrait src={window.__DM_CARTOON || "assets/derrick-cartoon.webp"} size={mobile ? 240 : 380} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <MonoLabel>// PROFILE.LOG</MonoLabel>

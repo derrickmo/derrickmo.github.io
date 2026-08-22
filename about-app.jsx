@@ -16,7 +16,7 @@ function Portrait({ size = 320 }) {
     <div style={{ position: "relative", width: size, height: size }}>
       <div style={{ position: "absolute", inset: -28, zIndex: -1, background: "radial-gradient(circle, rgba(59,130,246,0.20) 0%, transparent 70%)", filter: "blur(10px)" }} />
       <div style={{ position: "absolute", inset: 0, clipPath: clip, WebkitClipPath: clip, border: "1px solid var(--blue-lt)" }}>
-        <img src={`${BASE}assets/derrick-cartoon.png`} alt="Derrick Mo"
+        <img src={`${BASE}assets/derrick-cartoon.webp`} alt="Derrick Mo" width={size} height={size} decoding="async"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
       </div>
     </div>
