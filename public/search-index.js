@@ -108,6 +108,7 @@ window.DM_NAV_INDEX = [
   { label: "Convolution Lab", group: "Demo", href: "/visualize/convolution/", kw: "cnn kernel filter vision" },
   { label: "Canny Edge Detection", group: "Demo", href: "/visualize/edge-detection/", kw: "canny sobel gradient edges vision hysteresis" },
   { label: "Hough Transform", group: "Demo", href: "/visualize/hough-transform/", kw: "hough line detection accumulator voting vision ransac" },
+  { label: "Receptive Field", group: "Demo", href: "/visualize/receptive-field/", kw: "receptive field cnn stride dilation kernel effective receptive field vgg resnet stem atrous dilated convolution reach" },
   { label: "Image Pyramids", group: "Demo", href: "/visualize/image-pyramids/", kw: "image pyramid gaussian laplacian mipmap downsample aliasing nyquist multi-scale sift feature pyramid network blending" },
   { label: "Bilateral Filter", group: "Demo", href: "/visualize/bilateral-filter/", kw: "bilateral filter edge preserving smoothing denoise gaussian blur range kernel guided filter non-local means" },
   { label: "RANSAC", group: "Demo", href: "/visualize/ransac/", kw: "ransac robust fitting outliers consensus inliers line fit least squares homography breakdown point" },
