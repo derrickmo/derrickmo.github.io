@@ -1494,7 +1494,13 @@
           "regret-matching",
           "minimax",
           "mcts",
-          "neuroevolution"
+          "neuroevolution",
+          "prioritized-replay",
+          "distributional-rl",
+          "successor-representation",
+          "max-entropy-rl",
+          "cfr",
+          "replicator-dynamics"
         ]
       },
       "updatedAt": "2026-08-07"
@@ -73562,6 +73568,99 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
+      "id": "cfr",
+      "module": "reinforcement-learning",
+      "title": "Counterfactual Regret Minimization",
+      "oneLine": "Minimise regret at every information set and the AVERAGE strategy converges to Nash — the current one never does, and confusing them is the classic bug.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Games of imperfect information break the machinery that works for chess and Go. You cannot evaluate a position because you do not know it — you know only an information set, the collection of states consistent with what you have seen. A strategy that is optimal at each information set in isolation is not optimal overall, because your own betting reveals information, and bluffing is only coherent as a randomised strategy.",
+            "CFR attacks this with regret minimisation. Traverse the game tree accumulating, for each information set and each action, the counterfactual regret — how much better you would have done had you always played that action there, weighted by the probability of reaching that information set at all. Then set the next strategy proportional to positive regret, and repeat.",
+            "The guarantee is that in a two-player zero-sum game the average of the strategies converges to a Nash equilibrium, with regret shrinking as one over the square root of the number of iterations. This is what solved heads-up limit hold'em and underpinned Libratus and Pluribus."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "Counterfactual regret, and the regret-matching strategy update:"
+          ],
+          "tex": "R^T(I,a) = \\sum_{t=1}^{T} \\pi^{\\sigma^t}_{-i}(I)\\left(u_i(\\sigma^t|_{I \\to a}, I) - u_i(\\sigma^t, I)\\right), \\qquad \\sigma^{T+1}(I,a) = \\frac{\\left[R^T(I,a)\\right]^+}{\\sum_b \\left[R^T(I,b)\\right]^+}",
+          "texNote": "The counterfactual weight is the probability that everyone EXCEPT you plays to reach this information set. Excluding your own contribution is what makes the regrets decompose across the tree, and it is what the word counterfactual is doing — it asks what would have happened had you tried to get here."
+        },
+        {
+          "h": "In code",
+          "code": "def cfr(history, p0, p1, node_map):\n    if is_terminal(history):\n        return payoff(history)\n    info_set = node_map[abstract(history)]\n    strategy = info_set.regret_matching()\n    util = [0.0] * n_actions\n    node_util = 0.0\n    for a in range(n_actions):\n        # recurse with the ACTING player's reach probability scaled by this action\n        if player(history) == 0:\n            util[a] = -cfr(history + [a], p0 * strategy[a], p1, node_map)\n        else:\n            util[a] = -cfr(history + [a], p0, p1 * strategy[a], node_map)\n        node_util += strategy[a] * util[a]\n\n    cf_reach = p1 if player(history) == 0 else p0      # the OPPONENT's reach\n    my_reach = p0 if player(history) == 0 else p1\n    for a in range(n_actions):\n        info_set.regret_sum[a] += cf_reach * (util[a] - node_util)\n        info_set.strategy_sum[a] += my_reach * strategy[a]   # weight by OWN reach\n    return node_util",
+          "caption": "Note the two different reach probabilities. Regrets are weighted by the opponent's reach and the average strategy by your own — swapping them is a bug that still converges to something, just not to a Nash equilibrium."
+        },
+        {
+          "h": "Why you must play the average",
+          "paras": [
+            "The convergence guarantee is about the average strategy, not the current one, and the difference is dramatic rather than technical. Run on a biased rock-paper-scissors where a scissors win pays double — a game whose Nash equilibrium is 0.5 rock, 0.25 paper, 0.25 scissors, verified analytically by checking the opponent is indifferent to all three replies.",
+            "After a million iterations the current strategy was the pure strategy always-paper, an error of 0.75 from equilibrium. It had been always-rock a moment earlier, and always-scissors before that; it keeps cycling forever and never settles. Over the same run the average strategy went from an error of 0.325 at ten iterations to 0.0497 at a hundred, 0.0071 at ten thousand, and 0.00047 at a hundred thousand.",
+            "So an implementation that stores regrets, runs a million iterations, and then plays the final strategy will produce an agent that is trivially exploitable while all its internal diagnostics look healthy. Accumulate the strategy sum and play its normalisation.",
+            "Two scaling notes. Vanilla CFR traverses the entire tree every iteration, which is impossible for real poker, so practical solvers use Monte Carlo sampling variants and, more importantly, CFR+ — which zeroes negative regrets rather than letting them accumulate, and converges enough faster that it is now the default. And the whole guarantee is specific to two-player zero-sum games; with three or more players there is no equivalent result, which is why Pluribus's six-player success was notable and is explained by strong empirical performance rather than by a theorem."
+          ]
+        }
+      ],
+      "takeaways": [
+        "CFR accumulates counterfactual regret per information set — weighted by the OPPONENT's reach probability — and plays proportional to positive regret.",
+        "Only the AVERAGE strategy converges: after a million iterations the current one was a pure strategy with error 0.75, while the average was within 0.0005 of Nash.",
+        "The guarantee holds for two-player zero-sum only; use CFR+ in practice, and Monte Carlo sampling once the tree is too large to traverse."
+      ],
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "distributional-rl",
+      "module": "reinforcement-learning",
+      "title": "Distributional RL (C51)",
+      "oneLine": "Learn the whole distribution of returns instead of its mean — the mean comes out the same, and the shape is what improves the agent.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Standard Q-learning learns the expected return from a state-action pair. But a single number cannot distinguish an action that always returns 5 from one that returns 0 or 10 with equal chance. Distributional RL learns the full return distribution and keeps that difference.",
+            "C51 represents it as a categorical distribution over a fixed set of atoms — typically 51 of them, spanning a range you must choose in advance — and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
+            "The surprise in the original result is that the improvement is not explained by better risk handling. The agents were still trained to maximise expected return, and their greedy policy still takes the argmax of the mean. Verified directly here: the mean of the learned two-spike distribution over rewards of minus one and plus one is exactly zero, which is precisely what Q-learning would learn. The distribution carries no extra information about the mean at all."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The distributional Bellman equation, and the projection that keeps the result on the fixed atom grid:"
+          ],
+          "tex": "Z(s,a) \\stackrel{D}{=} R + \\gamma Z(S', A'), \\qquad \\left(\\Phi \\hat{T} Z\\right)_i = \\sum_j \\left[1 - \\frac{\\bigl|[\\hat{T}z_j]_{V_{\\min}}^{V_{\\max}} - z_i\\bigr|}{\\Delta z}\\right]_0^1 p_j",
+          "texNote": "The projection is not a detail. Multiplying by gamma and adding a reward shifts and shrinks the support, so the updated distribution no longer lives on the atoms — it must be redistributed onto its two neighbouring atoms in proportion to distance. The distributional Bellman operator is a contraction in the Wasserstein metric, but the projected KL-minimising version used in practice is not, so C51 works without the guarantee it is usually motivated by."
+        },
+        {
+          "h": "In code",
+          "code": "import torch\n\ndef project(rewards, dones, next_probs, z, gamma, v_min, v_max):\n    n_atoms = len(z)\n    dz = (v_max - v_min) / (n_atoms - 1)\n    Tz = rewards[:, None] + gamma * (1 - dones[:, None]) * z[None, :]\n    Tz = Tz.clamp(v_min, v_max)              # returns outside the range are CLIPPED,\n                                             # which silently distorts the target\n    b = (Tz - v_min) / dz\n    lo, hi = b.floor().long(), b.ceil().long()\n    m = torch.zeros_like(next_probs)\n    # split each atom's mass between its two neighbours, by distance\n    m.scatter_add_(1, lo, next_probs * (hi.float() - b))\n    m.scatter_add_(1, hi, next_probs * (b - lo.float()))\n    # when b lands exactly on an atom, lo == hi and both terms are zero - handle it\n    eq = (lo == hi)\n    m.scatter_add_(1, lo * eq, next_probs * eq.float())\n    return m",
+          "caption": "The lo == hi case is the classic bug: an atom that maps exactly onto another atom receives zero mass from both terms, so probability quietly leaks away and the distribution stops summing to one."
+        },
+        {
+          "h": "What the projection preserves, and what the range costs you",
+          "paras": [
+            "Checked directly on a distribution over rewards of minus one and plus one after a Bellman update with gamma 0.9 and a reward of 0.3: the support moves to minus 0.6 and 1.2, neither of which is an atom on a grid of spacing 0.4. Projecting back preserves total mass to 1.000000000 and preserves the mean at exactly 0.300000. The projection is mean-preserving, which is why the resulting agent still optimises expected return correctly.",
+            "The cost is that you must choose the value range up front. Returns outside it are clipped, and clipping is not a small approximation — it moves probability mass to the boundary and biases the mean. Pick the range from the reward scale and the discount factor, and rescale rewards rather than widening the range indefinitely, since a wider range with a fixed atom count means coarser resolution everywhere.",
+            "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support — so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
+            "As for why it works at all: the leading explanation is that predicting a distribution is a richer auxiliary task, giving a denser training signal and better representations, in the same family as other auxiliary-task results. And once you have the distribution, risk-sensitive control becomes available for free — take a conditional value-at-risk over the lower tail instead of the mean and you have a risk-averse policy from the same network."
+          ]
+        }
+      ],
+      "takeaways": [
+        "C51 learns probabilities on a fixed grid of return values; the projection is mean-preserving, verified at exactly 0.300000 with total mass 1.000000000.",
+        "The mean matches what Q-learning would learn, so the benefit is representational — a richer auxiliary task — not better handling of the expectation.",
+        "The value range is a hyperparameter and out-of-range returns are clipped; QR-DQN removes the problem by learning the support instead of the probabilities."
+      ],
+      "demo": "distributional-rl",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
       "id": "double-q-learning",
       "module": "reinforcement-learning",
       "title": "Double Q-Learning",
@@ -73666,6 +73765,53 @@
       ],
       "demo": "gae",
       "updatedAt": "2026-06-10"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "max-entropy-rl",
+      "module": "reinforcement-learning",
+      "title": "Maximum-Entropy RL (Soft Value Iteration)",
+      "oneLine": "Add the policy's entropy to the objective and the max in the Bellman backup becomes a log-sum-exp — which is where SAC comes from.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Standard RL maximises expected return, and its optimal policy is deterministic. That has costs: exploration must be bolted on from outside as epsilon-greedy or injected noise, near-equivalent actions are collapsed to an arbitrary choice, and the resulting policy is brittle when the environment shifts slightly.",
+            "Maximum-entropy RL changes the objective to expected return plus the entropy of the policy, weighted by a temperature. The agent is now paid to remain as random as it can while still performing well, which makes exploration part of the objective instead of a heuristic wrapped around it.",
+            "The consequence for the algorithm is a single substitution. The hard maximum in the Bellman backup becomes a soft maximum — a log-sum-exp — and the greedy policy becomes a Boltzmann distribution over action values. Everything else about value iteration is unchanged, which is why this slots into existing algorithms so cleanly."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The objective, and the soft backup that replaces the max:"
+          ],
+          "tex": "J(\\pi) = \\mathbb{E}\\left[\\sum_t r_t + \\tau\\,\\mathcal{H}\\!\\left(\\pi(\\cdot|s_t)\\right)\\right], \\qquad V(s) = \\tau \\log \\sum_a \\exp\\!\\left(\\frac{Q(s,a)}{\\tau}\\right)",
+          "texNote": "The optimal policy is then exactly the Boltzmann distribution exp((Q - V)/tau). As tau goes to zero the log-sum-exp converges to the maximum and the policy to the greedy one, so standard value iteration is the zero-temperature limit of this."
+        },
+        {
+          "h": "In code",
+          "code": "import torch\n\ndef soft_value(q, tau):\n    \"\"\"tau * logsumexp(q / tau), computed so it does not overflow.\"\"\"\n    m = q.max(dim=-1, keepdim=True).values\n    return (m + tau * torch.log(torch.exp((q - m) / tau).sum(dim=-1, keepdim=True))).squeeze(-1)\n    # equivalently: tau * torch.logsumexp(q / tau, dim=-1) - torch.logsumexp is already\n    # implemented with the max-subtraction, which is why you should call it rather than\n    # writing log(sum(exp(...))) yourself\n\n# SAC tunes tau automatically against a target entropy rather than fixing it, because the\n# right temperature depends on the reward SCALE - and reward scale changes during training.\n#   alpha_loss = -(log_alpha * (log_prob + target_entropy).detach()).mean()\n#   target_entropy = -action_dim          # the usual heuristic for continuous control",
+          "caption": "Automatic temperature tuning is the change that made SAC reliable. With a fixed temperature the same hyperparameter has to be re-found for every environment, because it trades against the raw magnitude of the reward."
+        },
+        {
+          "h": "Two things measured",
+          "paras": [
+            "First, the soft value is always an over-estimate of the hard maximum, bounded by the temperature times the log of the action count. Checked across temperatures on a three-action problem with values 1.0, 0.9 and 0.2: at temperature 1 the gap was 0.856 against a bound of 1.099; at 0.5, 0.352 against 0.549; at 0.1, 0.031 against 0.110; at 0.01, effectively zero. The bound held at every temperature, and it makes the bias explicit — a maximum-entropy agent systematically over-values states, by an amount you can compute and shrink.",
+            "Second, a genuine implementation trap. Writing the log-sum-exp directly as the logarithm of a sum of exponentials returns Infinity at a temperature of 0.001, because it forms exp(1000) and overflows float64. The max-subtracted form returns exactly the hard maximum at temperatures down to 1e-6. This is not a micro-optimisation — the naive expression silently destroys the low-temperature end of the range, which is exactly the regime where the agent is meant to become near-greedy. Call the library's logsumexp.",
+            "The framing worth carrying: maximum-entropy RL is inference. Maximising return plus entropy is equivalent to inferring the posterior over trajectories in a graphical model where reward acts as the log-likelihood of an optimality variable — which is what connects soft Q-learning, SAC, and the KL-regularised objective used in RLHF, where the reference-model penalty plays the same structural role as the entropy term.",
+            "The practical caveat: the temperature trades against the raw scale of the reward, so a value tuned on one environment means something different on another. Fixing tau is the standard way to get a maximum-entropy agent that either behaves randomly or ignores the entropy term entirely; tune it against a target entropy instead."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Adding policy entropy to the objective replaces the max in the Bellman backup with a log-sum-exp and makes the optimal policy Boltzmann; standard value iteration is the zero-temperature limit.",
+        "The soft value over-estimates the max by at most tau*log(#actions), verified at every temperature tested — an explicit, computable bias.",
+        "Compute it with the max-subtracted form: the naive expression overflowed to Infinity at tau = 0.001, destroying exactly the near-greedy regime, while the stable form works to 1e-6."
+      ],
+      "demo": "max-entropy-rl",
+      "updatedAt": "2026-08-22"
     },
     {
       "kind": "concept",
@@ -73842,6 +73988,53 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
+      "id": "prioritized-replay",
+      "module": "reinforcement-learning",
+      "title": "Prioritized Experience Replay",
+      "oneLine": "Replay surprising transitions more often — which speeds learning and quietly changes what you are averaging over, unless you correct for it.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Uniform experience replay treats every stored transition as equally worth revisiting. It is not. Most transitions in a replay buffer are already well predicted and produce a near-zero gradient; the informative ones are those the network still gets wrong. Prioritized replay samples in proportion to the magnitude of the temporal-difference error, so the agent spends its updates where there is something to learn.",
+            "The gain is real and largest exactly where you would want it: sparse-reward tasks, where the handful of transitions that reached a reward are drowned out by thousands of uninformative ones. Replaying them proportionally to their surprise is what propagates value back along the trajectory in a reasonable number of updates.",
+            "But sampling non-uniformly from a buffer means you are no longer estimating the expectation you intended. Every gradient estimate is now taken under a different distribution, and the fixed point moves."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The sampling distribution and the importance-sampling weight that undoes its effect on the expectation:"
+          ],
+          "tex": "P(i) = \\frac{p_i^{\\alpha}}{\\sum_k p_k^{\\alpha}}, \\qquad w_i = \\left(\\frac{1}{N}\\cdot\\frac{1}{P(i)}\\right)^{\\beta} \\Big/ \\max_j w_j",
+          "texNote": "Alpha interpolates between uniform at 0 and fully greedy prioritisation at 1. Beta controls how much of the bias is corrected — it is annealed from about 0.4 to 1 over training, because the bias matters most near convergence and the extra variance hurts most early on."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\nclass PrioritizedBuffer:\n    def __init__(self, capacity, alpha=0.6, eps=1e-6):\n        self.data = []\n        self.prio = np.zeros(capacity, dtype=np.float64)\n        self.capacity, self.alpha, self.eps = capacity, alpha, eps\n        self.pos = 0\n\n    def add(self, transition):\n        # new transitions get MAX priority so every one is replayed at least once;\n        # initialising them at zero means a transition can never be sampled and so\n        # never gets a priority - it is invisible forever\n        self.prio[self.pos] = self.prio.max() if self.data else 1.0\n        if len(self.data) < self.capacity:\n            self.data.append(transition)\n        else:\n            self.data[self.pos] = transition\n        self.pos = (self.pos + 1) % self.capacity\n\n    def sample(self, batch, beta=0.4):\n        p = self.prio[:len(self.data)] ** self.alpha\n        p = p / p.sum()\n        idx = np.random.choice(len(self.data), batch, p=p)\n        w = (len(self.data) * p[idx]) ** (-beta)\n        return idx, [self.data[i] for i in idx], w / w.max()\n\n    def update(self, idx, td_errors):\n        self.prio[idx] = np.abs(td_errors) + self.eps    # eps: never priority zero",
+          "caption": "A production buffer uses a sum-tree so sampling and priority updates are logarithmic rather than linear in the buffer size — at a million transitions the linear version dominates the training step."
+        },
+        {
+          "h": "The bias is not theoretical",
+          "paras": [
+            "Reduced to the smallest case that shows it: a buffer whose true mean is 1.0, estimated by repeatedly sampling an element and taking a small step toward it. Uniform sampling converged to 1.0747. Sampling with priority proportional to the current error, without importance weights, converged to 2.5332 — off by a factor of two and a half, and stable there, so no amount of extra training fixes it. Adding the importance-sampling weight brought it back to 0.9638.",
+            "The mechanism is worth stating plainly: prioritisation over-samples exactly the high-error items, which are the extreme ones, so the running average is pulled toward the extremes. In a real agent that shows up as systematically over-estimated values, which then compounds through bootstrapping.",
+            "Two practical failures follow from the same source. Noisy environments create permanently high TD error that is irreducible, so the buffer fixates on transitions nothing can learn — the epsilon and the alpha exponent both exist to blunt that. And stale priorities: a transition's priority is only updated when it happens to be sampled, so the ordering drifts away from the truth as the network changes underneath it.",
+            "Worth knowing that the picture has moved on. Later analyses found much of the reported benefit could be matched by simply doing more gradient steps per environment step, and distributed agents get similar effects from having many actors at different exploration levels. Prioritised replay is still standard in single-actor value-based agents, and it is no longer the free win the original results suggested."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Sampling by TD error concentrates updates where the model is still wrong, which matters most in sparse-reward tasks where informative transitions are rare.",
+        "It biases the fixed point: a buffer with true mean 1.0 converged to 2.5332 without importance weights and 0.9638 with them, and the bias is stable, so more training does not remove it.",
+        "Beta anneals the correction because bias matters near convergence while variance hurts early; new transitions must enter at maximum priority or they are never sampled at all."
+      ],
+      "demo": "prioritized-replay",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
       "id": "regret-matching",
       "module": "reinforcement-learning",
       "title": "Regret Matching & Nash Equilibrium",
@@ -73886,6 +74079,53 @@
     {
       "kind": "concept",
       "schemaVersion": 1,
+      "id": "replicator-dynamics",
+      "module": "reinforcement-learning",
+      "title": "Replicator Dynamics",
+      "oneLine": "Strategies that beat the average grow — and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Take a large population where each member plays a fixed strategy, and let strategies reproduce in proportion to how well they do against the current mix. A strategy scoring above the population average grows, one scoring below shrinks. That is the replicator equation, and it is the standard model of evolutionary game theory.",
+            "It also describes learning, which is why it appears in RL rather than only in biology. The continuous-time limit of multiplicative-weights learning is exactly the replicator equation, and so is the limit of cross-learning and of a population of Q-learners with Boltzmann exploration. Anything that reinforces actions multiplicatively in proportion to their payoff traces one of these trajectories.",
+            "The immediate result is reassuring: strictly dominated strategies die out. Verified on the prisoner's dilemma, where defection strictly dominates — a population starting at 90 percent cooperators converges to all-defect. Every Nash equilibrium is a rest point of the dynamics."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The replicator equation: growth rate equals payoff advantage over the population mean."
+          ],
+          "tex": "\\dot{x}_i = x_i\\Bigl(f_i(x) - \\bar{f}(x)\\Bigr), \\qquad f_i(x) = (Ax)_i,\\quad \\bar{f}(x) = x^\\top A x",
+          "texNote": "Every vertex of the simplex is a rest point, whether or not it is sensible, and so is every interior point where all payoffs are equal. Being a rest point is much weaker than being an attractor — which is the whole content of the section below."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef replicator_step(x, A, dt):\n    fitness = A @ x\n    avg = x @ fitness\n    x = x + dt * x * (fitness - avg)\n    return np.clip(x, 0, None) / np.sum(x)      # renormalise against drift\n\n# Use a proper integrator if you care about the trajectory rather than the endpoint.\n# Forward Euler leaks the conserved quantity in rock-paper-scissors by several percent\n# over a long run, which makes a closed orbit look like a slow spiral - and invites\n# exactly the wrong conclusion about stability.\ndef rk4_step(x, A, dt):\n    d = lambda v: v * (A @ v - v @ (A @ v))\n    k1 = d(x); k2 = d(x + dt/2*k1); k3 = d(x + dt/2*k2); k4 = d(x + dt*k3)\n    x = x + dt/6*(k1 + 2*k2 + 2*k3 + k4)\n    return x / x.sum()",
+          "caption": "The integrator note is not fussiness. A first attempt at this with forward Euler showed the invariant drifting 2.8 percent, which reads as convergence and is entirely numerical."
+        },
+        {
+          "h": "Nash equilibria need not attract",
+          "paras": [
+            "Rock-paper-scissors is the standard counterexample and it is sharp. The unique Nash equilibrium is the uniform mixture, and it is a rest point — but it is neutrally stable, not attracting. Trajectories starting anywhere else orbit around it forever.",
+            "The clean way to see this is a conserved quantity: the product of the three population shares is constant along any trajectory. Integrated with RK4 from a starting mix of 0.5, 0.3 and 0.2, that product held at 0.030000000 with zero measurable drift over the whole run. Since the equilibrium itself has a product of one twenty-seventh, about 0.037037, a trajectory starting at 0.030 can never reach it — not slowly, not asymptotically, not at all. The orbit is confined to a level set that does not contain the equilibrium.",
+            "So convergence to Nash is not something evolutionary or learning dynamics deliver in general. It holds for potential games and for games solvable by iterated dominance; it fails for cyclic games, and cyclic structure is common — it is the reason real ecosystems show persistent oscillation between competing types, and the reason self-play in a non-transitive game can cycle through strategies indefinitely, each beating the last, without any of them being good.",
+            "Which is the practical payoff for RL. Strategy cycling in self-play is not a bug in your training loop; it is the expected behaviour of the underlying dynamics on a non-transitive game. The standard defences follow directly: keep a league or a population of past opponents rather than only the current one, and evaluate against a fixed pool, because measuring only against your current opponent will show steady improvement all the way around a loop."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Strategies grow in proportion to their payoff advantage over the population mean; strictly dominated strategies die out, and the prisoner's dilemma converges to all-defect.",
+        "Nash is a rest point but need not attract: in rock-paper-scissors the product of population shares is conserved at 0.030 while the equilibrium sits at 1/27, so the orbit provably never reaches it.",
+        "That is why self-play cycles on non-transitive games — a reason to train against a league and evaluate against a fixed pool, not against the current opponent."
+      ],
+      "demo": "replicator-dynamics",
+      "updatedAt": "2026-08-22"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
       "id": "sarsa",
       "module": "reinforcement-learning",
       "title": "SARSA",
@@ -73918,6 +74158,56 @@
       ],
       "demo": "sarsa-vs-qlearning",
       "updatedAt": "2026-06-10"
+    },
+    {
+      "kind": "concept",
+      "schemaVersion": 1,
+      "id": "successor-representation",
+      "module": "reinforcement-learning",
+      "title": "Successor Representation",
+      "oneLine": "Cache where the policy tends to go, separately from what you get for going there — so a new reward is instant and a new wall is not.",
+      "sections": [
+        {
+          "h": "The intuition",
+          "paras": [
+            "Model-free methods learn a value that fuses dynamics and reward into one number, so any change in reward means relearning from scratch. Model-based methods learn the transition model and plan, which handles change but costs a search at every decision. The successor representation sits between them.",
+            "It learns, for each state, the discounted expected number of future visits to every other state under the current policy. That object depends only on the dynamics and the policy — not on the reward at all. The value function is then a single dot product between that visitation vector and the reward vector.",
+            "The consequence is the point. Change where the reward is and you do not relearn anything: recompute the dot product. Measured on a 5-by-5 gridworld, moving the reward from one corner to another and recomputing values from the unchanged successor matrix gave a maximum error of exactly zero across all 25 states — not an approximation, the exact new value function."
+          ]
+        },
+        {
+          "h": "The math",
+          "paras": [
+            "The successor matrix as a discounted occupancy, its closed form, and the factorisation of value:"
+          ],
+          "tex": "M(s,s') = \\mathbb{E}\\left[\\sum_{t=0}^{\\infty}\\gamma^t \\mathbb{1}[S_t = s'] \\,\\middle|\\, S_0 = s\\right] = \\left(I - \\gamma P^{\\pi}\\right)^{-1}, \\qquad V^{\\pi}(s) = \\sum_{s'} M(s,s')\\,r(s')",
+          "texNote": "M satisfies its own Bellman equation, so it can be learned by exactly the TD update used for values, with a one-hot indicator in place of the reward. Everything you know about TD learning transfers directly."
+        },
+        {
+          "h": "In code",
+          "code": "import numpy as np\n\ndef td_successor(env, policy, gamma=0.95, alpha=0.1, episodes=5000):\n    M = np.zeros((env.n_states, env.n_states))\n    for _ in range(episodes):\n        s = env.reset()\n        done = False\n        while not done:\n            s_next, done = env.step(policy(s))\n            onehot = np.zeros(env.n_states); onehot[s] = 1.0\n            target = onehot + gamma * M[s_next] * (not done)\n            M[s] += alpha * (target - M[s])       # same TD rule, vector-valued\n            s = s_next\n    return M\n\nvalue = M @ reward_vector          # any reward vector, no relearning\n\n# For large or continuous spaces, learn successor FEATURES instead: psi(s) predicts the\n# discounted sum of future feature vectors, and value is psi(s) @ w whenever the reward\n# is linear in those same features.",
+          "caption": "The vector-valued TD update is the whole implementation. Because the target is an indicator rather than a reward, it learns the same object regardless of what the agent is being paid for.",
+          "paras": [
+            "The successor matrix is learned by the ordinary temporal-difference rule with the reward replaced by a one-hot state indicator, so nothing new is needed algorithmically."
+          ]
+        },
+        {
+          "h": "What it does not survive",
+          "paras": [
+            "The cache is a cache of the dynamics under the current policy, so changing the dynamics invalidates it. Adding a wall to the same gridworld while leaving the reward alone: the stale successor representation reported a value of 0.23847 at the start state when the truth was 0.17300, with a maximum error of 0.525 across the grid. It is confidently wrong, and nothing in the representation signals that anything changed.",
+            "That asymmetry is exactly the point, and it is what makes the successor representation a serious model of animal behaviour. Rodents adapt almost instantly to a reward being moved or devalued, and adapt slowly to a barrier being introduced — the same asymmetry, from the same cause. It also predicts the shape of hippocampal place fields, which skew backward along frequently taken routes in the way a discounted occupancy map would.",
+            "The second limitation is policy dependence. M is defined under the current policy, so as the policy improves the representation it was built on is drifting. Successor features with generalised policy improvement address this by keeping a set of representations for different policies and picking the best combination for a new task.",
+            "Practically, this is the machinery behind fast transfer in multi-task RL: learn successor features once, and each new reward specification becomes a small linear problem instead of a new training run. The requirement is that the reward be linear in the features you chose, which is a real modelling constraint rather than a formality."
+          ]
+        }
+      ],
+      "takeaways": [
+        "Value factorises into a policy-and-dynamics term and a reward term, so changing the reward is a dot product — recomputed values matched the exact answer to zero error across all states.",
+        "Changing the DYNAMICS invalidates it: adding a wall left the stale representation confidently wrong by up to 0.525, with nothing to signal it.",
+        "It is learned by the ordinary TD rule with a one-hot indicator in place of the reward, and that reward/dynamics asymmetry matches how animals actually adapt."
+      ],
+      "demo": "successor-representation",
+      "updatedAt": "2026-08-22"
     },
     {
       "kind": "concept",

@@ -108,7 +108,13 @@
       "regret-matching",
       "minimax",
       "mcts",
-      "neuroevolution"
+      "neuroevolution",
+      "prioritized-replay",
+      "distributional-rl",
+      "successor-representation",
+      "max-entropy-rl",
+      "cfr",
+      "replicator-dynamics"
     ]
   },
   "updatedAt": "2026-08-07"

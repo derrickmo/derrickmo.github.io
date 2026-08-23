@@ -510,11 +510,14 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/actor-critic/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/bandit/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/bandits/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/cfr/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/distributional-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/double-q-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/dqn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/dyna-q/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/gae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/imitation-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/max-entropy-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mc-td/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mcts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mdp-bellman/</loc><priority>0.6</priority></url>
@@ -524,9 +527,12 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/offline-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/ppo/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/prioritized-replay/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/q-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/regret-matching/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/replicator-dynamics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/sarsa/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/successor-representation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/td-lambda/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/classical-lm/</loc><priority>0.6</priority></url>
