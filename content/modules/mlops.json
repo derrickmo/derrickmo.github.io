@@ -97,7 +97,9 @@
       "canary-rollout",
       "drift-detection",
       "bloom-filter",
-      "count-min-sketch"
+      "count-min-sketch",
+      "semantic-caching",
+      "model-cascade"
     ]
   },
   "updatedAt": "2026-08-15"

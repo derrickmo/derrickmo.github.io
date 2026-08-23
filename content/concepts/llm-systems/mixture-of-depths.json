@@ -1,0 +1,47 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "mixture-of-depths",
+  "module": "llm-systems",
+  "title": "Mixture-of-Depths",
+  "oneLine": "Route only some tokens through each block — conditional DEPTH rather than conditional width, and the saving beats the routed fraction.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A transformer spends identical compute on every token. Predicting the token after a comma in a boilerplate clause gets the same 32 layers as resolving a hard long-range reference. That is obviously wasteful, and the question is how to spend less without losing the hard cases.",
+        "Mixture-of-experts answers by making the network wider and activating a slice of it — conditional width, with total parameters far larger than the active ones. Mixture-of-depths answers differently: keep the network exactly as it is, and let each block process only a fixed fraction of the tokens, with the rest passing through by the residual connection untouched.",
+        "The capacity is fixed in advance rather than learned, which is what makes it useful in practice. A block with capacity one eighth processes exactly one eighth of the tokens, so the compute per block is known statically, the tensor shapes are static, and there is none of the load-balancing machinery that mixture-of-experts needs to stop experts collapsing."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A router scores every token, and only the top-k by score enter the block; the rest take the residual path:"
+      ],
+      "tex": "r_i = w_\\theta^\\top x_i, \\qquad x_i' = \\begin{cases} x_i + \\sigma(r_i)\\,f_{\\text{block}}(x_i) & r_i \\in \\text{top-}k(r) \\\\ x_i & \\text{otherwise}\\end{cases}",
+      "texNote": "Multiplying the block output by the router score is what puts the router on the gradient path. Without that factor the routing decision is a hard discrete choice with no gradient, and the router never learns anything."
+    },
+    {
+      "h": "In code",
+      "code": "import torch\n\nclass MoDBlock(torch.nn.Module):\n    def __init__(self, block, d_model, capacity=0.125):\n        super().__init__()\n        self.block, self.capacity = block, capacity\n        self.router = torch.nn.Linear(d_model, 1, bias=False)\n\n    def forward(self, x):                       # x: (B, T, D)\n        B, T, D = x.shape\n        k = max(1, int(self.capacity * T))\n        scores = self.router(x).squeeze(-1)      # (B, T)\n        idx = scores.topk(k, dim=1).indices\n        idx, _ = idx.sort(dim=1)                 # keep causal order within the block\n        sel = torch.gather(x, 1, idx[..., None].expand(-1, -1, D))\n        out = self.block(sel)\n        # scale by the router score so the router receives gradient\n        out = out * torch.sigmoid(torch.gather(scores, 1, idx))[..., None]\n        return x.scatter_add(1, idx[..., None].expand(-1, -1, D), out)",
+      "caption": "Sorting the selected indices matters: the block still applies causal attention among the tokens it receives, and unsorted indices silently let a token attend to one that follows it."
+    },
+    {
+      "h": "The saving, and the problem at inference",
+      "paras": [
+        "Because attention is quadratic in the number of tokens it sees while the projections and MLP are linear, routing a fraction of tokens saves more than that fraction. Computing block FLOPs at model dimension 4,096 with capacity 0.25: the saving is 75.8 percent at sequence length 1,024, 79.7 percent at 8,192, and 85.7 percent at 32,768. The longer the context, the more attention dominates and the further the saving runs ahead of the routed fraction.",
+        "The catch is causality, and it is the part most descriptions skip. Top-k selection over a sequence requires knowing every token's score before you can rank them — which is fine during training, where the whole sequence is present, and impossible during autoregressive decoding, where token t must be routed before token t+1 exists.",
+        "The paper's fix is to train a small auxiliary predictor that decides, from the token alone, whether it would have made the top-k, turning a ranking problem into a per-token binary one. It works, and it introduces a train-inference mismatch: the predictor's decisions are not identical to the top-k it was trained to imitate, so the deployed model routes slightly differently from the trained one. That gap is the main practical risk, and it is why an implementation must be evaluated in autoregressive decoding rather than only in teacher-forced training.",
+        "Where it stands: mixture-of-depths is a genuine reduction in compute per token at equal parameter count, and it composes with mixture-of-experts — the two decisions are orthogonal, one choosing which tokens and the other which parameters. It is far less widely deployed than MoE, and the honest summary is that it is a promising direction with fewer production data points behind it."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Conditional depth, not width: each block processes a fixed top-k fraction of tokens and the rest skip via the residual, so compute is static and there is no expert load-balancing problem.",
+    "The saving exceeds the routed fraction because attention falls as capacity squared — 75.8% saved at sequence 1,024 rising to 85.7% at 32,768, for capacity 0.25.",
+    "Top-k is non-causal, so decoding needs an auxiliary per-token predictor; that train-inference mismatch is the real risk and must be evaluated in autoregressive mode."
+  ],
+  "demo": "mixture-of-depths",
+  "updatedAt": "2026-08-22"
+}

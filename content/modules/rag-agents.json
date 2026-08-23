@@ -92,7 +92,16 @@
   "subLessons": {
     "title": "RAG and Agents",
     "intro": "Turning a raw model into a grounded, reliable, safe system: chunk and retrieve the right context, rerank it, let the model act in a loop, and guard the edges.",
-    "order": ["rag-chunking", "hyde", "reranking", "react-agent", "self-consistency", "reflection", "prompt-injection"]
+    "order": [
+      "rag-chunking",
+      "hyde",
+      "reranking",
+      "react-agent",
+      "self-consistency",
+      "reflection",
+      "prompt-injection",
+      "rag-fusion"
+    ]
   },
   "updatedAt": "2026-08-08"
 }

@@ -3519,7 +3519,9 @@ window.SUB_LESSONS = {
     "intro": "Making large models cheap enough to serve: fewer bits per weight, faster decoding, paged memory for the KV cache, and conditional compute.",
     "order": [
       "pruning",
-      "paged-attention"
+      "paged-attention",
+      "kv-cache-eviction",
+      "mixture-of-depths"
     ],
     "lessons": {
       "pruning": {
@@ -3583,6 +3585,90 @@ window.SUB_LESSONS = {
           "It is the core idea behind high-throughput servers like vLLM."
         ],
         "demo": "paged-attention"
+      },
+      "kv-cache-eviction": {
+        "title": "KV-Cache Eviction",
+        "oneLine": "The cache, not the weights, is what fills your GPU at long context — and which tokens you may drop is not obvious.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Autoregressive generation caches the key and value tensors for every token already processed, so each new token attends to the past without recomputing it. That turns generation from quadratic into linear, and it is why the cache exists at all. The problem is that it grows without bound.",
+              "The arithmetic is stark and worth doing once. Llama-3-8B has 32 layers, 8 key-value heads and a head dimension of 128, stored in two bytes — so two tensors times 32 times 8 times 128 times 2 bytes is 128 KB per token. At a 32,000-token context that is 4.0 GB for a single sequence. Serve 64 concurrent sequences and the cache is 256 GB, against 16 GB of weights.",
+              "Grouped-query attention is the first and largest lever, and it is architectural rather than a serving trick: the same model with 32 key-value heads instead of 8 would need 512 KB per token, four times more. The 70B model, with 80 layers, sits at 320 KB per token. Once that is fixed, everything else is about not keeping tokens you do not need."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Cache size, which you should be able to reproduce from a model card:"
+            ],
+            "tex": "\\text{bytes} = 2 \\times L \\times H_{kv} \\times d_{head} \\times \\text{seq} \\times \\text{batch} \\times \\text{bytes per element}",
+            "texNote": "The leading 2 is keys and values. Note what is absent: the number of QUERY heads. Grouped-query attention shrinks the cache precisely because it reduces H_kv while leaving the query heads alone, which is why it costs so little quality."
+          },
+          {
+            "h": "In code",
+            "code": "# The eviction policy in outline. The scoring is what distinguishes the methods.\ndef evict(cache, budget, attn_weights, n_sink=4, n_recent=256):\n    keep = set(range(n_sink))                       # ALWAYS keep the first few tokens\n    keep |= set(range(len(cache) - n_recent, len(cache)))   # and the recent window\n    remaining = budget - len(keep)\n    if remaining > 0:\n        # H2O: accumulated attention mass is the heavy-hitter score\n        scores = attn_weights.sum(dim=(0, 1))       # sum over layers and heads\n        for i in scores.argsort(descending=True):\n            if len(keep) >= budget:\n                break\n            keep.add(int(i))\n    return cache[sorted(keep)]\n\n# PagedAttention (vLLM) attacks a DIFFERENT problem: not which tokens to drop, but\n# FRAGMENTATION. Storing the cache in fixed-size blocks with an index removes the need to\n# pre-allocate a contiguous max-length buffer per sequence, and lets a shared prompt\n# prefix be stored once across many sequences.",
+            "caption": "Eviction and paging are complementary, not alternatives — one reduces how many tokens you store, the other removes the waste in how you store them."
+          },
+          {
+            "h": "The first tokens are not optional",
+            "paras": [
+              "The obvious policy is a sliding window: keep the last N tokens and drop the rest. It fails badly, and the reason is one of the more surprising empirical findings in LLM serving. Attention distributions place a large and content-independent share of their mass on the first few tokens of the sequence — attention sinks. A head with nothing it particularly wants to attend to still has to put its softmax mass somewhere, and the initial tokens, visible to every position and semantically neutral, become the default destination.",
+              "So evicting the first tokens removes the place the mass was going. The softmax redistributes onto whatever remains, the attention pattern is distorted at every layer, and perplexity degrades sharply. StreamingLLM's result is that retaining just four initial tokens alongside the sliding window restores stable behaviour over inputs far longer than the training context — four tokens, at a cost of well under one percent of a typical window.",
+              "That result also shapes the heavier policies. H2O scores tokens by accumulated attention mass and keeps the heavy hitters, and SnapKV compresses the prompt's cache by observing which prompt tokens the last few positions actually attend to. Both keep sinks and a recent window as a floor and spend the remaining budget on the scored set.",
+              "The caveat to state before you deploy any of this: eviction is lossy and irreversible. A token dropped at step 1,000 cannot be consulted at step 5,000, so a task whose answer depends on a detail the policy judged unimportant will fail — and it will fail silently, with a fluent wrong answer rather than an error. Perplexity on generic text is not a sufficient test; evaluate with retrieval over the full context. Where the requirement is exactness rather than throughput, quantising the cache to 8 or 4 bits keeps every token and is often the better trade."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Do the arithmetic once: Llama-3-8B is 128 KB per token, so 32k context is 4 GB per sequence and 256 GB at batch 64 — the cache dwarfs the 16 GB of weights.",
+          "Grouped-query attention is the largest single lever, cutting the cache 4x by reducing key-value heads while leaving query heads untouched.",
+          "A plain sliding window fails because the first tokens are attention sinks; keeping about four of them alongside the window is what makes streaming stable, and all eviction is silently lossy."
+        ],
+        "demo": "kv-cache-eviction"
+      },
+      "mixture-of-depths": {
+        "title": "Mixture-of-Depths",
+        "oneLine": "Route only some tokens through each block — conditional DEPTH rather than conditional width, and the saving beats the routed fraction.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A transformer spends identical compute on every token. Predicting the token after a comma in a boilerplate clause gets the same 32 layers as resolving a hard long-range reference. That is obviously wasteful, and the question is how to spend less without losing the hard cases.",
+              "Mixture-of-experts answers by making the network wider and activating a slice of it — conditional width, with total parameters far larger than the active ones. Mixture-of-depths answers differently: keep the network exactly as it is, and let each block process only a fixed fraction of the tokens, with the rest passing through by the residual connection untouched.",
+              "The capacity is fixed in advance rather than learned, which is what makes it useful in practice. A block with capacity one eighth processes exactly one eighth of the tokens, so the compute per block is known statically, the tensor shapes are static, and there is none of the load-balancing machinery that mixture-of-experts needs to stop experts collapsing."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "A router scores every token, and only the top-k by score enter the block; the rest take the residual path:"
+            ],
+            "tex": "r_i = w_\\theta^\\top x_i, \\qquad x_i' = \\begin{cases} x_i + \\sigma(r_i)\\,f_{\\text{block}}(x_i) & r_i \\in \\text{top-}k(r) \\\\ x_i & \\text{otherwise}\\end{cases}",
+            "texNote": "Multiplying the block output by the router score is what puts the router on the gradient path. Without that factor the routing decision is a hard discrete choice with no gradient, and the router never learns anything."
+          },
+          {
+            "h": "In code",
+            "code": "import torch\n\nclass MoDBlock(torch.nn.Module):\n    def __init__(self, block, d_model, capacity=0.125):\n        super().__init__()\n        self.block, self.capacity = block, capacity\n        self.router = torch.nn.Linear(d_model, 1, bias=False)\n\n    def forward(self, x):                       # x: (B, T, D)\n        B, T, D = x.shape\n        k = max(1, int(self.capacity * T))\n        scores = self.router(x).squeeze(-1)      # (B, T)\n        idx = scores.topk(k, dim=1).indices\n        idx, _ = idx.sort(dim=1)                 # keep causal order within the block\n        sel = torch.gather(x, 1, idx[..., None].expand(-1, -1, D))\n        out = self.block(sel)\n        # scale by the router score so the router receives gradient\n        out = out * torch.sigmoid(torch.gather(scores, 1, idx))[..., None]\n        return x.scatter_add(1, idx[..., None].expand(-1, -1, D), out)",
+            "caption": "Sorting the selected indices matters: the block still applies causal attention among the tokens it receives, and unsorted indices silently let a token attend to one that follows it."
+          },
+          {
+            "h": "The saving, and the problem at inference",
+            "paras": [
+              "Because attention is quadratic in the number of tokens it sees while the projections and MLP are linear, routing a fraction of tokens saves more than that fraction. Computing block FLOPs at model dimension 4,096 with capacity 0.25: the saving is 75.8 percent at sequence length 1,024, 79.7 percent at 8,192, and 85.7 percent at 32,768. The longer the context, the more attention dominates and the further the saving runs ahead of the routed fraction.",
+              "The catch is causality, and it is the part most descriptions skip. Top-k selection over a sequence requires knowing every token's score before you can rank them — which is fine during training, where the whole sequence is present, and impossible during autoregressive decoding, where token t must be routed before token t+1 exists.",
+              "The paper's fix is to train a small auxiliary predictor that decides, from the token alone, whether it would have made the top-k, turning a ranking problem into a per-token binary one. It works, and it introduces a train-inference mismatch: the predictor's decisions are not identical to the top-k it was trained to imitate, so the deployed model routes slightly differently from the trained one. That gap is the main practical risk, and it is why an implementation must be evaluated in autoregressive decoding rather than only in teacher-forced training.",
+              "Where it stands: mixture-of-depths is a genuine reduction in compute per token at equal parameter count, and it composes with mixture-of-experts — the two decisions are orthogonal, one choosing which tokens and the other which parameters. It is far less widely deployed than MoE, and the honest summary is that it is a promising direction with fewer production data points behind it."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Conditional depth, not width: each block processes a fixed top-k fraction of tokens and the rest skip via the residual, so compute is static and there is no expert load-balancing problem.",
+          "The saving exceeds the routed fraction because attention falls as capacity squared — 75.8% saved at sequence 1,024 rising to 85.7% at 32,768, for capacity 0.25.",
+          "Top-k is non-causal, so decoding needs an auxiliary per-token predictor; that train-inference mismatch is the real risk and must be evaluated in autoregressive mode."
+        ],
+        "demo": "mixture-of-depths"
       }
     }
   },
@@ -3596,7 +3682,8 @@ window.SUB_LESSONS = {
       "react-agent",
       "self-consistency",
       "reflection",
-      "prompt-injection"
+      "prompt-injection",
+      "rag-fusion"
     ],
     "lessons": {
       "rag-chunking": {
@@ -3815,6 +3902,48 @@ window.SUB_LESSONS = {
           "Layered defenses reduce, but never zero, the attack surface."
         ],
         "demo": "prompt-injection"
+      },
+      "rag-fusion": {
+        "title": "Multi-Query & RAG-Fusion",
+        "oneLine": "Ask the question several ways and fuse the rankings — where using ranks instead of scores is what makes fusing incompatible retrievers possible at all.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A single query embedding is one point in space, and the passage that answers it may be phrased quite differently. Multi-query retrieval has the language model rewrite the question into several paraphrases — different vocabulary, different specificity, sometimes a decomposition into sub-questions — retrieves for each, and combines the results.",
+              "The combination step is where RAG-Fusion differs from plain multi-query. Rather than concatenating and deduplicating, it fuses the ranked lists with reciprocal rank fusion, which scores each document by the sum over lists of one divided by a constant plus its rank in that list.",
+              "The reason to use ranks rather than scores is not aesthetic. Scores from different retrievers are not comparable: BM25 returns unbounded positive numbers, a cosine similarity lives in a narrow band near one, and a cross-encoder returns logits. Summing them means whichever retriever happens to have the larger numeric range decides the outcome."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Reciprocal rank fusion, over the set of ranked lists that contain the document:"
+            ],
+            "tex": "\\text{RRF}(d) = \\sum_{r \\in R} \\frac{1}{k + \\text{rank}_r(d)}, \\qquad k = 60 \\ \\text{by convention}",
+            "texNote": "The constant k damps the influence of the very top ranks, so one list's first place cannot single-handedly decide the fused order. It is the reason RRF is robust to a single retriever being confidently wrong, and 60 is an empirical default rather than anything derived."
+          },
+          {
+            "h": "In code",
+            "code": "def rrf(ranked_lists, k=60, top_n=10):\n    scores = {}\n    for lst in ranked_lists:\n        for rank, doc_id in enumerate(lst):        # rank is 0-based here\n            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank + 1)\n    return sorted(scores, key=scores.get, reverse=True)[:top_n]\n\ndef multi_query(question, llm, retriever, n=4):\n    prompt = (f\"Generate {n} alternative phrasings of this question that would retrieve \"\n              f\"different relevant passages. One per line.\\n\\n{question}\")\n    variants = [question] + llm(prompt).strip().split(\"\\n\")[:n]\n    return rrf([retriever(v) for v in variants])\n\n# Keep the ORIGINAL question in the set. A rewriter occasionally drifts off-topic, and\n# the original is the one variant guaranteed to be on it.",
+            "caption": "The rewrites cost a language model call and n retrievals before generation begins, which is the real reason this is not always worth it — see below."
+          },
+          {
+            "h": "What fusion buys, measured honestly",
+            "paras": [
+              "Two retrievers with complementary strengths, each good on a different half of the relevant documents. Measured at recall@20: retriever A alone 0.40, retriever B alone 0.70. Raw-score fusion 0.90, reciprocal rank fusion 0.80. Fusion beats either retriever, as it should — that is the point of fusing complementary systems.",
+              "Note which one won. With comparable score scales, summing the scores beat RRF, because scores carry magnitude information that ranks discard. RRF is not the better fusion method in general, and claiming otherwise would be wrong.",
+              "Now multiply retriever B's scores by 90, exactly as a BM25 and a dense retriever would differ. Raw-score fusion collapses to 0.70 — B's scale swamps A entirely, so the fusion degenerates into using B alone. RRF is unchanged at 0.80, because it never looks at a score.",
+              "That is the honest summary: use score fusion when your retrievers are calibrated onto a common scale, and RRF when they are not, which in practice is most of the time. And weigh the cost — multi-query adds a language model call plus several retrievals to every request, all before generation starts, so it hurts latency on the critical path. It earns that on queries with vocabulary mismatch or several parts, and wastes it on short, unambiguous lookups. Routing it by query type is worth more than applying it universally."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Rewrite the query several ways, retrieve for each, and fuse — this recovers passages a single phrasing misses, and fusion beat both individual retrievers (0.90 and 0.80 against 0.40 and 0.70).",
+          "RRF is not universally better: with comparable scales, score fusion won. Its value is scale-invariance — when one retriever's scores were 90x larger, score fusion collapsed to 0.70 while RRF held at 0.80.",
+          "It costs an LLM call plus n retrievals before generation, so route it to queries with vocabulary mismatch or multiple parts rather than applying it to everything."
+        ],
+        "demo": "multi-query"
       }
     }
   },
@@ -4132,7 +4261,9 @@ window.SUB_LESSONS = {
       "canary-rollout",
       "drift-detection",
       "bloom-filter",
-      "count-min-sketch"
+      "count-min-sketch",
+      "semantic-caching",
+      "model-cascade"
     ],
     "lessons": {
       "autoscaling": {
@@ -4311,6 +4442,90 @@ window.SUB_LESSONS = {
           "Sketches merge by addition, which is what makes them work across shards and windows; use HyperLogLog instead when the question is cardinality rather than frequency."
         ],
         "demo": "count-min-sketch"
+      },
+      "semantic-caching": {
+        "title": "Semantic Caching",
+        "oneLine": "Serve a cached answer when a new question means the same thing — where the similarity threshold is a product decision about how often you are willing to be wrong.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "An exact-match cache is nearly useless in front of a language model, because natural language almost never repeats verbatim. Two users asking the same thing produce two different strings and two full-price inference calls.",
+              "A semantic cache embeds the query, searches for the nearest stored query by cosine similarity, and returns the stored response if the similarity clears a threshold. Where traffic is repetitive — documentation assistants, support bots, FAQ-shaped workloads — the hit rate can be high, and a hit costs an embedding lookup rather than a generation.",
+              "The mechanism is straightforward. The engineering question is entirely the threshold, because a semantic cache does not fail by missing. It fails by returning a confident answer to a question nobody asked."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The rule, and the two error modes it trades against:"
+            ],
+            "tex": "\\text{serve cached } a_j \\iff \\max_j \\cos\\!\\left(e(q), e(q_j)\\right) \\ge \\tau, \\qquad \\text{cost} = p_{\\text{hit}}c_{\\text{cache}} + (1-p_{\\text{hit}})c_{\\text{model}}",
+            "texNote": "Lowering tau raises the hit rate and the false-hit rate together. There is no setting that improves both, so the threshold has to be chosen against a measured false-hit rate rather than a hit-rate target."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\nclass SemanticCache:\n    def __init__(self, embed, index, threshold=0.92, ttl=3600):\n        self.embed, self.index, self.threshold, self.ttl = embed, index, threshold, ttl\n\n    def get(self, query, ctx_key):\n        v = self.embed(query)\n        hit, score = self.index.search(v, k=1)\n        # the namespace is not optional: the same question from two users with different\n        # permissions, tenants or locales is NOT the same question\n        if score >= self.threshold and hit.ctx_key == ctx_key and not hit.expired(self.ttl):\n            return hit.response\n        return None\n\n# Do not cache: anything with a tool call whose result changes, anything personalised,\n# anything time-dependent, and anything where the model was given retrieved context that\n# may have been reindexed since.",
+            "caption": "The context key is where most production incidents come from. Caching purely on query text leaks one tenant's answer to another, and the similarity score gives no hint that anything is wrong."
+          },
+          {
+            "h": "Measuring the threshold instead of guessing it",
+            "paras": [
+              "Simulated on embeddings with the geometry real ones have — paraphrases of one intent at cosine 0.892, different-but-related intents at 0.831, unrelated intents at 0.000. Note where the danger is: not in random collisions, which are impossible at 0.000, but in the narrow band between neighbouring intents and true paraphrases.",
+              "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent — and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
+              "That is the shape of the decision, and it is why a hit-rate target is the wrong thing to optimise. Pick the threshold from a labelled sample of your own traffic by measuring the false-hit rate directly, and set it where that rate is acceptable for the application — near-zero for anything giving medical, legal or financial answers, and higher for a documentation assistant where a slightly-off answer costs little.",
+              "Two refinements that shift the curve rather than just sliding along it. Cache the response together with the query embedding AND a cheap verification — for high-stakes paths, a small model can be asked whether the cached answer actually addresses the new question, which costs far less than generation and removes most false hits. And invalidate aggressively: a stale entry is a false hit that similarity cannot detect, so tie cache entries to the version of whatever knowledge produced them."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Semantic caching turns near-duplicate queries into lookups; on repetitive traffic it cut cost to about 4% of uncached at a threshold with no wrong answers.",
+          "The threshold trades hit rate against wrong answers with no free direction: 0.80 gave 96% hits and 0% false, while 0.70 gave 100% hits and 4.03% false.",
+          "False hits come from NEIGHBOURING intents, not random collisions — so measure on real traffic, namespace by tenant and permissions, and never cache personalised or time-dependent answers."
+        ],
+        "demo": "semantic-caching"
+      },
+      "model-cascade": {
+        "title": "Model Cascade & Early-Exit",
+        "oneLine": "Answer the easy queries with the cheap model and escalate the rest — where the deferral rule, not the models, is what you are actually designing.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Queries are not equally hard, but a single deployed model spends the same compute on all of them. A cascade puts a small model first, accepts its answer when it is confident, and escalates only the rest to a larger one. Early-exit is the same idea inside a single network: attach classifiers to intermediate layers and stop as soon as one is confident enough.",
+              "The economics are usually compelling because cost ratios between model tiers are large — often ten to twenty times — while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
+              "Everything therefore depends on the deferral rule being able to tell hard from easy. That is a strictly weaker requirement than answering correctly — the small model does not need to solve the hard queries, only to recognise that it cannot."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The blended cost and accuracy as a function of the deferral rate:"
+            ],
+            "tex": "\\mathbb{E}[\\text{cost}] = c_s + p_{\\text{defer}}\\,c_\\ell, \\qquad \\text{acc} = \\mathbb{E}\\left[\\mathbb{1}[\\text{defer}]\\,a_\\ell + \\mathbb{1}[\\text{accept}]\\,a_s\\right]",
+            "texNote": "The small model's cost is paid on EVERY query including deferred ones, so a cascade is only worthwhile when the cost ratio is large. At a ratio of two, deferring half of traffic already costs as much as sending everything to the large model."
+          },
+          {
+            "h": "In code",
+            "code": "def cascade(query, small, large, threshold):\n    out = small(query)\n    if confidence(out) >= threshold:\n        return out, \"small\"\n    return large(query), \"large\"\n\n# Softmax probability is a poor confidence signal on its own - neural nets are\n# overconfident, and the miscalibration is worst exactly where you need the signal.\n# Better options, in rough order of cost:\n#   1. temperature-scale the small model on a validation set first\n#   2. use the MARGIN between top-1 and top-2 rather than top-1 alone\n#   3. train a separate lightweight deferral model on (query -> was the small model right)\n#\n# For generative models, confidence is harder: mean token log-prob is weak. Ask the small\n# model to answer AND to rate its own certainty, or check agreement across two samples.",
+            "caption": "Calibrating the small model before choosing the threshold is the step most cascades skip, and it is what determines whether the deferral rule carries any information at all."
+          },
+          {
+            "h": "Does the confidence signal actually help?",
+            "paras": [
+              "It has to be checked against a control, because a cascade that defers a fixed fraction of traffic will improve accuracy whether or not its deferral rule is informative — you are sending queries to a better model, so accuracy rises regardless. The only meaningful comparison is against deferring the SAME fraction at random.",
+              "Simulated over 4,000 queries with a small model at 50.4 percent accuracy costing 1 unit and a large model at 82.5 percent costing 20. Deferring 30.4 percent by confidence gave 66.4 percent accuracy against 60.3 percent for random deferral at the same rate. Deferring 50.1 percent gave 73.7 percent against 66.4 percent random, at a blended cost of 11.03 per query. Deferring 69.9 percent gave 79.6 percent against 72.9 percent random.",
+              "So the confidence signal is worth about six to seven accuracy points over random at every operating point — that gap, not the headline accuracy, is what the deferral rule is contributing. Report it that way, because a cascade evaluated without the random control looks far better than it is.",
+              "Two practical notes. The threshold should be chosen from a target cost or a target accuracy on a validation set, and then monitored, because the deferral rate drifts as traffic changes — a cascade tuned on last quarter's queries can quietly start deferring everything. And cascades interact badly with latency guarantees: the deferred path pays both models' latency, so the tail latency is worse than the large model alone, which matters more than the mean for anything interactive."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Accept the small model's answer when it is confident and escalate otherwise; this needs only that the small model can RECOGNISE hard queries, not solve them.",
+          "Always compare against deferring the same fraction at random — measured, confidence-based deferral was worth 6-7 accuracy points over that control at every operating point.",
+          "The small model's cost is paid on every query, so cascades need a large cost ratio; and the deferred path pays both latencies, so tail latency is worse than the large model alone."
+        ],
+        "demo": "model-cascade"
       }
     }
   },
