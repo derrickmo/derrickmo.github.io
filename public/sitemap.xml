@@ -786,6 +786,7 @@
   <url><loc>https://derrickmo.github.io/visualize/self-consistency/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/semantic-caching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/shap/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/sift/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/simpsons-paradox/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/simulated-annealing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/sparse-autoencoder/</loc><priority>0.6</priority></url>

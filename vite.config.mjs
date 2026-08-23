@@ -495,6 +495,7 @@ export default defineConfig({
         'visualize-receptive-field': 'visualize/receptive-field/index.html',
         'visualize-integral-image': 'visualize/integral-image/index.html',
         'visualize-grad-cam': 'visualize/grad-cam/index.html',
+        'visualize-sift': 'visualize/sift/index.html',
         'visualize-optical-flow': 'visualize/optical-flow/index.html',
         'visualize-hog': 'visualize/hog/index.html',
         'visualize-image-augmentation': 'visualize/image-augmentation/index.html',

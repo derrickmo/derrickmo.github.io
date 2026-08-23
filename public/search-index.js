@@ -108,6 +108,7 @@ window.DM_NAV_INDEX = [
   { label: "Convolution Lab", group: "Demo", href: "/visualize/convolution/", kw: "cnn kernel filter vision" },
   { label: "Canny Edge Detection", group: "Demo", href: "/visualize/edge-detection/", kw: "canny sobel gradient edges vision hysteresis" },
   { label: "Hough Transform", group: "Demo", href: "/visualize/hough-transform/", kw: "hough line detection accumulator voting vision ransac" },
+  { label: "SIFT", group: "Demo", href: "/visualize/sift/", kw: "sift keypoint descriptor scale space difference of gaussians dog orientation lowe ratio test matching invariance panorama slam structure from motion" },
   { label: "Grad-CAM", group: "Demo", href: "/visualize/grad-cam/", kw: "grad-cam cam saliency heatmap explainability interpretability attribution sanity check adebayo class activation map xai" },
   { label: "Integral Images & Haar Features", group: "Demo", href: "/visualize/integral-image/", kw: "integral image summed area table prefix sum haar viola jones face detection cascade box filter constant time range query" },
   { label: "Receptive Field", group: "Demo", href: "/visualize/receptive-field/", kw: "receptive field cnn stride dilation kernel effective receptive field vgg resnet stem atrous dilated convolution reach" },
