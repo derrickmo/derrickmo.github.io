@@ -493,6 +493,7 @@ export default defineConfig({
         'visualize-bilateral-filter': 'visualize/bilateral-filter/index.html',
         'visualize-image-pyramids': 'visualize/image-pyramids/index.html',
         'visualize-receptive-field': 'visualize/receptive-field/index.html',
+        'visualize-integral-image': 'visualize/integral-image/index.html',
         'visualize-optical-flow': 'visualize/optical-flow/index.html',
         'visualize-hog': 'visualize/hog/index.html',
         'visualize-image-augmentation': 'visualize/image-augmentation/index.html',
