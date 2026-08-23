@@ -97,8 +97,7 @@
       "double-descent",
       "overfitting",
       "newtons-method",
-      "active-learning",
-      "bayesian-optimization"
+      "active-learning"
     ]
   },
   "updatedAt": "2026-08-01"

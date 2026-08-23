@@ -2,7 +2,7 @@
   "kind": "concept",
   "schemaVersion": 1,
   "id": "bayesian-optimization",
-  "module": "ml-theory",
+  "module": "training-systems",
   "title": "Bayesian Optimization",
   "oneLine": "Model the objective you cannot see, then spend each expensive evaluation where the model says it will learn the most.",
   "sections": [

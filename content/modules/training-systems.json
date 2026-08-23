@@ -96,7 +96,8 @@
     "order": [
       "lr-schedule",
       "gradient-clipping",
-      "scaling-laws"
+      "scaling-laws",
+      "bayesian-optimization"
     ]
   },
   "updatedAt": "2026-08-08"
