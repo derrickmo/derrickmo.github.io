@@ -291,6 +291,7 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/calculus/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/chain-rule/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/channel-capacity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/clt/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/complexity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/cross-entropy/</loc><priority>0.6</priority></url>
@@ -411,8 +412,10 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/convex-optimization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/coordinate-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/coreset/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/data-augmentation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/evaluation-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/feature-engineering/</loc><priority>0.6</priority></url>
@@ -467,6 +470,7 @@
   <url><loc>https://derrickmo.github.io/learn/neural-nets/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/forward-pass/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/label-noise/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/loss-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/mlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/nn-walkthrough/</loc><priority>0.6</priority></url>
@@ -522,6 +526,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/dyna-q/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/gae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/imitation-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/iterated-prisoners-dilemma/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/max-entropy-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mc-td/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mcts/</loc><priority>0.6</priority></url>

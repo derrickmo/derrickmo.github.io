@@ -104,7 +104,8 @@
       "batch-norm",
       "weight-init",
       "perceptron",
-      "adam"
+      "adam",
+      "label-noise"
     ]
   },
   "updatedAt": "2026-06-10"

@@ -100,7 +100,9 @@
       "active-learning",
       "coordinate-descent",
       "proximal-gradient",
-      "quasi-newton"
+      "quasi-newton",
+      "coreset",
+      "dataset-distillation"
     ]
   },
   "updatedAt": "2026-08-01"

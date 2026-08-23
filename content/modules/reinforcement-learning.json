@@ -114,7 +114,8 @@
       "successor-representation",
       "max-entropy-rl",
       "cfr",
-      "replicator-dynamics"
+      "replicator-dynamics",
+      "iterated-prisoners-dilemma"
     ]
   },
   "updatedAt": "2026-08-07"

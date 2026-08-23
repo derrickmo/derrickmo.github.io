@@ -105,7 +105,8 @@
       "importance-sampling",
       "reservoir-sampling",
       "huffman-coding",
-      "aliasing"
+      "aliasing",
+      "channel-capacity"
     ]
   },
   "updatedAt": "2026-06-10"
