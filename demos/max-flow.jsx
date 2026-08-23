@@ -69,7 +69,7 @@ function MaxFlowDemo() {
 
   function draw() {
     const cv = cvRef.current; if (!cv) return;
-    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
+    const ctx = window.fitCanvas(cv, CW, CH); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     const net = netRef.current, st = stRef.current; if (!net) return;
     const pathSet = new Set(st.path); const cutSet = new Set((st.cut || []).map(o => o.fi));
     for (const o of net.orig) {
@@ -110,7 +110,7 @@ function MaxFlowDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.05 : 1.45), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
         { label: "source / sink", color: "#34d399" },

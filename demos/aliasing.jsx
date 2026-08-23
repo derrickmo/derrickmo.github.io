@@ -29,7 +29,7 @@ function AliasingDemo() {
   }, [f, fs]);
 
   _useEffect(() => {
-    const ctx = cvRef.current.getContext("2d");
+    const ctx = window.fitCanvas(cvRef.current, CW, CH);
     ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     // waveform region
     const wy0 = 18, wh = 120, mid = wy0 + wh / 2, px0 = 8, pw = CW - 16;
@@ -66,7 +66,7 @@ function AliasingDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.05 : 1.45), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
         { label: "true signal (f)", color: "#a855f7" },

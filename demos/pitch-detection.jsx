@@ -53,7 +53,7 @@ function PitchDetectionDemo() {
   }, [f0, harm, noise]);
 
   _useEffect(() => {
-    const ctx = cvRef.current.getContext("2d");
+    const ctx = window.fitCanvas(cvRef.current, CW, CH);
     ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     // waveform (show ~3 periods)
     const wy0 = 14, wh = 70; const period = SR / f0; const shown = Math.min(N, Math.floor(period * 3.2));
@@ -81,7 +81,7 @@ function PitchDetectionDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.05 : 1.45), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <div style={{ display: "flex", gap: 16, alignItems: "baseline" }}>
         <span style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 26, color: "#34d399" }}>{data.detF.toFixed(1)} Hz</span>

@@ -79,7 +79,7 @@ function DijkstraDemo() {
 
   function draw() {
     const cv = cvRef.current; if (!cv) return;
-    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
+    const ctx = window.fitCanvas(cv, CW, CH); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     const g = gRef.current, st = stRef.current; if (!g) return;
     const pe = (st && st.finished) ? pathEdges() : new Set();
     // edges
@@ -117,7 +117,7 @@ function DijkstraDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.1 : 1.5), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
         { label: "source", color: "#34d399" },

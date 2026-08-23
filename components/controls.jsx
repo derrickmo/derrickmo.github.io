@@ -101,6 +101,32 @@ function DemoButton({ onClick, children, tone = "blue", primary = false, disable
 }
 
 // ─── Stat readout ─────────────────────────────────────────────
+// ─── fitCanvas ────────────────────────────────────────────────
+// Size a canvas's BACKING STORE to the pixels it will actually occupy, and return a
+// context scaled so the demo keeps drawing in its own logical W x H coordinates.
+//
+// Nine demos rendered a small buffer and let CSS stretch it - dtw was a 210px buffer
+// shown at 338px, a 1.61x stretch, and the graph demos were at 1.51x. That is soft on
+// an ordinary 1x display, before device pixel ratio enters into it at all. This fixes
+// both at once: the scale factor is (occupied CSS width / logical width) x dpr.
+//
+// Height is set from the measured width and the logical aspect ratio, so a demo's
+// existing `maxWidth: "100%"` responsiveness still governs the layout.
+window.fitCanvas = function fitCanvas(cv, W, H) {
+  if (!cv) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = cv.getBoundingClientRect().width || W;
+  cv.style.height = (cssW * H / W) + "px";
+  const s = Math.max(1, cssW / W) * dpr;
+  const bw = Math.round(W * s), bh = Math.round(H * s);
+  // Assigning width/height CLEARS the canvas, so only do it when it actually changed -
+  // otherwise every frame wipes itself and demos that draw incrementally break.
+  if (cv.width !== bw || cv.height !== bh) { cv.width = bw; cv.height = bh; }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(s, 0, 0, s, 0, 0);
+  return ctx;
+};
+
 function StatReadout({ label, value, accent = "var(--blue-lt)" }) {
   return (
     // data-dm-stat is how DemoLayout's live region finds these. The label and value

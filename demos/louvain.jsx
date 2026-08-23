@@ -83,7 +83,7 @@ function LouvainDemo() {
 
   function draw() {
     const cv = cvRef.current; if (!cv) return;
-    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
+    const ctx = window.fitCanvas(cv, CW, CH); ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     const g = gRef.current, st = stRef.current; if (!g) return;
     const comm = st.comm; const uniq = [...new Set(comm)].sort((a, b) => a - b); const cmap = {}; uniq.forEach((c, k) => cmap[c] = PALETTE[k % PALETTE.length]);
     for (const [i, j] of g.edges) { const a = g.nodes[i], b = g.nodes[j]; const same = comm[i] === comm[j]; ctx.strokeStyle = same ? cmap[comm[i]] + "99" : "rgba(148,163,184,0.18)"; ctx.lineWidth = same ? 1.6 : 0.8; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
@@ -103,7 +103,7 @@ function LouvainDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.1 : 1.5), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>node color = community · each starts alone, then merges to maximize modularity</span>
     </div>

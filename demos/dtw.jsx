@@ -68,7 +68,7 @@ function DTWDemo() {
   }, [warp, noise, band]);
 
   _useEffect(() => {
-    const ctx = cvRef.current.getContext("2d");
+    const ctx = window.fitCanvas(cvRef.current, CW, CH);
     ctx.clearRect(0, 0, CW, CH); ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     const cell = MS / N;
     // accumulated-cost heatmap
@@ -104,7 +104,7 @@ function DTWDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <canvas ref={cvRef} width={CW} height={CH}
+      <canvas ref={cvRef}
         style={{ width: CW * (mobile ? 1.2 : 1.6), maxWidth: "100%", borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>gold = optimal alignment · dashed = lockstep diagonal · dark = outside the band</span>
     </div>
