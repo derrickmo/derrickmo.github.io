@@ -490,6 +490,7 @@ export default defineConfig({
         'visualize-hough-transform': 'visualize/hough-transform/index.html',
         'visualize-harris-corners': 'visualize/harris-corners/index.html',
         'visualize-ransac': 'visualize/ransac/index.html',
+        'visualize-bilateral-filter': 'visualize/bilateral-filter/index.html',
         'visualize-optical-flow': 'visualize/optical-flow/index.html',
         'visualize-hog': 'visualize/hog/index.html',
         'visualize-image-augmentation': 'visualize/image-augmentation/index.html',

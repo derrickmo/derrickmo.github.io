@@ -644,6 +644,7 @@
   <url><loc>https://derrickmo.github.io/visualize/beam-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bfs-dfs-astar/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bias-variance-decomp/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/bilateral-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bloom-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
