@@ -691,6 +691,7 @@
   <url><loc>https://derrickmo.github.io/visualize/gaussian-process/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gmm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/grad-cam/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-clipping/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/graph-coloring/</loc><priority>0.6</priority></url>
