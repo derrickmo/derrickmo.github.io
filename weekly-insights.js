@@ -30,6 +30,101 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-08-23",
+    range: "August 17 to August 23, 2026",
+    tldr: [
+      "Watchlist resolution. Meta's promised llama.cpp, MLX, and ExecuTorch support for Muse Glimmer-30B has landed: Hugging Face hosts quantized GGUF builds and Meta's developer docs now publish an ExecuTorch export pipeline. Qwen3.8-27B's own hosted Qwen Cloud API remains \"coming soon,\" though third-party providers (OpenRouter and seven others) have served it since its August 14 release at $0.40-0.45 / $3-3.20 per Mtok. vLLM's Kimi K3 Decode Context Parallelism benchmark is still \"in progress,\" unchanged for a second consecutive week.",
+      "OpenAI previewed Private Safety Processing (Aug 19): a safety-monitoring design meant to preserve Zero Data Retention while still catching cross-session misuse in longer-running agentic workloads, aimed at enterprises that won't accept content retention for safety review.",
+      "The SkyRL team shipped IsoExec (Aug 21): a cross-framework execution contract that pins vLLM (rollout) and Megatron (training) to bitwise-consistent kernels, cutting the average rollout-vs-training logprob gap below 1e-6 on Qwen3.5-35B-A3B, at a 25% step-time cost.",
+      "SAPO (Aug 20) shares one autoregressive backbone between policy and value functions for agentic RL, beating PPO and GRPO by 12-15 percentage points on ALFWorld/WebShop while cutting PPO's per-iteration runtime by a third.",
+      "vLLM-Omni's Distributed Layerwise Offload (Aug 17) lets a 124GB diffusion video model run on 64GB-HBM cards by sharding and streaming weights layer by layer, with a measured 3.3x throughput gain from serving concurrent requests during the AllGather step.",
+    ],
+    sections: [
+      {
+        header: "// ACADEMIC RESEARCH",
+        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
+        items: [
+          {
+            title: "SAPO: one backbone for both policy and value in agentic RL",
+            whatsNew:
+              "arXiv 2608.19842 (Dayang Liang, Lang Feng, Bo An, Yunlong Liu), submitted August 20, 2026. Introduces SAPO (Single-rollout Autoregressive Policy Optimization), an actor-critic framework where the policy and value functions share one autoregressive backbone, producing both at distinct causal positions with shared parameters rather than running a full second critic model. On ALFWorld and WebShop with Qwen2.5-1.5B/7B, SAPO outperforms PPO and GRPO by mean +15.1 and +12.1 percentage points respectively, while eliminating a separate critic's memory cost and cutting per-iteration runtime by 33.2% versus PPO.",
+            howItWorks:
+              "Standard PPO (Proximal Policy Optimization) needs two models: a policy that acts and a critic that estimates how good a state is, which doubles memory and compute. GRPO (Group Relative Policy Optimization) drops the critic entirely and instead estimates advantage from the spread of rewards across a group of sampled rollouts for the same prompt, but the paper argues this leaves it without explicit value generalization or reliable turn-by-turn credit assignment on long-horizon agent tasks, and that advantage estimates can collapse over many turns. SAPO's fix keeps a single backbone but lets it emit two different predictions, a policy distribution and a value estimate, from different causal positions in the same forward pass, so the value function is trained through an auxiliary SARSA-style objective while sharing all the parameters and compute of the policy network. To make credit assignment more robust across long trajectories, it adds a trajectory-level generalized advantage estimator that combines lambda-returns (a standard way to blend short- and long-term reward signal) with batch normalization.",
+            impact:
+              "This is a memory and compute optimization for agentic RL post-training, not just an accuracy gain: teams running PPO-style RL because they want an explicit value function (for long-horizon credit assignment) no longer have to pay for a separate critic model to get one. The reported numbers are on ALFWorld and WebShop with relatively small 1.5B/7B Qwen2.5 models, so the +12-15 point gains and 33% runtime cut are unverified at larger scale or on other agentic benchmarks, but the underlying idea, sharing one backbone across policy and value roles, is a general architectural pattern worth testing against any GRPO or PPO agentic RL pipeline that is memory-constrained or bottlenecked by critic overhead.",
+            source: { label: "arXiv:2608.19842", url: "https://arxiv.org/abs/2608.19842" },
+          },
+        ],
+      },
+      {
+        header: "// INDUSTRY PRACTICES",
+        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
+        items: [
+          {
+            title: "OpenAI previews a way to keep Zero Data Retention while still catching cross-session agent misuse",
+            whatsNew:
+              "OpenAI published \"Offering Zero Data Retention for frontier models\" on August 19, 2026, previewing Private Safety Processing: a safety-monitoring design meant to detect patterns of misuse across multiple related interactions without giving OpenAI personnel access to the underlying content, for customers using Zero Data Retention (ZDR) deployments. A technical white paper and rollout are planned for September 2026.",
+            howItWorks:
+              "ZDR (Zero Data Retention) is an API deployment mode where OpenAI does not retain prompts or responses after a request is processed, and customer content isn't available to OpenAI staff for review. That's attractive for regulated or security-sensitive customers, but it has historically limited safety monitoring to evaluating each interaction in isolation, which misses risks that only become visible across a longer agentic task (for example, a tool-using agent that keeps acting after being told to stop, or bad actors coordinating across accounts and sessions). Private Safety Processing extends monitoring across related interactions while keeping customer content either on infrastructure the customer controls (standard ZDR) or, in an option OpenAI is developing, on OpenAI infrastructure but encrypted with keys the customer controls. In both cases, an automated system evaluates the content and returns only a narrow, categorical signal (the type of activity flagged) to OpenAI, without exposing the underlying prompts or responses to OpenAI personnel; a human enforcement decision is made from that signal, and customers can share content voluntarily if they want to appeal.",
+            impact:
+              "This is a compliance and procurement-relevant change for anyone building agentic systems on OpenAI's API under a ZDR contract, not a model or training change, and it's worth tracking for two reasons: first, teams currently choosing between providers partly on data-handling terms now have a preview of how OpenAI plans to reconcile \"we can't see your data\" with \"we can still catch agents that go off the rails\" for longer-running agentic workloads, where that reconciliation has been a real point of friction; second, the actual mechanism (what counts as a flaggable pattern, what the categorical signal contains) is not fully specified until the September white paper, so this is a preview to plan around, not a shippable guarantee yet.",
+            source: { label: "OpenAI: Zero Data Retention for frontier models", url: "https://openai.com/index/offering-zero-data-retention-for-frontier-models/" },
+          },
+          {
+            title: "Muse Glimmer's promised local-deployment stack lands: llama.cpp, MLX, and ExecuTorch",
+            whatsNew:
+              "Meta's Muse Glimmer-30B, released August 10, 2026 without edge-framework support beyond server-side vLLM/SGLang/Transformers, now has the llama.cpp, MLX, and ExecuTorch integrations it had promised \"in the coming days.\" Hugging Face hosts quantized GGUF builds of the model for llama.cpp, and Meta's developer docs now publish an ExecuTorch export pipeline for the model, resolving last week's open watchlist item.",
+            howItWorks:
+              "The GGUF repository provides quantized text builds of Muse Glimmer for llama.cpp, along with a perception encoder for image input and a DFlash speculative-decoding drafter (DFlash proposes a block of draft tokens per forward pass rather than one token at a time; a target model verifies them in parallel). The ExecuTorch path takes the same quantized GGUF checkpoints as input and produces ExecuTorch `.pte` programs, PyTorch's ahead-of-time export/runtime format for on-device inference, supporting both target-only and DFlash-drafted export, with optional image input, on CUDA and Apple silicon (MLX) targets.",
+            impact:
+              "This closes the gap between Muse Glimmer's Apache-2.0 licensing and its practical reach: teams that wanted a locally-deployable, license-unencumbered local agent model now have a real path to run it through the same edge frameworks (llama.cpp, MLX, ExecuTorch) already used for other open models, rather than being limited to server-side vLLM/SGLang serving. Meta's own published hardware numbers (3.1x decode speedup on RTX 5090, 1.8x on M5 Max, 1.5x on M4 Max from the bundled DFlash drafter) can now actually be reproduced end-to-end on that hardware through these integrations, rather than requiring a server-class GPU deployment to test.",
+            source: { label: "Meta developer docs: Muse Glimmer + ExecuTorch", url: "https://dev.meta.ai/docs/muse-glimmer/executorch" },
+          },
+        ],
+      },
+      {
+        header: "// NEW FRAMEWORKS",
+        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
+        items: [
+          {
+            title: "IsoExec: pinning vLLM and Megatron to the same bits to fix RL's trainer-inference mismatch",
+            whatsNew:
+              "The SkyRL team published \"IsoExec: Unified Execution to Eliminate Trainer-Inference Mismatch in SkyRL\" on August 21, 2026. IsoExec is a cross-framework execution abstraction that unifies numerical execution across SkyRL's vLLM (rollout) and Megatron (training) runtimes for RL post-training. On a single 8xH100 node running synchronous Qwen3.5-35B-A3B DAPO training, it reduces the average rollout-versus-training logprob difference to below 1e-6, with 25% step-time overhead versus the native stack over 50 measured steps.",
+            howItWorks:
+              "On-policy RL assumes the rollout engine and the trainer are evaluating the exact same policy, but in practice they're usually two different systems (here, vLLM for generation and Megatron for training) with different kernels, batch shapes, and parallelism layouts. Because floating-point arithmetic isn't associative, those implementation differences change the computed token probabilities even when the underlying model and weights are identical, and prior work has shown this mismatch alone can destabilize GRPO or REINFORCE-style training and distort reward signal before other stabilizing mechanisms (like KL penalties) can react. IsoExec's fix is an \"execution contract\" that declares, for every region of the model's forward computation, exactly which kernel implementation and numerical constants (accumulation dtype, reduction order, and so on) both runtimes must use, validated in advance for bitwise exactness; a per-runtime adapter installs and enforces the contract, and SHA-256 digests let trainer and rollout engine verify they're actually running the same numerical policy. A separate technique, chunkwise-parallel recurrent (CPR) computation, extends this consistency to linear-attention (Gated DeltaNet) layers, which otherwise use different, non-bitwise-equivalent algorithms for training/prefill versus decode.",
+            impact:
+              "For teams running RL post-training (RLHF/RLAIF/GRPO-style pipelines) with separate rollout and training engines, this targets a specific, previously hard-to-diagnose failure mode: reward instability or collapse that traces back to numerical mismatch rather than a genuine algorithm or data problem. The 25% overhead is a real cost of adopting it, and the paper's own 50-step experiment did not show a meaningful reward improvement from removing the mismatch in that short window, so the benefit shown so far is mainly diagnostic clarity and stability rather than a demonstrated accuracy or sample-efficiency win. The implementation is open-sourced (github.com/zanderjiang/SkyRL-IsoExec) for teams that want to test whether their own RL runs are affected by this class of mismatch before adopting the full contract-enforcement mechanism.",
+            source: { label: "vLLM Blog: IsoExec", url: "https://vllm.ai/blog/2026-08-21-isoexec" },
+          },
+          {
+            title: "Distributed Layerwise Offload: fitting a 124GB video model on 64GB HBM cards",
+            whatsNew:
+              "The vLLM-Omni Diffusion Team published \"Distributed Layerwise Offload: Scaling Toward 200B+ DiT Models Efficiently in vLLM-Omni\" on August 17, 2026. Distributed Layerwise Offload (DLO) lets diffusion video models larger than a single device's HBM run across multiple GPUs or NPUs with minimal host-memory overhead, validated by serving a 124GB Cosmos3-Super model on 64GB-HBM Ascend 910B3 cards, and estimates a path to 200B+ parameter models within a 2TB host-RAM budget.",
+            howItWorks:
+              "DiT (Diffusion Transformer) video models can outgrow a single GPU's memory; the two standard fixes are fully sharded data parallelism (FSDP/HSDP), which needs no host memory but leaves little HBM headroom, or plain layerwise offload, which needs only 2 layers of HBM at a time but stores a full model copy in every rank's host RAM (4 devices x 124GB = 496GB, more than most servers have). DLO combines both approaches' benefits: each rank stores only 1/N of the model's weights in host memory (via mmap-backed loading that shares one OS page-cache copy instead of N private copies, cutting cold-start memory 73% in their measurement), and reconstructs each layer's full weights on-device just before it's needed via an AllGather collective, double-buffered so the next layer's weights transfer while the current layer computes. A follow-on optimization batches multiple different requests across data-parallel ranks during that same AllGather step, since the weight-gathering is request-independent, yielding a measured 3.3x throughput gain (about 83% of ideal 4x scaling) from running 4 concurrent requests instead of 1.",
+            impact:
+              "This is a memory-engineering technique specifically for teams serving large diffusion/video-generation models that don't fit on one device, trading some AllGather communication overhead (measured at about 150ms/step) for dramatically lower host RAM requirements. The reported numbers are honestly scoped: correctness was verified by byte-identical output hashes across strategies, the topology study on 8-GPU MiniMax-H3 explicitly found that the best DLO configuration is workload-dependent (AllGather wins at low data-parallelism, rank-local sharding wins at high data-parallelism), and the 200B-parameter extrapolation is explicitly labeled as unvalidated at that scale. For LLM-focused teams this is less directly applicable than the RL/agentic items above, but it's a relevant data point for anyone whose stack also serves multimodal generation models alongside text models on shared infrastructure.",
+            source: { label: "vLLM Blog: Distributed Layerwise Offload", url: "https://vllm.ai/blog/2026-08-17-distributed-layerwise-offload" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      {
+        text: "Whether Qwen's own hosted Qwen Cloud endpoint for Qwen3.8-27B (promised \"1M context length by default, official built-in tools\") launches, and how it's priced relative to the $0.40-0.45 / $3-3.20 per-Mtok rates already live through third-party providers.",
+        source: { label: "OpenRouter: Qwen3.8 27B", url: "https://openrouter.ai/qwen/qwen3.8-27b" },
+      },
+      {
+        text: "Whether vLLM publishes the Kimi K3 Decode Context Parallelism benchmark it has now described as \"in progress\" for multiple consecutive weeks.",
+        source: { label: "vLLM Blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" },
+      },
+      {
+        text: "Whether OpenAI's promised September 2026 white paper on Private Safety Processing discloses enough of the flagging mechanism for practitioners to independently assess the privacy/safety tradeoff, given this week's post left those specifics undefined.",
+        source: { label: "OpenAI: Zero Data Retention for frontier models", url: "https://openai.com/index/offering-zero-data-retention-for-frontier-models/" },
+      },
+    ],
+  },
+  {
     date: "2026-08-16",
     range: "August 10 to August 16, 2026",
     tldr: [
