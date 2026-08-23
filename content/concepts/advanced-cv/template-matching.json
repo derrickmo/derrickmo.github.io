@@ -1,0 +1,46 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "template-matching",
+  "module": "advanced-cv",
+  "title": "Template Matching (Cross-Correlation)",
+  "oneLine": "Slide a patch and score every position — but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed — a UI button, a registration mark on a PCB, a card rank on a fixed-camera table — this is often the correct engineering answer rather than an embarrassing one.",
+        "Everything depends on the scoring function, and the obvious choice is wrong. Raw cross-correlation is a dot product between the template and the window, and a dot product grows with the magnitude of either argument. A bright region therefore scores highly whether or not it looks anything like the template.",
+        "Measured on a synthetic scene containing the true target — a mid-grey cross — at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Normalised cross-correlation subtracts the mean and divides by the standard deviation on both sides, making the score a correlation coefficient in the range minus one to one:"
+      ],
+      "tex": "\\gamma(u,v) = \\frac{\\sum_{x,y} \\bigl(f(x,y) - \\bar{f}_{u,v}\\bigr)\\bigl(t(x-u,y-v) - \\bar{t}\\bigr)}{\\sqrt{\\sum_{x,y}\\bigl(f - \\bar{f}_{u,v}\\bigr)^2 \\sum_{x,y}\\bigl(t - \\bar{t}\\bigr)^2}}",
+      "texNote": "Subtracting the local mean buys invariance to an additive brightness change; dividing by the local standard deviation buys invariance to a multiplicative contrast change. Neither is optional if the lighting is not under your control, and the local mean must be recomputed at every window."
+    },
+    {
+      "h": "In code",
+      "code": "import cv2, numpy as np\n\nres = cv2.matchTemplate(image, templ, cv2.TM_CCOEFF_NORMED)   # NOT TM_CCORR\nmin_v, max_v, min_loc, max_loc = cv2.minMaxLoc(res)\n\n# An absolute threshold is meaningful because the score is a correlation coefficient.\nif max_v < 0.8:\n    match = None            # genuinely absent: matchTemplate ALWAYS returns a best\n                            # position, even on an image with no target at all\nelse:\n    match = max_loc\n\n# For several instances, threshold and then suppress neighbours - the raw peaks come in\n# clusters because positions adjacent to a match also score well.\nys, xs = np.where(res >= 0.8)\nboxes = [[x, y, x + w, y + h] for x, y in zip(xs, ys)]\nkeep = cv2.dnn.NMSBoxes(boxes, list(res[ys, xs]), 0.8, 0.3)",
+      "caption": "The absent-target case is the one that reaches production untested: minMaxLoc returns a location unconditionally, so without the threshold every frame reports a confident detection somewhere."
+    },
+    {
+      "h": "The invariances it does not have",
+      "paras": [
+        "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround — searching over a pyramid of scales and a set of rotations — multiplies the cost by the size of that grid while still missing anything in between.",
+        "This is precisely the boundary that motivates keypoint methods. SIFT and its successors detect features at their own characteristic scale and orientation and describe them relative to that frame, which is what makes matching survive the transformations template matching cannot absorb. Template matching is the right tool when you control the camera, the geometry and the target; a keypoint or learned detector is right when you do not.",
+        "Two practical notes for when it is appropriate. Cost is the template area times the image area in the direct form, but correlation is a convolution, so an FFT reduces it substantially for large templates. And correlating on gradient magnitude or edges rather than raw intensity is often far more robust, because it discards the absolute illumination that caused the problem in the first place."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Raw cross-correlation scores brightness, not similarity: on a test scene it picked a uniform bright block over the actual target, while normalised correlation found the target with a score of 1.0000.",
+    "The normalised score is a correlation coefficient, so an absolute threshold is meaningful — and necessary, because matchTemplate returns a best location even when the target is absent.",
+    "It is invariant to brightness and contrast only. Rotation, scale and deformation all break it, which is the exact gap keypoint detectors like SIFT exist to fill."
+  ],
+  "demo": "template-matching",
+  "updatedAt": "2026-08-22"
+}

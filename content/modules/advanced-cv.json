@@ -99,7 +99,10 @@
       "hog",
       "optical-flow",
       "image-segmentation",
-      "iou-nms"
+      "iou-nms",
+      "histogram-equalization",
+      "morphological-operations",
+      "template-matching"
     ]
   },
   "updatedAt": "2026-06-10"

@@ -201,15 +201,18 @@
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/edge-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/grad-cam/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/harris-corners/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/histogram-equalization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/hog/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/image-retrieval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/image-segmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/iou-nms/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/mediapipe/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/morphological-operations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/object-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/ocr/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/optical-flow/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/advanced-cv/template-matching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/video/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/vit/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/advanced-cv/yolo/</loc><priority>0.6</priority></url>
@@ -284,6 +287,7 @@
   <url><loc>https://derrickmo.github.io/learn/fine-tuning/unsloth/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/advanced-numpy-pytorch/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/aliasing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/bayes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/calculus/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/chain-rule/</loc><priority>0.6</priority></url>
@@ -431,8 +435,10 @@
   <url><loc>https://derrickmo.github.io/learn/multimodal/audio-representations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/clip/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/mfcc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-eval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-fusion/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/pitch-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/siamese/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/simclr-byol/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/spectrogram/</loc><priority>0.6</priority></url>

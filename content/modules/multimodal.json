@@ -95,7 +95,9 @@
     "order": [
       "contrastive-learning",
       "vector-search",
-      "spectrogram"
+      "spectrogram",
+      "mfcc",
+      "pitch-detection"
     ]
   },
   "updatedAt": "2026-06-10"

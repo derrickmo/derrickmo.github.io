@@ -1,0 +1,46 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "pitch-detection",
+  "module": "multimodal",
+  "title": "Pitch Detection (Autocorrelation)",
+  "oneLine": "Find the lag at which a signal best resembles itself — then deal with the octave errors, which are the entire practical problem.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A periodic signal resembles a delayed copy of itself when the delay equals its period. So compute the similarity between the signal and a shifted version of itself across a range of lags, find the lag that maximises it, and the pitch is the sampling rate divided by that lag. Restricting the lag range to plausible human pitches — roughly 60 to 500 Hz — is both a speed optimisation and a strong prior.",
+        "The reason to work in the time domain at all is that pitch is a property of the period, not of any single spectral peak. The strongest partial in a voiced sound is frequently not the fundamental; a telephone-band voice may contain no energy at all at its fundamental and listeners still hear the pitch clearly. Autocorrelation handles that case naturally, because the period is intact even when the fundamental's energy is gone — confirmed directly: a harmonic stack with the fundamental removed entirely is still measured at exactly 200 Hz.",
+        "What autocorrelation does not handle is the octave. Almost every practical failure is an estimate at half or double the true pitch, and almost every refinement to the basic method exists to address that."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The autocorrelation, and YIN's cumulative mean normalised difference function which replaces it:"
+      ],
+      "tex": "r(\\tau) = \\sum_{i} x_i\\,x_{i+\\tau}, \\qquad d'(\\tau) = \\frac{d(\\tau)}{\\frac{1}{\\tau}\\sum_{j=1}^{\\tau} d(j)}, \\quad d(\\tau) = \\sum_i (x_i - x_{i+\\tau})^2",
+      "texNote": "The division by the running mean is the crucial part. It makes d' near 1 at small lags and dip sharply at the true period, so the rule becomes take the FIRST dip below a threshold rather than take the global minimum — which is precisely what stops the estimator preferring a longer, deeper multiple of the period."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef yin(x, fs, fmin=60, fmax=500, thresh=0.15):\n    max_lag, min_lag = int(fs / fmin), int(fs / fmax)\n    d = np.empty(max_lag + 1)\n    for lag in range(1, max_lag + 1):\n        diff = x[:len(x) - lag] - x[lag:]\n        d[lag] = diff @ diff\n    d[0] = 1.0\n    cumulative = np.cumsum(d[1:]) / np.arange(1, max_lag + 1)\n    dp = np.concatenate(([1.0], d[1:] / cumulative))\n\n    for lag in range(min_lag, max_lag + 1):\n        if dp[lag] < thresh:\n            while lag + 1 <= max_lag and dp[lag + 1] < dp[lag]:\n                lag += 1                       # walk to the bottom of THIS dip\n            return fs / lag\n    return 0.0                                 # unvoiced: report it, do not guess",
+      "caption": "Returning zero for unvoiced frames matters. Silence and fricatives have no period, and an estimator that always returns a number produces a pitch track that jumps wildly wherever nobody is speaking."
+    },
+    {
+      "h": "Measured, including one result that runs the wrong way",
+      "paras": [
+        "Over 300 randomly generated voiced signals, half of them with a deliberately weak fundamental: plain autocorrelation was correct on 77.3 percent, with 68 octave-too-low errors and none too high. YIN was correct on 99.3 percent with no subharmonic errors at all and 2 estimates too high. That gap is the entire reason YIN exists.",
+        "The result that runs against intuition is the middle one. Dividing the autocorrelation by the number of overlapping samples — the textbook unbiased estimator, which corrects the fact that longer lags sum fewer terms — made accuracy WORSE, falling to 58.7 percent with 124 subharmonic errors. The naive estimator's taper is a bias toward short lags, and that bias was accidentally protecting it from choosing multiples of the true period. Removing the bias removed the protection. It is a good reminder that a more principled component can degrade a system that was tuned, even unknowingly, around its flaw.",
+        "One genuine ambiguity is worth separating from the errors above. Given alternating-cycle amplitude modulation — every second period slightly louder, which real voices do — the waveform strictly repeats only every two periods, and both estimators report half the nominal pitch. Neither is wrong in any mathematical sense; the signal really does have that period. Pitch is a perceptual judgement, and where perception and periodicity disagree no periodicity-based estimator can settle it. That is what the post-processing in a real system is for: Viterbi smoothing over a pitch track, which resolves individual frames using the fact that pitch moves continuously."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Pitch is a property of the period, so autocorrelation finds it even with the fundamental missing entirely — measured at exactly 200 Hz on a stack with no energy at 200 Hz.",
+    "Octave errors are the practical problem: plain autocorrelation was right 77.3% of the time against YIN's 99.3%, with 68 subharmonic errors against none.",
+    "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks — and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
+  ],
+  "demo": "pitch-detection",
+  "updatedAt": "2026-08-22"
+}

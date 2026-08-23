@@ -104,7 +104,8 @@
       "mutual-information",
       "importance-sampling",
       "reservoir-sampling",
-      "huffman-coding"
+      "huffman-coding",
+      "aliasing"
     ]
   },
   "updatedAt": "2026-06-10"

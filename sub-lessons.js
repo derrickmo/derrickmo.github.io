@@ -23,7 +23,8 @@ window.SUB_LESSONS = {
       "mutual-information",
       "importance-sampling",
       "reservoir-sampling",
-      "huffman-coding"
+      "huffman-coding",
+      "aliasing"
     ],
     "lessons": {
       "chain-rule": {
@@ -439,6 +440,48 @@ window.SUB_LESSONS = {
           "It cannot exploit context, so it is the last stage of a compressor rather than the whole of one — the modelling happens first."
         ],
         "demo": "huffman-coding"
+      },
+      "aliasing": {
+        "title": "Aliasing & the Nyquist Limit",
+        "oneLine": "Sample too slowly and a high frequency comes back wearing a low frequency's clothes — indistinguishably, and permanently.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Sampling a continuous signal at rate fs keeps only its values at regular instants. Two different sinusoids can pass through exactly the same set of sample points, and once you have the samples there is nothing left to tell them apart. The high one has been folded down onto the low one, and no filter applied afterwards can separate them, because the information is not merely buried — it is gone.",
+              "Nyquist gives the condition: a signal is recoverable only if it contains no energy at or above half the sampling rate. Anything above that limit does not vanish, it reappears at a mirrored frequency. Sampling a 1,000 Hz test tone at 1,000 Hz produces a measurable tone — and it sits at 100 Hz when the true tone is at 1,100 Hz.",
+              "Measured directly, sampling at 1,000 Hz: a 700 Hz tone is detected at 300 Hz, 900 Hz at 100 Hz, 1,100 Hz at 100 Hz, and 1,900 Hz also at 100 Hz. The last two are the important pair — two genuinely different inputs produce the identical output, which is what makes aliasing irreversible rather than merely inconvenient."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Sampling replicates the spectrum at every multiple of fs. The apparent frequency of a tone is its distance to the nearest multiple:"
+            ],
+            "tex": "f_{\\text{apparent}} = \\bigl| f - f_s \\cdot \\operatorname{round}(f / f_s) \\bigr|, \\qquad \\text{recoverable} \\iff f < f_s/2",
+            "texNote": "The fold is a reflection about each multiple of half the sampling rate, which is why the apparent frequency rises and falls as the true one climbs. Every measurement above matched this prediction to within the DFT's own resolution."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\n# WRONG: throwing away samples is not downsampling\ndef decimate_naive(x, M):\n    return x[::M]\n\n# RIGHT: band-limit FIRST, to below the NEW Nyquist rate, and only then drop samples.\n# The order is the whole point - filtering after the fact cannot undo a fold.\ndef decimate(x, M, fs):\n    from scipy.signal import firwin, filtfilt\n    taps = firwin(101, cutoff=0.5 * (fs / M), fs=fs)   # new Nyquist = fs/M/2\n    return filtfilt(taps, 1.0, x)[::M]",
+            "caption": "scipy.signal.decimate does this for you; x[::M] does not. The bug is invisible in code review because both lines produce an array of the right shape."
+          },
+          {
+            "h": "Where it bites, well outside audio",
+            "paras": [
+              "A concrete measurement: take a signal containing 120 Hz and 1,580 Hz components, sampled at 4,000 Hz, and decimate by 8 down to 500 Hz. The new Nyquist limit is 250 Hz, so 1,580 Hz folds to 80 Hz. Dropping every eighth sample produces an 80 Hz tone at full magnitude 1.000 — a tone that was never present in the input and cannot be distinguished from a real one. Low-pass filtering first leaves it at 0.049, a twentyfold suppression.",
+              "That same run also shows the cost honestly: the crude box filter used here pulled the legitimate 120 Hz component down to 0.625. Anti-aliasing filters are not free, and choosing one is a trade between how much you fold and how much of the passband you damage.",
+              "The pattern recurs everywhere a signal is sampled on a grid. Image downscaling without pre-filtering produces moiré on striped shirts and brick walls — the same fold in two dimensions, which is why every serious resizer blurs before it shrinks. Rendering strided textures without mipmaps aliases for the same reason. A strided convolution in a network is a decimation with no anti-alias filter, which is the argument behind blur-pool layers and one documented source of shift-instability in CNNs.",
+              "And in monitoring: sampling a metric every 60 seconds cannot see a 45-second oscillation. It will report something, and that something will be a plausible-looking slow trend that does not exist. Nothing in the dashboard indicates the number is fictitious."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Above half the sampling rate a tone does not disappear — it folds to |f - fs*round(f/fs)|, verified here at 700 to 300 Hz and both 1,100 and 1,900 Hz to 100 Hz.",
+          "Because two distinct inputs can produce identical samples, aliasing is not recoverable; the filter must come BEFORE the sample-dropping, never after.",
+          "It is not an audio-only concern: image moiré, strided convolutions, and metrics sampled slower than the phenomenon they measure are all the same fold."
+        ],
+        "demo": "aliasing"
       }
     }
   },
@@ -1590,7 +1633,10 @@ window.SUB_LESSONS = {
       "hog",
       "optical-flow",
       "image-segmentation",
-      "iou-nms"
+      "iou-nms",
+      "histogram-equalization",
+      "morphological-operations",
+      "template-matching"
     ],
     "lessons": {
       "edge-detection": {
@@ -1809,6 +1855,130 @@ window.SUB_LESSONS = {
           "The IoU threshold trades duplicates against missed objects."
         ],
         "demo": "nms"
+      },
+      "histogram-equalization": {
+        "title": "Histogram Equalization",
+        "oneLine": "Remap intensities through their own cumulative distribution to spread contrast — and amplify noise by the same factor, wherever the image was flat.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A low-contrast image wastes its dynamic range: every pixel crowds into a narrow band of values, so real structure spans only a few levels and is invisible. Equalization asks for a monotone remapping of intensity that spreads the pixels out as evenly as the histogram allows.",
+              "The answer falls out of probability. Passing any random variable through its own cumulative distribution function yields something uniform. So build the histogram, accumulate it into a CDF, and use that CDF — rescaled to the output range — as the lookup table. Values that were crowded together get pushed apart, values in sparse regions get pulled together.",
+              "Measured on a synthetic low-contrast image with all values squeezed into 96 to 160: the output spans the full 0 to 255, and the standard deviation rises from 15.5 to 74.1. The image looks dramatically better."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The transform is the empirical CDF, shifted so the darkest occupied level maps to zero:"
+            ],
+            "tex": "s_k = \\operatorname{round}\\!\\left( \\frac{\\mathrm{cdf}(k) - \\mathrm{cdf}_{\\min}}{MN - \\mathrm{cdf}_{\\min}} \\times (L-1) \\right), \\qquad \\mathrm{cdf}(k) = \\sum_{i=0}^{k} h(i)",
+            "texNote": "Because the CDF is non-decreasing, the mapping is monotone: pixel A brighter than pixel B stays brighter than pixel B. That is what makes the result an enhancement rather than a distortion — no ordering is ever inverted."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef equalize(img):                       # img: uint8, single channel\n    hist = np.bincount(img.ravel(), minlength=256)\n    cdf = hist.cumsum()\n    cdf_min = cdf[cdf > 0][0]\n    lut = np.round((cdf - cdf_min) / (img.size - cdf_min) * 255).astype(np.uint8)\n    return lut[img]\n\n# For colour, equalize LUMINANCE only. Equalizing R, G and B independently changes the\n# ratios between channels, which is the same thing as changing the hue.\n#   ycrcb = cv2.cvtColor(bgr, cv2.COLOR_BGR2YCrCb)\n#   ycrcb[..., 0] = equalize(ycrcb[..., 0])\n#   out = cv2.cvtColor(ycrcb, cv2.COLOR_YCrCb2BGR)",
+            "caption": "The per-channel mistake is common and its symptom is distinctive: colours shift rather than simply brightening."
+          },
+          {
+            "h": "Two things it does not do",
+            "paras": [
+              "It does not create information. On the same test image the entropy was 5.820 bits before equalization and 5.820 bits after — identical. A monotone lookup table can merge levels but never separate them, so the information content can only stay the same or fall. What changed is how that information is distributed across the display range, which is a statement about your eyes and your monitor, not about the image.",
+              "And it amplifies noise in exactly the regions where you least want it. A near-flat patch in the same image had a standard deviation of 0.59 — imperceptible sensor noise. After equalization it was 10.82, an eighteenfold amplification. The mechanism is direct: flat regions have a tall narrow histogram spike, the CDF is steep there, and a steep mapping multiplies small differences. Global equalization reliably turns a clean sky into visible mottling.",
+              "CLAHE is the standard answer to both problems. It equalizes small tiles independently so the mapping adapts to local content, and it clips each histogram at a ceiling before accumulating, redistributing the excess — which directly bounds the slope of the CDF and therefore bounds the noise gain. Bilinear interpolation between neighbouring tile mappings removes the block seams. In medical and low-light imaging CLAHE is the default and global equalization is the teaching example."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Passing intensities through their own CDF makes the histogram approximately uniform: range 96-160 became 0-255 and the standard deviation went from 15.5 to 74.1.",
+          "It redistributes information rather than adding any — entropy measured 5.820 bits before and after, because a monotone lookup table cannot separate levels it has merged.",
+          "Flat regions get a steep CDF and therefore amplified noise: a near-flat patch went from 0.59 to 10.82 standard deviation, an 18x gain. CLAHE clips the histogram to bound exactly that slope."
+        ],
+        "demo": "histogram-equalization"
+      },
+      "morphological-operations": {
+        "title": "Morphological Operations",
+        "oneLine": "Erode, dilate, and the two useful compositions — shape-aware cleanup that is decided entirely by the structuring element you pick.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Morphology treats a binary image as a set and probes it with a small shape, the structuring element. Erosion keeps a pixel only where the element fits entirely inside the foreground, so regions shrink and anything thinner than the element disappears. Dilation keeps a pixel where the element touches the foreground at all, so regions grow and small gaps close.",
+              "Neither is much use alone, because both change the size of everything. The compositions are what you actually reach for. Opening is erosion followed by dilation: the erosion deletes small objects, the dilation restores the survivors to roughly their original size. Closing is the reverse: dilation seals small holes and thin gaps, erosion brings the boundary back.",
+              "Measured on a 40 by 40 square containing a 6 by 6 hole, with 43 single-pixel specks scattered outside it. The original has 44 connected components and 1 hole. After opening: 1 component — every speck gone — and the hole still there. After closing: 0 holes, and the specks still there. Opening then closing gives 1 component, 0 holes, and an area of 1,600 against the original 1,607."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The four operations as set operations, with B the structuring element:"
+            ],
+            "tex": "A \\ominus B = \\{z : B_z \\subseteq A\\}, \\quad A \\oplus B = \\{z : B_z \\cap A \\neq \\emptyset\\}, \\quad A \\circ B = (A \\ominus B) \\oplus B, \\quad A \\bullet B = (A \\oplus B) \\ominus B",
+            "texNote": "Both compositions are idempotent — applying opening twice changes nothing, confirmed directly on the test image. That is a genuinely useful property: there is no question of how many times to run it, unlike an iterative smoother where the iteration count becomes another parameter."
+          },
+          {
+            "h": "In code",
+            "code": "import cv2, numpy as np\n\n# The structuring element IS the parameter. A rectangle biases toward axis-aligned\n# structure; an ellipse is closer to isotropic; a line removes everything not parallel\n# to it, which is how table rulings get extracted from a scanned form.\nrect = cv2.getStructuringElement(cv2.MORPH_RECT,    (3, 3))\nellip = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))\nhline = cv2.getStructuringElement(cv2.MORPH_RECT,   (25, 1))\n\nclean = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  ellip)   # drop specks\nsolid = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, ellip)  # then seal holes\n\n# The gradient is the boundary; the two hats isolate features by POLARITY.\nedge    = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT, rect)\ntophat  = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT,  ellip)  # bright on dark\nblkhat  = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, ellip) # dark on bright",
+            "caption": "The top-hat is the standard trick for uneven illumination: subtracting an opening removes the slowly varying background and leaves the small bright detail, which is why it precedes thresholding in most OCR pipelines."
+          },
+          {
+            "h": "What the compositions do not promise",
+            "paras": [
+              "Opening is not the inverse of closing and neither is the identity. On the test image, opening reduced the area from 1,607 to 1,564 — the specks it removed are gone for good, which is the point, but so is a thin sliver of the square's boundary. Erosion followed by dilation does not put back what erosion deleted; it only restores what survived.",
+              "The two compositions also do not commute. On the clean test image, open-then-close and close-then-open produced pixel-for-pixel identical results, which made the order look irrelevant. On a random binary image they differ in 3,726 of 4,096 pixels. The clean case was a special case, not a rule, and the order you choose encodes which artefact you consider noise: open first if the specks are noise, close first if the holes are.",
+              "The choice of structuring element dominates everything else. Its size sets the scale of what counts as small, and its shape sets which orientations survive — a horizontal line element deletes every vertical stroke, which is exactly how you separate table rulings from text. Choosing it is choosing the definition of noise for that image, and there is no default that is right twice.",
+              "Finally, all of this extends to greyscale by replacing set containment with local minimum and maximum, which is why cv2.erode on a greyscale image is a min-filter. The intuition carries over unchanged."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Opening removes objects smaller than the structuring element and closing fills holes smaller than it: 44 components became 1, and 1 hole became 0, on the same test image.",
+          "Both compositions are idempotent, so there is no iteration count to tune — but neither is the identity, and opening cost 43 pixels of the square's own boundary.",
+          "They do not commute: identical on a clean image, but differing in 3,726 of 4,096 pixels on a random one. Ordering encodes whether you regard specks or holes as the noise."
+        ],
+        "demo": "morphological-ops"
+      },
+      "template-matching": {
+        "title": "Template Matching (Cross-Correlation)",
+        "oneLine": "Slide a patch and score every position — but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed — a UI button, a registration mark on a PCB, a card rank on a fixed-camera table — this is often the correct engineering answer rather than an embarrassing one.",
+              "Everything depends on the scoring function, and the obvious choice is wrong. Raw cross-correlation is a dot product between the template and the window, and a dot product grows with the magnitude of either argument. A bright region therefore scores highly whether or not it looks anything like the template.",
+              "Measured on a synthetic scene containing the true target — a mid-grey cross — at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Normalised cross-correlation subtracts the mean and divides by the standard deviation on both sides, making the score a correlation coefficient in the range minus one to one:"
+            ],
+            "tex": "\\gamma(u,v) = \\frac{\\sum_{x,y} \\bigl(f(x,y) - \\bar{f}_{u,v}\\bigr)\\bigl(t(x-u,y-v) - \\bar{t}\\bigr)}{\\sqrt{\\sum_{x,y}\\bigl(f - \\bar{f}_{u,v}\\bigr)^2 \\sum_{x,y}\\bigl(t - \\bar{t}\\bigr)^2}}",
+            "texNote": "Subtracting the local mean buys invariance to an additive brightness change; dividing by the local standard deviation buys invariance to a multiplicative contrast change. Neither is optional if the lighting is not under your control, and the local mean must be recomputed at every window."
+          },
+          {
+            "h": "In code",
+            "code": "import cv2, numpy as np\n\nres = cv2.matchTemplate(image, templ, cv2.TM_CCOEFF_NORMED)   # NOT TM_CCORR\nmin_v, max_v, min_loc, max_loc = cv2.minMaxLoc(res)\n\n# An absolute threshold is meaningful because the score is a correlation coefficient.\nif max_v < 0.8:\n    match = None            # genuinely absent: matchTemplate ALWAYS returns a best\n                            # position, even on an image with no target at all\nelse:\n    match = max_loc\n\n# For several instances, threshold and then suppress neighbours - the raw peaks come in\n# clusters because positions adjacent to a match also score well.\nys, xs = np.where(res >= 0.8)\nboxes = [[x, y, x + w, y + h] for x, y in zip(xs, ys)]\nkeep = cv2.dnn.NMSBoxes(boxes, list(res[ys, xs]), 0.8, 0.3)",
+            "caption": "The absent-target case is the one that reaches production untested: minMaxLoc returns a location unconditionally, so without the threshold every frame reports a confident detection somewhere."
+          },
+          {
+            "h": "The invariances it does not have",
+            "paras": [
+              "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround — searching over a pyramid of scales and a set of rotations — multiplies the cost by the size of that grid while still missing anything in between.",
+              "This is precisely the boundary that motivates keypoint methods. SIFT and its successors detect features at their own characteristic scale and orientation and describe them relative to that frame, which is what makes matching survive the transformations template matching cannot absorb. Template matching is the right tool when you control the camera, the geometry and the target; a keypoint or learned detector is right when you do not.",
+              "Two practical notes for when it is appropriate. Cost is the template area times the image area in the direct form, but correlation is a convolution, so an FFT reduces it substantially for large templates. And correlating on gradient magnitude or edges rather than raw intensity is often far more robust, because it discards the absolute illumination that caused the problem in the first place."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Raw cross-correlation scores brightness, not similarity: on a test scene it picked a uniform bright block over the actual target, while normalised correlation found the target with a score of 1.0000.",
+          "The normalised score is a correlation coefficient, so an absolute threshold is meaningful — and necessary, because matchTemplate returns a best location even when the target is absent.",
+          "It is invariant to brightness and contrast only. Rotation, scale and deformation all break it, which is the exact gap keypoint detectors like SIFT exist to fill."
+        ],
+        "demo": "template-matching"
       }
     }
   },
@@ -2003,7 +2173,9 @@ window.SUB_LESSONS = {
     "order": [
       "contrastive-learning",
       "vector-search",
-      "spectrogram"
+      "spectrogram",
+      "mfcc",
+      "pitch-detection"
     ],
     "lessons": {
       "contrastive-learning": {
@@ -2107,6 +2279,89 @@ window.SUB_LESSONS = {
           "Magnitude discards phase (hence vocoders), and log(0) without an epsilon poisons the whole batch with NaNs."
         ],
         "demo": "spectrogram"
+      },
+      "mfcc": {
+        "title": "Mel Filterbank & MFCC",
+        "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT — and know that the last step is the one modern systems drop.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A spectrogram has hundreds of linearly spaced frequency bins, which is not how hearing works and not how speech is organised. Human frequency resolution is fine at the low end and coarse at the high end, so the difference between 200 and 300 Hz is enormous while the difference between 6,000 and 6,100 Hz is inaudible.",
+              "The mel scale encodes exactly that. A bank of triangular filters spaced evenly on the mel scale is spaced unevenly in hertz — measured on a standard 26-filter bank, the first filter spans about 76 Hz while the twenty-fifth spans about 699 Hz, a factor of nine. Summing spectral energy within each filter collapses hundreds of bins to 26 numbers that discard mostly what the ear discards.",
+              "Then take the logarithm, for two reasons at once. Loudness perception is roughly logarithmic, and more usefully, the log turns the source-filter product into a sum: a voice is a glottal source shaped by a vocal-tract filter, and in the log domain those become additive rather than entangled — which is what makes them separable downstream."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The mel warping, and the DCT that produces the final coefficients:"
+            ],
+            "tex": "m = 2595 \\log_{10}\\!\\left(1 + \\frac{f}{700}\\right), \\qquad c_n = \\sum_{k=1}^{K} \\log(E_k)\\,\\cos\\!\\left[\\frac{\\pi n (k - 0.5)}{K}\\right]",
+            "texNote": "The warping is near-linear below about 1 kHz and logarithmic above it, which is why the low filters end up narrow and the high ones wide. Typically 12 or 13 coefficients are kept; the higher ones describe fine spectral ripple that is mostly pitch and noise."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef mel_filterbank(n_filters, n_fft, fs):\n    hz2mel = lambda f: 2595 * np.log10(1 + f / 700)\n    mel2hz = lambda m: 700 * (10 ** (m / 2595) - 1)\n    edges = mel2hz(np.linspace(hz2mel(20), hz2mel(fs / 2), n_filters + 2))\n    bins = np.round(n_fft * edges / fs).astype(int)\n    # A zero-width filter is silently produced when two edges land on the same FFT bin.\n    # At n_fft=512 the lowest filters collapse this way and the features go subtly wrong.\n    assert np.all(np.diff(bins) > 0), \"n_fft too small for this many filters\"\n    fb = np.zeros((n_filters, n_fft // 2 + 1))\n    for m in range(1, n_filters + 1):\n        for k in range(bins[m - 1], bins[m]):\n            fb[m - 1, k] = (k - bins[m - 1]) / (bins[m] - bins[m - 1])\n        for k in range(bins[m], bins[m + 1]):\n            fb[m - 1, k] = (bins[m + 1] - k) / (bins[m + 1] - bins[m])\n    return fb",
+            "caption": "The assertion is worth keeping. At 16 kHz with 26 filters, an FFT size of 512 produces degenerate zero-width filters at the bottom of the range and an FFT size of 2048 produces none — a bug that never raises an error and merely makes the low-frequency features meaningless."
+          },
+          {
+            "h": "What the DCT is for, and when to skip it",
+            "paras": [
+              "Neighbouring log-mel energies are strongly correlated, because a formant is far wider than one filter and lights up several at once. The DCT is applied to decorrelate them, and the justification is precise: the DCT-II approaches the Karhunen-Loeve transform for a first-order Markov source as its correlation coefficient approaches one.",
+              "That is measurable rather than merely quotable. Generating band vectors with a controlled correlation and measuring the mean absolute off-diagonal correlation before and after the DCT: at correlation 0 the reduction is 1.6-fold, at 0.6 it is 4.6-fold, at 0.9 it is 28.8-fold, and at 0.99 it is 120-fold. The DCT output sits near 0.01 throughout. The decorrelation is real and it is entirely conditional on the input actually being correlated.",
+              "Which explains why the step has largely disappeared. It existed to make diagonal-covariance Gaussian mixture models workable — those models assume independent dimensions, so correlated features violate their central assumption and MFCCs were the fix. A neural network has no such assumption. It can learn any linear mixing itself, and the DCT is an invertible linear map that discards nothing but does throw away the locality that makes convolution over frequency sensible.",
+              "So the modern default is log-mel filterbank energies fed straight to the network, and MFCCs persist in speaker recognition, in low-resource settings where 13 numbers per frame is the point, and in a great deal of existing code. Knowing which stage buys what is the difference between copying a pipeline and choosing one."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Mel-spaced triangular filters are narrow at the bottom and wide at the top — 76 Hz against 699 Hz across one standard 26-filter bank — which discards roughly what the ear discards.",
+          "The log makes the source-filter relationship additive; the DCT decorrelates, and measurably so only in proportion to how correlated the bands were (1.6x at correlation 0, 120x at 0.99).",
+          "The DCT existed for diagonal-covariance GMMs. Networks do not need it, so log-mel is the modern default — and watch for zero-width filters when the FFT size is too small for the filter count."
+        ],
+        "demo": "mfcc"
+      },
+      "pitch-detection": {
+        "title": "Pitch Detection (Autocorrelation)",
+        "oneLine": "Find the lag at which a signal best resembles itself — then deal with the octave errors, which are the entire practical problem.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A periodic signal resembles a delayed copy of itself when the delay equals its period. So compute the similarity between the signal and a shifted version of itself across a range of lags, find the lag that maximises it, and the pitch is the sampling rate divided by that lag. Restricting the lag range to plausible human pitches — roughly 60 to 500 Hz — is both a speed optimisation and a strong prior.",
+              "The reason to work in the time domain at all is that pitch is a property of the period, not of any single spectral peak. The strongest partial in a voiced sound is frequently not the fundamental; a telephone-band voice may contain no energy at all at its fundamental and listeners still hear the pitch clearly. Autocorrelation handles that case naturally, because the period is intact even when the fundamental's energy is gone — confirmed directly: a harmonic stack with the fundamental removed entirely is still measured at exactly 200 Hz.",
+              "What autocorrelation does not handle is the octave. Almost every practical failure is an estimate at half or double the true pitch, and almost every refinement to the basic method exists to address that."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The autocorrelation, and YIN's cumulative mean normalised difference function which replaces it:"
+            ],
+            "tex": "r(\\tau) = \\sum_{i} x_i\\,x_{i+\\tau}, \\qquad d'(\\tau) = \\frac{d(\\tau)}{\\frac{1}{\\tau}\\sum_{j=1}^{\\tau} d(j)}, \\quad d(\\tau) = \\sum_i (x_i - x_{i+\\tau})^2",
+            "texNote": "The division by the running mean is the crucial part. It makes d' near 1 at small lags and dip sharply at the true period, so the rule becomes take the FIRST dip below a threshold rather than take the global minimum — which is precisely what stops the estimator preferring a longer, deeper multiple of the period."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef yin(x, fs, fmin=60, fmax=500, thresh=0.15):\n    max_lag, min_lag = int(fs / fmin), int(fs / fmax)\n    d = np.empty(max_lag + 1)\n    for lag in range(1, max_lag + 1):\n        diff = x[:len(x) - lag] - x[lag:]\n        d[lag] = diff @ diff\n    d[0] = 1.0\n    cumulative = np.cumsum(d[1:]) / np.arange(1, max_lag + 1)\n    dp = np.concatenate(([1.0], d[1:] / cumulative))\n\n    for lag in range(min_lag, max_lag + 1):\n        if dp[lag] < thresh:\n            while lag + 1 <= max_lag and dp[lag + 1] < dp[lag]:\n                lag += 1                       # walk to the bottom of THIS dip\n            return fs / lag\n    return 0.0                                 # unvoiced: report it, do not guess",
+            "caption": "Returning zero for unvoiced frames matters. Silence and fricatives have no period, and an estimator that always returns a number produces a pitch track that jumps wildly wherever nobody is speaking."
+          },
+          {
+            "h": "Measured, including one result that runs the wrong way",
+            "paras": [
+              "Over 300 randomly generated voiced signals, half of them with a deliberately weak fundamental: plain autocorrelation was correct on 77.3 percent, with 68 octave-too-low errors and none too high. YIN was correct on 99.3 percent with no subharmonic errors at all and 2 estimates too high. That gap is the entire reason YIN exists.",
+              "The result that runs against intuition is the middle one. Dividing the autocorrelation by the number of overlapping samples — the textbook unbiased estimator, which corrects the fact that longer lags sum fewer terms — made accuracy WORSE, falling to 58.7 percent with 124 subharmonic errors. The naive estimator's taper is a bias toward short lags, and that bias was accidentally protecting it from choosing multiples of the true period. Removing the bias removed the protection. It is a good reminder that a more principled component can degrade a system that was tuned, even unknowingly, around its flaw.",
+              "One genuine ambiguity is worth separating from the errors above. Given alternating-cycle amplitude modulation — every second period slightly louder, which real voices do — the waveform strictly repeats only every two periods, and both estimators report half the nominal pitch. Neither is wrong in any mathematical sense; the signal really does have that period. Pitch is a perceptual judgement, and where perception and periodicity disagree no periodicity-based estimator can settle it. That is what the post-processing in a real system is for: Viterbi smoothing over a pitch track, which resolves individual frames using the fact that pitch moves continuously."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Pitch is a property of the period, so autocorrelation finds it even with the fundamental missing entirely — measured at exactly 200 Hz on a stack with no energy at 200 Hz.",
+          "Octave errors are the practical problem: plain autocorrelation was right 77.3% of the time against YIN's 99.3%, with 68 subharmonic errors against none.",
+          "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks — and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
+        ],
+        "demo": "pitch-detection"
       }
     }
   },
