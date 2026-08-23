@@ -93,7 +93,9 @@
       "search-astar",
       "dijkstra",
       "backtracking",
-      "simulated-annealing"
+      "simulated-annealing",
+      "branch-and-bound",
+      "arc-consistency"
     ]
   }
 }

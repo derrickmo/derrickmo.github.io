@@ -1,0 +1,46 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "neuroevolution",
+  "module": "reinforcement-learning",
+  "title": "Neuroevolution",
+  "oneLine": "Optimise the weights by perturb-and-rank instead of by backpropagation — worth it when the reward has no usable gradient, or when you have far more machines than patience.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Policy gradient methods need to differentiate through the objective. Evolution strategies do not: sample a population of perturbed parameter vectors, evaluate each one, and move the mean toward the perturbations that scored well. The only thing required of the objective is that it can be evaluated and the results ranked.",
+        "That buys three things a gradient method cannot easily get. Non-differentiable rewards are fine — a game score, a discrete count, wall-clock latency, a simulator that is a black box. There is no credit-assignment problem over long horizons, because the whole episode collapses to one scalar. And it parallelises almost perfectly.",
+        "The parallelisation trick is the part worth knowing. If every worker uses the same pseudo-random generator, a perturbation is fully determined by its seed. So a worker sends back a seed and a single float, not a full gradient vector — communication per worker is constant regardless of model size, which is how OpenAI scaled evolution strategies to over a thousand machines with near-linear speedup."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The estimator is a gradient of a SMOOTHED objective — the expected reward under Gaussian perturbation of the parameters, which is differentiable even when the reward itself is not:"
+      ],
+      "tex": "\\nabla_\\theta\\, \\mathbb{E}_{\\epsilon \\sim \\mathcal{N}(0,I)}\\big[R(\\theta + \\sigma\\epsilon)\\big] = \\frac{1}{\\sigma}\\,\\mathbb{E}_{\\epsilon}\\big[R(\\theta + \\sigma\\epsilon)\\,\\epsilon\\big] \\ \\approx\\ \\frac{1}{n\\sigma}\\sum_{k=1}^{n} A_k\\, \\epsilon_k",
+      "texNote": "A'k is the rank-normalised or standardised reward, not the raw reward. Standardising is what makes the method invariant to the reward's scale and offset — with raw rewards a constant shift changes the update, which is not a property you want."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef es_step(theta, reward_fn, sigma=0.1, pop=100, lr=0.01, rng=None):\n    rng = rng or np.random.default_rng()\n    half = rng.standard_normal((pop // 2, theta.size))\n    eps = np.concatenate([half, -half])        # mirrored sampling: pairs cancel the\n                                               # first-order noise term\n    R = np.array([reward_fn(theta + sigma * e) for e in eps])\n    A = (R - R.mean()) / (R.std() + 1e-8)      # scale-invariance comes from here\n    return theta + (lr / (len(eps) * sigma)) * (A @ eps)\n\n# Distributed form: workers exchange SEEDS, not vectors. Each worker regenerates every\n# other worker's perturbation locally from its seed, so the per-step communication is\n# one integer and one float per worker, independent of theta.size.",
+      "caption": "Mirrored sampling evaluates each perturbation and its negation. It costs nothing extra in code and removes a large part of the estimator's variance."
+    },
+    {
+      "h": "Sigma is the whole ballgame",
+      "paras": [
+        "Take a deliberately gradient-free objective: a reward that counts how many of 20 weights have the correct sign. It is a step function, so its gradient is zero almost everywhere and every gradient-based method sits exactly where it was initialised, forever.",
+        "Evolution strategies go from 8 correct out of 20 to a perfect 20 in 4 generations, using 160 evaluations. The control matters here: random search given the same 160 evaluations reached only 15 out of 20, so the improvement is the algorithm and not the budget.",
+        "But sweeping the perturbation scale exposes the real failure mode. At sigma = 0.2 through 3.0 the problem is solved in 7 to 9 generations. At sigma = 0.05 it never solves at all — still 17 out of 20 after 600 generations. Too small a perturbation and no member of the population crosses the step, so every one receives the identical reward, the standardised advantages are noise, and the update is meaningless. The method fails silently, with a population that looks healthy.",
+        "The honest cost accounting: ES needs far more environment interactions than a policy gradient for the same result, typically by an order of magnitude or more. It buys wall-clock time and robustness with sample efficiency. That trade is worth taking when simulation is cheap and parallel, and is a bad trade when each episode is expensive."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Perturb, evaluate, and move toward what scored well — the objective never has to be differentiable, so game scores, latencies and black-box simulators are all fair game.",
+    "Workers exchange random SEEDS rather than gradients, making per-step communication independent of model size; that is what makes it scale to thousands of machines.",
+    "The perturbation scale is the critical hyperparameter: on a step-function reward, sigma from 0.2 to 3.0 solved it in under 10 generations while sigma = 0.05 never solved it, because no sample crossed the step and the ranking carried no signal."
+  ],
+  "updatedAt": "2026-08-22"
+}

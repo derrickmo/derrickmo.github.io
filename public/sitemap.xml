@@ -342,7 +342,9 @@
   <url><loc>https://derrickmo.github.io/learn/huggingface/multimodal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/huggingface/nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/arc-consistency/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/backtracking/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/breadth-rapid-fire/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/classification-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/coding-patterns/</loc><priority>0.6</priority></url>
@@ -397,6 +399,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/convex-optimization/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/coordinate-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/data-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/double-descent/</loc><priority>0.6</priority></url>
@@ -407,6 +410,8 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/learning-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/newtons-method/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/overfitting/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/proximal-gradient/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/quasi-newton/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
@@ -501,6 +506,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mdp-bellman/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/minimax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/model-based-rl/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/neuroevolution/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/offline-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/ppo/</loc><priority>0.6</priority></url>

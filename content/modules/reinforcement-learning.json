@@ -107,7 +107,8 @@
       "dyna-q",
       "regret-matching",
       "minimax",
-      "mcts"
+      "mcts",
+      "neuroevolution"
     ]
   },
   "updatedAt": "2026-08-07"

@@ -667,7 +667,10 @@ window.SUB_LESSONS = {
       "double-descent",
       "overfitting",
       "newtons-method",
-      "active-learning"
+      "active-learning",
+      "coordinate-descent",
+      "proximal-gradient",
+      "quasi-newton"
     ],
     "lessons": {
       "regularization": {
@@ -851,6 +854,130 @@ window.SUB_LESSONS = {
           "The labelled set becomes a biased sample, so hold out a randomly-drawn evaluation set BEFORE you start."
         ],
         "demo": "active-learning"
+      },
+      "coordinate-descent": {
+        "title": "Coordinate Descent",
+        "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap — and it silently stalls the moment the penalty stops being separable.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Freeze every coordinate but one, minimise exactly along that single direction, move to the next, repeat. There is no step size, no line search, and no gradient of the full objective — for the lasso the one-dimensional subproblem has a closed form, so each update is a dot product and a soft-threshold.",
+              "That is the whole reason glmnet made L1 regression routine. Three properties compound: most coordinates are zero and stay zero, so a sweep touches an active set far smaller than p; the residual can be updated incrementally instead of recomputed; and when you fit a whole regularisation path you warm-start each lambda from the previous solution, which lands a few sweeps away rather than a few hundred.",
+              "On a lasso with 200 samples, 50 features and 5 truly non-zero coefficients, cyclic coordinate descent converges in 10 sweeps and recovers exactly those 5. Make the features strongly correlated — the realistic case, and the one that hurts — and the same problem takes 372 sweeps. Correlation is what coordinate descent pays for, because axis-aligned moves cannot follow a diagonal valley."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "For the lasso, minimising over the single coordinate j with the others held fixed gives a closed-form update. Write the partial residual with j removed, correlate it with column j, and soft-threshold:"
+            ],
+            "tex": "\\beta_j \\leftarrow \\frac{S\\!\\left(\\sum_i x_{ij}\\,(y_i - \\hat{y}_i^{(-j)}),\\ \\lambda\\right)}{\\sum_i x_{ij}^2}, \\qquad S(z,\\lambda) = \\operatorname{sign}(z)\\,(|z| - \\lambda)_+",
+            "texNote": "The soft-threshold is what produces exact zeros: any coordinate whose correlation with the partial residual is smaller than lambda is set to zero outright, not merely shrunk. Ridge has the same update without the S, which is why ridge never zeroes anything."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef soft(z, t):\n    return np.sign(z) * np.maximum(np.abs(z) - t, 0.0)\n\ndef lasso_cd(X, y, lam, sweeps=1000, tol=1e-10):\n    n, p = X.shape\n    beta = np.zeros(p)\n    resid = y.copy()                 # keep the residual, never recompute it\n    colsq = (X ** 2).sum(axis=0)\n    for _ in range(sweeps):\n        move = 0.0\n        for j in range(p):\n            old = beta[j]\n            # add column j back in, then re-solve for it exactly\n            rho = X[:, j] @ (resid + X[:, j] * old)\n            beta[j] = soft(rho, lam) / colsq[j]\n            if beta[j] != old:\n                resid -= X[:, j] * (beta[j] - old)\n                move = max(move, abs(beta[j] - old))\n        if move < tol:\n            break\n    return beta",
+            "caption": "The incremental residual update is the whole trick — without it each coordinate step costs a full matrix-vector product and the method loses to proximal gradient."
+          },
+          {
+            "h": "Where it stalls, and why",
+            "paras": [
+              "Coordinate descent is guaranteed to converge when the objective is a smooth convex function plus a penalty that is SEPARABLE across coordinates — a sum of per-coordinate terms. The L1 penalty qualifies. That condition is not a technicality; violate it and the method stops at a point that is not a minimum.",
+              "The smallest witness: minimise one half of the squared distance to c = (3, 1) plus three times the absolute difference between the two coordinates — a two-variable fused lasso. Started at the origin, no single-coordinate move improves the objective, so coordinate descent reports the origin as its answer with value 5. The true minimum is at (2, 2) with value 1. It is not slow convergence; it is a fixed point that is not optimal, and nothing in the iteration reveals the problem.",
+              "The fix is to stop moving one coordinate at a time: group the coupled variables and solve the block jointly, or use a method that takes non-axis-aligned steps. Fused lasso and total-variation problems are exactly the ones that need this, and it is the standard trap when someone reaches for coordinate descent because it worked so well on the plain lasso."
+            ]
+          }
+        ],
+        "takeaways": [
+          "The lasso's one-dimensional subproblem is a soft-threshold in closed form, which is why coordinate descent — with warm starts along the path and an incrementally updated residual — is the default L1 solver.",
+          "Correlated features are the cost: the same problem went from 10 sweeps to 372 when the design was made strongly correlated, because axis-aligned steps cannot follow a diagonal valley.",
+          "Convergence needs the non-smooth penalty to be SEPARABLE. On a two-variable fused lasso it halts at a value of 5 when the optimum is 1 — a wrong answer, not a slow one."
+        ],
+        "demo": "coordinate-descent"
+      },
+      "proximal-gradient": {
+        "title": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
+        "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly — and add momentum only once you know the problem is ill-conditioned.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Many objectives split into a smooth part you can differentiate and a non-smooth part you cannot — least squares plus an L1 penalty, a likelihood plus a nuclear norm, a loss plus an indicator that keeps you inside a set. Subgradient descent handles these but converges slowly and never produces exact zeros, because a subgradient step lands on a zero only by accident.",
+              "Proximal gradient splits the work. Take an ordinary gradient step on the smooth part, then apply the proximal operator of the non-smooth part, which asks: what is the nearest point that trades distance against penalty? For the L1 norm that operator is soft-thresholding, so every iteration produces genuinely sparse iterates. Applied to the lasso this is ISTA, iterative shrinkage-thresholding.",
+              "The projected gradient method you already know is the same algorithm: when the non-smooth part is the indicator of a convex set, its proximal operator is exactly projection onto that set."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The proximal operator, and the resulting iteration for f smooth with L-Lipschitz gradient plus g non-smooth:"
+            ],
+            "tex": "\\operatorname{prox}_{tg}(v) = \\arg\\min_x \\left\\{ g(x) + \\tfrac{1}{2t}\\lVert x - v \\rVert^2 \\right\\}, \\qquad x^{k+1} = \\operatorname{prox}_{tg}\\!\\left(x^k - t\\nabla f(x^k)\\right)",
+            "texNote": "With g the L1 norm the prox is the soft-threshold at level t*lambda; with g the indicator of a set it is Euclidean projection; with g identically zero it is plain gradient descent. A step size t = 1/L is always safe and gives an O(1/k) rate."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef soft(v, t):\n    return np.sign(v) * np.maximum(np.abs(v) - t, 0.0)\n\ndef fista(X, y, lam, iters=1000, accelerate=True):\n    L = np.linalg.norm(X.T @ X, 2)          # Lipschitz constant of the gradient\n    x = np.zeros(X.shape[1])\n    z, t = x.copy(), 1.0\n    for _ in range(iters):\n        grad = X.T @ (X @ z - y)\n        x_new = soft(z - grad / L, lam / L)  # gradient step, then prox\n        if accelerate:\n            t_new = (1 + np.sqrt(1 + 4 * t * t)) / 2\n            z = x_new + ((t - 1) / t_new) * (x_new - x)   # Nesterov extrapolation\n            t = t_new\n        else:\n            z = x_new\n        x = x_new\n    return x",
+            "caption": "Setting accelerate=False gives ISTA. The only difference is the extrapolation step, which costs one vector operation and no extra gradient."
+          },
+          {
+            "h": "When acceleration actually pays",
+            "paras": [
+              "ISTA converges at O(1/k) and FISTA at O(1/k squared), and it is tempting to always reach for FISTA. Measured on a well-conditioned random design — 200 samples, 50 features, uncorrelated — ISTA needed 25 iterations to reach the optimum and FISTA needed 26. No speedup at all. The asymptotic rate is irrelevant when the problem is easy enough that you never get to the asymptote.",
+              "Rebuild the same problem with strongly correlated columns, a condition number in the thousands, and the gap opens exactly as advertised: ISTA takes 5,020 iterations to reach the objective FISTA reaches in 642, a factor of 7.8. Watching the suboptimality directly is clearer still — after 1,000 iterations ISTA is 3.6 away from optimal and FISTA is 1.7e-5 away.",
+              "Two practical notes. FISTA is not monotone: the objective can rise on individual iterations, which looks like a bug and is not, though monotone variants exist if you need the guarantee. And on the lasso specifically, coordinate descent beat both on the same ill-conditioned problem, converging in 372 sweeps — acceleration closes the gap to coordinate descent, it does not overturn it."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Proximal gradient = gradient step on the smooth part, then the proximal operator of the non-smooth part; L1 gives soft-thresholding, a set indicator gives projection, zero gives plain gradient descent.",
+          "The O(1/k) to O(1/k^2) improvement is real but conditional: on a well-conditioned lasso ISTA took 25 iterations and FISTA 26, while on an ill-conditioned one it was 5,020 against 642.",
+          "FISTA's objective is not monotone — a rising loss on some iterations is expected behaviour, not a broken implementation."
+        ],
+        "demo": "ista"
+      },
+      "quasi-newton": {
+        "title": "Quasi-Newton Methods (BFGS / L-BFGS)",
+        "oneLine": "Build curvature from the gradients you already computed — and treat the memory length as a real hyperparameter, because it is.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Newton's method converges quadratically because it uses curvature, but it needs the Hessian and a solve against it: n squared storage and n cubed work per step. At any realistic model size that is not a candidate.",
+              "Quasi-Newton methods notice that consecutive gradients already contain curvature information. If the parameters moved by s and the gradient changed by y, then any sensible curvature estimate B should satisfy B s = y — the secant condition. BFGS maintains an approximation to the inverse Hessian by applying the cheapest rank-two update consistent with that condition at every step, so curvature accumulates for free from the gradients you were computing anyway.",
+              "L-BFGS goes one step further and never forms the matrix. It keeps the last m pairs of s and y and reconstructs the search direction with a two-loop recursion costing O(mn). That is what makes it the standard choice for smooth, deterministic, medium-scale problems — full-batch logistic regression, CRF training, bundle adjustment, and the inner loop of many scipy.optimize calls."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Write s for the change in parameters and y for the change in gradient. The secant condition asks the curvature estimate B to satisfy B s = y — the multivariate version of a finite-difference second derivative. BFGS applies the least-change rank-two update to the inverse Hessian approximation H that keeps this true:"
+            ],
+            "tex": "H_{k+1} = \\left(I - \\rho_k s_k y_k^{\\top}\\right)H_k\\left(I - \\rho_k y_k s_k^{\\top}\\right) + \\rho_k s_k s_k^{\\top}, \\qquad \\rho_k = \\frac{1}{y_k^{\\top}s_k}",
+            "texNote": "The update preserves positive definiteness exactly when the curvature condition y'k s'k > 0 holds, which a Wolfe line search guarantees. If it does not hold — and with a noisy or stochastic gradient it often does not — the correct response is to SKIP the update, not to apply it and hope."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef lbfgs_direction(g, S, Y):\n    \"\"\"Two-loop recursion: returns -H*g without ever forming H.\"\"\"\n    q, alpha = g.copy(), [0.0] * len(S)\n    for i in reversed(range(len(S))):\n        rho = 1.0 / (Y[i] @ S[i])\n        alpha[i] = rho * (S[i] @ q)\n        q -= alpha[i] * Y[i]\n    if S:                                     # scale by the latest curvature estimate\n        q *= (S[-1] @ Y[-1]) / (Y[-1] @ Y[-1])\n    for i in range(len(S)):\n        rho = 1.0 / (Y[i] @ S[i])\n        beta = rho * (Y[i] @ q)\n        q += (alpha[i] - beta) * S[i]\n    return -q\n\n# after each accepted step:\n#   s, y = x_new - x, grad_new - grad\n#   if s @ y > 1e-10:            # curvature condition — skip the update if it fails\n#       S.append(s); Y.append(y)\n#       if len(S) > m: S.pop(0); Y.pop(0)",
+            "caption": "The guard on s @ y is not optional. Applying an update that violates the curvature condition destroys positive definiteness and the next direction may not even be a descent direction."
+          },
+          {
+            "h": "The memory length is not a minor knob",
+            "paras": [
+              "On a 10-dimensional Rosenbrock function with the same Armijo line search for every method — so the comparison isolates the search DIRECTION and nothing else — gradient descent needed 21,534 iterations to reach a gradient norm below 1e-6. L-BFGS with memory 7 needed 99, and with memory 20 needed 70.",
+              "But memory 3 needed 10,195. That is the result worth remembering: with too little memory L-BFGS was barely better than gradient descent on the same problem, a 100-fold gap between m = 3 and m = 7. Defaults in the range 5 to 20 exist for a reason, and a disappointing L-BFGS run is worth re-testing with more memory before concluding the method is wrong for the problem.",
+              "One honest caveat about the storage claim. At n = 10 the 2mn = 140 numbers L-BFGS keeps are MORE than the 100 a full Hessian approximation would need — the memory argument is asymptotic, and only bites at scale. At a million parameters it is 1.4e7 against 1e12, which is the regime the method was built for.",
+              "The decisive limitation is different: L-BFGS assumes the objective is the same function each time it is evaluated. Mini-batch gradients break the secant condition, because the difference between two gradients now mixes real curvature with sampling noise, and the accumulated approximation degrades. That, not cost, is why deep learning runs on Adam and SGD rather than on quasi-Newton methods."
+            ]
+          }
+        ],
+        "takeaways": [
+          "BFGS satisfies the secant condition with a rank-two update, so curvature is assembled from gradients you already computed; L-BFGS keeps the last m pairs and never forms the matrix.",
+          "Memory length matters enormously: on the same 10-d Rosenbrock, m=3 took 10,195 iterations and m=7 took 99, against 21,534 for gradient descent.",
+          "It needs a deterministic objective. Mini-batch noise corrupts the secant pairs, which is the real reason deep nets are trained with SGD-family optimisers instead."
+        ],
+        "demo": "l-bfgs"
       }
     }
   },
@@ -2068,7 +2195,8 @@ window.SUB_LESSONS = {
       "dyna-q",
       "regret-matching",
       "minimax",
-      "mcts"
+      "mcts",
+      "neuroevolution"
     ],
     "lessons": {
       "bandit": {
@@ -2406,6 +2534,47 @@ window.SUB_LESSONS = {
           "Choose the final move by visit count rather than win rate, and remember it is anytime — stop it whenever and the answer is usable."
         ],
         "demo": "mcts"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution",
+        "oneLine": "Optimise the weights by perturb-and-rank instead of by backpropagation — worth it when the reward has no usable gradient, or when you have far more machines than patience.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Policy gradient methods need to differentiate through the objective. Evolution strategies do not: sample a population of perturbed parameter vectors, evaluate each one, and move the mean toward the perturbations that scored well. The only thing required of the objective is that it can be evaluated and the results ranked.",
+              "That buys three things a gradient method cannot easily get. Non-differentiable rewards are fine — a game score, a discrete count, wall-clock latency, a simulator that is a black box. There is no credit-assignment problem over long horizons, because the whole episode collapses to one scalar. And it parallelises almost perfectly.",
+              "The parallelisation trick is the part worth knowing. If every worker uses the same pseudo-random generator, a perturbation is fully determined by its seed. So a worker sends back a seed and a single float, not a full gradient vector — communication per worker is constant regardless of model size, which is how OpenAI scaled evolution strategies to over a thousand machines with near-linear speedup."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The estimator is a gradient of a SMOOTHED objective — the expected reward under Gaussian perturbation of the parameters, which is differentiable even when the reward itself is not:"
+            ],
+            "tex": "\\nabla_\\theta\\, \\mathbb{E}_{\\epsilon \\sim \\mathcal{N}(0,I)}\\big[R(\\theta + \\sigma\\epsilon)\\big] = \\frac{1}{\\sigma}\\,\\mathbb{E}_{\\epsilon}\\big[R(\\theta + \\sigma\\epsilon)\\,\\epsilon\\big] \\ \\approx\\ \\frac{1}{n\\sigma}\\sum_{k=1}^{n} A_k\\, \\epsilon_k",
+            "texNote": "A'k is the rank-normalised or standardised reward, not the raw reward. Standardising is what makes the method invariant to the reward's scale and offset — with raw rewards a constant shift changes the update, which is not a property you want."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef es_step(theta, reward_fn, sigma=0.1, pop=100, lr=0.01, rng=None):\n    rng = rng or np.random.default_rng()\n    half = rng.standard_normal((pop // 2, theta.size))\n    eps = np.concatenate([half, -half])        # mirrored sampling: pairs cancel the\n                                               # first-order noise term\n    R = np.array([reward_fn(theta + sigma * e) for e in eps])\n    A = (R - R.mean()) / (R.std() + 1e-8)      # scale-invariance comes from here\n    return theta + (lr / (len(eps) * sigma)) * (A @ eps)\n\n# Distributed form: workers exchange SEEDS, not vectors. Each worker regenerates every\n# other worker's perturbation locally from its seed, so the per-step communication is\n# one integer and one float per worker, independent of theta.size.",
+            "caption": "Mirrored sampling evaluates each perturbation and its negation. It costs nothing extra in code and removes a large part of the estimator's variance."
+          },
+          {
+            "h": "Sigma is the whole ballgame",
+            "paras": [
+              "Take a deliberately gradient-free objective: a reward that counts how many of 20 weights have the correct sign. It is a step function, so its gradient is zero almost everywhere and every gradient-based method sits exactly where it was initialised, forever.",
+              "Evolution strategies go from 8 correct out of 20 to a perfect 20 in 4 generations, using 160 evaluations. The control matters here: random search given the same 160 evaluations reached only 15 out of 20, so the improvement is the algorithm and not the budget.",
+              "But sweeping the perturbation scale exposes the real failure mode. At sigma = 0.2 through 3.0 the problem is solved in 7 to 9 generations. At sigma = 0.05 it never solves at all — still 17 out of 20 after 600 generations. Too small a perturbation and no member of the population crosses the step, so every one receives the identical reward, the standardised advantages are noise, and the update is meaningless. The method fails silently, with a population that looks healthy.",
+              "The honest cost accounting: ES needs far more environment interactions than a policy gradient for the same result, typically by an order of magnitude or more. It buys wall-clock time and robustness with sample efficiency. That trade is worth taking when simulation is cheap and parallel, and is a bad trade when each episode is expensive."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Perturb, evaluate, and move toward what scored well — the objective never has to be differentiable, so game scores, latencies and black-box simulators are all fair game.",
+          "Workers exchange random SEEDS rather than gradients, making per-step communication independent of model size; that is what makes it scale to thousands of machines.",
+          "The perturbation scale is the critical hyperparameter: on a step-function reward, sigma from 0.2 to 3.0 solved it in under 10 generations while sigma = 0.05 never solved it, because no sample crossed the step and the ranking carried no signal."
+        ]
       }
     }
   },
@@ -3860,7 +4029,9 @@ window.SUB_LESSONS = {
       "search-astar",
       "dijkstra",
       "backtracking",
-      "simulated-annealing"
+      "simulated-annealing",
+      "branch-and-bound",
+      "arc-consistency"
     ],
     "lessons": {
       "classification-metrics": {
@@ -4117,6 +4288,91 @@ window.SUB_LESSONS = {
           "The neighbour function defines the landscape and matters more than the cooling schedule."
         ],
         "demo": "simulated-annealing"
+      },
+      "branch-and-bound": {
+        "title": "Branch & Bound",
+        "oneLine": "Search the whole tree in principle, and skip almost all of it in practice — the bound does the work, not the branching.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem — include this item or do not — and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
+              "The guarantee survives because the bound is a genuine over-estimate for a maximisation problem: nothing below can beat it, so nothing worth having is lost. This is the difference between branch and bound and a heuristic — the answer is provably optimal, only the runtime is uncertain.",
+              "On a 24-item knapsack with capacity 220, enumerating every subset visits 8,491,277 nodes. Branch and bound with the standard fractional relaxation as its bound visits 87 and returns the identical optimum of 589. That is 0.001 percent of the tree, roughly a 97,600-fold reduction, and it is entirely attributable to the quality of the bound."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "For the knapsack the bound comes from relaxing the integrality constraint. The fractional knapsack is solved exactly by greedy on value density, so it is both cheap and a valid upper bound on the integer problem:"
+            ],
+            "tex": "\\text{bound}(node) = v + \\max_{0 \\le f_j \\le 1}\\ \\sum_{j \\in \\text{remaining}} f_j v_j \\ \\ \\text{s.t.}\\ \\sum_j f_j w_j \\le C - w \\ \\ \\ge\\ \\text{OPT}(node)",
+            "texNote": "This is the general recipe: relax a constraint until the problem becomes easy, and the relaxed optimum bounds the true one. Linear-programming relaxation of an integer program is the same idea and is what every MILP solver runs at each node."
+          },
+          {
+            "h": "In code",
+            "code": "def knapsack_bb(items, cap):\n    # order by value density: makes the fractional bound tight and finds good\n    # incumbents early, which is what makes the pruning bite\n    items = sorted(items, key=lambda it: it.v / it.w, reverse=True)\n    best = 0\n\n    def bound(i, w, v):\n        bw, bv = w, v\n        for j in range(i, len(items)):\n            if bw + items[j].w <= cap:\n                bw += items[j].w; bv += items[j].v\n            else:\n                bv += (cap - bw) * items[j].v / items[j].w   # fractional tail\n                break\n        return bv\n\n    def rec(i, w, v):\n        nonlocal best\n        best = max(best, v)\n        if i == len(items):\n            return\n        if bound(i, w, v) <= best:      # PRUNE: nothing below can beat the incumbent\n            return\n        if w + items[i].w <= cap:\n            rec(i + 1, w + items[i].w, v + items[i].v)   # take it (explore first)\n        rec(i + 1, w, v)                                 # leave it\n    rec(0, 0, 0)\n    return best",
+            "caption": "Two ordering decisions do most of the work: sorting by density makes the bound tight, and exploring the take branch first raises the incumbent early so later bounds have something to be compared against."
+          },
+          {
+            "h": "What it does not promise",
+            "paras": [
+              "Worst-case complexity is unchanged. Branch and bound on an NP-hard problem is still exponential in the worst case, and adversarial instances exist for every bound — the 97,600-fold reduction above is a property of that instance and that bound, not a theorem.",
+              "Everything therefore rests on two design choices. A weak bound prunes nothing and you have paid extra to run brute force. A bad incumbent early on means there is nothing to prune against, which is why practical solvers spend real effort on a primal heuristic before searching, and why depth-first is the usual node order: it reaches complete solutions fastest and so produces an incumbent soonest.",
+              "The pattern generalises well beyond toy problems. Alpha-beta pruning is branch and bound on a game tree. Modern MILP solvers are branch and bound with LP relaxation bounds plus cutting planes. And it is the honest answer to an interview question about optimal subset selection, where the expected answer is dynamic programming but the constraints often do not fit a table."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Prune a subtree when its optimistic bound cannot beat the incumbent; the optimum is preserved exactly, so this is an exact method and not a heuristic.",
+          "Measured: 87 nodes against 8,491,277 for brute force on a 24-item knapsack, same optimum — the bound quality, not the branching, produces that.",
+          "Worst case is still exponential. A weak bound or a late first incumbent turns it back into brute force with overhead."
+        ],
+        "demo": "branch-and-bound"
+      },
+      "arc-consistency": {
+        "title": "Arc Consistency (AC-3)",
+        "oneLine": "Delete values that provably cannot appear in any solution — a cheap pre-filter that prunes hard, and decides nothing.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A constraint satisfaction problem is variables, domains, and constraints between them. Backtracking search assigns a variable, checks consistency, and undoes the assignment on failure — correct, and prone to rediscovering the same contradiction in thousands of different subtrees.",
+              "Arc consistency attacks that waste before and during the search. An arc from X to Y is consistent when every remaining value of X has at least one compatible partner left in Y. If some value of X has no support anywhere in Y, no solution can ever use it, so it is deleted outright. Deleting it may strip the support of a neighbour, so the affected arcs are pushed back onto a queue and the pruning propagates.",
+              "Measured over 40 random 3-colouring instances on 28-node graphs, plain forward checking explored 2,686 search nodes in total while maintaining arc consistency at every step explored 544 — 4.9 times fewer, with identical answers on all 40 instances."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The definition of an arc being consistent — every surviving value at the tail must have at least one partner at the head:"
+            ],
+            "tex": "\\text{arc } (X_i, X_j) \\text{ is consistent} \\iff \\forall\\, a \\in D_i\\ \\ \\exists\\, b \\in D_j : (a,b) \\in C_{ij}",
+            "texNote": "Enforcing this over the whole problem costs O(e d^3) for e arcs and domain size d: each arc can be re-queued once per value deleted at the other end, giving d revisions per arc, and each revision costs d squared to check every pair. Polynomial — which is exactly why it is worth running inside an exponential search."
+          },
+          {
+            "h": "In code",
+            "code": "from collections import deque\n\ndef revise(domains, i, j, compatible):\n    \"\"\"Drop values of i that have no support left in j.\"\"\"\n    removed = False\n    for a in list(domains[i]):\n        if not any(compatible(a, b) for b in domains[j]):\n            domains[i].discard(a)\n            removed = True\n    return removed\n\ndef ac3(domains, arcs, neighbours, compatible):\n    queue = deque(arcs)\n    while queue:\n        i, j = queue.popleft()\n        if revise(domains, i, j, compatible):\n            if not domains[i]:\n                return False                      # a wipe-out proves unsatisfiability\n            for k in neighbours[i]:\n                if k != j:\n                    queue.append((k, i))          # i shrank, so re-check its supporters\n    return True",
+            "caption": "Only arcs pointing INTO the shrunken variable go back on the queue, and the arc just processed is excluded. Re-queueing everything is still correct but wastes most of the work.",
+            "paras": [
+              "The same routine plays two roles depending on when you call it. Run once before search it is a preprocessor that shrinks the domains you are about to search. Run again after every assignment it becomes MAC — maintaining arc consistency — which is what the 4.9-fold reduction above measured."
+            ]
+          },
+          {
+            "h": "The limit that catches people",
+            "paras": [
+              "Arc consistency is a filter, not a decision procedure. An arc-consistent problem can still be unsatisfiable, and the smallest example is a triangle with two colours: every vertex keeps both colours, every arc is consistent because each value has a partner at the other end, AC-3 reports success — and no valid colouring exists. Verified directly: AC-3 passes the instance with all three domains at size 2, and search then proves it unsatisfiable.",
+              "The reason is that arc consistency only ever examines two variables at a time. The contradiction in a triangle is genuinely three-way, so no amount of pairwise reasoning can see it. Path consistency and the k-consistency hierarchy extend the reasoning to larger groups, at rapidly rising cost, and full n-consistency is just solving the problem.",
+              "So the useful framing is a cost trade rather than a correctness one. Enforcing arc consistency costs polynomial time per node and reduces an exponential search; enforce too little and you search too much, enforce too much and the filtering costs more than the search it saves. MAC with arc consistency is the usual sweet spot, and it is the default in real CSP solvers for that reason."
+            ]
+          }
+        ],
+        "takeaways": [
+          "A value with no support at the far end of any arc cannot appear in a solution, so deleting it is safe; deletions propagate through a queue of affected arcs.",
+          "Maintaining arc consistency during search cut 3-colouring from 2,686 nodes to 544 across 40 instances, with identical answers.",
+          "It prunes but does not decide: a two-coloured triangle is fully arc-consistent and unsatisfiable, because pairwise reasoning cannot see a three-way contradiction."
+        ],
+        "demo": "graph-coloring"
       }
     }
   }

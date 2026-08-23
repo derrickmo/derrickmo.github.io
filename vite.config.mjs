@@ -100,6 +100,9 @@ export default defineConfig({
         'sublesson-ml-theory-overfitting': 'learn/ml-theory/overfitting/index.html',
         'sublesson-ml-theory-newtons-method': 'learn/ml-theory/newtons-method/index.html',
         'sublesson-ml-theory-active-learning': 'learn/ml-theory/active-learning/index.html',
+        'sublesson-ml-theory-coordinate-descent': 'learn/ml-theory/coordinate-descent/index.html',
+        'sublesson-ml-theory-proximal-gradient': 'learn/ml-theory/proximal-gradient/index.html',
+        'sublesson-ml-theory-quasi-newton': 'learn/ml-theory/quasi-newton/index.html',
         'sublesson-neural-nets-mlp': 'learn/neural-nets/mlp/index.html',
         'sublesson-neural-nets-activations': 'learn/neural-nets/activations/index.html',
         'sublesson-neural-nets-optimizers': 'learn/neural-nets/optimizers/index.html',
@@ -144,6 +147,7 @@ export default defineConfig({
         'sublesson-reinforcement-learning-regret-matching': 'learn/reinforcement-learning/regret-matching/index.html',
         'sublesson-reinforcement-learning-minimax': 'learn/reinforcement-learning/minimax/index.html',
         'sublesson-reinforcement-learning-mcts': 'learn/reinforcement-learning/mcts/index.html',
+        'sublesson-reinforcement-learning-neuroevolution': 'learn/reinforcement-learning/neuroevolution/index.html',
         'sublesson-pytorch-internals-backprop': 'learn/pytorch-internals/backprop/index.html',
         'sublesson-pytorch-internals-optimizers': 'learn/pytorch-internals/optimizers/index.html',
         'sublesson-pytorch-internals-gradient-descent': 'learn/pytorch-internals/gradient-descent/index.html',
@@ -192,6 +196,8 @@ export default defineConfig({
         'sublesson-interview-capstone-dijkstra': 'learn/interview-capstone/dijkstra/index.html',
         'sublesson-interview-capstone-backtracking': 'learn/interview-capstone/backtracking/index.html',
         'sublesson-interview-capstone-simulated-annealing': 'learn/interview-capstone/simulated-annealing/index.html',
+        'sublesson-interview-capstone-branch-and-bound': 'learn/interview-capstone/branch-and-bound/index.html',
+        'sublesson-interview-capstone-arc-consistency': 'learn/interview-capstone/arc-consistency/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
         'lesson-advanced-cv-grad-cam': 'learn/advanced-cv/grad-cam/index.html',
