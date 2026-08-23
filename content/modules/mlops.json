@@ -92,7 +92,13 @@
   "subLessons": {
     "title": "MLOps and Serving",
     "intro": "Running models in production: serve them efficiently, scale with demand, ship new versions safely, and notice when the world shifts under them.",
-    "order": ["autoscaling", "canary-rollout", "drift-detection"]
+    "order": [
+      "autoscaling",
+      "canary-rollout",
+      "drift-detection",
+      "bloom-filter",
+      "count-min-sketch"
+    ]
   },
   "updatedAt": "2026-08-15"
 }

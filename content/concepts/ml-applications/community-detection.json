@@ -1,0 +1,47 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "community-detection",
+  "module": "ml-applications",
+  "title": "Community Detection (Louvain)",
+  "oneLine": "Find groups that are denser inside than chance predicts — and know that the objective itself is blind below a scale set by the graph's size.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A community is a set of nodes with more edges among themselves than you would expect if the same nodes had wired up at random. Modularity makes that precise by comparing the observed within-community edge fraction against the expectation under a null model that preserves every node's degree — so a hub connecting to many others is not mistaken for a community just because it has many edges.",
+        "Louvain optimises this greedily in two alternating phases. First, repeatedly move each node into whichever neighbouring community increases modularity most, until no single move helps. Then collapse each community into a single node, with self-loops carrying the internal edge weight, and repeat on the smaller graph. The collapse is what makes it fast — each round shrinks the problem, and the whole thing runs in near-linear time on sparse graphs with millions of nodes.",
+        "It also produces a hierarchy for free. Each level of collapsing is a coarser partition, so you get communities at several scales from one run rather than having to commit to a number of clusters up front."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Modularity, with the resolution parameter that turns out to matter more than it looks:"
+      ],
+      "tex": "Q = \\frac{1}{2m}\\sum_{i,j}\\left[A_{ij} - \\gamma\\,\\frac{k_i k_j}{2m}\\right]\\delta(c_i, c_j)",
+      "texNote": "The k_i k_j / 2m term is the expected number of edges between i and j in a degree-preserving random graph. Note it depends on m, the TOTAL edge count of the whole graph — which is the source of the problem below: whether a local group counts as a community depends on how large the rest of the network is."
+    },
+    {
+      "h": "In code",
+      "code": "import networkx as nx\nimport networkx.algorithms.community as nx_comm\n\n# Louvain, and the resolution parameter you should always pass deliberately\ncomms = nx_comm.louvain_communities(G, resolution=1.0, seed=0)\nprint(nx_comm.modularity(G, comms))\n\n# Louvain is stochastic: node order changes the result. Run it several times and either\n# take the best Q or look at how stable the assignment is - instability is information.\nbest = max((nx_comm.louvain_communities(G, seed=s) for s in range(10)),\n           key=lambda c: nx_comm.modularity(G, c))\n\n# Leiden (via leidenalg) fixes a real defect: Louvain can return communities that are\n# INTERNALLY DISCONNECTED, because moving a node out can sever the group it left.\n# Leiden guarantees every returned community is connected.",
+      "caption": "The disconnected-community defect is not hypothetical. It arises whenever a node acting as the only bridge inside its own community gets moved away, and nothing in Louvain's move rule checks for it."
+    },
+    {
+      "h": "The resolution limit, measured",
+      "paras": [
+        "Modularity cannot see communities below a size that depends on the total number of edges in the network. This is a property of the objective, not of Louvain — no algorithm maximising modularity can escape it, however well it optimises.",
+        "The standard construction makes it concrete: a ring of m cliques, each joined to the next by a single edge. The true communities are unmistakable. Computing modularity directly for the correct partition against a partition that merges adjacent cliques into pairs: at m = 4 the correct partition wins by 0.659 to 0.455, and at m = 16 it still wins by 0.847 to 0.830. At m = 30 it loses, 0.876 against 0.888. At m = 60 it loses badly, 0.892 against 0.921.",
+        "So on a large enough network, the partition that maximises modularity provably merges communities that are cliques joined by a single edge. Nothing is broken; the objective genuinely prefers the wrong answer. Raising the resolution parameter is the standard fix and it works — at m = 30 with gamma set to 2, the correct partition recovers its lead, 0.842 to 0.821 — but gamma is now a hyperparameter with no principled default, and raising it too far fragments genuine communities instead.",
+        "The practical consequence: modularity scores are not comparable across graphs of different sizes, and a high Q is not evidence the communities are right. Treat the number of communities as a scale you chose, sweep gamma and inspect how the partition changes, and prefer Leiden over Louvain since it fixes the disconnected-community defect at no real cost."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Modularity compares within-group edges against a degree-preserving null model; Louvain optimises it greedily and collapses the graph each round, giving near-linear time and a hierarchy.",
+    "The resolution limit is in the OBJECTIVE: on a ring of 30 cliques the merged partition scores 0.888 against the correct partition's 0.876, so no modularity maximiser can recover the truth.",
+    "Sweep the resolution parameter rather than trusting a default, do not compare Q across differently sized graphs, and prefer Leiden — Louvain can return internally disconnected communities."
+  ],
+  "demo": "louvain",
+  "updatedAt": "2026-08-22"
+}

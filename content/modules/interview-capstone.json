@@ -95,7 +95,9 @@
       "backtracking",
       "simulated-annealing",
       "branch-and-bound",
-      "arc-consistency"
+      "arc-consistency",
+      "mst",
+      "max-flow"
     ]
   }
 }

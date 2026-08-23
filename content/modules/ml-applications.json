@@ -97,7 +97,9 @@
       "calibration",
       "conformal",
       "fairness",
-      "pagerank"
+      "pagerank",
+      "community-detection",
+      "label-propagation"
     ]
   },
   "updatedAt": "2026-08-15"

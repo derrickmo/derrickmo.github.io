@@ -361,6 +361,8 @@
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/dynamic-programming/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/interview-landscape/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/max-flow/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/mst/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/portfolio-capstone/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/search-astar/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/simulated-annealing/</loc><priority>0.6</priority></url>
@@ -384,10 +386,12 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/audio-classification/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/calibration/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/community-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/gnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/label-propagation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/multi-task/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/neural-recommenders/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/pagerank/</loc><priority>0.6</priority></url>
@@ -419,8 +423,10 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/autoscaling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/bloom-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/canary-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/cicd/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/mlops/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/docker/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/drift-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/ml-strategy/</loc><priority>0.6</priority></url>

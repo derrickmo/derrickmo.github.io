@@ -3394,7 +3394,9 @@ window.SUB_LESSONS = {
       "calibration",
       "conformal",
       "fairness",
-      "pagerank"
+      "pagerank",
+      "community-detection",
+      "label-propagation"
     ],
     "lessons": {
       "forecasting": {
@@ -3560,6 +3562,90 @@ window.SUB_LESSONS = {
           "Power iteration is the algorithm because the graph is huge and sparse, and personalised PageRank is the version most systems actually use."
         ],
         "demo": "pagerank"
+      },
+      "community-detection": {
+        "title": "Community Detection (Louvain)",
+        "oneLine": "Find groups that are denser inside than chance predicts — and know that the objective itself is blind below a scale set by the graph's size.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A community is a set of nodes with more edges among themselves than you would expect if the same nodes had wired up at random. Modularity makes that precise by comparing the observed within-community edge fraction against the expectation under a null model that preserves every node's degree — so a hub connecting to many others is not mistaken for a community just because it has many edges.",
+              "Louvain optimises this greedily in two alternating phases. First, repeatedly move each node into whichever neighbouring community increases modularity most, until no single move helps. Then collapse each community into a single node, with self-loops carrying the internal edge weight, and repeat on the smaller graph. The collapse is what makes it fast — each round shrinks the problem, and the whole thing runs in near-linear time on sparse graphs with millions of nodes.",
+              "It also produces a hierarchy for free. Each level of collapsing is a coarser partition, so you get communities at several scales from one run rather than having to commit to a number of clusters up front."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Modularity, with the resolution parameter that turns out to matter more than it looks:"
+            ],
+            "tex": "Q = \\frac{1}{2m}\\sum_{i,j}\\left[A_{ij} - \\gamma\\,\\frac{k_i k_j}{2m}\\right]\\delta(c_i, c_j)",
+            "texNote": "The k_i k_j / 2m term is the expected number of edges between i and j in a degree-preserving random graph. Note it depends on m, the TOTAL edge count of the whole graph — which is the source of the problem below: whether a local group counts as a community depends on how large the rest of the network is."
+          },
+          {
+            "h": "In code",
+            "code": "import networkx as nx\nimport networkx.algorithms.community as nx_comm\n\n# Louvain, and the resolution parameter you should always pass deliberately\ncomms = nx_comm.louvain_communities(G, resolution=1.0, seed=0)\nprint(nx_comm.modularity(G, comms))\n\n# Louvain is stochastic: node order changes the result. Run it several times and either\n# take the best Q or look at how stable the assignment is - instability is information.\nbest = max((nx_comm.louvain_communities(G, seed=s) for s in range(10)),\n           key=lambda c: nx_comm.modularity(G, c))\n\n# Leiden (via leidenalg) fixes a real defect: Louvain can return communities that are\n# INTERNALLY DISCONNECTED, because moving a node out can sever the group it left.\n# Leiden guarantees every returned community is connected.",
+            "caption": "The disconnected-community defect is not hypothetical. It arises whenever a node acting as the only bridge inside its own community gets moved away, and nothing in Louvain's move rule checks for it."
+          },
+          {
+            "h": "The resolution limit, measured",
+            "paras": [
+              "Modularity cannot see communities below a size that depends on the total number of edges in the network. This is a property of the objective, not of Louvain — no algorithm maximising modularity can escape it, however well it optimises.",
+              "The standard construction makes it concrete: a ring of m cliques, each joined to the next by a single edge. The true communities are unmistakable. Computing modularity directly for the correct partition against a partition that merges adjacent cliques into pairs: at m = 4 the correct partition wins by 0.659 to 0.455, and at m = 16 it still wins by 0.847 to 0.830. At m = 30 it loses, 0.876 against 0.888. At m = 60 it loses badly, 0.892 against 0.921.",
+              "So on a large enough network, the partition that maximises modularity provably merges communities that are cliques joined by a single edge. Nothing is broken; the objective genuinely prefers the wrong answer. Raising the resolution parameter is the standard fix and it works — at m = 30 with gamma set to 2, the correct partition recovers its lead, 0.842 to 0.821 — but gamma is now a hyperparameter with no principled default, and raising it too far fragments genuine communities instead.",
+              "The practical consequence: modularity scores are not comparable across graphs of different sizes, and a high Q is not evidence the communities are right. Treat the number of communities as a scale you chose, sweep gamma and inspect how the partition changes, and prefer Leiden over Louvain since it fixes the disconnected-community defect at no real cost."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Modularity compares within-group edges against a degree-preserving null model; Louvain optimises it greedily and collapses the graph each round, giving near-linear time and a hierarchy.",
+          "The resolution limit is in the OBJECTIVE: on a ring of 30 cliques the merged partition scores 0.888 against the correct partition's 0.876, so no modularity maximiser can recover the truth.",
+          "Sweep the resolution parameter rather than trusting a default, do not compare Q across differently sized graphs, and prefer Leiden — Louvain can return internally disconnected communities."
+        ],
+        "demo": "louvain"
+      },
+      "label-propagation": {
+        "title": "Label Propagation",
+        "oneLine": "Let a few labels diffuse through a similarity graph — powerful when the manifold assumption holds, and biased by whichever class you happened to label.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Given a handful of labelled points and a great many unlabelled ones, build a graph connecting similar points and let the labels spread along its edges. Each unlabelled node repeatedly takes the weighted average of its neighbours' label distributions while the labelled nodes are pinned to their known values. Iterate to convergence and read off the majority label at each node.",
+              "The assumption this encodes is that the data lies on a low-dimensional manifold and that labels vary smoothly along it — points connected by a short path through dense regions should share a label, even if they are far apart in straight-line distance. That is exactly the situation where supervised learning from four labelled points would be hopeless and this is not.",
+              "Measured on two interleaved moons with just two labelled points per class: label propagation on a 7-nearest-neighbour graph classified all 156 remaining points correctly, against 97.4 percent for a nearest-neighbour classifier given the same four labels. The gain comes entirely from following the manifold rather than the ambient distance."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The iteration and its closed form. Splitting the weight matrix into labelled and unlabelled blocks, the fixed point is a linear solve, so this is a harmonic function on the graph:"
+            ],
+            "tex": "F_u \\leftarrow D_{uu}^{-1}\\left(W_{ul}F_l + W_{uu}F_u\\right) \\quad \\Longrightarrow \\quad F_u = \\left(D_{uu} - W_{uu}\\right)^{-1}W_{ul}F_l",
+            "texNote": "The solution is harmonic: every unlabelled node's value is the weighted average of its neighbours', which is the discrete analogue of a function with zero Laplacian. It is also equivalent to the probability that a random walk started at that node reaches a positively labelled node before a negatively labelled one."
+          },
+          {
+            "h": "In code",
+            "code": "from sklearn.semi_supervised import LabelSpreading\nimport numpy as np\n\ny_semi = np.full(len(X), -1)          # -1 marks unlabelled\ny_semi[labelled_idx] = y[labelled_idx]\n\n# kNN kernel, not RBF. A dense RBF graph over the whole set gives every pair a nonzero\n# weight, so labels leak directly across the gap between manifolds instead of following\n# them - which quietly destroys the property the method exists for.\nmodel = LabelSpreading(kernel=\"knn\", n_neighbors=7, alpha=0.2)\nmodel.fit(X, y_semi)\npred = model.transduction_\n\n# LabelSpreading uses the NORMALISED Laplacian and a clamping parameter alpha, so labelled\n# points can be overridden - which is what you want if some labels are noisy.\n# LabelPropagation clamps them hard, which is right only when labels are trusted.",
+            "caption": "The graph construction is the model. Choosing the kernel and its bandwidth or neighbour count matters more than anything in the propagation step, and there is no way to cross-validate it honestly with four labels."
+          },
+          {
+            "h": "The bias, and what it actually follows",
+            "paras": [
+              "Repeat the same experiment with an imbalanced dataset — 140 points in one class and 20 in the other, still two labels per class — and accuracy falls to 82.1 percent, which is BELOW the 88.5 percent you would get by predicting the majority class for everything. It assigned 46 of the unlabelled points to the minority class when only 18 belong there.",
+              "The usual folk statement is that propagation is biased toward the majority class. The measurement says something more precise: the bias follows the composition of the LABELLED set, not the true prior. Two seeds among 20 points exert far more influence per unlabelled point than two seeds among 140, so the sparsely populated class over-propagates. Label proportionally to the classes and the effect reverses.",
+              "Class mass normalisation is the standard correction — rescale each class's total mass to match a known or estimated prior before taking the argmax. It recovered 94.9 percent on the same imbalanced problem, back above the majority baseline.",
+              "One honest control result: on that imbalanced problem, plain nearest-neighbour from the same four labels scored 98.1 percent, beating both. The moons are nearly separable in the ambient space at this noise level, so the manifold structure had little to add and the graph's imbalance sensitivity was pure downside. Label propagation earns its keep when the manifold assumption genuinely does work — and when it does not, it is a more fragile method than the simple baseline, not merely an equivalent one. Always run the trivial baseline."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Labels diffuse to a harmonic fixed point on the graph, equivalent to a random walk's hitting probability; with 2 labels per class it reached 100% on two moons against 97.4% for nearest-neighbour.",
+          "The imbalance bias follows the LABELLED set's composition, not the true prior — 46 points assigned to a 18-point class — and class mass normalisation corrected it from 82.1% to 94.9%.",
+          "The graph IS the model, and it cannot be honestly cross-validated with a handful of labels. On a problem where the manifold added nothing, plain 1-NN beat it at 98.1%."
+        ],
+        "demo": "label-propagation"
       }
     }
   },
@@ -3569,7 +3655,9 @@ window.SUB_LESSONS = {
     "order": [
       "autoscaling",
       "canary-rollout",
-      "drift-detection"
+      "drift-detection",
+      "bloom-filter",
+      "count-min-sketch"
     ],
     "lessons": {
       "autoscaling": {
@@ -3664,6 +3752,90 @@ window.SUB_LESSONS = {
           "Catching drift early triggers retraining before accuracy falls."
         ],
         "demo": "drift-detection"
+      },
+      "bloom-filter": {
+        "title": "Bloom Filter",
+        "oneLine": "A membership test that can say yes when it means no, never the reverse — and whose error rate you can compute before you build it.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Keep a bit array and k independent hash functions. To insert, hash the item k ways and set those bits. To query, hash the same k ways and check them: if any bit is zero the item is definitely absent, and if all are set the item is probably present. Nothing is ever stored, only evidence that something like it was inserted.",
+              "The asymmetry is the whole design. False negatives are impossible, because inserting only ever sets bits and never clears them, so an inserted item's bits are still set. False positives happen when other insertions happen to set all k of a query's bits by coincidence. Verified across four configurations: zero false negatives out of 5,000 items every time.",
+              "That asymmetry is what makes it useful architecturally. Put a Bloom filter in front of an expensive lookup and a negative answer is final — skip the disk read, skip the network call — while a positive answer merely means you have to check properly. The filter converts most of the misses into memory accesses."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The false-positive rate for n items in m bits with k hashes, and the k that minimises it:"
+            ],
+            "tex": "\\varepsilon \\approx \\left(1 - e^{-kn/m}\\right)^{k}, \\qquad k^* = \\frac{m}{n}\\ln 2, \\qquad m = -\\frac{n \\ln \\varepsilon}{(\\ln 2)^2}",
+            "texNote": "At the optimal k roughly half the bits are set — which is the intuition for why it is optimal: more hashes give more evidence per query but fill the array faster, and the balance point is exactly half full. Measured fill ratios across four configurations were 0.529, 0.528, 0.486 and 0.498."
+          },
+          {
+            "h": "In code",
+            "code": "import math, hashlib\n\nclass BloomFilter:\n    def __init__(self, n, eps):\n        self.m = math.ceil(-n * math.log(eps) / (math.log(2) ** 2))\n        self.k = max(1, round(self.m / n * math.log(2)))\n        self.bits = bytearray((self.m + 7) // 8)\n\n    def _idx(self, item):\n        # Kirsch-Mitzenmacher: two real hashes simulate k without k hash computations,\n        # with no measurable increase in the false-positive rate\n        d = hashlib.sha256(item.encode()).digest()\n        h1 = int.from_bytes(d[:8], \"big\")\n        h2 = int.from_bytes(d[8:16], \"big\") | 1\n        for i in range(self.k):\n            yield (h1 + i * h2) % self.m\n\n    def add(self, item):\n        for i in self._idx(item):\n            self.bits[i >> 3] |= 1 << (i & 7)\n\n    def __contains__(self, item):\n        return all(self.bits[i >> 3] >> (i & 7) & 1 for i in self._idx(item))",
+            "caption": "Size it for the count you will actually reach. The false-positive rate degrades continuously as n grows past the design point — there is no error and no warning, just a filter that gradually stops filtering."
+          },
+          {
+            "h": "Verified, and where it does not fit",
+            "paras": [
+              "The formula is unusually trustworthy. Predicted against measured false-positive rate over 200,000 absent keys: at 4 bits per item, 0.14689 predicted and 0.14772 measured; at 8 bits, 0.02158 against 0.02152; at 12 bits, 0.00314 against 0.00312; at 16 bits, 0.00046 against 0.00046. You can size one on paper and trust the number.",
+              "The optimal-k formula holds up under a sweep rather than on faith. At 8 bits per item the formula prescribes k = 6, and measuring every k from 2 to 12 puts the minimum exactly there: 0.02211 at k = 5, 0.02152 at k = 6, 0.02255 at k = 7, rising to 0.04990 by k = 12. More hashes is emphatically not better.",
+              "The constraints are real, though. You cannot delete — clearing bits would create false negatives for other items — so deletion needs a counting Bloom filter, which costs several bits per slot instead of one. You cannot enumerate the contents, or recover an item from the filter. And you must know n approximately in advance; scalable variants chain filters of growing size to work around that.",
+              "Where it shows up: Bigtable, Cassandra and RocksDB all consult a Bloom filter before touching an SST file on disk, which is what makes a read for a nonexistent key cheap. Chrome used one for malicious-URL checking. In an ML pipeline the natural use is deduplication of a training corpus at a scale where an exact set does not fit in memory — accepting that a small fraction of unique documents will be wrongly dropped as duplicates, which is usually a fine trade and should be a deliberate one."
+            ]
+          }
+        ],
+        "takeaways": [
+          "False negatives are structurally impossible and false positives are computable in advance: predicted 0.02158 versus measured 0.02152 at 8 bits per item, with zero false negatives across every configuration.",
+          "The optimal hash count really is m/n * ln2 — a sweep put the minimum exactly at the predicted k = 6, with error rising in both directions and roughly half the bits set at the optimum.",
+          "No deletion, no enumeration, and you must size for n in advance; past the design point it degrades silently rather than failing."
+        ],
+        "demo": "bloom-filter"
+      },
+      "count-min-sketch": {
+        "title": "Count-Min Sketch",
+        "oneLine": "Approximate frequencies in fixed memory, always overestimating — excellent for heavy hitters and worthless for the tail.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Counting how often each key appears in a stream needs memory proportional to the number of distinct keys, which is exactly what you do not have when the stream is unbounded. Count-Min Sketch fixes the memory in advance and accepts error instead.",
+              "Keep a two-dimensional array of counters, d rows by w columns, with one hash function per row. To record an event, increment one counter in every row. To query, read the same d counters and return the SMALLEST. Collisions can only ever add other keys' counts, so every counter is an overestimate — and the minimum is the least contaminated of the d estimates available.",
+              "The one-sided guarantee is what makes it usable: the answer is never too low. Verified across three sketch widths on a 400,000-event stream — zero underestimates in every configuration. When the sketch says a key occurred at least 10,000 times, it did."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The error bound, with N the total stream length. Note it is ADDITIVE in N, not relative to the key's own count:"
+            ],
+            "tex": "\\hat{f}_x \\ge f_x, \\qquad \\Pr\\!\\left[\\hat{f}_x \\le f_x + \\varepsilon N\\right] \\ge 1 - \\delta, \\qquad w = \\left\\lceil \\frac{e}{\\varepsilon} \\right\\rceil,\\ d = \\left\\lceil \\ln\\frac{1}{\\delta} \\right\\rceil",
+            "texNote": "Width controls the error size and depth controls the probability of exceeding it. The additive form is the crucial detail — the same absolute error is negligible for a key seen a million times and catastrophic for one seen twice."
+          },
+          {
+            "h": "In code",
+            "code": "import math\n\nclass CountMinSketch:\n    def __init__(self, epsilon=1e-3, delta=1e-5):\n        self.w = math.ceil(math.e / epsilon)\n        self.d = math.ceil(math.log(1 / delta))\n        self.table = [[0] * self.w for _ in range(self.d)]\n        self.seeds = list(range(self.d))\n\n    def _cells(self, key):\n        for i, s in enumerate(self.seeds):\n            yield i, hash((s, key)) % self.w\n\n    def add(self, key, count=1):\n        for i, j in self._cells(key):\n            self.table[i][j] += count\n\n    def estimate(self, key):\n        return min(self.table[i][j] for i, j in self._cells(key))\n\n# Sketches merge by elementwise addition, provided the dimensions and hashes match.\n# That is what makes them work across shards: each worker keeps its own, and the\n# summed sketch is exactly the sketch of the combined stream.",
+            "caption": "Mergeability is the property that matters in production. It makes the sketch a monoid, so it composes over map-reduce, over time windows, and over independently sharded workers without any coordination."
+          },
+          {
+            "h": "Superb at the head, useless at the tail",
+            "paras": [
+              "Measured on a Zipf-distributed stream of 400,000 events. With a sketch of 2,718 by 5, the five most frequent keys came back with errors of 0.09, 0.19, 0.00, 0.41 and 0.01 percent. For heavy hitters the sketch is essentially exact.",
+              "For rare keys it is not merely imprecise, it is meaningless. In the same sketch, a key that genuinely appeared once was estimated at 152 — a relative error of 15,100 percent. Shrink the sketch to 272 by 5 and a once-seen key was estimated at 1,452. This is not a defect; it is the additive bound behaving exactly as specified. The error is a fraction of the TOTAL stream, so it swamps any count that is small relative to the stream.",
+              "The rule that follows: never use a Count-Min Sketch for anything that reads the tail. Do not compute a distinct count, do not threshold at a small value, do not rank the least frequent items. Use it for heavy hitters, quantiles, and per-key rate limits where the threshold is large. If you need cardinality rather than frequency, HyperLogLog is the sketch for that job.",
+              "One honest note on memory. In this experiment the stream contained 4,706 distinct keys and the 2,718 by 5 sketch cost about 54 kilobytes, which is not obviously better than an exact hash map at that scale. Sketches win when the distinct count runs to millions or billions, or when memory must be bounded in advance regardless of what arrives — an adversary who can invent unlimited distinct keys cannot make a sketch exceed its budget, and that alone is often the reason to choose one."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Increment one counter per row and read the minimum: estimates are never too low, confirmed with zero underestimates across every configuration tested.",
+          "The bound is additive in the total stream length, so heavy hitters came back within 0.41% while a key seen once was estimated at 152 — a 15,100% relative error.",
+          "Sketches merge by addition, which is what makes them work across shards and windows; use HyperLogLog instead when the question is cardinality rather than frequency."
+        ],
+        "demo": "count-min-sketch"
       }
     }
   },
@@ -4286,7 +4458,9 @@ window.SUB_LESSONS = {
       "backtracking",
       "simulated-annealing",
       "branch-and-bound",
-      "arc-consistency"
+      "arc-consistency",
+      "mst",
+      "max-flow"
     ],
     "lessons": {
       "classification-metrics": {
@@ -4628,6 +4802,93 @@ window.SUB_LESSONS = {
           "It prunes but does not decide: a two-coloured triangle is fully arc-consistent and unsatisfiable, because pairwise reasoning cannot see a three-way contradiction."
         ],
         "demo": "graph-coloring"
+      },
+      "mst": {
+        "title": "Minimum Spanning Tree",
+        "oneLine": "Connect everything at least cost — and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree — a cycle would contain an edge you could delete while staying connected — so the answer has exactly one fewer edge than there are vertices.",
+              "Two algorithms, both greedy, both correct. Kruskal sorts all edges and adds each one whose endpoints are not already connected, using a union-find structure to answer that question in near-constant time. Prim grows a single tree outward, repeatedly adding the cheapest edge that leaves the current tree, which is Dijkstra's shape with a different key.",
+              "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and — because the weights are all distinct — the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The cut property, which is the single fact both algorithms rest on:"
+            ],
+            "tex": "\\forall\\, S \\subset V,\\ S \\neq \\emptyset:\\quad e^* = \\arg\\min_{e=(u,v),\\, u \\in S,\\, v \\notin S} w(e) \\ \\implies\\ e^* \\in \\text{some MST}",
+            "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper — so a tree omitting the lightest crossing edge was never minimal."
+          },
+          {
+            "h": "In code",
+            "code": "def kruskal(n, edges):                     # edges: (weight, u, v)\n    parent = list(range(n))\n    rank = [0] * n\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]  # path halving\n            x = parent[x]\n        return x\n\n    def union(a, b):\n        ra, rb = find(a), find(b)\n        if ra == rb:\n            return False                   # already connected: this edge makes a cycle\n        if rank[ra] < rank[rb]:\n            ra, rb = rb, ra\n        parent[rb] = ra\n        rank[ra] += rank[ra] == rank[rb]\n        return True\n\n    tree, total = [], 0\n    for w, u, v in sorted(edges):          # the sort dominates: O(E log E)\n        if union(u, v):\n            tree.append((u, v, w))\n            total += w\n    return tree, total",
+            "caption": "Union by rank plus path compression makes find effectively constant, so the sort is the whole cost. Prim with a binary heap is O(E log V) instead, which wins on dense graphs where E approaches V squared."
+          },
+          {
+            "h": "Why this belongs in an ML curriculum",
+            "paras": [
+              "Single-linkage hierarchical clustering is minimum spanning tree construction. The agglomerative procedure merges the two clusters with the smallest distance between any pair of members, which is exactly the order Kruskal adds edges. So cutting the k-1 heaviest edges of the MST gives precisely the k clusters single-linkage would produce — verified directly here for k of 2, 4 and 7, with identical cluster memberships each time.",
+              "That equivalence is useful in both directions. It explains single-linkage's signature weakness, chaining: a thin bridge of points between two dense blobs is a light edge, so the MST joins them and no threshold separates them afterwards. And it gives you an O(E log E) route to the whole hierarchy rather than the naive O(n cubed) agglomerative loop.",
+              "The pattern shows up elsewhere too. Chow-Liu learns the optimal tree-structured Bayesian network by finding a maximum spanning tree over pairwise mutual information — the same algorithm with the sign flipped and information as the weight. And in image segmentation, Felzenszwalb-Huttenlocher is an MST-based region merger.",
+              "One caveat that separates it from shortest paths, and which interviews probe: the MST does not contain shortest paths. The minimum spanning tree minimises TOTAL edge weight, and the path between two vertices within it can be arbitrarily worse than their true shortest path. If you need distances, run Dijkstra; the MST answers a different question."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Both Kruskal and Prim rest on the cut property; with distinct edge weights the MST is unique, confirmed by two algorithms returning byte-identical edge sets.",
+          "Single-linkage clustering IS the MST: cutting the k-1 heaviest edges reproduced the agglomerative clusters exactly, which also explains chaining as a light-bridge edge.",
+          "The MST minimises total weight, not path length — the route between two nodes inside it can be far worse than their shortest path."
+        ],
+        "demo": "mst"
+      },
+      "max-flow": {
+        "title": "Max Flow / Min Cut",
+        "oneLine": "The most you can push equals the cheapest thing you can sever — one theorem that turns matching, segmentation and scheduling into the same problem.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Model a network as edges with capacities, and ask how much can flow from a source to a sink without exceeding any capacity and without accumulating anywhere in between. Separately, ask which set of edges is cheapest to cut so that no path from source to sink survives. The max-flow min-cut theorem says these two numbers are always equal.",
+              "One direction is obvious: every unit of flow must cross every cut, so no flow can exceed any cut's capacity. The surprising direction is that the bound is always achieved — there is always a cut as small as the maximum flow. Verified on the standard textbook network: maximum flow 23, minimum cut 23, with the cut consisting of edges of capacity 12, 7 and 4.",
+              "Ford-Fulkerson finds both at once. Repeatedly find any source-to-sink path with spare capacity and push as much as it allows, recording backward residual edges so later iterations can undo earlier commitments. When no such path remains, the flow is maximum — and the vertices still reachable from the source in the residual graph define exactly the minimum cut. You get the certificate for free."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The theorem, and the residual capacity that drives the algorithm:"
+            ],
+            "tex": "\\max_{f} |f| = \\min_{(S,T)} c(S,T) = \\min_{(S,T)} \\sum_{u \\in S,\\, v \\in T} c(u,v), \\qquad c_f(u,v) = c(u,v) - f(u,v) + f(v,u)",
+            "texNote": "The backward term is what makes it work. Allowing flow to be pushed back along an edge lets the algorithm revise a bad earlier routing, which is why a purely greedy forward-only search is not enough. Using shortest augmenting paths — Edmonds-Karp — bounds the iteration count at O(VE) independent of the capacities."
+          },
+          {
+            "h": "In code",
+            "code": "from collections import deque\n\ndef max_flow(cap, s, t):                   # cap: dict-of-dicts, mutated into residual\n    flow = 0\n    while True:\n        parent = {s: s}\n        q = deque([s])\n        while q and t not in parent:       # BFS => shortest augmenting path (Edmonds-Karp)\n            u = q.popleft()\n            for v, c in cap[u].items():\n                if c > 0 and v not in parent:\n                    parent[v] = u\n                    q.append(v)\n        if t not in parent:\n            break\n        bottleneck, v = float(\"inf\"), t\n        while v != s:\n            bottleneck = min(bottleneck, cap[parent[v]][v]); v = parent[v]\n        v = t\n        while v != s:\n            cap[parent[v]][v] -= bottleneck\n            cap[v][parent[v]] = cap[v].get(parent[v], 0) + bottleneck   # residual\n            v = parent[v]\n        flow += bottleneck\n    return flow, parent            # vertices reachable at the end = the min cut's S side",
+            "caption": "BFS rather than DFS is not a stylistic choice. With DFS and adversarial capacities the iteration count can depend on the capacity VALUES; BFS bounds it by the graph size alone.",
+            "paras": [
+              "The residual edge is the part people omit when writing this from memory, and omitting it produces an algorithm that returns a maximal flow rather than a maximum one — plausible, and wrong."
+            ]
+          },
+          {
+            "h": "The reductions are the point",
+            "paras": [
+              "Bipartite matching is a flow problem. Add a source joined to every left vertex with capacity one, a sink joined from every right vertex with capacity one, and unit capacities on the original edges. The maximum flow is the maximum matching, because unit capacities force each vertex to be used at most once. Verified against brute-force enumeration on a random bipartite graph: both gave 4. And the minimum cut came out at 4 as well — that is König's theorem, maximum matching equals minimum vertex cover, falling out of the same computation.",
+              "Image segmentation is a flow problem. Nodes are pixels, source and sink represent foreground and background, edges to the terminals encode per-pixel likelihood and edges between neighbours encode a smoothness penalty. The minimum cut is then the segmentation minimising the combined energy — this is GrabCut, and it is why graph cuts dominated interactive segmentation before deep learning.",
+              "Project selection, baseball elimination, and scheduling with constraints all reduce the same way. The practical skill is recognising the shape: a problem is a flow problem when it has two sides, a per-unit capacity, and a conflict that forces a choice.",
+              "The limit worth knowing is that this is a two-label technique. Cuts separate a graph into two parts, so the exact-minimisation guarantee applies to binary labelling. Multi-label problems use alpha-expansion, which repeatedly solves binary sub-problems and gives an approximation with a bounded ratio rather than the exact answer."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Max flow equals min cut always — verified at 23 on the textbook network — and the residual graph hands you the optimal cut as a by-product of computing the flow.",
+          "Backward residual edges are what let the algorithm revise earlier routing; without them you get a maximal flow, not a maximum one.",
+          "Bipartite matching, König's theorem and binary image segmentation are all the same computation; the exactness guarantee is limited to two labels."
+        ],
+        "demo": "max-flow"
       }
     }
   }

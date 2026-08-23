@@ -175,9 +175,13 @@ export default defineConfig({
         'sublesson-ml-applications-conformal': 'learn/ml-applications/conformal/index.html',
         'sublesson-ml-applications-fairness': 'learn/ml-applications/fairness/index.html',
         'sublesson-ml-applications-pagerank': 'learn/ml-applications/pagerank/index.html',
+        'sublesson-ml-applications-community-detection': 'learn/ml-applications/community-detection/index.html',
+        'sublesson-ml-applications-label-propagation': 'learn/ml-applications/label-propagation/index.html',
         'sublesson-mlops-autoscaling': 'learn/mlops/autoscaling/index.html',
         'sublesson-mlops-canary-rollout': 'learn/mlops/canary-rollout/index.html',
         'sublesson-mlops-drift-detection': 'learn/mlops/drift-detection/index.html',
+        'sublesson-mlops-bloom-filter': 'learn/mlops/bloom-filter/index.html',
+        'sublesson-mlops-count-min-sketch': 'learn/mlops/count-min-sketch/index.html',
         'sublesson-agentic-ai-tool-routing': 'learn/agentic-ai/tool-routing/index.html',
         'sublesson-agentic-ai-guardrails': 'learn/agentic-ai/guardrails/index.html',
         'sublesson-agentic-ai-constrained-decoding': 'learn/agentic-ai/constrained-decoding/index.html',
@@ -204,6 +208,8 @@ export default defineConfig({
         'sublesson-interview-capstone-simulated-annealing': 'learn/interview-capstone/simulated-annealing/index.html',
         'sublesson-interview-capstone-branch-and-bound': 'learn/interview-capstone/branch-and-bound/index.html',
         'sublesson-interview-capstone-arc-consistency': 'learn/interview-capstone/arc-consistency/index.html',
+        'sublesson-interview-capstone-mst': 'learn/interview-capstone/mst/index.html',
+        'sublesson-interview-capstone-max-flow': 'learn/interview-capstone/max-flow/index.html',
         // <<< generated:sublessons
         // >>> generated:storelessons
         'lesson-advanced-cv-grad-cam': 'learn/advanced-cv/grad-cam/index.html',
