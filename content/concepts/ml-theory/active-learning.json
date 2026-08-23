@@ -1,0 +1,45 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "active-learning",
+  "module": "ml-theory",
+  "title": "Active Learning",
+  "oneLine": "Let the model choose what gets labelled next — a real win when labels are the bottleneck, and a quiet way to bias your test set.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "Labels usually cost more than compute. If a radiologist can annotate 500 scans, spending them on 500 random scans is wasteful: most will be cases the model already handles. Active learning spends the budget where the model is least sure, which is where a label carries the most information.",
+        "The simplest version works surprisingly well. Score every unlabelled point by uncertainty, label the top ones, retrain, repeat. The interesting failures are what happens around that loop rather than in the scoring rule."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "Three standard acquisition scores, in increasing order of what they need:"
+      ],
+      "tex": "\\text{margin}(x) = p_{(1)} - p_{(2)}, \\qquad H(x) = -\\sum_c p_c\\log p_c, \\qquad \\text{BALD}(x) = H\\big[\\bar{p}\\big] - \\mathbb{E}_{\\theta}\\big[H[p_\\theta]\\big]",
+      "texNote": "Margin and entropy measure total uncertainty and cannot tell 'this input is genuinely ambiguous' from 'my model does not know'. BALD separates them: it scores only the part of the uncertainty that would shrink if you knew the parameters, so it stops you buying labels for irreducibly noisy points."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef select_batch(probs, k, diversity_feats=None):\n    # probs: (n, classes) from the current model on the unlabelled pool\n    srt = np.sort(probs, axis=1)\n    margin = srt[:, -1] - srt[:, -2]           # small margin = uncertain\n    order = np.argsort(margin)\n    if diversity_feats is None:\n        return order[:k]                        # naive: often k near-duplicates\n    picked = []\n    for i in order:\n        if all(np.dot(diversity_feats[i], diversity_feats[j]) < 0.9 for j in picked):\n            picked.append(i)\n            if len(picked) == k:\n                break\n    return picked",
+      "caption": "The diversity filter is why batch active learning is not just top-k. The k most uncertain points are usually the same confusion k times over."
+    },
+    {
+      "h": "The three ways it goes wrong",
+      "paras": [
+        "Batch redundancy: the top-k most uncertain points are frequently near-duplicates, so you pay for k labels and learn roughly one thing. Any usable method combines uncertainty with a diversity or coverage term.",
+        "The cold start: uncertainty from a model trained on 20 examples is close to meaningless, so early rounds can be worse than random. Seed with a random batch and switch to active selection once the model is worth listening to.",
+        "★ The one that actually bites: your labelled set is now a BIASED sample of the pool, selected by the model. Measuring accuracy on it overstates difficulty, and any downstream statistic computed from it inherits the selection. Keep a separate randomly-sampled evaluation set from the start — you cannot reconstruct one afterwards."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Active learning pays off when labels, not compute, are the binding constraint.",
+    "Top-k uncertainty gives you k copies of the same confusion; diversity is what makes batch selection work.",
+    "The labelled set becomes a biased sample, so hold out a randomly-drawn evaluation set BEFORE you start."
+  ],
+  "demo": "active-learning",
+  "updatedAt": "2026-08-22"
+}

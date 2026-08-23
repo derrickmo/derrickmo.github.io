@@ -92,7 +92,13 @@
   "subLessons": {
     "title": "Applied Machine Learning",
     "intro": "Putting models to work responsibly: forecast the future, make confidence scores trustworthy, and explain what drove a prediction.",
-    "order": ["forecasting", "calibration", "conformal", "fairness"]
+    "order": [
+      "forecasting",
+      "calibration",
+      "conformal",
+      "fairness",
+      "pagerank"
+    ]
   },
   "updatedAt": "2026-08-15"
 }

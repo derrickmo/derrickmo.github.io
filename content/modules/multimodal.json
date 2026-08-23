@@ -94,7 +94,8 @@
     "intro": "Tying modalities together through a shared embedding space, and searching that space at scale.",
     "order": [
       "contrastive-learning",
-      "vector-search"
+      "vector-search",
+      "spectrogram"
     ]
   },
   "updatedAt": "2026-06-10"

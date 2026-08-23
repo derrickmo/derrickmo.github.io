@@ -21,7 +21,8 @@ window.SUB_LESSONS = {
       "clt",
       "fourier",
       "mutual-information",
-      "importance-sampling"
+      "importance-sampling",
+      "reservoir-sampling"
     ],
     "lessons": {
       "chain-rule": {
@@ -357,6 +358,46 @@ window.SUB_LESSONS = {
           "Report effective sample size alongside the estimate; clipping and self-normalisation trade a little bias for usable variance."
         ],
         "demo": "importance-sampling"
+      },
+      "reservoir-sampling": {
+        "title": "Reservoir Sampling",
+        "oneLine": "A uniform sample of k items from a stream of unknown length, in one pass and constant memory.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "You are reading a log you cannot fit in memory and do not know the length of, and you want k items chosen uniformly at random from all of them. You cannot count first, and you cannot store everything.",
+              "Keep the first k. For each later item, decide whether it belongs in the sample with a probability that shrinks exactly as fast as the stream grows, and if it does, evict a uniformly chosen incumbent. Every item ever seen ends up with the same probability of being in the reservoir, and you never knew the total."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Accept item i with probability k/i. The induction is short and worth carrying:"
+            ],
+            "tex": "P(\\text{item } i \\text{ in reservoir after } n) = \\frac{k}{i}\\prod_{j=i+1}^{n}\\left(1 - \\frac{k}{j}\\cdot\\frac{1}{k}\\right) = \\frac{k}{n}",
+            "texNote": "Each surviving step multiplies by (1 - 1/j), and the product telescopes to i/n, cancelling the k/i to leave k/n — the same for every item, which is the definition of uniform. One pass, O(k) memory, no knowledge of n."
+          },
+          {
+            "h": "In code",
+            "code": "import random\n\ndef reservoir(stream, k):\n    res = []\n    for i, item in enumerate(stream, start=1):\n        if i <= k:\n            res.append(item)\n        else:\n            j = random.randrange(i)      # 0..i-1, so P(j < k) = k/i\n            if j < k:\n                res[j] = item            # evict a uniformly chosen incumbent\n    return res",
+            "caption": "Eight lines. The subtle part is that a single randrange does both jobs — deciding whether to accept AND which slot to overwrite."
+          },
+          {
+            "h": "Where it actually matters",
+            "paras": [
+              "Any time you need an unbiased sample of a stream too large to store: training-data subsampling from a firehose, log sampling for debugging, or holding a representative window of production traffic for drift monitoring.",
+              "The weighted version (A-Res) generalises it by giving each item a key of u^(1/w) for uniform u and weight w, then keeping the k largest keys. That is how you sample proportional to importance without a second pass.",
+              "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs — one per stratum — are the fix, and choosing between them is a modelling decision rather than an implementation detail."
+            ]
+          }
+        ],
+        "takeaways": [
+          "One pass, O(k) memory, uniform over a stream whose length you never learn.",
+          "The accept probability k/i is what makes the telescoping product come out to k/n for every item.",
+          "Uniform over items is not the same as representative — a skewed stream needs a stratified reservoir."
+        ],
+        "demo": "reservoir-sampling"
       }
     }
   },
@@ -584,7 +625,8 @@ window.SUB_LESSONS = {
       "regularization",
       "double-descent",
       "overfitting",
-      "newtons-method"
+      "newtons-method",
+      "active-learning"
     ],
     "lessons": {
       "regularization": {
@@ -728,6 +770,46 @@ window.SUB_LESSONS = {
           "L-BFGS keeps the idea affordably, and Adam's per-parameter scaling is the diagonal approximation of the same idea."
         ],
         "demo": "newton-vs-gradient"
+      },
+      "active-learning": {
+        "title": "Active Learning",
+        "oneLine": "Let the model choose what gets labelled next — a real win when labels are the bottleneck, and a quiet way to bias your test set.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Labels usually cost more than compute. If a radiologist can annotate 500 scans, spending them on 500 random scans is wasteful: most will be cases the model already handles. Active learning spends the budget where the model is least sure, which is where a label carries the most information.",
+              "The simplest version works surprisingly well. Score every unlabelled point by uncertainty, label the top ones, retrain, repeat. The interesting failures are what happens around that loop rather than in the scoring rule."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Three standard acquisition scores, in increasing order of what they need:"
+            ],
+            "tex": "\\text{margin}(x) = p_{(1)} - p_{(2)}, \\qquad H(x) = -\\sum_c p_c\\log p_c, \\qquad \\text{BALD}(x) = H\\big[\\bar{p}\\big] - \\mathbb{E}_{\\theta}\\big[H[p_\\theta]\\big]",
+            "texNote": "Margin and entropy measure total uncertainty and cannot tell 'this input is genuinely ambiguous' from 'my model does not know'. BALD separates them: it scores only the part of the uncertainty that would shrink if you knew the parameters, so it stops you buying labels for irreducibly noisy points."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef select_batch(probs, k, diversity_feats=None):\n    # probs: (n, classes) from the current model on the unlabelled pool\n    srt = np.sort(probs, axis=1)\n    margin = srt[:, -1] - srt[:, -2]           # small margin = uncertain\n    order = np.argsort(margin)\n    if diversity_feats is None:\n        return order[:k]                        # naive: often k near-duplicates\n    picked = []\n    for i in order:\n        if all(np.dot(diversity_feats[i], diversity_feats[j]) < 0.9 for j in picked):\n            picked.append(i)\n            if len(picked) == k:\n                break\n    return picked",
+            "caption": "The diversity filter is why batch active learning is not just top-k. The k most uncertain points are usually the same confusion k times over."
+          },
+          {
+            "h": "The three ways it goes wrong",
+            "paras": [
+              "Batch redundancy: the top-k most uncertain points are frequently near-duplicates, so you pay for k labels and learn roughly one thing. Any usable method combines uncertainty with a diversity or coverage term.",
+              "The cold start: uncertainty from a model trained on 20 examples is close to meaningless, so early rounds can be worse than random. Seed with a random batch and switch to active selection once the model is worth listening to.",
+              "★ The one that actually bites: your labelled set is now a BIASED sample of the pool, selected by the model. Measuring accuracy on it overstates difficulty, and any downstream statistic computed from it inherits the selection. Keep a separate randomly-sampled evaluation set from the start — you cannot reconstruct one afterwards."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Active learning pays off when labels, not compute, are the binding constraint.",
+          "Top-k uncertainty gives you k copies of the same confusion; diversity is what makes batch selection work.",
+          "The labelled set becomes a biased sample, so hold out a randomly-drawn evaluation set BEFORE you start."
+        ],
+        "demo": "active-learning"
       }
     }
   },
@@ -1711,7 +1793,8 @@ window.SUB_LESSONS = {
     "intro": "Tying modalities together through a shared embedding space, and searching that space at scale.",
     "order": [
       "contrastive-learning",
-      "vector-search"
+      "vector-search",
+      "spectrogram"
     ],
     "lessons": {
       "contrastive-learning": {
@@ -1775,6 +1858,46 @@ window.SUB_LESSONS = {
           "It is the retrieval half of RAG."
         ],
         "demo": "vector-search"
+      },
+      "spectrogram": {
+        "title": "Spectrograms & the STFT",
+        "oneLine": "Chop audio into short windows, take a Fourier transform of each — and accept a hard trade between time and frequency resolution.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A raw waveform at 16 kHz is 16,000 numbers per second in which almost nothing is locally meaningful. Pitch and timbre are structure in frequency, so every audio model begins by changing basis: slide a short window along the signal and take a Fourier transform of each position.",
+              "The result is a picture — time on one axis, frequency on the other, energy as brightness — and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "A windowed Fourier transform, evaluated at each hop:"
+            ],
+            "tex": "S(t, f) = \\left|\\sum_{n} x[n]\\,w[n - tH]\\,e^{-2\\pi i f n / N}\\right|^2",
+            "texNote": "w is a taper (Hann, usually) applied before the transform — without it, chopping the signal introduces discontinuities at the window edges that smear energy across all frequencies. H is the hop. The uncertainty principle is not negotiable: a short window localises events in time and blurs frequency; a long one does the reverse."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef spectrogram(x, n_fft=512, hop=128):\n    w = np.hanning(n_fft)\n    frames = [x[i:i + n_fft] * w for i in range(0, len(x) - n_fft, hop)]\n    S = np.abs(np.fft.rfft(np.array(frames), axis=1)) ** 2\n    return np.log(S + 1e-10).T        # log, and NEVER log(S) alone",
+            "caption": "That epsilon is load bearing. A silent frame gives log(0) = -inf, and the NaNs propagate through the whole batch — the single most common bug in an audio pipeline."
+          },
+          {
+            "h": "What the pipeline throws away",
+            "paras": [
+              "Taking the magnitude discards phase, and phase is not recoverable from magnitude. That is precisely why vocoders exist: to invent plausible phase when reconstructing audio from a predicted spectrogram, and why a model that sounds robotic often has a fine spectrogram and a bad vocoder.",
+              "Mel scaling then warps the frequency axis to match human pitch perception, compressing the high end where we discriminate poorly. MFCCs go further and decorrelate with a DCT — a compression that made sense for GMM-era systems and mostly throws away information a neural network would have used. Prefer log-mel unless you have a reason.",
+              "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test — encode, decode, listen — is the cheapest way to find out what your front end deleted."
+            ]
+          }
+        ],
+        "takeaways": [
+          "The STFT turns audio into an image, which is what lets vision architectures work on sound.",
+          "Time and frequency resolution trade against each other through the window length — this is a law, not a tuning problem.",
+          "Magnitude discards phase (hence vocoders), and log(0) without an epsilon poisons the whole batch with NaNs."
+        ],
+        "demo": "spectrogram"
       }
     }
   },
@@ -2682,7 +2805,8 @@ window.SUB_LESSONS = {
       "forecasting",
       "calibration",
       "conformal",
-      "fairness"
+      "fairness",
+      "pagerank"
     ],
     "lessons": {
       "forecasting": {
@@ -2808,6 +2932,46 @@ window.SUB_LESSONS = {
           "Choosing a metric is a value judgment, not a technicality."
         ],
         "demo": "fairness"
+      },
+      "pagerank": {
+        "title": "PageRank",
+        "oneLine": "Importance as the stationary distribution of a random walk — an eigenvector problem that you solve by repeated multiplication, never by decomposition.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Counting inbound links makes a page's rank easy to fake: point a thousand junk pages at it. PageRank makes the definition recursive instead — a page is important if important pages link to it — and that circularity is what makes it hard to game and interesting to compute.",
+              "The clean reading is a random surfer. Follow links at random forever, and occasionally teleport to a page uniformly at random. PageRank is the long-run fraction of time you spend on each page."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The teleport term is what makes this well-posed, not a detail:"
+            ],
+            "tex": "r = \\alpha M r + \\frac{1-\\alpha}{N}\\mathbf{1}, \\qquad \\alpha \\approx 0.85",
+            "texNote": "Without teleportation the walk gets trapped: a page with no outbound links absorbs all the probability, and a cycle with no exit hoards it. Teleporting makes the chain irreducible and aperiodic, which is exactly the condition for a unique stationary distribution to exist. alpha is not a tuning knob so much as the guarantee."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef pagerank(M, alpha=0.85, iters=100, tol=1e-10):\n    n = M.shape[0]\n    r = np.ones(n) / n\n    for _ in range(iters):\n        r_new = alpha * (M @ r) + (1 - alpha) / n\n        if np.abs(r_new - r).sum() < tol:\n            return r_new\n        r = r_new\n    return r",
+            "caption": "Power iteration: multiply, renormalise, repeat. On a web-scale graph M is enormous and sparse, so this is the only feasible route — you never form or decompose the matrix."
+          },
+          {
+            "h": "What it generalises to",
+            "paras": [
+              "Personalised PageRank replaces the uniform teleport vector with a distribution concentrated on a few nodes, which turns a global importance score into 'important RELATIVE to these seeds'. That is the version that actually powers recommendations and related-item panels.",
+              "The same eigenvector-of-a-normalised-graph shape appears in spectral clustering and in graph neural network propagation — a GNN layer is a learned version of the same neighbourhood averaging, which is why over-smoothing in deep GNNs looks like every node converging to the stationary distribution.",
+              "The honest limit: PageRank scores a graph's link structure, not relevance to a query. It was one signal among many even in the search engine it is named for, and treating a structural prior as a relevance model is the classic misuse."
+            ]
+          }
+        ],
+        "takeaways": [
+          "PageRank is the stationary distribution of a random walk with teleportation — importance defined recursively.",
+          "The teleport term is what guarantees a unique solution exists; it is not a hack for dangling nodes.",
+          "Power iteration is the algorithm because the graph is huge and sparse, and personalised PageRank is the version most systems actually use."
+        ],
+        "demo": "pagerank"
       }
     }
   },
@@ -3275,7 +3439,8 @@ window.SUB_LESSONS = {
       "saliency",
       "adversarial-examples",
       "superposition",
-      "activation-patching"
+      "activation-patching",
+      "sparse-autoencoder"
     ],
     "lessons": {
       "shap": {
@@ -3437,6 +3602,46 @@ window.SUB_LESSONS = {
           "Self-repair and backup components mean a small ablation effect is not proof of unimportance."
         ],
         "demo": "activation-patching"
+      },
+      "sparse-autoencoder": {
+        "title": "Sparse Autoencoders & Superposition",
+        "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions — superposition — and it gets away with it because features are sparse, so collisions are rare.",
+              "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary — many more directions than dimensions — with a sparsity penalty, so that each learned atom fires for one thing rather than six."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Encode to a wide, sparse code; decode with a unit-norm dictionary; penalise the code's L1:"
+            ],
+            "tex": "z = \\mathrm{ReLU}(W_e(x - b_d) + b_e),\\quad \\hat{x} = W_d z + b_d,\\quad \\mathcal{L} = \\lVert x - \\hat{x}\\rVert_2^2 + \\lambda\\lVert z\\rVert_1",
+            "texNote": "Decoder columns are constrained to unit norm, otherwise the model shrinks z and inflates W_d to dodge the L1 penalty without becoming any sparser. lambda traces a frontier: too small and atoms stay polysemantic, too large and atoms die and never fire at all."
+          },
+          {
+            "h": "In code",
+            "code": "import torch, torch.nn as nn\n\nclass SAE(nn.Module):\n    def __init__(self, d_model, d_hidden):        # d_hidden >> d_model\n        super().__init__()\n        self.enc = nn.Linear(d_model, d_hidden)\n        self.dec = nn.Linear(d_hidden, d_model, bias=False)\n\n    def forward(self, x):\n        z = torch.relu(self.enc(x))\n        with torch.no_grad():                     # keep the dictionary unit-norm\n            self.dec.weight.div_(self.dec.weight.norm(dim=0, keepdim=True))\n        return self.dec(z), z\n\ndef loss_fn(x, x_hat, z, lam=1e-3):\n    return ((x - x_hat) ** 2).sum(-1).mean() + lam * z.abs().sum(-1).mean()",
+            "caption": "The renormalisation is not optional. Without it the L1 term is trivially gamed and the code looks sparse while nothing has been disentangled."
+          },
+          {
+            "h": "How you know it worked, and where it stops",
+            "paras": [
+              "The honest evaluation is not reconstruction loss. Feed a known feature and count how many atoms fire above threshold: on a planted toy problem, raw neurons respond to around six features each while SAE atoms respond to roughly one. That activation-based test is the measurement; direction overlap is not, because in a low-dimensional space a random direction already has high cosine with the best of many features.",
+              "Dead latents are the routine failure — atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
+              "And the deepest caveat: in a real model there is no ground truth. Superposition is a hypothesis that explains polysemanticity well, and reconstruction plus sparsity is a proxy for interpretability, not a proof of it."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Superposition means more features than dimensions, tolerated because features are sparse — so the neuron basis is the wrong basis.",
+          "A sparse autoencoder learns an overcomplete dictionary; the unit-norm decoder constraint is what stops the L1 penalty being gamed.",
+          "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
+        ],
+        "demo": "sparse-autoencoder"
       }
     }
   },
@@ -3448,7 +3653,8 @@ window.SUB_LESSONS = {
       "dynamic-programming",
       "graph-search",
       "search-astar",
-      "dijkstra"
+      "dijkstra",
+      "backtracking"
     ],
     "lessons": {
       "classification-metrics": {
@@ -3625,6 +3831,46 @@ window.SUB_LESSONS = {
           "Unweighted means BFS, negative edges mean Bellman-Ford, and a heuristic makes it A*."
         ],
         "demo": "dijkstra"
+      },
+      "backtracking": {
+        "title": "Backtracking & Constraint Satisfaction",
+        "oneLine": "Search that undoes its own choices — and the pruning that turns an impossible enumeration into a tractable one.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Some problems have no incremental scoring to guide you: a partial Sudoku is not 'closer' to solved in any measurable way. Backtracking handles those by committing to a choice, exploring, and undoing the choice when the branch dies. It is depth-first search over partial assignments.",
+              "Written naively it enumerates everything, which is hopeless. The whole art is detecting a dead branch early — the moment a partial assignment cannot possibly extend to a solution, you prune an entire subtree rather than exploring it."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The search space is a product, so pruning is multiplicative rather than additive:"
+            ],
+            "tex": "|S| = \\prod_{i=1}^{n} |D_i| \\quad\\text{(unpruned)}, \\qquad \\text{8-queens: } 8^8 = 16{,}777{,}216 \\;\\to\\; 2{,}057 \\text{ nodes with pruning}",
+            "texNote": "That is the entire reason to care. Cutting a branch at depth 3 in an 8-deep tree removes a whole subtree, so a check that is cheap and fires early is worth far more than a clever check that fires late."
+          },
+          {
+            "h": "In code",
+            "code": "def solve(assignment, domains, constraints):\n    if len(assignment) == len(domains):\n        return assignment\n    # Most-constrained variable first: fail fast, prune more.\n    var = min((v for v in domains if v not in assignment),\n              key=lambda v: len(domains[v]))\n    for value in domains[var]:\n        if all(c(assignment, var, value) for c in constraints):\n            assignment[var] = value\n            result = solve(assignment, domains, constraints)\n            if result:\n                return result\n            del assignment[var]          # UNDO - this is the backtrack\n        # else: pruned without recursing at all\n    return None",
+            "caption": "The `del` is the backtrack. Forgetting it, or mutating shared state you cannot undo, is the bug that makes a correct-looking solver return nonsense."
+          },
+          {
+            "h": "The heuristics that make it work",
+            "paras": [
+              "Choose the most-constrained variable next (fewest remaining legal values). It sounds backwards — you are picking the hardest one — but failing fast near the root prunes far more than failing slowly at the leaves.",
+              "Then choose the least-constraining value: the one that eliminates fewest options for the neighbours, keeping the rest of the search alive. The pair together is worth orders of magnitude on real CSPs.",
+              "Arc consistency goes further and propagates constraints BEFORE searching, removing values that cannot participate in any solution. Run it once up front and again after each assignment, and many puzzles collapse without search at all. This is also where SAT solvers start, before adding clause learning."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Backtracking is DFS over partial assignments with an explicit undo — and forgetting the undo is the classic bug.",
+          "Pruning is multiplicative: a cheap check that fires near the root beats an expensive one that fires near the leaves.",
+          "Most-constrained variable, least-constraining value, and constraint propagation are what separate a toy solver from a usable one."
+        ],
+        "demo": "n-queens"
       }
     }
   }

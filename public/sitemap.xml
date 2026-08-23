@@ -302,6 +302,7 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/probability/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/python-numpy-tensor-speed/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/pytorch-data-loading/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/reservoir-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/softmax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/frontier-frameworks/eval-harnesses/</loc><priority>0.6</priority></url>
@@ -339,6 +340,7 @@
   <url><loc>https://derrickmo.github.io/learn/huggingface/multimodal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/huggingface/nlp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/backtracking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/breadth-rapid-fire/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/classification-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/coding-patterns/</loc><priority>0.6</priority></url>
@@ -379,6 +381,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/multi-task/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/neural-recommenders/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/pagerank/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/recommenders-cf/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/search-ranking/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/semi-supervised/</loc><priority>0.6</priority></url>
@@ -387,6 +390,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/time-series/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-from-scratch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/active-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/bias-variance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/convex-optimization/</loc><priority>0.6</priority></url>
@@ -423,6 +427,7 @@
   <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-fusion/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/siamese/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/simclr-byol/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/spectrogram/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/stt-tts/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vector-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/vlm-captioning/</loc><priority>0.6</priority></url>
@@ -570,6 +575,7 @@
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/red-teaming/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/saliency/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/shap/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/sparse-autoencoder/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/superposition-sae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/superposition/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/</loc><priority>0.6</priority></url>

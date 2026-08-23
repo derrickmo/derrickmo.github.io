@@ -1,0 +1,45 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "spectrogram",
+  "module": "multimodal",
+  "title": "Spectrograms & the STFT",
+  "oneLine": "Chop audio into short windows, take a Fourier transform of each — and accept a hard trade between time and frequency resolution.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A raw waveform at 16 kHz is 16,000 numbers per second in which almost nothing is locally meaningful. Pitch and timbre are structure in frequency, so every audio model begins by changing basis: slide a short window along the signal and take a Fourier transform of each position.",
+        "The result is a picture — time on one axis, frequency on the other, energy as brightness — and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "A windowed Fourier transform, evaluated at each hop:"
+      ],
+      "tex": "S(t, f) = \\left|\\sum_{n} x[n]\\,w[n - tH]\\,e^{-2\\pi i f n / N}\\right|^2",
+      "texNote": "w is a taper (Hann, usually) applied before the transform — without it, chopping the signal introduces discontinuities at the window edges that smear energy across all frequencies. H is the hop. The uncertainty principle is not negotiable: a short window localises events in time and blurs frequency; a long one does the reverse."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef spectrogram(x, n_fft=512, hop=128):\n    w = np.hanning(n_fft)\n    frames = [x[i:i + n_fft] * w for i in range(0, len(x) - n_fft, hop)]\n    S = np.abs(np.fft.rfft(np.array(frames), axis=1)) ** 2\n    return np.log(S + 1e-10).T        # log, and NEVER log(S) alone",
+      "caption": "That epsilon is load bearing. A silent frame gives log(0) = -inf, and the NaNs propagate through the whole batch — the single most common bug in an audio pipeline."
+    },
+    {
+      "h": "What the pipeline throws away",
+      "paras": [
+        "Taking the magnitude discards phase, and phase is not recoverable from magnitude. That is precisely why vocoders exist: to invent plausible phase when reconstructing audio from a predicted spectrogram, and why a model that sounds robotic often has a fine spectrogram and a bad vocoder.",
+        "Mel scaling then warps the frequency axis to match human pitch perception, compressing the high end where we discriminate poorly. MFCCs go further and decorrelate with a DCT — a compression that made sense for GMM-era systems and mostly throws away information a neural network would have used. Prefer log-mel unless you have a reason.",
+        "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test — encode, decode, listen — is the cheapest way to find out what your front end deleted."
+      ]
+    }
+  ],
+  "takeaways": [
+    "The STFT turns audio into an image, which is what lets vision architectures work on sound.",
+    "Time and frequency resolution trade against each other through the window length — this is a law, not a tuning problem.",
+    "Magnitude discards phase (hence vocoders), and log(0) without an epsilon poisons the whole batch with NaNs."
+  ],
+  "demo": "spectrogram",
+  "updatedAt": "2026-08-22"
+}

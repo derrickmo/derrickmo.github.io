@@ -91,7 +91,8 @@
       "saliency",
       "adversarial-examples",
       "superposition",
-      "activation-patching"
+      "activation-patching",
+      "sparse-autoencoder"
     ]
   }
 }

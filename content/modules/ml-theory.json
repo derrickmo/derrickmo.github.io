@@ -96,7 +96,8 @@
       "regularization",
       "double-descent",
       "overfitting",
-      "newtons-method"
+      "newtons-method",
+      "active-learning"
     ]
   },
   "updatedAt": "2026-08-01"
