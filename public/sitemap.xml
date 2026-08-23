@@ -706,6 +706,7 @@
   <url><loc>https://derrickmo.github.io/visualize/hyde/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/image-augmentation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/image-pyramids/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/isomap/</loc><priority>0.6</priority></url>
