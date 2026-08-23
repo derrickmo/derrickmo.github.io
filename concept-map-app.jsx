@@ -12,12 +12,15 @@ const {
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 
 const AREA_COLORS = {
-  "Foundations": "#3b82f6", "NLP": "#a855f7", "Classical ML": "#22d3ee",
-  "Reinforcement Learning": "#f59e0b", "Training Systems": "#ec4899",
-  "Computer Vision": "#34d399", "Transformers": "#c084fc", "Signal": "#2dd4bf",
-  "Neural Networks": "#60a5fa", "Graphs": "#fb7185", "Generative": "#f472b6",
-  "Game AI": "#fbbf24", "Time Series": "#818cf8", "Retrieval": "#4ade80",
-  "Fine-Tuning": "#e879f9", "Applications": "#94a3b8",
+  // One colour per area. Kept in sync with the `area` field in concepts-index.js —
+  // an area with no entry here renders grey and becomes invisible in the legend.
+  "Optimization": "#3b82f6", "Probability & Bayes": "#7dd3fc", "Information Theory": "#0ea5e9",
+  "Evaluation & Calibration": "#22d3ee", "Algorithms": "#94a3b8", "Causal Inference": "#a3e635",
+  "Classical ML": "#2dd4bf", "Neural Networks": "#60a5fa", "Computer Vision": "#34d399",
+  "NLP": "#a855f7", "Transformers": "#c084fc", "Generative": "#f472b6",
+  "Fine-Tuning": "#e879f9", "Training Systems": "#ec4899", "Trustworthy ML": "#fb923c",
+  "Reinforcement Learning": "#f59e0b", "Game AI": "#fbbf24", "Retrieval": "#4ade80",
+  "Graphs": "#fb7185", "Signal": "#5eead4", "Time Series": "#818cf8", "Data-Centric": "#d8b4fe",
 };
 const areaColor = a => AREA_COLORS[a] || "#94a3b8";
 const BASE = () => window.__DM_BASE || "../";

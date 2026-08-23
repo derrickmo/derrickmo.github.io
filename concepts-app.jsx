@@ -18,10 +18,14 @@ function countSurfaces(id) {
 }
 
 function byArea() {
+  // Roughly the order the curriculum teaches in. Anything not listed still renders,
+  // appended at the end — see the loop below.
   const order = [
-    "Foundations", "Classical ML", "Neural Networks", "Computer Vision",
-    "NLP", "Transformers", "Generative", "Fine-Tuning", "Training Systems",
-    "Reinforcement Learning", "Game AI", "Retrieval", "Time Series",
+    "Optimization", "Probability & Bayes", "Information Theory", "Algorithms",
+    "Classical ML", "Evaluation & Calibration", "Causal Inference", "Data-Centric",
+    "Neural Networks", "Computer Vision", "Signal", "NLP", "Transformers",
+    "Generative", "Fine-Tuning", "Training Systems", "Trustworthy ML",
+    "Reinforcement Learning", "Game AI", "Retrieval", "Graphs", "Time Series",
   ];
   const groups = {};
   for (const id of Object.keys(INDEX)) {
