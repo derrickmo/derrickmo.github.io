@@ -22,7 +22,8 @@ window.SUB_LESSONS = {
       "fourier",
       "mutual-information",
       "importance-sampling",
-      "reservoir-sampling"
+      "reservoir-sampling",
+      "huffman-coding"
     ],
     "lessons": {
       "chain-rule": {
@@ -398,6 +399,46 @@ window.SUB_LESSONS = {
           "Uniform over items is not the same as representative — a skewed stream needs a stratified reservoir."
         ],
         "demo": "reservoir-sampling"
+      },
+      "huffman-coding": {
+        "title": "Huffman Coding",
+        "oneLine": "Give frequent symbols short codes — provably optimal among per-symbol codes, and that qualifier is where all the interesting losses hide.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Fixed-length codes spend the same bits on 'e' as on 'z', which is obviously wasteful when one is a hundred times more common. Huffman builds the code bottom-up: repeatedly take the two least frequent symbols, merge them into a node whose frequency is their sum, and let the tree's shape assign the codes.",
+              "The result is a prefix code — no codeword is a prefix of another — so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Entropy is the floor, and Huffman lands within one bit of it:"
+            ],
+            "tex": "H(X) \\;\\le\\; L_{\\text{Huffman}} \\;<\\; H(X) + 1",
+            "texNote": "That +1 is the cost of using a whole number of bits per symbol. It hurts most when the alphabet is small and skewed: a symbol with probability 0.9 deserves 0.15 bits and must be given 1, so a binary source can run 6x over entropy. Arithmetic coding removes exactly this loss by not requiring integer code lengths."
+          },
+          {
+            "h": "In code",
+            "code": "import heapq\nfrom collections import Counter\n\ndef huffman(text):\n    heap = [[w, i, {c: \"\"}] for i, (c, w) in enumerate(Counter(text).items())]\n    heapq.heapify(heap)\n    while len(heap) > 1:\n        w1, _, c1 = heapq.heappop(heap)\n        w2, i2, c2 = heapq.heappop(heap)\n        merged = {c: \"0\" + b for c, b in c1.items()}\n        merged.update({c: \"1\" + b for c, b in c2.items()})\n        heapq.heappush(heap, [w1 + w2, i2, merged])\n    return heap[0][2]",
+            "caption": "The tie-break index keeps the heap comparison from reaching the dict and makes the output deterministic — ties are common and otherwise the code changes run to run."
+          },
+          {
+            "h": "Why nothing modern uses it alone",
+            "paras": [
+              "It is optimal only among codes that assign a whole number of bits to each symbol INDEPENDENTLY, and every real source violates the independence part. In English text 'u' after 'q' is nearly certain, and a per-symbol code cannot exploit that at all; a context model can.",
+              "So modern compressors use it as the final stage rather than the whole method. DEFLATE finds repeated substrings with LZ77 and Huffman-codes the result; JPEG quantises DCT coefficients and Huffman-codes those. The modelling happens first, and the entropy coder only cashes in whatever skew the model produced.",
+              "The same split is worth recognising in machine learning, where the model IS the compressor: a language model's cross-entropy loss is literally the average number of bits it would need to encode the next token, and a better model is a better compressor. The entropy coder is a solved problem; the model is not."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Greedy bottom-up merging gives a provably optimal prefix code — rare for a greedy algorithm.",
+          "It is within one bit of entropy, and that bit is expensive on small skewed alphabets, which is why arithmetic coding exists.",
+          "It cannot exploit context, so it is the last stage of a compressor rather than the whole of one — the modelling happens first."
+        ],
+        "demo": "huffman-coding"
       }
     }
   },
@@ -626,7 +667,8 @@ window.SUB_LESSONS = {
       "double-descent",
       "overfitting",
       "newtons-method",
-      "active-learning"
+      "active-learning",
+      "bayesian-optimization"
     ],
     "lessons": {
       "regularization": {
@@ -810,6 +852,46 @@ window.SUB_LESSONS = {
           "The labelled set becomes a biased sample, so hold out a randomly-drawn evaluation set BEFORE you start."
         ],
         "demo": "active-learning"
+      },
+      "bayesian-optimization": {
+        "title": "Bayesian Optimization",
+        "oneLine": "Model the objective you cannot see, then spend each expensive evaluation where the model says it will learn the most.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Some functions cost hours per evaluation — training a model, running a wet-lab assay, simulating a design — and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
+              "The model gives a mean and an uncertainty everywhere. That second quantity is the whole idea: a point can be worth trying because the model expects it to be good, or because the model has no idea, and an acquisition function decides how to weigh those."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Expected improvement, the standard acquisition function, integrates how much better a point could plausibly be:"
+            ],
+            "tex": "\\mathrm{EI}(x) = \\mathbb{E}\\big[\\max(0,\\; f(x) - f^{+})\\big] = (\\mu(x) - f^{+})\\Phi(Z) + \\sigma(x)\\phi(Z),\\quad Z = \\frac{\\mu(x)-f^{+}}{\\sigma(x)}",
+            "texNote": "The two terms are exploitation and exploration made explicit: the first rewards a high predicted mean, the second rewards uncertainty. Where sigma is zero - a point already measured - EI is zero, so it never wastes an evaluation repeating itself."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\nfrom scipy.stats import norm\n\ndef expected_improvement(mu, sigma, best, xi=0.01):\n    sigma = np.maximum(sigma, 1e-9)          # guard the divide at measured points\n    z = (mu - best - xi) / sigma\n    return (mu - best - xi) * norm.cdf(z) + sigma * norm.pdf(z)\n\n# the loop: fit surrogate -> maximise EI -> evaluate the real objective -> repeat\nfor _ in range(budget):\n    gp.fit(X, y)\n    mu, sigma = gp.predict(candidates, return_std=True)\n    x_next = candidates[np.argmax(expected_improvement(mu, sigma, y.max()))]\n    X, y = np.vstack([X, x_next]), np.append(y, objective(x_next))",
+            "caption": "Note the inner optimisation: you maximise EI over candidates, which is itself a search. It is cheap only because the surrogate is cheap."
+          },
+          {
+            "h": "When it loses, which is more often than the pitch suggests",
+            "paras": [
+              "It wins when evaluations are genuinely expensive, the budget is small (tens, not thousands), and the space is low-dimensional and continuous. Outside that, the surrogate is the bottleneck: Gaussian processes scale cubically in observations, and their distance-based kernels lose meaning in high dimensions, so a GP over fifty hyperparameters is modelling noise.",
+              "The comparison people skip is against a bandit-style scheduler. For neural network tuning, ASHA and Hyperband simply start many random configurations and kill the bad ones early — they exploit the fact that a partially trained model already tells you something, which Bayesian optimisation ignores by treating each evaluation as atomic. On a parallel cluster they frequently win outright.",
+              "And it is sequential by nature, which is awkward when you have 32 workers idle. Batch variants exist and are noticeably harder than the single-point story implies."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Fit a surrogate with uncertainty, then let an acquisition function trade predicted quality against what you do not know.",
+          "Expected improvement is zero where you have already measured, so the loop never repeats itself.",
+          "It wins on expensive, low-dimensional, small-budget problems — and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
+        ],
+        "demo": "bayesian-optimization"
       }
     }
   },
@@ -1752,7 +1834,8 @@ window.SUB_LESSONS = {
     "title": "Generative Models",
     "intro": "Three ways to learn to create data: encode and sample through a latent space, train a generator against a critic, or add noise and learn to reverse it.",
     "order": [
-      "diffusion"
+      "diffusion",
+      "variational-inference"
     ],
     "lessons": {
       "diffusion": {
@@ -1785,6 +1868,46 @@ window.SUB_LESSONS = {
           "Generation iteratively denoises from pure noise."
         ],
         "demo": "diffusion"
+      },
+      "variational-inference": {
+        "title": "Variational Inference & the ELBO",
+        "oneLine": "Turn an intractable integral into an optimisation problem — and accept that the bound you maximise is not the thing you wanted.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "The posterior p(z|x) needs a normalising constant that is an integral over all latent configurations, and for anything interesting that integral has no closed form. MCMC samples from it instead, correctly but slowly. Variational inference takes the other route: pick a family of distributions you can handle, and find the member closest to the true posterior.",
+              "That converts integration into optimisation, which scales — you can run it on mini-batches with a gradient optimiser. The cost is that the answer is only as good as the family you chose, and unlike MCMC there is no asymptotic guarantee that more compute fixes it."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The exact decomposition is the thing worth memorising, because it shows precisely what the gap is:"
+            ],
+            "tex": "\\log p(x) = \\underbrace{\\mathbb{E}_{q}\\!\\left[\\log \\frac{p(x,z)}{q(z)}\\right]}_{\\text{ELBO}} + \\underbrace{\\mathrm{KL}\\!\\left(q(z) \\,\\|\\, p(z\\mid x)\\right)}_{\\ge 0}",
+            "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence — and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
+          },
+          {
+            "h": "In code",
+            "code": "import torch\n\ndef elbo(x, encoder, decoder, prior):\n    mu, logvar = encoder(x)\n    std = torch.exp(0.5 * logvar)\n    # Reparameterisation: sample z = mu + std * eps so the gradient flows THROUGH\n    # the sampling step. Drawing z directly from N(mu, std) blocks it entirely.\n    z = mu + std * torch.randn_like(std)\n    recon = decoder(z).log_prob(x).sum(-1)\n    kl = torch.distributions.kl_divergence(\n        torch.distributions.Normal(mu, std), prior).sum(-1)\n    return (recon - kl).mean()",
+            "caption": "This is a VAE. A VAE is variational inference where the variational parameters are produced by a network instead of optimised per data point — amortised inference."
+          },
+          {
+            "h": "The direction of the KL is doing a lot of work",
+            "paras": [
+              "VI minimises KL(q‖p), not KL(p‖q), and the asymmetry has consequences you can see. That direction is MODE-SEEKING: it is heavily penalised for putting mass where the true posterior has none, so a unimodal q fitted to a bimodal posterior picks one mode and ignores the other rather than straddling both. It also systematically UNDERESTIMATES variance, which is why VI posteriors are overconfident.",
+              "The mean-field assumption — that the latent dimensions are independent — is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
+              "So the honest summary is a trade rather than a win: VI is fast, scalable and biased; MCMC is slow, unbiased in the limit, and hard to diagnose. Use VI when you need an answer on a large dataset and can live with an overconfident one, and say which you did."
+            ]
+          }
+        ],
+        "takeaways": [
+          "VI replaces an intractable integral with an optimisation over a chosen family, which is what makes it scale.",
+          "log p(x) = ELBO + KL(q‖true posterior) exactly, so maximising the bound is minimising that gap.",
+          "The KL direction is mode-seeking and variance-shrinking, so VI posteriors are systematically overconfident."
+        ],
+        "demo": "variational-inference"
       }
     }
   },
@@ -1985,7 +2108,8 @@ window.SUB_LESSONS = {
       "ppo",
       "dyna-q",
       "regret-matching",
-      "minimax"
+      "minimax",
+      "mcts"
     ],
     "lessons": {
       "bandit": {
@@ -2281,6 +2405,46 @@ window.SUB_LESSONS = {
           "Minimax assumes a best-playing opponent, so it optimises the worst case rather than the expected case.",
           "Alpha-beta is EXACT — same answer, fewer nodes — and good move ordering roughly doubles the reachable depth.",
           "It needs a decent evaluation and a modest branching factor; when either fails, sampling methods like MCTS win."
+        ],
+        "demo": "mcts"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search",
+        "oneLine": "Spend your search budget where it looks promising — statistics instead of enumeration, which is what made Go tractable.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Alpha-beta needs two things Go does not have: a branching factor small enough to search deeply, and an evaluation function that can score a mid-game position. MCTS gives up on both. Instead of enumerating, it plays the position out to the end many times and keeps the statistics.",
+              "Each iteration is four steps. Walk down the tree choosing children by a rule that balances what looks good against what is barely explored; add a node; play the rest of the game quickly; then push the result back up every node you passed. Do that a few thousand times and the visit counts concentrate on the good lines — the tree grows asymmetrically, deep where it matters and shallow where it does not."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The selection rule is a bandit algorithm applied at every node — UCT, upper confidence bounds for trees:"
+            ],
+            "tex": "\\text{UCT}(a) = \\underbrace{\\frac{W_a}{N_a}}_{\\text{exploit}} + c\\underbrace{\\sqrt{\\frac{\\ln N}{N_a}}}_{\\text{explore}}",
+            "texNote": "The second term shrinks as an action is tried and grows as its siblings are, so an unvisited action is infinitely attractive and a well-tested one is judged on its record. c sets the trade; too small and it commits early on noise, too large and it spreads the budget thin and learns nothing deeply."
+          },
+          {
+            "h": "In code",
+            "code": "import math, random\n\ndef uct(node, c=1.4):\n    return max(node.children, key=lambda ch:\n        ch.wins / ch.visits + c * math.sqrt(math.log(node.visits) / ch.visits)\n        if ch.visits else float(\"inf\"))          # unvisited children go first\n\ndef mcts(root, budget):\n    for _ in range(budget):\n        node, path = root, [root]\n        while node.children and not node.terminal:   # 1. SELECT\n            node = uct(node); path.append(node)\n        if not node.terminal:                        # 2. EXPAND\n            node = node.expand(); path.append(node)\n        result = node.rollout()                      # 3. SIMULATE\n        for n in path:                               # 4. BACKPROPAGATE\n            n.visits += 1\n            n.wins += result if n.player == node.player else 1 - result\n    return max(root.children, key=lambda ch: ch.visits)   # visits, NOT win rate",
+            "caption": "The final move is chosen by VISIT COUNT, not win rate. A child visited three times with three wins is not better evidence than one visited a thousand times at 60% - picking by rate rewards small samples."
+          },
+          {
+            "h": "What AlphaGo changed, and what it kept",
+            "paras": [
+              "Plain MCTS with random rollouts was already enough to beat classical Go engines, because a random playout is a surprisingly informative estimate when averaged thousands of times. But it is noisy, and it wastes most of the budget on lines a strong player would never consider.",
+              "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton — select, expand, evaluate, back up — did not change at all.",
+              "It is also an anytime algorithm, which matters in practice: stop it whenever the clock runs out and the answer is the best one found so far, degrading smoothly rather than returning nothing. Alpha-beta at a fixed depth cannot do that."
+            ]
+          }
+        ],
+        "takeaways": [
+          "MCTS replaces exhaustive enumeration with sampled playouts, so it needs neither a small branching factor nor an evaluation function.",
+          "UCT is a bandit rule applied per node, which is what grows the tree asymmetrically toward good lines.",
+          "Choose the final move by visit count rather than win rate, and remember it is anytime — stop it whenever and the answer is usable."
         ],
         "demo": "mcts"
       }
@@ -3440,7 +3604,8 @@ window.SUB_LESSONS = {
       "adversarial-examples",
       "superposition",
       "activation-patching",
-      "sparse-autoencoder"
+      "sparse-autoencoder",
+      "certified-robustness"
     ],
     "lessons": {
       "shap": {
@@ -3642,6 +3807,46 @@ window.SUB_LESSONS = {
           "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
         ],
         "demo": "sparse-autoencoder"
+      },
+      "certified-robustness": {
+        "title": "Certified Robustness",
+        "oneLine": "A proof that no perturbation within a radius can change the prediction — narrower than it sounds, and the only claim an adaptive attacker cannot refute.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Empirical robustness is a claim that no attack you tried succeeded, and the history of the field is a graveyard of defences that met that bar and were broken within months by a stronger attack. Certification changes the claim: for this input, no perturbation inside this radius can change the answer — proved, not tested.",
+              "Randomized smoothing is the version that scales. Do not certify the network itself; certify a NEW classifier defined as 'what does the network say most often under Gaussian noise?'. That smoothed classifier is provably stable even though the network inside it is not."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "If the top class wins under noise with probability at least p, the smoothed classifier is constant within an L2 ball of radius"
+            ],
+            "tex": "R = \\sigma\\,\\Phi^{-1}(\\underline{p_A})",
+            "texNote": "★ p_A must be a LOWER CONFIDENCE BOUND from the Monte-Carlo samples, not the sample mean. Using the point estimate produces radii that look entirely plausible and are invalid — the certificate then claims more than the evidence supports, and nothing about the output looks wrong."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\nfrom scipy.stats import norm, beta\n\ndef certify(model, x, sigma, n=10000, alpha=0.001):\n    votes = np.bincount([model(x + np.random.randn(*x.shape) * sigma).argmax()\n                         for _ in range(n)])\n    top = votes.argmax()\n    # Clopper-Pearson LOWER bound, not votes.max()/n. This is the whole certificate.\n    p_lower = beta.ppf(alpha, votes[top], n - votes[top] + 1)\n    if p_lower <= 0.5:\n        return None, None                 # abstain: no radius can be claimed\n    return top, sigma * norm.ppf(p_lower)",
+            "caption": "Abstention is a first-class outcome. A certified classifier that cannot prove anything about an input must say so rather than guess."
+          },
+          {
+            "h": "How narrow the guarantee actually is",
+            "paras": [
+              "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting — and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
+              "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve — accuracy as a function of radius — is the honest report, not a single number.",
+              "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid — and that check found the error when code review had not, because the code correctly implemented the wrong formula."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Certification proves no perturbation in a radius changes the answer; empirical robustness only reports that your attacks failed.",
+          "Randomized smoothing certifies a smoothed classifier, and the radius must come from a confidence LOWER bound, not the sample mean.",
+          "The guarantee is L2-only and costs accuracy and compute — report the certified-accuracy curve, not one number."
+        ],
+        "demo": "certified-robustness"
       }
     }
   },
@@ -3654,7 +3859,8 @@ window.SUB_LESSONS = {
       "graph-search",
       "search-astar",
       "dijkstra",
-      "backtracking"
+      "backtracking",
+      "simulated-annealing"
     ],
     "lessons": {
       "classification-metrics": {
@@ -3871,6 +4077,46 @@ window.SUB_LESSONS = {
           "Most-constrained variable, least-constraining value, and constraint propagation are what separate a toy solver from a usable one."
         ],
         "demo": "n-queens"
+      },
+      "simulated-annealing": {
+        "title": "Simulated Annealing",
+        "oneLine": "Accept worse moves on purpose, less and less often — the simplest escape from a local minimum that still works.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Hill climbing gets stuck the moment every neighbour is worse, which on a rugged landscape happens almost immediately and almost always at a mediocre point. Simulated annealing fixes it with one change: sometimes take the worse move anyway.",
+              "How often depends on a temperature that starts high and cools. Early on the search wanders almost freely and explores the shape of the space; late on it accepts almost nothing worse and behaves like hill climbing. The name is the metaphor — cool a metal slowly and its atoms settle into a low-energy crystal; quench it and they freeze into whatever disordered state they were in."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The Metropolis acceptance rule: always take an improvement, and take a worsening of size ΔE with probability"
+            ],
+            "tex": "P(\\text{accept}) = \\exp\\!\\left(-\\frac{\\Delta E}{T}\\right)",
+            "texNote": "Two things follow directly. A slightly worse move is accepted far more often than a much worse one, so the search does not thrash. And as T falls the same ΔE becomes exponentially less acceptable, so the search tightens automatically without any extra logic."
+          },
+          {
+            "h": "In code",
+            "code": "import math, random\n\ndef anneal(state, energy, neighbour, T0=1.0, cool=0.995, steps=20000):\n    best = cur = state\n    e_cur = e_best = energy(state)\n    T = T0\n    for _ in range(steps):\n        cand = neighbour(cur)\n        e = energy(cand)\n        # Always accept an improvement; accept a worsening with prob exp(-dE/T).\n        if e < e_cur or random.random() < math.exp(-(e - e_cur) / max(T, 1e-12)):\n            cur, e_cur = cand, e\n            if e < e_best: best, e_best = cand, e   # keep the best EVER seen\n        T *= cool\n    return best",
+            "caption": "Return the best state ever visited, not the final one. The walk can and does end somewhere worse than where it has been — forgetting this is the most common bug in an otherwise correct implementation."
+          },
+          {
+            "h": "What actually determines whether it works",
+            "paras": [
+              "The neighbour function, far more than the schedule. It defines the landscape the search moves on, and a move that changes too much makes every step a random restart while one that changes too little makes the space effectively disconnected. On the travelling salesman problem, 2-opt (reverse a segment) works and 'swap two random cities' barely does — same objective, same schedule, different geometry.",
+              "There is a theoretical guarantee of reaching the global optimum with a logarithmic cooling schedule, and it is useless in practice: it is slower than enumerating the space. Everyone uses geometric cooling, which has no such guarantee and works.",
+              "Its real appeal is that it needs almost nothing — no gradient, no convexity, no structure beyond an energy and a notion of neighbour — so it applies where nothing else does: scheduling, layout, routing, and any discrete configuration problem where you can score a state and perturb it."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Accepting worse moves with probability exp(−ΔE/T) is what escapes local minima; cooling is what makes it converge.",
+          "Return the best state ever seen — the final state is frequently worse.",
+          "The neighbour function defines the landscape and matters more than the cooling schedule."
+        ],
+        "demo": "simulated-annealing"
       }
     }
   }

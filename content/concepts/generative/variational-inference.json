@@ -1,0 +1,45 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "variational-inference",
+  "module": "generative",
+  "title": "Variational Inference & the ELBO",
+  "oneLine": "Turn an intractable integral into an optimisation problem — and accept that the bound you maximise is not the thing you wanted.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "The posterior p(z|x) needs a normalising constant that is an integral over all latent configurations, and for anything interesting that integral has no closed form. MCMC samples from it instead, correctly but slowly. Variational inference takes the other route: pick a family of distributions you can handle, and find the member closest to the true posterior.",
+        "That converts integration into optimisation, which scales — you can run it on mini-batches with a gradient optimiser. The cost is that the answer is only as good as the family you chose, and unlike MCMC there is no asymptotic guarantee that more compute fixes it."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The exact decomposition is the thing worth memorising, because it shows precisely what the gap is:"
+      ],
+      "tex": "\\log p(x) = \\underbrace{\\mathbb{E}_{q}\\!\\left[\\log \\frac{p(x,z)}{q(z)}\\right]}_{\\text{ELBO}} + \\underbrace{\\mathrm{KL}\\!\\left(q(z) \\,\\|\\, p(z\\mid x)\\right)}_{\\ge 0}",
+      "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence — and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
+    },
+    {
+      "h": "In code",
+      "code": "import torch\n\ndef elbo(x, encoder, decoder, prior):\n    mu, logvar = encoder(x)\n    std = torch.exp(0.5 * logvar)\n    # Reparameterisation: sample z = mu + std * eps so the gradient flows THROUGH\n    # the sampling step. Drawing z directly from N(mu, std) blocks it entirely.\n    z = mu + std * torch.randn_like(std)\n    recon = decoder(z).log_prob(x).sum(-1)\n    kl = torch.distributions.kl_divergence(\n        torch.distributions.Normal(mu, std), prior).sum(-1)\n    return (recon - kl).mean()",
+      "caption": "This is a VAE. A VAE is variational inference where the variational parameters are produced by a network instead of optimised per data point — amortised inference."
+    },
+    {
+      "h": "The direction of the KL is doing a lot of work",
+      "paras": [
+        "VI minimises KL(q‖p), not KL(p‖q), and the asymmetry has consequences you can see. That direction is MODE-SEEKING: it is heavily penalised for putting mass where the true posterior has none, so a unimodal q fitted to a bimodal posterior picks one mode and ignores the other rather than straddling both. It also systematically UNDERESTIMATES variance, which is why VI posteriors are overconfident.",
+        "The mean-field assumption — that the latent dimensions are independent — is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
+        "So the honest summary is a trade rather than a win: VI is fast, scalable and biased; MCMC is slow, unbiased in the limit, and hard to diagnose. Use VI when you need an answer on a large dataset and can live with an overconfident one, and say which you did."
+      ]
+    }
+  ],
+  "takeaways": [
+    "VI replaces an intractable integral with an optimisation over a chosen family, which is what makes it scale.",
+    "log p(x) = ELBO + KL(q‖true posterior) exactly, so maximising the bound is minimising that gap.",
+    "The KL direction is mode-seeking and variance-shrinking, so VI posteriors are systematically overconfident."
+  ],
+  "demo": "variational-inference",
+  "updatedAt": "2026-08-22"
+}

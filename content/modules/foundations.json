@@ -103,7 +103,8 @@
       "fourier",
       "mutual-information",
       "importance-sampling",
-      "reservoir-sampling"
+      "reservoir-sampling",
+      "huffman-coding"
     ]
   },
   "updatedAt": "2026-06-10"

@@ -106,7 +106,8 @@
       "ppo",
       "dyna-q",
       "regret-matching",
-      "minimax"
+      "minimax",
+      "mcts"
     ]
   },
   "updatedAt": "2026-08-07"

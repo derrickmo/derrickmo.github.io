@@ -98,7 +98,8 @@
     "title": "Generative Models",
     "intro": "Three ways to learn to create data: encode and sample through a latent space, train a generator against a critic, or add noise and learn to reverse it.",
     "order": [
-      "diffusion"
+      "diffusion",
+      "variational-inference"
     ]
   },
   "updatedAt": "2026-06-10"

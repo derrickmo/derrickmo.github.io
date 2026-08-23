@@ -92,7 +92,8 @@
       "adversarial-examples",
       "superposition",
       "activation-patching",
-      "sparse-autoencoder"
+      "sparse-autoencoder",
+      "certified-robustness"
     ]
   }
 }

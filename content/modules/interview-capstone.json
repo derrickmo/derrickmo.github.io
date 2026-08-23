@@ -92,7 +92,8 @@
       "graph-search",
       "search-astar",
       "dijkstra",
-      "backtracking"
+      "backtracking",
+      "simulated-annealing"
     ]
   }
 }
