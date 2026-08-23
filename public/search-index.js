@@ -108,6 +108,7 @@ window.DM_NAV_INDEX = [
   { label: "Convolution Lab", group: "Demo", href: "/visualize/convolution/", kw: "cnn kernel filter vision" },
   { label: "Canny Edge Detection", group: "Demo", href: "/visualize/edge-detection/", kw: "canny sobel gradient edges vision hysteresis" },
   { label: "Hough Transform", group: "Demo", href: "/visualize/hough-transform/", kw: "hough line detection accumulator voting vision ransac" },
+  { label: "RANSAC", group: "Demo", href: "/visualize/ransac/", kw: "ransac robust fitting outliers consensus inliers line fit least squares homography breakdown point" },
   { label: "Harris Corner Detector", group: "Demo", href: "/visualize/harris-corners/", kw: "harris corner keypoint structure tensor feature vision slam tracking" },
   { label: "Optical Flow (Lucas-Kanade)", group: "Demo", href: "/visualize/optical-flow/", kw: "optical flow lucas kanade motion aperture tracking vision brightness constancy" },
   { label: "Histogram of Oriented Gradients", group: "Demo", href: "/visualize/hog/", kw: "hog histogram oriented gradients descriptor feature pedestrian detection vision svm" },
