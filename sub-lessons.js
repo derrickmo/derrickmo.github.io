@@ -490,7 +490,8 @@ window.SUB_LESSONS = {
     "intro": "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
     "order": [
       "decision-tree",
-      "roc"
+      "roc",
+      "bayesian-linear-regression"
     ],
     "lessons": {
       "decision-tree": {
@@ -554,6 +555,48 @@ window.SUB_LESSONS = {
           "Pick the operating threshold from the curve, by the cost of each error."
         ],
         "demo": "roc"
+      },
+      "bayesian-linear-regression": {
+        "title": "Bayesian Linear Regression",
+        "oneLine": "Put a prior on the weights and get a posterior instead of a point — which is exactly ridge regression, plus an error bar that grows where you have no data.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Ordinary least squares returns one weight vector. Bayesian linear regression returns a distribution over weight vectors: start with a prior expressing that large weights are implausible, multiply by the likelihood of the observed data, and the result is a Gaussian posterior whose mean is a point estimate and whose covariance says how much that estimate should be trusted.",
+              "Because the Gaussian prior is conjugate to the Gaussian likelihood, none of this requires sampling or approximation. The posterior is available in closed form, updates incrementally as data arrives, and costs one linear solve.",
+              "The point estimate is not new. With prior precision alpha and noise precision beta, the posterior mean is exactly ridge regression with a regularisation strength of alpha over beta — verified numerically here to nine decimal places on a quartic basis fit. Ridge is the MAP estimate of this model, which is where the L2 penalty comes from rather than being a heuristic someone invented."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The posterior over weights, and the predictive distribution that is the real reason to bother:"
+            ],
+            "tex": "S_N^{-1} = \\alpha I + \\beta \\Phi^\\top\\Phi, \\quad m_N = \\beta S_N \\Phi^\\top t, \\qquad \\sigma^2(x) = \\underbrace{\\beta^{-1}}_{\\text{noise}} + \\underbrace{\\phi(x)^\\top S_N \\phi(x)}_{\\text{uncertainty in } w}",
+            "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data — and which grows as x moves away from where the data was."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef fit(Phi, t, alpha, beta):\n    d = Phi.shape[1]\n    S_inv = alpha * np.eye(d) + beta * Phi.T @ Phi\n    S = np.linalg.inv(S_inv)\n    m = beta * S @ Phi.T @ t\n    return m, S\n\ndef predict(phi_x, m, S, beta):\n    mean = phi_x @ m\n    var = 1.0 / beta + np.einsum(\"ij,jk,ik->i\", phi_x, S, phi_x)\n    return mean, np.sqrt(var)\n\n# alpha and beta need not be guessed. Maximising the MARGINAL likelihood (the evidence)\n# selects them from the data itself - empirical Bayes, no held-out set required, which\n# is the practical advantage over cross-validating a ridge penalty.",
+            "caption": "Sequential updating comes free: the posterior after one batch is the prior for the next, so a streaming fit is exactly the batch fit with no approximation."
+          },
+          {
+            "h": "The error bar is the whole point",
+            "paras": [
+              "Fitting a quartic basis to data confined to the left half of the range and then asking for the predictive standard deviation as x moves away from that data: 0.156 at x = -0.5 and 0.170 at x = 0, both inside the data. Then 0.394 at x = 0.5, 1.165 at x = 1, 2.769 at x = 1.5, and 5.492 at x = 2. A thirty-five-fold growth in uncertainty as the model extrapolates.",
+              "Ordinary least squares reports the same residual standard deviation at every one of those points. It has no representation of being far from its training data, which is precisely the situation in which its predictions are worthless. A model that says I do not know here is a different and much safer object than one that does not.",
+              "That property is what makes it the engine of other methods. Bayesian optimisation needs uncertainty to decide where to sample next, and would be pointless with a model whose error bars are constant. Active learning uses it to choose which point to label. Thompson sampling for contextual bandits is, in its linear form, this model sampled from rather than averaged.",
+              "The limitations are the ones you would expect. The model is linear in the parameters, so the basis functions are chosen up front and the uncertainty is only honest within that family — a badly chosen basis gives confident nonsense. And it scales as the cube of the number of basis functions. Taking the limit of infinitely many basis functions is exactly a Gaussian process, which is the natural next step and is covered in this curriculum's Gaussian processes lesson."
+            ]
+          }
+        ],
+        "takeaways": [
+          "The posterior mean equals ridge regression with lambda = alpha/beta — confirmed to nine decimals — so the L2 penalty is a Gaussian prior rather than a heuristic.",
+          "Predictive variance splits into irreducible noise plus weight uncertainty, and the second term grew 35-fold as the model extrapolated away from its data while OLS would report a constant.",
+          "That growing error bar is what Bayesian optimisation, active learning and Thompson sampling all consume; the infinite-basis limit of this model is a Gaussian process."
+        ],
+        "demo": "bayesian-linear-regression"
       }
     }
   },
@@ -564,7 +607,8 @@ window.SUB_LESSONS = {
       "dbscan",
       "hierarchical-clustering",
       "tsne",
-      "spectral-clustering"
+      "spectral-clustering",
+      "kernel-density"
     ],
     "lessons": {
       "dbscan": {
@@ -699,6 +743,48 @@ window.SUB_LESSONS = {
           "It costs O(n^2) memory, has no out-of-sample rule, and its kernel width is an unavoidable modelling choice."
         ],
         "demo": "spectral-clustering"
+      },
+      "kernel-density": {
+        "title": "Kernel Density Estimation",
+        "oneLine": "Estimate a density by putting a bump on every point — where the bump's WIDTH matters about ten times more than its shape.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A histogram estimates a density but depends on where you put the bin edges, and it is discontinuous for no reason related to the data. Kernel density estimation removes both problems: centre a smooth kernel on every observation and add them up. The result is smooth, does not depend on an arbitrary origin, and integrates to one.",
+              "The only real parameter is the bandwidth, which sets how wide each bump is. It is a bias-variance dial in the most literal form. Too narrow and the estimate is a spike at every observation — no bias, enormous variance, and it generalises to nothing. Too wide and everything blurs into a single mound — low variance, and a bias that erases the structure you were looking for.",
+              "The kernel's shape, by contrast, barely matters. Measured on a bimodal density with 200 samples, comparing four kernels each at its own optimal bandwidth: integrated squared error of 0.01427 for Epanechnikov, 0.01443 triangular, 0.01494 Gaussian, 0.01542 uniform. An eight percent spread. Sweeping the bandwidth for a single kernel spanned 0.01494 to 0.14803 — a factor of ten. The bandwidth is the model; the kernel is a preference."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The estimator, and the asymptotically optimal bandwidth that shows why it is hard to choose:"
+            ],
+            "tex": "\\hat{f}_h(x) = \\frac{1}{nh}\\sum_{i=1}^{n} K\\!\\left(\\frac{x - x_i}{h}\\right), \\qquad h_{\\text{opt}} \\propto \\left(\\frac{R(K)}{n\\,\\sigma_K^4\\,R(f'')}\\right)^{1/5}",
+            "texNote": "The optimal bandwidth depends on the second derivative of the true density — the thing being estimated. That circularity is why every practical rule either assumes a shape (Silverman) or estimates it by resampling (cross-validation). The n^(-1/5) rate is also slow, which is the seed of the problem in high dimensions."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\nfrom sklearn.neighbors import KernelDensity\nfrom sklearn.model_selection import GridSearchCV\n\n# Do NOT trust a rule of thumb on data you have not looked at - cross-validate the\n# bandwidth against held-out log-likelihood, which makes no assumption about the shape.\ngrid = GridSearchCV(KernelDensity(kernel=\"gaussian\"),\n                    {\"bandwidth\": np.logspace(-2, 0.5, 60)}, cv=5)\ngrid.fit(X)\nkde = grid.best_estimator_\nlog_dens = kde.score_samples(X_query)     # note: LOG density, and it is not a probability\n\n# For strictly positive data (durations, prices) the kernel leaks mass below zero.\n# Fit in log space and correct by the Jacobian, or use a boundary-corrected kernel.\nkde_log = KernelDensity().fit(np.log(X)[:, None])\ndensity = np.exp(kde_log.score_samples(np.log(q)[:, None])) / q",
+            "caption": "Boundary bias is the most common silent error. On duration or price data the estimate spreads mass onto impossible negative values and correspondingly under-estimates the density near zero, where the interesting behaviour usually is."
+          },
+          {
+            "h": "Where the rules of thumb fail",
+            "paras": [
+              "Silverman's rule is derived assuming the underlying density is roughly normal. On the bimodal test density it prescribed a bandwidth of 0.474 when the error-optimal value was 0.180, giving an integrated squared error 3.3 times worse. The failure is systematic and in a predictable direction: the rule reads the wide overall spread of a bimodal sample as a wide single distribution and over-smooths, which merges the two modes — erasing the one feature anybody was looking for.",
+              "So use it as a starting point and cross-validate. Held-out log-likelihood makes no assumption about the shape of the density and is cheap for one parameter.",
+              "The deeper limitation is dimensional. The convergence rate degrades as the dimension rises, and the sample size needed for a fixed accuracy grows exponentially — in high dimensions almost all of the volume is far from every observation, so almost everywhere the estimate is built from the tails of distant kernels. Kernel density estimation is a good tool up to about three or four dimensions and misleading well before ten, which is why high-dimensional density estimation uses normalising flows or autoregressive models instead.",
+              "Where it earns its place: one-dimensional diagnostics, where a KDE plot beats a histogram for judging modality and skew; anomaly detection in low dimensions, thresholding on estimated density; and as the smoothing step inside mean-shift clustering, which is gradient ascent on exactly this estimate."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Bandwidth dominates: sweeping it moved integrated squared error by a factor of ten, while four different kernels at their own best bandwidths differed by eight percent.",
+          "Silverman's rule assumes near-normality and over-smoothed a bimodal density by 2.6x, merging the modes — cross-validate on held-out log-likelihood instead.",
+          "Watch the boundary on positive-only data, and do not use it above three or four dimensions, where almost every query point sits in the tails of every kernel."
+        ],
+        "demo": "kernel-density"
       }
     }
   },
@@ -1352,7 +1438,8 @@ window.SUB_LESSONS = {
     "order": [
       "markov",
       "word2vec",
-      "lstm-gates"
+      "lstm-gates",
+      "hmm-viterbi"
     ],
     "lessons": {
       "markov": {
@@ -1447,6 +1534,48 @@ window.SUB_LESSONS = {
           "GRUs are a lighter, two-gate variant."
         ],
         "demo": "rnn-gates"
+      },
+      "hmm-viterbi": {
+        "title": "HMM & the Viterbi Algorithm",
+        "oneLine": "Recover the most likely hidden sequence — noting that the most likely sequence is not the sequence of most likely states, and the difference can be an impossible path.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "A hidden Markov model has a state that you cannot see, evolving by a transition matrix, emitting an observation at each step according to the current state. Part-of-speech tagging is the canonical example: the tags are hidden, the words are emitted, and grammar constrains which tag can follow which.",
+              "Three questions have three algorithms. How likely is this observation sequence — forward. What is the posterior over the state at each time — forward-backward. What single state sequence best explains everything — Viterbi. They share a structure and are constantly confused with one another.",
+              "Viterbi is dynamic programming over paths. At each time and each state, keep the probability of the best path ending there and a back-pointer to where it came from. Because the model is Markov, the best path through a state depends only on the best paths into its predecessors, so a table of size states-by-time suffices where naive enumeration would be exponential."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The Viterbi recursion, carrying a maximum where the forward algorithm carries a sum:"
+            ],
+            "tex": "\\delta_t(j) = \\max_{i}\\ \\delta_{t-1}(i)\\,a_{ij}\\,b_j(o_t), \\qquad \\psi_t(j) = \\arg\\max_{i}\\ \\delta_{t-1}(i)\\,a_{ij}",
+            "texNote": "Replacing the max with a sum gives the forward algorithm exactly — one is the probability of the best path, the other the total probability over all paths. Implement both in log space; the products underflow to zero within a few dozen timesteps in float64, which presents as a decoder that returns the same answer regardless of input."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef viterbi(obs, pi, A, B):\n    \"\"\"pi: (S,) initial, A: (S,S) transitions, B: (S,V) emissions. All in LOG space.\"\"\"\n    T, S = len(obs), len(pi)\n    delta = np.full((T, S), -np.inf)\n    psi = np.zeros((T, S), dtype=int)\n    delta[0] = pi + B[:, obs[0]]\n    for t in range(1, T):\n        # scores[i, j] = best path to i at t-1, then i -> j\n        scores = delta[t - 1][:, None] + A\n        psi[t] = scores.argmax(axis=0)\n        delta[t] = scores.max(axis=0) + B[:, obs[t]]\n    path = np.empty(T, dtype=int)\n    path[-1] = delta[-1].argmax()\n    for t in range(T - 2, -1, -1):\n        path[t] = psi[t + 1][path[t + 1]]      # follow the back-pointers\n    return path, delta[-1].max()",
+            "caption": "Back-pointers are not an optimisation. Reconstructing the path by taking the argmax of each column of delta gives a different and generally wrong answer, because those columns are the best paths ENDING at each state, not a single consistent path."
+          },
+          {
+            "h": "Why decoding the wrong way produces impossible answers",
+            "paras": [
+              "It is tempting to run forward-backward, take the most likely state at each timestep independently, and call that the answer. It optimises a different thing — it maximises the expected number of individually correct states — and it can produce a sequence the model assigns probability zero.",
+              "Measured on a model whose transition matrix forbids staying in the same state, over 400 random observation sequences of length 8: posterior decoding differed from Viterbi on 39 sequences, and on all 39 of those the posterior path had probability exactly zero. One concrete case: posterior decoding returned 11211121 with log-probability negative infinity — it contains a self-transition the model forbids — while Viterbi returned 01210121 at log-probability -11.659.",
+              "That is the practical rule. If the output must be a legal sequence — a valid tag sequence, a route through a graph, a segmentation obeying constraints — you must use Viterbi. Posterior decoding is appropriate only when you want per-position marginals and either the constraints cannot be violated or you do not care.",
+              "As for where HMMs sit now: linear-chain CRFs superseded them for labelling because they are discriminative and can use arbitrary overlapping features of the whole input rather than a per-state emission distribution. Neural taggers superseded those in turn on accuracy. But the Viterbi decoder outlived all of it — a CRF layer on top of a transformer decodes with exactly this recursion, and CTC's decoding is a close relative. Learning it as a decoding algorithm rather than as part of a dated model is what makes it worth the time."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Viterbi is dynamic programming over paths, carrying a max where the forward algorithm carries a sum; back-pointers are required, not an optimisation.",
+          "Per-timestep posterior decoding optimises a different objective and can return a path the model forbids — on 39 of 400 sequences it did exactly that, at probability zero, while Viterbi stayed legal.",
+          "Work in log space or the products underflow within tens of steps, and note the decoder outlived the model: CRF layers on neural taggers decode with this same recursion."
+        ],
+        "demo": "hmm-viterbi"
       }
     }
   },
@@ -2175,7 +2304,8 @@ window.SUB_LESSONS = {
       "vector-search",
       "spectrogram",
       "mfcc",
-      "pitch-detection"
+      "pitch-detection",
+      "dtw"
     ],
     "lessons": {
       "contrastive-learning": {
@@ -2362,6 +2492,48 @@ window.SUB_LESSONS = {
           "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks — and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
         ],
         "demo": "pitch-detection"
+      },
+      "dtw": {
+        "title": "Dynamic Time Warping",
+        "oneLine": "Compare two sequences that are the same shape at different speeds — a distance that is genuinely useful and genuinely not a metric.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Two recordings of the same spoken word, two gestures, two heartbeats — the same shape, but stretched and compressed differently in time. Comparing them point by point is meaningless, because index 40 in one may correspond to index 55 in the other. Any lockstep distance measures the misalignment rather than the difference in shape.",
+              "Dynamic time warping searches over alignments instead. Build a cost matrix of every pairwise distance, then find the cheapest monotone path from corner to corner, where each step advances one or both sequences. Advancing only one is a stretch; advancing both is a match. The path's total cost is the distance, and the path itself is the alignment, which is often more useful than the number.",
+              "Measured on a sine compared against itself shifted by 8 samples: the lockstep alignment costs 61.38 and DTW costs 7.24 under the same local cost function. At shift 16 it is 107.57 against 15.34. DTW can never be worse than lockstep, since the diagonal path is always available to it. And it does not manufacture similarity where there is none — against a genuinely unrelated random signal it returned 50.54 against lockstep's 70.71, a much smaller improvement."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The recursion, with the three allowed steps encoding match, insertion and deletion:"
+            ],
+            "tex": "D(i,j) = d(x_i, y_j) + \\min\\bigl\\{ D(i-1,j),\\ D(i,j-1),\\ D(i-1,j-1) \\bigr\\}",
+            "texNote": "Boundary conditions force the path to run corner to corner, so both sequences are consumed entirely. The cost is O(nm) in time and, if you only need the distance and not the path, O(min(n,m)) in space by keeping a single row."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef dtw(x, y, band=None):\n    n, m = len(x), len(y)\n    D = np.full((n + 1, m + 1), np.inf)\n    D[0, 0] = 0.0\n    for i in range(1, n + 1):\n        lo, hi = (1, m) if band is None else (max(1, i - band), min(m, i + band))\n        for j in range(lo, hi + 1):\n            cost = abs(x[i - 1] - y[j - 1])\n            D[i, j] = cost + min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])\n    return D[n, m]\n\n# Z-normalise before comparing unless the absolute level is meaningful. Two identically\n# shaped series at different offsets are far apart under DTW, which is almost never what\n# you want when the question is 'same shape?'.\nz = lambda s: (s - s.mean()) / (s.std() + 1e-12)",
+            "caption": "The Sakoe-Chiba band restricts how far the path may stray from the diagonal. It is usually presented as a speedup, which understates what it does — see below."
+          },
+          {
+            "h": "Two properties that break the obvious uses",
+            "paras": [
+              "DTW is not a metric. It satisfies non-negativity and symmetry, but the triangle inequality fails, and finding a counterexample took only 68 random triples of length-6 integer sequences: three sequences with d(A,C) = 11 while d(A,B) + d(B,C) = 2 + 7 = 9.",
+              "That is not pedantry. Metric-tree indexes — ball trees, VP-trees, metric-space k-nearest-neighbour accelerators — assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
+              "The band is also not merely a speedup. Constraining the path to stay within 5 cells of the diagonal produced a strictly larger distance than unconstrained DTW in 203 of 300 randomly shifted pairs — it excluded the optimal alignment. That is frequently desirable, since an unconstrained warp will happily match one point against fifty and produce a pathological alignment, and the band is the standard defence. But it changes the answer, so the band width is a modelling choice to state, not an implementation detail to hide.",
+              "Where it still wins: with a good distance measure, one-nearest-neighbour with DTW is a famously strong baseline for time-series classification and remained competitive with far more elaborate methods for years. Always run it before building something complicated."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Warping the alignment rather than comparing in lockstep cut the distance from 61.38 to 7.24 on a shifted sine, and it can never do worse, since the diagonal path is always available.",
+          "It is NOT a metric — a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples — so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
+          "The Sakoe-Chiba band changes the answer rather than just the runtime: it excluded the optimal path in 203 of 300 cases, which is usually desirable but is a modelling choice."
+        ],
+        "demo": "dtw"
       }
     }
   },
@@ -3396,7 +3568,8 @@ window.SUB_LESSONS = {
       "fairness",
       "pagerank",
       "community-detection",
-      "label-propagation"
+      "label-propagation",
+      "kalman-filter"
     ],
     "lessons": {
       "forecasting": {
@@ -3646,6 +3819,48 @@ window.SUB_LESSONS = {
           "The graph IS the model, and it cannot be honestly cross-validated with a handful of labels. On a problem where the manifold added nothing, plain 1-NN beat it at 98.1%."
         ],
         "demo": "label-propagation"
+      },
+      "kalman-filter": {
+        "title": "Kalman Filter",
+        "oneLine": "The optimal recursive estimator for a linear-Gaussian system — and a machine whose output quality is set entirely by two noise numbers you have to supply.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "You have a system whose state evolves predictably but not perfectly, and sensors that measure it but not exactly. The Kalman filter alternates two steps forever. Predict: push the state estimate forward through the dynamics and let the uncertainty grow. Update: fold in the new measurement, weighting it against the prediction in proportion to which of the two you currently trust more.",
+              "That weight is the Kalman gain, and it is the entire algorithm. If the measurement noise is large relative to the current uncertainty, the gain is small and the filter mostly believes its own prediction. If the state has drifted a lot since the last update, uncertainty has grown, the gain rises, and the measurement dominates. It is a running, automatic trade between a model and its data.",
+              "Measured on a scalar random walk with process noise 0.01 and measurement noise 1.0: raw measurements have RMSE 1.016, and the filter brings that to 0.342. The comparison that matters is against a moving average, which is what people usually reach for — the best window tested, 20 samples, gave 0.376, and both shorter and longer windows were worse. The filter beat a hand-tuned smoother without any window to tune, because it derives the equivalent quantity from the noise model."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The two steps, in the general matrix form. P is the state covariance and K the gain:"
+            ],
+            "tex": "\\hat{x}^-_k = F\\hat{x}_{k-1},\\quad P^-_k = FP_{k-1}F^\\top + Q, \\qquad K_k = P^-_k H^\\top\\!\\left(HP^-_k H^\\top + R\\right)^{-1}",
+            "texNote": "Then the update is x = x- + K(z - Hx-) and P = (I - KH)P-. The quantity z - Hx- is the innovation, the part of the measurement the model did not predict, and monitoring its statistics is the standard way to detect that your filter has been mis-tuned."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\nclass Kalman:\n    def __init__(self, F, H, Q, R, x0, P0):\n        self.F, self.H, self.Q, self.R = F, H, Q, R\n        self.x, self.P = x0, P0\n\n    def predict(self):\n        self.x = self.F @ self.x\n        self.P = self.F @ self.P @ self.F.T + self.Q\n\n    def update(self, z):\n        y = z - self.H @ self.x                       # innovation\n        S = self.H @ self.P @ self.H.T + self.R       # innovation covariance\n        K = self.P @ self.H.T @ np.linalg.inv(S)\n        self.x = self.x + K @ y\n        I = np.eye(len(self.P))\n        # Joseph form: stays symmetric positive-definite under round-off, unlike\n        # the shorter (I - KH) @ P, which can go indefinite over long runs\n        self.P = (I - K @ self.H) @ self.P @ (I - K @ self.H).T + K @ self.R @ K.T\n        return y, S            # keep these: normalised innovations are your health check",
+            "caption": "The Joseph-form covariance update costs a few extra matrix products and is the standard defence against a filter that silently diverges after hours of operation."
+          },
+          {
+            "h": "The two numbers that decide everything",
+            "paras": [
+              "The gain converges. On the test system the measured steady-state gain was 0.09512, matching the closed-form solution of the algebraic Riccati equation to five decimals. For a time-invariant system you can compute the gain once offline and skip the covariance recursion entirely — which is what an alpha-beta filter is.",
+              "The failure mode in practice is almost never the algebra; it is Q and R. Sweeping the process noise across four orders of magnitude while holding everything else fixed produced RMSE of 0.738, 0.449, 0.342, 0.429 and 0.687. Too small a Q makes the filter over-confident in its model, the gain collapses to 0.010, and it lags the true state. Too large and the gain rises to 0.618, the filter chases measurement noise, and you have an expensive way of copying your sensor.",
+              "R can often be measured directly — hold the sensor still and look at its variance. Q usually cannot, because it represents everything about the real dynamics your linear model omits, so it is tuned. The principled check is the normalised innovation squared: if the filter's noise model is right, those values follow a known chi-squared distribution, so a systematic deviation tells you which of Q or R is wrong and in which direction. Tuning by eyeballing the output trace is how filters end up confidently wrong.",
+              "Finally the assumptions. Optimality requires linear dynamics and Gaussian noise. For nonlinear systems the EKF linearises about the current estimate and can diverge when the curvature is real; the UKF propagates a small set of sigma points through the true nonlinearity and is usually both more accurate and easier to implement, since it needs no Jacobians. For genuinely non-Gaussian or multi-modal state — a robot uncertain between two rooms — no amount of covariance will represent it, and a particle filter is the honest answer."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Predict then update, with the gain automatically trading model against measurement: RMSE 1.016 to 0.342, beating the best hand-tuned moving average at 0.376 with no window to choose.",
+          "The gain reaches a steady state matching the Riccati solution exactly, so a time-invariant system needs no online covariance recursion at all.",
+          "Q and R are the whole game — misspecifying Q by two orders of magnitude doubled the error in both directions, and normalised innovations are the principled way to catch it."
+        ],
+        "demo": "kalman-filter"
       }
     }
   },
@@ -4201,7 +4416,8 @@ window.SUB_LESSONS = {
       "superposition",
       "activation-patching",
       "sparse-autoencoder",
-      "certified-robustness"
+      "certified-robustness",
+      "conformal-regression"
     ],
     "lessons": {
       "shap": {
@@ -4443,6 +4659,48 @@ window.SUB_LESSONS = {
           "The guarantee is L2-only and costs accuracy and compute — report the certified-accuracy curve, not one number."
         ],
         "demo": "certified-robustness"
+      },
+      "conformal-regression": {
+        "title": "Conformal Regression",
+        "oneLine": "Distribution-free prediction intervals with a coverage guarantee that genuinely holds — as long as you know it is a guarantee about the average, not about your case.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "You have a fitted regressor and want an interval rather than a number, with a real guarantee attached. Bayesian methods provide one conditional on the model being correct. Conformal prediction provides one that holds regardless of the model, requiring only that the calibration and test data are exchangeable.",
+              "Split conformal is three lines of arithmetic. Hold out a calibration set the model never saw. Compute a conformity score on it — for regression, the absolute residual. Take the appropriate empirical quantile of those scores, and the interval is the prediction plus or minus that quantile. Nothing about the model enters; it can be a linear fit, a gradient-boosted ensemble, or a neural network, and the guarantee is identical.",
+              "Measured on a heteroscedastic problem with target coverage 90 percent, the achieved coverage over 4,000 test points was 90.3 percent. The guarantee is finite-sample and it holds, not asymptotically but at the sample sizes you actually have."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The interval, and the exact finite-sample guarantee it satisfies:"
+            ],
+            "tex": "C(x) = \\hat{\\mu}(x) \\pm \\hat{q}, \\quad \\hat{q} = \\text{the } \\lceil (n+1)(1-\\alpha) \\rceil \\text{-th smallest } |y_i - \\hat{\\mu}(x_i)| \\ \\Longrightarrow\\ \\Pr\\bigl(Y \\in C(X)\\bigr) \\ge 1-\\alpha",
+            "texNote": "The (n+1) and the ceiling are not cosmetic — they are what make the bound hold exactly rather than approximately, by treating the test point as one more exchangeable draw. The probability is over the draw of BOTH the calibration set and the test point, which is precisely the subtlety in the next section."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\n# 1. fit on the training split, 2. calibrate on a split the model never saw\nresiduals = np.abs(y_cal - model.predict(X_cal))\nn = len(residuals)\nq = np.quantile(residuals, np.ceil((n + 1) * (1 - alpha)) / n, method=\"higher\")\nlower, upper = model.predict(X_test) - q, model.predict(X_test) + q\n\n# Conformalised quantile regression: fit the two quantiles directly, then conformalise\n# the quantile model's own error. Keeps the exact guarantee AND adapts the width.\n#   lo, hi = qr_low.predict(X_cal), qr_high.predict(X_cal)\n#   scores = np.maximum(lo - y_cal, y_cal - hi)      # signed, so it can shrink too\n#   q = np.quantile(scores, np.ceil((n + 1) * (1 - alpha)) / n, method=\"higher\")\n#   interval = (qr_low.predict(X_test) - q, qr_high.predict(X_test) + q)",
+            "caption": "Reusing training data for calibration destroys the guarantee outright — residuals on data the model has fitted are optimistically small, so the interval comes out too narrow with no warning."
+          },
+          {
+            "h": "Marginal is not conditional, and that is the catch",
+            "paras": [
+              "The guarantee is about coverage averaged over the whole input distribution. It says nothing about any particular region — and with an absolute-residual score the interval is the SAME WIDTH everywhere, which for heteroscedastic data is clearly wrong.",
+              "The same experiment, broken down by region: overall coverage 90.3 percent against a 90 percent target, but 99.3 percent where the noise is small and 81.4 percent where the noise is large. The average is exactly right and both halves are wrong. A user in the noisy region is getting 81 percent coverage from an interval advertised as 90, and nothing in the output indicates it.",
+              "This is the single most important thing to understand about conformal prediction, because the guarantee is often quoted in a way that implies more than it delivers. Exact conditional coverage is impossible to achieve distribution-free with finite data, so the practical answer is to make the score adaptive. Conformalised quantile regression fits conditional quantiles and conformalises those, keeping the exact marginal guarantee while letting the width track the local noise. Alternatively, normalise the residual by an estimate of local difficulty, or calibrate separately within groups you care about — which buys group-conditional coverage.",
+              "One further condition worth stating plainly: exchangeability. Under distribution shift or temporal drift the guarantee simply does not apply, which rules out the naive application to time series where the future is not exchangeable with the past. Adaptive conformal methods adjust alpha online in response to observed miscoverage and restore a long-run guarantee, which is the right tool when data arrives in a stream."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Split conformal gives a finite-sample distribution-free interval from a held-out calibration set: target 90%, achieved 90.3%, with no assumption about the model.",
+          "The guarantee is MARGINAL. The same run covered 99.3% in the low-noise region and 81.4% in the high-noise one — the average was right and neither region was.",
+          "Use an adaptive score (conformalised quantile regression) for width that tracks local noise, never calibrate on training data, and remember exchangeability fails under drift."
+        ],
+        "demo": "conformal-regression"
       }
     }
   },

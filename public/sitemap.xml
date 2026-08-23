@@ -391,6 +391,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-applications/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/gnn/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-applications/kalman-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/label-propagation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/multi-task/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-applications/neural-recommenders/</loc><priority>0.6</priority></url>
@@ -441,6 +442,7 @@
   <url><loc>https://derrickmo.github.io/learn/multimodal/audio-representations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/clip/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/contrastive-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/multimodal/dtw/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/mfcc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-eval/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/multimodal/multimodal-fusion/</loc><priority>0.6</priority></url>
@@ -530,6 +532,7 @@
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/classical-lm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/dependency-parsing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/elmo/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/rnn-nlp/hmm-viterbi/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/lstm-gates/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/lstm-gru/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/markov/</loc><priority>0.6</priority></url>
@@ -541,6 +544,7 @@
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word-vectors/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/rnn-nlp/word2vec/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/supervised-learning/bayesian-linear-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/boosting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/decision-tree/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/supervised-learning/ensembles/</loc><priority>0.6</priority></url>
@@ -593,6 +597,7 @@
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/certified-robustness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/conformal-prediction/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/distribution-shift/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/trustworthy-ai/probing-patching/</loc><priority>0.6</priority></url>
@@ -610,6 +615,7 @@
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/hierarchical-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/hierarchical-density-clustering/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/ica/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kernel-density/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kernel-methods/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/kmeans/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/unsupervised-learning/matrix-factorization/</loc><priority>0.6</priority></url>

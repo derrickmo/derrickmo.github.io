@@ -94,7 +94,8 @@
     "intro": "The classic classifiers, each built before it is trusted: vote with your neighbors, carve the space with questions, find the widest margin, and score the result honestly.",
     "order": [
       "decision-tree",
-      "roc"
+      "roc",
+      "bayesian-linear-regression"
     ]
   },
   "updatedAt": "2026-07-21"

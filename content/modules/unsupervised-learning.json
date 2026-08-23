@@ -96,7 +96,8 @@
       "dbscan",
       "hierarchical-clustering",
       "tsne",
-      "spectral-clustering"
+      "spectral-clustering",
+      "kernel-density"
     ]
   },
   "updatedAt": "2026-07-21"

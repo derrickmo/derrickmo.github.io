@@ -1,0 +1,47 @@
+{
+  "kind": "concept",
+  "schemaVersion": 1,
+  "id": "hmm-viterbi",
+  "module": "rnn-nlp",
+  "title": "HMM & the Viterbi Algorithm",
+  "oneLine": "Recover the most likely hidden sequence — noting that the most likely sequence is not the sequence of most likely states, and the difference can be an impossible path.",
+  "sections": [
+    {
+      "h": "The intuition",
+      "paras": [
+        "A hidden Markov model has a state that you cannot see, evolving by a transition matrix, emitting an observation at each step according to the current state. Part-of-speech tagging is the canonical example: the tags are hidden, the words are emitted, and grammar constrains which tag can follow which.",
+        "Three questions have three algorithms. How likely is this observation sequence — forward. What is the posterior over the state at each time — forward-backward. What single state sequence best explains everything — Viterbi. They share a structure and are constantly confused with one another.",
+        "Viterbi is dynamic programming over paths. At each time and each state, keep the probability of the best path ending there and a back-pointer to where it came from. Because the model is Markov, the best path through a state depends only on the best paths into its predecessors, so a table of size states-by-time suffices where naive enumeration would be exponential."
+      ]
+    },
+    {
+      "h": "The math",
+      "paras": [
+        "The Viterbi recursion, carrying a maximum where the forward algorithm carries a sum:"
+      ],
+      "tex": "\\delta_t(j) = \\max_{i}\\ \\delta_{t-1}(i)\\,a_{ij}\\,b_j(o_t), \\qquad \\psi_t(j) = \\arg\\max_{i}\\ \\delta_{t-1}(i)\\,a_{ij}",
+      "texNote": "Replacing the max with a sum gives the forward algorithm exactly — one is the probability of the best path, the other the total probability over all paths. Implement both in log space; the products underflow to zero within a few dozen timesteps in float64, which presents as a decoder that returns the same answer regardless of input."
+    },
+    {
+      "h": "In code",
+      "code": "import numpy as np\n\ndef viterbi(obs, pi, A, B):\n    \"\"\"pi: (S,) initial, A: (S,S) transitions, B: (S,V) emissions. All in LOG space.\"\"\"\n    T, S = len(obs), len(pi)\n    delta = np.full((T, S), -np.inf)\n    psi = np.zeros((T, S), dtype=int)\n    delta[0] = pi + B[:, obs[0]]\n    for t in range(1, T):\n        # scores[i, j] = best path to i at t-1, then i -> j\n        scores = delta[t - 1][:, None] + A\n        psi[t] = scores.argmax(axis=0)\n        delta[t] = scores.max(axis=0) + B[:, obs[t]]\n    path = np.empty(T, dtype=int)\n    path[-1] = delta[-1].argmax()\n    for t in range(T - 2, -1, -1):\n        path[t] = psi[t + 1][path[t + 1]]      # follow the back-pointers\n    return path, delta[-1].max()",
+      "caption": "Back-pointers are not an optimisation. Reconstructing the path by taking the argmax of each column of delta gives a different and generally wrong answer, because those columns are the best paths ENDING at each state, not a single consistent path."
+    },
+    {
+      "h": "Why decoding the wrong way produces impossible answers",
+      "paras": [
+        "It is tempting to run forward-backward, take the most likely state at each timestep independently, and call that the answer. It optimises a different thing — it maximises the expected number of individually correct states — and it can produce a sequence the model assigns probability zero.",
+        "Measured on a model whose transition matrix forbids staying in the same state, over 400 random observation sequences of length 8: posterior decoding differed from Viterbi on 39 sequences, and on all 39 of those the posterior path had probability exactly zero. One concrete case: posterior decoding returned 11211121 with log-probability negative infinity — it contains a self-transition the model forbids — while Viterbi returned 01210121 at log-probability -11.659.",
+        "That is the practical rule. If the output must be a legal sequence — a valid tag sequence, a route through a graph, a segmentation obeying constraints — you must use Viterbi. Posterior decoding is appropriate only when you want per-position marginals and either the constraints cannot be violated or you do not care.",
+        "As for where HMMs sit now: linear-chain CRFs superseded them for labelling because they are discriminative and can use arbitrary overlapping features of the whole input rather than a per-state emission distribution. Neural taggers superseded those in turn on accuracy. But the Viterbi decoder outlived all of it — a CRF layer on top of a transformer decodes with exactly this recursion, and CTC's decoding is a close relative. Learning it as a decoding algorithm rather than as part of a dated model is what makes it worth the time."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Viterbi is dynamic programming over paths, carrying a max where the forward algorithm carries a sum; back-pointers are required, not an optimisation.",
+    "Per-timestep posterior decoding optimises a different objective and can return a path the model forbids — on 39 of 400 sequences it did exactly that, at probability zero, while Viterbi stayed legal.",
+    "Work in log space or the products underflow within tens of steps, and note the decoder outlived the model: CRF layers on neural taggers decode with this same recursion."
+  ],
+  "demo": "hmm-viterbi",
+  "updatedAt": "2026-08-22"
+}

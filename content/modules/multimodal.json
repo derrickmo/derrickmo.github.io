@@ -97,7 +97,8 @@
       "vector-search",
       "spectrogram",
       "mfcc",
-      "pitch-detection"
+      "pitch-detection",
+      "dtw"
     ]
   },
   "updatedAt": "2026-06-10"

@@ -95,7 +95,8 @@
     "order": [
       "markov",
       "word2vec",
-      "lstm-gates"
+      "lstm-gates",
+      "hmm-viterbi"
     ]
   },
   "updatedAt": "2026-07-21"

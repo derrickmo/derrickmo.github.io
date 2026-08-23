@@ -99,7 +99,8 @@
       "fairness",
       "pagerank",
       "community-detection",
-      "label-propagation"
+      "label-propagation",
+      "kalman-filter"
     ]
   },
   "updatedAt": "2026-08-15"

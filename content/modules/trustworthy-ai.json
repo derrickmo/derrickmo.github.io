@@ -93,7 +93,8 @@
       "superposition",
       "activation-patching",
       "sparse-autoencoder",
-      "certified-robustness"
+      "certified-robustness",
+      "conformal-regression"
     ]
   }
 }
