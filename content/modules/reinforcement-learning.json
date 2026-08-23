@@ -105,7 +105,8 @@
       "gae",
       "ppo",
       "dyna-q",
-      "regret-matching"
+      "regret-matching",
+      "minimax"
     ]
   },
   "updatedAt": "2026-08-07"

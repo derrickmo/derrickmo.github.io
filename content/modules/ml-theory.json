@@ -95,7 +95,8 @@
     "order": [
       "regularization",
       "double-descent",
-      "overfitting"
+      "overfitting",
+      "newtons-method"
     ]
   },
   "updatedAt": "2026-08-01"

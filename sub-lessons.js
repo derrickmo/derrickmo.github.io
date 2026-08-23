@@ -19,7 +19,9 @@ window.SUB_LESSONS = {
       "bayes",
       "entropy",
       "clt",
-      "fourier"
+      "fourier",
+      "mutual-information",
+      "importance-sampling"
     ],
     "lessons": {
       "chain-rule": {
@@ -275,6 +277,86 @@ window.SUB_LESSONS = {
           "Truncating the series overshoots at sharp jumps (Gibbs), and undersampling folds high frequencies down into fake low ones (aliasing)."
         ],
         "demo": "fourier"
+      },
+      "mutual-information": {
+        "title": "Mutual Information",
+        "oneLine": "How many bits knowing one variable saves you about another — a dependence measure that sees every relationship, not just linear ones.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Correlation asks whether two variables move together in a straight line. Plenty of real dependence is not a straight line: y = x squared has a correlation near zero on symmetric data while x determines y exactly. Mutual information asks the more basic question — does knowing X reduce your uncertainty about Y?",
+              "It is zero if and only if the two are independent, which correlation cannot claim. That is the property worth paying for, and the cost is that it is much harder to estimate."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The reduction in entropy, equivalently the KL divergence between the joint and the product of marginals:"
+            ],
+            "tex": "I(X;Y) = H(X) - H(X\\mid Y) = \\sum_{x,y} p(x,y)\\log\\frac{p(x,y)}{p(x)p(y)}",
+            "texNote": "It is symmetric, non-negative, and measured in bits with log base 2. Zero exactly when p(x,y) = p(x)p(y) everywhere — that is what independence means, so the equivalence is a definition rather than a theorem."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef mutual_information(x, y, bins=16):\n    joint, _, _ = np.histogram2d(x, y, bins=bins)\n    p = joint / joint.sum()\n    px = p.sum(1, keepdims=True)\n    py = p.sum(0, keepdims=True)\n    nz = p > 0                            # 0 log 0 is 0, not nan\n    return float((p[nz] * np.log2(p[nz] / (px @ py)[nz])).sum())",
+            "caption": "Note the mask. Skipping it gives log(0) and a silent NaN, which is the single most common bug in a from-scratch MI implementation."
+          },
+          {
+            "h": "The estimation problem, which is the real story",
+            "paras": [
+              "Binning continuous variables makes the estimate depend on the bin count, and the bias runs in a predictable direction: too many bins and every point lands in its own cell, so the estimate climbs toward its maximum on pure noise. Any MI number reported without its binning scheme is uninterpretable.",
+              "It has no natural upper bound the way correlation is capped at one, so a raw MI value is hard to compare across variable pairs. Normalised variants divide by an entropy to restore a 0-to-1 scale, at the cost of a choice about which entropy.",
+              "Where it earns its keep: feature selection that should notice non-monotone relationships, the information bottleneck view of representation learning, and as the quantity that InfoNCE and contrastive objectives are lower-bounding — which is why contrastive learning is often described as maximising mutual information between views."
+            ]
+          }
+        ],
+        "takeaways": [
+          "MI is zero if and only if the variables are independent — a guarantee correlation cannot make.",
+          "It measures the bits knowing one saves about the other, and it catches non-linear dependence.",
+          "Estimating it from samples is the hard part: binning drives the answer, and on noise a fine binning reports dependence that is not there."
+        ],
+        "demo": "mutual-information"
+      },
+      "importance-sampling": {
+        "title": "Importance Sampling",
+        "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting — and watch the variance explode when the two disagree.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "You want the average of f under p, but you can only draw from q. Reweight each sample by how much more likely it was under p than under q, and the average comes out right. That single trick is why off-policy reinforcement learning, causal inference under covariate shift, and variational inference all work.",
+              "It is exactly unbiased, which makes it tempting. The catch is entirely in the variance: a sample that p considers likely and q considers rare arrives with an enormous weight, and one such sample can dominate the whole estimate."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Multiply and divide by q, and the expectation moves to the distribution you can sample:"
+            ],
+            "tex": "\\mathbb{E}_{p}[f(x)] = \\mathbb{E}_{q}\\!\\left[f(x)\\frac{p(x)}{q(x)}\\right] \\approx \\frac{1}{n}\\sum_{i} f(x_i)\\,w_i,\\qquad w_i = \\frac{p(x_i)}{q(x_i)}",
+            "texNote": "Unbiased for any q with support covering p. But the variance depends on how heavy the weights get, and if q ever assigns near-zero probability where p does not, the variance is unbounded — no sample size fixes it, because the problem is the estimator rather than the noise."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef importance_estimate(f_vals, log_p, log_q):\n    logw = log_p - log_q                    # work in logs; the ratios overflow\n    logw -= logw.max()                      # stabilise before exponentiating\n    w = np.exp(logw)\n    ess = w.sum() ** 2 / (w ** 2).sum()     # effective sample size\n    return float((w * f_vals).sum() / w.sum()), float(ess)",
+            "caption": "Always return the effective sample size next to the estimate. 5,000 samples with an ESS of 12 is not a 5,000-sample estimate, and the mean alone will not tell you."
+          },
+          {
+            "h": "Where it shows up, and how it is tamed",
+            "paras": [
+              "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster — which is why PPO clips the ratio instead of trusting it.",
+              "Inverse propensity weighting in causal inference is the same estimator: reweight by the inverse probability of treatment to recover what a randomised trial would have shown. Its failure mode is identical — propensities near zero produce weights in the hundreds, and trimming them narrows the estimand to the overlap population rather than fixing the estimate.",
+              "The general defences are the same three: clip or trim extreme weights and accept the bias, use self-normalised weights (divide by the weight sum, slightly biased but far lower variance), and always report the effective sample size so a collapsed estimate cannot pass as a confident one."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Reweighting by p/q makes samples from the wrong distribution answer the right question, exactly unbiased.",
+          "The variance, not the bias, is what breaks it — one rare-under-q sample can dominate everything.",
+          "Report effective sample size alongside the estimate; clipping and self-normalisation trade a little bias for usable variance."
+        ],
+        "demo": "importance-sampling"
       }
     }
   },
@@ -501,7 +583,8 @@ window.SUB_LESSONS = {
     "order": [
       "regularization",
       "double-descent",
-      "overfitting"
+      "overfitting",
+      "newtons-method"
     ],
     "lessons": {
       "regularization": {
@@ -605,6 +688,46 @@ window.SUB_LESSONS = {
           "Selecting repeatedly on a validation set consumes it, which is why the final number comes from a set you touched once."
         ],
         "demo": "overfitting"
+      },
+      "newtons-method": {
+        "title": "Newton's Method & Second-Order Optimization",
+        "oneLine": "Use curvature, not just slope — quadratic convergence that nobody can afford at scale, and the approximations that made it usable.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Gradient descent knows which way is downhill but nothing about how the slope is changing, so it has to guess a step size. Newton's method fits a quadratic bowl to the loss at your current point and jumps straight to that bowl's minimum. When the fit is good the step is close to perfect and no learning rate is needed.",
+              "It also fixes the conditioning problem that makes gradient descent zig-zag. Scaling by the inverse Hessian makes the step invariant to how the parameters are scaled, so a badly stretched loss surface stops mattering."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Preconditioning the gradient by the inverse Hessian:"
+            ],
+            "tex": "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla\\mathcal{L}(\\theta_t), \\qquad H_{ij} = \\frac{\\partial^2 \\mathcal{L}}{\\partial\\theta_i\\,\\partial\\theta_j}",
+            "texNote": "Convergence is quadratic near the optimum — the number of correct digits roughly doubles per step. The price is the Hessian: n^2 entries and O(n^3) to invert, which for a model with a million parameters is a trillion entries. This is why second-order methods are rare in deep learning, not because they do not work."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef newton(grad, hess, theta, steps=20, damping=1e-6):\n    for _ in range(steps):\n        H = hess(theta)\n        # Damping keeps the solve well-posed and stops it stepping toward\n        # a SADDLE when the Hessian is indefinite - the failure mode people forget.\n        step = np.linalg.solve(H + damping * np.eye(len(theta)), grad(theta))\n        theta = theta - step\n    return theta",
+            "caption": "np.linalg.solve rather than an explicit inverse: forming H^-1 is both slower and numerically worse."
+          },
+          {
+            "h": "Why it fails on neural networks",
+            "paras": [
+              "A neural network's loss surface is not convex, so the Hessian is indefinite and Newton's step can head toward a saddle point rather than a minimum — it moves toward a stationary point, and saddles are stationary. Trust regions and damping exist to stop that.",
+              "Quasi-Newton methods keep the idea and drop the cost. BFGS builds an approximation to the inverse Hessian from successive gradients; L-BFGS stores only the last few updates instead of a matrix and is genuinely usable on medium problems. Both still assume a smooth deterministic objective, which mini-batch noise violates.",
+              "The adaptive optimizers are the diagonal shortcut. Adam's division by root-v is a crude per-parameter curvature estimate — a diagonal preconditioner learned from gradient magnitudes. That is the honest connection: Adam is second-order thinking with an approximation cheap enough to run."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Newton's method preconditions by curvature, converges quadratically, and needs no learning rate near the optimum.",
+          "The Hessian is O(n^2) to store and O(n^3) to invert, which rules it out at deep-learning scale.",
+          "L-BFGS keeps the idea affordably, and Adam's per-parameter scaling is the diagonal approximation of the same idea."
+        ],
+        "demo": "newton-vs-gradient"
       }
     }
   },
@@ -617,7 +740,8 @@ window.SUB_LESSONS = {
       "optimizers",
       "batch-norm",
       "weight-init",
-      "perceptron"
+      "perceptron",
+      "adam"
     ],
     "lessons": {
       "mlp": {
@@ -814,6 +938,46 @@ window.SUB_LESSONS = {
           "Without a nonlinearity between layers, a deep stack collapses to one linear map, so the activation is what depth is actually buying."
         ],
         "demo": "perceptron"
+      },
+      "adam": {
+        "title": "Adam",
+        "oneLine": "Per-parameter step sizes from running estimates of the gradient's mean and variance — the default, and worth knowing why it is not always the right default.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Plain SGD uses one learning rate for every parameter, which is a problem when their gradients differ in scale by orders of magnitude — a rate small enough to be stable for the loudest parameter crawls for the quietest one. Adam gives each parameter its own effective step by dividing by a running estimate of that parameter's gradient magnitude.",
+              "Two running averages do the work. The first is momentum: a decayed average of recent gradients, which smooths noise and carries the update through flat regions. The second is a decayed average of squared gradients, which measures how large that parameter's gradients have recently been. Dividing one by the root of the other makes the step roughly scale-free."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "Two exponential moving averages, a bias correction, and a normalised step:"
+            ],
+            "tex": "m_t = \\beta_1 m_{t-1} + (1-\\beta_1)g_t,\\quad v_t = \\beta_2 v_{t-1} + (1-\\beta_2)g_t^2,\\quad \\theta_{t+1} = \\theta_t - \\eta\\,\\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t}+\\epsilon}",
+            "texNote": "Both averages start at zero, so early steps are biased toward zero — hence the correction m-hat = m / (1 - beta1^t). Skipping it makes the first few hundred updates far too small, which is exactly the regime where a transformer diverges, and is why warmup and bias correction get discussed together."
+          },
+          {
+            "h": "In code",
+            "code": "import numpy as np\n\ndef adam_step(g, state, lr=1e-3, b1=0.9, b2=0.999, eps=1e-8):\n    state[\"t\"] += 1\n    state[\"m\"] = b1 * state[\"m\"] + (1 - b1) * g\n    state[\"v\"] = b2 * state[\"v\"] + (1 - b2) * g * g\n    m_hat = state[\"m\"] / (1 - b1 ** state[\"t\"])     # bias correction\n    v_hat = state[\"v\"] / (1 - b2 ** state[\"t\"])\n    return -lr * m_hat / (np.sqrt(v_hat) + eps)",
+            "caption": "Two extra tensors per parameter is the memory cost: an Adam model needs roughly 3x the optimizer state of plain SGD, which is why ZeRO shards it."
+          },
+          {
+            "h": "What it costs, and when SGD still wins",
+            "paras": [
+              "Adam stores two extra values per parameter, so optimizer state is about twice the model size in fp32. On large models that is often the biggest allocation after the weights themselves, and it is exactly what ZeRO-1 shards across data-parallel ranks — the sharding is exact because Adam is elementwise.",
+              "Well-tuned SGD with momentum still generalises better than Adam on many vision benchmarks. The adaptive step is a convenience that finds a decent basin quickly; it is not a guarantee of a better one. Reach for Adam when you cannot afford to tune, which is most of the time, and be honest that it is that trade.",
+              "The most common real bug is applying weight decay through Adam's L2 penalty rather than decoupled from it. Adding lambda*theta to the gradient means the decay is also divided by the running variance, so parameters with large gradients get decayed less. AdamW decouples it, and it is not a cosmetic difference."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Adam is per-parameter step sizes derived from running mean and variance of the gradient — momentum plus a scale normaliser.",
+          "Bias correction matters most in the first steps, which is the regime where training actually diverges.",
+          "It costs two extra tensors per parameter, and tuned SGD still generalises better on many vision tasks; use AdamW if you decay weights."
+        ],
+        "demo": "optimizers"
       }
     }
   },
@@ -1697,7 +1861,8 @@ window.SUB_LESSONS = {
       "gae",
       "ppo",
       "dyna-q",
-      "regret-matching"
+      "regret-matching",
+      "minimax"
     ],
     "lessons": {
       "bandit": {
@@ -1955,6 +2120,46 @@ window.SUB_LESSONS = {
           "CFR is this update applied per information set, which is how imperfect-information games like poker were solved."
         ],
         "demo": "regret-matching"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta",
+        "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it — and prune the branches that provably cannot change the answer.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "In a two-player zero-sum game your gain is exactly your opponent's loss, so you cannot hope they blunder. Minimax evaluates a move by assuming the reply is the best available, and the reply to that, all the way down — then chooses the move whose worst case is best.",
+              "The tree is enormous, so you stop at a fixed depth and score the position with an evaluation function. That is the honest weak point: everything below the horizon is invisible, and a position that looks winning at depth six can be lost at depth eight."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The value of a node alternates between maximising and minimising over children:"
+            ],
+            "tex": "V(s) = \\begin{cases} \\text{eval}(s) & \\text{depth } 0 \\\\ \\max_{a} V(s') & \\text{our turn} \\\\ \\min_{a} V(s') & \\text{their turn} \\end{cases}",
+            "texNote": "Alpha-beta prunes any branch that cannot affect this value. It returns the IDENTICAL answer — it is not an approximation. With perfect move ordering it examines O(b^(d/2)) nodes instead of O(b^d), which is the difference between searching depth 6 and depth 12 in the same time."
+          },
+          {
+            "h": "In code",
+            "code": "def alphabeta(state, depth, alpha, beta, maximizing):\n    if depth == 0 or state.is_terminal():\n        return state.evaluate()\n    if maximizing:\n        value = -float(\"inf\")\n        for move in state.moves():\n            value = max(value, alphabeta(state.apply(move), depth - 1, alpha, beta, False))\n            alpha = max(alpha, value)\n            if alpha >= beta:\n                break                  # the minimiser would never allow this line\n        return value\n    value = float(\"inf\")\n    for move in state.moves():\n        value = min(value, alphabeta(state.apply(move), depth - 1, alpha, beta, True))\n        beta = min(beta, value)\n        if beta <= alpha:\n            break\n    return value",
+            "caption": "The two `break`s are the whole optimisation. Move ordering decides how often they fire, which is why engines spend real effort guessing the best move first."
+          },
+          {
+            "h": "Why modern engines left it behind — and did not",
+            "paras": [
+              "Alpha-beta needs a good evaluation function and a branching factor small enough to search deeply. Go has neither, which is why Monte Carlo tree search took over there: MCTS samples playouts instead of enumerating, and spends its budget on promising lines using an explore/exploit rule rather than exhaustive proof.",
+              "But chess engines are still alpha-beta at their core, now with a learned evaluation. The search discipline did not lose; the hand-written evaluation did.",
+              "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Minimax assumes a best-playing opponent, so it optimises the worst case rather than the expected case.",
+          "Alpha-beta is EXACT — same answer, fewer nodes — and good move ordering roughly doubles the reachable depth.",
+          "It needs a decent evaluation and a modest branching factor; when either fails, sampling methods like MCTS win."
+        ],
+        "demo": "mcts"
       }
     }
   },
@@ -3242,7 +3447,8 @@ window.SUB_LESSONS = {
       "classification-metrics",
       "dynamic-programming",
       "graph-search",
-      "search-astar"
+      "search-astar",
+      "dijkstra"
     ],
     "lessons": {
       "classification-metrics": {
@@ -3379,6 +3585,46 @@ window.SUB_LESSONS = {
           "Deliberately over-estimating buys speed for a bounded loss of optimality, which is frequently the right engineering trade."
         ],
         "demo": "pathfinding"
+      },
+      "dijkstra": {
+        "title": "Dijkstra's Shortest Path",
+        "oneLine": "Always expand the closest unfinished node — correct precisely because edge weights are non-negative, and wrong the moment they are not.",
+        "sections": [
+          {
+            "h": "The intuition",
+            "paras": [
+              "Grow a set of nodes whose true shortest distance you already know. Repeatedly take the unfinished node with the smallest tentative distance and declare it finished, because nothing still unfinished could offer a cheaper route to it.",
+              "That last step is the entire proof, and it is also the entire assumption. Reaching a node through a longer partial path can never help if every edge adds a non-negative amount. Allow one negative edge and the argument collapses — a node you already finalised might be reachable more cheaply later."
+            ]
+          },
+          {
+            "h": "The math",
+            "paras": [
+              "The relaxation is one line, applied to every edge out of the node being finalised:"
+            ],
+            "tex": "d(v) \\leftarrow \\min\\big(d(v),\\; d(u) + w(u,v)\\big)",
+            "texNote": "With a binary heap the cost is O((V + E) log V). A Fibonacci heap makes it O(E + V log V), which is better asymptotically and usually slower in practice because the constants are worse — a good example of why you benchmark rather than read the table."
+          },
+          {
+            "h": "In code",
+            "code": "import heapq\n\ndef dijkstra(graph, src):\n    dist = {src: 0}\n    pq = [(0, src)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist.get(u, float(\"inf\")):\n            continue                       # a stale entry; the good one already ran\n        for v, w in graph[u]:\n            nd = d + w\n            if nd < dist.get(v, float(\"inf\")):\n                dist[v] = nd\n                heapq.heappush(pq, (nd, v))\n    return dist",
+            "caption": "Python's heapq has no decrease-key, so the idiom is to push duplicates and skip stale pops. That `continue` is not an optimisation — without it the loop does redundant work on every outdated entry."
+          },
+          {
+            "h": "When it is the wrong algorithm",
+            "paras": [
+              "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them — and detects a negative cycle, where 'shortest path' stops being defined at all.",
+              "Unweighted graphs need only BFS, which is O(V + E) with no heap. Reaching for Dijkstra there is a real interview tell: the priority queue is doing nothing a queue would not.",
+              "Add an admissible estimate of the remaining distance to the priority and you have A*, which explores far fewer nodes to reach the same answer. Dijkstra is the h = 0 case."
+            ]
+          }
+        ],
+        "takeaways": [
+          "Correctness rests entirely on non-negative edge weights — that is the assumption, not a technicality.",
+          "Without decrease-key you push duplicates and skip stale pops; forgetting the skip silently does extra work.",
+          "Unweighted means BFS, negative edges mean Bellman-Ford, and a heuristic makes it A*."
+        ],
+        "demo": "dijkstra"
       }
     }
   }

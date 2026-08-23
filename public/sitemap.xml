@@ -293,9 +293,11 @@
   <url><loc>https://derrickmo.github.io/learn/foundations/entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/gradient-descent/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/information-theory/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/linear-algebra/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/matplotlib/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/foundations/mutual-information/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/pandas/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/probability/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/foundations/python-numpy-tensor-speed/</loc><priority>0.6</priority></url>
@@ -345,6 +347,7 @@
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-fraud-llm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-recommender/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/design-search-ads/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/interview-capstone/dijkstra/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/dynamic-programming/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/graph-search/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/interview-capstone/interview-landscape/</loc><priority>0.6</priority></url>
@@ -395,6 +398,7 @@
   <url><loc>https://derrickmo.github.io/learn/ml-theory/gaussian-processes/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/imbalanced-data/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/learning-theory/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/ml-theory/newtons-method/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/overfitting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/ml-theory/regularization/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/mlops/</loc><priority>0.6</priority></url>
@@ -428,6 +432,7 @@
   <url><loc>https://derrickmo.github.io/learn/neural-nets/activation-functions/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/activations/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/adam-lr-scheduling/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/neural-nets/adam/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/batch-norm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/neural-nets/forward-pass/</loc><priority>0.6</priority></url>
@@ -485,6 +490,7 @@
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/imitation-learning/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mc-td/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/mdp-bellman/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/minimax/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/model-based-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/offline-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/learn/reinforcement-learning/policy-gradient/</loc><priority>0.6</priority></url>

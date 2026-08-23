@@ -90,7 +90,8 @@
       "classification-metrics",
       "dynamic-programming",
       "graph-search",
-      "search-astar"
+      "search-astar",
+      "dijkstra"
     ]
   }
 }

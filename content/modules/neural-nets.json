@@ -103,7 +103,8 @@
       "optimizers",
       "batch-norm",
       "weight-init",
-      "perceptron"
+      "perceptron",
+      "adam"
     ]
   },
   "updatedAt": "2026-06-10"

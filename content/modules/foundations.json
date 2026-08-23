@@ -100,7 +100,9 @@
       "bayes",
       "entropy",
       "clt",
-      "fourier"
+      "fourier",
+      "mutual-information",
+      "importance-sampling"
     ]
   },
   "updatedAt": "2026-06-10"
