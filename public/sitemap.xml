@@ -709,6 +709,7 @@
   <url><loc>https://derrickmo.github.io/visualize/coordinate-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/coreset/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/count-min-sketch/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/cross-validation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dbscan/</loc><priority>0.6</priority></url>

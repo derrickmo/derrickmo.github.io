@@ -149,7 +149,8 @@ window.SUB_LESSONS = {
           "Cross-entropy is negative log-likelihood of the true class.",
           "It penalizes confident wrong predictions sharply.",
           "With softmax, the gradient is predicted minus actual."
-        ]
+        ],
+        "demo": "cross-entropy"
       },
       "bayes": {
         "title": "Bayes' Rule",
@@ -3397,7 +3398,8 @@ window.SUB_LESSONS = {
           "CFR accumulates counterfactual regret per information set — weighted by the OPPONENT's reach probability — and plays proportional to positive regret.",
           "Only the AVERAGE strategy converges: after a million iterations the current one was a pure strategy with error 0.75, while the average was within 0.0005 of Nash.",
           "The guarantee holds for two-player zero-sum only; use CFR+ in practice, and Monte Carlo sampling once the tree is too large to traverse."
-        ]
+        ],
+        "demo": "regret-matching"
       },
       "replicator-dynamics": {
         "title": "Replicator Dynamics",
@@ -4787,7 +4789,8 @@ window.SUB_LESSONS = {
           "Selection, format and arguments are three different failure modes behind one accuracy number.",
           "Tool descriptions are model input, so rewriting them is a legitimate and cheap fix for routing errors.",
           "Overlapping tools are the main cause of misrouting - merge them or make the boundary explicit in the description."
-        ]
+        ],
+        "demo": "agent-router"
       },
       "guardrails": {
         "title": "Agent Guardrails",
@@ -5033,7 +5036,8 @@ window.SUB_LESSONS = {
           "One potential outcome per unit is missing by construction, not by omission.",
           "The assumption identifies the effect; the estimator only computes it.",
           "More data shrinks the interval and does nothing to the bias - they are different axes."
-        ]
+        ],
+        "demo": "do-intervention"
       },
       "simpsons-paradox": {
         "title": "Simpson's Paradox",
@@ -5477,7 +5481,8 @@ window.SUB_LESSONS = {
           "Two conditions: overlapping subproblems AND optimal substructure. Missing either means DP is the wrong tool.",
           "Write the recurrence first; the table or memo is mechanical once it is right.",
           "Viterbi, edit distance and value iteration are the same pattern - prepare them together."
-        ]
+        ],
+        "demo": "knapsack"
       },
       "graph-search": {
         "title": "Graph Search",

@@ -32,5 +32,6 @@
     "Write the recurrence first; the table or memo is mechanical once it is right.",
     "Viterbi, edit distance and value iteration are the same pattern - prepare them together."
   ],
+  "demo": "knapsack",
   "updatedAt": "2026-08-22"
 }

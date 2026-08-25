@@ -70996,7 +70996,7 @@
         "It penalizes confident wrong predictions sharply.",
         "With softmax, the gradient is predicted minus actual."
       ],
-      "demo": null,
+      "demo": "cross-entropy",
       "updatedAt": "2026-06-10"
     },
     {
@@ -73812,6 +73812,7 @@
         "Only the AVERAGE strategy converges: after a million iterations the current one was a pure strategy with error 0.75, while the average was within 0.0005 of Nash.",
         "The guarantee holds for two-player zero-sum only; use CFR+ in practice, and Monte Carlo sampling once the tree is too large to traverse."
       ],
+      "demo": "regret-matching",
       "updatedAt": "2026-08-22"
     },
     {
@@ -75955,6 +75956,7 @@
         "Tool descriptions are model input, so rewriting them is a legitimate and cheap fix for routing errors.",
         "Overlapping tools are the main cause of misrouting - merge them or make the boundary explicit in the description."
       ],
+      "demo": "agent-router",
       "updatedAt": "2026-08-22"
     },
     {
@@ -76139,6 +76141,7 @@
         "The assumption identifies the effect; the estimator only computes it.",
         "More data shrinks the interval and does nothing to the bias - they are different axes."
       ],
+      "demo": "do-intervention",
       "updatedAt": "2026-08-22"
     },
     {
@@ -76793,6 +76796,7 @@
         "Write the recurrence first; the table or memo is mechanical once it is right.",
         "Viterbi, edit distance and value iteration are the same pattern - prepare them together."
       ],
+      "demo": "knapsack",
       "updatedAt": "2026-08-22"
     },
     {

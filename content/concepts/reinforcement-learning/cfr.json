@@ -42,5 +42,6 @@
     "Only the AVERAGE strategy converges: after a million iterations the current one was a pure strategy with error 0.75, while the average was within 0.0005 of Nash.",
     "The guarantee holds for two-player zero-sum only; use CFR+ in practice, and Monte Carlo sampling once the tree is too large to traverse."
   ],
+  "demo": "regret-matching",
   "updatedAt": "2026-08-22"
 }

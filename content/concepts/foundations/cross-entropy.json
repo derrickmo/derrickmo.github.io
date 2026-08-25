@@ -31,6 +31,6 @@
     "It penalizes confident wrong predictions sharply.",
     "With softmax, the gradient is predicted minus actual."
   ],
-  "demo": null,
+  "demo": "cross-entropy",
   "updatedAt": "2026-06-10"
 }

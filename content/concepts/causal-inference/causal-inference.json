@@ -32,5 +32,6 @@
     "The assumption identifies the effect; the estimator only computes it.",
     "More data shrinks the interval and does nothing to the bias - they are different axes."
   ],
+  "demo": "do-intervention",
   "updatedAt": "2026-08-22"
 }

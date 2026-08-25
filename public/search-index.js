@@ -63,6 +63,7 @@ window.DM_NAV_INDEX = [
   { label: "Iterated Prisoner's Dilemma Tournament", group: "Demo", href: "/visualize/pd-tournament/", kw: "prisoners dilemma axelrod tournament tit for tat cooperation game theory iterated reciprocity grim pavlov" },
   { label: "Mutual Information vs Correlation", group: "Demo", href: "/visualize/mutual-information/", kw: "mutual information correlation entropy information theory dependence nonlinear infonce feature selection" },
   { label: "Channel Capacity", group: "Demo", href: "/visualize/channel-capacity/", kw: "channel capacity shannon binary symmetric channel information theory noise entropy coding theorem error correction" },
+  { label: "Cross-Entropy Loss", group: "Demo", href: "/visualize/cross-entropy/", kw: "cross entropy loss log likelihood softmax logits gradient p minus y squared error mse vanishing gradient classifier training objective kl divergence" },
   { label: "Huffman Coding & Entropy", group: "Demo", href: "/visualize/huffman-coding/", kw: "huffman coding entropy compression prefix code lossless information theory source coding zip jpeg cross entropy" },
   { label: "Classification Metrics", group: "Demo", href: "/visualize/classification-metrics/", kw: "classification metrics confusion matrix accuracy precision recall f1 macro micro weighted f-beta imbalance evaluation" },
   { label: "Adversarial Examples (FGSM / PGD)", group: "Demo", href: "/visualize/adversarial-examples/", kw: "adversarial examples fgsm pgd robustness attack perturbation epsilon adversarial training madry security" },

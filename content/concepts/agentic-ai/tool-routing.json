@@ -32,5 +32,6 @@
     "Tool descriptions are model input, so rewriting them is a legitimate and cheap fix for routing errors.",
     "Overlapping tools are the main cause of misrouting - merge them or make the boundary explicit in the description."
   ],
+  "demo": "agent-router",
   "updatedAt": "2026-08-22"
 }
