@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "content": "node scripts/gen-from-store.mjs --write",
     "verify": "node scripts/verify-build-output.mjs",
-    "audit": "node scripts/audit-curriculum.mjs && node scripts/audit-concepts.mjs && node scripts/check-page-assets.mjs && node scripts/check-notebook-sync.mjs && node scripts/add-cdn-sri.mjs --check"
+    "audit": "node scripts/audit-curriculum.mjs && node scripts/audit-concepts.mjs && node scripts/audit-demos.mjs && node scripts/check-page-assets.mjs && node scripts/check-notebook-sync.mjs && node scripts/add-cdn-sri.mjs --check"
   },
   "devDependencies": {
     "vite": "^6.0.7"
