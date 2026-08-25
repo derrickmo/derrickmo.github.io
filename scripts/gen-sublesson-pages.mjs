@@ -26,9 +26,62 @@ function loadSubLessons() {
 const ascii = s => String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-").replace(/[^\x00-\x7F]/g, "");
 const esc = s => ascii(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+// ★ THIS GENERATOR WAS LEFT OUT OF THE MT-0001 FIX. gen-lesson-pages.mjs and
+// generate-concept-pages.mjs both truncate on a word boundary at 155; this one emitted
+// `esc(oneLine)` raw, so it had BOTH failure modes at once: 6 pages ran over 155 chars
+// (up to 171, silently truncated by search engines mid-sentence) and 27 sat under 60,
+// which is too thin to describe the page.
+// Same helper as the other two, verbatim — including the ASCII "..." note, since esc()
+// strips a real U+2026 ellipsis and would re-create the mid-word ending it exists to fix.
+function metaDescription(text, max = 155) {
+  const flat = String(text || "").replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  // Reserve room for the "..." itself: slice(0, max-1) plus a 3-char suffix returns up to
+  // max+2, so this helper was overshooting its own cap by 2 on 65 pages.
+  const cut = flat.slice(0, max - 3);
+  const sp = cut.lastIndexOf(" ");
+  const base = sp > max * 0.6 ? cut.slice(0, sp) : cut;
+  return base.replace(/[\s,;:.\-]+$/, "") + "...";
+}
+
+// A page subtitle and a search-result description are different jobs. `oneLine` is the
+// subtitle and some of the older seeded concepts keep it deliberately terse ("Update what
+// you believe in light of new evidence." = 49 chars). Rather than rewrite that content,
+// carry a takeaway into the DESCRIPTION only when the subtitle alone is too thin — a
+// takeaway is already a one-sentence statement of what the page establishes.
+//
+// ⚠ NOT takeaways[0]. On these seeded concepts the first takeaway usually RESTATES the
+// oneLine ("Estimate the per-pixel motion between two frames." + "Optical flow recovers
+// per-pixel motion between frames."), which produces a description that says one thing
+// twice. Pick the takeaway that shares the FEWEST content words with the subtitle: on the
+// 76 pages this touches, 51 get a different and less redundant sentence that way.
+const contentWords = (s) =>
+  new Set(String(s).toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3));
+
+function leastRedundant(one, takeaways) {
+  const base = contentWords(one);
+  let best = null, bestOverlap = Infinity;
+  for (const t of takeaways) {
+    const w = contentWords(t);
+    if (!w.size) continue;
+    let shared = 0;
+    for (const x of w) if (base.has(x)) shared++;
+    const overlap = shared / w.size;
+    if (overlap < bestOverlap) { bestOverlap = overlap; best = t; }
+  }
+  return best;
+}
+
+function describe(lesson) {
+  const one = String(lesson.oneLine || "").trim();
+  if (one.length >= 90) return metaDescription(one);
+  const extra = leastRedundant(one, lesson.takeaways || []);
+  return metaDescription(extra ? `${one.replace(/[.\s]+$/, "")}. ${extra}` : one);
+}
+
 function pageHtml(moduleSlug, conceptId, moduleTitle, lesson) {
   const title = `${ascii(lesson.title)} - ${ascii(moduleTitle)} | ML from Scratch | Derrick Mo`;
-  const desc = esc(lesson.oneLine);
+  const desc = esc(describe(lesson));
   const url = `https://derrickmo.github.io/learn/${moduleSlug}/${conceptId}/`;
   return `<!doctype html>
 <html lang="en">

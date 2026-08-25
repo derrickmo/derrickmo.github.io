@@ -28,7 +28,8 @@
   ],
   "takeaways": [
     "Gradients of compositions are products of local gradients.",
-    "It is the mathematical engine inside backprop and every autograd library."
+    "It is the mathematical engine inside backprop and every autograd library.",
+    "Because the gradient is a PRODUCT along the path, local factors compound exponentially with depth - 0.9 per layer over 50 layers is 5e-3 and 1.1 is 1.2e2, which is exactly why vanishing and exploding gradients exist and why a residual connection (an identity path, local derivative 1) helps."
   ],
   "demo": "backprop",
   "updatedAt": "2026-06-10"

@@ -21,7 +21,9 @@ const root = path.resolve(here, "..");
 function metaDescription(text, max = 155) {
   const flat = String(text || "").replace(/\s+/g, " ").trim();
   if (flat.length <= max) return flat;
-  const cut = flat.slice(0, max - 1);
+  // Reserve room for the "..." itself: slice(0, max-1) plus a 3-char suffix returns up to
+  // max+2, so this helper was overshooting its own cap by 2 on 65 pages.
+  const cut = flat.slice(0, max - 3);
   const sp = cut.lastIndexOf(" ");
   // Only fall back to a hard cut if there is no space in the last third.
   const base = sp > max * 0.6 ? cut.slice(0, sp) : cut;

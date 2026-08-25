@@ -54,7 +54,8 @@ window.SUB_LESSONS = {
         ],
         "takeaways": [
           "Gradients of compositions are products of local gradients.",
-          "It is the mathematical engine inside backprop and every autograd library."
+          "It is the mathematical engine inside backprop and every autograd library.",
+          "Because the gradient is a PRODUCT along the path, local factors compound exponentially with depth - 0.9 per layer over 50 layers is 5e-3 and 1.1 is 1.2e2, which is exactly why vanishing and exploding gradients exist and why a residual connection (an identity path, local derivative 1) helps."
         ],
         "demo": "backprop"
       },
@@ -176,7 +177,8 @@ window.SUB_LESSONS = {
         ],
         "takeaways": [
           "Bayes' rule is the calculus of updating beliefs with evidence.",
-          "Priors dominate when data is scarce; data dominates when it is plentiful."
+          "Priors dominate when data is scarce; data dominates when it is plentiful.",
+          "Base rates dominate more than intuition expects: a 99%-accurate test for a condition with 0.1% prevalence gives a positive result a posterior of only 9% - the same test at 10% prevalence gives 92%."
         ],
         "demo": "bayes"
       },

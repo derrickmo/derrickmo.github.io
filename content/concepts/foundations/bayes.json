@@ -28,7 +28,8 @@
   ],
   "takeaways": [
     "Bayes' rule is the calculus of updating beliefs with evidence.",
-    "Priors dominate when data is scarce; data dominates when it is plentiful."
+    "Priors dominate when data is scarce; data dominates when it is plentiful.",
+    "Base rates dominate more than intuition expects: a 99%-accurate test for a condition with 0.1% prevalence gives a positive result a posterior of only 9% - the same test at 10% prevalence gives 92%."
   ],
   "demo": "bayes",
   "updatedAt": "2026-06-10"
