@@ -427,7 +427,13 @@ function PrevNext() {
         ? `../${item.lesson.slug}/`
         : `../../${item.module.slug}/${item.lesson.slug}/`
     } style={{
-      flex: 1,
+      // flex:1 + the default content-box put the 48px of horizontal padding OUTSIDE the
+      // flex basis, and min-width:auto floored each tile at its min-content width — so at
+      // 375px the pair came to 363px inside a 320px container and the right-hand tile lost
+      // 8px off the page. Basis + wrap is the idiom already used by the concept cards: side
+      // by side while they fit, stacked when they do not, at every width and with no
+      // JS breakpoint.
+      flex: "1 1 260px", minWidth: 0, boxSizing: "border-box",
       padding: "22px 24px",
       border: "1px solid var(--border)", borderRadius: 6,
       background: "rgba(13, 24, 52, 0.5)",
@@ -458,9 +464,9 @@ function PrevNext() {
         <div style={{ marginBottom: 16 }}>
           <MonoLabel>// NAVIGATE</MonoLabel>
         </div>
-        <div style={{ display: "flex", gap: 16 }}>
-          {tile(prev, "prev") || <div style={{ flex: 1 }} />}
-          {tile(next, "next") || <div style={{ flex: 1 }} />}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          {tile(prev, "prev") || <div style={{ flex: "1 1 260px" }} />}
+          {tile(next, "next") || <div style={{ flex: "1 1 260px" }} />}
         </div>
       </Container>
     </Section>
