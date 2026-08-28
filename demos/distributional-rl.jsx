@@ -113,23 +113,28 @@ function DistributionalRLDemo() {
     ctx.fillStyle = "#0b1530"; ctx.fillRect(0, 0, CW, CH);
     const st = stRef.current; if (!st) return;
     const Z = st.Z;
+    // sel is clamped back into range by an effect, and effects run AFTER this draw on the
+    // render where K shrank -- so Z[sel] was undefined and drawHist blanked the page the
+    // moment anyone reduced the state count. Index through a clamped copy, exactly as the
+    // Zsel readout below already does.
+    const selK = Math.min(sel, Z.length - 1);
     // small multiples row
     const sy0 = 18, sh = 46, pad = 6; const sw = (CW - 12 - (K - 1) * pad) / K;
     ctx.fillStyle = "#94a3b8"; ctx.font = "8px monospace"; ctx.textAlign = "left"; ctx.fillText("return distribution Z(s) per state — contracts toward 0 by γ each step back", 6, sy0 - 5);
     for (let k = 0; k < K; k++) {
       const x0 = 6 + k * (sw + pad);
-      ctx.fillStyle = k === sel ? "rgba(168,85,247,0.12)" : "transparent"; ctx.fillRect(x0 - 2, sy0 - 2, sw + 4, sh + 14);
+      ctx.fillStyle = k === selK ? "rgba(168,85,247,0.12)" : "transparent"; ctx.fillRect(x0 - 2, sy0 - 2, sw + 4, sh + 14);
       drawHist(ctx, Z[k], x0, sy0, sw, sh, k === K - 1 ? "#34d399" : "#a855f7", null);
-      ctx.fillStyle = k === sel ? "#fff" : "#64748b"; ctx.textAlign = "center"; ctx.font = "8px monospace";
+      ctx.fillStyle = k === selK ? "#fff" : "#64748b"; ctx.textAlign = "center"; ctx.font = "8px monospace";
       ctx.fillText(k === K - 1 ? "goal" : "s" + k, x0 + sw / 2, sy0 + sh + 10);
-      if (k === sel) { ctx.strokeStyle = "#a855f7"; ctx.strokeRect(x0 - 2, sy0 - 2, sw + 4, sh + 14); }
+      if (k === selK) { ctx.strokeStyle = "#a855f7"; ctx.strokeRect(x0 - 2, sy0 - 2, sw + 4, sh + 14); }
     }
     // big selected histogram
     const by0 = 96, bh = 110, bx0 = 30, bw = CW - 40;
-    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("Z(s" + (sel === K - 1 ? "_goal" : sel) + ")  — learned (violet) vs exact (line)", bx0, by0 - 6);
-    drawHist(ctx, Z[sel], bx0, by0, bw, bh, "rgba(168,85,247,0.8)", trueZ[sel]);
+    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("Z(s" + (selK === K - 1 ? "_goal" : selK) + ")  — learned (violet) vs exact (line)", bx0, by0 - 6);
+    drawHist(ctx, Z[selK], bx0, by0, bw, bh, "rgba(168,85,247,0.8)", trueZ[selK]);
     // mean marker
-    const mu = meanOf(Z[sel]); const mx = bx0 + ((mu - VMIN) / (VMAX - VMIN)) * bw;
+    const mu = meanOf(Z[selK]); const mx = bx0 + ((mu - VMIN) / (VMAX - VMIN)) * bw;
     ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(mx, by0); ctx.lineTo(mx, by0 + bh); ctx.stroke();
     ctx.fillStyle = "#fbbf24"; ctx.textAlign = "center"; ctx.font = "8px monospace"; ctx.fillText("mean=V=" + mu.toFixed(2), mx, by0 - 0 + bh + 11);
     // axis ticks
@@ -158,7 +163,10 @@ function DistributionalRLDemo() {
   _useEffect(() => { if (!running) draw(); /* eslint-disable-next-line */ }, [sel, trueZ, running]);
 
   const reset = () => { init(); setTimeout(draw, 0); };
-  const Zsel = stRef.current ? stRef.current.Z[Math.min(sel, K - 1)] : zeros();
+  // Clamp against the array's OWN length, not K. init() rebuilds Z in an effect, so on the
+  // render where K has just grown, K - 1 still points past the end of the previous Z and
+  // meanOf() below read undefined[0]. The array is the authority on its own size.
+  const Zsel = stRef.current ? (stRef.current.Z[Math.min(sel, stRef.current.Z.length - 1)] || zeros()) : zeros();
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>

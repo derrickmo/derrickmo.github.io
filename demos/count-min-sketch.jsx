@@ -43,22 +43,27 @@ function CountMinDemo() {
     const A = [], Bc = []; for (let rr = 0; rr < d; rr++) { A.push(1 + Math.floor(r() * (PRIME - 1))); Bc.push(Math.floor(r() * PRIME)); }
     const table = Array.from({ length: d }, () => new Float64Array(w));
     const trueC = new Float64Array(M);
-    sim.current = { r, cdf, A, Bc, table, trueC, total: 0 };
+    // Carry w and d ON the sketch. The render body reads estimate(st, probe), but reset()
+    // runs in an effect -- AFTER render -- so on the render where d has just changed, the
+    // new d was being applied to the previous table: st.A[row] came back undefined, the
+    // hash became NaN, and st.table[row][NaN] blanked the page. A self-describing sketch
+    // cannot go out of step with itself.
+    sim.current = { r, cdf, A, Bc, table, trueC, total: 0, w, d };
     setTick(t => t + 1);
   }
   _useEffect(() => { reset(); /* eslint-disable-next-line */ }, [w, d, skew]);
 
-  const hashOf = (st, row, x) => ((st.A[row] * x + st.Bc[row]) % PRIME) % w;
+  const hashOf = (st, row, x) => ((st.A[row] * x + st.Bc[row]) % PRIME) % st.w;
 
   function addBatch(n) {
     const st = sim.current; if (!st) return; const { r, cdf } = st;
     for (let b = 0; b < n; b++) {
       const u = r(); let x = 0; while (x < M - 1 && u > cdf[x]) x++;
       st.trueC[x]++; st.total++;
-      for (let row = 0; row < d; row++) st.table[row][hashOf(st, row, x)]++;
+      for (let row = 0; row < st.d; row++) st.table[row][hashOf(st, row, x)]++;
     }
   }
-  function estimate(st, x) { let m = Infinity; for (let row = 0; row < d; row++) m = Math.min(m, st.table[row][hashOf(st, row, x)]); return m; }
+  function estimate(st, x) { let m = Infinity; for (let row = 0; row < st.d; row++) m = Math.min(m, st.table[row][hashOf(st, row, x)]); return m; }
 
   _useEffect(() => {
     const tick = () => {
