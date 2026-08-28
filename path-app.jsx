@@ -68,7 +68,9 @@ function App() {
           </div>
           {/* outcomes */}
           <div style={{ marginTop: 22, maxWidth: 760 }}>
-            <MonoLabel color={accent}>// BY THE END YOU CAN</MonoLabel>
+            <h2 className="t-mono-s" style={{ color: accent, display: "inline", margin: 0 }}>
+              <span aria-hidden="true">// </span>By the end you can
+            </h2>
             <ul style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--muted)", fontSize: 14, lineHeight: 1.7 }}>
               {path.outcomes.map((o, i) => <li key={i}>{o}</li>)}
             </ul>
@@ -99,16 +101,18 @@ function App() {
               const isOpen = open[si];
               return (
                 <div key={si} style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", background: "rgba(13,24,52,0.35)" }}>
-                  <button onClick={() => toggleStage(si)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 18px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
+                  <h2 style={{ margin: 0 }}>
+                  <button onClick={() => toggleStage(si)} aria-expanded={!!isOpen} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 18px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <span className="t-mono-s" style={{ color: accent, fontSize: 11 }}>{String(si + 1).padStart(2, "0")}</span>
                       <span style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 18, color: "var(--white)" }}>{stage.name}</span>
                     </span>
                     <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <span className="t-mono-s" style={{ color: sDone === stage.steps.length ? "#34d399" : "var(--muted)", fontSize: 11 }}>{sDone}/{stage.steps.length}</span>
-                      <span style={{ color: "var(--muted)", transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .2s" }}>›</span>
+                      <span aria-hidden="true" style={{ color: "var(--muted)", transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .2s" }}>›</span>
                     </span>
                   </button>
+                  </h2>
                   {isOpen && (
                     <div style={{ padding: "0 14px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
                       {stage.steps.map((step, ti) => {

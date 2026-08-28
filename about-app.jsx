@@ -66,7 +66,9 @@ function Journey() {
     <Section id="story" style={{ paddingTop: 24, paddingBottom: 48 }}>
       <GridOverlay mode="dark" spacing={80} opacity={0.25} />
       <Container style={{ maxWidth: 800 }}>
-        <MonoLabel color="var(--violet-lt)">// THE WHY</MonoLabel>
+        <h2 className="t-mono-s" style={{ color: "var(--violet-lt)", display: "inline", margin: 0 }}>
+          <span aria-hidden="true">// </span>The why
+        </h2>
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 20 }}>
           {paras.map((p, i) => (
             <p key={i} className="t-body" style={{ color: "var(--white)", opacity: 0.92, fontSize: 17.5, lineHeight: 1.75, margin: 0 }}>{p}</p>

@@ -16,6 +16,20 @@ const { useState: _useState, useEffect: _useEffect } = React;
 
 // "Part of these learning paths" — lazy-load paths.js, then list paths that
 // include this concept as a step.
+// ─── Section heading ──────────────────────────────────────────
+// These labels are the only name each section has — there is no display title
+// under them — so they have to be the headings or the page is an <h1> followed by
+// nothing. display:inline is load-bearing: a block-level h2's line box shrinks
+// from the parent's 16px strut to its own 11px one and everything below moves up.
+// See the same note in concept-lesson-app.jsx.
+function SectionHeading({ children, color }) {
+  return (
+    <h2 className="t-mono-s" style={{ color: color || "var(--violet-lt)", display: "inline", margin: 0 }}>
+      <span aria-hidden="true">// </span>{children}
+    </h2>
+  );
+}
+
 function PathsForConcept() {
   const [, setTick] = _useState(0);
   _useEffect(() => {
@@ -31,7 +45,7 @@ function PathsForConcept() {
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 40 }}>
       <Container style={{ maxWidth: 860 }}>
-        <MonoLabel color="var(--violet-lt)">// PART OF THESE LEARNING PATHS</MonoLabel>
+        <SectionHeading>Part of these learning paths</SectionHeading>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
           {list.map(p => {
             const a = p.accent === "violet" ? "var(--violet-lt)" : "var(--blue-lt)";
@@ -106,7 +120,7 @@ function Hero() {
           }}>
             <HudBrackets mode="dark" inset={8} size={16} />
             <div style={{ padding: "12px 18px 8px", borderBottom: "1px solid var(--border)" }}>
-              <MonoLabel color="var(--violet-lt)">// CONCEPT · IN MOTION</MonoLabel>
+              <SectionHeading>Concept · in motion</SectionHeading>
             </div>
             <iframe src={`${BASE}${C.animation}`} title={`${C.name} animation`}
               loading="lazy"
@@ -121,7 +135,7 @@ function Hero() {
             position: "relative", overflow: "hidden",
           }}>
             <HudBrackets mode="dark" inset={6} size={14} />
-            <MonoLabel color="var(--violet-lt)">// THE EQUATION</MonoLabel>
+            <SectionHeading>The equation</SectionHeading>
             <div style={{ marginTop: 12, fontSize: 22 }}>
               <TeX display>{C.tex}</TeX>
             </div>
@@ -189,7 +203,7 @@ function PrereqLadder() {
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 34 }}>
       <Container style={{ maxWidth: 860 }}>
-        <MonoLabel color="var(--violet-lt)">// HOW TO GET HERE</MonoLabel>
+        <SectionHeading>How to get here</SectionHeading>
         <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 16px" }}>
           {remaining.length === 0
             ? `You have marked every prerequisite known — ${C.name} is the next thing to learn.`
@@ -261,7 +275,7 @@ function Refs() {
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 60 }}>
       <Container style={{ maxWidth: 860 }}>
-        <MonoLabel color="var(--blue-lt)">// REFERENCES</MonoLabel>
+        <SectionHeading color="var(--blue-lt)">References</SectionHeading>
         <ul style={{ marginTop: 12, paddingLeft: 18, color: "var(--white)", opacity: 0.9, fontSize: 15, lineHeight: 1.7 }}>
           {C.refs.map((r, i) => (
             <li key={i}><a href={r.href} target="_blank" rel="noopener" style={{ color: "var(--blue-lt)" }}>{r.label}</a></li>
