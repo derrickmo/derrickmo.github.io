@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef ucb(mu, N, t, c=2.0):\n    return np.argmax(mu + c * np.sqrt(np.log(t + 1) / (N + 1e-9)))",
       "caption": "Optimism in the face of uncertainty."
+    },
+    {
+      "h": "A fixed epsilon never stops paying",
+      "paras": [
+        "Epsilon-greedy explores at a constant rate forever, so a fixed slice of every pull is spent on actions already known to be worse and the regret grows linearly in time. Over 20,000 pulls of a 10-armed Gaussian bandit, epsilon 0.1 accumulates 3,146.8 regret and epsilon 0.01 accumulates 1,610.0, while UCB with c = 1 accumulates 103.1 — about thirty times less than the better epsilon setting.",
+        "The difference is not tuning, it is the shape of the curve: UCB's exploration bonus shrinks as an arm is sampled, so its regret grows logarithmically and the gap widens without bound as the horizon lengthens. That also explains when epsilon-greedy is nevertheless the right call — short horizons, or non-stationary rewards where a permanently curious policy is a feature and the optimal arm you stopped checking has quietly changed."
+      ]
     }
   ],
   "takeaways": [

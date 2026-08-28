@@ -73856,6 +73856,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef ucb(mu, N, t, c=2.0):\n    return np.argmax(mu + c * np.sqrt(np.log(t + 1) / (N + 1e-9)))",
           "caption": "Optimism in the face of uncertainty."
+        },
+        {
+          "h": "A fixed epsilon never stops paying",
+          "paras": [
+            "Epsilon-greedy explores at a constant rate forever, so a fixed slice of every pull is spent on actions already known to be worse and the regret grows linearly in time. Over 20,000 pulls of a 10-armed Gaussian bandit, epsilon 0.1 accumulates 3,146.8 regret and epsilon 0.01 accumulates 1,610.0, while UCB with c = 1 accumulates 103.1 — about thirty times less than the better epsilon setting.",
+            "The difference is not tuning, it is the shape of the curve: UCB's exploration bonus shrinks as an arm is sampled, so its regret grows logarithmically and the gap widens without bound as the horizon lengthens. That also explains when epsilon-greedy is nevertheless the right call — short horizons, or non-stationary rewards where a permanently curious policy is a feature and the optimal arm you stopped checking has quietly changed."
+          ]
         }
       ],
       "takeaways": [
@@ -73986,6 +73993,13 @@
           "h": "In code",
           "code": "if np.random.rand() < 0.5:\n    a_star = Q_A[s2].argmax()\n    Q_A[s, a] += alpha * (r + gamma * Q_B[s2, a_star] - Q_A[s, a])\n# else symmetric: pick with B, evaluate with A",
           "caption": "Decouple action selection from action evaluation."
+        },
+        {
+          "h": "Where the bias actually comes from",
+          "paras": [
+            "The overestimation is not a bug in Q-learning's update but a property of taking a maximum over noisy numbers: E[max] is greater than max[E]. With every action's true value exactly zero and each estimate carrying unit-variance noise, the max of the estimates averages 0.573 over 2 actions, 1.171 over 5, 1.544 over 10 and 2.249 over 50 — a bias that grows with the number of actions, out of pure noise.",
+            "What double Q-learning changes is not the noise but the coupling. Selecting the action with one estimator and reading its value from an independent second one gives 0.005, 0.009, -0.002 and 0.005 on the same four cases — the bias is gone because the estimate being read was not the one that won the argmax. The cost is halved data per estimator and a slower start, and the residual risk is the opposite one: with a genuinely better action the decoupled read can be pessimistic."
+          ]
         }
       ],
       "takeaways": [
@@ -74022,6 +74036,13 @@
           "h": "In code",
           "code": "model[s, a] = (r, s2)                  # learn the model\nfor _ in range(n):                    # plan\n    (sp, ap), (rp, s2p) = sample(model)\n    Q[sp, ap] += alpha * (rp + gamma * Q[s2p].max() - Q[sp, ap])",
           "caption": "Act once, then imagine n more transitions."
+        },
+        {
+          "h": "The model is what makes it fast, and what can go stale",
+          "paras": [
+            "Planning multiplies the value of every real transition, and on a maze the effect is large: averaging steps to the goal over the first ten episodes, model-free Q-learning needs 295.3, five planning steps per real step needs 124.3, and fifty needs 34.6 — roughly eight and a half times fewer steps for the same environment interaction. All three settle around 18 steps once the task is learned, so what planning buys is sample efficiency rather than a better final policy.",
+            "The catch is that the replay buffer is a model of the world as it was. When the maze changes, every planning sweep keeps asserting the transitions it recorded before, and those transitions are only corrected once the agent happens to visit them again. That is why the practical variants add a way to distrust old data — Dyna-Q+ adds an exploration bonus that grows with the time since a transition was last tried, which is a direct bet that the world may have moved on."
+          ]
         }
       ],
       "takeaways": [
@@ -74058,6 +74079,13 @@
           "h": "In code",
           "code": "adv, gae = np.zeros(T), 0.0\nfor t in reversed(range(T)):\n    delta = r[t] + gamma * V[t+1] - V[t]\n    gae = delta + gamma * lam * gae\n    adv[t] = gae",
           "caption": "A backward pass blends every horizon's TD error."
+        },
+        {
+          "h": "What lambda is actually buying",
+          "paras": [
+            "Lambda sets how far credit is propagated before the critic takes over, and the cost is variance. On a 30-step chain with a single action — so the true advantage is exactly zero — the variance of the estimate runs 1.01 at lambda 0, 4.82 at 0.9, 8.38 at 0.95 and 22.51 at lambda 1: a twenty-two-fold spread across the knob. The effective horizon is 1/(1 - gamma·lambda), which is one step at lambda 0, about 17 at 0.95, and the whole episode at 1.",
+            "The bias side is subtler than it is usually stated. Lambda 1 telescopes, so only the critic's error at the starting state survives; lambda 0 uses just one bootstrapped value. Putting a deliberate spike of critic error at an intermediate state leaves both ends nearly unbiased (-0.001 and -0.019) and hurts the middle most (0.121 at lambda 0.9), because the intermediate lambdas are the ones that weight that state heavily. So the honest summary is that lambda trades variance for how much of the critic you are trusting, and where the critic is wrong decides which lambda it hurts."
+          ]
         }
       ],
       "takeaways": [
@@ -74324,6 +74352,13 @@
           "h": "In code",
           "code": "ratio = np.exp(logp_new - logp_old)\nclip = np.clip(ratio, 1 - eps, 1 + eps)\nloss = -np.minimum(ratio * A, clip * A).mean()",
           "caption": "The clip parks the ratio inside a trust region."
+        },
+        {
+          "h": "The clip bounds a ratio, not the policy",
+          "paras": [
+            "The clipped objective does what it says: running repeated epochs on one batch, the probability ratio rises to 1.201 and stops there, held at the 1 + epsilon boundary exactly as designed. What it does not do is bound how far the policy has moved. Over the same run the KL divergence from the behaviour policy grows from 0.00031 after one epoch to 0.02064 after ten — a factor of 66 — while the ratio itself moved only 1.17x.",
+            "That gap is the whole reason PPO is a heuristic rather than a trust region. The clip is a per-sample, per-action constraint; the quantity the theory cares about is a divergence over the whole state distribution, and nothing in the objective measures it. It is why real implementations bound the epoch count, watch the KL as a diagnostic, and often stop the update early when it crosses a threshold — reinstating by convention the guarantee that TRPO enforced by construction and PPO traded away for simplicity."
+          ]
         }
       ],
       "takeaways": [
@@ -74498,6 +74533,13 @@
           "h": "In code",
           "code": "a2 = policy(s2)                       # on-policy: sample next action\nQ[s, a] += alpha * (r + gamma * Q[s2, a2] - Q[s, a])",
           "caption": "Bootstrap from the action the policy really takes."
+        },
+        {
+          "h": "Learning what you will actually do",
+          "paras": [
+            "On the cliff walk, SARSA and Q-learning disagree about the answer and both are right. Q-learning learns the optimal path, which runs along the very edge of the cliff, because its update assumes the greedy action will be taken next. SARSA updates toward the action its exploring policy will actually take, so it accounts for the 10% chance of stepping sideways into the cliff and settles on a path one row further back.",
+            "Measured as online return over the last 100 episodes with epsilon 0.1 throughout, SARSA earns -23.7 and Q-learning -46.5. Q-learning has learned the better policy and earns roughly half as much while doing so, because it keeps falling off the cliff during exploration. Which one you want is a question about deployment rather than about algorithms: if the exploration is real — a robot, a live system — the on-policy answer is the one that reflects the cost you are actually paying."
+          ]
         }
       ],
       "takeaways": [
@@ -74584,6 +74626,13 @@
           "h": "In code",
           "code": "delta = r + gamma * V[s2] - V[s]\ne[s] += 1                              # mark visited\nV += alpha * delta * e                 # update all eligible states\ne *= gamma * lam                       # decay the trace",
           "caption": "One TD error updates every recently-seen state."
+        },
+        {
+          "h": "Neither end of the dial is the right answer",
+          "paras": [
+            "Lambda interpolates between one-step TD and Monte Carlo, and the interesting fact is that the best setting is almost never at either end. On the classic 19-state random walk after 100 episodes, the RMS error of the learned values is 0.249 at lambda 0, falls to 0.071 at lambda 0.8, then rises again to 0.106 at 0.9, 0.161 at 0.95 and 0.492 at lambda 1 — a clean U, with the interior beating both extremes by a factor of three to seven.",
+            "The two ends fail for opposite reasons. Lambda 0 propagates credit one step per episode, so information about a distant reward crawls back through the state space; lambda 1 assigns credit correctly in one pass but weights the whole noisy return, so each update is high variance. Eligibility traces are what make the middle affordable: rather than storing trajectories and computing lambda-returns afterwards, they carry a decaying record of recent visits so the same interpolation costs one extra vector."
+          ]
         }
       ],
       "takeaways": [

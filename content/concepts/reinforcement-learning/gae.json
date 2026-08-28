@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "adv, gae = np.zeros(T), 0.0\nfor t in reversed(range(T)):\n    delta = r[t] + gamma * V[t+1] - V[t]\n    gae = delta + gamma * lam * gae\n    adv[t] = gae",
       "caption": "A backward pass blends every horizon's TD error."
+    },
+    {
+      "h": "What lambda is actually buying",
+      "paras": [
+        "Lambda sets how far credit is propagated before the critic takes over, and the cost is variance. On a 30-step chain with a single action — so the true advantage is exactly zero — the variance of the estimate runs 1.01 at lambda 0, 4.82 at 0.9, 8.38 at 0.95 and 22.51 at lambda 1: a twenty-two-fold spread across the knob. The effective horizon is 1/(1 - gamma·lambda), which is one step at lambda 0, about 17 at 0.95, and the whole episode at 1.",
+        "The bias side is subtler than it is usually stated. Lambda 1 telescopes, so only the critic's error at the starting state survives; lambda 0 uses just one bootstrapped value. Putting a deliberate spike of critic error at an intermediate state leaves both ends nearly unbiased (-0.001 and -0.019) and hurts the middle most (0.121 at lambda 0.9), because the intermediate lambdas are the ones that weight that state heavily. So the honest summary is that lambda trades variance for how much of the critic you are trusting, and where the critic is wrong decides which lambda it hurts."
+      ]
     }
   ],
   "takeaways": [

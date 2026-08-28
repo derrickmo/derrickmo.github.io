@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "delta = r + gamma * V[s2] - V[s]\ne[s] += 1                              # mark visited\nV += alpha * delta * e                 # update all eligible states\ne *= gamma * lam                       # decay the trace",
       "caption": "One TD error updates every recently-seen state."
+    },
+    {
+      "h": "Neither end of the dial is the right answer",
+      "paras": [
+        "Lambda interpolates between one-step TD and Monte Carlo, and the interesting fact is that the best setting is almost never at either end. On the classic 19-state random walk after 100 episodes, the RMS error of the learned values is 0.249 at lambda 0, falls to 0.071 at lambda 0.8, then rises again to 0.106 at 0.9, 0.161 at 0.95 and 0.492 at lambda 1 — a clean U, with the interior beating both extremes by a factor of three to seven.",
+        "The two ends fail for opposite reasons. Lambda 0 propagates credit one step per episode, so information about a distant reward crawls back through the state space; lambda 1 assigns credit correctly in one pass but weights the whole noisy return, so each update is high variance. Eligibility traces are what make the middle affordable: rather than storing trajectories and computing lambda-returns afterwards, they carry a decaying record of recent visits so the same interpolation costs one extra vector."
+      ]
     }
   ],
   "takeaways": [

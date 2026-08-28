@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "model[s, a] = (r, s2)                  # learn the model\nfor _ in range(n):                    # plan\n    (sp, ap), (rp, s2p) = sample(model)\n    Q[sp, ap] += alpha * (rp + gamma * Q[s2p].max() - Q[sp, ap])",
       "caption": "Act once, then imagine n more transitions."
+    },
+    {
+      "h": "The model is what makes it fast, and what can go stale",
+      "paras": [
+        "Planning multiplies the value of every real transition, and on a maze the effect is large: averaging steps to the goal over the first ten episodes, model-free Q-learning needs 295.3, five planning steps per real step needs 124.3, and fifty needs 34.6 — roughly eight and a half times fewer steps for the same environment interaction. All three settle around 18 steps once the task is learned, so what planning buys is sample efficiency rather than a better final policy.",
+        "The catch is that the replay buffer is a model of the world as it was. When the maze changes, every planning sweep keeps asserting the transitions it recorded before, and those transitions are only corrected once the agent happens to visit them again. That is why the practical variants add a way to distrust old data — Dyna-Q+ adds an exploration bonus that grows with the time since a transition was last tried, which is a direct bet that the world may have moved on."
+      ]
     }
   ],
   "takeaways": [

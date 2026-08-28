@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "ratio = np.exp(logp_new - logp_old)\nclip = np.clip(ratio, 1 - eps, 1 + eps)\nloss = -np.minimum(ratio * A, clip * A).mean()",
       "caption": "The clip parks the ratio inside a trust region."
+    },
+    {
+      "h": "The clip bounds a ratio, not the policy",
+      "paras": [
+        "The clipped objective does what it says: running repeated epochs on one batch, the probability ratio rises to 1.201 and stops there, held at the 1 + epsilon boundary exactly as designed. What it does not do is bound how far the policy has moved. Over the same run the KL divergence from the behaviour policy grows from 0.00031 after one epoch to 0.02064 after ten — a factor of 66 — while the ratio itself moved only 1.17x.",
+        "That gap is the whole reason PPO is a heuristic rather than a trust region. The clip is a per-sample, per-action constraint; the quantity the theory cares about is a divergence over the whole state distribution, and nothing in the objective measures it. It is why real implementations bound the epoch count, watch the KL as a diagnostic, and often stop the update early when it crosses a threshold — reinstating by convention the guarantee that TRPO enforced by construction and PPO traded away for simplicity."
+      ]
     }
   ],
   "takeaways": [
