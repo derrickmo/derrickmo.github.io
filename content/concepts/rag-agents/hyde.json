@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "h = llm(f'Write a passage answering: {q}')   # hypothetical doc\nhits = vector_search(embed(h), k=5)          # retrieve with it",
       "caption": "Guess an answer, retrieve what supports it."
+    },
+    {
+      "h": "It inherits the error of its own guess",
+      "paras": [
+        "HyDE works by embedding a hypothetical answer instead of the question, on the theory that an answer looks more like a document than a question does. That is true, and it is also the whole exposure. In a 128-dimensional toy where the raw query sits at cosine 0.639 from the right document, a hypothesis close to the real answer moves it to 0.947 — and a confidently wrong hypothesis moves it to 0.083, well below where the untouched query started.",
+        "So the technique does not add information; it spends the model's prior on the topic, and the gain and the failure come from the same step. It pays off on questions the model roughly knows and hurts on exactly the ones you most wanted retrieval for — obscure, recent, or private facts, where the guess is confident and wrong. The usual mitigation is to hedge rather than commit: retrieve with the raw query as well and fuse the two result lists, so a bad hypothesis costs you rank rather than the answer."
+      ]
     }
   ],
   "takeaways": [

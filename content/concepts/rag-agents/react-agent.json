@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "while not done:\n    thought = model(scratchpad)            # reason\n    action, arg = parse_tool(thought)      # act\n    obs = tools[action](arg)               # observe\n    scratchpad += f'{thought}\\n{obs}\\n'",
       "caption": "Thought, action, observation - loop until answered."
+    },
+    {
+      "h": "Reliability compounds, and twenty steps is a lot",
+      "paras": [
+        "A trajectory succeeds only if every step does, so per-step reliability enters as a power. At 95% per step — which sounds strong — a 5-step task finishes 77.4% of the time, a 10-step task 59.9%, and a 20-step task 35.8%. At 90% per step, 20 steps completes 12.2% of the time. Inverting it is the more useful framing: to finish a 20-step task 90% of the time you need a per-step success rate of 0.9947.",
+        "That arithmetic is why long autonomous trajectories are hard in a way that better prompting does not touch, and why the engineering that works attacks the exponent rather than the base. Shorter trajectories, checkpoints the agent can be restarted from, verification after each tool call so an error is caught at step three rather than compounding to step twenty, and tools that fail loudly instead of returning something plausible. The alternative — a single long unverified chain — is a product of probabilities, and products of numbers below one go one way."
+      ]
     }
   ],
   "takeaways": [

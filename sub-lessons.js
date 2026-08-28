@@ -4028,6 +4028,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "def chunk(text, size=400, overlap=80):\n    out, i = [], 0\n    while i < len(text):\n        out.append(text[i:i+size])\n        i += size - overlap        # slide with overlap\n    return out",
             "caption": "Sliding windows with overlap keep answer spans whole."
+          },
+          {
+            "h": "The chunk has to be bigger than the answer",
+            "paras": [
+              "Chunking is usually discussed as an embedding-quality trade — small chunks give precise vectors, large ones give context — but it has a hard failure underneath that trade. Take a 180-character answer sitting at offset 1000 in a document: at a 128-character chunk size it is never intact in any single chunk, with or without overlap, because it does not fit in one. At 256 with no overlap it lands across a boundary and is still split; 256 with 64 of overlap recovers it, as do 512 and 1024 with overlap.",
+              "So the chunk size sets a floor on what is retrievable at all, and overlap only buys back the boundary cases within that floor. The practical consequence is that chunking should be chosen against the shape of the answers you expect rather than against a default: a corpus of one-line definitions and a corpus of multi-paragraph procedures do not want the same number. It is also why splitting on structure — headings, list items, function definitions — usually beats a fixed character count, since the structure is already a statement about where an answer begins and ends."
+            ]
           }
         ],
         "takeaways": [
@@ -4059,6 +4066,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "h = llm(f'Write a passage answering: {q}')   # hypothetical doc\nhits = vector_search(embed(h), k=5)          # retrieve with it",
             "caption": "Guess an answer, retrieve what supports it."
+          },
+          {
+            "h": "It inherits the error of its own guess",
+            "paras": [
+              "HyDE works by embedding a hypothetical answer instead of the question, on the theory that an answer looks more like a document than a question does. That is true, and it is also the whole exposure. In a 128-dimensional toy where the raw query sits at cosine 0.639 from the right document, a hypothesis close to the real answer moves it to 0.947 — and a confidently wrong hypothesis moves it to 0.083, well below where the untouched query started.",
+              "So the technique does not add information; it spends the model's prior on the topic, and the gain and the failure come from the same step. It pays off on questions the model roughly knows and hurts on exactly the ones you most wanted retrieval for — obscure, recent, or private facts, where the guess is confident and wrong. The usual mitigation is to hedge rather than commit: retrieve with the raw query as well and fuse the two result lists, so a bad hypothesis costs you rank rather than the answer."
+            ]
           }
         ],
         "takeaways": [
@@ -4090,6 +4104,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "cands = vector_search(q, k=50)          # cheap recall\nscores = [cross_encoder(q, d) for d in cands]\ntop = [cands[i] for i in argsort(scores)[::-1][:5]]",
             "caption": "Retrieve broadly, rerank the shortlist precisely."
+          },
+          {
+            "h": "A ceiling set entirely by stage one",
+            "paras": [
+              "A cross-encoder reorders the candidate list; it cannot add to it. So whatever the first-stage retriever missed is missed for good, and final recall is capped by first-stage recall at the depth you chose. On a 5,000-document corpus with 20 relevant documents and 400 hard negatives, first-stage recall runs 0.15 at k=10, 0.40 at k=50, 0.75 at k=100 and 0.95 at k=500. Rerank the top 10 and the best possible outcome is 0.15, no matter how good the reranker is.",
+              "The other half is that the reranker's value grows with that depth. Taking precision@10 on the same corpus, a perfect reranker moves it from 0.30 to 0.80 when given the top 50, and to 1.00 when given the top 100 — it is doing more work precisely because there is more for it to find. That is the real tuning knob, and it is a straight cost trade: the bi-encoder scores the corpus once and cheaply, the cross-encoder scores every candidate pair, so depth is quadratic in effort and linear in ceiling."
+            ]
           }
         ],
         "takeaways": [
@@ -4121,6 +4142,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "while not done:\n    thought = model(scratchpad)            # reason\n    action, arg = parse_tool(thought)      # act\n    obs = tools[action](arg)               # observe\n    scratchpad += f'{thought}\\n{obs}\\n'",
             "caption": "Thought, action, observation - loop until answered."
+          },
+          {
+            "h": "Reliability compounds, and twenty steps is a lot",
+            "paras": [
+              "A trajectory succeeds only if every step does, so per-step reliability enters as a power. At 95% per step — which sounds strong — a 5-step task finishes 77.4% of the time, a 10-step task 59.9%, and a 20-step task 35.8%. At 90% per step, 20 steps completes 12.2% of the time. Inverting it is the more useful framing: to finish a 20-step task 90% of the time you need a per-step success rate of 0.9947.",
+              "That arithmetic is why long autonomous trajectories are hard in a way that better prompting does not touch, and why the engineering that works attacks the exponent rather than the base. Shorter trajectories, checkpoints the agent can be restarted from, verification after each tool call so an error is caught at step three rather than compounding to step twenty, and tools that fail loudly instead of returning something plausible. The alternative — a single long unverified chain — is a product of probabilities, and products of numbers below one go one way."
+            ]
           }
         ],
         "takeaways": [
@@ -4152,6 +4180,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "from collections import Counter\nanswers = [extract(llm(prompt, temperature=0.7)) for _ in range(N)]\nfinal = Counter(answers).most_common(1)[0][0]   # vote",
             "caption": "Many samples, one vote - reliability from diversity."
+          },
+          {
+            "h": "It amplifies whatever is more likely, right or wrong",
+            "paras": [
+              "Majority voting over independent samples is a variance reduction, not a knowledge addition, and the binomial makes that precise. With a 60% chance of being right per sample, the majority of 5 is right 68.3% of the time, of 11 is 75.3%, and of 21 is 82.6%. The gain is real but sub-linear in samples, and it is largest for exactly the questions where the model is already more right than wrong.",
+              "Turn the probability around and the mechanism shows its other face. If the model is systematically wrong — 40% correct per sample — the majority of 5 is right 31.7% of the time and the majority of 21 only 17.4%. Voting made it worse, confidently, because it amplifies whichever answer the distribution favours; a shared misconception is reinforced by every extra sample rather than averaged away. Self-consistency assumes errors are independent noise around a correct mode, and when the errors are a systematic bias it converges harder onto the wrong answer."
+            ]
           }
         ],
         "takeaways": [
@@ -4183,6 +4218,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "draft = llm(task)\nfor _ in range(max_iters):\n    critique = llm(f'Critique: {draft}')\n    if passes(critique): break\n    draft = llm(f'Revise given: {critique}\\n{draft}')",
             "caption": "Iterate until the critic is satisfied - or you give up."
+          },
+          {
+            "h": "It cannot fix what the critic cannot see",
+            "paras": [
+              "Reflection works when the critic catches errors the generator made, and its arithmetic is encouraging while that holds: a critic catching 70% of errors leaves 30% after one round, 9% after two and 2.7% after three. The trouble is that generator and critic are usually the same model, so they share a blind spot, and errors inside that blind spot are caught with probability zero at every round.",
+              "That puts a floor under the whole loop. With a 25% blind spot and an otherwise strong 70% critic, the remaining error goes 0.475 after one round, 0.270 after three — and 0.250 after ten, which is the floor exactly. Extra rounds buy nothing after the third, while costing a model call each. It is why the reflection setups that earn their keep introduce something the generator does not have: test execution, a retrieval step, a different model, or a human — an external signal rather than a second opinion from the same source."
+            ]
           }
         ],
         "takeaways": [
@@ -4214,6 +4256,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# spotlighting: clearly fence untrusted content\nprompt = (system + '\\n<<UNTRUSTED>>\\n' + retrieved + '\\n<<END>>')\n# plus an output filter that blocks secret/exfiltration patterns",
             "caption": "Defense in depth - delimit, prioritize, classify, filter."
+          },
+          {
+            "h": "A filter enumerates; an attacker does not",
+            "paras": [
+              "Blocklists lose because they have to name the attack and the attacker only has to avoid the name. A substring filter for \"ignore previous instructions\" catches the literal string and then fails on every rephrasing of it: letter-spacing, a Cyrillic homoglyph inside an otherwise identical word, a plain synonym, base64, splitting the phrase across two turns, or the same request arriving inside a retrieved document. Of seven variants, that filter blocked one.",
+              "None of those is a new capability — they are all the same instruction, and that is the point: the input space is unbounded and the blocklist is finite. It is why the defences that hold are structural rather than lexical, and why they are layered: treating retrieved text as data rather than instructions, keeping privilege out of the model (the tool decides what it will do, not the prompt), constraining outputs to a schema, and requiring confirmation for anything irreversible. Each is weak alone; the combination is what removes the single point of failure."
+            ]
           }
         ],
         "takeaways": [

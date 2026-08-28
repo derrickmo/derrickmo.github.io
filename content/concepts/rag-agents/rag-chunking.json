@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "def chunk(text, size=400, overlap=80):\n    out, i = [], 0\n    while i < len(text):\n        out.append(text[i:i+size])\n        i += size - overlap        # slide with overlap\n    return out",
       "caption": "Sliding windows with overlap keep answer spans whole."
+    },
+    {
+      "h": "The chunk has to be bigger than the answer",
+      "paras": [
+        "Chunking is usually discussed as an embedding-quality trade — small chunks give precise vectors, large ones give context — but it has a hard failure underneath that trade. Take a 180-character answer sitting at offset 1000 in a document: at a 128-character chunk size it is never intact in any single chunk, with or without overlap, because it does not fit in one. At 256 with no overlap it lands across a boundary and is still split; 256 with 64 of overlap recovers it, as do 512 and 1024 with overlap.",
+        "So the chunk size sets a floor on what is retrievable at all, and overlap only buys back the boundary cases within that floor. The practical consequence is that chunking should be chosen against the shape of the answers you expect rather than against a default: a corpus of one-line definitions and a corpus of multi-paragraph procedures do not want the same number. It is also why splitting on structure — headings, list items, function definitions — usually beats a fixed character count, since the structure is already a statement about where an answer begins and ends."
+      ]
     }
   ],
   "takeaways": [
