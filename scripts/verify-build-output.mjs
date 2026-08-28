@@ -34,15 +34,76 @@ const files = walk(DIST);
 const html = files.filter((f) => f.endsWith("index.html"));
 const allHtml = files.filter((f) => f.endsWith(".html"));
 
-// 1. Route count against the sitemap. These are two independently produced numbers, so a
-//    mismatch means a page was added or lost without the sitemap being regenerated.
+// 1. Routes against the sitemap. These are two independently produced sets, so a mismatch
+//    means a page was added or lost without the sitemap being regenerated.
+//    Compared as SETS, not counts: a rename changes both sides by one and leaves the counts
+//    equal, so a count check passes while the sitemap advertises a 404 and omits a real page.
+const routePath = (f) => {
+  const rel = f.slice(DIST.length).replace(/\\/g, "/").replace(/\/index\.html$/, "/");
+  return rel === "/" || rel.endsWith("/") ? rel || "/" : rel + "/";
+};
 const smPath = join(DIST, "sitemap.xml");
 if (!existsSync(smPath)) problems.push("dist/sitemap.xml missing");
 else {
-  const urls = (readFileSync(smPath, "utf8").match(/<loc>/g) || []).length;
-  note(`routes built: ${html.length}   sitemap urls: ${urls}`);
-  if (html.length !== urls) problems.push(`route count ${html.length} != sitemap ${urls} — re-run scripts/gen-sitemap.mjs after building`);
+  const sm = readFileSync(smPath, "utf8");
+  const locs = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  let smPaths = [];
+  try {
+    smPaths = locs.map((u) => new URL(u).pathname);
+  } catch {
+    problems.push("sitemap contains a <loc> that is not an absolute URL");
+  }
+  note(`routes built: ${html.length}   sitemap urls: ${locs.length}`);
   if (html.length < 700) problems.push(`only ${html.length} routes built — expected ~780`);
+
+  const onDisk = new Set(html.map(routePath));
+  const inMap = new Set(smPaths);
+  const ghosts = [...inMap].filter((u) => !onDisk.has(u));
+  const unlisted = [...onDisk].filter((u) => !inMap.has(u));
+  const dupes = smPaths.filter((u, i) => smPaths.indexOf(u) !== i);
+
+  if (ghosts.length)
+    problems.push(`sitemap lists ${ghosts.length} URL(s) with no page on disk (a crawler gets a 404): ${ghosts.slice(0, 4).join(", ")}${ghosts.length > 4 ? " …" : ""} — re-run scripts/gen-sitemap.mjs after building`);
+  if (unlisted.length)
+    problems.push(`${unlisted.length} built page(s) missing from the sitemap: ${unlisted.slice(0, 4).join(", ")}${unlisted.length > 4 ? " …" : ""} — re-run scripts/gen-sitemap.mjs after building`);
+  if (dupes.length)
+    problems.push(`sitemap repeats ${dupes.length} URL(s): ${[...new Set(dupes)].slice(0, 4).join(", ")}`);
+}
+
+// 1b. Every destination the command palette advertises must resolve. 670 entries, 189 of
+//     them script-generated; rename a page and the palette silently offers a 404 with
+//     nothing to catch it. Exact check, so it can never be noisy.
+const siPath = join(DIST, "search-index.js");
+if (existsSync(siPath)) {
+  const win = {};
+  try {
+    new Function("window", readFileSync(siPath, "utf8"))(win);
+  } catch (e) {
+    problems.push("search-index.js does not evaluate: " + e.message);
+  }
+  const idx = win.DM_NAV_INDEX;
+  if (!Array.isArray(idx)) problems.push("search-index.js defines no DM_NAV_INDEX array");
+  else {
+    const onDisk = new Set(html.map(routePath));
+    const dead = [];
+    const seen = new Map();
+    for (const e of idx) {
+      const clean = String(e.href || "").split("#")[0].split("?")[0];
+      if (!clean.startsWith("/")) { dead.push(`${e.label} -> ${e.href} (not root-relative)`); continue; }
+      const asRoute = clean.endsWith("/") ? clean : clean + "/";
+      const asFile = join(DIST, clean.replace(/^\/+/, ""));
+      if (!onDisk.has(asRoute) && !(existsSync(asFile) && statSync(asFile).isFile())) {
+        dead.push(`${e.label} -> ${e.href}`);
+      }
+      seen.set(e.href, (seen.get(e.href) || 0) + 1);
+    }
+    const dupHref = [...seen].filter(([, n]) => n > 1);
+    note(`command palette: ${idx.length} destinations`);
+    if (dead.length)
+      problems.push(`${dead.length} command-palette destination(s) 404: ${dead.slice(0, 4).join("; ")}${dead.length > 4 ? " …" : ""}`);
+    if (dupHref.length)
+      problems.push(`command palette lists ${dupHref.length} href(s) twice: ${dupHref.slice(0, 4).map(([h]) => h).join(", ")}`);
+  }
 }
 
 // 2. Files that must reach the deploy. og-default.png is here because it spent months at the
