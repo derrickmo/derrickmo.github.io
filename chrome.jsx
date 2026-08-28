@@ -15,15 +15,31 @@ const __DM_PAGE = window.__DM_PAGE || "home";
 // ─── Email: copy to clipboard + toast (no mailto, so it never opens a blank tab) ──
 const DM_EMAIL = "investdmo@gmail.com";
 window.__dmCopyEmail = function () {
-  try { if (navigator.clipboard) navigator.clipboard.writeText(DM_EMAIL); } catch (e) {}
-  let t = document.getElementById("dm-toast");
-  if (!t) {
-    t = document.createElement("div"); t.id = "dm-toast"; document.body.appendChild(t);
-    t.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;background:rgba(13,24,52,0.96);border:1px solid #60a5fa;color:#e0e7ff;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.04em;padding:11px 18px;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,0.4);transition:opacity .3s;pointer-events:none;";
-  }
-  t.textContent = "Email copied — " + DM_EMAIL;
-  t.style.opacity = "1";
-  clearTimeout(window.__dmToastT); window.__dmToastT = setTimeout(() => { t.style.opacity = "0"; }, 2000);
+  // writeText() REJECTS, it does not throw, so the old try/catch never saw a failure —
+  // it escaped as an unhandled rejection while the toast still announced "Email copied".
+  // A reader whose clipboard write was blocked (denied permission, insecure context, an
+  // unfocused document) was told the address was on their clipboard when it was not, and
+  // pasted whatever had been there before. The toast now reports what actually happened,
+  // and on failure stays up long enough — and selectable — to be some use.
+  const show = (msg, failed) => {
+    let t = document.getElementById("dm-toast");
+    if (!t) {
+      t = document.createElement("div"); t.id = "dm-toast"; document.body.appendChild(t);
+      t.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;background:rgba(13,24,52,0.96);border:1px solid #60a5fa;color:#e0e7ff;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.04em;padding:11px 18px;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,0.4);transition:opacity .3s;pointer-events:none;";
+    }
+    t.textContent = msg;
+    t.style.borderColor = failed ? "#fb923c" : "#60a5fa";
+    t.style.pointerEvents = failed ? "auto" : "none";
+    t.style.userSelect = failed ? "text" : "auto";
+    t.style.opacity = "1";
+    clearTimeout(window.__dmToastT);
+    window.__dmToastT = setTimeout(() => { t.style.opacity = "0"; }, failed ? 6000 : 2000);
+  };
+  const ok = () => show("Email copied — " + DM_EMAIL, false);
+  const fail = () => show("Couldn't copy automatically — " + DM_EMAIL, true);
+  let p = null;
+  try { if (navigator.clipboard && navigator.clipboard.writeText) p = navigator.clipboard.writeText(DM_EMAIL); } catch (e) { p = null; }
+  if (p && typeof p.then === "function") p.then(ok, fail); else fail();
 };
 
 // ─── Responsive hook ──────────────────────────────────────────
