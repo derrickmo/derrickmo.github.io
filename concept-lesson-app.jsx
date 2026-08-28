@@ -52,6 +52,27 @@ function Hero() {
   );
 }
 
+// ─── Section heading ──────────────────────────────────────────
+// The lesson template pairs a mono eyebrow with a big display title, so its <h2>
+// carries the section name. This template has no display title — the mono label IS
+// the name — so the label itself has to be the heading, or the page has no outline
+// at all: an <h1> and then nothing for the whole body.
+// Two details are load-bearing, both measured rather than assumed:
+//   display:inline — as a block, the h2's line box shrinks from the parent's 16px
+//     strut to its own 11px one and everything below moves up 6px per section.
+//     Inline keeps the box tree identical to the <span> this replaces (0px diff
+//     across a 243-node tree; the whole page height is unchanged).
+//   no .toUpperCase() — .t-mono-s already uppercases in CSS, so the JS call only
+//     ever reached the accessibility tree, where it made screen readers announce
+//     "THE INTUITION". Sentence case renders identically (<=0.02px, font rounding).
+function SectionHeading({ children, color }) {
+  return (
+    <h2 className="t-mono-s" style={{ color: color || "var(--blue-lt)", display: "inline", margin: 0 }}>
+      <span aria-hidden="true">// </span>{children}
+    </h2>
+  );
+}
+
 function CodeBlock({ code, caption }) {
   return (
     <div style={{ marginTop: 14 }}>
@@ -76,7 +97,7 @@ function Body() {
       <Container style={{ maxWidth: 820 }}>
         {L.sections.map((s, i) => (
           <div key={i} style={{ marginBottom: 34 }}>
-            <MonoLabel color="var(--blue-lt)">// {s.h.toUpperCase()}</MonoLabel>
+            <SectionHeading>{s.h}</SectionHeading>
             <div style={{ marginTop: 12 }}>
               {(s.paras || []).map((p, j) => (
                 <p key={j} className="t-body" style={{ color: "var(--soft)", fontSize: 16, lineHeight: 1.7, margin: "0 0 14px" }}>{p}</p>
@@ -102,7 +123,7 @@ function Takeaways() {
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 16 }}>
       <Container style={{ maxWidth: 820 }}>
-        <MonoLabel>// TAKEAWAYS</MonoLabel>
+        <SectionHeading>Takeaways</SectionHeading>
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
           {L.takeaways.map((t, i) => (
             <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "14px 16px", border: "1px solid var(--border)", borderRadius: 8, background: "rgba(13,24,52,0.35)" }}>
