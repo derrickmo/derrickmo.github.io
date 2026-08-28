@@ -108,7 +108,9 @@ function Groups() {
         {byArea().map(([area, items]) => (
           <div key={area} style={{ marginBottom: 36 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 16 }}>
-              <MonoLabel color="var(--blue-lt)">// {area.toUpperCase()}</MonoLabel>
+              <h2 className="t-mono-s" style={{ color: "var(--blue-lt)", margin: 0 }}>
+                <span aria-hidden="true">// </span>{area}
+              </h2>
               <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>{items.length} concepts</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>

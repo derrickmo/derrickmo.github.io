@@ -97,15 +97,21 @@ function WeekCard({ week, mobile }) {
     <div id={week.date} style={{ position: "relative", overflow: "hidden", border: "1px solid var(--border)", borderRadius: 8, background: "rgba(13,24,52,0.4)", padding: mobile ? "24px 22px" : "32px 36px", display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 110 }}>
       <HudBrackets mode="dark" inset={8} size={16} />
       <div>
-        <MonoLabel color="var(--violet-lt)">// WEEK OF {week.range.toUpperCase()}</MonoLabel>
-        <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: mobile ? 22 : 26, letterSpacing: "-0.015em", color: "var(--white)", margin: "8px 0 0" }}>Summary</h2>
+        <h2 className="t-mono-s" style={{ color: "var(--violet-lt)", display: "inline", margin: 0 }}>
+          <span aria-hidden="true">// </span>Week of {week.range}
+        </h2>
+        <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: mobile ? 22 : 26, letterSpacing: "-0.015em", color: "var(--white)", margin: "8px 0 0" }}>Summary</h3>
       </div>
       <ul style={{ margin: 0, padding: 0 }}>
         {week.tldr.map((t, i) => <Bullet key={i} item={{ text: t }} mobile={mobile} />)}
       </ul>
       {(week.sections || []).map((s) => (
         <div key={s.header} style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border)", paddingTop: 16 }}>
-          <MonoLabel color="var(--blue-lt)">{s.header}</MonoLabel>
+          <h3 className="t-mono-s" style={{ color: "var(--blue-lt)", margin: 0 }}>
+            {s.header.startsWith("// ")
+              ? <><span aria-hidden="true">// </span>{s.header.slice(3)}</>
+              : s.header}
+          </h3>
           {s.intro && (
             <div className="t-body" style={{ color: "var(--muted)", fontSize: mobile ? 13 : 14, lineHeight: 1.55, opacity: 0.92, marginTop: -2, maxWidth: 760 }}>
               {s.intro}
@@ -118,7 +124,9 @@ function WeekCard({ week, mobile }) {
       ))}
       {week.watching && week.watching.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border)", paddingTop: 16 }}>
-          <MonoLabel color="var(--blue-lt)">// WORTH WATCHING</MonoLabel>
+          <h3 className="t-mono-s" style={{ color: "var(--blue-lt)", margin: 0 }}>
+            <span aria-hidden="true">// </span>Worth watching
+          </h3>
           <ul style={{ margin: 0, padding: 0 }}>
             {week.watching.map((it, i) => <Bullet key={i} item={it} mobile={mobile} />)}
           </ul>
