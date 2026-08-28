@@ -129,7 +129,11 @@ function BayesianOptimizationDemo() {
   }
 
   function draw() {
-    const cv = canvasRef.current; if (!cv || !nextRef.current) return;
+    // objRef is set by resetRun() in the mount effect below, which React runs AFTER the
+    // [acq]/[ell]/[explore] effects declared above it — and those call recompute(), which
+    // sets nextRef and calls draw(). So there is one frame where nextRef is populated and
+    // objRef is still null; without objRef here, obj.f() below threw and blanked the page.
+    const cv = canvasRef.current; if (!cv || !nextRef.current || !objRef.current) return;
     const ctx = cv.getContext("2d");
     ctx.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0);
     ctx.clearRect(0, 0, W, H);

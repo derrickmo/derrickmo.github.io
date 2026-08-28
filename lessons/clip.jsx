@@ -88,7 +88,7 @@ text_emb = normalize(text_encoder(classes))        # (C, d)
 img_emb  = normalize(image_encoder(image))         # (1, d)
 pred = (img_emb @ text_emb.T).argmax()             # nearest text = label`}</CodeBlock>
         <TryThis title="Engineer the prompt">
-          Swap "a photo of a {label}" for "a blurry photo of a {label}" or a list of templates averaged
+          Swap "a photo of a {"{label}"}" for "a blurry photo of a {"{label}"}" or a list of templates averaged
           together. Zero-shot accuracy moves noticeably - the text encoder is sensitive to phrasing, so prompt
           design is a real lever, the same way it is for language models.
         </TryThis>
