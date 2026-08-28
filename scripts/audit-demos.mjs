@@ -72,10 +72,28 @@ function audit(name, reg, dir, pageDir, listKey) {
     if (b.has(d.blurb)) bad(`duplicate blurb: ${d.slug} and ${b.get(d.blurb)}`); else b.set(d.blurb, d.slug);
   }
 
+  // 7. every `lesson` path must point at a page that exists. This is the "READ THE LESSON"
+  //    destination; a demo without one falls back to the 25-module hub, which is fine and
+  //    deliberate for a demo that several lessons share. A lesson path that no longer resolves
+  //    is NOT fine — it is a dead link, and 174 of these are now set, so a single renamed
+  //    lesson would break a lot of them silently. Checked against source, so it runs before
+  //    a build too: a concept page lives at learn/<module>/<slug>/.
+  let linked = 0;
+  for (const d of entries) {
+    if (!d.lesson) continue;
+    linked++;
+    const rel = String(d.lesson).replace(/^\/+/, "").replace(/\/+$/, "");
+    const parts = rel.split("/");
+    const built = existsSync(join(ROOT, "dist", rel, "index.html"));
+    const authored = existsSync(join(ROOT, rel, "index.html"));
+    if (!built && !authored) bad(`${d.slug}: lesson "${d.lesson}" has no page (READ THE LESSON would 404)`);
+    else if (parts[0] !== "learn") bad(`${d.slug}: lesson "${d.lesson}" is not under learn/`);
+  }
+
   const statuses = {};
   for (const d of entries) statuses[d.status] = (statuses[d.status] || 0) + 1;
   console.log(`  status: ${Object.entries(statuses).map(([k, v]) => `${k} ${v}`).join(", ")}`);
-  console.log(`  categories: ${cats.length}`);
+  console.log(`  categories: ${cats.length}   lesson links: ${linked}/${entries.length}`);
 }
 
 audit("VISUALIZE demos", DEMOS, "demos", "visualize", "demos");
