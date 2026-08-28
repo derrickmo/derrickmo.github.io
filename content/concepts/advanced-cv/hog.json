@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\nmag = np.hypot(Gx, Gy)\nori = (np.degrees(np.arctan2(Gy, Gx)) % 180)\nbins = (ori / 20).astype(int)            # 9 orientation bins per cell\n# accumulate mag into per-cell histograms, then block-normalize",
       "caption": "Orientation histograms per cell, normalized per block."
+    },
+    {
+      "h": "Shape, but only at one orientation",
+      "paras": [
+        "The descriptor is a histogram of gradient orientations, so rotating the object rotates the histogram and the match degrades immediately. Rotating a bar and comparing normalised descriptors against the unrotated original, the L2 distance goes 0 at 0 degrees, 0.285 at 5, 0.844 at 15 and 1.366 at 30 — and the descriptor is unit length, so 1.366 is most of the distance available.",
+        "In practice that is handled by not asking the descriptor to be invariant: detectors sweep a sliding window and rely on training data that contains the orientations you expect, which is why HOG works so well for upright pedestrians and so poorly for objects at arbitrary angles. If the orientations really are arbitrary, the honest options are augmenting the training set, searching over rotations at cost, or using a descriptor that estimates a dominant orientation first, the way SIFT does."
+      ]
     }
   ],
   "takeaways": [

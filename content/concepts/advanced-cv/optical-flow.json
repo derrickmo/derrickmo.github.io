@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# Lucas-Kanade in a window: solve A [u v]^T = b\nA = np.stack([Ix[win], Iy[win]], 1)\nb = -It[win]\nuv = np.linalg.lstsq(A, b, rcond=None)[0]",
       "caption": "Least-squares over a patch gives the local flow."
+    },
+    {
+      "h": "Two assumptions, both of which break",
+      "paras": [
+        "Lucas-Kanade rests on brightness constancy and on motion small enough for a first-order expansion, and both fail in ordinary footage. On a textured patch the estimate is excellent while the motion is small — 0.26 for a true 0.25 pixels, 1.02 for 1.0, 1.90 for 2.0 — and then collapses: 2.89 for a true 4 pixels and 1.11 for a true 8. That is the linearisation expiring, and it is why real implementations run the solver down a pyramid, so every level only ever sees a small displacement.",
+        "Brightness constancy is the more insidious one because it fails silently. Brightening the same frame by 15% with nothing moving at all reports 0.33 pixels of motion in each direction — motion that never happened, from an auto-exposure change. And on a straight edge the system is singular: the same solve returns NaN, because a moving edge gives no information about how far it slid along itself. That is the aperture problem, and it is a property of the data rather than a bug in the solver."
+      ]
     }
   ],
   "takeaways": [

@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\nfor (x, y) in edge_points:\n    for ti, theta in enumerate(thetas):\n        rho = int(x*np.cos(theta) + y*np.sin(theta))\n        acc[rho, ti] += 1            # vote; peaks = lines",
       "caption": "Edge points vote; accumulator peaks are the lines."
+    },
+    {
+      "h": "The accumulator is the whole cost",
+      "paras": [
+        "Voting is elegant because it turns detection into finding a peak, but the array being voted into grows with the number of shape parameters, and it grows multiplicatively. On a 512x512 image at one-degree, one-pixel resolution, a line needs (rho, theta) and 261,000 cells. A circle needs (x, y, r) and 67,108,864 — 257 times as many. An ellipse needs five parameters and lands near 1.9e+11 cells, roughly 740,000 times the line.",
+        "So the transform is only practical for shapes with two or three parameters, and past that the field switches to fitting rather than voting: RANSAC samples candidate models instead of enumerating them all. The other half of the trade is resolution. Coarser bins are cheaper and pool votes better against noise, but they blur nearby lines into one peak; finer bins separate them and scatter the votes of a single slightly-imperfect line across several cells."
+      ]
     }
   ],
   "takeaways": [

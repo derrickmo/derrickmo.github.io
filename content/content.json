@@ -72898,6 +72898,13 @@
           "h": "In code",
           "code": "import numpy as np\n\nSx = np.array([[-1,0,1],[-2,0,2],[-1,0,1]])\nGx = conv2d(I, Sx); Gy = conv2d(I, Sx.T)\nmag = np.hypot(Gx, Gy)            # edge strength",
           "caption": "Sobel gradients give magnitude and direction."
+        },
+        {
+          "h": "The derivative is a noise amplifier",
+          "paras": [
+            "Differentiating is a high-pass operation, so it does exactly the wrong thing to sensor noise. On a synthetic step edge the Sobel magnitude at the edge barely moves as noise rises — 2.40, 2.41, 2.49, 2.26 — while the response in the flat regions climbs from 0 to 0.057, 0.141, 0.291. The signal-to-noise ratio falls from 42.3 at noise sd 0.02 to 7.8 at sd 0.1, entirely because the background got louder.",
+            "This is why every practical edge detector smooths first and why Canny is a Gaussian derivative rather than a bare difference. On the same noisy image, blurring with sigma 1 before differentiating lifts the ratio from 8.7 to 16.5, and sigma 2 lifts it to 31. The blur is not a cosmetic pre-step; it is the term that decides which scale of edge you are asking about, and choosing it is choosing what counts as an edge rather than as texture."
+          ]
         }
       ],
       "takeaways": [
@@ -72934,6 +72941,13 @@
           "h": "In code",
           "code": "Ix, Iy = grad(I)\nM = [[smooth(Ix*Ix), smooth(Ix*Iy)],\n     [smooth(Ix*Iy), smooth(Iy*Iy)]]\nR = det(M) - 0.04 * trace(M)**2      # corners where R is large",
           "caption": "Two strong gradient directions = a trackable corner."
+        },
+        {
+          "h": "The window is the scale, and it is fixed",
+          "paras": [
+            "The detector looks at intensity variation inside one window, so it can only find corners at the scale that window happens to match. Viewing the same square corner at progressively coarser scale, the Harris response with a fixed 3x3 window falls from 1.95e-2 to 1.10e-3 after one step of blurring, and by two steps it has gone negative (-8.85e-5) — the corner has been reclassified as an edge, which is what a negative response means.",
+            "Nothing is scale-invariant here, and no threshold repairs it: the same physical corner seen from twice the distance simply is not a corner to a fixed window any more. That is precisely the gap that scale-space detectors were built to close, by searching over a range of window sizes and keeping the extremum — Harris-Laplace, and the difference-of-Gaussians pyramid underneath SIFT."
+          ]
         }
       ],
       "takeaways": [
@@ -73016,6 +73030,13 @@
           "h": "In code",
           "code": "import numpy as np\nmag = np.hypot(Gx, Gy)\nori = (np.degrees(np.arctan2(Gy, Gx)) % 180)\nbins = (ori / 20).astype(int)            # 9 orientation bins per cell\n# accumulate mag into per-cell histograms, then block-normalize",
           "caption": "Orientation histograms per cell, normalized per block."
+        },
+        {
+          "h": "Shape, but only at one orientation",
+          "paras": [
+            "The descriptor is a histogram of gradient orientations, so rotating the object rotates the histogram and the match degrades immediately. Rotating a bar and comparing normalised descriptors against the unrotated original, the L2 distance goes 0 at 0 degrees, 0.285 at 5, 0.844 at 15 and 1.366 at 30 — and the descriptor is unit length, so 1.366 is most of the distance available.",
+            "In practice that is handled by not asking the descriptor to be invariant: detectors sweep a sliding window and rely on training data that contains the orientations you expect, which is why HOG works so well for upright pedestrians and so poorly for objects at arbitrary angles. If the orientations really are arbitrary, the honest options are augmenting the training set, searching over rotations at cost, or using a descriptor that estimates a dominant orientation first, the way SIFT does."
+          ]
         }
       ],
       "takeaways": [
@@ -73052,6 +73073,13 @@
           "h": "In code",
           "code": "import numpy as np\n\nfor (x, y) in edge_points:\n    for ti, theta in enumerate(thetas):\n        rho = int(x*np.cos(theta) + y*np.sin(theta))\n        acc[rho, ti] += 1            # vote; peaks = lines",
           "caption": "Edge points vote; accumulator peaks are the lines."
+        },
+        {
+          "h": "The accumulator is the whole cost",
+          "paras": [
+            "Voting is elegant because it turns detection into finding a peak, but the array being voted into grows with the number of shape parameters, and it grows multiplicatively. On a 512x512 image at one-degree, one-pixel resolution, a line needs (rho, theta) and 261,000 cells. A circle needs (x, y, r) and 67,108,864 — 257 times as many. An ellipse needs five parameters and lands near 1.9e+11 cells, roughly 740,000 times the line.",
+            "So the transform is only practical for shapes with two or three parameters, and past that the field switches to fitting rather than voting: RANSAC samples candidate models instead of enumerating them all. The other half of the trade is resolution. Coarser bins are cheaper and pool votes better against noise, but they blur nearby lines into one peak; finer bins separate them and scatter the votes of a single slightly-imperfect line across several cells."
+          ]
         }
       ],
       "takeaways": [
@@ -73088,6 +73116,13 @@
           "h": "In code",
           "code": "# marker-controlled watershed (sketch)\ndist = distance_transform(binary)\nmarkers = local_maxima(dist)\nlabels = watershed(-dist, markers)     # basins flood from markers",
           "caption": "Flood from markers; boundaries form where basins collide."
+        },
+        {
+          "h": "How many regions is a parameter, not a fact",
+          "paras": [
+            "Ask a watershed how many regions an image contains and the answer is set by how much you smoothed it first. On a textured surface, counting catchment basins gives 420 regions with no smoothing, 342 at sigma 0.5, 63 at sigma 1 and 3 at sigma 2 — two orders of magnitude spanned by one preprocessing knob, with the image unchanged throughout.",
+            "That is the honest shape of the problem: without a definition of what an object is, there is no correct number, and the classic oversegmentation of watershed is the algorithm being faithful to a question that was never fully asked. It is why practical pipelines either supply that definition through markers and seeds, or accept the oversegmentation deliberately and merge afterwards — the superpixel approach — or replace the criterion entirely with a learned one."
+          ]
         }
       ],
       "takeaways": [
@@ -73124,6 +73159,13 @@
           "h": "In code",
           "code": "def nms(boxes, scores, thr=0.5):\n    keep, order = [], scores.argsort()[::-1]\n    while len(order):\n        i = order[0]; keep.append(i)\n        order = [j for j in order[1:] if iou(boxes[i], boxes[j]) < thr]\n    return keep",
           "caption": "Keep the best box, drop its high-overlap neighbors, repeat."
+        },
+        {
+          "h": "The threshold has to know how crowded the scene is",
+          "paras": [
+            "Non-max suppression assumes that heavily overlapping boxes are duplicates, which stops being true the moment two real objects overlap. With two people standing shoulder to shoulder, whose ground-truth boxes themselves overlap at IoU 0.471, running NMS at a threshold of 0.3 keeps a single box and recovers only 1 of the 2 real objects. The second detection was correct and was deleted for looking like a duplicate.",
+            "Raising the threshold to 0.5 recovers both, but a threshold above the typical duplicate overlap lets duplicates through instead, so the parameter is a straight trade between missed neighbours and repeated boxes — and the right value depends on how crowded your scenes are, which is a property of the dataset rather than of the detector. Soft-NMS decays scores instead of deleting outright for exactly this reason, and end-to-end detectors like DETR drop the step altogether by learning not to emit duplicates."
+          ]
         }
       ],
       "takeaways": [
@@ -73207,6 +73249,13 @@
           "h": "In code",
           "code": "# Lucas-Kanade in a window: solve A [u v]^T = b\nA = np.stack([Ix[win], Iy[win]], 1)\nb = -It[win]\nuv = np.linalg.lstsq(A, b, rcond=None)[0]",
           "caption": "Least-squares over a patch gives the local flow."
+        },
+        {
+          "h": "Two assumptions, both of which break",
+          "paras": [
+            "Lucas-Kanade rests on brightness constancy and on motion small enough for a first-order expansion, and both fail in ordinary footage. On a textured patch the estimate is excellent while the motion is small — 0.26 for a true 0.25 pixels, 1.02 for 1.0, 1.90 for 2.0 — and then collapses: 2.89 for a true 4 pixels and 1.11 for a true 8. That is the linearisation expiring, and it is why real implementations run the solver down a pyramid, so every level only ever sees a small displacement.",
+            "Brightness constancy is the more insidious one because it fails silently. Brightening the same frame by 15% with nothing moving at all reports 0.33 pixels of motion in each direction — motion that never happened, from an auto-exposure change. And on a straight edge the system is singular: the same solve returns NaN, because a moving edge gives no information about how far it slid along itself. That is the aperture problem, and it is a property of the data rather than a bug in the solver."
+          ]
         }
       ],
       "takeaways": [

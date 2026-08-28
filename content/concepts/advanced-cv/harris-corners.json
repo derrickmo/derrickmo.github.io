@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "Ix, Iy = grad(I)\nM = [[smooth(Ix*Ix), smooth(Ix*Iy)],\n     [smooth(Ix*Iy), smooth(Iy*Iy)]]\nR = det(M) - 0.04 * trace(M)**2      # corners where R is large",
       "caption": "Two strong gradient directions = a trackable corner."
+    },
+    {
+      "h": "The window is the scale, and it is fixed",
+      "paras": [
+        "The detector looks at intensity variation inside one window, so it can only find corners at the scale that window happens to match. Viewing the same square corner at progressively coarser scale, the Harris response with a fixed 3x3 window falls from 1.95e-2 to 1.10e-3 after one step of blurring, and by two steps it has gone negative (-8.85e-5) — the corner has been reclassified as an edge, which is what a negative response means.",
+        "Nothing is scale-invariant here, and no threshold repairs it: the same physical corner seen from twice the distance simply is not a corner to a fixed window any more. That is precisely the gap that scale-space detectors were built to close, by searching over a range of window sizes and keeping the extremum — Harris-Laplace, and the difference-of-Gaussians pyramid underneath SIFT."
+      ]
     }
   ],
   "takeaways": [

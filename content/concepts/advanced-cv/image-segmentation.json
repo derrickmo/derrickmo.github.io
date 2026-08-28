@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# marker-controlled watershed (sketch)\ndist = distance_transform(binary)\nmarkers = local_maxima(dist)\nlabels = watershed(-dist, markers)     # basins flood from markers",
       "caption": "Flood from markers; boundaries form where basins collide."
+    },
+    {
+      "h": "How many regions is a parameter, not a fact",
+      "paras": [
+        "Ask a watershed how many regions an image contains and the answer is set by how much you smoothed it first. On a textured surface, counting catchment basins gives 420 regions with no smoothing, 342 at sigma 0.5, 63 at sigma 1 and 3 at sigma 2 — two orders of magnitude spanned by one preprocessing knob, with the image unchanged throughout.",
+        "That is the honest shape of the problem: without a definition of what an object is, there is no correct number, and the classic oversegmentation of watershed is the algorithm being faithful to a question that was never fully asked. It is why practical pipelines either supply that definition through markers and seeds, or accept the oversegmentation deliberately and merge afterwards — the superpixel approach — or replace the criterion entirely with a learned one."
+      ]
     }
   ],
   "takeaways": [
