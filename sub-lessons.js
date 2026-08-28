@@ -50,6 +50,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# d/dx of L = (y - t)^2 where y = w*x\n# dL/dy = 2(y - t);  dy/dw = x  ->  dL/dw = 2(y - t) * x\ndef grad_w(x, w, t):\n    y = w * x\n    return 2 * (y - t) * x",
             "caption": "Every autograd engine is this rule applied over a graph."
+          },
+          {
+            "h": "Why the product is the thing that breaks",
+            "paras": [
+              "The chain rule is exact. Its behaviour over a deep graph is not forgiving, because the gradient arriving at the first layer is a product of every local derivative above it. With a per-layer factor of 0.9 the signal is 3.49e-1 after 10 layers, 7.18e-2 after 25 and 5.15e-3 after 50. Move the factor to 1.1 and the same depth gives 1.17e+2 instead — one mechanism, two directions.",
+              "Nothing in the calculus has gone wrong when this happens; the derivative really is that small. That is why the remedies are architectural rather than mathematical: residual connections add a path whose local factor is exactly one, normalisation keeps the other factors near one, and clipping truncates the explosion. Depth is not free, and this product is the bill."
+            ]
           }
         ],
         "takeaways": [
@@ -81,6 +88,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "def gradient_descent(grad, theta, eta=0.1, steps=100):\n    for _ in range(steps):\n        theta = theta - eta * grad(theta)\n    return theta",
             "caption": "The same three lines train a line fit or a billion-parameter model."
+          },
+          {
+            "h": "The condition number sets the price",
+            "paras": [
+              "The convergence rate is set by the shape of the surface, not by the learning rate. On a quadratic with eigenvalues 1 and kappa, using the optimal fixed step of 2/(1+kappa), reaching a gradient norm of 1e-6 takes 70 iterations at kappa = 10, 708 at kappa = 100 and 7,081 at kappa = 1,000 — linear in the condition number. Ten times the anisotropy costs ten times the steps.",
+              "No choice of step size escapes it, because the step that stays stable along the steep direction is far too small for the shallow one; that single scalar has to serve both. This is why so much of practical optimisation is really preconditioning. Feature scaling, normalisation layers, and the per-parameter step sizes in Adam and its relatives all earn their keep by shrinking kappa rather than by making the descent itself cleverer."
+            ]
           }
         ],
         "takeaways": [
@@ -112,6 +126,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef softmax(z):\n    z = z - z.max()          # stability\n    e = np.exp(z)\n    return e / e.sum()",
             "caption": "Shift, exponentiate, normalize."
+          },
+          {
+            "h": "Invariant to shift, and not to scale",
+            "paras": [
+              "Softmax is exactly invariant to adding a constant to every logit: [2.0, 1.0, 0.5] and [12.0, 11.0, 10.5] both give [0.6285, 0.2312, 0.1402]. That invariance is what makes subtracting the maximum safe, and it is the only reason the function can be evaluated at all without overflowing. It is emphatically not invariant to scaling — doubling the same logits gives [0.8438, 0.1142, 0.0420].",
+              "Scaling the logits IS the temperature knob: dividing by T = 0.5 and multiplying by 2 are the same operation. So the sharpness of the output is a free parameter the logits do not pin down. At T = 10 the same example flattens to [0.362, 0.327, 0.311], nearly uniform, with the ranking completely unchanged. A softmax output is therefore an ordering plus an arbitrary confidence, which is exactly why it is not a calibrated probability until something like temperature scaling has fitted that one number on held-out data."
+            ]
           }
         ],
         "takeaways": [
@@ -143,6 +164,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef cross_entropy(p, y):       # y is the true class index\n    return -np.log(p[y] + 1e-12)\n# softmax + cross-entropy gradient is simply (p - onehot(y))",
             "caption": "Punishes confident mistakes; trivial gradient with softmax."
+          },
+          {
+            "h": "It is not accuracy, and it is unbounded",
+            "paras": [
+              "Optimising cross-entropy is not optimising accuracy, and the two can rank models in opposite orders. On five examples, a model barely right on all of them (p = 0.51 throughout) scores 100% accuracy and mean cross-entropy 0.673; a model confident on four and wrong on the fifth scores 80% accuracy and mean cross-entropy 0.151 — 4.5x the lower loss with 20 points less accuracy. Selecting on validation loss and reporting accuracy can hand you the worse model.",
+              "The second property follows from the logarithm: the loss is unbounded, so a single example can dominate. 999 correct predictions at p = 0.99 contribute 10.04 nats between them; one confident-and-wrong prediction at p = 1e-6 contributes 13.82 nats on its own, about 1,375 times the average example. That is the mechanism behind a loss curve that spikes on one mislabelled row, and the reason label noise hurts this objective more than it hurts a bounded one."
+            ]
           }
         ],
         "takeaways": [
@@ -174,6 +202,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "def posterior(prior, likelihood):\n    # prior, likelihood: dict over hypotheses\n    joint = {h: prior[h] * likelihood[h] for h in prior}\n    z = sum(joint.values())\n    return {h: joint[h] / z for h in joint}",
             "caption": "Multiply prior by likelihood, then normalize."
+          },
+          {
+            "h": "The base rate does not go away",
+            "paras": [
+              "A test with 99% sensitivity and 99% specificity sounds decisive until it meets a rare condition. At a prevalence of 1 in 1,000 a positive result gives a posterior of 9.02%: the test is right ninety-nine times in a hundred in isolation and wrong about nine times in ten in context, because the 0.1% of genuine cases is swamped by the false positives drawn from the other 99.9%.",
+              "The fix is not more sensitivity. Holding sensitivity at 0.99, reaching a 90% posterior at that prevalence needs specificity 0.999892 — roughly a hundredfold cut in the false-positive rate. It is also why screening an asymptomatic population and testing a symptomatic patient are different problems with the same instrument: the second has already moved the prior, and the prior is doing most of the work."
+            ]
           }
         ],
         "takeaways": [
@@ -205,6 +240,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef entropy(p):\n    p = np.asarray(p)\n    p = p[p > 0]\n    return -np.sum(p * np.log2(p))",
             "caption": "A decision tree picks the split that drops this the most."
+          },
+          {
+            "h": "It cannot see structure",
+            "paras": [
+              "Entropy is a property of the distribution over symbols, not of their arrangement. The sequences AAAAAAAABBBBBBBB, ABABABABABABABAB and ABBABAABBAABABBA all measure exactly 1.0000 bits per symbol, because each contains eight As and eight Bs. One is perfectly ordered, one perfectly periodic and one shuffled, and the measure cannot tell them apart.",
+              "That is a specification rather than a defect, and knowing it tells you when to reach for something else. Structure that lives in the ordering — periodicity, long-range dependence, grammar — needs a model with memory before entropy will register it: conditional entropy, block entropy over n-grams, or a compressor. It is also why \"high entropy\" is not a synonym for \"random\": the periodic sequence above is entirely predictable and scores the maximum."
+            ]
           }
         ],
         "takeaways": [
@@ -236,6 +278,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\n# means of uniform samples become Gaussian\nmeans = [np.random.rand(50).mean() for _ in range(10000)]\n# histogram of `means` is a tight bell curve around 0.5",
             "caption": "Sum anything independent enough times and a bell curve appears."
+          },
+          {
+            "h": "How fast, and when it never arrives",
+            "paras": [
+              "The theorem is asymptotic, so \"n = 30 is enough\" is really a statement about how much skew you will tolerate. Averaging draws from an exponential distribution, whose skew is 2.039, the sample mean still carries skew 0.36 at n = 30 and 0.233 at n = 100. It decays as one over the square root of n, so buying a visibly Gaussian shape from a skewed source costs an order of magnitude more data than the rule of thumb suggests.",
+              "Some distributions never arrive at all. The theorem needs finite variance, and the Cauchy has none: averaging Cauchy draws leaves the interquartile range of the sample mean at 1.853 for n = 10 and 1.938 for n = 100,000. A hundred thousand samples buy nothing, because the mean of Cauchy draws is Cauchy again. Heavy tails are not a slow case of the CLT — they are outside it, which is worth knowing before quoting a standard error on a metric with occasional enormous values."
+            ]
           }
         ],
         "takeaways": [

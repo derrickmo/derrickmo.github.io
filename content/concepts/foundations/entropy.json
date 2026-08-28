@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef entropy(p):\n    p = np.asarray(p)\n    p = p[p > 0]\n    return -np.sum(p * np.log2(p))",
       "caption": "A decision tree picks the split that drops this the most."
+    },
+    {
+      "h": "It cannot see structure",
+      "paras": [
+        "Entropy is a property of the distribution over symbols, not of their arrangement. The sequences AAAAAAAABBBBBBBB, ABABABABABABABAB and ABBABAABBAABABBA all measure exactly 1.0000 bits per symbol, because each contains eight As and eight Bs. One is perfectly ordered, one perfectly periodic and one shuffled, and the measure cannot tell them apart.",
+        "That is a specification rather than a defect, and knowing it tells you when to reach for something else. Structure that lives in the ordering — periodicity, long-range dependence, grammar — needs a model with memory before entropy will register it: conditional entropy, block entropy over n-grams, or a compressor. It is also why \"high entropy\" is not a synonym for \"random\": the periodic sequence above is entirely predictable and scores the maximum."
+      ]
     }
   ],
   "takeaways": [

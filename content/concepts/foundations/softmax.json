@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef softmax(z):\n    z = z - z.max()          # stability\n    e = np.exp(z)\n    return e / e.sum()",
       "caption": "Shift, exponentiate, normalize."
+    },
+    {
+      "h": "Invariant to shift, and not to scale",
+      "paras": [
+        "Softmax is exactly invariant to adding a constant to every logit: [2.0, 1.0, 0.5] and [12.0, 11.0, 10.5] both give [0.6285, 0.2312, 0.1402]. That invariance is what makes subtracting the maximum safe, and it is the only reason the function can be evaluated at all without overflowing. It is emphatically not invariant to scaling — doubling the same logits gives [0.8438, 0.1142, 0.0420].",
+        "Scaling the logits IS the temperature knob: dividing by T = 0.5 and multiplying by 2 are the same operation. So the sharpness of the output is a free parameter the logits do not pin down. At T = 10 the same example flattens to [0.362, 0.327, 0.311], nearly uniform, with the ranking completely unchanged. A softmax output is therefore an ordering plus an arbitrary confidence, which is exactly why it is not a calibrated probability until something like temperature scaling has fitted that one number on held-out data."
+      ]
     }
   ],
   "takeaways": [

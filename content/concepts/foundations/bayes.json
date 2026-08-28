@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "def posterior(prior, likelihood):\n    # prior, likelihood: dict over hypotheses\n    joint = {h: prior[h] * likelihood[h] for h in prior}\n    z = sum(joint.values())\n    return {h: joint[h] / z for h in joint}",
       "caption": "Multiply prior by likelihood, then normalize."
+    },
+    {
+      "h": "The base rate does not go away",
+      "paras": [
+        "A test with 99% sensitivity and 99% specificity sounds decisive until it meets a rare condition. At a prevalence of 1 in 1,000 a positive result gives a posterior of 9.02%: the test is right ninety-nine times in a hundred in isolation and wrong about nine times in ten in context, because the 0.1% of genuine cases is swamped by the false positives drawn from the other 99.9%.",
+        "The fix is not more sensitivity. Holding sensitivity at 0.99, reaching a 90% posterior at that prevalence needs specificity 0.999892 — roughly a hundredfold cut in the false-positive rate. It is also why screening an asymptomatic population and testing a symptomatic patient are different problems with the same instrument: the second has already moved the prior, and the prior is doing most of the work."
+      ]
     }
   ],
   "takeaways": [

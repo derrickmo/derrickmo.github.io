@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\n# means of uniform samples become Gaussian\nmeans = [np.random.rand(50).mean() for _ in range(10000)]\n# histogram of `means` is a tight bell curve around 0.5",
       "caption": "Sum anything independent enough times and a bell curve appears."
+    },
+    {
+      "h": "How fast, and when it never arrives",
+      "paras": [
+        "The theorem is asymptotic, so \"n = 30 is enough\" is really a statement about how much skew you will tolerate. Averaging draws from an exponential distribution, whose skew is 2.039, the sample mean still carries skew 0.36 at n = 30 and 0.233 at n = 100. It decays as one over the square root of n, so buying a visibly Gaussian shape from a skewed source costs an order of magnitude more data than the rule of thumb suggests.",
+        "Some distributions never arrive at all. The theorem needs finite variance, and the Cauchy has none: averaging Cauchy draws leaves the interquartile range of the sample mean at 1.853 for n = 10 and 1.938 for n = 100,000. A hundred thousand samples buy nothing, because the mean of Cauchy draws is Cauchy again. Heavy tails are not a slow case of the CLT — they are outside it, which is worth knowing before quoting a standard error on a metric with occasional enormous values."
+      ]
     }
   ],
   "takeaways": [
