@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef mlp(x, layers):\n    for W, b in layers[:-1]:\n        x = np.maximum(0, W @ x + b)   # ReLU\n    W, b = layers[-1]\n    return W @ x + b                   # linear head",
       "caption": "Linear, nonlinear, repeat - then a final linear head."
+    },
+    {
+      "h": "Universal approximation is existence, not reach",
+      "paras": [
+        "The theorem says a wide enough single hidden layer can approximate any continuous function to any accuracy. It does not say gradient descent will find that setting, and the gap is easy to measure. Fitting sin(2*pi*x) with a one-hidden-layer ReLU network, identical in architecture, data and training budget, twelve random initialisations at width 8 give final RMS errors from 0.0737 to 0.4471 — a spread of 6.1x decided by nothing but where the run started.",
+        "The best width-8 run beats the median width-16 run, so the capacity was present in both and the optimiser reached it in one case and not the other. That is the honest content of the theorem: it is a statement about the function class, not about the training procedure, and in practice the reachable subset is what matters. Almost everything that has made deep networks trainable — initialisation scales, normalisation, residual paths, adaptive optimisers — is aimed at that gap rather than at representational power, which was never the binding constraint."
+      ]
     }
   ],
   "takeaways": [

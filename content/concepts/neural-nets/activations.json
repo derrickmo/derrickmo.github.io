@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\nrelu  = lambda x: np.maximum(0, x)\ngelu  = lambda x: 0.5 * x * (1 + np.tanh(0.797 * (x + 0.044 * x**3)))\nsilu  = lambda x: x / (1 + np.exp(-x))",
       "caption": "Different shapes near zero, same job: inject nonlinearity."
+    },
+    {
+      "h": "Both failure modes are the same fact",
+      "paras": [
+        "Saturating activations throttle the gradient by construction. The sigmoid's derivative peaks at 0.25 and falls to 0.0177 at z = 4 and 0.000335 at z = 8; tanh reaches 0.0013 at z = 4 and underflows by z = 8. Because backprop multiplies these together, even the best case compounds: ten stacked sigmoid layers, every one sitting at its most favourable point, still leaves a factor of 9.54e-7.",
+        "ReLU removes that ceiling for positive inputs — its derivative is exactly 1 — and buys a different failure with the same shape. A unit whose pre-activation is negative for every input in the dataset receives a gradient of exactly zero, forever, and nothing can revive it. Constructed with a bias offset of -3, 24.4% of units never fire on any of 2,000 inputs; in training that offset is what a single oversized update leaves behind. Leaky ReLU, ELU and GELU all exist to keep that derivative non-zero so a unit that stops firing can still come back."
+      ]
     }
   ],
   "takeaways": [

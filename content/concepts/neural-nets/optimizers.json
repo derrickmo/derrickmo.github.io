@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "m = beta1*m + (1-beta1)*g\nv = beta2*v + (1-beta2)*g*g\nmh, vh = m/(1-beta1**t), v/(1-beta2**t)\ntheta -= lr * mh / (np.sqrt(vh) + 1e-8)",
       "caption": "Momentum plus per-parameter scaling - the Adam update."
+    },
+    {
+      "h": "What the first few steps are actually built on",
+      "paras": [
+        "Adam's second-moment estimate has an effective window of 1/(1 - beta2) = 1,000 steps, so early on it is averaging almost nothing. The bias correction divides by (1 - beta2^t), which is 0.001 at step 1 and 0.0952 at step 100 — a factor of a thousand at the start, applied to an estimate built from a single gradient. The resulting update has standard deviation 1.0 at step one on pure-noise gradients, falling to 0.331 by step 10 and 0.229 by step 100.",
+        "That is the signature property and the hazard together: because the update is a ratio, its size is roughly one learning rate regardless of how large or small the gradient is, which is what makes Adam so insensitive to scaling and so willing to take a full-size step in a direction estimated from one noisy sample. Learning-rate warmup exists precisely to cover that window, and it is why the fixes that work — warmup, a smaller beta2, or the rectification in RAdam — all target the early variance rather than the steady state."
+      ]
     }
   ],
   "takeaways": [

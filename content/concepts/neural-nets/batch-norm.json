@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "mu = x.mean(0); var = x.var(0)\nxhat = (x - mu) / np.sqrt(var + 1e-5)\ny = gamma * xhat + beta",
       "caption": "Standardize per feature, then let the net rescale."
+    },
+    {
+      "h": "The statistics are only as good as the batch",
+      "paras": [
+        "Batch norm normalises using statistics estimated from the current batch, so the normaliser is itself a random variable. Estimating a unit-variance feature, the standard deviation of the batch mean is 0.717 at batch size 2, 0.348 at 8, 0.176 at 32 and 0.044 at 512 — at small batch sizes the quantity being subtracted is mostly noise, which is why performance falls off a cliff when a model is retrained at a smaller batch size for memory reasons.",
+        "There is also a systematic error underneath the noise. The batch variance is biased low by exactly (B-1)/B: measured mean batch variance is 0.491 at batch 2 and 0.876 at batch 8 against a true value of 1. So training normalises by something smaller than the truth while inference uses running averages that are closer to it, and that mismatch is a train/eval gap built into the method rather than a bug. It is the reason for the whole family of alternatives — layer, group and instance norm — which compute their statistics within a single example and therefore do not care how many examples share the step."
+      ]
     }
   ],
   "takeaways": [

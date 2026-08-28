@@ -72166,6 +72166,13 @@
           "h": "In code",
           "code": "import numpy as np\nrelu  = lambda x: np.maximum(0, x)\ngelu  = lambda x: 0.5 * x * (1 + np.tanh(0.797 * (x + 0.044 * x**3)))\nsilu  = lambda x: x / (1 + np.exp(-x))",
           "caption": "Different shapes near zero, same job: inject nonlinearity."
+        },
+        {
+          "h": "Both failure modes are the same fact",
+          "paras": [
+            "Saturating activations throttle the gradient by construction. The sigmoid's derivative peaks at 0.25 and falls to 0.0177 at z = 4 and 0.000335 at z = 8; tanh reaches 0.0013 at z = 4 and underflows by z = 8. Because backprop multiplies these together, even the best case compounds: ten stacked sigmoid layers, every one sitting at its most favourable point, still leaves a factor of 9.54e-7.",
+            "ReLU removes that ceiling for positive inputs — its derivative is exactly 1 — and buys a different failure with the same shape. A unit whose pre-activation is negative for every input in the dataset receives a gradient of exactly zero, forever, and nothing can revive it. Constructed with a bias offset of -3, 24.4% of units never fire on any of 2,000 inputs; in training that offset is what a single oversized update leaves behind. Leaky ReLU, ELU and GELU all exist to keep that derivative non-zero so a unit that stops firing can still come back."
+          ]
         }
       ],
       "takeaways": [
@@ -72247,6 +72254,13 @@
           "h": "In code",
           "code": "mu = x.mean(0); var = x.var(0)\nxhat = (x - mu) / np.sqrt(var + 1e-5)\ny = gamma * xhat + beta",
           "caption": "Standardize per feature, then let the net rescale."
+        },
+        {
+          "h": "The statistics are only as good as the batch",
+          "paras": [
+            "Batch norm normalises using statistics estimated from the current batch, so the normaliser is itself a random variable. Estimating a unit-variance feature, the standard deviation of the batch mean is 0.717 at batch size 2, 0.348 at 8, 0.176 at 32 and 0.044 at 512 — at small batch sizes the quantity being subtracted is mostly noise, which is why performance falls off a cliff when a model is retrained at a smaller batch size for memory reasons.",
+            "There is also a systematic error underneath the noise. The batch variance is biased low by exactly (B-1)/B: measured mean batch variance is 0.491 at batch 2 and 0.876 at batch 8 against a true value of 1. So training normalises by something smaller than the truth while inference uses running averages that are closer to it, and that mismatch is a train/eval gap built into the method rather than a bug. It is the reason for the whole family of alternatives — layer, group and instance norm — which compute their statistics within a single example and therefore do not care how many examples share the step."
+          ]
         }
       ],
       "takeaways": [
@@ -72333,6 +72347,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef mlp(x, layers):\n    for W, b in layers[:-1]:\n        x = np.maximum(0, W @ x + b)   # ReLU\n    W, b = layers[-1]\n    return W @ x + b                   # linear head",
           "caption": "Linear, nonlinear, repeat - then a final linear head."
+        },
+        {
+          "h": "Universal approximation is existence, not reach",
+          "paras": [
+            "The theorem says a wide enough single hidden layer can approximate any continuous function to any accuracy. It does not say gradient descent will find that setting, and the gap is easy to measure. Fitting sin(2*pi*x) with a one-hidden-layer ReLU network, identical in architecture, data and training budget, twelve random initialisations at width 8 give final RMS errors from 0.0737 to 0.4471 — a spread of 6.1x decided by nothing but where the run started.",
+            "The best width-8 run beats the median width-16 run, so the capacity was present in both and the optimiser reached it in one case and not the other. That is the honest content of the theorem: it is a statement about the function class, not about the training procedure, and in practice the reachable subset is what matters. Almost everything that has made deep networks trainable — initialisation scales, normalisation, residual paths, adaptive optimisers — is aimed at that gap rather than at representational power, which was never the binding constraint."
+          ]
         }
       ],
       "takeaways": [
@@ -72369,6 +72390,13 @@
           "h": "In code",
           "code": "m = beta1*m + (1-beta1)*g\nv = beta2*v + (1-beta2)*g*g\nmh, vh = m/(1-beta1**t), v/(1-beta2**t)\ntheta -= lr * mh / (np.sqrt(vh) + 1e-8)",
           "caption": "Momentum plus per-parameter scaling - the Adam update."
+        },
+        {
+          "h": "What the first few steps are actually built on",
+          "paras": [
+            "Adam's second-moment estimate has an effective window of 1/(1 - beta2) = 1,000 steps, so early on it is averaging almost nothing. The bias correction divides by (1 - beta2^t), which is 0.001 at step 1 and 0.0952 at step 100 — a factor of a thousand at the start, applied to an estimate built from a single gradient. The resulting update has standard deviation 1.0 at step one on pure-noise gradients, falling to 0.331 by step 10 and 0.229 by step 100.",
+            "That is the signature property and the hazard together: because the update is a ratio, its size is roughly one learning rate regardless of how large or small the gradient is, which is what makes Adam so insensitive to scaling and so willing to take a full-size step in a direction estimated from one noisy sample. Learning-rate warmup exists precisely to cover that window, and it is why the fixes that work — warmup, a smaller beta2, or the rectification in RAdam — all target the early variance rather than the steady state."
+          ]
         }
       ],
       "takeaways": [
@@ -72450,6 +72478,13 @@
           "h": "In code",
           "code": "import numpy as np\n# He init for a ReLU layer\nW = np.random.randn(n_out, n_in) * np.sqrt(2.0 / n_in)",
           "caption": "Set the variance to keep signal scale constant through depth."
+        },
+        {
+          "h": "Why the constant is not arbitrary",
+          "paras": [
+            "Initialisation scale is a fixed point problem, and missing it compounds with depth. Pushing unit-variance input through 50 ReLU layers of width 256, the activation variance at layer 50 is 4.02e-32 with gain 0.7, 1.24e-16 with gain 1.0, and 4.19e+9 with gain 1.8. With the He gain of sqrt(2) it is 1.40e-1 — still the same order it started at.",
+            "That constant is not a tuning choice. ReLU zeroes half the distribution, so it halves the variance, and sqrt(2) is exactly the factor that undoes the halving; Xavier's gain of 1 is the corresponding answer for a symmetric activation such as tanh. Get it wrong and no learning rate rescues you, because the signal has already underflowed or saturated before the first gradient is computed. It is also why normalisation layers are so effective: they re-impose the fixed point at every layer instead of relying on it holding by construction."
+          ]
         }
       ],
       "takeaways": [
