@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "f = sigmoid(Wf @ z)    # forget\ni = sigmoid(Wi @ z)    # input\no = sigmoid(Wo @ z)    # output\nc = f * c + i * np.tanh(Wc @ z)\nh = o * np.tanh(c)",
       "caption": "Gates throttle what the cell keeps, adds, and reveals."
+    },
+    {
+      "h": "The gate delays the decay, it does not remove it",
+      "paras": [
+        "The gradient along the cell state is a product of the forget gates it passed through, so the gate decides the decay rate rather than abolishing it. At a forget gate of 0.9 the signal is 5.2e-3 after 50 steps and 7.1e-10 after 200. Even at 0.99 — a gate almost fully open — it is 0.13 after 200 steps and 4.3e-5 after 1,000, which is 99.996% of the signal gone.",
+        "What makes the LSTM work is that the gate can sit at exactly 1.0, where the product stays 1.0 forever, and that this is a value the network can learn per timestep rather than a fixed property of the weights. A vanilla RNN has no such setting: its factor is the recurrent weight times a tanh derivative, which is below one wherever the unit is doing anything nonlinear, giving 7.1e-10 over 200 steps at an effective factor of 0.9. The gate is a mechanism for choosing when to remember, and the additive path is what makes remembering free when it chooses to."
+      ]
     }
   ],
   "takeaways": [

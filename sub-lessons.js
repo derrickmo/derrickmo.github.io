@@ -728,6 +728,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# region query + expansion (sketch)\nneighbors = [j for j in range(n) if dist(i, j) <= eps]\nif len(neighbors) >= min_pts:\n    expand_cluster(i, neighbors)      # flood through dense points",
             "caption": "Grow clusters through dense, connected regions."
+          },
+          {
+            "h": "One epsilon cannot serve two densities",
+            "paras": [
+              "DBSCAN's epsilon is a single global scale, so a dataset with clusters at different densities has no correct setting. With two tight clusters (sd 0.10) sitting 1.0 apart and one loose cluster (sd 2.5) elsewhere, epsilon 0.15 keeps the tight pair properly separated and labels the loose cluster entirely noise — all 200 of its points. Epsilon 0.5 shatters the loose cluster into nine fragments with 130 noise points and has already merged the tight pair into one.",
+              "By epsilon 1.5 the loose cluster is recovered cleanly and the two tight clusters are irrevocably one. There is no value that is right for both, which is not a tuning failure but the shape of the algorithm: density is defined relative to a fixed radius. That is exactly what OPTICS and HDBSCAN address, by building the reachability structure across scales and extracting clusters from it rather than committing to one radius in advance."
+            ]
           }
         ],
         "takeaways": [
@@ -759,6 +766,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# repeatedly merge the closest pair, record the merge\nwhile len(clusters) > 1:\n    a, b = closest_pair(clusters, linkage)\n    merge(a, b)             # height = d(a, b) -> dendrogram",
             "caption": "Merge upward; cut the dendrogram to choose k after the fact."
+          },
+          {
+            "h": "The linkage is the model",
+            "paras": [
+              "Linkage is not a tuning detail; it is the definition of what a cluster is. On 160 points forming two clear blobs joined by a thin 20-point bridge, single linkage returns clusters of size 179 and 1 — it walks across the bridge, because the nearest-pair criterion only ever needs one short hop. Complete linkage on identical data returns 93 and 87, because it refuses to merge groups whose furthest members are far apart.",
+              "Both answers are correct under their own criterion, which means the choice has to come from what a cluster means in your problem: single linkage finds elongated, chained structure and is the one that recovers a spiral, complete and Ward favour compact blobs and are the ones that resist bridges. The other constraint is cost — the distance matrix is quadratic, so 10,000 points is already an 0.8 GB matrix before any merging starts, which is why the method is usually reserved for small n or applied after a coarser pass."
+            ]
           }
         ],
         "takeaways": [
@@ -790,6 +804,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# gradient-descend the 2D points Y to match neighbor probabilities\nP = joint_neighbor_probs(X, perplexity=30)\nfor _ in range(1000):\n    Q = student_t_affinities(Y)\n    Y -= lr * kl_gradient(P, Q, Y)",
             "caption": "Match neighborhood probabilities; trust clusters, not distances."
+          },
+          {
+            "h": "Cluster size on the plot is not cluster size in the data",
+            "paras": [
+              "t-SNE equalises local density by construction, so how big a cluster looks says more about how many points it contains than about how spread out it is. Running three clusters with identical true spread through the algorithm, the apparent spread on the map came out between 0.16 and 0.35 across seeds — roughly a factor of two, for clusters that are the same size in the data. Reading tightness off a t-SNE plot is reading an artefact.",
+              "Worth being careful about the stronger version of this warning, though: in these runs the ratio of between-cluster distances was roughly preserved, at 4.77 to 5.38 against a true 5.00, so the claim that t-SNE distances are meaningless was not what the measurement showed. The defensible statement is narrower and still useful — the algorithm optimises neighbourhood preservation, it guarantees nothing about global geometry, and any structure you intend to rely on should be confirmed in the original space rather than inferred from the picture."
+            ]
           }
         ],
         "takeaways": [
@@ -1726,6 +1747,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "from collections import Counter, defaultdict\n\ndef fit_bigram(tokens):\n    trans = defaultdict(Counter)\n    for a, b in zip(tokens, tokens[1:]):\n        trans[a][b] += 1\n    return trans            # sample next token from trans[current]",
             "caption": "Count pairs, normalize, sample - an n-gram model."
+          },
+          {
+            "h": "Longer context, exponentially less data",
+            "paras": [
+              "The Markov assumption trades context for countability, and the exchange rate is brutal. Training on 80% of this site's prose and testing on the rest, the share of test n-grams never seen in training is 4.1% for unigrams, 54.4% for bigrams, 88.9% for trigrams, 97.0% for 4-grams and 98.8% for 5-grams. By order five, essentially every context at test time is one the model has no counts for.",
+              "That is why n-gram language models stop at three to five orders and why so much classical NLP was smoothing — backoff, Kneser-Ney and the rest exist to answer the question \"what do I do when the count is zero\", which is the common case rather than the exception. It is also the precise gap that distributed representations closed: a neural model can generalise across contexts it never saw because similar words share parameters, whereas a count table can only ever look up what it has already observed."
+            ]
           }
         ],
         "takeaways": [
@@ -1757,6 +1785,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# one skip-gram step with negative sampling\nscore = v_center @ v_context\ngrad = (sigmoid(score) - label) * v_center   # label 1 for true ctx, 0 for neg\nv_context -= lr * grad",
             "caption": "Pull true context together, push negatives apart."
+          },
+          {
+            "h": "One vector per word, so a polysemous word lands between senses",
+            "paras": [
+              "The model learns a single point per word type, so a word with two unrelated senses cannot occupy both. Taking two orthogonal sense vectors (cosine 0.02 to each other) and mixing them in the proportion the corpus uses, a 50/50 split leaves the learned vector at cosine 0.714 from each sense — closer to neither than either is to itself. At 90/10 it sits at 0.994 from the dominant sense and 0.13 from the other.",
+              "So the position is decided by sense frequency, not by meaning, and the rare sense is effectively unrepresented. That is the structural limitation contextual embeddings removed: BERT and its successors produce a different vector for the same word in different sentences, which is a change of data model rather than a bigger version of the same one. It is also why word2vec analogies work best on words with one dominant sense, and quietly fail on the words a human would find most interesting."
+            ]
           }
         ],
         "takeaways": [
@@ -1788,6 +1823,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "f = sigmoid(Wf @ z)    # forget\ni = sigmoid(Wi @ z)    # input\no = sigmoid(Wo @ z)    # output\nc = f * c + i * np.tanh(Wc @ z)\nh = o * np.tanh(c)",
             "caption": "Gates throttle what the cell keeps, adds, and reveals."
+          },
+          {
+            "h": "The gate delays the decay, it does not remove it",
+            "paras": [
+              "The gradient along the cell state is a product of the forget gates it passed through, so the gate decides the decay rate rather than abolishing it. At a forget gate of 0.9 the signal is 5.2e-3 after 50 steps and 7.1e-10 after 200. Even at 0.99 — a gate almost fully open — it is 0.13 after 200 steps and 4.3e-5 after 1,000, which is 99.996% of the signal gone.",
+              "What makes the LSTM work is that the gate can sit at exactly 1.0, where the product stays 1.0 forever, and that this is a value the network can learn per timestep rather than a fixed property of the weights. A vanilla RNN has no such setting: its factor is the recurrent weight times a tanh derivative, which is below one wherever the unit is doing anything nonlinear, giving 7.1e-10 over 200 steps at an effective factor of 0.9. The gate is a mechanism for choosing when to remember, and the additive path is what makes remembering free when it chooses to."
+            ]
           }
         ],
         "takeaways": [
@@ -3889,6 +3931,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef lr(t, T, warm=500, peak=3e-4):\n    if t < warm: return peak * t / warm        # warmup\n    return 0.5 * peak * (1 + np.cos(np.pi * (t - warm) / (T - warm)))",
             "caption": "Warm up, then cosine-decay to near zero."
+          },
+          {
+            "h": "The decay is what buys the last digit",
+            "paras": [
+              "A constant learning rate converges to a ball around the optimum rather than to the optimum, and the radius is set by the rate. On a noisy quadratic, the final RMS distance is 0.2233 at a constant rate of 0.1, 0.0701 at 0.01 and 0.0190 at 0.001 — a tenfold smaller rate buys roughly a threefold smaller ball, and nothing about running longer changes it.",
+              "Decaying gets both halves: starting at 0.1 and annealing to zero on a cosine reaches 0.0167, better than the best constant rate tested while also making the early progress that the small constant rate could not. Adding a 5% warmup gives 0.0175 here, essentially the same — on this well-conditioned problem warmup is neutral, and its value in real training is about the early instability of adaptive optimisers rather than about the final distance. The schedule is doing two separate jobs, and it is worth knowing which one you are tuning."
+            ]
           }
         ],
         "takeaways": [
@@ -3920,6 +3969,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef clip(g, c=1.0):\n    norm = np.linalg.norm(g)\n    return g * min(1.0, c / (norm + 1e-9))",
             "caption": "Keep the direction, bound the magnitude."
+          },
+          {
+            "h": "Clip the norm, not the values",
+            "paras": [
+              "The two clipping strategies sound interchangeable and are not. Clipping by global norm rescales the whole vector, so the direction is untouched: measured over 2,000 gradients with occasional huge coordinates, the cosine between the raw gradient and the norm-clipped one is exactly 1.0000. Clipping each coordinate to a fixed range gives 0.5174 — the step is bounded and it is no longer the direction the loss asked for.",
+              "The reason value clipping does so much damage is that it flattens exactly the coordinates carrying the most signal, and the larger the outlier the more of it is discarded. Norm clipping bounds the step size while preserving what the gradient said, which is why it is the default in every serious training loop and why the threshold is usually reported alongside the learning rate: together they set the maximum distance a single step can move, which is the quantity that actually governs stability."
+            ]
           }
         ],
         "takeaways": [
@@ -3951,6 +4007,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n# fit a power law to small-scale runs, extrapolate\nlogL = np.log(losses); logN = np.log(sizes)\nslope, intercept = np.polyfit(logN, logL, 1)   # slope = -alpha",
             "caption": "A line on a log-log plot predicts the next scale."
+          },
+          {
+            "h": "The exponents decide how to spend the budget",
+            "paras": [
+              "Fitting the Chinchilla form and optimising the split of a fixed compute budget, the answer is that parameters and tokens both grow, with tokens growing slightly faster: the optimal ratio of tokens to parameters runs 31.8 at 1e19 FLOPs, 50.3 at 1e21, 79.8 at 1e23 and 126.4 at 1e25. The headline correction stands — a budget spent entirely on parameters is being wasted — but the ratio is not a constant, and quoting a single tokens-per-parameter number is a simplification of a curve.",
+              "The other half is what the money buys. Loss falls from 2.986 to 1.845 across those six orders of magnitude of compute, so a hundredfold increase is worth about 0.354 nats here. Power-law returns mean the next improvement always costs more than the last one, and the irreducible term sets a floor no budget crosses. That framing is what makes scaling laws useful in planning: they are less a promise about capability than a way of pricing the next increment before committing to it."
+            ]
           }
         ],
         "takeaways": [

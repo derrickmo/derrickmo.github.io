@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# region query + expansion (sketch)\nneighbors = [j for j in range(n) if dist(i, j) <= eps]\nif len(neighbors) >= min_pts:\n    expand_cluster(i, neighbors)      # flood through dense points",
       "caption": "Grow clusters through dense, connected regions."
+    },
+    {
+      "h": "One epsilon cannot serve two densities",
+      "paras": [
+        "DBSCAN's epsilon is a single global scale, so a dataset with clusters at different densities has no correct setting. With two tight clusters (sd 0.10) sitting 1.0 apart and one loose cluster (sd 2.5) elsewhere, epsilon 0.15 keeps the tight pair properly separated and labels the loose cluster entirely noise — all 200 of its points. Epsilon 0.5 shatters the loose cluster into nine fragments with 130 noise points and has already merged the tight pair into one.",
+        "By epsilon 1.5 the loose cluster is recovered cleanly and the two tight clusters are irrevocably one. There is no value that is right for both, which is not a tuning failure but the shape of the algorithm: density is defined relative to a fixed radius. That is exactly what OPTICS and HDBSCAN address, by building the reachability structure across scales and extracting clusters from it rather than committing to one radius in advance."
+      ]
     }
   ],
   "takeaways": [

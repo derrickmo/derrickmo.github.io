@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# gradient-descend the 2D points Y to match neighbor probabilities\nP = joint_neighbor_probs(X, perplexity=30)\nfor _ in range(1000):\n    Q = student_t_affinities(Y)\n    Y -= lr * kl_gradient(P, Q, Y)",
       "caption": "Match neighborhood probabilities; trust clusters, not distances."
+    },
+    {
+      "h": "Cluster size on the plot is not cluster size in the data",
+      "paras": [
+        "t-SNE equalises local density by construction, so how big a cluster looks says more about how many points it contains than about how spread out it is. Running three clusters with identical true spread through the algorithm, the apparent spread on the map came out between 0.16 and 0.35 across seeds — roughly a factor of two, for clusters that are the same size in the data. Reading tightness off a t-SNE plot is reading an artefact.",
+        "Worth being careful about the stronger version of this warning, though: in these runs the ratio of between-cluster distances was roughly preserved, at 4.77 to 5.38 against a true 5.00, so the claim that t-SNE distances are meaningless was not what the measurement showed. The defensible statement is narrower and still useful — the algorithm optimises neighbourhood preservation, it guarantees nothing about global geometry, and any structure you intend to rely on should be confirmed in the original space rather than inferred from the picture."
+      ]
     }
   ],
   "takeaways": [
