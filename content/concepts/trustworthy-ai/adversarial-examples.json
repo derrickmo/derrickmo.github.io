@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# Measured in the module: clean 0.97, random perturbation at eps=0.3 -> 0.93,\n# PGD at the same eps -> 0.28. Same budget, entirely different outcome.\n\n# The trap when EVALUATING a defence:\nfgsm_acc = evaluate(model, fgsm_attack)   # 0.62 - looks robust\npgd_acc  = evaluate(model, pgd_attack)   # 0.32 - it was gradient masking",
       "caption": "A defence that only resists the attack it was trained against is the standard way robustness is overstated."
+    },
+    {
+      "h": "Dimension is the attacker's budget",
+      "paras": [
+        "Adversarial examples are often presented as a quirk of deep networks, but a linear model in 200 dimensions already has the property. Training logistic regression to 99.5% accuracy and then perturbing each input coordinate by a fixed L-infinity budget in the direction that hurts, accuracy falls to 97.8% at 0.005, 84.8% at 0.02 and 58.0% at 0.05 — a perturbation far too small to see, applied to every coordinate at once.",
+        "The arithmetic explains why. Moving each coordinate by epsilon in the sign of its weight changes the logit by epsilon times the sum of the absolute weights, which here is 93: the per-coordinate change is tiny and there are hundreds of them to add up. So high dimension is not incidental to the phenomenon, it is the resource the attacker is spending, and no amount of accuracy on clean data removes it. That is also why robustness has to be trained for explicitly and why it costs clean accuracy — the decision boundary has to be moved away from the data, not just placed correctly."
+      ]
     }
   ],
   "takeaways": [

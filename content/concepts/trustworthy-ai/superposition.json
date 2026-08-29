@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# Sparsity is what makes superposition worth it.\n# Dense features  -> only m of n represented, and orthogonally.\n# Sparse features -> all n packed into m dims, at angles.\n\n# Five features in two dimensions arrange as a regular pentagon,\n# ~72 degrees apart - the geometry is not arbitrary.\nangles = np.degrees(np.arccos(W.T @ W))",
       "caption": "Sparse autoencoders try to undo the packing; measured recovery was 5 of 24 planted features at the BEST reconstruction, so the units are not identified."
+    },
+    {
+      "h": "It works because activations are sparse",
+      "paras": [
+        "Superposition packs more features than there are dimensions by giving each an almost-orthogonal direction, and the cost is interference. In 64 dimensions the mean absolute overlap between two random feature directions is about 0.10 whether you store 16 features or 1,024 — that number is set by the dimension, not the count. What grows is the total: the summed worst-case interference against one feature goes from 1.48 at 16 features to 25.4 at 256 and 102.3 at 1,024.",
+        "Which is why sparsity is the enabling condition rather than a detail. Reading one feature back out of the same 256-feature code, the error is 0.000 when one feature is active, 0.171 when four are, 0.359 at sixteen and 0.723 at sixty-four — against a true value of 1.0. The scheme is only coherent while few features fire at once, and that is the assumption a sparse autoencoder is exploiting when it tries to recover the directions: it is not merely a convenient prior, it is the condition that made the code possible in the first place."
+      ]
     }
   ],
   "takeaways": [

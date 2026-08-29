@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# Efficiency: the attributions must sum to the gap from the baseline.\nassert abs(phi.sum() - (f(x) - f(baseline))) < 1e-6\n\n# Correlated features SPLIT credit, so importance can look small for a\n# feature that is genuinely driving the prediction through a duplicate.\n# Grouped Shapley treats a set of related columns as one player.",
       "caption": "Name the question before choosing the baseline: debugging and adverse-action notices want interventional; describing the data-generating process wants conditional."
+    },
+    {
+      "h": "Exact is exponential, and the split is a convention",
+      "paras": [
+        "Shapley values are defined over every subset of features, so exact computation is 2^n model evaluations: about a thousand at 10 features, a billion at 30, and 1.15e+18 at 60. Sampling permutations converges usefully — RMS error against the exact values is 0.268 after 10 samples, 0.045 after 100 and 0.0009 after 1,000 — so the cost is manageable, but it is an approximation with a variance, not a reading.",
+        "The subtler point is what the number means when features interact. On a model with an explicit +2.0 interaction between two features whose standalone weights are 0.786 and 1.117, the exact Shapley attributions come out at 1.786 and 2.117: the interaction is split exactly one apiece. That split is an axiom of the method rather than a fact about the model, and no feature is individually responsible for a term that requires both. Read against correlated inputs, the same machinery also assigns credit to features the model never used, because the coalitions it averages over include combinations the data never contains."
+      ]
     }
   ],
   "takeaways": [

@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# The check that matters more than the map: does it track the MODEL?\nrandomized = deepcopy(model)\nrandomize_weights(randomized)\n\nif spearman(attr(model, x), attr(randomized, x)) > 0.5:\n    print(\"FAILS Adebayo sanity check - the map is a property of the input\")\n\n# Measured: IG and Shapley collapse to ~0.06 correlation (pass);\n# input-times-gradient survives at 0.493 (fails).",
       "caption": "An explanation should be sensitive to the thing it claims to explain, and that sensitivity is testable in ten lines."
+    },
+    {
+      "h": "The sanity check most maps fail",
+      "paras": [
+        "A saliency map is supposed to explain a model, so randomising the model's weights should destroy it. Often it barely dents it. Comparing gradient-times-input saliency from a trained classifier against the same map from a randomly initialised one, the mean correlation across 400 inputs is 0.42 — and the correlation between the trained model's map and the raw input alone is 0.557. The map is tracking the input more than it is tracking the model.",
+        "The plain gradient does much better on this test (correlation 0.113 with the random model), which is the useful diagnostic: multiplying by the input makes a map look sharper and more object-shaped while importing structure that has nothing to do with what was learned. Adebayo and colleagues turned this into a standard check, and the lesson generalises past saliency — an explanation that survives randomising the thing it explains is describing something else, and looking convincing is not evidence."
+      ]
     }
   ],
   "takeaways": [
