@@ -127,7 +127,6 @@ function pageHtml(moduleSlug, conceptId, moduleTitle, lesson) {
 <body>
   <div id="root"></div>
   <script type="module" src="../../../curriculum.js"></script>
-  <script type="module" src="../../../concepts-index.js"></script>
   <script type="module" src="../../../play-demos.js"></script>
   <script type="module" src="../../../components/HUD.jsx"></script>
   <script type="module" src="../../../components/Monogram.jsx"></script>
