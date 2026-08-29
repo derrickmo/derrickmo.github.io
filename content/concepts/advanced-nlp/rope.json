@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef rope(x, pos, base=10000):\n    d = x.shape[-1]; i = np.arange(0, d, 2)\n    theta = pos / base ** (i / d)\n    c, s = np.cos(theta), np.sin(theta)\n    return np.stack([x[..., ::2]*c - x[..., 1::2]*s,\n                     x[..., ::2]*s + x[..., 1::2]*c], -1).reshape(x.shape)",
       "caption": "Rotate pairs of dimensions by a position-scaled angle."
+    },
+    {
+      "h": "Why extrapolation past the trained length fails",
+      "paras": [
+        "RoPE's central property is exact: rotating queries and keys by an angle proportional to their absolute position makes the attention score depend only on the difference. Measured directly, positions (5, 3), (105, 103) and (1005, 1003) all give the identical score 4.8096 — the same relative offset, the same answer, anywhere in the sequence.",
+        "The catch is that the rotation angle is unbounded while training data is not. With the standard base of 10,000 and d_head 64, the slowest frequency completes one turn every 47,117 positions, so a model trained at 4,096 tokens has only ever seen that component rotated through about 9% of a circle. Ask it about an offset of 32,768 and those low-frequency components sit at angles that never occurred in training — the encoding is well defined and the model has no experience of it. That is precisely what position-interpolation and NTK-aware or YaRN scaling manipulate: they change the base or compress the angles so long offsets land back inside the range the weights were fitted on."
+      ]
     }
   ],
   "takeaways": [

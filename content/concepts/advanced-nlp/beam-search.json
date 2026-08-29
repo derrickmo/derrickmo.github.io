@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "def expand(beams, logp):\n    cand = []\n    for seq, s in beams:\n        for tok, lp in logp(seq):\n            cand.append((seq + [tok], s + lp))\n    return sorted(cand, key=lambda x: -x[1])[:B]",
       "caption": "Expand every beam, keep the top B by score."
+    },
+    {
+      "h": "A wider beam finds a worse sentence",
+      "paras": [
+        "Beam search is a better optimiser than greedy decoding, and on open-ended text that is the problem. Decoding 20 tokens from a bigram model built on this site's prose, a beam of 1 scores -2.808 log-probability per token and uses 4 distinct words; a beam of 10 scores -1.329 and uses 3. The wider beam more than halved the loss and emitted \"the true notebook true notebook true notebook\" — and a beam of 50 finds exactly the same sequence, because there is nothing better to find.",
+        "So the degeneration is not a search failure but a search success: repetition genuinely is the highest-probability continuation, and improving the optimiser walks further into it. That is why beam search remains standard for translation and summarisation, where the output is largely determined by the input and likelihood is a reasonable proxy, and why open-ended generation uses sampling instead. If your decoder gets worse as you give it more compute, the objective is not the one you wanted."
+      ]
     }
   ],
   "takeaways": [

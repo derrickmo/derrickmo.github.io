@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# 'Always disaggregate' is the wrong lesson - it depends on the arrow.\nfor g, sub in df.groupby(\"severity\"):\n    print(g, sub.query(\"t==1\").y.mean() - sub.query(\"t==0\").y.mean())\nprint(\"pooled\", df.query(\"t==1\").y.mean() - df.query(\"t==0\").y.mean())\n\n# If `severity` is measured BEFORE treatment -> confounder -> trust the strata.\n# If treatment causes it (a complication, say) -> mediator -> trust the pooled.",
       "caption": "The deciding fact - when the covariate was determined - is nowhere in the dataframe."
+    },
+    {
+      "h": "It is not a paradox, it is a missing variable",
+      "paras": [
+        "The reversal is real and it happens in real data. In Charig and colleagues' kidney-stone study, treatment A beats treatment B on small stones (0.931 against 0.867) and on large stones (0.730 against 0.688) — and loses when the groups are pooled, 0.780 against 0.826. Every subgroup says one thing and the total says the other.",
+        "Nothing is wrong with the arithmetic. Treatment A was given to the harder cases, so pooling compares a mostly-hard A group against a mostly-easy B group, and stone size is a confounder rather than a nuisance. The important consequence is that there is no default answer: whether to pool depends on the causal structure, and if the grouping variable is a cause of both treatment and outcome you must stratify, while if it is a consequence of treatment, stratifying introduces the bias instead. A dashboard cannot decide that for you, which is why the same table supports two opposite headlines."
+      ]
     }
   ],
   "takeaways": [

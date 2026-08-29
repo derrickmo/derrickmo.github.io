@@ -73408,6 +73408,13 @@
           "h": "In code",
           "code": "def expand(beams, logp):\n    cand = []\n    for seq, s in beams:\n        for tok, lp in logp(seq):\n            cand.append((seq + [tok], s + lp))\n    return sorted(cand, key=lambda x: -x[1])[:B]",
           "caption": "Expand every beam, keep the top B by score."
+        },
+        {
+          "h": "A wider beam finds a worse sentence",
+          "paras": [
+            "Beam search is a better optimiser than greedy decoding, and on open-ended text that is the problem. Decoding 20 tokens from a bigram model built on this site's prose, a beam of 1 scores -2.808 log-probability per token and uses 4 distinct words; a beam of 10 scores -1.329 and uses 3. The wider beam more than halved the loss and emitted \"the true notebook true notebook true notebook\" — and a beam of 50 finds exactly the same sequence, because there is nothing better to find.",
+            "So the degeneration is not a search failure but a search success: repetition genuinely is the highest-probability continuation, and improving the optimiser walks further into it. That is why beam search remains standard for translation and summarisation, where the output is largely determined by the input and likelihood is a reasonable proxy, and why open-ended generation uses sampling instead. If your decoder gets worse as you give it more compute, the objective is not the one you wanted."
+          ]
         }
       ],
       "takeaways": [
@@ -73444,6 +73451,13 @@
           "h": "In code",
           "code": "# generation loop with a growing cache\nK_cache, V_cache = [], []\nfor step in range(max_len):\n    q, k, v = project(next_token)\n    K_cache.append(k); V_cache.append(v)\n    out = attend(q, np.array(K_cache), np.array(V_cache))",
           "caption": "Append the new key/value; reuse all the old ones."
+        },
+        {
+          "h": "Linear in context AND in batch",
+          "paras": [
+            "The cache is often described as the cheap alternative to recomputation, which is true per token and misleading in aggregate, because it scales with context length and batch size together. For a 32-layer, 32-head model with d_head 128 in fp16, one sequence costs 1.07 GB at 2,048 tokens and 17.18 GB at 32,768. At batch 32 those become 34.4 GB and 549.8 GB.",
+            "Set against a 7B model whose fp16 weights are 14 GB and never grow, the ratio is the whole story of modern serving: past a few thousand tokens the cache, not the model, is what fills the accelerator, and it is what caps how many users a GPU can hold at once. Every technique in this area attacks that number rather than the weights — grouped and multi-query attention shrink the per-token cost, paged attention removes the fragmentation, and cache quantisation trades precision for headroom."
+          ]
         }
       ],
       "takeaways": [
@@ -73480,6 +73494,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef rope(x, pos, base=10000):\n    d = x.shape[-1]; i = np.arange(0, d, 2)\n    theta = pos / base ** (i / d)\n    c, s = np.cos(theta), np.sin(theta)\n    return np.stack([x[..., ::2]*c - x[..., 1::2]*s,\n                     x[..., ::2]*s + x[..., 1::2]*c], -1).reshape(x.shape)",
           "caption": "Rotate pairs of dimensions by a position-scaled angle."
+        },
+        {
+          "h": "Why extrapolation past the trained length fails",
+          "paras": [
+            "RoPE's central property is exact: rotating queries and keys by an angle proportional to their absolute position makes the attention score depend only on the difference. Measured directly, positions (5, 3), (105, 103) and (1005, 1003) all give the identical score 4.8096 — the same relative offset, the same answer, anywhere in the sequence.",
+            "The catch is that the rotation angle is unbounded while training data is not. With the standard base of 10,000 and d_head 64, the slowest frequency completes one turn every 47,117 positions, so a model trained at 4,096 tokens has only ever seen that component rotated through about 9% of a circle. Ask it about an offset of 32,768 and those low-frequency components sit at angles that never occurred in training — the encoding is well defined and the model has no experience of it. That is precisely what position-interpolation and NTK-aware or YaRN scaling manipulate: they change the base or compress the angles so long offsets land back inside the range the weights were fitted on."
+          ]
         }
       ],
       "takeaways": [
@@ -73516,6 +73537,13 @@
           "h": "In code",
           "code": "# training step: predict the noise you added\nt = np.random.randint(T)\nnoise = np.random.randn(*x.shape)\nx_t = sqrt_acp[t]*x + sqrt_1macp[t]*noise\nloss = ((noise - model(x_t, t))**2).mean()",
           "caption": "Learn to predict the noise; sampling denoises from scratch."
+        },
+        {
+          "h": "Quality is bought one network evaluation at a time",
+          "paras": [
+            "Sampling from a diffusion model is an iterative solve, so quality is a function of step count and every step is a full forward pass. Running a deterministic DDIM sampler against a Gaussian mixture with the score computed exactly — so that discretisation is the only error present — the Kolmogorov-Smirnov distance from the true distribution is 0.4999 at one step, 0.1041 at five, 0.0227 at twenty-five, 0.0071 at one hundred and 0.0024 at a thousand.",
+            "The returns diminish sharply: going from 25 steps to 1,000 is forty times the compute for about ten times the accuracy, and the sampled standard deviation is already 2.004 against a true 2.062 by step 25. The structural point is that this cost is paid per sample at inference, unlike a GAN's single forward pass, which is why so much work targets the step count itself rather than the model — DDIM's subsequence sampling, higher-order solvers, progressive distillation and consistency models all buy back the same axis."
+          ]
         }
       ],
       "takeaways": [
@@ -76169,6 +76197,13 @@
           "h": "In code",
           "code": "def step(logits, state, grammar):\n    allowed = grammar.valid_next(state)          # an FSM, or a stack for nesting\n    mask = torch.full_like(logits, float('-inf'))\n    mask[list(allowed)] = 0.0\n    return (logits + mask).softmax(-1)           # invalid tokens cannot be sampled",
           "caption": "A flat grammar needs a finite-state machine; nesting - JSON objects, balanced brackets - needs a pushdown stack."
+        },
+        {
+          "h": "Valid output, and a different model",
+          "paras": [
+            "Masking the logits to a grammar guarantees the output parses, and it does that by deleting probability mass and renormalising what is left. On a 5,000-token vocabulary, a constraint admitting 2,000 arbitrary tokens retains 30.3% of the model's mass; admitting 500 retains 8.0%; admitting 50 retains 0.24%. Whatever survives is then rescaled to sum to one.",
+            "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking — does it parse — is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
+          ]
         }
       ],
       "takeaways": [
@@ -76206,6 +76241,13 @@
           "h": "In code",
           "code": "def act(step, task):\n    if step.tool not in ALLOWLIST[task.kind]:      # least privilege\n        return Refused(\"tool not permitted for this task\")\n    if detector.flags(step.args):                 # a classifier, so it has an ROC\n        return Refused(\"input flagged\")\n    if RISK[step.tool] >= 2:                       # confirm by RISK, not uniformly\n        return NeedsConfirmation(step)\n    return execute(step)",
           "caption": "Least privilege first: it is the only layer with no false-positive cost, blocking 100% of out-of-scope tool use while permitting every legitimate call."
+        },
+        {
+          "h": "Precision is set by the base rate, not by the classifier",
+          "paras": [
+            "A guardrail's quoted accuracy says almost nothing about what its alerts will look like, because precision depends on how rare the thing being caught actually is. A detector at 99% true-positive and 1% false-positive sounds excellent; at a 1-in-1000 attack rate its precision is 0.09, which is about eleven alerts to find one real event. Loosen it to 95/5 and precision falls to 0.019 — fifty-four alerts per genuine hit.",
+            "That arithmetic, not model quality, is what determines whether a guardrail survives contact with an on-call rotation: alerts that are wrong ten times out of eleven get muted, and a muted guardrail is worse than none because it is still counted as a control. The workable designs reduce the effective search space before the classifier sees it — restricting what the model can do at all, or routing only high-risk actions through review — so that the base rate at the point of detection is not one in a thousand."
+          ]
         }
       ],
       "takeaways": [
@@ -76243,6 +76285,13 @@
           "h": "In code",
           "code": "# The catalogue is prompt content, so its wording is a tunable\ntools = [\n    {\"name\": \"search_docs\",\n     \"description\": \"Full-text search over internal policy documents. \"\n                    \"Use for questions about company policy, not general knowledge.\"},\n    {\"name\": \"run_sql\",\n     \"description\": \"Read-only SQL against the analytics warehouse.\"},\n]\n\ncall = model.choose_tool(query, tools)\nif call.name not in {t[\"name\"] for t in tools}:\n    raise ToolRoutingError(call.name)   # reject before executing, never after",
           "caption": "Validate the choice against the catalogue before anything runs - a rejected call is retryable, an executed wrong one may not be."
+        },
+        {
+          "h": "Every tool you add makes routing harder",
+          "paras": [
+            "Routing is a top-1 selection among candidates, so the toolbox size enters directly: every additional tool is one more chance for a distractor to outscore the right one. With a scorer whose correct-tool margin is three standard deviations — strong by any measure — top-1 accuracy is 0.955 over 4 tools, 0.866 over 16, 0.729 over 64 and 0.564 over 256. Nothing about the scorer changed.",
+            "And a routing error is not a wrong answer, it is a wrong action, which then compounds along the trajectory: at 95% per call, a five-call task routes correctly 77.4% of the time and a ten-call task 59.9%. Both facts push the same way — toward hierarchical routing that picks a small group before picking within it, toward retrieving a handful of candidate tools rather than presenting all of them, and toward making the descriptions distinguishable, since the margin is what the scorer actually has to work with."
+          ]
         }
       ],
       "takeaways": [
@@ -76456,6 +76505,13 @@
           "h": "In code",
           "code": "# A simulation can compute what reality cannot: both outcomes for everyone.\ny1, y0 = potential_outcomes(X)\nate_true = (y1 - y0).mean()\n\n# What an analyst actually sees, under confounded assignment:\nt = assign(X)                                  # depends on X, so not random\ny = np.where(t, y1, y0)\nnaive = y[t == 1].mean() - y[t == 0].mean()\n\n# Measured in the module: naive 3.26 against a true ATE of 7.95 -\n# and with a different DGP the naive estimate has the wrong SIGN.",
           "caption": "Grading estimators against a known truth is only possible in simulation, which is exactly why the module is built on them."
+        },
+        {
+          "h": "The adjustment is the entire job",
+          "paras": [
+            "Confounding is not a subtle bias that more data averages away; it is a different quantity being estimated. Simulating 200,000 units where a confounder U raises both the chance of treatment and the outcome, and where the true treatment effect is exactly 1.000, the naive difference in means comes out at 2.199. It is more than twice the truth, and every additional observation makes that wrong number more precise.",
+            "Stratifying on U and averaging within strata recovers 0.998. The whole content of causal inference is in knowing that the adjustment is needed and which variables it should include, and no amount of model capacity substitutes for it — the estimate is biased by design, not by noise. It is also why the assumption is the thing to argue about in any observational result: adjusting for the wrong set can create bias as easily as remove it, which is what a collider does."
+          ]
         }
       ],
       "takeaways": [
@@ -76493,6 +76549,13 @@
           "h": "In code",
           "code": "theta = init\nfor _ in range(n_steps):\n    prop = theta + sigma * np.random.randn()\n    # log-space ratio: the normalizing constant is absent by construction\n    if np.log(np.random.rand()) < log_post(prop) - log_post(theta):\n        theta = prop\n    chain.append(theta)\n\n# Validate against a case with a closed form before trusting it anywhere else.\n# In the module: MCMC mean 2.4329 vs the analytic conjugate posterior's 2.4323.",
           "caption": "R-hat below 1.01 says the chains agree, not that the model is right - chains started near each other can agree while all missing a mode."
+        },
+        {
+          "h": "The sample size you have is not the sample size you drew",
+          "paras": [
+            "MCMC produces correlated draws, so the number of iterations is not the amount of information. Sampling a standard normal with a random-walk Metropolis chain of 200,000 steps, a proposal width of 0.1 accepts 97.9% of moves and delivers an effective sample size of 333 — 0.17% of the draws. A width of 20 accepts 7.9% and delivers 10,982. The best of the four, width 4, accepts 38.9% and delivers 55,878, or 27.9%.",
+            "Both extremes waste the chain for opposite reasons: tiny proposals are always accepted and barely move, huge ones are almost always rejected and do not move at all. A high acceptance rate is therefore a warning rather than a reassurance, which is why tuning targets a middling rate and why effective sample size, not iteration count, is the number to report. And note that every one of these chains reported a sample standard deviation near the correct 1.000 — the estimate looked fine in all four cases; only the ESS revealed how little was behind it."
+          ]
         }
       ],
       "takeaways": [
@@ -76530,6 +76593,13 @@
           "h": "In code",
           "code": "# 'Always disaggregate' is the wrong lesson - it depends on the arrow.\nfor g, sub in df.groupby(\"severity\"):\n    print(g, sub.query(\"t==1\").y.mean() - sub.query(\"t==0\").y.mean())\nprint(\"pooled\", df.query(\"t==1\").y.mean() - df.query(\"t==0\").y.mean())\n\n# If `severity` is measured BEFORE treatment -> confounder -> trust the strata.\n# If treatment causes it (a complication, say) -> mediator -> trust the pooled.",
           "caption": "The deciding fact - when the covariate was determined - is nowhere in the dataframe."
+        },
+        {
+          "h": "It is not a paradox, it is a missing variable",
+          "paras": [
+            "The reversal is real and it happens in real data. In Charig and colleagues' kidney-stone study, treatment A beats treatment B on small stones (0.931 against 0.867) and on large stones (0.730 against 0.688) — and loses when the groups are pooled, 0.780 against 0.826. Every subgroup says one thing and the total says the other.",
+            "Nothing is wrong with the arithmetic. Treatment A was given to the harder cases, so pooling compares a mostly-hard A group against a mostly-easy B group, and stone size is a confounder rather than a nuisance. The important consequence is that there is no default answer: whether to pool depends on the causal structure, and if the grouping variable is a cause of both treatment and outcome you must stratify, while if it is a consequence of treatment, stratifying introduces the bias instead. A dashboard cannot decide that for you, which is why the same table supports two opposite headlines."
+          ]
         }
       ],
       "takeaways": [

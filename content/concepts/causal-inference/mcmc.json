@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "theta = init\nfor _ in range(n_steps):\n    prop = theta + sigma * np.random.randn()\n    # log-space ratio: the normalizing constant is absent by construction\n    if np.log(np.random.rand()) < log_post(prop) - log_post(theta):\n        theta = prop\n    chain.append(theta)\n\n# Validate against a case with a closed form before trusting it anywhere else.\n# In the module: MCMC mean 2.4329 vs the analytic conjugate posterior's 2.4323.",
       "caption": "R-hat below 1.01 says the chains agree, not that the model is right - chains started near each other can agree while all missing a mode."
+    },
+    {
+      "h": "The sample size you have is not the sample size you drew",
+      "paras": [
+        "MCMC produces correlated draws, so the number of iterations is not the amount of information. Sampling a standard normal with a random-walk Metropolis chain of 200,000 steps, a proposal width of 0.1 accepts 97.9% of moves and delivers an effective sample size of 333 — 0.17% of the draws. A width of 20 accepts 7.9% and delivers 10,982. The best of the four, width 4, accepts 38.9% and delivers 55,878, or 27.9%.",
+        "Both extremes waste the chain for opposite reasons: tiny proposals are always accepted and barely move, huge ones are almost always rejected and do not move at all. A high acceptance rate is therefore a warning rather than a reassurance, which is why tuning targets a middling rate and why effective sample size, not iteration count, is the number to report. And note that every one of these chains reported a sample standard deviation near the correct 1.000 — the estimate looked fine in all four cases; only the ESS revealed how little was behind it."
+      ]
     }
   ],
   "takeaways": [
