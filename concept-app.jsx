@@ -10,8 +10,20 @@ const {
 } = window;
 
 const BASE = window.__DM_BASE || "../../";
-const INDEX = window.CONCEPTS_INDEX || {};
-const C = INDEX[window.__DM_CONCEPT_ID] || null;
+// ⚠ RESOLVED LAZILY, NOT AT MODULE SCOPE. concepts-index.js is a separate
+// <script type="module"> tag, and Vite bundles it with this file and orders execution by the
+// import graph rather than by the page. A module-scope read happens to work today and stops
+// working the moment the index is split or renamed — which is exactly how PF-0020 blanked
+// every lesson body, and how it reappeared when the sub-lesson payload was split.
+// Read through these getters; do not reintroduce a module-scope constant.
+const getINDEX = () => window.CONCEPTS_INDEX || {};
+let _c;
+const getC = () => {
+  if (_c !== undefined) return _c;
+  const c = getINDEX()[window.__DM_CONCEPT_ID] || null;
+  if (c) _c = c;               // only cache a hit; caching null would make an early miss permanent
+  return c || null;
+};
 const { useState: _useState, useEffect: _useEffect } = React;
 
 // "Part of these learning paths" — lazy-load paths.js, then list paths that
@@ -40,7 +52,7 @@ function PathsForConcept() {
     s.onload = () => setTick(t => t + 1);
     document.body.appendChild(s);
   }, []);
-  const list = (window.DM_PATHS_FOR && C) ? window.DM_PATHS_FOR("concept", C.id) : [];
+  const list = (window.DM_PATHS_FOR && getC()) ? window.DM_PATHS_FOR("concept", getC().id) : [];
   if (!list.length) return null;
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 40 }}>
@@ -94,25 +106,25 @@ function Hero() {
       <GridOverlay mode="dark" spacing={80} opacity={0.4} />
       <GlowBlob color="violet" size={520} x={"-10%"} y={"-20%"} opacity={0.22} />
       <GlowBlob color="blue" size={480} x={"65%"} y={"40%"} opacity={0.22} />
-      <MathWatermarks mode="dark" count={5} opacity={0.05} seed={(C.id.length + 11) * 3} />
+      <MathWatermarks mode="dark" count={5} opacity={0.05} seed={(getC().id.length + 11) * 3} />
       <HudBrackets mode="dark" inset={32} size={32} />
       <Container>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18, flexWrap: "wrap" }}>
           <a href={`${BASE}concepts/`} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>← CONCEPTS</a>
           <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
-          <MonoLabel color="var(--blue-lt)">{(C.area || "CONCEPT").toUpperCase()}</MonoLabel>
+          <MonoLabel color="var(--blue-lt)">{(getC().area || "CONCEPT").toUpperCase()}</MonoLabel>
         </div>
         <h1 style={{
           fontFamily: "var(--f-display)", fontWeight: 700,
           fontSize: "clamp(36px, 4.8vw, 60px)", letterSpacing: "-0.025em",
           lineHeight: 1.02, margin: 0, color: "var(--white)",
-        }}>{C.name}</h1>
-        {C.summary && (
+        }}>{getC().name}</h1>
+        {getC().summary && (
           <p className="t-body" style={{ color: "var(--muted)", maxWidth: 720, fontSize: 17, lineHeight: 1.6, marginTop: 14 }}>
-            {C.summary}
+            {getC().summary}
           </p>
         )}
-        {C.animation && (
+        {getC().animation && (
           <div style={{
             marginTop: 28, position: "relative", overflow: "hidden",
             border: "1px solid var(--border-violet)", borderRadius: 8,
@@ -122,12 +134,12 @@ function Hero() {
             <div style={{ padding: "12px 18px 8px", borderBottom: "1px solid var(--border)" }}>
               <SectionHeading>Concept · in motion</SectionHeading>
             </div>
-            <iframe src={`${BASE}${C.animation}`} title={`${C.name} animation`}
+            <iframe src={`${BASE}${getC().animation}`} title={`${getC().name} animation`}
               loading="lazy"
               style={{ width: "100%", height: 420, border: 0, display: "block", background: "transparent" }} />
           </div>
         )}
-        {C.tex && TeX && (
+        {getC().tex && TeX && (
           <div style={{
             marginTop: 28, padding: "22px 24px",
             border: "1px solid var(--border-violet)", borderRadius: 8,
@@ -137,7 +149,7 @@ function Hero() {
             <HudBrackets mode="dark" inset={6} size={14} />
             <SectionHeading>The equation</SectionHeading>
             <div style={{ marginTop: 12, fontSize: 22 }}>
-              <TeX display>{C.tex}</TeX>
+              <TeX display>{getC().tex}</TeX>
             </div>
           </div>
         )}
@@ -147,8 +159,8 @@ function Hero() {
 }
 
 function PrereqStrip() {
-  const pre = (C.prereqs || []).map(id => INDEX[id]).filter(Boolean);
-  const next = (C.leadsTo || []).map(id => INDEX[id]).filter(Boolean);
+  const pre = (getC().prereqs || []).map(id => getINDEX()[id]).filter(Boolean);
+  const next = (getC().leadsTo || []).map(id => getINDEX()[id]).filter(Boolean);
   if (!pre.length && !next.length) return null;
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 24 }}>
@@ -188,16 +200,16 @@ function PrereqStrip() {
 function PrereqLadder() {
   const P = window.DM_CONCEPT_PATH, K = window.DM_KNOWN;
   const [, bump] = _useState(0);
-  if (!P || !K || !C) return null;
+  if (!P || !K || !getC()) return null;
 
-  const full = P.pathTo(C.id).steps;
+  const full = P.pathTo(getC().id).steps;
   // A root concept has no prerequisites, and a one-step "path" to itself says
   // nothing. That is correct for chain-rule or linear-regression, not a gap.
   if (full.length <= 1) return null;
 
   const known = K.setObj();
-  const path = P.pathTo(C.id, known).steps;
-  const remaining = path.filter((id) => id !== C.id);
+  const path = P.pathTo(getC().id, known).steps;
+  const remaining = path.filter((id) => id !== getC().id);
   const skipped = full.length - path.length;
 
   return (
@@ -206,7 +218,7 @@ function PrereqLadder() {
         <SectionHeading>How to get here</SectionHeading>
         <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 16px" }}>
           {remaining.length === 0
-            ? `You have marked every prerequisite known — ${C.name} is the next thing to learn.`
+            ? `You have marked every prerequisite known — ${getC().name} is the next thing to learn.`
             : `${remaining.length} concept${remaining.length === 1 ? "" : "s"} come first, in this order.`}
           {skipped > 0 && <span style={{ color: "var(--dim)" }}> {skipped} already known and hidden.</span>}
           {" "}Derived from the concept graph, not hand-written.
@@ -214,9 +226,9 @@ function PrereqLadder() {
 
         <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
           {path.map((id, i) => {
-            const node = INDEX[id];
+            const node = getINDEX()[id];
             if (!node) return null;
-            const isTarget = id === C.id;
+            const isTarget = id === getC().id;
             const s = P.surfacesFor(id);
             return (
               <li key={id} style={{
@@ -264,20 +276,20 @@ function Surfaces() {
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 60 }}>
       <Container style={{ maxWidth: 860 }}>
-        <Connections ids={[C.id]} />
+        <Connections ids={[getC().id]} />
       </Container>
     </Section>
   );
 }
 
 function Refs() {
-  if (!C.refs || !C.refs.length) return null;
+  if (!getC().refs || !getC().refs.length) return null;
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 60 }}>
       <Container style={{ maxWidth: 860 }}>
         <SectionHeading color="var(--blue-lt)">References</SectionHeading>
         <ul style={{ marginTop: 12, paddingLeft: 18, color: "var(--white)", opacity: 0.9, fontSize: 15, lineHeight: 1.7 }}>
-          {C.refs.map((r, i) => (
+          {getC().refs.map((r, i) => (
             <li key={i}><a href={r.href} target="_blank" rel="noopener" style={{ color: "var(--blue-lt)" }}>{r.label}</a></li>
           ))}
         </ul>
@@ -287,7 +299,7 @@ function Refs() {
 }
 
 function App() {
-  if (!C) return (<><TopNav />
+  if (!getC()) return (<><TopNav />
       <main id="main" tabIndex={-1}><NotFound /></main>
       <Footer /></>);
   return (
