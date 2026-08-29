@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef gini(y):\n    _, counts = np.unique(y, return_counts=True)\n    p = counts / counts.sum()\n    return 1 - np.sum(p ** 2)\n# best split = argmin over (feature, threshold) of weighted child gini",
       "caption": "Greedy, recursive, and the building block of forests and boosting."
+    },
+    {
+      "h": "A different sample gives a different tree",
+      "paras": [
+        "A tree's structure is chosen greedily, so a small change in the data can change everything below the split it changes. On a problem where two features carry nearly equal signal, the root split across twelve bootstrap resamples landed on feature 0 six times and feature 1 six times — the same data-generating process, and a coin flip deciding what the top of the tree says.",
+        "The accuracy is often stable while the structure is not, which is a specific problem for the property trees are usually chosen for. \"The model splits on income first\" is a statement about this sample rather than about the world, and reading a single tree as an explanation over-reads it. That instability is exactly the variance bagging removes by averaging over resamples, at the cost of the readable structure — which is the honest trade behind random forests, and why a forest's feature importances are more trustworthy than any individual tree's shape."
+      ]
     }
   ],
   "takeaways": [

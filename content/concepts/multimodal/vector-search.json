@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef search(q, V, k=5):\n    sims = V @ q / (np.linalg.norm(V, axis=1) * np.linalg.norm(q))\n    return np.argsort(sims)[::-1][:k]",
       "caption": "Brute force shown; real systems use ANN indexes."
+    },
+    {
+      "h": "Recall is a dial, and the number is meaningless without it",
+      "paras": [
+        "Approximate search trades recall for work, and the curve is steep at the bottom. Partitioning 20,000 vectors into 200 cells and probing a few of them, recall@10 is 0.057 when scanning 0.5% of the index, 0.237 at 5%, 0.470 at 12.5% and 0.700 at 25%. Reaching 1.000 means scanning everything, at which point it is exact search under another name.",
+        "So a benchmark latency quoted without the recall beside it says nothing at all — any ANN index can be made arbitrarily fast by being arbitrarily wrong, and the comparison that matters is two systems at matched recall. It also reframes the usual question about index choice: HNSW, IVF and product quantisation are different shapes of this same curve with different memory footprints and build times, and picking one starts with deciding what recall the application actually needs, which is often far below 1.0."
+      ]
     }
   ],
   "takeaways": [

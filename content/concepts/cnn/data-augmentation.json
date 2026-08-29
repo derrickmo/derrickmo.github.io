@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef augment(img):\n    if np.random.rand() < 0.5: img = img[:, ::-1]      # h-flip\n    img = np.roll(img, np.random.randint(-3, 4), axis=0) # shift\n    return img",
       "caption": "Fresh random transforms each epoch multiply the effective data."
+    },
+    {
+      "h": "It encodes an assumption, and the assumption can be false",
+      "paras": [
+        "Every augmentation is a claim that some transformation preserves the label, and the claim is domain-specific rather than general. A horizontal flip is safe for a photograph of a cat and wrong for a digit — mirroring 2 destroys it and rotating 6 by 180 degrees produces the label 9. On a chest X-ray, left-right position is a finding rather than a nuisance; on a road sign, mirrored text is not the same sign.",
+        "When the assumption is false the augmentation is simply label noise applied at whatever rate you set. Flipping labels on 10% of samples caps achievable accuracy at 0.95, on 25% at 0.875 and on 50% at 0.75, and no model capacity recovers it because the training signal itself is now inconsistent. That makes augmentation one of the few places where a default configuration copied between projects can silently impose a ceiling, and the check is domain knowledge rather than a validation curve — a wrong invariance degrades train and validation together and so looks like a hard problem rather than a bug."
+      ]
     }
   ],
   "takeaways": [

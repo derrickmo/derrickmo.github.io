@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "def max_pool(x, k=2):\n    h, w = x.shape\n    return x[:h//k*k, :w//k*k].reshape(h//k, k, w//k, k).max((1, 3))",
       "caption": "Conv to detect, pool to summarize - repeat, then classify."
+    },
+    {
+      "h": "Equivariant, not invariant",
+      "paras": [
+        "A convolution commutes with translation rather than ignoring it: shift the input and the feature map shifts with it. Moving a feature from position 8 to position 13, the convolution's peak moves from 8 to 13 — the same response, in a different place. That is equivariance, and on its own it gives a classifier nothing, because a classifier needs the same answer regardless of position.",
+        "Invariance comes from what sits on top. Global max-pooling over the two feature maps above returns 0.9412 in both cases, identical, because pooling discards the location the convolution carefully preserved. Knowing which property lives where explains a lot of architecture: pooling and striding buy invariance and throw away localisation, which is why segmentation and detection heads reach back into earlier layers for the position information the classifier head was happy to lose. The receptive field is the other constraint — stacked 3x3 convolutions grow it only as 1 + 2L, so 50 layers see 101 pixels, and dilation exists because linear growth is too slow."
+      ]
     }
   ],
   "takeaways": [

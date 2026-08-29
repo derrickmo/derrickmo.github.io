@@ -611,6 +611,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef gini(y):\n    _, counts = np.unique(y, return_counts=True)\n    p = counts / counts.sum()\n    return 1 - np.sum(p ** 2)\n# best split = argmin over (feature, threshold) of weighted child gini",
             "caption": "Greedy, recursive, and the building block of forests and boosting."
+          },
+          {
+            "h": "A different sample gives a different tree",
+            "paras": [
+              "A tree's structure is chosen greedily, so a small change in the data can change everything below the split it changes. On a problem where two features carry nearly equal signal, the root split across twelve bootstrap resamples landed on feature 0 six times and feature 1 six times — the same data-generating process, and a coin flip deciding what the top of the tree says.",
+              "The accuracy is often stable while the structure is not, which is a specific problem for the property trees are usually chosen for. \"The model splits on income first\" is a statement about this sample rather than about the world, and reading a single tree as an explanation over-reads it. That instability is exactly the variance bagging removes by averaging over resamples, at the cost of the readable structure — which is the honest trade behind random forests, and why a forest's feature importances are more trustworthy than any individual tree's shape."
+            ]
           }
         ],
         "takeaways": [
@@ -642,6 +649,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef roc_points(scores, y):\n    for t in np.sort(scores)[::-1]:\n        pred = scores >= t\n        tpr = (pred & (y == 1)).sum() / max((y == 1).sum(), 1)\n        fpr = (pred & (y == 0)).sum() / max((y == 0).sum(), 1)\n        yield fpr, tpr",
             "caption": "Sweep the threshold, trace the curve, integrate for AUC."
+          },
+          {
+            "h": "AUC is blind to the part you look at",
+            "paras": [
+              "ROC-AUC averages over every threshold, including the ones nobody would ever deploy, so under class imbalance it can rank two models almost identically while they differ enormously where it matters. On a 1%-positive problem, model A scores AUC 0.9979 and model B scores 0.9846 — a gap of 0.013, easily dismissed as noise. Precision@100 is 1.000 for A and 0.030 for B.",
+              "The reason is that the false-positive rate on the x-axis is divided by a huge negative count, so a slice of confident false positives barely moves the curve while completely occupying the top of the ranked list. Since almost every deployment consumes a top-k list or a single threshold, precision-recall curves, precision@k or cost-weighted metrics answer the operational question and AUC answers a different one. Quote AUC for a threshold-free comparison of ranking quality, and never let it stand in for how the system will behave."
+            ]
           }
         ],
         "takeaways": [
@@ -942,6 +956,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# L2 adds a constant pull toward zero to every gradient step\ngrad = data_grad(theta) + 2 * lam * theta\ntheta = theta - eta * grad      # 'weight decay'",
             "caption": "A constant shrink toward the origin each update."
+          },
+          {
+            "h": "L1 and L2 are different models, not different amounts",
+            "paras": [
+              "The two penalties are usually presented as a pair of dials, and they do genuinely different things. On a problem with 40 features of which only 5 matter, L1 at a penalty of 0.5 leaves exactly 5 coefficients non-zero — it recovered the true support. L2 at the same penalty, and at every other penalty tried, leaves all 40 non-zero, because shrinking towards zero and reaching zero are not the same operation.",
+              "The geometry is the reason: L1's constraint region has corners on the axes and the optimum lands on them, while L2's is a sphere with no corners to land on. So the choice is about what you believe — L2 when many small effects are real and you want them all shrunk, L1 when you believe the truth is sparse and want a subset selected, and elastic net when features are correlated, since L1 alone picks one of a correlated group arbitrarily. Reaching for \"more regularisation\" without saying which is choosing a model class by accident."
+            ]
           }
         ],
         "takeaways": [
@@ -973,6 +994,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# sweep model width and record test error\nfor width in widths:\n    model = fit(width)\n    err.append(test_error(model))\n# err first dips, spikes near width ~ n_samples, then dips again",
             "caption": "The second dip is the modern, overparameterized regime."
+          },
+          {
+            "h": "The peak is at the interpolation threshold",
+            "paras": [
+              "The classical U-shaped curve holds only up to the point where the model can exactly fit the training data, and it is worth seeing what happens there. In a random-features regression with 60 training points, test RMSE falls from 3.961 at 10 features to 3.351 at 30, then rises sharply — 4.514 at 50, 11.671 at 58 and 56.543 at exactly 60, where the number of parameters equals the number of examples.",
+              "Past that threshold it falls again, and keeps falling: 10.459 at 62 features, 4.491 at 70, 2.337 at 100 and 1.256 at 400 — better than anything the underparameterised regime achieved. At the threshold there is exactly one interpolating solution and it is forced to be wild; beyond it there are many, and the minimum-norm one the solver happens to find is well behaved. That is why more parameters can be a regulariser rather than a risk, and why \"stop before you fit the training set\" is advice from the left half of a curve whose right half is where modern models live."
+            ]
           }
         ],
         "takeaways": [
@@ -1673,6 +1701,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "def max_pool(x, k=2):\n    h, w = x.shape\n    return x[:h//k*k, :w//k*k].reshape(h//k, k, w//k, k).max((1, 3))",
             "caption": "Conv to detect, pool to summarize - repeat, then classify."
+          },
+          {
+            "h": "Equivariant, not invariant",
+            "paras": [
+              "A convolution commutes with translation rather than ignoring it: shift the input and the feature map shifts with it. Moving a feature from position 8 to position 13, the convolution's peak moves from 8 to 13 — the same response, in a different place. That is equivariance, and on its own it gives a classifier nothing, because a classifier needs the same answer regardless of position.",
+              "Invariance comes from what sits on top. Global max-pooling over the two feature maps above returns 0.9412 in both cases, identical, because pooling discards the location the convolution carefully preserved. Knowing which property lives where explains a lot of architecture: pooling and striding buy invariance and throw away localisation, which is why segmentation and detection heads reach back into earlier layers for the position information the classifier head was happy to lose. The receptive field is the other constraint — stacked 3x3 convolutions grow it only as 1 + 2L, so 50 layers see 101 pixels, and dilation exists because linear growth is too slow."
+            ]
           }
         ],
         "takeaways": [
@@ -1704,6 +1739,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef augment(img):\n    if np.random.rand() < 0.5: img = img[:, ::-1]      # h-flip\n    img = np.roll(img, np.random.randint(-3, 4), axis=0) # shift\n    return img",
             "caption": "Fresh random transforms each epoch multiply the effective data."
+          },
+          {
+            "h": "It encodes an assumption, and the assumption can be false",
+            "paras": [
+              "Every augmentation is a claim that some transformation preserves the label, and the claim is domain-specific rather than general. A horizontal flip is safe for a photograph of a cat and wrong for a digit — mirroring 2 destroys it and rotating 6 by 180 degrees produces the label 9. On a chest X-ray, left-right position is a finding rather than a nuisance; on a road sign, mirrored text is not the same sign.",
+              "When the assumption is false the augmentation is simply label noise applied at whatever rate you set. Flipping labels on 10% of samples caps achievable accuracy at 0.95, on 25% at 0.875 and on 50% at 0.75, and no model capacity recovers it because the training signal itself is now inconsistent. That makes augmentation one of the few places where a default configuration copied between projects can silently impose a ceiling, and the check is domain knowledge rather than a validation curve — a wrong invariance degrades train and validation together and so looks like a hard problem rather than a bug."
+            ]
           }
         ],
         "takeaways": [
@@ -2746,6 +2788,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# in-batch contrastive (CLIP-style)\nlogits = (Z_img @ Z_txt.T) / tau\nlabels = np.arange(len(Z_img))      # i-th image matches i-th text\nloss = cross_entropy(logits, labels)",
             "caption": "The diagonal pairs are positives; everything off-diagonal is negative."
+          },
+          {
+            "h": "The batch is the ceiling, and also the problem",
+            "paras": [
+              "InfoNCE bounds the mutual information it can capture by the logarithm of the number of negatives, so batch size is not a throughput setting but a cap on what the objective can express: 5.545 nats at batch 256, 8.318 at 4,096, 11.09 at 65,536. That is the reason contrastive methods went to enormous batches and invented memory banks and momentum encoders to fake them.",
+              "The same growth creates the opposing problem. If the data has 100 true classes, a batch of 256 contains at least one false negative — a \"negative\" that is genuinely the same class as the anchor — with probability 0.923, and at batch 4,096 it is a certainty. The objective then explicitly pushes apart things that belong together. Both pressures are why the field moved toward supervised contrastive objectives where labels are available, toward hard-negative mining that chooses negatives rather than sampling them, and toward methods like BYOL that dispense with explicit negatives altogether."
+            ]
           }
         ],
         "takeaways": [
@@ -2777,6 +2826,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef search(q, V, k=5):\n    sims = V @ q / (np.linalg.norm(V, axis=1) * np.linalg.norm(q))\n    return np.argsort(sims)[::-1][:k]",
             "caption": "Brute force shown; real systems use ANN indexes."
+          },
+          {
+            "h": "Recall is a dial, and the number is meaningless without it",
+            "paras": [
+              "Approximate search trades recall for work, and the curve is steep at the bottom. Partitioning 20,000 vectors into 200 cells and probing a few of them, recall@10 is 0.057 when scanning 0.5% of the index, 0.237 at 5%, 0.470 at 12.5% and 0.700 at 25%. Reaching 1.000 means scanning everything, at which point it is exact search under another name.",
+              "So a benchmark latency quoted without the recall beside it says nothing at all — any ANN index can be made arbitrarily fast by being arbitrarily wrong, and the comparison that matters is two systems at matched recall. It also reframes the usual question about index choice: HNSW, IVF and product quantisation are different shapes of this same curve with different memory footprints and build times, and picking one starts with deciding what recall the application actually needs, which is often far below 1.0."
+            ]
           }
         ],
         "takeaways": [
@@ -2983,6 +3039,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# pairwise preference loss (chosen > rejected)\nloss = -np.log(sigmoid(r(chosen) - r(rejected))).mean()",
             "caption": "Push the chosen response's score above the rejected one's."
+          },
+          {
+            "h": "Goodhart, with the turnover measured",
+            "paras": [
+              "A reward model is a proxy fitted on a region of behaviour, and optimising it hard takes the policy out of that region. Modelling that directly — a proxy correlated 0.95 with the true objective, whose accuracy decays once the policy moves beyond the radius its training data covered — the true objective rises to 34.3 at eight steps of optimisation and then falls, reaching 2.6 by thirty-two steps. The proxy score is still climbing the whole time.",
+              "Worth being explicit that the turnover comes from the validity-decay assumption rather than from the correlation itself: a linear proxy with a fixed correlation never turns over, however hard you push it, which is why simply reporting a proxy's correlation says nothing about how far it can be trusted. The practical consequences are the standard ones and now have a shape attached — the KL penalty back to the reference in RLHF exists to bound exactly this distance, and periodically refreshing the reward model on freshly sampled policy outputs is what moves its region of validity along with the policy."
+            ]
           }
         ],
         "takeaways": [
@@ -3014,6 +3077,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# DPO loss: chosen y_w over rejected y_l vs a frozen reference\ndw = beta * (logp(pi, y_w) - logp(ref, y_w))\ndl = beta * (logp(pi, y_l) - logp(ref, y_l))\nloss = -np.log(sigmoid(dw - dl)).mean()",
             "caption": "A single classification loss - no reward model, no RL rollout."
+          },
+          {
+            "h": "Beta is how much drift you are permitting",
+            "paras": [
+              "DPO's implicit reward is beta times the log ratio between the policy and the reference, which means a preference margin is a statement about how far the policy has moved. At beta = 0.1, a reward gap of 2 requires a probability ratio of 4.9e+8. At beta = 0.05 the same gap requires 2.4e+17. At beta = 0.5 it needs only 55.",
+              "So beta is not a learning rate and tuning it down to \"learn faster\" is really authorising the policy to leave the reference distribution by orders of magnitude. That is the mechanism behind the characteristic DPO failure of a model that wins its preference evaluation while producing degenerate or off-distribution text: the objective was satisfied exactly as written. Watching the actual KL from the reference during training, rather than the preference accuracy alone, is what catches it."
+            ]
           }
         ],
         "takeaways": [
@@ -4097,6 +4167,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\nthr = np.quantile(np.abs(W), sparsity)   # e.g. 0.8 -> drop 80%\nW = W * (np.abs(W) > thr)                 # then fine-tune",
             "caption": "Zero the small weights, retrain the rest."
+          },
+          {
+            "h": "Sparsity is a storage result until the kernel agrees",
+            "paras": [
+              "Unstructured pruning zeroes individual weights, which removes arithmetic that dense hardware performs anyway. A 90% sparse matrix has ten times fewer non-zero multiply-adds and runs at exactly the same speed on a standard dense GEMM, because the zeros still occupy lanes and still get multiplied. Reported sparsity is a statement about the checkpoint, not about latency.",
+              "Speed requires the structure to match what the hardware can skip. Removing whole channels shrinks both matrix dimensions, so dropping 50% of channels really does cost 0.25x the matmul — a genuine speedup at the price of a much coarser thing to prune, and usually more accuracy lost per parameter removed. The 2:4 semi-structured pattern is the negotiated middle: exactly two zeros in every group of four, 50% sparsity, and roughly 2x on tensor cores built to exploit that specific layout. Which pruning to use is therefore a question about the deployment target before it is a question about the model."
+            ]
           }
         ],
         "takeaways": [
@@ -4128,6 +4205,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# a block table maps logical positions to physical blocks\nblock = block_table[seq][i // B]\nk = kv_blocks[block][i % B]            # gather K/V by page",
             "caption": "Fixed-size pages, allocated on demand, packed tight."
+          },
+          {
+            "h": "The win is not reserving what you might need",
+            "paras": [
+              "Classic serving allocates a contiguous KV buffer sized to the maximum sequence length, which wastes everything a request does not use. With 64 concurrent sequences whose real lengths run from 32 to 1,180 tokens and total 15,155 tokens, reserving 2,048 slots each consumes 131,072 — 88.4% of the memory held for text that was never generated.",
+              "Paging that allocation into fixed blocks removes almost all of it: at a block size of 16 the same workload occupies 15,648 slots, a waste of 3.2%, and the only remaining loss is the partial final block of each sequence. The block size is the trade — 64 wastes 12.6% and 256 wastes 36.3%, since larger blocks mean coarser rounding — and the reason this matters so much is that the reclaimed memory converts directly into concurrent requests. It is a memory-allocator improvement rather than a numerical one, which is unusual for a headline inference optimisation."
+            ]
           }
         ],
         "takeaways": [

@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# sweep model width and record test error\nfor width in widths:\n    model = fit(width)\n    err.append(test_error(model))\n# err first dips, spikes near width ~ n_samples, then dips again",
       "caption": "The second dip is the modern, overparameterized regime."
+    },
+    {
+      "h": "The peak is at the interpolation threshold",
+      "paras": [
+        "The classical U-shaped curve holds only up to the point where the model can exactly fit the training data, and it is worth seeing what happens there. In a random-features regression with 60 training points, test RMSE falls from 3.961 at 10 features to 3.351 at 30, then rises sharply — 4.514 at 50, 11.671 at 58 and 56.543 at exactly 60, where the number of parameters equals the number of examples.",
+        "Past that threshold it falls again, and keeps falling: 10.459 at 62 features, 4.491 at 70, 2.337 at 100 and 1.256 at 400 — better than anything the underparameterised regime achieved. At the threshold there is exactly one interpolating solution and it is forced to be wild; beyond it there are many, and the minimum-norm one the solver happens to find is well behaved. That is why more parameters can be a regulariser rather than a risk, and why \"stop before you fit the training set\" is advice from the left half of a curve whose right half is where modern models live."
+      ]
     }
   ],
   "takeaways": [

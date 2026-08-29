@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\nthr = np.quantile(np.abs(W), sparsity)   # e.g. 0.8 -> drop 80%\nW = W * (np.abs(W) > thr)                 # then fine-tune",
       "caption": "Zero the small weights, retrain the rest."
+    },
+    {
+      "h": "Sparsity is a storage result until the kernel agrees",
+      "paras": [
+        "Unstructured pruning zeroes individual weights, which removes arithmetic that dense hardware performs anyway. A 90% sparse matrix has ten times fewer non-zero multiply-adds and runs at exactly the same speed on a standard dense GEMM, because the zeros still occupy lanes and still get multiplied. Reported sparsity is a statement about the checkpoint, not about latency.",
+        "Speed requires the structure to match what the hardware can skip. Removing whole channels shrinks both matrix dimensions, so dropping 50% of channels really does cost 0.25x the matmul — a genuine speedup at the price of a much coarser thing to prune, and usually more accuracy lost per parameter removed. The 2:4 semi-structured pattern is the negotiated middle: exactly two zeros in every group of four, 50% sparsity, and roughly 2x on tensor cores built to exploit that specific layout. Which pruning to use is therefore a question about the deployment target before it is a question about the model."
+      ]
     }
   ],
   "takeaways": [

@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# a block table maps logical positions to physical blocks\nblock = block_table[seq][i // B]\nk = kv_blocks[block][i % B]            # gather K/V by page",
       "caption": "Fixed-size pages, allocated on demand, packed tight."
+    },
+    {
+      "h": "The win is not reserving what you might need",
+      "paras": [
+        "Classic serving allocates a contiguous KV buffer sized to the maximum sequence length, which wastes everything a request does not use. With 64 concurrent sequences whose real lengths run from 32 to 1,180 tokens and total 15,155 tokens, reserving 2,048 slots each consumes 131,072 — 88.4% of the memory held for text that was never generated.",
+        "Paging that allocation into fixed blocks removes almost all of it: at a block size of 16 the same workload occupies 15,648 slots, a waste of 3.2%, and the only remaining loss is the partial final block of each sequence. The block size is the trade — 64 wastes 12.6% and 256 wastes 36.3%, since larger blocks mean coarser rounding — and the reason this matters so much is that the reclaimed memory converts directly into concurrent requests. It is a memory-allocator improvement rather than a numerical one, which is unusual for a headline inference optimisation."
+      ]
     }
   ],
   "takeaways": [
