@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# Under imbalance these tell very different stories about the same model.\nprint(\"accuracy \", (y == pred).mean())      # 0.988 - and catches no fraud\nprint(\"roc-auc  \", roc_auc_score(y, s))     # 0.990 - optimistic\nprint(\"pr-auc   \", average_precision_score(y, s))   # 0.607 - honest\nprint(\"p@100    \", precision_at_k(y, s, 100))       # 0.85 - the review queue",
       "caption": "Report the metric the decision consumes; precision at the queue depth is often the only one anyone acts on."
+    },
+    {
+      "h": "The trivial baseline is the one to beat",
+      "paras": [
+        "Accuracy is dominated by the majority class, so on imbalanced data it rewards saying nothing. At a 1% positive rate, a model that always answers \"no\" scores 0.99 accuracy with recall exactly 0.000; at 0.1% it scores 0.999. Any accuracy figure quoted without the base rate beside it is unreadable.",
+        "It gets worse than uninformative. On a simulated 1%-prevalence problem, a genuine model with recall 0.658 scores accuracy 0.726 — it is beaten on accuracy by the do-nothing baseline while being the only one of the two that is any use. That is why the interview answer is to name the cost first: recall when a miss is expensive, precision when a false alarm is expensive, PR-AUC rather than ROC-AUC when positives are rare, and always the trivial baseline alongside, because a metric a constant function can win is not measuring the model."
+      ]
     }
   ],
   "takeaways": [

@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "for split in [0.05, 0.25, 0.5, 1.0]:\n    route(new_version, split)\n    if error_rate(new) > error_rate(old) + margin:\n        rollback(); break        # guard tripped",
       "caption": "Ramp the split only while the guard holds."
+    },
+    {
+      "h": "A small canary cannot see a small regression",
+      "paras": [
+        "How long a canary must run is arithmetic, not judgement. Detecting an error-rate rise from 1% to 2% at 80% power needs about 4,637 requests per arm; from 1% to 1.2% needs 85,387; and from 0.1% to 0.12% needs 862,434. Serving 100 requests per second with 5% on the canary, those last two are 4.7 and 47.9 hours of traffic respectively.",
+        "So a 5% canary held for thirty minutes can detect a catastrophe and is blind to exactly the kind of regression that quietly costs money. Knowing the number changes the design rather than the patience: raise the canary share, pick a metric with a larger effect size, or accept that rare-but-severe failures are not a significance-testing problem at all and need a guardrail that trips on a single occurrence. The failure mode to avoid is a canary that always passes and is therefore believed."
+      ]
     }
   ],
   "takeaways": [

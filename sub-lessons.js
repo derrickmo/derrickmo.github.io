@@ -3763,6 +3763,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "x = torch.tensor([2.0], requires_grad=True)\ny = (x ** 2 + 3 * x).sum()\ny.backward()          # walks the graph in reverse\nprint(x.grad)         # dy/dx = 2x + 3 = 7",
             "caption": "Build the graph forward; differentiate it backward, automatically."
+          },
+          {
+            "h": "The activations are the memory bill",
+            "paras": [
+              "Backward needs the forward values, so memory scales with depth times tokens rather than with parameters. For a 32-layer model with hidden size 4,096 in fp16, the stored activations come to roughly 2.7 GB at 1,024 tokens, 21.5 GB at 8,192, and 171.8 GB at 65,536 — none of which is weights, and all of which must coexist until the backward pass consumes it.",
+              "That is why the standard remedy is recomputation rather than a cleverer derivative. Gradient checkpointing stores only layer boundaries and recomputes the interior during backward: keeping one set in eight takes activation memory to about a quarter for roughly a second forward pass of compute. It is a pure memory-for-time trade, and it is the reason a model that will not fit at a given batch size often fits immediately with checkpointing enabled and simply runs slower."
+            ]
           }
         ],
         "takeaways": [
@@ -3794,6 +3801,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "opt = torch.optim.Adam(model.parameters(), lr=3e-4)\n# each iteration:\nopt.zero_grad()       # clear old grads\nloss.backward()       # fill grads\nopt.step()            # apply the update rule",
             "caption": "zero_grad, backward, step - the same three calls every iteration."
+          },
+          {
+            "h": "The optimiser state is bigger than the model",
+            "paras": [
+              "Training memory is dominated by what the optimiser keeps, not by the weights. Per parameter in mixed precision: fp16 weights are 2 bytes, fp16 gradients 2, the fp32 master copy 4, and Adam's first and second moments 4 each — 16 bytes in total. For a 7B model that is 112 GB of state against 14 GB of fp16 weights, a factor of eight before a single activation is stored.",
+              "Plain SGD needs 4 bytes per parameter and SGD with momentum 8, which is why the choice of optimiser is a memory decision as much as a convergence one. It is also why the mitigations target this number directly: ZeRO shards optimiser state, gradients and parameters across data-parallel ranks rather than replicating them, 8-bit optimisers quantise the moments, and the memory-light optimisers drop the second moment entirely. Any calculation of what will fit on a device has to start from 16 bytes per parameter, not from the checkpoint size."
+            ]
           }
         ],
         "takeaways": [
@@ -3825,6 +3839,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "for x, y in loader:\n    opt.zero_grad()\n    loss = criterion(model(x), y)   # forward + loss\n    loss.backward()                 # gradients\n    opt.step()                      # update",
             "caption": "Batch, forward, loss, backward, step - repeat."
+          },
+          {
+            "h": "The format is part of the algorithm",
+            "paras": [
+              "In fp16 the smallest representable magnitude is about 5.96e-8, and late-training gradients live near that floor. Taking a log-normal gradient distribution with median 8.28e-7, 19.03% of gradients flush to exactly zero when the loss is not scaled — a fifth of the update silently deleted, with no error raised and no NaN to catch.",
+              "Multiplying the loss by a constant moves the whole distribution up into the representable range: at a scale of 64 the loss falls to 1.19%, at 512 to 0.17% and at 4,096 to 0.01%. The upper bound is the other side of the same window, since fp16 saturates at 65,504 and an overflow produces inf. That is exactly what dynamic loss scaling automates — raise the scale while things are finite, back off when an inf appears, and keep a master copy of the weights in fp32 so the small updates accumulate somewhere they can survive."
+            ]
           }
         ],
         "takeaways": [
@@ -4832,6 +4853,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "desired = ceil(load / (target_util * cap_per_replica))\nreplicas = clamp(desired, min_r, max_r)   # cold start adds lag",
             "caption": "Scale toward a utilization target, bounded by limits."
+          },
+          {
+            "h": "Latency is nonlinear, and scaling is not instant",
+            "paras": [
+              "Queueing makes utilisation a trap. For an M/M/1 queue with a 100 ms service time, mean latency is 200 ms at 50% utilisation, 500 ms at 80%, 1,000 ms at 90% and 10,000 ms at 99%. Running \"efficiently\" at 95% costs four times the latency of running at 80%, and the last few points of utilisation cost more than all the previous ones together.",
+              "The second half is lag. A scale-up that takes 60 seconds at 50 requests per second means 3,000 requests arrive before the new capacity does, and they queue behind the utilisation curve above — which is why an autoscaler tuned on average load can still produce a visible outage during a spike. The practical consequences are to target a utilisation well below the knee, to scale on queue depth or latency rather than CPU, and to keep enough warm capacity to cover the cold-start window, because that window is where the incident happens."
+            ]
           }
         ],
         "takeaways": [
@@ -4863,6 +4891,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "for split in [0.05, 0.25, 0.5, 1.0]:\n    route(new_version, split)\n    if error_rate(new) > error_rate(old) + margin:\n        rollback(); break        # guard tripped",
             "caption": "Ramp the split only while the guard holds."
+          },
+          {
+            "h": "A small canary cannot see a small regression",
+            "paras": [
+              "How long a canary must run is arithmetic, not judgement. Detecting an error-rate rise from 1% to 2% at 80% power needs about 4,637 requests per arm; from 1% to 1.2% needs 85,387; and from 0.1% to 0.12% needs 862,434. Serving 100 requests per second with 5% on the canary, those last two are 4.7 and 47.9 hours of traffic respectively.",
+              "So a 5% canary held for thirty minutes can detect a catastrophe and is blind to exactly the kind of regression that quietly costs money. Knowing the number changes the design rather than the patience: raise the canary share, pick a metric with a larger effect size, or accept that rare-but-severe failures are not a significance-testing problem at all and need a guardrail that trips on a single occurrence. The failure mode to avoid is a canary that always passes and is therefore believed."
+            ]
           }
         ],
         "takeaways": [
@@ -4894,6 +4929,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n\ndef psi(expected, actual, bins=10):\n    e, _ = np.histogram(expected, bins); a, _ = np.histogram(actual, bins)\n    e = e/e.sum()+1e-6; a = a/a.sum()+1e-6\n    return np.sum((a - e) * np.log(a / e))",
             "caption": "Bin both distributions; sum the divergence."
+          },
+          {
+            "h": "Drift is a hypothesis, not a measurement",
+            "paras": [
+              "Two things go wrong at once. Testing daily at alpha 0.05 gives a 30.2% chance of at least one false alarm within a week and 78.5% within a month, so a monitor that fires a few times a year is behaving exactly as specified — the alerting threshold has to account for how often you look, not just for one test.",
+              "More importantly, input drift and degradation are different events. Holding a trained model fixed and shifting its inputs by up to three standard deviations while leaving P(y|x) alone, accuracy does not move at all; changing P(y|x) while leaving the inputs exactly where they were drops accuracy to 0.793. A drift detector watches the first and is silent about the second. It is a cheap early-warning signal precisely because it needs no labels, and it should be read as a prompt to go and look rather than as evidence that anything has broken."
+            ]
           }
         ],
         "takeaways": [
@@ -5870,6 +5912,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# Under imbalance these tell very different stories about the same model.\nprint(\"accuracy \", (y == pred).mean())      # 0.988 - and catches no fraud\nprint(\"roc-auc  \", roc_auc_score(y, s))     # 0.990 - optimistic\nprint(\"pr-auc   \", average_precision_score(y, s))   # 0.607 - honest\nprint(\"p@100    \", precision_at_k(y, s, 100))       # 0.85 - the review queue",
             "caption": "Report the metric the decision consumes; precision at the queue depth is often the only one anyone acts on."
+          },
+          {
+            "h": "The trivial baseline is the one to beat",
+            "paras": [
+              "Accuracy is dominated by the majority class, so on imbalanced data it rewards saying nothing. At a 1% positive rate, a model that always answers \"no\" scores 0.99 accuracy with recall exactly 0.000; at 0.1% it scores 0.999. Any accuracy figure quoted without the base rate beside it is unreadable.",
+              "It gets worse than uninformative. On a simulated 1%-prevalence problem, a genuine model with recall 0.658 scores accuracy 0.726 — it is beaten on accuracy by the do-nothing baseline while being the only one of the two that is any use. That is why the interview answer is to name the cost first: recall when a miss is expensive, precision when a false alarm is expensive, PR-AUC rather than ROC-AUC when positives are rare, and always the trivial baseline alongside, because a metric a constant function can win is not measuring the model."
+            ]
           }
         ],
         "takeaways": [
@@ -5902,6 +5951,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "def edit_distance(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i]\n        for j, cb in enumerate(b, 1):\n            cur.append(min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (ca != cb)))\n        prev = cur\n    return prev[-1]\n\n# Timed in the module on disjoint strings: naive recursion 0.05 -> 1207 ms\n# from L=4 to L=10, while the DP stays ~0.02 ms and handles L=1000 in 0.25 s.",
             "caption": "Only the previous row is needed, so the O(nm) table collapses to O(min(n,m)) space - the standard follow-up."
+          },
+          {
+            "h": "Polynomial in the wrong variable",
+            "paras": [
+              "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells — about 400 GB at four bytes — at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
+              "The memory is also usually reducible in a way that costs something. Rolling the table down to a single row takes a 1000-by-10^6 problem from 4 GB to 4 MB, but the traceback goes with it: you recover the optimal value and no longer know which items produced it, and recovering them needs either a second pass or the Hirschberg divide-and-conquer trick. Optimal substructure is what makes the recurrence correct; the table's shape is what makes it affordable, and those are separate questions."
+            ]
           }
         ],
         "takeaways": [
@@ -5934,6 +5990,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# One skeleton, three behaviours - only the frontier differs.\nfrontier = deque([start])                 # BFS\nfrontier = [(0, start)]                   # Dijkstra: heap on g\nfrontier = [(h(start), 0, start)]         # A*:       heap on g + h\n\n# h = 0 makes A* exactly Dijkstra, which is the cleanest way to remember\n# that they are the same algorithm under different priorities.",
             "caption": "Set h to zero and A* degenerates to Dijkstra; make every edge cost 1 and Dijkstra degenerates to BFS."
+          },
+          {
+            "h": "The heuristic is the only real choice",
+            "paras": [
+              "On a 60x60 grid with random obstacles, Dijkstra expands 2,751 nodes to find a path of cost 118. A* with the admissible Manhattan heuristic finds the same cost-118 path while expanding 1,718 — the same guarantee, a third less work, purely from knowing which direction the goal is in.",
+              "Inflating the heuristic buys much more speed and stops being safe: weighting it by 1.5 expands only 183 nodes and returns a path of cost 128, and weighting by 3 expands 162 and returns 132. Both are still complete and both are wrong about optimality. That is the entire family in one line — Dijkstra is A* with a zero heuristic, greedy best-first is A* with an unbounded one, and weighted A* is the dial between them, with the bound on suboptimality equal to the weight. Choosing an algorithm here is really choosing how much optimality you will trade for expansions."
+            ]
           }
         ],
         "takeaways": [

@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "def edit_distance(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i]\n        for j, cb in enumerate(b, 1):\n            cur.append(min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (ca != cb)))\n        prev = cur\n    return prev[-1]\n\n# Timed in the module on disjoint strings: naive recursion 0.05 -> 1207 ms\n# from L=4 to L=10, while the DP stays ~0.02 ms and handles L=1000 in 0.25 s.",
       "caption": "Only the previous row is needed, so the O(nm) table collapses to O(min(n,m)) space - the standard follow-up."
+    },
+    {
+      "h": "Polynomial in the wrong variable",
+      "paras": [
+        "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells — about 400 GB at four bytes — at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
+        "The memory is also usually reducible in a way that costs something. Rolling the table down to a single row takes a 1000-by-10^6 problem from 4 GB to 4 MB, but the traceback goes with it: you recover the optimal value and no longer know which items produced it, and recovering them needs either a second pass or the Hirschberg divide-and-conquer trick. Optimal substructure is what makes the recurrence correct; the table's shape is what makes it affordable, and those are separate questions."
+      ]
     }
   ],
   "takeaways": [

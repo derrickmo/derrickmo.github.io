@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef psi(expected, actual, bins=10):\n    e, _ = np.histogram(expected, bins); a, _ = np.histogram(actual, bins)\n    e = e/e.sum()+1e-6; a = a/a.sum()+1e-6\n    return np.sum((a - e) * np.log(a / e))",
       "caption": "Bin both distributions; sum the divergence."
+    },
+    {
+      "h": "Drift is a hypothesis, not a measurement",
+      "paras": [
+        "Two things go wrong at once. Testing daily at alpha 0.05 gives a 30.2% chance of at least one false alarm within a week and 78.5% within a month, so a monitor that fires a few times a year is behaving exactly as specified — the alerting threshold has to account for how often you look, not just for one test.",
+        "More importantly, input drift and degradation are different events. Holding a trained model fixed and shifting its inputs by up to three standard deviations while leaving P(y|x) alone, accuracy does not move at all; changing P(y|x) while leaving the inputs exactly where they were drops accuracy to 0.793. A drift detector watches the first and is silent about the second. It is a cheap early-warning signal precisely because it needs no labels, and it should be read as a prompt to go and look rather than as evidence that anything has broken."
+      ]
     }
   ],
   "takeaways": [

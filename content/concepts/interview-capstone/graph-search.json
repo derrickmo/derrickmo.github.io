@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "# One skeleton, three behaviours - only the frontier differs.\nfrontier = deque([start])                 # BFS\nfrontier = [(0, start)]                   # Dijkstra: heap on g\nfrontier = [(h(start), 0, start)]         # A*:       heap on g + h\n\n# h = 0 makes A* exactly Dijkstra, which is the cleanest way to remember\n# that they are the same algorithm under different priorities.",
       "caption": "Set h to zero and A* degenerates to Dijkstra; make every edge cost 1 and Dijkstra degenerates to BFS."
+    },
+    {
+      "h": "The heuristic is the only real choice",
+      "paras": [
+        "On a 60x60 grid with random obstacles, Dijkstra expands 2,751 nodes to find a path of cost 118. A* with the admissible Manhattan heuristic finds the same cost-118 path while expanding 1,718 — the same guarantee, a third less work, purely from knowing which direction the goal is in.",
+        "Inflating the heuristic buys much more speed and stops being safe: weighting it by 1.5 expands only 183 nodes and returns a path of cost 128, and weighting by 3 expands 162 and returns 132. Both are still complete and both are wrong about optimality. That is the entire family in one line — Dijkstra is A* with a zero heuristic, greedy best-first is A* with an unbounded one, and weighted A* is the dial between them, with the bound on suboptimality equal to the weight. Choosing an algorithm here is really choosing how much optimality you will trade for expansions."
+      ]
     }
   ],
   "takeaways": [

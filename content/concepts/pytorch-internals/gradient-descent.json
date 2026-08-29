@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "for x, y in loader:\n    opt.zero_grad()\n    loss = criterion(model(x), y)   # forward + loss\n    loss.backward()                 # gradients\n    opt.step()                      # update",
       "caption": "Batch, forward, loss, backward, step - repeat."
+    },
+    {
+      "h": "The format is part of the algorithm",
+      "paras": [
+        "In fp16 the smallest representable magnitude is about 5.96e-8, and late-training gradients live near that floor. Taking a log-normal gradient distribution with median 8.28e-7, 19.03% of gradients flush to exactly zero when the loss is not scaled — a fifth of the update silently deleted, with no error raised and no NaN to catch.",
+        "Multiplying the loss by a constant moves the whole distribution up into the representable range: at a scale of 64 the loss falls to 1.19%, at 512 to 0.17% and at 4,096 to 0.01%. The upper bound is the other side of the same window, since fp16 saturates at 65,504 and an overflow produces inf. That is exactly what dynamic loss scaling automates — raise the scale while things are finite, back off when an inf appears, and keep a master copy of the weights in fp32 so the small updates accumulate somewhere they can survive."
+      ]
     }
   ],
   "takeaways": [
