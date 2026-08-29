@@ -9,23 +9,34 @@
 // The curated paths stay. They are editorially better: grouped into named stages with
 // copy explaining WHY each step is there. Generated paths are the long tail.
 //
-// Loaded after concepts-index.js, before any app that uses it.
+// Loaded alongside the page's concept data (concepts-index.js on the /concepts/ hub,
+// concept-slices/<id>.js on an individual concept page) and before any app that uses
+// it — in DOM order. Do NOT rely on that being the execution order; see below.
 
 (function () {
-  const CI = (typeof window !== "undefined" && window.CONCEPTS_INDEX) || {};
-  const REV = (typeof window !== "undefined" && window.CONCEPT_REVERSE) || {};
+  // ⚠ READ ON EVERY CALL, NOT ONCE AT LOAD. The comment above says this file is
+  // "loaded after concepts-index.js" — true of the DOM order and NOT true of the
+  // execution order, because Vite bundles the page's module scripts together and
+  // sequences them by the import graph. Capturing the index here as a constant
+  // worked only for as long as the file names happened to sort the way this file
+  // assumed: splitting concepts-index.js into per-concept slices flipped that
+  // order, this captured {}, and every prerequisite path on all 188 hub pages
+  // silently became empty — no error, just a missing section.
+  // That is PF-0020, and this was its third appearance in one day.
+  const ci = () => (typeof window !== "undefined" && window.CONCEPTS_INDEX) || {};
+  const rev = () => (typeof window !== "undefined" && window.CONCEPT_REVERSE) || {};
 
   // Filter to ids that actually exist. Dangling prereqs were fixed (GR-0001..0005),
   // but a path that silently drops a step is a worse failure than one that is short,
   // so the guard stays.
-  const prereqsOf = (id) => ((CI[id] && CI[id].prereqs) || []).filter((p) => CI[p]);
+  const prereqsOf = (id) => ((ci()[id] && ci()[id].prereqs) || []).filter((p) => ci()[p]);
 
   // Depth-first post-order = valid teaching order: nothing appears before something
   // it depends on. `known` prunes whole subtrees, which is what makes a personalised
   // path collapse from ten steps to three rather than just hiding rows.
   function pathTo(target, known) {
     known = known || new Set();
-    if (!CI[target]) return { target: target, steps: [], truncated: false, missing: true };
+    if (!ci()[target]) return { target: target, steps: [], truncated: false, missing: true };
     const order = [], visiting = new Set(), done = new Set();
     let truncated = false;
     (function visit(id, depth) {
@@ -46,7 +57,7 @@
   // What a reader can actually click for a step. CONCEPT_REVERSE[id] is a flat array
   // of {kind, slug} — not an object of lists, which is easy to get wrong.
   function surfacesFor(id) {
-    const all = REV[id] || [];
+    const all = rev()[id] || [];
     return {
       demos: all.filter((x) => x.kind === "demo").map((x) => x.slug),
       games: all.filter((x) => x.kind === "game").map((x) => x.slug),
@@ -58,9 +69,9 @@
     pathTo: pathTo,
     prereqsOf: prereqsOf,
     surfacesFor: surfacesFor,
-    has: (id) => !!CI[id],
-    get: (id) => CI[id] || null,
-    all: () => Object.keys(CI),
+    has: (id) => !!ci()[id],
+    get: (id) => ci()[id] || null,
+    all: () => Object.keys(ci()),
   };
 
   // ── what the reader has marked as understood ────────────────────────────────

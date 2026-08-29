@@ -141,7 +141,7 @@ function pageHtml(id, c) {
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="../../concepts-index.js"></script>
+  <script type="module" src="../../concept-slices/${id}.js"></script>
   <script type="module" src="../../play-demos.js"></script>
   <script type="module" src="../../play-games.js"></script>
   <script type="module" src="../../curriculum.js"></script>
@@ -163,10 +163,51 @@ fs.writeFileSync(path.join(conceptsDir, "index.html"), hubHtml, "utf8");
 console.log("  wrote concepts/index.html");
 
 // ── write each concept page ──
+// ─── per-concept slices ──────────────────────────────────────────────────────
+// A hub page renders one concept, its prereq/leadsTo cards, a "how to get here"
+// path and a Connections panel -- and was loading all 188 concepts (119 kB) to do
+// it. The slice sets the SAME globals with less in them, so concept-app.jsx,
+// concept-paths.js and chrome.jsx's Connections all work unchanged.
+//
+// It must carry the full transitive PREREQUISITE CLOSURE, not just the immediate
+// neighbours: concept-paths.js pathTo() walks prereqs recursively (depth-capped at
+// 40) to build the "how to get here" chain, and a missing link would silently
+// shorten that path rather than fail. Measured: max closure is 23 of 188 concepts,
+// so the average slice is 3.4 kB against the 119 kB file.
+const REVERSE = sandbox.window.CONCEPT_REVERSE || {};
+function sliceFor(id) {
+  const need = new Set();
+  (function visit(x, depth) {
+    if (need.has(x) || depth > 40 || !INDEX[x]) return;
+    need.add(x);
+    for (const p of (INDEX[x].prereqs || [])) visit(p, depth + 1);
+  })(id, 0);
+  for (const n of (INDEX[id].leadsTo || [])) if (INDEX[n]) need.add(n);
+  const idx = {};
+  for (const n of need) idx[n] = INDEX[n];
+  return { CONCEPTS_INDEX: idx, CONCEPT_REVERSE: { [id]: REVERSE[id] || [] } };
+}
+function writeSlice(id) {
+  const sl = sliceFor(id);
+  const js = `// GENERATED from concepts-index.js by scripts/generate-concept-pages.mjs -- DO NOT EDIT.
+// Just what concepts/${id}/ renders: this concept, its full prerequisite closure (which
+// concept-paths.js walks for "how to get here"), its leadsTo neighbours, and its one
+// CONCEPT_REVERSE row for the Connections panel. Same global names, less in them.
+
+window.CONCEPTS_INDEX = ${JSON.stringify(sl.CONCEPTS_INDEX, null, 2)};
+window.CONCEPT_REVERSE = ${JSON.stringify(sl.CONCEPT_REVERSE, null, 2)};
+`;
+  fs.mkdirSync(path.join(root, "concept-slices"), { recursive: true });
+  fs.writeFileSync(path.join(root, "concept-slices", id + ".js"), js, "utf8");
+  return js.length;
+}
+let sliceBytes = 0;
+
 for (const id of ids) {
   const dir = path.join(conceptsDir, id);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), pageHtml(id, INDEX[id]), "utf8");
+  sliceBytes += writeSlice(id);
   console.log(`  wrote concepts/${id}/index.html`);
 }
 
@@ -195,4 +236,17 @@ if (vite.includes(markerStart)) {
 fs.writeFileSync(vitePath, vite, "utf8");
 console.log(`  patched vite.config.mjs with ${ids.length + 1} inputs`);
 
+// drop slices for concepts that no longer exist
+const sliceDir = path.join(root, "concept-slices");
+let staleSlices = 0;
+if (fs.existsSync(sliceDir)) {
+  const keep = new Set(ids.map(i => i + ".js"));
+  for (const f of fs.readdirSync(sliceDir)) {
+    if (keep.has(f)) continue;
+    fs.rmSync(path.join(sliceDir, f)); staleSlices++;
+    console.log(`  removed stale slice concept-slices/${f}`);
+  }
+}
+
+console.log(`  concept-slices: ${ids.length} slice(s), ${(sliceBytes / 1024).toFixed(1)} kB total, ${(sliceBytes / ids.length / 1024).toFixed(1)} kB average${staleSlices ? `, ${staleSlices} stale removed` : ""}`);
 console.log(`\nDone. ${ids.length} concept pages + hub.`);

@@ -1,0 +1,149 @@
+// GENERATED from concepts-index.js by scripts/generate-concept-pages.mjs -- DO NOT EDIT.
+// Just what concepts/moe/ renders: this concept, its full prerequisite closure (which
+// concept-paths.js walks for "how to get here"), its leadsTo neighbours, and its one
+// CONCEPT_REVERSE row for the Connections panel. Same global names, less in them.
+
+window.CONCEPTS_INDEX = {
+  "moe": {
+    "id": "moe",
+    "name": "Mixture of Experts (MoE)",
+    "area": "Training Systems",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
+    "prereqs": [
+      "attention",
+      "scaling-laws"
+    ],
+    "leadsTo": [
+      "mixture-of-depths"
+    ]
+  },
+  "attention": {
+    "id": "attention",
+    "name": "Self-Attention",
+    "area": "Transformers",
+    "summary": "Score every pair of tokens by a softmax over scaled dot products; the core op of every transformer.",
+    "tex": "\\mathrm{Attn}(Q,K,V) = \\mathrm{softmax}\\!\\left(\\tfrac{QK^\\top}{\\sqrt{d_k}}\\right) V",
+    "prereqs": [
+      "softmax",
+      "embeddings"
+    ],
+    "leadsTo": [
+      "multi-head",
+      "positional-encoding",
+      "transformer-block",
+      "lora",
+      "kv-cache",
+      "rope",
+      "kv-cache-eviction",
+      "lost-in-the-middle",
+      "moe",
+      "attention-rollout"
+    ]
+  },
+  "softmax": {
+    "id": "softmax",
+    "name": "Softmax",
+    "area": "Neural Networks",
+    "summary": "Turn a vector of logits into a probability distribution; the workhorse output and attention nonlinearity.",
+    "tex": "\\mathrm{softmax}(z)_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}",
+    "leadsTo": [
+      "contrastive-learning",
+      "cross-entropy",
+      "word2vec",
+      "attention",
+      "decoding"
+    ],
+    "prereqs": []
+  },
+  "embeddings": {
+    "id": "embeddings",
+    "name": "Embeddings",
+    "area": "NLP",
+    "summary": "Map tokens (or items) to vectors so that distance and direction encode meaning.",
+    "prereqs": [
+      "tokenization"
+    ],
+    "leadsTo": [
+      "vector-search",
+      "attention",
+      "word2vec",
+      "contrastive-learning",
+      "tsne",
+      "rag-chunking",
+      "semantic-caching",
+      "hyde"
+    ],
+    "animation": "viz/embeddings.html"
+  },
+  "tokenization": {
+    "id": "tokenization",
+    "name": "Tokenization (BPE)",
+    "area": "NLP",
+    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "leadsTo": [
+      "embeddings",
+      "constrained-decoding"
+    ],
+    "prereqs": []
+  },
+  "scaling-laws": {
+    "id": "scaling-laws",
+    "name": "Neural Scaling Laws",
+    "area": "Training Systems",
+    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "prereqs": [
+      "cross-entropy"
+    ],
+    "leadsTo": [
+      "moe"
+    ]
+  },
+  "cross-entropy": {
+    "id": "cross-entropy",
+    "name": "Cross-Entropy",
+    "area": "Information Theory",
+    "summary": "The loss that measures how much a predicted distribution disagrees with the true labels.",
+    "tex": "H(p, q) = -\\sum_i p_i \\log q_i",
+    "prereqs": [
+      "softmax"
+    ],
+    "leadsTo": [
+      "scaling-laws",
+      "bayes",
+      "gan",
+      "logistic-regression"
+    ]
+  },
+  "mixture-of-depths": {
+    "id": "mixture-of-depths",
+    "name": "Mixture-of-Depths",
+    "area": "NLP",
+    "summary": "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
+    "prereqs": [
+      "moe",
+      "transformer-block"
+    ],
+    "leadsTo": []
+  }
+};
+window.CONCEPT_REVERSE = {
+  "moe": [
+    {
+      "kind": "demo",
+      "slug": "model-cascade"
+    },
+    {
+      "kind": "demo",
+      "slug": "mixture-of-depths"
+    },
+    {
+      "kind": "demo",
+      "slug": "moe"
+    },
+    {
+      "kind": "module",
+      "slug": "frontier-frameworks"
+    }
+  ]
+};
