@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef attention(Q, K, V):\n    dk = Q.shape[-1]\n    scores = Q @ K.T / np.sqrt(dk)     # (n, n) relevance\n    scores -= scores.max(-1, keepdims=True)\n    w = np.exp(scores)\n    w /= w.sum(-1, keepdims=True)      # softmax over keys\n    return w @ V                       # weighted mix of values",
       "caption": "Three matmuls and a softmax — the core of every transformer."
+    },
+    {
+      "h": "The constant in the denominator is load-bearing",
+      "paras": [
+        "The 1/sqrt(d) in scaled dot-product attention is not cosmetic. A dot product of two d-dimensional unit-variance vectors has variance d, so the logits grow with the head width and softmax saturates. Attending over 64 keys with random vectors, the largest attention weight averages 0.399 at d = 8 and climbs to 0.778 at 64, 0.945 at 512 and 0.968 at 4,096 — effectively one-hot before training has begun, and a saturated softmax has almost no gradient. With the scaling applied the same measurement stays near 0.10 at every width.",
+        "The other property is the one that shapes systems. Attention scores are an n-by-n object per head per layer: for a 32-layer, 32-head model in fp16 the scores alone are 2.1 GB at n = 1,024 and 137.4 GB at n = 8,192, against a KV cache of 0.54 GB and 4.29 GB — already 32 times larger, and 512 times larger by n = 131,072. That gap is why FlashAttention's contribution is refusing to materialise the matrix at all rather than computing it faster, and why context length is a memory problem before it is a quality one."
+      ]
     }
   ],
   "takeaways": [

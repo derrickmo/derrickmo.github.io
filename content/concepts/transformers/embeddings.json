@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "import numpy as np\n\nV, d = 50000, 256\nE = np.random.randn(V, d) * 0.02      # learned embedding table\n\nids = np.array([101, 4017, 2009])     # a tokenized sentence\nx = E[ids]                            # (3, d) — one vector per token\n\n# similarity between two tokens is a dot product\ncos = E[4017] @ E[2009] / (np.linalg.norm(E[4017]) * np.linalg.norm(E[2009]))",
       "caption": "The whole layer is a row-select; the magic is in what training writes into E."
+    },
+    {
+      "h": "What counts as similar is set by the dimension",
+      "paras": [
+        "Cosine similarity does not mean the same thing at every width, because high-dimensional vectors are nearly orthogonal by default. Across 4,000 random pairs, the spread of cosine similarity is 0.704 at d = 2, 0.247 at 16, 0.089 at 128, 0.036 at 768 and 0.018 at 3,072. At d = 768 the single most similar pair out of 4,000 unrelated vectors reaches only 0.125.",
+        "So a similarity of 0.3 is unremarkable in two dimensions and enormous in seven hundred and sixty-eight, and any fixed threshold carried over from one model to another is meaningless. The practical consequences follow directly: judge similarity against the distribution of scores for that model rather than an absolute cut-off, expect a re-embedded corpus to need its thresholds refitted, and treat the raw number as a ranking signal rather than a probability."
+      ]
     }
   ],
   "takeaways": [

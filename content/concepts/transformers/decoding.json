@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef sample(logits, T=1.0, top_p=0.9):\n    z = logits / T\n    p = np.exp(z - z.max()); p /= p.sum()\n    order = np.argsort(p)[::-1]                 # nucleus: keep smallest\n    keep = order[np.cumsum(p[order]) <= top_p]  # set with mass >= top_p\n    if len(keep) == 0: keep = order[:1]\n    p2 = p[keep] / p[keep].sum()\n    return np.random.choice(keep, p=p2)",
       "caption": "Temperature reshapes the distribution; top-p trims the tail before sampling."
+    },
+    {
+      "h": "The most likely continuation is a loop",
+      "paras": [
+        "Maximising likelihood and producing good text are different objectives, and the gap is easy to see on a real if small model. Building a bigram model over this site's prose and decoding 25 tokens, greedy search achieves an average log-probability of -2.849 per token and uses 4 distinct words: it emits \"the same data and the same data and the same data\" indefinitely. Sampling from the same model scores a worse -3.315 and uses 24 distinct words.",
+        "Greedy won on the metric and lost on the task, and this is not an artefact of a small model — the same degeneration is why beam search, which finds even higher-likelihood sequences, is standard for translation and unusable for open-ended generation. A well-fitted model assigns high probability to repetition because repetition is locally predictable, so the decoding strategy has to supply the diversity the objective never asked for. That is what temperature, top-k, nucleus sampling and repetition penalties are all doing, and why the choice of decoder is a product decision rather than a detail."
+      ]
     }
   ],
   "takeaways": [

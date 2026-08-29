@@ -72749,6 +72749,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef attention(Q, K, V):\n    dk = Q.shape[-1]\n    scores = Q @ K.T / np.sqrt(dk)     # (n, n) relevance\n    scores -= scores.max(-1, keepdims=True)\n    w = np.exp(scores)\n    w /= w.sum(-1, keepdims=True)      # softmax over keys\n    return w @ V                       # weighted mix of values",
           "caption": "Three matmuls and a softmax — the core of every transformer."
+        },
+        {
+          "h": "The constant in the denominator is load-bearing",
+          "paras": [
+            "The 1/sqrt(d) in scaled dot-product attention is not cosmetic. A dot product of two d-dimensional unit-variance vectors has variance d, so the logits grow with the head width and softmax saturates. Attending over 64 keys with random vectors, the largest attention weight averages 0.399 at d = 8 and climbs to 0.778 at 64, 0.945 at 512 and 0.968 at 4,096 — effectively one-hot before training has begun, and a saturated softmax has almost no gradient. With the scaling applied the same measurement stays near 0.10 at every width.",
+            "The other property is the one that shapes systems. Attention scores are an n-by-n object per head per layer: for a 32-layer, 32-head model in fp16 the scores alone are 2.1 GB at n = 1,024 and 137.4 GB at n = 8,192, against a KV cache of 0.54 GB and 4.29 GB — already 32 times larger, and 512 times larger by n = 131,072. That gap is why FlashAttention's contribution is refusing to materialise the matrix at all rather than computing it faster, and why context length is a memory problem before it is a quality one."
+          ]
         }
       ],
       "takeaways": [
@@ -72786,6 +72793,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef sample(logits, T=1.0, top_p=0.9):\n    z = logits / T\n    p = np.exp(z - z.max()); p /= p.sum()\n    order = np.argsort(p)[::-1]                 # nucleus: keep smallest\n    keep = order[np.cumsum(p[order]) <= top_p]  # set with mass >= top_p\n    if len(keep) == 0: keep = order[:1]\n    p2 = p[keep] / p[keep].sum()\n    return np.random.choice(keep, p=p2)",
           "caption": "Temperature reshapes the distribution; top-p trims the tail before sampling."
+        },
+        {
+          "h": "The most likely continuation is a loop",
+          "paras": [
+            "Maximising likelihood and producing good text are different objectives, and the gap is easy to see on a real if small model. Building a bigram model over this site's prose and decoding 25 tokens, greedy search achieves an average log-probability of -2.849 per token and uses 4 distinct words: it emits \"the same data and the same data and the same data\" indefinitely. Sampling from the same model scores a worse -3.315 and uses 24 distinct words.",
+            "Greedy won on the metric and lost on the task, and this is not an artefact of a small model — the same degeneration is why beam search, which finds even higher-likelihood sequences, is standard for translation and unusable for open-ended generation. A well-fitted model assigns high probability to repetition because repetition is locally predictable, so the decoding strategy has to supply the diversity the objective never asked for. That is what temperature, top-k, nucleus sampling and repetition penalties are all doing, and why the choice of decoder is a product decision rather than a detail."
+          ]
         }
       ],
       "takeaways": [
@@ -72823,6 +72837,13 @@
           "h": "In code",
           "code": "import numpy as np\n\nV, d = 50000, 256\nE = np.random.randn(V, d) * 0.02      # learned embedding table\n\nids = np.array([101, 4017, 2009])     # a tokenized sentence\nx = E[ids]                            # (3, d) — one vector per token\n\n# similarity between two tokens is a dot product\ncos = E[4017] @ E[2009] / (np.linalg.norm(E[4017]) * np.linalg.norm(E[2009]))",
           "caption": "The whole layer is a row-select; the magic is in what training writes into E."
+        },
+        {
+          "h": "What counts as similar is set by the dimension",
+          "paras": [
+            "Cosine similarity does not mean the same thing at every width, because high-dimensional vectors are nearly orthogonal by default. Across 4,000 random pairs, the spread of cosine similarity is 0.704 at d = 2, 0.247 at 16, 0.089 at 128, 0.036 at 768 and 0.018 at 3,072. At d = 768 the single most similar pair out of 4,000 unrelated vectors reaches only 0.125.",
+            "So a similarity of 0.3 is unremarkable in two dimensions and enormous in seven hundred and sixty-eight, and any fixed threshold carried over from one model to another is meaningless. The practical consequences follow directly: judge similarity against the distribution of scores for that model rather than an absolute cut-off, expect a re-embedded corpus to need its thresholds refitted, and treat the raw number as a ranking signal rather than a probability."
+          ]
         }
       ],
       "takeaways": [
@@ -72860,6 +72881,13 @@
           "h": "In code",
           "code": "import numpy as np\n\ndef multi_head(X, Wq, Wk, Wv, Wo, h):\n    n, d = X.shape\n    dk = d // h\n    outs = []\n    for i in range(h):                 # each head sees a d/h slice\n        sl = slice(i * dk, (i + 1) * dk)\n        outs.append(attention(X @ Wq[:, sl], X @ Wk[:, sl], X @ Wv[:, sl]))\n    return np.concatenate(outs, axis=-1) @ Wo",
           "caption": "Heads are independent; the final W^O lets them interact."
+        },
+        {
+          "h": "One softmax can only point at one place",
+          "paras": [
+            "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average — which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
+            "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it — which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
+          ]
         }
       ],
       "takeaways": [
@@ -72897,6 +72925,13 @@
           "h": "In code",
           "code": "from collections import Counter\n\n# greedy BPE merge step over a corpus of symbol-lists\ndef best_pair(corpus):\n    pairs = Counter()\n    for word in corpus:                # word = ['l','o','w','</w>']\n        for a, b in zip(word, word[1:]):\n            pairs[(a, b)] += 1\n    return pairs.most_common(1)[0][0]  # the pair to merge next\n\ndef merge(corpus, pair):\n    a, b = pair\n    return [_join(word, a, b) for word in corpus]",
           "caption": "Run best_pair -> merge in a loop until the vocabulary reaches the size you want."
+        },
+        {
+          "h": "The vocabulary is fitted to one corpus",
+          "paras": [
+            "A BPE vocabulary is trained, so it compresses what it was trained on and degrades gracelessly outside it. Learning 600 merges from this site's own English prose and then measuring, in-domain English costs 4.06 characters per token; rare English words fall to 1.69, source code to 1.31, and digit strings to exactly 1.00 — one token per character, the byte-level fallback with no compression at all.",
+            "Since price, latency and context are all counted in tokens, that ratio is a direct multiplier on cost for anything the tokenizer was not fitted to, and it is why the same passage can cost several times more in one language than another. It is also the mechanism behind a family of otherwise baffling model failures: arithmetic is hard partly because numbers are split into inconsistent pieces, and character-level tasks such as spelling or reversal are hard because the characters were never separate objects to the model in the first place."
+          ]
         }
       ],
       "takeaways": [

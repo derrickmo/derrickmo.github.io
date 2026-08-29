@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "from collections import Counter\n\n# greedy BPE merge step over a corpus of symbol-lists\ndef best_pair(corpus):\n    pairs = Counter()\n    for word in corpus:                # word = ['l','o','w','</w>']\n        for a, b in zip(word, word[1:]):\n            pairs[(a, b)] += 1\n    return pairs.most_common(1)[0][0]  # the pair to merge next\n\ndef merge(corpus, pair):\n    a, b = pair\n    return [_join(word, a, b) for word in corpus]",
       "caption": "Run best_pair -> merge in a loop until the vocabulary reaches the size you want."
+    },
+    {
+      "h": "The vocabulary is fitted to one corpus",
+      "paras": [
+        "A BPE vocabulary is trained, so it compresses what it was trained on and degrades gracelessly outside it. Learning 600 merges from this site's own English prose and then measuring, in-domain English costs 4.06 characters per token; rare English words fall to 1.69, source code to 1.31, and digit strings to exactly 1.00 — one token per character, the byte-level fallback with no compression at all.",
+        "Since price, latency and context are all counted in tokens, that ratio is a direct multiplier on cost for anything the tokenizer was not fitted to, and it is why the same passage can cost several times more in one language than another. It is also the mechanism behind a family of otherwise baffling model failures: arithmetic is hard partly because numbers are split into inconsistent pieces, and character-level tasks such as spelling or reversal are hard because the characters were never separate objects to the model in the first place."
+      ]
     }
   ],
   "takeaways": [

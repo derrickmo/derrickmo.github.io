@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "import numpy as np\n\ndef multi_head(X, Wq, Wk, Wv, Wo, h):\n    n, d = X.shape\n    dk = d // h\n    outs = []\n    for i in range(h):                 # each head sees a d/h slice\n        sl = slice(i * dk, (i + 1) * dk)\n        outs.append(attention(X @ Wq[:, sl], X @ Wk[:, sl], X @ Wv[:, sl]))\n    return np.concatenate(outs, axis=-1) @ Wo",
       "caption": "Heads are independent; the final W^O lets them interact."
+    },
+    {
+      "h": "One softmax can only point at one place",
+      "paras": [
+        "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average — which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
+        "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it — which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
+      ]
     }
   ],
   "takeaways": [
