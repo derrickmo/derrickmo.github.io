@@ -1,0 +1,133 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/reinforcement-learning/iterated-prisoners-dilemma/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Reinforcement Learning",
+    "lessons": {
+      "bandit": {
+        "title": "Multi-Armed Bandits"
+      },
+      "sarsa": {
+        "title": "SARSA"
+      },
+      "td-lambda": {
+        "title": "TD(lambda) and Eligibility Traces"
+      },
+      "double-q-learning": {
+        "title": "Double Q-Learning"
+      },
+      "gae": {
+        "title": "Generalized Advantage Estimation"
+      },
+      "ppo": {
+        "title": "Proximal Policy Optimization"
+      },
+      "dyna-q": {
+        "title": "Dyna-Q"
+      },
+      "regret-matching": {
+        "title": "Regret Matching & Nash Equilibrium"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution"
+      },
+      "prioritized-replay": {
+        "title": "Prioritized Experience Replay"
+      },
+      "distributional-rl": {
+        "title": "Distributional RL (C51)"
+      },
+      "successor-representation": {
+        "title": "Successor Representation"
+      },
+      "max-entropy-rl": {
+        "title": "Maximum-Entropy RL (Soft Value Iteration)"
+      },
+      "cfr": {
+        "title": "Counterfactual Regret Minimization"
+      },
+      "replicator-dynamics": {
+        "title": "Replicator Dynamics"
+      },
+      "iterated-prisoners-dilemma": {
+        "title": "Iterated Prisoner's Dilemma"
+      }
+    }
+  },
+  "moduleSlug": "reinforcement-learning",
+  "conceptId": "iterated-prisoners-dilemma",
+  "lesson": {
+    "title": "Iterated Prisoner's Dilemma",
+    "oneLine": "Repetition makes cooperation rational — and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "In a one-shot prisoner's dilemma, defection strictly dominates: whatever the other player does, you do better by defecting, so two rational players both defect and both do worse than if they had cooperated. That is the whole difficulty, and no amount of reasoning within the single game escapes it.",
+          "Repeat the game an unknown number of times and the calculation changes, because today's defection can be punished tomorrow. Cooperation becomes sustainable — not from altruism, but because the future value of a cooperative relationship exceeds the one-off gain from betraying it.",
+          "Axelrod's tournaments made this concrete by having submitted strategies play each other. Tit-for-tat — cooperate first, then copy the opponent's last move — won, despite being the simplest entry. Axelrod's summary of why is still the useful part: be nice (never defect first), be retaliatory (punish immediately), be forgiving (return to cooperation as soon as they do), and be clear (be easy to predict, so the opponent can learn that cooperating pays)."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Cooperation is sustainable when the discounted future outweighs the one-shot temptation:"
+        ],
+        "tex": "\\underbrace{\\frac{R}{1-\\delta}}_{\\text{cooperate forever}} \\ \\ge\\ \\underbrace{T + \\frac{\\delta P}{1-\\delta}}_{\\text{defect once, then punished}} \\quad \\Longleftrightarrow \\quad \\delta \\ge \\frac{T-R}{T-P}",
+        "texNote": "With the standard payoffs T=5, R=3, P=1 this requires a discount factor of at least 0.5 — the future must be worth at least half as much as the present. It also explains the finite-horizon collapse: with a known last round there is nothing after it to lose, so the last round is a one-shot game, and backward induction unravels every round before it."
+      },
+      {
+        "h": "In code",
+        "code": "def tit_for_tat(my_history, opp_history):\n    return \"C\" if not opp_history else opp_history[-1]\n\ndef generous_tft(my_history, opp_history, forgiveness=0.1, rng=None):\n    # retaliate, but forgive a defection with small probability - which breaks the\n    # echo two strict retaliators fall into after a single mistake\n    if opp_history and opp_history[-1] == \"D\":\n        return \"C\" if rng.random() < forgiveness else \"D\"\n    return \"C\"\n\ndef tit_for_two_tats(my_history, opp_history):\n    # requires TWO consecutive defections before retaliating, so an isolated error is\n    # absorbed rather than amplified\n    return \"D\" if opp_history[-2:] == [\"D\", \"D\"] else \"C\"",
+        "caption": "Both variants trade a little exploitability for robustness to error. Generous tit-for-tat can be probed by a persistent defector; tit-for-two-tats can be exploited by an opponent that alternates."
+      },
+      {
+        "h": "Noise is what actually breaks it",
+        "paras": [
+          "A tournament of seven strategies over 200 rounds each shows the textbook result: with no noise, the retaliating strategies win. Grudger scored 2.73 per round and tit-for-tat 2.60, against 2.36 for unconditional cooperation and 1.92 for unconditional defection.",
+          "Now allow each move a 2 percent chance of being executed wrongly — a misread signal, a dropped packet, a slip. The ranking reorders: tit-for-two-tats leads at 2.26 with tit-for-tat at 2.23, while grudger falls from first to fourth at 2.13, because a single accidental defection triggers its permanent punishment.",
+          "The clearest measurement is the head-to-head. Two tit-for-tat players cooperating perfectly score 3.00 per round. At 2 percent noise, the same pairing scores 1.81 — a collapse to barely above mutual defection. One accidental defection makes the other retaliate, which makes the first retaliate, and the echo persists until another error happens to break it. Two generous tit-for-tat players score 2.85 under the same noise, and two tit-for-two-tats score 3.00.",
+          "That is the practical lesson and it generalises well beyond this game. A strategy that is optimal in a clean environment can be fragile in a noisy one, and the fix is deliberate forgiveness — tolerating some exploitation in exchange for recovering from errors. It is the same trade behind retry-with-backoff instead of immediate circuit-breaking, and behind not permanently banning an account on one bad signal. Where multi-agent RL is concerned, it is a caution about evaluating learned policies only under perfect execution."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Repetition makes cooperation rational when the discount factor exceeds (T-R)/(T-P) — 0.5 for standard payoffs — and a known final round unravels it by backward induction.",
+      "Nice, retaliatory, forgiving and clear is why tit-for-tat wins; with no noise the retaliators led the tournament at 2.73 and 2.60 per round.",
+      "Noise breaks strict retaliation: two tit-for-tat players fell from 3.00 to 1.81 per round at 2% error, while forgiving variants held 2.85 and 3.00."
+    ],
+    "demo": "pd-tournament"
+  },
+  "order": [
+    "bandit",
+    "sarsa",
+    "td-lambda",
+    "double-q-learning",
+    "gae",
+    "ppo",
+    "dyna-q",
+    "regret-matching",
+    "minimax",
+    "mcts",
+    "neuroevolution",
+    "prioritized-replay",
+    "distributional-rl",
+    "successor-representation",
+    "max-entropy-rl",
+    "cfr",
+    "replicator-dynamics",
+    "iterated-prisoners-dilemma"
+  ],
+  "index": 17,
+  "prev": "replicator-dynamics",
+  "next": null
+};

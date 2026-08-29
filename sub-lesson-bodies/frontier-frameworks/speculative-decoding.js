@@ -1,0 +1,74 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/frontier-frameworks/speculative-decoding/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "quantization": {
+        "title": "Quantization"
+      },
+      "speculative-decoding": {
+        "title": "Speculative Decoding"
+      },
+      "lora": {
+        "title": "LoRA"
+      },
+      "moe": {
+        "title": "Mixture of Experts"
+      }
+    }
+  },
+  "moduleSlug": "frontier-frameworks",
+  "conceptId": "speculative-decoding",
+  "lesson": {
+    "title": "Speculative Decoding",
+    "oneLine": "Verify k drafted tokens for the price of one, because decoding is bandwidth-bound and the weights are read once either way.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Generating one token requires reading every weight, so the arithmetic done per byte moved is about one - the hardware is idle waiting on memory. That slack is free capacity: a single forward pass can score MANY candidate tokens for barely more than it costs to score one.",
+          "So let a small cheap model draft k tokens, then have the large model verify all k in one pass. Accepted tokens are kept, the first rejection is resampled, and the output distribution is provably identical to sampling from the large model alone. It is faster with no quality cost, which is rare enough to be worth understanding rather than memorising."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Accept a drafted token with probability given by the ratio of the two models' probabilities, and resample from the residual on rejection:"
+        ],
+        "tex": "P(\\text{accept } x) = \\min\\!\\left(1, \\frac{p(x)}{q(x)}\\right), \\qquad \\text{on reject draw from } \\frac{[\\,p - q\\,]_+}{\\lVert [\\,p - q\\,]_+ \\rVert_1}",
+        "texNote": "The correction term is what makes it exact rather than approximate - this is a sampling identity, not a heuristic."
+      },
+      {
+        "h": "In code",
+        "code": "draft = small.generate(prefix, k)                 # k cheap tokens\nlogits = large(prefix + draft)                   # ONE pass scores all k\n\nfor i, tok in enumerate(draft):\n    if random() < min(1, p[i][tok] / q[i][tok]):\n        prefix.append(tok)                       # accept\n    else:\n        prefix.append(sample(residual(p[i], q[i])))\n        break                                    # stop at first rejection",
+        "caption": "The speedup is the expected acceptance run length; a draft model that agrees more often is worth more than one that is merely faster."
+      },
+      {
+        "h": "The draft model has to agree, not just be good",
+        "paras": [
+          "The speedup is set by the acceptance rate, and it saturates fast when that rate is low. Expected tokens per verification step with a draft of length k is (1 - alpha^(k+1))/(1 - alpha): at alpha = 0.5 it is 1.94 at k = 4 and 2.00 at k = 8, so extending the draft past a few tokens buys nothing. At alpha = 0.9 the same lengths give 4.10 and 6.13.",
+          "Counting the draft model's own cost sharpens it. With a draft costing 10% of the target per token, the best achievable speedup is 1.67x at alpha = 0.6, 2.47x at 0.8 and 3.43x at 0.9, each at its own optimal draft length. The requirement is agreement rather than quality: a strong draft model that makes different choices is worth less than a weaker one that makes the same choices, which is why draft models are usually distilled from the target rather than chosen for their own benchmark scores."
+        ]
+      }
+    ],
+    "takeaways": [
+      "It is exact - the output distribution matches the large model, not an approximation of it.",
+      "It works only because decode is memory-bound; on a compute-bound workload there is no free capacity to exploit.",
+      "Gains scale with draft ACCEPTANCE rate, so alignment between the two models matters more than draft speed."
+    ],
+    "demo": "speculative-decoding"
+  },
+  "order": [
+    "quantization",
+    "speculative-decoding",
+    "lora",
+    "moe"
+  ],
+  "index": 1,
+  "prev": "quantization",
+  "next": "lora"
+};

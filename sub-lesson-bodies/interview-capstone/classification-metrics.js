@@ -1,0 +1,102 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/interview-capstone/classification-metrics/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "classification-metrics": {
+        "title": "Classification Metrics"
+      },
+      "dynamic-programming": {
+        "title": "Dynamic Programming"
+      },
+      "graph-search": {
+        "title": "Graph Search"
+      },
+      "search-astar": {
+        "title": "A* and Informed Search"
+      },
+      "dijkstra": {
+        "title": "Dijkstra's Shortest Path"
+      },
+      "backtracking": {
+        "title": "Backtracking & Constraint Satisfaction"
+      },
+      "simulated-annealing": {
+        "title": "Simulated Annealing"
+      },
+      "branch-and-bound": {
+        "title": "Branch & Bound"
+      },
+      "arc-consistency": {
+        "title": "Arc Consistency (AC-3)"
+      },
+      "mst": {
+        "title": "Minimum Spanning Tree"
+      },
+      "max-flow": {
+        "title": "Max Flow / Min Cut"
+      }
+    }
+  },
+  "moduleSlug": "interview-capstone",
+  "conceptId": "classification-metrics",
+  "lesson": {
+    "title": "Classification Metrics",
+    "oneLine": "Precision, recall and the rest are a family, and picking the wrong member is how a project optimizes the wrong thing.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Every classification metric is a summary of the confusion matrix, and each discards something different. Accuracy is useless under imbalance - a 1.2% fraud rate makes 'flag nothing' 98.8% accurate. ROC-AUC is insensitive to the base rate, which sounds like a virtue and means it flatters rare-positive problems; PR-AUC does not.",
+          "The deeper point for an interview is that a metric is a proxy for a DECISION. If the product shows a top-10 list, a metric averaging over all items is measuring something nobody consumes; if a threshold drives an action, an integral over all thresholds is measuring operating points you will never run at."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The cost-optimal threshold follows directly from the cost matrix, not from convention:"
+        ],
+        "tex": "t^{*} = \\frac{C_{FP}}{C_{FP} + C_{FN}}",
+        "texNote": "At $100 per missed fraud and $2 per false alert this is 0.0196, not 0.5 - and the module measured a ~10x cost reduction from making that swap."
+      },
+      {
+        "h": "In code",
+        "code": "# Under imbalance these tell very different stories about the same model.\nprint(\"accuracy \", (y == pred).mean())      # 0.988 - and catches no fraud\nprint(\"roc-auc  \", roc_auc_score(y, s))     # 0.990 - optimistic\nprint(\"pr-auc   \", average_precision_score(y, s))   # 0.607 - honest\nprint(\"p@100    \", precision_at_k(y, s, 100))       # 0.85 - the review queue",
+        "caption": "Report the metric the decision consumes; precision at the queue depth is often the only one anyone acts on."
+      },
+      {
+        "h": "The trivial baseline is the one to beat",
+        "paras": [
+          "Accuracy is dominated by the majority class, so on imbalanced data it rewards saying nothing. At a 1% positive rate, a model that always answers \"no\" scores 0.99 accuracy with recall exactly 0.000; at 0.1% it scores 0.999. Any accuracy figure quoted without the base rate beside it is unreadable.",
+          "It gets worse than uninformative. On a simulated 1%-prevalence problem, a genuine model with recall 0.658 scores accuracy 0.726 — it is beaten on accuracy by the do-nothing baseline while being the only one of the two that is any use. That is why the interview answer is to name the cost first: recall when a miss is expensive, precision when a false alarm is expensive, PR-AUC rather than ROC-AUC when positives are rare, and always the trivial baseline alongside, because a metric a constant function can win is not measuring the model."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Under imbalance, accuracy is a distraction and ROC-AUC is optimistic - PR-AUC is the honest summary.",
+      "The threshold is a cost decision, and 0.5 is a convention rather than an answer.",
+      "A metric integrating over all operating points describes points you will never deploy at."
+    ],
+    "demo": "classification-metrics"
+  },
+  "order": [
+    "classification-metrics",
+    "dynamic-programming",
+    "graph-search",
+    "search-astar",
+    "dijkstra",
+    "backtracking",
+    "simulated-annealing",
+    "branch-and-bound",
+    "arc-consistency",
+    "mst",
+    "max-flow"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "dynamic-programming"
+};

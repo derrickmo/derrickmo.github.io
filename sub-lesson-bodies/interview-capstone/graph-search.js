@@ -1,0 +1,102 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/interview-capstone/graph-search/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "classification-metrics": {
+        "title": "Classification Metrics"
+      },
+      "dynamic-programming": {
+        "title": "Dynamic Programming"
+      },
+      "graph-search": {
+        "title": "Graph Search"
+      },
+      "search-astar": {
+        "title": "A* and Informed Search"
+      },
+      "dijkstra": {
+        "title": "Dijkstra's Shortest Path"
+      },
+      "backtracking": {
+        "title": "Backtracking & Constraint Satisfaction"
+      },
+      "simulated-annealing": {
+        "title": "Simulated Annealing"
+      },
+      "branch-and-bound": {
+        "title": "Branch & Bound"
+      },
+      "arc-consistency": {
+        "title": "Arc Consistency (AC-3)"
+      },
+      "mst": {
+        "title": "Minimum Spanning Tree"
+      },
+      "max-flow": {
+        "title": "Max Flow / Min Cut"
+      }
+    }
+  },
+  "moduleSlug": "interview-capstone",
+  "conceptId": "graph-search",
+  "lesson": {
+    "title": "Graph Search",
+    "oneLine": "BFS, Dijkstra and A* are one algorithm with three queues - and the heuristic is the only thing that must be proven.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "All three explore outward from a start node and differ only in the order the frontier is popped. BFS uses a plain queue and is correct when every edge costs the same. Dijkstra uses a priority queue on distance-so-far and handles varying non-negative weights. A* prioritizes distance-so-far PLUS an estimate of what remains, so it drives toward the goal instead of expanding uniformly.",
+          "Recognizing which one applies is most of the value: 'shortest path, unweighted' means BFS, and reaching for Dijkstra there is a correct answer that says you did not notice. The ML homes are worth carrying too - beam search is a bounded frontier, and HNSW is graph search over a similarity index."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "A* orders the frontier by the sum of cost incurred and cost estimated:"
+        ],
+        "tex": "f(n) = g(n) + h(n), \\qquad \\text{admissible iff } h(n) \\le h^{*}(n)\\ \\forall n",
+        "texNote": "Admissibility - never overestimating - is what guarantees optimality. An inadmissible heuristic is faster and can return the wrong path."
+      },
+      {
+        "h": "In code",
+        "code": "# One skeleton, three behaviours - only the frontier differs.\nfrontier = deque([start])                 # BFS\nfrontier = [(0, start)]                   # Dijkstra: heap on g\nfrontier = [(h(start), 0, start)]         # A*:       heap on g + h\n\n# h = 0 makes A* exactly Dijkstra, which is the cleanest way to remember\n# that they are the same algorithm under different priorities.",
+        "caption": "Set h to zero and A* degenerates to Dijkstra; make every edge cost 1 and Dijkstra degenerates to BFS."
+      },
+      {
+        "h": "The heuristic is the only real choice",
+        "paras": [
+          "On a 60x60 grid with random obstacles, Dijkstra expands 2,751 nodes to find a path of cost 118. A* with the admissible Manhattan heuristic finds the same cost-118 path while expanding 1,718 — the same guarantee, a third less work, purely from knowing which direction the goal is in.",
+          "Inflating the heuristic buys much more speed and stops being safe: weighting it by 1.5 expands only 183 nodes and returns a path of cost 128, and weighting by 3 expands 162 and returns 132. Both are still complete and both are wrong about optimality. That is the entire family in one line — Dijkstra is A* with a zero heuristic, greedy best-first is A* with an unbounded one, and weighted A* is the dial between them, with the bound on suboptimality equal to the weight. Choosing an algorithm here is really choosing how much optimality you will trade for expansions."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The three differ only in frontier ordering - h=0 turns A* into Dijkstra, unit weights turn Dijkstra into BFS.",
+      "A* is optimal only with an admissible heuristic; overestimating buys speed and loses the guarantee.",
+      "Dijkstra assumes non-negative weights - negative edges need Bellman-Ford."
+    ],
+    "demo": "bfs-dfs-astar"
+  },
+  "order": [
+    "classification-metrics",
+    "dynamic-programming",
+    "graph-search",
+    "search-astar",
+    "dijkstra",
+    "backtracking",
+    "simulated-annealing",
+    "branch-and-bound",
+    "arc-consistency",
+    "mst",
+    "max-flow"
+  ],
+  "index": 2,
+  "prev": "dynamic-programming",
+  "next": "search-astar"
+};

@@ -1,0 +1,65 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/cnn/cnn/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Convolutional Neural Networks",
+    "lessons": {
+      "cnn": {
+        "title": "Convolutional Networks"
+      },
+      "data-augmentation": {
+        "title": "Data Augmentation"
+      }
+    }
+  },
+  "moduleSlug": "cnn",
+  "conceptId": "cnn",
+  "lesson": {
+    "title": "Convolutional Networks",
+    "oneLine": "Stack convolutions and pooling into a hierarchy of visual features.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A CNN interleaves convolutions (detect features) with pooling (shrink and gain invariance), building a hierarchy from edges to textures to object parts. The final feature map feeds a classifier or a detector head. This inductive bias - locality and weight sharing - is what makes vision models data-efficient."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Pooling downsamples a region to one value, e.g. the max:"
+        ],
+        "tex": "y_{i,j} = \\max_{(m,n)\\in R_{i,j}} x_{m,n}",
+        "texNote": "Each conv-pool stage widens the receptive field and adds translation invariance."
+      },
+      {
+        "h": "In code",
+        "code": "def max_pool(x, k=2):\n    h, w = x.shape\n    return x[:h//k*k, :w//k*k].reshape(h//k, k, w//k, k).max((1, 3))",
+        "caption": "Conv to detect, pool to summarize - repeat, then classify."
+      },
+      {
+        "h": "Equivariant, not invariant",
+        "paras": [
+          "A convolution commutes with translation rather than ignoring it: shift the input and the feature map shifts with it. Moving a feature from position 8 to position 13, the convolution's peak moves from 8 to 13 — the same response, in a different place. That is equivariance, and on its own it gives a classifier nothing, because a classifier needs the same answer regardless of position.",
+          "Invariance comes from what sits on top. Global max-pooling over the two feature maps above returns 0.9412 in both cases, identical, because pooling discards the location the convolution carefully preserved. Knowing which property lives where explains a lot of architecture: pooling and striding buy invariance and throw away localisation, which is why segmentation and detection heads reach back into earlier layers for the position information the classifier head was happy to lose. The receptive field is the other constraint — stacked 3x3 convolutions grow it only as 1 + 2L, so 50 layers see 101 pixels, and dilation exists because linear growth is too slow."
+        ]
+      }
+    ],
+    "takeaways": [
+      "CNNs build a feature hierarchy via conv + pool stages.",
+      "Locality and weight sharing make them data-efficient on images.",
+      "Detection and segmentation reuse the same backbone."
+    ],
+    "demo": "nms"
+  },
+  "order": [
+    "cnn",
+    "data-augmentation"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "data-augmentation"
+};

@@ -1,0 +1,99 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/ml-theory/newtons-method/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Machine Learning Theory",
+    "lessons": {
+      "regularization": {
+        "title": "Regularization"
+      },
+      "double-descent": {
+        "title": "Double Descent"
+      },
+      "overfitting": {
+        "title": "Overfitting & Generalization"
+      },
+      "newtons-method": {
+        "title": "Newton's Method & Second-Order Optimization"
+      },
+      "active-learning": {
+        "title": "Active Learning"
+      },
+      "coordinate-descent": {
+        "title": "Coordinate Descent"
+      },
+      "proximal-gradient": {
+        "title": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)"
+      },
+      "quasi-newton": {
+        "title": "Quasi-Newton Methods (BFGS / L-BFGS)"
+      },
+      "coreset": {
+        "title": "Coresets"
+      },
+      "dataset-distillation": {
+        "title": "Dataset Distillation"
+      }
+    }
+  },
+  "moduleSlug": "ml-theory",
+  "conceptId": "newtons-method",
+  "lesson": {
+    "title": "Newton's Method & Second-Order Optimization",
+    "oneLine": "Use curvature, not just slope — quadratic convergence that nobody can afford at scale, and the approximations that made it usable.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Gradient descent knows which way is downhill but nothing about how the slope is changing, so it has to guess a step size. Newton's method fits a quadratic bowl to the loss at your current point and jumps straight to that bowl's minimum. When the fit is good the step is close to perfect and no learning rate is needed.",
+          "It also fixes the conditioning problem that makes gradient descent zig-zag. Scaling by the inverse Hessian makes the step invariant to how the parameters are scaled, so a badly stretched loss surface stops mattering."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Preconditioning the gradient by the inverse Hessian:"
+        ],
+        "tex": "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla\\mathcal{L}(\\theta_t), \\qquad H_{ij} = \\frac{\\partial^2 \\mathcal{L}}{\\partial\\theta_i\\,\\partial\\theta_j}",
+        "texNote": "Convergence is quadratic near the optimum — the number of correct digits roughly doubles per step. The price is the Hessian: n^2 entries and O(n^3) to invert, which for a model with a million parameters is a trillion entries. This is why second-order methods are rare in deep learning, not because they do not work."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef newton(grad, hess, theta, steps=20, damping=1e-6):\n    for _ in range(steps):\n        H = hess(theta)\n        # Damping keeps the solve well-posed and stops it stepping toward\n        # a SADDLE when the Hessian is indefinite - the failure mode people forget.\n        step = np.linalg.solve(H + damping * np.eye(len(theta)), grad(theta))\n        theta = theta - step\n    return theta",
+        "caption": "np.linalg.solve rather than an explicit inverse: forming H^-1 is both slower and numerically worse."
+      },
+      {
+        "h": "Why it fails on neural networks",
+        "paras": [
+          "A neural network's loss surface is not convex, so the Hessian is indefinite and Newton's step can head toward a saddle point rather than a minimum — it moves toward a stationary point, and saddles are stationary. Trust regions and damping exist to stop that.",
+          "Quasi-Newton methods keep the idea and drop the cost. BFGS builds an approximation to the inverse Hessian from successive gradients; L-BFGS stores only the last few updates instead of a matrix and is genuinely usable on medium problems. Both still assume a smooth deterministic objective, which mini-batch noise violates.",
+          "The adaptive optimizers are the diagonal shortcut. Adam's division by root-v is a crude per-parameter curvature estimate — a diagonal preconditioner learned from gradient magnitudes. That is the honest connection: Adam is second-order thinking with an approximation cheap enough to run."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Newton's method preconditions by curvature, converges quadratically, and needs no learning rate near the optimum.",
+      "The Hessian is O(n^2) to store and O(n^3) to invert, which rules it out at deep-learning scale.",
+      "L-BFGS keeps the idea affordably, and Adam's per-parameter scaling is the diagonal approximation of the same idea."
+    ],
+    "demo": "newton-vs-gradient"
+  },
+  "order": [
+    "regularization",
+    "double-descent",
+    "overfitting",
+    "newtons-method",
+    "active-learning",
+    "coordinate-descent",
+    "proximal-gradient",
+    "quasi-newton",
+    "coreset",
+    "dataset-distillation"
+  ],
+  "index": 3,
+  "prev": "overfitting",
+  "next": "active-learning"
+};

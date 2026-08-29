@@ -1,0 +1,97 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/advanced-cv/hough-transform/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Advanced Computer Vision",
+    "lessons": {
+      "edge-detection": {
+        "title": "Edge Detection"
+      },
+      "hough-transform": {
+        "title": "The Hough Transform"
+      },
+      "harris-corners": {
+        "title": "Corner Detection"
+      },
+      "hog": {
+        "title": "HOG Features"
+      },
+      "optical-flow": {
+        "title": "Optical Flow"
+      },
+      "image-segmentation": {
+        "title": "Image Segmentation"
+      },
+      "iou-nms": {
+        "title": "IoU and Non-Max Suppression"
+      },
+      "histogram-equalization": {
+        "title": "Histogram Equalization"
+      },
+      "morphological-operations": {
+        "title": "Morphological Operations"
+      },
+      "template-matching": {
+        "title": "Template Matching (Cross-Correlation)"
+      }
+    }
+  },
+  "moduleSlug": "advanced-cv",
+  "conceptId": "hough-transform",
+  "lesson": {
+    "title": "The Hough Transform",
+    "oneLine": "Detect lines by having edge points vote in parameter space.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Once you have edges, how do you find straight lines? Each edge point votes for every line that could pass through it, in a (rho, theta) accumulator. Real lines collect many votes and show up as bright peaks. It is a robust, global way to find shapes even with gaps and noise."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Each point (x, y) maps to a sinusoid of lines through it:"
+        ],
+        "tex": "\\rho = x\\cos\\theta + y\\sin\\theta",
+        "texNote": "Collinear points share a (rho, theta) cell - the peak is their common line."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\nfor (x, y) in edge_points:\n    for ti, theta in enumerate(thetas):\n        rho = int(x*np.cos(theta) + y*np.sin(theta))\n        acc[rho, ti] += 1            # vote; peaks = lines",
+        "caption": "Edge points vote; accumulator peaks are the lines."
+      },
+      {
+        "h": "The accumulator is the whole cost",
+        "paras": [
+          "Voting is elegant because it turns detection into finding a peak, but the array being voted into grows with the number of shape parameters, and it grows multiplicatively. On a 512x512 image at one-degree, one-pixel resolution, a line needs (rho, theta) and 261,000 cells. A circle needs (x, y, r) and 67,108,864 — 257 times as many. An ellipse needs five parameters and lands near 1.9e+11 cells, roughly 740,000 times the line.",
+          "So the transform is only practical for shapes with two or three parameters, and past that the field switches to fitting rather than voting: RANSAC samples candidate models instead of enumerating them all. The other half of the trade is resolution. Coarser bins are cheaper and pool votes better against noise, but they blur nearby lines into one peak; finer bins separate them and scatter the votes of a single slightly-imperfect line across several cells."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The Hough transform detects shapes by voting.",
+      "Collinear edges peak at one (rho, theta) cell.",
+      "It is robust to gaps and noise; it extends to circles."
+    ],
+    "demo": "hough-transform"
+  },
+  "order": [
+    "edge-detection",
+    "hough-transform",
+    "harris-corners",
+    "hog",
+    "optical-flow",
+    "image-segmentation",
+    "iou-nms",
+    "histogram-equalization",
+    "morphological-operations",
+    "template-matching"
+  ],
+  "index": 1,
+  "prev": "edge-detection",
+  "next": "harris-corners"
+};

@@ -1,0 +1,69 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/advanced-nlp/rope/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Advanced NLP and Generation",
+    "lessons": {
+      "beam-search": {
+        "title": "Beam Search"
+      },
+      "rope": {
+        "title": "Rotary Position Embeddings"
+      },
+      "kv-cache": {
+        "title": "The KV Cache"
+      }
+    }
+  },
+  "moduleSlug": "advanced-nlp",
+  "conceptId": "rope",
+  "lesson": {
+    "title": "Rotary Position Embeddings",
+    "oneLine": "Encode position by rotating query and key vectors.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Instead of adding a position signal, RoPE rotates each query and key by an angle proportional to its position. Because a dot product of two rotated vectors depends only on their angle difference, attention naturally sees relative position - and it extrapolates to longer contexts better than learned absolute embeddings."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Rotate by a position-dependent angle so dot products encode relative offset:"
+        ],
+        "tex": "\\langle R_{\\theta m} q,\\ R_{\\theta n} k\\rangle = g(q, k,\\ m-n)",
+        "texNote": "The result depends on m - n, the relative position, not the absolute indices."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef rope(x, pos, base=10000):\n    d = x.shape[-1]; i = np.arange(0, d, 2)\n    theta = pos / base ** (i / d)\n    c, s = np.cos(theta), np.sin(theta)\n    return np.stack([x[..., ::2]*c - x[..., 1::2]*s,\n                     x[..., ::2]*s + x[..., 1::2]*c], -1).reshape(x.shape)",
+        "caption": "Rotate pairs of dimensions by a position-scaled angle."
+      },
+      {
+        "h": "Why extrapolation past the trained length fails",
+        "paras": [
+          "RoPE's central property is exact: rotating queries and keys by an angle proportional to their absolute position makes the attention score depend only on the difference. Measured directly, positions (5, 3), (105, 103) and (1005, 1003) all give the identical score 4.8096 — the same relative offset, the same answer, anywhere in the sequence.",
+          "The catch is that the rotation angle is unbounded while training data is not. With the standard base of 10,000 and d_head 64, the slowest frequency completes one turn every 47,117 positions, so a model trained at 4,096 tokens has only ever seen that component rotated through about 9% of a circle. Ask it about an offset of 32,768 and those low-frequency components sit at angles that never occurred in training — the encoding is well defined and the model has no experience of it. That is precisely what position-interpolation and NTK-aware or YaRN scaling manipulate: they change the base or compress the angles so long offsets land back inside the range the weights were fitted on."
+        ]
+      }
+    ],
+    "takeaways": [
+      "RoPE encodes position by rotating Q and K.",
+      "Attention then sees relative position for free.",
+      "It extends to longer contexts better than absolute encodings."
+    ],
+    "demo": "rope"
+  },
+  "order": [
+    "beam-search",
+    "rope",
+    "kv-cache"
+  ],
+  "index": 1,
+  "prev": "beam-search",
+  "next": "kv-cache"
+};

@@ -1,0 +1,77 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/unsupervised-learning/tsne/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Unsupervised Learning",
+    "lessons": {
+      "dbscan": {
+        "title": "DBSCAN"
+      },
+      "hierarchical-clustering": {
+        "title": "Hierarchical Clustering"
+      },
+      "tsne": {
+        "title": "t-SNE"
+      },
+      "spectral-clustering": {
+        "title": "Spectral Clustering"
+      },
+      "kernel-density": {
+        "title": "Kernel Density Estimation"
+      }
+    }
+  },
+  "moduleSlug": "unsupervised-learning",
+  "conceptId": "tsne",
+  "lesson": {
+    "title": "t-SNE",
+    "oneLine": "Lay out high-dimensional data in 2D so neighborhoods are preserved.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "PCA is linear and can flatten interesting structure. t-SNE is built for visualization: it places points in 2D so that near neighbors in the original space stay near, revealing clusters. It distorts global distances to do so, so read cluster membership, not the gaps between clusters."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "It minimizes the KL divergence between neighbor distributions in high and low dimensions:"
+        ],
+        "tex": "\\mathrm{KL}(P\\,\\|\\,Q) = \\sum_{i\\ne j} p_{ij}\\log\\frac{p_{ij}}{q_{ij}}",
+        "texNote": "Perplexity sets the neighborhood size; the low-D q uses a heavy-tailed Student-t."
+      },
+      {
+        "h": "In code",
+        "code": "# gradient-descend the 2D points Y to match neighbor probabilities\nP = joint_neighbor_probs(X, perplexity=30)\nfor _ in range(1000):\n    Q = student_t_affinities(Y)\n    Y -= lr * kl_gradient(P, Q, Y)",
+        "caption": "Match neighborhood probabilities; trust clusters, not distances."
+      },
+      {
+        "h": "Cluster size on the plot is not cluster size in the data",
+        "paras": [
+          "t-SNE equalises local density by construction, so how big a cluster looks says more about how many points it contains than about how spread out it is. Running three clusters with identical true spread through the algorithm, the apparent spread on the map came out between 0.16 and 0.35 across seeds — roughly a factor of two, for clusters that are the same size in the data. Reading tightness off a t-SNE plot is reading an artefact.",
+          "Worth being careful about the stronger version of this warning, though: in these runs the ratio of between-cluster distances was roughly preserved, at 4.77 to 5.38 against a true 5.00, so the claim that t-SNE distances are meaningless was not what the measurement showed. The defensible statement is narrower and still useful — the algorithm optimises neighbourhood preservation, it guarantees nothing about global geometry, and any structure you intend to rely on should be confirmed in the original space rather than inferred from the picture."
+        ]
+      }
+    ],
+    "takeaways": [
+      "t-SNE preserves local neighborhoods for visualization.",
+      "It distorts global distances - read clusters, not gaps.",
+      "Perplexity controls the neighborhood scale."
+    ],
+    "demo": "tsne"
+  },
+  "order": [
+    "dbscan",
+    "hierarchical-clustering",
+    "tsne",
+    "spectral-clustering",
+    "kernel-density"
+  ],
+  "index": 2,
+  "prev": "hierarchical-clustering",
+  "next": "spectral-clustering"
+};

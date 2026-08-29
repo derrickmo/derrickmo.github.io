@@ -1,0 +1,89 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/neural-nets/mlp/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Neural Networks from Scratch",
+    "lessons": {
+      "mlp": {
+        "title": "The Multilayer Perceptron"
+      },
+      "activations": {
+        "title": "Activation Functions"
+      },
+      "optimizers": {
+        "title": "Optimizers: SGD to Adam"
+      },
+      "batch-norm": {
+        "title": "Batch Normalization"
+      },
+      "weight-init": {
+        "title": "Weight Initialization"
+      },
+      "perceptron": {
+        "title": "The Perceptron"
+      },
+      "adam": {
+        "title": "Adam"
+      },
+      "label-noise": {
+        "title": "Label Noise & Memorization"
+      }
+    }
+  },
+  "moduleSlug": "neural-nets",
+  "conceptId": "mlp",
+  "lesson": {
+    "title": "The Multilayer Perceptron",
+    "oneLine": "Stack linear layers and nonlinearities into a universal function approximator.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A multilayer perceptron alternates two operations: a linear map (weights and a bias) and a per-neuron nonlinearity. Without the nonlinearity, stacking layers collapses to a single linear map; with it, a wide-enough network can approximate any continuous function."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Each layer applies a weight matrix, a bias, and an activation:"
+        ],
+        "tex": "h^{(l)} = \\sigma\\!\\big(W^{(l)} h^{(l-1)} + b^{(l)}\\big)",
+        "texNote": "Depth composes simple features into complex ones; the nonlinearity is what makes depth matter."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef mlp(x, layers):\n    for W, b in layers[:-1]:\n        x = np.maximum(0, W @ x + b)   # ReLU\n    W, b = layers[-1]\n    return W @ x + b                   # linear head",
+        "caption": "Linear, nonlinear, repeat - then a final linear head."
+      },
+      {
+        "h": "Universal approximation is existence, not reach",
+        "paras": [
+          "The theorem says a wide enough single hidden layer can approximate any continuous function to any accuracy. It does not say gradient descent will find that setting, and the gap is easy to measure. Fitting sin(2*pi*x) with a one-hidden-layer ReLU network, identical in architecture, data and training budget, twelve random initialisations at width 8 give final RMS errors from 0.0737 to 0.4471 — a spread of 6.1x decided by nothing but where the run started.",
+          "The best width-8 run beats the median width-16 run, so the capacity was present in both and the optimiser reached it in one case and not the other. That is the honest content of the theorem: it is a statement about the function class, not about the training procedure, and in practice the reachable subset is what matters. Almost everything that has made deep networks trainable — initialisation scales, normalisation, residual paths, adaptive optimisers — is aimed at that gap rather than at representational power, which was never the binding constraint."
+        ]
+      }
+    ],
+    "takeaways": [
+      "An MLP is alternating linear maps and nonlinearities.",
+      "The nonlinearity is what makes depth more than one big linear layer.",
+      "Wide enough, it can approximate any continuous function."
+    ],
+    "demo": "neural-playground"
+  },
+  "order": [
+    "mlp",
+    "activations",
+    "optimizers",
+    "batch-norm",
+    "weight-init",
+    "perceptron",
+    "adam",
+    "label-noise"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "activations"
+};

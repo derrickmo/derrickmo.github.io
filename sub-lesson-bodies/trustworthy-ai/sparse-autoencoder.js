@@ -1,0 +1,91 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/trustworthy-ai/sparse-autoencoder/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "shap": {
+        "title": "SHAP Values"
+      },
+      "saliency": {
+        "title": "Saliency Maps"
+      },
+      "adversarial-examples": {
+        "title": "Adversarial Examples"
+      },
+      "superposition": {
+        "title": "Superposition"
+      },
+      "activation-patching": {
+        "title": "Activation Patching"
+      },
+      "sparse-autoencoder": {
+        "title": "Sparse Autoencoders & Superposition"
+      },
+      "certified-robustness": {
+        "title": "Certified Robustness"
+      },
+      "conformal-regression": {
+        "title": "Conformal Regression"
+      }
+    }
+  },
+  "moduleSlug": "trustworthy-ai",
+  "conceptId": "sparse-autoencoder",
+  "lesson": {
+    "title": "Sparse Autoencoders & Superposition",
+    "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions — superposition — and it gets away with it because features are sparse, so collisions are rare.",
+          "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary — many more directions than dimensions — with a sparsity penalty, so that each learned atom fires for one thing rather than six."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Encode to a wide, sparse code; decode with a unit-norm dictionary; penalise the code's L1:"
+        ],
+        "tex": "z = \\mathrm{ReLU}(W_e(x - b_d) + b_e),\\quad \\hat{x} = W_d z + b_d,\\quad \\mathcal{L} = \\lVert x - \\hat{x}\\rVert_2^2 + \\lambda\\lVert z\\rVert_1",
+        "texNote": "Decoder columns are constrained to unit norm, otherwise the model shrinks z and inflates W_d to dodge the L1 penalty without becoming any sparser. lambda traces a frontier: too small and atoms stay polysemantic, too large and atoms die and never fire at all."
+      },
+      {
+        "h": "In code",
+        "code": "import torch, torch.nn as nn\n\nclass SAE(nn.Module):\n    def __init__(self, d_model, d_hidden):        # d_hidden >> d_model\n        super().__init__()\n        self.enc = nn.Linear(d_model, d_hidden)\n        self.dec = nn.Linear(d_hidden, d_model, bias=False)\n\n    def forward(self, x):\n        z = torch.relu(self.enc(x))\n        with torch.no_grad():                     # keep the dictionary unit-norm\n            self.dec.weight.div_(self.dec.weight.norm(dim=0, keepdim=True))\n        return self.dec(z), z\n\ndef loss_fn(x, x_hat, z, lam=1e-3):\n    return ((x - x_hat) ** 2).sum(-1).mean() + lam * z.abs().sum(-1).mean()",
+        "caption": "The renormalisation is not optional. Without it the L1 term is trivially gamed and the code looks sparse while nothing has been disentangled."
+      },
+      {
+        "h": "How you know it worked, and where it stops",
+        "paras": [
+          "The honest evaluation is not reconstruction loss. Feed a known feature and count how many atoms fire above threshold: on a planted toy problem, raw neurons respond to around six features each while SAE atoms respond to roughly one. That activation-based test is the measurement; direction overlap is not, because in a low-dimensional space a random direction already has high cosine with the best of many features.",
+          "Dead latents are the routine failure — atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
+          "And the deepest caveat: in a real model there is no ground truth. Superposition is a hypothesis that explains polysemanticity well, and reconstruction plus sparsity is a proxy for interpretability, not a proof of it."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Superposition means more features than dimensions, tolerated because features are sparse — so the neuron basis is the wrong basis.",
+      "A sparse autoencoder learns an overcomplete dictionary; the unit-norm decoder constraint is what stops the L1 penalty being gamed.",
+      "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
+    ],
+    "demo": "sparse-autoencoder"
+  },
+  "order": [
+    "shap",
+    "saliency",
+    "adversarial-examples",
+    "superposition",
+    "activation-patching",
+    "sparse-autoencoder",
+    "certified-robustness",
+    "conformal-regression"
+  ],
+  "index": 5,
+  "prev": "activation-patching",
+  "next": "certified-robustness"
+};

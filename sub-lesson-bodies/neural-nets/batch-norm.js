@@ -1,0 +1,89 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/neural-nets/batch-norm/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Neural Networks from Scratch",
+    "lessons": {
+      "mlp": {
+        "title": "The Multilayer Perceptron"
+      },
+      "activations": {
+        "title": "Activation Functions"
+      },
+      "optimizers": {
+        "title": "Optimizers: SGD to Adam"
+      },
+      "batch-norm": {
+        "title": "Batch Normalization"
+      },
+      "weight-init": {
+        "title": "Weight Initialization"
+      },
+      "perceptron": {
+        "title": "The Perceptron"
+      },
+      "adam": {
+        "title": "Adam"
+      },
+      "label-noise": {
+        "title": "Label Noise & Memorization"
+      }
+    }
+  },
+  "moduleSlug": "neural-nets",
+  "conceptId": "batch-norm",
+  "lesson": {
+    "title": "Batch Normalization",
+    "oneLine": "Normalize activations across the batch to stabilize training.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "As signals pass through layers, their scale can drift and stall learning. Batch norm renormalizes each feature to zero mean and unit variance over the mini-batch, then lets the network rescale with learned parameters. It smooths the loss landscape, allows higher learning rates, and adds a little regularizing noise."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Standardize over the batch, then shift and scale:"
+        ],
+        "tex": "\\hat{x} = \\frac{x-\\mu_B}{\\sqrt{\\sigma_B^2+\\epsilon}},\\quad y = \\gamma\\hat{x}+\\beta",
+        "texNote": "gamma and beta are learned; at inference, running statistics replace the batch ones."
+      },
+      {
+        "h": "In code",
+        "code": "mu = x.mean(0); var = x.var(0)\nxhat = (x - mu) / np.sqrt(var + 1e-5)\ny = gamma * xhat + beta",
+        "caption": "Standardize per feature, then let the net rescale."
+      },
+      {
+        "h": "The statistics are only as good as the batch",
+        "paras": [
+          "Batch norm normalises using statistics estimated from the current batch, so the normaliser is itself a random variable. Estimating a unit-variance feature, the standard deviation of the batch mean is 0.717 at batch size 2, 0.348 at 8, 0.176 at 32 and 0.044 at 512 — at small batch sizes the quantity being subtracted is mostly noise, which is why performance falls off a cliff when a model is retrained at a smaller batch size for memory reasons.",
+          "There is also a systematic error underneath the noise. The batch variance is biased low by exactly (B-1)/B: measured mean batch variance is 0.491 at batch 2 and 0.876 at batch 8 against a true value of 1. So training normalises by something smaller than the truth while inference uses running averages that are closer to it, and that mismatch is a train/eval gap built into the method rather than a bug. It is the reason for the whole family of alternatives — layer, group and instance norm — which compute their statistics within a single example and therefore do not care how many examples share the step."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Batch norm keeps activation statistics stable across depth.",
+      "It enables higher learning rates and faster convergence.",
+      "Layer norm is the batch-free variant used in transformers."
+    ],
+    "demo": "batch-norm"
+  },
+  "order": [
+    "mlp",
+    "activations",
+    "optimizers",
+    "batch-norm",
+    "weight-init",
+    "perceptron",
+    "adam",
+    "label-noise"
+  ],
+  "index": 3,
+  "prev": "optimizers",
+  "next": "weight-init"
+};

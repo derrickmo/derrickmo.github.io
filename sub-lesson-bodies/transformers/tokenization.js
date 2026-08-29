@@ -1,0 +1,78 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/transformers/tokenization/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Transformers",
+    "lessons": {
+      "tokenization": {
+        "title": "Tokenization"
+      },
+      "embeddings": {
+        "title": "Embeddings"
+      },
+      "attention": {
+        "title": "Attention"
+      },
+      "multi-head": {
+        "title": "Multi-Head Attention"
+      },
+      "decoding": {
+        "title": "Decoding"
+      }
+    }
+  },
+  "moduleSlug": "transformers",
+  "conceptId": "tokenization",
+  "lesson": {
+    "title": "Tokenization",
+    "oneLine": "Turn raw text into the discrete tokens a model actually consumes.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A language model never sees characters or words — it sees a sequence of integer token ids drawn from a fixed vocabulary. Tokenization is the step that converts a string into that sequence, and back.",
+          "Word-level vocabularies explode and choke on typos and rare words; character-level keeps the vocabulary tiny but makes sequences painfully long. Subword tokenization (BPE, WordPiece, Unigram) is the compromise everyone uses: common words stay whole, rare ones split into reusable pieces, and nothing is ever out-of-vocabulary."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Byte-Pair Encoding learns its vocabulary greedily. Start from single characters, then repeatedly merge the adjacent pair with the highest frequency across the corpus until you hit the target vocabulary size:"
+        ],
+        "tex": "(a,b)^\\star = \\arg\\max_{(a,b)}\\; \\mathrm{count}(a,b)",
+        "texNote": "Each chosen pair becomes a new token; the merge list, applied in order, is the tokenizer."
+      },
+      {
+        "h": "In code",
+        "code": "from collections import Counter\n\n# greedy BPE merge step over a corpus of symbol-lists\ndef best_pair(corpus):\n    pairs = Counter()\n    for word in corpus:                # word = ['l','o','w','</w>']\n        for a, b in zip(word, word[1:]):\n            pairs[(a, b)] += 1\n    return pairs.most_common(1)[0][0]  # the pair to merge next\n\ndef merge(corpus, pair):\n    a, b = pair\n    return [_join(word, a, b) for word in corpus]",
+        "caption": "Run best_pair -> merge in a loop until the vocabulary reaches the size you want."
+      },
+      {
+        "h": "The vocabulary is fitted to one corpus",
+        "paras": [
+          "A BPE vocabulary is trained, so it compresses what it was trained on and degrades gracelessly outside it. Learning 600 merges from this site's own English prose and then measuring, in-domain English costs 4.06 characters per token; rare English words fall to 1.69, source code to 1.31, and digit strings to exactly 1.00 — one token per character, the byte-level fallback with no compression at all.",
+          "Since price, latency and context are all counted in tokens, that ratio is a direct multiplier on cost for anything the tokenizer was not fitted to, and it is why the same passage can cost several times more in one language than another. It is also the mechanism behind a family of otherwise baffling model failures: arithmetic is hard partly because numbers are split into inconsistent pieces, and character-level tasks such as spelling or reversal are hard because the characters were never separate objects to the model in the first place."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Models operate on token ids, not text — tokenization defines what a 'unit' even is.",
+      "Subword tokenizers trade vocabulary size against sequence length and eliminate out-of-vocabulary words.",
+      "BPE is just: merge the most frequent adjacent pair, repeat."
+    ],
+    "demo": "tokenizer"
+  },
+  "order": [
+    "tokenization",
+    "embeddings",
+    "attention",
+    "multi-head",
+    "decoding"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "embeddings"
+};

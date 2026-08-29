@@ -1,0 +1,93 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/trustworthy-ai/conformal-regression/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "shap": {
+        "title": "SHAP Values"
+      },
+      "saliency": {
+        "title": "Saliency Maps"
+      },
+      "adversarial-examples": {
+        "title": "Adversarial Examples"
+      },
+      "superposition": {
+        "title": "Superposition"
+      },
+      "activation-patching": {
+        "title": "Activation Patching"
+      },
+      "sparse-autoencoder": {
+        "title": "Sparse Autoencoders & Superposition"
+      },
+      "certified-robustness": {
+        "title": "Certified Robustness"
+      },
+      "conformal-regression": {
+        "title": "Conformal Regression"
+      }
+    }
+  },
+  "moduleSlug": "trustworthy-ai",
+  "conceptId": "conformal-regression",
+  "lesson": {
+    "title": "Conformal Regression",
+    "oneLine": "Distribution-free prediction intervals with a coverage guarantee that genuinely holds — as long as you know it is a guarantee about the average, not about your case.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "You have a fitted regressor and want an interval rather than a number, with a real guarantee attached. Bayesian methods provide one conditional on the model being correct. Conformal prediction provides one that holds regardless of the model, requiring only that the calibration and test data are exchangeable.",
+          "Split conformal is three lines of arithmetic. Hold out a calibration set the model never saw. Compute a conformity score on it — for regression, the absolute residual. Take the appropriate empirical quantile of those scores, and the interval is the prediction plus or minus that quantile. Nothing about the model enters; it can be a linear fit, a gradient-boosted ensemble, or a neural network, and the guarantee is identical.",
+          "Measured on a heteroscedastic problem with target coverage 90 percent, the achieved coverage over 4,000 test points was 90.3 percent. The guarantee is finite-sample and it holds, not asymptotically but at the sample sizes you actually have."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The interval, and the exact finite-sample guarantee it satisfies:"
+        ],
+        "tex": "C(x) = \\hat{\\mu}(x) \\pm \\hat{q}, \\quad \\hat{q} = \\text{the } \\lceil (n+1)(1-\\alpha) \\rceil \\text{-th smallest } |y_i - \\hat{\\mu}(x_i)| \\ \\Longrightarrow\\ \\Pr\\bigl(Y \\in C(X)\\bigr) \\ge 1-\\alpha",
+        "texNote": "The (n+1) and the ceiling are not cosmetic — they are what make the bound hold exactly rather than approximately, by treating the test point as one more exchangeable draw. The probability is over the draw of BOTH the calibration set and the test point, which is precisely the subtlety in the next section."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\n# 1. fit on the training split, 2. calibrate on a split the model never saw\nresiduals = np.abs(y_cal - model.predict(X_cal))\nn = len(residuals)\nq = np.quantile(residuals, np.ceil((n + 1) * (1 - alpha)) / n, method=\"higher\")\nlower, upper = model.predict(X_test) - q, model.predict(X_test) + q\n\n# Conformalised quantile regression: fit the two quantiles directly, then conformalise\n# the quantile model's own error. Keeps the exact guarantee AND adapts the width.\n#   lo, hi = qr_low.predict(X_cal), qr_high.predict(X_cal)\n#   scores = np.maximum(lo - y_cal, y_cal - hi)      # signed, so it can shrink too\n#   q = np.quantile(scores, np.ceil((n + 1) * (1 - alpha)) / n, method=\"higher\")\n#   interval = (qr_low.predict(X_test) - q, qr_high.predict(X_test) + q)",
+        "caption": "Reusing training data for calibration destroys the guarantee outright — residuals on data the model has fitted are optimistically small, so the interval comes out too narrow with no warning."
+      },
+      {
+        "h": "Marginal is not conditional, and that is the catch",
+        "paras": [
+          "The guarantee is about coverage averaged over the whole input distribution. It says nothing about any particular region — and with an absolute-residual score the interval is the SAME WIDTH everywhere, which for heteroscedastic data is clearly wrong.",
+          "The same experiment, broken down by region: overall coverage 90.3 percent against a 90 percent target, but 99.3 percent where the noise is small and 81.4 percent where the noise is large. The average is exactly right and both halves are wrong. A user in the noisy region is getting 81 percent coverage from an interval advertised as 90, and nothing in the output indicates it.",
+          "This is the single most important thing to understand about conformal prediction, because the guarantee is often quoted in a way that implies more than it delivers. Exact conditional coverage is impossible to achieve distribution-free with finite data, so the practical answer is to make the score adaptive. Conformalised quantile regression fits conditional quantiles and conformalises those, keeping the exact marginal guarantee while letting the width track the local noise. Alternatively, normalise the residual by an estimate of local difficulty, or calibrate separately within groups you care about — which buys group-conditional coverage.",
+          "One further condition worth stating plainly: exchangeability. Under distribution shift or temporal drift the guarantee simply does not apply, which rules out the naive application to time series where the future is not exchangeable with the past. Adaptive conformal methods adjust alpha online in response to observed miscoverage and restore a long-run guarantee, which is the right tool when data arrives in a stream."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Split conformal gives a finite-sample distribution-free interval from a held-out calibration set: target 90%, achieved 90.3%, with no assumption about the model.",
+      "The guarantee is MARGINAL. The same run covered 99.3% in the low-noise region and 81.4% in the high-noise one — the average was right and neither region was.",
+      "Use an adaptive score (conformalised quantile regression) for width that tracks local noise, never calibrate on training data, and remember exchangeability fails under drift."
+    ],
+    "demo": "conformal-regression"
+  },
+  "order": [
+    "shap",
+    "saliency",
+    "adversarial-examples",
+    "superposition",
+    "activation-patching",
+    "sparse-autoencoder",
+    "certified-robustness",
+    "conformal-regression"
+  ],
+  "index": 7,
+  "prev": "certified-robustness",
+  "next": null
+};

@@ -1,0 +1,89 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/mlops/bloom-filter/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "MLOps and Serving",
+    "lessons": {
+      "autoscaling": {
+        "title": "Autoscaling"
+      },
+      "canary-rollout": {
+        "title": "Canary Rollouts"
+      },
+      "drift-detection": {
+        "title": "Drift Detection"
+      },
+      "bloom-filter": {
+        "title": "Bloom Filter"
+      },
+      "count-min-sketch": {
+        "title": "Count-Min Sketch"
+      },
+      "semantic-caching": {
+        "title": "Semantic Caching"
+      },
+      "model-cascade": {
+        "title": "Model Cascade & Early-Exit"
+      }
+    }
+  },
+  "moduleSlug": "mlops",
+  "conceptId": "bloom-filter",
+  "lesson": {
+    "title": "Bloom Filter",
+    "oneLine": "A membership test that can say yes when it means no, never the reverse — and whose error rate you can compute before you build it.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Keep a bit array and k independent hash functions. To insert, hash the item k ways and set those bits. To query, hash the same k ways and check them: if any bit is zero the item is definitely absent, and if all are set the item is probably present. Nothing is ever stored, only evidence that something like it was inserted.",
+          "The asymmetry is the whole design. False negatives are impossible, because inserting only ever sets bits and never clears them, so an inserted item's bits are still set. False positives happen when other insertions happen to set all k of a query's bits by coincidence. Verified across four configurations: zero false negatives out of 5,000 items every time.",
+          "That asymmetry is what makes it useful architecturally. Put a Bloom filter in front of an expensive lookup and a negative answer is final — skip the disk read, skip the network call — while a positive answer merely means you have to check properly. The filter converts most of the misses into memory accesses."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The false-positive rate for n items in m bits with k hashes, and the k that minimises it:"
+        ],
+        "tex": "\\varepsilon \\approx \\left(1 - e^{-kn/m}\\right)^{k}, \\qquad k^* = \\frac{m}{n}\\ln 2, \\qquad m = -\\frac{n \\ln \\varepsilon}{(\\ln 2)^2}",
+        "texNote": "At the optimal k roughly half the bits are set — which is the intuition for why it is optimal: more hashes give more evidence per query but fill the array faster, and the balance point is exactly half full. Measured fill ratios across four configurations were 0.529, 0.528, 0.486 and 0.498."
+      },
+      {
+        "h": "In code",
+        "code": "import math, hashlib\n\nclass BloomFilter:\n    def __init__(self, n, eps):\n        self.m = math.ceil(-n * math.log(eps) / (math.log(2) ** 2))\n        self.k = max(1, round(self.m / n * math.log(2)))\n        self.bits = bytearray((self.m + 7) // 8)\n\n    def _idx(self, item):\n        # Kirsch-Mitzenmacher: two real hashes simulate k without k hash computations,\n        # with no measurable increase in the false-positive rate\n        d = hashlib.sha256(item.encode()).digest()\n        h1 = int.from_bytes(d[:8], \"big\")\n        h2 = int.from_bytes(d[8:16], \"big\") | 1\n        for i in range(self.k):\n            yield (h1 + i * h2) % self.m\n\n    def add(self, item):\n        for i in self._idx(item):\n            self.bits[i >> 3] |= 1 << (i & 7)\n\n    def __contains__(self, item):\n        return all(self.bits[i >> 3] >> (i & 7) & 1 for i in self._idx(item))",
+        "caption": "Size it for the count you will actually reach. The false-positive rate degrades continuously as n grows past the design point — there is no error and no warning, just a filter that gradually stops filtering."
+      },
+      {
+        "h": "Verified, and where it does not fit",
+        "paras": [
+          "The formula is unusually trustworthy. Predicted against measured false-positive rate over 200,000 absent keys: at 4 bits per item, 0.14689 predicted and 0.14772 measured; at 8 bits, 0.02158 against 0.02152; at 12 bits, 0.00314 against 0.00312; at 16 bits, 0.00046 against 0.00046. You can size one on paper and trust the number.",
+          "The optimal-k formula holds up under a sweep rather than on faith. At 8 bits per item the formula prescribes k = 6, and measuring every k from 2 to 12 puts the minimum exactly there: 0.02211 at k = 5, 0.02152 at k = 6, 0.02255 at k = 7, rising to 0.04990 by k = 12. More hashes is emphatically not better.",
+          "The constraints are real, though. You cannot delete — clearing bits would create false negatives for other items — so deletion needs a counting Bloom filter, which costs several bits per slot instead of one. You cannot enumerate the contents, or recover an item from the filter. And you must know n approximately in advance; scalable variants chain filters of growing size to work around that.",
+          "Where it shows up: Bigtable, Cassandra and RocksDB all consult a Bloom filter before touching an SST file on disk, which is what makes a read for a nonexistent key cheap. Chrome used one for malicious-URL checking. In an ML pipeline the natural use is deduplication of a training corpus at a scale where an exact set does not fit in memory — accepting that a small fraction of unique documents will be wrongly dropped as duplicates, which is usually a fine trade and should be a deliberate one."
+        ]
+      }
+    ],
+    "takeaways": [
+      "False negatives are structurally impossible and false positives are computable in advance: predicted 0.02158 versus measured 0.02152 at 8 bits per item, with zero false negatives across every configuration.",
+      "The optimal hash count really is m/n * ln2 — a sweep put the minimum exactly at the predicted k = 6, with error rising in both directions and roughly half the bits set at the optimum.",
+      "No deletion, no enumeration, and you must size for n in advance; past the design point it degrades silently rather than failing."
+    ],
+    "demo": "bloom-filter"
+  },
+  "order": [
+    "autoscaling",
+    "canary-rollout",
+    "drift-detection",
+    "bloom-filter",
+    "count-min-sketch",
+    "semantic-caching",
+    "model-cascade"
+  ],
+  "index": 3,
+  "prev": "drift-detection",
+  "next": "count-min-sketch"
+};

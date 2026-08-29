@@ -1,0 +1,113 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/foundations/chain-rule/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Mathematical and Programming Foundations",
+    "lessons": {
+      "chain-rule": {
+        "title": "The Chain Rule"
+      },
+      "gradient-descent": {
+        "title": "Gradient Descent"
+      },
+      "softmax": {
+        "title": "Softmax"
+      },
+      "cross-entropy": {
+        "title": "Cross-Entropy Loss"
+      },
+      "bayes": {
+        "title": "Bayes' Rule"
+      },
+      "entropy": {
+        "title": "Entropy and Information"
+      },
+      "clt": {
+        "title": "The Central Limit Theorem"
+      },
+      "fourier": {
+        "title": "Fourier Series"
+      },
+      "mutual-information": {
+        "title": "Mutual Information"
+      },
+      "importance-sampling": {
+        "title": "Importance Sampling"
+      },
+      "reservoir-sampling": {
+        "title": "Reservoir Sampling"
+      },
+      "huffman-coding": {
+        "title": "Huffman Coding"
+      },
+      "aliasing": {
+        "title": "Aliasing & the Nyquist Limit"
+      },
+      "channel-capacity": {
+        "title": "Channel Capacity"
+      }
+    }
+  },
+  "moduleSlug": "foundations",
+  "conceptId": "chain-rule",
+  "lesson": {
+    "title": "The Chain Rule",
+    "oneLine": "Compose derivatives through a graph - the calculus identity that makes backprop possible.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A neural network is a long composition of functions. To train it you need the derivative of the final loss with respect to every parameter buried inside that composition. The chain rule is the one rule that lets you get there: the sensitivity of an output to a distant input is the product of the local sensitivities along the path between them."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "For a composition L(y(x)), the derivative multiplies the local pieces:"
+        ],
+        "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\,\\frac{\\partial y}{\\partial x}",
+        "texNote": "Chained across many layers, this product is exactly what backpropagation computes."
+      },
+      {
+        "h": "In code",
+        "code": "# d/dx of L = (y - t)^2 where y = w*x\n# dL/dy = 2(y - t);  dy/dw = x  ->  dL/dw = 2(y - t) * x\ndef grad_w(x, w, t):\n    y = w * x\n    return 2 * (y - t) * x",
+        "caption": "Every autograd engine is this rule applied over a graph."
+      },
+      {
+        "h": "Why the product is the thing that breaks",
+        "paras": [
+          "The chain rule is exact. Its behaviour over a deep graph is not forgiving, because the gradient arriving at the first layer is a product of every local derivative above it. With a per-layer factor of 0.9 the signal is 3.49e-1 after 10 layers, 7.18e-2 after 25 and 5.15e-3 after 50. Move the factor to 1.1 and the same depth gives 1.17e+2 instead — one mechanism, two directions.",
+          "Nothing in the calculus has gone wrong when this happens; the derivative really is that small. That is why the remedies are architectural rather than mathematical: residual connections add a path whose local factor is exactly one, normalisation keeps the other factors near one, and clipping truncates the explosion. Depth is not free, and this product is the bill."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Gradients of compositions are products of local gradients.",
+      "It is the mathematical engine inside backprop and every autograd library.",
+      "Because the gradient is a PRODUCT along the path, local factors compound exponentially with depth - 0.9 per layer over 50 layers is 5e-3 and 1.1 is 1.2e2, which is exactly why vanishing and exploding gradients exist and why a residual connection (an identity path, local derivative 1) helps."
+    ],
+    "demo": "backprop"
+  },
+  "order": [
+    "chain-rule",
+    "gradient-descent",
+    "softmax",
+    "cross-entropy",
+    "bayes",
+    "entropy",
+    "clt",
+    "fourier",
+    "mutual-information",
+    "importance-sampling",
+    "reservoir-sampling",
+    "huffman-coding",
+    "aliasing",
+    "channel-capacity"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "gradient-descent"
+};

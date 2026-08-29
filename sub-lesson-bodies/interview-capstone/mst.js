@@ -1,0 +1,105 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/interview-capstone/mst/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "classification-metrics": {
+        "title": "Classification Metrics"
+      },
+      "dynamic-programming": {
+        "title": "Dynamic Programming"
+      },
+      "graph-search": {
+        "title": "Graph Search"
+      },
+      "search-astar": {
+        "title": "A* and Informed Search"
+      },
+      "dijkstra": {
+        "title": "Dijkstra's Shortest Path"
+      },
+      "backtracking": {
+        "title": "Backtracking & Constraint Satisfaction"
+      },
+      "simulated-annealing": {
+        "title": "Simulated Annealing"
+      },
+      "branch-and-bound": {
+        "title": "Branch & Bound"
+      },
+      "arc-consistency": {
+        "title": "Arc Consistency (AC-3)"
+      },
+      "mst": {
+        "title": "Minimum Spanning Tree"
+      },
+      "max-flow": {
+        "title": "Max Flow / Min Cut"
+      }
+    }
+  },
+  "moduleSlug": "interview-capstone",
+  "conceptId": "mst",
+  "lesson": {
+    "title": "Minimum Spanning Tree",
+    "oneLine": "Connect everything at least cost — and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree — a cycle would contain an edge you could delete while staying connected — so the answer has exactly one fewer edge than there are vertices.",
+          "Two algorithms, both greedy, both correct. Kruskal sorts all edges and adds each one whose endpoints are not already connected, using a union-find structure to answer that question in near-constant time. Prim grows a single tree outward, repeatedly adding the cheapest edge that leaves the current tree, which is Dijkstra's shape with a different key.",
+          "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and — because the weights are all distinct — the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The cut property, which is the single fact both algorithms rest on:"
+        ],
+        "tex": "\\forall\\, S \\subset V,\\ S \\neq \\emptyset:\\quad e^* = \\arg\\min_{e=(u,v),\\, u \\in S,\\, v \\notin S} w(e) \\ \\implies\\ e^* \\in \\text{some MST}",
+        "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper — so a tree omitting the lightest crossing edge was never minimal."
+      },
+      {
+        "h": "In code",
+        "code": "def kruskal(n, edges):                     # edges: (weight, u, v)\n    parent = list(range(n))\n    rank = [0] * n\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]  # path halving\n            x = parent[x]\n        return x\n\n    def union(a, b):\n        ra, rb = find(a), find(b)\n        if ra == rb:\n            return False                   # already connected: this edge makes a cycle\n        if rank[ra] < rank[rb]:\n            ra, rb = rb, ra\n        parent[rb] = ra\n        rank[ra] += rank[ra] == rank[rb]\n        return True\n\n    tree, total = [], 0\n    for w, u, v in sorted(edges):          # the sort dominates: O(E log E)\n        if union(u, v):\n            tree.append((u, v, w))\n            total += w\n    return tree, total",
+        "caption": "Union by rank plus path compression makes find effectively constant, so the sort is the whole cost. Prim with a binary heap is O(E log V) instead, which wins on dense graphs where E approaches V squared."
+      },
+      {
+        "h": "Why this belongs in an ML curriculum",
+        "paras": [
+          "Single-linkage hierarchical clustering is minimum spanning tree construction. The agglomerative procedure merges the two clusters with the smallest distance between any pair of members, which is exactly the order Kruskal adds edges. So cutting the k-1 heaviest edges of the MST gives precisely the k clusters single-linkage would produce — verified directly here for k of 2, 4 and 7, with identical cluster memberships each time.",
+          "That equivalence is useful in both directions. It explains single-linkage's signature weakness, chaining: a thin bridge of points between two dense blobs is a light edge, so the MST joins them and no threshold separates them afterwards. And it gives you an O(E log E) route to the whole hierarchy rather than the naive O(n cubed) agglomerative loop.",
+          "The pattern shows up elsewhere too. Chow-Liu learns the optimal tree-structured Bayesian network by finding a maximum spanning tree over pairwise mutual information — the same algorithm with the sign flipped and information as the weight. And in image segmentation, Felzenszwalb-Huttenlocher is an MST-based region merger.",
+          "One caveat that separates it from shortest paths, and which interviews probe: the MST does not contain shortest paths. The minimum spanning tree minimises TOTAL edge weight, and the path between two vertices within it can be arbitrarily worse than their true shortest path. If you need distances, run Dijkstra; the MST answers a different question."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Both Kruskal and Prim rest on the cut property; with distinct edge weights the MST is unique, confirmed by two algorithms returning byte-identical edge sets.",
+      "Single-linkage clustering IS the MST: cutting the k-1 heaviest edges reproduced the agglomerative clusters exactly, which also explains chaining as a light-bridge edge.",
+      "The MST minimises total weight, not path length — the route between two nodes inside it can be far worse than their shortest path."
+    ],
+    "demo": "mst"
+  },
+  "order": [
+    "classification-metrics",
+    "dynamic-programming",
+    "graph-search",
+    "search-astar",
+    "dijkstra",
+    "backtracking",
+    "simulated-annealing",
+    "branch-and-bound",
+    "arc-consistency",
+    "mst",
+    "max-flow"
+  ],
+  "index": 9,
+  "prev": "arc-consistency",
+  "next": "max-flow"
+};

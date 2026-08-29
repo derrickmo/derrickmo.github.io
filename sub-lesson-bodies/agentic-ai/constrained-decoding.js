@@ -1,0 +1,70 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/agentic-ai/constrained-decoding/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "tool-routing": {
+        "title": "Tool Routing"
+      },
+      "guardrails": {
+        "title": "Agent Guardrails"
+      },
+      "constrained-decoding": {
+        "title": "Constrained Decoding"
+      }
+    }
+  },
+  "moduleSlug": "agentic-ai",
+  "conceptId": "constrained-decoding",
+  "lesson": {
+    "title": "Constrained Decoding",
+    "oneLine": "Mask invalid tokens at every step and a valid parse stops being a result - it becomes the definition.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "If a tool call must be JSON matching a schema, you can ask the model nicely and measure the parse rate, or you can make anything else unrepresentable. Constrained decoding does the second: at each step, compute which tokens could still lead to a valid string and set every other logit to negative infinity.",
+          "The consequence worth internalising is that a 100% parse rate is then not an achievement to report - it is what the method guarantees by construction. The interesting number is whether the model chose the RIGHT tool and arguments, which constraint does nothing for."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Renormalize over the valid set V(s) at state s:"
+        ],
+        "tex": "\\tilde{p}(x \\mid s) = \\frac{p(x \\mid s)\\,\\mathbb{1}[x \\in V(s)]}{\\sum_{x' \\in V(s)} p(x' \\mid s)}",
+        "texNote": "This is a per-step local renormalization, which is NOT the same distribution as sampling p and rejecting invalid strings - the two differ, measurably."
+      },
+      {
+        "h": "In code",
+        "code": "def step(logits, state, grammar):\n    allowed = grammar.valid_next(state)          # an FSM, or a stack for nesting\n    mask = torch.full_like(logits, float('-inf'))\n    mask[list(allowed)] = 0.0\n    return (logits + mask).softmax(-1)           # invalid tokens cannot be sampled",
+        "caption": "A flat grammar needs a finite-state machine; nesting - JSON objects, balanced brackets - needs a pushdown stack."
+      },
+      {
+        "h": "Valid output, and a different model",
+        "paras": [
+          "Masking the logits to a grammar guarantees the output parses, and it does that by deleting probability mass and renormalising what is left. On a 5,000-token vocabulary, a constraint admitting 2,000 arbitrary tokens retains 30.3% of the model's mass; admitting 500 retains 8.0%; admitting 50 retains 0.24%. Whatever survives is then rescaled to sum to one.",
+          "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking — does it parse — is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Constraint makes format correct by construction, so report selection accuracy instead.",
+      "Per-step renormalization is not equivalent to rejection sampling the full string.",
+      "Nested structure needs a stack, not a finite-state machine."
+    ],
+    "demo": "constrained-decoding"
+  },
+  "order": [
+    "tool-routing",
+    "guardrails",
+    "constrained-decoding"
+  ],
+  "index": 2,
+  "prev": "guardrails",
+  "next": null
+};

@@ -1,0 +1,129 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/reinforcement-learning/dyna-q/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Reinforcement Learning",
+    "lessons": {
+      "bandit": {
+        "title": "Multi-Armed Bandits"
+      },
+      "sarsa": {
+        "title": "SARSA"
+      },
+      "td-lambda": {
+        "title": "TD(lambda) and Eligibility Traces"
+      },
+      "double-q-learning": {
+        "title": "Double Q-Learning"
+      },
+      "gae": {
+        "title": "Generalized Advantage Estimation"
+      },
+      "ppo": {
+        "title": "Proximal Policy Optimization"
+      },
+      "dyna-q": {
+        "title": "Dyna-Q"
+      },
+      "regret-matching": {
+        "title": "Regret Matching & Nash Equilibrium"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution"
+      },
+      "prioritized-replay": {
+        "title": "Prioritized Experience Replay"
+      },
+      "distributional-rl": {
+        "title": "Distributional RL (C51)"
+      },
+      "successor-representation": {
+        "title": "Successor Representation"
+      },
+      "max-entropy-rl": {
+        "title": "Maximum-Entropy RL (Soft Value Iteration)"
+      },
+      "cfr": {
+        "title": "Counterfactual Regret Minimization"
+      },
+      "replicator-dynamics": {
+        "title": "Replicator Dynamics"
+      },
+      "iterated-prisoners-dilemma": {
+        "title": "Iterated Prisoner's Dilemma"
+      }
+    }
+  },
+  "moduleSlug": "reinforcement-learning",
+  "conceptId": "dyna-q",
+  "lesson": {
+    "title": "Dyna-Q",
+    "oneLine": "Learn a model of the world and plan inside it between real steps.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Real experience is expensive. Dyna-Q learns a one-step model from the transitions it sees, then between real steps it replays imagined transitions through that model, running extra Q-updates for free. A handful of planning steps per real step can slash the experience needed to solve a maze."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Each real step is followed by n planning updates on remembered transitions:"
+        ],
+        "tex": "\\text{for } n \\text{ times: } (s,a)\\sim\\text{model},\\; Q(s,a)\\mathrel{+}=\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]",
+        "texNote": "More planning steps means faster learning - until the model's errors dominate."
+      },
+      {
+        "h": "In code",
+        "code": "model[s, a] = (r, s2)                  # learn the model\nfor _ in range(n):                    # plan\n    (sp, ap), (rp, s2p) = sample(model)\n    Q[sp, ap] += alpha * (rp + gamma * Q[s2p].max() - Q[sp, ap])",
+        "caption": "Act once, then imagine n more transitions."
+      },
+      {
+        "h": "The model is what makes it fast, and what can go stale",
+        "paras": [
+          "Planning multiplies the value of every real transition, and on a maze the effect is large: averaging steps to the goal over the first ten episodes, model-free Q-learning needs 295.3, five planning steps per real step needs 124.3, and fifty needs 34.6 — roughly eight and a half times fewer steps for the same environment interaction. All three settle around 18 steps once the task is learned, so what planning buys is sample efficiency rather than a better final policy.",
+          "The catch is that the replay buffer is a model of the world as it was. When the maze changes, every planning sweep keeps asserting the transitions it recorded before, and those transitions are only corrected once the agent happens to visit them again. That is why the practical variants add a way to distrust old data — Dyna-Q+ adds an exploration bonus that grows with the time since a transition was last tried, which is a direct bet that the world may have moved on."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Dyna-Q mixes model-free learning with model-based planning.",
+      "Planning updates reuse a learned one-step model.",
+      "It is far more sample-efficient than model-free alone."
+    ],
+    "demo": "dyna-q"
+  },
+  "order": [
+    "bandit",
+    "sarsa",
+    "td-lambda",
+    "double-q-learning",
+    "gae",
+    "ppo",
+    "dyna-q",
+    "regret-matching",
+    "minimax",
+    "mcts",
+    "neuroevolution",
+    "prioritized-replay",
+    "distributional-rl",
+    "successor-representation",
+    "max-entropy-rl",
+    "cfr",
+    "replicator-dynamics",
+    "iterated-prisoners-dilemma"
+  ],
+  "index": 6,
+  "prev": "ppo",
+  "next": "regret-matching"
+};

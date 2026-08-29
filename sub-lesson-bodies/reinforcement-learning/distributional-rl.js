@@ -1,0 +1,133 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/reinforcement-learning/distributional-rl/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Reinforcement Learning",
+    "lessons": {
+      "bandit": {
+        "title": "Multi-Armed Bandits"
+      },
+      "sarsa": {
+        "title": "SARSA"
+      },
+      "td-lambda": {
+        "title": "TD(lambda) and Eligibility Traces"
+      },
+      "double-q-learning": {
+        "title": "Double Q-Learning"
+      },
+      "gae": {
+        "title": "Generalized Advantage Estimation"
+      },
+      "ppo": {
+        "title": "Proximal Policy Optimization"
+      },
+      "dyna-q": {
+        "title": "Dyna-Q"
+      },
+      "regret-matching": {
+        "title": "Regret Matching & Nash Equilibrium"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution"
+      },
+      "prioritized-replay": {
+        "title": "Prioritized Experience Replay"
+      },
+      "distributional-rl": {
+        "title": "Distributional RL (C51)"
+      },
+      "successor-representation": {
+        "title": "Successor Representation"
+      },
+      "max-entropy-rl": {
+        "title": "Maximum-Entropy RL (Soft Value Iteration)"
+      },
+      "cfr": {
+        "title": "Counterfactual Regret Minimization"
+      },
+      "replicator-dynamics": {
+        "title": "Replicator Dynamics"
+      },
+      "iterated-prisoners-dilemma": {
+        "title": "Iterated Prisoner's Dilemma"
+      }
+    }
+  },
+  "moduleSlug": "reinforcement-learning",
+  "conceptId": "distributional-rl",
+  "lesson": {
+    "title": "Distributional RL (C51)",
+    "oneLine": "Learn the whole distribution of returns instead of its mean — the mean comes out the same, and the shape is what improves the agent.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Standard Q-learning learns the expected return from a state-action pair. But a single number cannot distinguish an action that always returns 5 from one that returns 0 or 10 with equal chance. Distributional RL learns the full return distribution and keeps that difference.",
+          "C51 represents it as a categorical distribution over a fixed set of atoms — typically 51 of them, spanning a range you must choose in advance — and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
+          "The surprise in the original result is that the improvement is not explained by better risk handling. The agents were still trained to maximise expected return, and their greedy policy still takes the argmax of the mean. Verified directly here: the mean of the learned two-spike distribution over rewards of minus one and plus one is exactly zero, which is precisely what Q-learning would learn. The distribution carries no extra information about the mean at all."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The distributional Bellman equation, and the projection that keeps the result on the fixed atom grid:"
+        ],
+        "tex": "Z(s,a) \\stackrel{D}{=} R + \\gamma Z(S', A'), \\qquad \\left(\\Phi \\hat{T} Z\\right)_i = \\sum_j \\left[1 - \\frac{\\bigl|[\\hat{T}z_j]_{V_{\\min}}^{V_{\\max}} - z_i\\bigr|}{\\Delta z}\\right]_0^1 p_j",
+        "texNote": "The projection is not a detail. Multiplying by gamma and adding a reward shifts and shrinks the support, so the updated distribution no longer lives on the atoms — it must be redistributed onto its two neighbouring atoms in proportion to distance. The distributional Bellman operator is a contraction in the Wasserstein metric, but the projected KL-minimising version used in practice is not, so C51 works without the guarantee it is usually motivated by."
+      },
+      {
+        "h": "In code",
+        "code": "import torch\n\ndef project(rewards, dones, next_probs, z, gamma, v_min, v_max):\n    n_atoms = len(z)\n    dz = (v_max - v_min) / (n_atoms - 1)\n    Tz = rewards[:, None] + gamma * (1 - dones[:, None]) * z[None, :]\n    Tz = Tz.clamp(v_min, v_max)              # returns outside the range are CLIPPED,\n                                             # which silently distorts the target\n    b = (Tz - v_min) / dz\n    lo, hi = b.floor().long(), b.ceil().long()\n    m = torch.zeros_like(next_probs)\n    # split each atom's mass between its two neighbours, by distance\n    m.scatter_add_(1, lo, next_probs * (hi.float() - b))\n    m.scatter_add_(1, hi, next_probs * (b - lo.float()))\n    # when b lands exactly on an atom, lo == hi and both terms are zero - handle it\n    eq = (lo == hi)\n    m.scatter_add_(1, lo * eq, next_probs * eq.float())\n    return m",
+        "caption": "The lo == hi case is the classic bug: an atom that maps exactly onto another atom receives zero mass from both terms, so probability quietly leaks away and the distribution stops summing to one."
+      },
+      {
+        "h": "What the projection preserves, and what the range costs you",
+        "paras": [
+          "Checked directly on a distribution over rewards of minus one and plus one after a Bellman update with gamma 0.9 and a reward of 0.3: the support moves to minus 0.6 and 1.2, neither of which is an atom on a grid of spacing 0.4. Projecting back preserves total mass to 1.000000000 and preserves the mean at exactly 0.300000. The projection is mean-preserving, which is why the resulting agent still optimises expected return correctly.",
+          "The cost is that you must choose the value range up front. Returns outside it are clipped, and clipping is not a small approximation — it moves probability mass to the boundary and biases the mean. Pick the range from the reward scale and the discount factor, and rescale rewards rather than widening the range indefinitely, since a wider range with a fixed atom count means coarser resolution everywhere.",
+          "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support — so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
+          "As for why it works at all: the leading explanation is that predicting a distribution is a richer auxiliary task, giving a denser training signal and better representations, in the same family as other auxiliary-task results. And once you have the distribution, risk-sensitive control becomes available for free — take a conditional value-at-risk over the lower tail instead of the mean and you have a risk-averse policy from the same network."
+        ]
+      }
+    ],
+    "takeaways": [
+      "C51 learns probabilities on a fixed grid of return values; the projection is mean-preserving, verified at exactly 0.300000 with total mass 1.000000000.",
+      "The mean matches what Q-learning would learn, so the benefit is representational — a richer auxiliary task — not better handling of the expectation.",
+      "The value range is a hyperparameter and out-of-range returns are clipped; QR-DQN removes the problem by learning the support instead of the probabilities."
+    ],
+    "demo": "distributional-rl"
+  },
+  "order": [
+    "bandit",
+    "sarsa",
+    "td-lambda",
+    "double-q-learning",
+    "gae",
+    "ppo",
+    "dyna-q",
+    "regret-matching",
+    "minimax",
+    "mcts",
+    "neuroevolution",
+    "prioritized-replay",
+    "distributional-rl",
+    "successor-representation",
+    "max-entropy-rl",
+    "cfr",
+    "replicator-dynamics",
+    "iterated-prisoners-dilemma"
+  ],
+  "index": 12,
+  "prev": "prioritized-replay",
+  "next": "successor-representation"
+};

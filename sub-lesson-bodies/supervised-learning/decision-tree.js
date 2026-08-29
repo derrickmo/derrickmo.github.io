@@ -1,0 +1,69 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/supervised-learning/decision-tree/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Supervised Learning",
+    "lessons": {
+      "decision-tree": {
+        "title": "Decision Trees"
+      },
+      "roc": {
+        "title": "ROC and Thresholds"
+      },
+      "bayesian-linear-regression": {
+        "title": "Bayesian Linear Regression"
+      }
+    }
+  },
+  "moduleSlug": "supervised-learning",
+  "conceptId": "decision-tree",
+  "lesson": {
+    "title": "Decision Trees",
+    "oneLine": "Carve the feature space with a sequence of axis-aligned questions.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A decision tree asks one yes/no question at a time, splitting the data into ever-purer groups. Each split is chosen to reduce impurity the most. Trees are interpretable and handle mixed feature types, but a deep tree overfits - which is why we average many of them in forests and boosting."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Each node picks the feature and threshold that most reduce impurity (e.g. Gini):"
+        ],
+        "tex": "G = 1 - \\sum_c p_c^2",
+        "texNote": "The split maximizing the weighted impurity drop wins; recurse until pure or capped."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef gini(y):\n    _, counts = np.unique(y, return_counts=True)\n    p = counts / counts.sum()\n    return 1 - np.sum(p ** 2)\n# best split = argmin over (feature, threshold) of weighted child gini",
+        "caption": "Greedy, recursive, and the building block of forests and boosting."
+      },
+      {
+        "h": "A different sample gives a different tree",
+        "paras": [
+          "A tree's structure is chosen greedily, so a small change in the data can change everything below the split it changes. On a problem where two features carry nearly equal signal, the root split across twelve bootstrap resamples landed on feature 0 six times and feature 1 six times — the same data-generating process, and a coin flip deciding what the top of the tree says.",
+          "The accuracy is often stable while the structure is not, which is a specific problem for the property trees are usually chosen for. \"The model splits on income first\" is a statement about this sample rather than about the world, and reading a single tree as an explanation over-reads it. That instability is exactly the variance bagging removes by averaging over resamples, at the cost of the readable structure — which is the honest trade behind random forests, and why a forest's feature importances are more trustworthy than any individual tree's shape."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Trees split on the question that most purifies the labels.",
+      "They are interpretable but overfit when deep.",
+      "Ensembles (bagging, boosting) turn weak trees into strong models."
+    ],
+    "demo": "decision-tree"
+  },
+  "order": [
+    "decision-tree",
+    "roc",
+    "bayesian-linear-regression"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "roc"
+};

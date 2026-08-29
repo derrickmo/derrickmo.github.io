@@ -1,0 +1,77 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/unsupervised-learning/hierarchical-clustering/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Unsupervised Learning",
+    "lessons": {
+      "dbscan": {
+        "title": "DBSCAN"
+      },
+      "hierarchical-clustering": {
+        "title": "Hierarchical Clustering"
+      },
+      "tsne": {
+        "title": "t-SNE"
+      },
+      "spectral-clustering": {
+        "title": "Spectral Clustering"
+      },
+      "kernel-density": {
+        "title": "Kernel Density Estimation"
+      }
+    }
+  },
+  "moduleSlug": "unsupervised-learning",
+  "conceptId": "hierarchical-clustering",
+  "lesson": {
+    "title": "Hierarchical Clustering",
+    "oneLine": "Build a tree of merges and cut it at the height you want.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Agglomerative clustering starts with every point its own cluster and repeatedly merges the two closest, recording the whole history as a dendrogram. You do not pick k up front - you cut the tree at whatever height gives the structure you want. Linkage (single, complete, average, Ward) defines 'closest'."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Each step merges the two clusters minimizing the linkage distance:"
+        ],
+        "tex": "(A,B) = \\arg\\min_{A,B}\\; d_{\\text{link}}(A, B)",
+        "texNote": "Ward merges the pair that least increases within-cluster variance."
+      },
+      {
+        "h": "In code",
+        "code": "# repeatedly merge the closest pair, record the merge\nwhile len(clusters) > 1:\n    a, b = closest_pair(clusters, linkage)\n    merge(a, b)             # height = d(a, b) -> dendrogram",
+        "caption": "Merge upward; cut the dendrogram to choose k after the fact."
+      },
+      {
+        "h": "The linkage is the model",
+        "paras": [
+          "Linkage is not a tuning detail; it is the definition of what a cluster is. On 160 points forming two clear blobs joined by a thin 20-point bridge, single linkage returns clusters of size 179 and 1 — it walks across the bridge, because the nearest-pair criterion only ever needs one short hop. Complete linkage on identical data returns 93 and 87, because it refuses to merge groups whose furthest members are far apart.",
+          "Both answers are correct under their own criterion, which means the choice has to come from what a cluster means in your problem: single linkage finds elongated, chained structure and is the one that recovers a spiral, complete and Ward favour compact blobs and are the ones that resist bridges. The other constraint is cost — the distance matrix is quadratic, so 10,000 points is already an 0.8 GB matrix before any merging starts, which is why the method is usually reserved for small n or applied after a coarser pass."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Agglomerative clustering merges nearest clusters into a tree.",
+      "The dendrogram lets you choose k after seeing the structure.",
+      "Linkage choice changes the cluster shapes."
+    ],
+    "demo": "hierarchical-clustering"
+  },
+  "order": [
+    "dbscan",
+    "hierarchical-clustering",
+    "tsne",
+    "spectral-clustering",
+    "kernel-density"
+  ],
+  "index": 1,
+  "prev": "dbscan",
+  "next": "tsne"
+};

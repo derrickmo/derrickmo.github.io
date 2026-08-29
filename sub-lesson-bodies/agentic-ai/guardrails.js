@@ -1,0 +1,70 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/agentic-ai/guardrails/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "tool-routing": {
+        "title": "Tool Routing"
+      },
+      "guardrails": {
+        "title": "Agent Guardrails"
+      },
+      "constrained-decoding": {
+        "title": "Constrained Decoding"
+      }
+    }
+  },
+  "moduleSlug": "agentic-ai",
+  "conceptId": "guardrails",
+  "lesson": {
+    "title": "Agent Guardrails",
+    "oneLine": "Independent layers multiply the attacker's failure probability - which is why defence composes where a pipeline does not.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A pipeline needs EVERY stage to work, so per-stage reliability multiplies downward: ten steps at 0.95 is 0.60. A defence needs ANY layer to hold, so the attacker must beat all of them and their failure probabilities multiply instead. That inversion is the whole reason defence in depth is worth building.",
+          "The layers have to be genuinely independent for the arithmetic to hold. Two prompt-based detectors sharing a model are one layer wearing two hats, and an attack that fools the model fools both."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "With independent layers each blocking with probability p_i, an attack succeeds only by beating all of them:"
+        ],
+        "tex": "P(\\text{attack succeeds}) = \\prod_i (1 - p_i)",
+        "texNote": "Measured on the module's toy agent: a 0.6 detector, a 0.8 allowlist and a 0.9 confirmation step take attack success from 1.0 to 0.008."
+      },
+      {
+        "h": "In code",
+        "code": "def act(step, task):\n    if step.tool not in ALLOWLIST[task.kind]:      # least privilege\n        return Refused(\"tool not permitted for this task\")\n    if detector.flags(step.args):                 # a classifier, so it has an ROC\n        return Refused(\"input flagged\")\n    if RISK[step.tool] >= 2:                       # confirm by RISK, not uniformly\n        return NeedsConfirmation(step)\n    return execute(step)",
+        "caption": "Least privilege first: it is the only layer with no false-positive cost, blocking 100% of out-of-scope tool use while permitting every legitimate call."
+      },
+      {
+        "h": "Precision is set by the base rate, not by the classifier",
+        "paras": [
+          "A guardrail's quoted accuracy says almost nothing about what its alerts will look like, because precision depends on how rare the thing being caught actually is. A detector at 99% true-positive and 1% false-positive sounds excellent; at a 1-in-1000 attack rate its precision is 0.09, which is about eleven alerts to find one real event. Loosen it to 95/5 and precision falls to 0.019 — fifty-four alerts per genuine hit.",
+          "That arithmetic, not model quality, is what determines whether a guardrail survives contact with an on-call rotation: alerts that are wrong ten times out of eleven get muted, and a muted guardrail is worse than none because it is still counted as a control. The workable designs reduce the effective search space before the classifier sees it — restricting what the model can do at all, or routing only high-risk actions through review — so that the base rate at the point of detection is not one in a thousand."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Defence composes disjunctively and a pipeline composes conjunctively - so adding a layer helps here and hurts there.",
+      "The product only holds for INDEPENDENT layers; two detectors sharing a model are one layer.",
+      "A detector is a classifier in an arms race; structural limits like an allowlist are not, which is why they come first."
+    ],
+    "demo": "guardrails"
+  },
+  "order": [
+    "tool-routing",
+    "guardrails",
+    "constrained-decoding"
+  ],
+  "index": 1,
+  "prev": "tool-routing",
+  "next": "constrained-decoding"
+};

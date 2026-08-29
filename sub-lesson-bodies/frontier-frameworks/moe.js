@@ -1,0 +1,74 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/frontier-frameworks/moe/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "quantization": {
+        "title": "Quantization"
+      },
+      "speculative-decoding": {
+        "title": "Speculative Decoding"
+      },
+      "lora": {
+        "title": "LoRA"
+      },
+      "moe": {
+        "title": "Mixture of Experts"
+      }
+    }
+  },
+  "moduleSlug": "frontier-frameworks",
+  "conceptId": "moe",
+  "lesson": {
+    "title": "Mixture of Experts",
+    "oneLine": "Route each token to a few experts: parameters grow, compute per token does not - and all of them still have to be resident.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A dense layer uses every parameter for every token. An MoE layer holds many expert FFNs and a router that sends each token to the top-k of them, so total parameters can grow enormously while the FLOPs per token stay roughly fixed. That is why MoE models train so well for their compute budget.",
+          "The trap is assuming that serving inherits the same win. It does not: every expert must be RESIDENT in memory because any token might route to it, so memory scales with total parameters while compute scales with active ones. A model that trains like a small one serves like a large one."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The layer is a sparse gated combination over experts:"
+        ],
+        "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
+        "texNote": "With k=2 of 64 experts, active parameters are ~1/32 of total - and resident memory is still all of it."
+      },
+      {
+        "h": "In code",
+        "code": "gate = self.router(x)                            # [tokens, n_experts]\nw, idx = gate.softmax(-1).topk(self.k, dim=-1)\n\ny = torch.zeros_like(x)\nfor e in range(self.n_experts):\n    sel = (idx == e).any(-1)\n    if sel.any():\n        y[sel] += w[sel][idx[sel] == e].unsqueeze(-1) * self.experts[e](x[sel])\n\n# without a balance term the router collapses onto a few experts\naux = self.n_experts * (frac_tokens * mean_prob).sum()",
+        "caption": "The auxiliary load-balancing loss is not optional - left off, routing collapses and most experts go unused."
+      },
+      {
+        "h": "The router will not balance itself",
+        "paras": [
+          "Routing is learned, and a learned router has no reason to spread tokens evenly. Simulating 100,000 tokens over 64 experts, a mildly skewed router sends 1.62 times the ideal load to its busiest expert and 0.56 times to its quietest. Since experts are sharded across devices, the slowest device sets the step time, so imbalance converts directly into wasted hardware.",
+          "The usual fix is a capacity limit per expert, which converts the problem into dropped tokens: at a capacity factor of 1.0 the same run discards 9.85% of tokens, at 1.25 it discards 1.75%, and reaching zero needs 1.5 — half as much memory again reserved to absorb an imbalance that may not occur. That is the real cost structure of a sparse model, and it is why the auxiliary load-balancing loss exists at all: it is a term added to the objective to make the router do something the task never asked it to do."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Parameters scale, compute per token does not - that is the training argument.",
+      "All experts stay resident, so memory scales with TOTAL parameters and residency bounds the batch.",
+      "Routing needs an explicit balance loss or it collapses onto a handful of experts."
+    ],
+    "demo": "moe"
+  },
+  "order": [
+    "quantization",
+    "speculative-decoding",
+    "lora",
+    "moe"
+  ],
+  "index": 3,
+  "prev": "lora",
+  "next": null
+};

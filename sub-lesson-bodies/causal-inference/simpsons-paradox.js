@@ -1,0 +1,70 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/causal-inference/simpsons-paradox/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "causal-inference": {
+        "title": "Causal Inference"
+      },
+      "simpsons-paradox": {
+        "title": "Simpson's Paradox"
+      },
+      "mcmc": {
+        "title": "MCMC"
+      }
+    }
+  },
+  "moduleSlug": "causal-inference",
+  "conceptId": "simpsons-paradox",
+  "lesson": {
+    "title": "Simpson's Paradox",
+    "oneLine": "A trend that reverses on aggregation - and no statistic in the table tells you which answer to act on.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A treatment can win in every subgroup and lose overall. That is not a statistical anomaly or a sampling artefact; it is arithmetic, and it happens whenever the subgroup mix differs between the arms. Charig's kidney-stone data is the canonical case: treatment A wins on small stones and on large stones, and loses on the combined table, because A was given to the harder cases.",
+          "The part that makes this a causal lesson rather than a curiosity is that the SAME four cells support opposite recommendations depending on when the third variable was determined. If it is a pre-treatment confounder, the stratified answer is right. If the treatment CAUSED it, stratifying blocks part of the effect and the aggregate is right. Nothing in the numbers distinguishes those cases."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "A weighted average can invert its components when the weights differ:"
+        ],
+        "tex": "\\frac{a_1 + a_2}{b_1 + b_2} < \\frac{c_1 + c_2}{d_1 + d_2} \\quad\\text{while}\\quad \\frac{a_i}{b_i} > \\frac{c_i}{d_i}\\;\\; \\text{for each } i",
+        "texNote": "Because it is arithmetic, the reversal can be built to any magnitude - and a further split can flip it back."
+      },
+      {
+        "h": "In code",
+        "code": "# 'Always disaggregate' is the wrong lesson - it depends on the arrow.\nfor g, sub in df.groupby(\"severity\"):\n    print(g, sub.query(\"t==1\").y.mean() - sub.query(\"t==0\").y.mean())\nprint(\"pooled\", df.query(\"t==1\").y.mean() - df.query(\"t==0\").y.mean())\n\n# If `severity` is measured BEFORE treatment -> confounder -> trust the strata.\n# If treatment causes it (a complication, say) -> mediator -> trust the pooled.",
+        "caption": "The deciding fact - when the covariate was determined - is nowhere in the dataframe."
+      },
+      {
+        "h": "It is not a paradox, it is a missing variable",
+        "paras": [
+          "The reversal is real and it happens in real data. In Charig and colleagues' kidney-stone study, treatment A beats treatment B on small stones (0.931 against 0.867) and on large stones (0.730 against 0.688) — and loses when the groups are pooled, 0.780 against 0.826. Every subgroup says one thing and the total says the other.",
+          "Nothing is wrong with the arithmetic. Treatment A was given to the harder cases, so pooling compares a mostly-hard A group against a mostly-easy B group, and stone size is a confounder rather than a nuisance. The important consequence is that there is no default answer: whether to pool depends on the causal structure, and if the grouping variable is a cause of both treatment and outcome you must stratify, while if it is a consequence of treatment, stratifying introduces the bias instead. A dashboard cannot decide that for you, which is why the same table supports two opposite headlines."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The reversal is arithmetic, so it can be constructed to any size and reversed again by another split.",
+      "There is no 'most disaggregated' level that is automatically correct.",
+      "Only the causal structure terminates the regress - the timestamp of the covariate is the practical test."
+    ],
+    "demo": "simpsons-paradox"
+  },
+  "order": [
+    "causal-inference",
+    "simpsons-paradox",
+    "mcmc"
+  ],
+  "index": 1,
+  "prev": "causal-inference",
+  "next": "mcmc"
+};

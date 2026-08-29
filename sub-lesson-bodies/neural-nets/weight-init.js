@@ -1,0 +1,89 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/neural-nets/weight-init/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Neural Networks from Scratch",
+    "lessons": {
+      "mlp": {
+        "title": "The Multilayer Perceptron"
+      },
+      "activations": {
+        "title": "Activation Functions"
+      },
+      "optimizers": {
+        "title": "Optimizers: SGD to Adam"
+      },
+      "batch-norm": {
+        "title": "Batch Normalization"
+      },
+      "weight-init": {
+        "title": "Weight Initialization"
+      },
+      "perceptron": {
+        "title": "The Perceptron"
+      },
+      "adam": {
+        "title": "Adam"
+      },
+      "label-noise": {
+        "title": "Label Noise & Memorization"
+      }
+    }
+  },
+  "moduleSlug": "neural-nets",
+  "conceptId": "weight-init",
+  "lesson": {
+    "title": "Weight Initialization",
+    "oneLine": "Start with the right variance so signals neither vanish nor explode.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "If initial weights are too small, activations shrink to nothing through depth; too large, and they blow up. Good initialization sets the variance so the signal's scale is preserved layer to layer. Xavier targets this for tanh, He for ReLU."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "He initialization scales by the fan-in for ReLU networks:"
+        ],
+        "tex": "W \\sim \\mathcal{N}\\!\\Big(0,\\ \\tfrac{2}{n_{\\text{in}}}\\Big)",
+        "texNote": "The 2 compensates for ReLU zeroing half the activations."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n# He init for a ReLU layer\nW = np.random.randn(n_out, n_in) * np.sqrt(2.0 / n_in)",
+        "caption": "Set the variance to keep signal scale constant through depth."
+      },
+      {
+        "h": "Why the constant is not arbitrary",
+        "paras": [
+          "Initialisation scale is a fixed point problem, and missing it compounds with depth. Pushing unit-variance input through 50 ReLU layers of width 256, the activation variance at layer 50 is 4.02e-32 with gain 0.7, 1.24e-16 with gain 1.0, and 4.19e+9 with gain 1.8. With the He gain of sqrt(2) it is 1.40e-1 — still the same order it started at.",
+          "That constant is not a tuning choice. ReLU zeroes half the distribution, so it halves the variance, and sqrt(2) is exactly the factor that undoes the halving; Xavier's gain of 1 is the corresponding answer for a symmetric activation such as tanh. Get it wrong and no learning rate rescues you, because the signal has already underflowed or saturated before the first gradient is computed. It is also why normalisation layers are so effective: they re-impose the fixed point at every layer instead of relying on it holding by construction."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Initialization controls whether deep signals vanish or explode.",
+      "Xavier suits tanh; He suits ReLU.",
+      "It matters most before normalization layers are added."
+    ],
+    "demo": "weight-init"
+  },
+  "order": [
+    "mlp",
+    "activations",
+    "optimizers",
+    "batch-norm",
+    "weight-init",
+    "perceptron",
+    "adam",
+    "label-noise"
+  ],
+  "index": 4,
+  "prev": "batch-norm",
+  "next": "perceptron"
+};

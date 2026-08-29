@@ -1,0 +1,65 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/cnn/data-augmentation/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Convolutional Neural Networks",
+    "lessons": {
+      "cnn": {
+        "title": "Convolutional Networks"
+      },
+      "data-augmentation": {
+        "title": "Data Augmentation"
+      }
+    }
+  },
+  "moduleSlug": "cnn",
+  "conceptId": "data-augmentation",
+  "lesson": {
+    "title": "Data Augmentation",
+    "oneLine": "Manufacture label-preserving variety to regularize a vision model.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A flipped, rotated, or cropped cat is still a cat. Augmentation applies these label-preserving transforms during training so the model sees far more variety than the raw dataset holds, teaching invariance to nuisance factors and curbing overfitting - the cheapest regularizer in vision."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Train on transformed inputs whose label is unchanged:"
+        ],
+        "tex": "(x, y) \\;\\longrightarrow\\; (T(x),\\, y),\\quad T \\sim \\mathcal{T}",
+        "texNote": "T is sampled fresh each epoch; the family T encodes which variations should not change the label."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef augment(img):\n    if np.random.rand() < 0.5: img = img[:, ::-1]      # h-flip\n    img = np.roll(img, np.random.randint(-3, 4), axis=0) # shift\n    return img",
+        "caption": "Fresh random transforms each epoch multiply the effective data."
+      },
+      {
+        "h": "It encodes an assumption, and the assumption can be false",
+        "paras": [
+          "Every augmentation is a claim that some transformation preserves the label, and the claim is domain-specific rather than general. A horizontal flip is safe for a photograph of a cat and wrong for a digit — mirroring 2 destroys it and rotating 6 by 180 degrees produces the label 9. On a chest X-ray, left-right position is a finding rather than a nuisance; on a road sign, mirrored text is not the same sign.",
+          "When the assumption is false the augmentation is simply label noise applied at whatever rate you set. Flipping labels on 10% of samples caps achievable accuracy at 0.95, on 25% at 0.875 and on 50% at 0.75, and no model capacity recovers it because the training signal itself is now inconsistent. That makes augmentation one of the few places where a default configuration copied between projects can silently impose a ceiling, and the check is domain knowledge rather than a validation curve — a wrong invariance degrades train and validation together and so looks like a hard problem rather than a bug."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Augmentation adds label-preserving variety for free.",
+      "It teaches invariance and reduces overfitting.",
+      "Strong augmentation underpins modern self-supervised vision."
+    ],
+    "demo": "image-augmentation"
+  },
+  "order": [
+    "cnn",
+    "data-augmentation"
+  ],
+  "index": 1,
+  "prev": "cnn",
+  "next": null
+};

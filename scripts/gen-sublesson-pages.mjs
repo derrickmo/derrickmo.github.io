@@ -8,7 +8,7 @@
 //
 // No deps. Run npm run build + gen-sitemap.mjs afterward.
 
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, rmSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -132,7 +132,7 @@ function pageHtml(moduleSlug, conceptId, moduleTitle, lesson) {
   <script type="module" src="../../../components/HUD.jsx"></script>
   <script type="module" src="../../../components/Monogram.jsx"></script>
   <script type="module" src="../../../chrome.jsx"></script>
-  <script type="module" src="../../../sub-lessons.js"></script>
+  <script type="module" src="../../../sub-lesson-bodies/${moduleSlug}/${conceptId}.js"></script>
   <script type="module" src="../../../concept-lesson-app.jsx"></script>
 </body>
 </html>
@@ -165,9 +165,46 @@ function ensureModuleScript(moduleSlug) {
   writeFileSync(path, src);
 }
 
+// ─── per-concept context bundles ──────────────────────────────────────────────
+// sub-lessons.js carries all 155 lessons (491 kB raw / 176 kB gzip) and every concept
+// page used to load the whole thing to render ONE of them -- about 1/211 of the payload.
+// The lesson PAGES already solved this (PF-0020, lesson-bodies/<mod>/<slug>.js); the
+// concept pages never got the same treatment, and adding a fourth section to all 155
+// concepts made it 20% worse.
+//
+// Each page now loads a precomputed DM_SUBLESSON_CTX: its own lesson in full, plus the
+// small amount of module metadata the page actually reads -- the module title, the
+// concept order, and the TITLES of the other concepts for the prev/next tiles.
+// module-app.jsx still reads window.SUB_LESSONS, so module pages are unchanged.
+function writeBody(moduleSlug, conceptId, mod, order) {
+  const i = order.indexOf(conceptId);
+  const titles = {};
+  for (const id of order) if (mod.lessons[id]) titles[id] = { title: mod.lessons[id].title };
+  const ctx = {
+    module: { title: mod.title, lessons: titles },
+    moduleSlug, conceptId,
+    lesson: mod.lessons[conceptId],
+    order, index: i,
+    prev: i > 0 ? order[i - 1] : null,
+    next: i >= 0 && i < order.length - 1 ? order[i + 1] : null,
+  };
+  const js = `// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/${moduleSlug}/${conceptId}/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = ${JSON.stringify(ctx, null, 2)};
+`;
+  const dir = join(ROOT, "sub-lesson-bodies", moduleSlug);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, conceptId + ".js"), js, "utf8");
+  return js.length;
+}
+
 const SUB = loadSubLessons();
 const viteLines = [], navLines = [];
-let pages = 0;
+const written = new Set();
+let pages = 0, bodyBytes = 0;
 
 for (const moduleSlug of Object.keys(SUB)) {
   const mod = SUB[moduleSlug];
@@ -179,6 +216,8 @@ for (const moduleSlug of Object.keys(SUB)) {
     const dir = join(ROOT, "learn", moduleSlug, conceptId);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "index.html"), pageHtml(moduleSlug, conceptId, mod.title, lesson));
+    bodyBytes += writeBody(moduleSlug, conceptId, mod, order);
+    written.add(`${moduleSlug}/${conceptId}.js`);
     pages++;
     const key = `sublesson-${moduleSlug}-${conceptId}`;
     viteLines.push(`'${key}': 'learn/${moduleSlug}/${conceptId}/index.html',`);
@@ -187,7 +226,25 @@ for (const moduleSlug of Object.keys(SUB)) {
   }
 }
 
+// remove bundles for concepts that no longer exist, so a renamed concept cannot leave
+// an orphan behind for check-page-assets to trip over later
+const bodyRoot = join(ROOT, "sub-lesson-bodies");
+let stale = 0;
+if (existsSync(bodyRoot)) {
+  for (const m of readdirSync(bodyRoot)) {
+    const md = join(bodyRoot, m);
+    if (!statSync(md).isDirectory()) continue;
+    for (const f of readdirSync(md)) {
+      if (written.has(`${m}/${f}`)) continue;
+      rmSync(join(md, f)); stale++;
+      console.log(`  removed stale bundle sub-lesson-bodies/${m}/${f}`);
+    }
+    if (!readdirSync(md).length) rmSync(md, { recursive: true });
+  }
+}
+
 patchBlock("vite.config.mjs", "generated:sublessons", viteLines);
 patchBlock("public/search-index.js", "generated:sublessons", navLines);
 
 console.log(`wrote ${pages} sub-lesson page(s) across ${Object.keys(SUB).length} module(s); patched vite.config.mjs + public/search-index.js`);
+console.log(`  sub-lesson-bodies: ${pages} bundle(s), ${(bodyBytes / 1024).toFixed(1)} kB total, ${(bodyBytes / pages / 1024).toFixed(1)} kB average${stale ? `, ${stale} stale removed` : ""}`);

@@ -1,0 +1,116 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/foundations/fourier/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Mathematical and Programming Foundations",
+    "lessons": {
+      "chain-rule": {
+        "title": "The Chain Rule"
+      },
+      "gradient-descent": {
+        "title": "Gradient Descent"
+      },
+      "softmax": {
+        "title": "Softmax"
+      },
+      "cross-entropy": {
+        "title": "Cross-Entropy Loss"
+      },
+      "bayes": {
+        "title": "Bayes' Rule"
+      },
+      "entropy": {
+        "title": "Entropy and Information"
+      },
+      "clt": {
+        "title": "The Central Limit Theorem"
+      },
+      "fourier": {
+        "title": "Fourier Series"
+      },
+      "mutual-information": {
+        "title": "Mutual Information"
+      },
+      "importance-sampling": {
+        "title": "Importance Sampling"
+      },
+      "reservoir-sampling": {
+        "title": "Reservoir Sampling"
+      },
+      "huffman-coding": {
+        "title": "Huffman Coding"
+      },
+      "aliasing": {
+        "title": "Aliasing & the Nyquist Limit"
+      },
+      "channel-capacity": {
+        "title": "Channel Capacity"
+      }
+    }
+  },
+  "moduleSlug": "foundations",
+  "conceptId": "fourier",
+  "lesson": {
+    "title": "Fourier Series",
+    "oneLine": "Any periodic signal is a sum of sines — and that basis change is why positional encodings and spectrograms look the way they do.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A square wave looks nothing like a sine wave. Add enough sines at the right frequencies and amplitudes and you get one anyway. That is the whole claim: the sines form a basis for periodic functions, so any periodic signal is a set of coordinates in that basis — how much of each frequency it contains.",
+          "The payoff is that hard operations in one basis are easy in the other. Convolution in time is multiplication in frequency. Smoothing is deleting high-frequency coordinates. A signal that is a tangle in time is often three spikes in frequency."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The coefficients are inner products with each basis function — how much the signal overlaps that frequency:"
+        ],
+        "tex": "f(x) = \\frac{a_0}{2} + \\sum_{n=1}^{\\infty}\\left(a_n\\cos nx + b_n\\sin nx\\right),\\qquad a_n = \\frac{1}{\\pi}\\int_{-\\pi}^{\\pi} f(x)\\cos(nx)\\,dx",
+        "texNote": "Truncating the sum at N is the approximation you actually compute. Sharp jumps converge slowly and overshoot at the discontinuity — Gibbs ringing, which is a property of the truncation, not a bug in your code."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef square_wave_series(x, n_terms):\n    # A square wave contains only ODD harmonics, with amplitude 1/n.\n    out = np.zeros_like(x)\n    for n in range(1, 2 * n_terms, 2):\n        out += np.sin(n * x) / n\n    return 4 / np.pi * out",
+        "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen — and the overshoot at the jump refuse to shrink."
+      },
+      {
+        "h": "Where it shows up",
+        "paras": [
+          "Sinusoidal positional encodings in transformers are this idea used deliberately: each dimension is a sine at a different frequency, so position becomes a smooth, unique code that the model can do arithmetic on.",
+          "A spectrogram is a Fourier transform per short time window, and MFCCs are a further compression of that. Every audio model starts by changing basis, because pitch and timbre are structure in frequency and noise in time.",
+          "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images.",
+          "And the basis change has a cost at a discontinuity that does not go away. Summing the Fourier series of a square wave, the partial sum overshoots the step: it peaks at 1.1884 with 5 terms and 1.1790 with 1,001, against a true value of 1 — roughly 9% of the jump, converging rather than shrinking. That is the Gibbs phenomenon, and it is why more terms sharpen a ringing artefact without removing it. The peak does move toward the discontinuity as terms are added, so the energy of the error vanishes even though its height does not: convergence in the mean, not uniform convergence."
+        ]
+      }
+    ],
+    "takeaways": [
+      "A Fourier series is a change of basis, not an approximation trick — the sines are a coordinate system for periodic signals.",
+      "Operations that are painful in time are often trivial in frequency, which is the entire reason to change basis.",
+      "Truncating the series overshoots at sharp jumps (Gibbs), and undersampling folds high frequencies down into fake low ones (aliasing)."
+    ],
+    "demo": "fourier"
+  },
+  "order": [
+    "chain-rule",
+    "gradient-descent",
+    "softmax",
+    "cross-entropy",
+    "bayes",
+    "entropy",
+    "clt",
+    "fourier",
+    "mutual-information",
+    "importance-sampling",
+    "reservoir-sampling",
+    "huffman-coding",
+    "aliasing",
+    "channel-capacity"
+  ],
+  "index": 7,
+  "prev": "clt",
+  "next": "mutual-information"
+};

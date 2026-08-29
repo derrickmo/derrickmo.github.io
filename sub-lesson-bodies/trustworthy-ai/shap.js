@@ -1,0 +1,90 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/trustworthy-ai/shap/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "shap": {
+        "title": "SHAP Values"
+      },
+      "saliency": {
+        "title": "Saliency Maps"
+      },
+      "adversarial-examples": {
+        "title": "Adversarial Examples"
+      },
+      "superposition": {
+        "title": "Superposition"
+      },
+      "activation-patching": {
+        "title": "Activation Patching"
+      },
+      "sparse-autoencoder": {
+        "title": "Sparse Autoencoders & Superposition"
+      },
+      "certified-robustness": {
+        "title": "Certified Robustness"
+      },
+      "conformal-regression": {
+        "title": "Conformal Regression"
+      }
+    }
+  },
+  "moduleSlug": "trustworthy-ai",
+  "conceptId": "shap",
+  "lesson": {
+    "title": "SHAP Values",
+    "oneLine": "The only attribution satisfying a set of fairness axioms - computed against a baseline that the number never mentions.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Attribution asks how much each feature contributed to one prediction. Shapley values answer it by averaging a feature's marginal contribution over every possible order of adding features, which is the unique method satisfying efficiency, symmetry, dummy and additivity together.",
+          "The uniqueness is real and frequently over-read. A Shapley value is a contrast against a BASELINE - what the model does when the feature is 'absent' - and absence has to be defined. Interventional and conditional baselines give different, both-correct answers to different questions, and the reported number carries no record of which was used."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The value is a weighted average of marginal contributions over all subsets:"
+        ],
+        "tex": "\\phi_i = \\sum_{S \\subseteq N \\setminus \\{i\\}} \\frac{|S|!\\,(|N|-|S|-1)!}{|N|!}\\,\\big[v(S \\cup \\{i\\}) - v(S)\\big]",
+        "texNote": "Exact cost is exponential in features; TreeSHAP computes it in polynomial time for tree ensembles, which is why SHAP is practical there and approximated elsewhere."
+      },
+      {
+        "h": "In code",
+        "code": "# Efficiency: the attributions must sum to the gap from the baseline.\nassert abs(phi.sum() - (f(x) - f(baseline))) < 1e-6\n\n# Correlated features SPLIT credit, so importance can look small for a\n# feature that is genuinely driving the prediction through a duplicate.\n# Grouped Shapley treats a set of related columns as one player.",
+        "caption": "Name the question before choosing the baseline: debugging and adverse-action notices want interventional; describing the data-generating process wants conditional."
+      },
+      {
+        "h": "Exact is exponential, and the split is a convention",
+        "paras": [
+          "Shapley values are defined over every subset of features, so exact computation is 2^n model evaluations: about a thousand at 10 features, a billion at 30, and 1.15e+18 at 60. Sampling permutations converges usefully — RMS error against the exact values is 0.268 after 10 samples, 0.045 after 100 and 0.0009 after 1,000 — so the cost is manageable, but it is an approximation with a variance, not a reading.",
+          "The subtler point is what the number means when features interact. On a model with an explicit +2.0 interaction between two features whose standalone weights are 0.786 and 1.117, the exact Shapley attributions come out at 1.786 and 2.117: the interaction is split exactly one apiece. That split is an axiom of the method rather than a fact about the model, and no feature is individually responsible for a term that requires both. Read against correlated inputs, the same machinery also assigns credit to features the model never used, because the coalitions it averages over include combinations the data never contains."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The axioms pin down the method uniquely; they say nothing about which baseline is right.",
+      "Correlated features share credit, so a ranking by attribution is not a ranking by importance.",
+      "It is a statement about the MODEL, never about the world - a causal reading is a category error."
+    ],
+    "demo": "shap"
+  },
+  "order": [
+    "shap",
+    "saliency",
+    "adversarial-examples",
+    "superposition",
+    "activation-patching",
+    "sparse-autoencoder",
+    "certified-robustness",
+    "conformal-regression"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "saliency"
+};

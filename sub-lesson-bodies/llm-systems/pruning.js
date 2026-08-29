@@ -1,0 +1,73 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/llm-systems/pruning/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "LLM Systems and Efficiency",
+    "lessons": {
+      "pruning": {
+        "title": "Pruning"
+      },
+      "paged-attention": {
+        "title": "Paged Attention"
+      },
+      "kv-cache-eviction": {
+        "title": "KV-Cache Eviction"
+      },
+      "mixture-of-depths": {
+        "title": "Mixture-of-Depths"
+      }
+    }
+  },
+  "moduleSlug": "llm-systems",
+  "conceptId": "pruning",
+  "lesson": {
+    "title": "Pruning",
+    "oneLine": "Remove the weights that barely matter to shrink the model.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Most weights in a trained network contribute little. Magnitude pruning zeros the smallest ones, and a brief retrain lets the survivors compensate. Accuracy holds steady as sparsity rises, then falls off a cliff - the trick is finding that edge. Structured pruning removes whole channels for real speedups."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Keep only weights above a magnitude threshold:"
+        ],
+        "tex": "w_i \\leftarrow w_i \\cdot \\mathbb{1}\\big[|w_i| > \\tau\\big]",
+        "texNote": "tau is set to hit a target sparsity; retrain after pruning to recover accuracy."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\nthr = np.quantile(np.abs(W), sparsity)   # e.g. 0.8 -> drop 80%\nW = W * (np.abs(W) > thr)                 # then fine-tune",
+        "caption": "Zero the small weights, retrain the rest."
+      },
+      {
+        "h": "Sparsity is a storage result until the kernel agrees",
+        "paras": [
+          "Unstructured pruning zeroes individual weights, which removes arithmetic that dense hardware performs anyway. A 90% sparse matrix has ten times fewer non-zero multiply-adds and runs at exactly the same speed on a standard dense GEMM, because the zeros still occupy lanes and still get multiplied. Reported sparsity is a statement about the checkpoint, not about latency.",
+          "Speed requires the structure to match what the hardware can skip. Removing whole channels shrinks both matrix dimensions, so dropping 50% of channels really does cost 0.25x the matmul — a genuine speedup at the price of a much coarser thing to prune, and usually more accuracy lost per parameter removed. The 2:4 semi-structured pattern is the negotiated middle: exactly two zeros in every group of four, 50% sparsity, and roughly 2x on tensor cores built to exploit that specific layout. Which pruning to use is therefore a question about the deployment target before it is a question about the model."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Pruning removes low-magnitude weights.",
+      "Accuracy holds then drops sharply past a sparsity edge.",
+      "Structured pruning yields real hardware speedups."
+    ],
+    "demo": "pruning"
+  },
+  "order": [
+    "pruning",
+    "paged-attention",
+    "kv-cache-eviction",
+    "mixture-of-depths"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "paged-attention"
+};

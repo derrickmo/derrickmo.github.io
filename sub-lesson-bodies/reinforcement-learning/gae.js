@@ -1,0 +1,129 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/reinforcement-learning/gae/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Reinforcement Learning",
+    "lessons": {
+      "bandit": {
+        "title": "Multi-Armed Bandits"
+      },
+      "sarsa": {
+        "title": "SARSA"
+      },
+      "td-lambda": {
+        "title": "TD(lambda) and Eligibility Traces"
+      },
+      "double-q-learning": {
+        "title": "Double Q-Learning"
+      },
+      "gae": {
+        "title": "Generalized Advantage Estimation"
+      },
+      "ppo": {
+        "title": "Proximal Policy Optimization"
+      },
+      "dyna-q": {
+        "title": "Dyna-Q"
+      },
+      "regret-matching": {
+        "title": "Regret Matching & Nash Equilibrium"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution"
+      },
+      "prioritized-replay": {
+        "title": "Prioritized Experience Replay"
+      },
+      "distributional-rl": {
+        "title": "Distributional RL (C51)"
+      },
+      "successor-representation": {
+        "title": "Successor Representation"
+      },
+      "max-entropy-rl": {
+        "title": "Maximum-Entropy RL (Soft Value Iteration)"
+      },
+      "cfr": {
+        "title": "Counterfactual Regret Minimization"
+      },
+      "replicator-dynamics": {
+        "title": "Replicator Dynamics"
+      },
+      "iterated-prisoners-dilemma": {
+        "title": "Iterated Prisoner's Dilemma"
+      }
+    }
+  },
+  "moduleSlug": "reinforcement-learning",
+  "conceptId": "gae",
+  "lesson": {
+    "title": "Generalized Advantage Estimation",
+    "oneLine": "Tune the bias-variance trade-off of the advantage signal.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Policy gradients need an advantage estimate: how much better was an action than expected? Use one-step TD and it is low-variance but biased by the critic; use the full return and it is unbiased but noisy. GAE blends all horizons with a decay lambda, giving a single knob to trade bias against variance."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "An exponentially-weighted sum of TD residuals:"
+        ],
+        "tex": "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\,\\delta_{t+l},\\quad \\delta_t = r_t + \\gamma V(s_{t+1}) - V(s_t)",
+        "texNote": "lambda = 0 is one-step TD advantage; lambda = 1 is the Monte Carlo advantage."
+      },
+      {
+        "h": "In code",
+        "code": "adv, gae = np.zeros(T), 0.0\nfor t in reversed(range(T)):\n    delta = r[t] + gamma * V[t+1] - V[t]\n    gae = delta + gamma * lam * gae\n    adv[t] = gae",
+        "caption": "A backward pass blends every horizon's TD error."
+      },
+      {
+        "h": "What lambda is actually buying",
+        "paras": [
+          "Lambda sets how far credit is propagated before the critic takes over, and the cost is variance. On a 30-step chain with a single action — so the true advantage is exactly zero — the variance of the estimate runs 1.01 at lambda 0, 4.82 at 0.9, 8.38 at 0.95 and 22.51 at lambda 1: a twenty-two-fold spread across the knob. The effective horizon is 1/(1 - gamma·lambda), which is one step at lambda 0, about 17 at 0.95, and the whole episode at 1.",
+          "The bias side is subtler than it is usually stated. Lambda 1 telescopes, so only the critic's error at the starting state survives; lambda 0 uses just one bootstrapped value. Putting a deliberate spike of critic error at an intermediate state leaves both ends nearly unbiased (-0.001 and -0.019) and hurts the middle most (0.121 at lambda 0.9), because the intermediate lambdas are the ones that weight that state heavily. So the honest summary is that lambda trades variance for how much of the critic you are trusting, and where the critic is wrong decides which lambda it hurts."
+        ]
+      }
+    ],
+    "takeaways": [
+      "GAE trades advantage bias against variance with lambda.",
+      "It is computed in one backward pass over a trajectory.",
+      "It is the standard advantage estimator inside PPO."
+    ],
+    "demo": "gae"
+  },
+  "order": [
+    "bandit",
+    "sarsa",
+    "td-lambda",
+    "double-q-learning",
+    "gae",
+    "ppo",
+    "dyna-q",
+    "regret-matching",
+    "minimax",
+    "mcts",
+    "neuroevolution",
+    "prioritized-replay",
+    "distributional-rl",
+    "successor-representation",
+    "max-entropy-rl",
+    "cfr",
+    "replicator-dynamics",
+    "iterated-prisoners-dilemma"
+  ],
+  "index": 4,
+  "prev": "double-q-learning",
+  "next": "ppo"
+};

@@ -11,34 +11,54 @@ const {
 
 const CURR = window.CURRICULUM;
 const BASE = window.__DM_BASE || "../../../";
-const CTX = window.DM_SUBLESSON ? window.DM_SUBLESSON(window.__DM_MODULE_SLUG, window.__DM_CONCEPT_SLUG) : null;
+// This page loads sub-lesson-bodies/<module>/<concept>.js, which precomputes exactly the
+// context this one concept needs. It used to load sub-lessons.js — all 155 lessons, 491 kB
+// raw — to render one of them. The DM_SUBLESSON fallback keeps the page working if the
+// bundle is ever absent (a hand-cloned page, a stale build) rather than rendering nothing.
+//
+// ⚠ RESOLVED LAZILY, NOT AT MODULE SCOPE. The body script and this app are separate
+// <script type="module"> tags in the page, but Vite bundles them together and decides
+// execution order from the import graph rather than from DOM order -- so a module-scope
+// read here saw DM_SUBLESSON_CTX as undefined and rendered a blank page. That is PF-0020
+// exactly, and it reappeared the moment the payload was split. lesson-app.jsx has always
+// read DM_LESSON_BODIES through a function for this reason; this now matches it.
+let _ctx;
+const getCTX = () => {
+  if (_ctx !== undefined) return _ctx;
+  const c = window.DM_SUBLESSON_CTX
+    || (window.DM_SUBLESSON ? window.DM_SUBLESSON(window.__DM_MODULE_SLUG, window.__DM_CONCEPT_SLUG) : null);
+  // Only cache once something is actually there; caching a null during an early call
+  // would make the miss permanent.
+  if (c) _ctx = c;
+  return c || null;
+};
 const MOD = CURR ? CURR.findModule(window.__DM_MODULE_SLUG) : null;
 const demoTitle = slug => { const d = ((window.PLAY_DEMOS && window.PLAY_DEMOS.demos) || []).find(x => x.slug === slug); return d ? d.title : slug; };
-const lessonTitle = id => (CTX && CTX.module.lessons[id] ? CTX.module.lessons[id].title : id);
+const lessonTitle = id => (getCTX() && getCTX().module.lessons[id] ? getCTX().module.lessons[id].title : id);
 
 function Hero() {
   const mobile = useIsMobile();
-  const L = CTX.lesson;
+  const L = getCTX().lesson;
   return (
     <Section id="top" padded={false} style={{ paddingTop: 132, paddingBottom: 40, position: "relative", overflow: "hidden" }}>
       <GridOverlay mode="dark" spacing={80} opacity={0.4} />
       <GlowBlob color="violet" size={520} x={"-10%"} y={"-20%"} opacity={0.22} />
       <GlowBlob color="blue" size={460} x={"70%"} y={"35%"} opacity={0.2} />
-      <MathWatermarks mode="dark" count={4} opacity={0.05} seed={(CTX.index + 3) * 5} />
+      <MathWatermarks mode="dark" count={4} opacity={0.05} seed={(getCTX().index + 3) * 5} />
       <HudBrackets mode="dark" inset={32} size={32} />
       <Container>
         <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 22 }}>
           <a href={BASE + "learn/"} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>LEARN</a>
           <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
-          <a href={BASE + "learn/" + CTX.moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>
+          <a href={BASE + "learn/" + getCTX().moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>
             {MOD ? "MODULE " + MOD.n : "MODULE"}
           </a>
           <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
-          <MonoLabel color="var(--violet-lt)">{("0" + (CTX.index + 1)).slice(-2)} / {CTX.order.length}</MonoLabel>
+          <MonoLabel color="var(--violet-lt)">{("0" + (getCTX().index + 1)).slice(-2)} / {getCTX().order.length}</MonoLabel>
         </div>
         <div style={{ maxWidth: 780, position: "relative" }}>
           <div style={{ position: "absolute", left: -18, top: 4, bottom: 4, width: 3, background: "linear-gradient(to bottom, #3b82f6, #a855f7)", boxShadow: "0 0 16px rgba(59,130,246,0.5)" }} />
-          <MonoLabel>{(MOD ? MOD.title : CTX.module.title).toUpperCase()}</MonoLabel>
+          <MonoLabel>{(MOD ? MOD.title : getCTX().module.title).toUpperCase()}</MonoLabel>
           <h1 style={{
             fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(36px, 4.6vw, 58px)", letterSpacing: "-0.025em",
             lineHeight: 1.03, margin: "12px 0 0",
@@ -91,7 +111,7 @@ function CodeBlock({ code, caption }) {
 }
 
 function Body() {
-  const L = CTX.lesson;
+  const L = getCTX().lesson;
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 16 }}>
       <Container style={{ maxWidth: 820 }}>
@@ -118,7 +138,7 @@ function Body() {
 }
 
 function Takeaways() {
-  const L = CTX.lesson;
+  const L = getCTX().lesson;
   if (!L.takeaways || !L.takeaways.length) return null;
   return (
     <Section style={{ paddingTop: 8, paddingBottom: 16 }}>
@@ -138,7 +158,7 @@ function Takeaways() {
 }
 
 function Explore() {
-  const L = CTX.lesson;
+  const L = getCTX().lesson;
   return (
     <Section style={{ paddingTop: 16, paddingBottom: 16 }}>
       <Container style={{ maxWidth: 820 }}>
@@ -155,7 +175,7 @@ function Explore() {
               <div className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 11, marginTop: 8 }}>OPEN DEMO →</div>
             </a>
           )}
-          <a href={BASE + "concepts/" + CTX.conceptId + "/"} style={{
+          <a href={BASE + "concepts/" + getCTX().conceptId + "/"} style={{
             flex: "1 1 260px", textDecoration: "none", color: "inherit",
             padding: "20px 22px", border: "1px solid var(--border)", borderRadius: 8, background: "rgba(13,24,52,0.4)",
           }}>
@@ -172,7 +192,7 @@ function Explore() {
 function LessonNav() {
   const mobile = useIsMobile();
   const tile = (id, dir) => id && (
-    <a href={BASE + "learn/" + CTX.moduleSlug + "/" + id + "/"} style={{
+    <a href={BASE + "learn/" + getCTX().moduleSlug + "/" + id + "/"} style={{
       flex: 1, padding: "18px 20px", border: "1px solid var(--border)", borderRadius: 8, background: "rgba(13,24,52,0.5)",
       textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 6,
       textAlign: dir === "prev" ? "left" : "right",
@@ -184,12 +204,12 @@ function LessonNav() {
   return (
     <Section style={{ paddingTop: 24, paddingBottom: 60 }}>
       <Container style={{ maxWidth: 820 }}>
-        <a href={BASE + "learn/" + CTX.moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--blue-lt)", textDecoration: "none", display: "inline-block", marginBottom: 18 }}>
+        <a href={BASE + "learn/" + getCTX().moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--blue-lt)", textDecoration: "none", display: "inline-block", marginBottom: 18 }}>
           ← BACK TO {MOD ? MOD.title.toUpperCase() : "MODULE"}
         </a>
         <div style={{ display: "flex", gap: 14, flexDirection: mobile ? "column" : "row" }}>
-          {tile(CTX.prev, "prev") || <div style={{ flex: 1 }} />}
-          {tile(CTX.next, "next") || <div style={{ flex: 1 }} />}
+          {tile(getCTX().prev, "prev") || <div style={{ flex: 1 }} />}
+          {tile(getCTX().next, "next") || <div style={{ flex: 1 }} />}
         </div>
       </Container>
     </Section>
@@ -213,7 +233,7 @@ function App() {
     <>
       <TopNav />
       <main id="main" tabIndex={-1}>
-      {CTX ? <><Hero /><Body /><Takeaways /><Explore /><LessonNav /></> : <NotFound />}
+      {getCTX() ? <><Hero /><Body /><Takeaways /><Explore /><LessonNav /></> : <NotFound />}
       </main>
       <Footer />
     </>

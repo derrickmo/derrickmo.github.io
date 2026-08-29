@@ -1,0 +1,69 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/pytorch-internals/optimizers/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "PyTorch Internals",
+    "lessons": {
+      "backprop": {
+        "title": "Autograd and the Computational Graph"
+      },
+      "optimizers": {
+        "title": "The Optimizer Step"
+      },
+      "gradient-descent": {
+        "title": "The Training Loop"
+      }
+    }
+  },
+  "moduleSlug": "pytorch-internals",
+  "conceptId": "optimizers",
+  "lesson": {
+    "title": "The Optimizer Step",
+    "oneLine": "How torch.optim turns accumulated gradients into a weight update.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "After backward fills in the gradients, an optimizer object applies the update rule. It holds the parameters and any per-parameter state (like Adam's moment estimates), and .step() applies the rule while .zero_grad() clears the gradients for the next iteration. Swapping SGD for Adam is a one-line change."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The optimizer applies its update rule to each parameter using its stored state:"
+        ],
+        "tex": "\\theta \\leftarrow \\theta - \\eta\\,u(g,\\,\\text{state})",
+        "texNote": "u is the rule (SGD, Adam, ...); state carries momentum and scale across steps."
+      },
+      {
+        "h": "In code",
+        "code": "opt = torch.optim.Adam(model.parameters(), lr=3e-4)\n# each iteration:\nopt.zero_grad()       # clear old grads\nloss.backward()       # fill grads\nopt.step()            # apply the update rule",
+        "caption": "zero_grad, backward, step - the same three calls every iteration."
+      },
+      {
+        "h": "The optimiser state is bigger than the model",
+        "paras": [
+          "Training memory is dominated by what the optimiser keeps, not by the weights. Per parameter in mixed precision: fp16 weights are 2 bytes, fp16 gradients 2, the fp32 master copy 4, and Adam's first and second moments 4 each — 16 bytes in total. For a 7B model that is 112 GB of state against 14 GB of fp16 weights, a factor of eight before a single activation is stored.",
+          "Plain SGD needs 4 bytes per parameter and SGD with momentum 8, which is why the choice of optimiser is a memory decision as much as a convergence one. It is also why the mitigations target this number directly: ZeRO shards optimiser state, gradients and parameters across data-parallel ranks rather than replicating them, 8-bit optimisers quantise the moments, and the memory-light optimisers drop the second moment entirely. Any calculation of what will fit on a device has to start from 16 bytes per parameter, not from the checkpoint size."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The optimizer owns the parameters and their update state.",
+      ".step() applies the rule; .zero_grad() resets gradients.",
+      "Changing optimizers is a one-line swap."
+    ],
+    "demo": "optimizers"
+  },
+  "order": [
+    "backprop",
+    "optimizers",
+    "gradient-descent"
+  ],
+  "index": 1,
+  "prev": "backprop",
+  "next": "gradient-descent"
+};

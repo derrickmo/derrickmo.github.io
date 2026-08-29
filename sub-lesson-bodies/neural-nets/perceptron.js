@@ -1,0 +1,91 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/neural-nets/perceptron/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Neural Networks from Scratch",
+    "lessons": {
+      "mlp": {
+        "title": "The Multilayer Perceptron"
+      },
+      "activations": {
+        "title": "Activation Functions"
+      },
+      "optimizers": {
+        "title": "Optimizers: SGD to Adam"
+      },
+      "batch-norm": {
+        "title": "Batch Normalization"
+      },
+      "weight-init": {
+        "title": "Weight Initialization"
+      },
+      "perceptron": {
+        "title": "The Perceptron"
+      },
+      "adam": {
+        "title": "Adam"
+      },
+      "label-noise": {
+        "title": "Label Noise & Memorization"
+      }
+    }
+  },
+  "moduleSlug": "neural-nets",
+  "conceptId": "perceptron",
+  "lesson": {
+    "title": "The Perceptron",
+    "oneLine": "One neuron, one linear boundary — and the 1969 proof of what it cannot do is why depth exists.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "A perceptron takes a weighted sum of its inputs and fires if the total clears a threshold. Geometrically that is a hyperplane: everything on one side is class one, everything on the other is class zero. Learning means sliding and rotating that plane until the data is on the correct sides.",
+          "The update rule is almost embarrassingly simple — when it gets an example wrong, push the weights toward that example. And it comes with a real guarantee: if a separating plane exists, this converges to one in a finite number of updates."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The prediction is a thresholded dot product, and the update fires only on mistakes:"
+        ],
+        "tex": "\\hat{y} = \\mathrm{sign}(w^\\top x + b), \\qquad w \\leftarrow w + \\eta\\,(y - \\hat{y})\\,x",
+        "texNote": "On a correct prediction the update term is zero, so nothing moves. The convergence bound depends on the MARGIN of the data — the wider the separation, the fewer mistakes before it stops. Data that is not linearly separable makes it cycle forever, which is a real failure mode rather than slow progress."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef perceptron(X, y, epochs=50, eta=1.0):\n    w = np.zeros(X.shape[1]); b = 0.0\n    for _ in range(epochs):\n        errors = 0\n        for xi, yi in zip(X, y):\n            if yi * (w @ xi + b) <= 0:          # only mistakes update\n                w += eta * yi * xi\n                b += eta * yi\n                errors += 1\n        if errors == 0:\n            break                                # separated; nothing left to fix\n    return w, b",
+        "caption": "Labels are +1/-1 here, which is what makes the mistake test a single sign check."
+      },
+      {
+        "h": "Why it mattered that it failed",
+        "paras": [
+          "Minsky and Papert showed a single perceptron cannot represent XOR, because no straight line separates its four points. That is not a limitation of the learning rule — it is a limitation of the function class, and no amount of training fixes it.",
+          "The fix is a hidden layer with a nonlinearity between the layers. Stacking linear maps without one collapses back to a single linear map, so the nonlinearity is what buys the depth rather than the extra weights.",
+          "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin — how much room the boundary has — turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
+        ]
+      }
+    ],
+    "takeaways": [
+      "A perceptron is a hyperplane; the update rule only fires on mistakes and provably converges when the data is separable.",
+      "It cannot learn XOR — a function-class limit, not a training failure, and the reason hidden layers exist.",
+      "Without a nonlinearity between layers, a deep stack collapses to one linear map, so the activation is what depth is actually buying."
+    ],
+    "demo": "perceptron"
+  },
+  "order": [
+    "mlp",
+    "activations",
+    "optimizers",
+    "batch-norm",
+    "weight-init",
+    "perceptron",
+    "adam",
+    "label-noise"
+  ],
+  "index": 5,
+  "prev": "weight-init",
+  "next": "adam"
+};

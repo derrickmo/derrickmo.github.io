@@ -1,0 +1,85 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/mlops/autoscaling/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "MLOps and Serving",
+    "lessons": {
+      "autoscaling": {
+        "title": "Autoscaling"
+      },
+      "canary-rollout": {
+        "title": "Canary Rollouts"
+      },
+      "drift-detection": {
+        "title": "Drift Detection"
+      },
+      "bloom-filter": {
+        "title": "Bloom Filter"
+      },
+      "count-min-sketch": {
+        "title": "Count-Min Sketch"
+      },
+      "semantic-caching": {
+        "title": "Semantic Caching"
+      },
+      "model-cascade": {
+        "title": "Model Cascade & Early-Exit"
+      }
+    }
+  },
+  "moduleSlug": "mlops",
+  "conceptId": "autoscaling",
+  "lesson": {
+    "title": "Autoscaling",
+    "oneLine": "Track demand by adding and removing replicas automatically.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Traffic rises and falls; a fixed fleet either wastes money or breaks under load. An autoscaler watches a signal like utilization and adjusts the replica count toward a target. The catch is cold starts: new replicas take time to warm up, so spikes can breach the SLO before capacity catches up."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The desired replica count chases the load toward a target utilization:"
+        ],
+        "tex": "N_{\\text{desired}} = \\Big\\lceil \\frac{\\text{load}}{\\text{target}\\times\\text{capacity}} \\Big\\rceil",
+        "texNote": "Lower target utilization buys headroom for spikes, at higher cost."
+      },
+      {
+        "h": "In code",
+        "code": "desired = ceil(load / (target_util * cap_per_replica))\nreplicas = clamp(desired, min_r, max_r)   # cold start adds lag",
+        "caption": "Scale toward a utilization target, bounded by limits."
+      },
+      {
+        "h": "Latency is nonlinear, and scaling is not instant",
+        "paras": [
+          "Queueing makes utilisation a trap. For an M/M/1 queue with a 100 ms service time, mean latency is 200 ms at 50% utilisation, 500 ms at 80%, 1,000 ms at 90% and 10,000 ms at 99%. Running \"efficiently\" at 95% costs four times the latency of running at 80%, and the last few points of utilisation cost more than all the previous ones together.",
+          "The second half is lag. A scale-up that takes 60 seconds at 50 requests per second means 3,000 requests arrive before the new capacity does, and they queue behind the utilisation curve above — which is why an autoscaler tuned on average load can still produce a visible outage during a spike. The practical consequences are to target a utilisation well below the knee, to scale on queue depth or latency rather than CPU, and to keep enough warm capacity to cover the cold-start window, because that window is where the incident happens."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Autoscaling matches replicas to demand.",
+      "Target utilization trades headroom against cost.",
+      "Cold starts cause SLO breaches on sudden spikes."
+    ],
+    "demo": "autoscaling"
+  },
+  "order": [
+    "autoscaling",
+    "canary-rollout",
+    "drift-detection",
+    "bloom-filter",
+    "count-min-sketch",
+    "semantic-caching",
+    "model-cascade"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "canary-rollout"
+};

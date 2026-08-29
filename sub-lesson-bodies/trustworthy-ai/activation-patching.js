@@ -1,0 +1,90 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/trustworthy-ai/activation-patching/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "shap": {
+        "title": "SHAP Values"
+      },
+      "saliency": {
+        "title": "Saliency Maps"
+      },
+      "adversarial-examples": {
+        "title": "Adversarial Examples"
+      },
+      "superposition": {
+        "title": "Superposition"
+      },
+      "activation-patching": {
+        "title": "Activation Patching"
+      },
+      "sparse-autoencoder": {
+        "title": "Sparse Autoencoders & Superposition"
+      },
+      "certified-robustness": {
+        "title": "Certified Robustness"
+      },
+      "conformal-regression": {
+        "title": "Conformal Regression"
+      }
+    }
+  },
+  "moduleSlug": "trustworthy-ai",
+  "conceptId": "activation-patching",
+  "lesson": {
+    "title": "Activation Patching",
+    "oneLine": "The do-operator applied inside a network - the one place in ML where intervention is exact and free.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Run the model on a clean input and on a corrupted one that differs in exactly the thing you care about. Then copy ONE activation from the clean run into the corrupted run and see how much of the correct behaviour returns. Whatever recovers the output is causally carrying that information.",
+          "This is the interventional counterpart to probing, and the distinction is the whole point: a probe shows a property is DECODABLE, patching shows it is USED. A probe can hit 100% accuracy on a direction the network never reads - measured in the module at 1.0000 decodability with a causal effect of 0.000003."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Patch component c and measure the recovered fraction of the clean-corrupted gap:"
+        ],
+        "tex": "\\text{effect}(c) = \\frac{f\\big(x_{\\text{corr}} \\,\\big|\\, a_c \\leftarrow a_c^{\\text{clean}}\\big) - f(x_{\\text{corr}})}{f(x_{\\text{clean}}) - f(x_{\\text{corr}})}",
+        "texNote": "Normalizing by the gap makes effects comparable across components and inputs."
+      },
+      {
+        "h": "In code",
+        "code": "clean_acts = capture(model, x_clean)\n\ndef patch_hook(module, inp, out):\n    out[:, pos, :] = clean_acts[layer][:, pos, :]   # one component, one position\n    return out\n\nwith hook(model, layer, patch_hook):\n    recovered = model(x_corrupted)\n\n# Caution: ablating one component often shows a SMALL effect because a backup\n# component takes over - self-repair, which understates true importance.",
+        "caption": "Interventions here are exact and repeatable, which is why interpretability is methodologically luckier than causal inference on the world."
+      },
+      {
+        "h": "Sufficiency is not the mechanism",
+        "paras": [
+          "Patching answers a precise question — does restoring this component restore the behaviour — and that question has a misleading answer whenever the network is redundant. Take a model whose output is an OR over two internal paths: patching path A alone restores the clean answer, and so does patching path B alone. Both components are sufficient, so a sufficiency-based search will report either one as the location of the behaviour depending on where it happened to look.",
+          "Ablation gives the opposite reading on the same model and is equally wrong: removing A changes nothing and removing B changes nothing, so neither looks important. Redundancy makes necessity and sufficiency come apart, and real networks are redundant. The practical consequences are that a patching result depends on the corruption baseline you chose, that finding one sufficient circuit is not evidence there is only one, and that the honest claim from a patching experiment is \"this path can carry the behaviour\" rather than \"this is how the model does it\"."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Probing is correlational, patching is causal - a decodable property may be entirely unused.",
+      "Normalize by the clean-corrupted gap so effects compare across components.",
+      "Self-repair and backup components mean a small ablation effect is not proof of unimportance."
+    ],
+    "demo": "activation-patching"
+  },
+  "order": [
+    "shap",
+    "saliency",
+    "adversarial-examples",
+    "superposition",
+    "activation-patching",
+    "sparse-autoencoder",
+    "certified-robustness",
+    "conformal-regression"
+  ],
+  "index": 4,
+  "prev": "superposition",
+  "next": "sparse-autoencoder"
+};

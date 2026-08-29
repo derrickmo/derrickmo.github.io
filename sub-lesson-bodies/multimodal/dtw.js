@@ -1,0 +1,85 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/multimodal/dtw/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Multimodal Learning",
+    "lessons": {
+      "contrastive-learning": {
+        "title": "Contrastive Learning"
+      },
+      "vector-search": {
+        "title": "Vector Search"
+      },
+      "spectrogram": {
+        "title": "Spectrograms & the STFT"
+      },
+      "mfcc": {
+        "title": "Mel Filterbank & MFCC"
+      },
+      "pitch-detection": {
+        "title": "Pitch Detection (Autocorrelation)"
+      },
+      "dtw": {
+        "title": "Dynamic Time Warping"
+      }
+    }
+  },
+  "moduleSlug": "multimodal",
+  "conceptId": "dtw",
+  "lesson": {
+    "title": "Dynamic Time Warping",
+    "oneLine": "Compare two sequences that are the same shape at different speeds — a distance that is genuinely useful and genuinely not a metric.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Two recordings of the same spoken word, two gestures, two heartbeats — the same shape, but stretched and compressed differently in time. Comparing them point by point is meaningless, because index 40 in one may correspond to index 55 in the other. Any lockstep distance measures the misalignment rather than the difference in shape.",
+          "Dynamic time warping searches over alignments instead. Build a cost matrix of every pairwise distance, then find the cheapest monotone path from corner to corner, where each step advances one or both sequences. Advancing only one is a stretch; advancing both is a match. The path's total cost is the distance, and the path itself is the alignment, which is often more useful than the number.",
+          "Measured on a sine compared against itself shifted by 8 samples: the lockstep alignment costs 61.38 and DTW costs 7.24 under the same local cost function. At shift 16 it is 107.57 against 15.34. DTW can never be worse than lockstep, since the diagonal path is always available to it. And it does not manufacture similarity where there is none — against a genuinely unrelated random signal it returned 50.54 against lockstep's 70.71, a much smaller improvement."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The recursion, with the three allowed steps encoding match, insertion and deletion:"
+        ],
+        "tex": "D(i,j) = d(x_i, y_j) + \\min\\bigl\\{ D(i-1,j),\\ D(i,j-1),\\ D(i-1,j-1) \\bigr\\}",
+        "texNote": "Boundary conditions force the path to run corner to corner, so both sequences are consumed entirely. The cost is O(nm) in time and, if you only need the distance and not the path, O(min(n,m)) in space by keeping a single row."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef dtw(x, y, band=None):\n    n, m = len(x), len(y)\n    D = np.full((n + 1, m + 1), np.inf)\n    D[0, 0] = 0.0\n    for i in range(1, n + 1):\n        lo, hi = (1, m) if band is None else (max(1, i - band), min(m, i + band))\n        for j in range(lo, hi + 1):\n            cost = abs(x[i - 1] - y[j - 1])\n            D[i, j] = cost + min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])\n    return D[n, m]\n\n# Z-normalise before comparing unless the absolute level is meaningful. Two identically\n# shaped series at different offsets are far apart under DTW, which is almost never what\n# you want when the question is 'same shape?'.\nz = lambda s: (s - s.mean()) / (s.std() + 1e-12)",
+        "caption": "The Sakoe-Chiba band restricts how far the path may stray from the diagonal. It is usually presented as a speedup, which understates what it does — see below."
+      },
+      {
+        "h": "Two properties that break the obvious uses",
+        "paras": [
+          "DTW is not a metric. It satisfies non-negativity and symmetry, but the triangle inequality fails, and finding a counterexample took only 68 random triples of length-6 integer sequences: three sequences with d(A,C) = 11 while d(A,B) + d(B,C) = 2 + 7 = 9.",
+          "That is not pedantry. Metric-tree indexes — ball trees, VP-trees, metric-space k-nearest-neighbour accelerators — assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
+          "The band is also not merely a speedup. Constraining the path to stay within 5 cells of the diagonal produced a strictly larger distance than unconstrained DTW in 203 of 300 randomly shifted pairs — it excluded the optimal alignment. That is frequently desirable, since an unconstrained warp will happily match one point against fifty and produce a pathological alignment, and the band is the standard defence. But it changes the answer, so the band width is a modelling choice to state, not an implementation detail to hide.",
+          "Where it still wins: with a good distance measure, one-nearest-neighbour with DTW is a famously strong baseline for time-series classification and remained competitive with far more elaborate methods for years. Always run it before building something complicated."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Warping the alignment rather than comparing in lockstep cut the distance from 61.38 to 7.24 on a shifted sine, and it can never do worse, since the diagonal path is always available.",
+      "It is NOT a metric — a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples — so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
+      "The Sakoe-Chiba band changes the answer rather than just the runtime: it excluded the optimal path in 203 of 300 cases, which is usually desirable but is a modelling choice."
+    ],
+    "demo": "dtw"
+  },
+  "order": [
+    "contrastive-learning",
+    "vector-search",
+    "spectrogram",
+    "mfcc",
+    "pitch-detection",
+    "dtw"
+  ],
+  "index": 5,
+  "prev": "pitch-detection",
+  "next": null
+};

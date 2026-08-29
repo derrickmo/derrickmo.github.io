@@ -1,0 +1,103 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/interview-capstone/dijkstra/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "classification-metrics": {
+        "title": "Classification Metrics"
+      },
+      "dynamic-programming": {
+        "title": "Dynamic Programming"
+      },
+      "graph-search": {
+        "title": "Graph Search"
+      },
+      "search-astar": {
+        "title": "A* and Informed Search"
+      },
+      "dijkstra": {
+        "title": "Dijkstra's Shortest Path"
+      },
+      "backtracking": {
+        "title": "Backtracking & Constraint Satisfaction"
+      },
+      "simulated-annealing": {
+        "title": "Simulated Annealing"
+      },
+      "branch-and-bound": {
+        "title": "Branch & Bound"
+      },
+      "arc-consistency": {
+        "title": "Arc Consistency (AC-3)"
+      },
+      "mst": {
+        "title": "Minimum Spanning Tree"
+      },
+      "max-flow": {
+        "title": "Max Flow / Min Cut"
+      }
+    }
+  },
+  "moduleSlug": "interview-capstone",
+  "conceptId": "dijkstra",
+  "lesson": {
+    "title": "Dijkstra's Shortest Path",
+    "oneLine": "Always expand the closest unfinished node — correct precisely because edge weights are non-negative, and wrong the moment they are not.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Grow a set of nodes whose true shortest distance you already know. Repeatedly take the unfinished node with the smallest tentative distance and declare it finished, because nothing still unfinished could offer a cheaper route to it.",
+          "That last step is the entire proof, and it is also the entire assumption. Reaching a node through a longer partial path can never help if every edge adds a non-negative amount. Allow one negative edge and the argument collapses — a node you already finalised might be reachable more cheaply later."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The relaxation is one line, applied to every edge out of the node being finalised:"
+        ],
+        "tex": "d(v) \\leftarrow \\min\\big(d(v),\\; d(u) + w(u,v)\\big)",
+        "texNote": "With a binary heap the cost is O((V + E) log V). A Fibonacci heap makes it O(E + V log V), which is better asymptotically and usually slower in practice because the constants are worse — a good example of why you benchmark rather than read the table."
+      },
+      {
+        "h": "In code",
+        "code": "import heapq\n\ndef dijkstra(graph, src):\n    dist = {src: 0}\n    pq = [(0, src)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist.get(u, float(\"inf\")):\n            continue                       # a stale entry; the good one already ran\n        for v, w in graph[u]:\n            nd = d + w\n            if nd < dist.get(v, float(\"inf\")):\n                dist[v] = nd\n                heapq.heappush(pq, (nd, v))\n    return dist",
+        "caption": "Python's heapq has no decrease-key, so the idiom is to push duplicates and skip stale pops. That `continue` is not an optimisation — without it the loop does redundant work on every outdated entry."
+      },
+      {
+        "h": "When it is the wrong algorithm",
+        "paras": [
+          "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them — and detects a negative cycle, where 'shortest path' stops being defined at all.",
+          "Unweighted graphs need only BFS, which is O(V + E) with no heap. Reaching for Dijkstra there is a real interview tell: the priority queue is doing nothing a queue would not.",
+          "Add an admissible estimate of the remaining distance to the priority and you have A*, which explores far fewer nodes to reach the same answer. Dijkstra is the h = 0 case."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Correctness rests entirely on non-negative edge weights — that is the assumption, not a technicality.",
+      "Without decrease-key you push duplicates and skip stale pops; forgetting the skip silently does extra work.",
+      "Unweighted means BFS, negative edges mean Bellman-Ford, and a heuristic makes it A*."
+    ],
+    "demo": "dijkstra"
+  },
+  "order": [
+    "classification-metrics",
+    "dynamic-programming",
+    "graph-search",
+    "search-astar",
+    "dijkstra",
+    "backtracking",
+    "simulated-annealing",
+    "branch-and-bound",
+    "arc-consistency",
+    "mst",
+    "max-flow"
+  ],
+  "index": 4,
+  "prev": "search-astar",
+  "next": "backtracking"
+};

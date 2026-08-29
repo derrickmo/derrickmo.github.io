@@ -1,0 +1,65 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/fine-tuning/dpo/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Fine-Tuning and Alignment",
+    "lessons": {
+      "reward-model": {
+        "title": "Reward Modeling"
+      },
+      "dpo": {
+        "title": "Direct Preference Optimization"
+      }
+    }
+  },
+  "moduleSlug": "fine-tuning",
+  "conceptId": "dpo",
+  "lesson": {
+    "title": "Direct Preference Optimization",
+    "oneLine": "Optimize a model on preferences directly, skipping the RL loop.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "RLHF trains a reward model, then runs reinforcement learning against it - powerful but finicky. DPO shows you can skip the middle step: a clever reparameterization turns the preference objective into a simple classification loss on the policy itself, tied to a frozen reference model, with no sampling or reward model needed."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "DPO raises the implicit reward of chosen over rejected, anchored to a reference policy:"
+        ],
+        "tex": "\\mathcal{L} = -\\log\\sigma\\!\\Big(\\beta\\log\\tfrac{\\pi(y_w)}{\\pi_{\\text{ref}}(y_w)} - \\beta\\log\\tfrac{\\pi(y_l)}{\\pi_{\\text{ref}}(y_l)}\\Big)",
+        "texNote": "beta controls how far the policy may drift from the reference."
+      },
+      {
+        "h": "In code",
+        "code": "# DPO loss: chosen y_w over rejected y_l vs a frozen reference\ndw = beta * (logp(pi, y_w) - logp(ref, y_w))\ndl = beta * (logp(pi, y_l) - logp(ref, y_l))\nloss = -np.log(sigmoid(dw - dl)).mean()",
+        "caption": "A single classification loss - no reward model, no RL rollout."
+      },
+      {
+        "h": "Beta is how much drift you are permitting",
+        "paras": [
+          "DPO's implicit reward is beta times the log ratio between the policy and the reference, which means a preference margin is a statement about how far the policy has moved. At beta = 0.1, a reward gap of 2 requires a probability ratio of 4.9e+8. At beta = 0.05 the same gap requires 2.4e+17. At beta = 0.5 it needs only 55.",
+          "So beta is not a learning rate and tuning it down to \"learn faster\" is really authorising the policy to leave the reference distribution by orders of magnitude. That is the mechanism behind the characteristic DPO failure of a model that wins its preference evaluation while producing degenerate or off-distribution text: the objective was satisfied exactly as written. Watching the actual KL from the reference during training, rather than the preference accuracy alone, is what catches it."
+        ]
+      }
+    ],
+    "takeaways": [
+      "DPO optimizes preferences directly as a classification loss.",
+      "It removes the separate reward model and RL loop.",
+      "beta and the reference policy keep it from drifting."
+    ],
+    "demo": "dpo"
+  },
+  "order": [
+    "reward-model",
+    "dpo"
+  ],
+  "index": 1,
+  "prev": "reward-model",
+  "next": null
+};

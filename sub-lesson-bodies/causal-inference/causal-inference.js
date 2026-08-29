@@ -1,0 +1,70 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/causal-inference/causal-inference/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Concept by concept",
+    "lessons": {
+      "causal-inference": {
+        "title": "Causal Inference"
+      },
+      "simpsons-paradox": {
+        "title": "Simpson's Paradox"
+      },
+      "mcmc": {
+        "title": "MCMC"
+      }
+    }
+  },
+  "moduleSlug": "causal-inference",
+  "conceptId": "causal-inference",
+  "lesson": {
+    "title": "Causal Inference",
+    "oneLine": "Estimating what WOULD have happened, from data that only records what did.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Every unit has two potential outcomes - what happens under treatment and what happens without it - and you observe exactly one. That missing half is not a data-collection problem you can fix with more rows; it is missing by construction, which is why causal inference is a different discipline rather than a harder regression.",
+          "So the effect is never identified by the data alone. It is identified by an ASSUMPTION that licenses treating some observed comparison as if it were the missing counterfactual - randomization, ignorability given covariates, a valid instrument, parallel trends. The estimate is only as good as that assumption, and the assumption is usually untestable."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The individual effect is a difference of potential outcomes, and the naive comparison misses it by a selection term:"
+        ],
+        "tex": "\\tau = \\mathbb{E}[Y(1) - Y(0)], \\qquad \\underbrace{\\mathbb{E}[Y \\mid T{=}1] - \\mathbb{E}[Y \\mid T{=}0]}_{\\text{naive}} = \\mathrm{ATT} + \\underbrace{\\mathbb{E}[Y(0)\\mid T{=}1] - \\mathbb{E}[Y(0)\\mid T{=}0]}_{\\text{selection bias}}",
+        "texNote": "The decomposition is exact. Randomization does not estimate the bias away - it makes the second term zero by design."
+      },
+      {
+        "h": "In code",
+        "code": "# A simulation can compute what reality cannot: both outcomes for everyone.\ny1, y0 = potential_outcomes(X)\nate_true = (y1 - y0).mean()\n\n# What an analyst actually sees, under confounded assignment:\nt = assign(X)                                  # depends on X, so not random\ny = np.where(t, y1, y0)\nnaive = y[t == 1].mean() - y[t == 0].mean()\n\n# Measured in the module: naive 3.26 against a true ATE of 7.95 -\n# and with a different DGP the naive estimate has the wrong SIGN.",
+        "caption": "Grading estimators against a known truth is only possible in simulation, which is exactly why the module is built on them."
+      },
+      {
+        "h": "The adjustment is the entire job",
+        "paras": [
+          "Confounding is not a subtle bias that more data averages away; it is a different quantity being estimated. Simulating 200,000 units where a confounder U raises both the chance of treatment and the outcome, and where the true treatment effect is exactly 1.000, the naive difference in means comes out at 2.199. It is more than twice the truth, and every additional observation makes that wrong number more precise.",
+          "Stratifying on U and averaging within strata recovers 0.998. The whole content of causal inference is in knowing that the adjustment is needed and which variables it should include, and no amount of model capacity substitutes for it — the estimate is biased by design, not by noise. It is also why the assumption is the thing to argue about in any observational result: adjusting for the wrong set can create bias as easily as remove it, which is what a collider does."
+        ]
+      }
+    ],
+    "takeaways": [
+      "One potential outcome per unit is missing by construction, not by omission.",
+      "The assumption identifies the effect; the estimator only computes it.",
+      "More data shrinks the interval and does nothing to the bias - they are different axes."
+    ],
+    "demo": "do-intervention"
+  },
+  "order": [
+    "causal-inference",
+    "simpsons-paradox",
+    "mcmc"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "simpsons-paradox"
+};

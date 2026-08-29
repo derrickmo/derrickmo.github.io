@@ -1,0 +1,69 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/advanced-nlp/beam-search/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Advanced NLP and Generation",
+    "lessons": {
+      "beam-search": {
+        "title": "Beam Search"
+      },
+      "rope": {
+        "title": "Rotary Position Embeddings"
+      },
+      "kv-cache": {
+        "title": "The KV Cache"
+      }
+    }
+  },
+  "moduleSlug": "advanced-nlp",
+  "conceptId": "beam-search",
+  "lesson": {
+    "title": "Beam Search",
+    "oneLine": "Keep several candidate continuations instead of committing greedily.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Greedy decoding picks the single best next token and can paint itself into a corner. Beam search keeps the B most probable partial sequences at each step, expanding all of them and pruning back to B. It finds higher-probability sequences than greedy at B times the cost."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Score a sequence by its summed log-probability and keep the top B:"
+        ],
+        "tex": "s(y_{1:t}) = \\sum_{k=1}^{t} \\log P(y_k \\mid y_{<k})",
+        "texNote": "Length-normalize the score, or beam search favors short sequences."
+      },
+      {
+        "h": "In code",
+        "code": "def expand(beams, logp):\n    cand = []\n    for seq, s in beams:\n        for tok, lp in logp(seq):\n            cand.append((seq + [tok], s + lp))\n    return sorted(cand, key=lambda x: -x[1])[:B]",
+        "caption": "Expand every beam, keep the top B by score."
+      },
+      {
+        "h": "A wider beam finds a worse sentence",
+        "paras": [
+          "Beam search is a better optimiser than greedy decoding, and on open-ended text that is the problem. Decoding 20 tokens from a bigram model built on this site's prose, a beam of 1 scores -2.808 log-probability per token and uses 4 distinct words; a beam of 10 scores -1.329 and uses 3. The wider beam more than halved the loss and emitted \"the true notebook true notebook true notebook\" — and a beam of 50 finds exactly the same sequence, because there is nothing better to find.",
+          "So the degeneration is not a search failure but a search success: repetition genuinely is the highest-probability continuation, and improving the optimiser walks further into it. That is why beam search remains standard for translation and summarisation, where the output is largely determined by the input and likelihood is a reasonable proxy, and why open-ended generation uses sampling instead. If your decoder gets worse as you give it more compute, the objective is not the one you wanted."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Beam search tracks the top-B partial sequences.",
+      "It beats greedy on sequence probability at B times the cost.",
+      "Length normalization stops it preferring short outputs."
+    ],
+    "demo": "beam-search"
+  },
+  "order": [
+    "beam-search",
+    "rope",
+    "kv-cache"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "rope"
+};

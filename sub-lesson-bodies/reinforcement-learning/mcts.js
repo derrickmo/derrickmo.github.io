@@ -1,0 +1,131 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/reinforcement-learning/mcts/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Reinforcement Learning",
+    "lessons": {
+      "bandit": {
+        "title": "Multi-Armed Bandits"
+      },
+      "sarsa": {
+        "title": "SARSA"
+      },
+      "td-lambda": {
+        "title": "TD(lambda) and Eligibility Traces"
+      },
+      "double-q-learning": {
+        "title": "Double Q-Learning"
+      },
+      "gae": {
+        "title": "Generalized Advantage Estimation"
+      },
+      "ppo": {
+        "title": "Proximal Policy Optimization"
+      },
+      "dyna-q": {
+        "title": "Dyna-Q"
+      },
+      "regret-matching": {
+        "title": "Regret Matching & Nash Equilibrium"
+      },
+      "minimax": {
+        "title": "Minimax & Alpha-Beta"
+      },
+      "mcts": {
+        "title": "Monte-Carlo Tree Search"
+      },
+      "neuroevolution": {
+        "title": "Neuroevolution"
+      },
+      "prioritized-replay": {
+        "title": "Prioritized Experience Replay"
+      },
+      "distributional-rl": {
+        "title": "Distributional RL (C51)"
+      },
+      "successor-representation": {
+        "title": "Successor Representation"
+      },
+      "max-entropy-rl": {
+        "title": "Maximum-Entropy RL (Soft Value Iteration)"
+      },
+      "cfr": {
+        "title": "Counterfactual Regret Minimization"
+      },
+      "replicator-dynamics": {
+        "title": "Replicator Dynamics"
+      },
+      "iterated-prisoners-dilemma": {
+        "title": "Iterated Prisoner's Dilemma"
+      }
+    }
+  },
+  "moduleSlug": "reinforcement-learning",
+  "conceptId": "mcts",
+  "lesson": {
+    "title": "Monte-Carlo Tree Search",
+    "oneLine": "Spend your search budget where it looks promising — statistics instead of enumeration, which is what made Go tractable.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Alpha-beta needs two things Go does not have: a branching factor small enough to search deeply, and an evaluation function that can score a mid-game position. MCTS gives up on both. Instead of enumerating, it plays the position out to the end many times and keeps the statistics.",
+          "Each iteration is four steps. Walk down the tree choosing children by a rule that balances what looks good against what is barely explored; add a node; play the rest of the game quickly; then push the result back up every node you passed. Do that a few thousand times and the visit counts concentrate on the good lines — the tree grows asymmetrically, deep where it matters and shallow where it does not."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The selection rule is a bandit algorithm applied at every node — UCT, upper confidence bounds for trees:"
+        ],
+        "tex": "\\text{UCT}(a) = \\underbrace{\\frac{W_a}{N_a}}_{\\text{exploit}} + c\\underbrace{\\sqrt{\\frac{\\ln N}{N_a}}}_{\\text{explore}}",
+        "texNote": "The second term shrinks as an action is tried and grows as its siblings are, so an unvisited action is infinitely attractive and a well-tested one is judged on its record. c sets the trade; too small and it commits early on noise, too large and it spreads the budget thin and learns nothing deeply."
+      },
+      {
+        "h": "In code",
+        "code": "import math, random\n\ndef uct(node, c=1.4):\n    return max(node.children, key=lambda ch:\n        ch.wins / ch.visits + c * math.sqrt(math.log(node.visits) / ch.visits)\n        if ch.visits else float(\"inf\"))          # unvisited children go first\n\ndef mcts(root, budget):\n    for _ in range(budget):\n        node, path = root, [root]\n        while node.children and not node.terminal:   # 1. SELECT\n            node = uct(node); path.append(node)\n        if not node.terminal:                        # 2. EXPAND\n            node = node.expand(); path.append(node)\n        result = node.rollout()                      # 3. SIMULATE\n        for n in path:                               # 4. BACKPROPAGATE\n            n.visits += 1\n            n.wins += result if n.player == node.player else 1 - result\n    return max(root.children, key=lambda ch: ch.visits)   # visits, NOT win rate",
+        "caption": "The final move is chosen by VISIT COUNT, not win rate. A child visited three times with three wins is not better evidence than one visited a thousand times at 60% - picking by rate rewards small samples."
+      },
+      {
+        "h": "What AlphaGo changed, and what it kept",
+        "paras": [
+          "Plain MCTS with random rollouts was already enough to beat classical Go engines, because a random playout is a surprisingly informative estimate when averaged thousands of times. But it is noisy, and it wastes most of the budget on lines a strong player would never consider.",
+          "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton — select, expand, evaluate, back up — did not change at all.",
+          "It is also an anytime algorithm, which matters in practice: stop it whenever the clock runs out and the answer is the best one found so far, degrading smoothly rather than returning nothing. Alpha-beta at a fixed depth cannot do that."
+        ]
+      }
+    ],
+    "takeaways": [
+      "MCTS replaces exhaustive enumeration with sampled playouts, so it needs neither a small branching factor nor an evaluation function.",
+      "UCT is a bandit rule applied per node, which is what grows the tree asymmetrically toward good lines.",
+      "Choose the final move by visit count rather than win rate, and remember it is anytime — stop it whenever and the answer is usable."
+    ],
+    "demo": "mcts"
+  },
+  "order": [
+    "bandit",
+    "sarsa",
+    "td-lambda",
+    "double-q-learning",
+    "gae",
+    "ppo",
+    "dyna-q",
+    "regret-matching",
+    "minimax",
+    "mcts",
+    "neuroevolution",
+    "prioritized-replay",
+    "distributional-rl",
+    "successor-representation",
+    "max-entropy-rl",
+    "cfr",
+    "replicator-dynamics",
+    "iterated-prisoners-dilemma"
+  ],
+  "index": 9,
+  "prev": "minimax",
+  "next": "neuroevolution"
+};

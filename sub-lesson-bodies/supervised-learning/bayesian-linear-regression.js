@@ -1,0 +1,73 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/supervised-learning/bayesian-linear-regression/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Supervised Learning",
+    "lessons": {
+      "decision-tree": {
+        "title": "Decision Trees"
+      },
+      "roc": {
+        "title": "ROC and Thresholds"
+      },
+      "bayesian-linear-regression": {
+        "title": "Bayesian Linear Regression"
+      }
+    }
+  },
+  "moduleSlug": "supervised-learning",
+  "conceptId": "bayesian-linear-regression",
+  "lesson": {
+    "title": "Bayesian Linear Regression",
+    "oneLine": "Put a prior on the weights and get a posterior instead of a point — which is exactly ridge regression, plus an error bar that grows where you have no data.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "Ordinary least squares returns one weight vector. Bayesian linear regression returns a distribution over weight vectors: start with a prior expressing that large weights are implausible, multiply by the likelihood of the observed data, and the result is a Gaussian posterior whose mean is a point estimate and whose covariance says how much that estimate should be trusted.",
+          "Because the Gaussian prior is conjugate to the Gaussian likelihood, none of this requires sampling or approximation. The posterior is available in closed form, updates incrementally as data arrives, and costs one linear solve.",
+          "The point estimate is not new. With prior precision alpha and noise precision beta, the posterior mean is exactly ridge regression with a regularisation strength of alpha over beta — verified numerically here to nine decimal places on a quartic basis fit. Ridge is the MAP estimate of this model, which is where the L2 penalty comes from rather than being a heuristic someone invented."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "The posterior over weights, and the predictive distribution that is the real reason to bother:"
+        ],
+        "tex": "S_N^{-1} = \\alpha I + \\beta \\Phi^\\top\\Phi, \\quad m_N = \\beta S_N \\Phi^\\top t, \\qquad \\sigma^2(x) = \\underbrace{\\beta^{-1}}_{\\text{noise}} + \\underbrace{\\phi(x)^\\top S_N \\phi(x)}_{\\text{uncertainty in } w}",
+        "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data — and which grows as x moves away from where the data was."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef fit(Phi, t, alpha, beta):\n    d = Phi.shape[1]\n    S_inv = alpha * np.eye(d) + beta * Phi.T @ Phi\n    S = np.linalg.inv(S_inv)\n    m = beta * S @ Phi.T @ t\n    return m, S\n\ndef predict(phi_x, m, S, beta):\n    mean = phi_x @ m\n    var = 1.0 / beta + np.einsum(\"ij,jk,ik->i\", phi_x, S, phi_x)\n    return mean, np.sqrt(var)\n\n# alpha and beta need not be guessed. Maximising the MARGINAL likelihood (the evidence)\n# selects them from the data itself - empirical Bayes, no held-out set required, which\n# is the practical advantage over cross-validating a ridge penalty.",
+        "caption": "Sequential updating comes free: the posterior after one batch is the prior for the next, so a streaming fit is exactly the batch fit with no approximation."
+      },
+      {
+        "h": "The error bar is the whole point",
+        "paras": [
+          "Fitting a quartic basis to data confined to the left half of the range and then asking for the predictive standard deviation as x moves away from that data: 0.156 at x = -0.5 and 0.170 at x = 0, both inside the data. Then 0.394 at x = 0.5, 1.165 at x = 1, 2.769 at x = 1.5, and 5.492 at x = 2. A thirty-five-fold growth in uncertainty as the model extrapolates.",
+          "Ordinary least squares reports the same residual standard deviation at every one of those points. It has no representation of being far from its training data, which is precisely the situation in which its predictions are worthless. A model that says I do not know here is a different and much safer object than one that does not.",
+          "That property is what makes it the engine of other methods. Bayesian optimisation needs uncertainty to decide where to sample next, and would be pointless with a model whose error bars are constant. Active learning uses it to choose which point to label. Thompson sampling for contextual bandits is, in its linear form, this model sampled from rather than averaged.",
+          "The limitations are the ones you would expect. The model is linear in the parameters, so the basis functions are chosen up front and the uncertainty is only honest within that family — a badly chosen basis gives confident nonsense. And it scales as the cube of the number of basis functions. Taking the limit of infinitely many basis functions is exactly a Gaussian process, which is the natural next step and is covered in this curriculum's Gaussian processes lesson."
+        ]
+      }
+    ],
+    "takeaways": [
+      "The posterior mean equals ridge regression with lambda = alpha/beta — confirmed to nine decimals — so the L2 penalty is a Gaussian prior rather than a heuristic.",
+      "Predictive variance splits into irreducible noise plus weight uncertainty, and the second term grew 35-fold as the model extrapolated away from its data while OLS would report a constant.",
+      "That growing error bar is what Bayesian optimisation, active learning and Thompson sampling all consume; the infinite-basis limit of this model is a Gaussian process."
+    ],
+    "demo": "bayesian-linear-regression"
+  },
+  "order": [
+    "decision-tree",
+    "roc",
+    "bayesian-linear-regression"
+  ],
+  "index": 2,
+  "prev": "roc",
+  "next": null
+};

@@ -1,0 +1,115 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/foundations/importance-sampling/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "Mathematical and Programming Foundations",
+    "lessons": {
+      "chain-rule": {
+        "title": "The Chain Rule"
+      },
+      "gradient-descent": {
+        "title": "Gradient Descent"
+      },
+      "softmax": {
+        "title": "Softmax"
+      },
+      "cross-entropy": {
+        "title": "Cross-Entropy Loss"
+      },
+      "bayes": {
+        "title": "Bayes' Rule"
+      },
+      "entropy": {
+        "title": "Entropy and Information"
+      },
+      "clt": {
+        "title": "The Central Limit Theorem"
+      },
+      "fourier": {
+        "title": "Fourier Series"
+      },
+      "mutual-information": {
+        "title": "Mutual Information"
+      },
+      "importance-sampling": {
+        "title": "Importance Sampling"
+      },
+      "reservoir-sampling": {
+        "title": "Reservoir Sampling"
+      },
+      "huffman-coding": {
+        "title": "Huffman Coding"
+      },
+      "aliasing": {
+        "title": "Aliasing & the Nyquist Limit"
+      },
+      "channel-capacity": {
+        "title": "Channel Capacity"
+      }
+    }
+  },
+  "moduleSlug": "foundations",
+  "conceptId": "importance-sampling",
+  "lesson": {
+    "title": "Importance Sampling",
+    "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting — and watch the variance explode when the two disagree.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "You want the average of f under p, but you can only draw from q. Reweight each sample by how much more likely it was under p than under q, and the average comes out right. That single trick is why off-policy reinforcement learning, causal inference under covariate shift, and variational inference all work.",
+          "It is exactly unbiased, which makes it tempting. The catch is entirely in the variance: a sample that p considers likely and q considers rare arrives with an enormous weight, and one such sample can dominate the whole estimate."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Multiply and divide by q, and the expectation moves to the distribution you can sample:"
+        ],
+        "tex": "\\mathbb{E}_{p}[f(x)] = \\mathbb{E}_{q}\\!\\left[f(x)\\frac{p(x)}{q(x)}\\right] \\approx \\frac{1}{n}\\sum_{i} f(x_i)\\,w_i,\\qquad w_i = \\frac{p(x_i)}{q(x_i)}",
+        "texNote": "Unbiased for any q with support covering p. But the variance depends on how heavy the weights get, and if q ever assigns near-zero probability where p does not, the variance is unbounded — no sample size fixes it, because the problem is the estimator rather than the noise."
+      },
+      {
+        "h": "In code",
+        "code": "import numpy as np\n\ndef importance_estimate(f_vals, log_p, log_q):\n    logw = log_p - log_q                    # work in logs; the ratios overflow\n    logw -= logw.max()                      # stabilise before exponentiating\n    w = np.exp(logw)\n    ess = w.sum() ** 2 / (w ** 2).sum()     # effective sample size\n    return float((w * f_vals).sum() / w.sum()), float(ess)",
+        "caption": "Always return the effective sample size next to the estimate. 5,000 samples with an ESS of 12 is not a 5,000-sample estimate, and the mean alone will not tell you."
+      },
+      {
+        "h": "Where it shows up, and how it is tamed",
+        "paras": [
+          "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster — which is why PPO clips the ratio instead of trusting it.",
+          "Inverse propensity weighting in causal inference is the same estimator: reweight by the inverse probability of treatment to recover what a randomised trial would have shown. Its failure mode is identical — propensities near zero produce weights in the hundreds, and trimming them narrows the estimand to the overlap population rather than fixing the estimate.",
+          "The general defences are the same three: clip or trim extreme weights and accept the bias, use self-normalised weights (divide by the weight sum, slightly biased but far lower variance), and always report the effective sample size so a collapsed estimate cannot pass as a confident one."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Reweighting by p/q makes samples from the wrong distribution answer the right question, exactly unbiased.",
+      "The variance, not the bias, is what breaks it — one rare-under-q sample can dominate everything.",
+      "Report effective sample size alongside the estimate; clipping and self-normalisation trade a little bias for usable variance."
+    ],
+    "demo": "importance-sampling"
+  },
+  "order": [
+    "chain-rule",
+    "gradient-descent",
+    "softmax",
+    "cross-entropy",
+    "bayes",
+    "entropy",
+    "clt",
+    "fourier",
+    "mutual-information",
+    "importance-sampling",
+    "reservoir-sampling",
+    "huffman-coding",
+    "aliasing",
+    "channel-capacity"
+  ],
+  "index": 9,
+  "prev": "mutual-information",
+  "next": "reservoir-sampling"
+};

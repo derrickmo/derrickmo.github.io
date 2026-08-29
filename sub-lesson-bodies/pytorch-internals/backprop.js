@@ -1,0 +1,69 @@
+// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// One concept's rendering context, loaded only by learn/pytorch-internals/backprop/.
+// concept-lesson-app.jsx reads window.DM_SUBLESSON_CTX and falls back to
+// window.DM_SUBLESSON(...) so the page still works if this file is ever missing.
+
+window.DM_SUBLESSON_CTX = {
+  "module": {
+    "title": "PyTorch Internals",
+    "lessons": {
+      "backprop": {
+        "title": "Autograd and the Computational Graph"
+      },
+      "optimizers": {
+        "title": "The Optimizer Step"
+      },
+      "gradient-descent": {
+        "title": "The Training Loop"
+      }
+    }
+  },
+  "moduleSlug": "pytorch-internals",
+  "conceptId": "backprop",
+  "lesson": {
+    "title": "Autograd and the Computational Graph",
+    "oneLine": "How a framework records operations and replays them backward for gradients.",
+    "sections": [
+      {
+        "h": "The intuition",
+        "paras": [
+          "PyTorch's autograd builds a graph as you compute: every tensor operation records its inputs and how to backpropagate through it. Calling .backward() walks that graph in reverse, applying the chain rule at each node, and deposits a gradient on every leaf tensor. You never write a derivative by hand."
+        ]
+      },
+      {
+        "h": "The math",
+        "paras": [
+          "Reverse-mode autodiff accumulates the gradient through each recorded op:"
+        ],
+        "tex": "\\bar{x} = \\sum_{j}\\bar{y}_j\\,\\frac{\\partial y_j}{\\partial x}",
+        "texNote": "Each op knows its local Jacobian-vector product; autograd chains them."
+      },
+      {
+        "h": "In code",
+        "code": "x = torch.tensor([2.0], requires_grad=True)\ny = (x ** 2 + 3 * x).sum()\ny.backward()          # walks the graph in reverse\nprint(x.grad)         # dy/dx = 2x + 3 = 7",
+        "caption": "Build the graph forward; differentiate it backward, automatically."
+      },
+      {
+        "h": "The activations are the memory bill",
+        "paras": [
+          "Backward needs the forward values, so memory scales with depth times tokens rather than with parameters. For a 32-layer model with hidden size 4,096 in fp16, the stored activations come to roughly 2.7 GB at 1,024 tokens, 21.5 GB at 8,192, and 171.8 GB at 65,536 — none of which is weights, and all of which must coexist until the backward pass consumes it.",
+          "That is why the standard remedy is recomputation rather than a cleverer derivative. Gradient checkpointing stores only layer boundaries and recomputes the interior during backward: keeping one set in eight takes activation memory to about a quarter for roughly a second forward pass of compute. It is a pure memory-for-time trade, and it is the reason a model that will not fit at a given batch size often fits immediately with checkpointing enabled and simply runs slower."
+        ]
+      }
+    ],
+    "takeaways": [
+      "Autograd records a graph of operations as you compute.",
+      ".backward() applies the chain rule in reverse over that graph.",
+      "Frameworks free you from writing derivatives by hand."
+    ],
+    "demo": "backprop"
+  },
+  "order": [
+    "backprop",
+    "optimizers",
+    "gradient-descent"
+  ],
+  "index": 0,
+  "prev": null,
+  "next": "optimizers"
+};
