@@ -4471,6 +4471,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\n# simple seasonal-naive baseline: repeat last season\ndef seasonal_naive(y, m, h):\n    return np.array([y[-m + (i % m)] for i in range(h)])",
             "caption": "Beat this baseline before trusting anything fancier."
+          },
+          {
+            "h": "The horizon is the whole story",
+            "paras": [
+              "A forecast's value decays with how far ahead it reaches, and the decay is a property of the process rather than of the model. On an AR(1) series with phi = 0.85 and unconditional standard deviation 1.898, the optimal forecast's RMSE is 1.002 at one step ahead, 1.737 at five, 1.889 at ten and 1.915 at twenty — by which point predicting the unconditional mean scores 1.916. The model has converged to knowing nothing.",
+              "Two habits follow. Report error by horizon rather than as a single number, because a model that looks strong at h = 1 may be worthless at the horizon the decision actually needs; and always carry the trivial baselines, since the honest question is not whether the model has skill but whether it has skill over predicting the last value or the mean. On this series the random walk is the worse baseline throughout (1.041 rising to 2.664) precisely because the process is mean-reverting — which baseline wins is itself a statement about the data."
+            ]
           }
         ],
         "takeaways": [
@@ -4502,6 +4509,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# fit T to minimize validation NLL; predictions unchanged in rank\np = softmax(logits / T)\nece = expected_calibration_error(p, labels)",
             "caption": "One scalar recalibrates every confidence."
+          },
+          {
+            "h": "Accuracy and calibration are separate properties",
+            "paras": [
+              "Sharpening or softening a model's probabilities by temperature never changes their ranking, so it never changes accuracy — but it changes calibration completely. On 20,000 simulated predictions, accuracy is 0.742 at temperature 0.5, 1.0 and 2.0 alike, while expected calibration error moves from 0.1021 to 0.0093 and back to 0.0903: an order of magnitude, at fixed accuracy.",
+              "So a leaderboard number says nothing about whether a 0.9 means ninety percent, and the two failures need different fixes. That is also why temperature scaling is such a good deal — one parameter fitted on held-out data, no retraining, no accuracy cost — and why calibration must be checked on the deployment distribution rather than assumed: the temperature that was right for the validation set is not automatically right after a shift."
+            ]
           }
         ],
         "takeaways": [
@@ -4533,6 +4547,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "import numpy as np\nscores = nonconformity(calib_X, calib_y)\nqhat = np.quantile(scores, 1 - alpha)        # threshold\npred_set = [y for y in classes if score(x, y) <= qhat]",
             "caption": "Calibrate a threshold; include every plausible label."
+          },
+          {
+            "h": "The guarantee is marginal, not conditional",
+            "paras": [
+              "Split conformal prediction promises that intervals cover the truth at the stated rate over the population, and it delivers exactly that. Calibrating for 90% coverage on a population split evenly between a low-noise and a high-noise group, the measured marginal coverage is 0.895 — and the low-noise group gets 1.000 while the high-noise group gets 0.795.",
+              "Nothing has gone wrong: the average is the thing that was promised, and a single global interval width is too wide for one group and too narrow for the other. But it means the guarantee is weakest exactly where the uncertainty is largest, which is usually where someone is relying on it. Recovering per-group behaviour requires asking for it — Mondrian or group-conditional conformal calibrates within each group, and conformalized quantile regression lets the width vary with the input — and each buys conditional coverage with more calibration data per group."
+            ]
           }
         ],
         "takeaways": [
@@ -4564,6 +4585,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "tpr = lambda g: ((pred==1) & (y==1) & (A==g)).sum() / ((y==1)&(A==g)).sum()\neo_gap = abs(tpr('a') - tpr('b'))      # equal-opportunity gap",
             "caption": "Compute per-group rates; the gaps are the disparities."
+          },
+          {
+            "h": "The criteria are mutually exclusive",
+            "paras": [
+              "With unequal base rates, a classifier cannot equalise error rates and predictive values at the same time — not as a matter of engineering effort but as arithmetic. Scoring two groups with base rates 0.30 and 0.10 using the same score distribution and the same threshold, the false-positive rate is 0.213 in both groups and the false-negative rate 0.213 and 0.210, so error rates are equalised. Positive predictive value comes out at 0.612 and 0.295 — a gap of 0.317 that no threshold removes.",
+              "This is the Chouldechova and Kleinberg et al. impossibility result, and its practical consequence is that \"is the model fair\" has no answer until someone names which criterion matters. That is a decision about consequences rather than about modelling: equal false-negative rates matter when a miss is a denied opportunity, equal predictive value matters when a positive prediction is acted on directly. Any audit that reports one criterion without saying it chose one is reporting a preference as a fact."
+            ]
           }
         ],
         "takeaways": [
@@ -5157,6 +5185,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "# per-tensor: one scale for everything - cheap, and outlier-sensitive\ns = (w.max() - w.min()) / (2**bits - 1)\n\n# per-channel: one scale per output channel - the standard fix\ns = (w.amax(dim=1, keepdim=True) - w.amin(dim=1, keepdim=True)) / (2**bits - 1)\n\nq = torch.round(w / s).clamp(0, 2**bits - 1)\nw_hat = q * s                                   # dequantized for the matmul",
             "caption": "Measured in the module: per-tensor int4 scored 0.655 against per-channel's 0.732 on the same weights."
+          },
+          {
+            "h": "One outlier sets the scale for everyone",
+            "paras": [
+              "Quantisation maps a whole tensor onto a grid whose spacing is fixed by the largest magnitude in it, so a single extreme weight coarsens the grid for every other weight. On a Gaussian weight vector the relative error of INT8 is 0.0098; introducing one value at 20 sigma raises it to 0.0432, a factor of 4.4, with every other weight untouched. At INT4 the same outlier takes the error from 0.176 to 0.729.",
+              "Grouping is the fix, and it is dramatic: quantising the same outlier-containing vector with 32 separate group scales gives 0.168 at INT4 — back to the clean level, because the outlier now only degrades its own group. This is why per-channel and group-wise scales are standard, why activation outliers in transformers spawned a whole family of outlier-aware methods, and why a quantisation result quoted without the granularity attached does not mean anything."
+            ]
           }
         ],
         "takeaways": [
@@ -5189,6 +5224,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "draft = small.generate(prefix, k)                 # k cheap tokens\nlogits = large(prefix + draft)                   # ONE pass scores all k\n\nfor i, tok in enumerate(draft):\n    if random() < min(1, p[i][tok] / q[i][tok]):\n        prefix.append(tok)                       # accept\n    else:\n        prefix.append(sample(residual(p[i], q[i])))\n        break                                    # stop at first rejection",
             "caption": "The speedup is the expected acceptance run length; a draft model that agrees more often is worth more than one that is merely faster."
+          },
+          {
+            "h": "The draft model has to agree, not just be good",
+            "paras": [
+              "The speedup is set by the acceptance rate, and it saturates fast when that rate is low. Expected tokens per verification step with a draft of length k is (1 - alpha^(k+1))/(1 - alpha): at alpha = 0.5 it is 1.94 at k = 4 and 2.00 at k = 8, so extending the draft past a few tokens buys nothing. At alpha = 0.9 the same lengths give 4.10 and 6.13.",
+              "Counting the draft model's own cost sharpens it. With a draft costing 10% of the target per token, the best achievable speedup is 1.67x at alpha = 0.6, 2.47x at 0.8 and 3.43x at 0.9, each at its own optimal draft length. The requirement is agreement rather than quality: a strong draft model that makes different choices is worth less than a weaker one that makes the same choices, which is why draft models are usually distilled from the target rather than chosen for their own benchmark scores."
+            ]
           }
         ],
         "takeaways": [
@@ -5221,6 +5263,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "class LoRALinear(nn.Module):\n    def __init__(self, base, r, alpha):\n        super().__init__()\n        self.base = base\n        for p in self.base.parameters():\n            p.requires_grad = False              # the actual memory win\n        self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)\n        self.B = nn.Parameter(torch.zeros(base.out_features, r))\n        self.s = alpha / r\n\n    def forward(self, x):\n        return self.base(x) + (x @ self.A.T @ self.B.T) * self.s",
             "caption": "Merging W + (alpha/r)BA back into the base weight was verified exact to ~1e-6, so serving is unchanged."
+          },
+          {
+            "h": "It is cheap because it is a restriction",
+            "paras": [
+              "A LoRA adapter can only express updates of rank r, and that is the whole trade rather than an implementation detail. Approximating a random full-rank 128x128 update, rank 8 captures 46.1% of it while training 12.5% of the parameters, and rank 32 captures 79.1% at 50%. On a target with no low-rank structure the method simply cannot reach the answer, however long you train it.",
+              "That it works so well in practice is therefore a claim about fine-tuning rather than about the technique: adapting a pretrained model to a narrow task really does seem to need a low-rank change, which is why rank 8 or 16 is usually enough and why raising the rank stops helping. It also predicts where LoRA struggles — teaching genuinely new capabilities or a new language, where the required update is not a small correction to what the model already computes, and full fine-tuning earns its cost back."
+            ]
           }
         ],
         "takeaways": [
@@ -5253,6 +5302,13 @@ window.SUB_LESSONS = {
             "h": "In code",
             "code": "gate = self.router(x)                            # [tokens, n_experts]\nw, idx = gate.softmax(-1).topk(self.k, dim=-1)\n\ny = torch.zeros_like(x)\nfor e in range(self.n_experts):\n    sel = (idx == e).any(-1)\n    if sel.any():\n        y[sel] += w[sel][idx[sel] == e].unsqueeze(-1) * self.experts[e](x[sel])\n\n# without a balance term the router collapses onto a few experts\naux = self.n_experts * (frac_tokens * mean_prob).sum()",
             "caption": "The auxiliary load-balancing loss is not optional - left off, routing collapses and most experts go unused."
+          },
+          {
+            "h": "The router will not balance itself",
+            "paras": [
+              "Routing is learned, and a learned router has no reason to spread tokens evenly. Simulating 100,000 tokens over 64 experts, a mildly skewed router sends 1.62 times the ideal load to its busiest expert and 0.56 times to its quietest. Since experts are sharded across devices, the slowest device sets the step time, so imbalance converts directly into wasted hardware.",
+              "The usual fix is a capacity limit per expert, which converts the problem into dropped tokens: at a capacity factor of 1.0 the same run discards 9.85% of tokens, at 1.25 it discards 1.75%, and reaching zero needs 1.5 — half as much memory again reserved to absorb an imbalance that may not occur. That is the real cost structure of a sparse model, and it is why the auxiliary load-balancing loss exists at all: it is a term added to the objective to make the router do something the task never asked it to do."
+            ]
           }
         ],
         "takeaways": [

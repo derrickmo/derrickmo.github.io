@@ -25,6 +25,13 @@
       "h": "In code",
       "code": "gate = self.router(x)                            # [tokens, n_experts]\nw, idx = gate.softmax(-1).topk(self.k, dim=-1)\n\ny = torch.zeros_like(x)\nfor e in range(self.n_experts):\n    sel = (idx == e).any(-1)\n    if sel.any():\n        y[sel] += w[sel][idx[sel] == e].unsqueeze(-1) * self.experts[e](x[sel])\n\n# without a balance term the router collapses onto a few experts\naux = self.n_experts * (frac_tokens * mean_prob).sum()",
       "caption": "The auxiliary load-balancing loss is not optional - left off, routing collapses and most experts go unused."
+    },
+    {
+      "h": "The router will not balance itself",
+      "paras": [
+        "Routing is learned, and a learned router has no reason to spread tokens evenly. Simulating 100,000 tokens over 64 experts, a mildly skewed router sends 1.62 times the ideal load to its busiest expert and 0.56 times to its quietest. Since experts are sharded across devices, the slowest device sets the step time, so imbalance converts directly into wasted hardware.",
+        "The usual fix is a capacity limit per expert, which converts the problem into dropped tokens: at a capacity factor of 1.0 the same run discards 9.85% of tokens, at 1.25 it discards 1.75%, and reaching zero needs 1.5 — half as much memory again reserved to absorb an imbalance that may not occur. That is the real cost structure of a sparse model, and it is why the auxiliary load-balancing loss exists at all: it is a term added to the objective to make the router do something the task never asked it to do."
+      ]
     }
   ],
   "takeaways": [

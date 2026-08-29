@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "import numpy as np\n# simple seasonal-naive baseline: repeat last season\ndef seasonal_naive(y, m, h):\n    return np.array([y[-m + (i % m)] for i in range(h)])",
       "caption": "Beat this baseline before trusting anything fancier."
+    },
+    {
+      "h": "The horizon is the whole story",
+      "paras": [
+        "A forecast's value decays with how far ahead it reaches, and the decay is a property of the process rather than of the model. On an AR(1) series with phi = 0.85 and unconditional standard deviation 1.898, the optimal forecast's RMSE is 1.002 at one step ahead, 1.737 at five, 1.889 at ten and 1.915 at twenty — by which point predicting the unconditional mean scores 1.916. The model has converged to knowing nothing.",
+        "Two habits follow. Report error by horizon rather than as a single number, because a model that looks strong at h = 1 may be worthless at the horizon the decision actually needs; and always carry the trivial baselines, since the honest question is not whether the model has skill but whether it has skill over predicting the last value or the mean. On this series the random walk is the worse baseline throughout (1.041 rising to 2.664) precisely because the process is mean-reverting — which baseline wins is itself a statement about the data."
+      ]
     }
   ],
   "takeaways": [

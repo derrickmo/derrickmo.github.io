@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "# fit T to minimize validation NLL; predictions unchanged in rank\np = softmax(logits / T)\nece = expected_calibration_error(p, labels)",
       "caption": "One scalar recalibrates every confidence."
+    },
+    {
+      "h": "Accuracy and calibration are separate properties",
+      "paras": [
+        "Sharpening or softening a model's probabilities by temperature never changes their ranking, so it never changes accuracy — but it changes calibration completely. On 20,000 simulated predictions, accuracy is 0.742 at temperature 0.5, 1.0 and 2.0 alike, while expected calibration error moves from 0.1021 to 0.0093 and back to 0.0903: an order of magnitude, at fixed accuracy.",
+        "So a leaderboard number says nothing about whether a 0.9 means ninety percent, and the two failures need different fixes. That is also why temperature scaling is such a good deal — one parameter fitted on held-out data, no retraining, no accuracy cost — and why calibration must be checked on the deployment distribution rather than assumed: the temperature that was right for the validation set is not automatically right after a shift."
+      ]
     }
   ],
   "takeaways": [

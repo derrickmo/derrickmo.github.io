@@ -24,6 +24,13 @@
       "h": "In code",
       "code": "tpr = lambda g: ((pred==1) & (y==1) & (A==g)).sum() / ((y==1)&(A==g)).sum()\neo_gap = abs(tpr('a') - tpr('b'))      # equal-opportunity gap",
       "caption": "Compute per-group rates; the gaps are the disparities."
+    },
+    {
+      "h": "The criteria are mutually exclusive",
+      "paras": [
+        "With unequal base rates, a classifier cannot equalise error rates and predictive values at the same time — not as a matter of engineering effort but as arithmetic. Scoring two groups with base rates 0.30 and 0.10 using the same score distribution and the same threshold, the false-positive rate is 0.213 in both groups and the false-negative rate 0.213 and 0.210, so error rates are equalised. Positive predictive value comes out at 0.612 and 0.295 — a gap of 0.317 that no threshold removes.",
+        "This is the Chouldechova and Kleinberg et al. impossibility result, and its practical consequence is that \"is the model fair\" has no answer until someone names which criterion matters. That is a decision about consequences rather than about modelling: equal false-negative rates matter when a miss is a denied opportunity, equal predictive value matters when a positive prediction is acted on directly. Any audit that reports one criterion without saying it chose one is reporting a preference as a fact."
+      ]
     }
   ],
   "takeaways": [
