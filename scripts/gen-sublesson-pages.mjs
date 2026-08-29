@@ -152,16 +152,44 @@ function patchBlock(file, marker, lines) {
   writeFileSync(path, src);
 }
 
-// idempotently add the sub-lessons.js script tag to a module's index.html so its
-// "Concept by concept" section can read window.SUB_LESSONS.
+// ─── nav-only bundle for the module pages ────────────────────────────────────
+// module-app.jsx renders a "Concept by concept" card per lesson and reads exactly
+// four things: sub.intro, sub.order, and each lesson's title and oneLine. It does not
+// touch sections, tex, code, takeaways or refs -- which is the other 95% of
+// sub-lessons.js. Shipping the full file to 25 module pages to render a list of titles
+// is the same mistake the concept pages were making.
+function writeNav(SUB) {
+  const nav = {};
+  for (const [slug, m] of Object.entries(SUB)) {
+    const lessons = {};
+    for (const [id, l] of Object.entries(m.lessons || {})) lessons[id] = { title: l.title, oneLine: l.oneLine };
+    nav[slug] = { title: m.title, intro: m.intro, order: m.order, lessons };
+  }
+  const js = `// GENERATED from sub-lessons.js by scripts/gen-sublesson-pages.mjs -- DO NOT EDIT.
+// Titles and one-liners only: everything module-app.jsx's concept cards read, and
+// nothing else. The full sub-lessons.js is ~16x larger and no page loads it any more.
+
+window.SUB_LESSONS_NAV = ${JSON.stringify(nav, null, 2)};
+`;
+  writeFileSync(join(ROOT, "sub-lessons-nav.js"), js, "utf8");
+  return js.length;
+}
+
+// idempotently point a module's index.html at the nav bundle so its "Concept by
+// concept" section can read window.SUB_LESSONS_NAV.
 function ensureModuleScript(moduleSlug) {
   const path = join(ROOT, "learn", moduleSlug, "index.html");
   let src;
   try { src = readFileSync(path, "utf8"); } catch (e) { console.warn(`! no module page learn/${moduleSlug}/index.html`); return; }
-  if (src.includes("sub-lessons.js")) return;
-  const tag = `  <script type="module" src="../../sub-lessons.js"></script>\n  <script type="module" src="../../module-app.jsx"></script>`;
+  const want = `  <script type="module" src="../../sub-lessons-nav.js"></script>`;
+  if (src.includes("sub-lessons-nav.js")) return;
+  // upgrade a page still carrying the full bundle
+  if (src.includes(`<script type="module" src="../../sub-lessons.js"></script>`)) {
+    src = src.replace(`  <script type="module" src="../../sub-lessons.js"></script>`, want);
+    writeFileSync(path, src); return;
+  }
   if (!src.includes(`<script type="module" src="../../module-app.jsx"></script>`)) { console.warn(`! could not find module-app.jsx tag in ${moduleSlug}`); return; }
-  src = src.replace(`  <script type="module" src="../../module-app.jsx"></script>`, tag);
+  src = src.replace(`  <script type="module" src="../../module-app.jsx"></script>`, `${want}\n  <script type="module" src="../../module-app.jsx"></script>`);
   writeFileSync(path, src);
 }
 
@@ -202,6 +230,7 @@ window.DM_SUBLESSON_CTX = ${JSON.stringify(ctx, null, 2)};
 }
 
 const SUB = loadSubLessons();
+const navBytes = writeNav(SUB);
 const viteLines = [], navLines = [];
 const written = new Set();
 let pages = 0, bodyBytes = 0;
@@ -248,3 +277,4 @@ patchBlock("public/search-index.js", "generated:sublessons", navLines);
 
 console.log(`wrote ${pages} sub-lesson page(s) across ${Object.keys(SUB).length} module(s); patched vite.config.mjs + public/search-index.js`);
 console.log(`  sub-lesson-bodies: ${pages} bundle(s), ${(bodyBytes / 1024).toFixed(1)} kB total, ${(bodyBytes / pages / 1024).toFixed(1)} kB average${stale ? `, ${stale} stale removed` : ""}`);
+console.log(`  sub-lessons-nav.js: ${(navBytes / 1024).toFixed(1)} kB for ${Object.keys(SUB).length} module page(s)`);

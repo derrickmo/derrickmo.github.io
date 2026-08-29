@@ -333,7 +333,11 @@ function ModuleNav() {
 // ─── Concept-by-concept breakdown (taught sub-lessons) ────────
 function ConceptBreakdown() {
   const mobile = useIsMobile();
-  const sub = (window.SUB_LESSONS || {})[window.__DM_MODULE_SLUG];
+  // Titles and one-liners are all this section renders, so the page loads
+  // sub-lessons-nav.js rather than the full sub-lessons.js. Falls back to the full
+  // object if the nav bundle is absent. Read here inside the component, at render
+  // time -- not at module scope, which is how PF-0020 blanked every lesson body.
+  const sub = (window.SUB_LESSONS_NAV || window.SUB_LESSONS || {})[window.__DM_MODULE_SLUG];
   if (!sub) return null;
   const order = sub.order || Object.keys(sub.lessons);
   if (!order.length) return null;
