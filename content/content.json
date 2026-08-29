@@ -71103,7 +71103,8 @@
           "paras": [
             "Sinusoidal positional encodings in transformers are this idea used deliberately: each dimension is a sine at a different frequency, so position becomes a smooth, unique code that the model can do arithmetic on.",
             "A spectrogram is a Fourier transform per short time window, and MFCCs are a further compression of that. Every audio model starts by changing basis, because pitch and timbre are structure in frequency and noise in time.",
-            "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images."
+            "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images.",
+            "And the basis change has a cost at a discontinuity that does not go away. Summing the Fourier series of a square wave, the partial sum overshoots the step: it peaks at 1.1884 with 5 terms and 1.1790 with 1,001, against a true value of 1 — roughly 9% of the jump, converging rather than shrinking. That is the Gibbs phenomenon, and it is why more terms sharpen a ringing artefact without removing it. The peak does move toward the discontinuity as terms are added, so the energy of the error vanishes even though its height does not: convergence in the mean, not uniform convergence."
           ]
         }
       ],
@@ -74478,7 +74479,8 @@
           "paras": [
             "Alpha-beta needs a good evaluation function and a branching factor small enough to search deeply. Go has neither, which is why Monte Carlo tree search took over there: MCTS samples playouts instead of enumerating, and spends its budget on promising lines using an explore/exploit rule rather than exhaustive proof.",
             "But chess engines are still alpha-beta at their core, now with a learned evaluation. The search discipline did not lose; the hand-written evaluation did.",
-            "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over."
+            "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over.",
+            "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 — 65,536 leaves in full — alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics — iterative deepening, killer moves, transposition tables — rather than into the search itself."
           ]
         }
       ],
@@ -74658,7 +74660,8 @@
           "h": "Why this is the poker algorithm",
           "paras": [
             "Counterfactual regret minimisation is this rule applied at every information set of an imperfect-information game, with regrets weighted by the probability of reaching that decision point. It is what produced superhuman poker, and the core update is the four lines above.",
-            "The distinction that trips people up: the CURRENT strategy oscillates forever and is not an equilibrium. The AVERAGE over all iterations is. Reporting the last iterate rather than the average is the classic implementation bug, and it looks like the algorithm failed to converge."
+            "The distinction that trips people up: the CURRENT strategy oscillates forever and is not an equilibrium. The AVERAGE over all iterations is. Reporting the last iterate rather than the average is the classic implementation bug, and it looks like the algorithm failed to converge.",
+            "The gap between the two is large enough to be unmistakable once measured. Running regret matching on a biased rock-paper-scissors where a win over scissors pays double, the AVERAGE strategy converges to the Nash 0.5 / 0.25 / 0.25 and its exploitability falls from 0.194 at 10 iterations to 0.0079 at 10,000 and 0.0025 at 100,000. The CURRENT strategy over the same run is a pure strategy that keeps changing — 0/0/1, then 1/0/0, then 0/1/0 — with an exploitability of 1 to 2 at every checkpoint, no better at 100,000 iterations than at 10. The average is not a smoothing convenience; it is the object the theorem is about."
           ]
         }
       ],

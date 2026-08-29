@@ -31,7 +31,8 @@
       "paras": [
         "Sinusoidal positional encodings in transformers are this idea used deliberately: each dimension is a sine at a different frequency, so position becomes a smooth, unique code that the model can do arithmetic on.",
         "A spectrogram is a Fourier transform per short time window, and MFCCs are a further compression of that. Every audio model starts by changing basis, because pitch and timbre are structure in frequency and noise in time.",
-        "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images."
+        "Aliasing is what happens when you sample too slowly to represent a frequency: it does not vanish, it reappears as a lower frequency that was never there. That is the same phenomenon behind moire patterns in downsampled images.",
+        "And the basis change has a cost at a discontinuity that does not go away. Summing the Fourier series of a square wave, the partial sum overshoots the step: it peaks at 1.1884 with 5 terms and 1.1790 with 1,001, against a true value of 1 — roughly 9% of the jump, converging rather than shrinking. That is the Gibbs phenomenon, and it is why more terms sharpen a ringing artefact without removing it. The peak does move toward the discontinuity as terms are added, so the energy of the error vanishes even though its height does not: convergence in the mean, not uniform convergence."
       ]
     }
   ],
