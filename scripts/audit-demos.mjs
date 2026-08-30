@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (p) => join(ROOT, p);
+const ROOT_PAGES = ROOT;
 
 const load = (file, key) => { const w = {}; new Function("window", readFileSync(R(file), "utf8"))(w); return w[key]; };
 const DEMOS = load("play-demos.js", "PLAY_DEMOS");
@@ -94,7 +95,7 @@ function audit(name, reg, dir, pageDir, listKey) {
   }
 
   // 8. the concept slice each page loads instead of the whole 119 kB index.
-  //    demo-slices/<kind>/<slug>.js is GENERATED, but the page that loads it is
+  //    tag-slices/<kind>/<slug>.js is GENERATED, but the page that loads it is
   //    hand-authored, so nothing else would notice a page reverting to the full index,
   //    a slice going stale, or -- the defect that prompted this check -- a demo shipping
   //    with NO concept tags at all, which renders an empty Connections panel silently.
@@ -106,8 +107,8 @@ function audit(name, reg, dir, pageDir, listKey) {
       tagged++;
       for (const id of ids) if (!INDEX[id]) bad(`${d.slug}: CONCEPT_TAGS id "${id}" is not a concept`);
     }
-    const sp = `demo-slices/${listKey}/${d.slug}.js`;
-    if (!existsSync(R(sp))) { bad(`${d.slug}: no ${sp} (run scripts/gen-demo-slices.mjs)`); continue; }
+    const sp = `tag-slices/${listKey}/${d.slug}.js`;
+    if (!existsSync(R(sp))) { bad(`${d.slug}: no ${sp} (run scripts/gen-tag-slices.mjs)`); continue; }
     sliced++;
     const page = readFileSync(R(`${pageDir}/${d.slug}/index.html`), "utf8");
     if (page.includes("concepts-index.js")) bad(`${d.slug}: page still loads the FULL concepts-index.js`);
@@ -127,6 +128,53 @@ function audit(name, reg, dir, pageDir, listKey) {
 
 audit("VISUALIZE demos", DEMOS, "demos", "visualize", "demos");
 audit("PLAY games", GAMES, "games", "play", "games");
+
+// 9. CONCEPT_TAGS keys vs the real page slugs, for ALL FOUR kinds -- both directions.
+//    Every row is hand-written and nothing cross-referenced it, so it drifted in the two
+//    ways a hand-maintained list always drifts: items added later got no row (8 demos, and
+//    the `fundamentals` HF section), and rows outlived or never matched their page
+//    ("vision" vs computer-vision, "production" vs best-practices, "advanced" vs nothing).
+//    Both failure modes render an EMPTY Connections panel with every other check green.
+console.log("");
+console.log("=== CONCEPT_TAGS coverage (all kinds) ===");
+{
+  const CUR = (() => { const w = {}; new Function("window", readFileSync(R("curriculum.js"), "utf8"))(w); return w; })();
+  const HF = (() => { const w = {}; new Function("window", readFileSync(R("hf-lectures.js"), "utf8"))(w); return w; })();
+  const mods = (CUR.CURRICULUM.modules || []).map((m) => m.slug);
+  const kinds = [
+    ["demos", DEMOS.demos.map((d) => d.slug)],
+    ["games", GAMES.games.map((d) => d.slug)],
+    ["modules", mods, "learn"],
+    ["hf", (HF.HF.sections || []).map((x) => x.slug), "learn/huggingface"],
+  ];
+  for (const [kind, real, pageDir] of kinds) {
+    const rows = TAGS[kind] || {};
+    const keys = Object.keys(rows);
+    const missing = real.filter((s) => !rows[s] || !rows[s].length);
+    const orphan = keys.filter((k) => !real.includes(k));
+    const badIds = [...new Set(Object.values(rows).flat().filter((id) => !INDEX[id]))];
+    for (const s of missing) bad(`${kind}: "${s}" has no CONCEPT_TAGS row (Connections renders empty)`);
+    for (const k of orphan) bad(`${kind}: CONCEPT_TAGS row "${k}" matches no real slug (dead row)`);
+    for (const id of badIds) bad(`${kind}: tagged id "${id}" is not a concept`);
+    // modules and hf get the same slice treatment as demos/games, but they have no
+    // audit() pass of their own, so their slice wiring is checked here.
+    let sliced = 0;
+    if (pageDir) {
+      for (const slug of real) {
+        const sp = `tag-slices/${kind}/${slug}.js`;
+        const page = join(ROOT_PAGES, pageDir, slug, "index.html");
+        if (!existsSync(R(sp))) { bad(`${kind}/${slug}: no ${sp} (run scripts/gen-tag-slices.mjs)`); continue; }
+        if (!existsSync(page)) { bad(`${kind}/${slug}: no page at ${pageDir}/${slug}/`); continue; }
+        sliced++;
+        const html = readFileSync(page, "utf8");
+        if (html.includes("concepts-index.js")) bad(`${kind}/${slug}: page still loads the FULL concepts-index.js`);
+        if (!html.includes(sp)) bad(`${kind}/${slug}: page does not load ${sp}`);
+      }
+    }
+    const problems = missing.length + orphan.length + badIds.length;
+    console.log(`  ${kind.padEnd(8)} ${String(keys.length).padStart(3)} rows / ${String(real.length).padStart(3)} pages${pageDir ? `   ${sliced} sliced` : "             "}   ${problems ? "MISMATCH" : "ok"}`);
+  }
+}
 
 if (problems) { console.log(`\nISSUES: ${problems}`); process.exit(1); }
 console.log("\nOK — registry, .jsx, page, vite input and search index all agree.");

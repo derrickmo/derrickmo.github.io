@@ -1339,14 +1339,20 @@ const CONCEPT_TAGS = {
                               "graph-search", "reranking"],
   },
   // HuggingFace tutorial sections — slugs match hf-lectures.js
+  // ⚠ KEYS MUST BE REAL hf-lectures.js SECTION SLUGS. Three were not, so three
+  // section pages rendered an empty Connections panel and one row matched nothing:
+  // "vision" -> computer-vision, "production" -> best-practices, "advanced" -> no
+  // such section (its `lora` moved to nlp, whose blurb ends "then parameter-efficient
+  // fine-tuning"), and `fundamentals` had no row at all. audit-demos check 9 now
+  // cross-references every key in every kind against the real page slugs.
   hf: {
-    "nlp":        ["tokenization", "attention", "transformer-block"],
-    "vision":     ["cnn", "convolution"],
-    "audio":      ["fourier", "transformer-block"],
-    "multimodal": ["embeddings", "vector-search"],
-    "agentic":    ["vector-search", "embeddings"],
-    "production": ["scaling-laws"],
-    "advanced":   ["lora"],
+    "fundamentals":   ["transformer-block", "attention", "embeddings"],
+    "nlp":            ["tokenization", "lora", "attention"],
+    "computer-vision": ["cnn", "convolution"],
+    "audio":          ["fourier", "transformer-block"],
+    "multimodal":     ["embeddings", "vector-search"],
+    "best-practices": ["scaling-laws", "quantization"],
+    "agentic":        ["vector-search", "embeddings"],
   },
 };
 
