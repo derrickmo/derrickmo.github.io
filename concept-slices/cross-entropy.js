@@ -125,6 +125,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "regression"
+    },
+    {
+      "kind": "demo",
+      "slug": "cross-entropy"
     }
   ]
 };

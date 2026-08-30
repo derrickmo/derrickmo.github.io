@@ -250,6 +250,26 @@ window.CONCEPT_REVERSE = {
       "slug": "image-augmentation"
     },
     {
+      "kind": "demo",
+      "slug": "bilateral-filter"
+    },
+    {
+      "kind": "demo",
+      "slug": "image-pyramids"
+    },
+    {
+      "kind": "demo",
+      "slug": "receptive-field"
+    },
+    {
+      "kind": "demo",
+      "slug": "integral-image"
+    },
+    {
+      "kind": "demo",
+      "slug": "sift"
+    },
+    {
       "kind": "module",
       "slug": "cnn"
     },

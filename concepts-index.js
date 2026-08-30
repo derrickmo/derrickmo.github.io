@@ -1278,6 +1278,17 @@ const CONCEPT_TAGS = {
     "mc-dropout":           ["mc-dropout", "calibration"],
     "saliency":             ["saliency", "shap", "backprop"],
     "drift-detection":      ["drift-detection", "clt"],
+    // The 7 CV-queue demos + cross-entropy. These shipped untagged, so their
+    // Connections panel was empty and no concept page linked to them; the
+    // 8-touchpoint recipe never included this file. See audit-demos check 8.
+    "cross-entropy":        ["cross-entropy", "softmax", "entropy"],
+    "ransac":               ["linear-regression", "hough-transform"],
+    "bilateral-filter":     ["convolution", "edge-detection"],
+    "image-pyramids":       ["convolution", "optical-flow", "template-matching"],
+    "receptive-field":      ["cnn", "convolution"],
+    "integral-image":       ["dynamic-programming", "convolution"],
+    "grad-cam":             ["saliency", "cnn", "shap"],
+    "sift":                 ["harris-corners", "template-matching", "convolution"],
   },
   // Play games — slugs match play-games.js
   games: {

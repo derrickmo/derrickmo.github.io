@@ -183,6 +183,10 @@ window.CONCEPT_REVERSE = {
       "slug": "saliency"
     },
     {
+      "kind": "demo",
+      "slug": "grad-cam"
+    },
+    {
       "kind": "module",
       "slug": "trustworthy-ai"
     }

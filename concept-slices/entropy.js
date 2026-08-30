@@ -73,6 +73,10 @@ window.CONCEPT_REVERSE = {
       "slug": "decision-tree"
     },
     {
+      "kind": "demo",
+      "slug": "cross-entropy"
+    },
+    {
       "kind": "game",
       "slug": "wordle"
     },

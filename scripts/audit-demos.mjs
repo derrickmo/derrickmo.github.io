@@ -13,6 +13,9 @@ const R = (p) => join(ROOT, p);
 const load = (file, key) => { const w = {}; new Function("window", readFileSync(R(file), "utf8"))(w); return w[key]; };
 const DEMOS = load("play-demos.js", "PLAY_DEMOS");
 const GAMES = load("play-games.js", "PLAY_GAMES");
+const CI = (() => { const w = {}; new Function("window", readFileSync(R("concepts-index.js"), "utf8"))(w); return w; })();
+const TAGS = CI.CONCEPT_TAGS || {};
+const INDEX = CI.CONCEPTS_INDEX || {};
 
 const vite = readFileSync(R("vite.config.mjs"), "utf8");
 const search = readFileSync(R("public/search-index.js"), "utf8");
@@ -89,6 +92,32 @@ function audit(name, reg, dir, pageDir, listKey) {
     if (!built && !authored) bad(`${d.slug}: lesson "${d.lesson}" has no page (READ THE LESSON would 404)`);
     else if (parts[0] !== "learn") bad(`${d.slug}: lesson "${d.lesson}" is not under learn/`);
   }
+
+  // 8. the concept slice each page loads instead of the whole 119 kB index.
+  //    demo-slices/<kind>/<slug>.js is GENERATED, but the page that loads it is
+  //    hand-authored, so nothing else would notice a page reverting to the full index,
+  //    a slice going stale, or -- the defect that prompted this check -- a demo shipping
+  //    with NO concept tags at all, which renders an empty Connections panel silently.
+  let sliced = 0, tagged = 0;
+  for (const d of entries) {
+    const ids = (TAGS[listKey] || {})[d.slug];
+    if (!ids || !ids.length) { bad(`${d.slug}: no CONCEPT_TAGS.${listKey} entry (Connections panel renders empty)`); }
+    else {
+      tagged++;
+      for (const id of ids) if (!INDEX[id]) bad(`${d.slug}: CONCEPT_TAGS id "${id}" is not a concept`);
+    }
+    const sp = `demo-slices/${listKey}/${d.slug}.js`;
+    if (!existsSync(R(sp))) { bad(`${d.slug}: no ${sp} (run scripts/gen-demo-slices.mjs)`); continue; }
+    sliced++;
+    const page = readFileSync(R(`${pageDir}/${d.slug}/index.html`), "utf8");
+    if (page.includes("concepts-index.js")) bad(`${d.slug}: page still loads the FULL concepts-index.js`);
+    if (!page.includes(sp.split("/").slice(-3).join("/"))) bad(`${d.slug}: page does not load ${sp}`);
+    const w = {}; new Function("window", readFileSync(R(sp), "utf8"))(w);
+    const got = ((w.CONCEPT_TAGS || {})[listKey] || {})[d.slug] || [];
+    if (JSON.stringify(got) !== JSON.stringify(ids || [])) bad(`${d.slug}: slice tags stale -- regenerate`);
+    for (const id of ids || []) if (!(w.CONCEPTS_INDEX || {})[id]) bad(`${d.slug}: slice missing concept "${id}"`);
+  }
+  console.log(`  concept slices: ${sliced}/${entries.length}   tagged: ${tagged}/${entries.length}`);
 
   const statuses = {};
   for (const d of entries) statuses[d.status] = (statuses[d.status] || 0) + 1;

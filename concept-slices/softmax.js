@@ -115,6 +115,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "contrastive-learning"
+    },
+    {
+      "kind": "demo",
+      "slug": "cross-entropy"
     }
   ]
 };

@@ -178,6 +178,14 @@ window.CONCEPT_REVERSE = {
       "slug": "nms"
     },
     {
+      "kind": "demo",
+      "slug": "receptive-field"
+    },
+    {
+      "kind": "demo",
+      "slug": "grad-cam"
+    },
+    {
       "kind": "module",
       "slug": "cnn"
     },

@@ -196,6 +196,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "instrumental-variables"
+    },
+    {
+      "kind": "demo",
+      "slug": "ransac"
     }
   ]
 };

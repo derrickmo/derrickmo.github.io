@@ -226,6 +226,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "optical-flow"
+    },
+    {
+      "kind": "demo",
+      "slug": "sift"
     }
   ]
 };

@@ -81,6 +81,10 @@ window.CONCEPT_REVERSE = {
       "slug": "edit-distance"
     },
     {
+      "kind": "demo",
+      "slug": "integral-image"
+    },
+    {
       "kind": "module",
       "slug": "interview-capstone"
     }

@@ -173,6 +173,14 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "template-matching"
+    },
+    {
+      "kind": "demo",
+      "slug": "image-pyramids"
+    },
+    {
+      "kind": "demo",
+      "slug": "sift"
     }
   ]
 };
