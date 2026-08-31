@@ -202,6 +202,33 @@ for (const [k, v] of Object.entries(byCat).sort((a, b) => b[1].length - a[1].len
 }
 if (!problems.length) console.log('  none — every LIVE store lesson passes every invariant.');
 
+// ── hf-lectures.js `cur[]` -> curriculum lessons ─────────────────────────────
+// Another hand-maintained cross-reference nothing checked standing: each of the 38 HF
+// notebook rows names the curriculum lessons it maps onto, and hf-section-app renders
+// those as links. Validated once when B5 shipped and never since. Same drift class as
+// CONCEPT_TAGS, which had two live instances (CLAUDE.md 2026-08-30).
+{
+  const hfWin = {};
+  new Function('window', fs.readFileSync('hf-lectures.js', 'utf8'))(hfWin);
+  const lessonRefs = new Set();
+  for (const m of (win.CURRICULUM.modules || []))
+    for (const l of (m.lessons || [])) lessonRefs.add(m.slug + '/' + l.slug);
+  let rows = 0, refs = 0;
+  const hfBad = [];
+  for (const sec of ((hfWin.HF || {}).sections || []))
+    for (const nb of (sec.notebooks || sec.items || [])) {
+      rows++;
+      const cur = nb.cur || [];
+      if (!cur.length) { hfBad.push(`[hf] ${sec.slug}: notebook "${nb.title || nb.n}" has no cur[] mapping`); continue; }
+      for (const r of cur) { refs++; if (!lessonRefs.has(r)) hfBad.push(`[hf] ${sec.slug}: cur ref "${r}" does not resolve to a lesson`); }
+    }
+  // printed here, not via the categoriser above -- this block runs after it, so a
+  // problem pushed to `problems` would flip the exit code with nothing on screen.
+  console.log(`
+hf-lectures cur[]: ${rows} notebook rows, ${refs} lesson refs, ${hfBad.length} problem(s)`);
+  for (const b of hfBad) { console.log('   ', b); problems.push(b); }
+}
+
 // exit non-zero only on real defects; refs<5 is informational
 const real = problems.filter(p => !p.includes('refs='));
 if (real.length) { console.log(`\nFAIL — ${real.length} real defect(s) (refs<5 excluded as informational).`); process.exit(1); }
