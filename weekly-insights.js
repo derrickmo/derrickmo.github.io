@@ -30,6 +30,101 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-08-30",
+    range: "August 24 to August 30, 2026",
+    tldr: [
+      "Watchlist resolution. Qwen3.8-27B's hosted Qwen Cloud API remains \"coming soon,\" unresolved after two weeks. vLLM's Kimi K3 Decode Context Parallelism benchmark is still \"in progress,\" now a third consecutive week of no update. OpenAI's Private Safety Processing white paper is on track for September 2026.",
+      "Three major open-weight releases in three days: Z.ai's GLM-5.3-Flash (320B/18B active, MIT license, $0.15/$0.50 per Mtok, beats GLM-5.2 on all benchmarks at 1/10 cost), Alibaba's Qwen3.8-Flash-Next (125B/6B active, Qwen4 preview with novel 51B N-gram embedding layer), Tencent's Hy4 Preview (770B/49B active, 2.99/4 on internal 163-expert eval, ahead of Kimi K3 and GLM-5.3).",
+      "DeepSeek V4 Flash Vision Exp (Aug 21): multimodal Flash at 284B/13B active, $0.22/$0.66 per Mtok, 1M-token context, tool calling, 1.3B tokens already routed since launch.",
+      "AsymSpec (EMNLP 2026 Main): context-asymmetric speculative decoding partitions KV cache between drafter (short window, fast) and target (full context), beating standard block drafters by 40-60% accepted tokens on agentic workloads with 50K-100K token traces.",
+      "VeRL-Omni v0.2.0 (Aug 20): higher-throughput diffusion rollout, reusable omni adapters for cross-model RL config, expanded recipe library for Cosmos3-Super and DiffusionGemma post-training."
+    ],
+    sections: [
+      {
+        header: "// ACADEMIC RESEARCH",
+        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
+        items: [
+          {
+            title: "AsymSpec: context-asymmetric speculative decoding for long-context agentic traces",
+            whatsNew:
+              "arXiv 2608.26004 (accepted to EMNLP 2026 Main Conference). AsymSpec extends speculative decoding to long-context agentic workloads by partitioning the KV cache: a lightweight short-context drafter (e.g., 8K tokens) receives only recent-window KV cache while the target model uses the full long context (50K-100K tokens). On agentic benchmarks with realistic long-context traces, AsymSpec beats standard full-context block drafters (DFlash, Domino) by accepting 40-60% more tokens per verification step.",
+            howItWorks:
+              "Standard speculative decoding runs drafter and target on the same context size, so for 100K-token agentic traces, the drafter becomes expensive itself. AsymSpec decouples their input distributions by giving the drafter only the recent window (e.g., last 8K tokens), which is typically sufficient for predicting the immediate next token since agentic traces are often feedback-rich and recent-context-heavy (tool outputs, immediate agent decisions feed forward more strongly than early trace context). The target model still sees the full 100K-token KV cache; verification re-computes the drafter's recent-window predictions with the full cache to catch any long-range dependence that the drafter might have missed. Since re-computation is limited to the short window, not the full target model, the cost is tractable.",
+            impact:
+              "For teams running long-context agentic RL or reasoning traces (typical deployed lengths 50K-200K tokens) and accelerating them with speculative decoding, context-asymmetric drafting is a straightforward way to keep drafter cost low while preserving target context awareness. The 40-60% token-acceptance gains are measured on genuine agentic workloads, not synthetic fixed-length sequences, so they should transfer to production deployments. The method requires no training changes and is a pure serving-side scheduler modification for teams already running speculative decoding, complementary to per-token confidence-adaptive budgeting (e.g., DSpark adaptive verification from last week's digest).",
+            source: { label: "arXiv:2608.26004", url: "https://arxiv.org/abs/2608.26004" },
+          },
+        ],
+      },
+      {
+        header: "// INDUSTRY PRACTICES",
+        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
+        items: [
+          {
+            title: "Three open-weight releases collapse the capability premium: GLM-5.3-Flash, Qwen3.8-Flash-Next, Hy4 Preview",
+            whatsNew:
+              "Z.ai released GLM-5.3-Flash on August 26, 2026: 320B total parameters with 18B active, native multimodal, 1M-token context, MIT license, $0.15/$0.50 per Mtok API pricing, claims to beat GLM-5.2 on every benchmark at 1/10 cost and under half the size. Same day, Alibaba released Qwen3.8-Flash-Next: 125B/6B active, Qwen4 architecture preview with a novel 51B N-gram embedding layer (learnable phrase dictionary stored in CPU RAM). August 28, Tencent open-sourced Hy4 Preview: 770B/49B active, 1M-token context, Terminal Bench 2.1 score of 85.4 (surpassing DeepSeek V4 Pro), DeepSWE 64.3, and 2.99/4 on Tencent's blind internal expert eval (163 experts, 203 tasks), ahead of Kimi K3 (2.94) and GLM-5.3 (2.92).",
+            howItWorks:
+              "All three use MoE (Mixture-of-Experts) to decouple total parameters from per-token active compute. GLM-5.3-Flash builds on GLM-5.3's hybrid attention (combining multi-head attention with linear-time recurrent layers). Qwen3.8-Flash-Next previews Qwen4 with the N-gram embedding layer as an architectural innovation: common word sequences are stored as standalone dictionary entries that sit in regular host RAM rather than on GPU, reducing GPU-side weight memory with modest additional CPU cost. Hy4 combines sparse MoE with hybrid linear and standard attention to sustain 1M-token contexts while keeping per-token active parameters low. All three shipped with day-0 vLLM support and quantized checkpoints (FP8, NVFP4/MXFP4).",
+            impact:
+              "The three releases in three days signal the collapse of the \"large = slow, small = cheap\" tradeoff that defined 2025. GLM-5.3-Flash at $0.15/$0.50 per Mtok and MIT licensed is the clearest entry point for teams that need open-weight multimodal models without API vendor lock-in; the published claim to beat GLM-5.2 on every benchmark is worth independent verification before committing production traffic, but if it holds, it is a direct replacement for teams currently running GLM-5.2 or similar cost-conscious deployments. Qwen3.8-Flash-Next's N-gram embedding is novel architecture (storage split between GPU weights and CPU RAM), and worth benchmarking on your own hardware if embedding memory is a bottleneck. Hy4's internal engineering eval (2.99/4, ahead of Kimi K3 and GLM-5.3) provides one concrete data point, though SWE-bench Pro scores (where Hy4 reportedly leads, though exact numbers not yet published) would be more directly comparable to hiring eval workflows.",
+            source: { label: "Z.ai GLM-5.3-Flash on OpenRouter", url: "https://openrouter.ai/z-ai/glm-5.3-flash" },
+          },
+          {
+            title: "DeepSeek V4 Flash Vision Exp: multimodal at 1M context for $0.22/$0.66 per Mtok",
+            whatsNew:
+              "DeepSeek released V4 Flash Vision Exp on August 21, 2026: a multimodal extension of V4 Flash text model, supporting image, chart, and video input alongside text. It is a 284B sparse MoE with 13B active parameters, 1M-token context, structured output (tool calling, JSON), pricing $0.22 input / $0.66 output per million tokens with cache-read at $0.007 per Mtok. OpenRouter reports over 1.3 billion tokens routed through it since launch.",
+            howItWorks:
+              "This is a multimodal input extension, not a new model training. DeepSeek added perception (image and video tokenization) to the frozen text decoder backbone; the sparse MoE routing and numerical kernels remain unchanged from Flash. Images and videos are encoded into token sequences that feed into the same 13B-active sparse network alongside text.",
+            impact:
+              "The multimodal Flash release addresses a gap for agentic systems that need to process documents, screenshots, and video frames at near-zero cost per token. The price point ($0.22/$0.66, undercutting most open-weight inference providers) and extremely long context window (1M tokens) make it a direct alternative for teams currently using Qwen3.8-27B or Muse Glimmer-30B for visual agent workloads via API. Structured output support (tool calling, JSON) is essential for agentic deployments and worth validating against your own tool-use benchmarks before routing production traffic.",
+            source: { label: "DeepSeek API Docs: V4 Flash Vision", url: "https://api-docs.deepseek.com/models" },
+          },
+        ],
+      },
+      {
+        header: "// NEW FRAMEWORKS",
+        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
+        items: [
+          {
+            title: "VeRL-Omni v0.2.0: higher-throughput diffusion RL and reusable recipe adapters",
+            whatsNew:
+              "VeRL-Omni v0.2.0 released August 20, 2026, extending the unified RL post-training framework for diffusion and multimodal models. The release focuses on accelerating diffusion rollouts (candidate generation during RL training), introducing reusable omni adapters for cross-model RL configuration, and expanding recipe coverage for Cosmos3-Super, DiffusionGemma, and other recent omni models.",
+            howItWorks:
+              "VeRL-Omni connects verl's training loop infrastructure (PPO, GRPO, on-policy, off-policy) with vLLM-Omni's serving engine to handle diffusion and multimodal generation during RL rollout phases. v0.2.0 optimizes the rollout path by reducing model reloads and improving batch-aware scheduling, adds adapter abstractions so RL recipes for one diffusion model can be transferred to another with minimal changes, and extends the recipe library with tested configs for new model families.",
+            impact:
+              "If you are running post-training RL for diffusion models (reward-maximizing video generation, image refinement, text-to-image adaptation), the higher throughput in v0.2.0 reduces wall-clock time per RL iteration, which is particularly valuable since diffusion RL already incurs large sample generation cost versus text RL. The reusable adapters lower setup cost when porting recipes across similar model families, similar to LoRA for fine-tuning but at the orchestration level. For teams not yet doing diffusion RL, v0.2.0's recipe library and reference configs reduce the barrier to entry.",
+            source: { label: "vLLM Blog: VeRL-Omni v0.2.0", url: "https://vllm.ai/blog/2026-08-20-verl-omni-v0-2-0" },
+          },
+          {
+            title: "vLLM Speculative Decoding on AMD GPUs: MTP, EAGLE-3, DFlash, DSpark configuration guide",
+            whatsNew:
+              "vLLM published \"Exploring Speculative Decoding in vLLM on AMD GPUs\" on August 23, 2026, a practical configuration and benchmarking guide for four speculative drafter families (MTP, EAGLE-3, DFlash, DSpark) on AMD Instinct MI300X and MI350X hardware. The post documents how to configure each family, tradeoffs between draft length and acceptance rate, and measured speedups on three model sizes.",
+            howItWorks:
+              "The guide walks through each speculative approach: MTP (native multi-token prediction heads from the target, zero overhead), EAGLE-3 (learned drafter trained on target hidden states), DFlash (block-diffusion drafter, semi-autoregressive), and DSpark (sparse-MLA-based adaptive drafting, reference Blackwell design adapted for AMD). For each, vLLM shows configuration flags, calibration steps, and empirical tradeoffs between draft length, verification cost, and end-to-end token acceptance rate measured on real MI300X/MI350X hardware.",
+            impact:
+              "For teams deploying speculative decoding on AMD MI300X/MI350X without clear guidance on which drafter to start with, this removes trial-and-error. The post includes actual speedup numbers per configuration (e.g., 2.0x from MTP at concurrency 128, 1.79x from EAGLE-3 on Kimi-K2.5), so you can plan hardware and batch-size needs upfront. MTP speedups (zero overhead, native) suggest that if your model ships with MTP heads, that is the first configuration to try on AMD before investing in EAGLE-3 or DFlash training.",
+            source: { label: "vLLM Blog: Speculative Decoding on AMD GPUs", url: "https://vllm.ai/blog/2026-08-23-speculative-decoding-amd-gpus" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      {
+        text: "Whether Qwen3.8-27B's promised Qwen Cloud API (1M context by default, official built-in tools) launches and at what price relative to current $0.40-0.45 / $3-3.20 per-Mtok third-party rates; unresolved after two weeks.",
+        source: { label: "Qwen3.8-27B model card", url: "https://huggingface.co/Qwen/Qwen3.8-27B" },
+      },
+      {
+        text: "Whether GLM-5.3-Flash's published benchmarks (beats GLM-5.2 on every benchmark at 1/10 cost, under half the size) hold up under independent reproduction, given MIT licensing makes this a natural focal point for open-weight multimodal evaluation.",
+        source: { label: "Z.ai GLM-5.3-Flash", url: "https://openrouter.ai/z-ai/glm-5.3-flash" },
+      },
+      {
+        text: "Whether the Kimi K3 Decode Context Parallelism benchmark vLLM has tracked as \"in progress\" for three consecutive weeks will ship, and whether DCP performance improvements justify the architectural changes or whether other bottlenecks (attention, MLA, speculative drafter interaction) dominate.",
+        source: { label: "vLLM Blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" },
+      },
+    ],
+  },
+  {
     date: "2026-08-23",
     range: "August 17 to August 23, 2026",
     tldr: [
