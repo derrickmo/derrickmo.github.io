@@ -37,6 +37,17 @@ jobs:
       # Do not "fix" a failure by running gen-sitemap.mjs here - it writes to public/, not
       # dist/, so it would not change the comparison, and wiring it to do so would make
       # the check self-fulfilling and stop it catching anything.
+      # The 8 cross-reference audits. They are read-only and clone-safe: the three that
+      # consult the notebooks repo skip cleanly when DM_NOTEBOOKS_REPO is absent, which
+      # is the CI condition (verified by running the suite with it pointed at nothing).
+      #
+      # Wired in because every class they catch DEPLOYS FINE and looks green. In one
+      # session they found 11 pages rendering an empty Connections panel from two
+      # CONCEPT_TAGS drifts, and a path validator that could not fail for one of its own
+      # kinds. Until now they only ran when a human remembered to.
+      - name: Audit cross-references
+        run: npm run audit
+
       - name: Verify build output
         run: node scripts/verify-build-output.mjs
       - uses: actions/configure-pages@v5
