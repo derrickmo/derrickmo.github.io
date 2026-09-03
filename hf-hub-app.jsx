@@ -7,7 +7,12 @@ const {
   Section, Container, TopNav, Footer, MonoLabel, useIsMobile,
 } = window;
 
-const HF = window.HF;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020). Vite bundles this page's module
+// scripts together and orders them by the IMPORT graph, not DOM order, and nothing
+// here imports the file that sets these. Capturing them as consts has blanked three
+// pages on this site; it survives here only because createRoot().render() schedules
+// asynchronously. Same lazy idiom as lesson-app.jsx:53.
+const hf = () => window.HF;
 const BASE = window.__DM_BASE || "../../";
 
 function HubHero() {
@@ -48,7 +53,7 @@ function HubHero() {
             not a fill-in-the-blank exercise.
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
-            <a href={HF.repo} target="_blank" rel="noopener" style={{
+            <a href={hf().repo} target="_blank" rel="noopener" style={{
               padding: "12px 22px", border: "1px solid var(--blue)", borderRadius: 4,
               color: "var(--white)", textDecoration: "none", fontFamily: "var(--f-mono)", fontSize: 13,
               letterSpacing: "0.1em", background: "rgba(59,130,246,0.08)", boxShadow: "0 0 24px rgba(59,130,246,0.18)",
@@ -70,8 +75,8 @@ function HubHero() {
           border: "1px solid var(--border)", borderRadius: 6, background: "rgba(13, 24, 52, 0.4)",
         }}>
           {[
-            { label: "SECTIONS", value: HF.sections.length.toString(), sub: "domains" },
-            { label: "NOTEBOOKS", value: HF.totalNotebooks().toString(), sub: "self-contained" },
+            { label: "SECTIONS", value: hf().sections.length.toString(), sub: "domains" },
+            { label: "NOTEBOOKS", value: hf().totalNotebooks().toString(), sub: "self-contained" },
             { label: "MODALITIES", value: "Text · Vision · Audio", sub: "+ multimodal" },
             { label: "STACK", value: "transformers", sub: "+ diffusers, peft" },
           ].map((c, i, arr) => (
@@ -97,11 +102,11 @@ function SectionsGrid() {
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
       <Container>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-          <MonoLabel>// SECTIONS · {HF.sections.length} DOMAINS · {HF.totalNotebooks()} NOTEBOOKS</MonoLabel>
+          <MonoLabel>// SECTIONS · {hf().sections.length} DOMAINS · {hf().totalNotebooks()} NOTEBOOKS</MonoLabel>
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(32px, 3.8vw, 48px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>The seven sections.</h2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(2, 1fr)", gap: 14 }}>
-          {HF.sections.map((s, i) => (
+          {hf().sections.map((s, i) => (
             <a key={s.slug} href={`${s.slug}/`} style={{
               position: "relative", overflow: "hidden", padding: "24px 24px",
               border: "1px solid var(--border)", borderRadius: 6, background: "rgba(13, 24, 52, 0.4)",
@@ -129,7 +134,7 @@ function SectionsGrid() {
 function Formats() {
   const mobile = useIsMobile();
   const items = [
-    { label: "Self-guided notebooks", status: "AVAILABLE", note: "All 38 on GitHub — self-contained, and updated over time.", href: HF.repo },
+    { label: "Self-guided notebooks", status: "AVAILABLE", note: "All 38 on GitHub — self-contained, and updated over time.", href: hf().repo },
     { label: "Video walkthrough", status: "PLANNED", note: "Recorded video lectures are planned." },
     { label: "Case study", status: "PLANNED", note: "Applied case studies are planned." },
   ];

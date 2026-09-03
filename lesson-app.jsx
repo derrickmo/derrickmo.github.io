@@ -34,8 +34,12 @@ const {
 } = window;
 const { useEffect: __useEffect, useRef: __useRef } = React;
 
-const CURR = window.CURRICULUM;
-const REPO = CURR.repo;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020): Vite orders this page's module scripts
+// by the import graph, not DOM order, and nothing here imports curriculum.js. The
+// derived lookups below are guarded so an unlucky order degrades this page instead of
+// throwing at module scope, which is what blanks a page with nothing reporting it.
+const curr = () => window.CURRICULUM;
+const REPO = (() => { const c = curr(); return c ? c.repo : "#"; })();
 const BASE = window.__DM_BASE || "../../../";
 const MODULE_SLUG = window.__DM_MODULE_SLUG;
 const LESSON_SLUG = window.__DM_LESSON_SLUG;
@@ -51,7 +55,7 @@ const LESSON_SLUG = window.__DM_LESSON_SLUG;
 // and every lesson body silently vanished while the data sat on window. Same class of
 // bug as __DM_LESSON_CONTENT below; same fix.
 const storeData = () => (window.DM_LESSON_BODIES || {})[LESSON_SLUG] || null;
-const MODULE = CURR.findModule(MODULE_SLUG);
+const MODULE = curr() ? curr().findModule(MODULE_SLUG) : null;
 const LESSON = MODULE && MODULE.lessons.find(l => l.slug === LESSON_SLUG);
 
 // ─── 6-part canonical structure ───────────────────────────────
@@ -316,7 +320,7 @@ function LessonHero() {
       </Section>
     );
   }
-  const ipynb = CURR.notebookUrl(MODULE_SLUG, LESSON_SLUG);
+  const ipynb = curr().notebookUrl(MODULE_SLUG, LESSON_SLUG);
   // Colab only makes sense for a direct .ipynb link; notebookUrl may point at the
   // module folder until notebook filenames are aligned with the curriculum.
   const isNotebookFile = ipynb.endsWith(".ipynb");
@@ -420,7 +424,7 @@ function OutlineStrip() {
 // ─── Prev / Next nav ──────────────────────────────────────────
 function PrevNext() {
   if (!LESSON || !MODULE) return null;
-  const { prev, next } = CURR.prevNext(MODULE_SLUG, LESSON_SLUG);
+  const { prev, next } = curr().prevNext(MODULE_SLUG, LESSON_SLUG);
   const tile = (item, dir) => item && (
     <a href={
       item.module.slug === MODULE.slug
@@ -487,7 +491,7 @@ function StoreLessonBody({ data }) {
   const linkOf = (ref) => {
     if (!ref) return null;
     const [ms] = ref.split("/");
-    return CURR && CURR.findModule(ms) ? `${BASE}learn/${ms}/` : null;
+    return curr() && curr().findModule(ms) ? `${BASE}learn/${ms}/` : null;
   };
   return (
     <>

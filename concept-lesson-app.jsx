@@ -9,7 +9,8 @@ const {
   Section, Container, TopNav, Footer, MonoLabel, useIsMobile, TeX,
 } = window;
 
-const CURR = window.CURRICULUM;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020) -- the module lookup derived from it here too.
+const curr = () => window.CURRICULUM;
 const BASE = window.__DM_BASE || "../../../";
 // This page loads sub-lesson-bodies/<module>/<concept>.js, which precomputes exactly the
 // context this one concept needs. It used to load sub-lessons.js — all 155 lessons, 491 kB
@@ -32,7 +33,7 @@ const getCTX = () => {
   if (c) _ctx = c;
   return c || null;
 };
-const MOD = CURR ? CURR.findModule(window.__DM_MODULE_SLUG) : null;
+const getMOD = () => { const c = curr(); return c ? c.findModule(window.__DM_MODULE_SLUG) : null; };
 const demoTitle = slug => { const d = ((window.PLAY_DEMOS && window.PLAY_DEMOS.demos) || []).find(x => x.slug === slug); return d ? d.title : slug; };
 const lessonTitle = id => (getCTX() && getCTX().module.lessons[id] ? getCTX().module.lessons[id].title : id);
 
@@ -51,14 +52,14 @@ function Hero() {
           <a href={BASE + "learn/"} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>LEARN</a>
           <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
           <a href={BASE + "learn/" + getCTX().moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--muted)", textDecoration: "none" }}>
-            {MOD ? "MODULE " + MOD.n : "MODULE"}
+            {getMOD() ? "MODULE " + getMOD().n : "MODULE"}
           </a>
           <span className="t-mono-s" style={{ color: "var(--dim)" }}>/</span>
           <MonoLabel color="var(--violet-lt)">{("0" + (getCTX().index + 1)).slice(-2)} / {getCTX().order.length}</MonoLabel>
         </div>
         <div style={{ maxWidth: 780, position: "relative" }}>
           <div style={{ position: "absolute", left: -18, top: 4, bottom: 4, width: 3, background: "linear-gradient(to bottom, #3b82f6, #a855f7)", boxShadow: "0 0 16px rgba(59,130,246,0.5)" }} />
-          <MonoLabel>{(MOD ? MOD.title : getCTX().module.title).toUpperCase()}</MonoLabel>
+          <MonoLabel>{(getMOD() ? getMOD().title : getCTX().module.title).toUpperCase()}</MonoLabel>
           <h1 style={{
             fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(36px, 4.6vw, 58px)", letterSpacing: "-0.025em",
             lineHeight: 1.03, margin: "12px 0 0",
@@ -205,7 +206,7 @@ function LessonNav() {
     <Section style={{ paddingTop: 24, paddingBottom: 60 }}>
       <Container style={{ maxWidth: 820 }}>
         <a href={BASE + "learn/" + getCTX().moduleSlug + "/"} className="t-mono-s" style={{ color: "var(--blue-lt)", textDecoration: "none", display: "inline-block", marginBottom: 18 }}>
-          ← BACK TO {MOD ? MOD.title.toUpperCase() : "MODULE"}
+          ← BACK TO {getMOD() ? getMOD().title.toUpperCase() : "MODULE"}
         </a>
         <div style={{ display: "flex", gap: 14, flexDirection: mobile ? "column" : "row" }}>
           {tile(getCTX().prev, "prev") || <div style={{ flex: 1 }} />}

@@ -12,11 +12,15 @@ const {
   Connections,
 } = window;
 
-const CURR = window.CURRICULUM;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020): Vite orders this page's module scripts
+// by the import graph, not DOM order, and nothing here imports curriculum.js. The
+// derived lookups below are guarded so an unlucky order degrades this page instead of
+// throwing at module scope, which is what blanks a page with nothing reporting it.
+const curr = () => window.CURRICULUM;
 const LEC = window.LECTURES ? window.LECTURES[window.__DM_MODULE_SLUG] : null;
-const MODULE = CURR.findModule(window.__DM_MODULE_SLUG); // for category + prev/next
+const MODULE = curr() ? curr().findModule(window.__DM_MODULE_SLUG) : null; // category + prev/next
 const BASE = window.__DM_BASE || "../../";
-const FOLDER = LEC ? window.lectureFolder(LEC.n) : window.LECTURES_REPO;
+const FOLDER = (LEC && window.lectureFolder) ? window.lectureFolder(LEC.n) : (window.LECTURES_REPO || "#");
 
 function totalHours() {
   if (!LEC) return "0";
@@ -302,9 +306,9 @@ function Notebooks() {
 // ─── Prev / next module ───────────────────────────────────────
 function ModuleNav() {
   if (!MODULE) return null;
-  const idx = CURR.modules.findIndex(m => m.slug === MODULE.slug);
-  const prev = idx > 0 ? CURR.modules[idx - 1] : null;
-  const next = idx < CURR.modules.length - 1 ? CURR.modules[idx + 1] : null;
+  const idx = curr().modules.findIndex(m => m.slug === MODULE.slug);
+  const prev = idx > 0 ? curr().modules[idx - 1] : null;
+  const next = idx < curr().modules.length - 1 ? curr().modules[idx + 1] : null;
   const tile = (m, dir) => m && (
     <a href={`../${m.slug}/`} style={{
       flex: 1, padding: "20px 22px", border: "1px solid var(--border)", borderRadius: 6,

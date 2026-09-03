@@ -8,13 +8,15 @@ const {
   Section, Container, TopNav, Footer, MonoLabel, ConstructionBadge, useIsMobile,
 } = window;
 
-const CURR = window.CURRICULUM;
-const REPO = CURR.repo;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020): Vite orders this page's module scripts
+// by the import graph, not DOM order, and nothing here imports curriculum.js.
+const curr = () => window.CURRICULUM;
+const repo = () => { const c = curr(); return c ? c.repo : "#"; };
 const BASE = window.__DM_BASE || "";
 
 // ─── Hero ─────────────────────────────────────────────────────
 function LearnHero() {
-  const counts = CURR.modules.reduce(
+  const counts = curr().modules.reduce(
     (acc, m) => {
       m.lessons.forEach(l => { acc[l.status] = (acc[l.status] || 0) + 1; });
       return acc;
@@ -54,7 +56,7 @@ function LearnHero() {
             then graduate to PyTorch. No black boxes.
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-            <a href={REPO} target="_blank" rel="noopener" style={{
+            <a href={repo()} target="_blank" rel="noopener" style={{
               padding: "12px 22px", border: "1px solid var(--blue)",
               borderRadius: 4, color: "var(--white)", textDecoration: "none",
               fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",
@@ -188,7 +190,7 @@ const ROW_GROUPS = [
 
 function ModulesGrid() {
   const mobile = useIsMobile();
-  const groups = ROW_GROUPS.map(g => ({ ...g, items: CURR.modules.filter(m => { const n = parseInt(m.n, 10); return n >= g.lo && n <= g.hi; }) }));
+  const groups = ROW_GROUPS.map(g => ({ ...g, items: curr().modules.filter(m => { const n = parseInt(m.n, 10); return n >= g.lo && n <= g.hi; }) }));
   return (
     <Section id="modules">
       <GridOverlay mode="dark" spacing={80} opacity={0.3} />
@@ -219,7 +221,7 @@ function ModulesGrid() {
               You don't have to begin at Module 1. Every notebook runs independently — "Restart &amp; Run All", no hidden dependencies — so pick the module that fits you. New to ML? Start with Foundations. Already comfortable? Jump straight to deep learning, LLMs, or RL. The repo README maps out suggested paths.
             </div>
           </div>
-          <a href={REPO} target="_blank" rel="noopener" className="t-mono-s" style={{ whiteSpace: "nowrap", padding: "11px 18px", border: "1px solid var(--violet-lt)", borderRadius: 4, color: "var(--white)", textDecoration: "none", background: "rgba(168,85,247,0.12)" }}>READ THE GUIDE →</a>
+          <a href={repo()} target="_blank" rel="noopener" className="t-mono-s" style={{ whiteSpace: "nowrap", padding: "11px 18px", border: "1px solid var(--violet-lt)", borderRadius: 4, color: "var(--white)", textDecoration: "none", background: "rgba(168,85,247,0.12)" }}>READ THE GUIDE →</a>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
@@ -336,7 +338,7 @@ function LearnCta() {
               The notebooks live on GitHub — each self-contained and runnable end-to-end, with new modules landing over time. Video walkthroughs and applied case studies are planned.
             </div>
           </div>
-          <a href={REPO} target="_blank" rel="noopener" style={{
+          <a href={repo()} target="_blank" rel="noopener" style={{
             padding: "14px 26px", border: "1px solid var(--blue-lt)",
             borderRadius: 4, color: "var(--white)", textDecoration: "none",
             fontFamily: "var(--f-mono)", fontSize: 13, letterSpacing: "0.1em",

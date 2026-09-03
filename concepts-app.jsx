@@ -8,12 +8,16 @@ const {
 } = window;
 
 const BASE = window.__DM_BASE || "../";
-const INDEX = window.CONCEPTS_INDEX || {};
-const TAGS = window.CONCEPT_TAGS || {};
-const REV = window.CONCEPT_REVERSE || {};
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020). Vite bundles this page's module
+// scripts together and orders them by the IMPORT graph, not DOM order, and nothing
+// here imports the file that sets these. Capturing them as consts has blanked three
+// pages on this site; it survives here only because createRoot().render() schedules
+// asynchronously. Same lazy idiom as lesson-app.jsx:53.
+const idx = () => window.CONCEPTS_INDEX || {};
+const rev = () => window.CONCEPT_REVERSE || {};
 
 function countSurfaces(id) {
-  const hits = REV[id] || [];
+  const hits = rev()[id] || [];
   return hits.length;
 }
 
@@ -28,8 +32,8 @@ function byArea() {
     "Reinforcement Learning", "Game AI", "Retrieval", "Graphs", "Time Series",
   ];
   const groups = {};
-  for (const id of Object.keys(INDEX)) {
-    const c = INDEX[id];
+  for (const id of Object.keys(idx())) {
+    const c = idx()[id];
     const a = c.area || "Other";
     (groups[a] || (groups[a] = [])).push(c);
   }
@@ -40,7 +44,7 @@ function byArea() {
 }
 
 function Hero() {
-  const total = Object.keys(INDEX).length;
+  const total = Object.keys(idx()).length;
   return (
     <Section id="top" padded={false} style={{ paddingTop: 140, paddingBottom: 56, position: "relative", overflow: "hidden" }}>
       <GridOverlay mode="dark" spacing={80} opacity={0.4} />

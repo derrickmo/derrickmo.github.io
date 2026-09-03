@@ -15,9 +15,18 @@ const {
 } = window;
 
 const BASE = window.__DM_BASE || "../../";
-const P = window.DM_CONCEPT_PATH;
-const K = window.DM_KNOWN;
-const INDEX = window.CONCEPTS_INDEX || {};
+// READ AT USE, NOT AT MODULE SCOPE. DM_CONCEPT_PATH and DM_KNOWN are set by
+// concept-paths.js and CONCEPTS_INDEX by concepts-index.js -- sibling module scripts.
+// Vite bundles them together and orders execution by the IMPORT graph, not DOM order,
+// and nothing here imports them. Capturing them as consts worked only because
+// createRoot().render() schedules asynchronously, so App() happened to run after every
+// sibling had evaluated -- a property of React's scheduler, not of this page. Ordered
+// the other way, P would be undefined and the first path lookup would THROW, blanking
+// /paths/build/ with nothing in the toolchain reporting it. That is PF-0020, which has
+// blanked three pages on this site. Same lazy idiom as lesson-app.jsx:53.
+const P = () => window.DM_CONCEPT_PATH;
+const K = () => window.DM_KNOWN;
+const idx = () => window.CONCEPTS_INDEX || {};
 
 function App() {
   const mobile = useIsMobile();
@@ -25,23 +34,23 @@ function App() {
   const [target, setTarget] = useState(null);
   const [, bump] = useState(0);
 
-  const all = useMemo(() => Object.values(INDEX).sort((a, b) => a.name.localeCompare(b.name)), []);
+  const all = useMemo(() => Object.values(idx()).sort((a, b) => a.name.localeCompare(b.name)), []);
   const matches = useMemo(() => {
     const n = q.trim().toLowerCase();
     if (!n) return [];
     return all.filter((c) => c.name.toLowerCase().includes(n) || c.id.includes(n) || (c.area || "").toLowerCase().includes(n)).slice(0, 12);
   }, [q, all]);
 
-  const known = K.setObj();
-  const full = target ? P.pathTo(target).steps : [];
-  const path = target ? P.pathTo(target, known).steps : [];
+  const known = K().setObj();
+  const full = target ? P().pathTo(target).steps : [];
+  const path = target ? P().pathTo(target, known).steps : [];
   const hidden = full.length - path.length;
-  const C = target ? INDEX[target] : null;
+  const C = target ? idx()[target] : null;
 
   // Areas that already have several concepts make the best starting suggestions -
   // an empty page with a search box tells a reader nothing about what is in here.
   const suggestions = ["diffusion", "paged-attention", "rag-fusion", "lora", "attention", "backprop"]
-    .filter((id) => INDEX[id]);
+    .filter((id) => idx()[id]);
 
   return (
     <>
@@ -98,7 +107,7 @@ function App() {
                   {suggestions.map((id) => (
                     <button key={id} type="button" onClick={() => setTarget(id)} className="t-mono-s"
                       style={{ padding: "7px 12px", borderRadius: 4, cursor: "pointer", border: "1px solid var(--border)", background: "transparent", color: "var(--blue-lt)" }}>
-                      {INDEX[id].name}
+                      {idx()[id].name}
                     </button>
                   ))}
                 </div>
@@ -113,19 +122,19 @@ function App() {
                     ? `${C.name} has no prerequisites in the graph — it is a starting point. Begin here.`
                     : `${path.length - 1} concept${path.length === 2 ? "" : "s"} come first.`}
                   {hidden > 0 && <span style={{ color: "var(--dim)" }}> {hidden} hidden as known.</span>}
-                  {K.count() > 0 && (
-                    <button type="button" onClick={() => { K.clear(); bump((n) => n + 1); }} className="t-mono-s"
+                  {K().count() > 0 && (
+                    <button type="button" onClick={() => { K().clear(); bump((n) => n + 1); }} className="t-mono-s"
                       style={{ marginLeft: 10, background: "transparent", border: "1px solid var(--border)", borderRadius: 4, color: "var(--muted)", cursor: "pointer", padding: "3px 9px", fontSize: 10 }}>
-                      RESET WHAT I KNOW ({K.count()})
+                      RESET WHAT I KNOW ({K().count()})
                     </button>
                   )}
                 </div>
 
                 <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
                   {path.map((id, i) => {
-                    const node = INDEX[id];
+                    const node = idx()[id];
                     const isTarget = id === target;
-                    const s = P.surfacesFor(id);
+                    const s = P().surfacesFor(id);
                     return (
                       <li key={id} style={{
                         display: "flex", alignItems: "baseline", gap: 12, padding: "11px 14px",
@@ -143,7 +152,7 @@ function App() {
                           )}
                         </span>
                         {!isTarget && (
-                          <button type="button" onClick={() => { K.set(id, true); bump((n) => n + 1); }} className="t-mono-s"
+                          <button type="button" onClick={() => { K().set(id, true); bump((n) => n + 1); }} className="t-mono-s"
                             title={`Hide ${node.name} and anything only it needed`}
                             style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: 4, color: "var(--muted)", cursor: "pointer", padding: "4px 9px", fontSize: 10 }}>
                             I KNOW THIS

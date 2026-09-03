@@ -21,7 +21,9 @@ const {
 } = window;
 
 const BASE = window.__DM_BASE || "../";
-const S = window.DM_INTERVIEW;
+// READ AT USE, NOT AT MODULE SCOPE (PF-0020): interview-store.js is a sibling
+// module script, so its execution order relative to this file is Vite's choice.
+const S = () => window.DM_INTERVIEW;
 
 const TIERS = [
   { key: "quick", label: "Quick", hint: "Rapid recall - one or two sentences." },
@@ -133,13 +135,13 @@ function Drill({ items, loading, picked }) {
   const liveRef = useRef(null);
 
   const start = useCallback(() => {
-    const today = S.today();
+    const today = S().today();
     let pool = items;
-    if (dueOnly) pool = items.filter((x) => { const c = S.card(x.id); return !c || (c.due || 0) <= today; });
+    if (dueOnly) pool = items.filter((x) => { const c = S().card(x.id); return !c || (c.due || 0) <= today; });
     // Unseen first, then most overdue: the order that makes a session feel like
     // progress rather than a random walk.
     const ranked = pool.slice().sort((a, b) => {
-      const ca = S.card(a.id), cb = S.card(b.id);
+      const ca = S().card(a.id), cb = S().card(b.id);
       const da = ca ? (ca.due || 0) : -1e9, db = cb ? (cb.due || 0) : -1e9;
       return da - db;
     });
@@ -152,7 +154,7 @@ function Drill({ items, loading, picked }) {
   const cur = queue[i];
   const grade = (g) => {
     if (!cur) return;
-    S.grade(cur.id, g, { module: cur.module });
+    S().grade(cur.id, g, { module: cur.module });
     setDone((d) => d + 1);
     if (i + 1 < queue.length) { setI(i + 1); setRevealed(false); }
     else setI(queue.length);   // past the end -> the summary screen
@@ -176,7 +178,7 @@ function Drill({ items, loading, picked }) {
   if (loading) return <div className="t-mono-s" style={{ color: "var(--muted)", padding: "24px 0" }}>LOADING…</div>;
 
   if (!queue.length || i >= queue.length) {
-    const st = S.stats();
+    const st = S().stats();
     return (
       <div style={{ padding: "26px 0", maxWidth: 640 }}>
         {done > 0 && (
@@ -398,7 +400,7 @@ function App() {
   const toggle = (arr, setArr, v) => setArr(arr.includes(v) ? arr.filter((x) => x !== v) : arr.concat(v));
 
   const totals = manifest ? manifest.counts : null;
-  const weak = manifest ? S.weakSpots(5).slice(0, 3) : [];
+  const weak = manifest ? S().weakSpots(5).slice(0, 3) : [];
 
   return (
     <>
@@ -424,7 +426,7 @@ function App() {
                 <Stat label="QUESTIONS" value={totals.questions.toLocaleString()} />
                 <Stat label="FLASHCARDS" value={totals.cards.toLocaleString()} tone="var(--violet-lt)" />
                 <Stat label="LESSONS" value={totals.lessons} />
-                <Stat label="DUE TODAY" value={S.stats().due} tone="var(--violet-lt)" />
+                <Stat label="DUE TODAY" value={S().stats().due} tone="var(--violet-lt)" />
               </div>
             )}
             {manifestError && <div className="t-body" style={{ color: "#f87171", marginTop: 20 }}>{manifestError}</div>}
