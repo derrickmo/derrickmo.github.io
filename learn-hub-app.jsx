@@ -36,7 +36,7 @@ const SECTIONS = [
     href: "huggingface/", tag: "// COURSE · APPLIED", title: "HuggingFace Tutorial", tone: "violet",
     blurb: "The applied companion: pretrained models put to work across NLP, vision, audio, multimodal, and agentic workflows — the modern practitioner's toolkit.",
     stat: "7 sections · 38 hands-on notebooks",
-    diagram: <TransformerBlock width={300} height={170} mode="dark" />,
+    diagram: <TransformerBlock width={440} height={159} layout="row" mode="dark" />,
   },
   {
     href: "key-concepts/", tag: "// REFERENCE · ANIMATED", title: "Key Concepts", tone: "violet",
