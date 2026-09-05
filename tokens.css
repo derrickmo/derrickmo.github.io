@@ -6,9 +6,9 @@
 :root {
   /* ---------- Dark mode (default) ---------- */
   --bg-deep:     #050816;
-  --bg-mid:      #0a1428;
+  --bg-mid:      #0a1428;          /* UNUSED (0 var() refs, 2026-09-05) */
   --bg-card:     #0d1834;
-  --grid-line:   rgba(26, 58, 110, 0.55);
+  --grid-line:   rgba(26, 58, 110, 0.55);   /* UNUSED -- HUD.jsx uses --grid-line-soft */
   --grid-line-soft: rgba(26, 58, 110, 0.22);
 
   --blue:        #3b82f6;
@@ -33,13 +33,13 @@
 
   /* ---------- Paper mode tokens ---------- */
   --paper:       #f6f7f9;
-  --paper-soft:  #eceff5;
-  --paper-card:  #ffffff;
+  --paper-soft:  #eceff5;          /* UNUSED */
+  --paper-card:  #ffffff;          /* UNUSED */
   --grid-paper:  rgba(10, 20, 40, 0.08);
-  --grid-paper-soft: rgba(10, 20, 40, 0.04);
+  --grid-paper-soft: rgba(10, 20, 40, 0.04);  /* UNUSED */
 
   --ink:         #0a1428;
-  --ink-muted:   #475569;
+  --ink-muted:   #475569;          /* UNUSED */
   /* A11Y-0006: was #94a3b8, which is 2.56:1 on --paper-card and fails outright.
      Unused today, but a failing token invites someone to reach for it. #5b6675
      gives 5.83:1 on white and stays dimmer than --ink-muted. */
@@ -66,7 +66,13 @@
   --f-body:    "Inter", system-ui, sans-serif;
   --f-mono:    "JetBrains Mono", ui-monospace, monospace;
 
-  /* ---------- Spacing & radius ---------- */
+  /* ---------- Spacing & radius ----------
+     ⚠ ALL THREE ARE UNUSED (0 var() references across 1,976 files, measured
+     2026-09-05). The radius actually shipped is a literal 6px, in 58 places,
+     which matches none of them -- so this is a declared scale the site does
+     not follow, not a system. Left in place rather than deleted because the
+     honest fix is to pick one and adopt it; deleting would just hide the
+     question. Do not "fix" a component to match these without changing all 58. */
   --r-sm: 4px;
   --r-md: 8px;
   --r-lg: 14px;
