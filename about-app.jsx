@@ -65,7 +65,10 @@ function Journey() {
   return (
     <Section id="story" style={{ paddingTop: 24, paddingBottom: 48 }}>
       <GridOverlay mode="dark" spacing={80} opacity={0.25} />
-      <Container style={{ maxWidth: 800 }}>
+      {/* 660, not 800: at 800 this narrative ran 87 characters per line while the hero
+          paragraph on the same page ran 63, and the site's own prose columns are 620-640.
+          This is the one page that exists to be read start to finish. 660 gives ~72. */}
+      <Container style={{ maxWidth: 660 }}>
         <h2 className="t-mono-s" style={{ color: "var(--violet-lt)", display: "inline", margin: 0 }}>
           <span aria-hidden="true">// </span>The why
         </h2>
