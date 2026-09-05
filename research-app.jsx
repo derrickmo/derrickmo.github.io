@@ -103,7 +103,7 @@ function Flagship() {
             fontSize: "clamp(28px, 3.4vw, 44px)", letterSpacing: "-0.02em",
             color: "var(--white)", margin: "16px 0 0", lineHeight: 1.1, maxWidth: 900,
           }}>A Comprehensive Survey of Small Language Models in the Era of Large Language Models.</h2>
-          <div className="t-body" style={{ color: "var(--muted)", fontSize: 16, lineHeight: 1.6, marginTop: 14, maxWidth: 820 }}>
+          <div className="t-body" style={{ color: "var(--muted)", fontSize: 16, lineHeight: 1.6, marginTop: 14, maxWidth: 640 }}>
             A broad survey of small language models — how they're built, trained,
             compressed, and deployed, and how they relate to the large models they
             run alongside. Accepted by ACM Transactions on Intelligent Systems and
@@ -230,7 +230,10 @@ function Interests() {
           fontSize: "clamp(28px, 3.2vw, 42px)", letterSpacing: "-0.02em",
           color: "var(--white)", margin: "12px 0 18px", lineHeight: 1.1,
         }}>RL for LLM post-training.</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* 660: these two paragraphs ran the container's full 860 = 96 characters per line.
+            The heading keeps the wider column; only the prose is constrained. Matches the
+            /about/ narrative and the site's 620-640 prose convention. */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 660 }}>
           <p className="t-body" style={{ color: "var(--white)", opacity: 0.9, fontSize: 17, lineHeight: 1.7, margin: 0 }}>
             I'm most interested in reinforcement learning methods that improve data
             efficiency in LLM post-training — treating the training data and the
