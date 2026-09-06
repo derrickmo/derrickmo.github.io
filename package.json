@@ -6,13 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs && node scripts/build-interview-index.mjs && node scripts/build-pitfalls-index.mjs",
+    "validate": "node validate-insights.mjs && node scripts/validate-content.mjs && node scripts/gen-from-store.mjs && node scripts/build-interview-index.mjs && node scripts/build-pitfalls-index.mjs && node scripts/build-app-bundle.mjs",
     "prebuild": "npm run validate",
     "build": "vite build",
     "preview": "vite preview",
     "content": "node scripts/gen-from-store.mjs --write",
     "verify": "node scripts/verify-build-output.mjs",
-    "audit": "node scripts/audit-curriculum.mjs && node scripts/audit-concepts.mjs && node scripts/audit-demos.mjs && node scripts/validate-paths.mjs && node scripts/audit-headings.mjs && node scripts/audit-jsx-braces.mjs && node scripts/audit-window-globals.mjs && node scripts/check-page-assets.mjs && node scripts/check-notebook-sync.mjs && node scripts/add-cdn-sri.mjs --check && node scripts/set-og-images.mjs --check"
+    "audit": "node scripts/audit-curriculum.mjs && node scripts/audit-concepts.mjs && node scripts/audit-demos.mjs && node scripts/validate-paths.mjs && node scripts/audit-headings.mjs && node scripts/audit-jsx-braces.mjs && node scripts/audit-window-globals.mjs && node scripts/check-page-assets.mjs && node scripts/check-notebook-sync.mjs && node scripts/add-cdn-sri.mjs --check && node scripts/set-og-images.mjs --check && node scripts/audit-app-bundle.mjs"
   },
   "devDependencies": {
     "vite": "^6.0.7"

@@ -156,6 +156,29 @@ if (!existsSync(pfPath)) {
   else note("pitfalls index: " + pf.counts.total + " entries across " + pf.modules.length + " modules");
 }
 
+// 8. The Phase D app bundle. Same reasoning as 6 and 7 -- generated, gitignored, and
+//    invisible to the repo -- but the consequence is worse: an app that shipped against a
+//    missing endpoint fails on a device, after a store review, with no way to hot-fix it.
+//    Assert the version stamp, one shard per module, and that the manifest agrees with itself.
+const appVer = join(DIST, "app", "version.json");
+if (!existsSync(appVer)) {
+  problems.push("app/version.json is missing from dist/ -- the app update channel would 404");
+} else {
+  const v = JSON.parse(readFileSync(appVer, "utf8"));
+  const man = existsSync(join(DIST, "app", "manifest.json")) ? JSON.parse(readFileSync(join(DIST, "app", "manifest.json"), "utf8")) : null;
+  if (!man) problems.push("app/manifest.json is missing from dist/");
+  else {
+    if (man.contentVersion !== v.contentVersion) problems.push("app bundle disagrees with itself: manifest " + man.contentVersion + " vs version.json " + v.contentVersion);
+    if (man.topics.length !== v.counts.topics) problems.push("app manifest declares " + v.counts.topics + " topics and carries " + man.topics.length);
+    const missing = man.modules.filter((m) => !existsSync(join(DIST, "app", "modules", m.slug + ".json")));
+    if (missing.length) problems.push(missing.length + " app module shard(s) missing from dist/: " + missing.slice(0, 3).map((m) => m.slug).join(", "));
+    for (const f of ["catalog.json", "paths.json", "roadmap.json", "concepts.json"]) {
+      if (!existsSync(join(DIST, "app", f))) problems.push("app/" + f + " is missing from dist/");
+    }
+    note("app bundle: contentVersion " + v.contentVersion + ", " + v.counts.topics + " topics, " + man.modules.length + " shards");
+  }
+}
+
 if (problems.length) {
   console.error("\nBUILD NOT PUBLISHABLE:");
   for (const p of problems) console.error(`  ✗ ${p}`);

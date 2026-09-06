@@ -40,3 +40,7 @@ Thumbs.db
 public/interview-manifest.json
 public/pitfalls-index.json
 public/interview/
+
+# Same rule for the Phase D app bundle (scripts/build-app-bundle.mjs): it is a
+# projection of content/ and must never be a second copy anyone can hand-edit.
+public/app/
