@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "vae",
       "quantization",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "diffusion": "Diffusion Sampler",
+      "vae": "Variational Autoencoder",
+      "quantization": "Quantization",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

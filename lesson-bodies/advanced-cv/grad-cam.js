@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "saliency",
       "attention-rollout",
       "convolution"
-    ]
+    ],
+    "demoTitles": {
+      "saliency": "Saliency Maps",
+      "attention-rollout": "Attention Rollout",
+      "convolution": "Convolution Lab"
+    }
   }
 };

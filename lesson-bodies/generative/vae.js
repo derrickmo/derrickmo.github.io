@@ -272,6 +272,12 @@ window.DM_LESSON_BODIES = {
       "variational-inference",
       "embeddings",
       "kernel-density"
-    ]
+    ],
+    "demoTitles": {
+      "vae": "Variational Autoencoder",
+      "variational-inference": "Variational Inference (ELBO)",
+      "embeddings": "Embedding Atlas",
+      "kernel-density": "Kernel Density Estimation"
+    }
   }
 };

@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "diffusion",
       "embeddings",
       "vae"
-    ]
+    ],
+    "demoTitles": {
+      "gan": "GAN 2-D",
+      "diffusion": "Diffusion Sampler",
+      "embeddings": "Embedding Atlas",
+      "vae": "Variational Autoencoder"
+    }
   }
 };

@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://ieeexplore.ieee.org/document/6145622"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

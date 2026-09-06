@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "kv-cache",
       "quantization",
       "moe"
-    ]
+    ],
+    "demoTitles": {
+      "batching": "Dynamic Batching",
+      "kv-cache": "KV Cache",
+      "quantization": "Quantization",
+      "moe": "Mixture of Experts (MoE)"
+    }
   }
 };

@@ -242,6 +242,11 @@ window.DM_LESSON_BODIES = {
       "mc-dropout",
       "batch-norm",
       "weight-init"
-    ]
+    ],
+    "demoTitles": {
+      "mc-dropout": "MC Dropout",
+      "batch-norm": "Batch Normalization",
+      "weight-init": "Weight Initialization"
+    }
   }
 };

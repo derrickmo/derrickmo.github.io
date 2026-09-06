@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "tokenizer",
       "quantization"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "vector-search": "Vector Search",
+      "tokenizer": "Tokenizer Lab",
+      "quantization": "Quantization"
+    }
   }
 };

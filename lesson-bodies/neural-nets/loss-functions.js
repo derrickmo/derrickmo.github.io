@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://sites.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

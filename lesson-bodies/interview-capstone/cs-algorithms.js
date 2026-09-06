@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "dijkstra",
       "edit-distance",
       "knapsack"
-    ]
+    ],
+    "demoTitles": {
+      "bfs-dfs-astar": "BFS vs DFS vs A*",
+      "dijkstra": "Dijkstra's Shortest Path",
+      "edit-distance": "Edit Distance",
+      "knapsack": "Knapsack (DP)"
+    }
   }
 };

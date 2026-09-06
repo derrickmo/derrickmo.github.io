@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "pruning",
       "distillation",
       "optimizers"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity",
+      "distillation": "Knowledge Distillation",
+      "optimizers": "Optimizer Shootout"
+    }
   }
 };

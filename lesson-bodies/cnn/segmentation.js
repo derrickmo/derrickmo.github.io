@@ -239,6 +239,11 @@ window.DM_LESSON_BODIES = {
       "watershed",
       "nms",
       "morphological-ops"
-    ]
+    ],
+    "demoTitles": {
+      "watershed": "Watershed Segmentation",
+      "nms": "IoU & Non-Max Suppression",
+      "morphological-ops": "Morphological Operations"
+    }
   }
 };

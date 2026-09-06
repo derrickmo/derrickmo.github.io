@@ -260,6 +260,12 @@ window.DM_LESSON_BODIES = {
       "attention",
       "multi-head-attention",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "attention": "Attention Heatmap",
+      "multi-head-attention": "Multi-Head Attention",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

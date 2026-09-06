@@ -260,6 +260,12 @@ window.DM_LESSON_BODIES = {
       "mfcc",
       "fourier",
       "pitch-detection"
-    ]
+    ],
+    "demoTitles": {
+      "spectrogram": "Spectrogram (STFT)",
+      "mfcc": "Mel Filterbank & MFCC",
+      "fourier": "Fourier Series",
+      "pitch-detection": "Pitch Detection"
+    }
   }
 };

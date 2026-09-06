@@ -265,6 +265,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "embeddings",
       "edit-distance"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "calibration": "Model Calibration",
+      "embeddings": "Embedding Atlas",
+      "edit-distance": "Edit Distance"
+    }
   }
 };

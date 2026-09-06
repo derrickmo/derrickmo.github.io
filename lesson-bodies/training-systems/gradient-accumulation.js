@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "scaling-laws",
       "optimizers",
       "batching"
-    ]
+    ],
+    "demoTitles": {
+      "lr-schedule": "Learning-Rate Schedules",
+      "scaling-laws": "Neural Scaling Laws",
+      "optimizers": "Optimizer Shootout",
+      "batching": "Dynamic Batching"
+    }
   }
 };

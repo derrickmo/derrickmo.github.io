@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "decision-tree",
       "bagging-boosting"
-    ]
+    ],
+    "demoTitles": {
+      "decision-tree": "Decision Tree",
+      "bagging-boosting": "Bagging vs Boosting"
+    }
   }
 };

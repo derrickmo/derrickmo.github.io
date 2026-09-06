@@ -234,6 +234,11 @@ window.DM_LESSON_BODIES = {
       "diffusion",
       "watershed",
       "convolution"
-    ]
+    ],
+    "demoTitles": {
+      "diffusion": "Diffusion Sampler",
+      "watershed": "Watershed Segmentation",
+      "convolution": "Convolution Lab"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "gridworld-rl",
       "td-lambda",
       "double-q-learning"
-    ]
+    ],
+    "demoTitles": {
+      "sarsa-vs-qlearning": "SARSA vs Q-Learning",
+      "gridworld-rl": "Q-Learning Gridworld",
+      "td-lambda": "TD(λ) & Eligibility Traces",
+      "double-q-learning": "Double Q-Learning"
+    }
   }
 };

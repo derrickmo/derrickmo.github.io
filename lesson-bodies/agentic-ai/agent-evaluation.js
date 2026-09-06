@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "conformal",
       "react-agent"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "calibration": "Model Calibration",
+      "conformal": "Conformal Prediction",
+      "react-agent": "ReAct — Reason + Act"
+    }
   }
 };

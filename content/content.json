@@ -2644,7 +2644,11 @@
         "notebook": true,
         "notebookFile": "01-01_python_numpy_tensor_speed.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "broadcasting",
+          "float-precision",
+          "matmul"
+        ],
         "concepts": []
       },
       "leadsTo": [
@@ -2901,7 +2905,10 @@
         "notebook": true,
         "notebookFile": "01-02_advanced_numpy_pytorch_ops.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "broadcasting",
+          "matmul"
+        ],
         "concepts": []
       },
       "prereqs": [
@@ -3664,7 +3671,9 @@
         "notebook": true,
         "notebookFile": "01-05_data_loading_pytorch.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "reservoir-sampling"
+        ],
         "concepts": []
       },
       "prereqs": [
@@ -3915,7 +3924,11 @@
         "notebook": true,
         "notebookFile": "01-06_linear_algebra_ml.ipynb",
         "flagship": "learn/foundations/linear-algebra/",
-        "demos": [],
+        "demos": [
+          "matmul",
+          "eigenvectors",
+          "pca"
+        ],
         "concepts": []
       },
       "updatedAt": "2026-08-16",
@@ -4103,7 +4116,13 @@
         "notebook": true,
         "notebookFile": "01-07_probability_statistics_ml.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "mle",
+          "clt",
+          "bootstrap",
+          "hypothesis-test",
+          "conjugate-updating"
+        ],
         "concepts": []
       },
       "prereqs": [
@@ -4362,7 +4381,12 @@
         "notebook": true,
         "notebookFile": "01-08_information_theory_ml.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "cross-entropy",
+          "huffman-coding",
+          "mutual-information",
+          "channel-capacity"
+        ],
         "concepts": []
       },
       "prereqs": [
@@ -4621,7 +4645,12 @@
         "notebook": true,
         "notebookFile": "01-09_calculus_optimization_foundations.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "autodiff",
+          "gradient-descent",
+          "newton-vs-gradient",
+          "optimizers"
+        ],
         "concepts": []
       },
       "prereqs": [
@@ -4880,7 +4909,12 @@
         "notebook": true,
         "notebookFile": "01-10_computational_thinking_complexity.ipynb",
         "flagship": null,
-        "demos": [],
+        "demos": [
+          "complexity-growth",
+          "float-precision",
+          "count-min-sketch",
+          "bloom-filter"
+        ],
         "concepts": []
       },
       "prereqs": [

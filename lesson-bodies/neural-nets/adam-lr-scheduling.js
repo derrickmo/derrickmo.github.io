@@ -245,6 +245,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "optimizers",
       "lr-schedule"
-    ]
+    ],
+    "demoTitles": {
+      "optimizers": "Optimizer Shootout",
+      "lr-schedule": "Learning-Rate Schedules"
+    }
   }
 };

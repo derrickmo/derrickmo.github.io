@@ -235,6 +235,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "ica"
-    ]
+    ],
+    "demoTitles": {
+      "ica": "ICA (Cocktail Party)"
+    }
   }
 };

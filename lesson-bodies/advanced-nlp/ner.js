@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "hmm-viterbi",
       "tokenizer",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "probing-classifier": "Linear Probing by Layer",
+      "hmm-viterbi": "HMM & Viterbi",
+      "tokenizer": "Tokenizer Lab",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

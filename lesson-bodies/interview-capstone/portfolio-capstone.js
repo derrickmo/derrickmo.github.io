@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "drift-detection",
       "fairness",
       "model-cascade"
-    ]
+    ],
+    "demoTitles": {
+      "canary-rollout": "Canary Rollout",
+      "drift-detection": "Data Drift Detection",
+      "fairness": "Fairness & Group Metrics",
+      "model-cascade": "Model Cascade (Early-Exit)"
+    }
   }
 };

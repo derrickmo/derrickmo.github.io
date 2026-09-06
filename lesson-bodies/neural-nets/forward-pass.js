@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

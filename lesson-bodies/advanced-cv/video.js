@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "optical-flow",
       "convolution",
       "attention"
-    ]
+    ],
+    "demoTitles": {
+      "optical-flow": "Optical Flow (Lucas-Kanade)",
+      "convolution": "Convolution Lab",
+      "attention": "Attention Heatmap"
+    }
   }
 };

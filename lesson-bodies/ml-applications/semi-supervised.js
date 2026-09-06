@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "active-learning",
       "coreset",
       "kmeans"
-    ]
+    ],
+    "demoTitles": {
+      "label-propagation": "Label Propagation",
+      "active-learning": "Active Learning",
+      "coreset": "Coresets",
+      "kmeans": "K-Means Clustering"
+    }
   }
 };

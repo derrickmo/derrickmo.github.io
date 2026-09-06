@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "count-min-sketch",
       "bloom-filter",
       "knn"
-    ]
+    ],
+    "demoTitles": {
+      "reservoir-sampling": "Reservoir Sampling",
+      "count-min-sketch": "Count-Min Sketch",
+      "bloom-filter": "Bloom Filter",
+      "knn": "k-Nearest Neighbors"
+    }
   }
 };

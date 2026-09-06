@@ -272,6 +272,12 @@ window.DM_LESSON_BODIES = {
       "embeddings",
       "knn",
       "tsne"
-    ]
+    ],
+    "demoTitles": {
+      "contrastive-learning": "Contrastive Learning",
+      "embeddings": "Embedding Atlas",
+      "knn": "k-Nearest Neighbors",
+      "tsne": "t-SNE"
+    }
   }
 };

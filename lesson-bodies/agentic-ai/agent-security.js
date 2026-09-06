@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "prompt-injection",
       "classification-metrics",
       "calibration"
-    ]
+    ],
+    "demoTitles": {
+      "guardrails": "Guardrails",
+      "prompt-injection": "Prompt Injection",
+      "classification-metrics": "Classification Metrics",
+      "calibration": "Model Calibration"
+    }
   }
 };

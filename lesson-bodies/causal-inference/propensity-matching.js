@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "roc",
       "regression"
-    ]
+    ],
+    "demoTitles": {
+      "knn": "k-Nearest Neighbors",
+      "calibration": "Model Calibration",
+      "roc": "ROC, PR & Thresholds",
+      "regression": "Linear & Logistic Regression"
+    }
   }
 };

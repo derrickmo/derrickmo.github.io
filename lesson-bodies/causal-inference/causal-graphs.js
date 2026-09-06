@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "simpsons-paradox",
       "bfs-dfs-astar",
       "regression"
-    ]
+    ],
+    "demoTitles": {
+      "do-intervention": "do() & Backdoor Adjustment",
+      "simpsons-paradox": "Simpson's Paradox",
+      "bfs-dfs-astar": "BFS vs DFS vs A*",
+      "regression": "Linear & Logistic Regression"
+    }
   }
 };

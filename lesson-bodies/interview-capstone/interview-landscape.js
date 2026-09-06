@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "roc",
       "clt",
       "calibration"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds",
+      "clt": "Central Limit Theorem",
+      "calibration": "Model Calibration"
+    }
   }
 };

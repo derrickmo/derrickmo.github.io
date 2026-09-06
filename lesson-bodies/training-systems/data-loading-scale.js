@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "importance-sampling",
       "batching",
       "bloom-filter"
-    ]
+    ],
+    "demoTitles": {
+      "reservoir-sampling": "Reservoir Sampling",
+      "importance-sampling": "Importance Sampling",
+      "batching": "Dynamic Batching",
+      "bloom-filter": "Bloom Filter"
+    }
   }
 };

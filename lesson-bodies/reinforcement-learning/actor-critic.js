@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "ppo",
       "gae",
       "policy-gradient"
-    ]
+    ],
+    "demoTitles": {
+      "actor-critic": "Actor-Critic",
+      "ppo": "PPO Clipped Objective",
+      "gae": "Generalized Advantage Estimation",
+      "policy-gradient": "Policy Gradient — REINFORCE"
+    }
   }
 };

@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "multi-head-attention",
       "attention",
       "batch-norm"
-    ]
+    ],
+    "demoTitles": {
+      "multi-head-attention": "Multi-Head Attention",
+      "attention": "Attention Heatmap",
+      "batch-norm": "Batch Normalization"
+    }
   }
 };

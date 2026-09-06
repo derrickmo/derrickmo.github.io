@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "kv-cache",
       "decoding",
       "tokenizer"
-    ]
+    ],
+    "demoTitles": {
+      "batching": "Dynamic Batching",
+      "kv-cache": "KV Cache",
+      "decoding": "Decoding Strategies",
+      "tokenizer": "Tokenizer Lab"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "guardrails",
       "decoding",
       "beam-search"
-    ]
+    ],
+    "demoTitles": {
+      "constrained-decoding": "Constrained Decoding",
+      "guardrails": "Guardrails",
+      "decoding": "Decoding Strategies",
+      "beam-search": "Beam Search Tree"
+    }
   }
 };

@@ -174,6 +174,15 @@ window.DM_LESSON_BODIES = {
         "url": "https://arxiv.org/abs/1805.11604"
       }
     ],
-    "demos": []
+    "demos": [
+      "matmul",
+      "eigenvectors",
+      "pca"
+    ],
+    "demoTitles": {
+      "matmul": "Matrix Multiplication",
+      "eigenvectors": "Eigenvectors",
+      "pca": "Principal Component Analysis"
+    }
   }
 };

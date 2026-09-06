@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "gaussian-process",
       "kernel-density"
-    ]
+    ],
+    "demoTitles": {
+      "gaussian-process": "Gaussian Processes",
+      "kernel-density": "Kernel Density Estimation"
+    }
   }
 };

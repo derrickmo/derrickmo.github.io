@@ -235,6 +235,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "naive-bayes"
-    ]
+    ],
+    "demoTitles": {
+      "naive-bayes": "Gaussian Naive Bayes"
+    }
   }
 };

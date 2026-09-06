@@ -255,6 +255,12 @@ window.DM_LESSON_BODIES = {
       "attention",
       "probing-classifier",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "tokenizer": "Tokenizer Lab",
+      "attention": "Attention Heatmap",
+      "probing-classifier": "Linear Probing by Layer",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

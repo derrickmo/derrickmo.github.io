@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "pca",
       "isomap"
-    ]
+    ],
+    "demoTitles": {
+      "pca": "Principal Component Analysis",
+      "isomap": "Isomap"
+    }
   }
 };

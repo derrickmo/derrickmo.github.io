@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "embeddings",
       "rag-chunking"
-    ]
+    ],
+    "demoTitles": {
+      "rag-reranker": "RAG Reranker",
+      "vector-search": "Vector Search",
+      "embeddings": "Embedding Atlas",
+      "rag-chunking": "RAG Chunking"
+    }
   }
 };

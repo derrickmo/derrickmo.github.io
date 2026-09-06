@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "agent-router",
       "constrained-decoding",
       "guardrails"
-    ]
+    ],
+    "demoTitles": {
+      "react-agent": "ReAct — Reason + Act",
+      "agent-router": "Agent Tool Router",
+      "constrained-decoding": "Constrained Decoding",
+      "guardrails": "Guardrails"
+    }
   }
 };

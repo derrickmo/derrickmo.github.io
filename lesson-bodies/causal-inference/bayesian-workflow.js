@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "bayes",
       "conjugate-updating",
       "bayesian-linear-regression"
-    ]
+    ],
+    "demoTitles": {
+      "mcmc": "MCMC (Metropolis)",
+      "bayes": "Bayes Updater",
+      "conjugate-updating": "Conjugate Prior Updating",
+      "bayesian-linear-regression": "Bayesian Linear Regression"
+    }
   }
 };

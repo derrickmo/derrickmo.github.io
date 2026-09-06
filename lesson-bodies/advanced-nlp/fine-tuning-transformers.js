@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "overfitting",
       "lora",
       "distillation"
-    ]
+    ],
+    "demoTitles": {
+      "lr-schedule": "Learning-Rate Schedules",
+      "overfitting": "Overfitting Lab",
+      "lora": "LoRA - Low-Rank Adaptation",
+      "distillation": "Knowledge Distillation"
+    }
   }
 };

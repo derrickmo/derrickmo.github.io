@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "roc",
       "conformal",
       "guardrails"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds",
+      "conformal": "Conformal Prediction",
+      "guardrails": "Guardrails"
+    }
   }
 };

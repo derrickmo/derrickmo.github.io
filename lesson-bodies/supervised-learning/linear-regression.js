@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "regression",
       "gradient-descent",
       "bias-variance-decomp"
-    ]
+    ],
+    "demoTitles": {
+      "regression": "Linear & Logistic Regression",
+      "gradient-descent": "Gradient Descent",
+      "bias-variance-decomp": "Bias-Variance Decomposition"
+    }
   }
 };

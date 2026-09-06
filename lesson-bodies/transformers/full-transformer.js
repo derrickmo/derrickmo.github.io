@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://transformer-circuits.pub/2021/framework/index.html"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

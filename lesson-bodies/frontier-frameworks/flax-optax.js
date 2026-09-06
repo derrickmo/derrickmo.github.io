@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "lr-schedule",
       "gradient-descent",
       "newton-vs-gradient"
-    ]
+    ],
+    "demoTitles": {
+      "optimizers": "Optimizer Shootout",
+      "lr-schedule": "Learning-Rate Schedules",
+      "gradient-descent": "Gradient Descent",
+      "newton-vs-gradient": "Newton vs Gradient Descent"
+    }
   }
 };

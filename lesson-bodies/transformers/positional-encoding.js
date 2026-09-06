@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "positional-encoding",
       "rope",
       "attention"
-    ]
+    ],
+    "demoTitles": {
+      "positional-encoding": "Positional Encoding",
+      "rope": "RoPE Explorer",
+      "attention": "Attention Heatmap"
+    }
   }
 };

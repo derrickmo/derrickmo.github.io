@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "rag-reranker",
       "react-agent",
       "guardrails"
-    ]
+    ],
+    "demoTitles": {
+      "rag-chunking": "RAG Chunking",
+      "rag-reranker": "RAG Reranker",
+      "react-agent": "ReAct — Reason + Act",
+      "guardrails": "Guardrails"
+    }
   }
 };

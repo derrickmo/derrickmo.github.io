@@ -236,6 +236,12 @@ window.DM_LESSON_BODIES = {
       "lr-schedule",
       "batch-norm",
       "weight-init"
-    ]
+    ],
+    "demoTitles": {
+      "image-augmentation": "Data Augmentation",
+      "lr-schedule": "Learning-Rate Schedules",
+      "batch-norm": "Batch Normalization",
+      "weight-init": "Weight Initialization"
+    }
   }
 };

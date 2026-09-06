@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "rope",
       "multi-head-attention",
       "moe"
-    ]
+    ],
+    "demoTitles": {
+      "kv-cache": "KV Cache",
+      "rope": "RoPE Explorer",
+      "multi-head-attention": "Multi-Head Attention",
+      "moe": "Mixture of Experts (MoE)"
+    }
   }
 };

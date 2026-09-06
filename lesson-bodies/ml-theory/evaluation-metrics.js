@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "roc",
       "calibration"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds",
+      "calibration": "Model Calibration"
+    }
   }
 };

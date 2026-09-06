@@ -253,6 +253,12 @@ window.DM_LESSON_BODIES = {
       "multi-head-attention",
       "decoding",
       "beam-search"
-    ]
+    ],
+    "demoTitles": {
+      "attention": "Attention Heatmap",
+      "multi-head-attention": "Multi-Head Attention",
+      "decoding": "Decoding Strategies",
+      "beam-search": "Beam Search Tree"
+    }
   }
 };

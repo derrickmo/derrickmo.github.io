@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "gradient-descent",
       "bayes",
       "pca"
-    ]
+    ],
+    "demoTitles": {
+      "backprop": "Backprop Graph",
+      "gradient-descent": "Gradient Descent",
+      "bayes": "Bayes Updater",
+      "pca": "Principal Component Analysis"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "batching",
       "image-augmentation",
       "importance-sampling"
-    ]
+    ],
+    "demoTitles": {
+      "reservoir-sampling": "Reservoir Sampling",
+      "batching": "Dynamic Batching",
+      "image-augmentation": "Data Augmentation",
+      "importance-sampling": "Importance Sampling"
+    }
   }
 };

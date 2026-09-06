@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "overfitting",
       "lr-schedule",
       "bias-variance-decomp"
-    ]
+    ],
+    "demoTitles": {
+      "cross-validation": "Cross-Validation",
+      "overfitting": "Overfitting Lab",
+      "lr-schedule": "Learning-Rate Schedules",
+      "bias-variance-decomp": "Bias-Variance Decomposition"
+    }
   }
 };

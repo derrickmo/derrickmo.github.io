@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "tokenizer",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "rag-chunking": "RAG Chunking",
+      "vector-search": "Vector Search",
+      "tokenizer": "Tokenizer Lab",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

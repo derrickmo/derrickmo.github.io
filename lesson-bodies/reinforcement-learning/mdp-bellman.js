@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "gridworld-rl",
       "markov",
       "pathfinding"
-    ]
+    ],
+    "demoTitles": {
+      "value-iteration": "MDP Value Iteration",
+      "gridworld-rl": "Q-Learning Gridworld",
+      "markov": "Markov Text Generator",
+      "pathfinding": "A* Pathfinding"
+    }
   }
 };

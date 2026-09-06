@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "conformal-regression",
       "calibration",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "conformal": "Conformal Prediction",
+      "conformal-regression": "Conformal Regression",
+      "calibration": "Model Calibration",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

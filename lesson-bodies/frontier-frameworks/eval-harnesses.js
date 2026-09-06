@@ -277,6 +277,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "conformal",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "calibration": "Model Calibration",
+      "conformal": "Conformal Prediction",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

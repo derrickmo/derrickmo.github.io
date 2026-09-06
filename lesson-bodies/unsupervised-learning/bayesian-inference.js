@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "conjugate-updating",
       "bayesian-linear-regression",
       "variational-inference"
-    ]
+    ],
+    "demoTitles": {
+      "conjugate-updating": "Conjugate Prior Updating",
+      "bayesian-linear-regression": "Bayesian Linear Regression",
+      "variational-inference": "Variational Inference (ELBO)"
+    }
   }
 };

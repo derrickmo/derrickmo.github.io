@@ -239,6 +239,11 @@ window.DM_LESSON_BODIES = {
       "convolution",
       "spectrogram",
       "forecasting"
-    ]
+    ],
+    "demoTitles": {
+      "convolution": "Convolution Lab",
+      "spectrogram": "Spectrogram (STFT)",
+      "forecasting": "Time-Series Forecasting"
+    }
   }
 };

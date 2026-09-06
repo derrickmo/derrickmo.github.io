@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "mixed-precision",
       "optimizers",
       "weight-init"
-    ]
+    ],
+    "demoTitles": {
+      "gradient-clipping": "Gradient Clipping",
+      "mixed-precision": "Mixed Precision",
+      "optimizers": "Optimizer Shootout",
+      "weight-init": "Weight Initialization"
+    }
   }
 };

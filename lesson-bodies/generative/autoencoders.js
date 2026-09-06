@@ -263,6 +263,12 @@ window.DM_LESSON_BODIES = {
       "embeddings",
       "tsne",
       "sparse-autoencoder"
-    ]
+    ],
+    "demoTitles": {
+      "pca": "Principal Component Analysis",
+      "embeddings": "Embedding Atlas",
+      "tsne": "t-SNE",
+      "sparse-autoencoder": "Sparse Autoencoders (Superposition)"
+    }
   }
 };

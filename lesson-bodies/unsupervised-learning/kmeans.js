@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "kmeans",
       "hierarchical-clustering",
       "spectral-clustering"
-    ]
+    ],
+    "demoTitles": {
+      "kmeans": "K-Means Clustering",
+      "hierarchical-clustering": "Hierarchical Clustering",
+      "spectral-clustering": "Spectral Clustering"
+    }
   }
 };

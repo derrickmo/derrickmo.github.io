@@ -245,6 +245,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "activations",
       "weight-init"
-    ]
+    ],
+    "demoTitles": {
+      "activations": "Activation Functions",
+      "weight-init": "Weight Initialization"
+    }
   }
 };

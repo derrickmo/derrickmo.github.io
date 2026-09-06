@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "autoscaling",
       "canary-rollout",
       "batching"
-    ]
+    ],
+    "demoTitles": {
+      "model-cascade": "Model Cascade (Early-Exit)",
+      "autoscaling": "Autoscaling",
+      "canary-rollout": "Canary Rollout",
+      "batching": "Dynamic Batching"
+    }
   }
 };

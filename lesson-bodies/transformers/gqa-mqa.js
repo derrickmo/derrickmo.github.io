@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "kv-cache",
       "multi-head-attention",
       "paged-attention"
-    ]
+    ],
+    "demoTitles": {
+      "kv-cache": "KV Cache",
+      "multi-head-attention": "Multi-Head Attention",
+      "paged-attention": "PagedAttention"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "gradient-clipping",
       "batch-norm",
       "mixed-precision"
-    ]
+    ],
+    "demoTitles": {
+      "optimizers": "Optimizer Shootout",
+      "gradient-clipping": "Gradient Clipping",
+      "batch-norm": "Batch Normalization",
+      "mixed-precision": "Mixed Precision"
+    }
   }
 };

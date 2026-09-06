@@ -232,6 +232,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://scikit-learn.org/stable/datasets/real_world.html#california-housing-dataset"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

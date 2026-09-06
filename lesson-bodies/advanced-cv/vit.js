@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "attention",
       "multi-head-attention",
       "attention-rollout"
-    ]
+    ],
+    "demoTitles": {
+      "attention": "Attention Heatmap",
+      "multi-head-attention": "Multi-Head Attention",
+      "attention-rollout": "Attention Rollout"
+    }
   }
 };

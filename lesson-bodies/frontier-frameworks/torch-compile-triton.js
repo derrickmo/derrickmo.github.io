@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "batching",
       "quantization",
       "kv-cache-eviction"
-    ]
+    ],
+    "demoTitles": {
+      "kv-cache": "KV Cache",
+      "batching": "Dynamic Batching",
+      "quantization": "Quantization",
+      "kv-cache-eviction": "KV-Cache Eviction"
+    }
   }
 };

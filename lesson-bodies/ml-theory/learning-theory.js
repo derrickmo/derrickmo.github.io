@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://direct.mit.edu/neco/article/8/7/1341/6016"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

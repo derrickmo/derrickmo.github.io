@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://pytorch.org/docs/stable/notes/extending.html"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

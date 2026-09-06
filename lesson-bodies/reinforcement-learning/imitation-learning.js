@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "value-iteration",
       "max-entropy-rl",
       "pathfinding"
-    ]
+    ],
+    "demoTitles": {
+      "gridworld-rl": "Q-Learning Gridworld",
+      "value-iteration": "MDP Value Iteration",
+      "max-entropy-rl": "Maximum-Entropy RL",
+      "pathfinding": "A* Pathfinding"
+    }
   }
 };

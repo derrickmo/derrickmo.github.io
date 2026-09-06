@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "mc-dropout",
       "roc",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "calibration": "Model Calibration",
+      "mc-dropout": "MC Dropout",
+      "roc": "ROC, PR & Thresholds",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

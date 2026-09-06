@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "guardrails",
       "agent-router",
       "prompt-injection"
-    ]
+    ],
+    "demoTitles": {
+      "react-agent": "ReAct — Reason + Act",
+      "guardrails": "Guardrails",
+      "agent-router": "Agent Tool Router",
+      "prompt-injection": "Prompt Injection"
+    }
   }
 };

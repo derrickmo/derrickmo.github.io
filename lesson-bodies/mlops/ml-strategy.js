@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "roc",
       "bias-variance-decomp",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds",
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

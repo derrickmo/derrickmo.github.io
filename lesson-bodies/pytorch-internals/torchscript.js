@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "pruning",
       "batching",
       "mixed-precision"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity",
+      "batching": "Dynamic Batching",
+      "mixed-precision": "Mixed Precision"
+    }
   }
 };

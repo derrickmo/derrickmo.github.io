@@ -240,6 +240,17 @@ window.DM_LESSON_BODIES = {
         "url": "https://pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html"
       }
     ],
-    "demos": []
+    "demos": [
+      "autodiff",
+      "gradient-descent",
+      "newton-vs-gradient",
+      "optimizers"
+    ],
+    "demoTitles": {
+      "autodiff": "Automatic Differentiation",
+      "gradient-descent": "Gradient Descent",
+      "newton-vs-gradient": "Newton vs Gradient Descent",
+      "optimizers": "Optimizer Shootout"
+    }
   }
 };

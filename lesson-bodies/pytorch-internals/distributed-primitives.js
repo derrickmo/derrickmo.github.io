@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "moe",
       "mixed-precision",
       "autoscaling"
-    ]
+    ],
+    "demoTitles": {
+      "batching": "Dynamic Batching",
+      "moe": "Mixture of Experts (MoE)",
+      "mixed-precision": "Mixed Precision",
+      "autoscaling": "Autoscaling"
+    }
   }
 };

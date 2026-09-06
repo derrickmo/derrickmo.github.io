@@ -242,6 +242,13 @@ window.DM_LESSON_BODIES = {
         "url": "https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray"
       }
     ],
-    "demos": []
+    "demos": [
+      "broadcasting",
+      "matmul"
+    ],
+    "demoTitles": {
+      "broadcasting": "Broadcasting",
+      "matmul": "Matrix Multiplication"
+    }
   }
 };

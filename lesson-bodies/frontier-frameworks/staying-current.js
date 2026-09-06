@@ -276,6 +276,12 @@ window.DM_LESSON_BODIES = {
       "cross-validation",
       "bagging-boosting",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "calibration": "Model Calibration",
+      "cross-validation": "Cross-Validation",
+      "bagging-boosting": "Bagging vs Boosting",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

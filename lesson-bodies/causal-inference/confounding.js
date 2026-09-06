@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "do-intervention",
       "regression",
       "bias-variance-decomp"
-    ]
+    ],
+    "demoTitles": {
+      "simpsons-paradox": "Simpson's Paradox",
+      "do-intervention": "do() & Backdoor Adjustment",
+      "regression": "Linear & Logistic Regression",
+      "bias-variance-decomp": "Bias-Variance Decomposition"
+    }
   }
 };

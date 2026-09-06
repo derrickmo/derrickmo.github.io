@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://www.sciencedirect.com/science/article/pii/B9781558603776500133"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

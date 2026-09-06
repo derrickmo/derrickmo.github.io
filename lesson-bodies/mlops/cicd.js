@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "autoscaling",
       "drift-detection",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "canary-rollout": "Canary Rollout",
+      "autoscaling": "Autoscaling",
+      "drift-detection": "Data Drift Detection",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

@@ -260,6 +260,12 @@ window.DM_LESSON_BODIES = {
       "beam-search",
       "hmm-viterbi",
       "dtw"
-    ]
+    ],
+    "demoTitles": {
+      "spectrogram": "Spectrogram (STFT)",
+      "beam-search": "Beam Search Tree",
+      "hmm-viterbi": "HMM & Viterbi",
+      "dtw": "Dynamic Time Warping"
+    }
   }
 };

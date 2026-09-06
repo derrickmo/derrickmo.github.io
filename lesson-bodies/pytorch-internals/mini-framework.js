@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "optimizers",
       "lr-schedule",
       "neural-playground"
-    ]
+    ],
+    "demoTitles": {
+      "backprop": "Backprop Graph",
+      "optimizers": "Optimizer Shootout",
+      "lr-schedule": "Learning-Rate Schedules",
+      "neural-playground": "Neural Playground"
+    }
   }
 };

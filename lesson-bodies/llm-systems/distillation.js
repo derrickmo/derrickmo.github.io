@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "model-cascade",
       "pruning",
       "quantization"
-    ]
+    ],
+    "demoTitles": {
+      "distillation": "Knowledge Distillation",
+      "model-cascade": "Model Cascade (Early-Exit)",
+      "pruning": "Pruning & Sparsity",
+      "quantization": "Quantization"
+    }
   }
 };

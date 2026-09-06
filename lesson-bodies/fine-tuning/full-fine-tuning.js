@@ -269,6 +269,12 @@ window.DM_LESSON_BODIES = {
       "bias-variance-decomp",
       "lr-schedule",
       "drift-detection"
-    ]
+    ],
+    "demoTitles": {
+      "overfitting": "Overfitting Lab",
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "lr-schedule": "Learning-Rate Schedules",
+      "drift-detection": "Data Drift Detection"
+    }
   }
 };

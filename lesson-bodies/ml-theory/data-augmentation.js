@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "image-augmentation",
       "label-noise",
       "histogram-equalization"
-    ]
+    ],
+    "demoTitles": {
+      "image-augmentation": "Data Augmentation",
+      "label-noise": "Label Noise",
+      "histogram-equalization": "Histogram Equalization"
+    }
   }
 };

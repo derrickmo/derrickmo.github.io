@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "conformal",
       "active-learning"
-    ]
+    ],
+    "demoTitles": {
+      "drift-detection": "Data Drift Detection",
+      "calibration": "Model Calibration",
+      "conformal": "Conformal Prediction",
+      "active-learning": "Active Learning"
+    }
   }
 };

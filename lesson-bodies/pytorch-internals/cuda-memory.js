@@ -270,6 +270,12 @@ window.DM_LESSON_BODIES = {
       "paged-attention",
       "kv-cache",
       "quantization"
-    ]
+    ],
+    "demoTitles": {
+      "mixed-precision": "Mixed Precision",
+      "paged-attention": "PagedAttention",
+      "kv-cache": "KV Cache",
+      "quantization": "Quantization"
+    }
   }
 };

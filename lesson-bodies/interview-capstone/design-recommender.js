@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "bandit",
       "roc"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "vector-search": "Vector Search",
+      "bandit": "Multi-Armed Bandit",
+      "roc": "ROC, PR & Thresholds"
+    }
   }
 };

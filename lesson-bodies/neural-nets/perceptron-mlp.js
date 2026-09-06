@@ -245,6 +245,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "perceptron",
       "neural-playground"
-    ]
+    ],
+    "demoTitles": {
+      "perceptron": "The Perceptron",
+      "neural-playground": "Neural Playground"
+    }
   }
 };

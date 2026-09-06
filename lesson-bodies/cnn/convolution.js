@@ -244,6 +244,12 @@ window.DM_LESSON_BODIES = {
       "edge-detection",
       "hog",
       "harris-corners"
-    ]
+    ],
+    "demoTitles": {
+      "convolution": "Convolution Lab",
+      "edge-detection": "Canny Edge Detection",
+      "hog": "Histogram of Oriented Gradients",
+      "harris-corners": "Harris Corner Detector"
+    }
   }
 };

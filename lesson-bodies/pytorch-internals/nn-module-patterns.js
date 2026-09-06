@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "weight-init",
       "batch-norm",
       "backprop"
-    ]
+    ],
+    "demoTitles": {
+      "neural-playground": "Neural Playground",
+      "weight-init": "Weight Initialization",
+      "batch-norm": "Batch Normalization",
+      "backprop": "Backprop Graph"
+    }
   }
 };

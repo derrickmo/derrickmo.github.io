@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "dbscan",
       "hierarchical-clustering"
-    ]
+    ],
+    "demoTitles": {
+      "dbscan": "DBSCAN",
+      "hierarchical-clustering": "Hierarchical Clustering"
+    }
   }
 };

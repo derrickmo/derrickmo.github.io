@@ -260,6 +260,12 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "embeddings",
       "saliency"
-    ]
+    ],
+    "demoTitles": {
+      "attention": "Attention Heatmap",
+      "classification-metrics": "Classification Metrics",
+      "embeddings": "Embedding Atlas",
+      "saliency": "Saliency Maps"
+    }
   }
 };

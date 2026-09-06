@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "kv-cache-eviction",
       "lost-in-the-middle"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "vector-search": "Vector Search",
+      "kv-cache-eviction": "KV-Cache Eviction",
+      "lost-in-the-middle": "Lost in the Middle"
+    }
   }
 };

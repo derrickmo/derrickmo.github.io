@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "thompson-vs-ucb",
       "bayesian-optimization",
       "regret-matching"
-    ]
+    ],
+    "demoTitles": {
+      "bandit": "Multi-Armed Bandit",
+      "thompson-vs-ucb": "Thompson Sampling vs UCB",
+      "bayesian-optimization": "Bayesian Optimization",
+      "regret-matching": "Regret Matching to Nash"
+    }
   }
 };

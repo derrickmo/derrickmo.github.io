@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "regression",
       "clt",
       "simpsons-paradox"
-    ]
+    ],
+    "demoTitles": {
+      "do-intervention": "do() & Backdoor Adjustment",
+      "regression": "Linear & Logistic Regression",
+      "clt": "Central Limit Theorem",
+      "simpsons-paradox": "Simpson's Paradox"
+    }
   }
 };

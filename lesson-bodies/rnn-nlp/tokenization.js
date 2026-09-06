@@ -234,6 +234,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "tokenizer"
-    ]
+    ],
+    "demoTitles": {
+      "tokenizer": "Tokenizer Lab"
+    }
   }
 };

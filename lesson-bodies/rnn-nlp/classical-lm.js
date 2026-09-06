@@ -235,6 +235,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "markov",
       "decoding"
-    ]
+    ],
+    "demoTitles": {
+      "markov": "Markov Text Generator",
+      "decoding": "Decoding Strategies"
+    }
   }
 };

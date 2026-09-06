@@ -11,7 +11,11 @@
     "notebook": true,
     "notebookFile": "01-06_linear_algebra_ml.ipynb",
     "flagship": "learn/foundations/linear-algebra/",
-    "demos": [],
+    "demos": [
+      "matmul",
+      "eigenvectors",
+      "pca"
+    ],
     "concepts": []
   },
   "updatedAt": "2026-08-16",

@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "contrastive-learning",
       "embeddings",
       "attention-rollout"
-    ]
+    ],
+    "demoTitles": {
+      "contrastive-learning": "Contrastive Learning",
+      "embeddings": "Embedding Atlas",
+      "attention-rollout": "Attention Rollout"
+    }
   }
 };

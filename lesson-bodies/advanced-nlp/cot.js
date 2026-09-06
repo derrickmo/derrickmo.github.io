@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "decoding",
       "constrained-decoding",
       "react-agent"
-    ]
+    ],
+    "demoTitles": {
+      "self-consistency": "Self-Consistency",
+      "decoding": "Decoding Strategies",
+      "constrained-decoding": "Constrained Decoding",
+      "react-agent": "ReAct — Reason + Act"
+    }
   }
 };

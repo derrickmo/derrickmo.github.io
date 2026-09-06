@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "bias-variance-decomp",
       "overfitting",
       "double-descent"
-    ]
+    ],
+    "demoTitles": {
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "overfitting": "Overfitting Lab",
+      "double-descent": "Double Descent"
+    }
   }
 };

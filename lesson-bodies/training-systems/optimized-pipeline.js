@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "batching",
       "mixed-precision",
       "lr-schedule"
-    ]
+    ],
+    "demoTitles": {
+      "scaling-laws": "Neural Scaling Laws",
+      "batching": "Dynamic Batching",
+      "mixed-precision": "Mixed Precision",
+      "lr-schedule": "Learning-Rate Schedules"
+    }
   }
 };

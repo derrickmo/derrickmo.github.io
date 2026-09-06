@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "quantization",
       "batch-norm",
       "distillation"
-    ]
+    ],
+    "demoTitles": {
+      "pruning": "Pruning & Sparsity",
+      "quantization": "Quantization",
+      "batch-norm": "Batch Normalization",
+      "distillation": "Knowledge Distillation"
+    }
   }
 };

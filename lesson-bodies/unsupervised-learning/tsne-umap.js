@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "tsne",
       "isomap",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "tsne": "t-SNE",
+      "isomap": "Isomap",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

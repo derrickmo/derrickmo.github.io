@@ -284,6 +284,12 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "conformal",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "drift-detection": "Data Drift Detection",
+      "calibration": "Model Calibration",
+      "conformal": "Conformal Prediction",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

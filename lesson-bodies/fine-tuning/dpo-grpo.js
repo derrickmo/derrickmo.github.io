@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "ppo",
       "policy-gradient",
       "reward-model"
-    ]
+    ],
+    "demoTitles": {
+      "dpo": "DPO vs RLHF",
+      "ppo": "PPO Clipped Objective",
+      "policy-gradient": "Policy Gradient — REINFORCE",
+      "reward-model": "Reward Model (RLHF)"
+    }
   }
 };

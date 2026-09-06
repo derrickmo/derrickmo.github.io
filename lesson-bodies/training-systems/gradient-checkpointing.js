@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "quantization",
       "batching",
       "backprop"
-    ]
+    ],
+    "demoTitles": {
+      "mixed-precision": "Mixed Precision",
+      "quantization": "Quantization",
+      "batching": "Dynamic Batching",
+      "backprop": "Backprop Graph"
+    }
   }
 };

@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "saliency",
       "attention-rollout",
       "decision-tree"
-    ]
+    ],
+    "demoTitles": {
+      "shap": "Feature Attribution (SHAP)",
+      "saliency": "Saliency Maps",
+      "attention-rollout": "Attention Rollout",
+      "decision-tree": "Decision Tree"
+    }
   }
 };

@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "mfcc",
       "pitch-detection",
       "aliasing"
-    ]
+    ],
+    "demoTitles": {
+      "spectrogram": "Spectrogram (STFT)",
+      "mfcc": "Mel Filterbank & MFCC",
+      "pitch-detection": "Pitch Detection",
+      "aliasing": "Aliasing & Nyquist"
+    }
   }
 };

@@ -260,6 +260,12 @@ window.DM_LESSON_BODIES = {
       "embeddings",
       "calibration",
       "vector-search"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "embeddings": "Embedding Atlas",
+      "calibration": "Model Calibration",
+      "vector-search": "Vector Search"
+    }
   }
 };

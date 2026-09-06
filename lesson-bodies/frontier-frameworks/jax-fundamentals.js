@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "gradient-descent",
       "optimizers",
       "activations"
-    ]
+    ],
+    "demoTitles": {
+      "backprop": "Backprop Graph",
+      "gradient-descent": "Gradient Descent",
+      "optimizers": "Optimizer Shootout",
+      "activations": "Activation Functions"
+    }
   }
 };

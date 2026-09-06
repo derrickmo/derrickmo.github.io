@@ -240,6 +240,17 @@ window.DM_LESSON_BODIES = {
         "url": "https://wiki.python.org/moin/TimeComplexity"
       }
     ],
-    "demos": []
+    "demos": [
+      "complexity-growth",
+      "float-precision",
+      "count-min-sketch",
+      "bloom-filter"
+    ],
+    "demoTitles": {
+      "complexity-growth": "Complexity Growth",
+      "float-precision": "Floating-Point Precision",
+      "count-min-sketch": "Count-Min Sketch",
+      "bloom-filter": "Bloom Filter"
+    }
   }
 };

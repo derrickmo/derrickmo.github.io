@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "react-agent",
       "bagging-boosting",
       "guardrails"
-    ]
+    ],
+    "demoTitles": {
+      "agent-router": "Agent Tool Router",
+      "react-agent": "ReAct — Reason + Act",
+      "bagging-boosting": "Bagging vs Boosting",
+      "guardrails": "Guardrails"
+    }
   }
 };

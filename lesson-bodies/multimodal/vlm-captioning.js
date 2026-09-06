@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "attention-rollout",
       "decoding",
       "beam-search"
-    ]
+    ],
+    "demoTitles": {
+      "attention": "Attention Heatmap",
+      "attention-rollout": "Attention Rollout",
+      "decoding": "Decoding Strategies",
+      "beam-search": "Beam Search Tree"
+    }
   }
 };

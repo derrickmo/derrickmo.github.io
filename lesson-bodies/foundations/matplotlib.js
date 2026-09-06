@@ -231,6 +231,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://matplotlib.org/stable/gallery/statistics/hexbin_demo.html"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

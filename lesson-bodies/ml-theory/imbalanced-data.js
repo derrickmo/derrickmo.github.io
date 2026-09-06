@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "roc",
       "active-learning"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds",
+      "active-learning": "Active Learning"
+    }
   }
 };

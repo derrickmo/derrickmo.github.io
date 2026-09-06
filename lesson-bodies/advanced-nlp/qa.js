@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "rag-chunking",
       "rag-reranker",
       "lost-in-the-middle"
-    ]
+    ],
+    "demoTitles": {
+      "vector-search": "Vector Search",
+      "rag-chunking": "RAG Chunking",
+      "rag-reranker": "RAG Reranker",
+      "lost-in-the-middle": "Lost in the Middle"
+    }
   }
 };

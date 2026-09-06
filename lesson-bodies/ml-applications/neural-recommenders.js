@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "knn",
       "roc"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "vector-search": "Vector Search",
+      "knn": "k-Nearest Neighbors",
+      "roc": "ROC, PR & Thresholds"
+    }
   }
 };

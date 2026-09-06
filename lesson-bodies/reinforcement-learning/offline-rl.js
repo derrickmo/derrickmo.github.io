@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "value-iteration",
       "distributional-rl",
       "importance-sampling"
-    ]
+    ],
+    "demoTitles": {
+      "dqn": "Deep Q-Network (DQN)",
+      "value-iteration": "MDP Value Iteration",
+      "distributional-rl": "Distributional RL (C51)",
+      "importance-sampling": "Importance Sampling"
+    }
   }
 };

@@ -235,6 +235,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "decoding",
       "beam-search"
-    ]
+    ],
+    "demoTitles": {
+      "decoding": "Decoding Strategies",
+      "beam-search": "Beam Search Tree"
+    }
   }
 };

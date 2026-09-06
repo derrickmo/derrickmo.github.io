@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "gradient-clipping",
       "bias-variance-decomp",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "lr-schedule": "Learning-Rate Schedules",
+      "gradient-clipping": "Gradient Clipping",
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

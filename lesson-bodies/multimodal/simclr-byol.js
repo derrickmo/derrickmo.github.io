@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "image-augmentation",
       "embeddings",
       "batch-norm"
-    ]
+    ],
+    "demoTitles": {
+      "contrastive-learning": "Contrastive Learning",
+      "image-augmentation": "Data Augmentation",
+      "embeddings": "Embedding Atlas",
+      "batch-norm": "Batch Normalization"
+    }
   }
 };

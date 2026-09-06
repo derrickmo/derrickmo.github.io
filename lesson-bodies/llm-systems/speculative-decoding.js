@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "kv-cache",
       "paged-attention",
       "batching"
-    ]
+    ],
+    "demoTitles": {
+      "speculative-decoding": "Speculative Decoding",
+      "kv-cache": "KV Cache",
+      "paged-attention": "PagedAttention",
+      "batching": "Dynamic Batching"
+    }
   }
 };

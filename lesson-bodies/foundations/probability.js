@@ -240,6 +240,19 @@ window.DM_LESSON_BODIES = {
         "url": "https://numpy.org/doc/stable/reference/random/generator.html"
       }
     ],
-    "demos": []
+    "demos": [
+      "mle",
+      "clt",
+      "bootstrap",
+      "hypothesis-test",
+      "conjugate-updating"
+    ],
+    "demoTitles": {
+      "mle": "Maximum Likelihood",
+      "clt": "Central Limit Theorem",
+      "bootstrap": "The Bootstrap",
+      "hypothesis-test": "Hypothesis Testing & Peeking",
+      "conjugate-updating": "Conjugate Prior Updating"
+    }
   }
 };

@@ -270,6 +270,12 @@ window.DM_LESSON_BODIES = {
       "dataset-distillation",
       "decoding",
       "calibration"
-    ]
+    ],
+    "demoTitles": {
+      "distillation": "Knowledge Distillation",
+      "dataset-distillation": "Dataset Distillation",
+      "decoding": "Decoding Strategies",
+      "calibration": "Model Calibration"
+    }
   }
 };

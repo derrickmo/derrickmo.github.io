@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "certified-robustness",
       "image-augmentation",
       "mc-dropout"
-    ]
+    ],
+    "demoTitles": {
+      "adversarial-examples": "Adversarial Examples (FGSM / PGD)",
+      "certified-robustness": "Certified Robustness (Randomized Smoothing)",
+      "image-augmentation": "Data Augmentation",
+      "mc-dropout": "MC Dropout"
+    }
   }
 };

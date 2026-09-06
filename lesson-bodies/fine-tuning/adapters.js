@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "batching",
       "moe",
       "pruning"
-    ]
+    ],
+    "demoTitles": {
+      "lora": "LoRA - Low-Rank Adaptation",
+      "batching": "Dynamic Batching",
+      "moe": "Mixture of Experts (MoE)",
+      "pruning": "Pruning & Sparsity"
+    }
   }
 };

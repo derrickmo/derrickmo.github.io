@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "pagerank",
       "louvain",
       "label-propagation"
-    ]
+    ],
+    "demoTitles": {
+      "gnn": "GNN Message Passing",
+      "pagerank": "PageRank",
+      "louvain": "Community Detection",
+      "label-propagation": "Label Propagation"
+    }
   }
 };

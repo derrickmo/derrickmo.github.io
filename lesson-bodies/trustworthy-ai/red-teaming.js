@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "guardrails",
       "adversarial-examples",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "prompt-injection": "Prompt Injection",
+      "guardrails": "Guardrails",
+      "adversarial-examples": "Adversarial Examples (FGSM / PGD)",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

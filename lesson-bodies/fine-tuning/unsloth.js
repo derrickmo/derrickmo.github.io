@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "mixed-precision",
       "paged-attention",
       "batching"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "mixed-precision": "Mixed Precision",
+      "paged-attention": "PagedAttention",
+      "batching": "Dynamic Batching"
+    }
   }
 };

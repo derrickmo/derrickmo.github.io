@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "gae",
       "max-entropy-rl",
       "gridworld-rl"
-    ]
+    ],
+    "demoTitles": {
+      "policy-gradient": "Policy Gradient — REINFORCE",
+      "gae": "Generalized Advantage Estimation",
+      "max-entropy-rl": "Maximum-Entropy RL",
+      "gridworld-rl": "Q-Learning Gridworld"
+    }
   }
 };

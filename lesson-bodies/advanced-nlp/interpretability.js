@@ -276,6 +276,12 @@ window.DM_LESSON_BODIES = {
       "sparse-autoencoder",
       "superposition",
       "probing-classifier"
-    ]
+    ],
+    "demoTitles": {
+      "activation-patching": "Activation Patching (Causal Tracing)",
+      "sparse-autoencoder": "Sparse Autoencoders (Superposition)",
+      "superposition": "Toy Model of Superposition",
+      "probing-classifier": "Linear Probing by Layer"
+    }
   }
 };

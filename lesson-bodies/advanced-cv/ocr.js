@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "edge-detection",
       "morphological-ops",
       "template-matching"
-    ]
+    ],
+    "demoTitles": {
+      "edge-detection": "Canny Edge Detection",
+      "morphological-ops": "Morphological Operations",
+      "template-matching": "Template Matching (NCC)"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "conformal",
       "lost-in-the-middle"
-    ]
+    ],
+    "demoTitles": {
+      "calibration": "Model Calibration",
+      "classification-metrics": "Classification Metrics",
+      "conformal": "Conformal Prediction",
+      "lost-in-the-middle": "Lost in the Middle"
+    }
   }
 };

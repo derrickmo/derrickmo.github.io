@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "pruning",
       "mixed-precision",
       "kv-cache"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity",
+      "mixed-precision": "Mixed Precision",
+      "kv-cache": "KV Cache"
+    }
   }
 };

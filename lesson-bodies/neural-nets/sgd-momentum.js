@@ -246,6 +246,11 @@ window.DM_LESSON_BODIES = {
       "gradient-descent",
       "optimizers",
       "newton-vs-gradient"
-    ]
+    ],
+    "demoTitles": {
+      "gradient-descent": "Gradient Descent",
+      "optimizers": "Optimizer Shootout",
+      "newton-vs-gradient": "Newton vs Gradient Descent"
+    }
   }
 };

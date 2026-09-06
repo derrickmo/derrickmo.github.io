@@ -235,6 +235,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "bagging-boosting"
-    ]
+    ],
+    "demoTitles": {
+      "bagging-boosting": "Bagging vs Boosting"
+    }
   }
 };

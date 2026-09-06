@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "optical-flow",
       "harris-corners",
       "nms"
-    ]
+    ],
+    "demoTitles": {
+      "optical-flow": "Optical Flow (Lucas-Kanade)",
+      "harris-corners": "Harris Corner Detector",
+      "nms": "IoU & Non-Max Suppression"
+    }
   }
 };

@@ -270,6 +270,12 @@ window.DM_LESSON_BODIES = {
       "embeddings",
       "attention",
       "scaling-laws"
-    ]
+    ],
+    "demoTitles": {
+      "tokenizer": "Tokenizer Lab",
+      "embeddings": "Embedding Atlas",
+      "attention": "Attention Heatmap",
+      "scaling-laws": "Neural Scaling Laws"
+    }
   }
 };

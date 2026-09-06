@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "bagging-boosting",
       "roc",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "decision-tree": "Decision Tree",
+      "bagging-boosting": "Bagging vs Boosting",
+      "roc": "ROC, PR & Thresholds",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

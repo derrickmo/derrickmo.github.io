@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "gradient-clipping",
       "optimizers",
       "activations"
-    ]
+    ],
+    "demoTitles": {
+      "backprop": "Backprop Graph",
+      "gradient-clipping": "Gradient Clipping",
+      "optimizers": "Optimizer Shootout",
+      "activations": "Activation Functions"
+    }
   }
 };

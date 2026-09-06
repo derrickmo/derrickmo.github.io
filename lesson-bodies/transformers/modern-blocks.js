@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "activations",
       "batch-norm",
       "attention"
-    ]
+    ],
+    "demoTitles": {
+      "activations": "Activation Functions",
+      "batch-norm": "Batch Normalization",
+      "attention": "Attention Heatmap"
+    }
   }
 };

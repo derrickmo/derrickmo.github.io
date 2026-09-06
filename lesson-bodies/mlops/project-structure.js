@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "overfitting",
       "model-cascade",
       "canary-rollout"
-    ]
+    ],
+    "demoTitles": {
+      "cross-validation": "Cross-Validation",
+      "overfitting": "Overfitting Lab",
+      "model-cascade": "Model Cascade (Early-Exit)",
+      "canary-rollout": "Canary Rollout"
+    }
   }
 };

@@ -236,6 +236,12 @@ window.DM_LESSON_BODIES = {
       "bayesian-optimization",
       "thompson-vs-ucb",
       "bayesian-linear-regression"
-    ]
+    ],
+    "demoTitles": {
+      "gaussian-process": "Gaussian Processes",
+      "bayesian-optimization": "Bayesian Optimization",
+      "thompson-vs-ucb": "Thompson Sampling vs UCB",
+      "bayesian-linear-regression": "Bayesian Linear Regression"
+    }
   }
 };

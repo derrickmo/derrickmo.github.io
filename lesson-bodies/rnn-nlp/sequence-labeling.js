@@ -233,6 +233,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://web.stanford.edu/~jurafsky/slp3/8.pdf"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

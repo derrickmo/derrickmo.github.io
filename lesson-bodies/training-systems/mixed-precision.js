@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "quantization",
       "gradient-clipping",
       "optimizers"
-    ]
+    ],
+    "demoTitles": {
+      "mixed-precision": "Mixed Precision",
+      "quantization": "Quantization",
+      "gradient-clipping": "Gradient Clipping",
+      "optimizers": "Optimizer Shootout"
+    }
   }
 };

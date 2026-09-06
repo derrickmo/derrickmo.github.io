@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "bandit",
       "thompson-vs-ucb",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "clt": "Central Limit Theorem",
+      "bandit": "Multi-Armed Bandit",
+      "thompson-vs-ucb": "Thompson Sampling vs UCB",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

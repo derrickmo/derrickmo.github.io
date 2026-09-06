@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "regression",
       "do-intervention",
       "bias-variance-decomp"
-    ]
+    ],
+    "demoTitles": {
+      "instrumental-variables": "Instrumental Variables",
+      "regression": "Linear & Logistic Regression",
+      "do-intervention": "do() & Backdoor Adjustment",
+      "bias-variance-decomp": "Bias-Variance Decomposition"
+    }
   }
 };

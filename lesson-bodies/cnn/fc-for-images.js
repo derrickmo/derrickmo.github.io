@@ -238,6 +238,11 @@ window.DM_LESSON_BODIES = {
       "neural-playground",
       "perceptron",
       "image-augmentation"
-    ]
+    ],
+    "demoTitles": {
+      "neural-playground": "Neural Playground",
+      "perceptron": "The Perceptron",
+      "image-augmentation": "Data Augmentation"
+    }
   }
 };

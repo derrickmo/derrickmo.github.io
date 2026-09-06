@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "beam-search",
       "decoding",
       "kv-cache"
-    ]
+    ],
+    "demoTitles": {
+      "spectrogram": "Spectrogram (STFT)",
+      "beam-search": "Beam Search Tree",
+      "decoding": "Decoding Strategies",
+      "kv-cache": "KV Cache"
+    }
   }
 };

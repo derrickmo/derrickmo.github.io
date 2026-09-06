@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "activation-patching",
       "attention-rollout",
       "saliency"
-    ]
+    ],
+    "demoTitles": {
+      "probing-classifier": "Linear Probing by Layer",
+      "activation-patching": "Activation Patching (Causal Tracing)",
+      "attention-rollout": "Attention Rollout",
+      "saliency": "Saliency Maps"
+    }
   }
 };

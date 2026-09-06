@@ -272,6 +272,12 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "embeddings",
       "lr-schedule"
-    ]
+    ],
+    "demoTitles": {
+      "diffusion": "Diffusion Sampler",
+      "classification-metrics": "Classification Metrics",
+      "embeddings": "Embedding Atlas",
+      "lr-schedule": "Learning-Rate Schedules"
+    }
   }
 };

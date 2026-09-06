@@ -237,6 +237,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "neural-playground",
       "backprop"
-    ]
+    ],
+    "demoTitles": {
+      "neural-playground": "Neural Playground",
+      "backprop": "Backprop Graph"
+    }
   }
 };

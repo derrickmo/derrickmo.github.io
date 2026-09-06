@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "sparse-autoencoder",
       "pca",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "superposition": "Toy Model of Superposition",
+      "sparse-autoencoder": "Sparse Autoencoders (Superposition)",
+      "pca": "Principal Component Analysis",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

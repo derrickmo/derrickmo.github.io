@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "kalman-filter",
       "dtw",
       "aliasing"
-    ]
+    ],
+    "demoTitles": {
+      "forecasting": "Time-Series Forecasting",
+      "kalman-filter": "Kalman Filter",
+      "dtw": "Dynamic Time Warping",
+      "aliasing": "Aliasing & Nyquist"
+    }
   }
 };

@@ -236,6 +236,11 @@ window.DM_LESSON_BODIES = {
       "word2vec",
       "embeddings",
       "vector-search"
-    ]
+    ],
+    "demoTitles": {
+      "word2vec": "word2vec (Skip-gram)",
+      "embeddings": "Embedding Atlas",
+      "vector-search": "Vector Search"
+    }
   }
 };

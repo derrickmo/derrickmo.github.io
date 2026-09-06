@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

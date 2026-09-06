@@ -240,6 +240,12 @@ window.DM_LESSON_BODIES = {
       "pruning",
       "distillation",
       "convolution"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity",
+      "distillation": "Knowledge Distillation",
+      "convolution": "Convolution Lab"
+    }
   }
 };

@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "tokenizer",
       "beam-search",
       "convolution"
-    ]
+    ],
+    "demoTitles": {
+      "decoding": "Decoding Strategies",
+      "tokenizer": "Tokenizer Lab",
+      "beam-search": "Beam Search Tree",
+      "convolution": "Convolution Lab"
+    }
   }
 };

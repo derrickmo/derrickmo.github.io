@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "contrastive-learning",
       "vector-search",
       "knn"
-    ]
+    ],
+    "demoTitles": {
+      "embeddings": "Embedding Atlas",
+      "contrastive-learning": "Contrastive Learning",
+      "vector-search": "Vector Search",
+      "knn": "k-Nearest Neighbors"
+    }
   }
 };

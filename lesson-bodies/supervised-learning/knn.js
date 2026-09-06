@@ -235,6 +235,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "knn"
-    ]
+    ],
+    "demoTitles": {
+      "knn": "k-Nearest Neighbors"
+    }
   }
 };

@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "embeddings",
       "contrastive-learning"
-    ]
+    ],
+    "demoTitles": {
+      "vector-search": "Vector Search",
+      "embeddings": "Embedding Atlas",
+      "contrastive-learning": "Contrastive Learning"
+    }
   }
 };

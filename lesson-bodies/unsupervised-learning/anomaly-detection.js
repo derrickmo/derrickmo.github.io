@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "dbscan",
       "kernel-density"
-    ]
+    ],
+    "demoTitles": {
+      "dbscan": "DBSCAN",
+      "kernel-density": "Kernel Density Estimation"
+    }
   }
 };

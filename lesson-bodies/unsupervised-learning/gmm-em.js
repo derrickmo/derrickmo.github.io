@@ -236,6 +236,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "gmm",
       "kmeans"
-    ]
+    ],
+    "demoTitles": {
+      "gmm": "Gaussian Mixtures & EM",
+      "kmeans": "K-Means Clustering"
+    }
   }
 };

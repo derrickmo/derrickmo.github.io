@@ -270,6 +270,12 @@ window.DM_LESSON_BODIES = {
       "pca",
       "quantization",
       "pruning"
-    ]
+    ],
+    "demoTitles": {
+      "lora": "LoRA - Low-Rank Adaptation",
+      "pca": "Principal Component Analysis",
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity"
+    }
   }
 };

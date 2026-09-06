@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "attention",
       "paged-attention",
       "kv-cache"
-    ]
+    ],
+    "demoTitles": {
+      "attention": "Attention Heatmap",
+      "paged-attention": "PagedAttention",
+      "kv-cache": "KV Cache"
+    }
   }
 };

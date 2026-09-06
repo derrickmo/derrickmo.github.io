@@ -243,6 +243,11 @@ window.DM_LESSON_BODIES = {
       "adversarial-examples",
       "certified-robustness",
       "saliency"
-    ]
+    ],
+    "demoTitles": {
+      "adversarial-examples": "Adversarial Examples (FGSM / PGD)",
+      "certified-robustness": "Certified Robustness (Randomized Smoothing)",
+      "saliency": "Saliency Maps"
+    }
   }
 };

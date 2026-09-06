@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "kalman-filter",
       "markov",
       "drift-detection"
-    ]
+    ],
+    "demoTitles": {
+      "forecasting": "Time-Series Forecasting",
+      "kalman-filter": "Kalman Filter",
+      "markov": "Markov Text Generator",
+      "drift-detection": "Data Drift Detection"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "count-min-sketch",
       "reservoir-sampling",
       "importance-sampling"
-    ]
+    ],
+    "demoTitles": {
+      "bloom-filter": "Bloom Filter",
+      "count-min-sketch": "Count-Min Sketch",
+      "reservoir-sampling": "Reservoir Sampling",
+      "importance-sampling": "Importance Sampling"
+    }
   }
 };

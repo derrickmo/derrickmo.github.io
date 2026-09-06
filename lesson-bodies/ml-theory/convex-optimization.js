@@ -237,6 +237,13 @@ window.DM_LESSON_BODIES = {
       "coordinate-descent",
       "ista",
       "l-bfgs"
-    ]
+    ],
+    "demoTitles": {
+      "gradient-descent": "Gradient Descent",
+      "newton-vs-gradient": "Newton vs Gradient Descent",
+      "coordinate-descent": "Coordinate Descent",
+      "ista": "ISTA / Proximal Gradient (L1)",
+      "l-bfgs": "L-BFGS (Quasi-Newton)"
+    }
   }
 };

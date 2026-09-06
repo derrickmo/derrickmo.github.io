@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "dpo",
       "fairness",
       "guardrails"
-    ]
+    ],
+    "demoTitles": {
+      "reward-model": "Reward Model (RLHF)",
+      "dpo": "DPO vs RLHF",
+      "fairness": "Fairness & Group Metrics",
+      "guardrails": "Guardrails"
+    }
   }
 };

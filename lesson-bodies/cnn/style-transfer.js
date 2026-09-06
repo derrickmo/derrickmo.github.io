@@ -233,6 +233,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "convolution",
       "fourier"
-    ]
+    ],
+    "demoTitles": {
+      "convolution": "Convolution Lab",
+      "fourier": "Fourier Series"
+    }
   }
 };

@@ -273,6 +273,12 @@ window.DM_LESSON_BODIES = {
       "vae",
       "embeddings",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "gan": "GAN 2-D",
+      "vae": "Variational Autoencoder",
+      "embeddings": "Embedding Atlas",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

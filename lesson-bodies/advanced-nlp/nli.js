@@ -264,6 +264,12 @@ window.DM_LESSON_BODIES = {
       "probing-classifier",
       "calibration",
       "embeddings"
-    ]
+    ],
+    "demoTitles": {
+      "classification-metrics": "Classification Metrics",
+      "probing-classifier": "Linear Probing by Layer",
+      "calibration": "Model Calibration",
+      "embeddings": "Embedding Atlas"
+    }
   }
 };

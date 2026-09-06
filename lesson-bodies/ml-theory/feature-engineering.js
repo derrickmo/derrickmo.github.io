@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "pca",
       "embeddings",
       "regression"
-    ]
+    ],
+    "demoTitles": {
+      "pca": "Principal Component Analysis",
+      "embeddings": "Embedding Atlas",
+      "regression": "Linear & Logistic Regression"
+    }
   }
 };

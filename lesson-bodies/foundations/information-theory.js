@@ -240,6 +240,17 @@ window.DM_LESSON_BODIES = {
         "url": "https://arxiv.org/abs/cond-mat/0305641"
       }
     ],
-    "demos": []
+    "demos": [
+      "cross-entropy",
+      "huffman-coding",
+      "mutual-information",
+      "channel-capacity"
+    ],
+    "demoTitles": {
+      "cross-entropy": "Cross-Entropy Loss",
+      "huffman-coding": "Huffman Coding & Entropy",
+      "mutual-information": "Mutual Information vs Correlation",
+      "channel-capacity": "Channel Capacity"
+    }
   }
 };

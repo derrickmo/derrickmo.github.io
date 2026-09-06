@@ -234,6 +234,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "rnn-gates"
-    ]
+    ],
+    "demoTitles": {
+      "rnn-gates": "LSTM Gates"
+    }
   }
 };

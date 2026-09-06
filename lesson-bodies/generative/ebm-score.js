@@ -272,6 +272,12 @@ window.DM_LESSON_BODIES = {
       "kernel-density",
       "diffusion",
       "importance-sampling"
-    ]
+    ],
+    "demoTitles": {
+      "mcmc": "MCMC (Metropolis)",
+      "kernel-density": "Kernel Density Estimation",
+      "diffusion": "Diffusion Sampler",
+      "importance-sampling": "Importance Sampling"
+    }
   }
 };

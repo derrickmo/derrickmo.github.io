@@ -241,6 +241,15 @@ window.DM_LESSON_BODIES = {
         "url": "https://www.nature.com/articles/s41586-020-2649-2"
       }
     ],
-    "demos": []
+    "demos": [
+      "broadcasting",
+      "float-precision",
+      "matmul"
+    ],
+    "demoTitles": {
+      "broadcasting": "Broadcasting",
+      "float-precision": "Floating-Point Precision",
+      "matmul": "Matrix Multiplication"
+    }
   }
 };

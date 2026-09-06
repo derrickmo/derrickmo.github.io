@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "calibration",
       "conformal",
       "mc-dropout"
-    ]
+    ],
+    "demoTitles": {
+      "calibration": "Model Calibration",
+      "conformal": "Conformal Prediction",
+      "mc-dropout": "MC Dropout"
+    }
   }
 };

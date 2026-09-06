@@ -245,6 +245,10 @@ window.DM_LESSON_BODIES = {
     "demos": [
       "backprop",
       "gradient-descent"
-    ]
+    ],
+    "demoTitles": {
+      "backprop": "Backprop Graph",
+      "gradient-descent": "Gradient Descent"
+    }
   }
 };

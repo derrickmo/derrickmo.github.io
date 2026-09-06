@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "kv-cache",
       "kv-cache-eviction",
       "speculative-decoding"
-    ]
+    ],
+    "demoTitles": {
+      "paged-attention": "PagedAttention",
+      "kv-cache": "KV Cache",
+      "kv-cache-eviction": "KV-Cache Eviction",
+      "speculative-decoding": "Speculative Decoding"
+    }
   }
 };

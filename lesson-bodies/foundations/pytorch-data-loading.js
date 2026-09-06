@@ -231,6 +231,11 @@ window.DM_LESSON_BODIES = {
         "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.FashionMNIST.html"
       }
     ],
-    "demos": []
+    "demos": [
+      "reservoir-sampling"
+    ],
+    "demoTitles": {
+      "reservoir-sampling": "Reservoir Sampling"
+    }
   }
 };

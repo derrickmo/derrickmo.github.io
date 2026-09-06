@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "rope",
       "positional-encoding",
       "context-extension"
-    ]
+    ],
+    "demoTitles": {
+      "rope": "RoPE Explorer",
+      "positional-encoding": "Positional Encoding",
+      "context-extension": "Context Extension"
+    }
   }
 };

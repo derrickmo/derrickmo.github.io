@@ -174,6 +174,7 @@ window.DM_LESSON_BODIES = {
         "url": "https://arxiv.org/abs/1704.04503"
       }
     ],
-    "demos": []
+    "demos": [],
+    "demoTitles": {}
   }
 };

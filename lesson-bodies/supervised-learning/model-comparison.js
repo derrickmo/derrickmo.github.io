@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "cross-validation",
       "bias-variance-decomp",
       "classification-metrics"
-    ]
+    ],
+    "demoTitles": {
+      "cross-validation": "Cross-Validation",
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "classification-metrics": "Classification Metrics"
+    }
   }
 };

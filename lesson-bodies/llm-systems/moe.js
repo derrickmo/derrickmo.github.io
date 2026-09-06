@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "mixture-of-depths",
       "batching",
       "model-cascade"
-    ]
+    ],
+    "demoTitles": {
+      "moe": "Mixture of Experts (MoE)",
+      "mixture-of-depths": "Mixture-of-Depths",
+      "batching": "Dynamic Batching",
+      "model-cascade": "Model Cascade (Early-Exit)"
+    }
   }
 };

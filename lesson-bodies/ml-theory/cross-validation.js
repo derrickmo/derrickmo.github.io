@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "cross-validation",
       "overfitting",
       "bias-variance-decomp"
-    ]
+    ],
+    "demoTitles": {
+      "cross-validation": "Cross-Validation",
+      "overfitting": "Overfitting Lab",
+      "bias-variance-decomp": "Bias-Variance Decomposition"
+    }
   }
 };

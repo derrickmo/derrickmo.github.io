@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "rag-reranker",
       "roc"
-    ]
+    ],
+    "demoTitles": {
+      "pagerank": "PageRank",
+      "vector-search": "Vector Search",
+      "rag-reranker": "RAG Reranker",
+      "roc": "ROC, PR & Thresholds"
+    }
   }
 };

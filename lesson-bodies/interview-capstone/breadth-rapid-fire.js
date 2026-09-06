@@ -285,6 +285,12 @@ window.DM_LESSON_BODIES = {
       "overfitting",
       "cross-validation",
       "roc"
-    ]
+    ],
+    "demoTitles": {
+      "bias-variance-decomp": "Bias-Variance Decomposition",
+      "overfitting": "Overfitting Lab",
+      "cross-validation": "Cross-Validation",
+      "roc": "ROC, PR & Thresholds"
+    }
   }
 };

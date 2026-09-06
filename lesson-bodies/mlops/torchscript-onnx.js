@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "mixed-precision",
       "batching",
       "model-cascade"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "mixed-precision": "Mixed Precision",
+      "batching": "Dynamic Batching",
+      "model-cascade": "Model Cascade (Early-Exit)"
+    }
   }
 };

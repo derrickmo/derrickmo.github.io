@@ -478,8 +478,13 @@ function PrevNext() {
 }
 
 // ─── Store-authored body renderer (Phase C) ───────────────────
+// The body bundle now carries the real registry title of every demo the lesson names
+// (gen-lesson-pages embeds only those, so the 76 kB registry still never reaches a lesson
+// page). This slug fallback stays for a bundle generated before that change - it title-cases,
+// which is why an ML page could read "Mle" or "Dqn" and why the titles are the right source.
 const DEMO_ACRONYMS = { roc: "ROC", svm: "SVM", knn: "kNN", pr: "PR", glm: "GLM", rbf: "RBF", pca: "PCA", knn2: "kNN" };
-const demoLabel = (slug) =>
+const demoLabel = (slug, titles) =>
+  (titles && titles[slug]) ||
   slug.split("-").map((w) => DEMO_ACRONYMS[w] || w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
 function StoreLessonBody({ data }) {
@@ -488,6 +493,7 @@ function StoreLessonBody({ data }) {
   const cards = data.flashcards || [];
   const refs = data.refs || [];
   const demos = data.demos || [];
+  const demoTitles = data.demoTitles || {};
   const linkOf = (ref) => {
     if (!ref) return null;
     const [ms] = ref.split("/");
@@ -566,7 +572,7 @@ function StoreLessonBody({ data }) {
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               {demos.map((slug, i) => (
                 <li key={i} style={{ margin: "6px 0" }}>
-                  <a href={`${BASE}visualize/${slug}/`} style={{ color: "var(--blue-lt)" }}>{demoLabel(slug)}</a>
+                  <a href={`${BASE}visualize/${slug}/`} style={{ color: "var(--blue-lt)" }}>{demoLabel(slug, demoTitles)}</a>
                 </li>
               ))}
             </ul>

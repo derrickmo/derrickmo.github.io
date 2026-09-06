@@ -235,6 +235,11 @@ window.DM_LESSON_BODIES = {
       "nms",
       "template-matching",
       "convolution"
-    ]
+    ],
+    "demoTitles": {
+      "nms": "IoU & Non-Max Suppression",
+      "template-matching": "Template Matching (NCC)",
+      "convolution": "Convolution Lab"
+    }
   }
 };

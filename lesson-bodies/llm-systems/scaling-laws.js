@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "batching",
       "lr-schedule",
       "moe"
-    ]
+    ],
+    "demoTitles": {
+      "scaling-laws": "Neural Scaling Laws",
+      "batching": "Dynamic Batching",
+      "lr-schedule": "Learning-Rate Schedules",
+      "moe": "Mixture of Experts (MoE)"
+    }
   }
 };

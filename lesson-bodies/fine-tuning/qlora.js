@@ -270,6 +270,12 @@ window.DM_LESSON_BODIES = {
       "mixed-precision",
       "lora",
       "pruning"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "mixed-precision": "Mixed Precision",
+      "lora": "LoRA - Low-Rank Adaptation",
+      "pruning": "Pruning & Sparsity"
+    }
   }
 };

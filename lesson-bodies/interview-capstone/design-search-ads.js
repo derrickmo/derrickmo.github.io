@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "vector-search",
       "calibration",
       "rag-reranker"
-    ]
+    ],
+    "demoTitles": {
+      "pagerank": "PageRank",
+      "vector-search": "Vector Search",
+      "calibration": "Model Calibration",
+      "rag-reranker": "RAG Reranker"
+    }
   }
 };

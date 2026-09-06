@@ -267,6 +267,12 @@ window.DM_LESSON_BODIES = {
       "pruning",
       "distillation",
       "kv-cache"
-    ]
+    ],
+    "demoTitles": {
+      "quantization": "Quantization",
+      "pruning": "Pruning & Sparsity",
+      "distillation": "Knowledge Distillation",
+      "kv-cache": "KV Cache"
+    }
   }
 };

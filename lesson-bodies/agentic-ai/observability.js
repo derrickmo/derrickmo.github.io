@@ -268,6 +268,12 @@ window.DM_LESSON_BODIES = {
       "kv-cache-eviction",
       "tokenizer",
       "react-agent"
-    ]
+    ],
+    "demoTitles": {
+      "kv-cache": "KV Cache",
+      "kv-cache-eviction": "KV-Cache Eviction",
+      "tokenizer": "Tokenizer Lab",
+      "react-agent": "ReAct — Reason + Act"
+    }
   }
 };

@@ -271,6 +271,12 @@ window.DM_LESSON_BODIES = {
       "prioritized-replay",
       "double-q-learning",
       "distributional-rl"
-    ]
+    ],
+    "demoTitles": {
+      "dqn": "Deep Q-Network (DQN)",
+      "prioritized-replay": "Prioritized Experience Replay",
+      "double-q-learning": "Double Q-Learning",
+      "distributional-rl": "Distributional RL (C51)"
+    }
   }
 };

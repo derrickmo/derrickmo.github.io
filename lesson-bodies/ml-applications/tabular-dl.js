@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "bagging-boosting",
       "overfitting",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "decision-tree": "Decision Tree",
+      "bagging-boosting": "Bagging vs Boosting",
+      "overfitting": "Overfitting Lab",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

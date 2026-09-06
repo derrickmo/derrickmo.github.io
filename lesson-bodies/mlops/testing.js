@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "classification-metrics",
       "drift-detection",
       "overfitting"
-    ]
+    ],
+    "demoTitles": {
+      "cross-validation": "Cross-Validation",
+      "classification-metrics": "Classification Metrics",
+      "drift-detection": "Data Drift Detection",
+      "overfitting": "Overfitting Lab"
+    }
   }
 };

@@ -237,6 +237,11 @@ window.DM_LESSON_BODIES = {
       "regression",
       "classification-metrics",
       "roc"
-    ]
+    ],
+    "demoTitles": {
+      "regression": "Linear & Logistic Regression",
+      "classification-metrics": "Classification Metrics",
+      "roc": "ROC, PR & Thresholds"
+    }
   }
 };

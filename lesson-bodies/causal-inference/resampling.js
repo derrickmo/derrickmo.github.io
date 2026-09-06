@@ -287,6 +287,12 @@ window.DM_LESSON_BODIES = {
       "reservoir-sampling",
       "importance-sampling",
       "cross-validation"
-    ]
+    ],
+    "demoTitles": {
+      "clt": "Central Limit Theorem",
+      "reservoir-sampling": "Reservoir Sampling",
+      "importance-sampling": "Importance Sampling",
+      "cross-validation": "Cross-Validation"
+    }
   }
 };

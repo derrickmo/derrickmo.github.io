@@ -286,6 +286,12 @@ window.DM_LESSON_BODIES = {
       "saliency",
       "decision-tree",
       "bagging-boosting"
-    ]
+    ],
+    "demoTitles": {
+      "shap": "Feature Attribution (SHAP)",
+      "saliency": "Saliency Maps",
+      "decision-tree": "Decision Tree",
+      "bagging-boosting": "Bagging vs Boosting"
+    }
   }
 };

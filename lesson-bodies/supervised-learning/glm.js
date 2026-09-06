@@ -235,6 +235,9 @@ window.DM_LESSON_BODIES = {
     ],
     "demos": [
       "regression"
-    ]
+    ],
+    "demoTitles": {
+      "regression": "Linear & Logistic Regression"
+    }
   }
 };

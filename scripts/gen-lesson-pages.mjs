@@ -93,17 +93,32 @@ if (drillTotal) console.log(`flagship drill layers:  ${drillTotal} across ${Obje
 // window.DM_LESSON_BODIES[lessonSlug] and needs no edit.
 mkdirSync(join(ROOT, "lesson-bodies"), { recursive: true });
 const bodyHref = (mslug, lslug) => `lesson-bodies/${mslug}/${lslug}.js`;
+
+// The "Try it interactively" block used to title-case the slug, because a lesson page
+// deliberately does NOT load the 76 kB play-demos.js registry. That gave an ML curriculum
+// links reading "Mle", "Dqn", "Ppo", "Vae", "Mcmc", "Tsne" and "L Bfgs" - an acronym map in
+// lesson-app.jsx covered 7 tokens against ~30 in use. Embedding just the titles a lesson
+// actually references costs a few dozen bytes and cannot drift, since it is regenerated from
+// the registry every time.
+const DEMO_TITLES = (() => {
+  const w = {};
+  new Function("window", readFileSync(join(ROOT, "play-demos.js"), "utf8"))(w);
+  return Object.fromEntries((w.PLAY_DEMOS?.demos || []).map((d) => [d.slug, d.title]));
+})();
+const titlesFor = (slugs) => Object.fromEntries(slugs.filter((s) => DEMO_TITLES[s]).map((s) => [s, DEMO_TITLES[s]]));
 let bodyFiles = 0;
 for (const slug of [...new Set([...Object.keys(authored), ...Object.keys(drill)])].sort()) {
   mkdirSync(join(ROOT, "lesson-bodies", slug), { recursive: true });
   const entries = [];
   for (const l of (authored[slug] || []).sort((a, b) => a.id.localeCompare(b.id))) {
-    entries.push([l, { level: l.level, body: l.body, interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] }]);
+    const ds = l.surfaces?.demos || [];
+    entries.push([l, { level: l.level, body: l.body, interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: ds, demoTitles: titlesFor(ds) }]);
   }
   // drill-only entries: NO body and NO level, so lesson-app's hasStoreBody() stays
   // false and the flagship keeps its own outline + body.
   for (const l of (drill[slug] || []).sort((a, b) => a.id.localeCompare(b.id))) {
-    entries.push([l, { interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: l.surfaces?.demos || [] }]);
+    const ds2 = l.surfaces?.demos || [];
+    entries.push([l, { interview: l.interview, flashcards: l.flashcards, refs: l.refs, demos: ds2, demoTitles: titlesFor(ds2) }]);
   }
   for (const [l, payload] of entries) {
     const js = `// GENERATED from content/lessons/${slug}/${l.slug}.json by scripts/gen-lesson-pages.mjs — DO NOT EDIT.
