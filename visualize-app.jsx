@@ -2838,7 +2838,7 @@ function Demos() {
                     <span style={{ flex: 1, height: 1, background: "var(--border)", opacity: 0.4 }} />
                   </div>
                   {cat.why && (
-                    <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, maxWidth: 820 }}>{cat.why}</div>
+                    <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, maxWidth: 620 }}>{cat.why}</div>
                   )}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 14 }}>
