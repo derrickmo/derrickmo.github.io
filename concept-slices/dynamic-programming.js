@@ -82,6 +82,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "complexity-growth"
+    },
+    {
+      "kind": "demo",
       "slug": "integral-image"
     },
     {

@@ -131,6 +131,10 @@ window.CONCEPT_REVERSE = {
       "slug": "instrumental-variables"
     },
     {
+      "kind": "demo",
+      "slug": "hypothesis-test"
+    },
+    {
       "kind": "module",
       "slug": "causal-inference"
     }

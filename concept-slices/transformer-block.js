@@ -132,7 +132,7 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "hf",
-      "slug": "nlp"
+      "slug": "fundamentals"
     },
     {
       "kind": "hf",

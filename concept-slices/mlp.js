@@ -337,6 +337,14 @@ window.CONCEPT_REVERSE = {
       "slug": "dqn"
     },
     {
+      "kind": "demo",
+      "slug": "broadcasting"
+    },
+    {
+      "kind": "demo",
+      "slug": "matmul"
+    },
+    {
       "kind": "game",
       "slug": "neuroevolution"
     },

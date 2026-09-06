@@ -94,6 +94,10 @@ window.CONCEPT_REVERSE = {
       "slug": "naive-bayes"
     },
     {
+      "kind": "demo",
+      "slug": "mle"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     },
@@ -122,6 +126,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "regression"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     },
     {
       "kind": "demo",

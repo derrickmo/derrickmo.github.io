@@ -156,6 +156,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "batch-norm"
+    },
+    {
+      "kind": "demo",
+      "slug": "broadcasting"
     }
   ]
 };

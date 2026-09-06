@@ -94,6 +94,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "max-flow"
+    },
+    {
+      "kind": "demo",
+      "slug": "eigenvectors"
     }
   ]
 };

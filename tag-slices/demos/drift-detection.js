@@ -95,6 +95,14 @@ window.CONCEPT_REVERSE = {
       "slug": "drift-detection"
     },
     {
+      "kind": "demo",
+      "slug": "bootstrap"
+    },
+    {
+      "kind": "demo",
+      "slug": "hypothesis-test"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     }

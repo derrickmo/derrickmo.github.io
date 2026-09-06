@@ -275,7 +275,7 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "hf",
-      "slug": "vision"
+      "slug": "computer-vision"
     }
   ]
 };

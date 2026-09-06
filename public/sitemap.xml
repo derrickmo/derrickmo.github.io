@@ -693,6 +693,7 @@
   <url><loc>https://derrickmo.github.io/visualize/bias-variance-decomp/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bilateral-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bloom-filter/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/bootstrap/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/branch-and-bound/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/broadcasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
@@ -757,6 +758,7 @@
   <url><loc>https://derrickmo.github.io/visualize/hough-transform/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/huffman-coding/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/hyde/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/hypothesis-test/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/image-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/image-pyramids/</loc><priority>0.6</priority></url>
@@ -789,6 +791,7 @@
   <url><loc>https://derrickmo.github.io/visualize/mfcc/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mixed-precision/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mixture-of-depths/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/mle/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/model-cascade/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/moe/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/morphological-ops/</loc><priority>0.6</priority></url>

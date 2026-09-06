@@ -150,6 +150,14 @@ window.CONCEPT_REVERSE = {
       "slug": "pagerank"
     },
     {
+      "kind": "demo",
+      "slug": "matmul"
+    },
+    {
+      "kind": "demo",
+      "slug": "eigenvectors"
+    },
+    {
       "kind": "module",
       "slug": "unsupervised-learning"
     }

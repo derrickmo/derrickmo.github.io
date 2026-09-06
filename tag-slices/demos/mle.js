@@ -1,29 +1,32 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "naive-bayes" (3), for its Connections panel.
+// Only the concepts tagged to demos "mle" (3), for its Connections panel.
 // Same global names as concepts-index.js, with 185 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "naive-bayes": [
-      "naive-bayes",
+    "mle": [
+      "cross-entropy",
       "bayes",
-      "gmm-em"
+      "logistic-regression"
     ]
   },
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "naive-bayes": {
-    "id": "naive-bayes",
-    "name": "Naive Bayes",
-    "area": "Classical ML",
-    "summary": "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data, high-dimensional-friendly — the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared); the independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident/poorly calibrated.",
-    "tex": "\\hat y = \\arg\\max_c\\; P(c)\\prod_{j} P(x_j \\mid c)",
+  "cross-entropy": {
+    "id": "cross-entropy",
+    "name": "Cross-Entropy",
+    "area": "Information Theory",
+    "summary": "The loss that measures how much a predicted distribution disagrees with the true labels.",
+    "tex": "H(p, q) = -\\sum_i p_i \\log q_i",
     "prereqs": [
-      "bayes"
+      "softmax"
     ],
     "leadsTo": [
-      "svm"
+      "scaling-laws",
+      "bayes",
+      "gan",
+      "logistic-regression"
     ]
   },
   "bayes": {
@@ -48,24 +51,56 @@ window.CONCEPTS_INDEX = {
       "simpsons-paradox"
     ]
   },
-  "gmm-em": {
-    "id": "gmm-em",
-    "name": "Gaussian Mixtures & EM",
+  "logistic-regression": {
+    "id": "logistic-regression",
+    "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
-      "kmeans"
+      "linear-regression",
+      "cross-entropy"
     ],
     "leadsTo": [
-      "vae"
+      "mlp",
+      "probing-classifier",
+      "roc",
+      "reward-model",
+      "calibration",
+      "shap",
+      "active-learning"
     ]
   }
 };
 window.CONCEPT_REVERSE = {
-  "naive-bayes": [
+  "cross-entropy": [
     {
       "kind": "demo",
-      "slug": "naive-bayes"
+      "slug": "huffman-coding"
+    },
+    {
+      "kind": "demo",
+      "slug": "roc"
+    },
+    {
+      "kind": "demo",
+      "slug": "bayes"
+    },
+    {
+      "kind": "demo",
+      "slug": "gan"
+    },
+    {
+      "kind": "demo",
+      "slug": "regression"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
+    },
+    {
+      "kind": "demo",
+      "slug": "cross-entropy"
     }
   ],
   "bayes": [
@@ -122,26 +157,34 @@ window.CONCEPT_REVERSE = {
       "slug": "causal-inference"
     }
   ],
-  "gmm-em": [
+  "logistic-regression": [
     {
       "kind": "demo",
-      "slug": "kmeans"
+      "slug": "probing-classifier"
     },
     {
       "kind": "demo",
-      "slug": "gmm"
+      "slug": "regression"
     },
     {
       "kind": "demo",
-      "slug": "vae"
+      "slug": "reward-model"
     },
     {
       "kind": "demo",
-      "slug": "naive-bayes"
+      "slug": "calibration"
     },
     {
-      "kind": "module",
-      "slug": "unsupervised-learning"
+      "kind": "demo",
+      "slug": "shap"
+    },
+    {
+      "kind": "demo",
+      "slug": "active-learning"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     }
   ]
 };

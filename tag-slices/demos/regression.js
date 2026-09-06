@@ -155,6 +155,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "active-learning"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     }
   ],
   "cross-entropy": [
@@ -177,6 +181,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "regression"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     },
     {
       "kind": "demo",

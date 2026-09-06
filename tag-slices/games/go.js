@@ -82,6 +82,10 @@ window.CONCEPT_REVERSE = {
       "slug": "bandit"
     },
     {
+      "kind": "demo",
+      "slug": "hypothesis-test"
+    },
+    {
       "kind": "game",
       "slug": "go"
     },

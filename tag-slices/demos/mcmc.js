@@ -124,6 +124,10 @@ window.CONCEPT_REVERSE = {
       "slug": "naive-bayes"
     },
     {
+      "kind": "demo",
+      "slug": "mle"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     },
@@ -164,6 +168,14 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "drift-detection"
+    },
+    {
+      "kind": "demo",
+      "slug": "bootstrap"
+    },
+    {
+      "kind": "demo",
+      "slug": "hypothesis-test"
     },
     {
       "kind": "module",

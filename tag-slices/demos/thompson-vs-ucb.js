@@ -70,6 +70,10 @@ window.CONCEPT_REVERSE = {
       "slug": "bandit"
     },
     {
+      "kind": "demo",
+      "slug": "hypothesis-test"
+    },
+    {
       "kind": "game",
       "slug": "go"
     },
@@ -118,6 +122,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "naive-bayes"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     },
     {
       "kind": "module",

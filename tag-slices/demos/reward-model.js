@@ -106,6 +106,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "active-learning"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     }
   ],
   "policy-gradient": [

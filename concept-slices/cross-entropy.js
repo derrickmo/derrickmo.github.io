@@ -128,6 +128,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "mle"
+    },
+    {
+      "kind": "demo",
       "slug": "cross-entropy"
     }
   ]

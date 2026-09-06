@@ -300,8 +300,16 @@ window.CONCEPT_REVERSE = {
       "slug": "mixed-precision"
     },
     {
+      "kind": "demo",
+      "slug": "float-precision"
+    },
+    {
       "kind": "module",
       "slug": "frontier-frameworks"
+    },
+    {
+      "kind": "hf",
+      "slug": "best-practices"
     }
   ]
 };

@@ -79,6 +79,10 @@ window.CONCEPT_REVERSE = {
       "slug": "conformal-regression"
     },
     {
+      "kind": "demo",
+      "slug": "bootstrap"
+    },
+    {
       "kind": "module",
       "slug": "trustworthy-ai"
     }

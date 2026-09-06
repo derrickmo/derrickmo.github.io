@@ -273,7 +273,7 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "hf",
-      "slug": "advanced"
+      "slug": "nlp"
     }
   ]
 };

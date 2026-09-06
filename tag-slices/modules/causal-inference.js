@@ -104,6 +104,10 @@ window.CONCEPT_REVERSE = {
       "slug": "instrumental-variables"
     },
     {
+      "kind": "demo",
+      "slug": "hypothesis-test"
+    },
+    {
       "kind": "module",
       "slug": "causal-inference"
     }
@@ -172,6 +176,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "naive-bayes"
+    },
+    {
+      "kind": "demo",
+      "slug": "mle"
     },
     {
       "kind": "module",

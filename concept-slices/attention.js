@@ -249,6 +249,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "hf",
+      "slug": "fundamentals"
+    },
+    {
+      "kind": "hf",
       "slug": "nlp"
     }
   ]

@@ -82,7 +82,7 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "hf",
-      "slug": "production"
+      "slug": "best-practices"
     }
   ]
 };

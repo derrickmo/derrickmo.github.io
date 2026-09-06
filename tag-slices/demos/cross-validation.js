@@ -64,6 +64,10 @@ window.CONCEPT_REVERSE = {
       "slug": "cross-validation"
     },
     {
+      "kind": "demo",
+      "slug": "bootstrap"
+    },
+    {
       "kind": "module",
       "slug": "interview-capstone"
     }
