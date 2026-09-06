@@ -1,10 +1,10 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "backprop" (2), for its Connections panel.
+// Only the concepts tagged to demos "autodiff" (2), for its Connections panel.
 // Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "backprop": [
+    "autodiff": [
       "backprop",
       "chain-rule"
     ]

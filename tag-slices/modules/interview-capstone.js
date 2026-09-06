@@ -167,6 +167,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "complexity-growth"
+    },
+    {
+      "kind": "demo",
       "slug": "integral-image"
     },
     {
@@ -190,6 +194,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "bfs-dfs-astar"
+    },
+    {
+      "kind": "demo",
+      "slug": "complexity-growth"
     },
     {
       "kind": "module",

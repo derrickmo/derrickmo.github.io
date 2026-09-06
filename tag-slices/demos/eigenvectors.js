@@ -1,11 +1,10 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "isomap" (3), for its Connections panel.
-// Same global names as concepts-index.js, with 185 fewer concepts in them.
+// Only the concepts tagged to demos "eigenvectors" (2), for its Connections panel.
+// Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "isomap": [
-      "manifold-learning",
+    "eigenvectors": [
       "pca",
       "spectral-clustering"
     ]
@@ -13,18 +12,6 @@ window.CONCEPT_TAGS = {
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "manifold-learning": {
-    "id": "manifold-learning",
-    "name": "Manifold Learning (Isomap)",
-    "area": "Classical ML",
-    "summary": "Nonlinear dimensionality reduction that assumes data lies on a low-dimensional manifold curved through a high-D space. Isomap measures GEODESIC distance (shortest path through a k-NN graph) instead of straight-line distance, then runs classical MDS (double-center the squared-distance matrix, take top eigenvectors) to embed while preserving global geometry. Unrolls swiss-roll-like structure that PCA folds. Hinges on the neighborhood graph: too-large k or noise creates short-circuit edges, too-small k disconnects it. Cousin of LLE, Laplacian eigenmaps, and spectral methods; t-SNE/UMAP instead preserve local neighborhoods.",
-    "tex": "B = -\\tfrac{1}{2} J D_{geo}^2 J,\\quad Y = \\text{top eigenvectors}(B)",
-    "prereqs": [
-      "pca",
-      "spectral-clustering"
-    ],
-    "leadsTo": []
-  },
   "pca": {
     "id": "pca",
     "name": "PCA / SVD",
@@ -58,12 +45,6 @@ window.CONCEPTS_INDEX = {
   }
 };
 window.CONCEPT_REVERSE = {
-  "manifold-learning": [
-    {
-      "kind": "demo",
-      "slug": "isomap"
-    }
-  ],
   "pca": [
     {
       "kind": "demo",

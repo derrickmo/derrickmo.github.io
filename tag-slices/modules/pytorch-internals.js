@@ -77,6 +77,10 @@ window.CONCEPT_REVERSE = {
       "slug": "saliency"
     },
     {
+      "kind": "demo",
+      "slug": "autodiff"
+    },
+    {
       "kind": "module",
       "slug": "neural-nets"
     },
@@ -89,6 +93,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "backprop"
+    },
+    {
+      "kind": "demo",
+      "slug": "autodiff"
     },
     {
       "kind": "module",

@@ -61,6 +61,10 @@ window.CONCEPT_REVERSE = {
       "slug": "bfs-dfs-astar"
     },
     {
+      "kind": "demo",
+      "slug": "complexity-growth"
+    },
+    {
       "kind": "module",
       "slug": "interview-capstone"
     }

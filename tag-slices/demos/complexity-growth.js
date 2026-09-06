@@ -1,11 +1,10 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "branch-and-bound" (3), for its Connections panel.
-// Same global names as concepts-index.js, with 185 fewer concepts in them.
+// Only the concepts tagged to demos "complexity-growth" (2), for its Connections panel.
+// Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "branch-and-bound": [
-      "branch-and-bound",
+    "complexity-growth": [
       "dynamic-programming",
       "graph-search"
     ]
@@ -13,18 +12,6 @@ window.CONCEPT_TAGS = {
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "branch-and-bound": {
-    "id": "branch-and-bound",
-    "name": "Branch & Bound",
-    "area": "Algorithms",
-    "summary": "Exact search over a combinatorial decision tree that prunes provably-hopeless subtrees. At each node compute an optimistic bound (e.g. the LP / fractional relaxation for knapsack); if it can't beat the best complete solution found so far (the incumbent), discard the subtree unopened. Still worst-case exponential, but bound tightness and branching order decide how much it prunes in practice. The engine inside integer-programming solvers (branch-and-cut) and game-tree alpha-beta.",
-    "tex": "\\text{prune if } \\mathrm{bound}(node) \\le \\text{incumbent}",
-    "prereqs": [
-      "dynamic-programming",
-      "graph-search"
-    ],
-    "leadsTo": []
-  },
   "dynamic-programming": {
     "id": "dynamic-programming",
     "name": "Dynamic Programming",
@@ -55,12 +42,6 @@ window.CONCEPTS_INDEX = {
   }
 };
 window.CONCEPT_REVERSE = {
-  "branch-and-bound": [
-    {
-      "kind": "demo",
-      "slug": "branch-and-bound"
-    }
-  ],
   "dynamic-programming": [
     {
       "kind": "demo",

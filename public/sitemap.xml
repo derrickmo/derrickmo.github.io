@@ -678,6 +678,7 @@
   <url><loc>https://derrickmo.github.io/visualize/aliasing/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/attention-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/attention/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/autodiff/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/autoscaling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/backprop/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bagging-boosting/</loc><priority>0.6</priority></url>
@@ -700,6 +701,7 @@
   <url><loc>https://derrickmo.github.io/visualize/channel-capacity/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/classification-metrics/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/clt/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/complexity-growth/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/conformal-regression/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/conformal/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/conjugate-updating/</loc><priority>0.6</priority></url>
@@ -730,6 +732,7 @@
   <url><loc>https://derrickmo.github.io/visualize/dyna-q/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/edge-detection/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/edit-distance/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/eigenvectors/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/embeddings/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fairness/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/float-precision/</loc><priority>0.6</priority></url>

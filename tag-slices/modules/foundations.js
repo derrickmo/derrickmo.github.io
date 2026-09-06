@@ -195,6 +195,10 @@ window.CONCEPT_REVERSE = {
       "slug": "backprop"
     },
     {
+      "kind": "demo",
+      "slug": "autodiff"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     },

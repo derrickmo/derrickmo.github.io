@@ -79,6 +79,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "max-flow"
+    },
+    {
+      "kind": "demo",
+      "slug": "eigenvectors"
     }
   ],
   "kmeans": [
@@ -139,6 +143,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "matmul"
+    },
+    {
+      "kind": "demo",
+      "slug": "eigenvectors"
     },
     {
       "kind": "module",

@@ -103,6 +103,10 @@ window.CONCEPT_REVERSE = {
       "slug": "matmul"
     },
     {
+      "kind": "demo",
+      "slug": "eigenvectors"
+    },
+    {
       "kind": "module",
       "slug": "unsupervised-learning"
     }
