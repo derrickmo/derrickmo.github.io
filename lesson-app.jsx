@@ -509,7 +509,7 @@ function StoreLessonBody({ data }) {
                 them are sentences (median 260 chars, max 587), and unconstrained they ran
                 1280px -- 1.78x wider than the paragraphs they annotate. */}
             {m.texNote && (
-              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, textAlign: "center", margin: "-8px auto 20px", maxWidth: 720 }}>
+              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, textAlign: "center", margin: "-8px auto 20px", maxWidth: 720, textTransform: "none", letterSpacing: "0.01em" }}>
                 {m.texNote}
               </p>
             )}
@@ -526,7 +526,7 @@ function StoreLessonBody({ data }) {
             {/* maxWidth 720 = the prose column, same reason as the math note above:
                 a caption should not be wider than the paragraphs it sits among. */}
             {c.caption && (
-              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, margin: "-8px 0 20px", maxWidth: 720 }}>{c.caption}</p>
+              <p className="t-mono-s" style={{ color: "var(--muted)", fontSize: 11, margin: "-8px 0 20px", maxWidth: 720, textTransform: "none", letterSpacing: "0.01em" }}>{c.caption}</p>
             )}
           </div>
         ))}
