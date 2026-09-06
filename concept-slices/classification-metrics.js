@@ -109,6 +109,10 @@ window.CONCEPT_REVERSE = {
       "slug": "classification-metrics"
     },
     {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
       "kind": "module",
       "slug": "interview-capstone"
     }

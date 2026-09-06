@@ -66,6 +66,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "hmm-viterbi"
+    },
+    {
+      "kind": "demo",
+      "slug": "ctc-alignment"
     }
   ],
   "markov": [

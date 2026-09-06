@@ -93,6 +93,10 @@ window.CONCEPT_REVERSE = {
       "slug": "fairness"
     },
     {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
       "kind": "module",
       "slug": "supervised-learning"
     }
@@ -121,6 +125,14 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "mc-dropout"
+    },
+    {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
+      "kind": "demo",
+      "slug": "train-serve-skew"
     },
     {
       "kind": "module",

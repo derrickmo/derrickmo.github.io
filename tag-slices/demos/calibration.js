@@ -96,6 +96,14 @@ window.CONCEPT_REVERSE = {
       "slug": "mc-dropout"
     },
     {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
+      "kind": "demo",
+      "slug": "train-serve-skew"
+    },
+    {
       "kind": "module",
       "slug": "trustworthy-ai"
     }
@@ -150,6 +158,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "fairness"
+    },
+    {
+      "kind": "demo",
+      "slug": "imbalanced-data"
     },
     {
       "kind": "module",

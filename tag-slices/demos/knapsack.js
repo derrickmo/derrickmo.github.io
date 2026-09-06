@@ -72,6 +72,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "ctc-alignment"
+    },
+    {
+      "kind": "demo",
       "slug": "integral-image"
     },
     {

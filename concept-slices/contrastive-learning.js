@@ -70,6 +70,10 @@ window.CONCEPT_REVERSE = {
       "slug": "contrastive-learning"
     },
     {
+      "kind": "demo",
+      "slug": "gradient-accumulation"
+    },
+    {
       "kind": "module",
       "slug": "multimodal"
     }

@@ -61,6 +61,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "broadcasting"
+    },
+    {
+      "kind": "demo",
+      "slug": "gradient-accumulation"
     }
   ],
   "mlp": [

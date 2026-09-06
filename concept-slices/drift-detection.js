@@ -151,6 +151,10 @@ window.CONCEPT_REVERSE = {
       "slug": "drift-detection"
     },
     {
+      "kind": "demo",
+      "slug": "train-serve-skew"
+    },
+    {
       "kind": "module",
       "slug": "mlops"
     },

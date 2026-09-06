@@ -715,6 +715,7 @@
   <url><loc>https://derrickmo.github.io/visualize/count-min-sketch/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/cross-entropy/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/cross-validation/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/ctc-alignment/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dataset-distillation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/dbscan/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/decision-tree/</loc><priority>0.6</priority></url>
@@ -745,6 +746,7 @@
   <url><loc>https://derrickmo.github.io/visualize/gmm/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gnn/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/grad-cam/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/gradient-accumulation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-clipping/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gradient-descent/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/graph-coloring/</loc><priority>0.6</priority></url>
@@ -762,6 +764,7 @@
   <url><loc>https://derrickmo.github.io/visualize/ica/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/image-augmentation/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/image-pyramids/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/imbalanced-data/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/importance-sampling/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/instrumental-variables/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/integral-image/</loc><priority>0.6</priority></url>
@@ -857,6 +860,7 @@
   <url><loc>https://derrickmo.github.io/visualize/template-matching/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/thompson-vs-ucb/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/tokenizer/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/train-serve-skew/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/tsne/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/vae/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/value-iteration/</loc><priority>0.6</priority></url>

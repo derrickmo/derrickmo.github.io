@@ -148,6 +148,10 @@ window.CONCEPT_REVERSE = {
       "slug": "classification-metrics"
     },
     {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
       "kind": "module",
       "slug": "interview-capstone"
     }
@@ -172,6 +176,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "complexity-growth"
+    },
+    {
+      "kind": "demo",
+      "slug": "ctc-alignment"
     },
     {
       "kind": "demo",

@@ -148,6 +148,10 @@ window.CONCEPT_REVERSE = {
       "slug": "fairness"
     },
     {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
       "kind": "module",
       "slug": "supervised-learning"
     }

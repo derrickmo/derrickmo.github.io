@@ -1,12 +1,13 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "complexity-growth" (2), for its Connections panel.
-// Same global names as concepts-index.js, with 186 fewer concepts in them.
+// Only the concepts tagged to demos "ctc-alignment" (3), for its Connections panel.
+// Same global names as concepts-index.js, with 185 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "complexity-growth": [
+    "ctc-alignment": [
       "dynamic-programming",
-      "graph-search"
+      "beam-search",
+      "hmm-viterbi"
     ]
   },
   "games": {}
@@ -26,19 +27,27 @@ window.CONCEPTS_INDEX = {
       "branch-and-bound"
     ]
   },
-  "graph-search": {
-    "id": "graph-search",
-    "name": "Graph Search (BFS / DFS / A*)",
-    "area": "Algorithms",
-    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+  "beam-search": {
+    "id": "beam-search",
+    "name": "Beam Search",
+    "area": "NLP",
+    "summary": "Keep the top-K partial sequences by total log-probability at every decoding step. Greedy is K=1; bigger K finds higher-probability sentences at multiplied cost.",
     "prereqs": [
-      "search-astar"
+      "decoding"
     ],
-    "leadsTo": [
-      "dijkstra",
-      "max-flow",
-      "branch-and-bound"
-    ]
+    "leadsTo": []
+  },
+  "hmm-viterbi": {
+    "id": "hmm-viterbi",
+    "name": "HMM & the Viterbi Algorithm",
+    "area": "Probability & Bayes",
+    "summary": "A hidden Markov model has latent states that transition over time (Markov) and emit observations; Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It's exact MAP sequence decoding — the discrete-state sibling of the Kalman filter — and powered classical speech recognition, POS tagging, gene finding, and regime detection. Forward-backward gives per-step marginals; Baum-Welch (EM) learns the parameters.",
+    "tex": "\\delta_t(k) = \\max_j\\,[\\delta_{t-1}(j) + \\log A_{j,k}] + \\log B_k(o_t)",
+    "prereqs": [
+      "markov",
+      "bayes"
+    ],
+    "leadsTo": []
   }
 };
 window.CONCEPT_REVERSE = {
@@ -76,30 +85,24 @@ window.CONCEPT_REVERSE = {
       "slug": "interview-capstone"
     }
   ],
-  "graph-search": [
+  "beam-search": [
     {
       "kind": "demo",
-      "slug": "dijkstra"
+      "slug": "beam-search"
     },
     {
       "kind": "demo",
-      "slug": "max-flow"
+      "slug": "ctc-alignment"
+    }
+  ],
+  "hmm-viterbi": [
+    {
+      "kind": "demo",
+      "slug": "hmm-viterbi"
     },
     {
       "kind": "demo",
-      "slug": "branch-and-bound"
-    },
-    {
-      "kind": "demo",
-      "slug": "bfs-dfs-astar"
-    },
-    {
-      "kind": "demo",
-      "slug": "complexity-growth"
-    },
-    {
-      "kind": "module",
-      "slug": "interview-capstone"
+      "slug": "ctc-alignment"
     }
   ]
 };

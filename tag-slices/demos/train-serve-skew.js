@@ -1,28 +1,18 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "canary-rollout" (3), for its Connections panel.
+// Only the concepts tagged to demos "train-serve-skew" (3), for its Connections panel.
 // Same global names as concepts-index.js, with 185 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "canary-rollout": [
-      "canary-rollout",
+    "train-serve-skew": [
       "model-serving",
-      "drift-detection"
+      "drift-detection",
+      "calibration"
     ]
   },
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "canary-rollout": {
-    "id": "canary-rollout",
-    "name": "Canary Rollout & Progressive Delivery",
-    "area": "Training Systems",
-    "summary": "Deploy a new model (or code) safely by exposing it to a small slice of live traffic first and widening only if a health metric stays good: 5% -> 25% -> 50% -> 100%, with an automated guard at each stage. The guard is a statistical test (here a one-sided two-proportion z-test of the canary's error vs the stable baseline) — significantly worse triggers an automatic rollback, capping the blast radius to the few users the canary touched versus a full deploy. Guard sensitivity is a detection tradeoff: too tight rolls back good releases on noise (false alarms), too loose lets a worse model through; and at low canary traffic, small regressions are hard to distinguish from noise (low statistical power). Generalizes to blue/green, feature flags, shadow traffic, and A/B + bandit rollouts.",
-    "prereqs": [
-      "model-serving"
-    ],
-    "leadsTo": []
-  },
   "model-serving": {
     "id": "model-serving",
     "name": "Model Serving & Batching",
@@ -49,19 +39,29 @@ window.CONCEPTS_INDEX = {
       "calibration"
     ],
     "leadsTo": []
+  },
+  "calibration": {
+    "id": "calibration",
+    "name": "Model Calibration",
+    "area": "Evaluation & Calibration",
+    "summary": "Whether a model's confidence scores are honest: a calibrated classifier that says 90% is right 90% of the time. Measured by the reliability diagram and Expected Calibration Error (ECE); modern nets are overconfident, and temperature scaling (divide logits by T) is the standard one-parameter post-hoc fix that leaves predictions unchanged.",
+    "tex": "\\mathrm{ECE} = \\sum_{b} \\frac{n_b}{N} \\,\\bigl| \\mathrm{acc}(b) - \\mathrm{conf}(b) \\bigr|",
+    "prereqs": [
+      "logistic-regression",
+      "roc"
+    ],
+    "leadsTo": [
+      "conformal",
+      "active-learning",
+      "fairness",
+      "distillation",
+      "drift-detection",
+      "mc-dropout",
+      "model-cascade"
+    ]
   }
 };
 window.CONCEPT_REVERSE = {
-  "canary-rollout": [
-    {
-      "kind": "demo",
-      "slug": "canary-rollout"
-    },
-    {
-      "kind": "module",
-      "slug": "mlops"
-    }
-  ],
   "model-serving": [
     {
       "kind": "demo",
@@ -100,6 +100,44 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "module",
       "slug": "mlops"
+    },
+    {
+      "kind": "module",
+      "slug": "trustworthy-ai"
+    }
+  ],
+  "calibration": [
+    {
+      "kind": "demo",
+      "slug": "model-cascade"
+    },
+    {
+      "kind": "demo",
+      "slug": "calibration"
+    },
+    {
+      "kind": "demo",
+      "slug": "conformal"
+    },
+    {
+      "kind": "demo",
+      "slug": "fairness"
+    },
+    {
+      "kind": "demo",
+      "slug": "distillation"
+    },
+    {
+      "kind": "demo",
+      "slug": "mc-dropout"
+    },
+    {
+      "kind": "demo",
+      "slug": "imbalanced-data"
+    },
+    {
+      "kind": "demo",
+      "slug": "train-serve-skew"
     },
     {
       "kind": "module",

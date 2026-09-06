@@ -1,26 +1,26 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "model-cascade" (3), for its Connections panel.
+// Only the concepts tagged to demos "imbalanced-data" (3), for its Connections panel.
 // Same global names as concepts-index.js, with 185 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "model-cascade": [
-      "model-cascade",
+    "imbalanced-data": [
+      "classification-metrics",
       "calibration",
-      "moe"
+      "roc"
     ]
   },
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "model-cascade": {
-    "id": "model-cascade",
-    "name": "Model Cascade & Early-Exit",
-    "area": "Training Systems",
-    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+  "classification-metrics": {
+    "id": "classification-metrics",
+    "name": "Classification Metrics",
+    "area": "Evaluation & Calibration",
+    "summary": "Everything read off the confusion matrix: precision, recall, F1, and the macro/micro/weighted averagings plus F-beta. Accuracy and micro-F1 are dominated by the majority class; macro-F1 exposes weak minority classes. Choosing the metric that matches each error's cost is half of responsible ML.",
+    "tex": "F_\\beta = (1+\\beta^2)\\,\\frac{P\\cdot R}{\\beta^2 P + R}",
     "prereqs": [
-      "calibration",
-      "model-serving"
+      "roc"
     ],
     "leadsTo": []
   },
@@ -44,30 +44,35 @@ window.CONCEPTS_INDEX = {
       "model-cascade"
     ]
   },
-  "moe": {
-    "id": "moe",
-    "name": "Mixture of Experts (MoE)",
-    "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
-    "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
+  "roc": {
+    "id": "roc",
+    "name": "ROC / PR Curves",
+    "area": "Classical ML",
+    "summary": "Slide a threshold across a score model to read off recall, precision, and the threshold-free AUC.",
     "prereqs": [
-      "attention",
-      "scaling-laws"
+      "logistic-regression"
     ],
     "leadsTo": [
-      "mixture-of-depths"
+      "classification-metrics",
+      "calibration",
+      "conformal",
+      "fairness"
     ]
   }
 };
 window.CONCEPT_REVERSE = {
-  "model-cascade": [
+  "classification-metrics": [
     {
       "kind": "demo",
-      "slug": "model-cascade"
+      "slug": "classification-metrics"
+    },
+    {
+      "kind": "demo",
+      "slug": "imbalanced-data"
     },
     {
       "kind": "module",
-      "slug": "mlops"
+      "slug": "interview-capstone"
     }
   ],
   "calibration": [
@@ -108,22 +113,34 @@ window.CONCEPT_REVERSE = {
       "slug": "trustworthy-ai"
     }
   ],
-  "moe": [
+  "roc": [
     {
       "kind": "demo",
-      "slug": "model-cascade"
+      "slug": "classification-metrics"
     },
     {
       "kind": "demo",
-      "slug": "mixture-of-depths"
+      "slug": "roc"
     },
     {
       "kind": "demo",
-      "slug": "moe"
+      "slug": "calibration"
+    },
+    {
+      "kind": "demo",
+      "slug": "conformal"
+    },
+    {
+      "kind": "demo",
+      "slug": "fairness"
+    },
+    {
+      "kind": "demo",
+      "slug": "imbalanced-data"
     },
     {
       "kind": "module",
-      "slug": "frontier-frameworks"
+      "slug": "supervised-learning"
     }
   ]
 };

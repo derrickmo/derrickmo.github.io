@@ -275,6 +275,10 @@ window.CONCEPT_REVERSE = {
       "slug": "float-precision"
     },
     {
+      "kind": "demo",
+      "slug": "gradient-accumulation"
+    },
+    {
       "kind": "module",
       "slug": "pytorch-internals"
     }

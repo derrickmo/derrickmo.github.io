@@ -50,6 +50,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "beam-search"
+    },
+    {
+      "kind": "demo",
+      "slug": "ctc-alignment"
     }
   ]
 };

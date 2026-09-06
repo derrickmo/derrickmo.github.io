@@ -88,6 +88,10 @@ window.CONCEPT_REVERSE = {
       "slug": "canary-rollout"
     },
     {
+      "kind": "demo",
+      "slug": "train-serve-skew"
+    },
+    {
       "kind": "module",
       "slug": "mlops"
     }
@@ -100,6 +104,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "drift-detection"
+    },
+    {
+      "kind": "demo",
+      "slug": "train-serve-skew"
     },
     {
       "kind": "module",
