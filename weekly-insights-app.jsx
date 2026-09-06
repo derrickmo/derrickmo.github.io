@@ -56,7 +56,7 @@ function PatternRow({ label, body, mobile, source }) {
   return (
     <div style={{ marginBottom: 6 }}>
       <span className="t-mono-s" style={{ color: "var(--blue-lt)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", marginRight: 8 }}>{label}</span>
-      <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 14 : 15, lineHeight: 1.6 }}>
+      <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 15 : 17, lineHeight: 1.6 }}>
         {body}{source ? <> <SourceLink source={source} /></> : null}
       </span>
     </div>
@@ -85,7 +85,7 @@ function Bullet({ item, mobile }) {
   return (
     <li style={{ marginBottom: 12, listStyle: "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
       <span style={{ color: "var(--violet-lt)", marginTop: 3, fontSize: 12 }}>▸</span>
-      <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 14 : 15, lineHeight: 1.65 }}>
+      <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 15 : 17, lineHeight: 1.65 }}>
         {item.text} <SourceLink source={item.source} />
       </span>
     </li>

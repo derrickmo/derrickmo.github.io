@@ -34,7 +34,7 @@ function SegmentedControl({ label, options, value, onChange, tone = "blue", help
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {label && <span className="t-mono-s" style={{ color: "var(--muted)" }}>{label}<HelpTip text={help} /></span>}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, border: "1px solid var(--border)", borderRadius: 6, padding: 4 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: 4 }}>
         {options.map(o => {
           const active = o.value === value;
           return (
@@ -64,7 +64,7 @@ function Toggle({ label, checked, onChange, tone = "blue", help }) {
     <button onClick={() => onChange(!checked)}
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        gap: 12, padding: "10px 12px", borderRadius: 6, cursor: "pointer",
+        gap: 12, padding: "10px 12px", borderRadius: "var(--r-md)", cursor: "pointer",
         border: "1px solid var(--border)", background: "rgba(13,24,52,0.4)", width: "100%",
       }}>
       <span className="t-mono-s" style={{ color: "var(--muted)" }}>{label}<HelpTip text={help} /></span>
@@ -133,7 +133,7 @@ function StatReadout({ label, value, accent = "var(--blue-lt)" }) {
     // are two separate spans on screen, which reads as two loose strings to a screen
     // reader, so the pair is also carried on the container as one string.
     <div data-dm-stat={`${label}: ${value}`} style={{
-      padding: "12px 14px", border: "1px solid var(--border)", borderRadius: 6,
+      padding: "12px 14px", border: "1px solid var(--border)", borderRadius: "var(--r-md)",
       background: "rgba(13,24,52,0.4)", display: "flex", flexDirection: "column", gap: 4,
     }}>
       <span className="t-mono-s" style={{ color: "var(--muted)", fontSize: 10 }}>{label}</span>
@@ -166,7 +166,7 @@ function TextField({ label, value, onChange, placeholder, rows = 2, tone = "blue
         className="t-body"
         style={{
           resize: "vertical", width: "100%", boxSizing: "border-box",
-          padding: "10px 12px", borderRadius: 6, border: "1px solid var(--border)",
+          padding: "10px 12px", borderRadius: "var(--r-md)", border: "1px solid var(--border)",
           background: "rgba(5,8,22,0.6)", color: "var(--white)", fontSize: 14,
           fontFamily: "var(--f-body)", outline: "none", lineHeight: 1.4,
         }}

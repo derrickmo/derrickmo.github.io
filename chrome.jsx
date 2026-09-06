@@ -381,7 +381,7 @@ function CommandPalette({ open, setOpen }) {
               onMouseEnter={() => setSel(i)}
               style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
-                padding: "11px 14px", borderRadius: 6, textDecoration: "none",
+                padding: "11px 14px", borderRadius: "var(--r-md)", textDecoration: "none",
                 background: i === sel ? "rgba(59,130,246,0.14)" : "transparent",
                 border: `1px solid ${i === sel ? "var(--border-strong)" : "transparent"}`,
               }}>
@@ -547,7 +547,7 @@ function TopNav() {
           </a>
           {mobile ? (
             <button aria-label="Menu" aria-expanded={open} onClick={() => setOpen(o => !o)}
-              style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer", width: 40, height: 36, display: "flex", flexDirection: "column", gap: 4, justifyContent: "center", alignItems: "center" }}>
+              style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: "var(--r-md)", cursor: "pointer", width: 40, height: 36, display: "flex", flexDirection: "column", gap: 4, justifyContent: "center", alignItems: "center" }}>
               {[0, 1, 2].map(i => <span key={i} style={{ width: 18, height: 2, background: "var(--blue-lt)", display: "block" }} />)}
             </button>
           ) : (
@@ -572,10 +572,10 @@ function TopNav() {
         <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(5,8,22,0.97)", backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", padding: 20 }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button aria-label="Close menu" onClick={() => setOpen(false)}
-              style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: 6, color: "var(--white)", fontSize: 22, lineHeight: 1, width: 40, height: 40, cursor: "pointer" }}>×</button>
+              style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: "var(--r-md)", color: "var(--white)", fontSize: 22, lineHeight: 1, width: 40, height: 40, cursor: "pointer" }}>×</button>
           </div>
           <button onClick={() => { setOpen(false); setCmdOpen(true); }} className="t-mono-s"
-            style={{ marginTop: 24, padding: "12px 16px", textAlign: "left", border: "1px solid var(--border)", borderRadius: 6, background: "rgba(13,24,52,0.5)", color: "var(--muted)", cursor: "pointer", width: "100%" }}>
+            style={{ marginTop: 24, padding: "12px 16px", textAlign: "left", border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "rgba(13,24,52,0.5)", color: "var(--muted)", cursor: "pointer", width: "100%" }}>
             SEARCH EVERYTHING →
           </button>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 18, alignItems: "flex-start" }}>

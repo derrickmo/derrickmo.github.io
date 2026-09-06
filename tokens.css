@@ -67,15 +67,25 @@
   --f-mono:    "JetBrains Mono", ui-monospace, monospace;
 
   /* ---------- Spacing & radius ----------
-     ⚠ ALL THREE ARE UNUSED (0 var() references across 1,976 files, measured
-     2026-09-05). The radius actually shipped is a literal 6px, in 58 places,
-     which matches none of them -- so this is a declared scale the site does
-     not follow, not a system. Left in place rather than deleted because the
-     honest fix is to pick one and adopt it; deleting would just hide the
-     question. Do not "fix" a component to match these without changing all 58. */
-  --r-sm: 4px;
-  --r-md: 8px;
-  --r-lg: 14px;
+     ⚠ CORRECTED 2026-09-06. An earlier note here claimed "the radius actually
+     shipped is a literal 6px, in 58 places, which matches none of them". Both
+     halves were wrong -- the count matched `borderRadius: 6` as a PREFIX, and
+     it never checked the other values. Re-measured with a word boundary:
+
+         borderRadius: 4  -> 234 uses    <- the site's dominant radius
+         borderRadius: 6  -> 107 uses
+         borderRadius: 8  ->  63 uses
+         borderRadius: 10 ->   7,  12 -> 1,  14 -> 0
+
+     So the scale was never fiction: 4 and 8 were exactly right. The real gaps
+     were that 6px -- the second most-used value -- had no token, and that the
+     old --r-lg: 14px described nothing at all. Retuned to the measured 4/6/8.
+     Adopted in chrome.jsx and components/controls.jsx (8 sites, all already 6px,
+     so zero visual change); the ~99 per-demo literals are deliberately left --
+     that is a codemod with no visual gain, the same trade CQ-0002 was declined on. */
+  --r-sm: 4px;   /* chips, small buttons, inputs        (234 uses) */
+  --r-md: 6px;   /* cards, panels, canvases             (107 uses) */
+  --r-lg: 8px;   /* large surfaces, modals              ( 63 uses) */
 }
 
 /* ============================================================
