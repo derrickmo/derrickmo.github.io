@@ -75,6 +75,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "batch-norm"
+    },
+    {
+      "kind": "demo",
+      "slug": "broadcasting"
     }
   ],
   "activations": [
@@ -135,6 +139,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "dqn"
+    },
+    {
+      "kind": "demo",
+      "slug": "broadcasting"
     },
     {
       "kind": "game",

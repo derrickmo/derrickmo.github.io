@@ -1281,6 +1281,7 @@ const CONCEPT_TAGS = {
     // The 7 CV-queue demos + cross-entropy. These shipped untagged, so their
     // Connections panel was empty and no concept page linked to them; the
     // 8-touchpoint recipe never included this file. See audit-demos check 8.
+    "broadcasting":         ["batch-norm", "mlp"],
     "cross-entropy":        ["cross-entropy", "softmax", "entropy"],
     "ransac":               ["linear-regression", "hough-transform"],
     "bilateral-filter":     ["convolution", "edge-detection"],

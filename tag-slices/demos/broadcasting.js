@@ -1,23 +1,25 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to games "neuroevolution" (2), for its Connections panel.
+// Only the concepts tagged to demos "broadcasting" (2), for its Connections panel.
 // Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
-  "demos": {},
-  "games": {
-    "neuroevolution": [
-      "neuroevolution",
+  "demos": {
+    "broadcasting": [
+      "batch-norm",
       "mlp"
     ]
-  }
+  },
+  "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "neuroevolution": {
-    "id": "neuroevolution",
-    "name": "Neuroevolution",
-    "area": "Reinforcement Learning",
-    "summary": "Improve a neural-net policy by selection + crossover + mutation, no gradients required.",
+  "batch-norm": {
+    "id": "batch-norm",
+    "name": "Batch Normalization",
+    "area": "Neural Networks",
+    "summary": "Re-standardizes each feature across the mini-batch before the nonlinearity, then rescales/shifts with learnable γ, β. Keeps activation distributions stable across depth regardless of the weights above, which smooths the loss landscape and lets you train deeper nets at higher learning rates. Behaves differently at train (batch stats) vs inference (running averages) and degrades with small batches — motivating LayerNorm/RMSNorm in sequence models and large transformers.",
+    "tex": "\\hat z = \\frac{z - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}, \\quad y = \\gamma\\hat z + \\beta",
     "prereqs": [
+      "activations",
       "mlp"
     ],
     "leadsTo": []
@@ -51,14 +53,14 @@ window.CONCEPTS_INDEX = {
   }
 };
 window.CONCEPT_REVERSE = {
-  "neuroevolution": [
+  "batch-norm": [
     {
-      "kind": "game",
-      "slug": "neuroevolution"
+      "kind": "demo",
+      "slug": "batch-norm"
     },
     {
-      "kind": "game",
-      "slug": "self-driving"
+      "kind": "demo",
+      "slug": "broadcasting"
     }
   ],
   "mlp": [

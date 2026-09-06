@@ -693,6 +693,7 @@
   <url><loc>https://derrickmo.github.io/visualize/bilateral-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/bloom-filter/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/branch-and-bound/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/broadcasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/calibration/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/canary-rollout/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/certified-robustness/</loc><priority>0.6</priority></url>
