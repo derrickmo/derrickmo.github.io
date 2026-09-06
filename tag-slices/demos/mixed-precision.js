@@ -46,6 +46,10 @@ window.CONCEPT_REVERSE = {
       "slug": "mixed-precision"
     },
     {
+      "kind": "demo",
+      "slug": "float-precision"
+    },
+    {
       "kind": "module",
       "slug": "pytorch-internals"
     }
@@ -58,6 +62,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "mixed-precision"
+    },
+    {
+      "kind": "demo",
+      "slug": "float-precision"
     },
     {
       "kind": "module",

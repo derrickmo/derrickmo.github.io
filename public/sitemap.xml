@@ -732,6 +732,7 @@
   <url><loc>https://derrickmo.github.io/visualize/edit-distance/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/embeddings/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fairness/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/float-precision/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/forecasting/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/fourier/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/gae/</loc><priority>0.6</priority></url>
@@ -776,6 +777,7 @@
   <url><loc>https://derrickmo.github.io/visualize/louvain/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/lr-schedule/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/markov/</loc><priority>0.6</priority></url>
+  <url><loc>https://derrickmo.github.io/visualize/matmul/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/max-entropy-rl/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/max-flow/</loc><priority>0.6</priority></url>
   <url><loc>https://derrickmo.github.io/visualize/mc-dropout/</loc><priority>0.6</priority></url>

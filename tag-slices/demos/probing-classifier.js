@@ -124,6 +124,10 @@ window.CONCEPT_REVERSE = {
       "slug": "broadcasting"
     },
     {
+      "kind": "demo",
+      "slug": "matmul"
+    },
+    {
       "kind": "game",
       "slug": "neuroevolution"
     },

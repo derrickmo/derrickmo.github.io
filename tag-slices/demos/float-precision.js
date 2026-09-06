@@ -1,27 +1,27 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to hf "best-practices" (2), for its Connections panel.
+// Only the concepts tagged to demos "float-precision" (2), for its Connections panel.
 // Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
-  "hf": {
-    "best-practices": [
-      "scaling-laws",
+  "demos": {
+    "float-precision": [
+      "mixed-precision",
       "quantization"
     ]
-  }
+  },
+  "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "scaling-laws": {
-    "id": "scaling-laws",
-    "name": "Neural Scaling Laws",
+  "mixed-precision": {
+    "id": "mixed-precision",
+    "name": "Mixed-Precision Training",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Train in 16-bit (fp16/bf16) for speed and memory while keeping an fp32 master copy of weights. fp16's narrow exponent range makes small gradients underflow and large ones overflow, so loss scaling multiplies the loss (and gradients) into the representable window and unscales before the step. bf16 keeps fp32's range (no scaling) at the cost of mantissa bits.",
     "prereqs": [
-      "cross-entropy"
+      "backprop",
+      "quantization"
     ],
-    "leadsTo": [
-      "moe"
-    ]
+    "leadsTo": []
   },
   "quantization": {
     "id": "quantization",
@@ -40,26 +40,18 @@ window.CONCEPTS_INDEX = {
   }
 };
 window.CONCEPT_REVERSE = {
-  "scaling-laws": [
+  "mixed-precision": [
     {
       "kind": "demo",
-      "slug": "scaling-laws"
+      "slug": "mixed-precision"
     },
     {
       "kind": "demo",
-      "slug": "moe"
+      "slug": "float-precision"
     },
     {
       "kind": "module",
-      "slug": "training-systems"
-    },
-    {
-      "kind": "module",
-      "slug": "llm-systems"
-    },
-    {
-      "kind": "hf",
-      "slug": "best-practices"
+      "slug": "pytorch-internals"
     }
   ],
   "quantization": [

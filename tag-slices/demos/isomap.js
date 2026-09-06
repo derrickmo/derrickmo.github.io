@@ -94,6 +94,10 @@ window.CONCEPT_REVERSE = {
       "slug": "pagerank"
     },
     {
+      "kind": "demo",
+      "slug": "matmul"
+    },
+    {
       "kind": "module",
       "slug": "unsupervised-learning"
     }

@@ -1,28 +1,32 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to demos "broadcasting" (2), for its Connections panel.
+// Only the concepts tagged to demos "matmul" (2), for its Connections panel.
 // Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {
-    "broadcasting": [
-      "batch-norm",
+    "matmul": [
+      "pca",
       "mlp"
     ]
   },
   "games": {}
 };
 window.CONCEPTS_INDEX = {
-  "batch-norm": {
-    "id": "batch-norm",
-    "name": "Batch Normalization",
-    "area": "Neural Networks",
-    "summary": "Re-standardizes each feature across the mini-batch before the nonlinearity, then rescales/shifts with learnable γ, β. Keeps activation distributions stable across depth regardless of the weights above, which smooths the loss landscape and lets you train deeper nets at higher learning rates. Behaves differently at train (batch stats) vs inference (running averages) and degrades with small batches — motivating LayerNorm/RMSNorm in sequence models and large transformers.",
-    "tex": "\\hat z = \\frac{z - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}, \\quad y = \\gamma\\hat z + \\beta",
-    "prereqs": [
-      "activations",
-      "mlp"
+  "pca": {
+    "id": "pca",
+    "name": "PCA / SVD",
+    "area": "Classical ML",
+    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "leadsTo": [
+      "embeddings",
+      "lora",
+      "tsne",
+      "ica",
+      "manifold-learning",
+      "harris-corners",
+      "spectral-clustering"
     ],
-    "leadsTo": []
+    "prereqs": []
   },
   "mlp": {
     "id": "mlp",
@@ -53,14 +57,42 @@ window.CONCEPTS_INDEX = {
   }
 };
 window.CONCEPT_REVERSE = {
-  "batch-norm": [
+  "pca": [
     {
       "kind": "demo",
-      "slug": "batch-norm"
+      "slug": "pca"
     },
     {
       "kind": "demo",
-      "slug": "broadcasting"
+      "slug": "ica"
+    },
+    {
+      "kind": "demo",
+      "slug": "tsne"
+    },
+    {
+      "kind": "demo",
+      "slug": "isomap"
+    },
+    {
+      "kind": "demo",
+      "slug": "lora"
+    },
+    {
+      "kind": "demo",
+      "slug": "spectral-clustering"
+    },
+    {
+      "kind": "demo",
+      "slug": "pagerank"
+    },
+    {
+      "kind": "demo",
+      "slug": "matmul"
+    },
+    {
+      "kind": "module",
+      "slug": "unsupervised-learning"
     }
   ],
   "mlp": [

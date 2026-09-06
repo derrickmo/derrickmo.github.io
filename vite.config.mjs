@@ -496,6 +496,8 @@ export default defineConfig({
         'visualize-mutual-information': 'visualize/mutual-information/index.html',
         'visualize-channel-capacity': 'visualize/channel-capacity/index.html',
         'visualize-broadcasting': 'visualize/broadcasting/index.html',
+        'visualize-matmul': 'visualize/matmul/index.html',
+        'visualize-float-precision': 'visualize/float-precision/index.html',
         'visualize-cross-entropy': 'visualize/cross-entropy/index.html',
         'visualize-huffman-coding': 'visualize/huffman-coding/index.html',
         'visualize-classification-metrics': 'visualize/classification-metrics/index.html',
