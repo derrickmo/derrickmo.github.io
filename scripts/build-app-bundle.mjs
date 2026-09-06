@@ -37,7 +37,7 @@
 // `body: null` with `bodyOn: "web"` and a deep link, rather than pretending. APP-HANDOFF §5's
 // "every topic has a lesson" box is therefore NOT met, and this script says so out loud.
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, statSync, existsSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -108,16 +108,21 @@ const categories = PLAY_DEMOS.categories.map((c) => ({
   name: c.name, why: c.why,
   demos: c.slugs.filter((s) => demoBySlug[s]),
 }));
+// APP-HANDOFF §2: the app shows a still + "open interactive on web". Those stills are
+// COMMITTED assets, not a build step, because producing them needs a browser and CI has none
+// — scripts/capture-thumbs.mjs exports them. Emit the path only when the file really exists,
+// the same no-op idiom set-og-images.mjs uses: a missing thumb is a null the app falls back
+// on, never a URL that 404s into a broken image.
+const thumbOf = (slug) => (existsSync(R(`public/thumbs/${slug}.webp`)) ? `/thumbs/${slug}.webp` : null);
 const demos = PLAY_DEMOS.demos.map((d) => ({
   slug: d.slug, title: d.title, topic: d.topic, blurb: d.blurb, status: d.status,
   lesson: d.lesson ? "/" + d.lesson : null,
   web: `/visualize/${d.slug}/`,
-  // Thumbnails are APP-HANDOFF §5's last unchecked box. Emit null rather than a path that
-  // would 404 — an invented URL is the easiest self-inflicted broken image.
-  thumb: null,
+  thumb: thumbOf(d.slug),
 }));
 const games = (PLAY_GAMES?.games || []).map((g) => ({
   slug: g.slug, title: g.title, status: g.status, web: `/play/${g.slug}/`,
+  thumb: thumbOf(g.slug),
 }));
 
 // ── paths ───────────────────────────────────────────────────────────────────
@@ -175,6 +180,7 @@ mkdirSync(join(outDir, "modules"), { recursive: true });
 const counts = {
   modules: modules.length, topics: stubs.length, concepts: concepts.length,
   demos: demos.length, games: games.length, paths: paths.length,
+  thumbs: demos.filter((d) => d.thumb).length + games.filter((g) => g.thumb).length,
   topicsWithBundledBody: stubs.filter((s) => s.bodyOn === "bundle").length,
   topicsBodyOnWeb: stubs.filter((s) => s.bodyOn === "web").length,
   questions: stubs.reduce((a, s) => a + s.counts.quick + s.counts.standard + s.counts.deep, 0),
@@ -236,6 +242,7 @@ console.log(`  ${String(modules.length).padStart(2)} module shards ${mb(shardTot
 console.log(`  COLD START   manifest + the largest module = ${kb(of("manifest.json").gz + biggest.gz)} over the wire`);
 console.log(`  FULL OFFLINE ${mb(written.reduce((a, w) => a + w.bytes, 0))} raw / ${mb(written.reduce((a, w) => a + w.gz, 0))} gz`);
 console.log(`  roadmap: ${roadmap.lessons.nodes.length} lesson nodes / ${roadmap.lessons.edges.length} edges · ${roadmap.concepts.nodes.length} concept nodes / ${roadmap.concepts.edges.length} edges`);
+console.log(`  thumbnails: ${demos.filter((d) => d.thumb).length}/${demos.length} demos, ${games.filter((g) => g.thumb).length}/${games.length} games`);
 if (counts.topicsBodyOnWeb) {
   console.log(`  ⚠ ${counts.topicsBodyOnWeb} topics carry NO body (bodySource "jsx" — flagship prose lives in the site's .jsx). Shipped as bodyOn:"web" + a deep link.`);
 }

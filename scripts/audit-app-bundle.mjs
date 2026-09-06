@@ -228,8 +228,21 @@ if (bodyless.length !== KNOWN_BODYLESS) {
     (bodyless.length > KNOWN_BODYLESS ? "A NEW one has appeared." : "Fewer than expected — update KNOWN_BODYLESS.")
   );
 }
-const noThumb = catalog.demos.filter((d) => !d.thumb).length;
-if (noThumb) warn(`${noThumb} of ${catalog.demos.length} demos have no thumbnail (APP-HANDOFF §5's last unchecked box)`);
+// A thumb path is a promise about a file. Check both directions: every declared path must
+// exist, and a demo whose file exists must not be advertising null.
+let thumbBad = 0, thumbHave = 0;
+for (const d of [...catalog.demos, ...catalog.games]) {
+  const onDisk = existsSync(R(`public/thumbs/${d.slug}.webp`));
+  if (d.thumb) {
+    thumbHave++;
+    if (!onDisk) { thumbBad++; err(`${d.slug}: thumb "${d.thumb}" does not exist on disk`); }
+    if (d.thumb !== `/thumbs/${d.slug}.webp`) err(`${d.slug}: thumb path is not the conventional /thumbs/<slug>.webp`);
+  } else if (onDisk) {
+    err(`${d.slug}: a thumbnail exists on disk but the bundle advertises null`);
+  }
+}
+const noThumb = catalog.demos.length + catalog.games.length - thumbHave;
+if (noThumb) warn(`${noThumb} of ${catalog.demos.length + catalog.games.length} demos/games have no thumbnail — all DOM-rendered, so there is no canvas to capture`);
 
 // ── report ──────────────────────────────────────────────────────────────────
 const kb = (b) => (b / 1024).toFixed(0) + " KB";
@@ -239,7 +252,8 @@ console.log(`  no fork  ${manifest.topics.length} topics, ${bodiesChecked} bodie
 if (version.counts) console.log(`  corpus   ${version.counts.questions} questions / ${version.counts.cards} cards, cross-checked against the site's own interview index`);
 console.log(`  links    ${webChecked} web paths resolved (${webBad} bad) · prereqs, demos, path steps, roadmap edges all internal`);
 console.log(`  budget   cold ${kb(coldGz)} gz (ceiling ${kb(COLD_CEILING)}) · full ${(totalBytes / 1024 / 1024).toFixed(2)} MB (ceiling ${(TOTAL_CEILING / 1024 / 1024).toFixed(0)} MB)`);
-console.log(`  gaps     ${bodyless.length} body-less topics (known flagship set), ${noThumb} demos without a thumbnail`);
+console.log(`  thumbs   ${thumbHave} declared, ${thumbBad} broken, ${noThumb} absent (DOM-rendered, no canvas)`);
+console.log(`  gaps     ${bodyless.length} body-less topics (known flagship set)`);
 if (VERBOSE && bodyless.length) console.log("           " + bodyless.join(", "));
 warns.forEach((m) => console.log("  ~ " + m));
 if (errors.length) {

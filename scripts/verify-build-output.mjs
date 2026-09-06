@@ -175,6 +175,15 @@ if (!existsSync(appVer)) {
     for (const f of ["catalog.json", "paths.json", "roadmap.json", "concepts.json"]) {
       if (!existsSync(join(DIST, "app", f))) problems.push("app/" + f + " is missing from dist/");
     }
+    // Thumbnails are committed assets that Vite copies from public/. A declared thumb that
+    // did not reach dist/ is a broken image in the app, on a device, after a release.
+    const cat = existsSync(join(DIST, "app", "catalog.json")) ? JSON.parse(readFileSync(join(DIST, "app", "catalog.json"), "utf8")) : null;
+    if (cat) {
+      const declared = [...cat.demos, ...cat.games].filter((d) => d.thumb);
+      const gone = declared.filter((d) => !existsSync(join(DIST, d.thumb.replace(/^\//, ""))));
+      if (gone.length) problems.push(gone.length + " declared thumbnail(s) missing from dist/: " + gone.slice(0, 3).map((d) => d.slug).join(", "));
+      note("app thumbnails: " + declared.length + " declared, all present in dist/");
+    }
     note("app bundle: contentVersion " + v.contentVersion + ", " + v.counts.topics + " topics, " + man.modules.length + " shards");
   }
 }
