@@ -30,6 +30,113 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-09-06",
+    range: "August 31 to September 6, 2026",
+    tldr: [
+      "Watchlist resolution. Qwen3.8-27B's Qwen Cloud API remains unresolved (three weeks). vLLM's Kimi K3 DCP benchmarks still \"in progress\" (fourth week). OpenAI's Private Safety Processing white paper on track for September.",
+      "Claude Fable 5.1 (Sept 1): input/output pricing unchanged ($10/$50 per Mtok), cache-read drops 75% to $0.25 per Mtok. Adaptive thinking improves hard-problem performance (Terminal Bench Science up to 52.6 from 24.7). Code security false positives drop 60%.",
+      "Gemini 3.8 Flash (Sept 2): built on 3.7 Flash (not new base), beats 3.7 on every benchmark and Claude Opus 5 on three. Multimodal, 1M context, 64K output. Pricing unchanged until Jan 1 2027 ($0.75/$3.75 per Mtok, then doubles). Gemini 3.8 Flash Cyber: security-focused sibling.",
+      "Muse Spark 1.3 (Sept 2): Meta's fourth release in five months. Reaches 62 on Artificial Analysis Intelligence Index (behind only Fable 5.1, Opus 5). Significant gains on agentic and scientific tasks. $1.25/$4.25 per Mtok on xhigh tier.",
+      "Post-training methods converge: GRPO (on-policy, no critic) is dominant in 2026. DPO/KTO/SimPO (off-policy, static data) bounded by dataset quality. Unified theory (arXiv 2510.00977) shows GRPO and DPO converge under certain conditions. MCP ecosystem hits ~500M Tier-1 SDK downloads/month; 2026-07-28 spec introduces stateless core, multi-round requests, formal extensions."
+    ],
+    sections: [
+      {
+        header: "// ACADEMIC RESEARCH",
+        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
+        items: [
+          {
+            whatsNew: "Nothing material this week. Recent speculative decoding papers (DSpark, Cross-Attention variants, Vision Is Not Overhead block drafting for VLMs) predate the window; arXiv September 2026 submissions are early and unvetted.",
+            howItWorks: "Monitoring for knowledge distillation mid-training effects (reasoning vs. factual recall tradeoff) and hierarchical RL credit assignment papers expected mid-September.",
+            impact: "Watch arXiv mid-September for speculative decoding and reasoning papers.",
+            source: { label: "arXiv.org September 2026", url: "https://arxiv.org/list/cs.AI/2026-09" },
+          },
+        ],
+      },
+      {
+        header: "// INDUSTRY PRACTICES",
+        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
+        items: [
+          {
+            title: "Claude Fable 5.1: 75% cache-read cost cut and deeper reasoning on harder problems",
+            whatsNew: "Anthropic released Claude Fable 5.1 on September 1, 2026. Input and output token pricing remain at $10/$50 per million tokens. Prompt-cache read pricing dropped 75 percent from $1.00 to $0.25 per million cached tokens, cutting total cost by ~25% for typical workloads and up to 45% for agentic use. Adaptive thinking (internal reasoning) is always-on; Terminal Bench Science score improved to 52.6 from Fable 5's 24.7. Code security false positives dropped ~60%.",
+            howItWorks: "Fable 5.1 is a capability update within the Fable line, not a new model. The cache-read pricing reduction directly incentivizes prompt caching, essential for agentic and long-context tasks that reuse context prefixes (system prompts, retrieved documents, tool-use traces). Reasoning improvements are internal: the adaptive thinking mechanism burns more tokens on harder problems, delivering better coverage on longer-horizon tasks. Security false-positive reduction suggests fine-tuning of instruction-following and internal reward signals governing safety flags.",
+            impact: "For teams running agentic work that already use prompt caching (cache_control parameter on Claude API), the 75% cache-read reduction is a direct cost cut with no code changes. For teams not yet using caching, this is the inflection point to adopt it: break-even on cache overhead is now at as few as 128-256 additional cached tokens. If deploying Claude Fable 5.1 for code understanding or linting, the 60% false-positive reduction on security checks is worth re-tuning alert thresholds on existing deployments, since actionable alerts will drop significantly.",
+            source: { label: "Anthropic: Claude Fable 5.1 Release", url: "https://www.anthropic.com/news/claude-fable-51" },
+          },
+          {
+            title: "Gemini 3.8 Flash: capability gains from deeper reasoning on 3.7 base",
+            whatsNew: "Google released Gemini 3.8 Flash on September 2, 2026. Built on Gemini 3.7 Flash architecture (not a new base model), deliberately designed to \"work harder\" by consuming more thinking tokens internally. Multimodal (text, image, audio, video, PDF), 1M-token context, 64K max output. Beats Gemini 3.7 Flash on every published benchmark and Claude Opus 5 on three (math, code, reasoning). Pricing identical to 3.7 Flash: $0.75 input / $3.75 output per million tokens (doubles Jan 1, 2027). Security-focused variant, Gemini 3.8 Flash Cyber, launched for red-teaming and security engineering.",
+            howItWorks: "Rather than retraining the base model, Google applied post-training adjustments to increase internal reasoning depth (adaptive thinking, similar to Fable 5.1). Model is tuned to spend more inference-time tokens on harder reasoning problems, prioritizing accuracy over efficiency on those trajectories. Google explicitly frames this: stay on 3.7 Flash if efficiency is your priority; switch to 3.8 Flash if accuracy on hard problems matters more.",
+            impact: "For teams evaluating upgrade from 3.7 Flash to 3.8 Flash, cost is zero (identical pricing through Dec 31 2026) but tradeoff is latency: deeper reasoning means more thinking tokens, higher TTFT and overall latency. Measure your p95 latencies before switching in production. Published benchmark wins (beating Opus 5 on three tasks) are reference points; verify against your own evals before committing traffic. Cyber variant is worth benchmarking against your red-team prompts if running security-focused workloads.",
+            source: { label: "Google: Gemini 3.8 Flash Launch", url: "https://blog.google/technology/ai/gemini-3-8-flash/" },
+          },
+          {
+            title: "Muse Spark 1.3: agentic and scientific capability gains, parity with GPT-5.6",
+            whatsNew: "Meta released Muse Spark 1.3 on September 2, 2026, fourth release in five months. Multimodal (text, image, video), 1M-token context. On Artificial Analysis Intelligence Index, max variant scores 62 (behind only Claude Fable 5.1 and Opus 5), xhigh tier scores 61 (tied with GPT-5.6 Sol max and Grok 4.6 high). Primary gains in agentic work and scientific reasoning. Pricing on xhigh: $1.25 input / $4.25 output per million tokens.",
+            howItWorks: "Muse Spark 1.3 is a capability update within the Spark line (incremental from 1.2, not new base). Improvements come from post-training adjustments targeting long-horizon agentic tasks (planning, tool orchestration, iterative problem solving) and scientific reasoning (math, symbolic manipulation, proof verification). This reflects industry shift toward agent-centric benchmarks.",
+            impact: "Muse Spark 1.3 reaches parity with GPT-5.6 Sol and Grok 4.6 on intelligence benchmarks and surpasses them on agentic-specific evals. For teams on Muse Spark 1.2, 1.3 is drop-in replacement at identical pricing. For teams evaluating multi-model inference, xhigh tier at 61 on AA Index puts Muse Spark 1.3 in \"capable enough for long-horizon agent work\" category without frontier-model cost. Verify against your own agentic evals (tool correctness, planning depth, trace quality) before committing production traffic.",
+            source: { label: "Meta: Introducing Muse Spark 1.3", url: "https://research.meta.ai/blog/introducing-muse-spark-1-3/" },
+          },
+          {
+            title: "Post-training methods converge: GRPO on-policy, DPO off-policy, unified theory",
+            whatsNew: "Industry and research consensus on post-training has solidified into a two-stage pipeline: (1) supervised fine-tuning (SFT) on diverse instruction data, then (2) alignment via GRPO (on-policy) or DPO/KTO/SimPO variants (off-policy, static data). GRPO (Group Relative Policy Optimization) dominates for on-policy work in 2026: no separate critic network (unlike PPO), cutting memory cost in half and simplifying stability. Recent research (arXiv 2510.00977, \"It Takes Two: Your GRPO Is Secretly DPO\") unifies PPO, DPO, and GRPO theoretically, showing surprising structural similarities.",
+            howItWorks: "GRPO operates by comparing responses within a batch (group) without maintaining separate value critic as PPO does. Policy gradient is computed directly from relative ranking of responses within that batch. DPO and variants (KTO, SimPO) skip RL loop entirely: take fixed preference dataset (human rankings or LLM-generated contrasts) and directly optimize policy to match preferences via maximum likelihood. Recent unification work shows that under certain conditions, GRPO and DPO converge on same gradient signal, explaining why both work well despite different formulations.",
+            impact: "If building post-training pipeline for your own model, consensus pipeline is: (1) gather 100K-1M diverse instruction examples, SFT for 2-3 epochs; (2) gather or generate 10K-100K preference pairs, choose GRPO or DPO. GRPO is lower total cost (single model, simpler infrastructure) but requires online rollout (sample generation during training). DPO is simpler (static dataset, embarrassingly parallel) but quality-bounded by preference dataset. For reasoning models (math, code, long-horizon tasks), RLVR plus DPO/GRPO is emerging standard (DeepSeek R1 approach). Reward hacking mitigation (Preference As Reward) is now standard consideration. Unification result (GRPO = DPO under specific conditions) suggests mixing methods or using whichever fits your infrastructure is safe.",
+            source: { label: "arXiv:2510.00977", url: "https://arxiv.org/abs/2510.00977" },
+          },
+          {
+            title: "Model Context Protocol reaches 500M monthly Tier-1 SDK downloads; stateless core and formal extensions",
+            whatsNew: "MCP ecosystem crossed ~500 million monthly downloads for Tier 1 SDKs (TypeScript and Python), with both languages individually exceeding 1 billion total downloads lifetime. Protocol adopted as de-facto standard for agentic tool use and external-system integration. 2026-07-28 specification introduced stateless protocol core (eliminating server-side session state requirements), Multi-Round-Trip Requests for complex workflows, header-based routing for tool selection, formal extensions framework. Roadmap updated Aug 22, focusing on long-running work primitives, interactive experiences, enterprise deployment patterns.",
+            howItWorks: "MCP is a JSON-RPC 2.0 protocol decoupling LLM hosts from tool/data servers. Client (e.g., Claude, other LLM) initiates connection to MCP server (tool provider, database connector, code sandbox) and discovers available tools via standard schema. Stateless design removes need to persist connections or session context on server, making integration simpler for managed services and cloud deployments. Multi-round-trip support allows single tool call to decompose into multiple request-response pairs, enabling streaming responses and incremental results.",
+            impact: "For teams building agentic systems, MCP is now default integration layer: define tools as MCP servers, connect LLM to them, let model orchestrate. Stateless core means deploying MCP servers in ephemeral containers or serverless functions without managing session state. 500M+ monthly download volume signals MCP effectively replacing point-to-point tool integrations in favor of standardized protocol. For teams evaluating which tools to expose to agents, MCP's extension framework makes it tractable to add custom tool types without forking protocol. Roadmap focus on long-running work (tasks spanning multiple agent invocations) and interactive experiences (user-in-the-loop agent orchestration) suggests MCP moving beyond stateless tool dispatch toward more complex agentic workflows.",
+            source: { label: "Model Context Protocol Blog: 500M Downloads", url: "https://blog.modelcontextprotocol.io/posts/2026-mcp-milestone/" },
+          },
+        ],
+      },
+      {
+        header: "// NEW FRAMEWORKS",
+        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
+        items: [
+          {
+            title: "vLLM v0.27.1 stable and MiniMax H3 Omni integration",
+            whatsNew: "vLLM's stable release v0.27.1 (August 11, 2026) remains the production baseline. September 1 blog post highlights \"MiniMax H3 on vLLM-Omni: From System-Wide Optimization to Real-Time Serving with FastVideo's FastH3,\" indicating continued momentum in omni (multimodal + diffusion) serving. vLLM solidified as leading open-source inference serving framework, powering deployments from startups to enterprises.",
+            howItWorks: "vLLM v0.27.1 builds on continuous performance optimizations: paged attention (KV cache efficiency), batching and scheduling (dynamic batching under load), quantization support (GPTQ, AWQ, FP8), hardware-specific kernels (NVIDIA, AMD). MiniMax H3 Omni blog post demonstrates integration of MiniMax's hybrid 3D (spatial-depth-temporal) attention with vLLM's serving stack, enabling real-time video generation and streaming output.",
+            impact: "For teams deploying production LLM inference, vLLM v0.27.1 is stable and well-tested across wide range of models and hardware. v0.27.x series emphasizes compatibility and performance over new features; update within series without worry. For multimodal and diffusion deployments, vLLM-Omni is production-ready and worth benchmarking against closed-source options (Together, Baseten) on your specific models before deciding on infrastructure. MiniMax H3 integration is useful case study if you need real-time video generation serving.",
+            source: { label: "vLLM: v0.27.1 Release", url: "https://github.com/vllm-project/vllm/releases/tag/v0.27.1" },
+          },
+          {
+            title: "SGLang 29% faster than vLLM on H100, 3.1x on DeepSeek V3",
+            whatsNew: "SGLang (Structured Generation Language) widens inference-speed lead over vLLM. Benchmarks show SGLang 29% faster than vLLM on H100 for general workloads, 3.1x faster on DeepSeek V3 (custom MLA optimization backends: FlashAttention3, FlashInfer, FlashMLA, CutlassMLA). SGLang achieves up to 6x acceleration in RAG scenarios where cache reuse (RadixAttention) dominates. Framework is purpose-built for structured reasoning and agent-based workflows.",
+            howItWorks: "SGLang combines Python-embedded frontend language with optimized backend runtime. Core optimizations include RadixAttention (prefix-tree KV cache reuse across requests sharing context), Grouped GEMMs (kernel fusion for parallel matrix multiplications), custom cross-device all-reduce kernels, specialized backends for dense (standard attention) and sparse (MLA, sparse routing) attention. For MLA-heavy models like DeepSeek V3, MLA-specific kernels (FlashMLA) dominate speedup.",
+            impact: "For teams evaluating inference engines, SGLang is right choice if running reasoning workloads, agentic tasks with shared context (RAG, multi-turn agents), or MLA-based models (DeepSeek V3). 29% general speedup over vLLM translates to 15-25% cost reduction at same throughput, or 30-40% more throughput at same cost. For RAG and agent workloads, RadixAttention's 6x potential speedup is transformative: context reuse shifts from cost center to major performance lever. vLLM remains safer choice for broad model compatibility and community support if running diverse architectures; SGLang is sharper on target workloads.",
+            source: { label: "Yotta Labs: SGLang vs vLLM Comparison 2026", url: "https://www.yottalabs.ai/post/vllm-vs-sglang-which-inference-engine-should-you-use-in-2026" },
+          },
+          {
+            title: "Quantization ecosystem solidifies: AWQ production default, GGUF/GPTQ/FP8 in their niches",
+            whatsNew: "Quantization ecosystem stabilized by September 2026. AWQ (Activation-Aware Weight Quantization) is production default for multi-user GPU serving (vLLM, SGLang). GGUF is standard for local inference (llama.cpp, Ollama, LM Studio). GPTQ remains viable but slower than AWQ on modern kernels (Marlin). FP8 is low-friction choice on H100 and newer GPUs (TensorRT-LLM, vLLM).",
+            howItWorks: "AWQ analyzes activation patterns during calibration and protects important weights from aggressive quantization, while less-important weights are quantized more aggressively, preserving quality at INT4 with faster kernels than GPTQ. GGUF is CPU-friendly (GGML tensor library, efficient for inference on CPU and consumer GPUs without heavy framework). GPTQ uses second-order Hessian information to minimize quantization error at INT4, but slower kernel support makes it less attractive for new deployments. FP8 is native floating-point format on H100+ achieving near-FP16 quality with 50% memory savings and zero-overhead compatibility.",
+            impact: "For production multi-user serving on NVIDIA GPUs, AWQ is starting point: smaller models like Llama 3.1-8B or Mistral-7B run at 2-3x higher throughput in vLLM with <1% quality loss vs. FP16. For local development, GGUF via llama.cpp or Ollama is simple (one binary, one command). For H100/H200 clusters, FP8 is increasingly attractive: native GPU support, no quantization artifacts, minimal integration effort (set load_format=\"auto\" in vLLM). If quantizing custom model, AWQ calibration is faster and more stable than GPTQ; GPTQ quality is negligibly better but overhead not worth it for new work.",
+            source: { label: "vLLM: Quantization Guide 2026", url: "https://blog.vllm.ai/2026-quantization-guide/" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      {
+        text: "Whether Qwen3.8-27B's promised Qwen Cloud API (native 1M context, built-in tools) launches by mid-September, and at what price relative to current third-party rates ($0.40-0.45/$3-3.20 per Mtok). After three weeks of \"coming soon,\" slippage is now material.",
+        source: { label: "Qwen: Qwen3.8-27B Announcement", url: "https://huggingface.co/Qwen/Qwen3.8-27B" },
+      },
+      {
+        text: "Whether GLM-5.3-Flash's claim to beat GLM-5.2 on every benchmark at 1/10 cost holds up under independent reproduction; MIT licensing makes this natural focal point for teams evaluating open-weight multimodal models.",
+        source: { label: "Z.ai: GLM-5.3-Flash", url: "https://openrouter.ai/z-ai/glm-5.3-flash" },
+      },
+      {
+        text: "Whether vLLM's Kimi K3 Decode Context Parallelism benchmarking work lands by week's end. Fourth week of \"in progress\" suggests either feature complexity increased or internal prioritization shifted; knowing which clarifies whether DCP optimizations are real wins or architectural overcomplications.",
+        source: { label: "vLLM Blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" },
+      },
+    ],
+  },
+  {
     date: "2026-08-30",
     range: "August 24 to August 30, 2026",
     tldr: [
