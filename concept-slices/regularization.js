@@ -34,7 +34,8 @@ window.CONCEPTS_INDEX = {
       "cross-validation",
       "double-descent",
       "label-noise"
-    ]
+    ],
+    "animation": "viz/overfitting.html"
   },
   "bias-variance": {
     "id": "bias-variance",

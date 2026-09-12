@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KV cache — looping explainer</title>
+<!--
+  KV cache. Pure SVG + CSS, no JS, no external assets.
+
+  Two rows generate the same four tokens from a 3-token prompt. Both counters
+  measure the SAME metric: key/value cells computed, prefill included.
+
+  NO CACHE   every step re-runs attention over all previous tokens.
+             step 1: 3 prompt + 1 new = 4      running 4
+             step 2: 4 previous + 1 new = 5    running 9
+             step 3: 5 previous + 1 new = 6    running 15
+             step 4: 6 previous + 1 new = 7    running 22
+  KV CACHE   the prefill computes the 3 prompt cells once; every step after
+             computes exactly one new cell and reads the rest.
+             step 1: 3 prefill + 1 new = 4     running 4
+             step 2: 1 new                     running 5
+             step 3: 1 new                     running 6
+             step 4: 1 new                     running 7
+
+  22 vs 7 for the same output, and the two paths correctly agree at step 1 -
+  before there is anything to reuse, a cache saves nothing. The gap opens from
+  step 2 on. In general, n prompt tokens generating m more costs O(m*(n+m))
+  uncached and O(n+m) cached.
+
+  Cell states: dim outline = not yet reached, filled blue = recomputed this step,
+  filled slate = cached and merely read, violet = the new token's own cell.
+  Each violet cell turns slate when the next step begins, so no two states ever
+  paint the same cell at once.
+
+  9s loop: fade in, four steps, 1.5s of stillness on the finished rows, fade out,
+  invisible reset so frame 100% equals frame 0.
+  Sized for the 210px-tall iframe tile in landing-app.jsx "Concepts in motion".
+-->
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6; --blue-lt: #60a5fa; --blue-br: #93c5fd;
+    --violet: #a855f7; --violet-lt: #c084fc;
+    --rose-lt: #fb7185;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff; --muted: #94a3b8;
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --loop: 9s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-deep); color: var(--white);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  .axis { stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .divider { stroke: rgba(96, 165, 250, 0.14); stroke-width: 1; }
+  .cap {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; fill: var(--muted); text-anchor: middle;
+  }
+  .rowlab { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 0.12em; }
+  .count { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
+  .tok { font-family: var(--mono); font-size: 8px; font-weight: 600; letter-spacing: 0.04em;
+         fill: var(--muted); text-anchor: middle; }
+
+  .run { opacity: 0; animation: run var(--loop) linear infinite; }
+
+  .cell { fill: none; stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .lit { opacity: 0; }
+  .lit-recompute { fill: var(--blue); stroke: var(--blue-br); stroke-width: 1; }
+  .lit-cached { fill: rgba(148, 163, 184, 0.3); stroke: rgba(148, 163, 184, 0.55); stroke-width: 1; }
+  .lit-new { fill: var(--violet); stroke: var(--violet-lt); stroke-width: 1.2; }
+
+  /* Step windows: 1 = 10-24%, 2 = 28-42%, 3 = 46-60%, 4 = 64-90%.
+     Uncached row relights wholesale each step. */
+  .k1 { animation: k1 var(--loop) linear infinite }
+  .k2 { animation: k2 var(--loop) linear infinite }
+  .k3 { animation: k3 var(--loop) linear infinite }
+  .k4 { animation: k4 var(--loop) linear infinite }
+
+  /* Cached row: prompt cells persist; each new cell is violet for its own step
+     only, then a slate cell takes over from the next step on. The two never
+     overlap, so no blended fourth colour can appear. */
+  .pc { animation: pc var(--loop) linear infinite }
+  .n1 { animation: n1 var(--loop) linear infinite }
+  .n2 { animation: n2 var(--loop) linear infinite }
+  .n3 { animation: n3 var(--loop) linear infinite }
+  .n4 { animation: n4 var(--loop) linear infinite }
+  .g2 { animation: g2 var(--loop) linear infinite }
+  .g3 { animation: g3 var(--loop) linear infinite }
+  .g4 { animation: g4 var(--loop) linear infinite }
+
+  .c1 { animation: c1 var(--loop) linear infinite }
+  .c2 { animation: c2 var(--loop) linear infinite }
+  .c3 { animation: c3 var(--loop) linear infinite }
+  .c4 { animation: c4 var(--loop) linear infinite }
+
+  @keyframes run { 0%,3% { opacity: 0 } 6%,90% { opacity: 1 } 96%,100% { opacity: 0 } }
+
+  @keyframes k1 { 0%,6% { opacity: 0 } 10%,20% { opacity: 1 } 24%,100% { opacity: 0 } }
+  @keyframes k2 { 0%,24% { opacity: 0 } 28%,38% { opacity: 1 } 42%,100% { opacity: 0 } }
+  @keyframes k3 { 0%,42% { opacity: 0 } 46%,56% { opacity: 1 } 60%,100% { opacity: 0 } }
+  @keyframes k4 { 0%,60% { opacity: 0 } 64%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* prompt cells: written at the prefill, read from then on */
+  @keyframes pc { 0%,6% { opacity: 0 } 10%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* new cells: on for their step, off the instant the next step starts */
+  @keyframes n1 { 0%,6% { opacity: 0 } 10%,20% { opacity: 1 } 24%,100% { opacity: 0 } }
+  @keyframes n2 { 0%,24% { opacity: 0 } 28%,38% { opacity: 1 } 42%,100% { opacity: 0 } }
+  @keyframes n3 { 0%,42% { opacity: 0 } 46%,56% { opacity: 1 } 60%,100% { opacity: 0 } }
+  @keyframes n4 { 0%,60% { opacity: 0 } 64%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* the same cells as cached, taking over exactly where the violet stops */
+  @keyframes g2 { 0%,24% { opacity: 0 } 28%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes g3 { 0%,42% { opacity: 0 } 46%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes g4 { 0%,60% { opacity: 0 } 64%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  @keyframes c1 { 0%,6% { opacity: 0 } 10%,20% { opacity: 1 } 24%,100% { opacity: 0 } }
+  @keyframes c2 { 0%,24% { opacity: 0 } 28%,38% { opacity: 1 } 42%,100% { opacity: 0 } }
+  @keyframes c3 { 0%,42% { opacity: 0 } 46%,56% { opacity: 1 } 60%,100% { opacity: 0 } }
+  @keyframes c4 { 0%,60% { opacity: 0 } 64%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* Hold the final frame: 3 slate prompt cells, 3 slate generated cells, one
+     violet cell just written, and both totals. That frame states the idea. */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .run { opacity: 1; }
+    .k1, .k2, .k3, .n1, .n2, .n3, .c1, .c2, .c3 { opacity: 0; }
+    .k4, .pc, .g2, .g3, .n4, .c4 { opacity: 1; }
+    .g4 { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Two rows generate the same four tokens from a three-token prompt. Without a cache, every step recomputes the key and value for all previous tokens, twenty-two cells in total. With a KV cache, the prompt is computed once and each step adds only one new cell, seven in total. Both paths do the same four cells of work at step one; the saving starts at step two.">
+
+  <g class="run">
+
+    <g class="tok">
+      <text x="118" y="34">p1</text><text x="146" y="34">p2</text><text x="174" y="34">p3</text>
+      <text x="202" y="34">t1</text><text x="230" y="34">t2</text><text x="258" y="34">t3</text><text x="286" y="34">t4</text>
+    </g>
+
+    <g class="tok" text-anchor="middle">
+      <rect x="104" y="52" width="9" height="9" rx="1.5" fill="var(--blue)" stroke="var(--blue-br)" stroke-width="0.8"/>
+      <text x="142" y="59.5">RECOMPUTED</text>
+      <rect x="180" y="52" width="9" height="9" rx="1.5" fill="rgba(148,163,184,0.3)" stroke="rgba(148,163,184,0.55)" stroke-width="0.8"/>
+      <text x="209" y="59.5">CACHED</text>
+      <rect x="240" y="52" width="9" height="9" rx="1.5" fill="var(--violet)" stroke="var(--violet-lt)" stroke-width="0.8"/>
+      <text x="262" y="59.5">NEW</text>
+    </g>
+
+    <!-- ── row 1: no cache ───────────────────────────────────── -->
+    <text class="rowlab" x="16" y="66" fill="var(--rose-lt)">NO CACHE</text>
+
+    <g>
+      <rect class="cell" x="108" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="136" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="164" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="192" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="220" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="248" y="72" width="20" height="16" rx="2"/>
+      <rect class="cell" x="276" y="72" width="20" height="16" rx="2"/>
+    </g>
+
+    <g class="lit k1">
+      <rect class="lit-recompute" x="108" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="136" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="164" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-new" x="192" y="72" width="20" height="16" rx="2"/>
+    </g>
+    <g class="lit k2">
+      <rect class="lit-recompute" x="108" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="136" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="164" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="192" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-new" x="220" y="72" width="20" height="16" rx="2"/>
+    </g>
+    <g class="lit k3">
+      <rect class="lit-recompute" x="108" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="136" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="164" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="192" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="220" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-new" x="248" y="72" width="20" height="16" rx="2"/>
+    </g>
+    <g class="lit k4">
+      <rect class="lit-recompute" x="108" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="136" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="164" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="192" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="220" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-recompute" x="248" y="72" width="20" height="16" rx="2"/>
+      <rect class="lit-new" x="276" y="72" width="20" height="16" rx="2"/>
+    </g>
+
+    <g class="count" text-anchor="end" fill="var(--rose-lt)">
+      <text class="c1" x="376" y="85">4</text>
+      <text class="c2" x="376" y="85">9</text>
+      <text class="c3" x="376" y="85">15</text>
+      <text class="c4" x="376" y="85">22</text>
+    </g>
+
+    <line class="divider" x1="16" y1="106" x2="376" y2="106"/>
+
+    <!-- ── row 2: KV cache ───────────────────────────────────── -->
+    <text class="rowlab" x="16" y="128" fill="var(--emerald-lt)">KV CACHE</text>
+
+    <g>
+      <rect class="cell" x="108" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="136" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="164" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="192" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="220" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="248" y="134" width="20" height="16" rx="2"/>
+      <rect class="cell" x="276" y="134" width="20" height="16" rx="2"/>
+    </g>
+
+    <!-- prompt: computed once at the prefill, then only read -->
+    <g class="lit pc">
+      <rect class="lit-cached" x="108" y="134" width="20" height="16" rx="2"/>
+      <rect class="lit-cached" x="136" y="134" width="20" height="16" rx="2"/>
+      <rect class="lit-cached" x="164" y="134" width="20" height="16" rx="2"/>
+    </g>
+
+    <!-- one new cell per step; a slate cell takes over as the next step starts -->
+    <g class="lit n1"><rect class="lit-new" x="192" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit g2"><rect class="lit-cached" x="192" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit n2"><rect class="lit-new" x="220" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit g3"><rect class="lit-cached" x="220" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit n3"><rect class="lit-new" x="248" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit g4"><rect class="lit-cached" x="248" y="134" width="20" height="16" rx="2"/></g>
+    <g class="lit n4"><rect class="lit-new" x="276" y="134" width="20" height="16" rx="2"/></g>
+
+    <g class="count" text-anchor="end" fill="var(--emerald-lt)">
+      <text class="c1" x="376" y="147">4</text>
+      <text class="c2" x="376" y="147">5</text>
+      <text class="c3" x="376" y="147">6</text>
+      <text class="c4" x="376" y="147">7</text>
+    </g>
+  </g>
+
+  <line class="axis" x1="28" y1="166" x2="372" y2="166"/>
+  <text class="cap" x="200" y="182">KV CELLS COMPUTED &#183; 3-TOKEN PROMPT, 4 GENERATED</text>
+</svg>
+</body>
+</html>

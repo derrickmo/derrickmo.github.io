@@ -13,6 +13,7 @@ window.CONCEPTS_INDEX = {
       "mlp",
       "vae"
     ],
+    "animation": "viz/diffusion.html",
     "leadsTo": []
   },
   "mlp": {
@@ -110,7 +111,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "chain-rule": {
     "id": "chain-rule",

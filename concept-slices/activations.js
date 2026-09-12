@@ -91,6 +91,7 @@ window.CONCEPTS_INDEX = {
       "activations",
       "mlp"
     ],
+    "animation": "viz/batch-norm.html",
     "leadsTo": []
   },
   "weight-init": {

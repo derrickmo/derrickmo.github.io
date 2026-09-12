@@ -170,6 +170,7 @@ const CONCEPTS_INDEX = {
     id: "backprop", name: "Backpropagation", area: "Neural Networks",
     summary: "Apply the chain rule through a computational graph to get gradients for every parameter at once.",
     prereqs: ["chain-rule", "gradient-descent"], leadsTo: ["activations"],
+    animation: "viz/backpropagation.html",
   },
   "rnn": {
     id: "rnn", name: "Recurrent Neural Network", area: "NLP",
@@ -203,6 +204,7 @@ const CONCEPTS_INDEX = {
     summary: "Re-standardizes each feature across the mini-batch before the nonlinearity, then rescales/shifts with learnable γ, β. Keeps activation distributions stable across depth regardless of the weights above, which smooths the loss landscape and lets you train deeper nets at higher learning rates. Behaves differently at train (batch stats) vs inference (running averages) and degrades with small batches — motivating LayerNorm/RMSNorm in sequence models and large transformers.",
     tex: "\\hat z = \\frac{z - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}, \\quad y = \\gamma\\hat z + \\beta",
     prereqs: ["activations", "mlp"],
+    animation: "viz/batch-norm.html",
   },
   "weight-init": {
     id: "weight-init", name: "Weight Initialization", area: "Neural Networks",
@@ -238,6 +240,7 @@ const CONCEPTS_INDEX = {
     tex: "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     prereqs: ["bias-variance"],
     leadsTo: ["regularization", "cross-validation", "double-descent", "label-noise"],
+    animation: "viz/overfitting.html",
   },
   "cross-validation": {
     id: "cross-validation", name: "Cross-Validation", area: "Evaluation & Calibration",
@@ -472,6 +475,7 @@ const CONCEPTS_INDEX = {
     id: "diffusion", name: "Diffusion Models", area: "Generative",
     summary: "Add noise to data step by step, then learn to reverse it — the engine behind modern image/video generators.",
     prereqs: ["mlp", "vae"],
+    animation: "viz/diffusion.html",
   },
 
   // ── Fine-tuning & alignment ──────────────────────────────────
@@ -601,6 +605,7 @@ const CONCEPTS_INDEX = {
     summary: "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
     tex: "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     prereqs: ["gradient-descent"], leadsTo: ["lr-schedule"],
+    animation: "viz/gradient-momentum.html",
   },
   "gradient-clipping": {
     id: "gradient-clipping", name: "Gradient Clipping", area: "Training Systems",
@@ -636,11 +641,13 @@ const CONCEPTS_INDEX = {
     id: "beam-search", name: "Beam Search", area: "NLP",
     summary: "Keep the top-K partial sequences by total log-probability at every decoding step. Greedy is K=1; bigger K finds higher-probability sentences at multiplied cost.",
     prereqs: ["decoding"],
+    animation: "viz/beam-search.html",
   },
   "kv-cache": {
     id: "kv-cache", name: "KV Cache", area: "Transformers",
     summary: "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
     prereqs: ["attention"],
+    animation: "viz/kv-cache.html",
   },
   "gnn": {
     id: "gnn", name: "Graph Neural Network", area: "Graphs",

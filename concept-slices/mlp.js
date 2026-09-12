@@ -99,7 +99,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "chain-rule": {
     "id": "chain-rule",
@@ -213,6 +214,7 @@ window.CONCEPTS_INDEX = {
       "activations",
       "mlp"
     ],
+    "animation": "viz/batch-norm.html",
     "leadsTo": []
   },
   "weight-init": {
@@ -254,6 +256,7 @@ window.CONCEPTS_INDEX = {
       "mlp",
       "vae"
     ],
+    "animation": "viz/diffusion.html",
     "leadsTo": []
   },
   "lora": {

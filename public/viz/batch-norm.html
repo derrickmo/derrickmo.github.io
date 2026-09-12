@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch normalisation — looping explainer</title>
+<!--
+  Batch normalisation. Pure SVG + CSS, no JS, no external assets.
+
+  Eight activations in one batch, drawn as bars off the centre line at y=100.
+
+    RAW      x = [ 46, 22, 61, 15, 38, 55, 29, 44 ]
+             sum 310, mean 310/8 = 38.75
+    CENTRE   x - mean = [ 7.25, -16.75, 22.25, -23.75, -0.75, 16.25, -9.75, 5.25 ]
+             sum of squares 1779.5
+    SCALE    sd = sqrt(1779.5 / 8) = 14.9143   (population, n - the convention
+             BatchNorm itself uses over a batch)
+             xhat = (x - mean) / sd
+                  = [ 0.4861, -1.1231, 1.4922, -1.5924,
+                     -0.0503,  1.0895, -0.6537,  0.3520 ]
+             mean(xhat) = 0.0000, sd(xhat) = 1.0000
+    SHIFT    y = 1.15 * xhat + 0.25
+                  = [ 0.8090, -1.0416, 1.9660, -1.5813,
+                      0.1922,  1.5030, -0.5018,  0.6548 ]
+             mean(y) = beta = 0.25, sd(y) = gamma = 1.15
+
+  The +/-1 sd band is a REFERENCE, not a bound. Unit variance sets the spread of
+  the batch to 1, so individual activations still land outside it - here 4 of 8
+  do, which is the honest picture of a normalised batch.
+
+  Two panel scales, which is the honest way to draw a change of units:
+    RAW and CENTRE   1.0 px per activation unit
+    SCALE and SHIFT  30 px per standard deviation
+  Every bar is 3.1 px tall and stretched by scaleY = height / 3.1, growing about
+  its bottom edge on the centre line, so a negative factor puts the bar below zero.
+
+  9s loop: fade in, four labelled stages, 1.6s of stillness on the shifted state,
+  fade out, invisible reset so frame 100% equals frame 0.
+  Sized for the 210px-tall iframe tile in landing-app.jsx "Concepts in motion".
+-->
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6; --blue-lt: #60a5fa; --blue-br: #93c5fd;
+    --violet: #a855f7; --violet-lt: #c084fc;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff; --muted: #94a3b8;
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --loop: 9s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-deep); color: var(--white);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  .zero { stroke: rgba(96, 165, 250, 0.4); stroke-width: 1; }
+  .axis { stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .cap {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; fill: var(--muted); text-anchor: middle;
+  }
+  .stage { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; opacity: 0; }
+  .note { font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0.08em; opacity: 0; }
+  .sdcap { font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0.12em;
+           fill: rgba(110,231,183,0.8); text-anchor: end; opacity: 0; }
+
+  .run { opacity: 0; animation: run var(--loop) linear infinite; }
+
+  .bar { fill: var(--blue-lt); transform-box: fill-box; transform-origin: center bottom; }
+  .b0 { animation: b0 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b1 { animation: b1 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b2 { animation: b2 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b3 { animation: b3 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b4 { animation: b4 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b5 { animation: b5 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b6 { animation: b6 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+  .b7 { animation: b7 var(--loop) cubic-bezier(.5,0,.3,1) infinite }
+
+  .meanline { stroke: var(--violet-lt); stroke-width: 1.2; stroke-dasharray: 4 4;
+              animation: meanmove var(--loop) cubic-bezier(.5,0,.3,1) infinite; }
+  .meantag { font-family: var(--mono); font-size: 9px; font-weight: 700;
+             letter-spacing: 0.1em; fill: var(--violet-lt); text-anchor: end;
+             animation: meanmove var(--loop) cubic-bezier(.5,0,.3,1) infinite; }
+
+  .band { fill: rgba(110, 231, 183, 0.07); stroke: rgba(110, 231, 183, 0.4);
+          stroke-width: 1; stroke-dasharray: 3 3; opacity: 0;
+          animation: band var(--loop) linear infinite; }
+
+  .s1 { animation: s1 var(--loop) linear infinite }
+  .s2 { animation: s2 var(--loop) linear infinite }
+  .s3 { animation: s3 var(--loop) linear infinite }
+  .s4 { animation: s4 var(--loop) linear infinite }
+  .n4 { animation: n4 var(--loop) linear infinite }
+  .sdcap { animation: band var(--loop) linear infinite }
+
+  @keyframes run { 0%,3% { opacity: 0 } 6%,90% { opacity: 1 } 96%,100% { opacity: 0 } }
+
+  /* scaleY = height / 3.1 for each of the four stages */
+  @keyframes b0 { 0%,20% { transform: scaleY(14.84) } 34%,40% { transform: scaleY(2.34) }  54%,60% { transform: scaleY(4.704) }   74%,100% { transform: scaleY(7.830) } }
+  @keyframes b1 { 0%,20% { transform: scaleY(7.10) }  34%,40% { transform: scaleY(-5.40) } 54%,60% { transform: scaleY(-10.869) } 74%,100% { transform: scaleY(-10.079) } }
+  @keyframes b2 { 0%,20% { transform: scaleY(19.68) } 34%,40% { transform: scaleY(7.18) }  54%,60% { transform: scaleY(14.441) }  74%,100% { transform: scaleY(19.026) } }
+  @keyframes b3 { 0%,20% { transform: scaleY(4.84) }  34%,40% { transform: scaleY(-7.66) } 54%,60% { transform: scaleY(-15.410) } 74%,100% { transform: scaleY(-15.303) } }
+  @keyframes b4 { 0%,20% { transform: scaleY(12.26) } 34%,40% { transform: scaleY(-0.24) } 54%,60% { transform: scaleY(-0.487) }  74%,100% { transform: scaleY(1.860) } }
+  @keyframes b5 { 0%,20% { transform: scaleY(17.74) } 34%,40% { transform: scaleY(5.24) }  54%,60% { transform: scaleY(10.544) }  74%,100% { transform: scaleY(14.545) } }
+  @keyframes b6 { 0%,20% { transform: scaleY(9.35) }  34%,40% { transform: scaleY(-3.15) } 54%,60% { transform: scaleY(-6.327) }  74%,100% { transform: scaleY(-4.856) } }
+  @keyframes b7 { 0%,20% { transform: scaleY(14.19) } 34%,40% { transform: scaleY(1.69) }  54%,60% { transform: scaleY(3.406) }   74%,100% { transform: scaleY(6.337) } }
+
+  /* mean: 38.75px above the line (raw), then zero (centre + scale),
+     then beta = 0.25 sd = 7.5px above the line (shift) */
+  @keyframes meanmove {
+    0%,20%   { transform: translateY(-38.75px) }
+    34%,60%  { transform: translateY(0) }
+    74%,100% { transform: translateY(-7.5px) }
+  }
+  @keyframes band { 0%,42% { opacity: 0 } 52%,100% { opacity: 1 } }
+
+  @keyframes s1 { 0%,5% { opacity: 0 } 9%,20% { opacity: 1 } 24%,100% { opacity: 0 } }
+  @keyframes s2 { 0%,24% { opacity: 0 } 28%,40% { opacity: 1 } 44%,100% { opacity: 0 } }
+  @keyframes s3 { 0%,44% { opacity: 0 } 48%,60% { opacity: 1 } 64%,100% { opacity: 0 } }
+  @keyframes s4 { 0%,64% { opacity: 0 } 68%,100% { opacity: 1 } }
+  @keyframes n4 { 0%,66% { opacity: 0 } 70%,100% { opacity: 1 } }
+
+  /* hold the scaled frame: the batch at unit spread, mean on zero */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .run, .band, .sdcap { opacity: 1; }
+    .s1, .s2, .s4, .n4 { opacity: 0; }
+    .s3 { opacity: 1; }
+    .meanline, .meantag { transform: translateY(0); }
+    .b0 { transform: scaleY(4.704) }   .b1 { transform: scaleY(-10.869) }
+    .b2 { transform: scaleY(14.441) }  .b3 { transform: scaleY(-15.410) }
+    .b4 { transform: scaleY(-0.487) }  .b5 { transform: scaleY(10.544) }
+    .b6 { transform: scaleY(-6.327) }  .b7 { transform: scaleY(3.406) }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Eight activations in a batch are centred so their mean sits at zero, then divided by their standard deviation so the spread of the batch becomes one. The dashed band marks plus and minus one standard deviation as a reference; individual activations can still fall outside it. A learned gamma and beta then rescale and shift the batch, moving its mean off zero again.">
+
+  <g class="run">
+    <rect class="band" x="34" y="70" width="332" height="60" rx="2"/>
+    <line class="zero" x1="30" y1="100" x2="370" y2="100"/>
+
+    <g>
+      <rect class="bar b0" x="52"  y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b1" x="90"  y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b2" x="128" y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b3" x="166" y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b4" x="204" y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b5" x="242" y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b6" x="280" y="96.9" width="20" height="3.1" rx="1"/>
+      <rect class="bar b7" x="318" y="96.9" width="20" height="3.1" rx="1"/>
+    </g>
+
+    <line class="meanline" x1="36" y1="100" x2="364" y2="100"/>
+    <text class="meantag" x="364" y="96">MEAN</text>
+
+    <text class="sdcap" x="366" y="67">+1&#963;</text>
+    <text class="sdcap" x="366" y="141">&#8722;1&#963;</text>
+
+    <text class="stage s1" x="30" y="26" fill="var(--blue-br)">RAW BATCH</text>
+    <text class="stage s2" x="30" y="26" fill="var(--violet-lt)">CENTRE &#8212; SUBTRACT MEAN</text>
+    <text class="stage s3" x="30" y="26" fill="var(--emerald-lt)">SCALE &#8212; SD BECOMES 1</text>
+    <text class="stage s4" x="30" y="26" fill="var(--blue-br)">SHIFT &#8212; LEARNED &#947;, &#946;</text>
+    <text class="note n4" x="370" y="26" text-anchor="end" fill="var(--muted)">&#947;=1.15  &#946;=0.25</text>
+  </g>
+
+  <line class="axis" x1="28" y1="166" x2="372" y2="166"/>
+  <text class="cap" x="200" y="182">ONE BATCH, EIGHT ACTIVATIONS</text>
+</svg>
+</body>
+</html>

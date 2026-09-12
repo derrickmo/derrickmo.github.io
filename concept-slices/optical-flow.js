@@ -157,7 +157,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "chain-rule": {
     "id": "chain-rule",

@@ -54,6 +54,7 @@ window.CONCEPTS_INDEX = {
     "prereqs": [
       "attention"
     ],
+    "animation": "viz/kv-cache.html",
     "leadsTo": [
       "kv-cache-eviction",
       "paged-attention",

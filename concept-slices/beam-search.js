@@ -12,6 +12,7 @@ window.CONCEPTS_INDEX = {
     "prereqs": [
       "decoding"
     ],
+    "animation": "viz/beam-search.html",
     "leadsTo": []
   },
   "decoding": {

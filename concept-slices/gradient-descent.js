@@ -57,7 +57,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "lr-schedule": {
     "id": "lr-schedule",
@@ -166,7 +167,8 @@ window.CONCEPTS_INDEX = {
     ],
     "leadsTo": [
       "lr-schedule"
-    ]
+    ],
+    "animation": "viz/gradient-momentum.html"
   },
   "gradient-clipping": {
     "id": "gradient-clipping",

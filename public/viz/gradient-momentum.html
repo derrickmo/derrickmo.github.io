@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gradient descent vs momentum — looping explainer</title>
+<!--
+  Gradient descent vs momentum. Pure SVG + CSS, no JS, no external assets.
+  Both balls start at the same point on the same loss curve.
+    SGD      - steps shrink with the gradient, so it crawls and stalls ~9 units
+               short of the minimum. Arrives last (5.8s).
+    MOMENTUM - builds velocity, overshoots the minimum, swings back, settles.
+               Arrives first (4.0s) despite travelling further.
+  9s loop: 0.4s fade in, motion, 1.4s of stillness with both at rest, fade out,
+  then an invisible reset so frame 100% equals frame 0.
+  The curve is an exact parabola (a single quadratic bezier); every ball position
+  is computed from f(x) = 140 - 90*((x-200)/160)^2.
+  Sized for the 210px-tall iframe tile in landing-app.jsx "Concepts in motion".
+-->
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6; --blue-lt: #60a5fa; --blue-br: #93c5fd;
+    --violet: #a855f7; --violet-lt: #c084fc;
+    --white: #e0e7ff; --muted: #94a3b8;
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --loop: 9s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-deep); color: var(--white);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  .bowl { fill: none; stroke: rgba(96, 165, 250, 0.5); stroke-width: 1.6; }
+  .minline { stroke: rgba(96, 165, 250, 0.3); stroke-width: 1; stroke-dasharray: 3 4; }
+  .axis { stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .cap {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; fill: var(--muted); text-anchor: middle;
+  }
+  .key {
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .ball { transform-box: fill-box; transform-origin: center; opacity: 0; }
+  .sgd { fill: #dbeafe; filter: drop-shadow(0 0 5px var(--blue-lt)); }
+  .mom { fill: #f5d0fe; filter: drop-shadow(0 0 5px var(--violet-lt)); }
+  .pulse { fill: none; stroke-width: 1.4; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .pulse-m { stroke: var(--violet-lt); }
+  .pulse-s { stroke: var(--blue-br); }
+
+  .sgd   { animation: sgd var(--loop) linear infinite; }
+  .mom   { animation: mom var(--loop) linear infinite; }
+  .pulse-m { animation: pm var(--loop) ease-out infinite; }
+  .pulse-s { animation: ps var(--loop) ease-out infinite; }
+
+  /* SGD: even, shrinking steps. Never passes the minimum. */
+  @keyframes sgd {
+    0%      { opacity: 0; transform: translate(76px, 85.9px) }
+    4%      { opacity: 1; transform: translate(76px, 85.9px) }
+    8%      { transform: translate(96px, 102.0px) }
+    12%     { transform: translate(114px, 114.0px) }
+    16%     { transform: translate(130px, 122.8px) }
+    20%     { transform: translate(144px, 129.0px) }
+    24%     { transform: translate(156px, 133.2px) }
+    28%     { transform: translate(166px, 135.9px) }
+    32%     { transform: translate(174px, 137.6px) }
+    36%     { transform: translate(180px, 138.6px) }
+    40%     { transform: translate(185px, 139.2px) }
+    44%     { transform: translate(187.5px, 139.45px) }
+    48%     { transform: translate(189px, 139.6px) }
+    52%     { transform: translate(190px, 139.65px) }
+    56%     { transform: translate(190.5px, 139.68px) }
+    60%     { transform: translate(191px, 139.7px) }
+    64%     { transform: translate(191px, 139.7px) }
+    86%     { opacity: 1; transform: translate(191px, 139.7px) }
+    92%     { opacity: 0; transform: translate(191px, 139.7px) }
+    92.01%  { opacity: 0; transform: translate(76px, 85.9px) }
+    100%    { opacity: 0; transform: translate(76px, 85.9px) }
+  }
+
+  /* MOMENTUM: accelerates, overshoots to x=266, swings back, settles. */
+  @keyframes mom {
+    0%      { opacity: 0; transform: translate(76px, 85.9px) }
+    4%      { opacity: 1; transform: translate(76px, 85.9px) }
+    6.5%    { transform: translate(100px, 104.8px) }
+    9%      { transform: translate(134px, 124.7px) }
+    11.5%   { transform: translate(176px, 138.0px) }
+    14%     { transform: translate(218px, 138.9px) }
+    16.5%   { transform: translate(250px, 131.2px) }
+    19%     { transform: translate(266px, 124.7px) }
+    21.5%   { transform: translate(262px, 126.5px) }
+    24%     { transform: translate(240px, 134.4px) }
+    26.5%   { transform: translate(212px, 139.5px) }
+    29%     { transform: translate(188px, 139.5px) }
+    31.5%   { transform: translate(176px, 138.0px) }
+    34%     { transform: translate(180px, 138.6px) }
+    36.5%   { transform: translate(192px, 139.8px) }
+    39%     { transform: translate(202px, 140px) }
+    41.5%   { transform: translate(204px, 139.9px) }
+    44%     { transform: translate(201px, 140px) }
+    86%     { opacity: 1; transform: translate(201px, 140px) }
+    92%     { opacity: 0; transform: translate(201px, 140px) }
+    92.01%  { opacity: 0; transform: translate(76px, 85.9px) }
+    100%    { opacity: 0; transform: translate(76px, 85.9px) }
+  }
+
+  /* arrival rings — momentum lands first, SGD much later */
+  @keyframes pm {
+    0%, 43%  { opacity: 0; transform: translate(201px, 140px) scale(0.4) }
+    47%      { opacity: 0.9; transform: translate(201px, 140px) scale(1) }
+    54%,100% { opacity: 0; transform: translate(201px, 140px) scale(2.4) }
+  }
+  @keyframes ps {
+    0%, 63%  { opacity: 0; transform: translate(191px, 139.7px) scale(0.4) }
+    67%      { opacity: 0.9; transform: translate(191px, 139.7px) scale(1) }
+    74%,100% { opacity: 0; transform: translate(191px, 139.7px) scale(2.4) }
+  }
+
+  /* Hold the frame that carries the idea, not the literal last frame: momentum
+     already past the minimum and up the far flank, SGD still mid-descent. At
+     rest both balls sit 2px apart and merge into one dot, teaching nothing. */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .sgd { opacity: 1; transform: translate(144px, 129.0px); }
+    .mom { opacity: 1; transform: translate(266px, 124.7px); }
+    .pulse { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Two balls descend the same loss curve. Plain gradient descent takes ever-smaller steps and crawls into the minimum. Momentum builds velocity, overshoots the minimum, swings back and settles first.">
+
+  <path class="bowl" d="M40 50 Q200 230 360 50"/>
+
+  <line class="minline" x1="200" y1="60" x2="200" y2="136"/>
+  <text class="cap" x="200" y="54" fill="rgba(148,163,184,0.7)">MIN</text>
+
+  <circle class="pulse pulse-m" cx="0" cy="0" r="9"/>
+  <circle class="pulse pulse-s" cx="0" cy="0" r="9"/>
+  <circle class="ball mom" cx="0" cy="0" r="6"/>
+  <circle class="ball sgd" cx="0" cy="0" r="6"/>
+
+  <g class="key">
+    <circle cx="16" cy="17" r="4" fill="#dbeafe"/>
+    <text x="26" y="20.5" fill="var(--blue-br)">SGD</text>
+    <circle cx="16" cy="33" r="4" fill="#f5d0fe"/>
+    <text x="26" y="36.5" fill="var(--violet-lt)">MOMENTUM</text>
+  </g>
+
+  <line class="axis" x1="28" y1="166" x2="372" y2="166"/>
+  <text class="cap" x="200" y="182">PARAMETER</text>
+  <text class="cap" x="20" y="108" transform="rotate(-90 20 108)">LOSS</text>
+</svg>
+</body>
+</html>

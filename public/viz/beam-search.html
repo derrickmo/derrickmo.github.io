@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beam search — looping explainer</title>
+<!--
+  Beam search, width 2. Pure SVG + CSS, no JS, no external assets.
+
+  At each step every surviving beam is expanded by 3 candidates, all candidates
+  are ranked by cumulative log-probability, and only the best 2 survive.
+  Every child score is its parent's score plus one token log-prob.
+
+  STEP 1  from <s>, 3 candidates
+            "the"  -0.36   KEEP     <- greedy commits here
+            "a"    -1.20   KEEP
+            "an"   -2.30
+
+  STEP 2  expand both survivors, 6 candidates
+            the cat   -1.66   KEEP   (-0.36 + -1.30)
+            the dog   -2.11          (-0.36 + -1.75)
+            the car   -2.76          (-0.36 + -2.40)
+            a  cat    -1.48   KEEP   (-1.20 + -0.28)   <- now in front
+            a  dog    -2.80          (-1.20 + -1.60)
+            a  bird   -3.40          (-1.20 + -2.20)
+
+  STEP 3  expand both survivors, 6 candidates
+            a  cat sat    -1.80   KEEP   (-1.48 + -0.32)  <- best complete path
+            a  cat ran    -2.88          (-1.48 + -1.40)
+            a  cat naps   -3.58          (-1.48 + -2.10)
+            the cat sat   -2.61   KEEP   (-1.66 + -0.95)  <- what greedy returns
+            the cat ran   -3.36          (-1.66 + -1.70)
+            the cat ate   -4.16          (-1.66 + -2.50)
+
+  This is the point of the algorithm: "a" is behind at step 1 and greedy throws
+  it away, but it yields the best complete sequence. Beam search returns
+  "a cat sat" at -1.80; greedy returns "the cat sat" at -2.61. The final frame
+  shows both, with greedy's answer tagged and dimmed.
+
+  9s loop: fade in, three steps (expand -> rank -> prune), 1.5s of stillness on
+  the winning path, fade out, invisible reset so frame 100% equals frame 0.
+  Sized for the 210px-tall iframe tile in landing-app.jsx "Concepts in motion".
+-->
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6; --blue-lt: #60a5fa; --blue-br: #93c5fd;
+    --violet: #a855f7; --violet-lt: #c084fc;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff; --muted: #94a3b8;
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --loop: 9s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-deep); color: var(--white);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  .axis { stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .cap {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; fill: var(--muted); text-anchor: middle;
+  }
+  .stage { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; opacity: 0; }
+  .tokl { font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: 0.02em; text-anchor: middle; }
+  .score { font-family: var(--mono); font-size: 8px; font-weight: 600; letter-spacing: 0.01em; text-anchor: middle; }
+
+  .run { opacity: 0; animation: run var(--loop) linear infinite; }
+
+  .edge { fill: none; stroke-width: 1.2; }
+  .e-cand { stroke: rgba(96, 165, 250, 0.3); }
+  .e-keep { stroke: var(--violet-lt); stroke-width: 1.8; }
+  .e-best { stroke: var(--emerald-lt); stroke-width: 2.2; }
+
+  /* All node text is full-opacity ink on its own panel fill: candidate and
+     pruned scores are the evidence for the pruning, so they stay readable. */
+  .node-cand rect { fill: rgba(13, 24, 52, 0.92); stroke: rgba(96, 165, 250, 0.32); stroke-width: 1; }
+  .node-cand text.tokl { fill: var(--blue-br); }
+  .node-cand text.score { fill: #cbd5e1; }
+
+  .node-keep rect { fill: rgba(168, 85, 247, 0.2); stroke: var(--violet-lt); stroke-width: 1.3; }
+  .node-keep text.tokl { fill: #f5d0fe; }
+  .node-keep text.score { fill: #f0abfc; }
+
+  .node-best rect { fill: rgba(110, 231, 183, 0.22); stroke: var(--emerald-lt); stroke-width: 1.5; }
+  .node-best text.tokl { fill: #d1fae5; }
+  .node-best text.score { fill: var(--emerald-lt); }
+
+  .node-drop rect { fill: rgba(10, 18, 40, 0.92); stroke: rgba(100, 116, 139, 0.45); stroke-width: 1; }
+  .node-drop text.tokl { fill: var(--muted); }
+  .node-drop text.score { fill: var(--muted); }
+
+  .ph { opacity: 0; }
+
+  .a1 { animation: a1 var(--loop) linear infinite }
+  .a2 { animation: a2 var(--loop) linear infinite }
+  .a3 { animation: a3 var(--loop) linear infinite }
+  .k1 { animation: k1 var(--loop) linear infinite }
+  .k2 { animation: k2 var(--loop) linear infinite }
+  .k3 { animation: k3 var(--loop) linear infinite }
+  .d1 { animation: d1 var(--loop) linear infinite }
+  .d2 { animation: d2 var(--loop) linear infinite }
+  .d3 { animation: d3 var(--loop) linear infinite }
+  .win { animation: win var(--loop) linear infinite }
+  .s1 { animation: s1 var(--loop) linear infinite }
+  .s2 { animation: s2 var(--loop) linear infinite }
+  .s3 { animation: s3 var(--loop) linear infinite }
+  .s4 { animation: s4 var(--loop) linear infinite }
+
+  @keyframes run { 0%,3% { opacity: 0 } 6%,90% { opacity: 1 } 96%,100% { opacity: 0 } }
+
+  @keyframes a1 { 0%,6% { opacity: 0 } 10%,14% { opacity: 1 } 18%,100% { opacity: 0 } }
+  @keyframes a2 { 0%,30% { opacity: 0 } 34%,38% { opacity: 1 } 42%,100% { opacity: 0 } }
+  @keyframes a3 { 0%,54% { opacity: 0 } 58%,62% { opacity: 1 } 66%,100% { opacity: 0 } }
+  @keyframes k1 { 0%,14% { opacity: 0 } 18%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes k2 { 0%,38% { opacity: 0 } 42%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes k3 { 0%,62% { opacity: 0 } 66%,72% { opacity: 1 } 76%,100% { opacity: 0 } }
+  @keyframes d1 { 0%,14% { opacity: 0 } 18%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes d2 { 0%,38% { opacity: 0 } 42%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes d3 { 0%,62% { opacity: 0 } 66%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes win { 0%,72% { opacity: 0 } 76%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  @keyframes s1 { 0%,6% { opacity: 0 } 10%,26% { opacity: 1 } 30%,100% { opacity: 0 } }
+  @keyframes s2 { 0%,30% { opacity: 0 } 34%,50% { opacity: 1 } 54%,100% { opacity: 0 } }
+  @keyframes s3 { 0%,54% { opacity: 0 } 58%,70% { opacity: 1 } 74%,100% { opacity: 0 } }
+  @keyframes s4 { 0%,72% { opacity: 0 } 76%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* hold the final frame: full tree, pruned branches dim, beam winner in
+     emerald, greedy's inferior answer tagged */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .run { opacity: 1; }
+    .a1, .a2, .a3, .k3, .s1, .s2, .s3 { opacity: 0; }
+    .k1, .k2, .d1, .d2, .d3, .win, .s4 { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Beam search with width two. Each step expands every surviving hypothesis into three candidates, ranks them by cumulative log-probability and keeps the best two. The branch starting with the word a is behind after the first step, so greedy decoding discards it, but it goes on to produce the best complete sequence: a cat sat at minus one point eight zero, against greedy's the cat sat at minus two point six one.">
+
+  <g class="run">
+
+    <g class="node-keep">
+      <rect x="14" y="92" width="22" height="15" rx="3"/>
+      <text class="tokl" x="25" y="102.5">&#60;s&#62;</text>
+    </g>
+
+    <!-- ── step 1 ───────────────────────────────────────────── -->
+    <g class="ph a1">
+      <path class="edge e-cand" d="M36 99 L74 58"/>
+      <path class="edge e-cand" d="M36 99 L74 99"/>
+      <path class="edge e-cand" d="M36 99 L74 140"/>
+    </g>
+    <g class="ph k1">
+      <path class="edge e-keep" d="M36 99 L74 58"/>
+      <path class="edge e-keep" d="M36 99 L74 99"/>
+    </g>
+    <g class="ph d1">
+      <path class="edge e-cand" d="M36 99 L74 140" stroke="rgba(100,116,139,0.25)"/>
+    </g>
+
+    <g class="ph a1">
+      <g class="node-cand">
+        <rect x="74" y="50" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="58">the</text><text class="score" x="91" y="65.5">-0.36</text>
+      </g>
+      <g class="node-cand">
+        <rect x="74" y="91" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="99">a</text><text class="score" x="91" y="106.5">-1.20</text>
+      </g>
+      <g class="node-cand">
+        <rect x="74" y="132" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="140">an</text><text class="score" x="91" y="147.5">-2.30</text>
+      </g>
+    </g>
+    <g class="ph k1">
+      <g class="node-keep">
+        <rect x="74" y="50" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="58">the</text><text class="score" x="91" y="65.5">-0.36</text>
+      </g>
+      <g class="node-keep">
+        <rect x="74" y="91" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="99">a</text><text class="score" x="91" y="106.5">-1.20</text>
+      </g>
+    </g>
+    <g class="ph d1">
+      <g class="node-drop">
+        <rect x="74" y="132" width="34" height="17" rx="3"/>
+        <text class="tokl" x="91" y="140">an</text><text class="score" x="91" y="147.5">-2.30</text>
+      </g>
+    </g>
+
+    <!-- ── step 2 ───────────────────────────────────────────── -->
+    <g class="ph a2">
+      <path class="edge e-cand" d="M108 58 L166 36"/>
+      <path class="edge e-cand" d="M108 58 L166 58"/>
+      <path class="edge e-cand" d="M108 58 L166 80"/>
+      <path class="edge e-cand" d="M108 99 L166 106"/>
+      <path class="edge e-cand" d="M108 99 L166 128"/>
+      <path class="edge e-cand" d="M108 99 L166 150"/>
+    </g>
+    <g class="ph k2">
+      <path class="edge e-keep" d="M108 58 L166 36"/>
+      <path class="edge e-keep" d="M108 99 L166 106"/>
+    </g>
+    <g class="ph d2">
+      <path class="edge e-cand" d="M108 58 L166 58" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M108 58 L166 80" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M108 99 L166 128" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M108 99 L166 150" stroke="rgba(100,116,139,0.22)"/>
+    </g>
+
+    <g class="ph a2">
+      <g class="node-cand">
+        <rect x="166" y="28" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="36">cat</text><text class="score" x="186" y="43.5">-1.66</text>
+      </g>
+      <g class="node-cand">
+        <rect x="166" y="50" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="58">dog</text><text class="score" x="186" y="65.5">-2.11</text>
+      </g>
+      <g class="node-cand">
+        <rect x="166" y="72" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="80">car</text><text class="score" x="186" y="87.5">-2.76</text>
+      </g>
+      <g class="node-cand">
+        <rect x="166" y="98" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="106">cat</text><text class="score" x="186" y="113.5">-1.48</text>
+      </g>
+      <g class="node-cand">
+        <rect x="166" y="120" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="128">dog</text><text class="score" x="186" y="135.5">-2.80</text>
+      </g>
+      <g class="node-cand">
+        <rect x="166" y="142" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="150">bird</text><text class="score" x="186" y="157.5">-3.40</text>
+      </g>
+    </g>
+    <g class="ph k2">
+      <g class="node-keep">
+        <rect x="166" y="28" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="36">cat</text><text class="score" x="186" y="43.5">-1.66</text>
+      </g>
+      <g class="node-keep">
+        <rect x="166" y="98" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="106">cat</text><text class="score" x="186" y="113.5">-1.48</text>
+      </g>
+    </g>
+    <g class="ph d2">
+      <g class="node-drop">
+        <rect x="166" y="50" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="58">dog</text><text class="score" x="186" y="65.5">-2.11</text>
+      </g>
+      <g class="node-drop">
+        <rect x="166" y="72" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="80">car</text><text class="score" x="186" y="87.5">-2.76</text>
+      </g>
+      <g class="node-drop">
+        <rect x="166" y="120" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="128">dog</text><text class="score" x="186" y="135.5">-2.80</text>
+      </g>
+      <g class="node-drop">
+        <rect x="166" y="142" width="40" height="17" rx="3"/>
+        <text class="tokl" x="186" y="150">bird</text><text class="score" x="186" y="157.5">-3.40</text>
+      </g>
+    </g>
+
+    <!-- ── step 3 ───────────────────────────────────────────── -->
+    <g class="ph a3">
+      <path class="edge e-cand" d="M206 36 L272 30"/>
+      <path class="edge e-cand" d="M206 36 L272 52"/>
+      <path class="edge e-cand" d="M206 36 L272 74"/>
+      <path class="edge e-cand" d="M206 106 L272 100"/>
+      <path class="edge e-cand" d="M206 106 L272 122"/>
+      <path class="edge e-cand" d="M206 106 L272 144"/>
+    </g>
+    <g class="ph k3">
+      <path class="edge e-keep" d="M206 36 L272 30"/>
+      <path class="edge e-keep" d="M206 106 L272 100"/>
+    </g>
+    <g class="ph d3">
+      <path class="edge e-cand" d="M206 36 L272 52" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M206 36 L272 74" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M206 106 L272 122" stroke="rgba(100,116,139,0.22)"/>
+      <path class="edge e-cand" d="M206 106 L272 144" stroke="rgba(100,116,139,0.22)"/>
+    </g>
+    <!-- winning path runs through "a", the branch greedy discarded -->
+    <g class="ph win">
+      <path class="edge e-best" d="M36 99 L74 99"/>
+      <path class="edge e-best" d="M108 99 L166 106"/>
+      <path class="edge e-best" d="M206 106 L272 100"/>
+    </g>
+
+    <g class="ph a3">
+      <g class="node-cand">
+        <rect x="272" y="22" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="30">sat</text><text class="score" x="293" y="37.5">-2.61</text>
+      </g>
+      <g class="node-cand">
+        <rect x="272" y="44" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="52">ran</text><text class="score" x="293" y="59.5">-3.36</text>
+      </g>
+      <g class="node-cand">
+        <rect x="272" y="66" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="74">ate</text><text class="score" x="293" y="81.5">-4.16</text>
+      </g>
+      <g class="node-cand">
+        <rect x="272" y="92" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="100">sat</text><text class="score" x="293" y="107.5">-1.80</text>
+      </g>
+      <g class="node-cand">
+        <rect x="272" y="114" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="122">ran</text><text class="score" x="293" y="129.5">-2.88</text>
+      </g>
+      <g class="node-cand">
+        <rect x="272" y="136" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="144">naps</text><text class="score" x="293" y="151.5">-3.58</text>
+      </g>
+    </g>
+    <g class="ph k3">
+      <g class="node-keep">
+        <rect x="272" y="22" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="30">sat</text><text class="score" x="293" y="37.5">-2.61</text>
+      </g>
+      <g class="node-keep">
+        <rect x="272" y="92" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="100">sat</text><text class="score" x="293" y="107.5">-1.80</text>
+      </g>
+    </g>
+    <g class="ph d3">
+      <g class="node-drop">
+        <rect x="272" y="44" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="52">ran</text><text class="score" x="293" y="59.5">-3.36</text>
+      </g>
+      <g class="node-drop">
+        <rect x="272" y="66" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="74">ate</text><text class="score" x="293" y="81.5">-4.16</text>
+      </g>
+      <g class="node-drop">
+        <rect x="272" y="114" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="122">ran</text><text class="score" x="293" y="129.5">-2.88</text>
+      </g>
+      <g class="node-drop">
+        <rect x="272" y="136" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="144">naps</text><text class="score" x="293" y="151.5">-3.58</text>
+      </g>
+    </g>
+    <!-- final: beam's answer in emerald, greedy's tagged and dimmed -->
+    <g class="ph win">
+      <g class="node-drop">
+        <rect x="272" y="22" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="30">sat</text><text class="score" x="293" y="37.5">-2.61</text>
+      </g>
+      <text class="score" x="320" y="33" text-anchor="start" fill="var(--muted)">GREEDY</text>
+      <g class="node-best">
+        <rect x="272" y="92" width="42" height="17" rx="3"/>
+        <text class="tokl" x="293" y="100">sat</text><text class="score" x="293" y="107.5">-1.80</text>
+      </g>
+      <text class="score" x="320" y="103" text-anchor="start" fill="var(--emerald-lt)">BEAM</text>
+    </g>
+
+    <text class="stage s1" x="14" y="18" fill="var(--blue-br)">STEP 1 &#183; KEEP BEST 2 OF 3</text>
+    <text class="stage s2" x="14" y="18" fill="var(--blue-br)">STEP 2 &#183; KEEP BEST 2 OF 6</text>
+    <text class="stage s3" x="14" y="18" fill="var(--blue-br)">STEP 3 &#183; KEEP BEST 2 OF 6</text>
+    <text class="stage s4" x="14" y="18" fill="var(--emerald-lt)">&#8220;A CAT SAT&#8221; &#8722;1.80 BEATS GREEDY &#8722;2.61</text>
+  </g>
+
+  <line class="axis" x1="28" y1="166" x2="372" y2="166"/>
+  <text class="cap" x="200" y="182">CUMULATIVE LOG-PROBABILITY &#183; BEAM WIDTH 2</text>
+</svg>
+</body>
+</html>

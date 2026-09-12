@@ -14,6 +14,7 @@ window.CONCEPTS_INDEX = {
       "activations",
       "mlp"
     ],
+    "animation": "viz/batch-norm.html",
     "leadsTo": []
   },
   "activations": {
@@ -111,7 +112,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "chain-rule": {
     "id": "chain-rule",

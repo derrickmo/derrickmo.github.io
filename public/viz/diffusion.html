@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diffusion — looping explainer</title>
+<!--
+  Diffusion. Pure SVG + CSS, no JS, no external assets.
+
+  Top strip     FORWARD - a clean image is destroyed by adding noise in steps,
+                          ending at pure noise. Fixed, not learned: you can jump
+                          to any t in closed form.
+                          Clean at LEFT, noise at RIGHT.
+  Bottom strip  REVERSE - the model starts from noise and removes a little at
+                          each step, walking back to a clean sample. The only
+                          direction that has to be learned.
+                          Noise at LEFT, clean at RIGHT.
+
+  The two strips are spatial mirrors, so the pair reads as a there-and-back:
+  the eye travels right into noise along the top and right out of it along the
+  bottom. Both strips animate left to right, which is the direction each
+  process actually runs.
+
+  Noise is applied by REPLACING cells outright, not tinting them, so the
+  diagonal visibly dissolves: 0, 4, 8, 12, then all 16 of the 16 cells are
+  noise. Every cell of every stage is written explicitly - there are no unused
+  layers and no alpha stacking.
+
+  The bar under each tile is signal remaining, sqrt(alpha-bar_t), to scale
+  against a 43-unit track:
+
+    t/T          0      0.25    0.50    0.75    1.0
+    alpha-bar    1.00    0.72    0.38    0.12    0.02
+    sqrt         1.000   0.849   0.616   0.346   0.141
+    bar px       43.0    36.5    26.5    14.9    6.1
+
+  Each strip's t range is stated once, right-aligned on its own row-label line,
+  rather than as a per-column row under the tiles: the two strips run opposite
+  directions in t, so no shared column-label row can serve both, and two
+  separate rows cost the vertical space the footer needs.
+
+  9s loop: fade in, forward sweep, reverse sweep, 1.4s of stillness on both
+  complete strips, fade out, invisible reset so frame 100% equals frame 0.
+  Footer rule at y=166 and caption at y=182, matching the six sibling tiles.
+  Sized for the 210px-tall iframe tile in landing-app.jsx "Concepts in motion".
+-->
+<style>
+  :root {
+    --bg-deep: #050816;
+    --blue: #3b82f6; --blue-lt: #60a5fa; --blue-br: #93c5fd;
+    --violet-lt: #c084fc;
+    --rose-lt: #fb7185;
+    --emerald-lt: #6ee7b7;
+    --white: #e0e7ff; --muted: #94a3b8;
+    --grid-soft: rgba(96, 165, 250, 0.045);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --loop: 9s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-deep); color: var(--white);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-soft) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  .axis { stroke: rgba(96, 165, 250, 0.18); stroke-width: 1; }
+  .cap {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; fill: var(--muted); text-anchor: middle;
+  }
+  .rowlab { font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: 0.11em; }
+  .tlab { font-family: var(--mono); font-size: 8px; font-weight: 600; letter-spacing: 0.06em;
+          fill: var(--muted); text-anchor: end; }
+  .stage { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.13em; opacity: 0; }
+
+  .run { opacity: 0; animation: run var(--loop) linear infinite; }
+
+  .frame { fill: none; stroke: rgba(96, 165, 250, 0.22); stroke-width: 1; }
+  .snr-track { fill: rgba(96, 165, 250, 0.12); }
+  .snr-fwd { fill: var(--rose-lt); }
+  .snr-rev { fill: var(--emerald-lt); }
+
+  .t { opacity: 0; }
+  .f0 { animation: f0 var(--loop) linear infinite }
+  .f1 { animation: f1 var(--loop) linear infinite }
+  .f2 { animation: f2 var(--loop) linear infinite }
+  .f3 { animation: f3 var(--loop) linear infinite }
+  .f4 { animation: f4 var(--loop) linear infinite }
+  .r4 { animation: r4 var(--loop) linear infinite }
+  .r3 { animation: r3 var(--loop) linear infinite }
+  .r2 { animation: r2 var(--loop) linear infinite }
+  .r1 { animation: r1 var(--loop) linear infinite }
+  .r0 { animation: r0 var(--loop) linear infinite }
+
+  .sf { animation: sf var(--loop) linear infinite }
+  .sr { animation: sr var(--loop) linear infinite }
+
+  @keyframes run { 0%,3% { opacity: 0 } 6%,90% { opacity: 1 } 96%,100% { opacity: 0 } }
+
+  /* forward: clean at left, each step noisier, building rightward into noise */
+  @keyframes f0 { 0%,5%  { opacity: 0 } 9%,90%  { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes f1 { 0%,11% { opacity: 0 } 15%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes f2 { 0%,17% { opacity: 0 } 21%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes f3 { 0%,23% { opacity: 0 } 27%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes f4 { 0%,29% { opacity: 0 } 33%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* reverse: noise at left, each step cleaner, resolving rightward to a sample */
+  @keyframes r4 { 0%,37% { opacity: 0 } 41%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes r3 { 0%,45% { opacity: 0 } 49%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes r2 { 0%,53% { opacity: 0 } 57%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes r1 { 0%,61% { opacity: 0 } 65%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+  @keyframes r0 { 0%,69% { opacity: 0 } 73%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  @keyframes sf { 0%,5%  { opacity: 0 } 9%,32%  { opacity: 1 } 36%,100% { opacity: 0 } }
+  @keyframes sr { 0%,36% { opacity: 0 } 40%,90% { opacity: 1 } 94%,100% { opacity: 0 } }
+
+  /* hold both complete strips: the mirror is the whole point, and it survives
+     here because the reverse strip is mirrored in space, not just in time */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .run, .t { opacity: 1; }
+    .sf { opacity: 0; }
+    .sr { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Two mirrored filmstrips. Along the top, a clean four by four image is progressively destroyed: four more of its sixteen cells become noise at each step, until nothing of the original is left at the right-hand end. Along the bottom the arrangement is reversed, pure noise at the left resolving step by step into the clean sample at the right, which is the direction the model has to learn. A bar under each tile shows how much signal remains.">
+<defs>
+  <!-- Five stages. Each is a complete 4x4 tile; noise replaces whole cells, so
+       the count of noise cells goes 0, 4, 8, 12, 16 across the strip. -->
+
+  <!-- t=0 : clean diagonal, 0 of 16 noise -->
+  <g id="st0">
+    <rect x="0"  y="0"  width="9" height="9" rx="1" fill="#1e3a8a"/>
+    <rect x="10" y="0"  width="9" height="9" rx="1" fill="#1d4ed8"/>
+    <rect x="20" y="0"  width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="30" y="0"  width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="0"  y="10" width="9" height="9" rx="1" fill="#1d4ed8"/>
+    <rect x="10" y="10" width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="20" y="10" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="30" y="10" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="0"  y="20" width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="10" y="20" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="20" y="20" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="30" y="20" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="0"  y="30" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="10" y="30" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="20" y="30" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="30" y="30" width="9" height="9" rx="1" fill="#e9d5ff"/>
+  </g>
+
+  <!-- t=0.25 : 4 of 16 replaced -->
+  <g id="st1">
+    <rect x="0"  y="0"  width="9" height="9" rx="1" fill="#1e3a8a"/>
+    <rect x="10" y="0"  width="9" height="9" rx="1" fill="#cbd5e1"/>
+    <rect x="20" y="0"  width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="30" y="0"  width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="0"  y="10" width="9" height="9" rx="1" fill="#1d4ed8"/>
+    <rect x="10" y="10" width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="20" y="10" width="9" height="9" rx="1" fill="#aab6c6"/>
+    <rect x="30" y="10" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="0"  y="20" width="9" height="9" rx="1" fill="#7c8b9e"/>
+    <rect x="10" y="20" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="20" y="20" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="30" y="20" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="0"  y="30" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="10" y="30" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="20" y="30" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="30" y="30" width="9" height="9" rx="1" fill="#d3dae4"/>
+  </g>
+
+  <!-- t=0.50 : 8 of 16 replaced -->
+  <g id="st2">
+    <rect x="0"  y="0"  width="9" height="9" rx="1" fill="#1e3a8a"/>
+    <rect x="10" y="0"  width="9" height="9" rx="1" fill="#cbd5e1"/>
+    <rect x="20" y="0"  width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="30" y="0"  width="9" height="9" rx="1" fill="#94a3b8"/>
+    <rect x="0"  y="10" width="9" height="9" rx="1" fill="#e2e8f0"/>
+    <rect x="10" y="10" width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="20" y="10" width="9" height="9" rx="1" fill="#aab6c6"/>
+    <rect x="30" y="10" width="9" height="9" rx="1" fill="#93c5fd"/>
+    <rect x="0"  y="20" width="9" height="9" rx="1" fill="#7c8b9e"/>
+    <rect x="10" y="20" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="20" y="20" width="9" height="9" rx="1" fill="#39465b"/>
+    <rect x="30" y="20" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="0"  y="30" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="10" y="30" width="9" height="9" rx="1" fill="#b9c4d2"/>
+    <rect x="20" y="30" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="30" y="30" width="9" height="9" rx="1" fill="#d3dae4"/>
+  </g>
+
+  <!-- t=0.75 : 12 of 16 replaced, only a trace of the diagonal left -->
+  <g id="st3">
+    <rect x="0"  y="0"  width="9" height="9" rx="1" fill="#334155"/>
+    <rect x="10" y="0"  width="9" height="9" rx="1" fill="#cbd5e1"/>
+    <rect x="20" y="0"  width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="30" y="0"  width="9" height="9" rx="1" fill="#94a3b8"/>
+    <rect x="0"  y="10" width="9" height="9" rx="1" fill="#e2e8f0"/>
+    <rect x="10" y="10" width="9" height="9" rx="1" fill="#3b82f6"/>
+    <rect x="20" y="10" width="9" height="9" rx="1" fill="#aab6c6"/>
+    <rect x="30" y="10" width="9" height="9" rx="1" fill="#2c3a4f"/>
+    <rect x="0"  y="20" width="9" height="9" rx="1" fill="#7c8b9e"/>
+    <rect x="10" y="20" width="9" height="9" rx="1" fill="#dde4ed"/>
+    <rect x="20" y="20" width="9" height="9" rx="1" fill="#39465b"/>
+    <rect x="30" y="20" width="9" height="9" rx="1" fill="#c084fc"/>
+    <rect x="0"  y="30" width="9" height="9" rx="1" fill="#60a5fa"/>
+    <rect x="10" y="30" width="9" height="9" rx="1" fill="#b9c4d2"/>
+    <rect x="20" y="30" width="9" height="9" rx="1" fill="#616f84"/>
+    <rect x="30" y="30" width="9" height="9" rx="1" fill="#d3dae4"/>
+  </g>
+
+  <!-- t=T : all 16 replaced, pure noise -->
+  <g id="st4">
+    <rect x="0"  y="0"  width="9" height="9" rx="1" fill="#334155"/>
+    <rect x="10" y="0"  width="9" height="9" rx="1" fill="#cbd5e1"/>
+    <rect x="20" y="0"  width="9" height="9" rx="1" fill="#475569"/>
+    <rect x="30" y="0"  width="9" height="9" rx="1" fill="#94a3b8"/>
+    <rect x="0"  y="10" width="9" height="9" rx="1" fill="#e2e8f0"/>
+    <rect x="10" y="10" width="9" height="9" rx="1" fill="#3f4d63"/>
+    <rect x="20" y="10" width="9" height="9" rx="1" fill="#aab6c6"/>
+    <rect x="30" y="10" width="9" height="9" rx="1" fill="#2c3a4f"/>
+    <rect x="0"  y="20" width="9" height="9" rx="1" fill="#7c8b9e"/>
+    <rect x="10" y="20" width="9" height="9" rx="1" fill="#dde4ed"/>
+    <rect x="20" y="20" width="9" height="9" rx="1" fill="#39465b"/>
+    <rect x="30" y="20" width="9" height="9" rx="1" fill="#8f9db0"/>
+    <rect x="0"  y="30" width="9" height="9" rx="1" fill="#4a586d"/>
+    <rect x="10" y="30" width="9" height="9" rx="1" fill="#b9c4d2"/>
+    <rect x="20" y="30" width="9" height="9" rx="1" fill="#616f84"/>
+    <rect x="30" y="30" width="9" height="9" rx="1" fill="#d3dae4"/>
+  </g>
+
+  <!-- tile chrome: frame plus SNR track, shared by all ten tiles -->
+  <g id="chrome">
+    <rect x="-2" y="-2" width="43" height="43" rx="2" fill="none" stroke="rgba(96,165,250,0.22)" stroke-width="1"/>
+    <rect x="-2" y="44" width="43" height="3" rx="1.5" fill="rgba(96,165,250,0.12)"/>
+  </g>
+</defs>
+
+  <g class="run">
+
+    <!-- ── forward strip: clean left, noise right ─────────────── -->
+    <text class="rowlab" x="14" y="27" fill="var(--rose-lt)">FORWARD &#183; ADD NOISE &#183; FIXED</text>
+    <text class="tlab" x="361" y="27">t=0 &#8594; t=T</text>
+
+    <g class="t f0" transform="translate(80 33)">
+      <use href="#st0"/><use href="#chrome"/>
+      <rect class="snr-fwd" x="-2" y="44" width="43" height="3" rx="1.5"/>
+    </g>
+    <g class="t f1" transform="translate(140 33)">
+      <use href="#st1"/><use href="#chrome"/>
+      <rect class="snr-fwd" x="-2" y="44" width="36.5" height="3" rx="1.5"/>
+    </g>
+    <g class="t f2" transform="translate(200 33)">
+      <use href="#st2"/><use href="#chrome"/>
+      <rect class="snr-fwd" x="-2" y="44" width="26.5" height="3" rx="1.5"/>
+    </g>
+    <g class="t f3" transform="translate(260 33)">
+      <use href="#st3"/><use href="#chrome"/>
+      <rect class="snr-fwd" x="-2" y="44" width="14.9" height="3" rx="1.5"/>
+    </g>
+    <g class="t f4" transform="translate(320 33)">
+      <use href="#st4"/><use href="#chrome"/>
+      <rect class="snr-fwd" x="-2" y="44" width="6.1" height="3" rx="1.5"/>
+    </g>
+
+    <!-- ── reverse strip: noise left, clean right (mirrored) ──── -->
+    <text class="rowlab" x="14" y="99" fill="var(--emerald-lt)">REVERSE &#183; DENOISE &#183; LEARNED</text>
+    <text class="tlab" x="361" y="99">t=T &#8594; t=0</text>
+
+    <g class="t r4" transform="translate(80 105)">
+      <use href="#st4"/><use href="#chrome"/>
+      <rect class="snr-rev" x="-2" y="44" width="6.1" height="3" rx="1.5"/>
+    </g>
+    <g class="t r3" transform="translate(140 105)">
+      <use href="#st3"/><use href="#chrome"/>
+      <rect class="snr-rev" x="-2" y="44" width="14.9" height="3" rx="1.5"/>
+    </g>
+    <g class="t r2" transform="translate(200 105)">
+      <use href="#st2"/><use href="#chrome"/>
+      <rect class="snr-rev" x="-2" y="44" width="26.5" height="3" rx="1.5"/>
+    </g>
+    <g class="t r1" transform="translate(260 105)">
+      <use href="#st1"/><use href="#chrome"/>
+      <rect class="snr-rev" x="-2" y="44" width="36.5" height="3" rx="1.5"/>
+    </g>
+    <g class="t r0" transform="translate(320 105)">
+      <use href="#st0"/><use href="#chrome"/>
+      <rect class="snr-rev" x="-2" y="44" width="43" height="3" rx="1.5"/>
+    </g>
+
+    <text class="stage sf" x="14" y="14" fill="var(--rose-lt)">NOISE IN CLOSED FORM &#8212; NOTHING TO LEARN</text>
+    <text class="stage sr" x="14" y="14" fill="var(--emerald-lt)">THE MODEL LEARNS ONLY THE WAY BACK</text>
+  </g>
+
+  <line class="axis" x1="28" y1="166" x2="372" y2="166"/>
+  <text class="cap" x="200" y="182">SIGNAL REMAINING &#183; &#8730;&#945;&#772;<tspan dy="2" font-size="7">t</tspan></text>
+</svg>
+</body>
+</html>

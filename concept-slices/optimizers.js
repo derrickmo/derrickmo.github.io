@@ -15,7 +15,8 @@ window.CONCEPTS_INDEX = {
     ],
     "leadsTo": [
       "lr-schedule"
-    ]
+    ],
+    "animation": "viz/gradient-momentum.html"
   },
   "gradient-descent": {
     "id": "gradient-descent",

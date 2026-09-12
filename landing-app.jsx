@@ -490,13 +490,22 @@ function LabPreview() {
 function ConceptsInMotion() {
   const mobile = useIsMobile();
   const BASE = window.__DM_BASE || "";
+  // 12 tiles = four clean rows of three. The seven below the first rule were authored for
+  // this 210px tile and lead; viz/feedforward.html predates it and reads small here, so it
+  // sits out the landing grid — it is still live at /viz/ and is the hero of /concepts/mlp/.
   const tiles = [
-    { src: "viz/feedforward.html", label: "// FORWARD PASS", name: "Feedforward Net" },
-    { src: "viz/convolution.html", label: "// KERNEL SCAN", name: "Convolution" },
+    { src: "viz/backpropagation.html", label: "// GRADIENT FLOW", name: "Backpropagation" },
+    { src: "viz/batch-norm.html", label: "// NORMALIZATION", name: "Batch Norm" },
+    { src: "viz/beam-search.html", label: "// DECODING", name: "Beam Search" },
+    { src: "viz/diffusion.html", label: "// NOISE AND BACK", name: "Diffusion" },
+    { src: "viz/gradient-momentum.html", label: "// MOMENTUM", name: "SGD vs Momentum" },
+    { src: "viz/kv-cache.html", label: "// LLM INFERENCE", name: "KV Cache" },
+    { src: "viz/overfitting.html", label: "// GENERALIZATION", name: "Overfitting" },
     { src: "viz/transformer.html", label: "// SELF-ATTENTION", name: "Transformers" },
     { src: "viz/gradient.html", label: "// OPTIMIZATION", name: "Gradient Descent" },
     { src: "viz/recurrence.html", label: "// SEQUENCE", name: "Recurrence" },
     { src: "viz/embeddings.html", label: "// REPRESENTATION", name: "Embeddings" },
+    { src: "viz/convolution.html", label: "// KERNEL SCAN", name: "Convolution" },
   ];
   return (
     <Section id="motion" style={{ position: "relative", overflow: "hidden" }}>
