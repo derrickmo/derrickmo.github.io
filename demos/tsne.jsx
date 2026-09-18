@@ -158,7 +158,7 @@ function TSNEDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// PERPLEXITY" min={3} max={40} step={1} value={perp} onChange={setPerp} tone="violet"
-        help="Roughly the number of neighbors each point tries to keep close. Low = many tiny local clusters (can shatter real groups); high = broader structure but blurs fine detail. The single most important t-SNE knob — resets the run." />
+        help="Roughly the number of neighbors each point tries to keep close. Low = many tiny local clusters (can shatter real groups); high = broader structure but blurs fine detail. The single most important t-SNE knob. Resets the run." />
       <Slider label="// CLUSTERS" min={2} max={6} step={1} value={K} onChange={setK}
         help="Number of true high-dimensional Gaussian blobs. Each is well separated in 12-D; t-SNE has to discover that separation from neighborhoods alone." />
       <Slider label="// HIGH-D SEPARATION" min={1} max={4} step={0.2} value={sep} onChange={setSep}
@@ -179,8 +179,7 @@ function TSNEDemo() {
   const explainer = (
     <>
       <DemoP>
-        The points live in 12 dimensions as a few well-separated Gaussian blobs — you
-        can't see that directly, so t-SNE has to recover it. It converts high-D
+        The points live in 12 dimensions as a few well-separated Gaussian blobs. You cannot see that directly, so t-SNE has to recover it. It converts high-D
         distances into neighbor probabilities (each point's Gaussian width set by
         PERPLEXITY), does the same in 2D with a heavy-tailed Student-t, and slides the
         2D points to make the two probability tables agree, minimizing KL(P‖Q). Watch
@@ -188,11 +187,10 @@ function TSNEDemo() {
         clusters punch apart, then they settle and spread to fill the plane.
       </DemoP>
       <DemoP>
-        Play with PERPLEXITY — it's the knob that matters most. Too low and a single
+        Play with PERPLEXITY. It is the knob that matters most. Too low and a single
         blob can shatter into several phantom islands; too high and nearby blobs blur
         together. Drop HIGH-D SEPARATION so the blobs overlap and t-SNE visibly
-        struggles. Crank LEARNING RATE and the whole thing detonates into a featureless
-        ball — the most common way t-SNE plots go wrong. The Student-t's fat tail is
+        struggles. Crank LEARNING RATE and the whole thing detonates into a featureless ball, the most common way t-SNE plots go wrong. The Student-t's fat tail is
         the quiet hero: it lets far-apart clusters repel without the "crowding" that
         plain Gaussian-in-2D suffers.
       </DemoP>
@@ -202,7 +200,7 @@ function TSNEDemo() {
     <>
       <DemoP>
         t-SNE (van der Maaten & Hinton 2008) is the default for visualizing
-        high-dimensional structure — word and image{" "}
+        high-dimensional structure: word and image{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/embeddings/`} style={{ color: "#a855f7" }}>embeddings</a>,
         single-cell genomics, hidden-layer activations. It's a nonlinear cousin of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/pca/`} style={{ color: "#a855f7" }}>PCA</a>:
@@ -211,7 +209,7 @@ function TSNEDemo() {
         alternative with similar output and better global structure.
       </DemoP>
       <DemoP>
-        Read t-SNE plots with care — it's a visualization tool, not a clustering or
+        Read t-SNE plots with care. It is a visualization tool, not a clustering or
         distance-preserving one. Cluster <i>sizes</i> and the <i>gaps between</i>{" "}
         clusters are largely meaningless (the algorithm equalizes density), so don't
         infer "these two groups are far apart" from the picture. Results depend on

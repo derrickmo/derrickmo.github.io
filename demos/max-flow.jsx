@@ -146,20 +146,17 @@ function MaxFlowDemo() {
       <DemoP>
         How much can flow from <b>S</b> to <b>T</b> if every edge has a capacity?
         Ford–Fulkerson answers it greedily: find any path from S to T with spare
-        capacity (the gold <b>augmenting path</b>), push the most it can carry — its
-        bottleneck — and repeat. Edmonds–Karp picks the <i>shortest</i> such path
+        capacity (the gold <b>augmenting path</b>), push the most it can carry, its bottleneck, and repeat. Edmonds–Karp picks the <i>shortest</i> such path
         each time (BFS), which guarantees it finishes quickly. Edge thickness grows
         with the flow it carries; labels show flow/capacity.
       </DemoP>
       <DemoP>
         The subtle part is the <b>residual graph</b>: every unit of flow also opens a
-        reverse edge, so a later path can <i>reroute</i> flow it sent earlier — that's
-        what makes the greedy procedure provably optimal rather than getting stuck.
+        reverse edge, so a later path can <i>reroute</i> flow it sent earlier. That is what makes the greedy procedure provably optimal rather than getting stuck.
         When no augmenting path is left, the flow is maximal, and the nodes still
         reachable from S (green rings) versus the rest (red rings) split the graph
         into the <b>minimum cut</b>. The red dashed edges crossing that cut are the
-        true bottleneck, and their capacities sum to exactly the max flow — the
-        celebrated max-flow min-cut theorem.
+        true bottleneck, and their capacities sum to exactly the max flow, the celebrated max-flow min-cut theorem.
       </DemoP>
     </>
   );
@@ -175,8 +172,8 @@ function MaxFlowDemo() {
         run on a graph whose weights change as flow is pushed.
       </DemoP>
       <DemoP>
-        Its duality — flow (a maximization) equals cut (a minimization) — is a
-        concrete instance of linear-programming duality, the same primal/dual
+        Its duality, where flow as a maximization equals cut as a minimization, is a concrete
+        instance of linear-programming duality, the same primal/dual
         structure behind SVM margins and many optimization methods. And the min-cut
         objective links directly to graph partitioning: normalized cuts are the
         relaxation behind{" "}

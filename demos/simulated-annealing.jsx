@@ -156,9 +156,9 @@ function SADemo() {
       <Slider label="// CITIES" min={15} max={80} step={1} value={n} onChange={setN}
         help="Number of cities. TSP is NP-hard, but simulated annealing handles dozens of cities in seconds." />
       <Slider label="// SEED" min={1} max={32} step={1} value={seed} onChange={setSeed}
-        help="Resamples the city positions. Worth trying a few — some layouts are much harder than others." />
+        help="Resamples the city positions. Worth trying a few, because some layouts are much harder than others." />
       <Slider label="// TEMPERATURE" min={0} max={T0} step={0.1} value={T} onChange={() => {}} tone="violet"
-        help="Read-only — the current temperature. Hot = accept some uphill moves (escape local minima); cold = only accept improvements (zero in)." />
+        help="Read-only: the current temperature. Hot = accept some uphill moves (escape local minima); cold = only accept improvements (zero in)." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <DemoButton onClick={() => iterate(1)}>STEP 1</DemoButton>
         <DemoButton onClick={() => iterate(500)}>STEP 500</DemoButton>
@@ -181,17 +181,15 @@ function SADemo() {
         The Traveling Salesman Problem is NP-hard, but simulated annealing
         finds near-optimal tours surprisingly fast. The move is <b>2-opt</b>:
         pick two edges, reverse the segment between them, see if the new tour
-        is shorter. The trick is what to do when it's <i>longer</i> — accept
-        it anyway, with probability e<sup>-ΔE/T</sup>. At a high
+        is shorter. The trick is what to do when it is <i>longer</i>. Accept it anyway, with probability e<sup>-ΔE/T</sup>. At a high
         <b style={{ color: "#fbbf24" }}> temperature</b> the search jumps
         around freely, willing to take ugly intermediate states to escape
-        local minima. As T cools, only improvements survive — the tour
-        crystallizes.
+        local minima. As T cools, only improvements survive and the tour crystallizes.
       </DemoP>
       <DemoP>
         Hit RUN and watch the violet tour stop crossing itself. The faint
         blue tour is the best one seen so far. The strip at the bottom is
-        the current length over time — it ratchets down, with occasional
+        the current length over time. It ratchets down, with occasional
         bumps where SA accepted a worse move. The schedule here is geometric
         (T ← 0.9985·T) which is the classic recipe.
       </DemoP>
@@ -200,22 +198,19 @@ function SADemo() {
   const concepts = (
     <>
       <DemoP>
-        Simulated annealing is the most general-purpose metaheuristic ever
-        invented — wherever you have a discrete or continuous combinatorial
+        Simulated annealing is the most general-purpose metaheuristic ever invented. Wherever you have a discrete or continuous combinatorial
         search and a way to perturb a candidate solution, SA gives you a
         sensible baseline. VLSI layout, hyperparameter search, scheduling,
         protein folding, the original IBM TSP solver: all variations on this
-        same pattern. The Metropolis acceptance rule comes straight from
-        statistical mechanics — annealing a metal slowly so its atoms settle
+        same pattern. The Metropolis acceptance rule comes straight from statistical mechanics, annealing a metal slowly so its atoms settle
         into a low-energy configuration.
       </DemoP>
       <DemoP>
         It's also a useful contrast to gradient descent. SA needs no
         gradients, handles non-smooth landscapes, and provably converges to
         the global optimum (with the right schedule, very slowly). When you
-        meet a problem where the loss isn't differentiable — discrete
-        choices, combinatorial structure, expensive simulators — reach for
-        SA, evolutionary strategies, or Bayesian optimization, not Adam.
+        meet a problem where the loss is not differentiable, whether from discrete choices, combinatorial structure or
+        expensive simulators, reach for SA, evolutionary strategies, or Bayesian optimization, not Adam.
       </DemoP>
     </>
   );

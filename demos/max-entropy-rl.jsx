@@ -144,11 +144,11 @@ function MaxEntropyRLDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// TEMPERATURE α" min={0.02} max={1.2} step={0.02} value={alpha} onChange={setAlpha} tone="violet"
-        help="The weight on policy entropy. High α makes the policy stochastic — it keeps probability on every decent action and visits both goals, exploring widely. As α→0 it sharpens to a single greedy path and the soft value becomes the ordinary (hard-max) value." />
+        help="The weight on policy entropy. High α makes the policy stochastic. It keeps probability on every decent action and visits both goals, exploring widely. As α→0 it sharpens to a single greedy path and the soft value becomes the ordinary (hard-max) value." />
       <Slider label="// DISCOUNT γ" min={0.8} max={0.99} step={0.01} value={gamma} onChange={setGamma} tone="blue"
         help="How far-sighted the agent is. Higher γ lets the value of the distant goals reach back across the grid." />
       <Slider label="// SPEED" min={2} max={80} value={speed} onChange={setSpeed} suffix=" /s"
-        help="How fast the sampled agent moves under the soft policy. Visual only — the policy and values are solved exactly regardless." />
+        help="How fast the sampled agent moves under the soft policy. Visual only: the policy and values are solved exactly regardless." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary tone="violet">{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={reset}>CLEAR TRAIL</DemoButton>
@@ -165,18 +165,17 @@ function MaxEntropyRLDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two goals sit on the right — a better one (+1.0) and a slightly worse one
-        (+0.85) — reachable only through the top or bottom gap. Standard RL would
+        Two goals sit on the right, a better one (+1.0) and a slightly worse one (+0.85), reachable only
+        through the top or bottom gap. Standard RL would
         always sprint to the +1.0 goal by the single best route. <b>Max-entropy</b>{" "}
         RL instead maximizes reward <i>plus</i> policy entropy, weighted by the
         temperature <b>α</b>. That turns the Bellman max into a soft log-sum-exp and
-        makes the policy a softmax over Q — the arrows show its full probability, not
+        makes the policy a softmax over Q, so the arrows show its full probability, not
         just the best move.
       </DemoP>
       <DemoP>
         Crank <b>α</b> up and the policy fans out: the agent keeps real probability
-        on both gaps and both goals, wanders varied routes, and the entropy readout
-        climbs — broad, robust behavior that explores instead of committing.
+        on both gaps and both goals, wanders varied routes, and the entropy readout climbs. This is broad, robust behavior that explores instead of committing.
         Turn α toward 0 and it collapses onto the one greedy path to the +1.0 goal,
         and the soft values become ordinary value iteration. The temperature is the
         single dial between <b>exploration and exploitation</b>, set automatically in
@@ -191,8 +190,7 @@ function MaxEntropyRLDemo() {
         Maximum-entropy RL is the framework behind <b>Soft Actor-Critic</b>, one of
         the strongest continuous-control algorithms, and soft Q-learning. The
         entropy bonus does three useful things: it keeps exploration alive, it makes
-        policies robust to perturbations, and it yields the Boltzmann policy
-        π ∝ exp(Q/α) — the same temperature-controlled softmax used in{" "}
+        policies robust to perturbations, and it yields the Boltzmann policy π ∝ exp(Q/α), the same temperature-controlled softmax used in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>LLM
         decoding</a> and the soft routing of a{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`} style={{ color: "#a855f7" }}>bandit</a>.

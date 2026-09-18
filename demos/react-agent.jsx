@@ -116,7 +116,7 @@ function ReactAgentDemo() {
       {revealed === 0 && <div style={{ color: "var(--muted)", fontSize: 13, padding: "8px 0" }}>Press RUN to watch the agent reason and act, one step at a time.</div>}
       {finalShown && (
         <div style={{ marginTop: 4, padding: "10px 12px", borderRadius: 8, border: `1px solid ${succeeded ? "#34d399" : "#f87171"}`, background: `${succeeded ? "#34d399" : "#f87171"}14` }}>
-          <div className="t-mono-s" style={{ color: succeeded ? "#34d399" : "#f87171" }}>{succeeded ? "✓ ANSWER" : "✗ DERAILED — a bad tool call poisoned the chain"}</div>
+          <div className="t-mono-s" style={{ color: succeeded ? "#34d399" : "#f87171" }}>{succeeded ? "✓ ANSWER" : "✗ DERAILED: a bad tool call poisoned the chain"}</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>{succeeded ? task.answer : "The agent acted on a junk observation and can't recover. In production this is where a verifier, a retry, or a guardrail catches it."}</div>
         </div>
       )}
@@ -127,7 +127,8 @@ function ReactAgentDemo() {
     <ControlGroup>
       <SegmentedControl label="// TASK" tone="violet" value={taskId} onChange={setTaskId}
         options={TASKS.map(t => ({ value: t.value, label: t.label }))}
-        help="Each task needs tools the model can't do reliably alone — a fact lookup or exact arithmetic — and takes more than one step, so the agent has to chain reasoning and actions." />
+        help="Each task needs tools the model cannot do reliably alone, a fact lookup or exact arithmetic, and takes more than one
+        step, so the agent has to chain reasoning and actions." />
       <Slider label="// AGENT RELIABILITY" min={0.4} max={1} step={0.05} value={reliability} onChange={setReliability} tone="violet"
         help="Per-step probability the agent picks the RIGHT tool and query. Below 1, each step is a chance to misfire; since errors compound over a multi-step chain, even a small per-step slip makes long tasks fail often. Lower it and re-run a few times." />
       <DemoButton onClick={() => { if (finalShown) { buildTrace(); setRevealed(0); } setRunning(r => !r); }} primary>{running ? "PAUSE" : (finalShown ? "RUN AGAIN" : "RUN")}</DemoButton>
@@ -142,8 +143,7 @@ function ReactAgentDemo() {
   const explainer = (
     <>
       <DemoP>
-        A bare language model has to answer in one forward pass from memorized
-        weights — fine for "what's the capital of France", hopeless for exact
+        A bare language model has to answer in one forward pass from memorized weights. Fine for "what's the capital of France", hopeless for exact
         arithmetic or fresh facts. <b>ReAct</b> turns answering into a loop: the
         model writes a <i>Thought</i>, takes an <i>Action</i> (calls a tool like
         search or a calculator), reads the <i>Observation</i>, and repeats until it
@@ -153,7 +153,7 @@ function ReactAgentDemo() {
       <DemoP>
         Now lower AGENT RELIABILITY and re-run. Because the steps chain, errors
         compound: a single wrong tool call returns a junk observation, and every
-        later step reasons over poison — the trace turns red and derails. A
+        later step reasons over poison, so the trace turns red and derails. A
         two-step task at 0.85 reliability already fails about a quarter of the
         time, and longer chains fall off a cliff. That compounding is the central
         problem of agent engineering, and the reason the loop gets wrapped in
@@ -164,8 +164,7 @@ function ReactAgentDemo() {
   const concepts = (
     <>
       <DemoP>
-        ReAct (Yao et al., 2022) is the backbone of tool-using agents — the pattern
-        under function calling, tool routing, and frameworks like LangChain agents
+        ReAct (Yao et al., 2022) is the backbone of tool-using agents, the pattern under function calling, tool routing, and frameworks like LangChain agents
         and the OpenAI/Anthropic tool-use loops. Interleaving reasoning with
         external actions is what lets a model browse, run code, query a database,
         or call an API instead of hallucinating the result. The same loop drives{" "}
@@ -179,13 +178,12 @@ function ReactAgentDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>voting</a>,
         and <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrails</a>,
         keep chains short, and prefer constrained tool schemas over free-form
-        calls. An agent is only as reliable as the product of its steps — so
-        shrinking that product, step by step, is the job.
+        calls. An agent is only as reliable as the product of its steps, so shrinking that product, step by step, is the job.
       </DemoP>
     </>
   );
   return (
-    <DemoLayout title="ReAct — Reason + Act"
+    <DemoLayout title="ReAct: Reason + Act"
       subtitle="The tool-using agent loop: Thought, Action, Observation, repeat. Watch a worked trace, then drop the reliability and see errors compound."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

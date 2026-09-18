@@ -134,7 +134,8 @@ function Word2VecDemo() {
       <Slider label="// LEARNING RATE" min={0.02} max={0.4} step={0.02} value={lr} onChange={setLr} tone="violet"
         help="SGD step size for the skip-gram updates. Higher converges faster but the cloud jitters; lower is smoother but slower. Purely a training knob." />
       <Slider label="// CROSS-TOPIC MIX" min={0} max={1} step={0.1} value={mix} onChange={setMix}
-        help="How often words from different topics co-occur in the corpus. At 0 topics are pure (four clean clusters); raise it and the clusters bleed together — embeddings only separate what the contexts separate. Resets training." />
+        help="How often words from different topics co-occur in the corpus. At 0 topics are pure (four clean clusters); raise it and the clusters bleed together, because embeddings only separate what the contexts
+        separate. Resets training." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RESUME"}</DemoButton>
         <DemoButton onClick={() => setSeed(s => s + 1)}>RESTART</DemoButton>
@@ -153,16 +154,14 @@ function Word2VecDemo() {
         picks a center word and nudges its vector to better predict the words it
         co-occurs with (and to NOT predict the rest, via the softmax denominator).
         Because our corpus keeps each topic's words appearing together, words that
-        share contexts get pulled together — within a few thousand updates the four
-        topics condense into four clean clusters. Nothing told the model the topic
+        share contexts get pulled together. Within a few thousand updates the four topics condense into four clean clusters. Nothing told the model the topic
         labels (the colors are just for you); it recovered them from co-occurrence
         alone. That's the distributional hypothesis: meaning is contextual company.
       </DemoP>
       <DemoP>
         Slide CROSS-TOPIC MIX up and the corpus starts putting unrelated words in the
         same windows; the clusters smear, because the embedding can only separate what
-        the contexts actually separate. This is the honest core of word2vec — real
-        models use hundreds of dimensions and negative sampling for speed, but the
+        the contexts actually separate. This is the honest core of word2vec. Real models use hundreds of dimensions and negative sampling for speed, but the
         learning signal is exactly this. The famous "king − man + woman ≈ queen"
         analogies are a consequence of these co-occurrence geometries, not a separate
         mechanism.
@@ -185,7 +184,7 @@ function Word2VecDemo() {
       </DemoP>
       <DemoP>
         Caveats: word2vec gives ONE vector per word, so it can't distinguish senses
-        ("bank" of a river vs money) — that's what contextual models fixed. It inherits
+        ("bank" of a river against money). That is what contextual models fixed. It inherits
         and can amplify biases present in the training corpus (the analogy structure
         also encodes stereotypes). And the geometry is only as good as the corpus:
         rare words get noisy vectors, and what looks like "meaning" is really

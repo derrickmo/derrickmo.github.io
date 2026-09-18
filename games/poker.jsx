@@ -129,14 +129,14 @@ function PokerDemo() {
         <span className="t-small" style={{ color: "var(--muted)", fontSize: 12 }}>Calls a bet with Q: <b style={{ color: "var(--white)" }}>{sg("1pb") || sg("1b")}%</b></span>
       </div>
       <DemoButton onClick={newHand}>NEW HAND</DemoButton>
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Trained with 40,000 CFR iterations on load. Over many hands the AI is unexploitable — you can't beat it long-run.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Trained with 40,000 CFR iterations on load. Over many hands the AI is unexploitable, so you cannot beat it long-run.</div>
     </ControlGroup>
   );
   const explainer = (
     <>
       <DemoP>
-        Kuhn poker is the smallest interesting poker — a 3-card deck (J, Q, K), one card
-        each, one round of betting — small enough to <i>solve</i> exactly, yet it still
+        Kuhn poker is the smallest interesting poker: a 3-card deck (J, Q, K), one card each, one round of
+        betting, small enough to <i>solve</i> exactly, yet it still
         has bluffing. This AI taught itself by <b>Counterfactual Regret Minimization
         (CFR)</b>: it plays the game against itself tens of thousands of times, and after
         each one asks "for every decision, how much do I regret <i>not</i> having played
@@ -144,11 +144,9 @@ function PokerDemo() {
         Average those strategies and they provably converge to a <b>Nash equilibrium</b>.
       </DemoP>
       <DemoP>
-        The result is genuinely game-theoretic behavior — notice it <b>bluffs with the
-        Jack</b> a precise fraction of the time and sometimes <i>doesn't</i> bet the
+        The result is genuinely game-theoretic behavior. Notice it <b>bluffs with the Jack</b> a precise fraction of the time and sometimes <i>doesn't</i> bet the
         King, exactly the unexploitable mix the math prescribes. You can win individual
-        hands (it's still a card game), but over many hands you can't beat it. CFR is the
-        same algorithm — scaled up massively — behind the bots that solved heads-up
+        hands (it's still a card game), but over many hands you can't beat it. CFR is the same algorithm, scaled up massively, behind the bots that solved heads-up
         limit hold'em and beat pros at no-limit.
       </DemoP>
     </>
@@ -156,15 +154,14 @@ function PokerDemo() {
   const concepts = (
     <>
       <DemoP>
-        Poker is the canonical <b>imperfect-information</b> game — you can't see the
-        opponent's cards, so minimax doesn't apply and good play <i>requires</i> randomized
+        Poker is the canonical <b>imperfect-information</b> game. You cannot see the cards of the opponent, so minimax doesn't apply and good play <i>requires</i> randomized
         bluffing. <b>Counterfactual Regret Minimization (CFR)</b>, the self-play algorithm
         here, is the breakthrough that made it tractable: minimize regret over many
         iterations and the average strategy provably converges to a Nash equilibrium.
       </DemoP>
       <DemoP>
-        This is real game theory, not a heuristic. The same CFR family — scaled massively,
-        with state abstraction and deep nets — produced Libratus and Pluribus, the bots that
+        This is real game theory, not a heuristic. The same CFR family, scaled massively with state abstraction and deep nets, produced
+        Libratus and Pluribus, the bots that
         beat professionals at no-limit hold'em. The regret-matching idea connects to online
         learning and the explore/exploit problems elsewhere in the lab, and "play an
         unexploitable mixed strategy" is a principle that reaches into security and
@@ -174,7 +171,7 @@ function PokerDemo() {
   );
   return (
     <DemoLayout topic="GAME · GAME THEORY (CFR)" title="Heads-Up Poker"
-      subtitle="A poker AI that trained itself to a Nash equilibrium with counterfactual regret — bluffs and all."
+      subtitle="A poker AI that trained itself to a Nash equilibrium with counterfactual regret, bluffs and all."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );

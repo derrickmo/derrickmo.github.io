@@ -61,7 +61,7 @@ function WordleDemo() {
     candRef.current = filterCands(candRef.current, g, pat);
     setRows(nrows); setInput(""); setMsg("");
     if (g === ansRef.current) { setDone(true); setMsg(`Solved in ${nrows.length}! (AI: ${aiTarget})`); }
-    else if (nrows.length >= MAX) { setDone(true); setMsg(`Out of guesses — it was ${ansRef.current.toUpperCase()}.`); }
+    else if (nrows.length >= MAX) { setDone(true); setMsg(`Out of guesses. It was ${ansRef.current.toUpperCase()}.`); }
   }
 
   const COL = { g: "#34d399", y: "#fbbf24", b: "rgba(13,24,52,0.7)" };
@@ -116,20 +116,18 @@ function WordleDemo() {
   const explainer = (
     <>
       <DemoP>
-        Good Wordle isn't about knowing fancy words — it's about <b>information</b>.
+        Good Wordle isn't about knowing fancy words. It is about <b>information</b>.
         Every guess splits the remaining possible answers into buckets (one per
         colour pattern). The best guess is the one whose buckets are most even, because
         that's the guess that, on average, eliminates the most candidates no matter what
         the answer turns out to be. That "expected information" is literally
-        <b> entropy</b>, measured in bits — the AI here just picks the highest-entropy
-        guess every turn.
+        <b> entropy</b>, measured in bits. The AI here just picks the highest-entropy guess every turn.
       </DemoP>
       <DemoP>
-        Watch the <span style={{ color: "#60a5fa" }}>candidates-left</span> count
-        collapse — a strong opener can cut thousands of options to a handful in one
+        Watch the <span style={{ color: "#60a5fa" }}>candidates-left</span> count collapse. A strong opener can cut thousands of options to a handful in one
         move. "AI solves in" runs that greedy strategy to completion on the hidden word
         so you've got a target to beat. It's the same information-gain principle behind
-        decision-tree splits and active learning — just wearing a game.
+        decision-tree splits and active learning, just wearing a game.
       </DemoP>
     </>
   );
@@ -137,7 +135,7 @@ function WordleDemo() {
     <>
       <DemoP>
         Wordle is a clean demonstration of <b>information theory</b> in action: the best
-        guess maximizes expected <i>entropy</i> — it splits the remaining answers into the
+        guess maximizes expected <i>entropy</i>. It splits the remaining answers into the
         most even buckets, eliminating the most candidates on average no matter the hidden
         word. Measuring "how much will this tell me?" in bits is the same idea behind data
         compression, coding, and the cross-entropy loss every classifier minimizes.
@@ -145,8 +143,7 @@ function WordleDemo() {
       <DemoP>
         The very same expected-information-gain criterion chooses splits in <b>decision
         trees</b> and picks the most informative examples to label in <b>active learning</b>.
-        It reframes good decision-making as a search for information rather than for an
-        immediate answer — the instinct behind well-designed experiments and the exploration
+        It reframes good decision-making as a search for information rather than for an immediate answer, the instinct behind well-designed experiments and the exploration
         bonuses used in reinforcement learning.
       </DemoP>
     </>

@@ -108,9 +108,9 @@ function MixedPrecisionDemo() {
         options={[{ value: "fp16", label: "fp16" }, { value: "bf16", label: "bf16" }, { value: "fp32", label: "fp32" }]}
         help="The storage format for activations/gradients. fp16 has a narrow exponent range (loss scaling needed); bf16 keeps fp32's range (almost nothing under/overflows) but only 7 mantissa bits; fp32 is the full-precision baseline." />
       <Slider label="// LOSS SCALE (2^x)" min={0} max={16} step={1} value={logScale} onChange={setLogScale}
-        help="Multiplies the loss — and so every gradient — by 2^x before backprop, sliding the whole histogram right into the format's window so small gradients stop flushing to zero. Push it too far in fp16 and the big tail overflows to inf. (Unscaled before the optimizer step.)" />
+        help="Multiplies the loss, and so every gradient, by 2^x before backprop, sliding the whole histogram right into the format's window so small gradients stop flushing to zero. Push it too far in fp16 and the big tail overflows to inf. (Unscaled before the optimizer step.)" />
       <Slider label="// TYPICAL |GRAD| (1e^x)" min={-7} max={-1} step={0.5} value={gradMedian} onChange={setGradMedian}
-        help="Where the gradient magnitudes sit (their median, as a power of ten). Late in training or in deep stacks they get tiny — exactly when fp16 underflow bites and loss scaling earns its keep." />
+        help="Where the gradient magnitudes sit (their median, as a power of ten). Late in training or in deep stacks they get tiny, exactly when fp16 underflow bites and loss scaling earns its keep." />
       <DemoButton onClick={gen} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="PRESERVED" value={(ok / n * 100).toFixed(0) + "%"} accent={ok / n > 0.95 ? "#34d399" : "#fbbf24"} />
@@ -132,17 +132,14 @@ function MixedPrecisionDemo() {
         is everything fp16 can represent; gradients to its left underflow and flush
         to zero (lost signal), and any to its right overflow to infinity (which
         poisons the whole step as NaN). Slide TYPICAL |GRAD| down and watch a big
-        red chunk of the histogram fall off the left edge — the tiny gradients deep
-        nets produce simply vanish.
+        red chunk of the histogram fall off the left edge. The tiny gradients deep nets produce simply vanish.
       </DemoP>
       <DemoP>
         Loss scaling is the fix: multiply the loss by a big constant S so every
-        gradient scales up by S too, sliding the whole histogram right into the
-        green window — then divide it back out before the optimizer updates the
+        gradient scales up by S too, sliding the whole histogram right into the green window, then divide it back out before the optimizer updates the
         weights, so the math is unchanged but nothing underflowed. Raise LOSS SCALE
         and watch "preserved" climb to ~100%; overshoot in fp16 and the right tail
-        starts overflowing. Switch to bf16 and the window stretches across the whole
-        axis — no scaling needed — but you've traded mantissa bits (precision) for
+        starts overflowing. Switch to bf16 and the window stretches across the whole axis, with no scaling needed, but you have traded mantissa bits (precision) for
         that range.
       </DemoP>
     </>
@@ -152,8 +149,7 @@ function MixedPrecisionDemo() {
       <DemoP>
         Mixed precision (Micikevicius et al., 2018) is standard for training large
         models: keep a master copy of weights in fp32, run the forward/backward in
-        16-bit for speed and memory, and use loss scaling (often dynamic — back off
-        on overflow, ramp up otherwise) to keep fp16 gradients in range. It's the
+        16-bit for speed and memory, and use loss scaling (often dynamic, backing off on overflow and ramping up otherwise) to keep fp16 gradients in range. It's the
         numeric-format sibling of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>:
         both spend precision for speed and memory, and both live or die on dynamic
@@ -162,8 +158,7 @@ function MixedPrecisionDemo() {
       <DemoP>
         bf16 won the training format war precisely because its fp32-matching
         exponent range removes the underflow/overflow headache (no loss scaling),
-        and training tolerates its coarser mantissa better than inference tolerates
-        a tiny range — which is why bf16 dominates pretraining while fp16/int8 show
+        and training tolerates its coarser mantissa better than inference tolerates a tiny range, which is why bf16 dominates pretraining while fp16/int8 show
         up more in inference. The frontier pushes further: fp8 (E4M3/E5M2) and
         microscaling formats apply the same range-vs-precision tradeoff at ever
         lower bit-widths.

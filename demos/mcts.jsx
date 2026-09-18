@@ -218,15 +218,13 @@ function MCTSDemo() {
         the root, follow the child with the highest UCB1 score (a mix of "my
         average value here" and "but I haven't visited this branch much") until
         I find a node I haven't fully expanded. <b style={{ color: "#c084fc" }}>Expand</b>: add one new child of that
-        node. <b style={{ color: "#34d399" }}>Rollout</b>: simulate the rest of
-        the game from there — here, a random walk to a leaf. <b style={{ color: "#60a5fa" }}>Backup</b>: the value at
+        node. <b style={{ color: "#34d399" }}>Rollout</b>: simulate the rest of the game from there, here a random walk to a leaf. <b style={{ color: "#60a5fa" }}>Backup</b>: the value at
         the leaf is pushed back up the path you traversed; every node along the
         way bumps its visit count N and its win total W.
       </DemoP>
       <DemoP>
         Watch what happens as you step. Early on the tree is shallow and the
-        algorithm explores broadly. As N grows, UCB sharpens — the search
-        starts spending all its time refining the apparently-best line. The
+        algorithm explores broadly. As N grows, UCB sharpens and the search starts spending all its time refining the apparently-best line. The
         per-node readouts show <b>N</b> on top and the average value <b>W/N</b>{" "}
         below. Hit STEP 100 a few times and the visit counts down the
         principal variation should be much larger than everywhere else.
@@ -244,8 +242,7 @@ function MCTSDemo() {
         reasoning trace as a tree node, expand and backup as you go).
       </DemoP>
       <DemoP>
-        The deep idea is the exploration-vs-exploitation balance baked into
-        UCB1 — the same idea you saw in the multi-armed bandit demo, now
+        The deep idea is the exploration-vs-exploitation balance baked into UCB1, the same idea you saw in the multi-armed bandit demo, now
         applied recursively to a tree. Anytime you can simulate forward
         cheaply, and you want anytime search that improves with more time,
         MCTS is a strong starting point.

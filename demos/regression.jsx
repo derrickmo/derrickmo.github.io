@@ -255,15 +255,14 @@ function RegressionDemo() {
   const explainer = (
     <>
       <DemoP>
-        <b>Linear regression</b> finds the line that minimizes squared error to the
-        data — the violet sticks show each residual, the orange line is the unique
+        <b>Linear regression</b> finds the line that minimizes squared error to the data. The violet sticks show each residual, the orange line is the unique
         least-squares solution. There's no iteration: the optimum has a closed form,
         because MSE is convex in (slope, intercept). Add a point and the line moves
         immediately; crank noise up and the slope estimate gets dragged around.
       </DemoP>
       <DemoP>
-        <b>Logistic regression</b> swaps the line for a probability — the sigmoid of
-        <i> w·x + b</i> — and the loss for binary cross-entropy. No closed form, so we
+        <b>Logistic regression</b> swaps the line for a probability, the sigmoid of <i>w·x + b</i>, and the loss for binary
+        cross-entropy. No closed form, so we
         run real gradient descent: hit TRAIN and watch the boundary rotate toward the
         violet/blue gap as the loss falls. Shift-click to add class-0 points and see
         the model adapt.
@@ -275,13 +274,12 @@ function RegressionDemo() {
       <DemoP>
         These two models are the floor of supervised learning, and almost every model
         you'll meet later is a generalization. Linear regression's least-squares fit is
-        the same math as PCA and the linear case of LoRA — it's projecting onto a
-        subspace. Logistic regression is literally the last layer of a classifier
+        the same math as PCA and the linear case of LoRA. It is projecting onto a subspace. Logistic regression is literally the last layer of a classifier
         neural net: <i>softmax</i> over logits is multi-class logistic regression
         stitched onto learned features.
       </DemoP>
       <DemoP>
-        The <b>loss</b> choice — MSE vs binary cross-entropy — is your first feel for
+        The <b>loss</b> choice, MSE against binary cross-entropy, is your first feel for
         why we pick losses: MSE assumes Gaussian noise, BCE assumes Bernoulli outcomes;
         match the noise model to the data or training fights you. And the <b>gradient
         descent</b> you're watching on the logistic side is the same algorithm scaled

@@ -182,14 +182,14 @@ function RopeDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// QUERY POSITION m_q" min={0} max={SEQ - 1} step={1} value={mq} onChange={setMq}
-        help="Position of the query token. Slide this and watch the attention curve translate — the SHAPE stays identical, only its peak moves. That visual identity is the relative-position invariance RoPE provides for free." />
+        help="Position of the query token. Slide this and watch the attention curve translate. The SHAPE stays identical, only its peak moves. That visual identity is the relative-position invariance RoPE provides for free." />
       <Slider label="// BASE freq" min={100} max={50000} step={100} value={base} onChange={setBase} tone="violet"
         help="The 10000 in theta = m * 10000^(-2i/d). Larger base = slower-rotating high bands = longer position context before aliasing. Llama uses 10000 (or 500000+ for long-context fine-tunes)." />
       <Slider label="// d (pair count)" min={1} max={4} step={1} value={dPairs} onChange={setDPairs}
         help="Number of 2-D rotation bands used. Each band rotates at its own frequency; together they form a position fingerprint. Real models use 32-64+." />
       <SegmentedControl label="// VIEW BAND" value={String(band)} onChange={(v) => setBand(parseInt(v))}
         options={Array.from({ length: dPairs }, (_, i) => ({ value: String(i), label: `${i}` }))} tone="violet"
-        help="Which rotation band to draw in the 2-D panel on the left. Low bands rotate fast (high frequency) — good for nearby tokens. High bands rotate slowly — encode coarse position." />
+        help="Which rotation band to draw in the 2-D panel on the left. Low bands rotate fast (high frequency), good for nearby tokens. High bands rotate slowly and encode coarse position." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="attn(m_q, m_q+3)" value={ropeScore(Q, K, mq, mq + 3, base, dPairs).toFixed(3)} />
         <StatReadout label="| attn(m,m+3) − attn(0,3) |" value={probe.toFixed(4)} accent="#fbbf24" />
@@ -213,8 +213,7 @@ function RopeDemo() {
       <DemoP>
         The magic property is in the right-hand readout: <i>attn(m, n)</i> depends
         only on <i>(m − n)</i>, not on m and n individually. Slide the query
-        position <i>m_q</i> and watch the orange attention curve translate — never
-        change shape. That's why RoPE generalizes beyond the training-time context
+        position <i>m_q</i> and watch the orange attention curve translate and never change shape. That's why RoPE generalizes beyond the training-time context
         length while learned absolute embeddings don't.
       </DemoP>
     </>

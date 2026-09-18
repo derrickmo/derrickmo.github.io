@@ -105,9 +105,9 @@ function VectorSearchDemo() {
     <ControlGroup>
       <SegmentedControl label="// METRIC" value={metric} onChange={setMetric}
         options={[{ value: "cosine", label: "Cosine" }, { value: "euclidean", label: "Euclidean" }]}
-        help="How 'near' is measured. Cosine ranks by the angle between vectors (ignores magnitude — usual for text embeddings); Euclidean ranks by straight-line distance." />
+        help="How 'near' is measured. Cosine ranks by the angle between vectors (ignoring magnitude, which is usual for text embeddings); Euclidean ranks by straight-line distance." />
       <Slider label="// k (NEIGHBORS)" min={1} max={25} value={k} onChange={setK}
-        help="How many nearest neighbors to retrieve. Small k is precise but may miss context; large k casts a wider net (more recall, more noise) — the top-k of a RAG retriever." />
+        help="How many nearest neighbors to retrieve. Small k is precise but may miss context; large k casts a wider net (more recall, more noise), the top-k of a RAG retriever." />
       <DemoButton onClick={() => { dataRef.current = genData(); draw(); }} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="RETRIEVED" value={stats.k} accent="#fbbf24" />
@@ -124,17 +124,15 @@ function VectorSearchDemo() {
         down to the same operation: embed everything as a vector, then find the
         <b> k nearest</b> to your query. Click to drop the query anywhere and watch the
         top-k light up. The <b>metric</b> defines "near": <b>Euclidean</b> distance
-        measures straight-line closeness, while <b>cosine</b> similarity measures the
-        <i> angle</i> between vectors — ignoring magnitude, which is usually what you
-        want for text embeddings.
+        measures straight-line closeness, while <b>cosine</b> similarity measures the{" "}
+        <i>angle</i> between vectors, ignoring magnitude, which is usually what you want for text embeddings.
       </DemoP>
       <DemoP>
         Switch between them with the query near the origin and the retrieved set can
         change completely: cosine pulls in everything along the query's direction (the
         dashed ray), even if it's far away, while Euclidean stays local. Real systems
         run this over millions of vectors using approximate-nearest-neighbor indexes
-        (HNSW, IVF) that trade a sliver of accuracy for massive speed — but the idea you
-        feel here, ranking by a distance in embedding space, is exactly what they
+        (HNSW, IVF) that trade a sliver of accuracy for massive speed, but the idea you feel here, ranking by a distance in embedding space, is exactly what they
         accelerate.
       </DemoP>
     </>
@@ -149,12 +147,11 @@ function VectorSearchDemo() {
         LLM access to private or up-to-date knowledge.
       </DemoP>
       <DemoP>
-        Two practical realities live here. The <b>metric</b> matters — cosine and Euclidean
-        can return different neighbors, and most text embeddings are tuned for cosine. And
+        Two practical realities live here. The <b>metric</b> matters, because cosine and Euclidean can return different neighbors, and most text embeddings are tuned for cosine. And
         exact kNN doesn't scale to millions of vectors, so production uses
         approximate-nearest-neighbor indexes (HNSW graphs, IVF, product quantization) that
-        trade a little recall for orders-of-magnitude speed. Retrieval quality — the right
-        k, good embeddings, optional reranking — is usually what makes or breaks a RAG
+        trade a little recall for orders-of-magnitude speed. Retrieval quality, the right k plus good embeddings plus optional reranking, is
+        usually what makes or breaks a RAG
         system, more than the LLM itself.
       </DemoP>
     </>

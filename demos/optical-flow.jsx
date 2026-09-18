@@ -134,13 +134,13 @@ function OpticalFlowDemo() {
     <ControlGroup>
       <DemoButton onClick={() => setPlaying(p => !p)} tone="violet" primary>{playing ? "PAUSE" : "PLAY"}</DemoButton>
       <Slider label="// SPEED" min={0.2} max={3.5} step={0.1} value={speed} onChange={setSpeed} suffix=" px/f" tone="violet"
-        help="Magnitude of the true per-frame translation. Lucas-Kanade assumes small motion (it linearizes brightness), so very large speeds break the estimate — the classic LK limitation that pyramids fix." />
+        help="Magnitude of the true per-frame translation. Lucas-Kanade assumes small motion (it linearizes brightness), so very large speeds break the estimate, the classic LK limitation that pyramids fix." />
       <Slider label="// DIRECTION" min={0} max={359} step={1} value={angle} onChange={setAngle} suffix="deg" tone="blue"
-        help="Angle of the true motion. Watch every estimated arrow swing to match — uniform translation gives a uniform flow field." />
+        help="Angle of the true motion. Watch every estimated arrow swing to match. Uniform translation gives a uniform flow field." />
       <Slider label="// LK WINDOW" min={2} max={9} step={1} value={win} onChange={setWin} tone="violet"
         help="Radius of the neighborhood summed into the 2x2 system. Larger windows are steadier but blur motion boundaries and assume the whole window moves together." />
       <Toggle label="// SHOW It (frame difference)" checked={showDiff} onChange={setShowDiff} tone="blue"
-        help="Color the temporal brightness change It between consecutive frames — red where it darkened, blue where it brightened. It is the raw signal that drives the flow solve." />
+        help="Color the temporal brightness change It between consecutive frames: red where it darkened, blue where it brightened. It is the raw signal that drives the flow solve." />
       <StatReadout label="MEAN FLOW ERROR" value={err.toFixed(3) + " px"} accent={err < 0.3 ? "var(--blue-lt)" : "var(--violet-lt)"} />
       <Legend items={[{ label: "estimated flow", color: "#a855f7" }]} />
     </ControlGroup>
@@ -150,17 +150,15 @@ function OpticalFlowDemo() {
     <>
       <DemoP>
         Optical flow asks: where did each pixel go between two frames? The key
-        assumption is <b>brightness constancy</b> — a point keeps its intensity as it
-        moves, so I(x, y, t) = I(x + u, y + v, t + 1). Linearize that and you get the
+        assumption is <b>brightness constancy</b>: a point keeps its intensity as it moves, so I(x, y, t) = I(x + u, y + v, t + 1). Linearize that and you get the
         <b> optical-flow constraint</b> I<sub>x</sub>u + I<sub>y</sub>v + I<sub>t</sub> = 0:
-        one equation, two unknowns (u, v). A single pixel isn't enough — that's the
-        <b> aperture problem</b>.
+        one equation, two unknowns (u, v). A single pixel is not enough, and that is the <b>aperture problem</b>.
       </DemoP>
       <DemoP>
         <b>Lucas-Kanade</b> fixes this by assuming every pixel in a small window
         shares the same motion, stacking one constraint per pixel and solving the
         2×2 least-squares system. Here the whole texture is rigidly translating, so
-        the true flow is a known constant — compare it to the violet arrows and watch
+        the true flow is a known constant. Compare it to the violet arrows and watch
         the <b>mean flow error</b>. Push the <b>speed</b> up and the error grows: LK
         linearizes brightness, so it only handles small motion (real systems run it
         on an image pyramid to cope). Toggle <b>It</b> to see the raw temporal signal.
@@ -176,14 +174,12 @@ function OpticalFlowDemo() {
         visual odometry and SLAM, and driver-assistance all estimate per-pixel or
         per-feature motion. Classic pipelines track
         <a href={`${window.__DM_BASE || "../../"}visualize/harris-corners/`}> Harris corners</a>
-        across frames precisely because corners dodge the aperture problem — they pin
-        down both motion components. The gradients here are the same Sobel-style
+        across frames precisely because corners dodge the aperture problem. They pin down both motion components. The gradients here are the same Sobel-style
         derivatives from <a href={`${window.__DM_BASE || "../../"}visualize/edge-detection/`}>edge detection</a>.
       </DemoP>
       <DemoP>
         The aperture problem and its least-squares fix are a general lesson: a local
-        measurement underdetermines the answer, so you pool a neighborhood and solve
-        a small system — the same move as the structure tensor in corner detection.
+        measurement underdetermines the answer, so you pool a neighborhood and solve a small system, the same move as the structure tensor in corner detection.
         Modern methods (Horn-Schunck's global smoothness, and learned networks like
         RAFT) push accuracy further, but they're all chasing the dense motion field
         Lucas-Kanade estimates sparsely here.

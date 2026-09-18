@@ -127,13 +127,12 @@ function MLEDemo() {
       <DemoP>
         Maximum likelihood asks a single question: which parameters make the data I actually
         observed most probable? The image is that question drawn as a surface over μ and σ, brighter
-        where the observed sample is more likely. Fitting a model by maximum likelihood is climbing
-        that surface — and the yellow dot is you, dragging.
+        where the observed sample is more likely. Fitting a model by maximum likelihood is climbing that surface, and the yellow dot is you, dragging.
       </DemoP>
       <DemoP>
         The green dot is the summit, and the thing worth noticing is that <strong>it is not
         computed by searching</strong>. For a Gaussian the maximiser has a closed form, and it is
-        the sample mean and the sample standard deviation — the readouts show MLE μ equal to the
+        the sample mean and the sample standard deviation. The readouts show MLE μ equal to the
         sample mean exactly, because that is literally the number being plotted. Searching for it
         instead, with a 0.005 grid over this same surface, lands on 2.6950 / 1.2500 against the
         closed form's 2.6974 / 1.2480: agreement to 2.4e-3, which is half the grid step. Statistics
@@ -141,7 +140,7 @@ function MLEDemo() {
       </DemoP>
       <DemoP>
         One honest wrinkle sits in the readouts. The MLE for σ divides by <em>n</em>, while the
-        unbiased estimator divides by <em>n−1</em>, and they differ — visibly at small n. Maximum
+        unbiased estimator divides by <em>n−1</em>, and they differ visibly at small n. Maximum
         likelihood is <strong>not</strong> guaranteed unbiased; it is guaranteed to be
         <em> consistent</em>, converging on the truth as n grows. Drag SAMPLE SIZE and watch two
         things at once: the gap between the two σ readouts collapses (<strong>0.0570 at n=10,
@@ -158,8 +157,7 @@ function MLEDemo() {
         Training a classifier is this. Minimising
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/cross-entropy/`}>cross-entropy</a>{" "}
         is maximising the log-likelihood of the labels under the model, and minimising squared error
-        is maximum likelihood under Gaussian noise — which is why those two losses are not
-        arbitrary choices but consequences of an assumed noise model.
+        is maximum likelihood under Gaussian noise, which is why those two losses are not arbitrary choices but consequences of an assumed noise model.
       </DemoP>
       <DemoP>
         Adding a prior turns the same picture into MAP estimation: L2 regularisation is a Gaussian

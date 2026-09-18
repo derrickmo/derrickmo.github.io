@@ -145,8 +145,8 @@ function SaliencyDemo() {
       <DemoP>
         How do you explain an image model's decision? Saliency takes the gradient of
         the output with respect to every input pixel: ∂(score)/∂(pixel). A pixel
-        with a large gradient is one the model is sensitive to — nudge it and the
-        prediction moves — so the magnitude of that gradient, drawn as a heatmap, is
+        with a large gradient is one the model is sensitive to, so nudging it moves the prediction, and the magnitude of
+        that gradient, drawn as a heatmap, is
         a first-order "what is the model looking at?" map. Here the classifier
         separates vertical from horizontal bars, and the bright saliency pixels land
         right on the bar that decides the class.
@@ -155,8 +155,7 @@ function SaliencyDemo() {
         Paint on the left grid (click cells) and the map recomputes live: add a
         competing bar and you'll see saliency split between the features fighting
         over the decision; erase the discriminative line and confidence collapses.
-        Because the network is nonlinear, the explanation is input-specific — the
-        same model highlights different pixels for different images, which is
+        Because the network is nonlinear, the explanation is input-specific. The same model highlights different pixels for different images, which is
         exactly what makes a per-example attribution useful (and what a single set
         of weights can't tell you).
       </DemoP>
@@ -166,8 +165,7 @@ function SaliencyDemo() {
     <>
       <DemoP>
         Saliency maps (Simonyan et al., 2013) are the gradient-based branch of
-        explainability for vision and any differentiable model — the image-space
-        sibling of the game-theoretic{" "}
+        explainability for vision and any differentiable model, the image-space sibling of the game-theoretic{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/shap/`} style={{ color: "#a855f7" }}>SHAP</a>{" "}
         attributions for tabular features. They're cheap (one backward pass) and
         intuitive, and they underpie a family: Grad-CAM (gradients at a conv layer),
@@ -180,8 +178,7 @@ function SaliencyDemo() {
         a saliency map shows what the model is sensitive to, not whether its reasoning
         is correct or causal. That's why it sits alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
-        and SHAP in the trustworthy-ML toolkit rather than standing alone — an
-        attribution is a hypothesis about the model, to be checked, not a guarantee.
+        and SHAP in the trustworthy-ML toolkit rather than standing alone. An attribution is a hypothesis about the model, to be checked, not a guarantee.
       </DemoP>
     </>
   );

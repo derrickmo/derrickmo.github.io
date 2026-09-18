@@ -131,7 +131,7 @@ function PerceptronDemo() {
     }
 
     ctx.fillStyle = st.converged ? "#34d399" : "#a855f7"; ctx.font = "600 13px Space Grotesk, JetBrains Mono";
-    ctx.fillText(st.converged ? "CONVERGED — separating line found" : "SEARCHING…", 16, H - 14);
+    ctx.fillText(st.converged ? "CONVERGED: separating line found" : "SEARCHING…", 16, H - 14);
   }
 
   _useEffect(() => {
@@ -146,7 +146,7 @@ function PerceptronDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// LEARNING RATE  η" min={0.05} max={1} step={0.05} value={lr} onChange={setLr} tone="violet"
-        help="Size of each corrective nudge. With zero-initialized weights it only rescales w, so it doesn't change WHETHER the perceptron converges (the boundary is the same) — just the magnitude of the steps. A real quirk of this algorithm." />
+        help="Size of each corrective nudge. With zero-initialized weights it only rescales w, so it doesn't change WHETHER the perceptron converges (the boundary is the same), just the magnitude of the steps. A real quirk of this algorithm." />
       <Slider label="// CLASS OVERLAP" min={0} max={1} step={0.05} value={overlap} onChange={setOverlap}
         help="Flips labels near the true boundary, making the classes overlap. At 0 the data is linearly separable and the perceptron is guaranteed to converge; above 0 it's non-separable and the boundary will swing forever, never settling. Resets the data." />
       <Slider label="// POINTS  N" min={20} max={120} step={10} value={N} onChange={setN}
@@ -175,14 +175,13 @@ function PerceptronDemo() {
         decision boundary and the yellow arrow is its weight vector w (the boundary
         is always perpendicular to it). The rule is almost absurdly simple: walk
         through the points, and every time one is on the wrong side (circled
-        yellow), add that point's coordinates — times its label — onto w. That single
+        yellow), add the coordinates of that point, times its label, onto w. That single
         nudge rotates the boundary toward fixing it. Points it already gets right
         cause no change at all.
       </DemoP>
       <DemoP>
         When the classes are separable (CLASS OVERLAP = 0), mistakes per epoch fall
-        to zero and it locks onto a separating line — the Perceptron Convergence
-        Theorem in action. Now raise CLASS OVERLAP so a few labels flip across the
+        to zero and it locks onto a separating line, the Perceptron Convergence Theorem in action. Now raise CLASS OVERLAP so a few labels flip across the
         boundary: there's no line that fits, so the perceptron keeps over-correcting
         forever, the boundary wobbling endlessly. It never says "good enough." That
         failure is exactly why the field moved to margins (the SVM picks the BEST
@@ -206,8 +205,7 @@ function PerceptronDemo() {
       </DemoP>
       <DemoP>
         Caveats: the perceptron only finds SOME separating line, not the best one,
-        and it diverges (never halts) on non-separable data — Minsky and Papert's
-        famous critique that it can't even learn XOR helped trigger the first AI
+        and it diverges (never halts) on non-separable data, the famous Minsky and Papert critique that it can't even learn XOR helped trigger the first AI
         winter. The fixes that followed are the backbone of ML today: kernels and
         margins for separability and robustness, the logistic/cross-entropy loss for
         a probabilistic, always-defined objective, and multilayer networks with

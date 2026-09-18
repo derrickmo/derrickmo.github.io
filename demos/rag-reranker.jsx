@@ -93,9 +93,9 @@ function RagRerankerDemo() {
       <Slider label="// CANDIDATE POOL (top-k)" min={3} max={9} step={1} value={poolK} onChange={setPoolK} tone="violet"
         help="How many docs the cheap first stage hands to the reranker. Larger pool = better recall (the reranker can rescue more buried relevant docs) but more expensive cross-encoder calls. The classic recall-then-precision split." />
       <Slider label="// FINAL N" min={2} max={6} step={1} value={finalN} onChange={setFinalN}
-        help="How many reranked docs you actually pass to the model. nDCG is measured at this cutoff — reranking's win shows most at small N, where ordering matters." />
+        help="How many reranked docs you actually pass to the model. nDCG is measured at this cutoff, and the win from reranking shows most at small N, where ordering matters." />
       <Slider label="// RERANKER QUALITY" min={0.3} max={1} step={0.05} value={quality} onChange={setQuality}
-        help="How close the cross-encoder's scores are to true relevance. At 1 it sorts the pool perfectly; lower quality adds noise. A reranker only helps if it's genuinely better than the first-stage ranker — and it's bounded by what the pool contains." />
+        help="How close the cross-encoder's scores are to true relevance. At 1 it sorts the pool perfectly; lower quality adds noise. A reranker only helps if it's genuinely better than the first-stage ranker, and it is bounded by what the pool contains." />
       <DemoButton onClick={genCE} primary>RESAMPLE RERANKER</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="nDCG RETRIEVE" value={ndcgBi.toFixed(2)} accent="#94a3b8" />
@@ -113,19 +113,16 @@ function RagRerankerDemo() {
       <DemoP>
         Production retrieval is two stages for a reason. The first stage (a
         bi-encoder, or the lexical TF-IDF here) embeds queries and documents
-        separately, so it's cheap enough to scan the whole corpus — but it ranks by
-        surface similarity and tends to bury documents that are relevant in meaning
+        separately, so it's cheap enough to scan the whole corpus, but it ranks by surface similarity and tends to bury documents that are relevant in meaning
         rather than wording. Look at the left column: a couple of highly-relevant
         docs (green) sit low because they share few exact query terms.
       </DemoP>
       <DemoP>
         The reranker is a cross-encoder: it feeds the query and a candidate document
-        through the model <i>together</i>, so it can judge true relevance far more
-        precisely — but at the cost of one model call per candidate, which is why it
+        through the model <i>together</i>, so it can judge true relevance far more precisely, but at the cost of one model call per candidate, which is why it
         only ever runs on the small top-k pool. Reorder by its scores and the green
         docs jump to the top; nDCG climbs from the retrieval value to the reranked
-        one. Shrink RERANKER QUALITY and the gain fades — a reranker only helps if
-        it's actually smarter than the stage feeding it.
+        one. Shrink RERANKER QUALITY and the gain fades. A reranker only helps if it is actually smarter than the stage feeding it.
       </DemoP>
     </>
   );
@@ -144,11 +141,10 @@ function RagRerankerDemo() {
       </DemoP>
       <DemoP>
         The ceiling is the catch: the reranker can only reorder what the first stage
-        retrieved, so a relevant doc missing from the pool is lost no matter how good
-        the reranker — which is exactly why pool size (recall) and reranker quality
+        retrieved, so a relevant doc missing from the pool is lost no matter how good the reranker, which is exactly why pool size (recall) and reranker quality
         (precision) are the two knobs here. In practice rerankers are distilled
-        cross-encoders or LLM listwise rankers, and the same idea — cheap candidate
-        generation then expensive scoring — recurs in recommenders and even
+        cross-encoders or LLM listwise rankers, and the same idea, cheap candidate generation then expensive scoring, recurs in
+        recommenders and even
         speculative decoding.
       </DemoP>
     </>

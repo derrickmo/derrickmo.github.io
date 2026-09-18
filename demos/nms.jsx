@@ -115,19 +115,17 @@ function NMSDemo() {
   const explainer = (
     <>
       <DemoP>
-        A detector doesn't emit one clean box per object — it fires dozens of
-        overlapping candidates, each with a confidence score. <b>Non-Maximum
+        A detector doesn't emit one clean box per object. It fires dozens of overlapping candidates, each with a confidence score. <b>Non-Maximum
         Suppression</b> cleans that up with a greedy rule: take the highest-scoring
         box, throw away every other box that overlaps it too much, and repeat. "Too
-        much" is measured by <b>Intersection-over-Union</b> — the shared area divided
-        by the combined area of two boxes. Drag the <b>IoU threshold</b>: low values
+        much" is measured by <b>Intersection-over-Union</b>, the shared area divided by the combined area of two boxes. Drag the <b>IoU threshold</b>: low values
         suppress aggressively (one box per object), high values let near-duplicates
         survive.
       </DemoP>
       <DemoP>
         The <b>confidence threshold</b> first drops weak detections entirely (greyed
         out) before NMS even runs. Tuning these two knobs is the everyday reality of
-        shipping an object detector — too strict and you miss real objects, too loose
+        shipping an object detector. Too strict and you miss real objects, too loose
         and the image fills with duplicate boxes. The same IoU metric also defines how
         detection accuracy (mAP) is scored against ground truth.
       </DemoP>
@@ -136,18 +134,16 @@ function NMSDemo() {
   const concepts = (
     <>
       <DemoP>
-        NMS is the universal cleanup step at the end of nearly every object detector — YOLO,
-        Faster R-CNN, and SSD all emit a flood of overlapping boxes and lean on it to reduce
+        NMS is the universal cleanup step at the end of nearly every object detector: YOLO, Faster R-CNN and SSD all emit a flood of overlapping boxes and lean on it to reduce
         them to one per object. It runs in real-world vision everywhere: self-driving
         perception, retail shelf analytics, medical imaging, and face detection.
       </DemoP>
       <DemoP>
-        The IoU metric you're tuning does double duty — it both drives suppression and
+        The IoU metric you're tuning does double duty. It both drives suppression and
         defines how detection accuracy itself is scored (mAP at various IoU thresholds
         against ground truth). The greedy algorithm's weakness, wrongly suppressing two
         genuinely overlapping objects, motivated successors like Soft-NMS and ultimately
-        NMS-free detectors like DETR that learn set prediction end-to-end — a clean example
-        of a hand-coded heuristic being gradually absorbed into the network.
+        NMS-free detectors like DETR that learn set prediction end-to-end, a clean example of a hand-coded heuristic being gradually absorbed into the network.
       </DemoP>
     </>
   );

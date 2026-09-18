@@ -141,7 +141,7 @@ function ClassificationMetricsDemo() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {/* Size these from the matrix, NOT from K. dataRef is rebuilt in an effect, which runs
             AFTER render, so on the render where K has just changed the new K is paired with the
-            previous matrix — metrics() then walked off the end of it (C[3][0]) and blanked the
+            previous matrix, and metrics() then walked off the end of it (C[3][0]) and blanked the
             whole page the first time anyone dragged the CLASSES slider. */}
         <StatReadout label="ACCURACY" value={dataRef.current ? (metrics(dataRef.current.C, dataRef.current.C.length).acc * 100).toFixed(1) + "%" : "-"} accent="#60a5fa" />
         <StatReadout label="MACRO-F1" value={dataRef.current ? metrics(dataRef.current.C, dataRef.current.C.length).macroF1.toFixed(3) : "-"} accent="#34d399" />

@@ -110,13 +110,13 @@ function SimpsonsDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CONFOUNDING STRENGTH" min={0} max={1.6} step={0.1} value={conf} onChange={setConf} tone="violet"
-        help="How far the confounder pulls the groups apart (higher-X groups pushed to lower Y). At 0 there's no paradox; turn it up and the pooled line flips to the opposite sign of the within-group lines — the paradox appears." />
+        help="How far the confounder pulls the groups apart (higher-X groups pushed to lower Y). At 0 there's no paradox; turn it up and the pooled line flips to the opposite sign of the within-group lines, so the paradox appears." />
       <Slider label="// WITHIN-GROUP SLOPE" min={-1} max={1.5} step={0.1} value={wslope} onChange={setWslope}
         help="The true relationship inside each group. Keep it positive and crank confounding to get the classic reversal; the per-group colored lines always reflect this slope." />
       <Slider label="// GROUPS" min={2} max={4} step={1} value={G} onChange={setG}
-        help="Number of confounding subgroups (e.g., severity levels, departments, batches). More groups make the staircase of group means — and thus the misleading pooled trend — clearer." />
+        help="Number of confounding subgroups (e.g., severity levels, departments, batches). More groups make the staircase of group means, and thus the misleading pooled trend, clearer." />
       <Toggle label="// SHOW GROUPS" checked={showGroups} onChange={setShowGroups}
-        help="Off: see the data as a naive analyst would — one gray cloud and the pooled trend. On: reveal the subgroups and their real (opposite) within-group trends. Toggling is the whole 'aha'." />
+        help="Off: see the data as a naive analyst would: one gray cloud and the pooled trend. On: reveal the subgroups and their real (opposite) within-group trends. Toggling is the whole 'aha'." />
       <DemoButton onClick={gen} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="POOLED" value={(pooledSlope >= 0 ? "+" : "") + pooledSlope.toFixed(2)} accent={pooledSlope >= 0 ? "#34d399" : "#f87171"} />
@@ -133,8 +133,8 @@ function SimpsonsDemo() {
     <>
       <DemoP>
         Every colored cluster slopes <i>up</i>: inside each group, more X means more
-        Y. Yet the dashed pooled line — the trend you'd report if you ignored the
-        groups — slopes <i>down</i>. That's Simpson's paradox: a confounder (the
+        Y. Yet the dashed pooled line, the trend you would report if you ignored the groups, slopes{" "}
+        <i>down</i>. That's Simpson's paradox: a confounder (the
         thing that defines the groups) shifts the clusters so that groups with high
         X happen to sit at low Y, and naively pooling everything inverts the
         relationship. Toggle SHOW GROUPS off to see exactly the misleading picture
@@ -142,8 +142,7 @@ function SimpsonsDemo() {
       </DemoP>
       <DemoP>
         Drag CONFOUNDING STRENGTH from 0 upward and watch the pooled slope cross
-        zero and flip sign while the within-group slopes never move — the paradox
-        switches on. The lesson isn't that statistics lie; it's that the right
+        zero and flip sign while the within-group slopes never move. The paradox switches on. The lesson isn't that statistics lie; it's that the right
         analysis depends on the causal story. If the group is a confounder you must
         condition on it (the within-group trend is correct); the aggregate answer
         is the wrong one to act on.
@@ -155,8 +154,7 @@ function SimpsonsDemo() {
       <DemoP>
         Simpson's paradox is the most famous face of confounding, the central
         problem of causal inference: an observed correlation can be created,
-        erased, or reversed by a lurking variable. It's why "correlation isn't
-        causation" has teeth — and why real studies adjust for confounders
+        erased, or reversed by a lurking variable. It's why "correlation isn't causation" has teeth, and why real studies adjust for confounders
         (stratification, regression controls) or randomize to break the
         confounder's link to treatment. Famous real cases: the Berkeley admissions
         "bias" that reversed by department, and treatment-vs-severity in medicine.
@@ -166,8 +164,7 @@ function SimpsonsDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/fairness/`} style={{ color: "#a855f7" }}>fairness</a>{" "}
         (an aggregate disparity can flip within subgroups) and to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/regression/`} style={{ color: "#a855f7" }}>regression</a>{" "}
-        (which estimate you trust depends on what you control for). The formal tools
-        — causal graphs, the back-door criterion, and the do-operator — exist
+        (which estimate you trust depends on what you control for). The formal tools, causal graphs and the back-door criterion and the do-operator, exist
         precisely to decide which variables to condition on so the number you report
         means what you think it means.
       </DemoP>

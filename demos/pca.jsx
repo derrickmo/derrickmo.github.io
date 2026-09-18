@@ -118,7 +118,7 @@ function PCADemo() {
         options={[{ value: "correlated", label: "Correlated" }, { value: "clusters", label: "Clusters" }, { value: "ring", label: "Ring" }]}
         help="The data shape. 'Correlated' has one dominant direction so PCA compresses it well; 'Ring' spreads variance every way, which PCA can't reduce cleanly." />
       <Toggle label="// PROJECT ONTO PC1" checked={project} onChange={setProject} tone="violet"
-        help="Collapse every point onto the top principal axis — the dimensionality reduction itself. Notice how little is lost when PC2 carries little variance." />
+        help="Collapse every point onto the top principal axis, which is the dimensionality reduction itself. Notice how little is lost when PC2 carries little variance." />
       <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="PC1 VARIANCE" value={stats.pc1 + "%"} accent="#fbbf24" />
@@ -131,16 +131,14 @@ function PCADemo() {
     <>
       <DemoP>
         PCA finds the directions along which the data varies most. We center the
-        cloud, build its 2×2 covariance matrix, and take its eigenvectors — the
-        <span style={{ color: "#fbbf24" }}> PC1</span> arrow points along the
+        cloud, build its 2×2 covariance matrix, and take its eigenvectors. The <span style={{ color: "#fbbf24" }}> PC1</span> arrow points along the
         direction of greatest variance, <span style={{ color: "#34d399" }}>PC2</span>
         is orthogonal to it, and each arrow's length is the spread (√eigenvalue)
         along it. The readouts show how much of the total variance each component
         explains.
       </DemoP>
       <DemoP>
-        Turn on <b>Project onto PC1</b> to collapse every point onto that first axis
-        — that's dimensionality reduction: trading the small-variance direction for a
+        Turn on <b>Project onto PC1</b> to collapse every point onto that first axis. That is dimensionality reduction: trading the small-variance direction for a
         compact 1-D representation that keeps most of the information (look at how
         little PC2 carries on the "correlated" set). The same eigen-decomposition
         powers compression, denoising, and the embeddings you visualize elsewhere in
@@ -151,8 +149,7 @@ function PCADemo() {
   const concepts = (
     <>
       <DemoP>
-        PCA is the default tool for dimensionality reduction, visualization, and
-        decorrelation — compressing high-dimensional features, denoising, speeding up
+        PCA is the default tool for dimensionality reduction, visualization, and decorrelation: compressing high-dimensional features, denoising, speeding up
         downstream models, and giving a quick 2-D look at data you otherwise can't plot.
         Under the hood it's an eigen-decomposition of the covariance matrix, the same
         linear-algebra machinery behind whitening, spectral methods, and the matrix
@@ -162,7 +159,7 @@ function PCADemo() {
         The "variance explained" idea is the intuition behind much of modern
         representation learning: embeddings, autoencoders, and latent spaces all chase a
         compact code that keeps the meaningful directions and discards noise. PCA's
-        <i> linearity</i> is also its limit — which is precisely why nonlinear methods like
+        <i> linearity</i> is also its limit, which is precisely why nonlinear methods like
         t-SNE, UMAP, and autoencoders exist for data that doesn't lie near a flat subspace.
       </DemoP>
     </>

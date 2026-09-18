@@ -103,7 +103,7 @@ function TicTacToeDemo() {
         <StatReadout label="DRAWS" value={tally.d} />
         <StatReadout label="AI" value={tally.l} accent="#c084fc" />
       </div>
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>On "Perfect", the AI searches the whole game tree — you can't win, only draw.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>On "Perfect", the AI searches the whole game tree. You cannot win, only draw.</div>
     </ControlGroup>
   );
   const explainer = (
@@ -112,13 +112,11 @@ function TicTacToeDemo() {
         This opponent plays <b>minimax</b>: it imagines every possible continuation of
         the game, assuming you'll always make <i>your</i> best reply, and picks the move
         that maximizes its worst-case outcome. Tic-tac-toe's game tree is small enough
-        to search completely, so on <b>Perfect</b> the AI is provably unbeatable — the
-        best any human can achieve is a draw. (It also breaks ties toward faster wins
+        to search completely, so on <b>Perfect</b> the AI is provably unbeatable. The best any human can achieve is a draw. (It also breaks ties toward faster wins
         and slower losses via a depth term, so it punishes mistakes quickly.)
       </DemoP>
       <DemoP>
-        Drop the difficulty and the AI starts injecting random mistakes — now there's
-        an opening to win. This is the exact algorithm (plus alpha-beta pruning to skip
+        Drop the difficulty and the AI starts injecting random mistakes. Now there is an opening to win. This is the exact algorithm (plus alpha-beta pruning to skip
         hopeless branches) behind classic game AI like chess and checkers engines; the
         only thing that changes at scale is that you can no longer search the whole
         tree, so you cut it off and <i>estimate</i> the leaves.
@@ -128,8 +126,7 @@ function TicTacToeDemo() {
   const concepts = (
     <>
       <DemoP>
-        Minimax is the foundational algorithm of adversarial game AI — assume a perfectly
-        rational opponent, then choose the move with the best worst-case outcome. Because
+        Minimax is the foundational algorithm of adversarial game AI: assume a perfectly rational opponent, then choose the move with the best worst-case outcome. Because
         tic-tac-toe's tree is tiny it can be solved exactly, which is why <b>Perfect</b> is
         provably unbeatable; the same logic, just truncated, drives chess and checkers
         engines.
@@ -137,8 +134,7 @@ function TicTacToeDemo() {
       <DemoP>
         The two ideas that scale up are here in miniature. The depth-aware scoring (prefer
         faster wins, slower losses) is a tiny <i>evaluation function</i>, and the only thing
-        that changes for big games is that you can't reach the leaves — so you cut the
-        search off early and estimate the position. That's the whole leap from solved games
+        that changes for big games is that you cannot reach the leaves, so you cut the search off early and estimate the position. That's the whole leap from solved games
         to heuristic engines, and eventually to learned evaluations like AlphaZero's.
       </DemoP>
     </>

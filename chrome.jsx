@@ -35,8 +35,8 @@ window.__dmCopyEmail = function () {
     clearTimeout(window.__dmToastT);
     window.__dmToastT = setTimeout(() => { t.style.opacity = "0"; }, failed ? 6000 : 2000);
   };
-  const ok = () => show("Email copied — " + DM_EMAIL, false);
-  const fail = () => show("Couldn't copy automatically — " + DM_EMAIL, true);
+  const ok = () => show("Email copied: " + DM_EMAIL, false);
+  const fail = () => show("Could not copy automatically. The address is " + DM_EMAIL, true);
   let p = null;
   try { if (navigator.clipboard && navigator.clipboard.writeText) p = navigator.clipboard.writeText(DM_EMAIL); } catch (e) { p = null; }
   if (p && typeof p.then === "function") p.then(ok, fail); else fail();
@@ -223,7 +223,7 @@ function Connections({ ids }) {
           <div key={c.id} className="t-body" style={{ color: "var(--white)", opacity: 0.85, fontSize: 15, lineHeight: 1.6 }}>
             <a href={`${BASE}concepts/${c.id}/`} style={{ color: "var(--blue-br)", textDecoration: "none", fontWeight: 600 }}>{c.name}</a>
             <span style={{ color: "var(--dim)" }}> · {c.area}</span>
-            {c.summary ? <span style={{ color: "var(--muted)" }}> — {c.summary}</span> : null}
+            {c.summary ? <span style={{ color: "var(--muted)" }}>: {c.summary}</span> : null}
           </div>
         ))}
         {groups.map(g => (
@@ -638,7 +638,7 @@ function Footer() {
               Let's build<br />something.
             </h2>
             <div className="t-body" style={{ color: "var(--muted)", maxWidth: 460, fontSize: 16 }}>
-              Always glad to talk shop — research collaborations, teaching, or a hard machine-learning problem worth chasing. If you've got a challenging one, I'd love to hear it.
+              Always glad to talk shop: research collaborations, teaching, or a hard machine-learning problem worth chasing. If you've got a challenging one, I'd love to hear it.
             </div>
           </div>
 

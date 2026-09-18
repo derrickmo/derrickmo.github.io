@@ -131,17 +131,15 @@ function PdTournamentDemo() {
   const explainer = (
     <>
       <DemoP>
-        In a single prisoner's dilemma, defecting is the dominant move — yet when the same players
-        meet <i>repeatedly</i>, cooperation can win. This is Robert Axelrod's famous tournament: every
+        In a single prisoner's dilemma, defecting is the dominant move, yet when the same players meet <i>repeatedly</i>, cooperation can win. This is Robert Axelrod's famous tournament: every
         strategy plays a long iterated game against every other, and total score decides the champion.
         The payoffs reward mutual defection least and mutual cooperation handsomely, but tempt each
         side to defect on a cooperator.
       </DemoP>
       <DemoP>
-        The repeated result is one of the most cited findings in social science: <b>TitForTat</b>
-        — cooperate first, then mirror your opponent — tends to win. It is <b>nice</b> (never defects
+        The repeated result is one of the most cited findings in social science: <b>TitForTat</b>, cooperate first then mirror your opponent, tends to win. It is <b>nice</b> (never defects
         first), <b>retaliatory</b> (punishes defection), and <b>forgiving</b> (returns to cooperation).
-        Drop ROUNDS to <b>1</b> and the order inverts — AllD wins the one-shot game. Add <b>noise</b>{" "}
+        Drop ROUNDS to <b>1</b> and the order inverts. AllD wins the one-shot game. Add <b>noise</b>{" "}
         and unforgiving <b>Grim</b> collapses (one accidental defection and it defects forever), while
         forgiving strategies recover. The matrix on the right shows who exploits whom.
       </DemoP>
@@ -151,8 +149,7 @@ function PdTournamentDemo() {
   const concepts = (
     <>
       <DemoP>
-        The iterated prisoner's dilemma is the canonical model for the <b>evolution of cooperation</b>
-        — in biology (reciprocal altruism), economics (repeated trade and contracts), and the design of
+        The iterated prisoner's dilemma is the canonical model for the <b>evolution of cooperation</b>: in biology (reciprocal altruism), economics (repeated trade and contracts), and the design of
         multi-agent and LLM-agent systems where self-interested agents must coordinate. It's the
         repeated-game complement to the one-shot Nash analysis you see in
         <a href={`${window.__DM_BASE || "../../"}visualize/regret-matching/`}> regret matching</a>, and the
@@ -161,8 +158,7 @@ function PdTournamentDemo() {
       </DemoP>
       <DemoP>
         The deeper lessons generalize: cooperation needs a long enough <b>shadow of the future</b> (the
-        ROUNDS knob), and robustness to <b>noise</b> favors <i>forgiveness</i> over pure retaliation — a
-        direct design principle for any system of interacting agents, including AI ones negotiating,
+        ROUNDS knob), and robustness to <b>noise</b> favors <i>forgiveness</i> over pure retaliation, a direct design principle for any system of interacting agents, including AI ones negotiating,
         trading, or moderating each other. It's also a clean reminder that "rational in one shot" and
         "rational over time" can point in opposite directions.
       </DemoP>

@@ -132,8 +132,7 @@ function PageRankDemo() {
   const explainer = (
     <>
       <DemoP>
-        PageRank scores a node by the importance of the nodes pointing to it — a
-        circular definition that resolves by iteration. Each step every node hands
+        PageRank scores a node by the importance of the nodes pointing to it, a circular definition that resolves by iteration. Each step every node hands
         its current rank to the nodes it links to, split evenly across its
         out-links, plus a small uniform <b>teleport</b> term. Repeat and the numbers
         settle: that fixed point is the rank. Node area tracks it live, so you can
@@ -142,8 +141,7 @@ function PageRankDemo() {
       <DemoP>
         It's literally the stationary distribution of a <b>random surfer</b>: with
         probability <b>d</b> they click a random outgoing link, and with probability
-        1−d they jump to a random page. The teleport is what guarantees a unique
-        answer — it stops rank from getting trapped in dead ends or cycles (the
+        1−d they jump to a random page. The teleport is what guarantees a unique answer. It stops rank from getting trapped in dead ends or cycles (the
         dangling-node problem). Drop <b>d</b> and rank flattens toward uniform; push
         it to 0.85+ and it concentrates on the well-connected nodes but takes more
         iterations to converge, as the Δ readout shows.
@@ -157,8 +155,8 @@ function PageRankDemo() {
         PageRank launched Google and remains the template for link-based importance:
         citation ranking, recommendation, fraud and spam detection, and graph-based
         keyword/sentence extraction (TextRank). It's an{" "}
-        <b>eigenvector</b> computation — the dominant eigenvector of the damped
-        transition matrix — solved by power iteration, the same engine behind{" "}
+        <b>eigenvector</b> computation, the dominant eigenvector of the damped transition
+        matrix, solved by power iteration, the same engine behind{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/pca/`} style={{ color: "#a855f7" }}>PCA</a>{" "}
         and spectral methods.
       </DemoP>

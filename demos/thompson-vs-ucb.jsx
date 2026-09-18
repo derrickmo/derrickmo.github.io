@@ -209,10 +209,9 @@ function ThompsonVsUcbDemo() {
     <>
       <DemoP>
         Both agents face the same arms and must trade <b>exploration</b> (try uncertain arms)
-        against <b>exploitation</b> (pump the best-looking one) — but they reason differently.
+        against <b>exploitation</b> (pump the best-looking one), but they reason differently.
         <b style={{ color: C_TS }}> Thompson sampling</b> is Bayesian: it keeps a <b>Beta posterior</b>{" "}
-        over each arm's win rate (the cyan violins), draws one sample from each, and pulls the
-        winner — so an arm is explored exactly in proportion to the probability it's best.
+        over each arm's win rate (the cyan violins), draws one sample from each, and pulls the winner, so an arm is explored exactly in proportion to the probability it's best.
         <b style={{ color: C_UCB }}> UCB</b> is frequentist optimism: it pulls whichever arm has the
         highest <i>estimate + uncertainty bonus</i> (the gold bar's top).
       </DemoP>
@@ -220,8 +219,7 @@ function ThompsonVsUcbDemo() {
         Watch the violins: a rarely-pulled arm stays wide (uncertain), and Thompson keeps sampling
         it until its posterior sharpens. As evidence accumulates, both strategies concentrate on the
         green best arm and the <b>cumulative regret</b> curves flatten. Thompson usually edges out UCB
-        and needs no tuning knob, while UCB's behavior swings with the exploration constant <b>c</b> —
-        crank it up and it wastes pulls; drop it and it can commit to a loser. Hit NEW ARMS to see how
+        and needs no tuning knob, while UCB's behavior swings with the exploration constant <b>c</b>. Crank it up and it wastes pulls; drop it and it can commit to a loser. Hit NEW ARMS to see how
         the race changes with the gap between arms.
       </DemoP>
     </>
@@ -241,8 +239,8 @@ function ThompsonVsUcbDemo() {
       <DemoP>
         The deeper point is that <b>good exploration is driven by calibrated uncertainty</b>, not random
         noise: both winners here explore <i>where they're unsure</i>, which is why ε-greedy (explore
-        uniformly at random) is strictly worse. That principle — optimism or posterior sampling over
-        uncertainty — reappears in RL exploration bonuses and in why
+        uniformly at random) is strictly worse. That principle, optimism or posterior sampling over uncertainty, reappears in RL
+        exploration bonuses and in why
         <a href={`${window.__DM_BASE || "../../"}visualize/variational-inference/`}> uncertainty-aware</a> models
         make better sequential decisions than point estimates.
       </DemoP>

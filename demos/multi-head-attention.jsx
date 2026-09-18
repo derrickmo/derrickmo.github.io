@@ -96,8 +96,7 @@ function MultiHeadAttentionDemo() {
   const explainer = (
     <>
       <DemoP>
-        A single attention head computes <b>softmax(QKᵀ/√d)</b> — for every token (a
-        row here), a probability distribution over which other tokens it should pull
+        A single attention head computes <b>softmax(QKᵀ/√d)</b>. For every token (a row here), a probability distribution over which other tokens it should pull
         information from (the columns). But one pattern isn't enough: a model needs to
         track grammar, reference, position, and meaning <i>at the same time</i>.
         <b> Multi-head attention</b> runs several of these in parallel, each with its
@@ -109,8 +108,7 @@ function MultiHeadAttentionDemo() {
         The heads' outputs are concatenated and mixed back together, giving the layer a
         richer view than any single head could. That's the whole trick behind the
         transformer: <b>AVG</b> shows the blended picture, but the power is in the
-        diversity of the individual heads. <i>(Here the projections are fixed-random to
-        expose the mechanism — in a trained model they'd be learned, and the patterns
+        diversity of the individual heads. <i>(Here the projections are fixed-random to expose the mechanism; in a trained model they would be learned, and the patterns
         would line up with real linguistic structure. Hit "New heads" to reshuffle.)</i>
       </DemoP>
     </>
@@ -119,8 +117,8 @@ function MultiHeadAttentionDemo() {
     <>
       <DemoP>
         Multi-head attention is why a single transformer layer can juggle several
-        relationships at once — one head tracking syntax, another coreference, another local
-        position — instead of being squeezed into one pattern. It's a near-free upgrade:
+        relationships at once, one head tracking syntax, another coreference, another local
+        position, instead of being squeezed into one pattern. It's a near-free upgrade:
         split the model dimension across heads, run attention in parallel, then
         concatenate, so heads cost little extra while sharply increasing what a layer can
         express.
@@ -128,8 +126,8 @@ function MultiHeadAttentionDemo() {
       <DemoP>
         This is the literal core of every transformer block in GPT, BERT, Llama, and
         Claude, and a focus of both research and systems work. Heads are where
-        interpretability finds specialized circuits — the <i>induction heads</i> that drive
-        in-context learning — and they're the target of efficiency tricks like Multi-Query
+        interpretability finds specialized circuits, the <i>induction heads</i> that drive in-context learning,
+        and they are the target of efficiency tricks like Multi-Query
         and Grouped-Query Attention, which let heads share keys/values to shrink the KV
         cache and speed up inference.
       </DemoP>

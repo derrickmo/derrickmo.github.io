@@ -142,17 +142,13 @@ function TemplateMatchingDemo() {
     <>
       <DemoP>
         The simplest way to find a known thing in an image: slide a <b>template</b> over every position
-        and score how well it matches. <b>SSD</b> sums squared pixel differences — fast, but it treats a
-        brighter or darker copy of the template as a bad match. <b>NCC</b> first subtracts each window's
-        mean and divides by its norm, so it compares the <i>shape</i> of the intensities, not their
-        absolute level — making it invariant to brightness and contrast.
+        and score how well it matches. <b>SSD</b> sums squared pixel differences. Fast, but it treats a brighter or darker copy of the template as a bad match. <b>NCC</b> first subtracts each window's
+        mean and divides by its norm, so it compares the <i>shape</i> of the intensities, not their absolute level, making it invariant to brightness and contrast.
       </DemoP>
       <DemoP>
         Crank the <b>brightness shift</b> with SSD selected and watch detections collapse; switch to
-        <b> NCC</b> and they snap back. The right panel is the score map — bright spots are strong
-        matches, and its peaks (after non-max suppression) become the detections (green = correct, red =
-        false). The catch you can feel: template matching only finds the pattern at the <i>same scale and
-        rotation</i> — tilt or resize the target and it fails, which is exactly the limitation that
+        <b> NCC</b> and they snap back. The right panel is the score map. Bright spots are strong matches, and its peaks (after non-max suppression) become the detections (green = correct, red =
+        false). The catch you can feel: template matching only finds the pattern at the <i>same scale and rotation</i>. Tilt or resize the target and it fails, which is exactly the limitation that
         motivated scale- and rotation-invariant features.
       </DemoP>
     </>
@@ -164,16 +160,14 @@ function TemplateMatchingDemo() {
         Template matching (a.k.a. cross-correlation) is one of the oldest and still most-used tools in
         vision: OCR, manufacturing defect/QA inspection, medical landmark localization, GUI test
         automation, and the "find this icon on screen" of RPA all run NCC under the hood. It's literally a
-        <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}> convolution</a> with the
-        template as the kernel — which is why the first layers of a CNN can be read as <i>learned</i>{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}> convolution</a> with the template as the kernel, which is why the first layers of a CNN can be read as <i>learned</i>{" "}
         template matchers, and why correlation is the workhorse of tracking and stereo matching.
       </DemoP>
       <DemoP>
         Its brittleness to scale and rotation is the whole reason the field moved to invariant local
         features (<a href={`${window.__DM_BASE || "../../"}visualize/harris-corners/`}>corners</a>,
         SIFT/ORB descriptors) and then to deep features that learn invariances from data. But for a rigid,
-        fixed-scale target under controlled lighting, NCC is still the fastest, most reliable answer — a
-        reminder that the simplest classical tool often wins when its assumptions hold.
+        fixed-scale target under controlled lighting, NCC is still the fastest, most reliable answer, a reminder that the simplest classical tool often wins when its assumptions hold.
       </DemoP>
     </>
   );

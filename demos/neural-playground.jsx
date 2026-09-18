@@ -160,14 +160,14 @@ function NeuralPlaygroundDemo() {
       <Slider label="// HIDDEN LAYERS" min={0} max={3} value={hidden} onChange={setHidden} tone="violet"
         help="Network depth. 0 = plain logistic regression (straight boundary only); adding layers lets the net compose curved, nonlinear boundaries." />
       <Slider label="// UNITS / LAYER" min={2} max={9} value={units} onChange={setUnits}
-        help="Width — neurons per hidden layer. More units give more capacity to carve fine detail (and more ways to overfit)." />
+        help="Width, meaning neurons per hidden layer. More units give more capacity to carve fine detail (and more ways to overfit)." />
       <SegmentedControl label="// ACTIVATION" value={actKind} onChange={v => { setRunning(false); setActKind(v); }}
         options={[{ value: "tanh", label: "tanh" }, { value: "relu", label: "ReLU" }]}
-        help="The per-neuron nonlinearity. tanh is smooth and bounded; ReLU is piecewise-linear — they give the boundary a different texture and train differently." />
+        help="The per-neuron nonlinearity. tanh is smooth and bounded; ReLU is piecewise-linear. They give the boundary a different texture and train differently." />
       <Slider label="// LEARNING RATE" min={0.01} max={1} step={0.01} value={lr} onChange={setLr}
         help="Step size for gradient descent. Too low learns slowly; too high makes the loss thrash and the boundary flicker instead of settling." />
       <Slider label="// EPOCHS / FRAME" min={1} max={20} value={speed} onChange={setSpeed}
-        help="How many full training passes run per animation frame. Visual pacing — higher just fast-forwards the same training." />
+        help="How many full training passes run per animation frame. Visual pacing: higher just fast-forwards the same training." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={rebuild}>RE-INIT</DemoButton>
@@ -185,15 +185,13 @@ function NeuralPlaygroundDemo() {
   const explainer = (
     <>
       <DemoP>
-        This is a real multilayer perceptron — forward pass and backpropagation
-        written from scratch, training on the 2D points by gradient descent on
+        This is a real multilayer perceptron, forward pass and backpropagation written from scratch, training on the 2D points by gradient descent on
         binary cross-entropy. The background shows the network's current decision
         surface: how confidently it predicts class 0 (blue) vs class 1 (violet) at
         every point in the plane. Watch it bend and fold as the weights update.
       </DemoP>
       <DemoP>
-        Set <b>hidden layers to 0</b> and try XOR or Spiral — a linear model
-        (logistic regression) can only draw a straight boundary, so it fails. Add a
+        Set <b>hidden layers to 0</b> and try XOR or Spiral. A linear model (logistic regression) can only draw a straight boundary, so it fails. Add a
         hidden layer and enough units and the same network suddenly carves curves
         and islands. That jump is the whole point of depth: composing simple units
         into nonlinear features. <b>ReLU vs tanh</b> changes the texture of the
@@ -206,15 +204,15 @@ function NeuralPlaygroundDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is the entire deep-learning loop in miniature — forward pass, cross-entropy
-        loss, backpropagation, gradient descent — the exact machinery (just far bigger)
+        This is the entire deep-learning loop in miniature: forward pass, cross-entropy loss, backpropagation,
+        gradient descent. It is the exact machinery (just far bigger)
         behind every modern network. The jump from "0 hidden layers fails on XOR" to "one
         hidden layer solves it" is the <b>universal approximation theorem</b> made visible:
         depth and nonlinearity let a net <i>build features</i> instead of merely weighting
         the raw inputs.
       </DemoP>
       <DemoP>
-        Every knob maps to a real training decision — depth versus width, activation
+        Every knob maps to a real training decision: depth versus width, activation
         choice, and the learning rate that makes or breaks convergence. A too-high rate
         thrashing the loss, or a too-small net underfitting the spiral, is the same
         diagnostic loop practitioners run on production models. The one thing this toy

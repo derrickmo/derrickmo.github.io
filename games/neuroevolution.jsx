@@ -201,7 +201,7 @@ function NeuroEvolutionGame() {
         <>
           <SegmentedControl label="// SPEED" value={String(speed)} onChange={v => { const n = parseInt(v); setSpeed(n); stepsRef.current = n; }}
             options={[{ value: "1", label: "1x" }, { value: "2", label: "2x" }, { value: "4", label: "4x" }]}
-            help="Simulation speed multiplier. Higher fast-forwards the generations so evolution converges sooner — it doesn't change what's learned." />
+            help="Simulation speed multiplier. Higher fast-forwards the generations so evolution converges sooner. It does not change what is learned." />
           <Slider label="// MUTATION RATE" min={0.01} max={0.4} step={0.01} value={rate} onChange={v => { setRate(v); rateRef.current = v; }} tone="violet"
             help="Chance each weight is randomly perturbed when breeding the next generation. Too low stalls progress; too high is noisy and forgets good solutions." />
           <div style={{ display: "flex", gap: 8 }}>
@@ -227,7 +227,7 @@ function NeuroEvolutionGame() {
           </div>
           {mode === "versus" && (
             <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>
-              AI bird uses the champion brain {champGenRef.current ? `from generation ${champGenRef.current}` : "(untrained — go watch it learn first!)"}. Train longer in "Watch AI" and it gets harder to beat.
+              AI bird uses the champion brain {champGenRef.current ? `from generation ${champGenRef.current}` : "(untrained: go watch it learn first!)"}. Train longer in "Watch AI" and it gets harder to beat.
             </div>
           )}
           <Legend items={[{ color: "#fbbf24", label: "YOU" }, ...(mode === "versus" ? [{ color: "#c084fc", label: "AI CHAMPION" }] : [])]} />
@@ -239,8 +239,7 @@ function NeuroEvolutionGame() {
   const explainer = (
     <>
       <DemoP>
-        In <b>Watch AI</b>, nobody programmed these birds to fly and there's no
-        backpropagation — each is steered by its own tiny neural network (height,
+        In <b>Watch AI</b>, nobody programmed these birds to fly and there is no backpropagation. Each is steered by its own tiny neural network (height,
         velocity, and the next gap go in; flap-or-not comes out). The first generation
         is random and dies instantly, but a <b>genetic algorithm</b> keeps the
         longest-surviving birds and breeds the next generation by <b>crossover</b> and
@@ -250,8 +249,7 @@ function NeuroEvolutionGame() {
       <DemoP>
         Then switch to <b>You vs AI</b> and take the controls (<b>SPACE</b> / tap):
         you fly head-to-head against the <span style={{ color: "#c084fc" }}>champion</span>
-        the evolution just produced, on the same pipes. Early on it's easy to out-fly a
-        few-generations-old brain — but train it longer and the bird that started as
+        the evolution just produced, on the same pipes. Early on it's easy to out-fly a few-generations-old brain, but train it longer and the bird that started as
         random noise will calmly out-survive you. That's the whole arc of learning from
         nothing, made playable.
       </DemoP>
@@ -260,16 +258,14 @@ function NeuroEvolutionGame() {
   const concepts = (
     <>
       <DemoP>
-        This is gradient-free learning. There's no backprop and no labels — a population of
-        neural-net controllers is improved purely by <b>evolution</b>: keep the fittest,
+        This is gradient-free learning. There's no backprop and no labels. A population of neural-net controllers is improved purely by <b>evolution</b>: keep the fittest,
         recombine and mutate, repeat. That puts it in the evolutionary-strategies / genetic-
         algorithm family, still competitive for reinforcement-learning control, neural
         architecture search, and any objective that's non-differentiable or has sparse,
         delayed reward.
       </DemoP>
       <DemoP>
-        It chases the same "improve a policy from reward alone" goal as the RL demos, but by
-        a different route — selection pressure instead of policy gradients. The knobs you can
+        It chases the same "improve a policy from reward alone" goal as the RL demos, but by a different route: selection pressure instead of policy gradients. The knobs you can
         feel here (population size, mutation rate, which survivors to breed) are the core
         dials of evolutionary computation, and the approach scales: OpenAI showed evolution
         strategies can train sizable networks on hard control tasks competitively with

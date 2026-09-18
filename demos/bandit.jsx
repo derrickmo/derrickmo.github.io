@@ -38,7 +38,7 @@ function BanditDemo() {
   _useEffect(() => { spRef.current = speed; }, [speed]);
 
   const bestArm = () => { const arms = armsRef.current; let bi = 0; for (let i = 1; i < arms.length; i++) if (arms[i].p > arms[bi].p) bi = i; return bi; };
-  function gaussBeta(a, b) { // crude Beta sample via two gammas approx — use simple method
+  function gaussBeta(a, b) { // crude Beta sample via two gammas approx, use simple method
     // sample via ratio of gammas using Marsaglia for shape; fallback: use mean+noise. Use simple: sum of uniforms approx not great.
     // Use Cheng's or simple: sample x~Gamma(a),y~Gamma(b); Beta=x/(x+y)
     const gx = gamma(a), gy = gamma(b); return gx / (gx + gy);

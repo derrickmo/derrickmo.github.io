@@ -136,7 +136,7 @@ function ChessDemo() {
   const moves = genMoves(s);
   const over = moves.length === 0;
   const checked = inCheck(s, s.turn);
-  const status = over ? (checked ? (s.turn === "w" ? "Checkmate — AI wins." : "Checkmate — you win!") : "Stalemate — draw.")
+  const status = over ? (checked ? (s.turn === "w" ? "Checkmate. The AI wins." : "Checkmate. You win!") : "Stalemate. A draw.")
     : thinking ? "AI is thinking…" : checked ? "Check!" : (s.turn === "w" ? "Your move (White)." : "AI to move.");
   const targets = sel != null ? moves.filter(m => m.from === sel).map(m => m.to) : [];
 
@@ -186,7 +186,7 @@ function ChessDemo() {
     <ControlGroup>
       <SegmentedControl label="// DIFFICULTY (search depth)" value={diff} onChange={setDiff}
         options={[{ value: "easy", label: "Easy" }, { value: "medium", label: "Medium" }, { value: "hard", label: "Hard" }]}
-        help="The engine's search depth in plies. Deeper sees further tactics but pauses longer to think — 'Hard' (4-ply) can take a moment per move." />
+        help="The engine's search depth in plies. Deeper sees further tactics but pauses longer to think. 'Hard' (4-ply) can take a moment per move." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="YOU PLAY" value="White" accent="#60a5fa" />
         <StatReadout label="EVAL (centipawns)" value={(evaluate(s.board) / 100).toFixed(1)} accent="#c084fc" />
@@ -198,20 +198,16 @@ function ChessDemo() {
   const explainer = (
     <>
       <DemoP>
-        This is a full chess engine running in your tab — legal move generation for
-        every piece (including castling, en passant, and promotion), plus check,
+        This is a full chess engine running in your tab: legal move generation for every piece (including castling, en passant, and promotion), plus check,
         checkmate and stalemate detection. The opponent searches the game tree with
         <b> negamax + alpha-beta pruning</b>: it looks several plies ahead, assumes
-        you'll always reply with your best move, and keeps the line that's best for it
-        — pruning branches that can't beat one it already found.
+        you'll always reply with your best move, and keeps the line that is best for it, pruning branches that cannot beat one it already found.
       </DemoP>
       <DemoP>
         Because the tree is astronomically large, it stops at a fixed depth and
-        <i> evaluates</i> the leaf positions with <b>material values plus piece-square
-        tables</b> — the same eval that nudges knights toward the center and king safety
+        <i> evaluates</i> the leaf positions with <b>material values plus piece-square tables</b>, the same eval that nudges knights toward the center and king safety
         in the opening (the EVAL readout shows it in centipawns, +ve = White better).
-        Move ordering (captures first) makes the pruning bite harder. It's the classic
-        Shannon-type engine — the foundation everything from early Deep Blue to modern
+        Move ordering (captures first) makes the pruning bite harder. It's the classic Shannon-type engine, the foundation everything from early Deep Blue to modern
         alpha-beta engines is built on.
       </DemoP>
     </>
@@ -219,7 +215,7 @@ function ChessDemo() {
   const concepts = (
     <>
       <DemoP>
-        Chess is the historic proving ground for AI search — Shannon's 1950 blueprint,
+        Chess is the historic proving ground for AI search. The 1950 Shannon blueprint,
         "search the tree, evaluate the leaves," defines this engine and ran all the way to
         Deep Blue beating Kasparov in 1997. What you're playing is that classical paradigm:
         negamax (minimax's symmetric form) with alpha-beta pruning, a depth cutoff, and a
@@ -227,11 +223,10 @@ function ChessDemo() {
       </DemoP>
       <DemoP>
         It also marks where the field turned. Engines like Stockfish layered decades of
-        refinements on this base — transposition tables, quiescence search, opening books,
+        refinements on this base: transposition tables, quiescence search, opening books,
         and now small neural-net evaluations (NNUE). AlphaZero then showed a different route
         entirely: replace handcrafted eval and brute-force search with a learned
-        policy/value network guided by Monte-Carlo Tree Search, learning superhuman chess
-        from self-play alone — a story that starts from exactly this demo.
+        policy/value network guided by Monte-Carlo Tree Search, learning superhuman chess from self-play alone, a story that starts from exactly this demo.
       </DemoP>
     </>
   );

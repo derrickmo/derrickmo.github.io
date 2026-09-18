@@ -296,7 +296,7 @@ function SiftDemo() {
       <DemoP>
         SIFT answers a question that sounds impossible: find the same physical point in
         two images taken at different sizes and angles, without knowing the
-        transformation. It does it in four steps — search a <b>scale space</b> of
+        transformation. It does it in four steps. Search a <b>scale space</b> of
         progressively blurred copies for blob-like extrema, throw away the ones lying
         along edges, give each survivor an <b>orientation</b> from its own dominant
         gradient direction, and describe the patch around it in a frame aligned to that
@@ -313,11 +313,10 @@ function SiftDemo() {
       </DemoP>
       <DemoP>
         The last slider is the part people underrate. Lowe's <b>ratio test</b> keeps a
-        match only if the nearest descriptor is much closer than the second nearest — a
-        test of <i>distinctiveness</i>, not of distance, because a good absolute
+        match only if the nearest descriptor is much closer than the second nearest, a test of <i>distinctiveness</i>, not of distance, because a good absolute
         threshold does not exist. Drive it at 45° and the cliff sits in one place: at
         0.7 and 0.8 <b>every</b> kept match is correct, and by 0.9 precision has already
-        collapsed to about a third — which is exactly what you get with the test switched
+        collapsed to about a third, which is exactly what you get with the test switched
         off entirely, where all 22 keypoints find a partner and roughly a third are
         right. The test is doing all of its work in that narrow band, which is why the
         paper's 0.8 has survived twenty-five years.
@@ -330,8 +329,8 @@ function SiftDemo() {
         SIFT is the reason a decade of vision worked. Panorama stitching, structure from
         motion, visual SLAM and image retrieval all rest on finding correspondences
         between views, and RANSAC (next door in this catalogue) is what turns those noisy
-        correspondences into a geometric model. The two together — a distinctive local
-        descriptor plus robust fitting — were the pipeline.
+        correspondences into a geometric model. The two together, a distinctive local descriptor plus robust fitting, were the
+        pipeline.
       </DemoP>
       <DemoP>
         Learned features displaced it for recognition, but the ideas did not go away. The

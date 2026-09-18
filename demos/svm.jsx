@@ -123,7 +123,7 @@ function SVMDemo() {
     <ControlGroup>
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
         options={[{ value: "linear", label: "Linear" }, { value: "circular", label: "Circular" }, { value: "xor", label: "XOR" }]}
-        help="The shape of the two classes. 'Linear' is separable by a straight line; 'Circular' and 'XOR' are not — they need a kernel." />
+        help="The shape of the two classes. 'Linear' is separable by a straight line; 'Circular' and 'XOR' are not, so they need a kernel." />
       <SegmentedControl label="// KERNEL" value={type} onChange={setType}
         options={[{ value: "linear", label: "Linear" }, { value: "rbf", label: "RBF" }]}
         help="How similarity is measured. Linear = straight boundary; RBF measures closeness in a higher-dimensional space, letting the boundary curve around each class." />
@@ -142,20 +142,15 @@ function SVMDemo() {
   const explainer = (
     <>
       <DemoP>
-        An SVM doesn't just find <i>a</i> separating line — it finds the one with the
-        widest <b>margin</b>, the empty corridor between the classes (the faint inner
-        lines). Only the points touching that corridor — the
-        <span style={{ color: "#fbbf24" }}> support vectors</span> (ringed) — define
-        the boundary; everything else could move freely without changing it. The
+        An SVM doesn't just find <i>a</i> separating line. It finds the one with the widest <b>margin</b>, the empty corridor between the classes (the faint inner
+        lines). Only the points touching that corridor, the <span style={{ color: "#fbbf24" }}> support vectors</span> (ringed), define the boundary; everything else could move freely without changing it. The
         <b> C</b> slider trades margin width against misclassification: small C = wide,
         forgiving margin; large C = narrow, strict fit.
       </DemoP>
       <DemoP>
-        Switch the dataset to <b>Circular</b> or <b>XOR</b> and a straight line can't
-        win — flip the <b>kernel</b> to <b>RBF</b> and the boundary curves to wrap each
+        Switch the dataset to <b>Circular</b> or <b>XOR</b> and a straight line cannot win. Flip the <b>kernel</b> to <b>RBF</b> and the boundary curves to wrap each
         class. That's the <b>kernel trick</b>: measuring similarity in a higher-
-        dimensional space without ever computing the coordinates. <b>Gamma</b> sets how
-        local that similarity is — crank it up and watch the model start to memorize.
+        dimensional space without ever computing the coordinates. <b>Gamma</b> sets how local that similarity is. Crank it up and watch the model start to memorize.
         This is real kernelized Pegasos training as you drag.
       </DemoP>
     </>
@@ -167,9 +162,9 @@ function SVMDemo() {
         small or medium tabular datasets, text categorization, and bioinformatics, where
         they're fast, robust, and need little tuning. The two ideas you're touching here
         outlast the algorithm itself: <b>max-margin</b> thinking (prefer the solution with
-        the most breathing room) underpins modern generalization theory, and the
-        <b> kernel trick</b> — computing similarity in a high-dimensional space without
-        ever visiting it — reappears all over ML.
+        the most breathing room) underpins modern generalization theory, and the{" "}
+        <b>kernel trick</b>, computing similarity in a high-dimensional space without ever
+        visiting it, reappears all over ML.
       </DemoP>
       <DemoP>
         The <b>C</b> knob is your first hands-on encounter with the bias-variance
@@ -182,7 +177,7 @@ function SVMDemo() {
     </>
   );
   return (
-    <DemoLayout title="SVM — Margins & Kernels"
+    <DemoLayout title="SVM: Margins and Kernels"
       subtitle="The widest-margin boundary, the support vectors that define it, and the kernel trick that bends it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}

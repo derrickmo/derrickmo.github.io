@@ -124,14 +124,12 @@ function MatmulDemo() {
         A matrix is a function on space, and its columns say everything: column one is where the
         x basis vector lands, column two is where y lands. Everything else follows by linearity, so
         once you know those two points you know what happens to every vector at once. The shaded
-        square is the unit square carried along, and its area is exactly the
-        <strong> determinant</strong> — drive that to zero and the plane collapses onto a line,
+        square is the unit square carried along, and its area is exactly the <strong>determinant</strong>. Drive that to zero and the plane collapses onto a line,
         which is the geometric meaning of "not invertible".
       </DemoP>
       <DemoP>
         Multiplying matrices <em>composes</em> those functions. Applying B and then A to a vector
-        gives the same answer as applying the single matrix <code>A@B</code> once — that is the
-        definition, and it is why the inner dimensions must match. <strong>Flip the ORDER
+        gives the same answer as applying the single matrix <code>A@B</code> once. That is the definition, and it is why the inner dimensions must match. <strong>Flip the ORDER
         control.</strong> B here is "scale x by 2"; with A as a rotation the two orders give
         genuinely different matrices, because rotating then stretching is not stretching then
         rotating. Matrix multiplication is composition, and composition is not commutative.
@@ -139,8 +137,7 @@ function MatmulDemo() {
       <DemoP>
         The cost slider is the other half. Arithmetic grows as <code>n³</code> while the memory
         touched grows as <code>n²</code>, so the FLOP/BYTE readout climbs with size: about 21 at
-        n=128 and 683 at n=4096. That single ratio is why matmul is the operation hardware is
-        designed around — at scale it is overwhelmingly compute-bound, which is the opposite of
+        n=128 and 683 at n=4096. That single ratio is why matmul is the operation hardware is designed around. At scale it is overwhelmingly compute-bound, which is the opposite of
         the memory-bound regime that governs LLM token generation.
       </DemoP>
     </>
@@ -151,8 +148,7 @@ function MatmulDemo() {
       <DemoP>
         Every layer of a network is this. A dense layer is a matmul plus a bias; attention is three
         matmuls to build Q, K and V, then two more for the scores and the weighted sum. Stacking
-        layers without a nonlinearity between them would just be composing matrices — which
-        collapses to a single matrix, and is exactly why the
+        layers without a nonlinearity between them would just be composing matrices, which collapses to a single matrix, and is exactly why the
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/activations/`}>activation</a>{" "}
         is not optional.
       </DemoP>

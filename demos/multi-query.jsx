@@ -92,9 +92,9 @@ function MultiQueryDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// QUERY VARIANTS" min={1} max={5} step={1} value={nv} onChange={setNv} tone="violet"
-        help="How many rephrasings of the question to generate and retrieve with. Each phrasing emphasizes different terms, so it catches a different slice of the relevant docs — more variants generally means higher fused recall (up to a point)." />
+        help="How many rephrasings of the question to generate and retrieve with. Each phrasing emphasizes different terms, so it catches a different slice of the relevant docs, so more variants generally means higher fused recall (up to a point)." />
       <Slider label="// TOP-K" min={2} max={6} step={1} value={topk} onChange={setTopk}
-        help="How many docs each list contributes / the cutoff at which recall is measured. Smaller k is stricter — that's where fusion's advantage over a single query shows most." />
+        help="How many docs each list contributes / the cutoff at which recall is measured. Smaller k is stricter, and that is where the advantage of fusion over a single query shows most." />
       <Slider label="// RRF CONSTANT (K)" min={5} max={80} step={5} value={rrfK} onChange={setRrfK}
         help="Smoothing in Reciprocal Rank Fusion: 1/(K + rank). Larger K flattens the contribution of top ranks (more democratic across variants); smaller K lets a #1 hit dominate. 60 is the classic default." />
       <DemoButton onClick={() => force(x => x + 1)} primary>REFRESH</DemoButton>
@@ -113,8 +113,7 @@ function MultiQueryDemo() {
       <DemoP>
         Retrieval is brittle to wording. "Reduce overfitting", "regularization
         techniques", and "improve generalization" are the same question, but each
-        phrasing shares different keywords with different documents, so each
-        retrieves a different — and incomplete — set of the relevant ones. Look at
+        phrasing shares different keywords with different documents, so each retrieves a different, incomplete set of the relevant ones. Look at
         the per-variant recall: no single query finds everything. Multi-query turns
         that bug into a feature by asking several ways at once.
       </DemoP>
@@ -123,8 +122,7 @@ function MultiQueryDemo() {
         scores: each doc earns 1/(K + its rank) from every variant and the sums are
         re-sorted. A document that lands near the top for several phrasings
         accumulates a high RRF score even if no single query ranked it first, so the
-        fused list (green box) pulls in relevant docs the individual queries missed
-        — fused recall meets or beats the best single query. Add variants and watch
+        fused list (green box) pulls in relevant docs the individual queries missed. Fused recall meets or beats the best single query. Add variants and watch
         the gap.
       </DemoP>
     </>
@@ -135,16 +133,15 @@ function MultiQueryDemo() {
         Multi-query retrieval and RAG-Fusion are query-transformation techniques:
         spend a cheap LLM call to rewrite the query into several variants, retrieve
         for each, and fuse. Reciprocal Rank Fusion (Cormack et al., 2009) is the
-        standard combiner precisely because it's score-agnostic — it works across
-        retrievers with incomparable scores (dense, sparse/BM25, different
+        standard combiner precisely because it is score-agnostic. It works across retrievers with incomparable scores (dense, sparse/BM25, different
         embedders), which makes it the glue of hybrid search too. It sits beside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/hyde/`} style={{ color: "#a855f7" }}>HyDE</a>{" "}
         and <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>chunking</a>{" "}
         in the RAG toolbox.
       </DemoP>
       <DemoP>
-        The win is recall — surfacing relevant context a single query would miss —
-        at the cost of extra LLM calls (the rewrites) and more retrieval, plus a
+        The win is recall, surfacing relevant context a single query would miss, at the cost
+        of extra LLM calls (the rewrites) and more retrieval, plus a
         longer candidate list that usually feeds a reranker before the model. The
         same fuse-many-rankings idea (step-back prompting, sub-question
         decomposition, ensembling retrievers) recurs throughout retrieval and search;

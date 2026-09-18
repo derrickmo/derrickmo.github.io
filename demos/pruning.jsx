@@ -149,7 +149,7 @@ function PruningDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// SPARSITY" min={0} max={0.95} step={0.05} value={sparsity} onChange={setSparsity} tone="violet"
-        help="Fraction of weights zeroed (smallest magnitude first). Slide it up and follow the curve: accuracy barely moves through the early range — most weights are near-redundant — then drops sharply once you start cutting the few that actually encode the function." />
+        help="Fraction of weights zeroed (smallest magnitude first). Slide it up and follow the curve: accuracy barely moves through the early range, because most weights are near-redundant, then drops sharply once you start cutting the few that actually encode the function." />
       <DemoButton onClick={train} primary>RETRAIN</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="SPARSITY" value={(sparsity * 100).toFixed(0) + "%"} accent="#c084fc" />
@@ -167,18 +167,16 @@ function PruningDemo() {
   const explainer = (
     <>
       <DemoP>
-        Trained networks are wildly over-parameterized — most weights carry almost
-        no signal. Magnitude pruning exploits that: rank the weights by absolute
+        Trained networks are wildly over-parameterized, and most weights carry almost no signal. Magnitude pruning exploits that: rank the weights by absolute
         value and zero the smallest ones. The purple curve sweeps accuracy as you
         prune more and more; the dashed green line is the dense model's accuracy.
-        Notice how flat the curve stays at first — you can delete half the weights,
+        Notice how flat the curve stays at first. You can delete half the weights,
         sometimes far more, with essentially no accuracy loss.
       </DemoP>
       <DemoP>
         Keep dragging SPARSITY and you eventually hit the cliff: once pruning
         reaches the handful of large weights that actually shape the decision
-        boundary, accuracy collapses. The weight grid shows it directly — kept
-        weights stay colored, pruned ones turn to gray crosses, and the survivors
+        boundary, accuracy collapses. The weight grid shows it directly. Kept weights stay colored, pruned ones turn to gray crosses, and the survivors
         at high sparsity are exactly the high-magnitude ones. RETRAIN to see the
         cliff land in a different place each time.
       </DemoP>
@@ -196,8 +194,8 @@ function PruningDemo() {
         sub-networks can even be retrained from scratch to full accuracy.
       </DemoP>
       <DemoP>
-        In practice pruning is iterative — prune a bit, fine-tune to recover, repeat
-        — which pushes the cliff much further right than one-shot pruning does. The
+        In practice pruning is iterative, prune a bit then fine-tune to recover and repeat, which pushes
+        the cliff much further right than one-shot pruning does. The
         payoff is smaller, faster, cheaper-to-serve models; the catch is that
         unstructured sparsity needs hardware/kernels that exploit it to actually run
         faster, which is why structured pruning and 2:4 sparsity (supported on

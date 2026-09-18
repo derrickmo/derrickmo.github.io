@@ -116,7 +116,7 @@ function MixtureOfDepthsDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <span className="t-mono-s" style={{ color: "var(--muted)" }}>PER-BLOCK ROUTING — processed (violet) vs skipped (gray), per token per layer</span>
+      <span className="t-mono-s" style={{ color: "var(--muted)" }}>PER-BLOCK ROUTING: processed (violet) vs skipped (gray), per token per layer</span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 1.0 : 1.35), height: CH * (mobile ? 1.0 : 1.35), borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
@@ -136,7 +136,7 @@ function MixtureOfDepthsDemo() {
       <Slider label="// ROUTER QUALITY" min={0} max={1} step={0.05} value={rq} onChange={setRq} tone="violet"
         help="How well the router spends its budget. 1 = always pick the tokens with the most unmet compute need (a well-trained router); 0 = pick at random (an untrained router that wastes capacity on easy tokens)." />
       <Slider label="// SEQUENCE" min={1} max={9} step={1} value={seed} onChange={setSeed} tone="blue"
-        help="Resample which tokens are hard. A few tokens genuinely need many blocks; most need only a couple — the structure MoD exploits." />
+        help="Resample which tokens are hard. A few tokens genuinely need many blocks; most need only a couple. That is the structure MoD exploits." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="COMPUTE vs DENSE" value={(compute * 100).toFixed(0) + "%"} accent="var(--violet-lt)" />
         <StatReadout label="QUALITY" value={(res.quality * 100).toFixed(0) + "%"} accent={res.quality > 0.95 ? "#34d399" : res.quality > 0.8 ? "#fbbf24" : "#f87171"} />
@@ -149,8 +149,7 @@ function MixtureOfDepthsDemo() {
   const explainer = (
     <>
       <DemoP>
-        A dense transformer spends the <i>same</i> compute on every token — the
-        comma and the crux of the sentence both run every block. But tokens aren't
+        A dense transformer spends the <i>same</i> compute on every token. The comma and the crux of the sentence both run every block. But tokens aren't
         equally hard. <b>Mixture-of-Depths</b> gives each block a router and a
         fixed <b>capacity</b>: only the top-scoring tokens get processed (violet);
         the rest skip the block via the residual and cost nothing. The amber strip
@@ -159,8 +158,7 @@ function MixtureOfDepthsDemo() {
       </DemoP>
       <DemoP>
         The magic is in <b>router quality</b>. With a good router, dropping capacity
-        to 50% leaves quality almost untouched — it simply stops processing the easy
-        tokens it didn't need to. Spin the router quality down to 0 and the same
+        to 50% leaves quality almost untouched. It simply stops processing the easy tokens it didn't need to. Spin the router quality down to 0 and the same
         capacity now wastes slots on easy tokens, starving the few hard ones: the
         bottom strip lights up red even though compute is unchanged. Compare your
         QUALITY against the RANDOM-ROUTE reference to see exactly what smart routing
@@ -187,8 +185,7 @@ function MixtureOfDepthsDemo() {
         The fixed-capacity top-k is the key engineering trick: it keeps the compute
         graph static (so it batches and compiles cleanly) while still being
         input-dependent, unlike early-exit which gives ragged, hard-to-batch depths.
-        The cost is a learned router that must be trained jointly — a bad router, as
-        the slider shows, throws the efficiency away. The same "is this token worth
+        The cost is a learned router that must be trained jointly. A bad router, as the slider shows, throws the efficiency away. The same "is this token worth
         the compute?" signal connects to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache-eviction/`} style={{ color: "#a855f7" }}>KV-cache
         eviction</a>.

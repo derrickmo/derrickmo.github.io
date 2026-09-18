@@ -164,14 +164,11 @@ function ReplicatorDynamicsDemo() {
       <DemoP>
         The replicator equation is evolution written as math: each strategy's share grows in
         proportion to how much its payoff beats the population <b>average</b>. Successful strategies
-        spread, unsuccessful ones die out. The triangle is the space of all population mixes of three
-        strategies — corners are "everyone plays the same move," the center is an even split — and the
-        blue arrows are the flow the dynamics push you along.
+        spread, unsuccessful ones die out. The triangle is the space of all population mixes of three strategies. Corners are "everyone plays the same move," the center is an even split, and the blue arrows are the flow the dynamics push you along.
       </DemoP>
       <DemoP>
         The behavior is strikingly different per game. <b>Rock-Paper-Scissors</b> never settles:
-        rock beats scissors so rock grows, which feeds paper, which feeds scissors — a perpetual
-        <b> cycle</b> orbiting the Nash center. <b>Coordination</b> games flow to whichever corner you
+        rock beats scissors so rock grows, which feeds paper, which feeds scissors, a perpetual <b>cycle</b> orbiting the Nash center. <b>Coordination</b> games flow to whichever corner you
         start nearest (multiple stable equilibria), and a <b>dominant</b> strategy sweeps the whole
         population to one vertex. Click anywhere to drop a new starting population and watch where the
         flow carries it.
@@ -182,15 +179,14 @@ function ReplicatorDynamicsDemo() {
   const concepts = (
     <>
       <DemoP>
-        Replicator dynamics is the foundation of <b>evolutionary game theory</b> — modeling animal
-        behavior, the spread of conventions and languages, and the rise and fall of strategies in
+        Replicator dynamics is the foundation of <b>evolutionary game theory</b>: modeling animal behavior, the spread of conventions and languages, and the rise and fall of strategies in
         markets and ecosystems. The fixed points are exactly the Nash equilibria, but it adds the
         crucial idea of an <b>evolutionarily stable strategy</b> (one that resists invasion), and it's
         the continuous-time cousin of the discrete <a href={`${window.__DM_BASE || "../../"}visualize/regret-matching/`}>regret-matching</a>
         learning on the same games.
       </DemoP>
       <DemoP>
-        The cycling you see is not a bug — it's the central cautionary tale of <b>multi-agent
+        The cycling you see is not a bug. It is the central cautionary tale of <b>multi-agent
         learning</b>. Gradient-style dynamics on games (including <a href={`${window.__DM_BASE || "../../"}visualize/gan/`}>GAN</a>
         training and competitive multi-agent RL) can orbit an equilibrium forever instead of converging,
         which is why people use time-averaging, optimism, or regularization to damp the rotation. The

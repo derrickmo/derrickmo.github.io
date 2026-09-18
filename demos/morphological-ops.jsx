@@ -138,16 +138,14 @@ function MorphologicalOpsDemo() {
       <DemoP>
         Morphology treats a binary image as a <b>set</b> of foreground pixels and reshapes it by probing
         with a small <b>structuring element</b>. <b>Erosion</b> keeps a pixel only if the element fits
-        entirely inside the foreground there — it shrinks shapes and deletes thin protrusions and specks.
-        <b> Dilation</b> keeps a pixel if the element touches any foreground — it grows shapes and bridges
-        gaps. Everything else is built from these two.
+        entirely inside the foreground there. It shrinks shapes and deletes thin protrusions and specks.
+        <b> Dilation</b> keeps a pixel if the element touches any foreground. It grows shapes and bridges gaps. Everything else is built from these two.
       </DemoP>
       <DemoP>
         The combinations are where it gets useful. <b>Opening</b> (erode then dilate) wipes out small
         white noise while keeping big shapes their original size; <b>Closing</b> (dilate then erode) fills
         small black holes and joins nearby pieces; <b>Gradient</b> (dilation minus erosion) leaves just the
-        one-pixel <b>outline</b>. Add noise and toggle Open vs Close to watch each clean a different kind of
-        speck — then grow the element to see it erase larger features.
+        one-pixel <b>outline</b>. Add noise and toggle Open vs Close to watch each clean a different kind of speck, then grow the element to see it erase larger features.
       </DemoP>
     </>
   );
@@ -163,8 +161,7 @@ function MorphologicalOpsDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/watershed/`}> distance transform</a> used in watershed segmentation.
       </DemoP>
       <DemoP>
-        The deeper idea generalizes: erosion and dilation are <b>min</b> and <b>max</b> filters over a
-        neighborhood — the non-linear, order-statistic counterparts to the linear
+        The deeper idea generalizes: erosion and dilation are <b>min</b> and <b>max</b> filters over a neighborhood, the non-linear order-statistic counterparts to the linear
         <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}> convolution</a> that dominates deep vision.
         That min/max-pooling intuition carries straight into CNNs, and grayscale morphology extends the same
         operations to continuous images. Simple set logic, but it remains a first-reach tool whenever a mask

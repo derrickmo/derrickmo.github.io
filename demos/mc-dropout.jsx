@@ -130,7 +130,7 @@ function MCDropoutDemo() {
     // readout
     const by = py + ph + 36;
     ctx.fillStyle = "#94a3b8"; ctx.font = "11px JetBrains Mono";
-    ctx.fillText("mean uncertainty (σ)  —  where the data is vs. where it isn't", 20, by - 4);
+    ctx.fillText("mean uncertainty (σ): where the data is vs. where it isn't", 20, by - 4);
     const bar = (yy, label, v, col) => { ctx.fillStyle = "#94a3b8"; ctx.fillText(label, 30, yy + 12); ctx.fillStyle = "rgba(148,163,184,0.15)"; ctx.fillRect(180, yy, W - 250, 14); ctx.fillStyle = col; ctx.fillRect(180, yy, Math.min(1, v / 0.5) * (W - 250), 14); ctx.fillStyle = "#e2e8f0"; ctx.fillText(v.toFixed(3), 180 + Math.min(1, v / 0.5) * (W - 250) + 6, yy + 12); };
     bar(by + 6, "over data", sdData, "rgba(52,211,153,0.7)");
     bar(by + 30, "gap / edges", sdGap, "rgba(248,113,113,0.7)");
@@ -149,9 +149,9 @@ function MCDropoutDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// DROPOUT RATE" min={0.05} max={0.5} step={0.05} value={drop} onChange={setDrop} tone="violet"
-        help="Fraction of hidden units randomly zeroed on each pass (the net is retrained at this rate). Higher dropout = more diverse sub-networks = a wider, more conservative uncertainty band — but too much and even the in-data fit gets noisy." />
+        help="Fraction of hidden units randomly zeroed on each pass (the net is retrained at this rate). Higher dropout = more diverse sub-networks = a wider, more conservative uncertainty band, but too much and even the in-data fit gets noisy." />
       <Slider label="// MC SAMPLES (T)" min={5} max={80} step={5} value={T} onChange={setT}
-        help="How many stochastic forward passes to average. More samples give a smoother, more reliable mean and variance estimate — at T× the inference cost, which is the practical price of MC dropout." />
+        help="How many stochastic forward passes to average. More samples give a smoother, more reliable mean and variance estimate, at T× the inference cost, which is the practical price of MC dropout." />
       <DemoButton onClick={() => { genData(); train(); }} primary>NEW DATA</DemoButton>
       <DemoButton onClick={train}>RESAMPLE NET</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -181,7 +181,7 @@ function MCDropoutDemo() {
         The data here lives in two clusters with a gap and empty edges. Over the
         clusters the sub-networks are tightly constrained and agree, so the band is
         thin; in the gap and out past the data there's nothing to pin them, so they
-        fan out and the band balloons — exactly the behavior you want, encoded in
+        fan out and the band balloons, exactly the behavior you want, encoded in
         the σ-over-data vs σ-in-gap readout. Raise the dropout rate to make the
         ensemble more diverse (wider, more cautious bands); add samples for a
         smoother estimate at higher cost.
@@ -193,8 +193,7 @@ function MCDropoutDemo() {
       <DemoP>
         MC dropout (Gal & Ghahramani, 2016) reinterprets dropout as approximate
         Bayesian inference: averaging over dropout masks approximates integrating
-        over a posterior on the weights, giving epistemic uncertainty with no change
-        to the architecture — just keep dropout on and sample. It's the cheap cousin
+        over a posterior on the weights, giving epistemic uncertainty with no change to the architecture. Just keep dropout on and sample. It's the cheap cousin
         of full Bayesian neural nets and of deep ensembles (train several nets;
         usually better-calibrated but N× the training).
       </DemoP>
@@ -204,8 +203,7 @@ function MCDropoutDemo() {
         (are the probabilities honest?) and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`} style={{ color: "#a855f7" }}>conformal
         prediction</a> (coverage-guaranteed sets). It powers selective prediction
-        (abstain when unsure), active-learning acquisition, and out-of-distribution
-        detection — though MC dropout's uncertainty is only as good as its
+        (abstain when unsure), active-learning acquisition, and out-of-distribution detection, though the uncertainty of MC dropout is only as good as its
         approximation, which is why it's often paired with calibration or ensembles
         in high-stakes settings.
       </DemoP>

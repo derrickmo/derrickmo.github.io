@@ -230,19 +230,17 @@ function SarsaVsQDemo() {
   const explainer = (
     <>
       <DemoP>
-        Same gridworld, same ε-greedy exploration, same learning rate — the only
-        difference between the two agents is one term in the update. <b>SARSA</b>{" "}
+        Same gridworld, same ε-greedy exploration, same learning rate. The only difference between the two agents is one term in the update. <b>SARSA</b>{" "}
         bootstraps off <i>Q(s', a')</i>, the value of the action it will actually
         take next (including the occasional random one). <b>Q-learning</b> bootstraps
         off <i>maxₐ' Q(s', a')</i>, the best action regardless of what it does.
       </DemoP>
       <DemoP>
         Watch where the green and violet paths settle. SARSA, aware that it sometimes
-        explores, keeps a one-row buffer from the cliff — a <b>safe</b> route. Q-learning
+        explores, keeps a one-row buffer from the cliff, a <b>safe</b> route. Q-learning
         learns the <b>optimal</b> shortest path hugging the very edge. But with ε &gt; 0
         that edge path means Q-learning's agent regularly slips off the cliff during
-        training, so its <b>average episode reward is worse</b> even though its greedy
-        policy is shorter — the on-policy/off-policy reward gap in the bottom plot. Now
+        training, so its <b>average episode reward is worse</b> even though its greedy policy is shorter, the on-policy against off-policy reward gap in the bottom plot. Now
         set ε to 0: with no exploration to account for, both collapse onto the same
         optimal edge path.
       </DemoP>
@@ -253,12 +251,10 @@ function SarsaVsQDemo() {
     <>
       <DemoP>
         On-policy vs off-policy is one of the great dividing lines in RL. <b>SARSA</b>{" "}
-        evaluates and improves the policy it actually follows, so it bakes in the cost
-        of its own exploration — valuable when mistakes are expensive (robots, real
+        evaluates and improves the policy it actually follows, so it bakes in the cost of its own exploration, which is valuable when mistakes are expensive (robots, real
         systems). <b>Q-learning</b> learns the optimal greedy policy from any behavior,
         which is what makes experience replay and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>Deep
-        Q-Networks</a> possible — you can learn the best policy from old, off-policy data.
+        <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>Deep Q-Networks</a> possible: you can learn the best policy from old, off-policy data.
       </DemoP>
       <DemoP>
         This builds directly on tabular{" "}

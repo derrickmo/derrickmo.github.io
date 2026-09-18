@@ -146,7 +146,7 @@ function NQueensDemo() {
       <Slider label="// BOARD SIZE (N)" min={4} max={12} step={1} value={N} onChange={setN}
         help="Queens to place on an N×N board. The raw search space is N^N; backtracking + pruning is what makes even N=12 tractable. (N=2,3 have no solution; the search will exhaust and report it.)" />
       <Toggle label="// FORWARD CHECKING" checked={forward} onChange={setForward} tone="violet"
-        help="Constraint propagation: before committing a queen, check that every remaining column still has a safe square. Off = plain chronological backtracking. Solve the same board both ways and compare the node counts — propagation prunes enormous dead branches early." />
+        help="Constraint propagation: before committing a queen, check that every remaining column still has a safe square. Off = plain chronological backtracking. Solve the same board both ways and compare the node counts. Propagation prunes enormous dead branches early." />
       <Slider label="// SPEED (steps/sec)" min={1} max={60} step={1} value={speed} onChange={setSpeed}
         help="Search steps per second. Slow it down to watch a single place/backtrack; speed up to race to the solution." />
       <DemoButton onClick={() => { if (s.done) reset(); setRunning(r => !r); }} primary>{running ? "PAUSE" : (s.done ? "SOLVE AGAIN" : "SOLVE")}</DemoButton>
@@ -170,8 +170,7 @@ function NQueensDemo() {
       <DemoP>
         N-Queens is the classic constraint-satisfaction problem: variables are the
         columns, each variable's value is a row, and the constraints are "no two
-        queens share a row or diagonal". Backtracking solves it depth-first — place
-        a queen in the leftmost open column, move right, and the instant a column
+        queens share a row or diagonal". Backtracking solves it depth-first: place a queen in the leftmost open column, move right, and the instant a column
         has no legal square, back up and try the previous queen somewhere else. The
         yellow outline is the column currently being filled; red squares are
         already under attack.
@@ -181,16 +180,14 @@ function NQueensDemo() {
         re-solve the same board. Plain backtracking only discovers a dead end when
         it reaches the doomed column; forward checking looks ahead after every
         placement and refuses any move that empties a future column, pruning whole
-        subtrees before entering them. The node count typically drops several-fold —
-        the same problem, far less wasted search.
+        subtrees before entering them. The node count typically drops several-fold. Same problem, far less wasted search.
       </DemoP>
     </>
   );
   const concepts = (
     <>
       <DemoP>
-        Backtracking is the backbone of constraint satisfaction — Sudoku, graph
-        coloring, scheduling, SAT, and theorem proving all reduce to "assign
+        Backtracking is the backbone of constraint satisfaction: Sudoku, graph coloring, scheduling, SAT, and theorem proving all reduce to "assign
         variables subject to constraints, undo when stuck". Forward checking is the
         lightest form of constraint propagation; arc consistency (AC-3) and
         conflict-directed backjumping prune even harder, and variable/value ordering
@@ -206,7 +203,7 @@ function NQueensDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/simulated-annealing/`} style={{ color: "#a855f7" }}>simulated
         annealing</a> is the stochastic, incomplete metaheuristic you reach for when
         the space is too big to enumerate. Backtracking guarantees it will find a
-        solution if one exists — the tradeoff is that, without good pruning, "if one
+        solution if one exists. The tradeoff is that, without good pruning, "if one
         exists" can take a very long time.
       </DemoP>
     </>

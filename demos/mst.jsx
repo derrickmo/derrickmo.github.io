@@ -131,7 +131,7 @@ function MSTDemo() {
       <DemoP>
         Why is greedily grabbing the cheapest crossing edge safe? The <b>cut
         property</b>: for any split of the nodes, the lightest edge across that cut
-        must be in some MST — so it can never be a mistake. That one fact is what
+        must be in some MST, so it can never be a mistake. That one fact is what
         makes both Prim's (grow a tree) and Kruskal's (add globally-cheapest edges
         that don't form a cycle) correct. The total weight climbs as nodes join and
         freezes once the tree spans every node.
@@ -143,13 +143,12 @@ function MSTDemo() {
     <>
       <DemoP>
         MSTs are everywhere you want a cheap connecting backbone: network and circuit
-        layout, clustering (cut the heaviest MST edges to split groups — single-link{" "}
+        layout, clustering (cut the heaviest MST edges to split groups, as single-link{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/hierarchical-clustering/`} style={{ color: "#a855f7" }}>hierarchical
         clustering</a> is exactly this), and approximation algorithms for the
         traveling-salesman problem. Prim's shares its settle-the-minimum, relax-the-
         rest structure with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/dijkstra/`} style={{ color: "#a855f7" }}>Dijkstra</a>{" "}
-        — it just compares edge weights instead of path distances.
+        <a href={`${window.__DM_BASE || "../../"}visualize/dijkstra/`} style={{ color: "#a855f7" }}>Dijkstra</a>{" "}, except that it compares edge weights instead of path distances.
       </DemoP>
       <DemoP>
         It's a textbook <b>greedy</b> algorithm whose correctness rests on a matroid /

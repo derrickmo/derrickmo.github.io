@@ -240,18 +240,16 @@ function VariationalInferenceDemo() {
       <DemoP>
         Variational inference turns Bayesian inference into <i>optimization</i>: instead of
         sampling the posterior, pick a simple family <b>q</b> and tune it to be as close as
-        possible by maximizing the <b>ELBO</b> (evidence lower bound) — equivalently minimizing
-        KL(q ‖ p). Each step here is a real reparameterized Monte-Carlo gradient ascent on q's
+        possible by maximizing the <b>ELBO</b> (evidence lower bound), equivalently minimizing KL(q ‖ p). Each step here is a real reparameterized Monte-Carlo gradient ascent on q's
         mean and covariance.
       </DemoP>
       <DemoP>
         Watch the two famous failure modes. On <b>Correlated</b> with mean-field q (axis-aligned),
-        q shrinks <i>inside</i> the target — VI systematically <b>underestimates variance</b>{" "}
+        q shrinks <i>inside</i> the target, so VI systematically <b>underestimates variance</b>{" "}
         because reverse-KL punishes putting mass where p is low; flip on <b>full covariance</b>{" "}
-        and q tilts to fit. On <b>Bimodal</b>, q collapses onto a <b>single mode</b> and ignores
-        the other — reverse-KL is <b>mode-seeking</b>, the opposite of what
+        and q tilts to fit. On <b>Bimodal</b>, q collapses onto a <b>single mode</b> and ignores the other. Reverse-KL is <b>mode-seeking</b>, the opposite of what
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}> MCMC</a> does (it explores both,
-        slowly). That trade-off — fast but biased VI vs slow but asymptotically exact MCMC — is the
+        slowly). That trade-off, fast but biased VI against slow but asymptotically exact MCMC, is the
         central choice in approximate inference.
       </DemoP>
     </>
@@ -265,12 +263,12 @@ function VariationalInferenceDemo() {
         encoder is an amortized q), it underlies Bayesian neural nets and probabilistic programming
         (Pyro, Stan's ADVI), and the same reparameterization trick you see here is what lets you
         backprop through a sampling step. Maximizing the ELBO simultaneously fits the data and
-        regularizes q toward the prior — reconstruction plus a KL term.
+        regularizes q toward the prior: reconstruction plus a KL term.
       </DemoP>
       <DemoP>
         The honest caveat is exactly what's on screen: VI gives you a posterior <i>fast</i>, but a
         <b> biased</b> one. Mean-field's variance underestimation makes credible intervals too
-        narrow, so VI uncertainty should be read with care — for calibrated error bars compare it
+        narrow, so VI uncertainty should be read with care. For calibrated error bars compare it
         against the exact <a href={`${window.__DM_BASE || "../../"}visualize/bayesian-linear-regression/`}>Bayesian
         posterior</a> where one is available, or against MCMC. Knowing when "approximately Bayesian"
         is good enough is a real engineering judgment.

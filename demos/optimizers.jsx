@@ -197,7 +197,7 @@ function OptimizersDemo() {
           { value: "corner", label: "Corner" },
           { value: "center", label: "Saddle" },
         ]}
-        help="Where all four optimizers begin. The saddle near the origin is the meanest start — momentum-style methods escape quickly while plain SGD can dither." />
+        help="Where all four optimizers begin. The saddle near the origin is the meanest start. Momentum-style methods escape quickly while plain SGD can dither." />
       <Slider label="// LEARNING RATE" min={0.005} max={0.30} step={0.005} value={lr} onChange={setLr}
         help="The step size η. Too small = crawl. Too large = SGD overshoots and oscillates; adaptive methods (RMSProp, Adam) tolerate it better." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -217,24 +217,20 @@ function OptimizersDemo() {
   const explainer = (
     <>
       <DemoP>
-        All four optimizers see the same gradients on the same wiggly bowl —
-        the differences in their paths come entirely from how they use those
+        All four optimizers see the same gradients on the same wiggly bowl, so the differences in their paths come entirely from how they use those
         gradients. <b style={{ color: "#60a5fa" }}>SGD</b> takes the raw
-        gradient as its step, period — it crawls and stalls in shallow dips.
+        gradient as its step, period. It crawls and stalls in shallow dips.
         <b style={{ color: "#c084fc" }}> Momentum</b> rolls a velocity, so
-        consistent gradients accelerate (it bursts down ridges) and noise
-        cancels out — but it can overshoot. <b style={{ color: "#fbbf24" }}>
+        consistent gradients accelerate (it bursts down ridges) and noise cancels out, but it can overshoot. <b style={{ color: "#fbbf24" }}>
         RMSProp</b> divides each step by a running RMS of past gradients, so
         steep directions get small steps and flat ones get big steps. <b style={{ color: "#34d399" }}>Adam</b> is RMSProp's per-direction scaling
-        plus Momentum's velocity, with bias correction — it's why it dominates
-        in practice.
+        plus Momentum's velocity, with bias correction. That is why it dominates in practice.
       </DemoP>
       <DemoP>
         Push the learning rate up: SGD oscillates first, Momentum overshoots
         but recovers, RMSProp and Adam keep their composure. Drop it: SGD
         gets stuck in the first local dip while the adaptive methods keep
-        finding the lower basin. Try the <b>Saddle</b> start — the near-zero
-        gradient at the origin pins SGD in place while Momentum's velocity
+        finding the lower basin. Try the <b>Saddle</b> start. The near-zero gradient at the origin pins SGD in place while Momentum's velocity
         kicks it off. That's the picture in a real loss landscape.
       </DemoP>
     </>
@@ -244,7 +240,7 @@ function OptimizersDemo() {
       <DemoP>
         Every modern neural network is trained by one of these four ideas (or
         a small variant). <b>Adam / AdamW</b> is the default for transformers
-        and most large models — its per-parameter step sizes handle the wildly
+        and most large models. Its per-parameter step sizes handle the wildly
         different gradient scales across attention vs. embedding vs. layernorm.
         <b>SGD with momentum</b> still beats Adam on ConvNets and dense vision
         models with strong regularization (the classic ResNet recipe).
@@ -255,8 +251,8 @@ function OptimizersDemo() {
         The lesson that outlasts the algorithms: training is a search through
         a hostile landscape full of cliffs, ravines, plateaus, and shallow
         local minima. Pick an optimizer whose mechanics match what your loss
-        surface throws at you. And tune the learning rate — by far the highest-
-        leverage hyperparameter — using exactly the kind of intuition this
+        surface throws at you. And tune the learning rate, by far the highest-leverage hyperparameter, using exactly the
+        kind of intuition this
         demo builds.
       </DemoP>
     </>

@@ -158,7 +158,7 @@ function SemanticCachingDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <span className="t-mono-s" style={{ color: "var(--muted)" }}>EMBEDDING SPACE — incoming queries vs cached entries (cosine from center)</span>
+      <span className="t-mono-s" style={{ color: "var(--muted)" }}>EMBEDDING SPACE: incoming queries vs cached entries (cosine from center)</span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 1.25 : 1.6), height: CH * (mobile ? 1.25 : 1.6), borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
@@ -174,7 +174,7 @@ function SemanticCachingDemo() {
       <Slider label="// SIMILARITY THRESHOLD" min={0.6} max={0.995} step={0.005} value={threshold} onChange={setThreshold} tone="violet"
         help="Serve the cached answer only when the nearest cached query's cosine similarity is at least this. Lower = cache more aggressively (higher hit rate and cost savings, but more false hits); higher = only near-duplicates hit (safe, fewer savings)." />
       <Slider label="// PARAPHRASE SPREAD" min={0.05} max={0.6} step={0.01} value={spread} onChange={setSpread} tone="blue"
-        help="How far real paraphrases of the same intent scatter in embedding space (angular noise). Wider spread means same-intent queries drift apart and toward neighbours — fewer true hits and more false hits at any threshold." />
+        help="How far real paraphrases of the same intent scatter in embedding space (angular noise). Wider spread means same-intent queries drift apart and toward neighbours, so fewer true hits and more false hits at any threshold." />
       <Slider label="// CACHED PER INTENT" min={1} max={5} step={1} value={perCluster} onChange={setPerCluster} tone="blue"
         help="How many stored entries cover each intent. More entries = denser coverage = more queries land near a cached point and hit (warming the cache). Rebuilds the cache and resets the stats." />
       <div style={{ display: "flex", gap: 8 }}>
@@ -201,13 +201,11 @@ function SemanticCachingDemo() {
         An <b>exact-match</b> response cache almost never hits: "how do I reset my
         password" and "I forgot my password, help" are the same intent but
         different strings. A <b>semantic cache</b> embeds the query and serves a
-        stored answer when the nearest cached query is within a cosine-similarity
-        threshold — collapsing all the paraphrases of one intent into a single
+        stored answer when the nearest cached query is within a cosine-similarity threshold, collapsing all the paraphrases of one intent into a single
         model call. Every green dot here is a model call you didn't pay for.
       </DemoP>
       <DemoP>
-        The threshold is the whole tradeoff. Drop it and the hit rate (and cost
-        savings) climbs — but queries start matching cached entries from a{" "}
+        The threshold is the whole tradeoff. Drop it and the hit rate (and cost savings) climbs, but queries start matching cached entries from a{" "}
         <i>different</i> intent, and you serve a confidently wrong cached answer:
         a <b>false hit</b> (red). Raise it and false hits vanish, but so do the
         savings as only near-duplicates qualify. Widen the <b>paraphrase spread</b>{" "}
@@ -226,9 +224,8 @@ function SemanticCachingDemo() {
         It rests directly on{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/embeddings/`} style={{ color: "#a855f7" }}>embeddings</a>{" "}
         and approximate{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector
-        search</a> — the cache is just a vector index of past queries — so the
-        embedding model's quality sets the ceiling on how cleanly intents separate.
+        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector search</a>, since the cache is just a vector index of past queries, so the
+        quality of the embedding model sets the ceiling on how cleanly intents separate.
       </DemoP>
       <DemoP>
         The danger is the false hit: a stale or wrong answer served with full
@@ -237,8 +234,7 @@ function SemanticCachingDemo() {
         precision/recall dial as the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrail</a>{" "}
         detectors and the cost/quality routing of a{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`} style={{ color: "#a855f7" }}>model
-        cascade</a> — tuned here for "is this the same question?" instead of "is
+        <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`} style={{ color: "#a855f7" }}>model cascade</a>, tuned here for "is this the same question?" instead of "is
         this safe?".
       </DemoP>
     </>

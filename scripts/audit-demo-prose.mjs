@@ -62,7 +62,9 @@ const say = (name, rows, cap) => {
   return rows.length;
 };
 
-const strict = process.argv.includes("--strict");
+// The backlog is cleared (1433 -> 0 on 2026-09-18), so em-dashes now fail like
+// the other two rules. --lenient downgrades them to a count for a bulk import.
+const strict = !process.argv.includes("--lenient");
 say("JSX joins - words glued together in the rendered page", joins, 20);
 say("em-dashes in reader-facing copy", dashes, 12);
 say("bullet lists wider than three items", wide, 12);
@@ -72,4 +74,4 @@ console.log(`\ndemo prose: ${files.length} files · joins ${joins.length} · em-
 // rewrite is in progress, so the check is useful before the backlog is finished.
 const hard = joins.length + wide.length;
 if (hard || (strict && dashes.length)) { console.log("FAIL"); process.exit(1); }
-console.log("OK — no glued words and no over-wide bullet lists.");
+console.log("OK - no glued words, no em-dashes in copy, no over-wide bullet lists.");

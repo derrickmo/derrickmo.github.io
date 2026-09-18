@@ -70,7 +70,7 @@ function PagedAttentionDemo() {
       const r = Math.floor(i / COLS), c = i % COLS, x = ox + c * cw, y = oy + r * ch, cell = cur.cells[i];
       if (!cell) { ctx.fillStyle = "rgba(30,41,59,0.5)"; ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2); }
       else if (cell.used) { ctx.fillStyle = PAL[cell.seq % PAL.length]; ctx.globalAlpha = 0.85; ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2); ctx.globalAlpha = 1; }
-      else { // reserved-but-unused (waste) — hatched dim
+      else { // reserved-but-unused (waste), hatched dim
         ctx.fillStyle = PAL[cell.seq % PAL.length]; ctx.globalAlpha = 0.16; ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2); ctx.globalAlpha = 1;
         ctx.strokeStyle = "rgba(248,113,113,0.5)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 2, y + ch - 2); ctx.lineTo(x + cw - 2, y + 2); ctx.stroke();
       }
@@ -111,7 +111,7 @@ function PagedAttentionDemo() {
       <Slider label="// SEQUENCES" min={2} max={12} step={1} value={nSeq} onChange={setNSeq}
         help="How many sequences want to run concurrently. Contiguous hits the memory wall fast (reserving max for each); paged keeps fitting more because it only holds what's been generated." />
       <Slider label="// GENERATION PROGRESS" min={0.1} max={1} step={0.1} value={fill} onChange={setFill}
-        help="How far through generation each sequence is (current length ÷ max). Early on (low) most reserved memory is empty, so contiguous waste — and paged's advantage — is largest; near 1 the schemes converge." />
+        help="How far through generation each sequence is (current length ÷ max). Early on (low) most reserved memory is empty, so contiguous waste, and the advantage of paging, is largest; near 1 the schemes converge." />
       <DemoButton onClick={gen} primary>RESAMPLE LENGTHS</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="CONTIGUOUS" value={fitContig + " seq"} accent="#f87171" />
@@ -130,8 +130,8 @@ function PagedAttentionDemo() {
       <DemoP>
         Serving an LLM, the KV cache is the memory hog, and how you lay it out
         decides how many users you can serve at once. The naive scheme gives each
-        sequence one contiguous region sized for its <i>maximum</i> length — but
-        early in generation almost all of that is empty, the red-hatched waste in
+        sequence one contiguous region sized for its <i>maximum</i> length, but early in generation almost all of that is
+        empty, the red-hatched waste in
         the grid. That internal fragmentation means you hit the memory wall with
         only a handful of sequences resident.
       </DemoP>
@@ -140,8 +140,7 @@ function PagedAttentionDemo() {
         allocated on demand and packed wherever there's room, with a block table
         mapping each sequence to its scattered blocks. Memory now tracks tokens
         actually generated, the waste collapses to at most one partial block per
-        sequence, and far more sequences fit — the "concurrent sequences served"
-        bar jumps. Slide GENERATION PROGRESS down (early decoding) to see the gap at
+        sequence, and far more sequences fit, so the "concurrent sequences served" bar jumps. Slide GENERATION PROGRESS down (early decoding) to see the gap at
         its widest, and shrink BLOCK SIZE to trim the last-block waste.
       </DemoP>
     </>
@@ -152,8 +151,7 @@ function PagedAttentionDemo() {
         PagedAttention (Kwon et al., 2023) is the core idea behind vLLM and modern
         high-throughput inference servers. By eliminating KV-cache fragmentation it
         raises serving throughput several-fold at the same memory, and the block
-        table enables copy-on-write sharing — multiple sequences with a common
-        prefix (a shared system prompt, or beam-search branches) point at the same
+        table enables copy-on-write sharing, so multiple sequences with a common prefix (a shared system prompt, or beam-search branches) point at the same
         blocks instead of duplicating them. It's the memory-systems sibling of the
         compute tricks in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV
@@ -161,8 +159,8 @@ function PagedAttentionDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>.
       </DemoP>
       <DemoP>
-        It's a direct lift of operating-system paging — fixed blocks, on-demand
-        allocation, an indirection table — applied to the KV cache instead of RAM,
+        It's a direct lift of operating-system paging, with fixed blocks, on-demand allocation and an indirection
+        table, applied to the KV cache instead of RAM,
         trading a little gather/scatter overhead for near-perfect utilization. It
         composes with continuous batching (swap sequences in/out as they finish),
         prefix caching, and KV quantization; together these are why an LLM endpoint

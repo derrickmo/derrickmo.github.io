@@ -179,22 +179,20 @@ function VAEDemo() {
       <DemoP>
         An autoencoder squeezes data through a bottleneck and rebuilds it. A
         <b> variational</b> autoencoder adds two twists that make it
-        <i> generative</i>. First, the encoder doesn't output a point — it outputs a
-        <b> distribution</b> (a mean μ and variance) per input, and we sample the latent
+        <i> generative</i>. First, the encoder does not output a point. It outputs a <b>distribution</b> (a mean μ and variance) per input, and we sample the latent
         <b> z</b> from it via the <b>reparameterization trick</b> (z = μ + σ·ε), which
         keeps the randomness differentiable so we can still backprop. Hit <b>Train</b>{" "}
         and watch the <span style={{ color: "#60a5fa" }}>reconstructions</span> snap
         onto the data while the <span style={{ color: "#fbbf24" }}>generated samples</span>
-        (decoded from pure noise) start to look like real data — that's generation.
+        (decoded from pure noise) start to look like real data. That is generation.
       </DemoP>
       <DemoP>
         Second, a <b>KL</b> term pulls every encoding toward a unit Gaussian (the dashed
         rings in the latent panel), so the latent space stays packed and continuous
-        instead of scattering — which is exactly what lets you sample from it. The
+        instead of scattering, which is exactly what lets you sample from it. The
         <b> β</b> slider sets that pressure: too low and the latent space fragments
         (great reconstructions, poor samples); too high and everything collapses toward
-        the origin (clean prior, blurry reconstructions). Finding that balance is the
-        whole art of training a VAE — and this is real backprop, running as you watch.
+        the origin (clean prior, blurry reconstructions). Finding that balance is the whole art of training a VAE, and this is real backprop, running as you watch.
       </DemoP>
     </>
   );
@@ -204,9 +202,9 @@ function VAEDemo() {
         VAEs were the first deep generative models to give a smooth, sampleable latent
         space, and that idea is now everywhere: the latent space Stable Diffusion denoises
         in is a VAE's, VQ-VAE tokenizes images and audio so transformers can generate them,
-        and latent-variable thinking underlies much of representation learning. The
-        <b> reparameterization trick</b> — making sampling differentiable — is a broadly
-        reusable tool for backprop through stochastic nodes.
+        and latent-variable thinking underlies much of representation learning. The{" "}
+        <b>reparameterization trick</b>, making sampling differentiable, is a broadly reusable
+        tool for backprop through stochastic nodes.
       </DemoP>
       <DemoP>
         The β knob is a small window onto deep tensions in generative modeling: the

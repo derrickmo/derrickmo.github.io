@@ -262,7 +262,7 @@ function WatershedDemo() {
       </DemoP>
       <DemoP>
         We drop a <b>marker</b> in each basin (the regional maxima of the distance
-        map) and let water rise from them simultaneously — Meyer's priority flooding
+        map) and let water rise from them simultaneously. Meyer's priority flooding
         always fills the lowest unflooded pixel next. When two rising basins are
         about to merge, a <b>dam</b> is built: that's the white <b>watershed line</b>,
         exactly the cut that separates touching objects. Now tune <b>SMOOTH</b>:
@@ -276,8 +276,7 @@ function WatershedDemo() {
   const concepts = (
     <>
       <DemoP>
-        Marker-controlled watershed is a classic <b>segmentation</b> workhorse —
-        separating touching cells under a microscope, counting coins or grains,
+        Marker-controlled watershed is a classic <b>segmentation</b> workhorse: separating touching cells under a microscope, counting coins or grains,
         splitting overlapping objects before measurement. Its famous weakness,
         over-segmentation from noisy gradients, is exactly why the marker-controlled
         variant shown here exists: you constrain the flood with seeds instead of
@@ -286,7 +285,7 @@ function WatershedDemo() {
         and the distance-map version generalizes that to "distance to a boundary."
       </DemoP>
       <DemoP>
-        The deeper idea — grow regions from seeds and cut where they collide — recurs
+        The deeper idea, grow regions from seeds and cut where they collide, recurs
         across graph cuts, region growing, and superpixels (SLIC), and modern instance
         segmentation networks (Mask R-CNN and friends) learn the same object-vs-object
         boundaries that watershed draws by hand. It also rhymes with

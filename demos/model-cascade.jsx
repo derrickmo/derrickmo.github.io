@@ -133,7 +133,7 @@ function ModelCascadeDemo() {
       <Slider label="// CONFIDENCE THRESHOLD" min={0} max={0.95} step={0.01} value={thresh} onChange={setThresh} tone="violet"
         help="Escalate any input whose cheap-model confidence falls below this. 0 = trust the cheap model on everything (cheapest, least accurate). Higher = send more of the uncertain middle to the expensive model (more accurate, more costly). This single knob slides you along the cost/accuracy curve." />
       <Slider label="// DATASET" min={1} max={12} step={1} value={seed} onChange={setSeed} tone="blue"
-        help="Resample the two-moons data and retrain both models. The moons are nonlinear, so the linear cheap model is genuinely weak in the middle where the classes interleave — exactly the region worth escalating." />
+        help="Resample the two-moons data and retrain both models. The moons are nonlinear, so the linear cheap model is genuinely weak in the middle where the classes interleave, exactly the region worth escalating." />
       <StatReadout label="CASCADE ACCURACY" value={(metrics.acc * 100).toFixed(1) + "%"} accent="var(--blue-lt)" />
       <StatReadout label="ESCALATED" value={(metrics.escRate * 100).toFixed(0) + "%"} accent="var(--violet-lt)" />
       <StatReadout label="AVG COST / REQ" value={metrics.cost.toFixed(1) + "x"} accent="var(--violet-lt)" />
@@ -147,19 +147,17 @@ function ModelCascadeDemo() {
       <DemoP>
         A cascade puts a <b>cheap, fast model in front of an expensive, accurate one</b>.
         The cheap model (here a linear classifier) labels every input and reports how
-        <b> confident</b> it is. Inputs it's sure about exit immediately; only the
-        uncertain ones — the violet band straddling the cheap model's decision boundary —
-        are <b>escalated</b> to the expensive kNN model. Most inputs are easy, so you pay
+        <b> confident</b> it is. Inputs it's sure about exit immediately; only the uncertain ones, the violet band straddling the decision boundary of the cheap
+        model, are <b>escalated</b> to the expensive kNN model. Most inputs are easy, so you pay
         the big cost on only a slice of traffic.
       </DemoP>
       <DemoP>
         Slide the <b>confidence threshold</b> and watch the tradeoff. At 0 nothing
-        escalates: you get the cheap model's mediocre accuracy at <b>1× cost</b>. Raise
-        it and the band widens — accuracy climbs toward the expensive model's while the
+        escalates: you get the cheap model's mediocre accuracy at <b>1× cost</b>. Raise it and the band widens. Accuracy climbs toward the expensive one while the
         <b> average cost</b> creeps up with the escalation rate. The whole point is that
         the curve is steep early: a little escalation buys most of the accuracy, because
         the hard cases cluster exactly where the cheap model is unsure. That only works
-        if the cheap model's confidence is trustworthy — a poorly
+        if the cheap model's confidence is trustworthy, and a poorly
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}> calibrated</a> model
         escalates the wrong inputs.
       </DemoP>
@@ -184,8 +182,7 @@ function ModelCascadeDemo() {
         calibration and to <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`}>conformal</a>
         uncertainty; a confidently-wrong cheap model routes hard cases straight to the
         cheap (wrong) answer. In production you also balance this against
-        <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}> batching</a> and latency —
-        escalation adds a second model hop to the tail.
+        <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}> batching</a> and latency, because escalation adds a second model hop to the tail.
       </DemoP>
     </>
   );

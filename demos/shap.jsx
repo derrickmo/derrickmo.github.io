@@ -168,8 +168,7 @@ function ShapDemo() {
       </DemoP>
       <DemoP>
         A Shapley value is the feature's average marginal contribution across every
-        possible order of adding features in — which is why it splits the
-        debt×late-payments interaction fairly between the two instead of
+        possible order of adding features in, which is why it splits the debt×late-payments interaction fairly between the two instead of
         double-counting or dumping it on one. Slide a feature and watch its bar
         grow; push both debt ratio and late payments high together and their bars
         swell beyond their individual effects as the interaction kicks in. The bars
@@ -181,8 +180,7 @@ function ShapDemo() {
     <>
       <DemoP>
         SHAP (Lundberg & Lee, 2017) is the dominant feature-attribution method for
-        tabular ML, built on Shapley values from cooperative game theory — the
-        unique attribution that satisfies efficiency, symmetry, and the dummy
+        tabular ML, built on Shapley values from cooperative game theory, the unique attribution that satisfies efficiency, symmetry, and the dummy
         axioms. This demo computes them <i>exactly</i> by enumerating all 2⁵
         coalitions; real SHAP approximates the same quantity (KernelSHAP sampling,
         or fast exact TreeSHAP for tree ensembles) because enumeration explodes
@@ -191,12 +189,10 @@ function ShapDemo() {
       <DemoP>
         It's the explainability half of trustworthy ML, paired with{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>:
-        one asks whether the confidence is honest, the other why the decision was
-        made — both prerequisites for deploying a model where a person is owed an
+        one asks whether the confidence is honest, the other why the decision was made. Both are prerequisites for deploying a model where a person is owed an
         explanation (credit, hiring, healthcare). Caveats worth knowing: attributions
         depend on the chosen baseline, correlated features can smear credit, and an
-        explanation of the model is not a causal claim about the world — SHAP tells
-        you what the model used, not what's true.
+        explanation of the model is not a causal claim about the world. SHAP tells you what the model used, not what's true.
       </DemoP>
     </>
   );

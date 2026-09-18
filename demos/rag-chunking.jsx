@@ -125,9 +125,9 @@ function RagChunkingDemo() {
   if (retrievedHasFull) { verdict = "✓ answer fully contained in a retrieved chunk"; vColor = "#34d399";
     vMsg = "Retrieval succeeds: a top-k chunk holds the entire answer span, so the model gets the full fact as context."; }
   else if (!anyChunkHasFull) { verdict = "✗ answer split across chunk boundaries"; vColor = "#f87171";
-    vMsg = "No single chunk contains the whole answer — the fact was cut in half. Add overlap, or turn on sentence-aware chunking, so the span survives intact."; }
+    vMsg = "No single chunk contains the whole answer. The fact was cut in half. Add overlap, or turn on sentence-aware chunking, so the span survives intact."; }
   else { verdict = "✗ the right chunk exists but wasn't retrieved"; vColor = "#fbbf24";
-    vMsg = "A chunk does hold the full answer, but it ranked below the top-k. Often a too-large chunk diluted its score, or a keyword-heavy distractor outranked it — try a smaller chunk, more overlap, or a larger k."; }
+    vMsg = "A chunk does hold the full answer, but it ranked below the top-k. Often a too-large chunk diluted its score, or a keyword-heavy distractor outranked it. Try a smaller chunk, more overlap, or a larger k."; }
 
   const chunkCards = chunks.map(([cs, ce], idx) => {
     const retrieved = topSet.has(idx);
@@ -190,9 +190,9 @@ function RagChunkingDemo() {
       <Slider label="// CHUNK SIZE (words)" min={6} max={70} step={2} value={size} onChange={setSize}
         help="Max words per chunk. Small chunks slice facts across boundaries; large chunks bury the answer among unrelated sentences and dilute its similarity score. Watch the verdict flip as you sweep it." />
       <Slider label="// OVERLAP (words)" min={0} max={30} step={2} value={overlap} onChange={setOverlap}
-        help="How many words consecutive chunks share. Overlap lets a fact that straddles a boundary appear whole in at least one chunk — the cheapest fix for split answers. (In sentence-aware mode, any overlap > 0 repeats the previous sentence.)" />
+        help="How many words consecutive chunks share. Overlap lets a fact that straddles a boundary appear whole in at least one chunk, the cheapest fix for split answers. (In sentence-aware mode, any overlap > 0 repeats the previous sentence.)" />
       <Toggle label="// SENTENCE-AWARE" checked={sentenceAware} onChange={setSentenceAware}
-        help="On: chunk on sentence boundaries so a sentence is never cut mid-fact (packing whole sentences up to the size limit). Off: a blind fixed word window that will happily split a sentence — and an answer — in two." />
+        help="On: chunk on sentence boundaries so a sentence is never cut mid-fact (packing whole sentences up to the size limit). Off: a blind fixed word window that will happily split a sentence, and an answer, in two." />
       <Slider label="// TOP-K" min={1} max={4} step={1} value={topK} onChange={setTopK}
         help="How many of the highest-scoring chunks are sent to the model. Larger k is more forgiving of imperfect chunking but spends more of the context window (and invites lost-in-the-middle)." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -212,8 +212,7 @@ function RagChunkingDemo() {
         a retrieved chunk.
       </DemoP>
       <DemoP>
-        Shrink the chunk size until a fact gets cut across two chunks — now
-        "✓ holds answer" disappears from every card and retrieval brings back only
+        Shrink the chunk size until a fact gets cut across two chunks. Now "✓ holds answer" disappears from every card and retrieval brings back only
         a fragment. Add overlap and the span reappears whole in a boundary chunk.
         Grow the chunk size instead and the answer's chunk fills with unrelated
         sentences, its score drops, and a snappier but wrong chunk can outrank it.
@@ -231,16 +230,14 @@ function RagChunkingDemo() {
         search</a>: those demos cover how text becomes a vector and how nearest
         neighbors are found, while chunking decides what each vector represents in
         the first place. Real systems use recursive/semantic splitters, 10–20%
-        overlap, and a reranker — but the size-vs-dilution tension you're feeling
+        overlap, and a reranker, but the size-against-dilution tension you're feeling
         here never goes away.
       </DemoP>
       <DemoP>
         It connects straight to context engineering. Retrieved chunks compete for
         a finite context window, and because attention degrades in the middle of
         long inputs ("lost in the middle"), placement and k matter as much as the
-        match score. Production RAG is evaluated in two halves — retrieval recall
-        at k (did the right chunk come back?) and answer faithfulness (did the
-        model use it?) — and chunking is the single cheapest lever on the first.
+        match score. Production RAG is evaluated in two halves: retrieval recall at k (did the right chunk come back?) and answer faithfulness (did the model use it?), and chunking is the single cheapest lever on the first.
       </DemoP>
     </>
   );

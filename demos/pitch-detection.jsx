@@ -95,9 +95,9 @@ function PitchDetectionDemo() {
       <Slider label="// TRUE PITCH f0" min={80} max={600} step={1} value={f0} onChange={setF0} suffix=" Hz" tone="violet"
         help="Fundamental frequency of the synthesized tone. The autocorrelation peak should land at lag = sample_rate / f0; detected pitch and note name update live." />
       <Slider label="// HARMONICS" min={1} max={16} step={1} value={harm} onChange={setHarm} tone="blue"
-        help="How many harmonics the tone has. A pure sine (1) and a rich tone autocorrelate to peaks at the same fundamental period — the strength of autocorrelation is that it locks onto f0 regardless of timbre." />
+        help="How many harmonics the tone has. A pure sine (1) and a rich tone autocorrelate to peaks at the same fundamental period. The strength of autocorrelation is that it locks onto f0 regardless of timbre." />
       <Slider label="// NOISE" min={0} max={1} step={0.02} value={noise} onChange={setNoise}
-        help="Additive noise. A little is harmless — the periodic peak still dominates. Push it high and the autocorrelation peak drowns, causing octave errors or a wrong estimate, the classic failure mode pitch trackers fight." />
+        help="Additive noise. A little is harmless, because the periodic peak still dominates. Push it high and the autocorrelation peak drowns, causing octave errors or a wrong estimate, the classic failure mode pitch trackers fight." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="DETECTED" value={data.detF.toFixed(1) + " Hz"} accent="#34d399" />
         <StatReadout label="NOTE" value={noteName(data.detF)} accent="var(--white)" />
@@ -111,16 +111,14 @@ function PitchDetectionDemo() {
     <>
       <DemoP>
         A pitched sound is periodic: it looks the same after one period of
-        <i> 1/f0</i> seconds. Slide a copy of the signal against itself and the
-        overlap — the <b>autocorrelation</b> r(lag) — spikes whenever the shift
+        <i> 1/f0</i> seconds. Slide a copy of the signal against itself and the overlap, the <b>autocorrelation</b> r(lag), spikes whenever the shift
         equals a whole number of periods. The first strong peak inside the search
         band (shaded) marks one period, and the pitch falls right out:
         <b> f0 = sample rate / peak lag</b>.
       </DemoP>
       <DemoP>
         Notice the autocorrelation finds the same fundamental whether the tone is a
-        pure sine or packed with <b>harmonics</b> — that timbre-independence is why
-        it works on voices and instruments. Then add <b>noise</b>: a little just
+        pure sine or packed with <b>harmonics</b>, and that timbre-independence is why it works on voices and instruments. Then add <b>noise</b>: a little just
         roughens the curve, but past a point the periodic peak no longer dominates
         and the estimate jumps, often by an exact octave (picking 2× or ½ the true
         lag). That octave ambiguity is the central headache of pitch detection, and
@@ -136,8 +134,7 @@ function PitchDetectionDemo() {
         Autocorrelation pitch detection underlies music tuners, voice analysis, and
         the f0 tracking in speech synthesis and singing-voice tools; YIN and pYIN are
         the production-grade descendants. It's the time-domain twin of reading the
-        fundamental off a <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier
-        spectrum</a> — and indeed autocorrelation is the inverse transform of the
+        fundamental off a <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier spectrum</a>, and indeed autocorrelation is the inverse transform of the
         power spectrum (the Wiener–Khinchin theorem), so the two views are the same
         information seen differently.
       </DemoP>

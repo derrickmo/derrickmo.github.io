@@ -144,7 +144,7 @@ function SpectralClusteringDemo() {
 
     if (method === "kmeans" && (dataset === "circles" || dataset === "moons")) {
       ctx.fillStyle = "#f87171"; ctx.font = "11px JetBrains Mono";
-      ctx.fillText("k-means slices the shapes — it only sees distance, not connectivity", pad, H - 14);
+      ctx.fillText("k-means slices the shapes: it only sees distance, not connectivity", pad, H - 14);
     } else if (method === "spectral") {
       ctx.fillStyle = "#34d399"; ctx.font = "11px JetBrains Mono";
       ctx.fillText("clusters = connected pieces of the graph", pad, H - 14);
@@ -166,9 +166,9 @@ function SpectralClusteringDemo() {
         help="Spectral clusters in the Laplacian eigenvector space (connectivity-based). k-means clusters the raw coordinates (distance-based). On rings and moons, watch k-means cut straight through a shape while spectral keeps each shape whole." />
       <SegmentedControl label="// DATASET" value={dataset} onChange={setDataset}
         options={[{ value: "circles", label: "Rings" }, { value: "moons", label: "Moons" }, { value: "blobs", label: "Blobs" }]}
-        help="Rings and Moons are non-convex — the classic cases k-means can't separate. Blobs are convex, where both methods agree." />
+        help="Rings and Moons are non-convex, the classic cases k-means cannot separate. Blobs are convex, where both methods agree." />
       <Slider label="// RBF WIDTH σ" min={0.04} max={0.3} step={0.01} value={sigma} onChange={setSigma}
-        help="Bandwidth of the similarity kernel — how close two points must be to be 'connected'. Too small fragments the graph into many pieces; too large links everything into one. The key spectral knob." />
+        help="Bandwidth of the similarity kernel, meaning how close two points must be to be 'connected'. Too small fragments the graph into many pieces; too large links everything into one. The key spectral knob." />
       <Slider label="// CLUSTERS K" min={2} max={4} step={1} value={K} onChange={setK}
         help="Number of clusters, and the number of bottom Laplacian eigenvectors used as the embedding. Set it to the number of shapes you see." />
       <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE</DemoButton>
@@ -190,8 +190,7 @@ function SpectralClusteringDemo() {
         ring's far side is "closer" to the outer ring than to itself. Switch to
         SPECTRAL and the two rings come apart cleanly. The trick: build a graph where
         each point links to its near neighbors (the faint edges), then cluster using
-        the smallest eigenvectors of that graph's Laplacian — coordinates in which
-        connected regions collapse to the same spot. Connectivity, not raw distance,
+        the smallest eigenvectors of the graph Laplacian, coordinates in which connected regions collapse to the same spot. Connectivity, not raw distance,
         now defines a cluster.
       </DemoP>
       <DemoP>
@@ -199,8 +198,7 @@ function SpectralClusteringDemo() {
         disconnected fragments (spurious clusters); too large and every point links to
         every other, blurring the shapes into one. There's a sweet band where the
         graph has exactly K well-connected pieces and the eigenvectors snap them apart.
-        Switch to BLOBS and both methods agree — spectral clustering's advantage is
-        precisely the non-convex shapes that defeat centroid methods.
+        Switch to BLOBS and both methods agree. The advantage of spectral clustering is precisely the non-convex shapes that defeat centroid methods.
       </DemoP>
     </>
   );
@@ -221,8 +219,7 @@ function SpectralClusteringDemo() {
       </DemoP>
       <DemoP>
         Caveats: it needs the number of clusters K up front (though the eigenvalue
-        gap hints at it), and it's sensitive to the similarity graph — the σ here, or
-        the choice of k-NN graph. Exact eigendecomposition is O(n³), so large datasets
+        gap hints at it), and it's sensitive to the similarity graph, the σ here or the choice of k-NN graph. Exact eigendecomposition is O(n³), so large datasets
         need sparse graphs and iterative eigensolvers (this demo uses a small power-
         iteration). And the final step is still k-means in eigenvector space, so it
         inherits k-means' initialization sensitivity there.

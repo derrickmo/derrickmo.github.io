@@ -171,11 +171,10 @@ function RegretMatchingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two players repeatedly play the same game, and after each round each one tallies its
-        <b> regret</b> — for every action, how much better it <i>would</i> have done had it always
+        Two players repeatedly play the same game, and after each round each one tallies its <b>regret</b>: for every action, how much better it <i>would</i> have done had it always
         played that action instead. <b>Regret matching</b> then sets the next strategy proportional
         to the <i>positive</i> regrets: play the things you wish you'd played more. No knowledge of
-        the opponent, no equilibrium solver — just local, online learning.
+        the opponent, no equilibrium solver, just local online learning.
       </DemoP>
       <DemoP>
         The remarkable result: while the moment-to-moment strategies (blue) keep cycling, the
@@ -191,8 +190,7 @@ function RegretMatchingDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is the beating heart of <b>Counterfactual Regret Minimization (CFR)</b> — run regret
-        matching at every decision point of a large game and the average strategy converges to Nash.
+        This is the beating heart of <b>Counterfactual Regret Minimization (CFR)</b>. Run regret matching at every decision point of a large game and the average strategy converges to Nash.
         CFR is how Libratus and Pluribus beat top humans at no-limit poker, and the
         <a href={`${window.__DM_BASE || "../../"}play/poker/`}> poker</a> agent on this site is trained
         the same way. No-regret learning also underlies online learning, boosting, and the training
@@ -200,8 +198,7 @@ function RegretMatchingDemo() {
         minimax game).
       </DemoP>
       <DemoP>
-        The subtlety worth keeping: it's the <i>time-average</i> that converges, not the current
-        strategy — the iterates can orbit the equilibrium forever (you can see the blue bars cycling).
+        The subtlety worth keeping: it's the <i>time-average</i> that converges, not the current strategy. The iterates can orbit the equilibrium forever (you can see the blue bars cycling).
         That distinction matters in multi-agent RL and GAN training, where people mistake a non-settling
         policy for a failure when the averaged behavior is actually at equilibrium. Regret minimization
         is also the bridge from single-agent <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}>bandits</a>

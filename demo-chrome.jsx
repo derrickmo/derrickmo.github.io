@@ -290,7 +290,7 @@ function DemoLayout({ topic, title, subtitle, stage, controls, explainer, concep
 
           {/* stage | controls */}
           <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "minmax(0, 1fr) 300px", gap: 24, marginTop: 36, alignItems: "start" }}>
-            <div ref={_stageRef} role="group" aria-label={`${title} — interactive visualization`} style={{
+            <div ref={_stageRef} role="group" aria-label={`${title}, interactive visualization`} style={{
               position: "relative", overflow: "hidden",
               border: "1px solid var(--border)", borderRadius: 8,
               background: "rgba(5, 8, 22, 0.6)", padding: 16,

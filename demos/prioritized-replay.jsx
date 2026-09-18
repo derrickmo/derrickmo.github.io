@@ -88,7 +88,7 @@ function PrioritizedReplayDemo() {
     const cw = w / N;
     // chain values (prioritized agent)
     const vy0 = 18, vy1 = 70;
-    ctx.fillStyle = "#94a3b8"; ctx.font = "8px monospace"; ctx.textAlign = "left"; ctx.fillText("value V along chain (violet) vs true (line) — prioritized learner", padL, vy0 - 5);
+    ctx.fillStyle = "#94a3b8"; ctx.font = "8px monospace"; ctx.textAlign = "left"; ctx.fillText("value V along chain (violet) vs true (line): prioritized learner", padL, vy0 - 5);
     for (let i = 0; i < N; i++) {
       const x = padL + i * cw, h = Math.max(0, Math.min(1, st.pri.V[i])) * (vy1 - vy0);
       ctx.fillStyle = i === N - 1 ? "rgba(52,211,153,0.5)" : "rgba(168,85,247,0.7)";
@@ -162,7 +162,7 @@ function PrioritizedReplayDemo() {
       <Slider label="// IS CORRECTION β" min={0} max={1} step={0.05} value={beta} onChange={setBeta}
         help="Importance-sampling exponent that undoes the bias from non-uniform sampling: w=(N·P)^(-β). β=0 leaves the bias in (fastest, slightly off); β=1 fully corrects it. Real PER anneals β toward 1 over training." />
       <Slider label="// CHAIN LENGTH" min={6} max={30} step={1} value={N} onChange={setN} tone="blue"
-        help="States between start and the single rewarding goal transition. Longer chains make reward sparser — exactly where prioritized replay's backward sweep crushes uniform sampling. Rebuilds." />
+        help="States between start and the single rewarding goal transition. Longer chains make reward sparser, exactly where the backward sweep of prioritized replay crushes uniform sampling. Rebuilds." />
       <Slider label="// LEARNING RATE" min={0.1} max={1} step={0.05} value={lr} onChange={setLr} tone="blue"
         help="TD step size, shared by both learners so sampling is the only difference." />
       <Slider label="// SPEED" min={4} max={160} value={speed} onChange={setSpeed} suffix=" /s"
@@ -187,14 +187,12 @@ function PrioritizedReplayDemo() {
         TD update; they differ only in <b>which transition they pick</b>. Uniform
         replay (gray) draws at random, so on a sparse-reward chain it spends almost
         every update re-confirming transitions it already has right. <b>Prioritized</b>{" "}
-        replay (violet) samples in proportion to <b>|TD error|</b> — surprise — and
-        the priority bars show where that surprise currently lives.
+        replay (violet) samples in proportion to <b>|TD error|</b>, meaning surprise, and the priority bars show where that surprise currently lives.
       </DemoP>
       <DemoP>
         The result is a clean <b>backward sweep</b>. At first only the goal
         transition has any error; fixing it makes its neighbour the new surprise,
-        whose priority spikes, so it's sampled next — value marches back from the
-        goal in roughly one pass. The RMS-error curve shows prioritized collapsing
+        whose priority spikes, so it is sampled next. Value marches back from the goal in roughly one pass. The RMS-error curve shows prioritized collapsing
         in a fraction of the updates uniform needs, and the gap widens as you
         lengthen the chain. <b>β</b> trades a little of that speed for an unbiased
         update; <b>α=0</b> turns prioritized back into uniform and the curves merge.
@@ -209,14 +207,13 @@ function PrioritizedReplayDemo() {
         it made a large difference on Atari and is a near-default companion to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>DQN</a>.
         It's the data-side counterpart to{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/dyna-q/`} style={{ color: "#a855f7" }}>Dyna-Q</a>'s
-        planning — both squeeze more learning out of stored transitions; PER just
+        <a href={`${window.__DM_BASE || "../../"}visualize/dyna-q/`} style={{ color: "#a855f7" }}>Dyna-Q</a> planning, since both squeeze more learning out of stored transitions; PER just
         spends the replay budget where the model is most wrong.
       </DemoP>
       <DemoP>
         The α/β pair is the general recipe for any biased-but-useful sampling
         scheme: tilt the distribution toward informative examples (α), then correct
-        the resulting bias with importance weights (β) — the same{" "}
+        the resulting bias with importance weights (β), the same{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/importance-sampling/`} style={{ color: "#a855f7" }}>importance-sampling</a>{" "}
         idea used to reweight off-policy data and rare events. Hard-example mining
         in supervised learning is the same instinct without the correction.

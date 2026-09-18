@@ -121,20 +121,17 @@ function GoDemo() {
   const explainer = (
     <>
       <DemoP>
-        Go's rules are tiny but its search space dwarfs chess — far too big for the
-        alpha-beta approach, and there's no simple "material count" to evaluate a
+        Go's rules are tiny but its search space dwarfs chess. It is far too big for the alpha-beta approach, and there's no simple "material count" to evaluate a
         position. The breakthrough was <b>Monte-Carlo search</b>: instead of evaluating
         a position with a formula, you <i>play it out at random to the end</i> many
-        times and see who tends to win. This AI does exactly that — for each candidate
-        move it runs hundreds of random rollouts, using <b>UCB</b> to spend more
+        times and see who tends to win. This AI does exactly that. For each candidate move it runs hundreds of random rollouts, using <b>UCB</b> to spend more
         rollouts on the moves that look promising, then plays the one with the best
         record.
       </DemoP>
       <DemoP>
         It plays real Go: stones with no liberties are captured, suicide and ko are
         illegal, and the game ends on two passes with area scoring (plus komi for
-        White). It's only a mini board with light rollouts, so it's a casual opponent —
-        but it's the same Monte-Carlo Tree Search idea that, married to deep neural
+        White). It's only a mini board with light rollouts, so it is a casual opponent, but it is the same Monte-Carlo Tree Search idea that, married to deep neural
         networks, became AlphaGo and finally cracked the game humans thought computers
         couldn't.
       </DemoP>
@@ -145,8 +142,8 @@ function GoDemo() {
       <DemoP>
         Go is the landmark where classical AI hit a wall and a new paradigm broke through.
         Its branching factor and the lack of any simple board evaluation made alpha-beta
-        hopeless, so the field turned to <b>Monte-Carlo Tree Search</b> — estimate a
-        position by random playouts rather than a formula — exactly what this AI does, using
+        hopeless, so the field turned to <b>Monte-Carlo Tree Search</b>, estimating a position by random playouts rather than a
+        formula, which is exactly what this AI does, using
         UCB to spend its rollouts where they matter most.
       </DemoP>
       <DemoP>

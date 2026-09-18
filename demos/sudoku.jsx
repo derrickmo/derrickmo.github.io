@@ -157,7 +157,7 @@ function SudokuDemo() {
   const controls = (
     <ControlGroup>
       <Toggle label="// CONSTRAINT PROPAGATION" checked={propagate} onChange={setPropagate} tone="violet"
-        help="On: fill every 'naked single' (a cell with exactly one possible digit) for free, cascading, before guessing — and detect dead ends immediately. Off: pure backtracking that only guesses. Watch the guess and backtrack counters explode when you turn it off." />
+        help="On: fill every 'naked single' (a cell with exactly one possible digit) for free, cascading, before guessing, and detect dead ends immediately. Off: pure backtracking that only guesses. Watch the guess and backtrack counters explode when you turn it off." />
       <Slider label="// SPEED (events/sec)" min={2} max={200} step={2} value={speed} onChange={setSpeed}
         help="Replay speed. Propagation-on solves in a few dozen events; propagation-off can be thousands, so crank this up to watch the latter finish." />
       <DemoButton onClick={() => { if (finished) setStep(0); setRunning(r => !r); }} primary>{running ? "PAUSE" : (finished ? "REPLAY" : "SOLVE")}</DemoButton>
@@ -190,8 +190,7 @@ function SudokuDemo() {
         The real lever is CONSTRAINT PROPAGATION. With it on, any cell pinned to a
         single possible digit gets filled immediately and the consequences cascade,
         so most of the grid falls out with only a handful of actual guesses. Turn
-        it off and the same backtracking search has to grope through the tree by
-        guessing alone — watch GUESSES and BACKTRACKS jump by orders of magnitude
+        it off and the same backtracking search has to grope through the tree by guessing alone. Watch GUESSES and BACKTRACKS jump by orders of magnitude
         for the identical puzzle. Propagation is what turns an exponential search
         into something that finishes in the blink of an eye.
       </DemoP>
@@ -204,8 +203,7 @@ function SudokuDemo() {
         beyond the puzzle: backtracking, constraint propagation, and variable
         ordering are exactly the machinery behind scheduling, planning, and
         verification. "Naked singles" here is the simplest propagation rule;
-        production solvers add hidden singles, locked candidates, and full
-        arc-consistency — the same{" "}
+        production solvers add hidden singles, locked candidates, and full arc-consistency, the same{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/graph-coloring/`} style={{ color: "#a855f7" }}>AC-3</a>{" "}
         idea generalized.
       </DemoP>
@@ -214,8 +212,7 @@ function SudokuDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/n-queens/`} style={{ color: "#a855f7" }}>N-Queens</a>{" "}
         and graph coloring: all three are complete backtracking searches whose
         practicality lives or dies on pruning. The propagation toggle is the whole
-        lesson of the field in one switch — choosing <i>what to deduce before you
-        search</i> matters far more than how fast you search. Modern SAT/SMT solvers
+        lesson of the field in one switch. Choosing <i>what to deduce before you search</i> matters far more than how fast you search. Modern SAT/SMT solvers
         push this to its limit with conflict-driven clause learning.
       </DemoP>
     </>

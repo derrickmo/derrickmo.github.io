@@ -137,12 +137,12 @@ function WeightInitDemo() {
         options={[{ value: "naive", label: "Naive" }, { value: "xavier", label: "Xavier" }, { value: "he", label: "He" }]}
         help="Naive draws weights N(0,1) with no fan-in scaling (the signal blows up). Xavier scales by 1/√fan-in (right for tanh/linear). He scales by √2/√fan-in (right for ReLU, which halves the variance). The bold curve is the selected one." />
       <Slider label="// GAIN" min={0.3} max={2.5} step={0.1} value={gain} onChange={setGain}
-        help="Extra multiplier on the init scale. Even with the right scheme, detune the gain and the std curve tilts off the ideal line — too low collapses, too high explodes." />
+        help="Extra multiplier on the init scale. Even with the right scheme, detune the gain and the std curve tilts off the ideal line. Too low collapses, too high explodes." />
       <Slider label="// DEPTH" min={3} max={40} step={1} value={depth} onChange={setDepth}
-        help="Number of layers. The deeper the stack, the more exponentially a slightly-wrong scale diverges from std=1 — depth is what turns a small init error into a dead network." />
+        help="Number of layers. The deeper the stack, the more exponentially a slightly-wrong scale diverges from std=1. Depth is what turns a small init error into a dead network." />
       <SegmentedControl label="// ACTIVATION" value={act} onChange={setAct}
         options={[{ value: "tanh", label: "tanh" }, { value: "relu", label: "ReLU" }]}
-        help="Switch between tanh (where Xavier is correct) and ReLU (where He is correct — note Xavier now undershoots because ReLU zeroes half the signal). The matching scheme is the one that stays flat." />
+        help="Switch between tanh (where Xavier is correct) and ReLU (where He is correct, and note Xavier now undershoots because ReLU zeroes half the signal). The matching scheme is the one that stays flat." />
       <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE WEIGHTS</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="FINAL STD" value={finalStd < 0.001 ? finalStd.toExponential(1) : finalStd.toFixed(2)} accent={healthy ? "#34d399" : "#f87171"} />
@@ -162,14 +162,12 @@ function WeightInitDemo() {
         The top panel tracks the standard deviation of activations layer by layer,
         on a log scale so a healthy run sits flat on the yellow std=1 line. Pick
         Naive init: with no fan-in scaling each layer multiplies the variance by the
-        fan-in, so the red curve rockets up (or with tanh, pins at saturation) within
-        a few layers — gradients downstream are dead on arrival. Pick Xavier and the
+        fan-in, so the red curve rockets up (or with tanh, pins at saturation) within a few layers. Gradients downstream are dead on arrival. Pick Xavier and the
         blue curve hugs std=1 the whole way: that 1/√fan-in scaling is exactly what
         cancels the variance growth for a linear/tanh layer.
       </DemoP>
       <DemoP>
-        Now switch ACTIVATION to ReLU. Watch Xavier start drifting <i>down</i> — ReLU
-        zeroes half its inputs, halving the variance each layer, so the variance-
+        Now switch ACTIVATION to ReLU. Watch Xavier start drifting <i>down</i>. ReLU zeroes half its inputs, halving the variance each layer, so the variance-
         preserving scale needs an extra factor of √2. That's He init (green), which
         now stays flat instead. The lesson: the right init depends on the
         nonlinearity, and getting it wrong fails exponentially in depth. This is the
@@ -182,8 +180,7 @@ function WeightInitDemo() {
     <>
       <DemoP>
         Initialization scale is one of the quiet reasons deep learning works.
-        Xavier/Glorot (2010) and He (2015) init derive the weight variance that keeps
-        forward activations — and backward gradients — at unit scale through many
+        Xavier/Glorot (2010) and He (2015) init derive the weight variance that keeps forward activations, and backward gradients, at unit scale through many
         layers, which is what makes training deep nets without exotic tricks
         possible. The same variance-budgeting logic shows up in residual scaling,
         LayerNorm, and the careful init of modern transformers. It pairs directly
@@ -194,8 +191,7 @@ function WeightInitDemo() {
         Caveats: this demo shows the forward signal; the matching argument for the
         backward gradient is what really matters, and Glorot's full criterion
         averages the two (fan-in and fan-out). Real nets also have biases, residual
-        connections, and normalization layers that change the calculus — modern
-        architectures are often robust to init precisely because they add those.
+        connections, and normalization layers that change the calculus. Modern architectures are often robust to init precisely because they add those.
         Still, on a plain deep MLP, a √2 you forgot is the difference between training
         and a flat loss curve.
       </DemoP>

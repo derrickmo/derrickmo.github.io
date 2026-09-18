@@ -130,7 +130,7 @@ function OverfittingDemo() {
       <Slider label="// POLYNOMIAL DEGREE" min={0} max={15} value={degree} onChange={setDegree} tone="violet"
         help="Model capacity. Low degree is too rigid (underfit); very high degree can bend through every training point and memorize the noise (overfit)." />
       <Slider label="// DATA POINTS" min={8} max={80} value={n} onChange={setN}
-        help="How many samples are drawn. More data makes overfitting harder to trigger at the same degree — the curve has more constraints to satisfy." />
+        help="How many samples are drawn. More data makes overfitting harder to trigger at the same degree, because the curve has more constraints to satisfy." />
       <Slider label="// NOISE" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise}
         help="Random scatter added to each sample. More noise gives a high-capacity model more spurious wiggle to chase and memorize." />
       <Slider label="// RIDGE λ" min={0} max={0.1} step={0.002} value={lambda} onChange={setLambda} tone="violet"
@@ -149,18 +149,16 @@ function OverfittingDemo() {
   const explainer = (
     <>
       <DemoP>
-        This fits a polynomial of the degree you choose to noisy samples of a true
-        function — a real least-squares solve (normal equations, with optional
+        This fits a polynomial of the degree you choose to noisy samples of a true function, a real least-squares solve (normal equations, with optional
         ridge regularization) done in the browser. The dashed grey line is the
         truth; the violet curve is what the model learned from the blue
         <b> training</b> points; the amber <b>test</b> points are held out.
       </DemoP>
       <DemoP>
-        Start at degree 1 (underfit — too rigid to follow the curve). Raise the
+        Start at degree 1 (underfit, too rigid to follow the curve). Raise the
         degree and the fit improves… until it doesn't: past a point the curve
         contorts to pass through every training point and the <b>test RMSE</b>{" "}
-        shoots up while train RMSE keeps falling. That gap <i>is</i> overfitting —
-        the bias-variance tradeoff made visible. Now add a little <b>ridge λ</b> and
+        shoots up while train RMSE keeps falling. That gap <i>is</i> overfitting, the bias-variance tradeoff made visible. Now add a little <b>ridge λ</b> and
         watch it tame the wild high-degree wiggles, or add more <b>data points</b>{" "}
         and watch overfitting get harder to trigger.
       </DemoP>
@@ -171,18 +169,15 @@ function OverfittingDemo() {
     <>
       <DemoP>
         The bias-variance tradeoff you're watching is the central tension of all
-        supervised learning, not a polynomial quirk. The gap between <b>train</b> and
-        <b> test</b> error — the <i>generalization gap</i> — is the number every
-        practitioner actually monitors, and it's why real projects hold out validation
+        supervised learning, not a polynomial quirk. The gap between <b>train</b> and{" "}
+        <b>test</b> error, the <i>generalization gap</i>, is the number every practitioner actually monitors, and it's why real projects hold out validation
         and test sets, use <i>early stopping</i>, and never trust training accuracy alone.
         A model that aces training and fails on new data is the most common way ML quietly
         ships broken.
       </DemoP>
       <DemoP>
-        Every lever here has a deep-learning counterpart. <b>Ridge λ</b> is L2
-        regularization — the same <i>weight decay</i> you set on every neural network;
-        its cousins are dropout and data augmentation. <b>Degree</b> is model capacity —
-        the same reason giant models demand giant datasets to avoid memorizing. And more
+        Every lever here has a deep-learning counterpart. <b>Ridge λ</b> is L2 regularization, the same <i>weight decay</i> you set on every neural network;
+        its cousins are dropout and data augmentation. <b>Degree</b> is model capacity, the same reason giant models demand giant datasets to avoid memorizing. And more
         <b> data points</b> is the oldest fix of all. Once you can read this plot, "my
         model overfits" becomes a problem with a menu of known answers.
       </DemoP>

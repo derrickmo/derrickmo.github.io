@@ -96,7 +96,7 @@ function Game2048() {
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
       <div className="t-mono" style={{ color: won ? "#fbbf24" : over ? "#f87171" : "var(--blue-lt)", fontSize: 14 }}>
-        {won ? "2048! keep going" : over ? "No moves left — game over." : hint ? `AI suggests: ${hint.toUpperCase()}` : "Arrow keys / buttons to play."}
+        {won ? "2048! keep going" : over ? "No moves left. Game over." : hint ? `AI suggests: ${hint.toUpperCase()}` : "Arrow keys / buttons to play."}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 64px)`, gridTemplateRows: `repeat(${N}, 64px)`, gap: 8, padding: 10, background: "rgba(13,24,52,0.6)", border: "1px solid var(--border)", borderRadius: 10 }}>
         {g.flatMap((row, r) => row.map((v, c) => (
@@ -120,13 +120,13 @@ function Game2048() {
       <DemoButton onClick={() => setHint(bestMove(gridRef.current))} primary>AI: SUGGEST MOVE</DemoButton>
       <DemoButton onClick={toggleAuto} tone="violet">{auto ? "STOP AUTOPLAY" : "AI: AUTOPLAY"}</DemoButton>
       <DemoButton onClick={() => { stopAuto(); start(); }}>NEW GAME</DemoButton>
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>The AI runs expectimax — it averages over the random tile spawns instead of assuming an adversary.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>The AI runs expectimax. It averages over the random tile spawns instead of assuming an adversary.</div>
     </ControlGroup>
   );
   const explainer = (
     <>
       <DemoP>
-        2048 isn't adversarial — there's no opponent, just the <i>random</i> 2 or 4 that
+        2048 is not adversarial. There is no opponent, just the <i>random</i> 2 or 4 that
         appears after each move. So the AI uses <b>expectimax</b>, minimax's cousin for
         chance: at your turn it takes the best move, but at the random tile's "turn" it
         averages over every place a 2 or 4 could land (weighted 90/10). It searches a
@@ -134,8 +134,7 @@ function Game2048() {
         empty cells and keeping big tiles pinned to one corner.
       </DemoP>
       <DemoP>
-        Hit <b>Suggest</b> for a single hint, or <b>Autoplay</b> and watch it grind —
-        the corner strategy emerges on its own because the heuristic rewards it. The
+        Hit <b>Suggest</b> for a single hint, or <b>Autoplay</b> and watch it grind. The corner strategy emerges on its own because the heuristic rewards it. The
         same expectimax idea shows up anywhere you're optimizing against chance rather
         than a hostile player: backgammon, slot-style games, and risk-aware planning.
       </DemoP>
@@ -144,19 +143,17 @@ function Game2048() {
   const concepts = (
     <>
       <DemoP>
-        2048 is a single-agent decision problem against chance, so it calls for
-        <b> expectimax</b> — minimax's variant that, instead of a hostile opponent, averages
+        2048 is a single-agent decision problem against chance, so it calls for{" "}
+        <b>expectimax</b>, the minimax variant that, instead of a hostile opponent, averages
         over random outcomes (here the 90/10 spawn of a 2 or 4). That "max over my actions,
         expectation over the world's randomness" structure is the same one behind backgammon
         engines and the Bellman expectation used throughout decision-making under
         uncertainty.
       </DemoP>
       <DemoP>
-        The corner-hoarding strategy you watch the bot adopt isn't programmed in — it
-        emerges from a heuristic that rewards empty cells and monotonic rows. That's a small
+        The corner-hoarding strategy you watch the bot adopt is not programmed in. It emerges from a heuristic that rewards empty cells and monotonic rows. That's a small
         lesson in <b>reward/heuristic design</b>: shape the evaluation well and sophisticated
-        behavior falls out of plain search — the same principle, and the same reward-hacking
-        risk, that governs reinforcement-learning agents.
+        behavior falls out of plain search, the same principle and the same reward-hacking risk, that governs reinforcement-learning agents.
       </DemoP>
     </>
   );

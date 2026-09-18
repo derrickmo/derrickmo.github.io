@@ -186,23 +186,21 @@ function MCMCDemo() {
   const explainer = (
     <>
       <DemoP>
-        The violet heatmap is the distribution we want to sample — but we can only
-        evaluate it up to a constant, so we can't sample it directly. Metropolis
+        The violet heatmap is the distribution we want to sample, but we can only evaluate it up to a constant, so we can't sample it directly. Metropolis
         builds a random walk whose long-run visiting frequency equals that density:
         from the green point it proposes a Gaussian step, then accepts if the target
         is higher there, or accepts "downhill" moves with probability p(new)/p(old).
         Reject and it just stays and re-records the same point. The white dots are
-        the kept samples piling up — and they fill in exactly the bright regions of
+        the kept samples piling up, and they fill in exactly the bright regions of
         the heatmap, with no normalization ever computed.
       </DemoP>
       <DemoP>
         PROPOSAL STEP is everything. Shrink σ and acceptance climbs toward 100%, but
-        the green trail barely moves — the samples are so correlated you'd need
+        the green trail barely moves. The samples are so correlated you'd need
         millions for a few independent ones. Grow σ and the chain leaps into the
         dark and gets rejected over and over, freezing in place. On the Bimodal
         target, small steps can trap the chain in one mode for ages (poor mixing);
-        on the Banana, no single σ fits the curved ridge — which is exactly why
-        practitioners reach for adaptive, Hamiltonian, or NUTS samplers.
+        on the Banana, no single σ fits the curved ridge, which is exactly why practitioners reach for adaptive, Hamiltonian, or NUTS samplers.
       </DemoP>
     </>
   );
@@ -222,13 +220,12 @@ function MCMCDemo() {
         would smooth.
       </DemoP>
       <DemoP>
-        Caveats: MCMC samples are correlated, not independent — effective sample size
-        is far below the raw count, and you must discard burn-in and check
+        Caveats: MCMC samples are correlated, not independent, so effective sample size is far below the raw count, and you must discard burn-in and check
         convergence (trace plots, R-hat across multiple chains). Random-walk
         Metropolis mixes badly in high dimensions and across separated modes, so
         modern practice uses gradient-informed samplers (Hamiltonian Monte Carlo,
         NUTS) or, for speed over exactness, variational inference. Diagnosing "has it
-        converged?" is genuinely hard — a chain can look healthy while having never
+        converged?" is genuinely hard. A chain can look healthy while having never
         visited a whole mode.
       </DemoP>
     </>

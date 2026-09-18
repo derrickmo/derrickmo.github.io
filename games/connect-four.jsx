@@ -108,7 +108,7 @@ function ConnectFourDemo() {
         options={[{ value: "easy", label: "Easy" }, { value: "hard", label: "Hard" }, { value: "expert", label: "Expert" }]}
         help="Search depth in plies (Easy 2, Hard 4, Expert 6). Deeper look-ahead spots forced wins and threats further out, but costs more time per move." />
       <Toggle label="// AI MOVES FIRST" checked={aiStarts} onChange={v => { setAiStarts(v); reset(v); }} tone="violet"
-        help="Let the AI open in the center column — a known first-player advantage (Connect Four is a first-player win with perfect play)." />
+        help="Let the AI open in the center column, a known first-player advantage (Connect Four is a first-player win with perfect play)." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="YOU" value={tally.w} accent="#60a5fa" />
         <StatReadout label="DRAWS" value={tally.d} />
@@ -124,14 +124,12 @@ function ConnectFourDemo() {
         tree a few moves deep, assumes you'll always answer with your best reply, and
         picks the column that maximizes its worst-case outcome. The tree is far too big
         to search to the end (unlike tic-tac-toe), so it stops at a fixed
-        <b> depth</b> and <i>estimates</i> the leftover positions with a heuristic —
-        scoring every 4-in-a-row window by who's closer to completing it, plus a bonus
+        <b> depth</b> and <i>estimates</i> the leftover positions with a heuristic, scoring every 4-in-a-row window by who's closer to completing it, plus a bonus
         for the center column.
       </DemoP>
       <DemoP>
         <b>Alpha-beta</b> is the speed trick: once a branch is proven worse than one
-        already found, it's abandoned unsearched — which (with good move ordering, here
-        center-out) lets the same depth run far faster. Crank the difficulty to
+        already found, it is abandoned unsearched, which (with good move ordering, here center-out) lets the same depth run far faster. Crank the difficulty to
         <b> Expert</b> and you're facing a 6-ply look-ahead; it rarely misses a forced
         win or an open three. This is the exact family of algorithms behind classic
         chess and checkers engines.
@@ -148,12 +146,10 @@ function ConnectFourDemo() {
         checkers engine is this same recipe run deeper.
       </DemoP>
       <DemoP>
-        <b>Alpha-beta pruning</b> is the workhorse optimization on display — proving a
-        branch is worse than one already found lets you skip it entirely, and with good move
+        <b>Alpha-beta pruning</b> is the workhorse optimization on display. Proving a branch is worse than one already found lets you skip it entirely, and with good move
         ordering (center-out here) it roughly doubles the depth reachable for the same
-        compute. The upgrades from here — transposition tables, iterative deepening,
-        quiescence search, and ultimately learned evaluation — are exactly how engines
-        climbed from amateur to superhuman.
+        compute. The upgrades from here, transposition tables and iterative deepening and quiescence
+        search and ultimately learned evaluation, are exactly how engines climbed from amateur to superhuman.
       </DemoP>
     </>
   );

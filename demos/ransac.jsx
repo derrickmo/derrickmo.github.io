@@ -177,11 +177,11 @@ function RansacDemo() {
       <Slider label="// OUTLIERS (%)" min={0} max={70} value={outlierPct} onChange={setOutlierPct} tone="violet"
         help="What fraction of the points are pure noise rather than samples from the line. Least squares degrades from the first one. RANSAC holds all the way to 70% here, because uniform noise never forms a larger consensus than the real line - structured outliers are what break it, not the count." />
       <Slider label="// INLIER THRESHOLD" min={0.01} max={0.3} step={0.01} value={thresh} onChange={setThresh}
-        help="How close a point must be to count as agreeing with a hypothesis — the shaded band. Too tight and no hypothesis gathers support; too loose and outliers are counted as inliers, which is the same as not using RANSAC." />
+        help="How close a point must be to count as agreeing with a hypothesis, the shaded band. Too tight and no hypothesis gathers support; too loose and outliers are counted as inliers, which is the same as not using RANSAC." />
       <Slider label="// ITERATIONS" min={2} max={500} value={iters} onChange={setIters}
-        help="How many random two-point hypotheses to try. The readout below shows how many you actually NEED for a 99% chance of drawing one outlier-free pair — beyond that you are paying for nothing." />
+        help="How many random two-point hypotheses to try. The readout below shows how many you actually NEED for a 99% chance of drawing one outlier-free pair. Beyond that you are paying for nothing." />
       <Slider label="// POINTS" min={20} max={300} value={n} onChange={setN}
-        help="Total sample size. More data does NOT rescue least squares here — the bias from outliers does not average away, it is a property of the estimator." />
+        help="Total sample size. More data does NOT rescue least squares here. The bias from outliers does not average away, it is a property of the estimator." />
       <SegmentedControl label="// SHOW LEAST SQUARES" value={showLS} onChange={setShowLS}
         options={[{ value: "yes", label: "Show" }, { value: "no", label: "Hide" }]}
         help="The dashed violet line fits every point by minimizing squared distance. Squaring is what makes it fragile: one far-away point contributes enormously." />
@@ -205,7 +205,7 @@ function RansacDemo() {
     <>
       <DemoP>
         Least squares minimizes the <i>squared</i> distance to every point, so a point far
-        from the line contributes enormously — and it has no way to decline. One bad
+        from the line contributes enormously, and it has no way to decline. One bad
         measurement tilts the whole fit. RANSAC inverts the problem: instead of fitting all
         the data at once, guess a model from the smallest possible sample (two points for a
         line), count how many points agree with it, and keep the guess with the largest
@@ -214,11 +214,10 @@ function RansacDemo() {
       <DemoP>
         Push <b>outliers</b> up and watch the two lines separate. The violet dashed fit
         rotates away steadily; the blue one does not move. At 60% outliers RANSAC is still
-        within 0.01 of the true slope of 0.800 while least squares has drifted past 0.86 —
-        and note what that means: <i>a majority of the data being wrong is survivable</i>,
+        within 0.01 of the true slope of 0.800 while least squares has drifted past 0.86. Note what that means: <i>a majority of the data being wrong is survivable</i>,
         because the outliers here are unstructured and never form a bigger consensus than
-        the real line. What actually breaks RANSAC is outliers with structure of their own —
-        a second line, a repeated pattern — since then the largest agreeing set may not be
+        the real line. What actually breaks RANSAC is outliers with structure of their own, a second line or a repeated pattern, since then the largest
+        agreeing set may not be
         the one you wanted. Then click to drop a single point far from the line: least
         squares lurches toward it, RANSAC does not move at all, because that point simply
         is not in the consensus set.
@@ -230,8 +229,7 @@ function RansacDemo() {
       <DemoP>
         RANSAC is the workhorse of geometric vision. Matching two photographs produces
         hundreds of candidate correspondences of which many are wrong, and RANSAC is what
-        recovers the homography, the fundamental matrix, or the camera pose from them —
-        structure-from-motion, panorama stitching and visual SLAM all have it in the inner
+        recovers the homography, the fundamental matrix, or the camera pose from them: structure-from-motion, panorama stitching and visual SLAM all have it in the inner
         loop. The model changes; the sample-count-keep-best skeleton does not.
       </DemoP>
       <DemoP>
@@ -239,8 +237,8 @@ function RansacDemo() {
         fraction of arbitrary corruption it tolerates before returning nonsense. The mean
         has a breakdown point of zero and the median has one of a half, and that is the
         same distinction you are watching here. It is why Huber loss appears in regression,
-        why detection pipelines use trimmed statistics, and why the iteration count is
-        <i> calculable</i> rather than guessed — the readout uses N = log(1 − p) / log(1 − w²).
+        why detection pipelines use trimmed statistics, and why the iteration count is{" "}
+        <i>calculable</i> rather than guessed. The readout uses N = log(1 − p) / log(1 − w²).
       </DemoP>
     </>
   );

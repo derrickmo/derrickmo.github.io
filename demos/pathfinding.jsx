@@ -272,9 +272,9 @@ function PathfindingDemo() {
           help="A*/Greedy's estimate of distance left to the goal. Manhattan suits 4-way grids, Euclid/Chebyshev suit diagonal moves; an admissible (never-overestimating) heuristic keeps A* optimal." />
       )}
       <Toggle label="// DIAGONAL MOVES" checked={diag} onChange={v => resetOnSetting(setDiag, v)}
-        help="Allow 8-way movement instead of 4-way. Diagonals cost √2 and let paths cut corners — pair with the Euclid or Chebyshev heuristic." />
+        help="Allow 8-way movement instead of 4-way. Diagonals cost √2 and let paths cut corners, so pair with the Euclid or Chebyshev heuristic." />
       <Slider label="// SPEED" min={1} max={30} value={speed} onChange={setSpeed} suffix=" /frame"
-        help="How many search steps run per frame. Visual pacing only — it does not change which path is found." />
+        help="How many search steps run per frame. Visual pacing only: it does not change which path is found." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={handleRun} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={handleStep} disabled={running}>STEP</DemoButton>
@@ -306,8 +306,8 @@ function PathfindingDemo() {
         and <b>BFS</b> expand by distance from the start (guaranteed shortest path,
         but they fan out in every direction). <b>Greedy</b> best-first expands by the
         heuristic estimate of distance to the goal (fast, but can miss the shortest
-        route). <b>A*</b> combines both — it ranks cells by <i>f = g + h</i>, the
-        cost so far plus the estimated cost remaining — so it heads toward the goal
+        route). <b>A*</b> combines both. It ranks cells by <i>f = g + h</i>, the
+        cost so far plus the estimated cost remaining, so it heads toward the goal
         while staying optimal when the heuristic never overestimates.
       </DemoP>
       <DemoP>
@@ -325,8 +325,7 @@ function PathfindingDemo() {
       <DemoP>
         Informed search is foundational classical AI used far beyond game grids: GPS
         routing, robot motion planning, network packet routing, and puzzle solvers all run
-        A* or a close relative. The <i>f = g + h</i> split — cost already paid plus an
-        admissible estimate of cost remaining — is the template for cost-guided search
+        A* or a close relative. The <i>f = g + h</i> split, cost already paid plus an admissible estimate of cost remaining, is the template for cost-guided search
         across computer science.
       </DemoP>
       <DemoP>
@@ -334,7 +333,7 @@ function PathfindingDemo() {
         into modern AI: <b>beam search</b> in language-model decoding, <b>branch-and-bound</b>{" "}
         in optimization, and <b>Monte-Carlo Tree Search</b> in game-playing agents (the
         engine behind AlphaGo) all trade completeness for speed using a heuristic. The
-        through-line is <i>admissibility</i> — knowing when a heuristic is optimistic enough
+        through-line is <i>admissibility</i>, knowing when a heuristic is optimistic enough
         to still guarantee the best answer.
       </DemoP>
     </>

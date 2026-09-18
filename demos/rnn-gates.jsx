@@ -165,7 +165,7 @@ function RNNGatesDemo() {
           { value: "step", label: "Step" }, { value: "pulse", label: "Pulse" },
           { value: "ramp", label: "Ramp" }, { value: "sine", label: "Sine" },
         ]}
-        help="The input sequence x_t fed one step at a time. Different shapes reveal what each gate does — a step makes the forget gate decide what to drop; a pulse tests memory; a ramp shows the cell integrating." />
+        help="The input sequence x_t fed one step at a time. Different shapes reveal what each gate does. A step makes the forget gate decide what to drop; a pulse tests memory; a ramp shows the cell integrating." />
       <SegmentedControl label="// VIEW" value={view} onChange={setView}
         options={[
           { value: "forget", label: "f" }, { value: "input", label: "i" },
@@ -173,7 +173,7 @@ function RNNGatesDemo() {
         ]} tone="violet"
         help="Which signal to show in the heatmap. Gates are 0..1 (closed..open); cell state is signed (color = sign, intensity = magnitude)." />
       <Slider label="// WEIGHT SEED" min={1} max={20} step={1} value={seed} onChange={setSeed}
-        help="Reroll the random weights of the LSTM cell. With different seeds you'll see different gate patterns — but the structure (gates near 0/1, cell integrating) stays." />
+        help="Reroll the random weights of the LSTM cell. With different seeds you'll see different gate patterns, but the structure (gates near 0/1, cell integrating) stays." />
       <DemoButton onClick={() => setSeed(Math.floor(Math.random() * 20) + 1)} primary>NEW WEIGHTS</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="MEAN f" value={meanForget.toFixed(2)} />
@@ -200,8 +200,7 @@ function RNNGatesDemo() {
       <DemoP>
         Try the <b>step</b> signal with the forget gate selected: some units will close
         when the input jumps, dumping the past; others stay open and integrate. Switch
-        to the <b>pulse</b> signal and watch the cell state hold onto information long
-        after the input is gone — that's the LSTM's whole trick. The weights here are
+        to the <b>pulse</b> signal and watch the cell state hold onto information long after the input is gone. That is the whole trick of the LSTM. The weights here are
         random (no training), but the gate structure already gives the cell selective
         memory.
       </DemoP>
@@ -210,8 +209,7 @@ function RNNGatesDemo() {
   const concepts = (
     <>
       <DemoP>
-        LSTMs ran NLP, speech, and time-series modeling for nearly a decade — Google
-        Translate ran on stacked LSTMs in 2016. The pattern that survives even after
+        LSTMs ran NLP, speech, and time-series modeling for nearly a decade. Google Translate ran on stacked LSTMs in 2016. The pattern that survives even after
         transformers took over is the idea of a <b>gated, additive memory channel</b>:
         a path along which gradients flow without vanishing, controlled by learned
         sigmoid valves. That same idea reappears in <b>residual connections</b>
@@ -219,8 +217,8 @@ function RNNGatesDemo() {
         and batch norm.
       </DemoP>
       <DemoP>
-        Practically, every modern alternative — GRUs, transformers, state-space models
-        like Mamba — exists in part because LSTMs are sequential (you can't parallelize
+        Practically, every modern alternative, from GRUs to transformers to state-space models like Mamba,
+        exists in part because LSTMs are sequential (you can't parallelize
         across time). But the abstractions still translate: an attention head's
         softmax weights are an "input gate" over context; a transformer's residual
         stream is the cell state. Once gates click, the rest of sequence modeling

@@ -168,9 +168,9 @@ function SelfConsistencyDemo() {
       <Slider label="// SINGLE-SAMPLE ACC (p)" min={0.2} max={0.95} step={0.05} value={p} onChange={setP} tone="violet"
         help="How often ONE chain-of-thought gets the answer right. Above ~1/K (better than guessing) majority voting amplifies it; the closer p is to just over 0.5 the more dramatic the lift from many samples." />
       <Slider label="// SAMPLES (N)" min={1} max={49} step={2} value={N} onChange={setN}
-        help="How many independent chains you sample before voting. The curve shows accuracy climbing and then plateauing — there are sharply diminishing returns, and every extra sample costs another full generation." />
+        help="How many independent chains you sample before voting. The curve shows accuracy climbing and then plateauing. There are sharply diminishing returns, and every extra sample costs another full generation." />
       <Slider label="// ANSWER OPTIONS (K)" min={2} max={6} step={1} value={K} onChange={setK}
-        help="How many distinct answers are possible. More options spread the wrong votes thinner, so a correct plurality is easier to reach — voting helps more on open-ended answers than on a coin-flip binary." />
+        help="How many distinct answers are possible. More options spread the wrong votes thinner, so a correct plurality is easier to reach, so voting helps more on open-ended answers than on a coin-flip binary." />
       <Slider label="// ERROR CORRELATION (c)" min={0} max={1} step={0.05} value={c} onChange={setC}
         help="How much the wrong answers agree. At 0 errors scatter over all distractors and cancel out; near 1 every wrong chain makes the SAME mistake (orange), forming a fake consensus that voting locks in. The reason self-consistency can't fix a systematic bias." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "AUTO-SAMPLE"}</DemoButton>
@@ -192,20 +192,18 @@ function SelfConsistencyDemo() {
     <>
       <DemoP>
         One sampled chain-of-thought is right only a fraction p of the time. But
-        if its mistakes are scattered — different wrong answers on different
-        samples — then the single correct answer is the one thing the samples
+        if its mistakes are scattered, giving different wrong answers on different samples, then
+        the single correct answer is the one thing the samples
         agree on, so a majority vote concentrates on it. Each chip is one sampled
         chain (green = right, red/orange = wrong); the bars tally their votes; the
         blue curve is the probability the majority is correct as you add samples.
       </DemoP>
       <DemoP>
         With p just above chance and low correlation, watch the curve rocket past
-        the dashed single-sample line toward 100% — that's the Condorcet jury
-        effect, the statistical engine behind self-consistency. Now drag ERROR
+        the dashed single-sample line toward 100%. That is the Condorcet jury effect, the statistical engine behind self-consistency. Now drag ERROR
         CORRELATION up: the wrong answers pile onto one option (orange), a
         confident false consensus forms, and the curve sags back down. Voting
-        averages away <i>random</i> error; it is powerless against a <i>shared</i>{" "}
-        bias — exactly why self-consistency boosts arithmetic but not a
+        averages away <i>random</i> error; it is powerless against a <i>shared</i>{" "} bias, which is exactly why self-consistency boosts arithmetic but not a
         misconception every chain holds.
       </DemoP>
     </>
@@ -216,8 +214,7 @@ function SelfConsistencyDemo() {
         Self-consistency (Wang et al., 2022) is the simplest reliability pattern
         for LLMs: sample several chains at nonzero temperature, then majority-vote
         the final answer. It reliably lifts accuracy on reasoning benchmarks for
-        the price of N forward passes, and it's the seed of richer schemes —
-        best-of-N against a verifier, tree-of-thought search, and the test-time
+        the price of N forward passes, and it's the seed of richer schemes: best-of-N against a verifier, tree-of-thought search, and the test-time
         compute scaling behind reasoning models. The{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>decoding</a>{" "}
         temperature is what creates the diversity it depends on.
@@ -227,8 +224,7 @@ function SelfConsistencyDemo() {
         the independence voting needs) comes from temperature: too low and every
         chain is a near-copy (high correlation, no benefit), too high and p itself
         collapses. Real deployments tune that sweet spot, cap N for cost, and pair
-        voting with a verifier precisely because a model's errors are rarely fully
-        independent — the assumption this demo lets you break on purpose.
+        voting with a verifier precisely because a model's errors are rarely fully independent, the assumption this demo lets you break on purpose.
       </DemoP>
     </>
   );

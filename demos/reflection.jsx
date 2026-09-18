@@ -49,8 +49,8 @@ function ReflectionDemo() {
       a.verdict = verdict ? "pass" : "fail";
       if (verdict) {
         s.done = true;
-        if (trueBar) { s.outcome = "✓ shipped — meets the bar"; s.oColor = "#34d399"; }
-        else { s.outcome = "⚠ shipped BELOW the bar — critic false-passed"; s.oColor = "#f87171"; }
+        if (trueBar) { s.outcome = "✓ shipped: meets the bar"; s.oColor = "#34d399"; }
+        else { s.outcome = "⚠ shipped BELOW the bar: critic false-passed"; s.oColor = "#f87171"; }
         return;
       }
     }
@@ -58,8 +58,8 @@ function ReflectionDemo() {
     if (s.attempts.length - 1 >= budget) {
       s.done = true;
       const last = s.attempts[s.attempts.length - 1].q;
-      if (last >= thresh) { s.outcome = "↯ budget spent — answer met the bar but the critic kept false-failing"; s.oColor = "#fbbf24"; }
-      else { s.outcome = "✗ gave up at budget — still below the bar"; s.oColor = "#f87171"; }
+      if (last >= thresh) { s.outcome = "↯ budget spent: answer met the bar but the critic kept false-failing"; s.oColor = "#fbbf24"; }
+      else { s.outcome = "✗ gave up at budget: still below the bar"; s.oColor = "#f87171"; }
       return;
     }
     const qn = clamp01(a.q + 0.55 * (1 - a.q) * info + (Math.random() - 0.5) * 0.06);
@@ -146,13 +146,13 @@ function ReflectionDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CRITIC INFORMATIVENESS" min={0.05} max={0.95} step={0.05} value={info} onChange={setInfo} tone="violet"
-        help="How useful the critic's feedback is — how much each revision actually improves the answer. High = quality climbs fast toward the bar; low = revisions barely move it and the loop plateaus, spending calls for nothing." />
+        help="How useful the feedback of the critic is, meaning how much each revision actually improves the answer. High = quality climbs fast toward the bar; low = revisions barely move it and the loop plateaus, spending calls for nothing." />
       <Slider label="// CRITIC ACCURACY" min={0.5} max={1} step={0.05} value={acc} onChange={setAcc}
         help="How often the critic's pass/fail verdict is correct. Below 1 it makes mistakes: false-passing a sub-bar answer (you ship garbage) or false-failing a good one (you loop and burn budget). Self-correction can't beat a bad verifier." />
       <Slider label="// QUALITY BAR" min={0.4} max={0.95} step={0.05} value={thresh} onChange={setThresh}
-        help="The quality the answer must reach to be acceptable. A higher bar needs more revisions — and is more likely to exhaust the budget if the critic isn't informative enough to get there." />
+        help="The quality the answer must reach to be acceptable. A higher bar needs more revisions, and is more likely to exhaust the budget if the critic isn't informative enough to get there." />
       <Slider label="// BUDGET (max revisions)" min={1} max={12} step={1} value={budget} onChange={setBudget}
-        help="How many revise cycles you'll pay for before giving up. Each one is another full model call — the cost side of the reflection tradeoff." />
+        help="How many revise cycles you'll pay for before giving up. Each one is another full model call, the cost side of the reflection tradeoff." />
       <DemoButton onClick={() => { if (s.done) reset(); setRunning(r => !r); }} primary>{running ? "PAUSE" : (s.done ? "RUN AGAIN" : "RUN")}</DemoButton>
       <DemoButton onClick={() => { step(); force(x => x + 1); }}>STEP</DemoButton>
       <DemoButton onClick={reset}>RESET</DemoButton>
@@ -173,14 +173,12 @@ function ReflectionDemo() {
         Reflection turns one shot into a loop: the agent drafts an answer, a critic
         scores it and says what's wrong, the agent revises, and round on. The
         violet line is the answer's true quality climbing across revisions; the
-        green dashed line is the bar it needs to clear; each dot is a critic
-        verdict — red "revise" keeps the loop going, green "pass" ships it. With an
+        green dashed line is the bar it needs to clear; each dot is a critic verdict. Red "revise" keeps the loop going, green "pass" ships it. With an
         informative critic the quality curve bends up to the bar in a couple of
         rounds.
       </DemoP>
       <DemoP>
-        Then break the critic. Drop CRITIC INFORMATIVENESS and the curve flattens
-        below the bar — the loop keeps revising but never improves, and you pay for
+        Then break the critic. Drop CRITIC INFORMATIVENESS and the curve flattens below the bar. The loop keeps revising but never improves, and you pay for
         every call. Drop CRITIC ACCURACY and two new failure modes appear: a green
         "pass" dot below the bar means it <i>false-passed</i> and shipped a bad
         answer, while an answer that's clearly over the bar but keeps getting red
@@ -203,9 +201,8 @@ function ReflectionDemo() {
       </DemoP>
       <DemoP>
         The demo's lesson is the field's hard-won one: LLM self-correction helps
-        when there's an <i>external, reliable</i> signal — unit tests, a
-        calculator, a retrieval check, a strong reward model — and is weak or even
-        harmful when the model is just grading its own homework, because the same
+        when there's an <i>external, reliable</i> signal such as unit tests, a calculator, a retrieval check
+        or a strong reward model, and is weak or even harmful when the model is just grading its own homework, because the same
         blind spots that produced the error also pass it. That's why production
         agents wire reflection to tools and verifiers, cap the budget, and prefer a
         trustworthy critic over more rounds.

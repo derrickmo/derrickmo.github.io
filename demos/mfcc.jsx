@@ -99,7 +99,7 @@ function MFCCDemo() {
     // 3) MFCC bars (diverging)
     const cy0 = 188, ch = CH - cy0 - 10, mid = cy0 + ch / 2; const K = data.mfcc.length;
     let amax = 1e-9; for (let n = 1; n < K; n++) amax = Math.max(amax, Math.abs(data.mfcc[n]));
-    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("MFCC coefficients (DCT) — the feature vector", padL, cy0 - 4);
+    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("MFCC coefficients (DCT): the feature vector", padL, cy0 - 4);
     ctx.strokeStyle = "rgba(148,163,184,0.3)"; ctx.beginPath(); ctx.moveTo(padL, mid); ctx.lineTo(CW - padR, mid); ctx.stroke();
     const cbw = gw / K;
     for (let n = 0; n < K; n++) { const val = n === 0 ? 0 : data.mfcc[n] / amax; const h = (val) * (ch / 2 - 2); ctx.fillStyle = n === 0 ? "#64748b" : (val >= 0 ? "#34d399" : "#fbbf24"); ctx.fillRect(padL + n * cbw + 1, mid - Math.max(h, 0), cbw - 2, Math.abs(h) || 1); if (h < 0) ctx.fillRect(padL + n * cbw + 1, mid, cbw - 2, -h); }
@@ -117,9 +117,9 @@ function MFCCDemo() {
     <ControlGroup>
       <SegmentedControl label="// VOWEL" tone="violet" value={vowel} onChange={setVowel}
         options={[{ value: "a", label: "/a/ as in 'ah'" }, { value: "i", label: "/i/ as in 'ee'" }, { value: "u", label: "/u/ as in 'oo'" }]}
-        help="A synthesized voiced vowel — a harmonic comb (the pitch) shaped by formant resonances (the vocal-tract shape). Switching vowels moves the formants, which reshapes the spectrum and changes the MFCC vector even though the pitch barely moves." />
+        help="A synthesized voiced vowel, a harmonic comb (the pitch) shaped by formant resonances (the vocal-tract shape). Switching vowels moves the formants, which reshapes the spectrum and changes the MFCC vector even though the pitch barely moves." />
       <Slider label="// MEL FILTERS" min={12} max={40} step={2} value={nMel} onChange={setNMel} tone="violet"
-        help="Number of triangular filters on the mel scale. They're packed densely at low frequencies and sparsely at high ones, mimicking how the ear resolves pitch — and pooling the FFT into a compact, perceptually-weighted summary." />
+        help="Number of triangular filters on the mel scale. They're packed densely at low frequencies and sparsely at high ones, mimicking how the ear resolves pitch, and pooling the FFT into a compact, perceptually-weighted summary." />
       <Slider label="// MFCC KEPT" min={6} max={20} step={1} value={nMfcc} onChange={setNMfcc} tone="blue"
         help="How many DCT coefficients to keep. The low ones capture the smooth spectral envelope (the phoneme); higher ones add fine detail. Keeping ~13 throws away pitch and noise while preserving 'which sound is this'." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -144,8 +144,7 @@ function MFCCDemo() {
       </DemoP>
       <DemoP>
         Switch between vowels and watch the bottom <b>MFCC bars</b> change shape: the
-        formants move, so the spectral envelope — and its DCT — is different, which
-        is exactly the signal a classifier uses to tell /a/ from /i/. Crucially the
+        formants move, so the spectral envelope, and its DCT, is different, which is exactly the signal a classifier uses to tell /a/ from /i/. Crucially the
         DCT puts the slow envelope in the first few coefficients and pitch/noise in
         the rest, so keeping ~13 discards the speaker's pitch while preserving the
         phoneme. That compression and decorrelation is why MFCCs were the backbone of
@@ -169,8 +168,7 @@ function MFCCDemo() {
       <DemoP>
         Modern systems often skip the DCT and feed log-mel spectrograms straight into
         a <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`} style={{ color: "#a855f7" }}>CNN</a>{" "}
-        or transformer, letting the network learn its own features — but MFCCs remain
-        a fast, compact baseline and a clean illustration of the whole "perceptual
+        or transformer, letting the network learn its own features, but MFCCs remain a fast, compact baseline and a clean illustration of the whole "perceptual
         transform → log → decorrelate" recipe that recurs across signal processing.
         The cepstrum trick (a transform of the log spectrum) also separates pitch
         from envelope, the same idea used in pitch detection.

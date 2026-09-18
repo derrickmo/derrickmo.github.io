@@ -121,7 +121,7 @@ function SpectrogramDemo() {
     <ControlGroup>
       <SegmentedControl label="// SIGNAL" tone="violet" value={kind} onChange={setKind}
         options={[{ value: "chirp", label: "Chirp" }, { value: "tones", label: "Two tones" }, { value: "harmonics", label: "Harmonics" }, { value: "burst", label: "Burst" }]}
-        help="The test signal. Chirp sweeps frequency (a diagonal line); two tones are flat horizontal lines; harmonics stack at integer multiples; burst hides a brief high tone inside a steady low one — the case where time resolution matters." />
+        help="The test signal. Chirp sweeps frequency (a diagonal line); two tones are flat horizontal lines; harmonics stack at integer multiples; burst hides a brief high tone inside a steady low one, the case where time resolution matters." />
       <Slider label="// WINDOW LENGTH" min={6} max={10} step={1} value={winPow} onChange={setWinPow} tone="violet"
         suffix={" = " + (1 << winPow) + " samp"}
         help="STFT window size (2^n samples). Short windows pin down WHEN things happen but smear frequency into horizontal blur; long windows give crisp frequency lines but blur events in time. This is the time-frequency uncertainty tradeoff." />
@@ -146,8 +146,8 @@ function SpectrogramDemo() {
       </DemoP>
       <DemoP>
         Now drag the <b>window length</b> and watch the tradeoff that defines all of
-        signal processing. A <b>short</b> window resolves time sharply — the burst is
-        a crisp vertical sliver — but each frequency smears into a fat horizontal
+        signal processing. A <b>short</b> window resolves time sharply, so the burst is a crisp vertical sliver, but each frequency
+        smears into a fat horizontal
         band. A <b>long</b> window snaps the frequency lines razor-thin but the burst
         smears across time. You cannot have both: the time-frequency uncertainty
         principle. The frequency- and time-resolution readouts move in opposite
@@ -163,16 +163,14 @@ function SpectrogramDemo() {
         input to most speech recognizers and audio classifiers (usually after the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mfcc/`} style={{ color: "#a855f7" }}>mel/MFCC</a>{" "}
         stage), and it's literally how a neural audio model "sees" sound. It builds
-        directly on the <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier
-        transform</a> — the STFT is just the DFT applied to windowed slices.
+        directly on the <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier transform</a>, since the STFT is just the DFT applied to windowed slices.
       </DemoP>
       <DemoP>
         The same time-frequency tradeoff drives the rest of the field: wavelets vary
         the window length with frequency to escape the fixed compromise, and the
         Heisenberg-style limit here is the exact analog of position/momentum
         uncertainty in physics. Treating a spectrogram as an image is also what lets
-        a <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`} style={{ color: "#a855f7" }}>CNN</a>{" "}
-        do audio — the bridge from signals to deep learning.
+        a <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`} style={{ color: "#a855f7" }}>CNN</a>{" "} do audio, the bridge from signals to deep learning.
       </DemoP>
     </>
   );

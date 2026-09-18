@@ -119,7 +119,7 @@ function SelfDrivingDemo() {
     <ControlGroup>
       <SegmentedControl label="// SPEED" value={String(speed)} onChange={v => { const n = parseInt(v); setSpeed(n); stepsRef.current = n; }}
         options={[{ value: "1", label: "1x" }, { value: "3", label: "3x" }, { value: "6", label: "6x" }]}
-        help="Simulation speed multiplier. Higher fast-forwards the generations so evolution converges sooner — it doesn't change what's learned." />
+        help="Simulation speed multiplier. Higher fast-forwards the generations so evolution converges sooner. It does not change what is learned." />
       <Slider label="// MUTATION RATE" min={0.01} max={0.4} step={0.01} value={rate} onChange={v => { setRate(v); rateRef.current = v; }} tone="violet"
         help="Chance each weight is perturbed when breeding the next generation. Too low stalls progress; too high is noisy and forgets good driving." />
       <div style={{ display: "flex", gap: 8 }}>
@@ -133,7 +133,7 @@ function SelfDrivingDemo() {
         <StatReadout label="BEST EVER" value={stats.best} accent="#34d399" />
       </div>
       <Legend items={[{ color: "#c084fc", label: "CARS (NN)" }, { color: "#fbbf24", label: "LEADER + SENSORS" }, { color: "#34d399", label: "START LINE" }]} />
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Each car sees only 5 distance rays. No driving rules — just survive longer and go further to reproduce.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Each car sees only 5 distance rays. No driving rules, just survive longer and go further to reproduce.</div>
     </ControlGroup>
   );
   const explainer = (
@@ -143,12 +143,11 @@ function SelfDrivingDemo() {
         drawn) feeding a tiny neural network that outputs one number: how hard to steer.
         The first generation is random and piles into the walls immediately. But the
         cars that happen to steer away from walls travel further around the loop, and
-        <b> distance travelled is their fitness</b> — so they become the parents of the
+        <b> distance travelled is their fitness</b>, so they become the parents of the
         next generation via <b>crossover</b> and <b>mutation</b>.
       </DemoP>
       <DemoP>
-        This is <b>neuroevolution</b> again, but now with continuous control and real
-        sensor input — the same setup researchers use to evolve robot and vehicle
+        This is <b>neuroevolution</b> again, but now with continuous control and real sensor input, the same setup researchers use to evolve robot and vehicle
         controllers when there's no labelled "correct steering" to learn from. Watch the
         <span style={{ color: "#34d399" }}> best-laps</span> curve climb as the
         population goes from crashing instantly to smoothly carving the whole circuit.
@@ -159,15 +158,14 @@ function SelfDrivingDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is continuous sensorimotor control learned from reward alone — five range
-        sensors in, a steering angle out, improved by evolution rather than backprop or any
+        This is continuous sensorimotor control learned from reward alone: five range sensors in, a steering angle out, improved by evolution rather than backprop or any
         labeled "correct" steering. It's the toy version of how learned controllers are
         trained for robots, drones, and vehicles when the right action can't be supervised
         directly, only scored after the fact (here, distance travelled).
       </DemoP>
       <DemoP>
-        The ray-sensor setup is a deliberate <b>state representation</b> choice — compress
-        raw geometry into a few meaningful distances so a tiny network can act on it, the
+        The ray-sensor setup is a deliberate <b>state representation</b> choice, compressing raw geometry into a few meaningful
+        distances so a tiny network can act on it, the
         same feature-vs-end-to-end tradeoff real autonomy stacks face. And training entirely
         in simulation surfaces the field's central practical problem, <i>sim-to-real
         transfer</i>: a policy that aces the simulator still has to survive the messier real

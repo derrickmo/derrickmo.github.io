@@ -140,17 +140,15 @@ function ValueIterationDemo() {
         <StatReadout label="MAX Δ" value={stats.delta.toFixed(4)} accent="#fbbf24" />
       </div>
       <Legend items={[{ color: "#34d399", label: "HIGH VALUE / GOAL" }, { color: "#f87171", label: "LOW VALUE / PIT" }, { color: "#fbbf24", label: "GREEDY POLICY" }]} />
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Sliders change the MDP — re-sweep to see the new solution. RUN backs up until Δ → 0.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Sliders change the MDP, so re-sweep to see the new solution. RUN backs up until Δ → 0.</div>
     </ControlGroup>
   );
   const explainer = (
     <>
       <DemoP>
         A Markov Decision Process is the math behind every planning agent: states,
-        actions, a reward, and <i>stochastic</i> transitions — here the robot only
-        moves where it intends with probability <b>1 − noise</b>, and slips sideways
-        otherwise. <b>Value iteration</b> repeatedly applies the Bellman optimality
-        backup — each cell's value becomes the living reward plus the discounted value
+        actions, a reward, and <i>stochastic</i> transitions. Here the robot only moves where it intends with probability <b>1 − noise</b>, and slips sideways
+        otherwise. <b>Value iteration</b> repeatedly applies the Bellman optimality backup. The value of each cell becomes the living reward plus the discounted value
         of the <i>best</i> action's expected next state. Hit <b>Sweep</b> and watch
         value flow outward from the goal one ring per iteration; the
         <span style={{ color: "#fbbf24" }}> arrows</span> show the greedy policy it
@@ -162,8 +160,7 @@ function ValueIterationDemo() {
         reward</b> very negative and it sprints for the exit, even risking the pit;
         near zero and it plays it safe, taking the long way around. Crank
         <b> noise</b> and the policy steers wide of the pit because slips are likely.
-        This is the model-<i>based</i> cousin of the Q-learning demo — same gridworld,
-        but here the dynamics are known and solved exactly, not learned from
+        This is the model-<i>based</i> cousin of the Q-learning demo: same gridworld, but here the dynamics are known and solved exactly, not learned from
         experience.
       </DemoP>
     </>
@@ -173,16 +170,14 @@ function ValueIterationDemo() {
       <DemoP>
         Markov Decision Processes are the formal backbone of sequential decision-making,
         and the <b>Bellman optimality</b> backup you're iterating is the equation underneath
-        nearly all of reinforcement learning. Value iteration itself solves real planning
-        problems — robot navigation, inventory and resource control, game AI — whenever the
-        environment's dynamics are known.
+        nearly all of reinforcement learning. Value iteration itself solves real planning problems such as robot navigation, inventory and resource control
+        and game AI, whenever the dynamics are known.
       </DemoP>
       <DemoP>
         When the dynamics aren't known, the same backup becomes <i>learning</i>: Q-learning
         and SARSA sample the Bellman update from experience, and Deep Q-Networks swap the
-        value table for a neural net to scale to huge state spaces (Atari, robotics). The
-        knobs here — discount, stochastic transitions, reward shaping — are exactly the
-        design choices that make or break a real RL system, including the reward-hacking
+        value table for a neural net to scale to huge state spaces (Atari, robotics). The knobs here, discount and stochastic transitions and reward shaping, are exactly
+        the design choices that make or break a real RL system, including the reward-hacking
         risk of getting the living reward wrong.
       </DemoP>
     </>

@@ -133,11 +133,11 @@ function MoEDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// EXPERTS (N)" min={4} max={10} step={1} value={N} onChange={setN} tone="violet"
-        help="Total experts in the layer. More experts = more total parameters and capacity, but (at fixed top-k) the same compute per token — that's the whole MoE bargain: scale parameters without scaling per-token cost." />
+        help="Total experts in the layer. More experts = more total parameters and capacity, but (at fixed top-k) the same compute per token. That is the whole MoE bargain: scale parameters without scaling per-token cost." />
       <Slider label="// TOP-K" min={1} max={4} step={1} value={topk} onChange={setTopk}
         help="How many experts each token actually uses. Active compute is k/N of the dense equivalent. k=1 (Switch Transformer) is cheapest; k=2 is the common choice; higher k trades efficiency for a bit more quality and smoother routing." />
       <Slider label="// LOAD BALANCING" min={0} max={2} step={0.1} value={balance} onChange={setBalance}
-        help="Strength of the penalty that steers tokens away from already-overloaded experts. At 0, popular experts hog the tokens and others starve (high imbalance, wasted capacity); raise it and the load bars even out — the job of the auxiliary load-balancing loss in real MoEs." />
+        help="Strength of the penalty that steers tokens away from already-overloaded experts. At 0, popular experts hog the tokens and others starve (high imbalance, wasted capacity); raise it and the load bars even out, the job of the auxiliary load-balancing loss in real MoEs." />
       <Slider label="// SPEED (tokens/sec)" min={2} max={60} step={2} value={speed} onChange={setSpeed}
         help="Token routing speed. Let it run to accumulate the load distribution and the specialization heatmap." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "STREAM TOKENS"}</DemoButton>
@@ -159,15 +159,15 @@ function MoEDemo() {
       <DemoP>
         A dense layer runs every parameter on every token. A Mixture of Experts
         layer holds many parallel expert sub-networks but a small router sends each
-        token to only the top-k of them — so you can pack in a huge parameter count
+        token to only the top-k of them, so you can pack in a huge parameter count
         while the <i>active</i> compute per token stays at k/N. Stream tokens and
         watch: each token (colored by its type) lights up its chosen experts, and
         the load bars and specialization heatmap fill in. Different token types
-        learn to prefer different experts — that's the specialization MoE buys.
+        learn to prefer different experts. That is the specialization MoE buys.
       </DemoP>
       <DemoP>
         The failure mode is load imbalance. With LOAD BALANCING at 0, a few experts
-        attract most tokens while others sit idle — the imbalance metric climbs,
+        attract most tokens while others sit idle. The imbalance metric climbs,
         and the starved experts are dead capacity. Turn balancing up and the router
         is pushed to spread tokens evenly; the bars level out and imbalance drops
         toward 1×. Real MoEs add exactly this as an auxiliary loss (plus a capacity
@@ -179,7 +179,7 @@ function MoEDemo() {
     <>
       <DemoP>
         Mixture of Experts is how the largest models scale parameters without
-        scaling cost per token — the architecture behind Switch Transformer,
+        scaling cost per token, the architecture behind Switch Transformer,
         GLaM, Mixtral, and the sparse frontier LLMs. It belongs to the same
         efficiency toolkit as{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>{" "}

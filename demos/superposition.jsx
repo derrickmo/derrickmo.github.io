@@ -173,15 +173,14 @@ function SuperpositionDemo() {
         How does a network store thousands of concepts in only a few hundred dimensions? This is
         the toy model that answered it. A linear model is asked to reconstruct sparse inputs through
         a 2-D bottleneck, weighted by each feature's importance. With enough features it <i>can't</i>{" "}
-        give each one its own axis — so it learns a geometry (the arrows) that packs them in.
+        give each one its own axis, so it learns a geometry (the arrows) that packs them in.
       </DemoP>
       <DemoP>
         Turn <b>sparsity</b> up and watch the magic: because features rarely fire together, the model
-        crams in <b>more features than dimensions</b> — <b>superposition</b> — arranging them as
+        crams in <b>more features than dimensions</b>, which is <b>superposition</b>, arranging them as
         antipodal pairs and regular polygons that minimize interference (the W·W heatmap's off-diagonal).
         Drop sparsity and interference becomes unaffordable, so it keeps only the most important
-        features orthogonal and discards the rest. This packing is exactly why individual neurons are
-        polysemantic — and exactly what a <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>sparse
+        features orthogonal and discards the rest. This packing is exactly why individual neurons are polysemantic, and exactly what a <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>sparse
         autoencoder</a> is built to undo.
       </DemoP>
     </>
@@ -191,8 +190,8 @@ function SuperpositionDemo() {
     <>
       <DemoP>
         Superposition reframed interpretability: if features don't align with neurons, you can't read a
-        model off its neurons one at a time. Anthropic's toy model (reproduced here) showed the effect is
-        real and predictable — driven by sparsity and importance — and it's why the field pivoted to
+        model off its neurons one at a time. Anthropic's toy model (reproduced here) showed the effect is real and predictable, driven by sparsity and importance, and it is why the field
+        pivoted to
         <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}> dictionary learning</a> to
         recover the underlying features, and why <a href={`${window.__DM_BASE || "../../"}visualize/probing-classifier/`}>probes</a>
         and <a href={`${window.__DM_BASE || "../../"}visualize/activation-patching/`}>patching</a> have to reckon
@@ -201,8 +200,8 @@ function SuperpositionDemo() {
       <DemoP>
         The practical upshot reaches past interpretability: superposition is closely tied to why models can
         be compressed (quantized, pruned) without falling apart, and to the geometry of embedding spaces in
-        general. The honest scope note is that this is a <i>toy</i> — real models add nonlinearity, attention,
-        and far higher dimension — but the core mechanism it isolates (sparse features sharing a cramped space,
+        general. The honest scope note is that this is a <i>toy</i>. Real models add nonlinearity, attention and far higher
+        dimension, but the core mechanism it isolates (sparse features sharing a cramped space,
         traded off by importance) is one of the most load-bearing ideas in modern mechanistic interpretability.
       </DemoP>
     </>

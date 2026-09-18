@@ -122,7 +122,7 @@ function SnakeDemo() {
     <ControlGroup>
       <SegmentedControl label="// SPEED" value={String(speed)} onChange={v => { const n = parseInt(v); setSpeed(n); speedRef.current = n; }}
         options={[{ value: "1", label: "1x" }, { value: "10", label: "10x" }, { value: "100", label: "100x" }]}
-        help="Training speed multiplier (1x/10x/100x). Higher fast-forwards through episodes so the policy converges faster — it doesn't change what's learned." />
+        help="Training speed multiplier (1x/10x/100x). Higher fast-forwards through episodes so the policy converges faster. It does not change what is learned." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => (running ? stop() : start())} primary tone="violet">{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={resetAll}>RESET</DemoButton>
@@ -140,19 +140,18 @@ function SnakeDemo() {
   const explainer = (
     <>
       <DemoP>
-        Nobody told this snake the rules — it learns them from <b>reward</b>. This is
+        Nobody told this snake the rules. It learns them from <b>reward</b>. This is
         <b> Q-learning</b>: the agent keeps a table estimating the value of each action
         in each situation, where a "situation" is a compact 11-feature state (is there
         danger straight / left / right, which way is the food, which way am I heading?).
         It gets <b>+10</b> for eating, <b>−10</b> for dying, and small nudges for moving
         toward or away from food. After each move it updates its estimate toward
-        <i> reward + the best it expects next</i> — the temporal-difference update at the
+        <i> reward + the best it expects next</i>, the temporal-difference update at the
         heart of RL.
       </DemoP>
       <DemoP>
         Watch <b>ε</b> (exploration) decay: at first it acts randomly to discover what
-        works, then increasingly <i>exploits</i> the policy it has learned — and the
-        <span style={{ color: "#34d399" }}> average score</span> climbs from near-zero
+        works, then increasingly <i>exploits</i> the policy it has learned, and the <span style={{ color: "#34d399" }}> average score</span> climbs from near-zero
         to consistently feeding itself. That explore-vs-exploit balance, and learning
         purely from delayed reward, is the same machinery (scaled up to deep networks)
         behind game-playing agents and the RLHF step that aligns modern LLMs. Crank the
@@ -164,15 +163,14 @@ function SnakeDemo() {
     <>
       <DemoP>
         Snake is a compact, complete reinforcement-learning loop: state → action → reward →
-        temporal-difference update — the same Q-learning at the core of the gridworld and
+        temporal-difference update, the same Q-learning at the core of the gridworld and
         value-iteration demos, but driving a game you can watch improve. The crucial design
         move is the <b>state representation</b>: collapsing the whole board into 11 relevant
         features (nearby dangers, food direction, heading) so a small table can generalize
         instead of memorizing every configuration.
       </DemoP>
       <DemoP>
-        That representation choice is exactly the wall tabular RL hits — and exactly what
-        <b> Deep Q-Networks</b> solved by replacing the table with a neural network that
+        That representation choice is exactly the wall tabular RL hits, and exactly what <b>Deep Q-Networks</b> solved by replacing the table with a neural network that
         learns its own features from raw input (Atari straight from pixels). The
         explore-then-exploit arc you watch as ε decays, and learning from delayed reward, is
         the same machinery that scales up to game-playing agents and the RLHF step used to

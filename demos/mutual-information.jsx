@@ -145,17 +145,16 @@ function MutualInformationDemo() {
     <>
       <DemoP>
         Correlation measures one thing: do X and Y move up and down <i>together, linearly</i>? Mutual
-        information asks the deeper question — does knowing X tell you <b>anything</b> about Y, by any
+        information asks the deeper question: does knowing X tell you <b>anything</b> about Y, by any
         pattern at all? It's the gap between the entropy of Y and its entropy once X is known:
         MI = H(X) + H(Y) − H(X,Y), estimated here straight from the binned joint distribution (the heatmap).
       </DemoP>
       <DemoP>
         Switch to the <b>Parabola</b> or the <b>Ring</b>: the points are tightly coupled, yet
-        <b> correlation collapses to ~0</b> because the relationship isn't a straight line — while
-        <span style={{ color: "#34d399" }}> mutual information stays clearly positive</span>. That's the
+        <b> correlation collapses to ~0</b> because the relationship is not a straight line, while <span style={{ color: "#34d399" }}> mutual information stays clearly positive</span>. That's the
         whole point: MI catches nonlinear and nonmonotonic dependence that correlation is blind to. Add
         <b> noise</b> and both fall toward zero; pick <b>None</b> and MI drops to roughly zero (the small
-        leftover is finite-sample binning bias — MI estimation is notoriously biased upward).
+        leftover is finite-sample binning bias, since MI estimation is notoriously biased upward).
       </DemoP>
     </>
   );
@@ -172,11 +171,11 @@ function MutualInformationDemo() {
       </DemoP>
       <DemoP>
         The honest catch you can see on screen is why MI is hard in practice: estimating it from samples in
-        more than a couple of dimensions is <i>statistically brutal</i> — plug-in binning is biased and
+        more than a couple of dimensions is <i>statistically brutal</i>. Plug-in binning is biased and
         explodes with dimension, which is exactly why modern methods (MINE, InfoNCE) estimate <i>bounds</i>{" "}
         on MI with neural networks instead of computing it directly. It's built from
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`}> entropy</a>, the same quantity behind
-        compression and cross-entropy loss — information theory quietly underlies most of what training a
+        compression and cross-entropy loss. Information theory quietly underlies most of what training a
         model actually optimizes.
       </DemoP>
     </>

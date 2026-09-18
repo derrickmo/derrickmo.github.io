@@ -194,19 +194,17 @@ function NaiveBayesDemo() {
         Naive Bayes turns classification into a counting exercise via Bayes' rule:
         estimate each class's prior and its per-feature distribution, then pick the
         class with the highest posterior. The "naive" part is assuming the features
-        are independent given the class — so the 2-D Gaussian becomes a product of
+        are independent given the class, so the 2-D Gaussian becomes a product of
         two 1-D ones, which on the plot means an AXIS-ALIGNED ellipse per class. The
         shaded regions are exactly where each class wins the posterior; the ellipses
         are the fitted class densities.
       </DemoP>
       <DemoP>
         With FEATURE CORRELATION at 0 the blobs really are axis-aligned, so naive and
-        full QDA give the same boundary and the same accuracy — the wrong assumption
-        costs nothing. Now tilt it: the true blobs lean diagonally, full covariance
+        full QDA give the same boundary and the same accuracy. The wrong assumption costs nothing. Now tilt it: the true blobs lean diagonally, full covariance
         rotates its ellipses to match, but naive is stuck drawing axis-aligned ones
         and bends the boundary the wrong way, dropping NAIVE ACCURACY below FULL. Yet
-        notice how small the gap usually stays — even a clearly false independence
-        assumption often classifies fine, because you only need the posterior argmax
+        notice how small the gap usually stays. Even a clearly false independence assumption often classifies fine, because you only need the posterior argmax
         to land in the right place, not the density to be exactly right.
       </DemoP>
     </>
@@ -228,8 +226,7 @@ function NaiveBayesDemo() {
       </DemoP>
       <DemoP>
         Caveats: the independence assumption makes the predicted probabilities poorly
-        calibrated (often overconfident), even when the argmax is right — so trust the
-        ranking, not the raw posterior. Correlated or redundant features can hurt, zero
+        calibrated (often overconfident), even when the argmax is right, so trust the ranking rather than the raw posterior. Correlated or redundant features can hurt, zero
         counts need smoothing (Laplace), and for a sharp decision boundary a
         discriminative model like{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/svm/`} style={{ color: "#a855f7" }}>logistic regression or an SVM</a>{" "}

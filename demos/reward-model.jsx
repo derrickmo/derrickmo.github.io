@@ -247,7 +247,7 @@ function RewardModelDemo() {
       <Slider label="// LR" min={0.01} max={0.3} step={0.01} value={lr} onChange={setLr}
         help="SGD step size for the reward network. Larger learns the field faster but can overshoot and make the heatmap ripple." />
       <Slider label="// PAIRS / STEP" min={1} max={16} step={1} value={batch} onChange={setBatch}
-        help="Preference comparisons per gradient step. More labels per step = a smoother, lower-variance gradient — the same data-vs-noise tradeoff as any minibatch, but here each sample is one human comparison." />
+        help="Preference comparisons per gradient step. More labels per step = a smoother, lower-variance gradient, the same data-against-noise tradeoff as any minibatch, but here each sample is one human comparison." />
       <Toggle label="// SHOW TRUE FIELD" checked={showTrue} onChange={setShowTrue}
         help="Swap the heatmap between the model's learned reward and the hidden true reward humans judge by. Flip back and forth to see how close the model's field is to ground truth." />
       <Slider label="// SPEED (steps/sec)" min={4} max={120} step={2} value={speed} onChange={setSpeed}
@@ -271,12 +271,10 @@ function RewardModelDemo() {
   const explainer = (
     <>
       <DemoP>
-        You can't ask a human "rate this response 7.3 / 10" and get anything
-        consistent — but ask "which of these two is better?" and the answers are
+        You can't ask a human "rate this response 7.3 / 10" and get anything consistent, but ask "which of these two is better?" and the answers are
         reliable. The reward model turns those pairwise choices into a number. Each
         dot is a response; its color is the <i>true</i> reward a human is implicitly
-        judging by (brightest near the green "ideal"). The model never sees those
-        colors — only a stream of "A beat B" labels — and has to reconstruct the
+        judging by (brightest near the green "ideal"). The model never sees those colors, only a stream of "A beat B" labels, and has to reconstruct the
         whole reward field, shown as the heatmap.
       </DemoP>
       <DemoP>
@@ -284,8 +282,7 @@ function RewardModelDemo() {
         r(rejected)): every comparison pushes the winner's score up and the
         loser's down. Watch the bright patch of the heatmap drift onto the
         high-true-reward dots and the violet "best pick" ring snap toward the green
-        ideal. Drop β to make humans noisy and the ranking accuracy stalls below
-        100% — garbage preferences in, a fuzzy reward out.
+        ideal. Drop β to make humans noisy and the ranking accuracy stalls below 100%: garbage preferences in, a fuzzy reward out.
       </DemoP>
     </>
   );
@@ -298,15 +295,13 @@ function RewardModelDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>policy
         gradient</a> /{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/actor-critic/`} style={{ color: "#a855f7" }}>PPO</a>.
-        The reward model you're training here is the scalar signal those policy
-        methods maximize — for an LLM the "responses" are token sequences and the
+        The reward model you're training here is the scalar signal those policy methods maximize. For an LLM the "responses" are token sequences and the
         2D plane is a stand-in for the model's representation space.
       </DemoP>
       <DemoP>
         Two real-world wrinkles live in this picture. <b>Reward hacking
         (Goodhart):</b> the policy optimizes r_theta, not r*, so it races toward any
-        spot where the learned field is wrongly bright — which is why RLHF needs a
-        KL penalty keeping the policy near the base model. And <b>DPO</b> skips the
+        spot where the learned field is wrongly bright, which is why RLHF needs a KL penalty keeping the policy near the base model. And <b>DPO</b> skips the
         explicit reward model entirely: it shows the same Bradley-Terry objective
         can be rearranged to update the policy directly from preference pairs, no
         separate reward network or RL loop required.

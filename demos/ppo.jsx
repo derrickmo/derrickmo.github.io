@@ -126,7 +126,7 @@ function PPODemo() {
       <Slider label="// ADVANTAGE A" min={-2} max={2} step={0.1} value={A} onChange={setA}
         help="How much better (A>0) or worse (A<0) the action was than expected. A>0 pushes its probability up and clips at 1+ε; A<0 pushes it down and clips at 1-ε. At A=0 there's nothing to learn." />
       <Slider label="// LEARNING RATE" min={0.05} max={1.5} step={0.05} value={lr} onChange={setLr}
-        help="Step size for gradient ascent on the surrogate. Large steps are exactly what destabilizes vanilla policy gradients — watch the red (no-clip) line overshoot while PPO holds." />
+        help="Step size for gradient ascent on the surrogate. Large steps are exactly what destabilizes vanilla policy gradients. Watch the red (no-clip) line overshoot while PPO holds." />
       <Slider label="// EPOCHS ON BATCH (K)" min={1} max={40} step={1} value={K} onChange={setK} tone="blue"
         help="PPO reuses one batch of experience for several gradient epochs (sample efficiency). More epochs push an unclipped update further off-policy; the clip is what makes reuse safe." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -146,13 +146,13 @@ function PPODemo() {
         <b> clipped surrogate</b>. The top plot is its objective vs the probability
         ratio <i>r = π_new/π_old</i>: it tracks the honest importance-weighted return
         <i> r·A</i> (gray) only inside the trust region <b>[1-ε, 1+ε]</b>. Outside it,
-        the curve goes flat — so the gradient is zero and the optimizer has no reason
+        the curve goes flat, so the gradient is zero and the optimizer has no reason
         to move <i>r</i> any further. The gold dot is where PPO's update lands.
       </DemoP>
       <DemoP>
         The bottom plot shows why that matters. PPO runs several gradient
         <b> epochs on the same batch</b> for sample efficiency. Without the clip
-        (red), each epoch keeps pushing — the ratio marches far from 1.0 and the new
+        (red), each epoch keeps pushing. The ratio marches far from 1.0 and the new
         policy is wildly off from the data it was trained on: a destructive update.
         With the clip (violet), the ratio climbs to the edge of the trust region and
         <b> stops</b>. Crank the learning rate or the epoch count and watch the red
@@ -164,8 +164,7 @@ function PPODemo() {
   const concepts = (
     <>
       <DemoP>
-        PPO is the workhorse of modern policy optimization — game-playing agents,
-        robotics, and the RL step of <b>RLHF</b> that aligns LLMs. It's a cheap,
+        PPO is the workhorse of modern policy optimization: game-playing agents, robotics, and the RL step of <b>RLHF</b> that aligns LLMs. It's a cheap,
         first-order stand-in for TRPO's hard KL-constrained trust region: instead of
         solving a constrained optimization, just clip the objective so updates can't
         stray too far off-policy. It builds straight on{" "}
@@ -174,8 +173,7 @@ function PPODemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/actor-critic/`} style={{ color: "#a855f7" }}>actor-critic</a>.
       </DemoP>
       <DemoP>
-        The advantage <i>A</i> here would come from a critic, usually via GAE — the
-        same eligibility-trace bias/variance trade as{" "}
+        The advantage <i>A</i> here would come from a critic, usually via GAE, the same eligibility-trace bias and variance trade as{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/td-lambda/`} style={{ color: "#a855f7" }}>TD(λ)</a>.
         And the KL-regularized "stay near a reference policy" idea is exactly what
         reappears in <a href={`${window.__DM_BASE || "../../"}visualize/dpo/`} style={{ color: "#a855f7" }}>DPO

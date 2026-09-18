@@ -215,13 +215,13 @@ function PolicyGradientDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// TARGET" min={-2.5} max={2.5} step={0.05} value={target} onChange={setTarget} tone="violet"
-        help="The hidden action that maximizes reward (reward = -(a - target)^2). Move it mid-training and watch the policy chase the new optimum — that's RL adapting to a changing reward landscape." />
+        help="The hidden action that maximizes reward (reward = -(a - target)^2). Move it mid-training and watch the policy chase the new optimum. That is RL adapting to a changing reward landscape." />
       <Slider label="// LR" min={0.005} max={0.15} step={0.005} value={lr} onChange={setLr}
         help="Policy-gradient step size. Too small → painfully slow convergence; too large → mu overshoots and oscillates, sigma can collapse before mu lands." />
       <Slider label="// BATCH" min={4} max={64} step={4} value={batch} onChange={setBatch}
         help="Number of action samples per gradient step. Larger batch = lower-variance gradient = more reliable but slower update. The variance-vs-throughput tradeoff at the heart of REINFORCE." />
       <Toggle label="// BASELINE (variance reduction)" checked={useBaseline} onChange={setUseBaseline}
-        help="Subtract a running-mean baseline from each return before computing the policy gradient. Doesn't change the gradient in expectation, but slashes variance — turn it OFF and watch mu wobble much more wildly." />
+        help="Subtract a running-mean baseline from each return before computing the policy gradient. Doesn't change the gradient in expectation, but slashes variance. Turn it OFF and watch mu wobble much more wildly." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
       <DemoButton onClick={reset}>RESET</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -248,13 +248,13 @@ function PolicyGradientDemo() {
         and nudges <i>μ</i> and <i>σ</i> to make high-reward actions more likely.
         That's REINFORCE in its purest form: <i>θ ← θ + α · ∇ log π(a) · r</i>.
         Mathematically, the mu gradient is the centered sample <i>(a - μ)/σ²</i>
-        scaled by the reward — actions <i>better than baseline</i> pull mu toward
+        scaled by the reward. Actions <i>better than baseline</i> pull mu toward
         them; worse-than-baseline actions push mu away.
       </DemoP>
       <DemoP>
         Watch sigma. Early on it stays wide (the policy explores). As mu locks
         onto the target, the high-reward zone narrows, and the variance-update
-        term <i>((a - μ)²/σ² - 1)</i> drives sigma down — the policy commits.
+        term <i>((a - μ)²/σ² - 1)</i> drives sigma down and the policy commits.
         Turn the BASELINE toggle off to see the same training run with ~3-4x
         more noise: every batch's gradient gets dragged around by the absolute
         scale of reward, not just its variance from the running mean.
@@ -265,8 +265,7 @@ function PolicyGradientDemo() {
     <>
       <DemoP>
         Policy gradient is the engine behind every continuous-control RL system
-        from OpenAI Five to AlphaStar to modern RLHF. The version you're touching
-        here — REINFORCE — is from 1992; everything since (TRPO, PPO, A2C, SAC, GRPO)
+        from OpenAI Five to AlphaStar to modern RLHF. The version you are touching here, REINFORCE, is from 1992; everything since (TRPO, PPO, A2C, SAC, GRPO)
         is a variance-reduction trick on top of the same expectation. PPO clips
         the policy update to a trust region; SAC adds an entropy bonus to keep
         sigma from collapsing; GRPO (used in DeepSeek-R1) replaces the value
@@ -275,15 +274,15 @@ function PolicyGradientDemo() {
       <DemoP>
         For LLMs, the action is the token, the policy is the model's softmax, and
         the reward comes from a reward model trained on human preferences. That's
-        RLHF. The same gradient you're seeing here — push up trajectories that beat
-        the baseline, push down trajectories that don't — is what aligns ChatGPT,
+        RLHF. The same gradient you are seeing here, push up trajectories that beat the baseline and push
+        down trajectories that do not, is what aligns ChatGPT,
         Claude, and Llama-Instruct. The baseline matters even more there:
         token-level rewards are tiny and noisy, so without it training never moves.
       </DemoP>
     </>
   );
   return (
-    <DemoLayout title="Policy Gradient — REINFORCE"
+    <DemoLayout title="Policy Gradient: REINFORCE"
       subtitle="A Gaussian policy finds the hidden target by sampling, scoring, and updating. The simplest possible RL, and a parent to PPO and RLHF."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}

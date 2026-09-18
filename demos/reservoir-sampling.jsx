@@ -93,7 +93,7 @@ function ReservoirDemo() {
     const st = sim.current; if (!st) return;
 
     // ---- reservoir slots ----
-    ctx.fillStyle = "#94a3b8"; ctx.font = "11px JetBrains Mono"; ctx.fillText("RESERVOIR (k slots) — items currently held", 16, 20);
+    ctx.fillStyle = "#94a3b8"; ctx.font = "11px JetBrains Mono"; ctx.fillText("RESERVOIR (k slots): items currently held", 16, 20);
     const bw = 40, gap = 8, total = k * bw + (k - 1) * gap, x0 = (W - total) / 2;
     for (let s = 0; s < k; s++) {
       const x = x0 + s * (bw + gap), y = 34;
@@ -146,11 +146,11 @@ function ReservoirDemo() {
     <ControlGroup>
       <SegmentedControl label="// METHOD" value={method} onChange={setMethod}
         options={[{ value: "reservoir", label: "Algorithm R" }, { value: "first", label: "Keep first k" }, { value: "last", label: "Keep last k" }]}
-        help="Reservoir = the correct one-pass uniform sampler (accept item i with prob k/i). 'Keep first k' and 'keep last k' are the tempting shortcuts — watch the histogram expose how badly they over-sample the early or late part of the stream." />
+        help="Reservoir = the correct one-pass uniform sampler (accept item i with prob k/i). 'Keep first k' and 'keep last k' are the tempting shortcuts. Watch the histogram expose how badly they over-sample the early or late part of the stream." />
       <Slider label="// RESERVOIR SIZE  k" min={1} max={10} step={1} value={k} onChange={setK} tone="violet"
-        help="How many items to keep. The uniform target each position should hit is exactly k/N — the green dashed line. Bigger k raises that line." />
+        help="How many items to keep. The uniform target each position should hit is exactly k/N, the green dashed line. Bigger k raises that line." />
       <Slider label="// STREAM LENGTH  N" min={12} max={60} step={1} value={N} onChange={setN}
-        help="Total items in the stream (the algorithm never needs to know this in advance — it's only here to draw the histogram). Larger N makes late items rarer to accept (k/i shrinks) yet keeps every position equally likely overall." />
+        help="Total items in the stream (the algorithm never needs to know this in advance; it is only here to draw the histogram). Larger N makes late items rarer to accept (k/i shrinks) yet keeps every position equally likely overall." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RESUME"}</DemoButton>
         <DemoButton onClick={() => reset()}>RESET STATS</DemoButton>
@@ -170,21 +170,20 @@ function ReservoirDemo() {
     <>
       <DemoP>
         Up top, items stream past one at a time and the reservoir holds k of them.
-        The first k just fill the slots. After that, item i is accepted with
-        probability exactly k/i — note how that shrinks as the stream grows (item 100
-        in a size-4 reservoir has only a 4% chance) — and when accepted it kicks out a
+        The first k just fill the slots. After that, item i is accepted with probability exactly k/i. Note how that shrinks as the stream grows (item 100
+        in a size-4 reservoir has only a 4% chance), and when accepted it kicks out a
         random current occupant. That's the entire algorithm: one pass, k slots, never
         storing the stream, and you never had to know how long it would be.
       </DemoP>
       <DemoP>
         The histogram is the proof. It counts, over thousands of complete passes, how
         often each stream POSITION ends up in the final sample. For Algorithm R every
-        bar sits on the green k/N line — perfectly uniform, MAX DEVIATION near zero —
-        so a brand-new item and the very first item are equally likely to be kept.
+        bar sits on the green k/N line, perfectly uniform with MAX DEVIATION near zero, so a brand-new
+        item and the very first item are equally likely to be kept.
         Now flip METHOD to "Keep first k" and the bars collapse to a block of 1s at
         the start and 0s everywhere else; "Keep last k" does the mirror image. Both
         are O(k) memory too, but they're biased samples. Reservoir sampling is the one
-        that's actually uniform — which is why it's the standard for sampling logs,
+        that is actually uniform, which is why it is the standard for sampling logs,
         clickstreams, and any data too big to hold.
       </DemoP>
     </>
@@ -194,8 +193,7 @@ function ReservoirDemo() {
       <DemoP>
         Reservoir sampling is the canonical streaming/online algorithm: a uniform
         random sample from a stream of unknown or unbounded length in a single pass
-        and constant memory. It's everywhere in big-data systems — sampling log lines,
-        events, and database rows; building train/validation splits over data that
+        and constant memory. It's everywhere in big-data systems: sampling log lines, events, and database rows; building train/validation splits over data that
         won't fit in RAM; A/B test exposure; and it's a building block of approximate
         query engines alongside count-min sketches and HyperLogLog. The accept-with-
         decreasing-probability idea is a discrete relative of the reweighting in{" "}
@@ -204,14 +202,12 @@ function ReservoirDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`} style={{ color: "#a855f7" }}>MCMC</a>.
       </DemoP>
       <DemoP>
-        Caveats: basic Algorithm R gives UNWEIGHTED uniform sampling — weighted
-        variants (A-Res / A-ExpJ) are needed when items have different importance, and
+        Caveats: basic Algorithm R gives UNWEIGHTED uniform sampling. Weighted variants (A-Res / A-ExpJ) are needed when items have different importance, and
         time-decay or sliding-window sampling needs yet other schemes. It's a sample
         WITHOUT replacement of a fixed size; it can't grow the sample after the fact
         without re-streaming. Vitter's Algorithm L speeds it up by sampling how many
         items to skip instead of flipping a coin per item. And like any random sample,
-        a size-k reservoir still has sampling error ~1/√k — it shrinks the data, it
-        doesn't remove variance.
+        a size-k reservoir still has sampling error ~1/√k. It shrinks the data, it does not remove variance.
       </DemoP>
     </>
   );

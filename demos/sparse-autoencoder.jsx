@@ -183,8 +183,7 @@ function SparseAutoencoderDemo() {
   const explainer = (
     <>
       <DemoP>
-        Real networks pack far more concepts into their activations than they have neurons —
-        <b> superposition</b> — so a single neuron lights up for several unrelated things
+        Real networks pack far more concepts into their activations than they have neurons, which is <b>superposition</b>, so a single neuron lights up for several unrelated things
         (it's <i>polysemantic</i>). Here the data is built from {G} hidden feature directions
         crammed into a 2-D activation space, so the two raw axes are hopelessly mixed. A
         <b> sparse autoencoder</b> is trained to reconstruct each activation while keeping its
@@ -193,8 +192,7 @@ function SparseAutoencoderDemo() {
         true feature (colored spoke).
       </DemoP>
       <DemoP>
-        Hit TRAIN and watch the white arrows rotate until they lock onto the colored spokes —
-        <b> feature recovery</b> climbs toward 100%. Turn the <b>L1 λ</b> down and atoms stay
+        Hit TRAIN and watch the white arrows rotate until they lock onto the colored spokes. <b>Feature recovery</b> climbs toward 100%. Turn the <b>L1 λ</b> down and atoms stay
         smeared between features (polysemantic, low sparsity, high L0); turn it up and the code
         gets sparser but reconstruction degrades. Make the dictionary <b>overcomplete</b> and the
         extra atoms simply go dead. This is the core finding that made SAEs the leading tool for
@@ -209,16 +207,14 @@ function SparseAutoencoderDemo() {
         Sparse autoencoders are the workhorse of modern <b>mechanistic interpretability</b>:
         Anthropic, DeepMind, and OpenAI train them on the residual streams of real LLMs to extract
         millions of human-interpretable features from otherwise-opaque activations, then use those
-        features to steer and audit behavior. The toy you're watching is exactly that pipeline at
-        D = 2 — superposition, an overcomplete dictionary, an L1 code, and recovery of the true
+        features to steer and audit behavior. The toy you're watching is exactly that pipeline at D = 2: superposition, an overcomplete dictionary, an L1 code, and recovery of the true
         directions. It's <a href={`${window.__DM_BASE || "../../"}visualize/ista/`}>sparse coding</a> /
         dictionary learning applied to a network's own internals.
       </DemoP>
       <DemoP>
         The same tension you tune here is the open research problem at scale: the L1 sparsity that
-        buys monosemanticity also distorts reconstruction (driving newer variants — gated, TopK, and
-        JumpReLU SAEs), and "feature recovery" is only measurable here because we planted the ground
-        truth — in a real model there is none, so evaluating an SAE is itself hard. It sits alongside
+        buys monosemanticity also distorts reconstruction (driving newer variants such as gated, TopK, and JumpReLU
+        SAEs), and "feature recovery" is only measurable here because we planted the ground truth. In a real model there is none, so evaluating an SAE is itself hard. It sits alongside
         the other <a href={`${window.__DM_BASE || "../../"}visualize/saliency/`}>explainability</a>
         tools as the one that targets <i>features</i> rather than inputs or outputs.
       </DemoP>

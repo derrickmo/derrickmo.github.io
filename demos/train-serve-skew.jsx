@@ -203,32 +203,28 @@ function SkewDemo() {
       <DemoP>
         The model is correct. The weights are correct. The bug is one line in the serving path:
         the scaler is <em>refitted</em> on each incoming batch instead of being loaded from
-        training. Every feature is still standardised, every value still looks reasonable, and
-        nothing throws — the model is simply being asked about a different set of numbers than the
+        training. Every feature is still standardised, every value still looks reasonable, and nothing throws. The model is simply being asked about a different set of numbers than the
         one it was fitted on.
       </DemoP>
       <DemoP>
         Leave SERVING BATCH SIZE at 8000 and read the table. <strong>ROC-AUC 0.8727 offline against
         0.8726 served. Accuracy 0.7926 against 0.7924.</strong> Every aggregate a dashboard shows is
         unchanged to three decimals, so the offline check passes. Meanwhile the scatter is dotted
-        with red: <strong>0.25% of decisions landed the other way</strong> — 20 requests approved or
-        declined on the wrong side of the threshold. An average over 8,000 rows cannot see 20 of
+        with red: <strong>0.25% of decisions landed the other way</strong>: 20 requests approved or declined on the wrong side of the threshold. An average over 8,000 rows cannot see 20 of
         them move, which is the general point: a metric that averages is the wrong instrument for a
         defect that is concentrated. Flip SERVING CODE to <strong>LOAD IT FROM TRAINING</strong> and
-        the flip rate goes to exactly 0.00% — the control that says the difference really is this
+        the flip rate goes to exactly 0.00%, the control that says the difference really is this
         one line.
       </DemoP>
       <DemoP>
-        Now drag the batch size down. The damage scales <strong>inversely</strong> with it — 0.64%
-        at 2,000, 1.55% at 500, 4.55% at 50, <strong>13.03% at 8</strong> — because a scaler fitted
-        on eight rows is mostly noise. That direction is the trap: a load test hammers the service
+        Now drag the batch size down. The damage scales <strong>inversely</strong> with it: 0.64% at 2,000, 1.55% at 500, 4.55% at 50, <strong>13.03% at 8</strong>, because a scaler fitted on eight rows is mostly noise. That direction is the trap: a load test hammers the service
         in large batches and sees nothing, while real traffic arrives a handful of rows at a time
         and is the worst case.
       </DemoP>
       <DemoP>
         Then push <strong>DISTRIBUTION DRIFT</strong> to 1.5, which is where this stops being subtle
         and starts being instructive. Served ROC-AUC reads <strong>0.8797</strong> against an offline{" "}
-        <strong>0.8798</strong> — unchanged to four decimals — while accuracy collapses from{" "}
+        <strong>0.8798</strong>, unchanged to four decimals, while accuracy collapses from{" "}
         <strong>0.8376 to 0.6164</strong> and <strong>41.35%</strong> of decisions flip. AUC is
         threshold-free: it asks only whether the scores are in the right ORDER, and refitting a
         scaler preserves the order almost perfectly while moving every score's level. So the one
@@ -243,15 +239,13 @@ function SkewDemo() {
     <>
       <DemoP>
         The structural fix is not a better monitor, it is removing the seam: one feature
-        transformation, defined once, used by both training and serving — a feature store, or a
-        serialised pipeline object that travels with the weights. A check that compares offline and
+        transformation, defined once, used by both training and serving: a feature store, or a serialised pipeline object that travels with the weights. A check that compares offline and
         online scores <em>for the same request</em> catches this; an aggregate metric does not, and
         neither does a unit test that only asserts the code runs.
       </DemoP>
       <DemoP>
         The measurement to take is the one on screen: agreement, not error. Export a model to a
-        different runtime and the same pair of numbers is the right check — a tiny numeric drift
-        with high decision agreement is fine, and the disagreements
+        different runtime and the same pair of numbers is the right check. A tiny numeric drift with high decision agreement is fine, and the disagreements
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}>concentrate near the threshold</a>,
         which is precisely the population a decision rule cares about. This is also why
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>drift detection</a>{" "}

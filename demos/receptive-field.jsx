@@ -181,27 +181,23 @@ function RFDemo() {
         The receptive field of an output unit is the patch of input that can influence it
         at all. It matters because a unit cannot represent anything larger than its own
         field: if you are segmenting an object 200 pixels across and your features see 60,
-        no amount of training fixes that. The recurrence is short —
-        each layer adds <b>(effective kernel − 1) × jump</b> to the field and multiplies
-        the jump by its stride — and the arithmetic is worth having in your head.
+        no amount of training fixes that. The recurrence is short. Each layer adds <b>(effective kernel − 1) × jump</b> to the field and multiplies
+        the jump by its stride, and the arithmetic is worth having in your head.
       </DemoP>
       <DemoP>
         The three levers are not equivalent. <b>Depth</b> at stride 1 grows the field
-        additively and slowly: five 3×3 layers reach only 11 pixels. <b>Stride</b>{" "}
-        compounds — the same five layers at stride 2 reach 63, because every later step
+        additively and slowly: five 3×3 layers reach only 11 pixels. <b>Stride</b>{" "} compounds. The same five layers at stride 2 reach 63, because every later step
         is measured in units of all the strides before it. <b>Dilation</b> enlarges the
         reach without adding a single parameter. Click through the real stacks and compare
         the last two: the dilated one reaches <b>31 px using 36 weights at full
-        resolution</b>, while the ResNet stem reaches only <b>27 px using 76 weights and a
-        jump of 4</b> — a larger field, half the parameters, and no resolution thrown away.
+        resolution</b>, while the ResNet stem reaches only <b>27 px using 76 weights and a jump of 4</b>: a larger field, half the parameters, and no resolution thrown away.
         That is the entire argument for atrous convolutions in segmentation, in two clicks.
       </DemoP>
       <DemoP>
         Now compare the dashed box with the glow inside it. The theoretical field is the
         region a unit <i>can</i> see; the brightness is how much each pixel actually
         influences it, computed here by counting paths. Repeatedly convolving uniform
-        kernels gives a binomial, so influence falls off from the centre and the
-        <b> effective</b> field — the region carrying most of the weight — is markedly
+        kernels gives a binomial, so influence falls off from the centre and the <b>effective</b> field, the region carrying most of the weight, is markedly
         smaller than the number you would quote. That gap is the practical result: your
         network probably sees less than its architecture claims.
       </DemoP>
@@ -219,8 +215,8 @@ function RFDemo() {
       </DemoP>
       <DemoP>
         It is also the cleanest way to see what attention changed. A transformer layer's
-        receptive field is the whole sequence at layer one — every token attends to every
-        other — so the depth-versus-reach trade this demo is about simply does not apply,
+        receptive field is the whole sequence at layer one, since every token attends to every other, so the
+        depth-versus-reach trade this demo is about simply does not apply,
         and you pay for it in the quadratic cost instead. When people say attention has a
         "global receptive field", this is the thing it is global compared to.
       </DemoP>

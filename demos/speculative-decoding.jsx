@@ -110,9 +110,9 @@ function SpeculativeDecodingDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// DRAFT AGREEMENT" min={0.3} max={0.95} step={0.05} value={agree} onChange={setAgree} tone="violet"
-        help="How often the small draft model's token matches what the target would have chosen. A better-aligned draft is accepted more often, so each target pass emits more tokens — the single biggest lever on the speedup." />
+        help="How often the small draft model's token matches what the target would have chosen. A better-aligned draft is accepted more often, so each target pass emits more tokens, the single biggest lever on the speedup." />
       <Slider label="// LOOKAHEAD (k)" min={1} max={8} step={1} value={k} onChange={setK}
-        help="How many tokens the draft proposes per round. Bigger k means more potential tokens per target pass, but acceptance is a prefix — one early miss wastes the rest — so returns diminish, and the sweet spot depends on draft agreement." />
+        help="How many tokens the draft proposes per round. Bigger k means more potential tokens per target pass, but acceptance is a prefix, so one early miss wastes the rest, and returns diminish, and the sweet spot depends on draft agreement." />
       <Slider label="// SPEED (rounds/sec)" min={1} max={20} step={1} value={speed} onChange={setSpeed}
         help="Speculative rounds per second. Let it run to converge the measured tokens-per-pass toward the theoretical curve." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "GENERATE"}</DemoButton>
@@ -137,13 +137,11 @@ function SpeculativeDecodingDemo() {
         token. Speculative decoding breaks that: a cheap draft model guesses the
         next k tokens, and the big target model checks all k in a single parallel
         pass. It accepts the longest prefix it agrees with (green), replaces the
-        first disagreement with its own token (violet), and — if the draft nailed
-        all k — even gets a free bonus token. So one expensive pass emits several
+        first disagreement with its own token (violet), and if the draft nailed all k it even gets a free bonus token. So one expensive pass emits several
         tokens instead of one.
       </DemoP>
       <DemoP>
-        Crucially the output is identical in distribution to running the target
-        alone — it's a pure speedup, not an approximation. The size of that speedup
+        Crucially the output is identical in distribution to running the target alone. It is a pure speedup, not an approximation. The size of that speedup
         is the whole game: raise DRAFT AGREEMENT and the green runs get longer and
         tokens-per-pass climbs toward the dashed expected curve; raise LOOKAHEAD k
         and you can win more per pass, but because acceptance stops at the first
@@ -158,7 +156,7 @@ function SpeculativeDecodingDemo() {
         Speculative decoding (Leviathan et al.; Chen et al., 2023) is a leading
         LLM inference-latency optimization, exact rather than lossy. It trades a
         little extra compute (the draft + verifying tokens that get rejected) for
-        far fewer sequential steps of the expensive model — and it composes with{" "}
+        far fewer sequential steps of the expensive model, and it composes with{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV
         caching</a> and the sampling you tune in the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>decoding</a>{" "}
@@ -170,7 +168,7 @@ function SpeculativeDecodingDemo() {
         target's own early layers (self-speculation), n-gram/prompt lookup, or
         learned multi-token heads (Medusa, EAGLE). All share this loop and live or
         die on acceptance rate × lookahead. It sits in the efficiency toolkit
-        beside quantization, pruning, and MoE — but uniquely it speeds up{" "}
+        beside quantization, pruning, and MoE, but uniquely it speeds up{" "}
         <i>inference latency</i> with zero quality loss.
       </DemoP>
     </>

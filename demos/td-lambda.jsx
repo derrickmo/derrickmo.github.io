@@ -131,7 +131,7 @@ function TDLambdaDemo() {
   }, [running]);
 
   const reset = () => { setRunning(false); init(); setTimeout(draw, 0); };
-  const mode = lambda <= 0.001 ? "TD(0) — one-step" : lambda >= 0.999 ? "Monte Carlo" : "TD(λ)";
+  const mode = lambda <= 0.001 ? "TD(0): one-step" : lambda >= 0.999 ? "Monte Carlo" : "TD(λ)";
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
@@ -151,7 +151,7 @@ function TDLambdaDemo() {
       <Slider label="// TRACE DECAY λ" min={0} max={1} step={0.05} value={lambda} onChange={setLambda} tone="violet"
         help="How far credit flows back along the trajectory. λ=0 is one-step TD (only the last state updates); λ=1 is Monte Carlo (the whole episode's return credits every visited state); in between, recent states get exponentially more credit." />
       <Slider label="// LEARNING RATE α" min={0.01} max={0.4} step={0.01} value={alpha} onChange={setAlpha}
-        help="Step size for each value update. Larger learns faster but oscillates more — and the best α depends on λ (higher λ carries more variance, so it usually wants a smaller α)." />
+        help="Step size for each value update. Larger learns faster but oscillates more, and the best α depends on λ (higher λ carries more variance, so it usually wants a smaller α)." />
       <Slider label="// STATES" min={3} max={15} step={2} value={nNon} onChange={setNNon} tone="blue"
         help="Number of non-terminal states in the chain. A longer walk makes reward sparser and slower to propagate, where eligibility traces help most. Rebuilds the walk." />
       <Slider label="// SPEED" min={2} max={80} value={speed} onChange={setSpeed} suffix=" ep/s"
@@ -172,8 +172,7 @@ function TDLambdaDemo() {
   const explainer = (
     <>
       <DemoP>
-        On this random walk the true state values rise linearly from 0 to 1 (the
-        gray dashed line) — the probability of exiting on the right. TD(λ) learns
+        On this random walk the true state values rise linearly from 0 to 1 (the gray dashed line), the probability of exiting on the right. TD(λ) learns
         them online with an <b>eligibility trace</b>: each visited state leaves a
         decaying mark (the gold halos), and when a TD error δ appears, <i>every</i>{" "}
         marked state is updated in proportion to its trace. That spreads the news of
@@ -181,9 +180,9 @@ function TDLambdaDemo() {
       </DemoP>
       <DemoP>
         <b>λ is the dial between two classic algorithms.</b> At λ=0 only the
-        immediately preceding state updates — that's one-step TD(0): stable but slow,
+        immediately preceding state updates. That is one-step TD(0): stable but slow,
         reward seeps back one state per episode. At λ=1 the full episode return
-        credits every state — that's Monte Carlo: unbiased but high variance. Sweep λ
+        credits every state. That is Monte Carlo: unbiased but high variance. Sweep λ
         and watch the green RMS curve: an intermediate value typically drops fastest,
         which is exactly why eligibility traces exist. Lengthen the walk to make the
         reward sparser and the advantage of carrying credit grows.
@@ -194,16 +193,16 @@ function TDLambdaDemo() {
   const concepts = (
     <>
       <DemoP>
-        Eligibility traces unify the two poles of value learning —{" "}
+        Eligibility traces unify the two poles of value learning,{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/gridworld-rl/`} style={{ color: "#a855f7" }}>one-step
-        TD</a> and Monte-Carlo returns — into a single mechanism with a smooth knob.
+        TD</a> and Monte-Carlo returns, into a single mechanism with a smooth knob.
         The backward view here (traces) is mathematically equivalent to the forward
         view (the λ-return, a geometric average of all n-step returns), and it's the
         engine behind TD(λ), SARSA(λ), and Q(λ).
       </DemoP>
       <DemoP>
-        The same credit-assignment problem — which past decisions deserve credit for
-        a delayed reward — reappears everywhere in RL: it's why{" "}
+        The same credit-assignment problem, which past decisions deserve credit for a delayed reward,
+        reappears everywhere in RL: it's why{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/sarsa-vs-qlearning/`} style={{ color: "#a855f7" }}>TD
         control</a> bootstraps, and the modern descendant GAE (generalized advantage
         estimation) is literally eligibility traces applied to the advantages that

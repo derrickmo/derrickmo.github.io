@@ -117,11 +117,11 @@ function QuantizationDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// BITS" min={2} max={8} step={1} value={bits} onChange={setBits} tone="violet"
-        help="Bit-width of the quantized weights. Each bit halves the model size (vs 32-bit float) but halves the number of grid levels — 8-bit is nearly lossless, 4-bit is the LLM sweet spot, 2-bit is brutally coarse. Watch RMSE and levels move." />
+        help="Bit-width of the quantized weights. Each bit halves the model size (vs 32-bit float) but halves the number of grid levels. 8-bit is nearly lossless, 4-bit is the LLM sweet spot, 2-bit is brutally coarse. Watch RMSE and levels move." />
       <Slider label="// OUTLIERS" min={0} max={1} step={0.05} value={outlier} onChange={setOutlier}
-        help="How many large outlier weights to inject. Outliers blow up max|w|, so the scale stretches and the grid lines spread out — now the dense bulk of normal weights all sit far from any level and quantize badly. This is THE problem in LLM quantization." />
+        help="How many large outlier weights to inject. Outliers blow up max|w|, so the scale stretches and the grid lines spread out. Now the dense bulk of normal weights all sit far from any level and quantize badly. This is THE problem in LLM quantization." />
       <Toggle label="// CLIP OUTLIERS" checked={clip} onChange={setClip}
-        help="Clip the largest weights (at the 97th percentile) before computing the scale, so the grid is sized for the bulk instead of the outliers. Big drop in RMSE for most weights, at the cost of clipping a few — the intuition behind outlier-aware methods like AWQ." />
+        help="Clip the largest weights (at the 97th percentile) before computing the scale, so the grid is sized for the bulk instead of the outliers. Big drop in RMSE for most weights, at the cost of clipping a few, the intuition behind outlier-aware methods like AWQ." />
       <DemoButton onClick={gen} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="LEVELS" value={levels} />
@@ -147,14 +147,12 @@ function QuantizationDemo() {
         it can be stored in b bits. The scale that sets the grid spacing is just
         max|w| divided by the largest integer b bits can hold. White dots are the
         original weights; each slides to its nearest level (colored by how far it
-        had to move). Fewer BITS means fewer levels, a coarser grid, and bigger
-        rounding error — but a smaller, faster model.
+        had to move). Fewer BITS means fewer levels, a coarser grid, and bigger rounding error, but a smaller and faster model.
       </DemoP>
       <DemoP>
         Now raise OUTLIERS. A handful of large weights drag max|w| way out, the
         whole grid stretches to reach them, and suddenly every ordinary weight in
-        the dense cluster is stranded between far-apart levels — RMSE jumps even
-        though almost all the weights are small. That single effect is why naive
+        the dense cluster is stranded between far-apart levels. RMSE jumps even though almost all the weights are small. That single effect is why naive
         low-bit quantization wrecks LLMs. Flip CLIP on: sizing the grid for the
         bulk instead of the outliers restores a fine grid where the mass is, and
         the error collapses.
@@ -168,8 +166,7 @@ function QuantizationDemo() {
         a 70B model run on a single consumer GPU. Post-training quantization (shown
         here) just rounds a trained model; quantization-aware training simulates the
         rounding during training for better accuracy. The outlier problem you can
-        trigger is exactly what modern LLM methods target — per-channel scales,
-        GPTQ's error-compensated rounding, AWQ's activation-aware scaling, and
+        trigger is exactly what modern LLM methods target: per-channel scales, the error-compensated rounding of GPTQ, AWQ's activation-aware scaling, and
         QLoRA's NF4 format all exist to handle it.
       </DemoP>
       <DemoP>
@@ -178,8 +175,7 @@ function QuantizationDemo() {
         mixed precision, and it pairs with{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/lora/`} style={{ color: "#a855f7" }}>LoRA</a>{" "}
         in QLoRA for cheap fine-tuning. The fundamental tradeoff never goes away:
-        bits bought in memory and speed are paid for in precision — the art is
-        spending the few bits you keep where the weights actually are, which is the
+        bits bought in memory and speed are paid for in precision. The art is spending the few bits you keep where the weights actually are, which is the
         whole story this demo tells.
       </DemoP>
     </>

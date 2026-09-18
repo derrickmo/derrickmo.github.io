@@ -106,14 +106,14 @@ function PositionalEncodingDemo() {
       <Slider label="// MODEL DIM (d)" min={8} max={64} step={2} value={dim} onChange={setDim}
         help="The size of the encoding vector. Higher dimensions pack more frequency bands, giving finer-grained position information." />
       <Slider label="// BASE (θ)" min={100} max={20000} step={100} value={base} onChange={setBase}
-        help="The wavelength scale. A larger base stretches frequencies to longer wavelengths — the standard lever (θ/NTK scaling) for extending a model to longer contexts." />
+        help="The wavelength scale. A larger base stretches frequencies to longer wavelengths, the standard lever (θ/NTK scaling) for extending a model to longer contexts." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="DIM" value={dim} />
         <StatReadout label="BASE" value={base} accent="var(--violet-lt)" />
       </div>
       {mode === "sin"
         ? <Legend items={[{ color: diverge(-1), label: "-1" }, { color: diverge(0), label: "0" }, { color: diverge(1), label: "+1" }]} />
-        : <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Drag POSITION — low bands rotate slowly, high bands fast.</div>}
+        : <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Drag POSITION: low bands rotate slowly, high bands fast.</div>}
     </ControlGroup>
   );
 
@@ -126,15 +126,14 @@ function PositionalEncodingDemo() {
         <i> PE(pos, 2i) = sin(pos / θ^(2i/d))</i> and the cosine for the odd index.
         Left columns are high-frequency (flip every few positions); right columns
         are low-frequency (drift slowly). That mix lets the model read both fine and
-        coarse position. Raise the <b>base θ</b> and the stripes stretch — longer
-        wavelengths, better for long contexts.
+        coarse position. Raise the <b>base θ</b> and the stripes stretch into longer wavelengths, better for long contexts.
       </DemoP>
       <DemoP>
         <b>RoPE</b> (rotary) takes the same frequency idea but <i>rotates</i> each
         2-D slice of the query/key by an angle proportional to position. Drag the
         position slider: each dial spins at its own rate. Because attention compares
         a query at position <i>m</i> with a key at position <i>n</i>, the rotation
-        cancels down to a function of <i>m − n</i> — so RoPE encodes
+        cancels down to a function of <i>m − n</i>, so RoPE encodes
         <em> relative</em> position, which is why modern LLMs use it.
       </DemoP>
     </>
@@ -143,14 +142,14 @@ function PositionalEncodingDemo() {
   const concepts = (
     <>
       <DemoP>
-        Position encoding is the unsung fix for attention's order-blindness — without it,
+        Position encoding is the unsung fix for the order-blindness of attention. Without it,
         "dog bites man" and "man bites dog" look identical to a transformer. Every
         transformer needs one, and the choice has real downstream effect: it largely
         determines how gracefully a model handles sequences longer than it was trained on.
       </DemoP>
       <DemoP>
         This is an active frontier, not settled history. The field moved from fixed
-        sinusoidal to learned to <b>RoPE</b> (rotary) — now standard in Llama, Mistral, and
+        sinusoidal to learned to <b>RoPE</b> (rotary), now standard in Llama, Mistral, and
         most open LLMs precisely because rotations encode <i>relative</i> position. The
         base-θ knob you're dragging is the same one behind context-length-extension methods
         (position interpolation, NTK-aware and YaRN scaling) that stretch a model from a few

@@ -200,7 +200,7 @@ function BranchAndBoundDemo() {
         <StatReadout label="PRUNED" value={stats ? stats.pruned : 0} accent="#f87171" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        {/* traceRef starts as stats:{} — truthy, so `stats ?` does NOT guard this the way it
+        {/* traceRef starts as stats:{} which is truthy, so `stats ?` does NOT guard this the way it
             guards the readouts above. They only read a value; this one calls a method, so on
             the first render it was undefined.toFixed() and the whole page went blank. */}
         <StatReadout label="BEST VALUE" value={stats && stats.best != null ? stats.best.toFixed(0) : 0} accent="#34d399" />

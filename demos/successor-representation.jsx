@@ -165,7 +165,7 @@ function SuccessorRepresentationDemo() {
         <StatReadout label="γ" value={gamma.toFixed(2)} accent="var(--violet-lt)" />
       </div>
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10, lineHeight: 1.5 }}>
-        Click the LEFT grid to choose the source state s and see its successor map. Click the RIGHT grid to move the reward — V = M·R updates instantly, M never changes.
+        Click the LEFT grid to choose the source state s and see its successor map. Click the RIGHT grid to move the reward. V = M·R updates instantly, M never changes.
       </div>
     </ControlGroup>
   );
@@ -174,15 +174,13 @@ function SuccessorRepresentationDemo() {
     <>
       <DemoP>
         The <b>successor representation</b> answers "starting here and following my
-        policy, where will I spend my discounted future time?" That's the left grid —
-        the successor map M(s,·) of the highlighted source state, learned by a
+        policy, where will I spend my discounted future time?" That is the left grid, the successor map M(s,·) of the highlighted source state, learned by a
         random-walk agent with the very same TD update as value learning, but
         bootstrapping a one-hot occupancy vector instead of a reward.
       </DemoP>
       <DemoP>
         The payoff is the factorization <b>V(s) = Σ M(s,s') R(s')</b>. Dynamics
-        (M) and reward (R) are stored separately, so when the goal moves you just
-        re-multiply — <b>no relearning</b>. Click around the right grid to drop the
+        (M) and reward (R) are stored separately, so when the goal moves you just re-multiply, with <b>no relearning</b>. Click around the right grid to drop the
         reward somewhere new: the value map recomputes <i>instantly</i> as M·R while
         the successor map on the left doesn't budge. A model-free Q-learner would
         have to re-explore from scratch. Raise γ and each state's reach spreads
@@ -198,14 +196,13 @@ function SuccessorRepresentationDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/gridworld-rl/`} style={{ color: "#a855f7" }}>Q-learning</a>{" "}
         it's learned by TD from experience, but like{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/value-iteration/`} style={{ color: "#a855f7" }}>value
-        iteration</a> it captures the environment's structure — so it transfers
-        across tasks that share dynamics but differ in reward, exactly the fast
+        iteration</a> it captures the structure of the environment, so it transfers across tasks that share dynamics but differ in reward, exactly the fast
         re-evaluation you just saw, and the spirit of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/dyna-q/`} style={{ color: "#a855f7" }}>Dyna-Q</a>.
       </DemoP>
       <DemoP>
-        It has real neuroscience standing — successor-like predictive maps appear in
-        hippocampal place and entorhinal grid cells — and the deep version,
+        It has real neuroscience standing. Successor-like predictive maps appear in
+        hippocampal place and entorhinal grid cells, and the deep version,
         <b> successor features</b>, generalizes M from states to learned features for
         transfer across many reward functions. The matrix M is also just{" "}
         <i>(I − γP)⁻¹</i> for the policy's transition matrix P, the same discounted-

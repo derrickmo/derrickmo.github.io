@@ -67,7 +67,7 @@ function RPSDemo() {
             </div>
           </>
         ) : (
-          <div className="t-body" style={{ color: "var(--muted)" }}>Make your throw — the AI is watching.</div>
+          <div className="t-body" style={{ color: "var(--muted)" }}>Make your throw. The AI is watching.</div>
         )}
       </div>
       <div style={{ display: "flex", gap: 12 }}>
@@ -104,16 +104,13 @@ function RPSDemo() {
     <>
       <DemoP>
         Rock-paper-scissors is only "random" if <i>you</i> are. This AI keeps a running
-        tally of what you tend to throw after each recent sequence — an <b>order-2
-        Markov model</b> (what follows each pair of moves), backing off to order-1 and
+        tally of what you tend to throw after each recent sequence, an <b>order-2 Markov model</b> (what follows each pair of moves), backing off to order-1 and
         then plain frequency when it hasn't seen enough. It predicts your next throw and
-        plays the move that beats it. Try to win by going on streaks, or by "obviously"
-        switching — and watch it catch on.
+        plays the move that beats it. Try to win by going on streaks, or by "obviously" switching, and watch it catch on.
       </DemoP>
       <DemoP>
         Pure randomness guarantees you a 1/3 win rate that no model can beat; the moment
-        you fall into a habit, the AI's win rate climbs above chance. That's the whole
-        idea behind sequence models — the same machinery that powers next-token
+        you fall into a habit, the AI's win rate climbs above chance. That's the whole idea behind sequence models, the same machinery that powers next-token
         prediction in a language model, just with three "tokens" instead of fifty
         thousand. Humans are famously bad at being random, which is exactly the edge it
         exploits.
@@ -123,7 +120,7 @@ function RPSDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is a sequence model in disguise — an order-2 <b>Markov model</b> predicting
+        This is a sequence model in disguise, an order-2 <b>Markov model</b> predicting
         your next move from your recent pattern, backing off to lower orders when data is
         thin. It's the same predict-the-next-token machinery as a language model, just with
         three tokens instead of fifty thousand, and the same back-off smoothing that
@@ -132,8 +129,7 @@ function RPSDemo() {
       <DemoP>
         It also illustrates a sharp game-theory truth: the Nash-optimal RPS strategy is
         uniformly random, which guarantees a 1/3 win rate that <i>no</i> predictor can beat.
-        The AI only profits because humans are notoriously bad at being random — the moment
-        you fall into a habit, a model exploits it. That gap between optimal randomness and
+        The AI only profits because humans are notoriously bad at being random. The moment you fall into a habit, a model exploits it. That gap between optimal randomness and
         human predictability is exactly what side-channel attacks and adversarial models
         prey on.
       </DemoP>

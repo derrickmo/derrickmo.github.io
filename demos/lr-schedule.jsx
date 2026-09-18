@@ -105,7 +105,7 @@ function LRScheduleDemo() {
       <Slider label="// WARMUP STEPS" min={0} max={200} value={warmup} onChange={setWarmup} tone="violet"
         help="How long the rate ramps up from zero at the start. Warmup keeps the first noisy gradients from blowing up a fresh model and lets you use a higher peak safely." />
       <Slider label="// PEAK LR" min={0.05} max={2.2} step={0.05} value={peak} onChange={setPeak}
-        help="The maximum learning rate the schedule reaches. Push it too high and the loss diverges (this quadratic is stable only below 2) — the classic 'loss went to NaN'." />
+        help="The maximum learning rate the schedule reaches. Push it too high and the loss diverges (this quadratic is stable only below 2), the classic 'loss went to NaN'." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <StatReadout label="PEAK LR" value={stats.peak.toFixed(2)} />
         <StatReadout label="FINAL LR" value={stats.final.toFixed(3)} accent="var(--violet-lt)" />
@@ -122,12 +122,11 @@ function LRScheduleDemo() {
         gradients don't blow up a freshly-initialized model; then a <b>decay</b>
         (cosine, step, exponential, or linear) shrinks it so training can settle into a
         minimum instead of bouncing around it. The top panel is the schedule; the
-        bottom panel is the loss from actually running SGD with it — watch how the same
-        optimizer converges fast and clean under a good schedule.
+        bottom panel is the loss from actually running SGD with it. Watch how the same optimizer converges fast and clean under a good schedule.
       </DemoP>
       <DemoP>
         Push the <b>peak LR</b> too high and the loss diverges (the quadratic is stable
-        only for LR &lt; 2) — exactly the "loss went to NaN" failure everyone hits once.
+        only for LR &lt; 2), exactly the "loss went to NaN" failure everyone hits once.
         Add <b>warmup</b> and you can safely use a higher peak. The cosine schedule
         with warmup shown here is the default behind most modern transformer training
         runs; getting this curve right is often the difference between a model that
@@ -145,8 +144,8 @@ function LRScheduleDemo() {
         converges cleanly and one that diverges or stalls.
       </DemoP>
       <DemoP>
-        The two failure modes you can trigger — divergence from too-high a peak, and the
-        unstable start that warmup fixes — explain a lot of real training lore: why warmup
+        The two failure modes you can trigger, divergence from too high a peak and the unstable start
+        that warmup fixes, explain a lot of real training lore: why warmup
         pairs with large-batch training, why even adaptive optimizers like Adam still want a
         schedule, and why practitioners sweep the learning rate before any other
         hyperparameter. It's the same "the learning rate is everything" lesson as the
