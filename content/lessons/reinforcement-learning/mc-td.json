@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-02",
   "slug": "mc-td",
+  "keyBase": "reinforcement-learning/mc-td",
   "module": "reinforcement-learning",
   "title": "Monte Carlo & TD Learning",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Baird (1995) — Residual Algorithms: Reinforcement Learning with Function Approximation",
       "url": "https://www.sciencedirect.com/science/article/pii/B9781558603776500133"
     }
-  ]
+  ],
+  "v2": {
+    "id": "14-02",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-02_monte_carlo_temporal_difference_learning.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-01",
   "slug": "evaluation-metrics",
+  "keyBase": "ml-theory/evaluation-metrics",
   "module": "ml-theory",
   "title": "Evaluation Metrics Deep Dive",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-01_evaluation_metrics_deep_dive.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "roc", "calibration"],
+    "demos": [
+      "classification-metrics",
+      "roc",
+      "calibration"
+    ],
     "concepts": []
   },
-  "prereqs": ["supervised-learning/logistic-regression", "foundations/probability"],
-  "leadsTo": ["ml-theory/imbalanced-data", "ml-theory/calibration"],
+  "prereqs": [
+    "supervised-learning/logistic-regression",
+    "foundations/probability"
+  ],
+  "leadsTo": [
+    "ml-theory/imbalanced-data",
+    "ml-theory/calibration"
+  ],
   "body": {
     "intuition": [
       "Choosing a metric is the highest-leverage decision in an ML project and the one most often made by default. The metric is what the model is optimized toward, what determines which candidate you ship, and what the whole team argues about - so a metric that does not match the decision the model supports will reliably produce a model that is excellent at the wrong thing. The classic demonstration is a fraud detector on a 1%-fraud dataset: predicting 'never fraud' scores 99% ACCURACY and catches nothing. Accuracy is not a bad metric in general; it is a bad metric when class frequencies are skewed or when errors have different costs, which describes most real problems.",
@@ -72,32 +83,83 @@
       "Reporting a single number with no uncertainty: on a 500-example test set the 95% CI on accuracy is roughly +/- 4 points, so a 2-point 'improvement' is noise. Report confidence intervals or bootstrap the metric, and compare models on the same folds."
     ],
     "connections": [
-      { "ref": "ml-theory/imbalanced-data", "text": "Imbalance is the condition under which most of these metrics mislead, and that lesson covers the sampling and loss-level responses to it." },
-      { "ref": "ml-theory/calibration", "text": "Cost-optimal thresholding requires probabilities that mean what they say - a miscalibrated model can rank perfectly (great AUC) and still pick the wrong threshold." },
-      { "ref": "ml-theory/cross-validation", "text": "A metric is an estimate with variance; cross-validation is how you find out whether a difference between two models is real or sampling noise." },
-      { "ref": "mlops/monitoring", "text": "The metric you choose offline is the one you monitor online - and the gap between them is where most deployed-model disappointments live." }
+      {
+        "ref": "ml-theory/imbalanced-data",
+        "text": "Imbalance is the condition under which most of these metrics mislead, and that lesson covers the sampling and loss-level responses to it."
+      },
+      {
+        "ref": "ml-theory/calibration",
+        "text": "Cost-optimal thresholding requires probabilities that mean what they say - a miscalibrated model can rank perfectly (great AUC) and still pick the wrong threshold."
+      },
+      {
+        "ref": "ml-theory/cross-validation",
+        "text": "A metric is an estimate with variance; cross-validation is how you find out whether a difference between two models is real or sampling noise."
+      },
+      {
+        "ref": "mlops/monitoring",
+        "text": "The metric you choose offline is the one you monitor online - and the gap between them is where most deployed-model disappointments live."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is precision?", "a": "TP/(TP+FP) - of the examples flagged positive, the fraction that really are. It is the metric that punishes false alarms." },
-      { "q": "What is recall?", "a": "TP/(TP+FN) - of the actual positives, the fraction found. It is the metric that punishes misses. Also called sensitivity or the true-positive rate." },
-      { "q": "What is F1?", "a": "The harmonic mean of precision and recall, 2PR/(P+R). Harmonic rather than arithmetic so it is dominated by the smaller of the two - P=1.0, R=0.01 gives F1 = 0.02." },
-      { "q": "When is accuracy a bad metric?", "a": "Under class imbalance (a 1% positive rate makes 'always negative' score 99%) and whenever the two error types have different costs." },
-      { "q": "What does ROC-AUC measure?", "a": "The probability that a randomly chosen positive is ranked above a randomly chosen negative - a threshold-free measure of ranking quality." },
-      { "q": "Why can ROC-AUC mislead under imbalance?", "a": "FPR = FP/(FP+TN) has a huge denominator when negatives dominate, so thousands of false alarms barely move the curve. PR-AUC exposes them." },
-      { "q": "What is PR-AUC's baseline?", "a": "The positive base rate (1% data -> 0.01), unlike ROC-AUC's fixed 0.5. So a PR-AUC of 0.5 on a 1% problem is a 50x lift, not mediocre." },
-      { "q": "What is the cost-optimal threshold?", "a": "t* = C_FP/(C_FP + C_FN). With a $100 miss and a $2 false alarm, t* = 0.02 - not 0.5. Requires calibrated probabilities." },
-      { "q": "Macro vs micro vs weighted averaging?", "a": "Macro: unweighted mean over classes (rare classes count fully). Micro: pooled counts (dominated by frequent classes; equals accuracy in single-label multi-class). Weighted: mean weighted by class support." },
-      { "q": "What is specificity?", "a": "TN/(TN+FP) - the fraction of actual negatives correctly identified, i.e. 1 - FPR. Standard in medical testing, paired with sensitivity (recall)." },
-      { "q": "What metrics are used for ranking?", "a": "NDCG (graded relevance with position discount), MAP, MRR (first relevant result), and precision@k - all evaluate ORDER, not a binary decision." },
-      { "q": "How much test data do you need?", "a": "Enough that the metric's confidence interval is smaller than the differences you care about - at n=500, accuracy's 95% CI is roughly +/-4 points, so small gaps are noise." }
+      {
+        "q": "What is precision?",
+        "a": "TP/(TP+FP) - of the examples flagged positive, the fraction that really are. It is the metric that punishes false alarms."
+      },
+      {
+        "q": "What is recall?",
+        "a": "TP/(TP+FN) - of the actual positives, the fraction found. It is the metric that punishes misses. Also called sensitivity or the true-positive rate."
+      },
+      {
+        "q": "What is F1?",
+        "a": "The harmonic mean of precision and recall, 2PR/(P+R). Harmonic rather than arithmetic so it is dominated by the smaller of the two - P=1.0, R=0.01 gives F1 = 0.02."
+      },
+      {
+        "q": "When is accuracy a bad metric?",
+        "a": "Under class imbalance (a 1% positive rate makes 'always negative' score 99%) and whenever the two error types have different costs."
+      },
+      {
+        "q": "What does ROC-AUC measure?",
+        "a": "The probability that a randomly chosen positive is ranked above a randomly chosen negative - a threshold-free measure of ranking quality."
+      },
+      {
+        "q": "Why can ROC-AUC mislead under imbalance?",
+        "a": "FPR = FP/(FP+TN) has a huge denominator when negatives dominate, so thousands of false alarms barely move the curve. PR-AUC exposes them."
+      },
+      {
+        "q": "What is PR-AUC's baseline?",
+        "a": "The positive base rate (1% data -> 0.01), unlike ROC-AUC's fixed 0.5. So a PR-AUC of 0.5 on a 1% problem is a 50x lift, not mediocre."
+      },
+      {
+        "q": "What is the cost-optimal threshold?",
+        "a": "t* = C_FP/(C_FP + C_FN). With a $100 miss and a $2 false alarm, t* = 0.02 - not 0.5. Requires calibrated probabilities."
+      },
+      {
+        "q": "Macro vs micro vs weighted averaging?",
+        "a": "Macro: unweighted mean over classes (rare classes count fully). Micro: pooled counts (dominated by frequent classes; equals accuracy in single-label multi-class). Weighted: mean weighted by class support."
+      },
+      {
+        "q": "What is specificity?",
+        "a": "TN/(TN+FP) - the fraction of actual negatives correctly identified, i.e. 1 - FPR. Standard in medical testing, paired with sensitivity (recall)."
+      },
+      {
+        "q": "What metrics are used for ranking?",
+        "a": "NDCG (graded relevance with position discount), MAP, MRR (first relevant result), and precision@k - all evaluate ORDER, not a binary decision."
+      },
+      {
+        "q": "How much test data do you need?",
+        "a": "Enough that the metric's confidence interval is smaller than the differences you care about - at n=500, accuracy's 95% CI is roughly +/-4 points, so small gaps are noise."
+      }
     ],
     "standard": [
       {
         "q": "Walk through the main classification metrics and explain how you would choose between them.",
         "a": "EVERYTHING STARTS FROM THE CONFUSION MATRIX - TP, FP, TN, FN - and every scalar metric is a different summary of those four numbers, so the real question is always which of the four errors matters and how much. THE METRICS. ACCURACY = (TP+TN)/total. Intuitive, and appropriate only when classes are roughly balanced AND the two error types cost the same. Under a 1% positive rate, 'always negative' scores 99%, which is why accuracy is the most over-used metric in the field. PRECISION = TP/(TP+FP): of what I flagged, how much was right. Use when FALSE POSITIVES are expensive - spam filtering (a lost legitimate email is worse than a spam that gets through), automated content removal, any action taken without human review. RECALL = TP/(TP+FN): of what was there, how much did I find. Use when FALSE NEGATIVES are expensive - disease screening, fraud detection, safety-critical defect detection. The two are controlled by the same threshold and trade off directly: lowering the threshold raises recall and lowers precision. F1 = harmonic mean of precision and recall. A reasonable default when you have no cost information; F-beta generalizes it (beta=2 weights recall 2x, beta=0.5 weights precision 2x). The key property is that the harmonic mean is dominated by the SMALLER value, so you cannot score well by maximizing one and abandoning the other. ROC-AUC: the probability a random positive outranks a random negative. Threshold-free, so it evaluates the model's RANKING independent of the operating point - useful when the threshold is not yet chosen, or when you want to compare models before making that decision. PR-AUC (average precision): the area under the precision-recall curve, and the right threshold-free metric under heavy imbalance. LOG LOSS / BRIER SCORE: proper scoring rules that evaluate the PROBABILITIES rather than the decisions - the right choice when downstream systems consume the probability itself (expected-value calculations, bidding, risk scoring). HOW I CHOOSE, as a procedure. (1) IDENTIFY THE DECISION the model supports and who or what acts on it. (2) WRITE DOWN THE COSTS of each error type, even approximately - 'a missed fraud costs $100, a wasted review costs $2' is enough to determine the threshold and to rank candidate models by expected cost, which is strictly better than any generic metric. (3) IF THE OPERATING POINT IS FIXED, report precision and recall AT that threshold (plus the cost). If it is not yet fixed, report a threshold-free metric - PR-AUC under imbalance, ROC-AUC when classes are balanced. (4) CHECK THE BASE RATE and report it: metrics are uninterpretable without it, since PR-AUC's baseline is the base rate itself. (5) REPORT UNCERTAINTY - bootstrap the metric or give a confidence interval, because on small test sets differences of a few points are noise. THE POINT I WOULD EMPHASIZE: the metric is not a scoring formality, it is the objective the whole project optimizes toward - through model selection, hyperparameter tuning, and every design argument. Choosing it badly means doing excellent work toward the wrong goal, and it is a failure that no amount of modeling skill recovers from. This is also why 'what metric are you using and why?' is such a revealing interview question.",
-        "deepDive": { "q": "Explain precisely when ROC-AUC misleads and why PR-AUC is better under imbalance.", "a": "THE DEFINITIONS. The ROC curve plots TPR = TP/(TP+FN) against FPR = FP/(FP+TN) as the threshold varies. The PR curve plots precision = TP/(TP+FP) against recall (= TPR). The crucial structural difference: FPR's denominator is the number of NEGATIVES, while precision's denominator is the number of PREDICTED POSITIVES. THE FAILURE MODE, with numbers. Take 1,000,000 examples with 1,000 positives (0.1%). Suppose at some threshold the model catches 900 positives (TPR = 0.90) and produces 10,000 false positives. FPR = 10,000/999,000 = 0.01 - which looks excellent, and the ROC curve sits high. But precision = 900/10,900 = 0.083, meaning 92% of everything you flag is wrong. A human review team would be drowning. ROC-AUC reports something like 0.97 while the system is operationally unusable. The reason is that FPR normalizes by a huge negative population, so even a large ABSOLUTE number of false positives is a small RATE - and it is the absolute number that determines review cost. Precision normalizes by what you flagged, which is exactly the quantity the operator experiences. THE BASELINE DIFFERENCE, which is the second half of the story and is often missed. A random classifier has ROC-AUC 0.5 regardless of imbalance, so ROC-AUC's scale is stable and comparable across datasets. A random classifier has PR-AUC equal to the POSITIVE BASE RATE, so on a 1% problem, PR-AUC 0.5 represents a 50x lift over random and is genuinely strong, while on a balanced problem PR-AUC 0.5 is chance. This means PR-AUC values are NOT comparable across datasets with different base rates, and a PR-AUC must always be reported alongside the base rate. It also means people frequently misread a 'low' PR-AUC as a bad model when it is a hard, imbalanced problem. WHEN EACH IS RIGHT. Use ROC-AUC when: classes are roughly balanced; you care about ranking quality per se; you want a metric stable across datasets with different base rates (e.g. comparing a model across populations where prevalence differs); or the operating point will be set later and both error types matter comparably. Use PR-AUC when: positives are rare and are what you care about; the cost of false positives scales with their absolute number (human review capacity, user annoyance); you are comparing models on ONE dataset. Davis and Goadrich (2006) is the canonical reference for the deep connection - a curve dominating in ROC space dominates in PR space and vice versa, but the AREA summaries can rank models differently, which is precisely why the choice matters. WHAT I WOULD ACTUALLY REPORT for an imbalanced problem, because both are still summaries: PRECISION AT FIXED RECALL (or recall at fixed precision) at the operating point you will actually use, plus PRECISION@k where k is the real review capacity ('of the top 500 cases our team can review daily, how many are fraud?'), plus the total expected COST. Those numbers answer the operational question directly, and they are what a stakeholder can act on. AUC of either flavour is best treated as a model-development convenience, not as the thing you optimize for deployment." }
+        "deepDive": {
+          "q": "Explain precisely when ROC-AUC misleads and why PR-AUC is better under imbalance.",
+          "a": "THE DEFINITIONS. The ROC curve plots TPR = TP/(TP+FN) against FPR = FP/(FP+TN) as the threshold varies. The PR curve plots precision = TP/(TP+FP) against recall (= TPR). The crucial structural difference: FPR's denominator is the number of NEGATIVES, while precision's denominator is the number of PREDICTED POSITIVES. THE FAILURE MODE, with numbers. Take 1,000,000 examples with 1,000 positives (0.1%). Suppose at some threshold the model catches 900 positives (TPR = 0.90) and produces 10,000 false positives. FPR = 10,000/999,000 = 0.01 - which looks excellent, and the ROC curve sits high. But precision = 900/10,900 = 0.083, meaning 92% of everything you flag is wrong. A human review team would be drowning. ROC-AUC reports something like 0.97 while the system is operationally unusable. The reason is that FPR normalizes by a huge negative population, so even a large ABSOLUTE number of false positives is a small RATE - and it is the absolute number that determines review cost. Precision normalizes by what you flagged, which is exactly the quantity the operator experiences. THE BASELINE DIFFERENCE, which is the second half of the story and is often missed. A random classifier has ROC-AUC 0.5 regardless of imbalance, so ROC-AUC's scale is stable and comparable across datasets. A random classifier has PR-AUC equal to the POSITIVE BASE RATE, so on a 1% problem, PR-AUC 0.5 represents a 50x lift over random and is genuinely strong, while on a balanced problem PR-AUC 0.5 is chance. This means PR-AUC values are NOT comparable across datasets with different base rates, and a PR-AUC must always be reported alongside the base rate. It also means people frequently misread a 'low' PR-AUC as a bad model when it is a hard, imbalanced problem. WHEN EACH IS RIGHT. Use ROC-AUC when: classes are roughly balanced; you care about ranking quality per se; you want a metric stable across datasets with different base rates (e.g. comparing a model across populations where prevalence differs); or the operating point will be set later and both error types matter comparably. Use PR-AUC when: positives are rare and are what you care about; the cost of false positives scales with their absolute number (human review capacity, user annoyance); you are comparing models on ONE dataset. Davis and Goadrich (2006) is the canonical reference for the deep connection - a curve dominating in ROC space dominates in PR space and vice versa, but the AREA summaries can rank models differently, which is precisely why the choice matters. WHAT I WOULD ACTUALLY REPORT for an imbalanced problem, because both are still summaries: PRECISION AT FIXED RECALL (or recall at fixed precision) at the operating point you will actually use, plus PRECISION@k where k is the real review capacity ('of the top 500 cases our team can review daily, how many are fraud?'), plus the total expected COST. Those numbers answer the operational question directly, and they are what a stakeholder can act on. AUC of either flavour is best treated as a model-development convenience, not as the thing you optimize for deployment."
+        }
       },
       {
         "q": "How do you choose a classification threshold, and why is 0.5 usually wrong?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "formula", "front": "Precision vs recall", "back": "P = TP/(TP+FP) (punishes false alarms). R = TP/(TP+FN) (punishes misses). Same numerator, different denominators - which is why they trade off as the threshold moves." },
-    { "type": "formula", "front": "F-beta", "back": "(1+b^2)PR/(b^2 P+R). b=1 is F1 (harmonic mean, dominated by the smaller value); b=2 favours recall (screening); b=0.5 favours precision (spam)." },
-    { "type": "formula", "front": "Cost-optimal threshold", "back": "t* = C_FP/(C_FP+C_FN). $100 miss + $2 false alarm -> t* = 0.02, NOT 0.5. Free to change, no retraining - usually the highest return-on-effort action in a classification project." },
-    { "type": "pitfall", "front": "Accuracy under imbalance", "back": "1% positive rate -> 'always negative' scores 99% and catches nothing. Always report the base rate alongside accuracy, plus per-class precision/recall." },
-    { "type": "pitfall", "front": "ROC-AUC under imbalance", "back": "FPR = FP/(FP+TN) has a huge denominator, so thousands of false alarms barely move the curve. A model can score AUC 0.97 with 92% of flags wrong. Use PR-AUC." },
-    { "type": "intuition", "front": "PR-AUC's baseline is the base rate", "back": "Random scores PR-AUC = positive rate (0.01 on a 1% problem), unlike ROC-AUC's fixed 0.5. So PR-AUC 0.5 there is a 50x lift - and PR-AUC is NOT comparable across datasets with different base rates." },
-    { "type": "definition", "front": "Macro vs micro vs weighted", "back": "Macro: unweighted mean over classes (rare classes count fully). Micro: pooled counts - equals ACCURACY in single-label multi-class. Weighted: by class support. Never report 'F1' without saying which." },
-    { "type": "definition", "front": "Proper scoring rule", "back": "A metric on PROBABILITIES that is optimized by reporting your true belief - log loss and Brier score. Accuracy/F1/AUC are not proper: AUC is invariant to any monotone transform, so it cannot see miscalibration." },
-    { "type": "formula", "front": "Brier decomposition", "back": "Brier = reliability - resolution + uncertainty. Separates calibration quality from discriminative ability from irreducible base-rate variance - useful for diagnosing WHICH one is the weakness." },
-    { "type": "pitfall", "front": "A metric is an estimate", "back": "At n=1000, accuracy's 95% CI is ~±1.8 points, so a 0.9-point 'win' can be noise. Use a PAIRED test (McNemar) on the same test set, and ask how many models were tried before this one." }
+    {
+      "type": "formula",
+      "front": "Precision vs recall",
+      "back": "P = TP/(TP+FP) (punishes false alarms). R = TP/(TP+FN) (punishes misses). Same numerator, different denominators - which is why they trade off as the threshold moves."
+    },
+    {
+      "type": "formula",
+      "front": "F-beta",
+      "back": "(1+b^2)PR/(b^2 P+R). b=1 is F1 (harmonic mean, dominated by the smaller value); b=2 favours recall (screening); b=0.5 favours precision (spam)."
+    },
+    {
+      "type": "formula",
+      "front": "Cost-optimal threshold",
+      "back": "t* = C_FP/(C_FP+C_FN). $100 miss + $2 false alarm -> t* = 0.02, NOT 0.5. Free to change, no retraining - usually the highest return-on-effort action in a classification project."
+    },
+    {
+      "type": "pitfall",
+      "front": "Accuracy under imbalance",
+      "back": "1% positive rate -> 'always negative' scores 99% and catches nothing. Always report the base rate alongside accuracy, plus per-class precision/recall."
+    },
+    {
+      "type": "pitfall",
+      "front": "ROC-AUC under imbalance",
+      "back": "FPR = FP/(FP+TN) has a huge denominator, so thousands of false alarms barely move the curve. A model can score AUC 0.97 with 92% of flags wrong. Use PR-AUC."
+    },
+    {
+      "type": "intuition",
+      "front": "PR-AUC's baseline is the base rate",
+      "back": "Random scores PR-AUC = positive rate (0.01 on a 1% problem), unlike ROC-AUC's fixed 0.5. So PR-AUC 0.5 there is a 50x lift - and PR-AUC is NOT comparable across datasets with different base rates."
+    },
+    {
+      "type": "definition",
+      "front": "Macro vs micro vs weighted",
+      "back": "Macro: unweighted mean over classes (rare classes count fully). Micro: pooled counts - equals ACCURACY in single-label multi-class. Weighted: by class support. Never report 'F1' without saying which."
+    },
+    {
+      "type": "definition",
+      "front": "Proper scoring rule",
+      "back": "A metric on PROBABILITIES that is optimized by reporting your true belief - log loss and Brier score. Accuracy/F1/AUC are not proper: AUC is invariant to any monotone transform, so it cannot see miscalibration."
+    },
+    {
+      "type": "formula",
+      "front": "Brier decomposition",
+      "back": "Brier = reliability - resolution + uncertainty. Separates calibration quality from discriminative ability from irreducible base-rate variance - useful for diagnosing WHICH one is the weakness."
+    },
+    {
+      "type": "pitfall",
+      "front": "A metric is an estimate",
+      "back": "At n=1000, accuracy's 95% CI is ~±1.8 points, so a 0.9-point 'win' can be noise. Use a PAIRED test (McNemar) on the same test set, and ask how many models were tried before this one."
+    }
   ],
   "refs": [
-    { "title": "Davis & Goadrich (2006), The Relationship Between Precision-Recall and ROC Curves", "url": "https://www.biostat.wisc.edu/~page/rocpr.pdf" },
-    { "title": "Saito & Rehmsmeier (2015), The Precision-Recall Plot Is More Informative than the ROC Plot on Imbalanced Datasets", "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0118432" },
-    { "title": "Gneiting & Raftery (2007), Strictly Proper Scoring Rules, Prediction, and Estimation", "url": "https://www.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf" },
-    { "title": "scikit-learn User Guide, Metrics and scoring", "url": "https://scikit-learn.org/stable/modules/model_evaluation.html" }
+    {
+      "title": "Davis & Goadrich (2006), The Relationship Between Precision-Recall and ROC Curves",
+      "url": "https://www.biostat.wisc.edu/~page/rocpr.pdf"
+    },
+    {
+      "title": "Saito & Rehmsmeier (2015), The Precision-Recall Plot Is More Informative than the ROC Plot on Imbalanced Datasets",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0118432"
+    },
+    {
+      "title": "Gneiting & Raftery (2007), Strictly Proper Scoring Rules, Prediction, and Estimation",
+      "url": "https://www.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf"
+    },
+    {
+      "title": "scikit-learn User Guide, Metrics and scoring",
+      "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "05-01",
+    "module": "evaluation",
+    "disposition": "clean",
+    "notebookFile": "05-01_metrics_beyond_accuracy.ipynb"
+  }
 }

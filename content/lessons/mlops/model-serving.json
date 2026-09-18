@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-04",
   "slug": "model-serving",
+  "keyBase": "mlops/model-serving",
   "module": "mlops",
   "title": "Model Serving — FastAPI & Gradio",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://fastapi.tiangolo.com/async/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "22-07",
+    "module": "inference-serving",
+    "disposition": "clean",
+    "notebookFile": "22-07_serving_apis_batching_streaming.ipynb"
+  }
 }

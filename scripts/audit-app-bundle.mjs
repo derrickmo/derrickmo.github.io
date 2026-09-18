@@ -216,7 +216,15 @@ if (coldGz > COLD_CEILING) err(`cold start ${(coldGz / 1024).toFixed(0)} KB gz e
 if (totalBytes > TOTAL_CEILING) err(`full bundle ${(totalBytes / 1024 / 1024).toFixed(2)} MB exceeds the ${(TOTAL_CEILING / 1024 / 1024).toFixed(0)} MB ceiling`);
 
 // ── 5. GAPS — known, counted, and allowed; anything else is an error ────────
-const KNOWN_BODYLESS = 25;               // the 25 flagship-jsx lessons, whose prose is site-only
+// Derived from the STORE, not from the bundle. The flagship lessons whose
+// prose lives in the site's own .jsx are exactly those with bodySource "jsx",
+// and that count moves whenever one is written into the store or a new module
+// arrives carrying one — a pinned 25 just means editing this line every time,
+// which is how a constant goes stale.
+// ⚠ It must come from `C` (content/) and not from `shards`: deriving it from
+// the same bundle it is compared against would make the check below compare a
+// number to itself and never fail again.
+const KNOWN_BODYLESS = C.lessons.filter((l) => l.bodySource === "jsx").length;
 const bodyless = [];
 for (const [slug, s] of Object.entries(shards)) for (const l of s.lessons) if (l.body === null) bodyless.push(`${slug}/${l.slug}`);
 const declaredWeb = manifest.topics.filter((t) => t.bodyOn === "web").map((t) => `${t.module}/${t.slug}`);

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-06",
   "slug": "learning-theory",
+  "keyBase": "ml-theory/learning-theory",
   "module": "ml-theory",
   "title": "Learning Theory — VC Dimension, PAC Learning",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Wolpert (1996) — The Lack of A Priori Distinctions Between Learning Algorithms",
       "url": "https://direct.mit.edu/neco/article/8/7/1341/6016"
     }
-  ]
+  ],
+  "v2": {
+    "id": "06-02",
+    "module": "learning-theory",
+    "disposition": "clean",
+    "notebookFile": "06-02_vc_dimension_shattering_pac_learning.ipynb"
+  }
 }

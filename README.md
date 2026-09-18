@@ -2,7 +2,7 @@
 
 Personal website of **Derrick Mo** — machine-learning engineer and educator.
 Part portfolio (Research · Learn · Build), part **interactive ML curriculum**: a
-browser-based lab of **179 hands-on demos** across 19 areas, a **25-module,
+browser-based lab of **200 hands-on demos** across 19 areas, a **25-module,
 250-lesson** course, flagship lessons, guided learning paths, and a linked concept
 graph — every algorithm runs entirely in your browser.
 
@@ -46,7 +46,7 @@ npm run preview   # serve the production build
   MLOps & Serving, Audio & Signal, and Graphs & Networks. Each implements the real
   algorithm in JS.
 - **Learn** (`/learn/`) — a 25-module, 250-lesson ML course (`curriculum.js` / `lectures.js`),
-  25 flagship on-site lessons, 73 per-concept sub-lessons, and a HuggingFace mini-course.
+  25 flagship on-site lessons, 155 per-concept sub-lessons, and a HuggingFace mini-course.
 - **Concept graph** (`/concepts/`, `/concept-map/`) — 188 concepts linked by prerequisites,
   tying every demo, lesson, and game together.
 - **Guided paths** (`/paths/`) — 11 curated multi-step learning tracks with progress tracking.

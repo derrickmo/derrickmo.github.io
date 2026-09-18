@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-08",
   "slug": "distribution-shift",
+  "keyBase": "trustworthy-ai/distribution-shift",
   "module": "trustworthy-ai",
   "title": "Distribution Shift & Drift Detection",
   "status": "LIVE",
@@ -302,5 +303,14 @@
       "url": "https://arxiv.org/abs/2201.04234"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-05",
+    "module": "mlops",
+    "disposition": "merge",
+    "notebookFile": "23-05_drift_detection_shift_adaptation.ipynb",
+    "alsoFeeds": [
+      "24-11"
+    ]
+  }
 }

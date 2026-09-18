@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-05",
   "slug": "prompt-tuning",
+  "keyBase": "fine-tuning/prompt-tuning",
   "module": "fine-tuning",
   "title": "Prompt Tuning & Prefix Tuning",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-05_prompt_tuning_prefix_tuning.ipynb",
     "flagship": null,
-    "demos": ["tokenizer", "embeddings", "attention", "scaling-laws"],
+    "demos": [
+      "tokenizer",
+      "embeddings",
+      "attention",
+      "scaling-laws"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/adapters", "transformers/self-attention"],
-  "leadsTo": ["fine-tuning/instruction-tuning", "llm-systems/long-context"],
+  "prereqs": [
+    "fine-tuning/adapters",
+    "transformers/self-attention"
+  ],
+  "leadsTo": [
+    "fine-tuning/instruction-tuning",
+    "llm-systems/long-context"
+  ],
   "body": {
     "intuition": [
       "Every method so far modified weights. This one does not touch them at all. A prompt is a sequence of token embeddings, and nothing requires those embeddings to correspond to real tokens - so learn some. Prepend k trainable vectors to the input embeddings, freeze the entire model, and backpropagate into the vectors only. For k = 20 on a model with d = 4096 that is 82,000 parameters, five orders of magnitude below the model, and the 'fine-tuned model' you ship is a small matrix.",
@@ -276,5 +288,11 @@
       "url": "https://arxiv.org/abs/2104.06599"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-04",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-04_prompt_tuning_prefix_tuning.ipynb"
+  }
 }

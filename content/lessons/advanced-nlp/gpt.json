@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-01",
   "slug": "gpt",
+  "keyBase": "advanced-nlp/gpt",
   "module": "advanced-nlp",
   "title": "GPT-Style Autoregressive Language Modeling",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Schaeffer, Miranda & Koyejo (2023) — Are Emergent Abilities of LLMs a Mirage?",
       "url": "https://arxiv.org/abs/2304.15004"
     }
-  ]
+  ],
+  "v2": {
+    "id": "15-01",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-01_gpt_style_language_model_scratch.ipynb"
+  }
 }

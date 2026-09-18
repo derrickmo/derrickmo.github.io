@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-10",
   "slug": "capstone-assistant",
+  "keyBase": "rag-agents/capstone-assistant",
   "module": "rag-agents",
   "title": "Domain-Specific AI Assistant (Capstone)",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-10_domain_specific_ai_assistant_capstone.ipynb",
     "flagship": null,
-    "demos": ["rag-chunking", "rag-reranker", "react-agent", "guardrails"],
+    "demos": [
+      "rag-chunking",
+      "rag-reranker",
+      "react-agent",
+      "guardrails"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/rag-eval", "rag-agents/guardrails"],
-  "leadsTo": ["interview-capstone/design-fraud-llm", "agentic-ai/agent-capstone"],
+  "prereqs": [
+    "rag-agents/rag-eval",
+    "rag-agents/guardrails"
+  ],
+  "leadsTo": [
+    "interview-capstone/design-fraud-llm",
+    "agentic-ai/agent-capstone"
+  ],
   "body": {
     "intuition": [
       "Assembling the module produces a specific and useful finding: each component moves only its own axis. Retrieval quality moves groundedness and does nothing for safety. Guardrails move attack containment and do nothing for accuracy. A step budget moves worst-case cost and does nothing for either. So a system that is accurate is not thereby safe, and a system that is safe is not thereby bounded - and no single headline number can reveal that, because a single number averages across axes that are independent.",
@@ -273,5 +285,11 @@
       "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "18-12",
+    "module": "retrieval-rag",
+    "disposition": "merge",
+    "notebookFile": "18-12_rag_evaluation_knowledge_assistant.ipynb"
+  }
 }

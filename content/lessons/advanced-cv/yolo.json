@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-03",
   "slug": "yolo",
+  "keyBase": "advanced-cv/yolo",
   "module": "advanced-cv",
   "title": "YOLO Detection",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "09-03_yolo_detection.ipynb",
     "flagship": null,
-    "demos": ["nms", "template-matching", "convolution"],
+    "demos": [
+      "nms",
+      "template-matching",
+      "convolution"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-cv/object-detection", "cnn/cnn-architectures"],
-  "leadsTo": ["advanced-cv/video", "cnn/efficient-cnns"],
+  "prereqs": [
+    "advanced-cv/object-detection",
+    "cnn/cnn-architectures"
+  ],
+  "leadsTo": [
+    "advanced-cv/video",
+    "cnn/efficient-cnns"
+  ],
   "body": {
     "intuition": [
       "Before YOLO, detection worked by PROPOSING regions and then classifying each one - R-CNN literally ran a CNN on every proposal, and even Faster R-CNN's learned proposal network kept the two-stage structure. That is accurate and slow, because the work scales with the number of proposals. YOLO's move (Redmon et al., 2016) was to treat detection as a single REGRESSION problem: run the image through one network once, and have it directly output box coordinates and class probabilities on a spatial grid. 'You Only Look Once' is the whole argument - one forward pass, no proposal stage, and detection becomes fast enough for video.",
@@ -72,32 +83,83 @@
       "Evaluating only aggregate mAP: performance varies enormously by object SIZE (COCO reports AP_small / AP_medium / AP_large for exactly this reason), and small-object AP is often less than half the large-object figure - so an aggregate number can hide the failure mode that matters for your application."
     ],
     "connections": [
-      { "ref": "advanced-cv/object-detection", "text": "The flagship lesson covers the detection problem itself - anchors, IoU, mAP, and the two-stage lineage - which is the context YOLO's single-stage design is a response to." },
-      { "ref": "cnn/segmentation", "text": "Instance segmentation adds a mask head to this machinery (YOLO-seg, Mask R-CNN), and the mask-classification reformulation removes the anchor/NMS scaffolding entirely." },
-      { "ref": "cnn/efficient-cnns", "text": "YOLO's real-time claim rests on efficient backbones and the FLOP/latency reasoning from that lesson - including the caution that FLOP reductions do not translate proportionally into wall-clock." },
-      { "ref": "advanced-cv/video", "text": "Detection is the front end of most tracking pipelines, where per-frame detections are linked over time - and where per-frame instability that mAP does not measure becomes the dominant problem." }
+      {
+        "ref": "advanced-cv/object-detection",
+        "text": "The flagship lesson covers the detection problem itself - anchors, IoU, mAP, and the two-stage lineage - which is the context YOLO's single-stage design is a response to."
+      },
+      {
+        "ref": "cnn/segmentation",
+        "text": "Instance segmentation adds a mask head to this machinery (YOLO-seg, Mask R-CNN), and the mask-classification reformulation removes the anchor/NMS scaffolding entirely."
+      },
+      {
+        "ref": "cnn/efficient-cnns",
+        "text": "YOLO's real-time claim rests on efficient backbones and the FLOP/latency reasoning from that lesson - including the caution that FLOP reductions do not translate proportionally into wall-clock."
+      },
+      {
+        "ref": "advanced-cv/video",
+        "text": "Detection is the front end of most tracking pipelines, where per-frame detections are linked over time - and where per-frame instability that mAP does not measure becomes the dominant problem."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is the core idea of YOLO?", "a": "Treat detection as a single regression: one forward pass over the whole image outputs boxes, objectness, and class probabilities on a grid - no separate region-proposal stage." },
-      { "q": "One-stage vs two-stage detectors?", "a": "Two-stage (R-CNN family) proposes regions then classifies them - more accurate historically, slower. One-stage (YOLO, SSD, RetinaNet) predicts densely in one pass - faster, and the accuracy gap largely closed." },
-      { "q": "How does the grid assign responsibility?", "a": "Each cell is responsible for objects whose CENTRE falls inside it, and predicts a small number of boxes with objectness scores and class probabilities." },
-      { "q": "What are anchors?", "a": "Prior box shapes (usually k-means clustered from the training set) so the network predicts an OFFSET and a size multiplier from a sensible starting point rather than absolute dimensions." },
-      { "q": "Why sigmoid the centre offsets?", "a": "To keep each predicted centre inside its own cell. Unbounded offsets let a cell predict boxes far away, which destabilized early training - a v2 fix." },
-      { "q": "What is objectness?", "a": "A per-box score for 'does this box contain any object', separate from the class distribution. It lets the model suppress the overwhelming majority of background boxes cheaply." },
-      { "q": "What is NMS?", "a": "Non-maximum suppression: sort boxes by confidence, keep the top one, delete everything overlapping it above an IoU threshold, repeat. Greedy, non-differentiable, and still standard." },
-      { "q": "What is Soft-NMS for?", "a": "Crowded scenes: instead of deleting overlapping boxes it DECAYS their scores, so genuinely overlapping objects are not suppressed." },
-      { "q": "Why did YOLO originally struggle with small objects?", "a": "One coarse grid with few boxes per cell limited how many nearby objects could be claimed. Multi-scale prediction heads (v3, FPN) fixed it by detecting at three resolutions." },
-      { "q": "What is mAP?", "a": "Mean average precision: AP (area under precision-recall) per class, averaged. COCO averages over IoU thresholds 0.5:0.05:0.95, which is much stricter than VOC's mAP@0.5." },
-      { "q": "Why did detectors go anchor-free?", "a": "Anchors are hyperparameters (scales, ratios, assignment rules) that must be tuned per dataset. Predicting box distances directly (FCOS, YOLOX, YOLOv8) removes that burden at comparable accuracy." },
-      { "q": "What did DETR change?", "a": "It removed anchors AND NMS by treating detection as SET PREDICTION with Hungarian matching, making the pipeline end-to-end differentiable - at the cost of slow convergence, which Deformable DETR addressed." }
+      {
+        "q": "What is the core idea of YOLO?",
+        "a": "Treat detection as a single regression: one forward pass over the whole image outputs boxes, objectness, and class probabilities on a grid - no separate region-proposal stage."
+      },
+      {
+        "q": "One-stage vs two-stage detectors?",
+        "a": "Two-stage (R-CNN family) proposes regions then classifies them - more accurate historically, slower. One-stage (YOLO, SSD, RetinaNet) predicts densely in one pass - faster, and the accuracy gap largely closed."
+      },
+      {
+        "q": "How does the grid assign responsibility?",
+        "a": "Each cell is responsible for objects whose CENTRE falls inside it, and predicts a small number of boxes with objectness scores and class probabilities."
+      },
+      {
+        "q": "What are anchors?",
+        "a": "Prior box shapes (usually k-means clustered from the training set) so the network predicts an OFFSET and a size multiplier from a sensible starting point rather than absolute dimensions."
+      },
+      {
+        "q": "Why sigmoid the centre offsets?",
+        "a": "To keep each predicted centre inside its own cell. Unbounded offsets let a cell predict boxes far away, which destabilized early training - a v2 fix."
+      },
+      {
+        "q": "What is objectness?",
+        "a": "A per-box score for 'does this box contain any object', separate from the class distribution. It lets the model suppress the overwhelming majority of background boxes cheaply."
+      },
+      {
+        "q": "What is NMS?",
+        "a": "Non-maximum suppression: sort boxes by confidence, keep the top one, delete everything overlapping it above an IoU threshold, repeat. Greedy, non-differentiable, and still standard."
+      },
+      {
+        "q": "What is Soft-NMS for?",
+        "a": "Crowded scenes: instead of deleting overlapping boxes it DECAYS their scores, so genuinely overlapping objects are not suppressed."
+      },
+      {
+        "q": "Why did YOLO originally struggle with small objects?",
+        "a": "One coarse grid with few boxes per cell limited how many nearby objects could be claimed. Multi-scale prediction heads (v3, FPN) fixed it by detecting at three resolutions."
+      },
+      {
+        "q": "What is mAP?",
+        "a": "Mean average precision: AP (area under precision-recall) per class, averaged. COCO averages over IoU thresholds 0.5:0.05:0.95, which is much stricter than VOC's mAP@0.5."
+      },
+      {
+        "q": "Why did detectors go anchor-free?",
+        "a": "Anchors are hyperparameters (scales, ratios, assignment rules) that must be tuned per dataset. Predicting box distances directly (FCOS, YOLOX, YOLOv8) removes that burden at comparable accuracy."
+      },
+      {
+        "q": "What did DETR change?",
+        "a": "It removed anchors AND NMS by treating detection as SET PREDICTION with Hungarian matching, making the pipeline end-to-end differentiable - at the cost of slow convergence, which Deformable DETR addressed."
+      }
     ],
     "standard": [
       {
         "q": "Explain how YOLO works and why single-stage detection was a significant change.",
         "a": "THE PROBLEM IT SOLVED. Pre-YOLO detection was two-stage: generate candidate regions (selective search in R-CNN, a learned region-proposal network in Faster R-CNN), then classify and refine each one. The cost scales with the number of proposals, and R-CNN in its original form ran a CNN forward pass per proposal - thousands per image, seconds per image. Even Faster R-CNN, which shared the backbone computation, kept the sequential propose-then-classify structure. THE YOLO FORMULATION. Divide the image into an S x S grid. Each cell predicts B bounding boxes - each with a centre offset within the cell, a width and height, and an OBJECTNESS score - plus class probabilities. The entire output is a single tensor of shape S x S x (B*5 + C), produced by one forward pass. The loss is a weighted sum of three terms: localization (only for boxes assigned to a ground-truth object), objectness (for all boxes, with a lower weight on the many background boxes so they do not dominate), and classification. Inference is: forward pass, decode, threshold by confidence, apply NMS. WHY THIS WAS SIGNIFICANT - four reasons. (1) SPEED: one pass rather than one-per-proposal made real-time detection possible (45 FPS in the original, versus ~5 for Faster R-CNN), which opened video, robotics, and embedded applications that were previously infeasible. (2) GLOBAL CONTEXT: because the network sees the whole image when predicting, it makes far fewer BACKGROUND false positives than region methods, which classify each proposal in isolation and cannot tell that a patch is part of a larger scene. The original paper measured roughly half the background errors of Fast R-CNN. (3) SIMPLICITY: one network, one loss, end-to-end trainable (apart from NMS), which made the pipeline much easier to reason about and to deploy. (4) IT REFRAMED THE PROBLEM as dense prediction rather than as search, which is the framing everything since has used. THE ORIGINAL'S WEAKNESSES, and how they were fixed - this is the part that shows you know the lineage. SMALL AND CLUSTERED OBJECTS: a coarse 7x7 grid with 2 boxes per cell simply could not claim many nearby objects, and small objects fall below the grid's resolution. Fixed by MULTI-SCALE prediction (v3 detects at three resolutions, in the FPN style) - the single most important architectural fix. LOCALIZATION ACCURACY: predicting raw width and height was unstable. Fixed by ANCHORS (v2): k-means cluster the training set's box shapes to get priors, and predict a multiplicative offset from them, plus sigmoid the centre so a box cannot drift out of its cell. UNSTABLE TRAINING: addressed by batch norm, better loss weighting, and later by IoU-based losses (GIoU/CIoU) that optimize the metric you actually evaluate rather than coordinate MSE. THE MODERN STATE, briefly: v4/v5 accumulated engineering (mosaic augmentation, better backbones and necks, extensive training tricks); YOLOX and v8 went ANCHOR-FREE, predicting distances to box edges directly, because anchors turned out to be tunable-hyperparameter overhead that the network could learn around; and assignment became dynamic (SimOTA/TAL) rather than fixed IoU rules. Meanwhile DETR removed both anchors and NMS via set prediction with Hungarian matching, making the pipeline fully end-to-end. THE HONEST SUMMARY: YOLO's contribution was recognizing that detection could be dense regression rather than search, which bought an order of magnitude in speed; the accuracy gap that initially justified two-stage methods was closed by focal loss and multi-scale prediction, and single-stage designs are now the default for anything latency-sensitive.",
-        "deepDive": { "q": "Explain NMS in depth: why it is needed, its failure modes, and what replaced it.", "a": "WHY IT IS NEEDED. Dense detectors predict a box at every grid cell (times every anchor, times every scale) - tens of thousands of candidates per image. An object near a cell boundary, or large enough to span several cells, produces many high-confidence boxes for the SAME instance. Without suppression the output would contain dozens of near-duplicate detections per object, which destroys precision and is useless downstream. NMS is the greedy rule that resolves this: sort by confidence, take the highest-scoring box, remove every remaining box whose IoU with it exceeds a threshold, repeat on what is left. It runs per class (a person and a bicycle can legitimately overlap). THE FAILURE MODES, which is where the substance is. (1) CROWDED SCENES - the fundamental one. If two people genuinely overlap by IoU 0.6 and the threshold is 0.45, NMS deletes one of them. There is no threshold that both removes duplicates and preserves genuinely-overlapping objects, because the algorithm cannot distinguish 'two boxes on one object' from 'two objects that overlap'. This is a structural limitation, not a tuning problem, and it is why pedestrian detection in crowds was a research area of its own. (2) THE THRESHOLD IS A DATASET-DEPENDENT OPERATING POINT: 0.45 suits sparse scenes, higher values suit crowds, and the wrong choice costs several points of AP in either direction. (3) IT IS NON-DIFFERENTIABLE, so it sits outside the training loop - the model is trained to produce dense predictions and then a hand-written rule prunes them, meaning the model never learns to avoid duplicates. That gap between the training objective and the inference procedure is inelegant and measurably suboptimal. (4) IT IS SEQUENTIAL and can be a latency bottleneck at high detection counts, which matters for real-time systems. (5) SCORE-AGNOSTIC TO LOCALIZATION QUALITY: the box with the highest CLASSIFICATION score is kept, but classification confidence and localization accuracy are only loosely correlated, so NMS can keep a confidently-classified but badly-localized box over a better-placed one. IoU-aware or centerness branches (FCOS) were introduced partly to fix this. THE IMPROVEMENTS. SOFT-NMS decays the scores of overlapping boxes (linearly or by a Gaussian) instead of deleting them, so a genuinely-overlapping second object survives with a reduced score and can still be reported - typically worth 1-2 AP in crowded settings, and it is a drop-in change. IoU-NET and similar predict localization quality explicitly and use it in the ranking. WEIGHTED BOX FUSION averages overlapping boxes rather than picking one, which helps in ensembles. MATRIX/CLUSTER NMS parallelizes the computation for speed. WHAT REPLACED IT - the interesting part. DETR (Carion et al., 2020) reformulated detection as SET PREDICTION: output a fixed number N of queries, each producing one box and class (possibly 'no object'), and train with a HUNGARIAN MATCHING loss that finds the optimal one-to-one assignment between predictions and ground truth. Because the matching penalizes duplicates directly during training, the model LEARNS not to produce them, and NMS becomes unnecessary - the pipeline is end-to-end differentiable for the first time. The costs were real: DETR converged very slowly (500 epochs) and was weak on small objects, which Deformable DETR fixed with sparse multi-scale attention, and later variants (DINO-DETR, and YOLOv10's consistent dual assignment) closed the gap. THE STATE OF PLAY: NMS remains ubiquitous because it is simple, fast, and works, and modern YOLO versions still use it - though YOLOv10 specifically markets NMS-free inference. The conceptual lesson is the one worth stating: NMS is a hand-designed post-process compensating for a training objective that does not penalize duplicates, and the field's direction has consistently been to replace such stages with learned, differentiable formulations - the same pattern as anchors giving way to anchor-free, and proposals giving way to dense prediction." }
+        "deepDive": {
+          "q": "Explain NMS in depth: why it is needed, its failure modes, and what replaced it.",
+          "a": "WHY IT IS NEEDED. Dense detectors predict a box at every grid cell (times every anchor, times every scale) - tens of thousands of candidates per image. An object near a cell boundary, or large enough to span several cells, produces many high-confidence boxes for the SAME instance. Without suppression the output would contain dozens of near-duplicate detections per object, which destroys precision and is useless downstream. NMS is the greedy rule that resolves this: sort by confidence, take the highest-scoring box, remove every remaining box whose IoU with it exceeds a threshold, repeat on what is left. It runs per class (a person and a bicycle can legitimately overlap). THE FAILURE MODES, which is where the substance is. (1) CROWDED SCENES - the fundamental one. If two people genuinely overlap by IoU 0.6 and the threshold is 0.45, NMS deletes one of them. There is no threshold that both removes duplicates and preserves genuinely-overlapping objects, because the algorithm cannot distinguish 'two boxes on one object' from 'two objects that overlap'. This is a structural limitation, not a tuning problem, and it is why pedestrian detection in crowds was a research area of its own. (2) THE THRESHOLD IS A DATASET-DEPENDENT OPERATING POINT: 0.45 suits sparse scenes, higher values suit crowds, and the wrong choice costs several points of AP in either direction. (3) IT IS NON-DIFFERENTIABLE, so it sits outside the training loop - the model is trained to produce dense predictions and then a hand-written rule prunes them, meaning the model never learns to avoid duplicates. That gap between the training objective and the inference procedure is inelegant and measurably suboptimal. (4) IT IS SEQUENTIAL and can be a latency bottleneck at high detection counts, which matters for real-time systems. (5) SCORE-AGNOSTIC TO LOCALIZATION QUALITY: the box with the highest CLASSIFICATION score is kept, but classification confidence and localization accuracy are only loosely correlated, so NMS can keep a confidently-classified but badly-localized box over a better-placed one. IoU-aware or centerness branches (FCOS) were introduced partly to fix this. THE IMPROVEMENTS. SOFT-NMS decays the scores of overlapping boxes (linearly or by a Gaussian) instead of deleting them, so a genuinely-overlapping second object survives with a reduced score and can still be reported - typically worth 1-2 AP in crowded settings, and it is a drop-in change. IoU-NET and similar predict localization quality explicitly and use it in the ranking. WEIGHTED BOX FUSION averages overlapping boxes rather than picking one, which helps in ensembles. MATRIX/CLUSTER NMS parallelizes the computation for speed. WHAT REPLACED IT - the interesting part. DETR (Carion et al., 2020) reformulated detection as SET PREDICTION: output a fixed number N of queries, each producing one box and class (possibly 'no object'), and train with a HUNGARIAN MATCHING loss that finds the optimal one-to-one assignment between predictions and ground truth. Because the matching penalizes duplicates directly during training, the model LEARNS not to produce them, and NMS becomes unnecessary - the pipeline is end-to-end differentiable for the first time. The costs were real: DETR converged very slowly (500 epochs) and was weak on small objects, which Deformable DETR fixed with sparse multi-scale attention, and later variants (DINO-DETR, and YOLOv10's consistent dual assignment) closed the gap. THE STATE OF PLAY: NMS remains ubiquitous because it is simple, fast, and works, and modern YOLO versions still use it - though YOLOv10 specifically markets NMS-free inference. The conceptual lesson is the one worth stating: NMS is a hand-designed post-process compensating for a training objective that does not penalize duplicates, and the field's direction has consistently been to replace such stages with learned, differentiable formulations - the same pattern as anchors giving way to anchor-free, and proposals giving way to dense prediction."
+        }
       },
       {
         "q": "How is object detection evaluated, and what does mAP hide?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "YOLO's core idea", "back": "Detection as ONE regression over a grid: a single forward pass outputs boxes, objectness, and class probabilities. No proposal stage - hence real-time speed and far fewer background false positives (global context)." },
-    { "type": "formula", "front": "Box parameterization", "back": "b_x = sigmoid(t_x) + c_x (centre stays INSIDE its cell); b_w = p_w * exp(t_w) (multiplier on an anchor prior, always positive). Predicting a refinement rather than an absolute size is what made training stable." },
-    { "type": "definition", "front": "Objectness", "back": "A per-box 'is there any object here' score, separate from the class distribution - it lets the model cheaply suppress the overwhelming majority of background boxes." },
-    { "type": "formula", "front": "NMS", "back": "Sort by confidence, keep the top box, delete every box with IoU > tau against it, repeat (per class). tau ~0.45-0.65. Greedy, NON-differentiable, and outside the training loop." },
-    { "type": "pitfall", "front": "NMS cannot handle crowds", "back": "It cannot distinguish 'two boxes on one object' from 'two objects that overlap' - so in a crowd there is no good threshold. Soft-NMS DECAYS scores instead of deleting, typically worth 1-2 AP there." },
-    { "type": "pitfall", "front": "Benchmark mAP is not a deployment setting", "back": "mAP is computed at a near-zero confidence threshold (~47 boxes/image) because it rewards recall at any precision. Report precision/recall AT your shipped threshold, plus false positives per image." },
-    { "type": "pitfall", "front": "mAP hides object size", "back": "AP_small is routinely under half AP_large. COCO reports the stratification precisely because the aggregate misleads - and small objects are the whole application in aerial, defect, and distant-pedestrian settings." },
-    { "type": "intuition", "front": "Why detectors went anchor-free", "back": "Anchors are dataset-dependent hyperparameters (scales, ratios, IoU assignment rules) that transfer badly. Predicting distances to box edges + multi-scale assignment + centerness matched their accuracy with less tuning." },
-    { "type": "definition", "front": "What DETR removed", "back": "Anchors AND NMS, via SET PREDICTION with Hungarian one-to-one matching - duplicates are penalized during training, so the model learns not to emit them. First fully end-to-end pipeline; cost was 500-epoch convergence (fixed by Deformable DETR)." },
-    { "type": "pitfall", "front": "Video: split by VIDEO, not by frame", "back": "Consecutive frames are near-duplicates, so a random frame split reports training performance. Also: per-frame mAP is blind to FLICKER, which is what breaks downstream tracking - measure MOTA/IDF1." }
+    {
+      "type": "definition",
+      "front": "YOLO's core idea",
+      "back": "Detection as ONE regression over a grid: a single forward pass outputs boxes, objectness, and class probabilities. No proposal stage - hence real-time speed and far fewer background false positives (global context)."
+    },
+    {
+      "type": "formula",
+      "front": "Box parameterization",
+      "back": "b_x = sigmoid(t_x) + c_x (centre stays INSIDE its cell); b_w = p_w * exp(t_w) (multiplier on an anchor prior, always positive). Predicting a refinement rather than an absolute size is what made training stable."
+    },
+    {
+      "type": "definition",
+      "front": "Objectness",
+      "back": "A per-box 'is there any object here' score, separate from the class distribution - it lets the model cheaply suppress the overwhelming majority of background boxes."
+    },
+    {
+      "type": "formula",
+      "front": "NMS",
+      "back": "Sort by confidence, keep the top box, delete every box with IoU > tau against it, repeat (per class). tau ~0.45-0.65. Greedy, NON-differentiable, and outside the training loop."
+    },
+    {
+      "type": "pitfall",
+      "front": "NMS cannot handle crowds",
+      "back": "It cannot distinguish 'two boxes on one object' from 'two objects that overlap' - so in a crowd there is no good threshold. Soft-NMS DECAYS scores instead of deleting, typically worth 1-2 AP there."
+    },
+    {
+      "type": "pitfall",
+      "front": "Benchmark mAP is not a deployment setting",
+      "back": "mAP is computed at a near-zero confidence threshold (~47 boxes/image) because it rewards recall at any precision. Report precision/recall AT your shipped threshold, plus false positives per image."
+    },
+    {
+      "type": "pitfall",
+      "front": "mAP hides object size",
+      "back": "AP_small is routinely under half AP_large. COCO reports the stratification precisely because the aggregate misleads - and small objects are the whole application in aerial, defect, and distant-pedestrian settings."
+    },
+    {
+      "type": "intuition",
+      "front": "Why detectors went anchor-free",
+      "back": "Anchors are dataset-dependent hyperparameters (scales, ratios, IoU assignment rules) that transfer badly. Predicting distances to box edges + multi-scale assignment + centerness matched their accuracy with less tuning."
+    },
+    {
+      "type": "definition",
+      "front": "What DETR removed",
+      "back": "Anchors AND NMS, via SET PREDICTION with Hungarian one-to-one matching - duplicates are penalized during training, so the model learns not to emit them. First fully end-to-end pipeline; cost was 500-epoch convergence (fixed by Deformable DETR)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Video: split by VIDEO, not by frame",
+      "back": "Consecutive frames are near-duplicates, so a random frame split reports training performance. Also: per-frame mAP is blind to FLICKER, which is what breaks downstream tracking - measure MOTA/IDF1."
+    }
   ],
   "refs": [
-    { "title": "Redmon et al. (2016), You Only Look Once: Unified, Real-Time Object Detection", "url": "https://arxiv.org/abs/1506.02640" },
-    { "title": "Lin et al. (2017), Focal Loss for Dense Object Detection (RetinaNet)", "url": "https://arxiv.org/abs/1708.02002" },
-    { "title": "Carion et al. (2020), End-to-End Object Detection with Transformers (DETR)", "url": "https://arxiv.org/abs/2005.12872" },
-    { "title": "Tian et al. (2019), FCOS: Fully Convolutional One-Stage Object Detection (anchor-free)", "url": "https://arxiv.org/abs/1904.01355" }
+    {
+      "title": "Redmon et al. (2016), You Only Look Once: Unified, Real-Time Object Detection",
+      "url": "https://arxiv.org/abs/1506.02640"
+    },
+    {
+      "title": "Lin et al. (2017), Focal Loss for Dense Object Detection (RetinaNet)",
+      "url": "https://arxiv.org/abs/1708.02002"
+    },
+    {
+      "title": "Carion et al. (2020), End-to-End Object Detection with Transformers (DETR)",
+      "url": "https://arxiv.org/abs/2005.12872"
+    },
+    {
+      "title": "Tian et al. (2019), FCOS: Fully Convolutional One-Stage Object Detection (anchor-free)",
+      "url": "https://arxiv.org/abs/1904.01355"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "09-11",
+    "module": "cnn",
+    "disposition": "clean",
+    "notebookFile": "09-11_single_stage_detection_scratch.ipynb"
+  }
 }

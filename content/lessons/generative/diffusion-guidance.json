@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-07",
   "slug": "diffusion-guidance",
+  "keyBase": "generative/diffusion-guidance",
   "module": "generative",
   "title": "Diffusion Guidance & Evaluation",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "11-07_diffusion_guidance_evaluation.ipynb",
     "flagship": null,
-    "demos": ["diffusion", "classification-metrics", "embeddings", "lr-schedule"],
+    "demos": [
+      "diffusion",
+      "classification-metrics",
+      "embeddings",
+      "lr-schedule"
+    ],
     "concepts": []
   },
-  "prereqs": ["generative/ddpm", "generative/conditional-generation"],
-  "leadsTo": ["generative/ebm-score", "generative/latent-diffusion"],
+  "prereqs": [
+    "generative/ddpm",
+    "generative/conditional-generation"
+  ],
+  "leadsTo": [
+    "generative/ebm-score",
+    "generative/latent-diffusion"
+  ],
   "body": {
     "intuition": [
       "Diffusion's one structural disadvantage in the generative trilemma was SPEED. DDPM sampling ran the network a thousand times to produce one image, against a GAN's single forward pass. That looked like a fundamental cost of iterative refinement, and for about a year it was treated as one. It was not, and how it was dismantled is the most instructive engineering story in generative modelling.",
@@ -90,33 +102,87 @@
       "Treating the noise schedule as a hyperparameter to copy. The zero-terminal-SNR defect in the standard schedules is a genuine train/inference mismatch, and fixing it requires changing the parameterization to v-prediction as well."
     ],
     "connections": [
-      { "ref": "generative/ebm-score", "text": "The score-based SDE framework is where the probability flow ODE comes from - it is what unified DDPM and NCSN and made 'sampling is integration' available as a reframing." },
-      { "ref": "generative/conditional-generation", "text": "Classifier-free guidance supplies the quality-diversity dial whose curve this lesson measures, and its 2x per-step cost is a first-order term in any sampling budget." },
-      { "ref": "generative/gan", "text": "FID, Inception Score, and precision/recall were all built to evaluate GANs and carry their biases into diffusion evaluation unchanged - including conflating quality with coverage." },
-      { "ref": "generative/latent-diffusion", "text": "Latent compression and few-step sampling multiply: ~48x fewer elements per step times 50x fewer steps is what made consumer-hardware generation possible." },
-      { "ref": "advanced-nlp/nlp-eval", "text": "The same evaluation discipline applies - proxies diverge from what you care about, learned metrics are over-optimizable, and reporting a single number hides the operating point." }
+      {
+        "ref": "generative/ebm-score",
+        "text": "The score-based SDE framework is where the probability flow ODE comes from - it is what unified DDPM and NCSN and made 'sampling is integration' available as a reframing."
+      },
+      {
+        "ref": "generative/conditional-generation",
+        "text": "Classifier-free guidance supplies the quality-diversity dial whose curve this lesson measures, and its 2x per-step cost is a first-order term in any sampling budget."
+      },
+      {
+        "ref": "generative/gan",
+        "text": "FID, Inception Score, and precision/recall were all built to evaluate GANs and carry their biases into diffusion evaluation unchanged - including conflating quality with coverage."
+      },
+      {
+        "ref": "generative/latent-diffusion",
+        "text": "Latent compression and few-step sampling multiply: ~48x fewer elements per step times 50x fewer steps is what made consumer-hardware generation possible."
+      },
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "The same evaluation discipline applies - proxies diverge from what you care about, learned metrics are over-optimizable, and reporting a single number hides the operating point."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why was DDPM sampling so slow?", "a": "It ran the network once per timestep for ~1000 steps. Structurally that is Euler integration of the reverse process with a very small step size." },
-      { "q": "What is the probability flow ODE?", "a": "A deterministic ODE whose solution has the same marginal distributions at every time as the reverse SDE. It reframes sampling as an initial-value problem you can solve with any integrator." },
-      { "q": "What is DDIM?", "a": "A non-Markovian forward process with the same marginals as DDPM, so a DDPM-trained model can skip steps. With eta = 0 it is deterministic - and requires NO retraining." },
-      { "q": "Why does determinism matter beyond speed?", "a": "It makes the noise-to-image map invertible, so you can DDIM-invert a real image to its latent noise, change the conditioning, and regenerate - the basis of real-image editing." },
-      { "q": "What does DPM-Solver exploit?", "a": "The diffusion ODE is SEMI-LINEAR. Solve the linear part exactly and apply a higher-order approximation only to the nonlinear network term, giving error O(h^(k+1)) instead of Euler's O(h^2)." },
-      { "q": "How few steps are usable?", "a": "DPM-Solver++ at 10-20 steps is close to reference with no retraining. Distilled consistency or LCM models are usable at 1-4 steps, at the cost of an extra training stage." },
-      { "q": "What is a consistency model?", "a": "A network trained so its output is CONSTANT along each ODE trajectory - evaluating it anywhere on the path jumps straight to the endpoint. That is what makes one-step sampling possible." },
-      { "q": "What does guidance cost per step?", "a": "Two forward passes (conditional and unconditional), so ~2x. A 20-step guided sample is 40 network evaluations - step counts quoted without this understate the cost." },
-      { "q": "Where is FID minimized versus human preference?", "a": "FID around w = 1-3; human preference and prompt adherence peak near 7-8. They measure different things - distribution matching versus striking on-prompt images." },
-      { "q": "Why is FID not comparable across papers?", "a": "It is a biased estimator that decreases with more samples, and it depends on the exact Inception implementation. Always state n and the implementation." },
-      { "q": "What are PickScore, HPSv2, ImageReward?", "a": "Models trained on human preference comparisons. They track human judgment far better than FID or CLIP score - and being models, they can be over-optimized against." },
-      { "q": "How should a diffusion model be reported?", "a": "As a CURVE - FID against prompt adherence across a guidance sweep, at a stated step count and sample size. A single number is an operating point, not a measurement." }
+      {
+        "q": "Why was DDPM sampling so slow?",
+        "a": "It ran the network once per timestep for ~1000 steps. Structurally that is Euler integration of the reverse process with a very small step size."
+      },
+      {
+        "q": "What is the probability flow ODE?",
+        "a": "A deterministic ODE whose solution has the same marginal distributions at every time as the reverse SDE. It reframes sampling as an initial-value problem you can solve with any integrator."
+      },
+      {
+        "q": "What is DDIM?",
+        "a": "A non-Markovian forward process with the same marginals as DDPM, so a DDPM-trained model can skip steps. With eta = 0 it is deterministic - and requires NO retraining."
+      },
+      {
+        "q": "Why does determinism matter beyond speed?",
+        "a": "It makes the noise-to-image map invertible, so you can DDIM-invert a real image to its latent noise, change the conditioning, and regenerate - the basis of real-image editing."
+      },
+      {
+        "q": "What does DPM-Solver exploit?",
+        "a": "The diffusion ODE is SEMI-LINEAR. Solve the linear part exactly and apply a higher-order approximation only to the nonlinear network term, giving error O(h^(k+1)) instead of Euler's O(h^2)."
+      },
+      {
+        "q": "How few steps are usable?",
+        "a": "DPM-Solver++ at 10-20 steps is close to reference with no retraining. Distilled consistency or LCM models are usable at 1-4 steps, at the cost of an extra training stage."
+      },
+      {
+        "q": "What is a consistency model?",
+        "a": "A network trained so its output is CONSTANT along each ODE trajectory - evaluating it anywhere on the path jumps straight to the endpoint. That is what makes one-step sampling possible."
+      },
+      {
+        "q": "What does guidance cost per step?",
+        "a": "Two forward passes (conditional and unconditional), so ~2x. A 20-step guided sample is 40 network evaluations - step counts quoted without this understate the cost."
+      },
+      {
+        "q": "Where is FID minimized versus human preference?",
+        "a": "FID around w = 1-3; human preference and prompt adherence peak near 7-8. They measure different things - distribution matching versus striking on-prompt images."
+      },
+      {
+        "q": "Why is FID not comparable across papers?",
+        "a": "It is a biased estimator that decreases with more samples, and it depends on the exact Inception implementation. Always state n and the implementation."
+      },
+      {
+        "q": "What are PickScore, HPSv2, ImageReward?",
+        "a": "Models trained on human preference comparisons. They track human judgment far better than FID or CLIP score - and being models, they can be over-optimized against."
+      },
+      {
+        "q": "How should a diffusion model be reported?",
+        "a": "As a CURVE - FID against prompt adherence across a guidance sweep, at a stated step count and sample size. A single number is an operating point, not a measurement."
+      }
     ],
     "standard": [
       {
         "q": "Diffusion needed 1000 sampling steps and now needs 1-20. Walk through how that happened.",
         "a": "THE STARTING POINT. DDPM's reverse process is Markovian: each step removes a little noise, and the derivation assumes small steps, so you need roughly as many sampling steps as training timesteps - a thousand network evaluations per image. Against a GAN's single forward pass this looked like a fundamental cost of iterative refinement, and it was diffusion's one clear disadvantage in the trilemma. STEP 1 - DDIM (Song et al., 2020). The insight is that DDPM's training objective only depends on the MARGINALS q(x_t | x_0), not on the specific Markovian forward process used to derive it. So you can construct a family of NON-MARKOVIAN forward processes with the same marginals, and a model trained under DDPM's objective is valid for all of them. One member of that family is deterministic (eta = 0) and permits sampling on an arbitrary SUBSET of timesteps. Result: 50 steps at near-reference quality, with no retraining. That last point is why adoption was immediate - it was a free 20x. STEP 2 - THE SDE/ODE REFRAMING (Song et al., 2021). Diffusion is a stochastic differential equation, and every diffusion SDE has a corresponding PROBABILITY FLOW ODE with identical marginals at every time. This is the conceptual turning point: sampling is not a special stochastic procedure, it is SOLVING AN ODE, and the model's noise prediction is a score estimate that gives you the right-hand side. DDIM is revealed as the first-order Euler discretization of that ODE. And once the problem is named as numerical integration, seventy years of numerical analysis becomes applicable. STEP 3 - BETTER SOLVERS. Off-the-shelf Runge-Kutta helps. The bigger win is exploiting STRUCTURE: the diffusion ODE is semi-linear, with an exactly-solvable linear part and a nonlinear term containing the network. DPM-Solver solves the linear part analytically and approximates only the remainder, using log-SNR as the integration variable. Second- and third-order versions produce reference-quality samples in 10-20 network evaluations. Still no retraining - this is post-hoc, and swapping the sampler is one line of code. STEP 4 - DISTILLATION, which changes the model and attacks a different quantity. PROGRESSIVE DISTILLATION (Salimans & Ho) trains a student to take one step matching the teacher's two, then repeats - halving the step count each round down to 4 or fewer. CONSISTENCY MODELS (Song et al.) train a network whose output is constant along an ODE trajectory, so evaluating it at any point jumps directly to the endpoint; one step is usable, two to four are close to full quality. LATENT CONSISTENCY MODELS bring this to Stable Diffusion, and ADVERSARIAL DIFFUSION DISTILLATION (SDXL-Turbo) adds a discriminator - notably borrowing from GANs to recover a GAN-like sampling cost. GUIDANCE DISTILLATION separately trains a network to emit the guided prediction directly, recovering the 2x that classifier-free guidance costs. THE SHAPE OF THE STORY, which is what I would want to convey. Steps 1-3 were pure REFRAMING: the same model, the same weights, a better understanding of what sampling is, and a 50x reduction. Step 4 traded extra training for further gains. That is the difference between recognizing your problem is a known problem in another field and grinding on it as a novel one. AND WHY IT MATTERED STRATEGICALLY: the trilemma says you give up one of quality, coverage, and speed. Diffusion gave up SPEED, which turned out to be the most tractable - it is a discretization and distillation problem, both well-understood. Nobody found a comparable fix for GAN mode collapse or VAE blur, because those are properties of the objective rather than of the sampling procedure. The family that gave up the fixable constraint won, and that is a useful lens on any apparently-forced trade.",
-        "deepDive": { "q": "What is DDIM inversion, and how does it enable real-image editing?", "a": "THE CAPABILITY. Given a REAL photograph, recover the noise that a deterministic sampler would turn into that image; then change the conditioning and re-run the sampler forward to get an edited version that preserves the original's structure. This is what makes 'change the dog to a cat, keep everything else' work on real photos rather than only on generated ones. WHY IT IS POSSIBLE. DDIM with eta = 0 is a DETERMINISTIC map from noise to image - it is an ODE solve, and ODE solves are reversible. So you can run the same discretization BACKWARDS: instead of stepping from x_t to x_{t-1}, step from x_{t-1} to x_t, using the model's prediction at each point. After T steps you have x_T, the noise that maps to your image. Stochastic DDPM sampling has no such inverse, which is why the deterministic variant matters for editing far beyond its speed benefit. THE PROBLEM, and it is substantial. Inversion assumes the model's prediction at x_t is the same going forwards and backwards, which is only true in the limit of infinitesimal steps. With a practical step count the error ACCUMULATES, and the reconstruction drifts. Worse, the drift is much larger WITH classifier-free guidance: inversion is typically done at guidance 1 (where it is reasonably accurate), but generation is done at guidance 7.5, so the forward pass follows a substantially different trajectory than the one you inverted. Naive invert-then-regenerate at high guidance often fails to reconstruct the original at all, which surprises people who expect it to be exact. THE FIXES, which are the interesting part. (1) NULL-TEXT INVERSION (Mokady et al.): keep the inverted trajectory as a target and OPTIMIZE the null-text embedding at each timestep so that guided generation follows it. You are fine-tuning the unconditional anchor per-image so the high-guidance path matches the low-guidance inversion. Accurate, and it costs an optimization loop per image. (2) NEGATIVE-PROMPT INVERSION approximates the same thing in closed form, much faster. (3) EDIT-FRIENDLY INVERSION deliberately stores the per-step noises so reconstruction is exact by construction, trading some editability. (4) For latent-consistency and few-step models, specialized inversion schemes exist. THE EDITING METHODS BUILT ON IT. PROMPT-TO-PROMPT manipulates CROSS-ATTENTION MAPS between the source and target generations - injecting the source's attention maps for unchanged words preserves layout while the changed word alters content. This is the key idea: the attention maps encode WHERE things are, so preserving them preserves structure. PLUG-AND-PLAY injects spatial features rather than attention. MASACTRL manipulates self-attention for non-rigid edits. And InstructPix2Pix takes a different route entirely - train a model on synthetic (image, instruction, edited image) triples so editing is a conditional generation task with no inversion needed, which is more robust and less flexible. THE PRACTICAL STATE. Inversion-based editing is powerful and fiddly: it works well for some images and edits and fails unpredictably for others, it needs per-image tuning for good results, and it is slow. Instruction-tuned editing models and inpainting-with-masks are more robust and are what most products actually ship. But inversion remains the technique when you need to preserve a real image's exact structure while changing its semantics, and the underlying observation - that deterministic sampling gives you an invertible map between noise and images - is worth knowing as a general property rather than as an editing trick." }
+        "deepDive": {
+          "q": "What is DDIM inversion, and how does it enable real-image editing?",
+          "a": "THE CAPABILITY. Given a REAL photograph, recover the noise that a deterministic sampler would turn into that image; then change the conditioning and re-run the sampler forward to get an edited version that preserves the original's structure. This is what makes 'change the dog to a cat, keep everything else' work on real photos rather than only on generated ones. WHY IT IS POSSIBLE. DDIM with eta = 0 is a DETERMINISTIC map from noise to image - it is an ODE solve, and ODE solves are reversible. So you can run the same discretization BACKWARDS: instead of stepping from x_t to x_{t-1}, step from x_{t-1} to x_t, using the model's prediction at each point. After T steps you have x_T, the noise that maps to your image. Stochastic DDPM sampling has no such inverse, which is why the deterministic variant matters for editing far beyond its speed benefit. THE PROBLEM, and it is substantial. Inversion assumes the model's prediction at x_t is the same going forwards and backwards, which is only true in the limit of infinitesimal steps. With a practical step count the error ACCUMULATES, and the reconstruction drifts. Worse, the drift is much larger WITH classifier-free guidance: inversion is typically done at guidance 1 (where it is reasonably accurate), but generation is done at guidance 7.5, so the forward pass follows a substantially different trajectory than the one you inverted. Naive invert-then-regenerate at high guidance often fails to reconstruct the original at all, which surprises people who expect it to be exact. THE FIXES, which are the interesting part. (1) NULL-TEXT INVERSION (Mokady et al.): keep the inverted trajectory as a target and OPTIMIZE the null-text embedding at each timestep so that guided generation follows it. You are fine-tuning the unconditional anchor per-image so the high-guidance path matches the low-guidance inversion. Accurate, and it costs an optimization loop per image. (2) NEGATIVE-PROMPT INVERSION approximates the same thing in closed form, much faster. (3) EDIT-FRIENDLY INVERSION deliberately stores the per-step noises so reconstruction is exact by construction, trading some editability. (4) For latent-consistency and few-step models, specialized inversion schemes exist. THE EDITING METHODS BUILT ON IT. PROMPT-TO-PROMPT manipulates CROSS-ATTENTION MAPS between the source and target generations - injecting the source's attention maps for unchanged words preserves layout while the changed word alters content. This is the key idea: the attention maps encode WHERE things are, so preserving them preserves structure. PLUG-AND-PLAY injects spatial features rather than attention. MASACTRL manipulates self-attention for non-rigid edits. And InstructPix2Pix takes a different route entirely - train a model on synthetic (image, instruction, edited image) triples so editing is a conditional generation task with no inversion needed, which is more robust and less flexible. THE PRACTICAL STATE. Inversion-based editing is powerful and fiddly: it works well for some images and edits and fails unpredictably for others, it needs per-image tuning for good results, and it is slow. Instruction-tuned editing models and inpainting-with-masks are more robust and are what most products actually ship. But inversion remains the technique when you need to preserve a real image's exact structure while changing its semantics, and the underlying observation - that deterministic sampling gives you an invertible map between noise and images - is worth knowing as a general property rather than as an editing trick."
+        }
       },
       {
         "q": "How would you evaluate two text-to-image models against each other?",
@@ -141,25 +207,94 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "Sampling is numerical integration", "back": "The reverse SDE has a deterministic PROBABILITY FLOW ODE with identical marginals, and the model's noise prediction gives its right-hand side. So 1000 steps was Euler's method with a tiny step size - not a property of the model." },
-    { "type": "definition", "front": "DDIM", "back": "A non-Markovian forward process with DDPM's marginals, so a DDPM-trained model can skip steps. eta=0 is deterministic (and therefore INVERTIBLE). ~50 steps at reference quality with NO retraining." },
-    { "type": "definition", "front": "DPM-Solver", "back": "Exploits the ODE's SEMI-LINEAR structure: solve the linear part exactly, apply a higher-order method only to the nonlinear network term, integrating in log-SNR. Error O(h^(k+1)); 10-20 steps at reference quality, still no retraining." },
-    { "type": "definition", "front": "Consistency models", "back": "Train a network whose output is CONSTANT along each ODE trajectory, so evaluating anywhere on the path jumps to the endpoint. 1 step usable, 2-4 close to full quality. Requires a distillation/training stage." },
-    { "type": "intuition", "front": "Why speed was the fixable corner", "back": "Diffusion gave up SPEED in the trilemma - a discretization and distillation problem, both well-understood. Nobody found a comparable fix for GAN mode collapse or VAE blur, which are properties of the OBJECTIVE. The family that gave up the tractable constraint won." },
-    { "type": "pitfall", "front": "FID and human preference disagree", "back": "FID is minimized at guidance w~1-3; human preference peaks near 7-8. FID rewards matching the DATA DISTRIBUTION; users want striking on-prompt images. Tune on FID and you ship a model nobody likes." },
-    { "type": "pitfall", "front": "Report a curve, not a number", "back": "Every metric moves with w and step count. Plot the FID-vs-CLIP FRONTIER across a guidance sweep. Dominating the frontier = genuinely better; winning at one setting = tuned to a metric." },
-    { "type": "pitfall", "front": "FID comparability", "back": "Biased estimator - it FALLS as sample count rises, so 10k and 50k are not comparable. It also depends on the Inception implementation (PyTorch vs TF disagree). Always state n and the implementation." },
-    { "type": "definition", "front": "DDIM inversion", "back": "Deterministic sampling is an invertible map, so you can run it BACKWARDS to find the noise producing a real image, then edit the conditioning and regenerate. Breaks at high guidance (inversion is done at w=1) - hence null-text inversion." },
-    { "type": "pitfall", "front": "Guidance doubles per-step cost", "back": "Conditional + unconditional = 2 network evals per step, so '20 steps' is really 40. Step counts quoted without this understate cost 2x. Guidance distillation folds it into one pass." },
-    { "type": "pitfall", "front": "What distillation costs", "back": "Lower per-prompt DIVERSITY (measure with pairwise LPIPS), lower top-end quality, a FIXED guidance scale (the user-facing dial disappears), an extra training stage, and awkward composability with LoRAs/ControlNets built for the multi-step base." },
-    { "type": "intuition", "front": "Schedule and parameterization are coupled", "back": "Fixing zero-terminal-SNR BREAKS epsilon-prediction (at SNR=0 predicting the noise is trivial), so you must switch to v-prediction simultaneously. Flow matching sidesteps both: a straight noise-to-data path makes schedule and parameterization fall out of one choice." }
+    {
+      "type": "intuition",
+      "front": "Sampling is numerical integration",
+      "back": "The reverse SDE has a deterministic PROBABILITY FLOW ODE with identical marginals, and the model's noise prediction gives its right-hand side. So 1000 steps was Euler's method with a tiny step size - not a property of the model."
+    },
+    {
+      "type": "definition",
+      "front": "DDIM",
+      "back": "A non-Markovian forward process with DDPM's marginals, so a DDPM-trained model can skip steps. eta=0 is deterministic (and therefore INVERTIBLE). ~50 steps at reference quality with NO retraining."
+    },
+    {
+      "type": "definition",
+      "front": "DPM-Solver",
+      "back": "Exploits the ODE's SEMI-LINEAR structure: solve the linear part exactly, apply a higher-order method only to the nonlinear network term, integrating in log-SNR. Error O(h^(k+1)); 10-20 steps at reference quality, still no retraining."
+    },
+    {
+      "type": "definition",
+      "front": "Consistency models",
+      "back": "Train a network whose output is CONSTANT along each ODE trajectory, so evaluating anywhere on the path jumps to the endpoint. 1 step usable, 2-4 close to full quality. Requires a distillation/training stage."
+    },
+    {
+      "type": "intuition",
+      "front": "Why speed was the fixable corner",
+      "back": "Diffusion gave up SPEED in the trilemma - a discretization and distillation problem, both well-understood. Nobody found a comparable fix for GAN mode collapse or VAE blur, which are properties of the OBJECTIVE. The family that gave up the tractable constraint won."
+    },
+    {
+      "type": "pitfall",
+      "front": "FID and human preference disagree",
+      "back": "FID is minimized at guidance w~1-3; human preference peaks near 7-8. FID rewards matching the DATA DISTRIBUTION; users want striking on-prompt images. Tune on FID and you ship a model nobody likes."
+    },
+    {
+      "type": "pitfall",
+      "front": "Report a curve, not a number",
+      "back": "Every metric moves with w and step count. Plot the FID-vs-CLIP FRONTIER across a guidance sweep. Dominating the frontier = genuinely better; winning at one setting = tuned to a metric."
+    },
+    {
+      "type": "pitfall",
+      "front": "FID comparability",
+      "back": "Biased estimator - it FALLS as sample count rises, so 10k and 50k are not comparable. It also depends on the Inception implementation (PyTorch vs TF disagree). Always state n and the implementation."
+    },
+    {
+      "type": "definition",
+      "front": "DDIM inversion",
+      "back": "Deterministic sampling is an invertible map, so you can run it BACKWARDS to find the noise producing a real image, then edit the conditioning and regenerate. Breaks at high guidance (inversion is done at w=1) - hence null-text inversion."
+    },
+    {
+      "type": "pitfall",
+      "front": "Guidance doubles per-step cost",
+      "back": "Conditional + unconditional = 2 network evals per step, so '20 steps' is really 40. Step counts quoted without this understate cost 2x. Guidance distillation folds it into one pass."
+    },
+    {
+      "type": "pitfall",
+      "front": "What distillation costs",
+      "back": "Lower per-prompt DIVERSITY (measure with pairwise LPIPS), lower top-end quality, a FIXED guidance scale (the user-facing dial disappears), an extra training stage, and awkward composability with LoRAs/ControlNets built for the multi-step base."
+    },
+    {
+      "type": "intuition",
+      "front": "Schedule and parameterization are coupled",
+      "back": "Fixing zero-terminal-SNR BREAKS epsilon-prediction (at SNR=0 predicting the noise is trivial), so you must switch to v-prediction simultaneously. Flow matching sidesteps both: a straight noise-to-data path makes schedule and parameterization fall out of one choice."
+    }
   ],
   "refs": [
-    { "title": "Song et al. (2021), Score-Based Generative Modeling through Stochastic Differential Equations", "url": "https://arxiv.org/abs/2011.13456" },
-    { "title": "Song et al. (2020), Denoising Diffusion Implicit Models (DDIM)", "url": "https://arxiv.org/abs/2010.02502" },
-    { "title": "Lu et al. (2022), DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling", "url": "https://arxiv.org/abs/2206.00927" },
-    { "title": "Song et al. (2023), Consistency Models", "url": "https://arxiv.org/abs/2303.01469" },
-    { "title": "Karras et al. (2022), Elucidating the Design Space of Diffusion-Based Generative Models (EDM)", "url": "https://arxiv.org/abs/2206.00364" }
+    {
+      "title": "Song et al. (2021), Score-Based Generative Modeling through Stochastic Differential Equations",
+      "url": "https://arxiv.org/abs/2011.13456"
+    },
+    {
+      "title": "Song et al. (2020), Denoising Diffusion Implicit Models (DDIM)",
+      "url": "https://arxiv.org/abs/2010.02502"
+    },
+    {
+      "title": "Lu et al. (2022), DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling",
+      "url": "https://arxiv.org/abs/2206.00927"
+    },
+    {
+      "title": "Song et al. (2023), Consistency Models",
+      "url": "https://arxiv.org/abs/2303.01469"
+    },
+    {
+      "title": "Karras et al. (2022), Elucidating the Design Space of Diffusion-Based Generative Models (EDM)",
+      "url": "https://arxiv.org/abs/2206.00364"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "12-09",
+    "module": "generative",
+    "disposition": "clean",
+    "notebookFile": "12-09_sampling_guidance_ddim_classifier_free.ipynb"
+  }
 }

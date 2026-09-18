@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-08",
   "slug": "voice-agents",
+  "keyBase": "rag-agents/voice-agents",
   "module": "rag-agents",
   "title": "Voice Agents — STT→LLM→TTS",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-08_voice_agents_stt_llm_tts.ipynb",
     "flagship": null,
-    "demos": ["spectrogram", "beam-search", "decoding", "kv-cache"],
+    "demos": [
+      "spectrogram",
+      "beam-search",
+      "decoding",
+      "kv-cache"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/stt-tts", "rag-agents/agent-loops"],
-  "leadsTo": ["rag-agents/guardrails", "rag-agents/capstone-assistant"],
+  "prereqs": [
+    "multimodal/stt-tts",
+    "rag-agents/agent-loops"
+  ],
+  "leadsTo": [
+    "rag-agents/guardrails",
+    "rag-agents/capstone-assistant"
+  ],
   "body": {
     "intuition": [
       "A voice agent is the module's structure in the TIME dimension. Text pipelines compose reliabilities and the factors multiply; a voice cascade composes LATENCIES and they add - speech in, transcription, a language model, speech out, and every stage spends from one fixed budget. That budget is set by human conversational expectation rather than by engineering preference: people leave gaps of a couple of hundred milliseconds between turns, and a system that takes a second and a half feels broken even when every individual component is fast. The total is the product experience, and no stage owns it.",
@@ -274,5 +286,11 @@
       "url": "https://arxiv.org/abs/2410.00037"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-12",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-12_capstone_production_agent.ipynb"
+  }
 }

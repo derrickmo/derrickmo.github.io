@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-07",
   "slug": "agent-evaluation",
+  "keyBase": "agentic-ai/agent-evaluation",
   "module": "agentic-ai",
   "title": "Agent Evaluation: Tasks & Trajectories",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-07_agent_evaluation.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "calibration", "conformal", "react-agent"],
+    "demos": [
+      "classification-metrics",
+      "calibration",
+      "conformal",
+      "react-agent"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-loop", "rag-agents/rag-eval"],
-  "leadsTo": ["agentic-ai/observability", "agentic-ai/agent-capstone"],
+  "prereqs": [
+    "agentic-ai/agent-loop",
+    "rag-agents/rag-eval"
+  ],
+  "leadsTo": [
+    "agentic-ai/observability",
+    "agentic-ai/agent-capstone"
+  ],
   "body": {
     "intuition": [
       "Every claim in this module rests on a measurement, so the module owes you a measurement of its own instruments. The setup is the same as everywhere else - seeded rollouts where the correct trajectory is known by construction - but the object being graded is the evaluation method rather than the agent. Three findings come out, and each one invalidates a common practice.",
@@ -274,5 +286,11 @@
       "url": "https://arxiv.org/abs/2306.05685"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-09",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-09_agent_evaluation_tasks_trajectories_rubrics.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-10",
   "slug": "interpretability",
+  "keyBase": "advanced-nlp/interpretability",
   "module": "advanced-nlp",
   "title": "Mechanistic Interpretability",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-10_mechanistic_interpretability.ipynb",
     "flagship": null,
-    "demos": ["activation-patching", "sparse-autoencoder", "superposition", "probing-classifier"],
+    "demos": [
+      "activation-patching",
+      "sparse-autoencoder",
+      "superposition",
+      "probing-classifier"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/cot", "transformers/multi-head-attention"],
-  "leadsTo": ["trustworthy-ai/probing-patching", "trustworthy-ai/superposition-sae"],
+  "prereqs": [
+    "advanced-nlp/cot",
+    "transformers/multi-head-attention"
+  ],
+  "leadsTo": [
+    "trustworthy-ai/probing-patching",
+    "trustworthy-ai/superposition-sae"
+  ],
   "body": {
     "intuition": [
       "The previous lessons in this module all ended in the same place. Benchmarks could not tell us whether a model was doing the task or exploiting an artifact. Adversarial sets could show that something was wrong but not what. And the model's own chain of thought turned out to be a generated artifact rather than a report of its computation. Mechanistic interpretability is the response: stop asking the model what it did, stop inferring from behaviour alone, and reverse-engineer the actual computation from the weights and activations.",
@@ -90,27 +102,78 @@
       "Confusing an explanation that sounds satisfying with one that predicts. The check is always the same: does this account let you predict the model's behaviour on a new input you have not tried?"
     ],
     "connections": [
-      { "ref": "advanced-nlp/cot", "text": "The faithfulness failure is exactly why this field exists - if self-report were reliable, causal interventions would be unnecessary." },
-      { "ref": "advanced-nlp/bert", "text": "BERTology's probing results are the correlational ancestor of this work, and the control-task correction is what separates careful probing from the rest." },
-      { "ref": "trustworthy-ai/probing-patching", "text": "The safety-facing treatment of the same toolkit - what causal localization buys you when the question is whether a model is deceptive rather than how it does arithmetic." },
-      { "ref": "trustworthy-ai/superposition-sae", "text": "Superposition and dictionary learning in depth, including the scaling results and the open questions about feature validity." },
-      { "ref": "transformers/multi-head-attention", "text": "Circuits are described in terms of heads and their QK/OV behaviour, so the mechanics of attention are the vocabulary this analysis is written in." }
+      {
+        "ref": "advanced-nlp/cot",
+        "text": "The faithfulness failure is exactly why this field exists - if self-report were reliable, causal interventions would be unnecessary."
+      },
+      {
+        "ref": "advanced-nlp/bert",
+        "text": "BERTology's probing results are the correlational ancestor of this work, and the control-task correction is what separates careful probing from the rest."
+      },
+      {
+        "ref": "trustworthy-ai/probing-patching",
+        "text": "The safety-facing treatment of the same toolkit - what causal localization buys you when the question is whether a model is deceptive rather than how it does arithmetic."
+      },
+      {
+        "ref": "trustworthy-ai/superposition-sae",
+        "text": "Superposition and dictionary learning in depth, including the scaling results and the open questions about feature validity."
+      },
+      {
+        "ref": "transformers/multi-head-attention",
+        "text": "Circuits are described in terms of heads and their QK/OV behaviour, so the mechanics of attention are the vocabulary this analysis is written in."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is mechanistic interpretability?", "a": "Reverse-engineering the algorithms a network implements from its weights and activations, rather than inferring from input-output behaviour or asking the model to explain itself." },
-      { "q": "Why isn't probing enough?", "a": "It shows information is DECODABLE, not that the model uses it - and a strong enough probe recovers almost anything from almost any representation, including random vectors." },
-      { "q": "What is a control task?", "a": "The same probing setup with RANDOM labels. Report SELECTIVITY = real accuracy minus control accuracy; high accuracy on both means the probe memorized rather than read." },
-      { "q": "What is activation patching?", "a": "Copy one activation from a clean run into a corrupted run and measure how much the output recovers. It measures CAUSAL contribution rather than correlation." },
-      { "q": "Why use logit difference rather than accuracy as the metric?", "a": "It is continuous and far more sensitive to partial effects - accuracy only moves when a patch flips the argmax, which loses most of the signal." },
-      { "q": "What is superposition?", "a": "Representing more features than there are dimensions by assigning near-orthogonal directions, tolerable because only a few features are active at once. The number of such directions grows exponentially in d." },
-      { "q": "What is polysemanticity?", "a": "A single neuron responding to several unrelated concepts - the direct consequence of superposition, and the reason neuron-level interpretation was always going to fail." },
-      { "q": "What is a sparse autoencoder here?", "a": "An overcomplete autoencoder (8-64x the model dimension) with an L1 penalty, trained to reconstruct activations sparsely. It decomposes superposed activations into more monosemantic features." },
-      { "q": "What are induction heads?", "a": "Heads implementing 'find the previous occurrence of the current token and copy what followed'. They form abruptly during training, coinciding with in-context learning appearing." },
-      { "q": "What is the IOI circuit?", "a": "A complete legible algorithm for indirect object identification in GPT-2 small: duplicate-token heads, S-inhibition heads, and name-mover heads - 26 of 144 heads, recovered from weights." },
-      { "q": "What are backup name mover heads?", "a": "Heads that take over when the primary name movers are ablated. They mean ablation UNDERSTATES importance, breaking the inference 'nothing changed, so it did not matter'." },
-      { "q": "What is ROME?", "a": "Rank-One Model Editing: causal tracing localizes a factual association to specific mid-layer MLP weights, then a rank-one update edits it directly - a targeted alternative to fine-tuning." }
+      {
+        "q": "What is mechanistic interpretability?",
+        "a": "Reverse-engineering the algorithms a network implements from its weights and activations, rather than inferring from input-output behaviour or asking the model to explain itself."
+      },
+      {
+        "q": "Why isn't probing enough?",
+        "a": "It shows information is DECODABLE, not that the model uses it - and a strong enough probe recovers almost anything from almost any representation, including random vectors."
+      },
+      {
+        "q": "What is a control task?",
+        "a": "The same probing setup with RANDOM labels. Report SELECTIVITY = real accuracy minus control accuracy; high accuracy on both means the probe memorized rather than read."
+      },
+      {
+        "q": "What is activation patching?",
+        "a": "Copy one activation from a clean run into a corrupted run and measure how much the output recovers. It measures CAUSAL contribution rather than correlation."
+      },
+      {
+        "q": "Why use logit difference rather than accuracy as the metric?",
+        "a": "It is continuous and far more sensitive to partial effects - accuracy only moves when a patch flips the argmax, which loses most of the signal."
+      },
+      {
+        "q": "What is superposition?",
+        "a": "Representing more features than there are dimensions by assigning near-orthogonal directions, tolerable because only a few features are active at once. The number of such directions grows exponentially in d."
+      },
+      {
+        "q": "What is polysemanticity?",
+        "a": "A single neuron responding to several unrelated concepts - the direct consequence of superposition, and the reason neuron-level interpretation was always going to fail."
+      },
+      {
+        "q": "What is a sparse autoencoder here?",
+        "a": "An overcomplete autoencoder (8-64x the model dimension) with an L1 penalty, trained to reconstruct activations sparsely. It decomposes superposed activations into more monosemantic features."
+      },
+      {
+        "q": "What are induction heads?",
+        "a": "Heads implementing 'find the previous occurrence of the current token and copy what followed'. They form abruptly during training, coinciding with in-context learning appearing."
+      },
+      {
+        "q": "What is the IOI circuit?",
+        "a": "A complete legible algorithm for indirect object identification in GPT-2 small: duplicate-token heads, S-inhibition heads, and name-mover heads - 26 of 144 heads, recovered from weights."
+      },
+      {
+        "q": "What are backup name mover heads?",
+        "a": "Heads that take over when the primary name movers are ablated. They mean ablation UNDERSTATES importance, breaking the inference 'nothing changed, so it did not matter'."
+      },
+      {
+        "q": "What is ROME?",
+        "a": "Rank-One Model Editing: causal tracing localizes a factual association to specific mid-layer MLP weights, then a rank-one update edits it directly - a targeted alternative to fine-tuning."
+      }
     ],
     "standard": [
       {
@@ -120,7 +183,10 @@
       {
         "q": "What is superposition, and why does it make interpretability hard?",
         "a": "THE PUZZLE IT SOLVES. Language models appear to represent far more distinct concepts than they have neurons. A 768-dimensional residual stream cannot give an orthogonal direction to every entity, syntactic relation, topic, and stylistic property the model clearly distinguishes. Superposition is the answer: represent m >> d features as NEAR-orthogonal directions in d dimensions, accepting small interference. WHY IT WORKS. Two facts combine. (1) The Johnson-Lindenstrauss lemma: the number of nearly-orthogonal directions in d dimensions grows EXPONENTIALLY in d, so 768 dimensions can host astronomically many directions with small pairwise overlap. (2) FEATURE SPARSITY: at any given token only a few features are active. If features never co-occur, their interference never materializes. So the model trades a small, rarely-realized interference cost for a large increase in representable features, and Elhage et al.'s toy models show this is exactly what optimization does - as feature sparsity increases, models transition from dedicating one dimension per feature to packing many in superposition, and they do it in structured geometric arrangements (antipodal pairs, pentagons, tetrahedra) depending on the sparsity level. WHY IT MAKES INTERPRETABILITY HARD. (1) POLYSEMANTIC NEURONS. Each neuron is a projection of the superposed representation, so it responds to several unrelated features - academic citations and Korean text and DNA sequences in the classic example. Interpreting individual neurons is therefore not just difficult but misconceived; the neuron is not the unit of representation. (2) THE PRIVILEGED BASIS IS GONE, at least in the residual stream. There is no reason for features to align with coordinate axes, so looking at dimensions is arbitrary. (Nonlinearities give MLP neurons a partially privileged basis, which is why they are somewhat more interpretable than residual-stream directions, but only partially.) (3) FEATURES INTERFERE, so a strong activation of one slightly activates others, producing behaviour that looks like a bug and is actually the cost of the encoding. (4) IT MAY EXPLAIN ADVERSARIAL VULNERABILITY - a perturbation aligned with the interference between features can flip predictions cheaply. (5) THE NUMBER OF FEATURES IS UNKNOWN and possibly enormous, so 'enumerate what the model represents' is not obviously a finite project. THE RESPONSE - SPARSE AUTOENCODERS. Since the problem is too many features in too few dimensions, project UP into a much wider space with a sparsity constraint. Train an autoencoder whose hidden layer is 8-64x the model dimension, with an L1 penalty forcing few features active per token, to reconstruct the activations. The learned dictionary directions are substantially more monosemantic than neurons, and the technique scaled: Anthropic extracted millions of features from Claude 3 Sonnet, including abstract and multilingual ones, and demonstrated causality by CLAMPING a feature - the Golden Gate Bridge feature, held high, made the model relate everything to the bridge. That clamping result is the important part, because it converts 'this direction correlates with the bridge' into 'this direction causes bridge-related behaviour'. THE OPEN PROBLEMS, which I would be careful to state. There is NO GROUND TRUTH for what the right features are, so the sparsity coefficient, dictionary width, and training distribution all shape the answer and different runs give different decompositions. FEATURE SPLITTING: increase the dictionary size and one feature resolves into several finer ones, with no principled stopping point - which suggests 'the' feature set may not be well-defined. DEAD FEATURES and reconstruction error mean the decomposition is incomplete. And crucially, features are only half the picture: understanding a model requires the CIRCUITS connecting them, and circuit-finding over millions of features is a much harder problem than finding the features was. Superposition explains why a decade of neuron-level interpretability produced so little, and sparse autoencoders are the most promising response - but 'promising response to the obstacle' is a fair characterization of where things stand, not 'solved'.",
-        "deepDive": { "q": "What are the strongest results in mechanistic interpretability, and what are its real limitations?", "a": "THE STRONGEST RESULTS, in rough order of how much they establish. (1) INDUCTION HEADS (Olsson et al.). Attention heads implementing 'find where this token appeared before and predict what followed it', built from a two-head composition: a previous-token head writes information forward, and the induction head uses it to attend back. What makes this the field's best result is the convergence of evidence: the mechanism is understood at the level of QK and OV circuits, the heads FORM ABRUPTLY during training at a visible bump in the loss curve, in-context learning ability appears at exactly that point, and ablating them damages ICL. Mechanism, formation dynamics, and behavioural correlate all line up. (2) THE IOI CIRCUIT (Wang et al.). A complete, human-legible algorithm for indirect object identification in GPT-2 small, spanning 26 of 144 heads with distinct roles - duplicate-token detection, S-inhibition, name-moving - validated by patching and by predicting behaviour on new inputs. It is the existence proof that a nontrivial circuit can be fully recovered. (3) ROME AND CAUSAL TRACING (Meng et al.). Factual associations localized to specific mid-layer MLPs, then EDITED with a rank-one weight update that changes the fact while mostly preserving unrelated behaviour. Localization plus successful targeted intervention is a strong combination. (4) SPARSE AUTOENCODERS AT SCALE (Bricken et al., Templeton et al.). Millions of interpretable features from a production model, with causal validation by clamping. (5) GROKKING'S MODULAR ARITHMETIC CIRCUIT (Nanda et al.) - a network trained on modular addition was shown to implement a Fourier-basis trigonometric algorithm, fully reverse-engineered, with the phase transition in generalization explained mechanistically. Small and synthetic, but complete in a way nothing on real models is. THE LIMITATIONS, stated honestly. (1) SCALE. Almost all complete circuit analyses are on small models and NARROW, well-specified tasks. IOI is a two-name template. Nothing comparable exists for 'why did the model refuse this request' on a frontier model, and it is not clear the same style of analysis will work - the behaviours of interest may not decompose into small circuits. (2) LABOUR INTENSITY. IOI took months of expert effort for one task in one small model. Automating circuit discovery (ACDC and successors) is active work and not yet at the point of replacing that effort. (3) NO GROUND TRUTH. There is no way to check whether an SAE's features are the 'right' ones, or whether a circuit is complete rather than a legible fragment of something larger. The field's answer is causal validation and prediction on held-out inputs, which is good discipline but not verification. (4) SELF-REPAIR AND REDUNDANCY. Backup heads mean components compensate for one another, so ablation understates importance and circuits are not cleanly modular. This is a fact about how networks are organized and it directly complicates the enterprise. (5) CHERRY-PICKING RISK. Published examples are the ones that turned out legible. The base rate of components that resist interpretation is not usually reported, and it matters enormously for whether the approach generalizes. (6) INTERPRETABILITY ILLUSIONS. A clean story can be wrong - a plausible narrative that fails to predict behaviour on new inputs. The discipline that guards against this is prediction, not plausibility. (7) FEATURE SPLITTING undermines the idea of a canonical feature set. WHERE I THINK IT ACTUALLY STANDS. The field has established that transformers contain real, discoverable, causally-implicated structure, and that is a genuine and non-obvious scientific result - it was not clear a decade ago that these models were anything other than inscrutable. The tools are sound: patching, path patching, causal scrubbing, and dictionary learning are principled and they work. What has not been established is that a complete understanding of a frontier model on open-ended behaviour is achievable, and the honest position is that this is an open empirical question rather than a matter of remaining effort. FOR PRACTITIONERS, the sober summary: this is not yet a debugging tool you reach for when your fine-tune misbehaves. Its value today is in safety-relevant auditing at labs with the resources to do it, in model editing, in steering via SAE features, and in the general epistemic discipline it enforces - causal evidence over correlational, prediction over plausible narrative. That discipline is worth importing into ordinary ML work even if you never patch an activation." }
+        "deepDive": {
+          "q": "What are the strongest results in mechanistic interpretability, and what are its real limitations?",
+          "a": "THE STRONGEST RESULTS, in rough order of how much they establish. (1) INDUCTION HEADS (Olsson et al.). Attention heads implementing 'find where this token appeared before and predict what followed it', built from a two-head composition: a previous-token head writes information forward, and the induction head uses it to attend back. What makes this the field's best result is the convergence of evidence: the mechanism is understood at the level of QK and OV circuits, the heads FORM ABRUPTLY during training at a visible bump in the loss curve, in-context learning ability appears at exactly that point, and ablating them damages ICL. Mechanism, formation dynamics, and behavioural correlate all line up. (2) THE IOI CIRCUIT (Wang et al.). A complete, human-legible algorithm for indirect object identification in GPT-2 small, spanning 26 of 144 heads with distinct roles - duplicate-token detection, S-inhibition, name-moving - validated by patching and by predicting behaviour on new inputs. It is the existence proof that a nontrivial circuit can be fully recovered. (3) ROME AND CAUSAL TRACING (Meng et al.). Factual associations localized to specific mid-layer MLPs, then EDITED with a rank-one weight update that changes the fact while mostly preserving unrelated behaviour. Localization plus successful targeted intervention is a strong combination. (4) SPARSE AUTOENCODERS AT SCALE (Bricken et al., Templeton et al.). Millions of interpretable features from a production model, with causal validation by clamping. (5) GROKKING'S MODULAR ARITHMETIC CIRCUIT (Nanda et al.) - a network trained on modular addition was shown to implement a Fourier-basis trigonometric algorithm, fully reverse-engineered, with the phase transition in generalization explained mechanistically. Small and synthetic, but complete in a way nothing on real models is. THE LIMITATIONS, stated honestly. (1) SCALE. Almost all complete circuit analyses are on small models and NARROW, well-specified tasks. IOI is a two-name template. Nothing comparable exists for 'why did the model refuse this request' on a frontier model, and it is not clear the same style of analysis will work - the behaviours of interest may not decompose into small circuits. (2) LABOUR INTENSITY. IOI took months of expert effort for one task in one small model. Automating circuit discovery (ACDC and successors) is active work and not yet at the point of replacing that effort. (3) NO GROUND TRUTH. There is no way to check whether an SAE's features are the 'right' ones, or whether a circuit is complete rather than a legible fragment of something larger. The field's answer is causal validation and prediction on held-out inputs, which is good discipline but not verification. (4) SELF-REPAIR AND REDUNDANCY. Backup heads mean components compensate for one another, so ablation understates importance and circuits are not cleanly modular. This is a fact about how networks are organized and it directly complicates the enterprise. (5) CHERRY-PICKING RISK. Published examples are the ones that turned out legible. The base rate of components that resist interpretation is not usually reported, and it matters enormously for whether the approach generalizes. (6) INTERPRETABILITY ILLUSIONS. A clean story can be wrong - a plausible narrative that fails to predict behaviour on new inputs. The discipline that guards against this is prediction, not plausibility. (7) FEATURE SPLITTING undermines the idea of a canonical feature set. WHERE I THINK IT ACTUALLY STANDS. The field has established that transformers contain real, discoverable, causally-implicated structure, and that is a genuine and non-obvious scientific result - it was not clear a decade ago that these models were anything other than inscrutable. The tools are sound: patching, path patching, causal scrubbing, and dictionary learning are principled and they work. What has not been established is that a complete understanding of a frontier model on open-ended behaviour is achievable, and the honest position is that this is an open empirical question rather than a matter of remaining effort. FOR PRACTITIONERS, the sober summary: this is not yet a debugging tool you reach for when your fine-tune misbehaves. Its value today is in safety-relevant auditing at labs with the resources to do it, in model editing, in steering via SAE features, and in the general epistemic discipline it enforces - causal evidence over correlational, prediction over plausible narrative. That discipline is worth importing into ordinary ML work even if you never patch an activation."
+        }
       },
       {
         "q": "How would you investigate whether a model is using a spurious feature to make its decisions?",
@@ -141,26 +207,101 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Mechanistic interpretability", "back": "Reverse-engineering the algorithms a network implements from weights and activations - not inferring from behaviour, and not asking the model to explain itself (chain of thought is unfaithful)." },
-    { "type": "pitfall", "front": "Probing shows presence, not use", "back": "A strong probe recovers almost anything from almost any representation. Report SELECTIVITY = real-task accuracy minus random-label control accuracy, and prefer LINEAR probes so accuracy means something." },
-    { "type": "definition", "front": "Activation patching", "back": "Copy one activation from a CLEAN run into a CORRUPTED run and measure output recovery, normalized between the two baselines. Measures causal contribution. Use LOGIT DIFFERENCE as the metric - accuracy only moves when the argmax flips." },
-    { "type": "pitfall", "front": "Ablation understates importance", "back": "Backup name mover heads take over when the primaries are ablated, so 'I removed it and nothing changed' is not evidence of irrelevance. Ablation measures necessity-given-compensation; patching measures contribution. Prefer patching." },
-    { "type": "definition", "front": "Superposition", "back": "Representing m >> d features as near-orthogonal directions in d dimensions, viable because features are SPARSE (few active at once). Johnson-Lindenstrauss: near-orthogonal directions grow exponentially in d." },
-    { "type": "intuition", "front": "Why neurons are not interpretable", "back": "Superposition makes each neuron a projection of many features, so polysemanticity is the EXPECTED case. Neuron-level stories are usually cherry-picked from the minority that happen to look clean." },
-    { "type": "definition", "front": "Sparse autoencoders", "back": "Overcomplete autoencoder (8-64x model dimension) with an L1 sparsity penalty, trained to reconstruct activations. Undoes superposition by moving to a wider, sparser space. Validated causally by CLAMPING a feature (the Golden Gate Bridge result)." },
-    { "type": "definition", "front": "Induction heads", "back": "Two-head composition: a previous-token head writes 'the token before me was A' forward; the induction head uses it to attend after the earlier A and copy what followed. Form ABRUPTLY at a visible loss-curve bump, exactly when in-context learning appears." },
-    { "type": "definition", "front": "The IOI circuit", "back": "GPT-2 small's indirect-object algorithm: duplicate-token heads notice the repeat, S-inhibition heads suppress it, name-mover heads copy the survivor. 26 of 144 heads, fully legible - the field's existence proof." },
-    { "type": "pitfall", "front": "SAE features have no ground truth", "back": "The sparsity coefficient, dictionary width, and training data all shape which features appear; different runs differ; FEATURE SPLITTING means a bigger dictionary resolves one feature into several with no principled stopping point." },
-    { "type": "definition", "front": "ROME / causal tracing", "back": "Localize a factual association to specific mid-layer MLP weights via patching, then apply a rank-one weight edit to change it. Localization plus successful targeted intervention - a real alternative to fine-tuning." },
-    { "type": "intuition", "front": "The test for any interpretability claim", "back": "Does the account PREDICT behaviour on inputs you did not use to find it? A satisfying story that fails held-out prediction is an interpretability illusion - plausibility is not evidence." }
+    {
+      "type": "definition",
+      "front": "Mechanistic interpretability",
+      "back": "Reverse-engineering the algorithms a network implements from weights and activations - not inferring from behaviour, and not asking the model to explain itself (chain of thought is unfaithful)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Probing shows presence, not use",
+      "back": "A strong probe recovers almost anything from almost any representation. Report SELECTIVITY = real-task accuracy minus random-label control accuracy, and prefer LINEAR probes so accuracy means something."
+    },
+    {
+      "type": "definition",
+      "front": "Activation patching",
+      "back": "Copy one activation from a CLEAN run into a CORRUPTED run and measure output recovery, normalized between the two baselines. Measures causal contribution. Use LOGIT DIFFERENCE as the metric - accuracy only moves when the argmax flips."
+    },
+    {
+      "type": "pitfall",
+      "front": "Ablation understates importance",
+      "back": "Backup name mover heads take over when the primaries are ablated, so 'I removed it and nothing changed' is not evidence of irrelevance. Ablation measures necessity-given-compensation; patching measures contribution. Prefer patching."
+    },
+    {
+      "type": "definition",
+      "front": "Superposition",
+      "back": "Representing m >> d features as near-orthogonal directions in d dimensions, viable because features are SPARSE (few active at once). Johnson-Lindenstrauss: near-orthogonal directions grow exponentially in d."
+    },
+    {
+      "type": "intuition",
+      "front": "Why neurons are not interpretable",
+      "back": "Superposition makes each neuron a projection of many features, so polysemanticity is the EXPECTED case. Neuron-level stories are usually cherry-picked from the minority that happen to look clean."
+    },
+    {
+      "type": "definition",
+      "front": "Sparse autoencoders",
+      "back": "Overcomplete autoencoder (8-64x model dimension) with an L1 sparsity penalty, trained to reconstruct activations. Undoes superposition by moving to a wider, sparser space. Validated causally by CLAMPING a feature (the Golden Gate Bridge result)."
+    },
+    {
+      "type": "definition",
+      "front": "Induction heads",
+      "back": "Two-head composition: a previous-token head writes 'the token before me was A' forward; the induction head uses it to attend after the earlier A and copy what followed. Form ABRUPTLY at a visible loss-curve bump, exactly when in-context learning appears."
+    },
+    {
+      "type": "definition",
+      "front": "The IOI circuit",
+      "back": "GPT-2 small's indirect-object algorithm: duplicate-token heads notice the repeat, S-inhibition heads suppress it, name-mover heads copy the survivor. 26 of 144 heads, fully legible - the field's existence proof."
+    },
+    {
+      "type": "pitfall",
+      "front": "SAE features have no ground truth",
+      "back": "The sparsity coefficient, dictionary width, and training data all shape which features appear; different runs differ; FEATURE SPLITTING means a bigger dictionary resolves one feature into several with no principled stopping point."
+    },
+    {
+      "type": "definition",
+      "front": "ROME / causal tracing",
+      "back": "Localize a factual association to specific mid-layer MLP weights via patching, then apply a rank-one weight edit to change it. Localization plus successful targeted intervention - a real alternative to fine-tuning."
+    },
+    {
+      "type": "intuition",
+      "front": "The test for any interpretability claim",
+      "back": "Does the account PREDICT behaviour on inputs you did not use to find it? A satisfying story that fails held-out prediction is an interpretability illusion - plausibility is not evidence."
+    }
   ],
   "refs": [
-    { "title": "Olsson et al. (2022), In-context Learning and Induction Heads", "url": "https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html" },
-    { "title": "Wang et al. (2022), Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small", "url": "https://arxiv.org/abs/2211.00593" },
-    { "title": "Elhage et al. (2022), Toy Models of Superposition", "url": "https://transformer-circuits.pub/2022/toy_model/index.html" },
-    { "title": "Templeton et al. (2024), Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet", "url": "https://transformer-circuits.pub/2024/scaling-monosemanticity/" },
-    { "title": "Hewitt & Liang (2019), Designing and Interpreting Probes with Control Tasks", "url": "https://arxiv.org/abs/1909.03368" },
-    { "title": "Meng et al. (2022), Locating and Editing Factual Associations in GPT (ROME)", "url": "https://arxiv.org/abs/2202.05262" }
+    {
+      "title": "Olsson et al. (2022), In-context Learning and Induction Heads",
+      "url": "https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html"
+    },
+    {
+      "title": "Wang et al. (2022), Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small",
+      "url": "https://arxiv.org/abs/2211.00593"
+    },
+    {
+      "title": "Elhage et al. (2022), Toy Models of Superposition",
+      "url": "https://transformer-circuits.pub/2022/toy_model/index.html"
+    },
+    {
+      "title": "Templeton et al. (2024), Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet",
+      "url": "https://transformer-circuits.pub/2024/scaling-monosemanticity/"
+    },
+    {
+      "title": "Hewitt & Liang (2019), Designing and Interpreting Probes with Control Tasks",
+      "url": "https://arxiv.org/abs/1909.03368"
+    },
+    {
+      "title": "Meng et al. (2022), Locating and Editing Factual Associations in GPT (ROME)",
+      "url": "https://arxiv.org/abs/2202.05262"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "11-12",
+    "module": "transformers",
+    "disposition": "split",
+    "notebookFile": "11-12_state_space_models_s4_mamba.ipynb",
+    "alsoFeeds": [
+      "24-08"
+    ]
+  }
 }

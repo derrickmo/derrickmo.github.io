@@ -1,8 +1,8 @@
 {
   "meta": {
     "schemaVersion": 1,
-    "contentVersion": "1.1.0",
-    "updatedAt": "2026-08-22"
+    "contentVersion": "1.2.0",
+    "updatedAt": "2026-09-17"
   },
   "modules": [
     {
@@ -2636,6 +2636,7 @@
       "schemaVersion": 1,
       "id": "01-01",
       "slug": "python-numpy-tensor-speed",
+      "keyBase": "foundations/python-numpy-tensor-speed",
       "module": "foundations",
       "title": "Python, NumPy & Tensor Speed",
       "status": "LIVE",
@@ -2890,13 +2891,20 @@
           "url": "https://www.nature.com/articles/s41586-020-2649-2"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "02-01",
+        "module": "python-toolchain",
+        "disposition": "clean",
+        "notebookFile": "02-01_numpy_tensor_mechanics.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-02",
       "slug": "advanced-numpy-pytorch",
+      "keyBase": "foundations/advanced-numpy-pytorch",
       "module": "foundations",
       "title": "Advanced NumPy & PyTorch Operations",
       "status": "LIVE",
@@ -3155,13 +3163,23 @@
           "url": "https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "02-02",
+        "module": "python-toolchain",
+        "disposition": "split",
+        "notebookFile": "02-02_broadcasting_einsum_vectorization.ipynb",
+        "alsoFeeds": [
+          "02-05"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-03",
       "slug": "pandas",
+      "keyBase": "foundations/pandas",
       "module": "foundations",
       "title": "Pandas for Tabular Data",
       "status": "LIVE",
@@ -3406,13 +3424,20 @@
           "url": "https://scikit-learn.org/stable/datasets/real_world.html#california-housing-dataset"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "02-03",
+        "module": "python-toolchain",
+        "disposition": "clean",
+        "notebookFile": "02-03_pandas_tabular_data.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-04",
       "slug": "matplotlib",
+      "keyBase": "foundations/matplotlib",
       "module": "foundations",
       "title": "Visualization with Matplotlib",
       "status": "LIVE",
@@ -3656,13 +3681,20 @@
           "url": "https://matplotlib.org/stable/gallery/statistics/hexbin_demo.html"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "02-04",
+        "module": "python-toolchain",
+        "disposition": "clean",
+        "notebookFile": "02-04_visualization_machine_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-05",
       "slug": "pytorch-data-loading",
+      "keyBase": "foundations/pytorch-data-loading",
       "module": "foundations",
       "title": "Data Loading with PyTorch",
       "status": "LIVE",
@@ -3909,13 +3941,20 @@
           "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.FashionMNIST.html"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "02-06",
+        "module": "python-toolchain",
+        "disposition": "clean",
+        "notebookFile": "02-06_datasets_dataloaders_collation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-06",
       "slug": "linear-algebra",
+      "keyBase": "foundations/linear-algebra",
       "module": "foundations",
       "title": "Linear Algebra for Machine Learning",
       "status": "LIVE",
@@ -4101,13 +4140,23 @@
           "title": "Santurkar et al. (2018) — How Does Batch Normalization Help Optimization?",
           "url": "https://arxiv.org/abs/1805.11604"
         }
-      ]
+      ],
+      "v2": {
+        "id": "01-01",
+        "module": "math-foundations",
+        "disposition": "split",
+        "notebookFile": "01-01_linear_algebra_i_vectors_matrices.ipynb",
+        "alsoFeeds": [
+          "01-02"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-07",
       "slug": "probability",
+      "keyBase": "foundations/probability",
       "module": "foundations",
       "title": "Probability & Statistics for ML",
       "status": "LIVE",
@@ -4366,13 +4415,23 @@
           "url": "https://numpy.org/doc/stable/reference/random/generator.html"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "01-05",
+        "module": "math-foundations",
+        "disposition": "split",
+        "notebookFile": "01-05_probability_random_variables.ipynb",
+        "alsoFeeds": [
+          "01-06"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-08",
       "slug": "information-theory",
+      "keyBase": "foundations/information-theory",
       "module": "foundations",
       "title": "Information Theory for ML",
       "status": "LIVE",
@@ -4630,13 +4689,20 @@
           "url": "https://arxiv.org/abs/cond-mat/0305641"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "01-07",
+        "module": "math-foundations",
+        "disposition": "clean",
+        "notebookFile": "01-07_information_theory_ml.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-09",
       "slug": "calculus",
+      "keyBase": "foundations/calculus",
       "module": "foundations",
       "title": "Calculus & Optimization Foundations",
       "status": "LIVE",
@@ -4894,13 +4960,23 @@
           "url": "https://pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "01-03",
+        "module": "math-foundations",
+        "disposition": "split",
+        "notebookFile": "01-03_calculus_vector_calculus_ml.ipynb",
+        "alsoFeeds": [
+          "01-04"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "01-10",
       "slug": "complexity",
+      "keyBase": "foundations/complexity",
       "module": "foundations",
       "title": "Computational Thinking & Complexity",
       "status": "LIVE",
@@ -5158,13 +5234,23 @@
           "url": "https://wiki.python.org/moin/TimeComplexity"
         }
       ],
-      "updatedAt": "2026-07-19"
+      "updatedAt": "2026-07-19",
+      "v2": {
+        "id": "01-10",
+        "module": "math-foundations",
+        "disposition": "split",
+        "notebookFile": "01-10_complexity_floating_point_numerical_stability.ipynb",
+        "alsoFeeds": [
+          "02-08"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-01",
       "slug": "linear-regression",
+      "keyBase": "supervised-learning/linear-regression",
       "module": "supervised-learning",
       "title": "Linear Regression",
       "status": "LIVE",
@@ -5416,13 +5502,20 @@
           "url": "https://statquest.org/the-bias-variance-tradeoff/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-01",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-01_linear_regression_regularization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-02",
       "slug": "logistic-regression",
+      "keyBase": "supervised-learning/logistic-regression",
       "module": "supervised-learning",
       "title": "Logistic Regression & Binary Classification",
       "status": "LIVE",
@@ -5674,13 +5767,20 @@
           "url": "https://developers.google.com/machine-learning/crash-course/classification/thresholding"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-02",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-02_logistic_regression.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-03",
       "slug": "trees-forests",
+      "keyBase": "supervised-learning/trees-forests",
       "module": "supervised-learning",
       "title": "Decision Trees & Random Forests",
       "status": "LIVE",
@@ -5931,13 +6031,23 @@
           "url": "https://scikit-learn.org/stable/modules/permutation_importance.html"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-08",
+        "module": "supervised-learning",
+        "disposition": "split",
+        "notebookFile": "03-08_decision_trees_cart.ipynb",
+        "alsoFeeds": [
+          "03-09"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-04",
       "slug": "boosting",
+      "keyBase": "supervised-learning/boosting",
       "module": "supervised-learning",
       "title": "Gradient Boosting & AdaBoost",
       "status": "LIVE",
@@ -6119,13 +6229,20 @@
           "title": "Grinsztajn et al. (2022) — Why Do Tree-Based Models Still Outperform Deep Learning on Tabular Data?",
           "url": "https://arxiv.org/abs/2207.08815"
         }
-      ]
+      ],
+      "v2": {
+        "id": "03-10",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-10_boosting_adaboost_gradient_boosting_xgboost.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-05",
       "slug": "svm",
+      "keyBase": "supervised-learning/svm",
       "module": "supervised-learning",
       "title": "Support Vector Machines",
       "status": "LIVE",
@@ -6375,13 +6492,20 @@
           "url": "https://hastie.su.domains/ElemStatLearn/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-06",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-06_support_vector_machines.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-06",
       "slug": "glm",
+      "keyBase": "supervised-learning/glm",
       "module": "supervised-learning",
       "title": "Generalized Linear Models & Exponential Family",
       "status": "LIVE",
@@ -6631,13 +6755,20 @@
           "url": "https://www.routledge.com/Generalized-Linear-Models/McCullagh-Nelder/p/book/9780412317606"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-03",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-03_generalized_linear_models_exponential_family.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-07",
       "slug": "knn",
+      "keyBase": "supervised-learning/knn",
       "module": "supervised-learning",
       "title": "k-Nearest Neighbors",
       "status": "LIVE",
@@ -6886,13 +7017,20 @@
           "url": "https://hastie.su.domains/ElemStatLearn/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-04",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-04_k_nearest_neighbors_distance_metrics.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-08",
       "slug": "naive-bayes",
+      "keyBase": "supervised-learning/naive-bayes",
       "module": "supervised-learning",
       "title": "Naive Bayes for Text Classification",
       "status": "LIVE",
@@ -7142,13 +7280,20 @@
           "url": "https://papers.nips.cc/paper/2001/hash/7b7a53e239400a13bd6be6c91c4f6c4e-Abstract.html"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-05",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-05_naive_bayes_text_classification.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-09",
       "slug": "ensembles",
+      "keyBase": "supervised-learning/ensembles",
       "module": "supervised-learning",
       "title": "Stacking & Voting Ensembles",
       "status": "LIVE",
@@ -7397,13 +7542,20 @@
           "url": "https://mlwave.com/kaggle-ensembling-guide/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-11",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-11_stacking_voting_ensembles.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "02-10",
       "slug": "model-comparison",
+      "keyBase": "supervised-learning/model-comparison",
       "module": "supervised-learning",
       "title": "Model Comparison & Algorithm Selection",
       "status": "LIVE",
@@ -7654,13 +7806,20 @@
           "url": "https://hastie.su.domains/ElemStatLearn/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-12",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-12_algorithm_selection_under_fixed_protocol.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-01",
       "slug": "kmeans",
+      "keyBase": "unsupervised-learning/kmeans",
       "module": "unsupervised-learning",
       "title": "K-Means Clustering",
       "status": "LIVE",
@@ -7912,13 +8071,20 @@
           "url": "https://hastie.su.domains/Papers/gap.pdf"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-01",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-01_k_means_clustering.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-02",
       "slug": "hierarchical-density-clustering",
+      "keyBase": "unsupervised-learning/hierarchical-density-clustering",
       "module": "unsupervised-learning",
       "title": "Hierarchical & Density-Based Clustering",
       "status": "LIVE",
@@ -8168,13 +8334,20 @@
           "url": "https://docs.scipy.org/doc/scipy/reference/cluster.hierarchy.html"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-02",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-02_hierarchical_density_based_clustering.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-03",
       "slug": "pca",
+      "keyBase": "unsupervised-learning/pca",
       "module": "unsupervised-learning",
       "title": "Principal Component Analysis",
       "status": "LIVE",
@@ -8425,13 +8598,20 @@
           "url": "https://hastie.su.domains/ElemStatLearn/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-04",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-04_principal_component_analysis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-04",
       "slug": "tsne-umap",
+      "keyBase": "unsupervised-learning/tsne-umap",
       "module": "unsupervised-learning",
       "title": "t-SNE, UMAP & Manifold Learning",
       "status": "LIVE",
@@ -8681,13 +8861,20 @@
           "url": "https://www.science.org/doi/10.1126/science.290.5500.2319"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-05",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-05_t_sne_umap_manifold_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-05",
       "slug": "ica",
+      "keyBase": "unsupervised-learning/ica",
       "module": "unsupervised-learning",
       "title": "Independent Component Analysis",
       "status": "LIVE",
@@ -8936,13 +9123,20 @@
           "url": "https://www.cnl.salk.edu/~tony/ptr/bell-sejnowski95.pdf"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-06",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-06_independent_component_analysis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-06",
       "slug": "gmm-em",
+      "keyBase": "unsupervised-learning/gmm-em",
       "module": "unsupervised-learning",
       "title": "Gaussian Mixture Models & EM Algorithm",
       "status": "LIVE",
@@ -9193,13 +9387,20 @@
           "url": "https://www.cs.toronto.edu/~hinton/absps/emk.pdf"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-03",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-03_gaussian_mixtures_em.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-07",
       "slug": "anomaly-detection",
+      "keyBase": "unsupervised-learning/anomaly-detection",
       "module": "unsupervised-learning",
       "title": "Anomaly Detection",
       "status": "LIVE",
@@ -9449,13 +9650,20 @@
           "url": "https://dl.acm.org/doi/10.1145/1541880.1541882"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-08",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-08_anomaly_detection.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-08",
       "slug": "kernel-methods",
+      "keyBase": "unsupervised-learning/kernel-methods",
       "module": "unsupervised-learning",
       "title": "Kernel Methods & Feature Maps",
       "status": "LIVE",
@@ -9705,13 +9913,20 @@
           "url": "https://papers.nips.cc/paper/2007/hash/013a006f03dbc5392effeb8f18fda755-Abstract.html"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "03-07",
+        "module": "supervised-learning",
+        "disposition": "clean",
+        "notebookFile": "03-07_kernel_methods_feature_maps.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-09",
       "slug": "matrix-factorization",
+      "keyBase": "unsupervised-learning/matrix-factorization",
       "module": "unsupervised-learning",
       "title": "Matrix Factorization & Decomposition",
       "status": "LIVE",
@@ -9893,13 +10108,20 @@
           "title": "Levy & Goldberg (2014) — Neural Word Embedding as Implicit Matrix Factorization",
           "url": "https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization"
         }
-      ]
+      ],
+      "v2": {
+        "id": "04-07",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-07_matrix_factorization_nmf.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "03-10",
       "slug": "bayesian-inference",
+      "keyBase": "unsupervised-learning/bayesian-inference",
       "module": "unsupervised-learning",
       "title": "Bayesian Inference & Probabilistic Thinking",
       "status": "LIVE",
@@ -10150,13 +10372,20 @@
           "url": "https://arxiv.org/abs/1701.02434"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "04-09",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-09_bayesian_inference_probabilistic_modeling.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-01",
       "slug": "evaluation-metrics",
+      "keyBase": "ml-theory/evaluation-metrics",
       "module": "ml-theory",
       "title": "Evaluation Metrics Deep Dive",
       "status": "LIVE",
@@ -10406,13 +10635,20 @@
           "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-01",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-01_metrics_beyond_accuracy.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-02",
       "slug": "cross-validation",
+      "keyBase": "ml-theory/cross-validation",
       "module": "ml-theory",
       "title": "Cross-Validation & Hyperparameter Tuning",
       "status": "LIVE",
@@ -10662,13 +10898,23 @@
           "url": "https://direct.mit.edu/neco/article/10/7/1895/6224"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-02",
+        "module": "evaluation",
+        "disposition": "split",
+        "notebookFile": "05-02_cross_validation_model_selection.ipynb",
+        "alsoFeeds": [
+          "05-03"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-03",
       "slug": "feature-engineering",
+      "keyBase": "ml-theory/feature-engineering",
       "module": "ml-theory",
       "title": "Feature Engineering & Pipelines",
       "status": "LIVE",
@@ -10918,13 +11164,20 @@
           "url": "https://scikit-learn.org/stable/modules/compose.html"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-04",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-04_feature_engineering_pipelines.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-04",
       "slug": "data-augmentation",
+      "keyBase": "ml-theory/data-augmentation",
       "module": "ml-theory",
       "title": "Data Augmentation & Color Spaces",
       "status": "LIVE",
@@ -11174,13 +11427,20 @@
           "url": "https://arxiv.org/abs/1904.08779"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-09",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-09_data_augmentation_color_spaces.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-05",
       "slug": "imbalanced-data",
+      "keyBase": "ml-theory/imbalanced-data",
       "module": "ml-theory",
       "title": "Handling Imbalanced Data",
       "status": "LIVE",
@@ -11430,13 +11690,20 @@
           "url": "https://imbalanced-learn.org/stable/"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-05",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-05_imbalanced_data_cost_sensitive_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-06",
       "slug": "learning-theory",
+      "keyBase": "ml-theory/learning-theory",
       "module": "ml-theory",
       "title": "Learning Theory — VC Dimension, PAC Learning",
       "status": "LIVE",
@@ -11618,13 +11885,20 @@
           "title": "Wolpert (1996) — The Lack of A Priori Distinctions Between Learning Algorithms",
           "url": "https://direct.mit.edu/neco/article/8/7/1341/6016"
         }
-      ]
+      ],
+      "v2": {
+        "id": "06-02",
+        "module": "learning-theory",
+        "disposition": "clean",
+        "notebookFile": "06-02_vc_dimension_shattering_pac_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-07",
       "slug": "bias-variance",
+      "keyBase": "ml-theory/bias-variance",
       "module": "ml-theory",
       "title": "Bias-Variance Decomposition & ML Debugging",
       "status": "LIVE",
@@ -11874,13 +12148,23 @@
           "url": "https://arxiv.org/abs/1611.03530"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "06-01",
+        "module": "learning-theory",
+        "disposition": "split",
+        "notebookFile": "06-01_bias_variance_double_descent.ipynb",
+        "alsoFeeds": [
+          "06-06"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-08",
       "slug": "convex-optimization",
+      "keyBase": "ml-theory/convex-optimization",
       "module": "ml-theory",
       "title": "Convex Optimization Foundations",
       "status": "LIVE",
@@ -12132,13 +12416,20 @@
           "url": "https://epubs.siam.org/doi/10.1137/080716542"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "01-08",
+        "module": "math-foundations",
+        "disposition": "clean",
+        "notebookFile": "01-08_convex_optimization_duality.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-09",
       "slug": "calibration",
+      "keyBase": "ml-theory/calibration",
       "module": "ml-theory",
       "title": "Calibration & Uncertainty Quantification",
       "status": "LIVE",
@@ -12388,13 +12679,20 @@
           "url": "https://arxiv.org/abs/1703.04977"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "05-06",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-06_calibration_uncertainty.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "04-10",
       "slug": "gaussian-processes",
+      "keyBase": "ml-theory/gaussian-processes",
       "module": "ml-theory",
       "title": "Gaussian Processes & Bayesian Optimization",
       "status": "LIVE",
@@ -12645,13 +12943,20 @@
           "url": "https://arxiv.org/abs/1612.01474"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "04-10",
+        "module": "unsupervised-learning",
+        "disposition": "clean",
+        "notebookFile": "04-10_gaussian_processes_bayesian_optimization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-01",
       "slug": "nn-walkthrough",
+      "keyBase": "neural-nets/nn-walkthrough",
       "module": "neural-nets",
       "title": "Neural Network End-to-End Walkthrough",
       "status": "LIVE",
@@ -12902,13 +13207,20 @@
           "url": "https://www.deeplearningbook.org/contents/mlp.html"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-01",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-01_neural_network_end_end.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-02",
       "slug": "perceptron-mlp",
+      "keyBase": "neural-nets/perceptron-mlp",
       "module": "neural-nets",
       "title": "Perceptron & Multi-Layer Architecture",
       "status": "LIVE",
@@ -13167,13 +13479,20 @@
           "url": "https://arxiv.org/abs/1512.03385"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-02",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-02_perceptron_mlp_xor_problem.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-03",
       "slug": "activation-functions",
+      "keyBase": "neural-nets/activation-functions",
       "module": "neural-nets",
       "title": "Activation Functions Deep Dive",
       "status": "LIVE",
@@ -13431,13 +13750,20 @@
           "url": "https://cs231n.github.io/neural-networks-1/#actfun"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-03",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-03_activation_functions.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-04",
       "slug": "loss-functions",
+      "keyBase": "neural-nets/loss-functions",
       "module": "neural-nets",
       "title": "Loss Functions Deep Dive",
       "status": "LIVE",
@@ -13619,13 +13945,20 @@
           "title": "Gneiting & Raftery (2007) — Strictly Proper Scoring Rules, Prediction, and Estimation",
           "url": "https://sites.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf"
         }
-      ]
+      ],
+      "v2": {
+        "id": "08-04",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-04_loss_functions.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-05",
       "slug": "forward-pass",
+      "keyBase": "neural-nets/forward-pass",
       "module": "neural-nets",
       "title": "Forward Pass & Computational Graphs",
       "status": "LIVE",
@@ -13807,13 +14140,20 @@
           "title": "Williams, Waterman & Patterson (2009) — Roofline: An Insightful Visual Performance Model",
           "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
         }
-      ]
+      ],
+      "v2": {
+        "id": "08-05",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-05_forward_pass_computational_graphs_universal.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-06",
       "slug": "backprop",
+      "keyBase": "neural-nets/backprop",
       "module": "neural-nets",
       "title": "Backpropagation from Scratch",
       "status": "LIVE",
@@ -14073,13 +14413,20 @@
           "url": "https://cs231n.github.io/optimization-2/"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-07",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-07_backpropagation_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-07",
       "slug": "pytorch-fundamentals",
+      "keyBase": "neural-nets/pytorch-fundamentals",
       "module": "neural-nets",
       "title": "PyTorch Fundamentals — Autograd & nn.Module",
       "status": "LIVE",
@@ -14338,13 +14685,20 @@
           "url": "https://pytorch.org/docs/stable/notes/extending.html"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-08",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-08_pytorch_autograd_nn_module.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-08",
       "slug": "sgd-momentum",
+      "keyBase": "neural-nets/sgd-momentum",
       "module": "neural-nets",
       "title": "Optimizers — SGD, Momentum & Nesterov",
       "status": "LIVE",
@@ -14604,13 +14958,20 @@
           "url": "https://arxiv.org/abs/1706.02677"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-09",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-09_optimizers_i_sgd_momentum_adagrad.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-09",
       "slug": "adam-lr-scheduling",
+      "keyBase": "neural-nets/adam-lr-scheduling",
       "module": "neural-nets",
       "title": "Advanced Optimizers & Learning Rate Scheduling",
       "status": "LIVE",
@@ -14868,13 +15229,20 @@
           "url": "https://arxiv.org/abs/1608.03983"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-10",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-10_optimizers_ii_adam_adamw_schedules.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "05-10",
       "slug": "regularization",
+      "keyBase": "neural-nets/regularization",
       "module": "neural-nets",
       "title": "Regularization Techniques",
       "status": "LIVE",
@@ -15130,13 +15498,20 @@
           "url": "https://arxiv.org/abs/1502.03167"
         }
       ],
-      "updatedAt": "2026-07-23"
+      "updatedAt": "2026-07-23",
+      "v2": {
+        "id": "08-12",
+        "module": "neural-nets",
+        "disposition": "clean",
+        "notebookFile": "08-12_regularization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-01",
       "slug": "fc-for-images",
+      "keyBase": "cnn/fc-for-images",
       "module": "cnn",
       "title": "Fully Connected Networks for Images",
       "status": "LIVE",
@@ -15388,13 +15763,20 @@
           "url": "https://arxiv.org/abs/2010.11929"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-01",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-01_why_convolution.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-02",
       "slug": "convolution",
+      "keyBase": "cnn/convolution",
       "module": "cnn",
       "title": "Convolution from Scratch",
       "status": "LIVE",
@@ -15653,13 +16035,20 @@
           "url": "https://arxiv.org/abs/1312.4400"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-02",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-02_convolution_scratch_im2col.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-03",
       "slug": "cnn-architectures",
+      "keyBase": "cnn/cnn-architectures",
       "module": "cnn",
       "title": "CNN Architectures — LeNet to ResNet",
       "status": "LIVE",
@@ -15841,13 +16230,20 @@
           "title": "Liu et al. (2022) — A ConvNet for the 2020s (ConvNeXt)",
           "url": "https://arxiv.org/abs/2201.03545"
         }
-      ]
+      ],
+      "v2": {
+        "id": "09-04",
+        "module": "cnn",
+        "disposition": "merge",
+        "notebookFile": "09-04_classic_architectures_lenet_alexnet_vgg.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-04",
       "slug": "transfer-learning",
+      "keyBase": "cnn/transfer-learning",
       "module": "cnn",
       "title": "Transfer Learning & Fine-Tuning",
       "status": "LIVE",
@@ -16029,13 +16425,20 @@
           "title": "Howard & Ruder (2018) — Universal Language Model Fine-tuning (ULMFiT; discriminative LRs)",
           "url": "https://arxiv.org/abs/1801.06146"
         }
-      ]
+      ],
+      "v2": {
+        "id": "09-07",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-07_transfer_learning_timm.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-05",
       "slug": "unet",
+      "keyBase": "cnn/unet",
       "module": "cnn",
       "title": "U-Net & Encoder-Decoder Architecture",
       "status": "LIVE",
@@ -16284,13 +16687,20 @@
           "url": "https://arxiv.org/abs/2112.10752"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-08",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-08_encoder_decoder_u_net.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-06",
       "slug": "efficient-cnns",
+      "keyBase": "cnn/efficient-cnns",
       "module": "cnn",
       "title": "Depthwise Separable Convolutions & Efficient Architectures",
       "status": "LIVE",
@@ -16545,13 +16955,20 @@
           "url": "https://arxiv.org/abs/2201.03545"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-06",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-06_efficient_architectures.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-07",
       "slug": "segmentation",
+      "keyBase": "cnn/segmentation",
       "module": "cnn",
       "title": "Semantic & Instance Segmentation",
       "status": "LIVE",
@@ -16805,13 +17222,20 @@
           "url": "https://arxiv.org/abs/2112.01527"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-09",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-09_semantic_instance_segmentation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-08",
       "slug": "style-transfer",
+      "keyBase": "cnn/style-transfer",
       "module": "cnn",
       "title": "Neural Style Transfer",
       "status": "LIVE",
@@ -17059,13 +17483,20 @@
           "url": "https://arxiv.org/abs/1811.12231"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-04",
+        "module": "cnn",
+        "disposition": "merge",
+        "notebookFile": "09-04_classic_architectures_lenet_alexnet_vgg.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-09",
       "slug": "1d-3d-convolutions",
+      "keyBase": "cnn/1d-3d-convolutions",
       "module": "cnn",
       "title": "1D & 3D Convolutions",
       "status": "LIVE",
@@ -17319,13 +17750,20 @@
           "url": "https://arxiv.org/abs/1606.06650"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "09-12",
+        "module": "cnn",
+        "disposition": "merge",
+        "notebookFile": "09-12_temporal_volumetric_convolution.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "06-10",
       "slug": "adversarial",
+      "keyBase": "cnn/adversarial",
       "module": "cnn",
       "title": "Adversarial Examples & Robustness",
       "status": "LIVE",
@@ -17583,13 +18021,20 @@
           "url": "https://arxiv.org/abs/1905.02175"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "24-09",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-09_adversarial_attacks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-01",
       "slug": "tokenization",
+      "keyBase": "rnn-nlp/tokenization",
       "module": "rnn-nlp",
       "title": "Tokenization — BPE, WordPiece & SentencePiece",
       "status": "LIVE",
@@ -17836,13 +18281,20 @@
           "url": "https://huggingface.co/learn/nlp-course/chapter6/1"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-01",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-01_tokenization_bpe_wordpiece_sentencepiece.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-02",
       "slug": "word-vectors",
+      "keyBase": "rnn-nlp/word-vectors",
       "module": "rnn-nlp",
       "title": "Word Vectors — Word2Vec, GloVe & FastText",
       "status": "LIVE",
@@ -18093,13 +18545,20 @@
           "url": "https://papers.nips.cc/paper/2014/hash/feab05aa91085b7a8012516bc3533958-Abstract.html"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-02",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-02_word_vectors_word2vec_glove_fasttext.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-03",
       "slug": "rnn",
+      "keyBase": "rnn-nlp/rnn",
       "module": "rnn-nlp",
       "title": "Recurrent Neural Networks from Scratch",
       "status": "LIVE",
@@ -18347,13 +18806,20 @@
           "url": "https://arxiv.org/abs/2312.00752"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-03",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-03_recurrent_networks_backpropagation_through_time.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-04",
       "slug": "lstm-gru",
+      "keyBase": "rnn-nlp/lstm-gru",
       "module": "rnn-nlp",
       "title": "LSTMs & GRUs",
       "status": "LIVE",
@@ -18601,13 +19067,20 @@
           "url": "https://arxiv.org/abs/1503.04069"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-04",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-04_lstms_grus.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-05",
       "slug": "seq2seq-attention",
+      "keyBase": "rnn-nlp/seq2seq-attention",
       "module": "rnn-nlp",
       "title": "Sequence-to-Sequence with Attention",
       "status": "LIVE",
@@ -18789,13 +19262,20 @@
           "title": "Post (2018) — A Call for Clarity in Reporting BLEU Scores (sacreBLEU)",
           "url": "https://arxiv.org/abs/1804.08771"
         }
-      ]
+      ],
+      "v2": {
+        "id": "10-05",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-05_sequence_sequence_attention.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-06",
       "slug": "text-generation",
+      "keyBase": "rnn-nlp/text-generation",
       "module": "rnn-nlp",
       "title": "Text Generation & Decoding Strategies",
       "status": "LIVE",
@@ -19044,13 +19524,20 @@
           "url": "https://arxiv.org/abs/1908.04319"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-07",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-07_decoding_strategies.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-07",
       "slug": "classical-lm",
+      "keyBase": "rnn-nlp/classical-lm",
       "module": "rnn-nlp",
       "title": "Classical Language Models & Perplexity",
       "status": "LIVE",
@@ -19299,13 +19786,20 @@
           "url": "https://arxiv.org/abs/2001.08361"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-06",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-06_language_modeling_perplexity.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-08",
       "slug": "dependency-parsing",
+      "keyBase": "rnn-nlp/dependency-parsing",
       "module": "rnn-nlp",
       "title": "Dependency Parsing",
       "status": "LIVE",
@@ -19550,13 +20044,20 @@
           "url": "https://arxiv.org/abs/1611.01734"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-09",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-09_dependency_parsing.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-09",
       "slug": "sequence-labeling",
+      "keyBase": "rnn-nlp/sequence-labeling",
       "module": "rnn-nlp",
       "title": "Sequence Labeling & CRFs",
       "status": "LIVE",
@@ -19803,13 +20304,20 @@
           "url": "https://web.stanford.edu/~jurafsky/slp3/8.pdf"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-08",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-08_sequence_labeling_crfs.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "07-10",
       "slug": "elmo",
+      "keyBase": "rnn-nlp/elmo",
       "module": "rnn-nlp",
       "title": "Contextual Embeddings — ELMo",
       "status": "LIVE",
@@ -20057,13 +20565,20 @@
           "url": "https://jalammar.github.io/illustrated-bert/"
         }
       ],
-      "updatedAt": "2026-07-21"
+      "updatedAt": "2026-07-21",
+      "v2": {
+        "id": "10-10",
+        "module": "sequence-models",
+        "disposition": "clean",
+        "notebookFile": "10-10_contextual_embeddings_elmo_transformers.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-01",
       "slug": "self-attention",
+      "keyBase": "transformers/self-attention",
       "module": "transformers",
       "title": "Self-Attention Mechanism",
       "status": "LIVE",
@@ -20245,13 +20760,20 @@
           "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
           "url": "https://transformer-circuits.pub/2021/framework/index.html"
         }
-      ]
+      ],
+      "v2": {
+        "id": "11-01",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-01_self_attention.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-02",
       "slug": "multi-head-attention",
+      "keyBase": "transformers/multi-head-attention",
       "module": "transformers",
       "title": "Multi-Head Attention",
       "status": "LIVE",
@@ -20505,13 +21027,20 @@
           "url": "https://arxiv.org/abs/1902.10186"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-02",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-02_multi_head_attention.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-03",
       "slug": "positional-encoding",
+      "keyBase": "transformers/positional-encoding",
       "module": "transformers",
       "title": "Positional Encoding — Sinusoidal & Learned",
       "status": "LIVE",
@@ -20761,13 +21290,20 @@
           "url": "https://arxiv.org/abs/2306.15595"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-03",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-03_positional_encoding.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-04",
       "slug": "transformer-block",
+      "keyBase": "transformers/transformer-block",
       "module": "transformers",
       "title": "The Transformer Block",
       "status": "LIVE",
@@ -21017,13 +21553,20 @@
           "url": "https://transformer-circuits.pub/2021/framework/index.html"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-05",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-05_transformer_block.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-05",
       "slug": "full-transformer",
+      "keyBase": "transformers/full-transformer",
       "module": "transformers",
       "title": "Full Transformer — Encoder-Decoder",
       "status": "LIVE",
@@ -21205,13 +21748,20 @@
           "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
           "url": "https://transformer-circuits.pub/2021/framework/index.html"
         }
-      ]
+      ],
+      "v2": {
+        "id": "11-06",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-06_encoder_decoder_transformers.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-06",
       "slug": "modern-blocks",
+      "keyBase": "transformers/modern-blocks",
       "module": "transformers",
       "title": "RMSNorm, SwiGLU & Modern Building Blocks",
       "status": "LIVE",
@@ -21461,13 +22011,20 @@
           "url": "https://arxiv.org/abs/1805.11604"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-07",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-07_modern_blocks_rmsnorm_swiglu_llama.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-07",
       "slug": "gqa-mqa",
+      "keyBase": "transformers/gqa-mqa",
       "module": "transformers",
       "title": "Grouped-Query & Multi-Query Attention",
       "status": "LIVE",
@@ -21717,13 +22274,20 @@
           "url": "https://arxiv.org/abs/2405.04434"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-08",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-08_attention_variants_mqa_gqa_sliding.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-08",
       "slug": "rope",
+      "keyBase": "transformers/rope",
       "module": "transformers",
       "title": "Rotary Position Embeddings (RoPE)",
       "status": "LIVE",
@@ -21973,13 +22537,20 @@
           "url": "https://arxiv.org/abs/2108.12409"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-04",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-04_rotary_position_embeddings.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-09",
       "slug": "flash-attention",
+      "keyBase": "transformers/flash-attention",
       "module": "transformers",
       "title": "Flash Attention — Algorithm & Concepts",
       "status": "LIVE",
@@ -22229,13 +22800,20 @@
           "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-09",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-09_flash_attention.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "08-10",
       "slug": "kv-cache",
+      "keyBase": "transformers/kv-cache",
       "module": "transformers",
       "title": "KV Cache & Autoregressive Inference",
       "status": "LIVE",
@@ -22486,13 +23064,20 @@
           "url": "https://arxiv.org/abs/2309.17453"
         }
       ],
-      "updatedAt": "2026-07-25"
+      "updatedAt": "2026-07-25",
+      "v2": {
+        "id": "11-10",
+        "module": "transformers",
+        "disposition": "clean",
+        "notebookFile": "11-10_kv_cache_autoregressive_inference.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-01",
       "slug": "grad-cam",
+      "keyBase": "advanced-cv/grad-cam",
       "module": "advanced-cv",
       "title": "Grad-CAM & Saliency Maps",
       "status": "LIVE",
@@ -22742,13 +23327,20 @@
           "url": "https://arxiv.org/abs/2005.00928"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "24-04",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-04_attribution_i_saliency_grad_cam.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-02",
       "slug": "object-detection",
+      "keyBase": "advanced-cv/object-detection",
       "module": "advanced-cv",
       "title": "Object Detection Fundamentals",
       "status": "LIVE",
@@ -22930,13 +23522,20 @@
           "title": "Bodla et al. (2017) — Soft-NMS: Improving Object Detection With One Line of Code",
           "url": "https://arxiv.org/abs/1704.04503"
         }
-      ]
+      ],
+      "v2": {
+        "id": "09-10",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-10_detection_fundamentals.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-03",
       "slug": "yolo",
+      "keyBase": "advanced-cv/yolo",
       "module": "advanced-cv",
       "title": "YOLO Detection",
       "status": "LIVE",
@@ -23186,13 +23785,20 @@
           "url": "https://arxiv.org/abs/1904.01355"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "09-11",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-11_single_stage_detection_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-04",
       "slug": "mediapipe",
+      "keyBase": "advanced-cv/mediapipe",
       "module": "advanced-cv",
       "title": "MediaPipe Real-Time Vision",
       "status": "LIVE",
@@ -23442,13 +24048,20 @@
           "url": "https://arxiv.org/abs/1907.05047"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": null,
+        "module": null,
+        "disposition": "cut",
+        "notebookFile": null
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-05",
       "slug": "vit",
+      "keyBase": "advanced-cv/vit",
       "module": "advanced-cv",
       "title": "Vision Transformers (ViT)",
       "status": "LIVE",
@@ -23698,13 +24311,20 @@
           "url": "https://arxiv.org/abs/2309.16588"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "13-01",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-01_vision_transformers.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-06",
       "slug": "dino-mae",
+      "keyBase": "advanced-cv/dino-mae",
       "module": "advanced-cv",
       "title": "Self-Supervised Vision — DINO & MAE",
       "status": "LIVE",
@@ -23954,13 +24574,20 @@
           "url": "https://arxiv.org/abs/2011.10566"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "13-04",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-04_self_supervised_vision_dino_mae.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-07",
       "slug": "image-retrieval",
+      "keyBase": "advanced-cv/image-retrieval",
       "module": "advanced-cv",
       "title": "Image Retrieval & Visual Similarity Search",
       "status": "LIVE",
@@ -24210,13 +24837,20 @@
           "url": "https://arxiv.org/abs/1801.07698"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "18-10",
+        "module": "retrieval-rag",
+        "disposition": "clean",
+        "notebookFile": "18-10_multimodal_cross_modal_retrieval.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-08",
       "slug": "video",
+      "keyBase": "advanced-cv/video",
       "module": "advanced-cv",
       "title": "Video Understanding",
       "status": "LIVE",
@@ -24466,13 +25100,20 @@
           "url": "https://arxiv.org/abs/2203.12602"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "09-12",
+        "module": "cnn",
+        "disposition": "merge",
+        "notebookFile": "09-12_temporal_volumetric_convolution.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-09",
       "slug": "ocr",
+      "keyBase": "advanced-cv/ocr",
       "module": "advanced-cv",
       "title": "OCR & Document AI",
       "status": "LIVE",
@@ -24722,13 +25363,20 @@
           "url": "https://arxiv.org/abs/1912.13318"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "09-13",
+        "module": "cnn",
+        "disposition": "clean",
+        "notebookFile": "09-13_ocr_document_ai.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "09-10",
       "slug": "cifar100",
+      "keyBase": "advanced-cv/cifar100",
       "module": "advanced-cv",
       "title": "CNN Training Deep Dive — CIFAR-100",
       "status": "LIVE",
@@ -24979,13 +25627,20 @@
           "url": "https://karpathy.github.io/2019/04/25/recipe/"
         }
       ],
-      "updatedAt": "2026-08-01"
+      "updatedAt": "2026-08-01",
+      "v2": {
+        "id": "09-05",
+        "module": "cnn",
+        "disposition": "merge",
+        "notebookFile": "09-05_residual_networks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-01",
       "slug": "gpt",
+      "keyBase": "advanced-nlp/gpt",
       "module": "advanced-nlp",
       "title": "GPT-Style Autoregressive Language Modeling",
       "status": "LIVE",
@@ -25167,13 +25822,20 @@
           "title": "Schaeffer, Miranda & Koyejo (2023) — Are Emergent Abilities of LLMs a Mirage?",
           "url": "https://arxiv.org/abs/2304.15004"
         }
-      ]
+      ],
+      "v2": {
+        "id": "15-01",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-01_gpt_style_language_model_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-02",
       "slug": "bert",
+      "keyBase": "advanced-nlp/bert",
       "module": "advanced-nlp",
       "title": "BERT-Style Masked Language Modeling",
       "status": "LIVE",
@@ -25443,13 +26105,20 @@
           "url": "https://arxiv.org/abs/1908.10084"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-02",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-02_bert_style_masked_lm_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-03",
       "slug": "architectures",
+      "keyBase": "advanced-nlp/architectures",
       "module": "advanced-nlp",
       "title": "Encoder vs Decoder vs Encoder-Decoder",
       "status": "LIVE",
@@ -25717,13 +26386,20 @@
           "url": "https://arxiv.org/abs/2404.05961"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-03",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-03_encoder_decoder_encoder_decoder.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-04",
       "slug": "fine-tuning-transformers",
+      "keyBase": "advanced-nlp/fine-tuning-transformers",
       "module": "advanced-nlp",
       "title": "Pretrained Transformer Fine-Tuning",
       "status": "LIVE",
@@ -26002,13 +26678,20 @@
           "url": "https://arxiv.org/abs/2005.00628"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-05",
+        "module": "pretrained-lms",
+        "disposition": "merge",
+        "notebookFile": "15-05_fine_tuning_pretrained_encoders.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-05",
       "slug": "ner",
+      "keyBase": "advanced-nlp/ner",
       "module": "advanced-nlp",
       "title": "Named Entity Recognition",
       "status": "LIVE",
@@ -26287,13 +26970,20 @@
           "url": "https://aclanthology.org/P17-1178/"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-06",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-06_named_entity_recognition.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-06",
       "slug": "nli",
+      "keyBase": "advanced-nlp/nli",
       "module": "advanced-nlp",
       "title": "Natural Language Inference",
       "status": "LIVE",
@@ -26572,13 +27262,20 @@
           "url": "https://arxiv.org/abs/1910.14599"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-07",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-07_natural_language_inference.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-07",
       "slug": "qa",
+      "keyBase": "advanced-nlp/qa",
       "module": "advanced-nlp",
       "title": "Question Answering",
       "status": "LIVE",
@@ -26857,13 +27554,20 @@
           "url": "https://arxiv.org/abs/2307.03172"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-08",
+        "module": "pretrained-lms",
+        "disposition": "clean",
+        "notebookFile": "15-08_extractive_question_answering.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-08",
       "slug": "nlp-eval",
+      "keyBase": "advanced-nlp/nlp-eval",
       "module": "advanced-nlp",
       "title": "NLP Evaluation",
       "status": "LIVE",
@@ -27143,13 +27847,20 @@
           "url": "https://arxiv.org/abs/2306.05685"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-09",
+        "module": "pretrained-lms",
+        "disposition": "merge",
+        "notebookFile": "15-09_nlp_evaluation_significance.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-09",
       "slug": "cot",
+      "keyBase": "advanced-nlp/cot",
       "module": "advanced-nlp",
       "title": "Chain-of-Thought & In-Context Learning",
       "status": "LIVE",
@@ -27428,13 +28139,23 @@
           "url": "https://arxiv.org/abs/2304.15004"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "15-10",
+        "module": "pretrained-lms",
+        "disposition": "split",
+        "notebookFile": "15-10_context_learning_induction_heads.ipynb",
+        "alsoFeeds": [
+          "16-05"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "10-10",
       "slug": "interpretability",
+      "keyBase": "advanced-nlp/interpretability",
       "module": "advanced-nlp",
       "title": "Mechanistic Interpretability",
       "status": "LIVE",
@@ -27725,13 +28446,23 @@
           "url": "https://arxiv.org/abs/2202.05262"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "11-12",
+        "module": "transformers",
+        "disposition": "split",
+        "notebookFile": "11-12_state_space_models_s4_mamba.ipynb",
+        "alsoFeeds": [
+          "24-08"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-01",
       "slug": "autoencoders",
+      "keyBase": "generative/autoencoders",
       "module": "generative",
       "title": "Autoencoders",
       "status": "LIVE",
@@ -28009,13 +28740,20 @@
           "url": "https://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-01",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-01_autoencoders.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-02",
       "slug": "vae",
+      "keyBase": "generative/vae",
       "module": "generative",
       "title": "Variational Autoencoders (VAEs)",
       "status": "LIVE",
@@ -28302,13 +29040,20 @@
           "url": "https://arxiv.org/abs/1606.04934"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-02",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-02_variational_autoencoders_elbo.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-03",
       "slug": "gan",
+      "keyBase": "generative/gan",
       "module": "generative",
       "title": "GANs — DCGAN & WGAN",
       "status": "LIVE",
@@ -28596,13 +29341,23 @@
           "url": "https://arxiv.org/abs/1904.06991"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-03",
+        "module": "generative",
+        "disposition": "split",
+        "notebookFile": "12-03_gans_min_max_game.ipynb",
+        "alsoFeeds": [
+          "12-04"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-04",
       "slug": "conditional-generation",
+      "keyBase": "generative/conditional-generation",
       "module": "generative",
       "title": "Conditional Generation",
       "status": "LIVE",
@@ -28881,13 +29636,20 @@
           "url": "https://arxiv.org/abs/1802.05637"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-04",
+        "module": "generative",
+        "disposition": "merge",
+        "notebookFile": "12-04_wgan_gp_conditional_generation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-05",
       "slug": "ddpm",
+      "keyBase": "generative/ddpm",
       "module": "generative",
       "title": "DDPM Diffusion from Scratch",
       "status": "LIVE",
@@ -29069,13 +29831,20 @@
           "title": "Lin et al. (2023) — Common Diffusion Noise Schedules and Sample Steps are Flawed",
           "url": "https://arxiv.org/abs/2305.08891"
         }
-      ]
+      ],
+      "v2": {
+        "id": "12-08",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-08_ddpm_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-06",
       "slug": "latent-diffusion",
+      "keyBase": "generative/latent-diffusion",
       "module": "generative",
       "title": "Latent Diffusion Models",
       "status": "LIVE",
@@ -29354,13 +30123,20 @@
           "url": "https://arxiv.org/abs/2307.01952"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-10",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-10_latent_diffusion_diffusion_transformers.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-07",
       "slug": "diffusion-guidance",
+      "keyBase": "generative/diffusion-guidance",
       "module": "generative",
       "title": "Diffusion Guidance & Evaluation",
       "status": "LIVE",
@@ -29647,13 +30423,20 @@
           "url": "https://arxiv.org/abs/2206.00364"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-09",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-09_sampling_guidance_ddim_classifier_free.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-08",
       "slug": "flows",
+      "keyBase": "generative/flows",
       "module": "generative",
       "title": "Normalizing Flows & Flow Matching",
       "status": "LIVE",
@@ -29835,13 +30618,23 @@
           "title": "Nalisnick et al. (2019) — Do Deep Generative Models Know What They Don't Know?",
           "url": "https://arxiv.org/abs/1810.09136"
         }
-      ]
+      ],
+      "v2": {
+        "id": "12-06",
+        "module": "generative",
+        "disposition": "split",
+        "notebookFile": "12-06_normalizing_flows.ipynb",
+        "alsoFeeds": [
+          "12-11"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-09",
       "slug": "ebm-score",
+      "keyBase": "generative/ebm-score",
       "module": "generative",
       "title": "Energy-Based Models & Score Matching",
       "status": "LIVE",
@@ -30128,13 +30921,20 @@
           "url": "https://arxiv.org/abs/2210.02747"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-07",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-07_energy_based_models_score_matching.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "11-10",
       "slug": "ar-generative",
+      "keyBase": "generative/ar-generative",
       "module": "generative",
       "title": "Autoregressive Generative Models",
       "status": "LIVE",
@@ -30413,13 +31213,20 @@
           "url": "https://arxiv.org/abs/1904.09751"
         }
       ],
-      "updatedAt": "2026-08-02"
+      "updatedAt": "2026-08-02",
+      "v2": {
+        "id": "12-05",
+        "module": "generative",
+        "disposition": "clean",
+        "notebookFile": "12-05_autoregressive_generative_models.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-01",
       "slug": "clip",
+      "keyBase": "multimodal/clip",
       "module": "multimodal",
       "title": "CLIP — Contrastive Image-Text Pretraining",
       "status": "LIVE",
@@ -30601,13 +31408,20 @@
           "title": "Wortsman et al. (2022) — Robust Fine-Tuning of Zero-Shot Models (WiSE-FT)",
           "url": "https://arxiv.org/abs/2109.01903"
         }
-      ]
+      ],
+      "v2": {
+        "id": "13-05",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-05_clip.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-02",
       "slug": "zero-shot",
+      "keyBase": "multimodal/zero-shot",
       "module": "multimodal",
       "title": "Zero-Shot & Few-Shot Classification",
       "status": "LIVE",
@@ -30886,13 +31700,20 @@
           "url": "https://arxiv.org/abs/2210.01936"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-06",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-06_zero_shot_few_shot_transfer.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-03",
       "slug": "siamese",
+      "keyBase": "multimodal/siamese",
       "module": "multimodal",
       "title": "Siamese Networks & Triplet Loss",
       "status": "LIVE",
@@ -31179,13 +32000,20 @@
           "url": "https://arxiv.org/abs/2003.08505"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-02",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-02_metric_learning_siamese_networks_triplet.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-04",
       "slug": "simclr-byol",
+      "keyBase": "multimodal/simclr-byol",
       "module": "multimodal",
       "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
       "status": "LIVE",
@@ -31464,13 +32292,20 @@
           "url": "https://arxiv.org/abs/2004.11362"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-03",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-03_contrastive_self_supervision_simclr_byol.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-05",
       "slug": "vlm-captioning",
+      "keyBase": "multimodal/vlm-captioning",
       "module": "multimodal",
       "title": "Vision-Language Models & Image Captioning",
       "status": "LIVE",
@@ -31749,13 +32584,20 @@
           "url": "https://arxiv.org/abs/1809.02156"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-07",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-07_vision_language_models_captioning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-06",
       "slug": "vqa",
+      "keyBase": "multimodal/vqa",
       "module": "multimodal",
       "title": "Visual Question Answering",
       "status": "LIVE",
@@ -32030,13 +32872,20 @@
           "url": "https://arxiv.org/abs/2104.03149"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-08",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-08_visual_question_answering.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-07",
       "slug": "multimodal-fusion",
+      "keyBase": "multimodal/multimodal-fusion",
       "module": "multimodal",
       "title": "Multi-Modal Fusion Architectures",
       "status": "LIVE",
@@ -32311,13 +33160,20 @@
           "url": "https://arxiv.org/abs/2203.15332"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-09",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-09_multimodal_fusion_architectures.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-08",
       "slug": "audio-representations",
+      "keyBase": "multimodal/audio-representations",
       "module": "multimodal",
       "title": "Audio & Speech Representations",
       "status": "LIVE",
@@ -32592,13 +33448,20 @@
           "url": "https://arxiv.org/abs/2104.01778"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-10",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-10_audio_representations_wav2vec.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-09",
       "slug": "stt-tts",
+      "keyBase": "multimodal/stt-tts",
       "module": "multimodal",
       "title": "STT & TTS Foundations",
       "status": "LIVE",
@@ -32873,13 +33736,20 @@
           "url": "https://www.pnas.org/doi/10.1073/pnas.1915768117"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-11",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-11_speech_recognition_synthesis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "12-10",
       "slug": "multimodal-eval",
+      "keyBase": "multimodal/multimodal-eval",
       "module": "multimodal",
       "title": "Multimodal Evaluation & Alignment Metrics",
       "status": "LIVE",
@@ -33154,13 +34024,20 @@
           "url": "https://arxiv.org/abs/2211.00768"
         }
       ],
-      "updatedAt": "2026-08-03"
+      "updatedAt": "2026-08-03",
+      "v2": {
+        "id": "13-12",
+        "module": "multimodal",
+        "disposition": "clean",
+        "notebookFile": "13-12_multimodal_evaluation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-01",
       "slug": "full-fine-tuning",
+      "keyBase": "fine-tuning/full-fine-tuning",
       "module": "fine-tuning",
       "title": "Full Fine-Tuning vs Feature Extraction",
       "status": "LIVE",
@@ -33444,13 +34321,20 @@
           "url": "https://arxiv.org/abs/1612.00796"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-01",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-01_full_fine_tuning_versus_feature.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-02",
       "slug": "lora",
+      "keyBase": "fine-tuning/lora",
       "module": "fine-tuning",
       "title": "LoRA — Low-Rank Adaptation from Scratch",
       "status": "LIVE",
@@ -33735,13 +34619,20 @@
           "url": "https://arxiv.org/abs/2311.03285"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-02",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-02_lora_scratch_then_peft.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-03",
       "slug": "qlora",
+      "keyBase": "fine-tuning/qlora",
       "module": "fine-tuning",
       "title": "QLoRA — 4-Bit Quantization + LoRA",
       "status": "LIVE",
@@ -34026,13 +34917,20 @@
           "url": "https://arxiv.org/abs/2306.00978"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-03",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-03_qlora_quantized_fine_tuning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-04",
       "slug": "adapters",
+      "keyBase": "fine-tuning/adapters",
       "module": "fine-tuning",
       "title": "Adapter Methods Comparison",
       "status": "LIVE",
@@ -34318,13 +35216,20 @@
           "url": "https://arxiv.org/abs/2010.11918"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-05",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-05_peft_methods_compared_under_one.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-05",
       "slug": "prompt-tuning",
+      "keyBase": "fine-tuning/prompt-tuning",
       "module": "fine-tuning",
       "title": "Prompt Tuning & Prefix Tuning",
       "status": "LIVE",
@@ -34609,13 +35514,20 @@
           "url": "https://arxiv.org/abs/2104.06599"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-04",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-04_prompt_tuning_prefix_tuning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-06",
       "slug": "instruction-tuning",
+      "keyBase": "fine-tuning/instruction-tuning",
       "module": "fine-tuning",
       "title": "Instruction Tuning & SFT",
       "status": "LIVE",
@@ -34900,13 +35812,20 @@
           "url": "https://arxiv.org/abs/2110.08207"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-07",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-07_instruction_tuning_sft_trl.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-07",
       "slug": "reward-modeling",
+      "keyBase": "fine-tuning/reward-modeling",
       "module": "fine-tuning",
       "title": "Reward Modeling (Bradley-Terry)",
       "status": "LIVE",
@@ -35191,13 +36110,20 @@
           "url": "https://arxiv.org/abs/2403.13787"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-08",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-08_reward_modeling.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-08",
       "slug": "rlhf-ppo",
+      "keyBase": "fine-tuning/rlhf-ppo",
       "module": "fine-tuning",
       "title": "RLHF with PPO",
       "status": "LIVE",
@@ -35379,13 +36305,20 @@
           "title": "Engstrom et al. (2020) — Implementation Matters in Deep RL: A Case Study on PPO and TRPO",
           "url": "https://arxiv.org/abs/2005.12729"
         }
-      ]
+      ],
+      "v2": {
+        "id": "17-09",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-09_rlhf_ppo.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-09",
       "slug": "dpo-grpo",
+      "keyBase": "fine-tuning/dpo-grpo",
       "module": "fine-tuning",
       "title": "DPO, GRPO & Modern Alignment",
       "status": "LIVE",
@@ -35671,13 +36604,20 @@
           "url": "https://arxiv.org/abs/2404.10719"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-10",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-10_dpo_preference_optimization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "13-10",
       "slug": "unsloth",
+      "keyBase": "fine-tuning/unsloth",
       "module": "fine-tuning",
       "title": "Efficient Fine-Tuning with Unsloth",
       "status": "LIVE",
@@ -35963,13 +36903,20 @@
           "url": "https://triton-lang.org/"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "17-12",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-12_constitutional_ai_rlaif_post_training.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-01",
       "slug": "mdp-bellman",
+      "keyBase": "reinforcement-learning/mdp-bellman",
       "module": "reinforcement-learning",
       "title": "MDPs, Bellman Equations & Value/Policy Iteration",
       "status": "LIVE",
@@ -36254,13 +37201,20 @@
           "url": "https://www.jstor.org/stable/24900506"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-01",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-01_mdps_bellman_equations.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-02",
       "slug": "mc-td",
+      "keyBase": "reinforcement-learning/mc-td",
       "module": "reinforcement-learning",
       "title": "Monte Carlo & TD Learning",
       "status": "LIVE",
@@ -36442,13 +37396,20 @@
           "title": "Baird (1995) — Residual Algorithms: Reinforcement Learning with Function Approximation",
           "url": "https://www.sciencedirect.com/science/article/pii/B9781558603776500133"
         }
-      ]
+      ],
+      "v2": {
+        "id": "14-02",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-02_monte_carlo_temporal_difference_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-03",
       "slug": "q-learning",
+      "keyBase": "reinforcement-learning/q-learning",
       "module": "reinforcement-learning",
       "title": "Q-Learning & SARSA",
       "status": "LIVE",
@@ -36734,13 +37695,20 @@
           "url": "https://direct.mit.edu/neco/article/6/6/1185/5850"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-03",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-03_q_learning_sarsa.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-04",
       "slug": "bandits",
+      "keyBase": "reinforcement-learning/bandits",
       "module": "reinforcement-learning",
       "title": "Exploration, Bandits & UCB",
       "status": "LIVE",
@@ -37026,13 +37994,20 @@
           "url": "https://arxiv.org/abs/1602.04621"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-04",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-04_bandits_exploration_regret.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-05",
       "slug": "dqn",
+      "keyBase": "reinforcement-learning/dqn",
       "module": "reinforcement-learning",
       "title": "Deep Q-Networks (DQN)",
       "status": "LIVE",
@@ -37318,13 +38293,20 @@
           "url": "https://arxiv.org/abs/1709.06560"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-05",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-05_deep_q_networks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-06",
       "slug": "policy-gradient",
+      "keyBase": "reinforcement-learning/policy-gradient",
       "module": "reinforcement-learning",
       "title": "Policy Gradient & REINFORCE",
       "status": "LIVE",
@@ -37609,13 +38591,20 @@
           "url": "https://proceedings.mlr.press/v32/thomas14.html"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-07",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-07_policy_gradients_reinforce.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-07",
       "slug": "actor-critic",
+      "keyBase": "reinforcement-learning/actor-critic",
       "module": "reinforcement-learning",
       "title": "Actor-Critic, A2C & PPO",
       "status": "LIVE",
@@ -37901,13 +38890,20 @@
           "url": "https://arxiv.org/abs/2005.12729"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-08",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-08_actor_critic_a2c.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-08",
       "slug": "model-based-rl",
+      "keyBase": "reinforcement-learning/model-based-rl",
       "module": "reinforcement-learning",
       "title": "Model-Based RL & MCTS",
       "status": "LIVE",
@@ -38089,13 +39085,20 @@
           "title": "Browne et al. (2012) — A Survey of Monte Carlo Tree Search Methods",
           "url": "https://ieeexplore.ieee.org/document/6145622"
         }
-      ]
+      ],
+      "v2": {
+        "id": "14-10",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-10_model_based_rl_mcts.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-09",
       "slug": "offline-rl",
+      "keyBase": "reinforcement-learning/offline-rl",
       "module": "reinforcement-learning",
       "title": "Offline RL — CQL & IQL",
       "status": "LIVE",
@@ -38381,13 +39384,20 @@
           "url": "https://arxiv.org/abs/2106.06860"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-11",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-11_offline_rl_cql_iql.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "14-10",
       "slug": "imitation-learning",
+      "keyBase": "reinforcement-learning/imitation-learning",
       "module": "reinforcement-learning",
       "title": "Imitation Learning & Inverse RL",
       "status": "LIVE",
@@ -38673,13 +39683,20 @@
           "url": "https://arxiv.org/abs/1606.03476"
         }
       ],
-      "updatedAt": "2026-08-06"
+      "updatedAt": "2026-08-06",
+      "v2": {
+        "id": "14-12",
+        "module": "reinforcement-learning",
+        "disposition": "clean",
+        "notebookFile": "14-12_imitation_learning_inverse_rl.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-01",
       "slug": "custom-autograd",
+      "keyBase": "pytorch-internals/custom-autograd",
       "module": "pytorch-internals",
       "title": "Custom Autograd Functions & Hooks",
       "status": "LIVE",
@@ -38861,13 +39878,20 @@
           "title": "PyTorch docs — Extending torch.autograd",
           "url": "https://pytorch.org/docs/stable/notes/extending.html"
         }
-      ]
+      ],
+      "v2": {
+        "id": "20-01",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-01_custom_autograd_functions_hooks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-02",
       "slug": "data-pipelines",
+      "keyBase": "pytorch-internals/data-pipelines",
       "module": "pytorch-internals",
       "title": "Advanced Data Pipelines",
       "status": "LIVE",
@@ -39152,13 +40176,20 @@
           "url": "https://pytorch.org/docs/stable/notes/cuda.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-04",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-04_advanced_data_pipelines.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-03",
       "slug": "nn-module-patterns",
+      "keyBase": "pytorch-internals/nn-module-patterns",
       "module": "pytorch-internals",
       "title": "Advanced nn.Module Patterns",
       "status": "LIVE",
@@ -39443,13 +40474,20 @@
           "url": "https://arxiv.org/abs/1802.05957"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-02",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-02_advanced_nn_module_patterns.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-04",
       "slug": "custom-loss",
+      "keyBase": "pytorch-internals/custom-loss",
       "module": "pytorch-internals",
       "title": "Custom Loss Functions & Gradient Utilities",
       "status": "LIVE",
@@ -39735,13 +40773,20 @@
           "url": "https://arxiv.org/abs/1704.00028"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-03",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-03_custom_losses_gradient_utilities.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-05",
       "slug": "torchscript",
+      "keyBase": "pytorch-internals/torchscript",
       "module": "pytorch-internals",
       "title": "TorchScript & JIT Compilation",
       "status": "LIVE",
@@ -40026,13 +41071,20 @@
           "url": "https://onnx.ai/"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-09",
+        "module": "pytorch-internals",
+        "disposition": "merge",
+        "notebookFile": "20-09_torchscript_torch_fx_graph_transformations.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-06",
       "slug": "torch-fx",
+      "keyBase": "pytorch-internals/torch-fx",
       "module": "pytorch-internals",
       "title": "torch.fx Graph Transformations",
       "status": "LIVE",
@@ -40318,13 +41370,20 @@
           "url": "https://pytorch.org/docs/stable/torch.compiler_deepdive.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-09",
+        "module": "pytorch-internals",
+        "disposition": "merge",
+        "notebookFile": "20-09_torchscript_torch_fx_graph_transformations.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-07",
       "slug": "cuda-memory",
+      "keyBase": "pytorch-internals/cuda-memory",
       "module": "pytorch-internals",
       "title": "CUDA Memory Management",
       "status": "LIVE",
@@ -40608,13 +41667,20 @@
           "url": "https://arxiv.org/abs/2110.02861"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-05",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-05_cuda_memory_oom_forensics.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-08",
       "slug": "distributed-primitives",
+      "keyBase": "pytorch-internals/distributed-primitives",
       "module": "pytorch-internals",
       "title": "Distributed Communication Primitives",
       "status": "LIVE",
@@ -40899,13 +41965,20 @@
           "url": "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/index.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "21-06",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-06_collectives_ring_all_reduce.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-09",
       "slug": "debugging-profiling",
+      "keyBase": "pytorch-internals/debugging-profiling",
       "module": "pytorch-internals",
       "title": "PyTorch Debugging & Profiling",
       "status": "LIVE",
@@ -41191,13 +42264,20 @@
           "url": "https://pytorch.org/docs/stable/notes/faq.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-06",
+        "module": "pytorch-internals",
+        "disposition": "merge",
+        "notebookFile": "20-06_profiling_bottleneck_analysis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "15-10",
       "slug": "mini-framework",
+      "keyBase": "pytorch-internals/mini-framework",
       "module": "pytorch-internals",
       "title": "Mini Training Framework",
       "status": "LIVE",
@@ -41483,13 +42563,20 @@
           "url": "https://arxiv.org/abs/1711.05101"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-10",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-10_build_mini_training_framework.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-01",
       "slug": "mixed-precision",
+      "keyBase": "training-systems/mixed-precision",
       "module": "training-systems",
       "title": "Mixed Precision Training",
       "status": "LIVE",
@@ -41774,13 +42861,20 @@
           "url": "https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "21-01",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-01_mixed_precision_fp16_bf16_fp8.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-02",
       "slug": "torch-compile",
+      "keyBase": "training-systems/torch-compile",
       "module": "training-systems",
       "title": "torch.compile — Dynamo & Inductor",
       "status": "LIVE",
@@ -42066,13 +43160,23 @@
           "url": "https://triton-lang.org/"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "20-07",
+        "module": "pytorch-internals",
+        "disposition": "split",
+        "notebookFile": "20-07_torch_compile_dynamo_inductor.ipynb",
+        "alsoFeeds": [
+          "21-09"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-03",
       "slug": "gradient-checkpointing",
+      "keyBase": "training-systems/gradient-checkpointing",
       "module": "training-systems",
       "title": "Gradient Checkpointing",
       "status": "LIVE",
@@ -42358,13 +43462,20 @@
           "url": "https://pytorch.org/docs/stable/checkpoint.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "21-02",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-02_gradient_checkpointing.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-04",
       "slug": "gradient-accumulation",
+      "keyBase": "training-systems/gradient-accumulation",
       "module": "training-systems",
       "title": "Gradient Accumulation & Large Batch Training",
       "status": "LIVE",
@@ -42650,13 +43761,20 @@
           "url": "https://arxiv.org/abs/1904.00962"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "21-03",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-03_gradient_accumulation_large_batch_training.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-05",
       "slug": "data-loading-scale",
+      "keyBase": "training-systems/data-loading-scale",
       "module": "training-systems",
       "title": "Data Loading at Scale",
       "status": "LIVE",
@@ -42941,13 +44059,20 @@
           "url": "https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html"
         }
       ],
-      "updatedAt": "2026-08-07"
+      "updatedAt": "2026-08-07",
+      "v2": {
+        "id": "21-04",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-04_data_loading_at_scale.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-06",
       "slug": "training-stability",
+      "keyBase": "training-systems/training-stability",
       "module": "training-systems",
       "title": "Training Stability & NaN Recovery",
       "status": "LIVE",
@@ -43233,13 +44358,20 @@
           "url": "https://arxiv.org/abs/2302.05442"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "21-05",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-05_training_stability_nan_forensics.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-07",
       "slug": "profiling",
+      "keyBase": "training-systems/profiling",
       "module": "training-systems",
       "title": "Profiling & Bottleneck Analysis",
       "status": "LIVE",
@@ -43524,13 +44656,20 @@
           "url": "https://pytorch.org/blog/trace-analysis-for-masses/"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "20-06",
+        "module": "pytorch-internals",
+        "disposition": "merge",
+        "notebookFile": "20-06_profiling_bottleneck_analysis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-08",
       "slug": "ddp",
+      "keyBase": "training-systems/ddp",
       "module": "training-systems",
       "title": "Distributed Data Parallel (DDP)",
       "status": "LIVE",
@@ -43712,13 +44851,20 @@
           "title": "Patarasuk & Yuan (2009) — Bandwidth Optimal All-reduce Algorithms for Clusters of Workstations",
           "url": "https://www.sciencedirect.com/science/article/pii/S0743731508001767"
         }
-      ]
+      ],
+      "v2": {
+        "id": "21-07",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-07_distributed_data_parallel.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-09",
       "slug": "fsdp",
+      "keyBase": "training-systems/fsdp",
       "module": "training-systems",
       "title": "FSDP, ZeRO & Model Parallelism",
       "status": "LIVE",
@@ -44004,13 +45150,20 @@
           "url": "https://arxiv.org/abs/2104.04473"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "21-08",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-08_fsdp_zero.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "16-10",
       "slug": "optimized-pipeline",
+      "keyBase": "training-systems/optimized-pipeline",
       "module": "training-systems",
       "title": "End-to-End Optimized Training Pipeline",
       "status": "LIVE",
@@ -44296,13 +45449,20 @@
           "url": "https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "21-10",
+        "module": "distributed-training",
+        "disposition": "clean",
+        "notebookFile": "21-10_end_end_optimized_training_run.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-01",
       "slug": "llm-architectures",
+      "keyBase": "llm-systems/llm-architectures",
       "module": "llm-systems",
       "title": "LLM Architecture Patterns",
       "status": "LIVE",
@@ -44588,13 +45748,20 @@
           "url": "https://arxiv.org/abs/2307.09288"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-01",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-01_llm_architecture_patterns_production.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-02",
       "slug": "scaling-laws",
+      "keyBase": "llm-systems/scaling-laws",
       "module": "llm-systems",
       "title": "Scaling Laws & Chinchilla",
       "status": "LIVE",
@@ -44876,13 +46043,20 @@
           "url": "https://arxiv.org/abs/2305.16264"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "16-01",
+        "module": "reasoning-scaling",
+        "disposition": "clean",
+        "notebookFile": "16-01_scaling_laws_chinchilla.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-03",
       "slug": "moe",
+      "keyBase": "llm-systems/moe",
       "module": "llm-systems",
       "title": "Mixture of Experts (MoE)",
       "status": "LIVE",
@@ -45168,13 +46342,20 @@
           "url": "https://arxiv.org/abs/2401.06066"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "16-03",
+        "module": "reasoning-scaling",
+        "disposition": "clean",
+        "notebookFile": "16-03_mixture_experts.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-04",
       "slug": "llm-data-pipelines",
+      "keyBase": "llm-systems/llm-data-pipelines",
       "module": "llm-systems",
       "title": "Training Data Pipelines",
       "status": "LIVE",
@@ -45460,13 +46641,20 @@
           "url": "https://arxiv.org/abs/1910.10683"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "16-02",
+        "module": "reasoning-scaling",
+        "disposition": "clean",
+        "notebookFile": "16-02_pretraining_data_pipelines_mixtures.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-05",
       "slug": "distillation",
+      "keyBase": "llm-systems/distillation",
       "module": "llm-systems",
       "title": "Knowledge Distillation",
       "status": "LIVE",
@@ -45752,13 +46940,20 @@
           "url": "https://arxiv.org/abs/2306.08543"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-03",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-03_knowledge_distillation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-06",
       "slug": "quantization",
+      "keyBase": "llm-systems/quantization",
       "module": "llm-systems",
       "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
       "status": "LIVE",
@@ -46044,13 +47239,20 @@
           "url": "https://arxiv.org/abs/1712.05877"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-02",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-02_quantization_ptq_qat_gptq_awq.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-07",
       "slug": "speculative-decoding",
+      "keyBase": "llm-systems/speculative-decoding",
       "module": "llm-systems",
       "title": "Efficient Inference & Speculative Decoding",
       "status": "LIVE",
@@ -46336,13 +47538,20 @@
           "url": "https://arxiv.org/abs/2309.06180"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-04",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-04_speculative_decoding_decoding_time_algorithms.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-08",
       "slug": "long-context",
+      "keyBase": "llm-systems/long-context",
       "module": "llm-systems",
       "title": "Long Context — RoPE Scaling & Sliding Window",
       "status": "LIVE",
@@ -46524,13 +47733,20 @@
           "title": "Hsieh et al. (2024) — RULER: What's the Real Context Size of Your Long-Context Language Models?",
           "url": "https://arxiv.org/abs/2404.06654"
         }
-      ]
+      ],
+      "v2": {
+        "id": "16-08",
+        "module": "reasoning-scaling",
+        "disposition": "clean",
+        "notebookFile": "16-08_long_context_position_interpolation_yarn.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-09",
       "slug": "structured-output",
+      "keyBase": "llm-systems/structured-output",
       "module": "llm-systems",
       "title": "Structured Output & Function Calling",
       "status": "LIVE",
@@ -46816,13 +48032,20 @@
           "url": "https://arxiv.org/abs/2302.04761"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-02",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-02_tool_function_calling.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "17-10",
       "slug": "llm-eval",
+      "keyBase": "llm-systems/llm-eval",
       "module": "llm-systems",
       "title": "LLM Evaluation & Benchmarks",
       "status": "LIVE",
@@ -47108,13 +48331,20 @@
           "url": "https://arxiv.org/abs/2404.04475"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "16-09",
+        "module": "reasoning-scaling",
+        "disposition": "merge",
+        "notebookFile": "16-09_benchmarks_contamination_honest_llm_evaluation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-01",
       "slug": "embeddings-vector-stores",
+      "keyBase": "rag-agents/embeddings-vector-stores",
       "module": "rag-agents",
       "title": "Embeddings & Vector Stores",
       "status": "LIVE",
@@ -47396,13 +48626,23 @@
           "url": "https://arxiv.org/abs/2112.09118"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "18-01",
+        "module": "retrieval-rag",
+        "disposition": "split",
+        "notebookFile": "18-01_embeddings_vector_spaces.ipynb",
+        "alsoFeeds": [
+          "18-02"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-02",
       "slug": "chunking-retrieval",
+      "keyBase": "rag-agents/chunking-retrieval",
       "module": "rag-agents",
       "title": "Chunking, BM25 & Dense Retrieval",
       "status": "LIVE",
@@ -47684,13 +48924,23 @@
           "url": "https://www.anthropic.com/news/contextual-retrieval"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "18-03",
+        "module": "retrieval-rag",
+        "disposition": "split",
+        "notebookFile": "18-03_sparse_retrieval_bm25_inverted_indexes.ipynb",
+        "alsoFeeds": [
+          "18-04"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-03",
       "slug": "advanced-rag",
+      "keyBase": "rag-agents/advanced-rag",
       "module": "rag-agents",
       "title": "Advanced RAG — HyDE & Reranking",
       "status": "LIVE",
@@ -47972,13 +49222,23 @@
           "url": "https://arxiv.org/abs/2310.06117"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "18-06",
+        "module": "retrieval-rag",
+        "disposition": "merge",
+        "notebookFile": "18-06_reranking_fusion.ipynb",
+        "alsoFeeds": [
+          "18-07"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-04",
       "slug": "rag-pipeline",
+      "keyBase": "rag-agents/rag-pipeline",
       "module": "rag-agents",
       "title": "RAG Pipeline End-to-End",
       "status": "LIVE",
@@ -48160,13 +49420,20 @@
           "title": "Cormack, Clarke & Buettcher (2009) — Reciprocal Rank Fusion",
           "url": "https://dl.acm.org/doi/10.1145/1571941.1572114"
         }
-      ]
+      ],
+      "v2": {
+        "id": "18-08",
+        "module": "retrieval-rag",
+        "disposition": "clean",
+        "notebookFile": "18-08_rag_end_end_assembly_citation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-05",
       "slug": "rag-eval",
+      "keyBase": "rag-agents/rag-eval",
       "module": "rag-agents",
       "title": "RAG Evaluation Metrics",
       "status": "LIVE",
@@ -48448,13 +49715,20 @@
           "url": "https://arxiv.org/abs/2307.03172"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "18-12",
+        "module": "retrieval-rag",
+        "disposition": "merge",
+        "notebookFile": "18-12_rag_evaluation_knowledge_assistant.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-06",
       "slug": "agent-loops",
+      "keyBase": "rag-agents/agent-loops",
       "module": "rag-agents",
       "title": "Agent Loops, Tool Use & Planning",
       "status": "LIVE",
@@ -48737,13 +50011,20 @@
           "url": "https://www.anthropic.com/engineering/building-effective-agents"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-01",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-01_agent_loop.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-07",
       "slug": "multi-agent",
+      "keyBase": "rag-agents/multi-agent",
       "module": "rag-agents",
       "title": "Multi-Agent Orchestration",
       "status": "LIVE",
@@ -49025,13 +50306,20 @@
           "url": "https://www.anthropic.com/engineering/multi-agent-research-system"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-07",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-07_multi_agent_orchestration.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-08",
       "slug": "voice-agents",
+      "keyBase": "rag-agents/voice-agents",
       "module": "rag-agents",
       "title": "Voice Agents — STT→LLM→TTS",
       "status": "LIVE",
@@ -49314,13 +50602,20 @@
           "url": "https://arxiv.org/abs/2410.00037"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-12",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-12_capstone_production_agent.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-09",
       "slug": "guardrails",
+      "keyBase": "rag-agents/guardrails",
       "module": "rag-agents",
       "title": "Guardrails & Agent Evaluation",
       "status": "LIVE",
@@ -49603,13 +50898,23 @@
           "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-09",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-09_agent_evaluation_tasks_trajectories_rubrics.ipynb",
+        "alsoFeeds": [
+          "19-11"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "18-10",
       "slug": "capstone-assistant",
+      "keyBase": "rag-agents/capstone-assistant",
       "module": "rag-agents",
       "title": "Domain-Specific AI Assistant (Capstone)",
       "status": "LIVE",
@@ -49891,13 +51196,20 @@
           "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "18-12",
+        "module": "retrieval-rag",
+        "disposition": "merge",
+        "notebookFile": "18-12_rag_evaluation_knowledge_assistant.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-01",
       "slug": "recommenders-cf",
+      "keyBase": "ml-applications/recommenders-cf",
       "module": "ml-applications",
       "title": "Recommender Systems — Collaborative Filtering",
       "status": "LIVE",
@@ -50079,13 +51391,20 @@
           "title": "Schnabel et al. (2016) — Recommendations as Treatments: Debiasing Learning and Evaluation",
           "url": "https://arxiv.org/abs/1602.05352"
         }
-      ]
+      ],
+      "v2": {
+        "id": "25-01",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-01_collaborative_filtering_matrix_factorization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-02",
       "slug": "neural-recommenders",
+      "keyBase": "ml-applications/neural-recommenders",
       "module": "ml-applications",
       "title": "Neural Recommenders & Two-Tower Architecture",
       "status": "LIVE",
@@ -50387,13 +51706,20 @@
           "url": "https://arxiv.org/abs/1603.09320"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-02",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-02_two_tower_neural_retrieval.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-03",
       "slug": "time-series",
+      "keyBase": "ml-applications/time-series",
       "module": "ml-applications",
       "title": "Time Series Forecasting",
       "status": "LIVE",
@@ -50694,13 +52020,20 @@
           "url": "https://www.sciencedirect.com/science/article/abs/pii/S0169207006000239"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-05",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-05_time_series_forecasting.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-04",
       "slug": "search-ranking",
+      "keyBase": "ml-applications/search-ranking",
       "module": "ml-applications",
       "title": "Search & Ranking Systems",
       "status": "LIVE",
@@ -51001,13 +52334,20 @@
           "url": "https://arxiv.org/abs/2107.05720"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-03",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-03_search_learning_rank.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-05",
       "slug": "shap",
+      "keyBase": "ml-applications/shap",
       "module": "ml-applications",
       "title": "SHAP & Model-Agnostic Explainability",
       "status": "LIVE",
@@ -51308,13 +52648,20 @@
           "url": "https://christophm.github.io/interpretable-ml-book/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "24-05",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-05_attribution_ii_shapley_kernelshap_pdp.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-06",
       "slug": "gnn",
+      "keyBase": "ml-applications/gnn",
       "module": "ml-applications",
       "title": "Graph Neural Networks",
       "status": "LIVE",
@@ -51616,13 +52963,20 @@
           "url": "https://arxiv.org/abs/2006.05205"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-06",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-06_graph_neural_networks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-07",
       "slug": "audio-classification",
+      "keyBase": "ml-applications/audio-classification",
       "module": "ml-applications",
       "title": "Audio Classification",
       "status": "LIVE",
@@ -51924,13 +53278,20 @@
           "url": "https://arxiv.org/abs/2104.01778"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-10",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-10_audio_classification.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-08",
       "slug": "semi-supervised",
+      "keyBase": "ml-applications/semi-supervised",
       "module": "ml-applications",
       "title": "Semi-Supervised Learning",
       "status": "LIVE",
@@ -52232,13 +53593,20 @@
           "url": "https://arxiv.org/abs/2002.05709"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-08",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-08_semi_supervised_label_efficient_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-09",
       "slug": "multi-task",
+      "keyBase": "ml-applications/multi-task",
       "module": "ml-applications",
       "title": "Multi-Task & Multi-Output Learning",
       "status": "LIVE",
@@ -52540,13 +53908,20 @@
           "url": "https://dl.acm.org/doi/10.1145/3383313.3412236"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-09",
+        "module": "applications",
+        "disposition": "clean",
+        "notebookFile": "25-09_multi_task_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "19-10",
       "slug": "tabular-dl",
+      "keyBase": "ml-applications/tabular-dl",
       "module": "ml-applications",
       "title": "Tabular Deep Learning",
       "status": "LIVE",
@@ -52847,13 +54222,23 @@
           "url": "https://arxiv.org/abs/1604.06737"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "25-07",
+        "module": "applications",
+        "disposition": "split",
+        "notebookFile": "25-07_tabular_deep_learning_versus_gradient.ipynb",
+        "alsoFeeds": [
+          "25-12"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-01",
       "slug": "ml-strategy",
+      "keyBase": "mlops/ml-strategy",
       "module": "mlops",
       "title": "ML Strategy & Error Analysis",
       "status": "LIVE",
@@ -53155,13 +54540,20 @@
           "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-01",
+        "module": "mlops",
+        "disposition": "clean",
+        "notebookFile": "23-01_ml_strategy_error_analysis.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-02",
       "slug": "mlflow",
+      "keyBase": "mlops/mlflow",
       "module": "mlops",
       "title": "Experiment Tracking with MLflow",
       "status": "LIVE",
@@ -53462,13 +54854,20 @@
           "url": "https://research.google/pubs/pub46555/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-02",
+        "module": "mlops",
+        "disposition": "clean",
+        "notebookFile": "23-02_experiment_tracking_model_registry.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-03",
       "slug": "torchscript-onnx",
+      "keyBase": "mlops/torchscript-onnx",
       "module": "mlops",
       "title": "Model Export — TorchScript & ONNX",
       "status": "LIVE",
@@ -53770,13 +55169,20 @@
           "url": "https://arxiv.org/abs/2208.07339"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "22-06",
+        "module": "inference-serving",
+        "disposition": "merge",
+        "notebookFile": "22-06_model_export_torchscript_onnx_runtimes.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-04",
       "slug": "model-serving",
+      "keyBase": "mlops/model-serving",
       "module": "mlops",
       "title": "Model Serving — FastAPI & Gradio",
       "status": "LIVE",
@@ -54077,13 +55483,20 @@
           "url": "https://fastapi.tiangolo.com/async/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "22-07",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-07_serving_apis_batching_streaming.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-05",
       "slug": "docker",
+      "keyBase": "mlops/docker",
       "module": "mlops",
       "title": "Docker Containerization",
       "status": "LIVE",
@@ -54384,13 +55797,20 @@
           "url": "https://reproducible-builds.org/docs/definition/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "22-08",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-08_containerization.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-06",
       "slug": "monitoring",
+      "keyBase": "mlops/monitoring",
       "module": "mlops",
       "title": "Data Drift & Model Monitoring",
       "status": "LIVE",
@@ -54689,13 +56109,23 @@
           "url": "https://arxiv.org/abs/2201.04234"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-05",
+        "module": "mlops",
+        "disposition": "merge",
+        "notebookFile": "23-05_drift_detection_shift_adaptation.ipynb",
+        "alsoFeeds": [
+          "23-06"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-07",
       "slug": "cicd",
+      "keyBase": "mlops/cicd",
       "module": "mlops",
       "title": "CI/CD for ML",
       "status": "LIVE",
@@ -54996,13 +56426,20 @@
           "url": "https://dl.acm.org/doi/10.1145/3097983.3097992"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-03",
+        "module": "mlops",
+        "disposition": "clean",
+        "notebookFile": "23-03_ci_cd_machine_learning.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-08",
       "slug": "testing",
+      "keyBase": "mlops/testing",
       "module": "mlops",
       "title": "ML Testing & Data Validation",
       "status": "LIVE",
@@ -55303,13 +56740,20 @@
           "url": "https://docs.greatexpectations.io/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-04",
+        "module": "mlops",
+        "disposition": "clean",
+        "notebookFile": "23-04_ml_testing_data_validation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-09",
       "slug": "project-structure",
+      "keyBase": "mlops/project-structure",
       "module": "mlops",
       "title": "ML Project Structure & Best Practices",
       "status": "LIVE",
@@ -55611,13 +57055,20 @@
           "url": "https://developers.google.com/machine-learning/guides/rules-of-ml"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-10",
+        "module": "mlops",
+        "disposition": "clean",
+        "notebookFile": "23-10_production_pipeline_end_end.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "20-10",
       "slug": "system-design",
+      "keyBase": "mlops/system-design",
       "module": "mlops",
       "title": "ML System Design Patterns",
       "status": "LIVE",
@@ -55799,13 +57250,20 @@
           "title": "Huyen — Designing Machine Learning Systems (2022)",
           "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
         }
-      ]
+      ],
+      "v2": {
+        "id": "22-12",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-12_ml_system_design_patterns.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-01",
       "slug": "agent-loop",
+      "keyBase": "agentic-ai/agent-loop",
       "module": "agentic-ai",
       "title": "The Agent Loop: Perceive, Reason, Act",
       "status": "LIVE",
@@ -56087,13 +57545,20 @@
           "url": "https://www.anthropic.com/engineering/building-effective-agents"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-01",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-01_agent_loop.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-02",
       "slug": "tool-calling",
+      "keyBase": "agentic-ai/tool-calling",
       "module": "agentic-ai",
       "title": "Tool Calling & Function Calling",
       "status": "LIVE",
@@ -56376,13 +57841,20 @@
           "url": "https://json-schema.org/draft/2020-12/json-schema-core.html"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-02",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-02_tool_function_calling.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-03",
       "slug": "mcp",
+      "keyBase": "agentic-ai/mcp",
       "module": "agentic-ai",
       "title": "MCP: Protocol, Clients & Servers",
       "status": "LIVE",
@@ -56664,13 +58136,20 @@
           "url": "https://arxiv.org/abs/2503.23278"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-03",
+        "module": "agentic-ai",
+        "disposition": "clean",
+        "notebookFile": "19-03_model_context_protocol.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-04",
       "slug": "react-planning",
+      "keyBase": "agentic-ai/react-planning",
       "module": "agentic-ai",
       "title": "ReAct, Planning & Task Decomposition",
       "status": "LIVE",
@@ -56952,13 +58431,20 @@
           "url": "https://arxiv.org/abs/2305.15771"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-04",
+        "module": "agentic-ai",
+        "disposition": "clean",
+        "notebookFile": "19-04_react_planning_task_decomposition.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-05",
       "slug": "agent-memory",
+      "keyBase": "agentic-ai/agent-memory",
       "module": "agentic-ai",
       "title": "Agent Memory & Context Management",
       "status": "LIVE",
@@ -57241,13 +58727,20 @@
           "url": "https://arxiv.org/abs/2307.03172"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-05",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-05_agent_memory.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-06",
       "slug": "multi-agent",
+      "keyBase": "agentic-ai/multi-agent",
       "module": "agentic-ai",
       "title": "Multi-Agent Orchestration",
       "status": "LIVE",
@@ -57530,13 +59023,20 @@
           "url": "https://www.anthropic.com/engineering/multi-agent-research-system"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-07",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-07_multi_agent_orchestration.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-07",
       "slug": "agent-evaluation",
+      "keyBase": "agentic-ai/agent-evaluation",
       "module": "agentic-ai",
       "title": "Agent Evaluation: Tasks & Trajectories",
       "status": "LIVE",
@@ -57819,13 +59319,20 @@
           "url": "https://arxiv.org/abs/2306.05685"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-09",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-09_agent_evaluation_tasks_trajectories_rubrics.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-08",
       "slug": "observability",
+      "keyBase": "agentic-ai/observability",
       "module": "agentic-ai",
       "title": "Observability, Tracing & Cost Control",
       "status": "LIVE",
@@ -58108,13 +59615,20 @@
           "url": "https://arxiv.org/abs/2407.01502"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-10",
+        "module": "agentic-ai",
+        "disposition": "clean",
+        "notebookFile": "19-10_observability_tracing_cost_control.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-09",
       "slug": "agent-security",
+      "keyBase": "agentic-ai/agent-security",
       "module": "agentic-ai",
       "title": "Guardrails & Agent Security",
       "status": "LIVE",
@@ -58397,13 +59911,20 @@
           "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-11",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-11_guardrails_prompt_injection_agent_security.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "21-10",
       "slug": "agent-capstone",
+      "keyBase": "agentic-ai/agent-capstone",
       "module": "agentic-ai",
       "title": "Capstone: Build a Production Agent",
       "status": "LIVE",
@@ -58685,13 +60206,20 @@
           "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "19-12",
+        "module": "agentic-ai",
+        "disposition": "merge",
+        "notebookFile": "19-12_capstone_production_agent.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-01",
       "slug": "jax-fundamentals",
+      "keyBase": "frontier-frameworks/jax-fundamentals",
       "module": "frontier-frameworks",
       "title": "JAX & Functional ML: jit, grad, vmap",
       "status": "LIVE",
@@ -58973,13 +60501,20 @@
           "url": "https://arxiv.org/abs/1607.00133"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": null,
+        "module": null,
+        "disposition": "cut",
+        "notebookFile": null
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-02",
       "slug": "flax-optax",
+      "keyBase": "frontier-frameworks/flax-optax",
       "module": "frontier-frameworks",
       "title": "Training in JAX with Flax & Optax",
       "status": "LIVE",
@@ -59261,13 +60796,20 @@
           "url": "https://arxiv.org/abs/1706.02677"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": null,
+        "module": null,
+        "disposition": "cut",
+        "notebookFile": null
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-03",
       "slug": "open-weight-models",
+      "keyBase": "frontier-frameworks/open-weight-models",
       "module": "frontier-frameworks",
       "title": "The Open-Weight Model Landscape",
       "status": "LIVE",
@@ -59549,13 +61091,20 @@
           "url": "https://arxiv.org/abs/2307.09288"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "16-10",
+        "module": "reasoning-scaling",
+        "disposition": "merge",
+        "notebookFile": "16-10_emergence_capability_forecasting_reading_frontier.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-04",
       "slug": "vllm-inference",
+      "keyBase": "frontier-frameworks/vllm-inference",
       "module": "frontier-frameworks",
       "title": "Inference Engines: vLLM & Paged Attention",
       "status": "LIVE",
@@ -59837,13 +61386,20 @@
           "url": "https://dl.acm.org/doi/10.1145/356571.356573"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-05",
+        "module": "inference-serving",
+        "disposition": "merge",
+        "notebookFile": "22-05_serving_engines_paged_attention_continuous.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-05",
       "slug": "torch-compile-triton",
+      "keyBase": "frontier-frameworks/torch-compile-triton",
       "module": "frontier-frameworks",
       "title": "torch.compile & GPU Kernels with Triton",
       "status": "LIVE",
@@ -60125,13 +61681,20 @@
           "url": "https://pytorch.org/docs/stable/torch.compiler.html"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "20-08",
+        "module": "pytorch-internals",
+        "disposition": "clean",
+        "notebookFile": "20-08_triton_kernels_custom_ops.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-06",
       "slug": "onnx-export",
+      "keyBase": "frontier-frameworks/onnx-export",
       "module": "frontier-frameworks",
       "title": "Model Export: ONNX & Quantized Runtimes",
       "status": "LIVE",
@@ -60413,13 +61976,20 @@
           "url": "https://pytorch.org/docs/stable/onnx.html"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-06",
+        "module": "inference-serving",
+        "disposition": "merge",
+        "notebookFile": "22-06_model_export_torchscript_onnx_runtimes.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-07",
       "slug": "provider-apis",
+      "keyBase": "frontier-frameworks/provider-apis",
       "module": "frontier-frameworks",
       "title": "Provider APIs in Production",
       "status": "LIVE",
@@ -60702,13 +62272,20 @@
           "url": "https://research.google/pubs/pub40801/"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "22-09",
+        "module": "inference-serving",
+        "disposition": "clean",
+        "notebookFile": "22-09_provider_apis_production.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-08",
       "slug": "finetuning-stacks",
+      "keyBase": "frontier-frameworks/finetuning-stacks",
       "module": "frontier-frameworks",
       "title": "Modern Fine-Tuning Stacks",
       "status": "LIVE",
@@ -60990,13 +62567,20 @@
           "url": "https://arxiv.org/abs/2402.09353"
         }
       ],
-      "updatedAt": "2026-08-08"
+      "updatedAt": "2026-08-08",
+      "v2": {
+        "id": "17-06",
+        "module": "post-training",
+        "disposition": "clean",
+        "notebookFile": "17-06_model_merging_task_arithmetic_model.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-09",
       "slug": "eval-harnesses",
+      "keyBase": "frontier-frameworks/eval-harnesses",
       "module": "frontier-frameworks",
       "title": "Evaluation Harnesses & Custom Evals",
       "status": "LIVE",
@@ -61288,13 +62872,20 @@
           "url": "https://github.com/EleutherAI/lm-evaluation-harness"
         }
       ],
-      "updatedAt": "2026-08-09"
+      "updatedAt": "2026-08-09",
+      "v2": {
+        "id": "16-09",
+        "module": "reasoning-scaling",
+        "disposition": "merge",
+        "notebookFile": "16-09_benchmarks_contamination_honest_llm_evaluation.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "22-10",
       "slug": "staying-current",
+      "keyBase": "frontier-frameworks/staying-current",
       "module": "frontier-frameworks",
       "title": "Staying Current: Releases, Benchmarks & Changelogs",
       "status": "LIVE",
@@ -61585,13 +63176,20 @@
           "url": "https://psycnet.apa.org/record/2006-05288-004"
         }
       ],
-      "updatedAt": "2026-08-09"
+      "updatedAt": "2026-08-09",
+      "v2": {
+        "id": "16-10",
+        "module": "reasoning-scaling",
+        "disposition": "merge",
+        "notebookFile": "16-10_emergence_capability_forecasting_reading_frontier.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-01",
       "slug": "potential-outcomes",
+      "keyBase": "causal-inference/potential-outcomes",
       "module": "causal-inference",
       "title": "Potential Outcomes & Treatment Effects",
       "status": "LIVE",
@@ -61892,13 +63490,20 @@
           "url": "https://www.acpjournals.org/doi/10.7326/M16-2607"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-01",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-01_potential_outcomes_treatment_effects.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-02",
       "slug": "causal-graphs",
+      "keyBase": "causal-inference/causal-graphs",
       "module": "causal-inference",
       "title": "Causal Graphs & do-Calculus",
       "status": "LIVE",
@@ -62200,13 +63805,20 @@
           "url": "https://journals.sagepub.com/doi/10.1177/00491241221099552"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-02",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-02_causal_graphs_do_calculus.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-03",
       "slug": "confounding",
+      "keyBase": "causal-inference/confounding",
       "module": "causal-inference",
       "title": "Confounding & Simpson's Paradox",
       "status": "LIVE",
@@ -62507,13 +64119,20 @@
           "url": "https://academic.oup.com/jrsssb/article/82/1/39/7056023"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-03",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-03_confounding_colliders_simpson_s_paradox.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-04",
       "slug": "instrumental-variables",
+      "keyBase": "causal-inference/instrumental-variables",
       "module": "causal-inference",
       "title": "Instrumental Variables",
       "status": "LIVE",
@@ -62815,13 +64434,20 @@
           "url": "https://www.aeaweb.org/articles?id=10.1257/aer.20211063"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-05",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-05_instrumental_variables_two_stage_least.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-05",
       "slug": "propensity-matching",
+      "keyBase": "causal-inference/propensity-matching",
       "module": "causal-inference",
       "title": "Propensity Scores & Matching",
       "status": "LIVE",
@@ -63122,13 +64748,20 @@
           "url": "https://academic.oup.com/ectj/article/21/1/C1/5056401"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-04",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-04_propensity_scores_matching_ipw.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-06",
       "slug": "uplift-modeling",
+      "keyBase": "causal-inference/uplift-modeling",
       "module": "causal-inference",
       "title": "Uplift Modeling",
       "status": "LIVE",
@@ -63428,13 +65061,20 @@
           "url": "https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1319839"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-07",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-07_uplift_modeling_cate.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-07",
       "slug": "ab-testing",
+      "keyBase": "causal-inference/ab-testing",
       "module": "causal-inference",
       "title": "A/B Testing & Experimentation at Scale",
       "status": "LIVE",
@@ -63734,13 +65374,20 @@
           "url": "https://www.jstor.org/stable/2346101"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-08",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-08_b_testing_at_scale.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-08",
       "slug": "resampling",
+      "keyBase": "causal-inference/resampling",
       "module": "causal-inference",
       "title": "Bootstrap, Permutation & Resampling",
       "status": "LIVE",
@@ -64042,13 +65689,20 @@
           "url": "https://link.springer.com/book/10.1007/b138696"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "05-10",
+        "module": "evaluation",
+        "disposition": "clean",
+        "notebookFile": "05-10_bootstrap_permutation_significance.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-09",
       "slug": "bayesian-workflow",
+      "keyBase": "causal-inference/bayesian-workflow",
       "module": "causal-inference",
       "title": "The Bayesian Workflow",
       "status": "LIVE",
@@ -64349,13 +66003,20 @@
           "url": "https://arxiv.org/abs/1701.02434"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-10",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-10_bayesian_workflow_mcmc.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "23-10",
       "slug": "time-series-causality",
+      "keyBase": "causal-inference/time-series-causality",
       "module": "causal-inference",
       "title": "Time-Series Causality & Synthetic Control",
       "status": "LIVE",
@@ -64656,13 +66317,20 @@
           "url": "https://academic.oup.com/restud/article/90/5/2555/7039335"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "07-06",
+        "module": "causal-inference",
+        "disposition": "clean",
+        "notebookFile": "07-06_difference_differences_synthetic_control.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-01",
       "slug": "calibration",
+      "keyBase": "trustworthy-ai/calibration",
       "module": "trustworthy-ai",
       "title": "Calibration & Temperature Scaling",
       "status": "LIVE",
@@ -64963,13 +66631,20 @@
           "url": "https://arxiv.org/abs/1612.01474"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "24-01",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-01_uncertainty_epistemic_aleatoric_bayesian_deep.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-02",
       "slug": "conformal-prediction",
+      "keyBase": "trustworthy-ai/conformal-prediction",
       "module": "trustworthy-ai",
       "title": "Conformal Prediction",
       "status": "LIVE",
@@ -65270,13 +66945,20 @@
           "url": "https://arxiv.org/abs/2106.00170"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "24-02",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-02_conformal_prediction.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-03",
       "slug": "fairness",
+      "keyBase": "trustworthy-ai/fairness",
       "module": "trustworthy-ai",
       "title": "Fairness Metrics & Trade-offs",
       "status": "LIVE",
@@ -65576,13 +67258,20 @@
           "url": "https://arxiv.org/abs/1703.06856"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "24-03",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-03_fairness_metrics_their_impossibility.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-04",
       "slug": "attribution",
+      "keyBase": "trustworthy-ai/attribution",
       "module": "trustworthy-ai",
       "title": "Attribution: SHAP, Saliency & Attention Rollout",
       "status": "LIVE",
@@ -65882,13 +67571,20 @@
           "url": "https://arxiv.org/abs/1908.04626"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "24-06",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-06_attribution_faithfulness_sanity_checks.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-05",
       "slug": "superposition-sae",
+      "keyBase": "trustworthy-ai/superposition-sae",
       "module": "trustworthy-ai",
       "title": "Mechanistic Interpretability I: Superposition & SAEs",
       "status": "LIVE",
@@ -66188,13 +67884,20 @@
           "url": "https://distill.pub/2020/circuits/zoom-in/"
         }
       ],
-      "updatedAt": "2026-08-14"
+      "updatedAt": "2026-08-14",
+      "v2": {
+        "id": "24-07",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-07_mechanistic_interpretability_i_superposition_saes.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-06",
       "slug": "probing-patching",
+      "keyBase": "trustworthy-ai/probing-patching",
       "module": "trustworthy-ai",
       "title": "Mechanistic Interpretability II: Probing & Activation Patching",
       "status": "LIVE",
@@ -66495,13 +68198,20 @@
           "url": "https://arxiv.org/abs/2309.16042"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "24-08",
+        "module": "trustworthy-ai",
+        "disposition": "merge",
+        "notebookFile": "24-08_mechanistic_interpretability_ii_probing_patching.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-07",
       "slug": "adversarial-robustness",
+      "keyBase": "trustworthy-ai/adversarial-robustness",
       "module": "trustworthy-ai",
       "title": "Adversarial Robustness & Certified Defenses",
       "status": "LIVE",
@@ -66802,13 +68512,20 @@
           "url": "https://arxiv.org/abs/1905.02175"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "24-10",
+        "module": "trustworthy-ai",
+        "disposition": "clean",
+        "notebookFile": "24-10_certified_defences_adversarial_training.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-08",
       "slug": "distribution-shift",
+      "keyBase": "trustworthy-ai/distribution-shift",
       "module": "trustworthy-ai",
       "title": "Distribution Shift & Drift Detection",
       "status": "LIVE",
@@ -67108,13 +68825,23 @@
           "url": "https://arxiv.org/abs/2201.04234"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "23-05",
+        "module": "mlops",
+        "disposition": "merge",
+        "notebookFile": "23-05_drift_detection_shift_adaptation.ipynb",
+        "alsoFeeds": [
+          "24-11"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-09",
       "slug": "red-teaming",
+      "keyBase": "trustworthy-ai/red-teaming",
       "module": "trustworthy-ai",
       "title": "Red-Teaming & Model Auditing",
       "status": "LIVE",
@@ -67415,13 +69142,20 @@
           "url": "https://arxiv.org/abs/2307.15043"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "24-12",
+        "module": "trustworthy-ai",
+        "disposition": "merge",
+        "notebookFile": "24-12_red_teaming_watermarking_governance.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "24-10",
       "slug": "alignment-governance",
+      "keyBase": "trustworthy-ai/alignment-governance",
       "module": "trustworthy-ai",
       "title": "Alignment & Governance Overview",
       "status": "LIVE",
@@ -67723,13 +69457,20 @@
           "url": "https://www.nist.gov/itl/ai-risk-management-framework"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "24-12",
+        "module": "trustworthy-ai",
+        "disposition": "merge",
+        "notebookFile": "24-12_red_teaming_watermarking_governance.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-01",
       "slug": "interview-landscape",
+      "keyBase": "interview-capstone/interview-landscape",
       "module": "interview-capstone",
       "title": "The ML Interview Landscape & Strategy",
       "status": "LIVE",
@@ -68031,13 +69772,20 @@
           "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-01",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-01_interview_landscape_preparation_strategy.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-02",
       "slug": "system-design-framework",
+      "keyBase": "interview-capstone/system-design-framework",
       "module": "interview-capstone",
       "title": "ML System Design Framework",
       "status": "LIVE",
@@ -68337,13 +70085,20 @@
           "url": "https://research.google/pubs/pub46555/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-02",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-02_ml_system_design_framework.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-03",
       "slug": "design-recommender",
+      "keyBase": "interview-capstone/design-recommender",
       "module": "interview-capstone",
       "title": "Design Case: Recommender & Feed",
       "status": "LIVE",
@@ -68644,13 +70399,20 @@
           "url": "https://arxiv.org/abs/1209.2355"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-03",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-03_design_case_recommender_feed.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-04",
       "slug": "design-search-ads",
+      "keyBase": "interview-capstone/design-search-ads",
       "module": "interview-capstone",
       "title": "Design Case: Search & Ads",
       "status": "LIVE",
@@ -68951,13 +70713,20 @@
           "url": "https://www.nowpublishers.com/article/Details/INR-051"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-04",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-04_design_case_search_ads.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-05",
       "slug": "design-fraud-llm",
+      "keyBase": "interview-capstone/design-fraud-llm",
       "module": "interview-capstone",
       "title": "Design Case: Fraud Detection & LLM Products",
       "status": "LIVE",
@@ -69259,13 +71028,23 @@
           "url": "https://arxiv.org/abs/2309.06180"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-05",
+        "module": "interview-capstone",
+        "disposition": "split",
+        "notebookFile": "26-05_design_case_fraud_detection.ipynb",
+        "alsoFeeds": [
+          "26-06"
+        ]
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-06",
       "slug": "coding-patterns",
+      "keyBase": "interview-capstone/coding-patterns",
       "module": "interview-capstone",
       "title": "Coding Patterns for ML Interviews",
       "status": "LIVE",
@@ -69566,13 +71345,20 @@
           "url": "https://jakevdp.github.io/PythonDataScienceHandbook/02.03-computation-on-arrays-ufuncs.html"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-07",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-07_ml_coding_patterns_scratch.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-07",
       "slug": "cs-algorithms",
+      "keyBase": "interview-capstone/cs-algorithms",
       "module": "interview-capstone",
       "title": "Classical CS Algorithms Review",
       "status": "LIVE",
@@ -69872,13 +71658,20 @@
           "url": "https://www.algorist.com/"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-08",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-08_classical_cs_algorithms_ml_interviews.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-08",
       "slug": "breadth-rapid-fire",
+      "keyBase": "interview-capstone/breadth-rapid-fire",
       "module": "interview-capstone",
       "title": "ML Breadth Rapid-Fire",
       "status": "LIVE",
@@ -70178,13 +71971,20 @@
           "url": "https://arxiv.org/abs/1801.05134"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-09",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-09_ml_breadth_rapid_fire.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-09",
       "slug": "derivations",
+      "keyBase": "interview-capstone/derivations",
       "module": "interview-capstone",
       "title": "Deep-Dive Derivations",
       "status": "LIVE",
@@ -70484,13 +72284,20 @@
           "url": "https://arxiv.org/abs/1604.06174"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-10",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-10_deep_dive_derivations.ipynb"
+      }
     },
     {
       "kind": "lesson",
       "schemaVersion": 1,
       "id": "25-10",
       "slug": "portfolio-capstone",
+      "keyBase": "interview-capstone/portfolio-capstone",
       "module": "interview-capstone",
       "title": "Take-Homes, Storytelling & Portfolio Capstone",
       "status": "LIVE",
@@ -70791,7 +72598,13 @@
           "url": "https://proceedings.neurips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html"
         }
       ],
-      "updatedAt": "2026-08-15"
+      "updatedAt": "2026-08-15",
+      "v2": {
+        "id": "26-11",
+        "module": "interview-capstone",
+        "disposition": "clean",
+        "notebookFile": "26-11_take_homes_storytelling_portfolio.ipynb"
+      }
     }
   ],
   "concepts": [

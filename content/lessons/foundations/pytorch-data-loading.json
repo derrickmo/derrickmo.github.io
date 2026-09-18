@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-05",
   "slug": "pytorch-data-loading",
+  "keyBase": "foundations/pytorch-data-loading",
   "module": "foundations",
   "title": "Data Loading with PyTorch",
   "status": "LIVE",
@@ -249,5 +250,11 @@
       "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.FashionMNIST.html"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "02-06",
+    "module": "python-toolchain",
+    "disposition": "clean",
+    "notebookFile": "02-06_datasets_dataloaders_collation.ipynb"
+  }
 }

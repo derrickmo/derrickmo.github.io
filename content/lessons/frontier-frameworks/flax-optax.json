@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-02",
   "slug": "flax-optax",
+  "keyBase": "frontier-frameworks/flax-optax",
   "module": "frontier-frameworks",
   "title": "Training in JAX with Flax & Optax",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-02_flax_optax.ipynb",
     "flagship": null,
-    "demos": ["optimizers", "lr-schedule", "gradient-descent", "newton-vs-gradient"],
+    "demos": [
+      "optimizers",
+      "lr-schedule",
+      "gradient-descent",
+      "newton-vs-gradient"
+    ],
     "concepts": []
   },
-  "prereqs": ["frontier-frameworks/jax-fundamentals", "neural-nets/adam-lr-scheduling"],
-  "leadsTo": ["frontier-frameworks/finetuning-stacks", "training-systems/training-stability"],
+  "prereqs": [
+    "frontier-frameworks/jax-fundamentals",
+    "neural-nets/adam-lr-scheduling"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/finetuning-stacks",
+    "training-systems/training-stability"
+  ],
   "body": {
     "intuition": [
       "If functions must be pure, then state has to live somewhere explicit - and the two structures that result do all the work in this ecosystem. PARAMETERS become a PYTREE: an arbitrary nested container of arrays, updated by a single tree_map. There is no module registry, no parameters() method, no walk over named tensors, because the tree structure IS the registry. OPTIMIZERS become a PAIR of pure functions - one to initialize state, one to turn gradients into updates - which is exactly what Optax calls a GradientTransformation.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/1706.02677"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": null,
+    "module": null,
+    "disposition": "cut",
+    "notebookFile": null
+  }
 }

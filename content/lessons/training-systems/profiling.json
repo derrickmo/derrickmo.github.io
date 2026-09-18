@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-07",
   "slug": "profiling",
+  "keyBase": "training-systems/profiling",
   "module": "training-systems",
   "title": "Profiling & Bottleneck Analysis",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "16-07_profiling_bottleneck_analysis.ipynb",
     "flagship": null,
-    "demos": ["batching", "scaling-laws", "autoscaling", "mixed-precision"],
+    "demos": [
+      "batching",
+      "scaling-laws",
+      "autoscaling",
+      "mixed-precision"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/debugging-profiling"],
-  "leadsTo": ["training-systems/optimized-pipeline", "mlops/monitoring"],
+  "prereqs": [
+    "pytorch-internals/debugging-profiling"
+  ],
+  "leadsTo": [
+    "training-systems/optimized-pipeline",
+    "mlops/monitoring"
+  ],
   "body": {
     "intuition": [
       "This lesson is the instrument the rest of the module depends on. Every other technique here is an exchange whose rate depends on your configuration, so applying any of them without knowing which resource binds is guessing - and Amdahl's law makes that quantitative rather than advisory: optimizing a component that is a fifth of your time caps your gain at 25% no matter how well you do it. The measurement that would have told you takes minutes.",
@@ -277,5 +288,11 @@
       "url": "https://pytorch.org/blog/trace-analysis-for-masses/"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "20-06",
+    "module": "pytorch-internals",
+    "disposition": "merge",
+    "notebookFile": "20-06_profiling_bottleneck_analysis.ipynb"
+  }
 }

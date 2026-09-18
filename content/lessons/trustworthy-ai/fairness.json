@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-03",
   "slug": "fairness",
+  "keyBase": "trustworthy-ai/fairness",
   "module": "trustworthy-ai",
   "title": "Fairness Metrics & Trade-offs",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://arxiv.org/abs/1703.06856"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "24-03",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-03_fairness_metrics_their_impossibility.ipynb"
+  }
 }

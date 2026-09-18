@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-09",
   "slug": "derivations",
+  "keyBase": "interview-capstone/derivations",
   "module": "interview-capstone",
   "title": "Deep-Dive Derivations",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://arxiv.org/abs/1604.06174"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-10",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-10_deep_dive_derivations.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-02",
   "slug": "vae",
+  "keyBase": "generative/vae",
   "module": "generative",
   "title": "Variational Autoencoders (VAEs)",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "11-02_variational_autoencoders.ipynb",
     "flagship": null,
-    "demos": ["vae", "variational-inference", "embeddings", "kernel-density"],
+    "demos": [
+      "vae",
+      "variational-inference",
+      "embeddings",
+      "kernel-density"
+    ],
     "concepts": []
   },
-  "prereqs": ["generative/autoencoders", "unsupervised-learning/bayesian-inference"],
-  "leadsTo": ["generative/gan", "generative/latent-diffusion"],
+  "prereqs": [
+    "generative/autoencoders",
+    "unsupervised-learning/bayesian-inference"
+  ],
+  "leadsTo": [
+    "generative/gan",
+    "generative/latent-diffusion"
+  ],
   "body": {
     "intuition": [
       "The VAE fixes the autoencoder's one missing piece. An autoencoder places latent codes wherever is convenient, so the space has holes and prior samples decode to nothing. The VAE adds a term that pulls the distribution of codes toward a prior you can sample from, and makes the encoder output a DISTRIBUTION rather than a point - so each training example occupies a small region of latent space instead of a single spot. Regions overlap, the gaps fill in, and now sampling z from N(0, I) and decoding produces something coherent.",
@@ -90,33 +102,87 @@
       "Sampling from the aggregate posterior's mean rather than the prior when evaluating. If your samples look good only when you decode encoded real data, you have not tested generation at all."
     ],
     "connections": [
-      { "ref": "generative/autoencoders", "text": "The VAE is the autoencoder plus exactly one term - a KL pulling the code distribution toward a samplable prior - and every difference in behaviour traces back to it." },
-      { "ref": "unsupervised-learning/bayesian-inference", "text": "The ELBO is standard variational inference; the VAE's contribution was amortizing the posterior with a network and making it differentiable via reparameterization." },
-      { "ref": "generative/latent-diffusion", "text": "Latent diffusion uses a VAE with the KL weight turned almost off - it wants compression, not a prior, which is the clearest statement that those are separate jobs." },
-      { "ref": "generative/gan", "text": "The GAN sits at the opposite corner of the trilemma: excellent samples, fast sampling, no likelihood, and mode coverage as its characteristic failure." },
-      { "ref": "ml-theory/calibration", "text": "A VAE gives a per-example likelihood bound, which is what makes it usable for anomaly scoring - subject to the complexity confound that afflicts all likelihood-based detection." }
+      {
+        "ref": "generative/autoencoders",
+        "text": "The VAE is the autoencoder plus exactly one term - a KL pulling the code distribution toward a samplable prior - and every difference in behaviour traces back to it."
+      },
+      {
+        "ref": "unsupervised-learning/bayesian-inference",
+        "text": "The ELBO is standard variational inference; the VAE's contribution was amortizing the posterior with a network and making it differentiable via reparameterization."
+      },
+      {
+        "ref": "generative/latent-diffusion",
+        "text": "Latent diffusion uses a VAE with the KL weight turned almost off - it wants compression, not a prior, which is the clearest statement that those are separate jobs."
+      },
+      {
+        "ref": "generative/gan",
+        "text": "The GAN sits at the opposite corner of the trilemma: excellent samples, fast sampling, no likelihood, and mode coverage as its characteristic failure."
+      },
+      {
+        "ref": "ml-theory/calibration",
+        "text": "A VAE gives a per-example likelihood bound, which is what makes it usable for anomaly scoring - subject to the complexity confound that afflicts all likelihood-based detection."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What does a VAE add to an autoencoder?", "a": "A stochastic encoder outputting a distribution, plus a KL term pulling that distribution toward a prior. Together they make the latent space samplable, which the autoencoder objective never constrained." },
-      { "q": "What is the ELBO?", "a": "Expected log-likelihood of the reconstruction minus KL(q(z|x) || p(z)). It is a LOWER BOUND on log p(x); the gap is KL(q || true posterior)." },
-      { "q": "Why is the ELBO a bound and not the likelihood?", "a": "log p(x) = ELBO + KL(q || true posterior), and that last KL is non-negative and uncomputable. The bound is tight only when the approximate posterior is exact." },
-      { "q": "What is the reparameterization trick?", "a": "Write z = mu + sigma * epsilon with epsilon ~ N(0,I), moving the randomness out of the computation graph so gradients flow through mu and sigma." },
-      { "q": "Why not use REINFORCE instead?", "a": "The score-function estimator is unbiased but has far higher variance. The pathwise gradient from reparameterization is what makes VAE training stable." },
-      { "q": "What is posterior collapse?", "a": "The KL drives q(z|x) to the prior so the latent carries no information, and the decoder models the data unconditionally. Signature: total KL near zero with acceptable reconstruction." },
-      { "q": "How do you detect it?", "a": "Plot PER-DIMENSION KL and count dimensions above a small threshold. A dimension with mu=0, sigma=1 contributes exactly zero KL and exactly zero information." },
-      { "q": "How do you prevent it?", "a": "KL annealing (warm up beta from 0), FREE BITS (no penalty until a dimension's KL exceeds a floor), weakening the decoder, or dropping the decoder's access to context." },
-      { "q": "Why are VAE samples blurry?", "a": "The Gaussian output likelihood makes the optimal reconstruction the conditional MEAN, and the average of several plausible images is a blur. It is the likelihood, not the architecture." },
-      { "q": "What is beta-VAE?", "a": "Weight the KL term by beta. beta > 1 pushes toward a more factorized, lower-rate latent (marketed as disentanglement) at the cost of reconstruction; beta < 1 the reverse." },
-      { "q": "What did Locatello et al. show about disentanglement?", "a": "Unsupervised disentanglement is IMPOSSIBLE without inductive biases (a theorem), and empirically random-seed variation dominated the differences between published methods." },
-      { "q": "Where does the VAE sit in the generative trilemma?", "a": "Fast sampling and good mode coverage, poor sample quality. GANs take quality and speed but lose coverage and likelihood; diffusion takes quality and coverage but is slow." }
+      {
+        "q": "What does a VAE add to an autoencoder?",
+        "a": "A stochastic encoder outputting a distribution, plus a KL term pulling that distribution toward a prior. Together they make the latent space samplable, which the autoencoder objective never constrained."
+      },
+      {
+        "q": "What is the ELBO?",
+        "a": "Expected log-likelihood of the reconstruction minus KL(q(z|x) || p(z)). It is a LOWER BOUND on log p(x); the gap is KL(q || true posterior)."
+      },
+      {
+        "q": "Why is the ELBO a bound and not the likelihood?",
+        "a": "log p(x) = ELBO + KL(q || true posterior), and that last KL is non-negative and uncomputable. The bound is tight only when the approximate posterior is exact."
+      },
+      {
+        "q": "What is the reparameterization trick?",
+        "a": "Write z = mu + sigma * epsilon with epsilon ~ N(0,I), moving the randomness out of the computation graph so gradients flow through mu and sigma."
+      },
+      {
+        "q": "Why not use REINFORCE instead?",
+        "a": "The score-function estimator is unbiased but has far higher variance. The pathwise gradient from reparameterization is what makes VAE training stable."
+      },
+      {
+        "q": "What is posterior collapse?",
+        "a": "The KL drives q(z|x) to the prior so the latent carries no information, and the decoder models the data unconditionally. Signature: total KL near zero with acceptable reconstruction."
+      },
+      {
+        "q": "How do you detect it?",
+        "a": "Plot PER-DIMENSION KL and count dimensions above a small threshold. A dimension with mu=0, sigma=1 contributes exactly zero KL and exactly zero information."
+      },
+      {
+        "q": "How do you prevent it?",
+        "a": "KL annealing (warm up beta from 0), FREE BITS (no penalty until a dimension's KL exceeds a floor), weakening the decoder, or dropping the decoder's access to context."
+      },
+      {
+        "q": "Why are VAE samples blurry?",
+        "a": "The Gaussian output likelihood makes the optimal reconstruction the conditional MEAN, and the average of several plausible images is a blur. It is the likelihood, not the architecture."
+      },
+      {
+        "q": "What is beta-VAE?",
+        "a": "Weight the KL term by beta. beta > 1 pushes toward a more factorized, lower-rate latent (marketed as disentanglement) at the cost of reconstruction; beta < 1 the reverse."
+      },
+      {
+        "q": "What did Locatello et al. show about disentanglement?",
+        "a": "Unsupervised disentanglement is IMPOSSIBLE without inductive biases (a theorem), and empirically random-seed variation dominated the differences between published methods."
+      },
+      {
+        "q": "Where does the VAE sit in the generative trilemma?",
+        "a": "Fast sampling and good mode coverage, poor sample quality. GANs take quality and speed but lose coverage and likelihood; diffusion takes quality and coverage but is slow."
+      }
     ],
     "standard": [
       {
         "q": "Derive the ELBO and explain what each term does.",
         "a": "THE GOAL. We want to maximize the marginal likelihood log p(x) = log integral p(x|z)p(z) dz. That integral is intractable for any interesting decoder, so we cannot optimize it directly. THE DERIVATION, and I prefer the exact-decomposition route over Jensen's inequality because it shows what the gap IS rather than just that one exists. Introduce any distribution q(z|x). Then: log p(x) = E_q[log p(x)] since log p(x) does not depend on z. Write p(x) = p(x,z)/p(z|x), so log p(x) = E_q[log p(x,z) - log p(z|x)]. Insert q: = E_q[log p(x,z) - log q(z|x)] + E_q[log q(z|x) - log p(z|x)]. The second bracket is exactly KL(q(z|x) || p(z|x)). So log p(x) = ELBO + KL(q || true posterior), and since KL >= 0, the ELBO is a lower bound. Expanding the first bracket with p(x,z) = p(x|z)p(z) gives the familiar form: ELBO = E_q[log p(x|z)] - KL(q(z|x) || p(z)). WHAT EACH TERM DOES. The RECONSTRUCTION term E_q[log p(x|z)] asks that z retain enough information to rebuild x. Alone, it recovers a plain autoencoder with a noisy encoder. The KL(q(z|x) || p(z)) term is a REGULARIZER pulling each per-example posterior toward the prior, and it does two jobs that are worth separating: it makes the aggregate distribution of codes resemble something you can sample from, and it LIMITS THE INFORMATION each code can carry - which is why the rate-distortion reading is illuminating. WHAT MAXIMIZING THE ELBO ACHIEVES. Two things simultaneously, which is the elegant part. Since log p(x) is fixed with respect to phi, increasing the ELBO by varying phi must DECREASE KL(q || true posterior) - so the encoder is being pushed toward the true posterior. And varying theta increases the bound on the likelihood. One objective, both inference and learning. THE TENSION, which is where all the practical difficulty lives. The two terms pull against each other: reconstruction wants informative, well-separated codes; the KL wants every posterior to look like the prior. At one extreme (KL dominant) you get posterior collapse and an unconditional decoder; at the other (reconstruction dominant) you get an autoencoder with holes. The ELBO's beta=1 setting is one point on that curve, and Alemi et al.'s observation is sharper than it first sounds: MANY different (rate, distortion) pairs achieve the SAME ELBO value, so the objective is genuinely indifferent between a model with a rich latent and one with a collapsed latent that compensates with a strong decoder. The ELBO does not specify the model you want. THE PRACTICAL CONSEQUENCES I would state. (1) The ELBO is a bound of UNKNOWN tightness, so comparing a VAE's ELBO against a normalizing flow's exact likelihood is comparing different quantities; use importance-weighted bounds (IWAE) if you need a tighter estimate. (2) The relative scaling of the terms depends on your reduction - summing reconstruction over pixels versus averaging changes the effective beta by a factor of D, and this is a real and common bug. (3) Because the objective does not pin down the rate, you should MONITOR the rate (KL) and distortion (reconstruction) separately rather than only the total, and decide which point on the curve you want.",
-        "deepDive": { "q": "How do you actually estimate a VAE's log-likelihood, and how tight is the ELBO?", "a": "WHY THIS IS A REAL QUESTION. Papers report 'negative log-likelihood' for VAEs and compare it against normalizing flows and autoregressive models, which compute the likelihood EXACTLY. But a VAE's ELBO is a lower bound, so a VAE reporting 80 nats might have a true likelihood of 78 or of 60 - and you cannot tell from the number. Any comparison that ignores this is not measuring what it claims. THE IMPORTANCE-WEIGHTED BOUND (IWAE, Burda et al. 2016). Draw k samples from q(z|x) and average the importance weights INSIDE the log rather than outside: L_k = E[log (1/k) sum_i p(x,z_i)/q(z_i|x)]. Three properties make this the standard tool. (1) L_1 is exactly the ELBO. (2) L_k is monotonically non-decreasing in k - more samples give a TIGHTER bound. (3) As k goes to infinity, L_k converges to the true log p(x). So k is a dial trading compute for tightness, and evaluating with k = 1000 or 5000 gives a number close enough to the truth to be worth reporting. The estimator is just log-sum-exp over the per-sample log weights minus log k, which is a few lines. THE SUBTLETY THAT MAKES IWAE INTERESTING BEYOND EVALUATION: if you also TRAIN with L_k, you get a better generative model but, counter-intuitively, a WORSE inference network. Rainforth et al. showed the signal-to-noise ratio of the encoder's gradient DEGRADES as k grows - the tighter bound leaves less gradient signal for q, since the importance weighting can compensate for a poor posterior. So a tighter bound is not uniformly better, which is a genuinely surprising result and the kind of thing worth knowing. Fixes exist (doubly-reparameterized gradients, DReG) that recover the encoder's signal. HOW TIGHT IS THE ELBO IN PRACTICE? The gap is KL(q || true posterior), and it is typically substantial - on image benchmarks the difference between the ELBO and a high-k IWAE bound is often several nats per image, which is large relative to the differences papers report between methods. The gap is also not constant: it depends on the model, the data point, and how expressive q is, so it can differ systematically between in-distribution and out-of-distribution inputs. That last point is why ELBO-based anomaly detection is shakier than it looks. OTHER ESTIMATORS worth knowing. ANNEALED IMPORTANCE SAMPLING (AIS) gives a much more accurate estimate by bridging between the prior and the posterior through a sequence of intermediate distributions - it is the gold standard for evaluating decoder-based models and it is expensive. Wu et al. used AIS to evaluate decoder-based models and found reported numbers were often optimistic. Bidirectional Monte Carlo SANDWICHES the true value between a stochastic lower and upper bound, which is the honest way to report it. WHAT THIS MEANS FOR HOW YOU READ RESULTS. (1) A VAE's ELBO and a flow's exact likelihood are not comparable; at minimum use a high-k IWAE bound and say so. (2) State k, because L_1 and L_5000 are different numbers for the same model. (3) Small likelihood differences between VAE variants may be differences in POSTERIOR QUALITY rather than in the generative model - the encoder is being evaluated along with the decoder. (4) And the deeper caution from Theis et al.: log-likelihood and sample quality are only loosely coupled in high dimensions, so even a perfectly measured likelihood does not tell you the samples are good. Report both, and know that they answer different questions." }
+        "deepDive": {
+          "q": "How do you actually estimate a VAE's log-likelihood, and how tight is the ELBO?",
+          "a": "WHY THIS IS A REAL QUESTION. Papers report 'negative log-likelihood' for VAEs and compare it against normalizing flows and autoregressive models, which compute the likelihood EXACTLY. But a VAE's ELBO is a lower bound, so a VAE reporting 80 nats might have a true likelihood of 78 or of 60 - and you cannot tell from the number. Any comparison that ignores this is not measuring what it claims. THE IMPORTANCE-WEIGHTED BOUND (IWAE, Burda et al. 2016). Draw k samples from q(z|x) and average the importance weights INSIDE the log rather than outside: L_k = E[log (1/k) sum_i p(x,z_i)/q(z_i|x)]. Three properties make this the standard tool. (1) L_1 is exactly the ELBO. (2) L_k is monotonically non-decreasing in k - more samples give a TIGHTER bound. (3) As k goes to infinity, L_k converges to the true log p(x). So k is a dial trading compute for tightness, and evaluating with k = 1000 or 5000 gives a number close enough to the truth to be worth reporting. The estimator is just log-sum-exp over the per-sample log weights minus log k, which is a few lines. THE SUBTLETY THAT MAKES IWAE INTERESTING BEYOND EVALUATION: if you also TRAIN with L_k, you get a better generative model but, counter-intuitively, a WORSE inference network. Rainforth et al. showed the signal-to-noise ratio of the encoder's gradient DEGRADES as k grows - the tighter bound leaves less gradient signal for q, since the importance weighting can compensate for a poor posterior. So a tighter bound is not uniformly better, which is a genuinely surprising result and the kind of thing worth knowing. Fixes exist (doubly-reparameterized gradients, DReG) that recover the encoder's signal. HOW TIGHT IS THE ELBO IN PRACTICE? The gap is KL(q || true posterior), and it is typically substantial - on image benchmarks the difference between the ELBO and a high-k IWAE bound is often several nats per image, which is large relative to the differences papers report between methods. The gap is also not constant: it depends on the model, the data point, and how expressive q is, so it can differ systematically between in-distribution and out-of-distribution inputs. That last point is why ELBO-based anomaly detection is shakier than it looks. OTHER ESTIMATORS worth knowing. ANNEALED IMPORTANCE SAMPLING (AIS) gives a much more accurate estimate by bridging between the prior and the posterior through a sequence of intermediate distributions - it is the gold standard for evaluating decoder-based models and it is expensive. Wu et al. used AIS to evaluate decoder-based models and found reported numbers were often optimistic. Bidirectional Monte Carlo SANDWICHES the true value between a stochastic lower and upper bound, which is the honest way to report it. WHAT THIS MEANS FOR HOW YOU READ RESULTS. (1) A VAE's ELBO and a flow's exact likelihood are not comparable; at minimum use a high-k IWAE bound and say so. (2) State k, because L_1 and L_5000 are different numbers for the same model. (3) Small likelihood differences between VAE variants may be differences in POSTERIOR QUALITY rather than in the generative model - the encoder is being evaluated along with the decoder. (4) And the deeper caution from Theis et al.: log-likelihood and sample quality are only loosely coupled in high dimensions, so even a perfectly measured likelihood does not tell you the samples are good. Report both, and know that they answer different questions."
+        }
       },
       {
         "q": "Your VAE trains to a low loss but the latent is unused. Diagnose and fix it.",
@@ -141,25 +207,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "The ELBO", "back": "E_q[log p(x|z)] - KL(q(z|x) || p(z)). Exact decomposition: log p(x) = ELBO + KL(q || TRUE posterior), so it is a LOWER BOUND whose gap is the posterior approximation error." },
-    { "type": "definition", "front": "Reparameterization trick", "back": "z = mu + sigma * epsilon, epsilon ~ N(0,I). Moves randomness out of the graph so gradients flow through mu and sigma. Matters because of VARIANCE - the score-function alternative is unbiased but far too noisy to train with." },
-    { "type": "pitfall", "front": "Posterior collapse", "back": "KL drives q(z|x) to the prior; the latent carries nothing and the decoder is unconditional. Signature: total KL ~ 0 with acceptable reconstruction. It is a VALID optimum, not an optimization failure." },
-    { "type": "intuition", "front": "Detecting collapse", "back": "Plot PER-DIMENSION KL and count dims > ~0.01 nats - a dim with mu=0, sigma=1 contributes exactly zero. Also: replace z with noise at inference; if reconstructions are unchanged, the decoder ignores the latent." },
-    { "type": "definition", "front": "Free bits", "back": "Apply no KL penalty until a dimension's KL exceeds a floor: max(lambda, KL_j). Makes a little information FREE so there is no gradient pressure to zero a dimension out. The most targeted collapse fix." },
-    { "type": "pitfall", "front": "Why VAE samples blur", "back": "The Gaussian output likelihood makes the optimal reconstruction the conditional MEAN, and averaging plausible images IS blur. Architecture-independent - confirm by swapping the likelihood (logistic mixture, LPIPS, patch discriminator) at fixed architecture." },
-    { "type": "pitfall", "front": "reduction='mean' on the reconstruction term", "back": "Divides by the pixel count, silently making the effective beta ~1/D and usually causing collapse. SUM over pixels, MEAN over the batch." },
-    { "type": "intuition", "front": "Rate-distortion reading", "back": "L = D + beta*R with R = KL (bits through the latent), D = reconstruction. At beta=1 MANY (R,D) pairs give the SAME ELBO - so the objective does not pin down whether you get a rich latent or a collapsed one. Monitor R and D separately." },
-    { "type": "pitfall", "front": "Is disentanglement real?", "back": "Locatello et al.: unsupervised disentanglement is IMPOSSIBLE without inductive biases (any measure-preserving bijection of the latent entangles factors at identical likelihood), and empirically random SEED dominated method choice." },
-    { "type": "intuition", "front": "Mode-covering vs mode-seeking", "back": "Likelihood training ~ KL(p_data || p_model): catastrophic to put ~0 mass on real data, so it COVERS and blurs. GANs behave mode-SEEKING: putting mass off-data is punished, missing modes is cheap. One asymmetry explains blur vs mode collapse." },
-    { "type": "pitfall", "front": "ELBO is not a likelihood", "back": "It is a bound of UNKNOWN tightness, so comparing it against a flow's or an autoregressive model's exact likelihood compares different quantities. Use IWAE for a tighter estimate at k times the cost." },
-    { "type": "intuition", "front": "When reparameterization fails", "back": "Discrete latents have zero gradient a.e. Options: Gumbel-Softmax (biased, low variance), straight-through (what VQ-VAE uses), REINFORCE + control variates (unbiased, high variance), or exact marginalization if the support is small." }
+    {
+      "type": "definition",
+      "front": "The ELBO",
+      "back": "E_q[log p(x|z)] - KL(q(z|x) || p(z)). Exact decomposition: log p(x) = ELBO + KL(q || TRUE posterior), so it is a LOWER BOUND whose gap is the posterior approximation error."
+    },
+    {
+      "type": "definition",
+      "front": "Reparameterization trick",
+      "back": "z = mu + sigma * epsilon, epsilon ~ N(0,I). Moves randomness out of the graph so gradients flow through mu and sigma. Matters because of VARIANCE - the score-function alternative is unbiased but far too noisy to train with."
+    },
+    {
+      "type": "pitfall",
+      "front": "Posterior collapse",
+      "back": "KL drives q(z|x) to the prior; the latent carries nothing and the decoder is unconditional. Signature: total KL ~ 0 with acceptable reconstruction. It is a VALID optimum, not an optimization failure."
+    },
+    {
+      "type": "intuition",
+      "front": "Detecting collapse",
+      "back": "Plot PER-DIMENSION KL and count dims > ~0.01 nats - a dim with mu=0, sigma=1 contributes exactly zero. Also: replace z with noise at inference; if reconstructions are unchanged, the decoder ignores the latent."
+    },
+    {
+      "type": "definition",
+      "front": "Free bits",
+      "back": "Apply no KL penalty until a dimension's KL exceeds a floor: max(lambda, KL_j). Makes a little information FREE so there is no gradient pressure to zero a dimension out. The most targeted collapse fix."
+    },
+    {
+      "type": "pitfall",
+      "front": "Why VAE samples blur",
+      "back": "The Gaussian output likelihood makes the optimal reconstruction the conditional MEAN, and averaging plausible images IS blur. Architecture-independent - confirm by swapping the likelihood (logistic mixture, LPIPS, patch discriminator) at fixed architecture."
+    },
+    {
+      "type": "pitfall",
+      "front": "reduction='mean' on the reconstruction term",
+      "back": "Divides by the pixel count, silently making the effective beta ~1/D and usually causing collapse. SUM over pixels, MEAN over the batch."
+    },
+    {
+      "type": "intuition",
+      "front": "Rate-distortion reading",
+      "back": "L = D + beta*R with R = KL (bits through the latent), D = reconstruction. At beta=1 MANY (R,D) pairs give the SAME ELBO - so the objective does not pin down whether you get a rich latent or a collapsed one. Monitor R and D separately."
+    },
+    {
+      "type": "pitfall",
+      "front": "Is disentanglement real?",
+      "back": "Locatello et al.: unsupervised disentanglement is IMPOSSIBLE without inductive biases (any measure-preserving bijection of the latent entangles factors at identical likelihood), and empirically random SEED dominated method choice."
+    },
+    {
+      "type": "intuition",
+      "front": "Mode-covering vs mode-seeking",
+      "back": "Likelihood training ~ KL(p_data || p_model): catastrophic to put ~0 mass on real data, so it COVERS and blurs. GANs behave mode-SEEKING: putting mass off-data is punished, missing modes is cheap. One asymmetry explains blur vs mode collapse."
+    },
+    {
+      "type": "pitfall",
+      "front": "ELBO is not a likelihood",
+      "back": "It is a bound of UNKNOWN tightness, so comparing it against a flow's or an autoregressive model's exact likelihood compares different quantities. Use IWAE for a tighter estimate at k times the cost."
+    },
+    {
+      "type": "intuition",
+      "front": "When reparameterization fails",
+      "back": "Discrete latents have zero gradient a.e. Options: Gumbel-Softmax (biased, low variance), straight-through (what VQ-VAE uses), REINFORCE + control variates (unbiased, high variance), or exact marginalization if the support is small."
+    }
   ],
   "refs": [
-    { "title": "Kingma & Welling (2013), Auto-Encoding Variational Bayes", "url": "https://arxiv.org/abs/1312.6114" },
-    { "title": "Higgins et al. (2017), beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework", "url": "https://openreview.net/forum?id=Sy2fzU9gl" },
-    { "title": "Alemi et al. (2018), Fixing a Broken ELBO", "url": "https://arxiv.org/abs/1711.00464" },
-    { "title": "Locatello et al. (2019), Challenging Common Assumptions in the Unsupervised Learning of Disentangled Representations", "url": "https://arxiv.org/abs/1811.12359" },
-    { "title": "Kingma et al. (2016), Improving Variational Inference with Inverse Autoregressive Flow (free bits)", "url": "https://arxiv.org/abs/1606.04934" }
+    {
+      "title": "Kingma & Welling (2013), Auto-Encoding Variational Bayes",
+      "url": "https://arxiv.org/abs/1312.6114"
+    },
+    {
+      "title": "Higgins et al. (2017), beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework",
+      "url": "https://openreview.net/forum?id=Sy2fzU9gl"
+    },
+    {
+      "title": "Alemi et al. (2018), Fixing a Broken ELBO",
+      "url": "https://arxiv.org/abs/1711.00464"
+    },
+    {
+      "title": "Locatello et al. (2019), Challenging Common Assumptions in the Unsupervised Learning of Disentangled Representations",
+      "url": "https://arxiv.org/abs/1811.12359"
+    },
+    {
+      "title": "Kingma et al. (2016), Improving Variational Inference with Inverse Autoregressive Flow (free bits)",
+      "url": "https://arxiv.org/abs/1606.04934"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "12-02",
+    "module": "generative",
+    "disposition": "clean",
+    "notebookFile": "12-02_variational_autoencoders_elbo.ipynb"
+  }
 }

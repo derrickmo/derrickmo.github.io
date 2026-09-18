@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-07",
   "slug": "ab-testing",
+  "keyBase": "causal-inference/ab-testing",
   "module": "causal-inference",
   "title": "A/B Testing & Experimentation at Scale",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://www.jstor.org/stable/2346101"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-08",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-08_b_testing_at_scale.ipynb"
+  }
 }

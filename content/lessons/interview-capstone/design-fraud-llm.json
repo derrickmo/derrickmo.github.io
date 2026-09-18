@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-05",
   "slug": "design-fraud-llm",
+  "keyBase": "interview-capstone/design-fraud-llm",
   "module": "interview-capstone",
   "title": "Design Case: Fraud Detection & LLM Products",
   "status": "LIVE",
@@ -304,5 +305,14 @@
       "url": "https://arxiv.org/abs/2309.06180"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-05",
+    "module": "interview-capstone",
+    "disposition": "split",
+    "notebookFile": "26-05_design_case_fraud_detection.ipynb",
+    "alsoFeeds": [
+      "26-06"
+    ]
+  }
 }

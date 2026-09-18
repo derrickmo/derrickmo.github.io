@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "03-09",
   "slug": "matrix-factorization",
+  "keyBase": "unsupervised-learning/matrix-factorization",
   "module": "unsupervised-learning",
   "title": "Matrix Factorization & Decomposition",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Levy & Goldberg (2014) — Neural Word Embedding as Implicit Matrix Factorization",
       "url": "https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization"
     }
-  ]
+  ],
+  "v2": {
+    "id": "04-07",
+    "module": "unsupervised-learning",
+    "disposition": "clean",
+    "notebookFile": "04-07_matrix_factorization_nmf.ipynb"
+  }
 }

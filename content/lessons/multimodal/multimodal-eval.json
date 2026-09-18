@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-10",
   "slug": "multimodal-eval",
+  "keyBase": "multimodal/multimodal-eval",
   "module": "multimodal",
   "title": "Multimodal Evaluation & Alignment Metrics",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-10_multimodal_evaluation_alignment_metrics.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "embeddings", "calibration", "vector-search"],
+    "demos": [
+      "classification-metrics",
+      "embeddings",
+      "calibration",
+      "vector-search"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/vqa", "advanced-nlp/nlp-eval"],
-  "leadsTo": ["trustworthy-ai/attribution", "llm-systems/llm-eval"],
+  "prereqs": [
+    "multimodal/vqa",
+    "advanced-nlp/nlp-eval"
+  ],
+  "leadsTo": [
+    "trustworthy-ai/attribution",
+    "llm-systems/llm-eval"
+  ],
   "body": {
     "intuition": [
       "This module has produced the same finding four times in four settings. VQA models answered from question priors without looking. Multimodal classifiers underperformed their best unimodal branch because one modality crowded out the other. VLMs described objects that merely CO-OCCUR with what was present. And CLIP behaves like a bag of concepts, failing on word order that changes the meaning. In every case the aggregate metric on an i.i.d. test set looked fine and could not have revealed the problem, because the shortcut works on the test set for exactly the reason it works in training.",
@@ -82,27 +94,78 @@
       "Evaluating only the complete-input case. Report performance under every missingness pattern you expect in deployment; a fused model is frequently WORSE than the corresponding unimodal baseline when a modality is absent, and no aggregate shows it."
     ],
     "connections": [
-      { "ref": "multimodal/vqa", "text": "The question-only baseline and VQA-CP are the canonical instances of the ablation-and-shifted-split discipline this lesson generalizes." },
-      { "ref": "advanced-nlp/nlp-eval", "text": "The same problems in text: proxy metrics diverging from what you care about, learned judges being over-optimizable, and single numbers hiding the operating point." },
-      { "ref": "advanced-nlp/nli", "text": "The hypothesis-only baseline and HANS are the direct ancestors of everything here, and SugarCrepe is the same story told about a benchmark rather than a model." },
-      { "ref": "multimodal/multimodal-fusion", "text": "Modality-zeroing and per-missingness-pattern reporting are the fusion-specific rows of the evaluation table, and they routinely reveal negative contributions." },
-      { "ref": "trustworthy-ai/attribution", "text": "Attribution and attention maps generate hypotheses about what a model uses; causal perturbation of the input is what tests them, and the distinction matters here as much as in interpretability." }
+      {
+        "ref": "multimodal/vqa",
+        "text": "The question-only baseline and VQA-CP are the canonical instances of the ablation-and-shifted-split discipline this lesson generalizes."
+      },
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "The same problems in text: proxy metrics diverging from what you care about, learned judges being over-optimizable, and single numbers hiding the operating point."
+      },
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "The hypothesis-only baseline and HANS are the direct ancestors of everything here, and SugarCrepe is the same story told about a benchmark rather than a model."
+      },
+      {
+        "ref": "multimodal/multimodal-fusion",
+        "text": "Modality-zeroing and per-missingness-pattern reporting are the fusion-specific rows of the evaluation table, and they routinely reveal negative contributions."
+      },
+      {
+        "ref": "trustworthy-ai/attribution",
+        "text": "Attribution and attention maps generate hypotheses about what a model uses; causal perturbation of the input is what tests them, and the distinction matters here as much as in interpretability."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is the central discipline of multimodal evaluation?", "a": "Ablations and constructed tests, not metrics. Drop each modality, feed mismatched pairs, build cases where the shortcut and task disagree, and perturb inputs so the answer must change." },
-      { "q": "Why can't an i.i.d. test set detect a shortcut?", "a": "Structurally: the shortcut works on the test set for exactly the reason it works in training. Detection requires data built so the shortcut and the task DISAGREE." },
-      { "q": "What is the unimodal ablation?", "a": "Retrain with each modality alone and compare to the full model. Whatever the partial model reaches is achievable WITHOUT the other modality - and the gap can be zero or negative." },
-      { "q": "What is the modality-corruption test?", "a": "On the trained model, feed a blanked or MISMATCHED second modality. No retraining needed, and a small accuracy drop means the model is ignoring it." },
-      { "q": "Why is CLIPScore not thresholdable?", "a": "The modality gap: matched image-caption cosine is ~0.3 while image-image is ~0.6. There is no absolute scale and no threshold transfers across prompts, domains, or checkpoints." },
-      { "q": "What is wrong with Recall@K on COCO?", "a": "It assumes complete annotation - anything unlabelled is a non-match. COCO pairs five captions per image, so a retrieved caption that genuinely describes the image but was written for another counts as an error." },
-      { "q": "What is Winoground?", "a": "Pairs of images and captions using the SAME words in different orders. Models must match both correctly. Vision-language models perform near chance, isolating compositional understanding from vocabulary." },
-      { "q": "What did SugarCrepe find?", "a": "That a BLIND text-only model scores 83-87% on ARO and VL-Checklist, because their procedurally-generated hard negatives were less fluent as English. The compositionality benchmarks had their own shortcut." },
-      { "q": "How did SugarCrepe fix it?", "a": "Generate negatives with an LLM so they are fluent and plausible, then adversarially FILTER out any pair a blind text model can solve. Models then score better than ARO suggested and still below humans." },
-      { "q": "Why not optimize against an adversarial benchmark?", "a": "A systematic, known shift becomes gameable - VQA-CP's inverse prior is the canonical case, where methods improved the score without improving grounding. Use them as diagnostics and keep a private version." },
-      { "q": "What is counterfactual consistency?", "a": "The fraction of perturbation pairs where the model's answer changes CORRECTLY when the input changes in a way that must change it. Far stricter than per-example accuracy, and often near zero when accuracy is high." },
-      { "q": "Why does contamination matter here?", "a": "Web-scale image-text pretraining plausibly includes COCO and Flickr30k, so benchmark numbers may reflect recall of annotations rather than perception. Evaluate on data the model cannot have seen." }
+      {
+        "q": "What is the central discipline of multimodal evaluation?",
+        "a": "Ablations and constructed tests, not metrics. Drop each modality, feed mismatched pairs, build cases where the shortcut and task disagree, and perturb inputs so the answer must change."
+      },
+      {
+        "q": "Why can't an i.i.d. test set detect a shortcut?",
+        "a": "Structurally: the shortcut works on the test set for exactly the reason it works in training. Detection requires data built so the shortcut and the task DISAGREE."
+      },
+      {
+        "q": "What is the unimodal ablation?",
+        "a": "Retrain with each modality alone and compare to the full model. Whatever the partial model reaches is achievable WITHOUT the other modality - and the gap can be zero or negative."
+      },
+      {
+        "q": "What is the modality-corruption test?",
+        "a": "On the trained model, feed a blanked or MISMATCHED second modality. No retraining needed, and a small accuracy drop means the model is ignoring it."
+      },
+      {
+        "q": "Why is CLIPScore not thresholdable?",
+        "a": "The modality gap: matched image-caption cosine is ~0.3 while image-image is ~0.6. There is no absolute scale and no threshold transfers across prompts, domains, or checkpoints."
+      },
+      {
+        "q": "What is wrong with Recall@K on COCO?",
+        "a": "It assumes complete annotation - anything unlabelled is a non-match. COCO pairs five captions per image, so a retrieved caption that genuinely describes the image but was written for another counts as an error."
+      },
+      {
+        "q": "What is Winoground?",
+        "a": "Pairs of images and captions using the SAME words in different orders. Models must match both correctly. Vision-language models perform near chance, isolating compositional understanding from vocabulary."
+      },
+      {
+        "q": "What did SugarCrepe find?",
+        "a": "That a BLIND text-only model scores 83-87% on ARO and VL-Checklist, because their procedurally-generated hard negatives were less fluent as English. The compositionality benchmarks had their own shortcut."
+      },
+      {
+        "q": "How did SugarCrepe fix it?",
+        "a": "Generate negatives with an LLM so they are fluent and plausible, then adversarially FILTER out any pair a blind text model can solve. Models then score better than ARO suggested and still below humans."
+      },
+      {
+        "q": "Why not optimize against an adversarial benchmark?",
+        "a": "A systematic, known shift becomes gameable - VQA-CP's inverse prior is the canonical case, where methods improved the score without improving grounding. Use them as diagnostics and keep a private version."
+      },
+      {
+        "q": "What is counterfactual consistency?",
+        "a": "The fraction of perturbation pairs where the model's answer changes CORRECTLY when the input changes in a way that must change it. Far stricter than per-example accuracy, and often near zero when accuracy is high."
+      },
+      {
+        "q": "Why does contamination matter here?",
+        "a": "Web-scale image-text pretraining plausibly includes COCO and Flickr30k, so benchmark numbers may reflect recall of annotations rather than perception. Evaluate on data the model cannot have seen."
+      }
     ],
     "standard": [
       {
@@ -132,25 +195,94 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "The central discipline", "back": "Not a metric - ABLATIONS and constructed tests. Drop each modality; feed mismatched pairs; build cases where the shortcut and task disagree; perturb inputs so the answer MUST change. Each costs a run and answers what no accuracy can." },
-    { "type": "pitfall", "front": "i.i.d. test sets cannot find shortcuts", "back": "Structural: the shortcut works on the test set for the same reason it works in training. No amount of held-out data helps. Detection requires data built so the shortcut and the task DISAGREE." },
-    { "type": "definition", "front": "The evaluation table", "back": "Full model; each unimodal ablation; blanked and MISMATCHED modality; shifted split; counterfactual consistency; worst slice. Two models at 70% can differ completely across it - one functionally unimodal, one genuinely integrating." },
-    { "type": "pitfall", "front": "SugarCrepe: the benchmark had a shortcut", "back": "A BLIND text-only model scores 83-87% on ARO and VL-Checklist, because procedurally-generated negatives ('the grass is eating the horse') were less FLUENT as English. Run the blind-baseline ablation on your own diagnostics." },
-    { "type": "definition", "front": "Winoground", "back": "Two images, two captions with the SAME WORDS reordered; match both. Isolates compositionality from vocabulary. Models near CHANCE on the group score vs ~85% for humans - though only 400 items, and later analysis showed many need more than composition." },
-    { "type": "pitfall", "front": "Recall@K assumes complete annotation", "back": "COCO has five captions per image, so a retrieved caption that genuinely describes the query but was written for another image counts as an ERROR. Re-annotation found many 'incorrect' retrievals are correct - R@1 understates, and rankings can change." },
-    { "type": "pitfall", "front": "CLIPScore ranks, it does not threshold", "back": "The modality gap puts matched image-caption cosine at ~0.3 and image-image at ~0.6, so there is no absolute scale. The 2.5 multiplier in the standard formula is cosmetic rescaling adding no information." },
-    { "type": "definition", "front": "Counterfactual consistency", "back": "The fraction of perturbation PAIRS where the answer changes correctly when the input changes in a way that must change it. Far stricter than per-example accuracy - often near zero while accuracy looks high." },
-    { "type": "pitfall", "front": "Adversarial benchmarks become gameable", "back": "A systematic, KNOWN shift can be exploited - VQA-CP's inverse prior let methods improve scores without improving grounding. Use them as diagnostics, keep a private held-out version, and never optimize against them." },
-    { "type": "pitfall", "front": "Hallucination is invisible to caption metrics", "back": "BLEU/ROUGE/CIDEr/SPICE compare against references, so a caption that invents one object while matching the reference's phrasing scores well. Use POPE (with the yes-rate reported) and CHAIR at a controlled length." },
-    { "type": "intuition", "front": "Prefer tasks over ratings in human eval", "back": "'Highlight every unsupported span' beats 'rate factuality 1-5'; pairwise comparison beats 1-10 scoring. And report inter-annotator AGREEMENT - it is the ceiling on any metric's correlation and on your power to detect differences." },
-    { "type": "pitfall", "front": "Get the right annotators", "back": "Crowdworkers cannot judge whether a medical description is correct and will judge FLUENCY while believing they judge accuracy - so the study measures style and is reported as measuring correctness. Accessibility products need actual blind and low-vision users." }
+    {
+      "type": "intuition",
+      "front": "The central discipline",
+      "back": "Not a metric - ABLATIONS and constructed tests. Drop each modality; feed mismatched pairs; build cases where the shortcut and task disagree; perturb inputs so the answer MUST change. Each costs a run and answers what no accuracy can."
+    },
+    {
+      "type": "pitfall",
+      "front": "i.i.d. test sets cannot find shortcuts",
+      "back": "Structural: the shortcut works on the test set for the same reason it works in training. No amount of held-out data helps. Detection requires data built so the shortcut and the task DISAGREE."
+    },
+    {
+      "type": "definition",
+      "front": "The evaluation table",
+      "back": "Full model; each unimodal ablation; blanked and MISMATCHED modality; shifted split; counterfactual consistency; worst slice. Two models at 70% can differ completely across it - one functionally unimodal, one genuinely integrating."
+    },
+    {
+      "type": "pitfall",
+      "front": "SugarCrepe: the benchmark had a shortcut",
+      "back": "A BLIND text-only model scores 83-87% on ARO and VL-Checklist, because procedurally-generated negatives ('the grass is eating the horse') were less FLUENT as English. Run the blind-baseline ablation on your own diagnostics."
+    },
+    {
+      "type": "definition",
+      "front": "Winoground",
+      "back": "Two images, two captions with the SAME WORDS reordered; match both. Isolates compositionality from vocabulary. Models near CHANCE on the group score vs ~85% for humans - though only 400 items, and later analysis showed many need more than composition."
+    },
+    {
+      "type": "pitfall",
+      "front": "Recall@K assumes complete annotation",
+      "back": "COCO has five captions per image, so a retrieved caption that genuinely describes the query but was written for another image counts as an ERROR. Re-annotation found many 'incorrect' retrievals are correct - R@1 understates, and rankings can change."
+    },
+    {
+      "type": "pitfall",
+      "front": "CLIPScore ranks, it does not threshold",
+      "back": "The modality gap puts matched image-caption cosine at ~0.3 and image-image at ~0.6, so there is no absolute scale. The 2.5 multiplier in the standard formula is cosmetic rescaling adding no information."
+    },
+    {
+      "type": "definition",
+      "front": "Counterfactual consistency",
+      "back": "The fraction of perturbation PAIRS where the answer changes correctly when the input changes in a way that must change it. Far stricter than per-example accuracy - often near zero while accuracy looks high."
+    },
+    {
+      "type": "pitfall",
+      "front": "Adversarial benchmarks become gameable",
+      "back": "A systematic, KNOWN shift can be exploited - VQA-CP's inverse prior let methods improve scores without improving grounding. Use them as diagnostics, keep a private held-out version, and never optimize against them."
+    },
+    {
+      "type": "pitfall",
+      "front": "Hallucination is invisible to caption metrics",
+      "back": "BLEU/ROUGE/CIDEr/SPICE compare against references, so a caption that invents one object while matching the reference's phrasing scores well. Use POPE (with the yes-rate reported) and CHAIR at a controlled length."
+    },
+    {
+      "type": "intuition",
+      "front": "Prefer tasks over ratings in human eval",
+      "back": "'Highlight every unsupported span' beats 'rate factuality 1-5'; pairwise comparison beats 1-10 scoring. And report inter-annotator AGREEMENT - it is the ceiling on any metric's correlation and on your power to detect differences."
+    },
+    {
+      "type": "pitfall",
+      "front": "Get the right annotators",
+      "back": "Crowdworkers cannot judge whether a medical description is correct and will judge FLUENCY while believing they judge accuracy - so the study measures style and is reported as measuring correctness. Accessibility products need actual blind and low-vision users."
+    }
   ],
   "refs": [
-    { "title": "Hsieh et al. (2023), SugarCrepe: Fixing Hackable Benchmarks for Vision-Language Compositionality", "url": "https://arxiv.org/abs/2306.14610" },
-    { "title": "Thrush et al. (2022), Winoground: Probing Vision and Language Models for Visio-Linguistic Compositionality", "url": "https://arxiv.org/abs/2204.03162" },
-    { "title": "Hessel et al. (2021), CLIPScore: A Reference-free Evaluation Metric for Image Captioning", "url": "https://arxiv.org/abs/2104.08718" },
-    { "title": "Chun et al. (2022), ECCV Caption: Correcting False Negatives by Collecting Machine-and-Human-verified Image-Caption Associations", "url": "https://arxiv.org/abs/2204.03359" },
-    { "title": "Diwan et al. (2022), Why is Winoground Hard? Investigating Failures in Visuolinguistic Compositionality", "url": "https://arxiv.org/abs/2211.00768" }
+    {
+      "title": "Hsieh et al. (2023), SugarCrepe: Fixing Hackable Benchmarks for Vision-Language Compositionality",
+      "url": "https://arxiv.org/abs/2306.14610"
+    },
+    {
+      "title": "Thrush et al. (2022), Winoground: Probing Vision and Language Models for Visio-Linguistic Compositionality",
+      "url": "https://arxiv.org/abs/2204.03162"
+    },
+    {
+      "title": "Hessel et al. (2021), CLIPScore: A Reference-free Evaluation Metric for Image Captioning",
+      "url": "https://arxiv.org/abs/2104.08718"
+    },
+    {
+      "title": "Chun et al. (2022), ECCV Caption: Correcting False Negatives by Collecting Machine-and-Human-verified Image-Caption Associations",
+      "url": "https://arxiv.org/abs/2204.03359"
+    },
+    {
+      "title": "Diwan et al. (2022), Why is Winoground Hard? Investigating Failures in Visuolinguistic Compositionality",
+      "url": "https://arxiv.org/abs/2211.00768"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-12",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-12_multimodal_evaluation.ipynb"
+  }
 }

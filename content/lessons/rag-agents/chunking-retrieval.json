@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-02",
   "slug": "chunking-retrieval",
+  "keyBase": "rag-agents/chunking-retrieval",
   "module": "rag-agents",
   "title": "Chunking, BM25 & Dense Retrieval",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-02_chunking_bm25_dense_retrieval.ipynb",
     "flagship": null,
-    "demos": ["rag-chunking", "vector-search", "tokenizer", "embeddings"],
+    "demos": [
+      "rag-chunking",
+      "vector-search",
+      "tokenizer",
+      "embeddings"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/embeddings-vector-stores", "rnn-nlp/tokenization"],
-  "leadsTo": ["rag-agents/advanced-rag", "rag-agents/rag-eval"],
+  "prereqs": [
+    "rag-agents/embeddings-vector-stores",
+    "rnn-nlp/tokenization"
+  ],
+  "leadsTo": [
+    "rag-agents/advanced-rag",
+    "rag-agents/rag-eval"
+  ],
   "body": {
     "intuition": [
       "Chunking is the least glamorous decision in a RAG system and it sets the highest ceiling. The chunk is the unit that gets embedded, so it is the unit that can be retrieved - and a fact that spans a boundary is unretrievable at any k, by any embedding model, forever. No downstream component can recover it, because the information was never packaged in a way that could be found. That makes this a stage above the one in 18-01: the embedding decides how well you search the units, and chunking decides what the units ARE.",
@@ -273,5 +285,14 @@
       "url": "https://www.anthropic.com/news/contextual-retrieval"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "18-03",
+    "module": "retrieval-rag",
+    "disposition": "split",
+    "notebookFile": "18-03_sparse_retrieval_bm25_inverted_indexes.ipynb",
+    "alsoFeeds": [
+      "18-04"
+    ]
+  }
 }

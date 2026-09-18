@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-04",
   "slug": "vllm-inference",
+  "keyBase": "frontier-frameworks/vllm-inference",
   "module": "frontier-frameworks",
   "title": "Inference Engines: vLLM & Paged Attention",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-04_vllm_paged_attention.ipynb",
     "flagship": null,
-    "demos": ["paged-attention", "kv-cache", "kv-cache-eviction", "speculative-decoding"],
+    "demos": [
+      "paged-attention",
+      "kv-cache",
+      "kv-cache-eviction",
+      "speculative-decoding"
+    ],
     "concepts": []
   },
-  "prereqs": ["frontier-frameworks/open-weight-models", "transformers/kv-cache"],
-  "leadsTo": ["frontier-frameworks/torch-compile-triton", "frontier-frameworks/provider-apis"],
+  "prereqs": [
+    "frontier-frameworks/open-weight-models",
+    "transformers/kv-cache"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/torch-compile-triton",
+    "frontier-frameworks/provider-apis"
+  ],
   "body": {
     "intuition": [
       "The idea behind paged attention is not from machine learning. It is virtual memory, from operating systems, applied to the KV cache - and recognizing that is what makes it obvious rather than clever. The problem is the same one that motivated paging in the first place: you have variable-sized objects whose final size is unknown when you allocate, and reserving the maximum for each one wastes most of your memory to internal fragmentation.",
@@ -273,5 +285,11 @@
       "url": "https://dl.acm.org/doi/10.1145/356571.356573"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "22-05",
+    "module": "inference-serving",
+    "disposition": "merge",
+    "notebookFile": "22-05_serving_engines_paged_attention_continuous.ipynb"
+  }
 }

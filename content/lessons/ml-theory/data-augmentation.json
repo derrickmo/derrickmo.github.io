@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-04",
   "slug": "data-augmentation",
+  "keyBase": "ml-theory/data-augmentation",
   "module": "ml-theory",
   "title": "Data Augmentation & Color Spaces",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-04_data_augmentation_color_spaces.ipynb",
     "flagship": null,
-    "demos": ["image-augmentation", "label-noise", "histogram-equalization"],
+    "demos": [
+      "image-augmentation",
+      "label-noise",
+      "histogram-equalization"
+    ],
     "concepts": []
   },
-  "prereqs": ["ml-theory/cross-validation", "neural-nets/regularization"],
-  "leadsTo": ["cnn/convolution", "multimodal/simclr-byol"],
+  "prereqs": [
+    "ml-theory/cross-validation",
+    "neural-nets/regularization"
+  ],
+  "leadsTo": [
+    "cnn/convolution",
+    "multimodal/simclr-byol"
+  ],
   "body": {
     "intuition": [
       "Data augmentation generates additional training examples by applying transformations that DO NOT CHANGE THE LABEL - a horizontally flipped cat is still a cat, a slightly rotated X-ray still shows the same anatomy, an audio clip with added room noise is still the same word. It is usually the highest-leverage regularizer for perceptual data, and the reason is that it attacks overfitting's root cause directly: overfitting happens when the model has more capacity than the data constrains, and augmentation effectively multiplies the amount of data. But that framing undersells it. The deeper function is that augmentation TEACHES AN INVARIANCE - it tells the model, by example, that a particular kind of variation is irrelevant to the answer.",
@@ -72,32 +83,83 @@
       "Augmenting before splitting, or augmenting in a way that crosses the split: augmented copies of the same source image on both sides of a split are near-duplicates and inflate the score exactly like group leakage. Split first, then augment the training portion."
     ],
     "connections": [
-      { "ref": "neural-nets/regularization", "text": "Augmentation is usually the strongest regularizer for perceptual data, and it belongs alongside weight decay, dropout, and early stopping in the same diagnosis-and-dial framework." },
-      { "ref": "cnn/convolution", "text": "Convolution builds translation equivariance into the architecture; augmentation teaches the remaining invariances (scale, rotation, color) from data - two ways to encode the same kind of prior." },
-      { "ref": "multimodal/simclr-byol", "text": "Contrastive self-supervised learning defines its entire training objective through augmentation, so the policy determines what the learned representation is invariant to." },
-      { "ref": "cnn/style-transfer", "text": "Stylized-ImageNet used style transfer as an augmentation to break texture bias - the clearest case of an augmentation designed to remove a specific, measured shortcut." }
+      {
+        "ref": "neural-nets/regularization",
+        "text": "Augmentation is usually the strongest regularizer for perceptual data, and it belongs alongside weight decay, dropout, and early stopping in the same diagnosis-and-dial framework."
+      },
+      {
+        "ref": "cnn/convolution",
+        "text": "Convolution builds translation equivariance into the architecture; augmentation teaches the remaining invariances (scale, rotation, color) from data - two ways to encode the same kind of prior."
+      },
+      {
+        "ref": "multimodal/simclr-byol",
+        "text": "Contrastive self-supervised learning defines its entire training objective through augmentation, so the policy determines what the learned representation is invariant to."
+      },
+      {
+        "ref": "cnn/style-transfer",
+        "text": "Stylized-ImageNet used style transfer as an augmentation to break texture bias - the clearest case of an augmentation designed to remove a specific, measured shortcut."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is data augmentation?", "a": "Generating additional training examples by applying label-preserving transformations, which both multiplies effective data and teaches the model which variations are irrelevant." },
-      { "q": "Why is it usually the strongest regularizer for images?", "a": "It attacks overfitting's root cause (too little data for the capacity) and simultaneously encodes true task invariances - more targeted than generic penalties like weight decay." },
-      { "q": "What is the one hard constraint?", "a": "The transformation must preserve the label. If it does not, you are injecting label noise directly into the objective." },
-      { "q": "Give an augmentation that is usually wrong.", "a": "Horizontal flip on text, on digits (6/9), or on medical images where laterality matters - and large hue shifts, which change object identity." },
-      { "q": "What is Mixup?", "a": "Blend two images AND their labels with the same coefficient lambda ~ Beta(a,a). The label constraint holds by construction; it improves calibration and robustness to label noise." },
-      { "q": "What is CutMix?", "a": "Paste a rectangular patch from one image into another and mix the labels by AREA - keeps local texture statistics realistic while still blending targets." },
-      { "q": "What is RandAugment?", "a": "An automated policy with just two hyperparameters (how many ops to apply, and their global magnitude), removing AutoAugment's expensive policy search while matching its gains." },
-      { "q": "Why use HSV or LAB rather than RGB?", "a": "RGB entangles brightness with color. HSV separates hue/saturation/value so you can jitter illumination alone; LAB separates perceptual lightness from opponent-color channels and is roughly perceptually uniform." },
-      { "q": "Should you augment the validation set?", "a": "No - evaluation transforms must be deterministic. Random augmentation makes the metric noisy and potentially optimistic. Test-time augmentation is a separate inference-time choice." },
-      { "q": "Does augmentation help underfitting?", "a": "No. It is a regularizer, so it targets variance. If training loss is already high you need more capacity, better features, or more training - augmentation makes it worse." },
-      { "q": "What is SpecAugment?", "a": "Audio augmentation that masks contiguous bands of time and frequency in the spectrogram (plus time warping) - the standard recipe for speech models." },
-      { "q": "How is augmentation used in self-supervised learning?", "a": "It defines the objective: two augmented views of the same image are a positive pair. The policy therefore determines which invariances the representation learns." }
+      {
+        "q": "What is data augmentation?",
+        "a": "Generating additional training examples by applying label-preserving transformations, which both multiplies effective data and teaches the model which variations are irrelevant."
+      },
+      {
+        "q": "Why is it usually the strongest regularizer for images?",
+        "a": "It attacks overfitting's root cause (too little data for the capacity) and simultaneously encodes true task invariances - more targeted than generic penalties like weight decay."
+      },
+      {
+        "q": "What is the one hard constraint?",
+        "a": "The transformation must preserve the label. If it does not, you are injecting label noise directly into the objective."
+      },
+      {
+        "q": "Give an augmentation that is usually wrong.",
+        "a": "Horizontal flip on text, on digits (6/9), or on medical images where laterality matters - and large hue shifts, which change object identity."
+      },
+      {
+        "q": "What is Mixup?",
+        "a": "Blend two images AND their labels with the same coefficient lambda ~ Beta(a,a). The label constraint holds by construction; it improves calibration and robustness to label noise."
+      },
+      {
+        "q": "What is CutMix?",
+        "a": "Paste a rectangular patch from one image into another and mix the labels by AREA - keeps local texture statistics realistic while still blending targets."
+      },
+      {
+        "q": "What is RandAugment?",
+        "a": "An automated policy with just two hyperparameters (how many ops to apply, and their global magnitude), removing AutoAugment's expensive policy search while matching its gains."
+      },
+      {
+        "q": "Why use HSV or LAB rather than RGB?",
+        "a": "RGB entangles brightness with color. HSV separates hue/saturation/value so you can jitter illumination alone; LAB separates perceptual lightness from opponent-color channels and is roughly perceptually uniform."
+      },
+      {
+        "q": "Should you augment the validation set?",
+        "a": "No - evaluation transforms must be deterministic. Random augmentation makes the metric noisy and potentially optimistic. Test-time augmentation is a separate inference-time choice."
+      },
+      {
+        "q": "Does augmentation help underfitting?",
+        "a": "No. It is a regularizer, so it targets variance. If training loss is already high you need more capacity, better features, or more training - augmentation makes it worse."
+      },
+      {
+        "q": "What is SpecAugment?",
+        "a": "Audio augmentation that masks contiguous bands of time and frequency in the spectrogram (plus time warping) - the standard recipe for speech models."
+      },
+      {
+        "q": "How is augmentation used in self-supervised learning?",
+        "a": "It defines the objective: two augmented views of the same image are a positive pair. The policy therefore determines which invariances the representation learns."
+      }
     ],
     "standard": [
       {
         "q": "Explain data augmentation: why it works, how you choose transformations, and what its limits are.",
         "a": "WHY IT WORKS - two framings, and the second is the useful one. The simple framing is that augmentation multiplies your data: each image becomes many via random transforms, so the model has less opportunity to memorize specific pixels, and more effective data is the most reliable way to reduce overfitting. The deeper framing is that augmentation TEACHES AN INVARIANCE. By showing the model that a flipped, cropped, recolored cat still carries the label 'cat', you are asserting that these variations are irrelevant to the task - injecting domain knowledge that the model would otherwise have to infer from scarce examples, or would fail to infer at all. Formally it is VICINAL RISK MINIMIZATION: instead of minimizing loss at the observed points, you minimize it over a neighbourhood around them defined by your transformation distribution. That framing makes the design question precise: what is the symmetry group of my task? HOW I CHOOSE TRANSFORMATIONS. Ask what variation will occur at TEST time that should not change the answer. For natural photographs: horizontal flip (objects are not chirally distinguished), random resized crop (scale and position vary), color jitter (illumination varies), and mild rotation (camera tilt). For each, verify the label survives - which is why the same list is wrong elsewhere: flips destroy text and laterality-sensitive medical images, rotations turn a 6 into a 9, and strong hue shifts change object identity. For SPECIALIZED domains the right transforms come from the physics of acquisition: elastic deformation for anatomy (real tissue deforms smoothly), bias-field and noise simulation for MRI, room impulse responses and speed perturbation for speech. The rule of thumb: a good augmentation corresponds to a transformation the real world actually produces. THE STRENGTH QUESTION, which is where people go wrong in the other direction. Augmentation strength has an optimum, not a monotone benefit. Too little and you leave regularization on the table; too much and you distort examples outside the true data distribution, making the training task harder than the real one and costing clean accuracy. A representative sweep: moderate rotation (+/-15 degrees) improves both clean and rotated test accuracy, while heavy rotation (+/-90) buys a little more rotation robustness and loses ~3 points on clean data, because upside-down objects simply do not occur at test time. Treat the magnitude as a hyperparameter. THE LIMITS. (1) It requires KNOWING the invariances, which is domain-specific and sometimes unavailable - which is exactly why tabular augmentation is hard (perturbing a feature can change the label) and why text augmentation is delicate (synonym substitution easily changes meaning). (2) It addresses VARIANCE only - it is a regularizer, so it makes underfitting worse. (3) It buys robustness to the variation it MODELS and little else: training with rotation does not help under blur, so an augmentation policy is not generic robustness. (4) It cannot create information that is not there - augmented examples are dependent on their sources, so ten augmented copies are not ten new examples, and the benefit saturates. (5) It costs compute in the data pipeline, and an unoptimized augmentation pipeline can starve the GPU. THE THING I WOULD EMPHASIZE: modern work has shown that much of the apparent gap between architectures is actually the TRAINING RECIPE, of which augmentation is the largest component - 'ResNet Strikes Back' retrained a 2015 ResNet-50 to ~80% ImageNet top-1 with a modern recipe, close to architectures claimed to be far better. So augmentation is not a finishing touch; it is a first-order determinant of results, and comparing architectures without matching recipes is comparing recipes.",
-        "deepDive": { "q": "Compare Mixup, CutMix and standard augmentations. Why do label-mixing methods work at all?", "a": "THE PUZZLE. Standard augmentations preserve the label by construction - a flipped cat is a cat. Mixup produces an image that is 60% cat and 40% dog and asks the model to predict [0.6, 0.4]. The input is not a real image of anything, and no such example exists in the world. Why does this help? MIXUP (Zhang et al., 2018): xtilde = lambda*x_i + (1-lambda)*x_j, ytilde = lambda*y_i + (1-lambda)*y_j, with lambda ~ Beta(alpha, alpha) and alpha typically 0.2. The explanations, in order of how well-supported they are. (1) IT ENFORCES LINEAR BEHAVIOUR BETWEEN EXAMPLES. Neural networks are prone to wildly confident predictions in the regions BETWEEN training points - exactly where adversarial examples live and where confidence is unjustified. Mixup explicitly supervises those regions with a sensible target, which regularizes the function to interpolate smoothly rather than to carve confident regions arbitrarily. This is the authors' framing and it is the most convincing. (2) IT IMPROVES CALIBRATION, measurably. Training on soft targets prevents the model from being pushed toward probability 1 on every training example (the mechanism that makes networks overconfident), so mixup-trained models have substantially lower expected calibration error. This is a well-replicated empirical finding and it connects mixup to label smoothing - mixup is like a data-dependent, structured label smoothing. (3) IT INCREASES ROBUSTNESS to label noise and to adversarial perturbation, because memorizing a corrupted label is harder when labels are constantly blended. (4) VICINAL RISK MINIMIZATION is the formal frame: mixup defines a vicinity distribution around each training point that is a linear path toward other points, rather than the local neighbourhood standard augmentation defines. CUTMIX (Yun et al., 2019) instead pastes a RECTANGULAR PATCH from image j into image i and mixes the labels in proportion to the patch AREA. Its advantage over mixup is that every pixel is a REAL pixel - local texture statistics stay natural, whereas mixup's blended images have unnatural ghosting that a CNN's early layers must accommodate. Its advantage over plain Cutout (which just erases a region) is that no training signal is wasted on blank pixels, and the label mixing gives extra supervision. CutMix generally outperforms mixup for image classification and is standard in strong recipes; mixup remains popular because it is domain-agnostic (it works on tabular data, audio features, and embeddings where a spatial patch has no meaning). THE HONEST CAVEATS. (a) The label-area proportionality in CutMix is an APPROXIMATION - if the pasted patch lands on background, the label mix over-credits the pasted class. Refinements (SaliencyMix, Puzzle Mix, and 'attentive' variants) address this by choosing informative regions, at added cost. (b) These methods interact with other regularizers and with training length: they generally require LONGER training to pay off, because they make the task harder, and a short-schedule comparison can show them hurting. (c) For detection and segmentation, naive mixing breaks the spatial label correspondence, so specialized variants (mosaic augmentation in YOLO) are used instead. (d) On small datasets the extra difficulty can hurt. WHAT I WOULD SAY IN SUMMARY: standard augmentation asserts an invariance you know to be true; mixup and CutMix instead construct examples where the label is known BY CONSTRUCTION (from the mixing coefficient), sidestepping the need for domain knowledge entirely. That is why they generalize across domains and why they are the components of modern recipes that require the least thought - and their calibration benefit is a genuinely valuable side effect that is often more useful than the accuracy gain." }
+        "deepDive": {
+          "q": "Compare Mixup, CutMix and standard augmentations. Why do label-mixing methods work at all?",
+          "a": "THE PUZZLE. Standard augmentations preserve the label by construction - a flipped cat is a cat. Mixup produces an image that is 60% cat and 40% dog and asks the model to predict [0.6, 0.4]. The input is not a real image of anything, and no such example exists in the world. Why does this help? MIXUP (Zhang et al., 2018): xtilde = lambda*x_i + (1-lambda)*x_j, ytilde = lambda*y_i + (1-lambda)*y_j, with lambda ~ Beta(alpha, alpha) and alpha typically 0.2. The explanations, in order of how well-supported they are. (1) IT ENFORCES LINEAR BEHAVIOUR BETWEEN EXAMPLES. Neural networks are prone to wildly confident predictions in the regions BETWEEN training points - exactly where adversarial examples live and where confidence is unjustified. Mixup explicitly supervises those regions with a sensible target, which regularizes the function to interpolate smoothly rather than to carve confident regions arbitrarily. This is the authors' framing and it is the most convincing. (2) IT IMPROVES CALIBRATION, measurably. Training on soft targets prevents the model from being pushed toward probability 1 on every training example (the mechanism that makes networks overconfident), so mixup-trained models have substantially lower expected calibration error. This is a well-replicated empirical finding and it connects mixup to label smoothing - mixup is like a data-dependent, structured label smoothing. (3) IT INCREASES ROBUSTNESS to label noise and to adversarial perturbation, because memorizing a corrupted label is harder when labels are constantly blended. (4) VICINAL RISK MINIMIZATION is the formal frame: mixup defines a vicinity distribution around each training point that is a linear path toward other points, rather than the local neighbourhood standard augmentation defines. CUTMIX (Yun et al., 2019) instead pastes a RECTANGULAR PATCH from image j into image i and mixes the labels in proportion to the patch AREA. Its advantage over mixup is that every pixel is a REAL pixel - local texture statistics stay natural, whereas mixup's blended images have unnatural ghosting that a CNN's early layers must accommodate. Its advantage over plain Cutout (which just erases a region) is that no training signal is wasted on blank pixels, and the label mixing gives extra supervision. CutMix generally outperforms mixup for image classification and is standard in strong recipes; mixup remains popular because it is domain-agnostic (it works on tabular data, audio features, and embeddings where a spatial patch has no meaning). THE HONEST CAVEATS. (a) The label-area proportionality in CutMix is an APPROXIMATION - if the pasted patch lands on background, the label mix over-credits the pasted class. Refinements (SaliencyMix, Puzzle Mix, and 'attentive' variants) address this by choosing informative regions, at added cost. (b) These methods interact with other regularizers and with training length: they generally require LONGER training to pay off, because they make the task harder, and a short-schedule comparison can show them hurting. (c) For detection and segmentation, naive mixing breaks the spatial label correspondence, so specialized variants (mosaic augmentation in YOLO) are used instead. (d) On small datasets the extra difficulty can hurt. WHAT I WOULD SAY IN SUMMARY: standard augmentation asserts an invariance you know to be true; mixup and CutMix instead construct examples where the label is known BY CONSTRUCTION (from the mixing coefficient), sidestepping the need for domain knowledge entirely. That is why they generalize across domains and why they are the components of modern recipes that require the least thought - and their calibration benefit is a genuinely valuable side effect that is often more useful than the accuracy gain."
+        }
       },
       {
         "q": "Explain color spaces and why the choice matters for augmentation.",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Data augmentation", "back": "Generating training examples via LABEL-PRESERVING transformations. Two functions: multiplies effective data (attacks overfitting's root cause) and teaches an INVARIANCE (injects domain knowledge)." },
-    { "type": "formula", "front": "Augmentation as vicinal risk", "back": "min E_(x,y) E_(T~Tau)[L(f(T(x)), y)] subject to y(T(x)) = y(x). Learn over a NEIGHBOURHOOD of each point rather than at the point. Violating the constraint injects label noise." },
-    { "type": "formula", "front": "Mixup", "back": "xtilde = L*x_i + (1-L)*x_j, ytilde = L*y_i + (1-L)*y_j, L ~ Beta(a,a) with a~0.2. The label holds BY CONSTRUCTION, so no domain knowledge is needed. Improves calibration and label-noise robustness." },
-    { "type": "definition", "front": "CutMix vs Mixup", "back": "CutMix pastes a rectangular PATCH and mixes labels by AREA - every pixel is real, so local texture stays natural. Usually better for images; mixup is domain-agnostic (works on tabular/audio/embeddings)." },
-    { "type": "intuition", "front": "Augmentation buys only what it models", "back": "Training with rotation nearly doubles rotated-test accuracy and does NOTHING for blur. It is not generic robustness - each augmentation targets one variation." },
-    { "type": "pitfall", "front": "Strength has an optimum", "back": "Inverted-U: +/-15 deg rotation helps everywhere; +/-90 deg buys a little more rotation robustness and costs ~3 points of clean accuracy, because upside-down objects are not in the test distribution." },
-    { "type": "definition", "front": "Why HSV/LAB instead of RGB", "back": "RGB entangles brightness with color. HSV isolates hue/saturation/value so you can jitter illumination alone; LAB is roughly perceptually uniform. Note recipes jitter brightness 20-40% but hue only ~5% - hue changes object identity." },
-    { "type": "pitfall", "front": "Never augment validation/test", "back": "Evaluation transforms must be deterministic, or your metric is noisy and possibly optimistic. Test-time augmentation is a separate, deliberate inference technique that must be reported as such." },
-    { "type": "definition", "front": "RandAugment / TrivialAugment", "back": "RandAugment: just N (ops per image) and M (magnitude), matching AutoAugment's searched policies at negligible cost. TrivialAugment: ONE random op at a random magnitude, no tuning - and still competitive." },
-    { "type": "pitfall", "front": "When the invariance assumption harms", "back": "(1) False for the task (flip on text/digits/laterality) = label noise. (2) True but destroys physical signal (intensity jitter on CT). (3) True but undesirable (augmenting away scale you need). Write the sentence 'the label does not depend on X' and ask an expert." }
+    {
+      "type": "definition",
+      "front": "Data augmentation",
+      "back": "Generating training examples via LABEL-PRESERVING transformations. Two functions: multiplies effective data (attacks overfitting's root cause) and teaches an INVARIANCE (injects domain knowledge)."
+    },
+    {
+      "type": "formula",
+      "front": "Augmentation as vicinal risk",
+      "back": "min E_(x,y) E_(T~Tau)[L(f(T(x)), y)] subject to y(T(x)) = y(x). Learn over a NEIGHBOURHOOD of each point rather than at the point. Violating the constraint injects label noise."
+    },
+    {
+      "type": "formula",
+      "front": "Mixup",
+      "back": "xtilde = L*x_i + (1-L)*x_j, ytilde = L*y_i + (1-L)*y_j, L ~ Beta(a,a) with a~0.2. The label holds BY CONSTRUCTION, so no domain knowledge is needed. Improves calibration and label-noise robustness."
+    },
+    {
+      "type": "definition",
+      "front": "CutMix vs Mixup",
+      "back": "CutMix pastes a rectangular PATCH and mixes labels by AREA - every pixel is real, so local texture stays natural. Usually better for images; mixup is domain-agnostic (works on tabular/audio/embeddings)."
+    },
+    {
+      "type": "intuition",
+      "front": "Augmentation buys only what it models",
+      "back": "Training with rotation nearly doubles rotated-test accuracy and does NOTHING for blur. It is not generic robustness - each augmentation targets one variation."
+    },
+    {
+      "type": "pitfall",
+      "front": "Strength has an optimum",
+      "back": "Inverted-U: +/-15 deg rotation helps everywhere; +/-90 deg buys a little more rotation robustness and costs ~3 points of clean accuracy, because upside-down objects are not in the test distribution."
+    },
+    {
+      "type": "definition",
+      "front": "Why HSV/LAB instead of RGB",
+      "back": "RGB entangles brightness with color. HSV isolates hue/saturation/value so you can jitter illumination alone; LAB is roughly perceptually uniform. Note recipes jitter brightness 20-40% but hue only ~5% - hue changes object identity."
+    },
+    {
+      "type": "pitfall",
+      "front": "Never augment validation/test",
+      "back": "Evaluation transforms must be deterministic, or your metric is noisy and possibly optimistic. Test-time augmentation is a separate, deliberate inference technique that must be reported as such."
+    },
+    {
+      "type": "definition",
+      "front": "RandAugment / TrivialAugment",
+      "back": "RandAugment: just N (ops per image) and M (magnitude), matching AutoAugment's searched policies at negligible cost. TrivialAugment: ONE random op at a random magnitude, no tuning - and still competitive."
+    },
+    {
+      "type": "pitfall",
+      "front": "When the invariance assumption harms",
+      "back": "(1) False for the task (flip on text/digits/laterality) = label noise. (2) True but destroys physical signal (intensity jitter on CT). (3) True but undesirable (augmenting away scale you need). Write the sentence 'the label does not depend on X' and ask an expert."
+    }
   ],
   "refs": [
-    { "title": "Zhang et al. (2018), mixup: Beyond Empirical Risk Minimization", "url": "https://arxiv.org/abs/1710.09412" },
-    { "title": "Yun et al. (2019), CutMix: Regularization Strategy to Train Strong Classifiers with Localizable Features", "url": "https://arxiv.org/abs/1905.04899" },
-    { "title": "Cubuk et al. (2020), RandAugment: Practical automated data augmentation with a reduced search space", "url": "https://arxiv.org/abs/1909.13719" },
-    { "title": "Park et al. (2019), SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition", "url": "https://arxiv.org/abs/1904.08779" }
+    {
+      "title": "Zhang et al. (2018), mixup: Beyond Empirical Risk Minimization",
+      "url": "https://arxiv.org/abs/1710.09412"
+    },
+    {
+      "title": "Yun et al. (2019), CutMix: Regularization Strategy to Train Strong Classifiers with Localizable Features",
+      "url": "https://arxiv.org/abs/1905.04899"
+    },
+    {
+      "title": "Cubuk et al. (2020), RandAugment: Practical automated data augmentation with a reduced search space",
+      "url": "https://arxiv.org/abs/1909.13719"
+    },
+    {
+      "title": "Park et al. (2019), SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition",
+      "url": "https://arxiv.org/abs/1904.08779"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "05-09",
+    "module": "evaluation",
+    "disposition": "clean",
+    "notebookFile": "05-09_data_augmentation_color_spaces.ipynb"
+  }
 }

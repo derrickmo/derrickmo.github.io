@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-10",
   "slug": "agent-capstone",
+  "keyBase": "agentic-ai/agent-capstone",
   "module": "agentic-ai",
   "title": "Capstone: Build a Production Agent",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-10_agent_capstone.ipynb",
     "flagship": null,
-    "demos": ["react-agent", "guardrails", "agent-router", "prompt-injection"],
+    "demos": [
+      "react-agent",
+      "guardrails",
+      "agent-router",
+      "prompt-injection"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-evaluation", "agentic-ai/agent-security"],
-  "leadsTo": ["rag-agents/capstone-assistant", "interview-capstone/design-fraud-llm"],
+  "prereqs": [
+    "agentic-ai/agent-evaluation",
+    "agentic-ai/agent-security"
+  ],
+  "leadsTo": [
+    "rag-agents/capstone-assistant",
+    "interview-capstone/design-fraud-llm"
+  ],
   "body": {
     "intuition": [
       "The module assembles into one agent, measured on a deliberately hazardous suite - flaky tools, injection attempts, and tasks whose required tool is dead - with each production feature toggleable so its contribution can be attributed. The result is an ablation across three axes: capability, safety, and cost bound. And the finding is that each feature moves essentially one of them, so no single configuration short of the full one is simultaneously capable, safe and bounded.",
@@ -273,5 +285,11 @@
       "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-12",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-12_capstone_production_agent.ipynb"
+  }
 }

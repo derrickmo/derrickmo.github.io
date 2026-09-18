@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-02",
   "slug": "system-design-framework",
+  "keyBase": "interview-capstone/system-design-framework",
   "module": "interview-capstone",
   "title": "ML System Design Framework",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://research.google/pubs/pub46555/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-02",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-02_ml_system_design_framework.ipynb"
+  }
 }

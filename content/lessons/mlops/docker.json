@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-05",
   "slug": "docker",
+  "keyBase": "mlops/docker",
   "module": "mlops",
   "title": "Docker Containerization",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://reproducible-builds.org/docs/definition/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "22-08",
+    "module": "inference-serving",
+    "disposition": "clean",
+    "notebookFile": "22-08_containerization.ipynb"
+  }
 }

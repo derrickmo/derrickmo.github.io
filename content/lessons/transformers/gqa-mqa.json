@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-07",
   "slug": "gqa-mqa",
+  "keyBase": "transformers/gqa-mqa",
   "module": "transformers",
   "title": "Grouped-Query & Multi-Query Attention",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-07_grouped_query_multi_query_attention.ipynb",
     "flagship": null,
-    "demos": ["kv-cache", "multi-head-attention", "paged-attention"],
+    "demos": [
+      "kv-cache",
+      "multi-head-attention",
+      "paged-attention"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/multi-head-attention", "transformers/kv-cache"],
-  "leadsTo": ["llm-systems/long-context", "mlops/model-serving"],
+  "prereqs": [
+    "transformers/multi-head-attention",
+    "transformers/kv-cache"
+  ],
+  "leadsTo": [
+    "llm-systems/long-context",
+    "mlops/model-serving"
+  ],
   "body": {
     "intuition": [
       "This is an architecture change made entirely for INFERENCE ECONOMICS, which makes it unusual and worth understanding as a case study. During autoregressive generation, every previously-computed key and value must be kept in a KV CACHE so each new token can attend to the whole history. That cache is proportional to layers x heads x head_dim x sequence length x batch - and at long context or high batch it does not merely add to memory pressure, it EXCEEDS THE MODEL WEIGHTS. Worse, decoding is memory-bandwidth-bound: generating one token requires reading the entire cache, so cache size translates almost directly into tokens-per-second.",
@@ -72,32 +83,83 @@
       "Naively averaging KV heads when converting a checkpoint without any uptraining: mean-pooling is the right initialization but quality does not fully recover without continued training on a small token budget."
     ],
     "connections": [
-      { "ref": "transformers/kv-cache", "text": "The cache is what GQA exists to shrink - that lesson derives why the cache is necessary and how its size and bandwidth dominate decode latency." },
-      { "ref": "transformers/multi-head-attention", "text": "GQA is a direct modification of that operator: keep the query heads, share the key/value heads. Understanding why heads specialize is what makes the asymmetry sensible." },
-      { "ref": "llm-systems/long-context", "text": "Cache size scales linearly with context length, so GQA is one component of long-context serving alongside paged attention, cache quantization, and windowed attention." },
-      { "ref": "mlops/model-serving", "text": "The whole justification is serving economics - batch size, throughput, and tokens-per-second - which is where the architectural decision is actually evaluated." }
+      {
+        "ref": "transformers/kv-cache",
+        "text": "The cache is what GQA exists to shrink - that lesson derives why the cache is necessary and how its size and bandwidth dominate decode latency."
+      },
+      {
+        "ref": "transformers/multi-head-attention",
+        "text": "GQA is a direct modification of that operator: keep the query heads, share the key/value heads. Understanding why heads specialize is what makes the asymmetry sensible."
+      },
+      {
+        "ref": "llm-systems/long-context",
+        "text": "Cache size scales linearly with context length, so GQA is one component of long-context serving alongside paged attention, cache quantization, and windowed attention."
+      },
+      {
+        "ref": "mlops/model-serving",
+        "text": "The whole justification is serving economics - batch size, throughput, and tokens-per-second - which is where the architectural decision is actually evaluated."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is multi-query attention (MQA)?", "a": "All query heads share a SINGLE key head and value head. Cache shrinks by a factor of h (the head count), at a measurable quality cost." },
-      { "q": "What is grouped-query attention (GQA)?", "a": "Query heads are partitioned into g groups, each group sharing one KV head. g=h is standard MHA, g=1 is MQA; intermediate g interpolates." },
-      { "q": "What problem do they solve?", "a": "KV cache size at inference. The cache is proportional to n_kv_heads, and at long context or high batch it exceeds the model weights and dominates decode bandwidth." },
-      { "q": "What is the KV cache formula?", "a": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. The 2 is for K and V. Note query head count does NOT appear." },
-      { "q": "How much does LLaMA-2 70B save?", "a": "64 query heads with 8 KV groups = 8x smaller cache: ~21.5 GB down to ~2.7 GB at 4K context, batch 1, fp16." },
-      { "q": "Does GQA reduce FLOPs?", "a": "Barely. After repeat_kv the attention matmuls are full-size; only the KV projection parameters shrink. The win is cache memory and bandwidth." },
-      { "q": "Does GQA speed up training?", "a": "Essentially no - training processes the sequence in parallel with no cache. The benefit is at inference." },
-      { "q": "Why is sharing K and V acceptable but sharing Q is not?", "a": "Query heads carry the DIVERSITY of attention patterns (each asks a different question); K/V are closer to a shared representation of what is at each position, which several queries can read differently." },
-      { "q": "What is uptraining?", "a": "Converting an existing MHA checkpoint to GQA by mean-pooling KV heads within each group, then continuing training on ~5% of the original tokens to recover quality." },
-      { "q": "Why did GQA beat MQA?", "a": "MQA's quality drop is real and it trained less stably; GQA-8 captures nearly all of the memory benefit with essentially no quality cost." },
-      { "q": "Does GQA solve long context?", "a": "No - it divides the cache by a constant, but the cache still grows linearly with T. It is one component alongside paged attention, cache quantization, and windowed attention." },
-      { "q": "What is repeat_kv?", "a": "The implementation step that expands g cached KV heads to h for the attention matmul, so the math matches standard multi-head attention while the cache stores only g." }
+      {
+        "q": "What is multi-query attention (MQA)?",
+        "a": "All query heads share a SINGLE key head and value head. Cache shrinks by a factor of h (the head count), at a measurable quality cost."
+      },
+      {
+        "q": "What is grouped-query attention (GQA)?",
+        "a": "Query heads are partitioned into g groups, each group sharing one KV head. g=h is standard MHA, g=1 is MQA; intermediate g interpolates."
+      },
+      {
+        "q": "What problem do they solve?",
+        "a": "KV cache size at inference. The cache is proportional to n_kv_heads, and at long context or high batch it exceeds the model weights and dominates decode bandwidth."
+      },
+      {
+        "q": "What is the KV cache formula?",
+        "a": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. The 2 is for K and V. Note query head count does NOT appear."
+      },
+      {
+        "q": "How much does LLaMA-2 70B save?",
+        "a": "64 query heads with 8 KV groups = 8x smaller cache: ~21.5 GB down to ~2.7 GB at 4K context, batch 1, fp16."
+      },
+      {
+        "q": "Does GQA reduce FLOPs?",
+        "a": "Barely. After repeat_kv the attention matmuls are full-size; only the KV projection parameters shrink. The win is cache memory and bandwidth."
+      },
+      {
+        "q": "Does GQA speed up training?",
+        "a": "Essentially no - training processes the sequence in parallel with no cache. The benefit is at inference."
+      },
+      {
+        "q": "Why is sharing K and V acceptable but sharing Q is not?",
+        "a": "Query heads carry the DIVERSITY of attention patterns (each asks a different question); K/V are closer to a shared representation of what is at each position, which several queries can read differently."
+      },
+      {
+        "q": "What is uptraining?",
+        "a": "Converting an existing MHA checkpoint to GQA by mean-pooling KV heads within each group, then continuing training on ~5% of the original tokens to recover quality."
+      },
+      {
+        "q": "Why did GQA beat MQA?",
+        "a": "MQA's quality drop is real and it trained less stably; GQA-8 captures nearly all of the memory benefit with essentially no quality cost."
+      },
+      {
+        "q": "Does GQA solve long context?",
+        "a": "No - it divides the cache by a constant, but the cache still grows linearly with T. It is one component alongside paged attention, cache quantization, and windowed attention."
+      },
+      {
+        "q": "What is repeat_kv?",
+        "a": "The implementation step that expands g cached KV heads to h for the attention matmul, so the math matches standard multi-head attention while the cache stores only g."
+      }
     ],
     "standard": [
       {
         "q": "Explain the KV cache problem and how MQA and GQA address it.",
         "a": "WHY THE CACHE EXISTS. In autoregressive generation you produce one token at a time. Naively, generating token t would require re-running attention over the whole prefix, recomputing keys and values for every earlier position - O(T^2) work per token and O(T^3) for the sequence. But keys and values for past positions do not change (they depend only on those positions' hidden states), so you CACHE them: each step computes K and V only for the new token, appends them, and attends against the whole cache. That takes per-token cost from O(T^2) to O(T) and is non-negotiable for practical generation. THE PROBLEM THE CACHE CREATES. Its size is 2 * n_layers * n_kv_heads * d_k * T * batch * bytes_per_element. Two consequences. (1) MEMORY: for LLaMA-2 70B (80 layers, 64 heads, d_k=128) at 4K context in fp16, that is ~21.5 GB per SEQUENCE. At batch 32 it would be ~690 GB - far beyond any node, while the model weights are ~140 GB. So the cache, not the weights, is what limits batch size, and batch size is what determines serving throughput. (2) BANDWIDTH: decoding is memory-bandwidth-bound. Generating one token requires reading the entire cache (plus all the weights) to do a small amount of arithmetic, so tokens-per-second is roughly bounded by (bytes to read) / (memory bandwidth). Halving the cache nearly halves the read volume at long context. THE FIX - SHARE KEY/VALUE HEADS. Notice the formula contains n_kv_heads but NOT the number of query heads. So you can keep all the query heads (where the diversity of attention patterns lives) and reduce only the K/V heads. MQA (Shazeer, 2019) takes this to the limit: ONE key head and one value head shared by all query heads, an h-fold reduction. GQA (Ainslie et al., 2023) generalizes: g groups of query heads, each sharing one KV head, giving an h/g reduction with g as a tunable dial. WHY SHARING K/V IS ACCEPTABLE. The intuition is asymmetry: each query head asks a different QUESTION ('what is the subject of this verb?', 'what token preceded this one?'), so query diversity is where the representational value is. Keys and values are closer to a shared description of what exists at each position, which several different questions can reasonably read from. Empirically this holds up - Ainslie et al.'s uptrained T5-XXL results show MHA at 47.2 average, GQA-8 at 47.1 (a rounding error), and MQA at 46.6 (a real drop). So GQA-8 is close to free while MQA is not. THE PRACTICAL DETAILS THAT MATTER. (a) It does NOT reduce FLOPs meaningfully - after repeat_kv the attention matmuls are full size. The win is memory and bandwidth, which is exactly what decode is limited by. (b) It does NOT help training, where the sequence is processed in parallel with no cache. (c) UPTRAINING makes it retrofittable: mean-pool an existing model's KV heads within each group as initialization, then continue training on ~5% of the original token budget to recover quality - which is why GQA spread so quickly, since labs did not have to pretrain from scratch. (d) It does not solve long context on its own, since the cache is still linear in T - an 8x reduction buys 8x the length at fixed memory, so a 32K GQA-8 model costs what 4K MHA cost. WHERE THIS SITS IN THE STACK: GQA is one of four standard cache optimizations, alongside PAGED ATTENTION (vLLM - eliminate the fragmentation from pre-allocating max-length caches, typically a several-fold effective batch improvement), CACHE QUANTIZATION (int8 KV, another 2x), and WINDOWED or evicting caches for very long contexts. They compose, and a production system uses all of them.",
-        "deepDive": { "q": "Multi-head latent attention (MLA) claims to beat GQA. How does it work, and what is the trade-off?", "a": "THE IDEA. MLA (introduced in DeepSeek-V2, refined in V3) attacks the same problem from a different angle: instead of REDUCING THE NUMBER of key/value heads, it COMPRESSES what is cached. Keys and values are projected down into a shared low-rank LATENT vector, and only that latent is stored in the cache; the full per-head keys and values are RECONSTRUCTED on the fly by up-projection during attention. So the cache holds a compressed representation rather than fewer heads. WHY THAT IS BETTER IN PRINCIPLE. GQA is a crude form of compression - it forces groups of heads to share exactly the same K/V, which is a hard structural constraint. MLA lets the model LEARN what to keep, using a low-rank bottleneck that can retain the components that matter most across all heads. So for the same cache budget you can preserve more information, or for the same quality you can use a smaller cache. DeepSeek reports MLA achieving a cache smaller than GQA's while matching or exceeding full multi-head attention quality - which is the claim that made it notable, since GQA at best matches MHA. THE KEY IMPLEMENTATION TRICK, which is where the cleverness lies: naively you would decompress the latent into full K and V at every step, which costs extra compute per token and could erase the bandwidth win. Instead, the up-projection matrices can be ABSORBED into the query and output projections (matrix associativity: (W_up^K)^T inside the q-k dot product can be folded into W_Q), so at inference you never materialize the full K/V - you compute attention directly against the compressed latent with modified query projections. That is what makes it cheap rather than a compute-for-memory trade. THE COMPLICATION - RoPE. Rotary embeddings are applied to keys and queries in a position-dependent way, which breaks the absorption trick: you cannot fold a position-dependent rotation into a static matrix. DeepSeek's solution is DECOUPLED RoPE - split the head dimension into a compressed part (no RoPE, absorbed) and a small separate part that carries RoPE and is cached uncompressed. It works but it is genuinely fiddly, and this interaction is the main reason MLA is harder to implement than GQA. THE TRADE-OFFS, stated honestly. (a) COMPLEXITY: GQA is a five-line change to an attention implementation; MLA requires the low-rank projections, the absorption arithmetic, and the decoupled-RoPE handling. That matters enormously for ecosystem adoption - every inference framework supports GQA, whereas MLA needs bespoke kernels. (b) COMPUTE: MLA adds projection work, so it trades a little arithmetic for memory - usually a good trade in a bandwidth-bound decode regime, but it means MLA can be slower in compute-bound prefill. (c) EVIDENCE BASE: GQA has been validated by many labs across many models; MLA's evidence is strong but concentrated in DeepSeek's models, so the independent replication base is thinner. (d) NOT RETROFITTABLE the way GQA is - you cannot mean-pool your way to MLA from an existing checkpoint as easily, so it is a pretraining-time decision. WHAT I WOULD CONCLUDE: MLA is the more principled solution - learned low-rank compression strictly generalizes 'force heads to share' - and its results are genuinely impressive. GQA remains the pragmatic default because it is trivial to implement, universally supported by serving frameworks, retrofittable by uptraining, and already captures most of the available win. This is a good example of the recurring pattern where the better idea loses on ecosystem effects until the tooling catches up, and it is worth watching whether MLA (or something like it) becomes standard as kernel support matures." }
+        "deepDive": {
+          "q": "Multi-head latent attention (MLA) claims to beat GQA. How does it work, and what is the trade-off?",
+          "a": "THE IDEA. MLA (introduced in DeepSeek-V2, refined in V3) attacks the same problem from a different angle: instead of REDUCING THE NUMBER of key/value heads, it COMPRESSES what is cached. Keys and values are projected down into a shared low-rank LATENT vector, and only that latent is stored in the cache; the full per-head keys and values are RECONSTRUCTED on the fly by up-projection during attention. So the cache holds a compressed representation rather than fewer heads. WHY THAT IS BETTER IN PRINCIPLE. GQA is a crude form of compression - it forces groups of heads to share exactly the same K/V, which is a hard structural constraint. MLA lets the model LEARN what to keep, using a low-rank bottleneck that can retain the components that matter most across all heads. So for the same cache budget you can preserve more information, or for the same quality you can use a smaller cache. DeepSeek reports MLA achieving a cache smaller than GQA's while matching or exceeding full multi-head attention quality - which is the claim that made it notable, since GQA at best matches MHA. THE KEY IMPLEMENTATION TRICK, which is where the cleverness lies: naively you would decompress the latent into full K and V at every step, which costs extra compute per token and could erase the bandwidth win. Instead, the up-projection matrices can be ABSORBED into the query and output projections (matrix associativity: (W_up^K)^T inside the q-k dot product can be folded into W_Q), so at inference you never materialize the full K/V - you compute attention directly against the compressed latent with modified query projections. That is what makes it cheap rather than a compute-for-memory trade. THE COMPLICATION - RoPE. Rotary embeddings are applied to keys and queries in a position-dependent way, which breaks the absorption trick: you cannot fold a position-dependent rotation into a static matrix. DeepSeek's solution is DECOUPLED RoPE - split the head dimension into a compressed part (no RoPE, absorbed) and a small separate part that carries RoPE and is cached uncompressed. It works but it is genuinely fiddly, and this interaction is the main reason MLA is harder to implement than GQA. THE TRADE-OFFS, stated honestly. (a) COMPLEXITY: GQA is a five-line change to an attention implementation; MLA requires the low-rank projections, the absorption arithmetic, and the decoupled-RoPE handling. That matters enormously for ecosystem adoption - every inference framework supports GQA, whereas MLA needs bespoke kernels. (b) COMPUTE: MLA adds projection work, so it trades a little arithmetic for memory - usually a good trade in a bandwidth-bound decode regime, but it means MLA can be slower in compute-bound prefill. (c) EVIDENCE BASE: GQA has been validated by many labs across many models; MLA's evidence is strong but concentrated in DeepSeek's models, so the independent replication base is thinner. (d) NOT RETROFITTABLE the way GQA is - you cannot mean-pool your way to MLA from an existing checkpoint as easily, so it is a pretraining-time decision. WHAT I WOULD CONCLUDE: MLA is the more principled solution - learned low-rank compression strictly generalizes 'force heads to share' - and its results are genuinely impressive. GQA remains the pragmatic default because it is trivial to implement, universally supported by serving frameworks, retrofittable by uptraining, and already captures most of the available win. This is a good example of the recurring pattern where the better idea loses on ecosystem effects until the tooling catches up, and it is worth watching whether MLA (or something like it) becomes standard as kernel support matures."
+        }
       },
       {
         "q": "Why can you share keys and values across heads but not queries? What does that tell you about attention?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "formula", "front": "KV cache size", "back": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. The 2 = K and V. Query head count does NOT appear - which is exactly the asymmetry GQA exploits." },
-    { "type": "definition", "front": "MQA vs GQA", "back": "MQA: ALL query heads share ONE K/V head (h-fold cache reduction, real quality drop). GQA: g groups of query heads each share one K/V head (h/g reduction). g=h is MHA, g=1 is MQA." },
-    { "type": "intuition", "front": "Why share K/V but not Q", "back": "Query heads carry the DIVERSITY (each asks a different question); K/V are a shared description of what is at each position. Also: the cache stores K and V, not Q - sharing queries would save nothing." },
-    { "type": "formula", "front": "LLaMA-2 70B GQA numbers", "back": "64 query heads, 8 KV groups = 8x cache reduction: ~21.5 GB -> ~2.7 GB at 4K context, batch 1, fp16 (80 layers, d_k=128). Weights are ~140 GB, so at batch 32 the un-grouped cache would dwarf them." },
-    { "type": "pitfall", "front": "GQA does not reduce FLOPs or help training", "back": "After repeat_kv the attention matmuls are full-size, and training has no cache at all. The win is inference MEMORY and BANDWIDTH - which is what decode is limited by." },
-    { "type": "definition", "front": "Uptraining", "back": "Convert an MHA checkpoint to GQA by MEAN-POOLING the K/V heads within each group, then continue pretraining on ~5% of the original tokens. Makes GQA retrofittable and gives a controlled MHA/GQA/MQA comparison." },
-    { "type": "intuition", "front": "Measured quality cost", "back": "Ainslie et al. (uptrained T5-XXL): MHA 47.2, GQA-8 47.1, MQA 46.6. GQA is essentially free; MQA costs real quality and trained less stably - which is why GQA, not MQA, became standard." },
-    { "type": "pitfall", "front": "GQA does not solve long context", "back": "The cache is still LINEAR in T - an 8x reduction buys 8x the length at fixed memory. 32K with GQA-8 costs what 4K cost with MHA. Combine with paged attention, KV quantization, or windowed attention." },
-    { "type": "definition", "front": "MLA (multi-head latent attention)", "back": "DeepSeek's alternative: compress K/V into a learned LOW-RANK latent and cache only that, with up-projections absorbed into W_Q/W_O. Smaller cache than GQA at MHA quality; costs implementation complexity and needs decoupled RoPE." },
-    { "type": "intuition", "front": "What GQA signals", "back": "An architecture change adopted for INFERENCE ECONOMICS at a small quality cost - inference now dominates lifetime compute, and decode is bandwidth-bound. Same force behind MoE, speculative decoding, and quantization-aware design." }
+    {
+      "type": "formula",
+      "front": "KV cache size",
+      "back": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. The 2 = K and V. Query head count does NOT appear - which is exactly the asymmetry GQA exploits."
+    },
+    {
+      "type": "definition",
+      "front": "MQA vs GQA",
+      "back": "MQA: ALL query heads share ONE K/V head (h-fold cache reduction, real quality drop). GQA: g groups of query heads each share one K/V head (h/g reduction). g=h is MHA, g=1 is MQA."
+    },
+    {
+      "type": "intuition",
+      "front": "Why share K/V but not Q",
+      "back": "Query heads carry the DIVERSITY (each asks a different question); K/V are a shared description of what is at each position. Also: the cache stores K and V, not Q - sharing queries would save nothing."
+    },
+    {
+      "type": "formula",
+      "front": "LLaMA-2 70B GQA numbers",
+      "back": "64 query heads, 8 KV groups = 8x cache reduction: ~21.5 GB -> ~2.7 GB at 4K context, batch 1, fp16 (80 layers, d_k=128). Weights are ~140 GB, so at batch 32 the un-grouped cache would dwarf them."
+    },
+    {
+      "type": "pitfall",
+      "front": "GQA does not reduce FLOPs or help training",
+      "back": "After repeat_kv the attention matmuls are full-size, and training has no cache at all. The win is inference MEMORY and BANDWIDTH - which is what decode is limited by."
+    },
+    {
+      "type": "definition",
+      "front": "Uptraining",
+      "back": "Convert an MHA checkpoint to GQA by MEAN-POOLING the K/V heads within each group, then continue pretraining on ~5% of the original tokens. Makes GQA retrofittable and gives a controlled MHA/GQA/MQA comparison."
+    },
+    {
+      "type": "intuition",
+      "front": "Measured quality cost",
+      "back": "Ainslie et al. (uptrained T5-XXL): MHA 47.2, GQA-8 47.1, MQA 46.6. GQA is essentially free; MQA costs real quality and trained less stably - which is why GQA, not MQA, became standard."
+    },
+    {
+      "type": "pitfall",
+      "front": "GQA does not solve long context",
+      "back": "The cache is still LINEAR in T - an 8x reduction buys 8x the length at fixed memory. 32K with GQA-8 costs what 4K cost with MHA. Combine with paged attention, KV quantization, or windowed attention."
+    },
+    {
+      "type": "definition",
+      "front": "MLA (multi-head latent attention)",
+      "back": "DeepSeek's alternative: compress K/V into a learned LOW-RANK latent and cache only that, with up-projections absorbed into W_Q/W_O. Smaller cache than GQA at MHA quality; costs implementation complexity and needs decoupled RoPE."
+    },
+    {
+      "type": "intuition",
+      "front": "What GQA signals",
+      "back": "An architecture change adopted for INFERENCE ECONOMICS at a small quality cost - inference now dominates lifetime compute, and decode is bandwidth-bound. Same force behind MoE, speculative decoding, and quantization-aware design."
+    }
   ],
   "refs": [
-    { "title": "Ainslie et al. (2023), GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints", "url": "https://arxiv.org/abs/2305.13245" },
-    { "title": "Shazeer (2019), Fast Transformer Decoding: One Write-Head is All You Need (MQA)", "url": "https://arxiv.org/abs/1911.02150" },
-    { "title": "Kwon et al. (2023), Efficient Memory Management for LLM Serving with PagedAttention (vLLM)", "url": "https://arxiv.org/abs/2309.06180" },
-    { "title": "DeepSeek-AI (2024), DeepSeek-V2 (multi-head latent attention)", "url": "https://arxiv.org/abs/2405.04434" }
+    {
+      "title": "Ainslie et al. (2023), GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+      "url": "https://arxiv.org/abs/2305.13245"
+    },
+    {
+      "title": "Shazeer (2019), Fast Transformer Decoding: One Write-Head is All You Need (MQA)",
+      "url": "https://arxiv.org/abs/1911.02150"
+    },
+    {
+      "title": "Kwon et al. (2023), Efficient Memory Management for LLM Serving with PagedAttention (vLLM)",
+      "url": "https://arxiv.org/abs/2309.06180"
+    },
+    {
+      "title": "DeepSeek-AI (2024), DeepSeek-V2 (multi-head latent attention)",
+      "url": "https://arxiv.org/abs/2405.04434"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-08",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-08_attention_variants_mqa_gqa_sliding.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-07",
   "slug": "cs-algorithms",
+  "keyBase": "interview-capstone/cs-algorithms",
   "module": "interview-capstone",
   "title": "Classical CS Algorithms Review",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://www.algorist.com/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-08",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-08_classical_cs_algorithms_ml_interviews.ipynb"
+  }
 }

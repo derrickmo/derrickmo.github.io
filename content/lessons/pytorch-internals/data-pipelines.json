@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-02",
   "slug": "data-pipelines",
+  "keyBase": "pytorch-internals/data-pipelines",
   "module": "pytorch-internals",
   "title": "Advanced Data Pipelines",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "15-02_advanced_data_pipelines.ipynb",
     "flagship": null,
-    "demos": ["reservoir-sampling", "batching", "image-augmentation", "importance-sampling"],
+    "demos": [
+      "reservoir-sampling",
+      "batching",
+      "image-augmentation",
+      "importance-sampling"
+    ],
     "concepts": []
   },
-  "prereqs": ["foundations/pytorch-data-loading"],
-  "leadsTo": ["training-systems/data-loading-scale", "pytorch-internals/cuda-memory"],
+  "prereqs": [
+    "foundations/pytorch-data-loading"
+  ],
+  "leadsTo": [
+    "training-systems/data-loading-scale",
+    "pytorch-internals/cuda-memory"
+  ],
   "body": {
     "intuition": [
       "DataLoader is one line in every training script and it is hiding four things: a sampler deciding the order, a set of worker PROCESSES doing the loading, a collate function assembling batches, and a pinned-memory transfer to the device. Each of those is a mechanism with its own failure mode, and none of them fails loudly. A misconfigured sampler produces a valid-looking batch in the wrong order. A worker misconfiguration produces duplicated data. A memory bug produces steadily growing RSS until the job dies hours in. The training loss curve looks plausible through all of it.",
@@ -277,5 +288,11 @@
       "url": "https://pytorch.org/docs/stable/notes/cuda.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-04",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-04_advanced_data_pipelines.ipynb"
+  }
 }

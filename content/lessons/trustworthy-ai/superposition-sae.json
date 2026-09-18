@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-05",
   "slug": "superposition-sae",
+  "keyBase": "trustworthy-ai/superposition-sae",
   "module": "trustworthy-ai",
   "title": "Mechanistic Interpretability I: Superposition & SAEs",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://distill.pub/2020/circuits/zoom-in/"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "24-07",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-07_mechanistic_interpretability_i_superposition_saes.ipynb"
+  }
 }

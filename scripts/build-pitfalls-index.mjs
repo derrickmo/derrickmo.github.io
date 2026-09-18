@@ -101,13 +101,16 @@ const rows = [];
 for (const mod of readdirSync(R("content/lessons"))) {
   for (const f of readdirSync(R(`content/lessons/${mod}`))) {
     const j = JSON.parse(readFileSync(R(`content/lessons/${mod}/${f}`), "utf8"));
+    // Identity is keyBase, not location — see the note in build-interview-index.mjs.
+    // A pitfall id is a deep-link target, so moving a lesson must not re-key it.
+    const kb = (j.keyBase || `${mod}/${j.slug}`).split("/");
     const add = (text, kind, i) => {
       if (!text || typeof text !== "string") return;
       const [title, detail] = split(text);
       // A row can carry several symptoms, because real failures do - a leak is also
       // a metric lie. Most carry none, which is expected and not a hole.
       const sy = SYMPTOMS.filter((x) => x.re.test(title) || x.re.test(detail)).map((x) => x.id);
-      rows.push({ id: hashId(mod, j.slug, kind, String(i)), m: mod, lesson: j.slug, kind, title, detail, sy });
+      rows.push({ id: hashId(kb[0], kb[1], kind, String(i)), m: mod, lesson: j.slug, kind, title, detail, sy });
     };
     ((j.body || {}).pitfalls || []).forEach((p, i) => add(p, "pitfall", i));
     (j.flashcards || []).filter((c) => c.type === "pitfall")

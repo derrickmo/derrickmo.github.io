@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-07",
   "slug": "multi-agent",
+  "keyBase": "rag-agents/multi-agent",
   "module": "rag-agents",
   "title": "Multi-Agent Orchestration",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-07_multi_agent_orchestration.ipynb",
     "flagship": null,
-    "demos": ["agent-router", "react-agent", "bagging-boosting", "guardrails"],
+    "demos": [
+      "agent-router",
+      "react-agent",
+      "bagging-boosting",
+      "guardrails"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/agent-loops", "rag-agents/rag-eval"],
-  "leadsTo": ["rag-agents/guardrails", "agentic-ai/multi-agent"],
+  "prereqs": [
+    "rag-agents/agent-loops",
+    "rag-agents/rag-eval"
+  ],
+  "leadsTo": [
+    "rag-agents/guardrails",
+    "agentic-ai/multi-agent"
+  ],
   "body": {
     "intuition": [
       "Multi-agent systems are usually justified with an analogy - a team is better than an individual - and the analogy is doing more work than the evidence. The arithmetic from 18-06 does not stop applying when you split a loop across several models; it applies across the agents as well, and it acquires a second term for coordination. So the question worth asking is not whether a team is better in general but which of three specific mechanisms you are relying on, because each one has a condition attached and fails when the condition is not met.",
@@ -273,5 +285,11 @@
       "url": "https://www.anthropic.com/engineering/multi-agent-research-system"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-07",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-07_multi_agent_orchestration.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-08",
   "slug": "flows",
+  "keyBase": "generative/flows",
   "module": "generative",
   "title": "Normalizing Flows & Flow Matching",
   "status": "LIVE",
@@ -184,5 +185,14 @@
       "title": "Nalisnick et al. (2019) — Do Deep Generative Models Know What They Don't Know?",
       "url": "https://arxiv.org/abs/1810.09136"
     }
-  ]
+  ],
+  "v2": {
+    "id": "12-06",
+    "module": "generative",
+    "disposition": "split",
+    "notebookFile": "12-06_normalizing_flows.ipynb",
+    "alsoFeeds": [
+      "12-11"
+    ]
+  }
 }

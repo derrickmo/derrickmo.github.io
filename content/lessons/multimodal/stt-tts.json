@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-09",
   "slug": "stt-tts",
+  "keyBase": "multimodal/stt-tts",
   "module": "multimodal",
   "title": "STT & TTS Foundations",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-09_stt_tts_foundations.ipynb",
     "flagship": null,
-    "demos": ["spectrogram", "beam-search", "hmm-viterbi", "dtw"],
+    "demos": [
+      "spectrogram",
+      "beam-search",
+      "hmm-viterbi",
+      "dtw"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/audio-representations", "advanced-nlp/architectures"],
-  "leadsTo": ["multimodal/multimodal-eval", "agentic-ai/tool-calling"],
+  "prereqs": [
+    "multimodal/audio-representations",
+    "advanced-nlp/architectures"
+  ],
+  "leadsTo": [
+    "multimodal/multimodal-eval",
+    "agentic-ai/tool-calling"
+  ],
   "body": {
     "intuition": [
       "Speech recognition and speech synthesis look like inverses and are engineered very differently. Both face the same structural problem - audio and text run at completely different rates, with 100 audio frames per second against maybe 3 words - so both need an ALIGNMENT mechanism. Where they differ is that recognition must be robust to enormous input variation and can afford to be approximately right, while synthesis must produce a signal at 24,000 samples per second that sounds human, where 'approximately right' is immediately audible.",
@@ -82,27 +94,78 @@
       "Evaluating TTS with MOS alone. Mean opinion score is not comparable across studies - it depends on the rater pool, the instructions, and which systems appeared together - so absolute MOS values from different papers mean little. Use preference tests against a stated baseline."
     ],
     "connections": [
-      { "ref": "multimodal/audio-representations", "text": "The phase problem is why TTS is two-stage, and the window/hop settings define the frame rate that CTC and RNN-T align against." },
-      { "ref": "advanced-nlp/architectures", "text": "The streaming constraint is the same encoder-decoder-versus-decoder-only question, decided by whether output must begin before the input ends." },
-      { "ref": "rnn-nlp/sequence-labeling", "text": "CTC's forward-backward is the same dynamic program as HMM training, and constrained decoding over an output lattice is the same machinery as Viterbi over tag sequences." },
-      { "ref": "advanced-cv/ocr", "text": "OCR faces the identical alignment problem with the identical CTC solution, and its CER-versus-field-accuracy gap is exactly the WER-versus-entity-accuracy gap here." },
-      { "ref": "multimodal/multimodal-eval", "text": "WER's blindness to which errors matter is a special case of the general point that a metric encodes a cost model, usually an implicit and wrong one." }
+      {
+        "ref": "multimodal/audio-representations",
+        "text": "The phase problem is why TTS is two-stage, and the window/hop settings define the frame rate that CTC and RNN-T align against."
+      },
+      {
+        "ref": "advanced-nlp/architectures",
+        "text": "The streaming constraint is the same encoder-decoder-versus-decoder-only question, decided by whether output must begin before the input ends."
+      },
+      {
+        "ref": "rnn-nlp/sequence-labeling",
+        "text": "CTC's forward-backward is the same dynamic program as HMM training, and constrained decoding over an output lattice is the same machinery as Viterbi over tag sequences."
+      },
+      {
+        "ref": "advanced-cv/ocr",
+        "text": "OCR faces the identical alignment problem with the identical CTC solution, and its CER-versus-field-accuracy gap is exactly the WER-versus-entity-accuracy gap here."
+      },
+      {
+        "ref": "multimodal/multimodal-eval",
+        "text": "WER's blindness to which errors matter is a special case of the general point that a metric encodes a cost model, usually an implicit and wrong one."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What problem does CTC solve?", "a": "Alignment. The audio has ~100 frames per second and the transcript has a few words, with no given correspondence. CTC adds a blank symbol and sums over all frame-level paths that collapse to the target." },
-      { "q": "What is the blank symbol for?", "a": "Two jobs: it lets frames emit nothing, and it SEPARATES repeated characters so 'hello' survives the collapse of repeats ('h-e-l-blank-l-o')." },
-      { "q": "What is CTC's central weakness?", "a": "Conditional independence: given the audio, each frame's output is independent, so the model cannot express that 'q' is followed by 'u'. It needs an external language model to compete." },
-      { "q": "Why can't attention encoder-decoder models stream?", "a": "The decoder cross-attends over the ENTIRE encoded utterance, so decoding cannot start until the input has ended." },
-      { "q": "What is RNN-T?", "a": "An audio encoder plus a TEXT PREDICTOR conditioned on previous outputs, combined by a joint network. It models output dependencies AND streams with bounded latency - which is why it runs on phones." },
-      { "q": "How do you choose among the three?", "a": "By streaming. Partial results while the user speaks (assistants, live captions) -> RNN-T. Batch transcription of recorded audio -> attention encoder-decoder, simpler and usually more accurate." },
-      { "q": "What is WER?", "a": "(substitutions + insertions + deletions) / reference words. It can exceed 100%, because insertions are unbounded - which is how hallucinated text shows up." },
-      { "q": "What is WER's main flaw?", "a": "It weights every word equally. Dropping 'not' and mis-transcribing 'the' are both one error, with completely different consequences." },
-      { "q": "What should you report alongside it?", "a": "Entity error rate (names, numbers, dosages), downstream task accuracy, and a per-SLICE breakdown by accent, noise, and demographic - plus the text normalization used." },
-      { "q": "What is distinctive about Whisper?", "a": "Weak supervision at scale - 680,000 hours of noisy web transcripts rather than clean labelled data - giving robustness across accents, noise, and domains that models with better benchmark WER lack." },
-      { "q": "What is Whisper's characteristic failure?", "a": "Hallucinating fluent, confident text during SILENCE or non-speech. A qualitatively different failure from high WER, and it needs voice activity detection plus repetition checks to guard against." },
-      { "q": "Why is TTS two-stage?", "a": "Text-to-mel is a modest-rate sequence problem; mel-to-waveform is a 24 kHz signal problem needing a different kind of model. Splitting them lets each use the right tool and lets the vocoder be reused across voices." }
+      {
+        "q": "What problem does CTC solve?",
+        "a": "Alignment. The audio has ~100 frames per second and the transcript has a few words, with no given correspondence. CTC adds a blank symbol and sums over all frame-level paths that collapse to the target."
+      },
+      {
+        "q": "What is the blank symbol for?",
+        "a": "Two jobs: it lets frames emit nothing, and it SEPARATES repeated characters so 'hello' survives the collapse of repeats ('h-e-l-blank-l-o')."
+      },
+      {
+        "q": "What is CTC's central weakness?",
+        "a": "Conditional independence: given the audio, each frame's output is independent, so the model cannot express that 'q' is followed by 'u'. It needs an external language model to compete."
+      },
+      {
+        "q": "Why can't attention encoder-decoder models stream?",
+        "a": "The decoder cross-attends over the ENTIRE encoded utterance, so decoding cannot start until the input has ended."
+      },
+      {
+        "q": "What is RNN-T?",
+        "a": "An audio encoder plus a TEXT PREDICTOR conditioned on previous outputs, combined by a joint network. It models output dependencies AND streams with bounded latency - which is why it runs on phones."
+      },
+      {
+        "q": "How do you choose among the three?",
+        "a": "By streaming. Partial results while the user speaks (assistants, live captions) -> RNN-T. Batch transcription of recorded audio -> attention encoder-decoder, simpler and usually more accurate."
+      },
+      {
+        "q": "What is WER?",
+        "a": "(substitutions + insertions + deletions) / reference words. It can exceed 100%, because insertions are unbounded - which is how hallucinated text shows up."
+      },
+      {
+        "q": "What is WER's main flaw?",
+        "a": "It weights every word equally. Dropping 'not' and mis-transcribing 'the' are both one error, with completely different consequences."
+      },
+      {
+        "q": "What should you report alongside it?",
+        "a": "Entity error rate (names, numbers, dosages), downstream task accuracy, and a per-SLICE breakdown by accent, noise, and demographic - plus the text normalization used."
+      },
+      {
+        "q": "What is distinctive about Whisper?",
+        "a": "Weak supervision at scale - 680,000 hours of noisy web transcripts rather than clean labelled data - giving robustness across accents, noise, and domains that models with better benchmark WER lack."
+      },
+      {
+        "q": "What is Whisper's characteristic failure?",
+        "a": "Hallucinating fluent, confident text during SILENCE or non-speech. A qualitatively different failure from high WER, and it needs voice activity detection plus repetition checks to guard against."
+      },
+      {
+        "q": "Why is TTS two-stage?",
+        "a": "Text-to-mel is a modest-rate sequence problem; mel-to-waveform is a 24 kHz signal problem needing a different kind of model. Splitting them lets each use the right tool and lets the vocoder be reused across voices."
+      }
     ],
     "standard": [
       {
@@ -132,25 +195,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "CTC", "back": "Add a BLANK symbol; p(y|x) = sum over all frame paths collapsing to y (remove repeats, then blanks), computed in O(TU) by forward-backward. The blank both allows 'emit nothing' and SEPARATES repeated characters." },
-    { "type": "pitfall", "front": "CTC's conditional independence", "back": "Given the audio, frame outputs are independent - so the model cannot express that 'q' is followed by 'u'. It produces phonetically plausible nonsense and needs an external LM at decode time. RNN-T's text predictor is the fix." },
-    { "type": "definition", "front": "The three ASR architectures", "back": "CTC: simple, streams, no output dependencies. Attention enc-dec: strong, internal LM, CANNOT stream, can loop/skip catastrophically. RNN-T: models dependencies AND streams with bounded latency - what runs on your phone." },
-    { "type": "intuition", "front": "The architecture choice is a streaming choice", "back": "Partial results while the user is still speaking (assistants, live captions) -> RNN-T. Batch transcription of recorded audio -> attention encoder-decoder, simpler and usually more accurate. Hybrid CTC+attention training stabilizes the latter." },
-    { "type": "pitfall", "front": "WER weights all errors equally", "back": "'do not administer' -> 'do administer' and 'two' -> 'to' are both ONE error at 12.5% WER. Report ENTITY error rate, downstream task accuracy, and a per-slice breakdown by accent/noise/demographic." },
-    { "type": "pitfall", "front": "Unqualified WER is not comparable", "back": "Punctuation, casing, contractions, and number formatting ('two' vs '2') swing it by several points. State the normalization. Also: WER can EXCEED 100% since insertions are unbounded - which is how hallucination shows up." },
-    { "type": "pitfall", "front": "CTC's zero_infinity flag", "back": "If a target is LONGER than the input frames the loss is infinite and one example NaNs the batch. Set zero_infinity=True - and treat it as a signal of a data-prep error (wrong sample rate, over-trimming, mislabelled clip)." },
-    { "type": "intuition", "front": "Whisper's bet", "back": "680k hours of NOISY web transcripts - weak supervision at scale, not clean data. It does not top LibriSpeech and substantially beats LibriSpeech-tuned models on real-world audio. Benchmark score and deployable robustness came apart." },
-    { "type": "pitfall", "front": "Whisper hallucinates on silence", "back": "Given silence, music, or noise it generates fluent, confident, invented text - sometimes YouTube-subtitle boilerplate from its training data. Fluent-and-wrong defeats the reader's ability to notice. Guard with VAD, repetition checks, and the no-speech probability." },
-    { "type": "definition", "front": "TTS is two-stage", "back": "text -> mel (a ~100 fps sequence problem) then mel -> waveform (a 24 kHz signal problem, the vocoder). Different tools for different problems, and the vocoder is trained once and reused across voices. Same factorization as latent diffusion." },
-    { "type": "intuition", "front": "AR vs non-AR TTS", "back": "Tacotron-style autoregressive: natural prosody, inherits attention's looping/skipping/never-stopping failures. FastSpeech-style: explicit DURATION prediction, parallel, robust by construction, slightly flatter prosody - and needs alignments to train." },
-    { "type": "pitfall", "front": "MOS is not comparable across studies", "back": "It depends on the rater pool, the instructions, and which systems were heard together. Use PREFERENCE tests against a stated baseline, and measure intelligibility separately (e.g. ASR WER on the synthesized audio)." }
+    {
+      "type": "definition",
+      "front": "CTC",
+      "back": "Add a BLANK symbol; p(y|x) = sum over all frame paths collapsing to y (remove repeats, then blanks), computed in O(TU) by forward-backward. The blank both allows 'emit nothing' and SEPARATES repeated characters."
+    },
+    {
+      "type": "pitfall",
+      "front": "CTC's conditional independence",
+      "back": "Given the audio, frame outputs are independent - so the model cannot express that 'q' is followed by 'u'. It produces phonetically plausible nonsense and needs an external LM at decode time. RNN-T's text predictor is the fix."
+    },
+    {
+      "type": "definition",
+      "front": "The three ASR architectures",
+      "back": "CTC: simple, streams, no output dependencies. Attention enc-dec: strong, internal LM, CANNOT stream, can loop/skip catastrophically. RNN-T: models dependencies AND streams with bounded latency - what runs on your phone."
+    },
+    {
+      "type": "intuition",
+      "front": "The architecture choice is a streaming choice",
+      "back": "Partial results while the user is still speaking (assistants, live captions) -> RNN-T. Batch transcription of recorded audio -> attention encoder-decoder, simpler and usually more accurate. Hybrid CTC+attention training stabilizes the latter."
+    },
+    {
+      "type": "pitfall",
+      "front": "WER weights all errors equally",
+      "back": "'do not administer' -> 'do administer' and 'two' -> 'to' are both ONE error at 12.5% WER. Report ENTITY error rate, downstream task accuracy, and a per-slice breakdown by accent/noise/demographic."
+    },
+    {
+      "type": "pitfall",
+      "front": "Unqualified WER is not comparable",
+      "back": "Punctuation, casing, contractions, and number formatting ('two' vs '2') swing it by several points. State the normalization. Also: WER can EXCEED 100% since insertions are unbounded - which is how hallucination shows up."
+    },
+    {
+      "type": "pitfall",
+      "front": "CTC's zero_infinity flag",
+      "back": "If a target is LONGER than the input frames the loss is infinite and one example NaNs the batch. Set zero_infinity=True - and treat it as a signal of a data-prep error (wrong sample rate, over-trimming, mislabelled clip)."
+    },
+    {
+      "type": "intuition",
+      "front": "Whisper's bet",
+      "back": "680k hours of NOISY web transcripts - weak supervision at scale, not clean data. It does not top LibriSpeech and substantially beats LibriSpeech-tuned models on real-world audio. Benchmark score and deployable robustness came apart."
+    },
+    {
+      "type": "pitfall",
+      "front": "Whisper hallucinates on silence",
+      "back": "Given silence, music, or noise it generates fluent, confident, invented text - sometimes YouTube-subtitle boilerplate from its training data. Fluent-and-wrong defeats the reader's ability to notice. Guard with VAD, repetition checks, and the no-speech probability."
+    },
+    {
+      "type": "definition",
+      "front": "TTS is two-stage",
+      "back": "text -> mel (a ~100 fps sequence problem) then mel -> waveform (a 24 kHz signal problem, the vocoder). Different tools for different problems, and the vocoder is trained once and reused across voices. Same factorization as latent diffusion."
+    },
+    {
+      "type": "intuition",
+      "front": "AR vs non-AR TTS",
+      "back": "Tacotron-style autoregressive: natural prosody, inherits attention's looping/skipping/never-stopping failures. FastSpeech-style: explicit DURATION prediction, parallel, robust by construction, slightly flatter prosody - and needs alignments to train."
+    },
+    {
+      "type": "pitfall",
+      "front": "MOS is not comparable across studies",
+      "back": "It depends on the rater pool, the instructions, and which systems were heard together. Use PREFERENCE tests against a stated baseline, and measure intelligibility separately (e.g. ASR WER on the synthesized audio)."
+    }
   ],
   "refs": [
-    { "title": "Graves et al. (2006), Connectionist Temporal Classification", "url": "https://www.cs.toronto.edu/~graves/icml_2006.pdf" },
-    { "title": "Radford et al. (2022), Robust Speech Recognition via Large-Scale Weak Supervision (Whisper)", "url": "https://arxiv.org/abs/2212.04356" },
-    { "title": "Graves (2012), Sequence Transduction with Recurrent Neural Networks (RNN-T)", "url": "https://arxiv.org/abs/1211.3711" },
-    { "title": "Ren et al. (2021), FastSpeech 2: Fast and High-Quality End-to-End Text to Speech", "url": "https://arxiv.org/abs/2006.04558" },
-    { "title": "Koenecke et al. (2020), Racial disparities in automated speech recognition", "url": "https://www.pnas.org/doi/10.1073/pnas.1915768117" }
+    {
+      "title": "Graves et al. (2006), Connectionist Temporal Classification",
+      "url": "https://www.cs.toronto.edu/~graves/icml_2006.pdf"
+    },
+    {
+      "title": "Radford et al. (2022), Robust Speech Recognition via Large-Scale Weak Supervision (Whisper)",
+      "url": "https://arxiv.org/abs/2212.04356"
+    },
+    {
+      "title": "Graves (2012), Sequence Transduction with Recurrent Neural Networks (RNN-T)",
+      "url": "https://arxiv.org/abs/1211.3711"
+    },
+    {
+      "title": "Ren et al. (2021), FastSpeech 2: Fast and High-Quality End-to-End Text to Speech",
+      "url": "https://arxiv.org/abs/2006.04558"
+    },
+    {
+      "title": "Koenecke et al. (2020), Racial disparities in automated speech recognition",
+      "url": "https://www.pnas.org/doi/10.1073/pnas.1915768117"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-11",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-11_speech_recognition_synthesis.ipynb"
+  }
 }

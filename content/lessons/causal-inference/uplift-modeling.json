@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-06",
   "slug": "uplift-modeling",
+  "keyBase": "causal-inference/uplift-modeling",
   "module": "causal-inference",
   "title": "Uplift Modeling",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1319839"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-07",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-07_uplift_modeling_cate.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-04",
   "slug": "adapters",
+  "keyBase": "fine-tuning/adapters",
   "module": "fine-tuning",
   "title": "Adapter Methods Comparison",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-04_adapter_methods_comparison.ipynb",
     "flagship": null,
-    "demos": ["lora", "batching", "moe", "pruning"],
+    "demos": [
+      "lora",
+      "batching",
+      "moe",
+      "pruning"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/lora", "fine-tuning/full-fine-tuning"],
-  "leadsTo": ["fine-tuning/prompt-tuning", "fine-tuning/unsloth"],
+  "prereqs": [
+    "fine-tuning/lora",
+    "fine-tuning/full-fine-tuning"
+  ],
+  "leadsTo": [
+    "fine-tuning/prompt-tuning",
+    "fine-tuning/unsloth"
+  ],
   "body": {
     "intuition": [
       "Adapters came first. Houlsby et al. inserted small bottleneck modules - down-project to a low dimension, nonlinearity, up-project back, add to the residual stream - into every transformer block, froze everything else, and reported GLUE performance within 0.4% of full fine-tuning while training 3.6% of the parameters per task. That result is two years older than LoRA and it made the same point. Since then the design space has been filled in: adapters after the FFN only rather than after both sublayers, adapters in PARALLEL to a sublayer rather than in series, learned rescaling vectors instead of matrices, and BitFit, which trains nothing but the bias terms - about 0.09% of parameters - and is still competitive on GLUE at small-to-medium data sizes.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/2010.11918"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-05",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-05_peft_methods_compared_under_one.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-01",
   "slug": "mixed-precision",
+  "keyBase": "training-systems/mixed-precision",
   "module": "training-systems",
   "title": "Mixed Precision Training",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "16-01_mixed_precision_training.ipynb",
     "flagship": null,
-    "demos": ["mixed-precision", "quantization", "gradient-clipping", "optimizers"],
+    "demos": [
+      "mixed-precision",
+      "quantization",
+      "gradient-clipping",
+      "optimizers"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/cuda-memory"],
-  "leadsTo": ["training-systems/training-stability", "training-systems/optimized-pipeline"],
+  "prereqs": [
+    "pytorch-internals/cuda-memory"
+  ],
+  "leadsTo": [
+    "training-systems/training-stability",
+    "training-systems/optimized-pipeline"
+  ],
   "body": {
     "intuition": [
       "Mixed precision is the first exchange in this module and the one with the best rate: you give up numerical headroom and receive memory, bandwidth and arithmetic throughput. Half-precision activations are half the bytes, so every memory-bound operation runs about twice as fast; tensor cores execute half-precision matrix multiplies several times faster than fp32. On modern hardware it is close to free, which is why it is the default rather than an optimization.",
@@ -277,5 +288,11 @@
       "url": "https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "21-01",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-01_mixed_precision_fp16_bf16_fp8.ipynb"
+  }
 }

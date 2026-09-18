@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-04",
   "slug": "simclr-byol",
+  "keyBase": "multimodal/simclr-byol",
   "module": "multimodal",
   "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-04_contrastive_ssl_simclr_byol.ipynb",
     "flagship": null,
-    "demos": ["contrastive-learning", "image-augmentation", "embeddings", "batch-norm"],
+    "demos": [
+      "contrastive-learning",
+      "image-augmentation",
+      "embeddings",
+      "batch-norm"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/siamese", "ml-theory/data-augmentation"],
-  "leadsTo": ["advanced-cv/dino-mae", "multimodal/audio-representations"],
+  "prereqs": [
+    "multimodal/siamese",
+    "ml-theory/data-augmentation"
+  ],
+  "leadsTo": [
+    "advanced-cv/dino-mae",
+    "multimodal/audio-representations"
+  ],
   "body": {
     "intuition": [
       "Metric learning needs pairs, and pairs need labels. Self-supervised contrastive learning removes that requirement with one substitution: take TWO AUGMENTED VIEWS of the same image as a positive pair, and every other image in the batch as negatives. No annotation at all, and the resulting representations went from clearly-worse-than-supervised in 2018 to matching and then beating supervised pretraining on transfer by 2021.",
@@ -82,27 +94,78 @@
       "Judging these methods by linear probing alone. MAE probes far worse than DINO and fine-tunes better; the two protocols measure linear separability versus adaptability, and they can rank methods oppositely. Report both and pick the one matching how you will use the model."
     ],
     "connections": [
-      { "ref": "multimodal/siamese", "text": "This is metric learning with augmented views supplying the positives instead of labels, and InfoNCE's many negatives replacing triplet mining." },
-      { "ref": "advanced-cv/dino-mae", "text": "The direct successors - DINO's centering-and-sharpening and MAE's masked reconstruction - along with the full collapse-prevention taxonomy and the linear-probe-versus-fine-tune split." },
-      { "ref": "ml-theory/data-augmentation", "text": "Augmentation is usually a regularizer that buys only the variation it models; here it is promoted to being the objective itself, which makes the same design question much more consequential." },
-      { "ref": "multimodal/clip", "text": "CLIP is the cross-modal version: the second 'view' is a caption rather than an augmentation, which is why it learns semantics that augmentation-based methods cannot." },
-      { "ref": "neural-nets/regularization", "text": "The batch-norm controversy is a reminder that normalization layers can create cross-sample dependencies with real behavioural consequences - a general hazard, not just a BYOL curiosity." }
+      {
+        "ref": "multimodal/siamese",
+        "text": "This is metric learning with augmented views supplying the positives instead of labels, and InfoNCE's many negatives replacing triplet mining."
+      },
+      {
+        "ref": "advanced-cv/dino-mae",
+        "text": "The direct successors - DINO's centering-and-sharpening and MAE's masked reconstruction - along with the full collapse-prevention taxonomy and the linear-probe-versus-fine-tune split."
+      },
+      {
+        "ref": "ml-theory/data-augmentation",
+        "text": "Augmentation is usually a regularizer that buys only the variation it models; here it is promoted to being the objective itself, which makes the same design question much more consequential."
+      },
+      {
+        "ref": "multimodal/clip",
+        "text": "CLIP is the cross-modal version: the second 'view' is a caption rather than an augmentation, which is why it learns semantics that augmentation-based methods cannot."
+      },
+      {
+        "ref": "neural-nets/regularization",
+        "text": "The batch-norm controversy is a reminder that normalization layers can create cross-sample dependencies with real behavioural consequences - a general hazard, not just a BYOL curiosity."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is SimCLR's core idea?", "a": "Two augmented views of the same image are a positive pair; all other images in the batch are negatives. Train with InfoNCE. No labels required." },
-      { "q": "What is NT-Xent?", "a": "Normalized temperature-scaled cross-entropy - InfoNCE over 2N augmented views with cosine similarity and a temperature tau, where each view's positive is its counterpart." },
-      { "q": "Why does cropping alone fail?", "a": "Two crops of the same image share a colour histogram, so the model matches them on low-level colour statistics without learning content. Colour distortion closes that shortcut." },
-      { "q": "What does the augmentation policy actually specify?", "a": "What the representation must be INVARIANT to. It is a modelling decision, not preprocessing - and copying ImageNet's policy into a domain where colour is diagnostic is actively harmful." },
-      { "q": "What is the projection head for?", "a": "The contrastive loss acts on z = g(h), and the head is discarded afterwards. It ABSORBS the invariances the loss demands, protecting the representation h from being stripped of information." },
-      { "q": "How much does the projection head matter?", "a": "Linear evaluation on h beats z by more than 10 points. Always use the pre-projection representation downstream." },
-      { "q": "What does the temperature do?", "a": "Low tau concentrates gradient on the hardest negatives; high tau spreads it evenly. It is the continuous replacement for triplet mining, and results are sensitive to it." },
-      { "q": "Why did SimCLR need large batches?", "a": "The negatives come from the batch, so more negatives means a denser signal. MoCo's momentum queue decouples negative count from batch size and is the fix on limited hardware." },
-      { "q": "What is BYOL?", "a": "An online network with a PREDICTOR head trained to match an EMA target network under stop-gradient - with NO negatives at all. It should collapse and does not." },
-      { "q": "Which BYOL components are load-bearing?", "a": "The predictor and the stop-gradient - removing either collapses it immediately. The EMA is NOT required; removing it gives SimSiam, which still works." },
-      { "q": "What was the batch-norm controversy?", "a": "A blog post argued BYOL only worked because BatchNorm leaks cross-sample information, i.e. it was secretly contrastive. The authors falsified it with group norm plus weight standardization, which has no cross-sample interaction." },
-      { "q": "What are false negatives here?", "a": "In-batch negatives that are actually the same class as the anchor. The loss pushes them apart regardless, which caps representation quality - supervised contrastive learning fixes it when labels exist." }
+      {
+        "q": "What is SimCLR's core idea?",
+        "a": "Two augmented views of the same image are a positive pair; all other images in the batch are negatives. Train with InfoNCE. No labels required."
+      },
+      {
+        "q": "What is NT-Xent?",
+        "a": "Normalized temperature-scaled cross-entropy - InfoNCE over 2N augmented views with cosine similarity and a temperature tau, where each view's positive is its counterpart."
+      },
+      {
+        "q": "Why does cropping alone fail?",
+        "a": "Two crops of the same image share a colour histogram, so the model matches them on low-level colour statistics without learning content. Colour distortion closes that shortcut."
+      },
+      {
+        "q": "What does the augmentation policy actually specify?",
+        "a": "What the representation must be INVARIANT to. It is a modelling decision, not preprocessing - and copying ImageNet's policy into a domain where colour is diagnostic is actively harmful."
+      },
+      {
+        "q": "What is the projection head for?",
+        "a": "The contrastive loss acts on z = g(h), and the head is discarded afterwards. It ABSORBS the invariances the loss demands, protecting the representation h from being stripped of information."
+      },
+      {
+        "q": "How much does the projection head matter?",
+        "a": "Linear evaluation on h beats z by more than 10 points. Always use the pre-projection representation downstream."
+      },
+      {
+        "q": "What does the temperature do?",
+        "a": "Low tau concentrates gradient on the hardest negatives; high tau spreads it evenly. It is the continuous replacement for triplet mining, and results are sensitive to it."
+      },
+      {
+        "q": "Why did SimCLR need large batches?",
+        "a": "The negatives come from the batch, so more negatives means a denser signal. MoCo's momentum queue decouples negative count from batch size and is the fix on limited hardware."
+      },
+      {
+        "q": "What is BYOL?",
+        "a": "An online network with a PREDICTOR head trained to match an EMA target network under stop-gradient - with NO negatives at all. It should collapse and does not."
+      },
+      {
+        "q": "Which BYOL components are load-bearing?",
+        "a": "The predictor and the stop-gradient - removing either collapses it immediately. The EMA is NOT required; removing it gives SimSiam, which still works."
+      },
+      {
+        "q": "What was the batch-norm controversy?",
+        "a": "A blog post argued BYOL only worked because BatchNorm leaks cross-sample information, i.e. it was secretly contrastive. The authors falsified it with group norm plus weight standardization, which has no cross-sample interaction."
+      },
+      {
+        "q": "What are false negatives here?",
+        "a": "In-batch negatives that are actually the same class as the anchor. The loss pushes them apart regardless, which caps representation quality - supervised contrastive learning fixes it when labels exist."
+      }
     ],
     "standard": [
       {
@@ -112,7 +175,10 @@
       {
         "q": "How does BYOL avoid collapse without negatives, and what did the batch-norm debate establish?",
         "a": "THE PUZZLE. BYOL trains an online network to predict the output of a target network on a different augmented view of the same image. There is no negative term. The obvious global optimum is for both networks to output a CONSTANT for every input - the prediction is then perfect and the representation is worthless. It does not collapse, and the reason is genuinely not obvious. THE THREE COMPONENTS, and their measured necessity. (1) The PREDICTOR - an extra MLP applied only to the ONLINE branch, creating an architectural ASYMMETRY between the two sides. (2) The STOP-GRADIENT on the target branch, so gradients flow through only one path. (3) The EMA (momentum) update of the target from the online network. Ablations show removing the predictor collapses immediately, removing the stop-gradient collapses immediately, and removing the EMA does NOT collapse - which is SimSiam's contribution, and it was surprising because the momentum encoder had been assumed essential. THE LEADING EXPLANATION, offered with appropriate hedging because this is still open. The predictor plus stop-gradient makes the optimization resemble an ALTERNATING procedure, expectation-maximization-like: the online network chases a target that is itself slowly moving, and the predictor absorbs the residual difference between the two views' representations rather than forcing the encoder to make them identical. In that dynamical system the constant solution is not an attractor - the predictor can satisfy the objective without the encoder degenerating. There are also analyses showing the predictor's alignment with the encoder's feature covariance matters, and that a sufficiently well-conditioned predictor prevents dimensional collapse. Nobody has a complete account, and I would say so rather than overclaim. THE BATCH-NORM EPISODE, which is worth telling in full because it is good scientific practice. In 2020 a widely-read blog post argued that BYOL only avoids collapse because BATCH NORMALIZATION leaks information across samples: BN subtracts a batch mean, so each sample's normalized output depends on the OTHER samples in the batch, which is an implicit form of contrast. The claim was that BYOL was secretly contrastive and the 'no negatives' framing was misleading. It was plausible, well-argued, and specific enough to test. The BYOL authors tested it: they replaced BatchNorm with GROUP NORMALIZATION plus WEIGHT STANDARDIZATION - neither of which has any cross-sample interaction - and BYOL still worked, given careful initialization and learning-rate scaling. So the hypothesis was falsified. WHAT THE EPISODE ESTABLISHED, which is more than 'the blog post was wrong'. (a) BN is not the mechanism, though it does help optimization, which is why removing it naively degrades results and made the hypothesis look right. (b) Collapse avoidance is a DYNAMICS property of the predictor-plus-stop-gradient structure, not an implicit contrastive term. (c) The mechanism remains incompletely understood, which is an honest and unusual thing for the field to leave standing. (d) Methodologically it is a good example of a falsifiable claim being cleanly tested - the hypothesis made a specific prediction (remove cross-sample normalization and BYOL collapses) and the prediction failed. WHY IT MATTERS PRACTICALLY: negative-free methods removed the large-batch requirement that made SimCLR expensive, which is a real deployment advantage, and they avoid the false-negative problem entirely since there are no negatives to be wrong about. The costs are sensitivity to hyperparameters and a mechanism you cannot fully reason about when it goes wrong.",
-        "deepDive": { "q": "How would you design an augmentation policy for a domain that is not natural images?", "a": "THE PRINCIPLE. In contrastive self-supervised learning the augmentation policy IS the objective - it declares which transformations the representation must ignore. So the design question is not 'what augmentations are standard' but 'what variation in my data is NUISANCE, and what is SIGNAL'. Getting this backwards trains the model to discard exactly what you need. THE PROCEDURE I would follow. STEP 1 - ENUMERATE THE REAL ACQUISITION VARIATION. What actually differs between two recordings of the SAME underlying thing in your domain? For medical imaging: scanner manufacturer, reconstruction kernel, slice thickness, patient positioning, contrast timing. For industrial inspection: lighting angle, camera pose, conveyor speed, part orientation. For satellite: season, time of day, atmospheric conditions, sensor. These are your candidate augmentations, because invariance to them is genuinely desirable - two scans of the same patient on different machines should embed similarly. STEP 2 - ENUMERATE WHAT IS DIAGNOSTIC AND MUST BE PRESERVED. This is the step that catches the expensive mistakes. In histopathology, STAIN COLOUR carries information and aggressive colour jitter destroys it (though stain NORMALIZATION as an augmentation is correct, because it targets the nuisance variation specifically). In defect inspection, DISCOLOURATION is often the defect. In radiology, absolute intensity is calibrated - CT Hounsfield units mean something physically - so intensity jitter is wrong in a way it is not for photographs. In remote sensing, ABSOLUTE SCALE is meaningful (a building is a fixed size) so aggressive random resizing is wrong, and ORIENTATION is arbitrary so rotation is fine - the exact opposite of natural images, where scale is arbitrary and orientation is meaningful. That inversion is a good illustration of how domain-dependent this is. STEP 3 - CHECK LATERALITY AND SPATIAL SEMANTICS. Horizontal flips are the default in vision and are WRONG whenever left and right differ - medical images (situs, laterality), text in images, and any domain with a canonical orientation. STEP 4 - LOOK FOR DOMAIN-SPECIFIC AUGMENTATIONS THAT MODEL REAL PHYSICS. This is where the biggest gains are and where generic recipes have nothing to offer. Simulate the actual corruption process: k-space undersampling for MRI, realistic noise models for low-dose CT, sensor noise and motion blur for cameras, room impulse responses and codec artifacts for audio, atmospheric effects for satellite. An augmentation that models a real corruption teaches a genuinely useful invariance; a generic one may teach nothing relevant. STEP 5 - EXPLOIT NATURAL POSITIVE PAIRS IF THEY EXIST, which is often better than any augmentation. Two views of the same patient at different times, two cameras of the same scene, two sensors over the same location, the same product photographed by two vendors. Real pairs encode the true nuisance distribution rather than your guess at it, and where available they should replace synthetic augmentation. This is arguably the single most valuable move and it is domain-specific enough that generic papers never mention it. STEP 6 - VALIDATE EMPIRICALLY, because reasoning gets you a shortlist and not an answer. Run the SimCLR-style ablation on your own data: train with each augmentation family alone and in combination, and evaluate on a small labelled downstream set. This is a few days of compute and it is the only way to know. Also check for SHORTCUTS - if your augmentations leave a cheap matching signal (a scanner-specific artifact, a border, a timestamp overlay), the model will use it, and the diagnostic is a representation that clusters by SITE or DEVICE rather than by content. Actually testing whether embeddings cluster by acquisition metadata is a cheap and revealing check that almost nobody runs. THE PRINCIPLE TO STATE AT THE END: for natural images the community's policy encodes decades of accumulated intuition about what does not change an object's identity. In a new domain that intuition does not transfer, and the policy is the main modelling decision in the method - more consequential than the architecture, the batch size, or the loss variant." }
+        "deepDive": {
+          "q": "How would you design an augmentation policy for a domain that is not natural images?",
+          "a": "THE PRINCIPLE. In contrastive self-supervised learning the augmentation policy IS the objective - it declares which transformations the representation must ignore. So the design question is not 'what augmentations are standard' but 'what variation in my data is NUISANCE, and what is SIGNAL'. Getting this backwards trains the model to discard exactly what you need. THE PROCEDURE I would follow. STEP 1 - ENUMERATE THE REAL ACQUISITION VARIATION. What actually differs between two recordings of the SAME underlying thing in your domain? For medical imaging: scanner manufacturer, reconstruction kernel, slice thickness, patient positioning, contrast timing. For industrial inspection: lighting angle, camera pose, conveyor speed, part orientation. For satellite: season, time of day, atmospheric conditions, sensor. These are your candidate augmentations, because invariance to them is genuinely desirable - two scans of the same patient on different machines should embed similarly. STEP 2 - ENUMERATE WHAT IS DIAGNOSTIC AND MUST BE PRESERVED. This is the step that catches the expensive mistakes. In histopathology, STAIN COLOUR carries information and aggressive colour jitter destroys it (though stain NORMALIZATION as an augmentation is correct, because it targets the nuisance variation specifically). In defect inspection, DISCOLOURATION is often the defect. In radiology, absolute intensity is calibrated - CT Hounsfield units mean something physically - so intensity jitter is wrong in a way it is not for photographs. In remote sensing, ABSOLUTE SCALE is meaningful (a building is a fixed size) so aggressive random resizing is wrong, and ORIENTATION is arbitrary so rotation is fine - the exact opposite of natural images, where scale is arbitrary and orientation is meaningful. That inversion is a good illustration of how domain-dependent this is. STEP 3 - CHECK LATERALITY AND SPATIAL SEMANTICS. Horizontal flips are the default in vision and are WRONG whenever left and right differ - medical images (situs, laterality), text in images, and any domain with a canonical orientation. STEP 4 - LOOK FOR DOMAIN-SPECIFIC AUGMENTATIONS THAT MODEL REAL PHYSICS. This is where the biggest gains are and where generic recipes have nothing to offer. Simulate the actual corruption process: k-space undersampling for MRI, realistic noise models for low-dose CT, sensor noise and motion blur for cameras, room impulse responses and codec artifacts for audio, atmospheric effects for satellite. An augmentation that models a real corruption teaches a genuinely useful invariance; a generic one may teach nothing relevant. STEP 5 - EXPLOIT NATURAL POSITIVE PAIRS IF THEY EXIST, which is often better than any augmentation. Two views of the same patient at different times, two cameras of the same scene, two sensors over the same location, the same product photographed by two vendors. Real pairs encode the true nuisance distribution rather than your guess at it, and where available they should replace synthetic augmentation. This is arguably the single most valuable move and it is domain-specific enough that generic papers never mention it. STEP 6 - VALIDATE EMPIRICALLY, because reasoning gets you a shortlist and not an answer. Run the SimCLR-style ablation on your own data: train with each augmentation family alone and in combination, and evaluate on a small labelled downstream set. This is a few days of compute and it is the only way to know. Also check for SHORTCUTS - if your augmentations leave a cheap matching signal (a scanner-specific artifact, a border, a timestamp overlay), the model will use it, and the diagnostic is a representation that clusters by SITE or DEVICE rather than by content. Actually testing whether embeddings cluster by acquisition metadata is a cheap and revealing check that almost nobody runs. THE PRINCIPLE TO STATE AT THE END: for natural images the community's policy encodes decades of accumulated intuition about what does not change an object's identity. In a new domain that intuition does not transfer, and the policy is the main modelling decision in the method - more consequential than the architecture, the batch size, or the loss variant."
+        }
       },
       {
         "q": "You have 500,000 unlabelled medical images and 2,000 labelled ones. Would you use SimCLR?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "SimCLR / NT-Xent", "back": "Two augmented views of an image are positives; all other batch views are negatives. InfoNCE with cosine similarity and temperature tau over 2N views. No labels required." },
-    { "type": "pitfall", "front": "The augmentation IS the objective", "back": "Matching two views instructs the model to be INVARIANT to whatever differs between them. Colour jitter is right for object recognition and WRONG for histopathology (stain is diagnostic) or defect inspection (discolouration IS the defect)." },
-    { "type": "intuition", "front": "Why crop alone fails (~33%)", "back": "Two crops of one image share a COLOUR HISTOGRAM, so the model matches on that shortcut without learning content. Colour distortion closes it: crop+colour ~56%. The composition is the method - neither alone works." },
-    { "type": "definition", "front": "The projection head", "back": "Loss acts on z = g(h); h is used downstream and the head is DISCARDED. Probing h beats z by 10+ points because the head ABSORBS the invariances the loss demands, protecting h from being stripped." },
-    { "type": "intuition", "front": "Keep a buffer between pretext loss and representation", "back": "The generalizable form of the projection-head result: the pretext objective punishes information downstream tasks may need, so put a discardable layer between them. Applies well beyond SimCLR." },
-    { "type": "definition", "front": "BYOL", "back": "Online net + PREDICTOR trained to match an EMA target under STOP-GRADIENT. No negatives at all. Should collapse to a constant; does not. Removing predictor or stop-grad collapses it; removing the EMA does NOT (= SimSiam)." },
-    { "type": "intuition", "front": "The BYOL batch-norm episode", "back": "A blog post argued BN leaks cross-sample info, making BYOL secretly contrastive. Testable, and falsified: group norm + weight standardization (no cross-sample interaction) still works. Mechanism remains an open question." },
-    { "type": "pitfall", "front": "Temperature is not a minor knob", "back": "Low tau concentrates gradient on the HARDEST negatives; high tau spreads it. It is the continuous replacement for triplet mining, and results are genuinely sensitive to it." },
-    { "type": "pitfall", "front": "False negatives cap quality", "back": "In-batch negatives often include other images of the same CLASS, and the loss pushes them apart anyway. A structural ceiling - SupCon fixes it when labels exist, by treating same-class images as positives." },
-    { "type": "intuition", "front": "MoCo's momentum queue", "back": "SimCLR's negatives come from the batch, so quality degrades at small batch sizes. MoCo keeps a queue of past encoded samples, DECOUPLING negative count from batch size - the right choice on constrained hardware." },
-    { "type": "pitfall", "front": "Probe and fine-tune can rank methods oppositely", "back": "MAE ~68% linear / 83.6% fine-tuned; DINO ~78% / 82.8%. Reporting only one systematically favours a family. Report both, plus k-NN, and pick the protocol matching how you will USE the model." },
-    { "type": "intuition", "front": "The control nobody runs", "back": "A RANDOMLY INITIALIZED encoder of the same architecture. Random conv features are a surprisingly strong probe baseline - if your pretrained model barely beats it, the pretraining did little. Costs one probe." }
+    {
+      "type": "definition",
+      "front": "SimCLR / NT-Xent",
+      "back": "Two augmented views of an image are positives; all other batch views are negatives. InfoNCE with cosine similarity and temperature tau over 2N views. No labels required."
+    },
+    {
+      "type": "pitfall",
+      "front": "The augmentation IS the objective",
+      "back": "Matching two views instructs the model to be INVARIANT to whatever differs between them. Colour jitter is right for object recognition and WRONG for histopathology (stain is diagnostic) or defect inspection (discolouration IS the defect)."
+    },
+    {
+      "type": "intuition",
+      "front": "Why crop alone fails (~33%)",
+      "back": "Two crops of one image share a COLOUR HISTOGRAM, so the model matches on that shortcut without learning content. Colour distortion closes it: crop+colour ~56%. The composition is the method - neither alone works."
+    },
+    {
+      "type": "definition",
+      "front": "The projection head",
+      "back": "Loss acts on z = g(h); h is used downstream and the head is DISCARDED. Probing h beats z by 10+ points because the head ABSORBS the invariances the loss demands, protecting h from being stripped."
+    },
+    {
+      "type": "intuition",
+      "front": "Keep a buffer between pretext loss and representation",
+      "back": "The generalizable form of the projection-head result: the pretext objective punishes information downstream tasks may need, so put a discardable layer between them. Applies well beyond SimCLR."
+    },
+    {
+      "type": "definition",
+      "front": "BYOL",
+      "back": "Online net + PREDICTOR trained to match an EMA target under STOP-GRADIENT. No negatives at all. Should collapse to a constant; does not. Removing predictor or stop-grad collapses it; removing the EMA does NOT (= SimSiam)."
+    },
+    {
+      "type": "intuition",
+      "front": "The BYOL batch-norm episode",
+      "back": "A blog post argued BN leaks cross-sample info, making BYOL secretly contrastive. Testable, and falsified: group norm + weight standardization (no cross-sample interaction) still works. Mechanism remains an open question."
+    },
+    {
+      "type": "pitfall",
+      "front": "Temperature is not a minor knob",
+      "back": "Low tau concentrates gradient on the HARDEST negatives; high tau spreads it. It is the continuous replacement for triplet mining, and results are genuinely sensitive to it."
+    },
+    {
+      "type": "pitfall",
+      "front": "False negatives cap quality",
+      "back": "In-batch negatives often include other images of the same CLASS, and the loss pushes them apart anyway. A structural ceiling - SupCon fixes it when labels exist, by treating same-class images as positives."
+    },
+    {
+      "type": "intuition",
+      "front": "MoCo's momentum queue",
+      "back": "SimCLR's negatives come from the batch, so quality degrades at small batch sizes. MoCo keeps a queue of past encoded samples, DECOUPLING negative count from batch size - the right choice on constrained hardware."
+    },
+    {
+      "type": "pitfall",
+      "front": "Probe and fine-tune can rank methods oppositely",
+      "back": "MAE ~68% linear / 83.6% fine-tuned; DINO ~78% / 82.8%. Reporting only one systematically favours a family. Report both, plus k-NN, and pick the protocol matching how you will USE the model."
+    },
+    {
+      "type": "intuition",
+      "front": "The control nobody runs",
+      "back": "A RANDOMLY INITIALIZED encoder of the same architecture. Random conv features are a surprisingly strong probe baseline - if your pretrained model barely beats it, the pretraining did little. Costs one probe."
+    }
   ],
   "refs": [
-    { "title": "Chen et al. (2020), A Simple Framework for Contrastive Learning of Visual Representations (SimCLR)", "url": "https://arxiv.org/abs/2002.05709" },
-    { "title": "Grill et al. (2020), Bootstrap Your Own Latent (BYOL)", "url": "https://arxiv.org/abs/2006.07733" },
-    { "title": "Chen & He (2021), Exploring Simple Siamese Representation Learning (SimSiam)", "url": "https://arxiv.org/abs/2011.10566" },
-    { "title": "He et al. (2020), Momentum Contrast for Unsupervised Visual Representation Learning (MoCo)", "url": "https://arxiv.org/abs/1911.05722" },
-    { "title": "Khosla et al. (2020), Supervised Contrastive Learning", "url": "https://arxiv.org/abs/2004.11362" }
+    {
+      "title": "Chen et al. (2020), A Simple Framework for Contrastive Learning of Visual Representations (SimCLR)",
+      "url": "https://arxiv.org/abs/2002.05709"
+    },
+    {
+      "title": "Grill et al. (2020), Bootstrap Your Own Latent (BYOL)",
+      "url": "https://arxiv.org/abs/2006.07733"
+    },
+    {
+      "title": "Chen & He (2021), Exploring Simple Siamese Representation Learning (SimSiam)",
+      "url": "https://arxiv.org/abs/2011.10566"
+    },
+    {
+      "title": "He et al. (2020), Momentum Contrast for Unsupervised Visual Representation Learning (MoCo)",
+      "url": "https://arxiv.org/abs/1911.05722"
+    },
+    {
+      "title": "Khosla et al. (2020), Supervised Contrastive Learning",
+      "url": "https://arxiv.org/abs/2004.11362"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-03",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-03_contrastive_self_supervision_simclr_byol.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-04",
   "slug": "react-planning",
+  "keyBase": "agentic-ai/react-planning",
   "module": "agentic-ai",
   "title": "ReAct, Planning & Task Decomposition",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-04_react_planning.ipynb",
     "flagship": null,
-    "demos": ["react-agent", "bfs-dfs-astar", "pathfinding", "mcts"],
+    "demos": [
+      "react-agent",
+      "bfs-dfs-astar",
+      "pathfinding",
+      "mcts"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-loop", "agentic-ai/tool-calling"],
-  "leadsTo": ["agentic-ai/agent-memory", "agentic-ai/multi-agent"],
+  "prereqs": [
+    "agentic-ai/agent-loop",
+    "agentic-ai/tool-calling"
+  ],
+  "leadsTo": [
+    "agentic-ai/agent-memory",
+    "agentic-ai/multi-agent"
+  ],
   "body": {
     "intuition": [
       "The plan-then-execute versus ReAct debate is usually conducted as a philosophy - is it better to think first or to adapt as you go - and it is not a philosophical question. It is a function of one measurable quantity: how often the environment does something other than what the plan assumed. Fix that quantity and the answer is determined, and the answer changes as it moves. So the useful thing is not an opinion about planning but a measurement of your environment's deviation rate.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/2305.15771"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-04",
+    "module": "agentic-ai",
+    "disposition": "clean",
+    "notebookFile": "19-04_react_planning_task_decomposition.ipynb"
+  }
 }

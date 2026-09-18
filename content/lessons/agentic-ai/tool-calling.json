@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-02",
   "slug": "tool-calling",
+  "keyBase": "agentic-ai/tool-calling",
   "module": "agentic-ai",
   "title": "Tool Calling & Function Calling",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-02_tool_calling.ipynb",
     "flagship": null,
-    "demos": ["constrained-decoding", "agent-router", "react-agent", "tokenizer"],
+    "demos": [
+      "constrained-decoding",
+      "agent-router",
+      "react-agent",
+      "tokenizer"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-loop", "llm-systems/structured-output"],
-  "leadsTo": ["agentic-ai/mcp", "agentic-ai/react-planning"],
+  "prereqs": [
+    "agentic-ai/agent-loop",
+    "llm-systems/structured-output"
+  ],
+  "leadsTo": [
+    "agentic-ai/mcp",
+    "agentic-ai/react-planning"
+  ],
   "body": {
     "intuition": [
       "Tool calling is usually discussed as one capability and it is three, with three different failure modes and three different fixes. SELECTION is choosing the right tool, and it is a classification problem. FORMATTING is emitting something that parses and matches the schema, and it is a decoding problem. ARGUMENTS is putting sensible VALUES in the fields, and it is a reasoning problem. A single 'tool call success rate' averages over all three and tells you almost nothing about which one is broken.",
@@ -274,5 +286,11 @@
       "url": "https://json-schema.org/draft/2020-12/json-schema-core.html"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-02",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-02_tool_function_calling.ipynb"
+  }
 }

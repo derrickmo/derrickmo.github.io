@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-04",
   "slug": "bandits",
+  "keyBase": "reinforcement-learning/bandits",
   "module": "reinforcement-learning",
   "title": "Exploration, Bandits & UCB",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "14-04_exploration_bandits_ucb.ipynb",
     "flagship": null,
-    "demos": ["bandit", "thompson-vs-ucb", "bayesian-optimization", "regret-matching"],
+    "demos": [
+      "bandit",
+      "thompson-vs-ucb",
+      "bayesian-optimization",
+      "regret-matching"
+    ],
     "concepts": []
   },
-  "prereqs": ["reinforcement-learning/mdp-bellman", "foundations/probability"],
-  "leadsTo": ["reinforcement-learning/dqn", "unsupervised-learning/bayesian-inference"],
+  "prereqs": [
+    "reinforcement-learning/mdp-bellman",
+    "foundations/probability"
+  ],
+  "leadsTo": [
+    "reinforcement-learning/dqn",
+    "unsupervised-learning/bayesian-inference"
+  ],
   "body": {
     "intuition": [
       "A multi-armed bandit is an MDP with one state. Actions give rewards, and that is all - no transitions, no credit assignment, no horizon. Stripping those away is the point: what remains is the exploration problem alone, in a setting clean enough to prove things about. Every insight here transfers upward, and studying it in the full MDP first means confusing exploration failures with credit-assignment failures, which is a large fraction of the time people lose debugging RL.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/1602.04621"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "14-04",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-04_bandits_exploration_regret.ipynb"
+  }
 }

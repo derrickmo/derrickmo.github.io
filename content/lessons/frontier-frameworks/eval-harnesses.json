@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-09",
   "slug": "eval-harnesses",
+  "keyBase": "frontier-frameworks/eval-harnesses",
   "module": "frontier-frameworks",
   "title": "Evaluation Harnesses & Custom Evals",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-09_eval_harnesses.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "calibration", "conformal", "cross-validation"],
+    "demos": [
+      "classification-metrics",
+      "calibration",
+      "conformal",
+      "cross-validation"
+    ],
     "concepts": []
   },
-  "prereqs": ["llm-systems/llm-eval", "ml-theory/evaluation-metrics"],
-  "leadsTo": ["frontier-frameworks/staying-current", "trustworthy-ai/red-teaming"],
+  "prereqs": [
+    "llm-systems/llm-eval",
+    "ml-theory/evaluation-metrics"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/staying-current",
+    "trustworthy-ai/red-teaming"
+  ],
   "body": {
     "intuition": [
       "The first result in this lesson makes the rest of it necessary. Take one fixed set of model outputs, from a model whose true skill is 0.85 by construction, and score it four ways. Exact string match gives 0.22. Normalized match - lowercase, strip punctuation and whitespace - gives 0.83. Pass-at-1 gives 0.56 and pass-at-5 gives 0.86. Same outputs, same model, four numbers spanning almost the entire range. THE SCORER IS THE EVAL, and 'what did the model score' is an unanswerable question without it.",
@@ -283,5 +295,11 @@
       "url": "https://github.com/EleutherAI/lm-evaluation-harness"
     }
   ],
-  "updatedAt": "2026-08-09"
+  "updatedAt": "2026-08-09",
+  "v2": {
+    "id": "16-09",
+    "module": "reasoning-scaling",
+    "disposition": "merge",
+    "notebookFile": "16-09_benchmarks_contamination_honest_llm_evaluation.ipynb"
+  }
 }

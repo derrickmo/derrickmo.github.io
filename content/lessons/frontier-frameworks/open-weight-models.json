@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-03",
   "slug": "open-weight-models",
+  "keyBase": "frontier-frameworks/open-weight-models",
   "module": "frontier-frameworks",
   "title": "The Open-Weight Model Landscape",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-03_open_weight_models.ipynb",
     "flagship": null,
-    "demos": ["quantization", "pruning", "distillation", "kv-cache"],
+    "demos": [
+      "quantization",
+      "pruning",
+      "distillation",
+      "kv-cache"
+    ],
     "concepts": []
   },
-  "prereqs": ["llm-systems/quantization", "llm-systems/llm-architectures"],
-  "leadsTo": ["frontier-frameworks/vllm-inference", "frontier-frameworks/onnx-export"],
+  "prereqs": [
+    "llm-systems/quantization",
+    "llm-systems/llm-architectures"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/vllm-inference",
+    "frontier-frameworks/onnx-export"
+  ],
   "body": {
     "intuition": [
       "A lesson about which open-weight models are good would be obsolete before it was published - the leaderboard turns over every few months. What does not turn over is the ARITHMETIC that decides what you can actually run, and that arithmetic is short enough to do in your head: gigabytes equals billions of parameters times bytes per parameter. A 70B model at four bits is about 35 GB, which fits comfortably in an 80 GB accelerator. That is the calculation everyone does.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/2307.09288"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "16-10",
+    "module": "reasoning-scaling",
+    "disposition": "merge",
+    "notebookFile": "16-10_emergence_capability_forecasting_reading_frontier.ipynb"
+  }
 }

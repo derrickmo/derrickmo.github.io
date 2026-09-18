@@ -79,13 +79,21 @@ for (const mod of readdirSync(R("content/lessons"))) {
     });
     const L = lessons[lessons.length - 1];
 
+    // ⚠ IDENTITY IS keyBase, NOT LOCATION. A card's id keys the reader's own
+    // SM-2 schedule (localStorage dm_interview_v1, and SharedPreferences in the
+    // app). Hashing the live module/slug means MOVING a lesson silently resets
+    // every schedule in it — 1,695 questions and 896 cards would have been
+    // re-keyed by the v2 module shuffle alone. keyBase is written once and then
+    // carried, so a lesson can change module without changing identity.
+    const kb = (j.keyBase || `${mod}/${j.slug}`).split("/");
+
     const iv = j.interview || {};
     (iv.quickGrind || []).forEach((q, i) => {
-      questions.push({ id: hashId(mod, j.slug, "qg", String(i)), tier: "quick", q: q.q, a: q.a, ...base });
+      questions.push({ id: hashId(kb[0], kb[1], "qg", String(i)), tier: "quick", q: q.q, a: q.a, ...base });
       L.questions++;
     });
     (iv.standard || []).forEach((q, i) => {
-      questions.push({ id: hashId(mod, j.slug, "std", String(i)), tier: "standard", q: q.q, a: q.a, ...base });
+      questions.push({ id: hashId(kb[0], kb[1], "std", String(i)), tier: "standard", q: q.q, a: q.a, ...base });
       L.questions++;
       if (!q.deepDive) return;
       // A bare-string deepDive is the CA-0005 legacy shape: an answer with no
@@ -98,14 +106,14 @@ for (const mod of readdirSync(R("content/lessons"))) {
       }
       if (!q.deepDive.a) return;
       questions.push({
-        id: hashId(mod, j.slug, "dd", String(i)), tier: "deep",
+        id: hashId(kb[0], kb[1], "dd", String(i)), tier: "deep",
         q: q.deepDive.q, a: q.deepDive.a,
-        followsFrom: hashId(mod, j.slug, "std", String(i)), ...base,
+        followsFrom: hashId(kb[0], kb[1], "std", String(i)), ...base,
       });
       L.questions++;
     });
     (j.flashcards || []).forEach((c, i) => {
-      cards.push({ id: hashId(mod, j.slug, "fc", String(i)), type: c.type || "definition", front: c.front, back: c.back, ...base });
+      cards.push({ id: hashId(kb[0], kb[1], "fc", String(i)), type: c.type || "definition", front: c.front, back: c.back, ...base });
       L.cards++;
     });
   }

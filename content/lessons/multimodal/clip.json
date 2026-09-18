@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-01",
   "slug": "clip",
+  "keyBase": "multimodal/clip",
   "module": "multimodal",
   "title": "CLIP — Contrastive Image-Text Pretraining",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Wortsman et al. (2022) — Robust Fine-Tuning of Zero-Shot Models (WiSE-FT)",
       "url": "https://arxiv.org/abs/2109.01903"
     }
-  ]
+  ],
+  "v2": {
+    "id": "13-05",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-05_clip.ipynb"
+  }
 }

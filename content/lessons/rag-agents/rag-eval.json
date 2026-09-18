@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-05",
   "slug": "rag-eval",
+  "keyBase": "rag-agents/rag-eval",
   "module": "rag-agents",
   "title": "RAG Evaluation Metrics",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-05_rag_evaluation_metrics.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "calibration", "conformal", "lost-in-the-middle"],
+    "demos": [
+      "classification-metrics",
+      "calibration",
+      "conformal",
+      "lost-in-the-middle"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/chunking-retrieval", "ml-theory/evaluation-metrics"],
-  "leadsTo": ["rag-agents/guardrails", "rag-agents/capstone-assistant"],
+  "prereqs": [
+    "rag-agents/chunking-retrieval",
+    "ml-theory/evaluation-metrics"
+  ],
+  "leadsTo": [
+    "rag-agents/guardrails",
+    "rag-agents/capstone-assistant"
+  ],
   "body": {
     "intuition": [
       "A RAG system produces one visible number - did it answer correctly - and that number is the least useful measurement in the system. It is a product of several stages, so a bad score is consistent with a chunking problem, a retrieval problem, a context-ordering problem, or a generation problem, and it cannot distinguish them. Teams read the aggregate, form a hypothesis about which stage is at fault, and spend weeks on the wrong one. The single most valuable thing this lesson has to offer is the habit of never reporting that number alone.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/2307.03172"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "18-12",
+    "module": "retrieval-rag",
+    "disposition": "merge",
+    "notebookFile": "18-12_rag_evaluation_knowledge_assistant.ipynb"
+  }
 }

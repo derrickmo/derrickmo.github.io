@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-06",
   "slug": "onnx-export",
+  "keyBase": "frontier-frameworks/onnx-export",
   "module": "frontier-frameworks",
   "title": "Model Export: ONNX & Quantized Runtimes",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-06_onnx_export.ipynb",
     "flagship": null,
-    "demos": ["quantization", "pruning", "distillation", "batching"],
+    "demos": [
+      "quantization",
+      "pruning",
+      "distillation",
+      "batching"
+    ],
     "concepts": []
   },
-  "prereqs": ["mlops/torchscript-onnx", "pytorch-internals/torchscript"],
-  "leadsTo": ["frontier-frameworks/provider-apis", "mlops/model-serving"],
+  "prereqs": [
+    "mlops/torchscript-onnx",
+    "pytorch-internals/torchscript"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/provider-apis",
+    "mlops/model-serving"
+  ],
   "body": {
     "intuition": [
       "Every model export format is three things: a GRAPH, an OPSET, and a PARITY CHECK. The graph is an intermediate representation of the computation as nodes and edges. The opset is a contract stating which operations the target runtime is guaranteed to understand. And parity is the only way you find out whether the exported thing computes what the original did. ONNX, TorchScript, TFLite, CoreML and StableHLO are five instances of that structure, which is why understanding the structure beats learning any one of their APIs.",
@@ -273,5 +285,11 @@
       "url": "https://pytorch.org/docs/stable/onnx.html"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "22-06",
+    "module": "inference-serving",
+    "disposition": "merge",
+    "notebookFile": "22-06_model_export_torchscript_onnx_runtimes.ipynb"
+  }
 }

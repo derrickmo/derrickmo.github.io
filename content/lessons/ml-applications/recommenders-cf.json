@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-01",
   "slug": "recommenders-cf",
+  "keyBase": "ml-applications/recommenders-cf",
   "module": "ml-applications",
   "title": "Recommender Systems — Collaborative Filtering",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Schnabel et al. (2016) — Recommendations as Treatments: Debiasing Learning and Evaluation",
       "url": "https://arxiv.org/abs/1602.05352"
     }
-  ]
+  ],
+  "v2": {
+    "id": "25-01",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-01_collaborative_filtering_matrix_factorization.ipynb"
+  }
 }

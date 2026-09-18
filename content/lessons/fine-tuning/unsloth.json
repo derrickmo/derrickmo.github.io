@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-10",
   "slug": "unsloth",
+  "keyBase": "fine-tuning/unsloth",
   "module": "fine-tuning",
   "title": "Efficient Fine-Tuning with Unsloth",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-10_efficient_finetuning_unsloth.ipynb",
     "flagship": null,
-    "demos": ["quantization", "mixed-precision", "paged-attention", "batching"],
+    "demos": [
+      "quantization",
+      "mixed-precision",
+      "paged-attention",
+      "batching"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/qlora", "training-systems/gradient-checkpointing"],
-  "leadsTo": ["frontier-frameworks/finetuning-stacks", "training-systems/torch-compile"],
+  "prereqs": [
+    "fine-tuning/qlora",
+    "training-systems/gradient-checkpointing"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/finetuning-stacks",
+    "training-systems/torch-compile"
+  ],
   "body": {
     "intuition": [
       "Everything in this module reduced a resource. LoRA removed fourteen of the sixteen bytes per parameter; QLoRA compressed the two that were left; gradient checkpointing attacks activations. What remains is the actual execution of the step, and there the constraint is not arithmetic - it is MEMORY TRAFFIC. A fine-tuning step on a modern accelerator spends much of its time moving tensors between high-bandwidth memory and the compute units, and the standard implementation moves them far more than necessary because each operation is a separate kernel that reads its inputs, writes its output, and hands off. Fusing a chain of operations into one kernel does the same arithmetic while reading and writing once. That is what Unsloth is: hand-written Triton kernels and hand-derived backward passes for the fine-tuning hot path.",
@@ -277,5 +289,11 @@
       "url": "https://triton-lang.org/"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-12",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-12_constitutional_ai_rlaif_post_training.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-10",
   "slug": "time-series-causality",
+  "keyBase": "causal-inference/time-series-causality",
   "module": "causal-inference",
   "title": "Time-Series Causality & Synthetic Control",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://academic.oup.com/restud/article/90/5/2555/7039335"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-06",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-06_difference_differences_synthetic_control.ipynb"
+  }
 }

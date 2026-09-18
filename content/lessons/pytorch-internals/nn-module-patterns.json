@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-03",
   "slug": "nn-module-patterns",
+  "keyBase": "pytorch-internals/nn-module-patterns",
   "module": "pytorch-internals",
   "title": "Advanced nn.Module Patterns",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "15-03_advanced_nn_module_patterns.ipynb",
     "flagship": null,
-    "demos": ["neural-playground", "weight-init", "batch-norm", "backprop"],
+    "demos": [
+      "neural-playground",
+      "weight-init",
+      "batch-norm",
+      "backprop"
+    ],
     "concepts": []
   },
-  "prereqs": ["neural-nets/pytorch-fundamentals"],
-  "leadsTo": ["pytorch-internals/custom-loss", "pytorch-internals/torch-fx"],
+  "prereqs": [
+    "neural-nets/pytorch-fundamentals"
+  ],
+  "leadsTo": [
+    "pytorch-internals/custom-loss",
+    "pytorch-internals/torch-fx"
+  ],
   "body": {
     "intuition": [
       "nn.Module looks like a plain Python class and it is not. It overrides __setattr__, so every assignment is intercepted: assign an nn.Parameter and it is registered in a parameter dictionary; assign another Module and it joins the child-module tree; assign anything else and it is an ordinary attribute. That single interception is what makes .parameters(), .to(device), .state_dict(), .train() and .cuda() work at all - they are recursive walks over a tree the assignments built for you.",
@@ -277,5 +288,11 @@
       "url": "https://arxiv.org/abs/1802.05957"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-02",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-02_advanced_nn_module_patterns.ipynb"
+  }
 }

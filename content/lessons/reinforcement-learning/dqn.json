@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-05",
   "slug": "dqn",
+  "keyBase": "reinforcement-learning/dqn",
   "module": "reinforcement-learning",
   "title": "Deep Q-Networks (DQN)",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "14-05_deep_q_networks_dqn.ipynb",
     "flagship": null,
-    "demos": ["dqn", "prioritized-replay", "double-q-learning", "distributional-rl"],
+    "demos": [
+      "dqn",
+      "prioritized-replay",
+      "double-q-learning",
+      "distributional-rl"
+    ],
     "concepts": []
   },
-  "prereqs": ["reinforcement-learning/q-learning", "neural-nets/sgd-momentum"],
-  "leadsTo": ["reinforcement-learning/policy-gradient", "reinforcement-learning/offline-rl"],
+  "prereqs": [
+    "reinforcement-learning/q-learning",
+    "neural-nets/sgd-momentum"
+  ],
+  "leadsTo": [
+    "reinforcement-learning/policy-gradient",
+    "reinforcement-learning/offline-rl"
+  ],
   "body": {
     "intuition": [
       "Replace the Q-table with a neural network and you get DQN. That sentence understates the problem: the moment the table becomes a function approximator, every guarantee from the tabular lessons is void. You now have all three legs of the deadly triad at once - function approximation, bootstrapping, and off-policy data - and the composition of the Bellman operator with a projection onto a function class need not be a contraction in any norm. Divergence is not a bug you can find; it is permitted by the mathematics. So DQN is best understood not as 'Q-learning with a network' but as Q-learning plus a set of devices for holding the feedback loop still long enough to learn.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/1709.06560"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "14-05",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-05_deep_q_networks.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-07",
   "slug": "cuda-memory",
+  "keyBase": "pytorch-internals/cuda-memory",
   "module": "pytorch-internals",
   "title": "CUDA Memory Management",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "15-07_cuda_memory_management.ipynb",
     "flagship": null,
-    "demos": ["mixed-precision", "paged-attention", "kv-cache", "quantization"],
+    "demos": [
+      "mixed-precision",
+      "paged-attention",
+      "kv-cache",
+      "quantization"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/nn-module-patterns"],
-  "leadsTo": ["training-systems/gradient-checkpointing", "training-systems/mixed-precision"],
+  "prereqs": [
+    "pytorch-internals/nn-module-patterns"
+  ],
+  "leadsTo": [
+    "training-systems/gradient-checkpointing",
+    "training-systems/mixed-precision"
+  ],
   "body": {
     "intuition": [
       "PyTorch does not hand freed GPU memory back to the driver. cudaMalloc and cudaFree are synchronizing and slow, so PyTorch runs its own CACHING ALLOCATOR: it requests large segments from the driver, carves your tensors out of them, and when a tensor is freed it keeps the block for reuse. That is why allocation is fast and it is why nvidia-smi is not measuring what you think. nvidia-smi reports what the allocator has RESERVED from the driver, plus several hundred megabytes of CUDA context, plus any other process - not the memory your live tensors occupy. Reading it as your model's memory usage is the single most common confusion in this area.",
@@ -276,5 +287,11 @@
       "url": "https://arxiv.org/abs/2110.02861"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-05",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-05_cuda_memory_oom_forensics.ipynb"
+  }
 }

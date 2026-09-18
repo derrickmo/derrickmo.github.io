@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-08",
   "slug": "audio-representations",
+  "keyBase": "multimodal/audio-representations",
   "module": "multimodal",
   "title": "Audio & Speech Representations",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-08_audio_speech_representations.ipynb",
     "flagship": null,
-    "demos": ["spectrogram", "mfcc", "fourier", "pitch-detection"],
+    "demos": [
+      "spectrogram",
+      "mfcc",
+      "fourier",
+      "pitch-detection"
+    ],
     "concepts": []
   },
-  "prereqs": ["foundations/linear-algebra", "multimodal/simclr-byol"],
-  "leadsTo": ["multimodal/stt-tts", "ml-applications/audio-classification"],
+  "prereqs": [
+    "foundations/linear-algebra",
+    "multimodal/simclr-byol"
+  ],
+  "leadsTo": [
+    "multimodal/stt-tts",
+    "ml-applications/audio-classification"
+  ],
   "body": {
     "intuition": [
       "Raw audio is a one-dimensional signal at 16,000 samples per second for speech, so one second is a 16,000-length vector and a three-minute song is over eight million samples. Nothing about that representation is convenient: the information humans care about - which phoneme, which note, which speaker - is not visible in the waveform, it is in how frequency content changes over time. So the standard move is to convert audio into a picture: a SPECTROGRAM, with time on one axis, frequency on the other, and energy as intensity. From there a convolutional network or a transformer treats it much like an image.",
@@ -82,27 +94,78 @@
       "Applying SpecAugment without thinking about the invariance. Frequency masking teaches robustness to missing bands, which is right for speech and wrong when a narrow band carries the label - a machine-fault frequency, or a specific instrument."
     ],
     "connections": [
-      { "ref": "multimodal/stt-tts", "text": "The phase problem is precisely why TTS is a two-stage pipeline, and the window/hop settings determine the frame rate that ASR alignment operates over." },
-      { "ref": "multimodal/simclr-byol", "text": "Self-supervised speech models (wav2vec 2.0, HuBERT) apply the same contrastive and masked-prediction recipes, with the augmentation-design question replaced by a masking-and-quantization one." },
-      { "ref": "foundations/linear-algebra", "text": "The STFT is a change of basis and the mel filterbank is a matrix multiplication - the whole front end is linear algebra plus one nonlinearity (the log)." },
-      { "ref": "ml-applications/audio-classification", "text": "Treating a spectrogram as an image lets you transfer ImageNet-pretrained CNNs to audio, which works surprisingly well and is the standard baseline." },
-      { "ref": "generative/autoencoders", "text": "Neural audio codecs are VQ autoencoders on waveforms, and they play the same compression role for audio language models that VQGAN plays for images." }
+      {
+        "ref": "multimodal/stt-tts",
+        "text": "The phase problem is precisely why TTS is a two-stage pipeline, and the window/hop settings determine the frame rate that ASR alignment operates over."
+      },
+      {
+        "ref": "multimodal/simclr-byol",
+        "text": "Self-supervised speech models (wav2vec 2.0, HuBERT) apply the same contrastive and masked-prediction recipes, with the augmentation-design question replaced by a masking-and-quantization one."
+      },
+      {
+        "ref": "foundations/linear-algebra",
+        "text": "The STFT is a change of basis and the mel filterbank is a matrix multiplication - the whole front end is linear algebra plus one nonlinearity (the log)."
+      },
+      {
+        "ref": "ml-applications/audio-classification",
+        "text": "Treating a spectrogram as an image lets you transfer ImageNet-pretrained CNNs to audio, which works surprisingly well and is the standard baseline."
+      },
+      {
+        "ref": "generative/autoencoders",
+        "text": "Neural audio codecs are VQ autoencoders on waveforms, and they play the same compression role for audio language models that VQGAN plays for images."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why convert audio to a spectrogram?", "a": "The information humans and models care about is in how frequency content changes over time, which is invisible in the waveform. A spectrogram makes it a 2-D image the vision toolkit can process." },
-      { "q": "What is the STFT?", "a": "Chop the signal into overlapping windows, Fourier-transform each, and stack them. Time on one axis, frequency on the other." },
-      { "q": "What is the time-frequency trade-off?", "a": "A short window localizes events in time and blurs frequency; a long window resolves frequency and smears time. Uncertainty makes it impossible to have both - a mathematical fact, not an engineering limit." },
-      { "q": "What window and hop are standard for speech?", "a": "25 ms window, 10 ms hop, giving 100 frames per second. The window is short enough that a phoneme is roughly stationary and long enough to resolve formants." },
-      { "q": "Why the mel scale?", "a": "Human frequency discrimination is roughly logarithmic above a few hundred Hz, so mel filterbanks use narrow filters at low frequencies and wide ones at high - spending resolution where perception has it." },
-      { "q": "Why take the log of the spectrogram?", "a": "Loudness perception is roughly logarithmic, and raw spectral energy spans an enormous dynamic range that would otherwise dominate the loss. Add an epsilon or silent frames give -inf." },
-      { "q": "What are MFCCs and are they still used?", "a": "A DCT applied to log-mel, which decorrelates the coefficients. That mattered for diagonal-covariance GMMs; neural networks have no such constraint, so log-mel directly is better." },
-      { "q": "What does a spectrogram discard?", "a": "PHASE. The Fourier transform is complex; taking the magnitude throws away the angle. Harmless for recognition, fatal for generation." },
-      { "q": "Why does that matter for TTS?", "a": "A predicted magnitude spectrogram cannot be inverted to a waveform without inventing phase. Griffin-Lim does it deterministically and sounds metallic; neural vocoders learn it and sound natural." },
-      { "q": "What is SpecAugment?", "a": "Masking random time bands and frequency bands (plus mild time warping) directly on the spectrogram. Cheap, applied to already-computed features, and worth large WER reductions in ASR." },
-      { "q": "Why 16 kHz for speech?", "a": "Nyquist: 16 kHz captures content up to 8 kHz, which covers speech intelligibility. Music needs 44.1 kHz because harmonics and brightness live above 8 kHz." },
-      { "q": "What is wav2vec 2.0?", "a": "Self-supervised speech pretraining: mask spans of the latent audio representation and solve a contrastive task against quantized targets. It sharply reduced the labelled-data requirement for ASR." }
+      {
+        "q": "Why convert audio to a spectrogram?",
+        "a": "The information humans and models care about is in how frequency content changes over time, which is invisible in the waveform. A spectrogram makes it a 2-D image the vision toolkit can process."
+      },
+      {
+        "q": "What is the STFT?",
+        "a": "Chop the signal into overlapping windows, Fourier-transform each, and stack them. Time on one axis, frequency on the other."
+      },
+      {
+        "q": "What is the time-frequency trade-off?",
+        "a": "A short window localizes events in time and blurs frequency; a long window resolves frequency and smears time. Uncertainty makes it impossible to have both - a mathematical fact, not an engineering limit."
+      },
+      {
+        "q": "What window and hop are standard for speech?",
+        "a": "25 ms window, 10 ms hop, giving 100 frames per second. The window is short enough that a phoneme is roughly stationary and long enough to resolve formants."
+      },
+      {
+        "q": "Why the mel scale?",
+        "a": "Human frequency discrimination is roughly logarithmic above a few hundred Hz, so mel filterbanks use narrow filters at low frequencies and wide ones at high - spending resolution where perception has it."
+      },
+      {
+        "q": "Why take the log of the spectrogram?",
+        "a": "Loudness perception is roughly logarithmic, and raw spectral energy spans an enormous dynamic range that would otherwise dominate the loss. Add an epsilon or silent frames give -inf."
+      },
+      {
+        "q": "What are MFCCs and are they still used?",
+        "a": "A DCT applied to log-mel, which decorrelates the coefficients. That mattered for diagonal-covariance GMMs; neural networks have no such constraint, so log-mel directly is better."
+      },
+      {
+        "q": "What does a spectrogram discard?",
+        "a": "PHASE. The Fourier transform is complex; taking the magnitude throws away the angle. Harmless for recognition, fatal for generation."
+      },
+      {
+        "q": "Why does that matter for TTS?",
+        "a": "A predicted magnitude spectrogram cannot be inverted to a waveform without inventing phase. Griffin-Lim does it deterministically and sounds metallic; neural vocoders learn it and sound natural."
+      },
+      {
+        "q": "What is SpecAugment?",
+        "a": "Masking random time bands and frequency bands (plus mild time warping) directly on the spectrogram. Cheap, applied to already-computed features, and worth large WER reductions in ASR."
+      },
+      {
+        "q": "Why 16 kHz for speech?",
+        "a": "Nyquist: 16 kHz captures content up to 8 kHz, which covers speech intelligibility. Music needs 44.1 kHz because harmonics and brightness live above 8 kHz."
+      },
+      {
+        "q": "What is wav2vec 2.0?",
+        "a": "Self-supervised speech pretraining: mask spans of the latent audio representation and solve a contrastive task against quantized targets. It sharply reduced the labelled-data requirement for ASR."
+      }
     ],
     "standard": [
       {
@@ -132,25 +195,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "The audio front end", "back": "waveform -> STFT (25 ms window, 10 ms hop for speech) -> magnitude (PHASE DISCARDED) -> mel filterbank (80 bins) -> log(+eps) -> normalize. Every step encodes an assumption about what matters." },
-    { "type": "intuition", "front": "Time-frequency uncertainty", "back": "Short window = sharp in time, blurred in frequency; long window = the reverse. Mathematically impossible to have both. Speech uses 25 ms (phonemes ~stationary); music uses longer (pitch resolution beats onset timing)." },
-    { "type": "definition", "front": "Why the mel scale and the log", "back": "Mel: human frequency discrimination is ~logarithmic above a few hundred Hz, so spend resolution where perception has it. Log: loudness perception is ~logarithmic and raw energy spans a huge dynamic range that would dominate the loss." },
-    { "type": "pitfall", "front": "log(0) = -inf", "back": "A silent frame gives negative infinity and NaNs propagate through the batch. `torch.log(spec + 1e-6)`. The single most common bug in audio pipelines and it is one character." },
-    { "type": "pitfall", "front": "MFCCs are legacy for neural nets", "back": "The DCT decorrelates features - which mattered for DIAGONAL-covariance GMMs and does not for neural networks - while discarding information (keeping ~13 of 80 coefficients). Use log-mel directly." },
-    { "type": "intuition", "front": "The phase problem", "back": "A spectrogram keeps magnitude and discards PHASE. Harmless for recognition (and gives shift-invariance); FATAL for generation, because magnitude alone does not determine a waveform. This is why vocoders exist." },
-    { "type": "definition", "front": "Griffin-Lim vs neural vocoder", "back": "Griffin-Lim iteratively estimates a self-consistent phase - deterministic, untrained, and it sounds METALLIC (the classic 'robotic TTS' artifact). Neural vocoders (HiFi-GAN) learn plausible phase and made neural TTS sound human." },
-    { "type": "intuition", "front": "The vocoder round-trip test", "back": "If synthesized speech sounds wrong, vocode a GROUND-TRUTH mel first. If that already sounds bad, the vocoder is the ceiling and no work on text-to-mel helps. Same diagnostic as latent diffusion's encode-decode check." },
-    { "type": "pitfall", "front": "Speech defaults do not transfer", "back": "16 kHz discards everything above 8 kHz (Nyquist) - fine for speech, destroys music. Mel spacing is wrong when the diagnostic frequency is high and narrow (machine faults). Music often wants constant-Q, where a pitch shift is a TRANSLATION." },
-    { "type": "pitfall", "front": "SpecAugment's frequency masking", "back": "It teaches invariance to MISSING frequency bands - right for speech, actively harmful when a narrow band IS the label (a bearing fault frequency, a specific instrument). Choose augmentations from real acquisition variation." },
-    { "type": "definition", "front": "wav2vec 2.0", "back": "Conv encoder on the raw WAVEFORM -> transformer -> mask latent spans -> contrastive task against QUANTIZED targets, plus a codebook diversity loss. Reached usable WER with ten minutes of labels. HuBERT does the same with k-means cluster targets." },
-    { "type": "pitfall", "front": "Where spectrogram-as-image breaks", "back": "The axes are not interchangeable (time vs frequency); frequency translation changes PITCH so pooling there can be wrong; harmonic stacks span the whole frequency axis so small kernels cannot see them; and vision augmentations (h-flip = time reversal) are nonsense." }
+    {
+      "type": "definition",
+      "front": "The audio front end",
+      "back": "waveform -> STFT (25 ms window, 10 ms hop for speech) -> magnitude (PHASE DISCARDED) -> mel filterbank (80 bins) -> log(+eps) -> normalize. Every step encodes an assumption about what matters."
+    },
+    {
+      "type": "intuition",
+      "front": "Time-frequency uncertainty",
+      "back": "Short window = sharp in time, blurred in frequency; long window = the reverse. Mathematically impossible to have both. Speech uses 25 ms (phonemes ~stationary); music uses longer (pitch resolution beats onset timing)."
+    },
+    {
+      "type": "definition",
+      "front": "Why the mel scale and the log",
+      "back": "Mel: human frequency discrimination is ~logarithmic above a few hundred Hz, so spend resolution where perception has it. Log: loudness perception is ~logarithmic and raw energy spans a huge dynamic range that would dominate the loss."
+    },
+    {
+      "type": "pitfall",
+      "front": "log(0) = -inf",
+      "back": "A silent frame gives negative infinity and NaNs propagate through the batch. `torch.log(spec + 1e-6)`. The single most common bug in audio pipelines and it is one character."
+    },
+    {
+      "type": "pitfall",
+      "front": "MFCCs are legacy for neural nets",
+      "back": "The DCT decorrelates features - which mattered for DIAGONAL-covariance GMMs and does not for neural networks - while discarding information (keeping ~13 of 80 coefficients). Use log-mel directly."
+    },
+    {
+      "type": "intuition",
+      "front": "The phase problem",
+      "back": "A spectrogram keeps magnitude and discards PHASE. Harmless for recognition (and gives shift-invariance); FATAL for generation, because magnitude alone does not determine a waveform. This is why vocoders exist."
+    },
+    {
+      "type": "definition",
+      "front": "Griffin-Lim vs neural vocoder",
+      "back": "Griffin-Lim iteratively estimates a self-consistent phase - deterministic, untrained, and it sounds METALLIC (the classic 'robotic TTS' artifact). Neural vocoders (HiFi-GAN) learn plausible phase and made neural TTS sound human."
+    },
+    {
+      "type": "intuition",
+      "front": "The vocoder round-trip test",
+      "back": "If synthesized speech sounds wrong, vocode a GROUND-TRUTH mel first. If that already sounds bad, the vocoder is the ceiling and no work on text-to-mel helps. Same diagnostic as latent diffusion's encode-decode check."
+    },
+    {
+      "type": "pitfall",
+      "front": "Speech defaults do not transfer",
+      "back": "16 kHz discards everything above 8 kHz (Nyquist) - fine for speech, destroys music. Mel spacing is wrong when the diagnostic frequency is high and narrow (machine faults). Music often wants constant-Q, where a pitch shift is a TRANSLATION."
+    },
+    {
+      "type": "pitfall",
+      "front": "SpecAugment's frequency masking",
+      "back": "It teaches invariance to MISSING frequency bands - right for speech, actively harmful when a narrow band IS the label (a bearing fault frequency, a specific instrument). Choose augmentations from real acquisition variation."
+    },
+    {
+      "type": "definition",
+      "front": "wav2vec 2.0",
+      "back": "Conv encoder on the raw WAVEFORM -> transformer -> mask latent spans -> contrastive task against QUANTIZED targets, plus a codebook diversity loss. Reached usable WER with ten minutes of labels. HuBERT does the same with k-means cluster targets."
+    },
+    {
+      "type": "pitfall",
+      "front": "Where spectrogram-as-image breaks",
+      "back": "The axes are not interchangeable (time vs frequency); frequency translation changes PITCH so pooling there can be wrong; harmonic stacks span the whole frequency axis so small kernels cannot see them; and vision augmentations (h-flip = time reversal) are nonsense."
+    }
   ],
   "refs": [
-    { "title": "Baevski et al. (2020), wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations", "url": "https://arxiv.org/abs/2006.11477" },
-    { "title": "Park et al. (2019), SpecAugment: A Simple Data Augmentation Method for ASR", "url": "https://arxiv.org/abs/1904.08779" },
-    { "title": "Hsu et al. (2021), HuBERT: Self-Supervised Speech Representation Learning by Masked Prediction", "url": "https://arxiv.org/abs/2106.07447" },
-    { "title": "Kong et al. (2020), HiFi-GAN: Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis", "url": "https://arxiv.org/abs/2010.05646" },
-    { "title": "Gong et al. (2021), AST: Audio Spectrogram Transformer", "url": "https://arxiv.org/abs/2104.01778" }
+    {
+      "title": "Baevski et al. (2020), wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations",
+      "url": "https://arxiv.org/abs/2006.11477"
+    },
+    {
+      "title": "Park et al. (2019), SpecAugment: A Simple Data Augmentation Method for ASR",
+      "url": "https://arxiv.org/abs/1904.08779"
+    },
+    {
+      "title": "Hsu et al. (2021), HuBERT: Self-Supervised Speech Representation Learning by Masked Prediction",
+      "url": "https://arxiv.org/abs/2106.07447"
+    },
+    {
+      "title": "Kong et al. (2020), HiFi-GAN: Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis",
+      "url": "https://arxiv.org/abs/2010.05646"
+    },
+    {
+      "title": "Gong et al. (2021), AST: Audio Spectrogram Transformer",
+      "url": "https://arxiv.org/abs/2104.01778"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-10",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-10_audio_representations_wav2vec.ipynb"
+  }
 }

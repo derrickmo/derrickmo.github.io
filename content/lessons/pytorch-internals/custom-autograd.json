@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-01",
   "slug": "custom-autograd",
+  "keyBase": "pytorch-internals/custom-autograd",
   "module": "pytorch-internals",
   "title": "Custom Autograd Functions & Hooks",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "PyTorch docs — Extending torch.autograd",
       "url": "https://pytorch.org/docs/stable/notes/extending.html"
     }
-  ]
+  ],
+  "v2": {
+    "id": "20-01",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-01_custom_autograd_functions_hooks.ipynb"
+  }
 }

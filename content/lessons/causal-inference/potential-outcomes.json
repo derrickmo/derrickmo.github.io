@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-01",
   "slug": "potential-outcomes",
+  "keyBase": "causal-inference/potential-outcomes",
   "module": "causal-inference",
   "title": "Potential Outcomes & Treatment Effects",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://www.acpjournals.org/doi/10.7326/M16-2607"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-01",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-01_potential_outcomes_treatment_effects.ipynb"
+  }
 }

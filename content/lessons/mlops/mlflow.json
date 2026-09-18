@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-02",
   "slug": "mlflow",
+  "keyBase": "mlops/mlflow",
   "module": "mlops",
   "title": "Experiment Tracking with MLflow",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://research.google/pubs/pub46555/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-02",
+    "module": "mlops",
+    "disposition": "clean",
+    "notebookFile": "23-02_experiment_tracking_model_registry.ipynb"
+  }
 }

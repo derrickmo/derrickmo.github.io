@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-09",
   "slug": "fsdp",
+  "keyBase": "training-systems/fsdp",
   "module": "training-systems",
   "title": "FSDP, ZeRO & Model Parallelism",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "16-09_fsdp_zero_sharding.ipynb",
     "flagship": null,
-    "demos": ["moe", "batching", "mixed-precision", "autoscaling"],
+    "demos": [
+      "moe",
+      "batching",
+      "mixed-precision",
+      "autoscaling"
+    ],
     "concepts": []
   },
-  "prereqs": ["training-systems/ddp", "pytorch-internals/distributed-primitives"],
-  "leadsTo": ["llm-systems/moe", "training-systems/optimized-pipeline"],
+  "prereqs": [
+    "training-systems/ddp",
+    "pytorch-internals/distributed-primitives"
+  ],
+  "leadsTo": [
+    "llm-systems/moe",
+    "training-systems/optimized-pipeline"
+  ],
   "body": {
     "intuition": [
       "Data parallelism replicates the model on every device, so per-device memory is sixteen bytes per parameter regardless of how many devices you add. That is the number to hold: under mixed-precision Adam it is 2 for the fp16 weights, 2 for the fp16 gradients, 4 for the fp32 master copy, and 8 for Adam's two moments. Adding accelerators buys you throughput and never buys you capacity. A 7.5B model needs about 120 GB per device under DDP, which fits nothing - so at some scale replication stops being an option and the state has to be divided.",
@@ -163,8 +175,7 @@
         "q": "Explain the ZeRO stages and how you would choose between them.",
         "a": "THE STARTING POINT. Under mixed-precision Adam, per-device memory is sixteen bytes per parameter: two for fp16 weights, two for fp16 gradients, four for the fp32 master copy, eight for Adam's two moments. In DDP all of that is REPLICATED on every device, so the per-device figure is FLAT in the device count - adding accelerators buys throughput and never buys capacity. A 7.5B model needs about 120 GB per device, which fits nothing. THE STAGES, each moving one more term from replicated to sharded. ZeRO-1 shards the OPTIMIZER STATE: the fp32 master copy and the two moments, which is twelve of the sixteen bytes. Memory becomes 4P plus 12P over N. Gradients are still all-reduced as in DDP, each rank updates only its slice of parameters, and the updated parameters are all-gathered. Communication is essentially unchanged. ZeRO-2 additionally shards the GRADIENTS. Instead of an all-reduce you use a REDUCE-SCATTER, so each rank receives only the summed gradient slice it needs - which is the first half of the identity that all-reduce equals reduce-scatter followed by all-gather, and it costs about half an all-reduce. Memory becomes 2P plus 14P over N. ZeRO-3, which is what FSDP implements, shards the PARAMETERS too. Now a layer's weights are not resident, so you must ALL-GATHER them just in time before its forward, use them, and free them - and again in backward. Memory becomes 16P over N: genuinely divided by the device count, which is what makes an otherwise-unfittable model trainable. Communication rises to about 3D, or 1.5 times DDP. HOW I WOULD CHOOSE - and the ladder matters because each step adds real complexity. Compute the budget first. If the model FITS comfortably under DDP, use DDP: simplest, fastest, fewest failure modes. If the OPTIMIZER STATE is what does not fit - which is common, since it is twelve of the sixteen bytes - use ZeRO-1 or 2, which removes three quarters of the memory at essentially DDP communication. This is the most under-used option in the list; people jump to full sharding when a stage that costs nothing would have done. If the MODEL ITSELF does not fit, ZeRO-3 or FSDP. If that is still not enough, add tensor parallelism within the node, then pipeline across nodes. Stop at the first that works. THE REASSURING PART, worth verifying once. Sharding is MATHEMATICALLY NEUTRAL. Reconstructing parameters by all-gather gives bit-identical forward outputs; a sharded Adam step equals an unsharded one exactly; twenty-five steps sharded from the same seed match unsharded bit for bit. The reason the optimizer sharding is exact is that ADAM IS ELEMENTWISE - each parameter's update uses only its own gradient and its own two moments, with no cross-parameter term. So there is nothing to lose by splitting them. Everything that remains is systems engineering: does the communication overlap, and where does it sit on the hardware.",
         "deepDive": {
-          "q": "Walk through what happens in an FSDP forward and backward pass, and what determines whether it is fast."
-          ,
+          "q": "Walk through what happens in an FSDP forward and backward pass, and what determines whether it is fast.",
           "a": "THE FORWARD, per FSDP unit - typically a transformer block. (1) ALL-GATHER the unit's parameters from all ranks, reconstructing the full weights in a temporary buffer. (2) Run the unit's forward computation with those full weights. (3) FREE the gathered buffer immediately, keeping only your own shard. (4) Move to the next unit and repeat. So at any moment you hold your P/N shard of everything plus the full parameters of ONE unit - which is why peak parameter memory is P/N plus the largest single unit, and why wrapping granularity is a memory decision rather than only a throughput one. THE BACKWARD, per unit in reverse. (1) ALL-GATHER the unit's parameters again, because you freed them - this is the second of the two extra all-gathers that take communication from 2D to 3D. (2) Compute gradients. (3) REDUCE-SCATTER the gradients so each rank keeps only its slice, which is what makes gradient memory P/N. (4) Free the gathered parameters and the full gradients. WHAT DETERMINES SPEED - and this is where a good and a bad configuration differ by more than the choice of stage. (1) PREFETCHING. If unit i+1's all-gather is issued while unit i is still computing, the communication hides behind computation and the 1.5x is largely notional. If it is issued when unit i+1 is needed, every unit stalls on its gather and you realize the full cost. Forward prefetch and backward prefetch are separate settings and both matter; backward prefetch is the one more often left off. (2) WRAPPING GRANULARITY, which controls both the gather size and the overlap opportunity. Too COARSE - wrapping the whole model as one unit - means one enormous all-gather with nothing to overlap it against, and a peak equal to the full parameter set, which defeats the purpose. Too FINE - wrapping every linear layer - means many small collectives, each paying fixed latency, and the aggregate latency dominates. Per transformer block is the usual answer because it gives collectives large enough to be bandwidth-efficient and numerous enough to pipeline. (3) THE INTERCONNECT. Parameter all-gathers happen per unit per step in both directions, so their frequency is high. On NVLink within a node that is cheap; across a slower inter-node fabric it is not, which is the entire argument for HYBRID sharding - shard within the node where bandwidth is plentiful, replicate across nodes so the inter-node traffic is one all-reduce per step rather than many all-gathers. (4) THE INTERACTION WITH ACTIVATION CHECKPOINTING. If a checkpointed region spans several FSDP units, the recomputation during backward triggers those units' all-gathers AGAIN - so the recompute costs communication as well as compute, which is a real and surprising interaction. Aligning checkpoint boundaries with FSDP unit boundaries avoids it. HOW I WOULD DIAGNOSE A SLOW FSDP RUN. Profile and look at whether the all-gather kernels overlap with compute on the timeline. If there are visible gaps aligned with collectives, prefetching is not working - check the prefetch settings and the wrapping. If the collectives themselves are slow, check the interconnect and consider hybrid sharding. And compare against a DDP run at a batch size that fits, because if FSDP is much slower than DDP and the model would have fitted, the answer is to use DDP."
         }
       },
@@ -278,5 +289,11 @@
       "url": "https://arxiv.org/abs/2104.04473"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "21-08",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-08_fsdp_zero.ipynb"
+  }
 }

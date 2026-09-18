@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-09",
   "slug": "red-teaming",
+  "keyBase": "trustworthy-ai/red-teaming",
   "module": "trustworthy-ai",
   "title": "Red-Teaming & Model Auditing",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/2307.15043"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "24-12",
+    "module": "trustworthy-ai",
+    "disposition": "merge",
+    "notebookFile": "24-12_red_teaming_watermarking_governance.ipynb"
+  }
 }

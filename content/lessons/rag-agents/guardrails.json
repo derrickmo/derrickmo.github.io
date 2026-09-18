@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-09",
   "slug": "guardrails",
+  "keyBase": "rag-agents/guardrails",
   "module": "rag-agents",
   "title": "Guardrails & Agent Evaluation",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-09_guardrails_agent_evaluation.ipynb",
     "flagship": null,
-    "demos": ["guardrails", "prompt-injection", "calibration", "classification-metrics"],
+    "demos": [
+      "guardrails",
+      "prompt-injection",
+      "calibration",
+      "classification-metrics"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/agent-loops", "trustworthy-ai/red-teaming"],
-  "leadsTo": ["rag-agents/capstone-assistant", "agentic-ai/agent-security"],
+  "prereqs": [
+    "rag-agents/agent-loops",
+    "trustworthy-ai/red-teaming"
+  ],
+  "leadsTo": [
+    "rag-agents/capstone-assistant",
+    "agentic-ai/agent-security"
+  ],
   "body": {
     "intuition": [
       "This is the lesson where the module's arithmetic changes sign. Everywhere else, composition has worked against you: ceilings bound you to the worst stage, reliabilities multiply below one, coordination grows quadratically. A defence composes differently, and the difference is structural. In a pipeline every component must succeed, so the probabilities multiply downward. In a layered defence, any ONE layer catching the problem is enough - so what multiplies is the ATTACKER's probability of getting past all of them. Three imperfect layers at 60%, 80% and 90% detection take attack success from certain to under one percent.",
@@ -274,5 +286,14 @@
       "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-09",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-09_agent_evaluation_tasks_trajectories_rubrics.ipynb",
+    "alsoFeeds": [
+      "19-11"
+    ]
+  }
 }

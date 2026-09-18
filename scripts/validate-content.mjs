@@ -82,6 +82,23 @@ if (!existsSync(STORE)) { console.log("content/ does not exist — nothing to va
 }
 
 // ── modules/*.json ───────────────────────────────────────────────────────────
+// How wide each module actually is, counted from the lesson files rather than
+// assumed. The curriculum was 25 modules x exactly 10; the notebooks' v2 plan
+// runs 6-13 per module, so a hardcoded 10 would reject the first v2 module.
+// Counting the real files is also STRONGER than the constant was: it catches a
+// lecture table that has drifted out of step with its own lesson set, which
+// `=== 10` never could.
+const LESSON_DIR = join(STORE, "lessons");
+const widthOf = new Map();
+if (existsSync(LESSON_DIR)) {
+  for (const d of readdirSync(LESSON_DIR)) {
+    const dir = join(LESSON_DIR, d);
+    if (!statSync(dir).isDirectory()) continue;
+    widthOf.set(d, readdirSync(dir).filter((x) => x.endsWith(".json")).length);
+  }
+}
+const MIN_WIDTH = 6, MAX_WIDTH = 13;   // the bound docs/CURRICULUM.yaml declares
+
 const seenModules = new Map();
 for (const p of listJson(join(STORE, "modules"))) {
   const f = relOf(p); files++;
@@ -110,7 +127,13 @@ for (const p of listJson(join(STORE, "modules"))) {
     if (!isStr(L.summary)) err(f, "lecture.summary required");
     if (!isStr(L.prereqs)) err(f, "lecture.prereqs required");
     if (!isArr(L.takeaways) || L.takeaways.length < 3) err(f, "lecture.takeaways >= 3 required");
-    if (!isArr(L.notebooks) || L.notebooks.length !== 10) err(f, "lecture.notebooks must have exactly 10 rows");
+    const width = widthOf.get(o.slug);
+    if (!isArr(L.notebooks)) err(f, "lecture.notebooks must be an array");
+    else if (width === undefined) err(f, `no content/lessons/${o.slug}/ directory`);
+    else if (L.notebooks.length !== width)
+      err(f, `lecture.notebooks has ${L.notebooks.length} rows, module has ${width} lesson files`);
+    else if (width < MIN_WIDTH || width > MAX_WIDTH)
+      err(f, `module width ${width} is outside the ${MIN_WIDTH}-${MAX_WIDTH} bound`);
     else L.notebooks.forEach((nb, i) => {
       for (const k of ["n", "t", "d", "m"]) if (!isStr(nb[k])) err(f, `notebooks[${i}].${k} required`);
       const exp = `${o.n}-${String(i + 1).padStart(2, "0")}`;

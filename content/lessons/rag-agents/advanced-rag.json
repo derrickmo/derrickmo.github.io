@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-03",
   "slug": "advanced-rag",
+  "keyBase": "rag-agents/advanced-rag",
   "module": "rag-agents",
   "title": "Advanced RAG — HyDE & Reranking",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-03_advanced_rag_hyde_reranking.ipynb",
     "flagship": null,
-    "demos": ["rag-reranker", "vector-search", "embeddings", "rag-chunking"],
+    "demos": [
+      "rag-reranker",
+      "vector-search",
+      "embeddings",
+      "rag-chunking"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/chunking-retrieval", "rag-agents/embeddings-vector-stores"],
-  "leadsTo": ["rag-agents/rag-eval", "rag-agents/agent-loops"],
+  "prereqs": [
+    "rag-agents/chunking-retrieval",
+    "rag-agents/embeddings-vector-stores"
+  ],
+  "leadsTo": [
+    "rag-agents/rag-eval",
+    "rag-agents/agent-loops"
+  ],
   "body": {
     "intuition": [
       "Everything in this lesson exists because of one cost asymmetry. A bi-encoder scores a query against a document by embedding each SEPARATELY and taking a dot product, which means every document vector can be computed once, offline, and reused forever - so search is a nearest-neighbour lookup over precomputed vectors. A cross-encoder feeds the query and the document through a transformer TOGETHER, letting every query token attend to every document token, which is substantially more accurate and cannot be precomputed at all, because the representation depends on the pair. One forward pass per candidate, per query.",
@@ -273,5 +285,14 @@
       "url": "https://arxiv.org/abs/2310.06117"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "18-06",
+    "module": "retrieval-rag",
+    "disposition": "merge",
+    "notebookFile": "18-06_reranking_fusion.ipynb",
+    "alsoFeeds": [
+      "18-07"
+    ]
+  }
 }

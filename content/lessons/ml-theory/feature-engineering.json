@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-03",
   "slug": "feature-engineering",
+  "keyBase": "ml-theory/feature-engineering",
   "module": "ml-theory",
   "title": "Feature Engineering & Pipelines",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-03_feature_engineering_pipelines.ipynb",
     "flagship": null,
-    "demos": ["pca", "embeddings", "regression"],
+    "demos": [
+      "pca",
+      "embeddings",
+      "regression"
+    ],
     "concepts": []
   },
-  "prereqs": ["ml-theory/cross-validation", "foundations/pandas"],
-  "leadsTo": ["ml-applications/tabular-dl", "mlops/project-structure"],
+  "prereqs": [
+    "ml-theory/cross-validation",
+    "foundations/pandas"
+  ],
+  "leadsTo": [
+    "ml-applications/tabular-dl",
+    "mlops/project-structure"
+  ],
   "body": {
     "intuition": [
       "Feature engineering is the work of turning raw records into inputs a model can actually use, and on tabular data it is usually where the performance is. The reason is that a model can only combine what you give it: a gradient-boosted tree can split on a value but cannot invent a RATIO, cannot know that two timestamps should be subtracted, and cannot know that a 'zip code' is geography rather than a number. Encoding that knowledge is what a domain expert contributes, and one well-chosen interaction feature routinely beats twenty hours of hyperparameter tuning - a value ladder worth measuring explicitly, because it tells you where to spend effort.",
@@ -72,32 +83,83 @@
       "Treating identifiers as numbers: zip codes, product ids, and category codes have no ordinal meaning, so feeding them as integers invites nonsensical splits. And beware features that are proxies for the label or unavailable at prediction time - point-in-time correctness is a feature-engineering concern, not just a splitting one."
     ],
     "connections": [
-      { "ref": "ml-theory/cross-validation", "text": "Pipelines exist because every learned transformation must be refit inside the fold - feature engineering is where most cross-validation leakage originates." },
-      { "ref": "ml-applications/tabular-dl", "text": "The comparison between engineered features plus gradient boosting and end-to-end deep tabular models is exactly the question of how much of this work a model can learn for itself." },
-      { "ref": "unsupervised-learning/pca", "text": "Dimensionality reduction is feature engineering done by an algorithm - useful when features are numerous and correlated, and it inherits the same fit-inside-the-fold rule." },
-      { "ref": "mlops/project-structure", "text": "Shared feature definitions between training and serving (a pipeline artifact or a feature store) are the structural defence against train/serve skew." }
+      {
+        "ref": "ml-theory/cross-validation",
+        "text": "Pipelines exist because every learned transformation must be refit inside the fold - feature engineering is where most cross-validation leakage originates."
+      },
+      {
+        "ref": "ml-applications/tabular-dl",
+        "text": "The comparison between engineered features plus gradient boosting and end-to-end deep tabular models is exactly the question of how much of this work a model can learn for itself."
+      },
+      {
+        "ref": "unsupervised-learning/pca",
+        "text": "Dimensionality reduction is feature engineering done by an algorithm - useful when features are numerous and correlated, and it inherits the same fit-inside-the-fold rule."
+      },
+      {
+        "ref": "mlops/project-structure",
+        "text": "Shared feature definitions between training and serving (a pipeline artifact or a feature store) are the structural defence against train/serve skew."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why does feature engineering matter if models are universal approximators?", "a": "A model can only combine what it is given. It cannot invent a ratio, subtract two timestamps, or know that a zip code is geography - encoding that structure is what turns raw records into learnable signal, especially on tabular data." },
-      { "q": "Which models need feature scaling?", "a": "Distance-based (kNN, k-means, SVM with RBF) and gradient-based (linear models, neural nets) do. Tree-based models do not - they split on thresholds, so monotone rescaling changes nothing." },
-      { "q": "How do you encode a cyclical feature like hour of day?", "a": "As a sine/cosine pair with period 24, so 23:00 sits adjacent to 01:00 on the unit circle. Both components are needed - either alone is ambiguous." },
-      { "q": "What is one-hot encoding's weakness?", "a": "Cardinality: 10,000 categories become 10,000 sparse columns. Use target encoding, hashing, embeddings, or group rare levels together instead." },
-      { "q": "What is target (mean) encoding?", "a": "Replace a category with the mean target for that category. Powerful for high cardinality - and leaky unless computed out of fold, since a rare category's mean is essentially the row's own label." },
-      { "q": "What is smoothing in target encoding?", "a": "Shrink each category mean toward the global mean by weight n/(n+m), so rare categories fall back to the prior instead of trusting one or two observations." },
-      { "q": "Why add a missingness indicator when imputing?", "a": "Missingness is rarely random and is often predictive in itself. Imputing without an indicator throws that signal away." },
-      { "q": "What is train/serve skew?", "a": "Features computed differently (or unavailable, or stale) at inference than during training. A shared pipeline artifact or feature store prevents it; it is a top cause of offline/online gaps." },
-      { "q": "What is point-in-time correctness?", "a": "Every feature must reflect only what was KNOWABLE at prediction time. A value timestamped with the event but recorded hours later is future information in disguise." },
-      { "q": "Why is ColumnTransformer useful?", "a": "It applies different transformations to different column subsets while remaining a single fitted object - so preprocessing is refit per fold and serialized as one artifact." },
-      { "q": "What does handle_unknown='ignore' do?", "a": "Makes a one-hot encoder emit all-zeros for a category not seen in training rather than raising - necessary because serving will encounter new categories." },
-      { "q": "Do neural networks eliminate feature engineering?", "a": "On perceptual data (images, audio, text) largely yes - representation learning replaces it. On tabular data no: gradient-boosted trees on engineered features remain highly competitive." }
+      {
+        "q": "Why does feature engineering matter if models are universal approximators?",
+        "a": "A model can only combine what it is given. It cannot invent a ratio, subtract two timestamps, or know that a zip code is geography - encoding that structure is what turns raw records into learnable signal, especially on tabular data."
+      },
+      {
+        "q": "Which models need feature scaling?",
+        "a": "Distance-based (kNN, k-means, SVM with RBF) and gradient-based (linear models, neural nets) do. Tree-based models do not - they split on thresholds, so monotone rescaling changes nothing."
+      },
+      {
+        "q": "How do you encode a cyclical feature like hour of day?",
+        "a": "As a sine/cosine pair with period 24, so 23:00 sits adjacent to 01:00 on the unit circle. Both components are needed - either alone is ambiguous."
+      },
+      {
+        "q": "What is one-hot encoding's weakness?",
+        "a": "Cardinality: 10,000 categories become 10,000 sparse columns. Use target encoding, hashing, embeddings, or group rare levels together instead."
+      },
+      {
+        "q": "What is target (mean) encoding?",
+        "a": "Replace a category with the mean target for that category. Powerful for high cardinality - and leaky unless computed out of fold, since a rare category's mean is essentially the row's own label."
+      },
+      {
+        "q": "What is smoothing in target encoding?",
+        "a": "Shrink each category mean toward the global mean by weight n/(n+m), so rare categories fall back to the prior instead of trusting one or two observations."
+      },
+      {
+        "q": "Why add a missingness indicator when imputing?",
+        "a": "Missingness is rarely random and is often predictive in itself. Imputing without an indicator throws that signal away."
+      },
+      {
+        "q": "What is train/serve skew?",
+        "a": "Features computed differently (or unavailable, or stale) at inference than during training. A shared pipeline artifact or feature store prevents it; it is a top cause of offline/online gaps."
+      },
+      {
+        "q": "What is point-in-time correctness?",
+        "a": "Every feature must reflect only what was KNOWABLE at prediction time. A value timestamped with the event but recorded hours later is future information in disguise."
+      },
+      {
+        "q": "Why is ColumnTransformer useful?",
+        "a": "It applies different transformations to different column subsets while remaining a single fitted object - so preprocessing is refit per fold and serialized as one artifact."
+      },
+      {
+        "q": "What does handle_unknown='ignore' do?",
+        "a": "Makes a one-hot encoder emit all-zeros for a category not seen in training rather than raising - necessary because serving will encounter new categories."
+      },
+      {
+        "q": "Do neural networks eliminate feature engineering?",
+        "a": "On perceptual data (images, audio, text) largely yes - representation learning replaces it. On tabular data no: gradient-boosted trees on engineered features remain highly competitive."
+      }
     ],
     "standard": [
       {
         "q": "Walk through the main families of feature engineering and when each applies.",
         "a": "The families are few, and knowing them as a checklist is what makes the work systematic rather than ad hoc. (1) NUMERIC TRANSFORMS. SCALING - standardization or min-max - is required by distance-based models (kNN, k-means, RBF SVM) and helps gradient-based ones converge; it is IRRELEVANT to trees, which split on thresholds and are invariant to any monotone rescaling. Knowing which models care is a common interview probe. SKEW CORRECTION - log, sqrt, Box-Cox, or Yeo-Johnson - for heavy-tailed variables like income or transaction amounts, which otherwise let a few extreme values dominate a linear model. BINNING converts a continuous variable into ordered buckets, which can capture non-monotone effects in a linear model (and is mostly unnecessary for trees, which bin implicitly). CLIPPING bounds outliers when they are measurement error rather than signal - and it is worth deciding which, because for fraud the outliers ARE the signal. (2) CATEGORICAL ENCODING. ONE-HOT for low cardinality (say under 50 levels). For HIGH cardinality: target/mean encoding (with out-of-fold computation and smoothing), hashing (fixed dimensionality, collisions accepted), frequency encoding, or learned EMBEDDINGS if a neural model is involved. ORDINAL encoding only when the categories genuinely have an order (small/medium/large), never for nominal ids. And always plan for categories UNSEEN at serving time. (3) TEMPORAL FEATURES. Differences between timestamps ('days since last purchase') are usually far more predictive than absolute times. CYCLICAL encoding (sine/cosine pairs) for hour, weekday, month, so the wraparound is represented correctly. For time series, LAGS and ROLLING aggregates (mean, std, min, max over trailing windows), which must respect point-in-time correctness. (4) INTERACTIONS AND AGGREGATES - where domain knowledge pays most. RATIOS ('amount / user's 30-day median amount', 'debt / income') encode relationships a tree would need many splits to approximate. GROUP AGGREGATES ('this merchant's average chargeback rate', 'this user's count of prior sessions') bring in context beyond the single row. Explicit PRODUCTS of two variables when you believe the effect is multiplicative. (5) TEXT AND HIGH-DIMENSIONAL: TF-IDF or embeddings; and dimensionality reduction (PCA) when features are numerous and correlated. HOW I DECIDE WHAT TO BUILD. Start from the DOMAIN QUESTION: what would a human expert look at to make this judgement? That usually names two or three ratios or aggregates directly, and those are worth more than a large automated search. Then look at the DATA: skewness suggests transforms, high cardinality suggests encoding choices, missingness patterns suggest indicators. Then MEASURE the value ladder - baseline, plus raw features, plus each engineered group - so you know what actually contributed rather than assuming. THE PART PEOPLE UNDERWEIGHT: most of the work is not inventing clever features, it is handling the mundane correctly - missingness, unseen categories, point-in-time correctness, and making sure the same code runs in training and serving. Clever features that leak or that cannot be computed at inference time are worth less than nothing, because they cost you a deployment.",
-        "deepDive": { "q": "Explain target encoding in depth: why it is powerful, exactly how it leaks, and how to do it safely.", "a": "WHY IT IS POWERFUL. A high-cardinality categorical - merchant id, zip code, product sku, user id - can carry enormous signal, but one-hot encoding it produces thousands of sparse columns that a tree splits on inefficiently and a linear model overfits. Target encoding replaces the category with a single NUMERIC summary of its relationship to the label (typically the mean target for that category), compressing the information into one dense, immediately-usable column. On tabular competitions and industrial tabular problems it is frequently the single highest-value transform available. HOW IT LEAKS - two distinct mechanisms, and conflating them is a common error. (1) SELF-REFERENCE: if you compute a category's mean using ALL training rows including row i, then row i's own label is inside its own feature. For a category with 100 members this contributes 1% - a small distortion. For a category with ONE member, the feature IS the label, perfectly encoded. Since high-cardinality features are exactly the ones with many rare categories, the leak is worst precisely where the technique is most attractive. The empirical signature is stark: on a synthetic dataset where the category has NO relationship to the target, naive target encoding produces a feature correlating ~0.58 with the label, while an out-of-fold version gives ~0.01. A model trained on the leaky version will rank that feature as its most important and will collapse in production. (2) VALIDATION LEAKAGE: even if you avoid self-reference within training, computing the encoding using data from the validation fold contaminates your estimate - the ordinary fit-inside-the-fold rule. THE SAFE RECIPE, in layers. (a) OUT-OF-FOLD COMPUTATION: split the training data into folds; for each fold, compute category statistics from the OTHER folds only and apply them to this fold. Every row's encoding is then derived from data that excludes it. For the final model applied to test/serving data, use statistics computed on the entire training set (which is legitimate, since test rows contributed nothing). (b) SMOOTHING toward the prior: yhat_c = (n_c * ybar_c + m * ybar) / (n_c + m). This addresses the VARIANCE problem - a category with 2 observations should not be trusted as much as one with 2,000 - and m is a hyperparameter (a pseudo-count) worth tuning. Note that smoothing alone does NOT fix leakage; the two fixes are orthogonal and you need both. (c) NOISE INJECTION or LEAVE-ONE-OUT variants: some implementations subtract the row's own contribution (leave-one-out encoding) or add small Gaussian noise to break residual self-correlation. Leave-one-out is subtly dangerous on its own - it can create an inverse relationship a tree can exploit - so out-of-fold is the safer default. (d) HANDLE UNSEEN CATEGORIES at serving with the global prior. (e) For time series, compute the encoding only from the PAST, never from future rows of the same category. THE ALTERNATIVES worth knowing, since target encoding is not always the right answer: hashing (no leakage risk at all, fixed dimension, accepts collisions), frequency/count encoding (leak-free, often surprisingly strong), embeddings learned jointly with a neural model (no separate leakage path, learns the representation end-to-end), and CatBoost's ORDERED TARGET STATISTICS - a principled scheme that computes each row's encoding using only rows that came 'before' it in a random permutation, which is one of the reasons CatBoost handles categorical features so well out of the box. If I were advising someone starting out, I would say: use frequency encoding and one-hot first, reach for target encoding when cardinality demands it, and when you do, use a library implementation with out-of-fold computation rather than writing a groupby-mean yourself - because the groupby-mean version is the exact bug this whole answer is about." }
+        "deepDive": {
+          "q": "Explain target encoding in depth: why it is powerful, exactly how it leaks, and how to do it safely.",
+          "a": "WHY IT IS POWERFUL. A high-cardinality categorical - merchant id, zip code, product sku, user id - can carry enormous signal, but one-hot encoding it produces thousands of sparse columns that a tree splits on inefficiently and a linear model overfits. Target encoding replaces the category with a single NUMERIC summary of its relationship to the label (typically the mean target for that category), compressing the information into one dense, immediately-usable column. On tabular competitions and industrial tabular problems it is frequently the single highest-value transform available. HOW IT LEAKS - two distinct mechanisms, and conflating them is a common error. (1) SELF-REFERENCE: if you compute a category's mean using ALL training rows including row i, then row i's own label is inside its own feature. For a category with 100 members this contributes 1% - a small distortion. For a category with ONE member, the feature IS the label, perfectly encoded. Since high-cardinality features are exactly the ones with many rare categories, the leak is worst precisely where the technique is most attractive. The empirical signature is stark: on a synthetic dataset where the category has NO relationship to the target, naive target encoding produces a feature correlating ~0.58 with the label, while an out-of-fold version gives ~0.01. A model trained on the leaky version will rank that feature as its most important and will collapse in production. (2) VALIDATION LEAKAGE: even if you avoid self-reference within training, computing the encoding using data from the validation fold contaminates your estimate - the ordinary fit-inside-the-fold rule. THE SAFE RECIPE, in layers. (a) OUT-OF-FOLD COMPUTATION: split the training data into folds; for each fold, compute category statistics from the OTHER folds only and apply them to this fold. Every row's encoding is then derived from data that excludes it. For the final model applied to test/serving data, use statistics computed on the entire training set (which is legitimate, since test rows contributed nothing). (b) SMOOTHING toward the prior: yhat_c = (n_c * ybar_c + m * ybar) / (n_c + m). This addresses the VARIANCE problem - a category with 2 observations should not be trusted as much as one with 2,000 - and m is a hyperparameter (a pseudo-count) worth tuning. Note that smoothing alone does NOT fix leakage; the two fixes are orthogonal and you need both. (c) NOISE INJECTION or LEAVE-ONE-OUT variants: some implementations subtract the row's own contribution (leave-one-out encoding) or add small Gaussian noise to break residual self-correlation. Leave-one-out is subtly dangerous on its own - it can create an inverse relationship a tree can exploit - so out-of-fold is the safer default. (d) HANDLE UNSEEN CATEGORIES at serving with the global prior. (e) For time series, compute the encoding only from the PAST, never from future rows of the same category. THE ALTERNATIVES worth knowing, since target encoding is not always the right answer: hashing (no leakage risk at all, fixed dimension, accepts collisions), frequency/count encoding (leak-free, often surprisingly strong), embeddings learned jointly with a neural model (no separate leakage path, learns the representation end-to-end), and CatBoost's ORDERED TARGET STATISTICS - a principled scheme that computes each row's encoding using only rows that came 'before' it in a random permutation, which is one of the reasons CatBoost handles categorical features so well out of the box. If I were advising someone starting out, I would say: use frequency encoding and one-hot first, reach for target encoding when cardinality demands it, and when you do, use a library implementation with out-of-fold computation rather than writing a groupby-mean yourself - because the groupby-mean version is the exact bug this whole answer is about."
+        }
       },
       {
         "q": "Why are pipelines a correctness requirement rather than a style choice?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "Why feature engineering matters", "back": "A model can only combine what it is given - it cannot invent a ratio, subtract two timestamps, or know a zip code is geography. On tabular data one good interaction feature routinely beats extensive hyperparameter tuning." },
-    { "type": "formula", "front": "Cyclical encoding", "back": "sin(2*pi*t/T) AND cos(2*pi*t/T). Encoding hour as 0-23 says 23 and 0 are far apart; the sine/cosine pair puts them adjacent on the unit circle. Both components needed - either alone is ambiguous." },
-    { "type": "formula", "front": "Smoothed target encoding", "back": "yhat_c = (n_c*ybar_c + m*ybar)/(n_c + m). Shrinks rare categories toward the global mean. Fixes VARIANCE - it does NOT fix leakage, which needs out-of-fold computation." },
-    { "type": "pitfall", "front": "Naive target encoding leaks the label", "back": "A category's mean computed on all training rows contains that row's own label - and for a category of size 1 the feature IS the label. On a no-signal dataset: correlation 0.58 naive vs 0.01 out-of-fold." },
-    { "type": "definition", "front": "Which models need scaling?", "back": "Distance-based (kNN, k-means, RBF SVM) and gradient-based (linear, neural) yes. Trees NO - they split on thresholds and are invariant to monotone rescaling." },
-    { "type": "pitfall", "front": "Impute WITH an indicator", "back": "Missingness is rarely random and is often predictive in itself. Median-imputing without a was_missing column discards that signal. Or use a model with native NaN handling (LightGBM/XGBoost/CatBoost)." },
-    { "type": "definition", "front": "MCAR / MAR / MNAR", "back": "MCAR: unrelated to anything (benign, rare). MAR: explained by other OBSERVED variables (what imputation assumes). MNAR: depends on the unobserved value itself - no imputation can recover it." },
-    { "type": "intuition", "front": "Pipelines are correctness, not style", "back": "(1) Every learned statistic refits per fold, so no leakage. (2) One serialized artifact = no train/serve skew. (3) Preprocessing hyperparameters can be searched jointly with the model's." },
-    { "type": "pitfall", "front": "SMOTE needs a special pipeline", "back": "Resampling must apply to the TRAIN fold only, never the validation fold - sklearn's Pipeline cannot express this, which is why imbalanced-learn ships its own. SMOTE before splitting gives a fantastic fake score." },
-    { "type": "pitfall", "front": "A suspiciously predictive feature", "back": "Check: is it a downstream proxy for the label? Point-in-time knowable? An identifier in disguise? Does it survive GroupKFold? Available at serving? Does a domain expert have a mechanism? Treat surprising results as bug reports." }
+    {
+      "type": "intuition",
+      "front": "Why feature engineering matters",
+      "back": "A model can only combine what it is given - it cannot invent a ratio, subtract two timestamps, or know a zip code is geography. On tabular data one good interaction feature routinely beats extensive hyperparameter tuning."
+    },
+    {
+      "type": "formula",
+      "front": "Cyclical encoding",
+      "back": "sin(2*pi*t/T) AND cos(2*pi*t/T). Encoding hour as 0-23 says 23 and 0 are far apart; the sine/cosine pair puts them adjacent on the unit circle. Both components needed - either alone is ambiguous."
+    },
+    {
+      "type": "formula",
+      "front": "Smoothed target encoding",
+      "back": "yhat_c = (n_c*ybar_c + m*ybar)/(n_c + m). Shrinks rare categories toward the global mean. Fixes VARIANCE - it does NOT fix leakage, which needs out-of-fold computation."
+    },
+    {
+      "type": "pitfall",
+      "front": "Naive target encoding leaks the label",
+      "back": "A category's mean computed on all training rows contains that row's own label - and for a category of size 1 the feature IS the label. On a no-signal dataset: correlation 0.58 naive vs 0.01 out-of-fold."
+    },
+    {
+      "type": "definition",
+      "front": "Which models need scaling?",
+      "back": "Distance-based (kNN, k-means, RBF SVM) and gradient-based (linear, neural) yes. Trees NO - they split on thresholds and are invariant to monotone rescaling."
+    },
+    {
+      "type": "pitfall",
+      "front": "Impute WITH an indicator",
+      "back": "Missingness is rarely random and is often predictive in itself. Median-imputing without a was_missing column discards that signal. Or use a model with native NaN handling (LightGBM/XGBoost/CatBoost)."
+    },
+    {
+      "type": "definition",
+      "front": "MCAR / MAR / MNAR",
+      "back": "MCAR: unrelated to anything (benign, rare). MAR: explained by other OBSERVED variables (what imputation assumes). MNAR: depends on the unobserved value itself - no imputation can recover it."
+    },
+    {
+      "type": "intuition",
+      "front": "Pipelines are correctness, not style",
+      "back": "(1) Every learned statistic refits per fold, so no leakage. (2) One serialized artifact = no train/serve skew. (3) Preprocessing hyperparameters can be searched jointly with the model's."
+    },
+    {
+      "type": "pitfall",
+      "front": "SMOTE needs a special pipeline",
+      "back": "Resampling must apply to the TRAIN fold only, never the validation fold - sklearn's Pipeline cannot express this, which is why imbalanced-learn ships its own. SMOTE before splitting gives a fantastic fake score."
+    },
+    {
+      "type": "pitfall",
+      "front": "A suspiciously predictive feature",
+      "back": "Check: is it a downstream proxy for the label? Point-in-time knowable? An identifier in disguise? Does it survive GroupKFold? Available at serving? Does a domain expert have a mechanism? Treat surprising results as bug reports."
+    }
   ],
   "refs": [
-    { "title": "Kuhn & Johnson, Feature Engineering and Selection (free online)", "url": "http://www.feat.engineering/" },
-    { "title": "Grinsztajn, Oyallon & Varoquaux (2022), Why do tree-based models still outperform deep learning on tabular data?", "url": "https://arxiv.org/abs/2207.08815" },
-    { "title": "Prokhorenkova et al. (2018), CatBoost: unbiased boosting with categorical features (ordered target statistics)", "url": "https://arxiv.org/abs/1706.09516" },
-    { "title": "scikit-learn User Guide, Pipelines and composite estimators", "url": "https://scikit-learn.org/stable/modules/compose.html" }
+    {
+      "title": "Kuhn & Johnson, Feature Engineering and Selection (free online)",
+      "url": "http://www.feat.engineering/"
+    },
+    {
+      "title": "Grinsztajn, Oyallon & Varoquaux (2022), Why do tree-based models still outperform deep learning on tabular data?",
+      "url": "https://arxiv.org/abs/2207.08815"
+    },
+    {
+      "title": "Prokhorenkova et al. (2018), CatBoost: unbiased boosting with categorical features (ordered target statistics)",
+      "url": "https://arxiv.org/abs/1706.09516"
+    },
+    {
+      "title": "scikit-learn User Guide, Pipelines and composite estimators",
+      "url": "https://scikit-learn.org/stable/modules/compose.html"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "05-04",
+    "module": "evaluation",
+    "disposition": "clean",
+    "notebookFile": "05-04_feature_engineering_pipelines.ipynb"
+  }
 }

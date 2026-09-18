@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-07",
   "slug": "segmentation",
+  "keyBase": "cnn/segmentation",
   "module": "cnn",
   "title": "Semantic & Instance Segmentation",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "06-07_semantic_instance_segmentation.ipynb",
     "flagship": null,
-    "demos": ["watershed", "nms", "morphological-ops"],
+    "demos": [
+      "watershed",
+      "nms",
+      "morphological-ops"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/unet", "cnn/cnn-architectures"],
-  "leadsTo": ["advanced-cv/object-detection", "advanced-cv/grad-cam"],
+  "prereqs": [
+    "cnn/unet",
+    "cnn/cnn-architectures"
+  ],
+  "leadsTo": [
+    "advanced-cv/object-detection",
+    "advanced-cv/grad-cam"
+  ],
   "body": {
     "intuition": [
       "Classification answers 'what is in this image?'. Detection answers 'what, and roughly where (a box)?'. SEGMENTATION answers 'what is at every single pixel?' - the finest-grained visual output, and the one that matters when a box is not good enough: a surgical tool overlapping tissue, a drivable-road boundary, the exact extent of a tumour. The task splits into three flavours that are constantly confused in interviews, so it is worth fixing them precisely. SEMANTIC segmentation labels each pixel with a CLASS ('person', 'road') and does not distinguish individuals - three overlapping people are one 'person' region. INSTANCE segmentation separates individual OBJECTS ('person 1', 'person 2') but typically ignores amorphous background regions like sky or road. PANOPTIC segmentation unifies them: every pixel gets a class, and every pixel belonging to a countable 'thing' also gets an instance id, while 'stuff' classes (sky, road, grass) are labelled but not instanced.",
@@ -72,32 +83,83 @@
       "Tiling large images without overlap: predictions degrade near tile borders because context is missing, producing visible seams. Use overlapping tiles with weighted blending (and remember the receptive field determines the required overlap)."
     ],
     "connections": [
-      { "ref": "cnn/unet", "text": "U-Net is the standard architecture for this task - that lesson covers the encoder-decoder mechanics, skip connections, and upsampling operators this one applies." },
-      { "ref": "advanced-cv/object-detection", "text": "Instance segmentation is largely detection plus a mask head: Mask R-CNN inherits region proposals, RoIAlign, and NMS from the detection stack." },
-      { "ref": "cnn/efficient-cnns", "text": "Real-time segmentation on edge hardware depends on efficient backbones and dilation instead of heavy decoders - dense prediction is where the FLOP budget bites hardest." },
-      { "ref": "ml-theory/imbalanced-data", "text": "Segmentation masks are an extreme imbalance problem (often <1% foreground), which is why Dice/Tversky/focal losses and foreground-biased patch sampling are standard rather than optional." }
+      {
+        "ref": "cnn/unet",
+        "text": "U-Net is the standard architecture for this task - that lesson covers the encoder-decoder mechanics, skip connections, and upsampling operators this one applies."
+      },
+      {
+        "ref": "advanced-cv/object-detection",
+        "text": "Instance segmentation is largely detection plus a mask head: Mask R-CNN inherits region proposals, RoIAlign, and NMS from the detection stack."
+      },
+      {
+        "ref": "cnn/efficient-cnns",
+        "text": "Real-time segmentation on edge hardware depends on efficient backbones and dilation instead of heavy decoders - dense prediction is where the FLOP budget bites hardest."
+      },
+      {
+        "ref": "ml-theory/imbalanced-data",
+        "text": "Segmentation masks are an extreme imbalance problem (often <1% foreground), which is why Dice/Tversky/focal losses and foreground-biased patch sampling are standard rather than optional."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is semantic segmentation?", "a": "Assigning a class label to every pixel, without distinguishing individual objects - three overlapping people form one 'person' region." },
-      { "q": "What is instance segmentation?", "a": "Separating individual object instances with their own masks ('person 1', 'person 2'), typically only for countable 'things', not amorphous 'stuff'." },
-      { "q": "What is panoptic segmentation?", "a": "The unification: every pixel gets a class, and pixels belonging to 'things' also get an instance id, while 'stuff' classes are labelled but not instanced." },
-      { "q": "What is IoU?", "a": "Intersection over union: TP/(TP+FP+FN). Mean IoU over classes (mIoU) is the standard semantic-segmentation metric." },
-      { "q": "How do IoU and Dice relate?", "a": "Dice = 2*IoU/(1+IoU), so Dice is always >= IoU and they rank identically. IoU is standard for reporting; Dice is standard for the loss." },
-      { "q": "Why not pixel accuracy?", "a": "Background typically dominates - predicting all background can score 97-99% while finding nothing. IoU/Dice ignore true negatives, which is why they work." },
-      { "q": "What is a dilated (atrous) convolution?", "a": "A convolution with gaps between kernel taps: a 3x3 with rate r covers a (2r+1)x(2r+1) region using only 9 weights, growing the receptive field with no downsampling." },
-      { "q": "What is ASPP?", "a": "Atrous Spatial Pyramid Pooling - parallel dilated convolutions at several rates plus a global-pooling branch, concatenated to capture multi-scale context (DeepLab)." },
-      { "q": "How does Mask R-CNN work?", "a": "Faster R-CNN (region proposals + box refinement) plus a small FCN mask head predicting a binary mask per RoI, with RoIAlign replacing RoIPool to avoid quantization misalignment." },
-      { "q": "What is RoIAlign and why does it matter?", "a": "Bilinear sampling of RoI features without rounding coordinates to the feature grid. RoIPool's rounding misaligns masks by up to a stride - fatal for pixel-accurate masks, minor for boxes." },
-      { "q": "What is the mask AP metric?", "a": "Average precision computed with mask IoU instead of box IoU, averaged over IoU thresholds 0.5:0.05:0.95 - the standard instance-segmentation metric (COCO)." },
-      { "q": "What is SAM?", "a": "Segment Anything - a promptable, class-agnostic segmentation foundation model (ViT encoder + light mask decoder) trained on ~1B masks, used zero-shot and to bootstrap annotation." }
+      {
+        "q": "What is semantic segmentation?",
+        "a": "Assigning a class label to every pixel, without distinguishing individual objects - three overlapping people form one 'person' region."
+      },
+      {
+        "q": "What is instance segmentation?",
+        "a": "Separating individual object instances with their own masks ('person 1', 'person 2'), typically only for countable 'things', not amorphous 'stuff'."
+      },
+      {
+        "q": "What is panoptic segmentation?",
+        "a": "The unification: every pixel gets a class, and pixels belonging to 'things' also get an instance id, while 'stuff' classes are labelled but not instanced."
+      },
+      {
+        "q": "What is IoU?",
+        "a": "Intersection over union: TP/(TP+FP+FN). Mean IoU over classes (mIoU) is the standard semantic-segmentation metric."
+      },
+      {
+        "q": "How do IoU and Dice relate?",
+        "a": "Dice = 2*IoU/(1+IoU), so Dice is always >= IoU and they rank identically. IoU is standard for reporting; Dice is standard for the loss."
+      },
+      {
+        "q": "Why not pixel accuracy?",
+        "a": "Background typically dominates - predicting all background can score 97-99% while finding nothing. IoU/Dice ignore true negatives, which is why they work."
+      },
+      {
+        "q": "What is a dilated (atrous) convolution?",
+        "a": "A convolution with gaps between kernel taps: a 3x3 with rate r covers a (2r+1)x(2r+1) region using only 9 weights, growing the receptive field with no downsampling."
+      },
+      {
+        "q": "What is ASPP?",
+        "a": "Atrous Spatial Pyramid Pooling - parallel dilated convolutions at several rates plus a global-pooling branch, concatenated to capture multi-scale context (DeepLab)."
+      },
+      {
+        "q": "How does Mask R-CNN work?",
+        "a": "Faster R-CNN (region proposals + box refinement) plus a small FCN mask head predicting a binary mask per RoI, with RoIAlign replacing RoIPool to avoid quantization misalignment."
+      },
+      {
+        "q": "What is RoIAlign and why does it matter?",
+        "a": "Bilinear sampling of RoI features without rounding coordinates to the feature grid. RoIPool's rounding misaligns masks by up to a stride - fatal for pixel-accurate masks, minor for boxes."
+      },
+      {
+        "q": "What is the mask AP metric?",
+        "a": "Average precision computed with mask IoU instead of box IoU, averaged over IoU thresholds 0.5:0.05:0.95 - the standard instance-segmentation metric (COCO)."
+      },
+      {
+        "q": "What is SAM?",
+        "a": "Segment Anything - a promptable, class-agnostic segmentation foundation model (ViT encoder + light mask decoder) trained on ~1B masks, used zero-shot and to bootstrap annotation."
+      }
     ],
     "standard": [
       {
         "q": "Compare semantic, instance, and panoptic segmentation: the task definitions, the architectures, and the metrics for each.",
         "a": "TASK DEFINITIONS. SEMANTIC segmentation assigns a class to every pixel with NO notion of individual objects: a crowd of people is one connected 'person' region. Formally it is per-pixel classification over K classes. INSTANCE segmentation identifies individual OBJECT instances and gives each its own binary mask, so overlapping people become person-1, person-2, person-3. It is defined only over countable 'things' (person, car, dog) and traditionally ignores 'stuff' (sky, road, grass) - and note that instance masks may OVERLAP, since two objects can occlude each other and each gets its full predicted extent. PANOPTIC segmentation unifies both under one constraint: every pixel is assigned exactly one (class, instance-id) pair, where instance-id is meaningful for things and null for stuff - so the output is a NON-OVERLAPPING complete partition of the image, which is the representation you actually want for scene understanding. ARCHITECTURES. For SEMANTIC: fully-convolutional encoder-decoders. FCN (convolutionalize a classifier, upsample, add a couple of skips) started it; U-NET added concatenating skips at every scale for sharp boundaries and dominates in medical/low-data settings; DEEPLAB kept resolution at 1/8 with DILATED convolutions and added ASPP for multi-scale context plus a light decoder (v3+); PSPNet used pyramid pooling for global context; HRNet maintained high resolution throughout in parallel branches; SegFormer and Swin-based models replaced the backbone with transformers. For INSTANCE: historically TWO-STAGE detect-then-segment - Mask R-CNN adds a small FCN mask head to Faster R-CNN, predicting a binary mask per region proposal, with RoIAlign for pixel-accurate feature extraction. One-stage variants (YOLACT, SOLO, CondInst) trade some accuracy for speed by predicting masks directly without proposals. For PANOPTIC: originally two branches (a semantic head plus an instance head) fused by heuristics resolving overlaps - which was ugly and error-prone. The modern answer is MASK CLASSIFICATION: MaskFormer/Mask2Former predict a SET of N binary masks each with a class label (following DETR's set-prediction formulation with Hungarian matching), which expresses all three tasks in one architecture - semantic segmentation is just the case where masks of the same class get merged. This unification is the most important recent conceptual shift in the area, and being able to state it well is what separates a current answer from a 2018 answer. METRICS. SEMANTIC: mean IoU over classes (mIoU) is the standard; also frequency-weighted IoU, and boundary-F1 when edge quality matters. Report PER-CLASS IoU, because the mean hides rare-class failure. INSTANCE: mask AP - average precision using mask IoU to decide matches, averaged over IoU thresholds 0.5 to 0.95 in steps of 0.05 (COCO convention), plus AP_small/medium/large. Note this is a DETECTION-style metric: it cares about ranking and about matching whole objects, not per-pixel accuracy. PANOPTIC: PQ (Panoptic Quality) = SQ x RQ, where segmentation quality SQ is the mean IoU of matched segments and recognition quality RQ is the F1 over segment matches at IoU > 0.5 - elegantly factorizing 'did you find the right segments' from 'how well did you delineate them'. HOW TO CHOOSE THE TASK, which is the practically important question: if you only need to know what material or region is where (drivable area, tissue type, land cover), semantic is cheaper to label and to model. If you need to COUNT, TRACK, or reason about individual objects (count cells, track pedestrians, pick one item), you need instances. If you need a complete, non-overlapping scene description (robot navigation, AR occlusion), you need panoptic. Labelling cost differs sharply too - instance masks are far more expensive to annotate than semantic masks, which is a real project consideration.",
-        "deepDive": { "q": "Why is instance segmentation harder than semantic segmentation, and why did the field move from detect-then-segment to mask classification?", "a": "WHY IT IS HARDER, in three specific ways. (1) THE OUTPUT SPACE IS NOT FIXED. Semantic segmentation has a fixed output shape: H x W x K logits, one distribution per pixel, which maps perfectly onto a convolutional network. Instance segmentation must output a VARIABLE NUMBER of masks - three people in one image, twelve in another - so there is no fixed tensor to regress. Every design must answer 'how do I emit a variable-length set?'. (2) INSTANCE IDENTITY IS PERMUTATION-INVARIANT. There is no canonical ordering of instances, so the loss cannot simply compare output i to ground-truth i; it needs a MATCHING between predictions and ground truth (greedy IoU matching in older methods, Hungarian bipartite matching in set-prediction methods). That is a fundamentally different training objective from per-pixel cross-entropy. (3) THE INFORMATION IS NON-LOCAL. Whether two pixels belong to the same instance can depend on evidence far away - two disconnected patches of a partly occluded car are one instance, while two adjacent pixels on touching cars are different instances. A per-pixel classifier cannot express this with any local decision rule, which is exactly why naive 'predict an instance id per pixel' approaches fail. THE DETECT-THEN-SEGMENT ERA. Mask R-CNN's answer was to borrow detection's solution to the variable-set problem: propose regions, then treat each region independently as a small binary segmentation problem. This works well (it was state of the art for years and remains a strong, well-supported baseline) and it neatly sidesteps the identity problem, since each RoI IS an instance by construction. But it inherits detection's baggage: hand-designed ANCHORS with their scale/aspect hyperparameters, NON-MAXIMUM SUPPRESSION as a non-differentiable post-processing step that fails on heavily overlapping objects, a fixed low mask resolution inside each RoI (28x28 in Mask R-CNN, then resized - so large objects get coarse masks), and a hard separation from semantic segmentation that forces panoptic systems to fuse two incompatible outputs with heuristics. WHY MASK CLASSIFICATION WON. The reframing (MaskFormer, Mask2Former, following DETR) is: instead of classifying PIXELS, predict a fixed number N of (mask, class) pairs, where each mask is a soft binary map over the whole image and the class may be 'no object'. Training uses Hungarian matching between the N predictions and the ground-truth segments, then a per-pair mask loss plus classification loss. The advantages are substantial. (a) IT UNIFIES ALL THREE TASKS: semantic segmentation falls out by merging same-class masks, instance segmentation by keeping them separate, panoptic by resolving overlaps with a simple argmax - ONE architecture, one training recipe, three tasks, which was previously impossible. (b) NO ANCHORS, NO NMS: set prediction with bipartite matching makes duplicates unnecessary to suppress, because the matching loss already penalizes them - so the pipeline becomes end-to-end differentiable. (c) MASKS ARE FULL-RESOLUTION, not confined to a box, so objects with irregular or disconnected extents are representable, and an object is not forced to fit a rectangle. (d) IT SEPARATES 'WHAT' FROM 'WHERE' cleanly: each query learns to attend to one segment and to name it, which turns out to be a better factorization than per-pixel labelling. Mask2Former added masked attention (attention restricted to the predicted mask region) and multi-scale features, which fixed the slow convergence and small-object weakness of the first version, and it beat specialized architectures on all three tasks simultaneously. THE HONEST CAVEATS: transformer-based set prediction needs more training compute and data, converges more slowly than a well-tuned Mask R-CNN, and can be harder to debug (query behaviour is less interpretable than 'this proposal, this box'). For a small dataset with a tight schedule, Mask R-CNN or a U-Net-plus-postprocessing pipeline is often still the right engineering choice. THE META-POINT worth stating: the shift is an instance of a recurring pattern in vision - replacing hand-designed pipeline stages (anchors, NMS, proposal generation, heuristic fusion) with a learned end-to-end formulation, once the formulation and the data scale make it possible." }
+        "deepDive": {
+          "q": "Why is instance segmentation harder than semantic segmentation, and why did the field move from detect-then-segment to mask classification?",
+          "a": "WHY IT IS HARDER, in three specific ways. (1) THE OUTPUT SPACE IS NOT FIXED. Semantic segmentation has a fixed output shape: H x W x K logits, one distribution per pixel, which maps perfectly onto a convolutional network. Instance segmentation must output a VARIABLE NUMBER of masks - three people in one image, twelve in another - so there is no fixed tensor to regress. Every design must answer 'how do I emit a variable-length set?'. (2) INSTANCE IDENTITY IS PERMUTATION-INVARIANT. There is no canonical ordering of instances, so the loss cannot simply compare output i to ground-truth i; it needs a MATCHING between predictions and ground truth (greedy IoU matching in older methods, Hungarian bipartite matching in set-prediction methods). That is a fundamentally different training objective from per-pixel cross-entropy. (3) THE INFORMATION IS NON-LOCAL. Whether two pixels belong to the same instance can depend on evidence far away - two disconnected patches of a partly occluded car are one instance, while two adjacent pixels on touching cars are different instances. A per-pixel classifier cannot express this with any local decision rule, which is exactly why naive 'predict an instance id per pixel' approaches fail. THE DETECT-THEN-SEGMENT ERA. Mask R-CNN's answer was to borrow detection's solution to the variable-set problem: propose regions, then treat each region independently as a small binary segmentation problem. This works well (it was state of the art for years and remains a strong, well-supported baseline) and it neatly sidesteps the identity problem, since each RoI IS an instance by construction. But it inherits detection's baggage: hand-designed ANCHORS with their scale/aspect hyperparameters, NON-MAXIMUM SUPPRESSION as a non-differentiable post-processing step that fails on heavily overlapping objects, a fixed low mask resolution inside each RoI (28x28 in Mask R-CNN, then resized - so large objects get coarse masks), and a hard separation from semantic segmentation that forces panoptic systems to fuse two incompatible outputs with heuristics. WHY MASK CLASSIFICATION WON. The reframing (MaskFormer, Mask2Former, following DETR) is: instead of classifying PIXELS, predict a fixed number N of (mask, class) pairs, where each mask is a soft binary map over the whole image and the class may be 'no object'. Training uses Hungarian matching between the N predictions and the ground-truth segments, then a per-pair mask loss plus classification loss. The advantages are substantial. (a) IT UNIFIES ALL THREE TASKS: semantic segmentation falls out by merging same-class masks, instance segmentation by keeping them separate, panoptic by resolving overlaps with a simple argmax - ONE architecture, one training recipe, three tasks, which was previously impossible. (b) NO ANCHORS, NO NMS: set prediction with bipartite matching makes duplicates unnecessary to suppress, because the matching loss already penalizes them - so the pipeline becomes end-to-end differentiable. (c) MASKS ARE FULL-RESOLUTION, not confined to a box, so objects with irregular or disconnected extents are representable, and an object is not forced to fit a rectangle. (d) IT SEPARATES 'WHAT' FROM 'WHERE' cleanly: each query learns to attend to one segment and to name it, which turns out to be a better factorization than per-pixel labelling. Mask2Former added masked attention (attention restricted to the predicted mask region) and multi-scale features, which fixed the slow convergence and small-object weakness of the first version, and it beat specialized architectures on all three tasks simultaneously. THE HONEST CAVEATS: transformer-based set prediction needs more training compute and data, converges more slowly than a well-tuned Mask R-CNN, and can be harder to debug (query behaviour is less interpretable than 'this proposal, this box'). For a small dataset with a tight schedule, Mask R-CNN or a U-Net-plus-postprocessing pipeline is often still the right engineering choice. THE META-POINT worth stating: the shift is an instance of a recurring pattern in vision - replacing hand-designed pipeline stages (anchors, NMS, proposal generation, heuristic fusion) with a learned end-to-end formulation, once the formulation and the data scale make it possible."
+        }
       },
       {
         "q": "How does DeepLab's dilated-convolution approach differ from U-Net's encoder-decoder, and when would you pick each?",
@@ -106,7 +168,10 @@
       {
         "q": "Segmentation masks are extremely imbalanced. Walk through the loss functions and training strategies you would use.",
         "a": "THE PROBLEM, quantified. In a typical medical or defect-detection mask, foreground is 0.1-5% of pixels. Plain cross-entropy averages over all pixels, so 95-99.9% of the gradient comes from background pixels the model already classifies correctly. Two failure modes follow: the model collapses to predicting all background (99% pixel accuracy, zero utility), or it learns only the largest, easiest foreground regions and systematically misses small structures. LOSS FUNCTIONS, in the order I would reach for them. (1) CE + DICE, the standard default (and what nnU-Net uses). Cross-entropy gives stable, well-conditioned per-pixel gradients everywhere; soft Dice is a RATIO so it is invariant to how much background there is, and it directly optimizes the overlap metric you will report. A roughly equal weighting is a strong starting point. Dice alone can be unstable - its gradient is noisy and ill-behaved when the ground-truth mask is empty (hence the smoothing epsilon), which is why the combination beats either alone. (2) TVERSKY / FOCAL TVERSKY when the cost asymmetry matters. Tversky = TP/(TP + alpha*FP + beta*FN); setting beta > alpha (e.g. 0.7/0.3) penalizes MISSES more than false alarms, which is usually correct clinically - a flagged false positive costs a radiologist a few seconds, a missed lesion costs much more. Focal Tversky adds an exponent to concentrate on hard examples. This is the principled way to encode the decision's real cost structure into training rather than fixing it post hoc with a threshold. (3) FOCAL LOSS - down-weights easy pixels by (1-p)^gamma so the loss concentrates on hard ones, which in segmentation means boundaries and small objects. Useful in combination with Dice, particularly for extreme imbalance. (4) BOUNDARY-AWARE LOSSES - boundary loss, Hausdorff-distance surrogates, or simply weighting pixels near object boundaries higher (the original U-Net used a per-pixel weight map that upweighted the thin gaps between touching cells, which is what let it separate adjacent instances). Worth adding when boundary quality is the failure mode. (5) CLASS-WEIGHTED CE - simple inverse-frequency weighting. Crude (it upweights easy interior foreground pixels equally with hard boundary ones) and can destabilize training with extreme weights, but sometimes sufficient. TRAINING STRATEGIES, which often matter MORE than the loss. (a) FOREGROUND-BIASED PATCH SAMPLING: train on crops, and force a fixed fraction (commonly 1/3 to 1/2) of crops to be centred on a foreground voxel. This changes the effective class distribution the network sees without distorting the loss surface, and it is the single most effective intervention in most pipelines. (b) DOMAIN-APPROPRIATE AUGMENTATION: elastic deformation for anatomy, rotation/flip only where anatomically valid, intensity/contrast/gamma and modality-specific artifacts (bias field, noise). Augmentation is usually the largest source of gains in small-data segmentation. (c) HANDLE THE 'EMPTY MASK' CASE explicitly - images with no foreground at all break Dice and can dominate a dataset; decide whether to exclude them, include them with CE only, or use the smoothing term. (d) DEEP SUPERVISION: attach auxiliary losses at multiple decoder scales so gradients reach early layers directly and coarse predictions are supervised - a standard trick in nnU-Net and many detection/segmentation systems. (e) NORMALIZATION CHOICE: batch sizes in segmentation are tiny (large images), so BatchNorm statistics are unreliable - prefer GroupNorm or InstanceNorm, or use large-crop/small-batch with care. THRESHOLD AND POST-PROCESSING, which people forget: the operating threshold on the probability map is a DECISION parameter, not a fixed 0.5 - tune it on validation for the metric you care about (this alone can move Dice several points). Then remove tiny connected components below a size prior, fill holes, and if instances are needed, apply watershed on the distance transform to split touching objects. METRICS - report per-class IoU/Dice, precision and recall separately, boundary metrics, and the distribution over cases rather than only the mean; stratify by object size, because Dice punishes small objects far more for the same absolute error. THE ONE-PARAGRAPH SUMMARY: use CE + Dice (Tversky if false negatives cost more), sample patches with a foreground bias, augment aggressively in domain-valid ways, use GroupNorm and deep supervision, tune the decision threshold on validation, and evaluate with per-class and per-case metrics stratified by size - never a single mean number, and never pixel accuracy.",
-        "deepDive": { "q": "Why can a model with excellent mean Dice still be clinically or operationally useless?", "a": "Because mean Dice answers a question that is often not the question the system exists to answer, and it aggregates over exactly the axes where failure concentrates. Five distinct mechanisms. (1) IT AVERAGES OVER CASES, HIDING CATASTROPHIC FAILURES. A mean Dice of 0.85 is consistent with 0.90 on 90% of patients and 0.35 on 10%. In a screening context, those 10% are the entire risk. The fix is to report the DISTRIBUTION - median, interquartile range, worst-case, and the fraction of cases below a clinically acceptable threshold - not a single mean. This is the single most common reporting failure in segmentation papers and products. (2) DICE IS BIASED BY OBJECT SIZE. A 3-pixel boundary error on a 10,000-pixel organ is invisible to Dice; the same 3-pixel error on a 12-pixel micro-lesion destroys it. So averaging Dice across cases with varying object sizes conflates 'model is bad' with 'object is small', and a model that finds every large structure and misses every small one can post a strong mean. Small lesions are frequently the clinically important ones (early tumours, micro-calcifications). The fix is to stratify evaluation by object size and to use DETECTION-style metrics (sensitivity at a fixed false-positives-per-case) for small structures. (3) THE UNIT OF DECISION IS USUALLY NOT THE PIXEL. If the clinical question is 'is there a lesion, and where', the relevant metrics are LESION-LEVEL detection sensitivity and false positives per scan. A model can segment 85% of each lesion's pixels beautifully (high Dice) while missing 30% of lesions ENTIRELY (each missed lesion contributes one low-Dice case that the mean absorbs). Conversely a model can find every lesion but delineate them loosely, which is fine for detection and bad for volumetry. Always ask what number downstream actually consumes - volume, boundary, presence/absence, or count - and measure that. (4) REGION METRICS ARE NEARLY BLIND TO BOUNDARY ERRORS THAT MATTER. For radiotherapy planning or surgical navigation, a systematic 2 mm boundary offset toward a critical structure is dangerous, yet on a large organ it barely moves Dice. Hausdorff distance (95th percentile, to be robust to outliers), average symmetric surface distance, and boundary-F1 expose this; Dice does not. Conversely, Hausdorff is very sensitive to a single stray voxel, so the two families must be reported together. (5) THE TRAINING DISTRIBUTION IS NOT THE DEPLOYMENT DISTRIBUTION. Cross-validated Dice on one hospital's scanner says little about a different scanner, protocol, contrast agent, or patient demographic. Segmentation models are notoriously brittle to acquisition shift, and the failure is usually silent - the mask still looks plausible. Evaluate on genuinely EXTERNAL data (different site and scanner), and monitor input distribution in deployment. THE POSITIVE PRESCRIPTION: define the downstream decision first, then choose metrics that measure it - lesion-level sensitivity and FP/case for detection-like uses, volume error and its bias for quantification, surface distances for planning, and per-case distributions with worst-case reporting in all of them. Include an external validation set. And where possible, compare against the INTER-ANNOTATOR agreement on the same data: if two experts agree at Dice 0.82, a model at 0.85 is already at the noise ceiling and further Dice optimization is measuring label noise, not quality. That last comparison is the one that most often reframes a project - and being the person who asks for it is a strong signal in an interview." }
+        "deepDive": {
+          "q": "Why can a model with excellent mean Dice still be clinically or operationally useless?",
+          "a": "Because mean Dice answers a question that is often not the question the system exists to answer, and it aggregates over exactly the axes where failure concentrates. Five distinct mechanisms. (1) IT AVERAGES OVER CASES, HIDING CATASTROPHIC FAILURES. A mean Dice of 0.85 is consistent with 0.90 on 90% of patients and 0.35 on 10%. In a screening context, those 10% are the entire risk. The fix is to report the DISTRIBUTION - median, interquartile range, worst-case, and the fraction of cases below a clinically acceptable threshold - not a single mean. This is the single most common reporting failure in segmentation papers and products. (2) DICE IS BIASED BY OBJECT SIZE. A 3-pixel boundary error on a 10,000-pixel organ is invisible to Dice; the same 3-pixel error on a 12-pixel micro-lesion destroys it. So averaging Dice across cases with varying object sizes conflates 'model is bad' with 'object is small', and a model that finds every large structure and misses every small one can post a strong mean. Small lesions are frequently the clinically important ones (early tumours, micro-calcifications). The fix is to stratify evaluation by object size and to use DETECTION-style metrics (sensitivity at a fixed false-positives-per-case) for small structures. (3) THE UNIT OF DECISION IS USUALLY NOT THE PIXEL. If the clinical question is 'is there a lesion, and where', the relevant metrics are LESION-LEVEL detection sensitivity and false positives per scan. A model can segment 85% of each lesion's pixels beautifully (high Dice) while missing 30% of lesions ENTIRELY (each missed lesion contributes one low-Dice case that the mean absorbs). Conversely a model can find every lesion but delineate them loosely, which is fine for detection and bad for volumetry. Always ask what number downstream actually consumes - volume, boundary, presence/absence, or count - and measure that. (4) REGION METRICS ARE NEARLY BLIND TO BOUNDARY ERRORS THAT MATTER. For radiotherapy planning or surgical navigation, a systematic 2 mm boundary offset toward a critical structure is dangerous, yet on a large organ it barely moves Dice. Hausdorff distance (95th percentile, to be robust to outliers), average symmetric surface distance, and boundary-F1 expose this; Dice does not. Conversely, Hausdorff is very sensitive to a single stray voxel, so the two families must be reported together. (5) THE TRAINING DISTRIBUTION IS NOT THE DEPLOYMENT DISTRIBUTION. Cross-validated Dice on one hospital's scanner says little about a different scanner, protocol, contrast agent, or patient demographic. Segmentation models are notoriously brittle to acquisition shift, and the failure is usually silent - the mask still looks plausible. Evaluate on genuinely EXTERNAL data (different site and scanner), and monitor input distribution in deployment. THE POSITIVE PRESCRIPTION: define the downstream decision first, then choose metrics that measure it - lesion-level sensitivity and FP/case for detection-like uses, volume error and its bias for quantification, surface distances for planning, and per-case distributions with worst-case reporting in all of them. Include an external validation set. And where possible, compare against the INTER-ANNOTATOR agreement on the same data: if two experts agree at Dice 0.82, a model at 0.85 is already at the noise ceiling and further Dice optimization is measuring label noise, not quality. That last comparison is the one that most often reframes a project - and being the person who asks for it is a strong signal in an interview."
+        }
       },
       {
         "q": "How does Mask R-CNN work, and what is RoIAlign fixing?",
@@ -123,22 +188,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Semantic vs instance vs panoptic", "back": "Semantic = class per pixel, no instances. Instance = separate object masks ('things' only, masks may overlap). Panoptic = both: every pixel gets a class, things also get instance ids - a complete non-overlapping partition." },
-    { "type": "formula", "front": "IoU and Dice", "back": "IoU = TP/(TP+FP+FN). Dice = 2TP/(2TP+FP+FN) = 2*IoU/(1+IoU), so Dice >= IoU always and they rank identically. Both ignore true negatives - which is why they survive imbalance." },
-    { "type": "pitfall", "front": "Never report pixel accuracy or mIoU alone", "back": "All-background can score 99%. And the mean over classes hides catastrophic failure on the rare class you care about. Report per-class IoU, per-CASE distributions, and stratify by object size." },
-    { "type": "definition", "front": "Dilated (atrous) convolution", "back": "Gaps between kernel taps: a 3x3 at rate r covers (2r+1)x(2r+1) with 9 weights. Grows receptive field with no downsampling and no extra parameters. Uniform rates cause GRIDDING - use mixed/parallel rates (ASPP)." },
-    { "type": "intuition", "front": "U-Net vs DeepLab", "back": "U-Net: downsample hard, then restore resolution via concatenating skips. DeepLab: don't downsample past 1/8, grow receptive field with dilation + ASPP. Dilation costs compute/memory; skips cost a decoder. They have since converged." },
-    { "type": "definition", "front": "RoIAlign", "back": "Bilinear sampling of RoI features WITHOUT rounding coordinates to the feature grid. RoIPool's double rounding misaligns by up to half a stride (~8 px at stride 16) - tolerable for boxes, fatal for masks." },
-    { "type": "definition", "front": "Mask R-CNN mask head", "back": "A small FCN on each RoI predicting K binary masks (one per class), using per-pixel SIGMOID + BCE, taking only the classified class's mask. Decoupling mask from classification (no softmax across classes) measurably matters." },
-    { "type": "formula", "front": "Panoptic Quality (PQ)", "back": "PQ = SQ x RQ: segmentation quality (mean IoU of matched segments) times recognition quality (F1 over segment matches at IoU>0.5). Cleanly factorizes 'found the right segments' from 'delineated them well'." },
-    { "type": "intuition", "front": "Mask classification unifies the tasks", "back": "MaskFormer/Mask2Former predict a SET of (mask, class) pairs with Hungarian matching (DETR-style): semantic = merge same-class masks, instance = keep separate, panoptic = resolve overlaps. No anchors, no NMS, one architecture." },
-    { "type": "pitfall", "front": "Tiling large images", "back": "Border pixels lack context -> seams. Use overlapping tiles (overlap >= half the receptive field), blend probability maps with a tapered window, and split validation GEOGRAPHICALLY - adjacent tiles are near-duplicates and leak." }
+    {
+      "type": "definition",
+      "front": "Semantic vs instance vs panoptic",
+      "back": "Semantic = class per pixel, no instances. Instance = separate object masks ('things' only, masks may overlap). Panoptic = both: every pixel gets a class, things also get instance ids - a complete non-overlapping partition."
+    },
+    {
+      "type": "formula",
+      "front": "IoU and Dice",
+      "back": "IoU = TP/(TP+FP+FN). Dice = 2TP/(2TP+FP+FN) = 2*IoU/(1+IoU), so Dice >= IoU always and they rank identically. Both ignore true negatives - which is why they survive imbalance."
+    },
+    {
+      "type": "pitfall",
+      "front": "Never report pixel accuracy or mIoU alone",
+      "back": "All-background can score 99%. And the mean over classes hides catastrophic failure on the rare class you care about. Report per-class IoU, per-CASE distributions, and stratify by object size."
+    },
+    {
+      "type": "definition",
+      "front": "Dilated (atrous) convolution",
+      "back": "Gaps between kernel taps: a 3x3 at rate r covers (2r+1)x(2r+1) with 9 weights. Grows receptive field with no downsampling and no extra parameters. Uniform rates cause GRIDDING - use mixed/parallel rates (ASPP)."
+    },
+    {
+      "type": "intuition",
+      "front": "U-Net vs DeepLab",
+      "back": "U-Net: downsample hard, then restore resolution via concatenating skips. DeepLab: don't downsample past 1/8, grow receptive field with dilation + ASPP. Dilation costs compute/memory; skips cost a decoder. They have since converged."
+    },
+    {
+      "type": "definition",
+      "front": "RoIAlign",
+      "back": "Bilinear sampling of RoI features WITHOUT rounding coordinates to the feature grid. RoIPool's double rounding misaligns by up to half a stride (~8 px at stride 16) - tolerable for boxes, fatal for masks."
+    },
+    {
+      "type": "definition",
+      "front": "Mask R-CNN mask head",
+      "back": "A small FCN on each RoI predicting K binary masks (one per class), using per-pixel SIGMOID + BCE, taking only the classified class's mask. Decoupling mask from classification (no softmax across classes) measurably matters."
+    },
+    {
+      "type": "formula",
+      "front": "Panoptic Quality (PQ)",
+      "back": "PQ = SQ x RQ: segmentation quality (mean IoU of matched segments) times recognition quality (F1 over segment matches at IoU>0.5). Cleanly factorizes 'found the right segments' from 'delineated them well'."
+    },
+    {
+      "type": "intuition",
+      "front": "Mask classification unifies the tasks",
+      "back": "MaskFormer/Mask2Former predict a SET of (mask, class) pairs with Hungarian matching (DETR-style): semantic = merge same-class masks, instance = keep separate, panoptic = resolve overlaps. No anchors, no NMS, one architecture."
+    },
+    {
+      "type": "pitfall",
+      "front": "Tiling large images",
+      "back": "Border pixels lack context -> seams. Use overlapping tiles (overlap >= half the receptive field), blend probability maps with a tapered window, and split validation GEOGRAPHICALLY - adjacent tiles are near-duplicates and leak."
+    }
   ],
   "refs": [
-    { "title": "Long, Shelhamer & Darrell (2015), Fully Convolutional Networks for Semantic Segmentation", "url": "https://arxiv.org/abs/1411.4038" },
-    { "title": "Chen et al. (2018), DeepLabv3+: Encoder-Decoder with Atrous Separable Convolution", "url": "https://arxiv.org/abs/1802.02611" },
-    { "title": "He et al. (2017), Mask R-CNN", "url": "https://arxiv.org/abs/1703.06870" },
-    { "title": "Cheng et al. (2022), Masked-attention Mask Transformer for Universal Image Segmentation (Mask2Former)", "url": "https://arxiv.org/abs/2112.01527" }
+    {
+      "title": "Long, Shelhamer & Darrell (2015), Fully Convolutional Networks for Semantic Segmentation",
+      "url": "https://arxiv.org/abs/1411.4038"
+    },
+    {
+      "title": "Chen et al. (2018), DeepLabv3+: Encoder-Decoder with Atrous Separable Convolution",
+      "url": "https://arxiv.org/abs/1802.02611"
+    },
+    {
+      "title": "He et al. (2017), Mask R-CNN",
+      "url": "https://arxiv.org/abs/1703.06870"
+    },
+    {
+      "title": "Cheng et al. (2022), Masked-attention Mask Transformer for Universal Image Segmentation (Mask2Former)",
+      "url": "https://arxiv.org/abs/2112.01527"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "09-09",
+    "module": "cnn",
+    "disposition": "clean",
+    "notebookFile": "09-09_semantic_instance_segmentation.ipynb"
+  }
 }

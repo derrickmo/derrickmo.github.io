@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-04",
   "slug": "search-ranking",
+  "keyBase": "ml-applications/search-ranking",
   "module": "ml-applications",
   "title": "Search & Ranking Systems",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/2107.05720"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-03",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-03_search_learning_rank.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-04",
   "slug": "attribution",
+  "keyBase": "trustworthy-ai/attribution",
   "module": "trustworthy-ai",
   "title": "Attribution: SHAP, Saliency & Attention Rollout",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://arxiv.org/abs/1908.04626"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "24-06",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-06_attribution_faithfulness_sanity_checks.ipynb"
+  }
 }

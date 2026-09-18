@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "07-05",
   "slug": "seq2seq-attention",
+  "keyBase": "rnn-nlp/seq2seq-attention",
   "module": "rnn-nlp",
   "title": "Sequence-to-Sequence with Attention",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Post (2018) — A Call for Clarity in Reporting BLEU Scores (sacreBLEU)",
       "url": "https://arxiv.org/abs/1804.08771"
     }
-  ]
+  ],
+  "v2": {
+    "id": "10-05",
+    "module": "sequence-models",
+    "disposition": "clean",
+    "notebookFile": "10-05_sequence_sequence_attention.ipynb"
+  }
 }

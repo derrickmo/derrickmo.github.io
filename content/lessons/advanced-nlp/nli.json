@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-06",
   "slug": "nli",
+  "keyBase": "advanced-nlp/nli",
   "module": "advanced-nlp",
   "title": "Natural Language Inference",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-06_natural_language_inference.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "probing-classifier", "calibration", "embeddings"],
+    "demos": [
+      "classification-metrics",
+      "probing-classifier",
+      "calibration",
+      "embeddings"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/fine-tuning-transformers", "advanced-nlp/bert"],
-  "leadsTo": ["advanced-nlp/nlp-eval", "advanced-nlp/cot"],
+  "prereqs": [
+    "advanced-nlp/fine-tuning-transformers",
+    "advanced-nlp/bert"
+  ],
+  "leadsTo": [
+    "advanced-nlp/nlp-eval",
+    "advanced-nlp/cot"
+  ],
   "body": {
     "intuition": [
       "Natural language inference asks a deceptively simple question: given a PREMISE and a HYPOTHESIS, does the premise entail the hypothesis, contradict it, or neither? 'A soccer game with multiple males playing' entails 'Some men are playing a sport', contradicts 'The men are sleeping', and is neutral with respect to 'The men are playing for money'. It was proposed as a general test of language understanding on the reasoning that almost any comprehension task can be reframed as inference, and with SNLI (570k pairs) and MNLI (393k) the field finally had datasets big enough to train on.",
@@ -82,33 +94,87 @@
       "Deploying an NLI model for factual consistency without checking its calibration on YOUR data. NLI models trained on crowdsourced pairs are poorly calibrated on long, formal document text, and the probability you threshold on is not comparable across domains."
     ],
     "connections": [
-      { "ref": "advanced-nlp/nlp-eval", "text": "Annotation artifacts are the same problem as metric gaming: a proxy that correlates with the target on the data you collected, and comes apart when something optimizes against it." },
-      { "ref": "advanced-nlp/fine-tuning-transformers", "text": "MNLI is the canonical intermediate task - starting from an MNLI checkpoint improves small sentence-pair tasks and reduces their seed variance markedly." },
-      { "ref": "rag-agents/rag-eval", "text": "Entailment between an answer and its retrieved evidence is one of the more dependable automatic groundedness checks, and it is an NLI model doing the work." },
-      { "ref": "ml-theory/evaluation-metrics", "text": "The general discipline - ablate the input, build adversarial splits, distrust aggregate i.i.d. accuracy - applies to every benchmark, not just this one." },
-      { "ref": "advanced-cv/grad-cam", "text": "Shortcut learning is modality-independent: the vision analogue is a model classifying by background texture, and the diagnostic move (construct data where the shortcut fails) is identical." }
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "Annotation artifacts are the same problem as metric gaming: a proxy that correlates with the target on the data you collected, and comes apart when something optimizes against it."
+      },
+      {
+        "ref": "advanced-nlp/fine-tuning-transformers",
+        "text": "MNLI is the canonical intermediate task - starting from an MNLI checkpoint improves small sentence-pair tasks and reduces their seed variance markedly."
+      },
+      {
+        "ref": "rag-agents/rag-eval",
+        "text": "Entailment between an answer and its retrieved evidence is one of the more dependable automatic groundedness checks, and it is an NLI model doing the work."
+      },
+      {
+        "ref": "ml-theory/evaluation-metrics",
+        "text": "The general discipline - ablate the input, build adversarial splits, distrust aggregate i.i.d. accuracy - applies to every benchmark, not just this one."
+      },
+      {
+        "ref": "advanced-cv/grad-cam",
+        "text": "Shortcut learning is modality-independent: the vision analogue is a model classifying by background texture, and the diagnostic move (construct data where the shortcut fails) is identical."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is natural language inference?", "a": "Given a premise and a hypothesis, classify their relation as entailment, contradiction, or neutral. Proposed as a general test of understanding because most comprehension tasks can be reframed as inference." },
-      { "q": "What are SNLI and MNLI?", "a": "SNLI: 570k pairs with premises from Flickr photo captions - short, concrete, single-domain. MNLI: 393k pairs across ten genres, including matched and MISMATCHED dev sets to test cross-genre transfer." },
-      { "q": "What is the hypothesis-only baseline?", "a": "Train a classifier on the hypothesis alone, with the premise deleted. On SNLI it scores ~67% against 34% chance - two-thirds of a relational task solved from one side of the relation." },
-      { "q": "What causes those artifacts?", "a": "How crowdworkers write. Producing a contradiction invites inserting a negation; producing an entailment invites generalizing, which yields vague words and SHORTER hypotheses. The label leaks into the hypothesis's surface form." },
-      { "q": "What is HANS?", "a": "A diagnostic set targeting three heuristics - lexical overlap, subsequence, constituent - with entailed and non-entailed cases for each. Models at 90% MNLI score near 5% on the non-entailed half." },
-      { "q": "What does that HANS result mean?", "a": "The model learned 'the hypothesis's words appear in the premise, so it is entailed'. That is ~96% right on one half and ~5% on the other, and averages fine on any test set where overlap correlates with entailment." },
-      { "q": "Why must NLI use a cross-encoder?", "a": "Inference depends on token-level ALIGNMENT between the two sentences. A bi-encoder embeds them separately and compares vectors, which discards exactly that information." },
-      { "q": "How is NLI used for zero-shot classification?", "a": "Text as premise, 'This text is about {label}' as hypothesis; the entailment probability is the class score. One MNLI model classifies into any label set describable in words, with no training." },
-      { "q": "How is NLI used to detect hallucination?", "a": "Ask whether the generated text is entailed by the source document, sentence by sentence. SummaC and FactCC do this, and it is one of the more dependable automatic groundedness checks for RAG." },
-      { "q": "Why is 'neutral' the hardest class?", "a": "It is a residual - everything that is neither entailed nor contradicted - so it absorbs ambiguity, missing world knowledge, and annotator disagreement rather than describing a coherent relation." },
-      { "q": "What is ANLI?", "a": "Adversarial NLI: humans write examples that fool the current best model, those are added to training, a new model is trained, and the loop repeats for several rounds. It produces genuinely harder data and a moving benchmark." },
-      { "q": "What is ChaosNLI?", "a": "A re-annotation collecting ~100 labels per item instead of five, showing that many items have genuine, stable human disagreement. Models fit the MAJORITY label far better than they fit the label DISTRIBUTION." }
+      {
+        "q": "What is natural language inference?",
+        "a": "Given a premise and a hypothesis, classify their relation as entailment, contradiction, or neutral. Proposed as a general test of understanding because most comprehension tasks can be reframed as inference."
+      },
+      {
+        "q": "What are SNLI and MNLI?",
+        "a": "SNLI: 570k pairs with premises from Flickr photo captions - short, concrete, single-domain. MNLI: 393k pairs across ten genres, including matched and MISMATCHED dev sets to test cross-genre transfer."
+      },
+      {
+        "q": "What is the hypothesis-only baseline?",
+        "a": "Train a classifier on the hypothesis alone, with the premise deleted. On SNLI it scores ~67% against 34% chance - two-thirds of a relational task solved from one side of the relation."
+      },
+      {
+        "q": "What causes those artifacts?",
+        "a": "How crowdworkers write. Producing a contradiction invites inserting a negation; producing an entailment invites generalizing, which yields vague words and SHORTER hypotheses. The label leaks into the hypothesis's surface form."
+      },
+      {
+        "q": "What is HANS?",
+        "a": "A diagnostic set targeting three heuristics - lexical overlap, subsequence, constituent - with entailed and non-entailed cases for each. Models at 90% MNLI score near 5% on the non-entailed half."
+      },
+      {
+        "q": "What does that HANS result mean?",
+        "a": "The model learned 'the hypothesis's words appear in the premise, so it is entailed'. That is ~96% right on one half and ~5% on the other, and averages fine on any test set where overlap correlates with entailment."
+      },
+      {
+        "q": "Why must NLI use a cross-encoder?",
+        "a": "Inference depends on token-level ALIGNMENT between the two sentences. A bi-encoder embeds them separately and compares vectors, which discards exactly that information."
+      },
+      {
+        "q": "How is NLI used for zero-shot classification?",
+        "a": "Text as premise, 'This text is about {label}' as hypothesis; the entailment probability is the class score. One MNLI model classifies into any label set describable in words, with no training."
+      },
+      {
+        "q": "How is NLI used to detect hallucination?",
+        "a": "Ask whether the generated text is entailed by the source document, sentence by sentence. SummaC and FactCC do this, and it is one of the more dependable automatic groundedness checks for RAG."
+      },
+      {
+        "q": "Why is 'neutral' the hardest class?",
+        "a": "It is a residual - everything that is neither entailed nor contradicted - so it absorbs ambiguity, missing world knowledge, and annotator disagreement rather than describing a coherent relation."
+      },
+      {
+        "q": "What is ANLI?",
+        "a": "Adversarial NLI: humans write examples that fool the current best model, those are added to training, a new model is trained, and the loop repeats for several rounds. It produces genuinely harder data and a moving benchmark."
+      },
+      {
+        "q": "What is ChaosNLI?",
+        "a": "A re-annotation collecting ~100 labels per item instead of five, showing that many items have genuine, stable human disagreement. Models fit the MAJORITY label far better than they fit the label DISTRIBUTION."
+      }
     ],
     "standard": [
       {
         "q": "Explain annotation artifacts in NLI and what they imply for benchmark design generally.",
         "a": "THE FINDING. Gururangan et al. and Poliak et al. independently trained NLI classifiers on the HYPOTHESIS ALONE, discarding the premise entirely. This makes the task formally undefined - entailment is a relation between two sentences and one has been removed. The hypothesis-only model scored roughly 67% on SNLI and 53% on MNLI, against a 34% chance baseline. So two-thirds of SNLI is solvable without looking at the premise. WHERE THE ARTIFACTS COME FROM, which is the part that generalizes. The datasets were built by showing crowdworkers a premise and asking them to write three hypotheses: one entailed, one contradicting, one neutral. Under time pressure, people develop STRATEGIES, and the strategies leave fingerprints. To write a contradiction, the fastest move is to negate - so 'not', 'nobody', 'never', 'no' became strong contradiction markers. To write an entailment, the fastest move is to generalize or drop detail - so hypernyms like 'outdoors', 'animal', 'person', 'instrument' became entailment markers, and entailment hypotheses came out systematically SHORTER. To write a neutral, the fastest move is to add unverifiable detail - purposes, motivations, quantities - so words like 'tall', 'first', 'because' became neutral markers. None of this is annotator carelessness; it is what any efficient person does under the elicitation protocol, and the protocol is what encoded the label in the surface form. WHAT IT IMPLIES FOR THE MODELS. A model trained on this data will use the artifacts, because they are predictive and cheaper to learn than inference. This means (a) reported accuracy substantially overstates inferential ability, (b) the model is brittle in exactly the way HANS demonstrated, and (c) comparisons between models partly measure who best exploits the artifacts. It does NOT mean the models learn nothing - the gap from 67% to 91% is real - but the headline number is not what it appeared to be. WHAT IT IMPLIES FOR BENCHMARK DESIGN, which is the actual question. (1) ALWAYS RUN INPUT-ABLATION BASELINES. Delete part of the input and measure what survives. This one experiment would have caught SNLI, and it has since caught: visual question answering answerable without the image, reading comprehension answerable without the passage, multiple choice answerable without the question, and commonsense benchmarks answerable from answer-option length. It costs one training run. Not running it is now indefensible. (2) SCRUTINIZE THE ELICITATION PROTOCOL, because artifacts are produced by how data is collected, not by what it is about. Asking people to WRITE text to a label specification is the highest-risk protocol, since the label determines the writing strategy. Collecting naturally-occurring pairs and labelling them afterwards is far safer, though harder and more expensive. (3) BUILD ADVERSARIAL AND STRESS SPLITS DELIBERATELY. HANS-style construction - cases where a plausible heuristic gives the wrong answer - reveals what i.i.d. test accuracy cannot, by construction. (4) MEASURE ARTIFACT REMOVAL rather than assuming it. Approaches like adversarial debiasing, product-of-experts with a bias-only model, and example reweighting improve out-of-distribution performance but usually cost in-distribution accuracy, and none of them fully solve it. (5) COLLECT ADVERSARIALLY, as ANLI did: put a model in the annotation loop and only keep examples that fool it. This produces harder data and a benchmark that moves with the field, at the cost of a distribution shaped by whatever model was in the loop. THE DEEPEST POINT, and the one worth saying explicitly: this is not an NLI story. It is a general fact about supervised learning - models find the EASIEST predictive signal, and if collection introduced one that is easier than the intended task, that is what gets learned. Benchmarks measure what is predictable in the data, not what the designers meant. Every benchmark should be assumed to contain shortcuts until someone has looked.",
-        "deepDive": { "q": "How would you actually debias a model trained on data with known artifacts?", "a": "THE OBJECTIVE. Train a model that does not rely on the shortcut, measured by improved performance on out-of-distribution and adversarial sets, ideally without giving up much in-distribution accuracy. THE FAMILIES, roughly in order of how principled they are. (1) PRODUCT OF EXPERTS / bias-product, which is the best-understood approach. Deliberately train a WEAK BIASED MODEL that can only use the shortcut - for NLI, a hypothesis-only classifier. Then train the main model on the combined prediction, so the loss is computed on log p_main + log p_bias. The consequence is that examples the biased model already gets right contribute little gradient to the main model, which is therefore pushed to learn what the shortcut cannot explain. At inference the bias model is discarded. This is elegant because you specify the bias explicitly and the mechanism is transparent. (2) EXAMPLE REWEIGHTING: down-weight examples the biased model finds easy, up-weight the ones it fails on. Mechanically similar to product-of-experts, simpler to implement, slightly less principled. (3) CONFIDENCE REGULARIZATION: instead of hard down-weighting, smooth the target distribution on examples the biased model handles well, so the main model is discouraged from being confident for the wrong reason. Tends to preserve in-distribution accuracy better than hard reweighting. (4) ADVERSARIAL REMOVAL: attach a discriminator that tries to predict the label from the encoder's representation of the hypothesis alone, and train the encoder to defeat it via a gradient reversal layer. Attractive in principle; in practice adversarial training is unstable and the information usually remains recoverable by a stronger probe - it is hidden, not removed. (5) DATA-SIDE FIXES: augment with counterexamples (HANS-style constructions added to training substantially improves HANS performance), collect adversarially (ANLI), or filter the dataset to remove examples solvable by the biased model (AFLite). Data fixes are often the most effective and the most expensive. (6) ENSEMBLE-BASED: train several models with different inductive biases and use their disagreement to locate shortcut-dependent examples. THE HARD PART, and this is what I would emphasize: YOU MUST KNOW THE BIAS IN ADVANCE. Every method above requires specifying what the shortcut is so you can build a model that captures it. Real datasets contain unknown shortcuts, and you cannot debias against what you have not identified. There is work on unknown-bias settings - using a deliberately under-trained or low-capacity model as a generic 'shortcut detector' on the theory that weak models learn shortcuts first - and it partly works, but it is much weaker than the targeted version. THE TRADE-OFF THAT IS ALWAYS PRESENT: debiasing methods consistently improve OOD and adversarial performance while COSTING in-distribution accuracy, typically one to three points. That trade is real, not an implementation failure. Some of the in-distribution accuracy genuinely came from the shortcut, and the shortcut is genuinely predictive in-distribution - so removing it must cost something. Which side you want depends on whether deployment resembles the training distribution. A second, subtler risk: over-debiasing can push the model to IGNORE legitimately useful signal. Lexical overlap really is correlated with entailment in normal language; a model trained to disregard it entirely has lost information. WHAT I WOULD ACTUALLY DO on a real project, which is less exciting than the methods list. First, MEASURE - build a challenge set representing the failure I care about, because without it I cannot tell whether anything helped. Second, prefer DATA fixes: collect or construct counterexamples for the specific failure, since this is the most reliable and the improvement is easiest to verify. Third, apply product-of-experts if the bias is cleanly specifiable. Fourth, report both in-distribution and challenge-set numbers always, and treat the pair as the result rather than picking whichever is flattering. And fifth, set expectations honestly: debiasing reduces reliance on a known shortcut, it does not produce a model that reasons." }
+        "deepDive": {
+          "q": "How would you actually debias a model trained on data with known artifacts?",
+          "a": "THE OBJECTIVE. Train a model that does not rely on the shortcut, measured by improved performance on out-of-distribution and adversarial sets, ideally without giving up much in-distribution accuracy. THE FAMILIES, roughly in order of how principled they are. (1) PRODUCT OF EXPERTS / bias-product, which is the best-understood approach. Deliberately train a WEAK BIASED MODEL that can only use the shortcut - for NLI, a hypothesis-only classifier. Then train the main model on the combined prediction, so the loss is computed on log p_main + log p_bias. The consequence is that examples the biased model already gets right contribute little gradient to the main model, which is therefore pushed to learn what the shortcut cannot explain. At inference the bias model is discarded. This is elegant because you specify the bias explicitly and the mechanism is transparent. (2) EXAMPLE REWEIGHTING: down-weight examples the biased model finds easy, up-weight the ones it fails on. Mechanically similar to product-of-experts, simpler to implement, slightly less principled. (3) CONFIDENCE REGULARIZATION: instead of hard down-weighting, smooth the target distribution on examples the biased model handles well, so the main model is discouraged from being confident for the wrong reason. Tends to preserve in-distribution accuracy better than hard reweighting. (4) ADVERSARIAL REMOVAL: attach a discriminator that tries to predict the label from the encoder's representation of the hypothesis alone, and train the encoder to defeat it via a gradient reversal layer. Attractive in principle; in practice adversarial training is unstable and the information usually remains recoverable by a stronger probe - it is hidden, not removed. (5) DATA-SIDE FIXES: augment with counterexamples (HANS-style constructions added to training substantially improves HANS performance), collect adversarially (ANLI), or filter the dataset to remove examples solvable by the biased model (AFLite). Data fixes are often the most effective and the most expensive. (6) ENSEMBLE-BASED: train several models with different inductive biases and use their disagreement to locate shortcut-dependent examples. THE HARD PART, and this is what I would emphasize: YOU MUST KNOW THE BIAS IN ADVANCE. Every method above requires specifying what the shortcut is so you can build a model that captures it. Real datasets contain unknown shortcuts, and you cannot debias against what you have not identified. There is work on unknown-bias settings - using a deliberately under-trained or low-capacity model as a generic 'shortcut detector' on the theory that weak models learn shortcuts first - and it partly works, but it is much weaker than the targeted version. THE TRADE-OFF THAT IS ALWAYS PRESENT: debiasing methods consistently improve OOD and adversarial performance while COSTING in-distribution accuracy, typically one to three points. That trade is real, not an implementation failure. Some of the in-distribution accuracy genuinely came from the shortcut, and the shortcut is genuinely predictive in-distribution - so removing it must cost something. Which side you want depends on whether deployment resembles the training distribution. A second, subtler risk: over-debiasing can push the model to IGNORE legitimately useful signal. Lexical overlap really is correlated with entailment in normal language; a model trained to disregard it entirely has lost information. WHAT I WOULD ACTUALLY DO on a real project, which is less exciting than the methods list. First, MEASURE - build a challenge set representing the failure I care about, because without it I cannot tell whether anything helped. Second, prefer DATA fixes: collect or construct counterexamples for the specific failure, since this is the most reliable and the improvement is easiest to verify. Third, apply product-of-experts if the bias is cleanly specifiable. Fourth, report both in-distribution and challenge-set numbers always, and treat the pair as the result rather than picking whichever is flattering. And fifth, set expectations honestly: debiasing reduces reliance on a known shortcut, it does not produce a model that reasons."
+        }
       },
       {
         "q": "How would you use an NLI model to detect hallucinations in a RAG system?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Natural language inference", "back": "Given a premise and hypothesis, classify the relation: entailment, contradiction, or neutral. Encoded as [CLS] P [SEP] H [SEP] through a CROSS-encoder - a bi-encoder loses the token alignment the task depends on." },
-    { "type": "pitfall", "front": "The hypothesis-only baseline", "back": "Delete the premise entirely and train on the hypothesis alone: ~67% on SNLI vs 34% chance. Two-thirds of a relational task solvable from one side. Run an input-ablation baseline on EVERY structured-input dataset." },
-    { "type": "intuition", "front": "Where NLI artifacts come from", "back": "The elicitation protocol. Writing a contradiction invites negation ('nobody', 'never'); writing an entailment invites generalizing (hypernyms, and SHORTER hypotheses); writing a neutral invites added unverifiable detail. The label leaks into the surface form." },
-    { "type": "pitfall", "front": "HANS", "back": "Models at ~90% MNLI score ~96% on HANS's entailed cases and ~5% on the NON-entailed ones. They learned 'lexical overlap implies entailment', which averages fine on any i.i.d. test set where overlap correlates with entailment." },
-    { "type": "intuition", "front": "Why i.i.d. test accuracy cannot find shortcuts", "back": "By construction: the shortcut works on the test set for the same reason it works on training. Detection requires data built so the shortcut and the true task DISAGREE - challenge sets, contrast sets, ablations." },
-    { "type": "definition", "front": "NLI as zero-shot classification", "back": "Text = premise, 'This example is {label}.' = hypothesis, entailment probability = class score. Uses the label's SEMANTICS, so it generalizes to unseen label sets. One forward pass per label, and severe prompt/label-wording sensitivity." },
-    { "type": "definition", "front": "NLI for hallucination detection", "back": "Decompose the generation into atomic claims, score each against each CONTEXT SENTENCE, take the max (SummaC). Sentence-level granularity is the key detail - document-level NLI degrades badly on long premises." },
-    { "type": "pitfall", "front": "'Not entailed' is not 'false'", "back": "A claim can be true but unsupported by the retrieved context. Whether that counts as a hallucination is a product decision. NLI models also handle NUMBERS, negation, and quantifiers poorly - exactly where hallucinations hurt most." },
-    { "type": "pitfall", "front": "Neutral is a residual class", "back": "Everything that is neither entailed nor contradicted, so it absorbs ambiguity, missing world knowledge, and annotator disagreement. Consistently the lowest-accuracy class, with the least interpretable errors." },
-    { "type": "intuition", "front": "ChaosNLI and real disagreement", "back": "~100 annotations per item show much NLI disagreement is STABLE and legitimate, not noise. Majority labels discard it, make the human ceiling incoherent, and penalize a model for being uncertain where humans are. Train and evaluate on the DISTRIBUTION." },
-    { "type": "definition", "front": "Product-of-experts debiasing", "back": "Train a deliberately biased model (hypothesis-only), then train the main model on log p_main + log p_bias so examples the bias already explains contribute little gradient. Requires KNOWING the shortcut in advance - the binding limitation." },
-    { "type": "intuition", "front": "The debiasing trade-off", "back": "Debiasing reliably improves OOD/adversarial performance and reliably costs 1-3 points in-distribution. That is not a bug: some of the ID accuracy genuinely came from the shortcut, which is genuinely predictive ID." }
+    {
+      "type": "definition",
+      "front": "Natural language inference",
+      "back": "Given a premise and hypothesis, classify the relation: entailment, contradiction, or neutral. Encoded as [CLS] P [SEP] H [SEP] through a CROSS-encoder - a bi-encoder loses the token alignment the task depends on."
+    },
+    {
+      "type": "pitfall",
+      "front": "The hypothesis-only baseline",
+      "back": "Delete the premise entirely and train on the hypothesis alone: ~67% on SNLI vs 34% chance. Two-thirds of a relational task solvable from one side. Run an input-ablation baseline on EVERY structured-input dataset."
+    },
+    {
+      "type": "intuition",
+      "front": "Where NLI artifacts come from",
+      "back": "The elicitation protocol. Writing a contradiction invites negation ('nobody', 'never'); writing an entailment invites generalizing (hypernyms, and SHORTER hypotheses); writing a neutral invites added unverifiable detail. The label leaks into the surface form."
+    },
+    {
+      "type": "pitfall",
+      "front": "HANS",
+      "back": "Models at ~90% MNLI score ~96% on HANS's entailed cases and ~5% on the NON-entailed ones. They learned 'lexical overlap implies entailment', which averages fine on any i.i.d. test set where overlap correlates with entailment."
+    },
+    {
+      "type": "intuition",
+      "front": "Why i.i.d. test accuracy cannot find shortcuts",
+      "back": "By construction: the shortcut works on the test set for the same reason it works on training. Detection requires data built so the shortcut and the true task DISAGREE - challenge sets, contrast sets, ablations."
+    },
+    {
+      "type": "definition",
+      "front": "NLI as zero-shot classification",
+      "back": "Text = premise, 'This example is {label}.' = hypothesis, entailment probability = class score. Uses the label's SEMANTICS, so it generalizes to unseen label sets. One forward pass per label, and severe prompt/label-wording sensitivity."
+    },
+    {
+      "type": "definition",
+      "front": "NLI for hallucination detection",
+      "back": "Decompose the generation into atomic claims, score each against each CONTEXT SENTENCE, take the max (SummaC). Sentence-level granularity is the key detail - document-level NLI degrades badly on long premises."
+    },
+    {
+      "type": "pitfall",
+      "front": "'Not entailed' is not 'false'",
+      "back": "A claim can be true but unsupported by the retrieved context. Whether that counts as a hallucination is a product decision. NLI models also handle NUMBERS, negation, and quantifiers poorly - exactly where hallucinations hurt most."
+    },
+    {
+      "type": "pitfall",
+      "front": "Neutral is a residual class",
+      "back": "Everything that is neither entailed nor contradicted, so it absorbs ambiguity, missing world knowledge, and annotator disagreement. Consistently the lowest-accuracy class, with the least interpretable errors."
+    },
+    {
+      "type": "intuition",
+      "front": "ChaosNLI and real disagreement",
+      "back": "~100 annotations per item show much NLI disagreement is STABLE and legitimate, not noise. Majority labels discard it, make the human ceiling incoherent, and penalize a model for being uncertain where humans are. Train and evaluate on the DISTRIBUTION."
+    },
+    {
+      "type": "definition",
+      "front": "Product-of-experts debiasing",
+      "back": "Train a deliberately biased model (hypothesis-only), then train the main model on log p_main + log p_bias so examples the bias already explains contribute little gradient. Requires KNOWING the shortcut in advance - the binding limitation."
+    },
+    {
+      "type": "intuition",
+      "front": "The debiasing trade-off",
+      "back": "Debiasing reliably improves OOD/adversarial performance and reliably costs 1-3 points in-distribution. That is not a bug: some of the ID accuracy genuinely came from the shortcut, which is genuinely predictive ID."
+    }
   ],
   "refs": [
-    { "title": "Gururangan et al. (2018), Annotation Artifacts in Natural Language Inference Data", "url": "https://arxiv.org/abs/1803.02324" },
-    { "title": "McCoy et al. (2019), Right for the Wrong Reasons: Diagnosing Syntactic Heuristics in NLI (HANS)", "url": "https://arxiv.org/abs/1902.01007" },
-    { "title": "Nie et al. (2020), What Can We Learn from Collective Human Opinions on Natural Language Inference Data? (ChaosNLI)", "url": "https://arxiv.org/abs/2010.03532" },
-    { "title": "Laban et al. (2022), SummaC: Re-Visiting NLI-based Models for Inconsistency Detection in Summarization", "url": "https://arxiv.org/abs/2111.09525" },
-    { "title": "Nie et al. (2020), Adversarial NLI: A New Benchmark for Natural Language Understanding", "url": "https://arxiv.org/abs/1910.14599" }
+    {
+      "title": "Gururangan et al. (2018), Annotation Artifacts in Natural Language Inference Data",
+      "url": "https://arxiv.org/abs/1803.02324"
+    },
+    {
+      "title": "McCoy et al. (2019), Right for the Wrong Reasons: Diagnosing Syntactic Heuristics in NLI (HANS)",
+      "url": "https://arxiv.org/abs/1902.01007"
+    },
+    {
+      "title": "Nie et al. (2020), What Can We Learn from Collective Human Opinions on Natural Language Inference Data? (ChaosNLI)",
+      "url": "https://arxiv.org/abs/2010.03532"
+    },
+    {
+      "title": "Laban et al. (2022), SummaC: Re-Visiting NLI-based Models for Inconsistency Detection in Summarization",
+      "url": "https://arxiv.org/abs/2111.09525"
+    },
+    {
+      "title": "Nie et al. (2020), Adversarial NLI: A New Benchmark for Natural Language Understanding",
+      "url": "https://arxiv.org/abs/1910.14599"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-07",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-07_natural_language_inference.ipynb"
+  }
 }

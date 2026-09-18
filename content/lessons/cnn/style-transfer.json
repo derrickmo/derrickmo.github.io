@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-08",
   "slug": "style-transfer",
+  "keyBase": "cnn/style-transfer",
   "module": "cnn",
   "title": "Neural Style Transfer",
   "status": "LIVE",
@@ -11,11 +12,20 @@
     "notebook": true,
     "notebookFile": "06-08_neural_style_transfer.ipynb",
     "flagship": null,
-    "demos": ["convolution", "fourier"],
+    "demos": [
+      "convolution",
+      "fourier"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/cnn-architectures", "cnn/transfer-learning"],
-  "leadsTo": ["cnn/adversarial", "generative/conditional-generation"],
+  "prereqs": [
+    "cnn/cnn-architectures",
+    "cnn/transfer-learning"
+  ],
+  "leadsTo": [
+    "cnn/adversarial",
+    "generative/conditional-generation"
+  ],
   "body": {
     "intuition": [
       "Neural style transfer (Gatys et al., 2015) asks a question that turns out to be deeply informative: can you separate WHAT is in an image from HOW it looks? The answer is that a pretrained CNN's feature maps already contain that separation, and you can read it out with two different statistics of the same activations. CONTENT is the spatial arrangement of features - which objects are where - so it is captured by the raw feature map at some mid-to-deep layer. STYLE is texture and colour statistics independent of position - so it is captured by the CORRELATIONS BETWEEN CHANNELS, averaged over all positions, which deliberately discards where anything was. The GRAM MATRIX (feature map times its own transpose) computes exactly that.",
@@ -72,32 +82,83 @@
       "Ignoring temporal coherence in video: per-frame stylization flickers badly because the optimization has many near-equivalent solutions and picks different ones per frame. Video methods add optical-flow-based temporal consistency losses, or you get an unwatchable result."
     ],
     "connections": [
-      { "ref": "cnn/adversarial", "text": "Adversarial examples use the same mechanism - gradient descent on the INPUT with frozen weights - to a different end, which is why the two topics sit next to each other in this module." },
-      { "ref": "cnn/transfer-learning", "text": "The whole method rests on a pretrained network's features being generic enough to describe content and texture for images it never saw - the transfer-learning premise, used here without any fine-tuning." },
-      { "ref": "generative/conditional-generation", "text": "AdaIN's 'style lives in normalization statistics' insight became StyleGAN's modulation and reappears in conditioning mechanisms across generative models." },
-      { "ref": "trustworthy-ai/attribution", "text": "Optimizing an input to maximize or match a network's internal activations is the shared machinery of feature visualization and attribution - style transfer is the artistic branch of the same family." }
+      {
+        "ref": "cnn/adversarial",
+        "text": "Adversarial examples use the same mechanism - gradient descent on the INPUT with frozen weights - to a different end, which is why the two topics sit next to each other in this module."
+      },
+      {
+        "ref": "cnn/transfer-learning",
+        "text": "The whole method rests on a pretrained network's features being generic enough to describe content and texture for images it never saw - the transfer-learning premise, used here without any fine-tuning."
+      },
+      {
+        "ref": "generative/conditional-generation",
+        "text": "AdaIN's 'style lives in normalization statistics' insight became StyleGAN's modulation and reappears in conditioning mechanisms across generative models."
+      },
+      {
+        "ref": "trustworthy-ai/attribution",
+        "text": "Optimizing an input to maximize or match a network's internal activations is the shared machinery of feature visualization and attribution - style transfer is the artistic branch of the same family."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is neural style transfer?", "a": "Generating an image with the CONTENT of one photo and the STYLE of another, by optimizing pixels to match content features and style statistics of a frozen pretrained CNN." },
-      { "q": "What is optimized in the original Gatys method?", "a": "The IMAGE itself. Network weights are frozen; gradient descent runs on the pixel values - typically 300-1000 L-BFGS iterations." },
-      { "q": "How is content represented?", "a": "The raw feature map at a mid-to-deep layer (e.g. VGG conv4_2), which encodes what is where. Content loss is the squared error between feature maps." },
-      { "q": "How is style represented?", "a": "Gram matrices - the correlations between channels summed over all spatial positions - at several layers. Summing over positions deliberately discards spatial arrangement." },
-      { "q": "Why does the Gram matrix capture style?", "a": "It records which features co-occur, averaged over the image, so it describes texture and colour statistics independent of WHERE anything is - a workable operational definition of style." },
-      { "q": "Why use multiple layers for style?", "a": "Early layers capture fine texture and colour; deeper layers capture larger-scale patterns and structure. Using several spans the scales, which is what makes the result look like the style image." },
-      { "q": "What controls the stylization strength?", "a": "The RATIO of style to content weight (beta/alpha), typically 1e3 to 1e6 depending on normalization. Higher = more stylized and less faithful to the photo." },
-      { "q": "Why is the original method slow?", "a": "It solves a fresh optimization problem per image (hundreds of forward and backward passes through VGG) - minutes per image rather than milliseconds." },
-      { "q": "What is fast style transfer?", "a": "Johnson et al.: train a feed-forward transform network using the Gatys losses as the objective, then stylize in ONE forward pass. One network per style." },
-      { "q": "What is perceptual loss?", "a": "Comparing images in a pretrained network's feature space instead of pixel space. Now standard in super-resolution and image translation, because pixel MSE gives blurry outputs." },
-      { "q": "What is AdaIN?", "a": "Adaptive instance normalization - normalize content features per channel, then rescale by the STYLE features' per-channel mean and std. Enables arbitrary styles in real time." },
-      { "q": "Why VGG rather than ResNet?", "a": "Empirically VGG features work far better for this. Plausible reasons: no residual shortcuts or aggressive downsampling early, so its features stay more spatially and texturally faithful - it remains a mostly-empirical finding." }
+      {
+        "q": "What is neural style transfer?",
+        "a": "Generating an image with the CONTENT of one photo and the STYLE of another, by optimizing pixels to match content features and style statistics of a frozen pretrained CNN."
+      },
+      {
+        "q": "What is optimized in the original Gatys method?",
+        "a": "The IMAGE itself. Network weights are frozen; gradient descent runs on the pixel values - typically 300-1000 L-BFGS iterations."
+      },
+      {
+        "q": "How is content represented?",
+        "a": "The raw feature map at a mid-to-deep layer (e.g. VGG conv4_2), which encodes what is where. Content loss is the squared error between feature maps."
+      },
+      {
+        "q": "How is style represented?",
+        "a": "Gram matrices - the correlations between channels summed over all spatial positions - at several layers. Summing over positions deliberately discards spatial arrangement."
+      },
+      {
+        "q": "Why does the Gram matrix capture style?",
+        "a": "It records which features co-occur, averaged over the image, so it describes texture and colour statistics independent of WHERE anything is - a workable operational definition of style."
+      },
+      {
+        "q": "Why use multiple layers for style?",
+        "a": "Early layers capture fine texture and colour; deeper layers capture larger-scale patterns and structure. Using several spans the scales, which is what makes the result look like the style image."
+      },
+      {
+        "q": "What controls the stylization strength?",
+        "a": "The RATIO of style to content weight (beta/alpha), typically 1e3 to 1e6 depending on normalization. Higher = more stylized and less faithful to the photo."
+      },
+      {
+        "q": "Why is the original method slow?",
+        "a": "It solves a fresh optimization problem per image (hundreds of forward and backward passes through VGG) - minutes per image rather than milliseconds."
+      },
+      {
+        "q": "What is fast style transfer?",
+        "a": "Johnson et al.: train a feed-forward transform network using the Gatys losses as the objective, then stylize in ONE forward pass. One network per style."
+      },
+      {
+        "q": "What is perceptual loss?",
+        "a": "Comparing images in a pretrained network's feature space instead of pixel space. Now standard in super-resolution and image translation, because pixel MSE gives blurry outputs."
+      },
+      {
+        "q": "What is AdaIN?",
+        "a": "Adaptive instance normalization - normalize content features per channel, then rescale by the STYLE features' per-channel mean and std. Enables arbitrary styles in real time."
+      },
+      {
+        "q": "Why VGG rather than ResNet?",
+        "a": "Empirically VGG features work far better for this. Plausible reasons: no residual shortcuts or aggressive downsampling early, so its features stay more spatially and texturally faithful - it remains a mostly-empirical finding."
+      }
     ],
     "standard": [
       {
         "q": "Explain neural style transfer end to end: the representations, the losses, and why the algorithm works at all.",
         "a": "THE CORE IDEA. Gatys et al. observed that a CNN trained for classification builds a representation in which CONTENT and STYLE are separable - not because anyone designed it that way, but because different statistics of the same activations isolate them. The algorithm exploits this with a frozen pretrained VGG and gradient descent on the image. CONTENT REPRESENTATION. Take the raw feature map at a mid-to-deep layer (conv4_2 is the canonical choice). At that depth the activations encode objects and their spatial arrangement, and are largely invariant to exact pixel values, colours, and texture - which is exactly what 'content' should mean. Content loss is simply the squared error between the generated image's feature map and the content photo's at that layer. Using a DEEP layer matters: at conv1_1 the feature map is nearly the image itself, so matching it would just copy the pixels and leave no freedom for style. STYLE REPRESENTATION. This is the clever part. Take a layer's feature map, reshape it to C x HW, and compute the GRAM MATRIX G = F F^T. Entry G_ij is the sum over all spatial positions of the product of channel i and channel j - i.e. how strongly those two features co-activate, aggregated over the whole image. The summation over positions is the whole trick: it deliberately DESTROYS spatial arrangement, leaving only 'which features occur together and how much', which is a texture descriptor. Two images with the same Gram matrices have the same texture statistics and can have completely different layouts. Style loss is the squared Frobenius difference between the generated image's Gram matrices and the style image's, summed over SEVERAL layers with weights - early layers contribute fine brushstroke-scale texture, deeper layers contribute larger-scale motifs. THE OPTIMIZATION. Total loss L = alpha * L_content + beta * L_style, minimized OVER THE IMAGE with the network weights frozen. Initialize from the content image (faster and more stable) or from noise (more purely stylized), then run L-BFGS for a few hundred iterations, backpropagating through VGG all the way to the pixels. Nothing is learned; the pretrained features supply the entire notion of content and style. WHY IT WORKS AT ALL - the part worth being thoughtful about. Three ingredients. (1) The features are GENERIC: VGG was trained on ImageNet classification, but its intermediate representations are useful descriptors of arbitrary images, which is the transfer-learning premise. (2) The features are HIERARCHICAL and progressively invariant, so 'match deep features' means 'preserve semantic layout' while leaving low-level appearance free. (3) The Gram matrix is a spatially-agnostic summary, and there is a real precedent here - texture synthesis had long been done by matching statistics of filter responses (Portilla and Simoncelli, 1999, matched wavelet-response statistics); Gatys's contribution was to use LEARNED filters instead of hand-designed ones, and to add the content constraint. That framing - 'classical texture synthesis with CNN features' - is the crispest explanation of why the method is not magic. WHAT IT ACTUALLY DEMONSTRATED, and why the paper mattered beyond the pictures: it was strong evidence that CNN representations disentangle aspects of images in a usable way, and it popularized optimizing an INPUT under a frozen network - the same mechanic as feature visualization, DeepDream, and adversarial examples. THE PRACTICAL WEAKNESSES to name: it is slow (minutes per image), the alpha/beta ratio needs hand-tuning per style pair, style is applied globally with no semantic control (sky texture lands on faces), and per-frame video stylization flickers. Each weakness produced a follow-up: fast feed-forward transfer, AdaIN for arbitrary styles in real time, semantic/masked variants, and optical-flow temporal-consistency losses for video.",
-        "deepDive": { "q": "Why does the Gram matrix capture texture, and what are its known limitations as a style descriptor?", "a": "WHY IT CAPTURES TEXTURE. Start from what texture IS: a pattern defined by its local statistics rather than by the arrangement of specific elements. A brick wall is 'brick-like' anywhere you crop it; move the bricks around and it is still a brick wall. So a texture descriptor should be INVARIANT TO SPATIAL PERMUTATION while sensitive to which features co-occur and at what strengths. The Gram matrix is exactly that: G_ij = sum over positions of F_i(p) F_j(p) is a second-order statistic aggregated over space, so it is unchanged if you permute the positions, but it encodes the CO-OCCURRENCE structure - if channel 7 (say, a diagonal edge detector) and channel 22 (a yellow blob detector) fire together frequently, G_{7,22} is large, and reproducing that means reproducing 'yellow diagonal strokes'. Because these channels are learned edge/colour/pattern detectors, matching all pairwise co-occurrences at several scales reproduces a convincing texture. This has a rigorous ancestry: Julesz conjectured that textures with matching low-order statistics are pre-attentively indistinguishable, and Portilla and Simoncelli built a working texture synthesizer by matching correlations of hand-designed wavelet responses. Gatys replaced hand-designed filters with learned ones and got dramatically better results, which itself is evidence that learned features are better texture primitives. There is also a neat theoretical connection: matching Gram matrices is equivalent (up to normalization) to matching the second moments of the feature distribution, which is the same as minimizing the Maximum Mean Discrepancy between feature distributions with a second-order polynomial kernel - a result from Li et al. (2017) that reframes style transfer as DISTRIBUTION MATCHING in feature space. That reframing immediately suggests alternatives: match means and variances only (AdaIN - first and second moments per channel, no cross-channel terms), match with a linear-kernel MMD, or match full distributions with optimal transport (which later work does, with better results on some styles). LIMITATIONS, which are what a strong answer emphasizes. (1) NO SPATIAL STRUCTURE, BY CONSTRUCTION. The Gram matrix cannot express 'this pattern appears at the top' or long-range structure. So styles that are really COMPOSITIONS - a portrait's arrangement of features, art with global geometric structure, anything with layout semantics - are not transferable; you get their local texture only. (2) NO SEMANTIC AWARENESS. Style is applied uniformly, so the sky's texture is applied to faces and vice versa. Semantic style transfer methods add segmentation masks or attention to fix this, precisely because the base descriptor cannot. (3) SECOND-ORDER ONLY. Matching pairwise correlations leaves higher-order structure unconstrained, which is why outputs sometimes have the right 'flavour' but incoherent local structure (swirls that do not resolve into brushstrokes). (4) IT CONFLATES COLOUR AND TEXTURE. The Gram matrix mixes colour statistics with pattern statistics, so you generally cannot transfer brushstroke texture while preserving the photo's colours without extra machinery (luminance-only transfer, or colour histogram matching as a post-process). (5) SCALE SENSITIVITY. The result depends strongly on the style image's resolution relative to the content, since the layer scales are fixed - the same painting at two resolutions gives noticeably different stylizations, which is a real practical annoyance. (6) IT IS AN OPERATIONAL, NOT A PRINCIPLED, DEFINITION. 'Style = channel correlations' is a hypothesis that works well empirically; it is not a theory of artistic style, and it fails on styles humans would describe in terms of composition, subject treatment, or abstraction. THE HONEST SUMMARY: the Gram matrix is a spatially-invariant second-order feature statistic - a good texture descriptor with a strong classical pedigree - and 'style' in this literature means 'texture and colour statistics', which is a real but narrow slice of what the word means to an artist." }
+        "deepDive": {
+          "q": "Why does the Gram matrix capture texture, and what are its known limitations as a style descriptor?",
+          "a": "WHY IT CAPTURES TEXTURE. Start from what texture IS: a pattern defined by its local statistics rather than by the arrangement of specific elements. A brick wall is 'brick-like' anywhere you crop it; move the bricks around and it is still a brick wall. So a texture descriptor should be INVARIANT TO SPATIAL PERMUTATION while sensitive to which features co-occur and at what strengths. The Gram matrix is exactly that: G_ij = sum over positions of F_i(p) F_j(p) is a second-order statistic aggregated over space, so it is unchanged if you permute the positions, but it encodes the CO-OCCURRENCE structure - if channel 7 (say, a diagonal edge detector) and channel 22 (a yellow blob detector) fire together frequently, G_{7,22} is large, and reproducing that means reproducing 'yellow diagonal strokes'. Because these channels are learned edge/colour/pattern detectors, matching all pairwise co-occurrences at several scales reproduces a convincing texture. This has a rigorous ancestry: Julesz conjectured that textures with matching low-order statistics are pre-attentively indistinguishable, and Portilla and Simoncelli built a working texture synthesizer by matching correlations of hand-designed wavelet responses. Gatys replaced hand-designed filters with learned ones and got dramatically better results, which itself is evidence that learned features are better texture primitives. There is also a neat theoretical connection: matching Gram matrices is equivalent (up to normalization) to matching the second moments of the feature distribution, which is the same as minimizing the Maximum Mean Discrepancy between feature distributions with a second-order polynomial kernel - a result from Li et al. (2017) that reframes style transfer as DISTRIBUTION MATCHING in feature space. That reframing immediately suggests alternatives: match means and variances only (AdaIN - first and second moments per channel, no cross-channel terms), match with a linear-kernel MMD, or match full distributions with optimal transport (which later work does, with better results on some styles). LIMITATIONS, which are what a strong answer emphasizes. (1) NO SPATIAL STRUCTURE, BY CONSTRUCTION. The Gram matrix cannot express 'this pattern appears at the top' or long-range structure. So styles that are really COMPOSITIONS - a portrait's arrangement of features, art with global geometric structure, anything with layout semantics - are not transferable; you get their local texture only. (2) NO SEMANTIC AWARENESS. Style is applied uniformly, so the sky's texture is applied to faces and vice versa. Semantic style transfer methods add segmentation masks or attention to fix this, precisely because the base descriptor cannot. (3) SECOND-ORDER ONLY. Matching pairwise correlations leaves higher-order structure unconstrained, which is why outputs sometimes have the right 'flavour' but incoherent local structure (swirls that do not resolve into brushstrokes). (4) IT CONFLATES COLOUR AND TEXTURE. The Gram matrix mixes colour statistics with pattern statistics, so you generally cannot transfer brushstroke texture while preserving the photo's colours without extra machinery (luminance-only transfer, or colour histogram matching as a post-process). (5) SCALE SENSITIVITY. The result depends strongly on the style image's resolution relative to the content, since the layer scales are fixed - the same painting at two resolutions gives noticeably different stylizations, which is a real practical annoyance. (6) IT IS AN OPERATIONAL, NOT A PRINCIPLED, DEFINITION. 'Style = channel correlations' is a hypothesis that works well empirically; it is not a theory of artistic style, and it fails on styles humans would describe in terms of composition, subject treatment, or abstraction. THE HONEST SUMMARY: the Gram matrix is a spatially-invariant second-order feature statistic - a good texture descriptor with a strong classical pedigree - and 'style' in this literature means 'texture and colour statistics', which is a real but narrow slice of what the word means to an artist."
+        }
       },
       {
         "q": "The original method takes minutes per image. Explain the fast alternatives and what each trades away.",
@@ -106,7 +167,10 @@
       {
         "q": "Why does style transfer work so much better with VGG features than with ResNet or a modern backbone?",
         "a": "This is a genuinely interesting empirical fact, and the honest answer starts with acknowledging it is more observed than explained. THE OBSERVATION: nearly every style transfer implementation uses VGG-16/19, and swapping in ResNet, Inception, or a modern backbone with equal or better ImageNet accuracy typically gives noticeably WORSE stylizations - blotchy artifacts, weaker texture, less coherent output. Since ResNet is the better classifier, this immediately tells you that classification accuracy is not the property that matters here. THE LEADING EXPLANATIONS, roughly in order of how convincing I find them. (1) RESIDUAL CONNECTIONS CHANGE THE FEATURE STATISTICS. In a ResNet, each block's output is input + F(input), so activations accumulate additively through the network, and features at a given layer are a mixture of many depths' worth of information. Gram matrices computed on such mixed activations are less cleanly 'the texture at this scale'. VGG's strictly sequential convolutions give each layer a cleaner, more scale-specific representation, which is what the multi-layer style loss assumes. (2) ACTIVATION SPARSITY AND MAGNITUDE DISTRIBUTIONS. Empirical analyses have found ResNet activations are sparser and more peaked than VGG's - a few very large activations dominate. Since the Gram matrix is a second-order statistic, a heavy-tailed activation distribution makes it dominated by a handful of channels, producing blotchy outputs. VGG's smoother, denser activations give better-conditioned Gram matrices. There is a paper-level version of this claim (analyses attributing VGG's advantage to activation distribution rather than architecture per se), and it also suggests fixes: applying a smoothing transform to ResNet activations recovers much of the gap. (3) AGGRESSIVE EARLY DOWNSAMPLING. ResNet's stem (7x7 stride-2 conv plus stride-2 max-pool) reduces resolution 4x immediately, so fine texture information is discarded before any style layer sees it. VGG downsamples gradually with 2x2 pooling after several stride-1 convs, so its early layers retain the high-frequency detail that fine brushstroke texture needs. (4) GRADIENT FLOW TO THE IMAGE. The optimization backpropagates all the way to pixels. Residual connections change the gradient landscape with respect to the INPUT (not just the weights), and empirically the optimization is better-behaved through VGG. This is more of an observation than a mechanism. (5) HISTORICAL PATH DEPENDENCE, which deserves honest mention: the original paper used VGG, every subsequent method tuned its hyperparameters (layer choices, weights, normalization) against VGG, and the accumulated tuning makes VGG the best-supported choice regardless of whether it is intrinsically best. Some of the gap is probably that nobody has tuned as hard for ResNet. WHAT THIS TEACHES, which is the reason the question is worth asking: the properties that make a good CLASSIFIER are not the properties that make good general-purpose FEATURES for every downstream use. VGG is worse at ImageNet, slower, and far larger (138M parameters), yet better for style transfer, and it is also commonly preferred for perceptual losses in super-resolution and for the LPIPS perceptual similarity metric - the same pattern in three different applications. A related instance: DINO/self-supervised features are better than supervised features for dense correspondence and segmentation-like probing despite comparable classification numbers, and CLIP features are better for open-vocabulary tasks. The general lesson is to evaluate a backbone on the DOWNSTREAM property you need - texture fidelity, perceptual alignment, correspondence - rather than assuming the ImageNet leaderboard transfers. In practice, if I needed to use a modern backbone for a perceptual loss, I would empirically compare candidates on the actual objective rather than trusting accuracy rankings, and I would check activation statistics (sparsity, dynamic range) as a diagnostic when a swap degrades results.",
-        "deepDive": { "q": "Perceptual loss (comparing images in feature space) is now used everywhere. Why does it beat pixel MSE, and what are its failure modes?", "a": "WHY PIXEL MSE FAILS. Minimizing per-pixel squared error against a target has a specific and damaging consequence: when the model is uncertain about fine detail, the loss-minimizing prediction is the CONDITIONAL MEAN over plausible outputs, and averaging plausible textures gives BLUR. Consider super-resolution: a low-resolution patch of grass is consistent with many high-resolution grass configurations, all equally valid perceptually; their pixel-wise average is a grey-green smear, which has the lowest MSE and looks terrible. So pixel MSE systematically produces over-smoothed, plausible-on-average outputs - the well-known 'regression to the mean' problem of L2 image losses. It also weights all pixels equally regardless of perceptual importance and is extremely sensitive to imperceptible global shifts (translate an image one pixel and MSE explodes while a human sees no change). WHY PERCEPTUAL LOSS BEATS IT. Compute the loss as the distance between the two images' FEATURE MAPS in a pretrained network (typically VGG at a few layers). Three properties follow. (1) It measures similarity in a space that is invariant to imperceptible variation - a texture shifted by a pixel or with different but statistically equivalent detail maps to nearby features, so the model is not penalized for choosing ONE plausible texture rather than the average of all of them. That directly removes the blur incentive. (2) It weights differences by their perceptual/semantic salience, since the features were learned to support recognition - a structural error that changes what the object looks like costs more than a subtle colour shift. (3) Empirically, feature-space distance correlates far better with human judgments of similarity than pixel metrics, which is the basis of LPIPS (Zhang et al., 2018) - the standard learned perceptual metric, and a good thing to cite here. FAILURE MODES, which are real and worth knowing. (a) IT INHERITS THE NETWORK'S BIASES. VGG is texture-biased and ImageNet-trained, so perceptual loss is most reliable on natural photographic images and much less meaningful on medical scans, satellite imagery, or line art. Using it out of domain can optimize for the wrong things. (b) CHARACTERISTIC ARTIFACTS. Because it does not constrain pixels directly, models trained with perceptual loss alone produce high-frequency 'checkerboard' or grid-like artifacts and can drift in colour and brightness; the standard remedy is a weighted COMBINATION of pixel loss (for global fidelity and colour) with perceptual loss (for texture) - which is what production super-resolution and translation pipelines actually use, often plus an adversarial term for realism. (c) IT IS NOT A METRIC WITH ABSOLUTE MEANING. Values are network- and layer-dependent, so numbers are only comparable within one setup, and it can be GAMED - a model optimized directly against a specific perceptual network can find inputs that score well while looking wrong (the same adversarial vulnerability that afflicts any learned metric). If you optimize against LPIPS, you should not also report LPIPS as your headline evaluation. (d) COMPUTE AND MEMORY: it adds a forward pass through a large frozen network per training step, which is significant when the generator itself is small. (e) LAYER CHOICE MATTERS AND IS FIDDLY: shallow layers emphasize texture and colour, deep layers emphasize semantics; the wrong choice gives either photocopied detail or semantically-right-but-visually-wrong output. WHERE IT IS NOW STANDARD: super-resolution (SRGAN/ESRGAN use perceptual + adversarial), image translation (pix2pix and successors), style transfer (its birthplace), VAE and autoencoder training - including the VAE inside latent diffusion models, which uses a combined pixel + perceptual + adversarial loss precisely because pure pixel reconstruction gives blurry latents - and as an evaluation metric via LPIPS. THE PRINCIPLE TO STATE: choose a loss that measures the difference you actually care about. Pixel distance measures a difference humans largely do not perceive and misses ones they do; a pretrained network's feature space is a much better (if imperfect and biased) proxy for human perception, and combining both covers each one's blind spot." }
+        "deepDive": {
+          "q": "Perceptual loss (comparing images in feature space) is now used everywhere. Why does it beat pixel MSE, and what are its failure modes?",
+          "a": "WHY PIXEL MSE FAILS. Minimizing per-pixel squared error against a target has a specific and damaging consequence: when the model is uncertain about fine detail, the loss-minimizing prediction is the CONDITIONAL MEAN over plausible outputs, and averaging plausible textures gives BLUR. Consider super-resolution: a low-resolution patch of grass is consistent with many high-resolution grass configurations, all equally valid perceptually; their pixel-wise average is a grey-green smear, which has the lowest MSE and looks terrible. So pixel MSE systematically produces over-smoothed, plausible-on-average outputs - the well-known 'regression to the mean' problem of L2 image losses. It also weights all pixels equally regardless of perceptual importance and is extremely sensitive to imperceptible global shifts (translate an image one pixel and MSE explodes while a human sees no change). WHY PERCEPTUAL LOSS BEATS IT. Compute the loss as the distance between the two images' FEATURE MAPS in a pretrained network (typically VGG at a few layers). Three properties follow. (1) It measures similarity in a space that is invariant to imperceptible variation - a texture shifted by a pixel or with different but statistically equivalent detail maps to nearby features, so the model is not penalized for choosing ONE plausible texture rather than the average of all of them. That directly removes the blur incentive. (2) It weights differences by their perceptual/semantic salience, since the features were learned to support recognition - a structural error that changes what the object looks like costs more than a subtle colour shift. (3) Empirically, feature-space distance correlates far better with human judgments of similarity than pixel metrics, which is the basis of LPIPS (Zhang et al., 2018) - the standard learned perceptual metric, and a good thing to cite here. FAILURE MODES, which are real and worth knowing. (a) IT INHERITS THE NETWORK'S BIASES. VGG is texture-biased and ImageNet-trained, so perceptual loss is most reliable on natural photographic images and much less meaningful on medical scans, satellite imagery, or line art. Using it out of domain can optimize for the wrong things. (b) CHARACTERISTIC ARTIFACTS. Because it does not constrain pixels directly, models trained with perceptual loss alone produce high-frequency 'checkerboard' or grid-like artifacts and can drift in colour and brightness; the standard remedy is a weighted COMBINATION of pixel loss (for global fidelity and colour) with perceptual loss (for texture) - which is what production super-resolution and translation pipelines actually use, often plus an adversarial term for realism. (c) IT IS NOT A METRIC WITH ABSOLUTE MEANING. Values are network- and layer-dependent, so numbers are only comparable within one setup, and it can be GAMED - a model optimized directly against a specific perceptual network can find inputs that score well while looking wrong (the same adversarial vulnerability that afflicts any learned metric). If you optimize against LPIPS, you should not also report LPIPS as your headline evaluation. (d) COMPUTE AND MEMORY: it adds a forward pass through a large frozen network per training step, which is significant when the generator itself is small. (e) LAYER CHOICE MATTERS AND IS FIDDLY: shallow layers emphasize texture and colour, deep layers emphasize semantics; the wrong choice gives either photocopied detail or semantically-right-but-visually-wrong output. WHERE IT IS NOW STANDARD: super-resolution (SRGAN/ESRGAN use perceptual + adversarial), image translation (pix2pix and successors), style transfer (its birthplace), VAE and autoencoder training - including the VAE inside latent diffusion models, which uses a combined pixel + perceptual + adversarial loss precisely because pure pixel reconstruction gives blurry latents - and as an evaluation metric via LPIPS. THE PRINCIPLE TO STATE: choose a loss that measures the difference you actually care about. Pixel distance measures a difference humans largely do not perceive and misses ones they do; a pretrained network's feature space is a much better (if imperfect and biased) proxy for human perception, and combining both covers each one's blind spot."
+        }
       },
       {
         "q": "How would you extend style transfer to video, and what new problems appear?",
@@ -123,21 +187,75 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Neural style transfer (Gatys)", "back": "Optimize the IMAGE (network frozen) to match a content photo's deep feature map AND a style image's Gram matrices at several layers. No training data, no weight updates." },
-    { "type": "formula", "front": "Gram matrix", "back": "G = F F^T where F is the layer's feature map reshaped to (C, H*W). G_ij = how much channels i and j co-activate SUMMED over positions - discarding spatial arrangement, which is what makes it a texture descriptor." },
-    { "type": "intuition", "front": "Content vs style representation", "back": "Content = the raw feature map at a mid-deep layer (what is where). Style = channel correlations aggregated over space (texture/colour, position-free). Two statistics of the SAME activations." },
-    { "type": "definition", "front": "AdaIN", "back": "Normalize content features per channel, then rescale/shift by the STYLE features' per-channel mean and std. Matching first/second moments transfers style nearly as well as full Gram matrices - arbitrary styles, real time." },
-    { "type": "definition", "front": "Perceptual loss", "back": "Compare images in a pretrained network's FEATURE space, not pixel space. Pixel MSE predicts the conditional mean over plausible textures = blur; feature loss does not penalize choosing one plausible texture. Basis of LPIPS." },
-    { "type": "pitfall", "front": "The optimization variable is the IMAGE", "back": "Freeze the network (requires_grad_(False)) and make the image a leaf tensor with requires_grad=True. Getting it backwards silently trains VGG - the classic first-attempt bug." },
-    { "type": "intuition", "front": "Debug by single-term ablation", "back": "Style weight = 0 should return the content image (tests the content path). Content weight = 0 from noise should give a pure texture of the style (tests the style path). Two runs localize the bug." },
-    { "type": "pitfall", "front": "Gram matrix limitations", "back": "Second-order and spatially invariant BY CONSTRUCTION: no composition, no semantics (sky texture lands on faces), colour and texture entangled, and results are sensitive to the style image's resolution." },
-    { "type": "intuition", "front": "Texture bias (Geirhos 2019)", "back": "Style transfer built cue-conflict images (cat shape + elephant texture): CNNs answered 'elephant', humans 'cat'. Explains corruption fragility - and training on Stylized-ImageNet raises shape bias and robustness." }
+    {
+      "type": "definition",
+      "front": "Neural style transfer (Gatys)",
+      "back": "Optimize the IMAGE (network frozen) to match a content photo's deep feature map AND a style image's Gram matrices at several layers. No training data, no weight updates."
+    },
+    {
+      "type": "formula",
+      "front": "Gram matrix",
+      "back": "G = F F^T where F is the layer's feature map reshaped to (C, H*W). G_ij = how much channels i and j co-activate SUMMED over positions - discarding spatial arrangement, which is what makes it a texture descriptor."
+    },
+    {
+      "type": "intuition",
+      "front": "Content vs style representation",
+      "back": "Content = the raw feature map at a mid-deep layer (what is where). Style = channel correlations aggregated over space (texture/colour, position-free). Two statistics of the SAME activations."
+    },
+    {
+      "type": "definition",
+      "front": "AdaIN",
+      "back": "Normalize content features per channel, then rescale/shift by the STYLE features' per-channel mean and std. Matching first/second moments transfers style nearly as well as full Gram matrices - arbitrary styles, real time."
+    },
+    {
+      "type": "definition",
+      "front": "Perceptual loss",
+      "back": "Compare images in a pretrained network's FEATURE space, not pixel space. Pixel MSE predicts the conditional mean over plausible textures = blur; feature loss does not penalize choosing one plausible texture. Basis of LPIPS."
+    },
+    {
+      "type": "pitfall",
+      "front": "The optimization variable is the IMAGE",
+      "back": "Freeze the network (requires_grad_(False)) and make the image a leaf tensor with requires_grad=True. Getting it backwards silently trains VGG - the classic first-attempt bug."
+    },
+    {
+      "type": "intuition",
+      "front": "Debug by single-term ablation",
+      "back": "Style weight = 0 should return the content image (tests the content path). Content weight = 0 from noise should give a pure texture of the style (tests the style path). Two runs localize the bug."
+    },
+    {
+      "type": "pitfall",
+      "front": "Gram matrix limitations",
+      "back": "Second-order and spatially invariant BY CONSTRUCTION: no composition, no semantics (sky texture lands on faces), colour and texture entangled, and results are sensitive to the style image's resolution."
+    },
+    {
+      "type": "intuition",
+      "front": "Texture bias (Geirhos 2019)",
+      "back": "Style transfer built cue-conflict images (cat shape + elephant texture): CNNs answered 'elephant', humans 'cat'. Explains corruption fragility - and training on Stylized-ImageNet raises shape bias and robustness."
+    }
   ],
   "refs": [
-    { "title": "Gatys, Ecker & Bethge (2015), A Neural Algorithm of Artistic Style", "url": "https://arxiv.org/abs/1508.06576" },
-    { "title": "Johnson, Alahi & Fei-Fei (2016), Perceptual Losses for Real-Time Style Transfer and Super-Resolution", "url": "https://arxiv.org/abs/1603.08155" },
-    { "title": "Huang & Belongie (2017), Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization", "url": "https://arxiv.org/abs/1703.06868" },
-    { "title": "Geirhos et al. (2019), ImageNet-trained CNNs are biased towards texture", "url": "https://arxiv.org/abs/1811.12231" }
+    {
+      "title": "Gatys, Ecker & Bethge (2015), A Neural Algorithm of Artistic Style",
+      "url": "https://arxiv.org/abs/1508.06576"
+    },
+    {
+      "title": "Johnson, Alahi & Fei-Fei (2016), Perceptual Losses for Real-Time Style Transfer and Super-Resolution",
+      "url": "https://arxiv.org/abs/1603.08155"
+    },
+    {
+      "title": "Huang & Belongie (2017), Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization",
+      "url": "https://arxiv.org/abs/1703.06868"
+    },
+    {
+      "title": "Geirhos et al. (2019), ImageNet-trained CNNs are biased towards texture",
+      "url": "https://arxiv.org/abs/1811.12231"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "09-04",
+    "module": "cnn",
+    "disposition": "merge",
+    "notebookFile": "09-04_classic_architectures_lenet_alexnet_vgg.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-03",
   "slug": "siamese",
+  "keyBase": "multimodal/siamese",
   "module": "multimodal",
   "title": "Siamese Networks & Triplet Loss",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-03_siamese_networks_triplet_loss.ipynb",
     "flagship": null,
-    "demos": ["contrastive-learning", "embeddings", "knn", "tsne"],
+    "demos": [
+      "contrastive-learning",
+      "embeddings",
+      "knn",
+      "tsne"
+    ],
     "concepts": []
   },
-  "prereqs": ["neural-nets/loss-functions", "advanced-cv/image-retrieval"],
-  "leadsTo": ["multimodal/simclr-byol", "multimodal/multimodal-fusion"],
+  "prereqs": [
+    "neural-nets/loss-functions",
+    "advanced-cv/image-retrieval"
+  ],
+  "leadsTo": [
+    "multimodal/simclr-byol",
+    "multimodal/multimodal-fusion"
+  ],
   "body": {
     "intuition": [
       "Classification needs a fixed set of classes with examples of each. Some problems do not fit that shape at all: face verification, where a new employee joins tomorrow and you have one photo; signature matching; near-duplicate detection; product matching across catalogues. What these share is that the question is not 'which of K classes is this' but 'are these two things the same'. METRIC LEARNING answers that directly - learn an embedding in which distance means similarity, and then the decision is a threshold rather than a classifier.",
@@ -90,33 +102,87 @@
       "Reaching for triplet loss by default in 2020s work. Margin-based softmax losses (ArcFace, CosFace) beat it substantially on face recognition, and InfoNCE-style losses with many negatives beat it for retrieval. Triplet loss is the right thing to UNDERSTAND and often not the right thing to use."
     ],
     "connections": [
-      { "ref": "multimodal/simclr-byol", "text": "SimCLR is this idea with augmented views supplying the positives instead of labels, and InfoNCE using many negatives at once instead of one - the same geometry, a better-conditioned loss." },
-      { "ref": "multimodal/clip", "text": "CLIP's contrastive loss is the cross-modal version: the positive is the matching caption and the negatives are the rest of the batch, which is why batch size mattered so much." },
-      { "ref": "advanced-cv/image-retrieval", "text": "The embedding this lesson trains is exactly what a retrieval index stores, and the ANN search that follows is a separate engineering problem with its own recall trade-offs." },
-      { "ref": "ml-theory/imbalanced-data", "text": "Mining is a sampling problem: which of an enormous, highly imbalanced set of comparisons to spend gradient on, and the answer is neither uniform nor extreme." },
-      { "ref": "advanced-cv/dino-mae", "text": "Representation collapse is the shared failure across all of this - triplet loss prevents it with a margin, contrastive methods with negatives, BYOL and DINO with asymmetry and centering." }
+      {
+        "ref": "multimodal/simclr-byol",
+        "text": "SimCLR is this idea with augmented views supplying the positives instead of labels, and InfoNCE using many negatives at once instead of one - the same geometry, a better-conditioned loss."
+      },
+      {
+        "ref": "multimodal/clip",
+        "text": "CLIP's contrastive loss is the cross-modal version: the positive is the matching caption and the negatives are the rest of the batch, which is why batch size mattered so much."
+      },
+      {
+        "ref": "advanced-cv/image-retrieval",
+        "text": "The embedding this lesson trains is exactly what a retrieval index stores, and the ANN search that follows is a separate engineering problem with its own recall trade-offs."
+      },
+      {
+        "ref": "ml-theory/imbalanced-data",
+        "text": "Mining is a sampling problem: which of an enormous, highly imbalanced set of comparisons to spend gradient on, and the answer is neither uniform nor extreme."
+      },
+      {
+        "ref": "advanced-cv/dino-mae",
+        "text": "Representation collapse is the shared failure across all of this - triplet loss prevents it with a margin, contrastive methods with negatives, BYOL and DINO with asymmetry and centering."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is a Siamese network?", "a": "Two (or more) branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both branches compute the same function, which is what makes the comparison meaningful." },
-      { "q": "Why use metric learning instead of classification?", "a": "When the class set is open or grows - faces, products, signatures - or when you have one example per identity. The decision becomes a distance threshold rather than a fixed output layer." },
-      { "q": "What is contrastive loss?", "a": "For a pair: pull same-label pairs together, push different-label pairs apart until they exceed a margin. The hinge means once a negative pair is far enough, it stops contributing." },
-      { "q": "What is triplet loss?", "a": "max(0, d(a,p)^2 - d(a,n)^2 + alpha) over an anchor, positive, and negative. It constrains only the RELATIVE ordering, which is weaker and more useful than fixing absolute distances." },
-      { "q": "Why is a margin necessary?", "a": "Without it, mapping every input to a constant satisfies 'same things are close' perfectly. The margin makes the trivial solution non-optimal - it is the anti-collapse term." },
-      { "q": "Why L2-normalize the embeddings?", "a": "Otherwise the network can satisfy any margin by scaling all embeddings up, which teaches nothing. Normalizing to the unit sphere makes the margin's meaning consistent." },
-      { "q": "Why does mining dominate triplet training?", "a": "There are O(N^3) triplets and a satisfied triplet contributes EXACTLY zero gradient. After a few epochs under 1% of random triplets are active, so almost all compute is wasted without mining." },
-      { "q": "Why not mine the hardest negatives?", "a": "They are disproportionately mislabelled or genuinely ambiguous, and their large gradients push toward collapse. FaceNet used SEMI-hard negatives - violating the margin but still farther than the positive." },
-      { "q": "What is batch-hard mining?", "a": "Within a batch, take the hardest positive and hardest negative per anchor. Simpler than offline mining, mines against the CURRENT model, and the batch naturally bounds how pathological the negative can be." },
-      { "q": "What is P-K sampling?", "a": "Sample P identities and K images each, so every anchor has K-1 positives and (P-1)K negatives in batch. This sampler is the real algorithm - random sampling leaves most anchors without a positive." },
-      { "q": "How do you detect embedding collapse?", "a": "The loss sits at exactly the margin and looks converged. Log the per-dimension embedding STANDARD DEVIATION - if it goes to zero, everything mapped to one point." },
-      { "q": "Should you use triplet loss today?", "a": "Usually not. Margin-based softmax losses (ArcFace, CosFace) beat it for faces, and InfoNCE with many negatives beats it for retrieval. It is the right thing to understand and often not to use." }
+      {
+        "q": "What is a Siamese network?",
+        "a": "Two (or more) branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both branches compute the same function, which is what makes the comparison meaningful."
+      },
+      {
+        "q": "Why use metric learning instead of classification?",
+        "a": "When the class set is open or grows - faces, products, signatures - or when you have one example per identity. The decision becomes a distance threshold rather than a fixed output layer."
+      },
+      {
+        "q": "What is contrastive loss?",
+        "a": "For a pair: pull same-label pairs together, push different-label pairs apart until they exceed a margin. The hinge means once a negative pair is far enough, it stops contributing."
+      },
+      {
+        "q": "What is triplet loss?",
+        "a": "max(0, d(a,p)^2 - d(a,n)^2 + alpha) over an anchor, positive, and negative. It constrains only the RELATIVE ordering, which is weaker and more useful than fixing absolute distances."
+      },
+      {
+        "q": "Why is a margin necessary?",
+        "a": "Without it, mapping every input to a constant satisfies 'same things are close' perfectly. The margin makes the trivial solution non-optimal - it is the anti-collapse term."
+      },
+      {
+        "q": "Why L2-normalize the embeddings?",
+        "a": "Otherwise the network can satisfy any margin by scaling all embeddings up, which teaches nothing. Normalizing to the unit sphere makes the margin's meaning consistent."
+      },
+      {
+        "q": "Why does mining dominate triplet training?",
+        "a": "There are O(N^3) triplets and a satisfied triplet contributes EXACTLY zero gradient. After a few epochs under 1% of random triplets are active, so almost all compute is wasted without mining."
+      },
+      {
+        "q": "Why not mine the hardest negatives?",
+        "a": "They are disproportionately mislabelled or genuinely ambiguous, and their large gradients push toward collapse. FaceNet used SEMI-hard negatives - violating the margin but still farther than the positive."
+      },
+      {
+        "q": "What is batch-hard mining?",
+        "a": "Within a batch, take the hardest positive and hardest negative per anchor. Simpler than offline mining, mines against the CURRENT model, and the batch naturally bounds how pathological the negative can be."
+      },
+      {
+        "q": "What is P-K sampling?",
+        "a": "Sample P identities and K images each, so every anchor has K-1 positives and (P-1)K negatives in batch. This sampler is the real algorithm - random sampling leaves most anchors without a positive."
+      },
+      {
+        "q": "How do you detect embedding collapse?",
+        "a": "The loss sits at exactly the margin and looks converged. Log the per-dimension embedding STANDARD DEVIATION - if it goes to zero, everything mapped to one point."
+      },
+      {
+        "q": "Should you use triplet loss today?",
+        "a": "Usually not. Margin-based softmax losses (ArcFace, CosFace) beat it for faces, and InfoNCE with many negatives beats it for retrieval. It is the right thing to understand and often not to use."
+      }
     ],
     "standard": [
       {
         "q": "Explain triplet loss and why mining is the central difficulty.",
         "a": "THE LOSS. Take an anchor, a positive of the same identity, and a negative of a different one. Require that the anchor-positive distance be smaller than the anchor-negative distance by a margin alpha, and hinge at zero: L = max(0, d(a,p)^2 - d(a,n)^2 + alpha). Two design points are worth stating. It is a RELATIVE constraint - it never says how far apart anything should be in absolute terms, only which is closer - which is more appropriate than an absolute one because there is no natural scale for 'same person'. And embeddings are L2-NORMALIZED to the unit sphere, so distances live in [0, 2] and the margin has consistent meaning; without normalization the model satisfies any margin by inflating everything. WHY MINING DOMINATES, and this is really the whole subject. (1) COMBINATORICS: N examples give O(N^3) triplets. You cannot enumerate them and you must choose. (2) ZERO GRADIENT: the hinge means a triplet already satisfying the margin contributes EXACTLY nothing. Early in training most triplets are violated; after a few epochs the model has learned the easy structure and the active fraction of randomly-sampled triplets falls below 1%. So a naive implementation spends over 99% of its compute on examples it has already learned - the loss curve looks flat and it is not converged, it is starved. (3) The distribution of triplet difficulty is extremely skewed, so uniform sampling is close to the worst possible choice. THE MINING SPECTRUM, and the counterintuitive part. EASY negatives (already satisfying the margin) give no gradient. HARDEST negatives - the ones closest to the anchor, closer even than the positive - give the largest gradient and CAUSE COLLAPSE. FaceNet reported this directly: training on hardest negatives led to a degenerate solution early in training. The reason is that in any real dataset the hardest negatives are disproportionately LABEL NOISE (two photos of the same person labelled as different people) or genuinely ambiguous cases. Optimizing hard against those drags the whole embedding toward a constant. SEMI-HARD is FaceNet's answer: negatives that violate the margin but are still FARTHER from the anchor than the positive is - hard enough to give signal, not so hard as to be pathological. THE MODERN PRACTICE, which simplified this considerably. Hermans et al.'s 'In Defense of the Triplet Loss' showed that BATCH-HARD mining - within a batch, take the hardest positive and hardest negative for each anchor - outperforms elaborate offline schemes. Three reasons it works: it mines against the CURRENT model rather than stale offline embeddings; there is no separate mining pass; and crucially the BATCH BOUNDS THE DIFFICULTY - the hardest negative among 72 samples is much less likely to be pathological than the hardest among a million. That bounding is an accidental but important regularizer. It requires P-K SAMPLING (P identities, K images each), and I would emphasize that the SAMPLER is the algorithm: with random batches most anchors have no positive at all and the loss is meaningless. If a triplet model is not learning, check the sampler before touching the loss. WHAT I WOULD MONITOR: the active triplet fraction (healthy is roughly 5-30%), mean positive and negative distances, and the embedding standard deviation - because COLLAPSE LOOKS LIKE CONVERGENCE. When every embedding is identical the loss sits at exactly the margin and the curve flattens, which is indistinguishable from success in the loss alone. AND THE HONEST CODA: the field largely moved past triplet loss. Margin-based softmax losses (ArcFace, CosFace) treat this as classification with an angular margin and beat triplet loss substantially on face recognition, partly because they use ALL classes as implicit negatives every step and so sidestep mining entirely. InfoNCE does the same for retrieval with in-batch negatives. Triplet loss remains the clearest way to understand what metric learning is doing, and the mining story is a genuinely useful lesson about where the difficulty in a method actually lives.",
-        "deepDive": { "q": "Why did margin-based softmax losses replace triplet loss for face recognition?", "a": "THE PROBLEM WITH TRIPLET LOSS AT SCALE. (1) MINING IS THE ENTIRE ENGINEERING PROBLEM - batch composition, hardness selection, and margin tuning all interact, and getting any of them wrong gives collapse or stalled training. (2) SLOW CONVERGENCE: each update sees a handful of comparisons, so information about the global structure of the embedding space arrives slowly. (3) It only ever enforces LOCAL constraints - this anchor closer to this positive than this negative - and never directly shapes the global geometry. THE ALTERNATIVE FRAMING. Train a classifier over the training identities with a softmax, then throw the classification head away and use the penultimate features as the embedding. This sounds crude and works surprisingly well, because a softmax over K classes implicitly contrasts each example against ALL K-1 other class centroids at every step - it is a much denser signal than one triplet. The catch is that plain softmax optimizes SEPARABILITY, not DISCRIMINABILITY: it only needs the classes to be separable, and gives no pressure toward large margins between them, so the features generalize poorly to identities never seen in training - which is the whole use case. THE FIX - ANGULAR MARGINS. Normalize both the feature and the class weight vectors, so the logit becomes the COSINE of the angle between them, scaled by a factor s. Then inject a margin into that angle for the true class, so the model must push the correct class not merely to the top but past a margin. The variants differ in where the margin goes: SPHEREFACE multiplies the angle (cos(m*theta)); COSFACE subtracts from the cosine (cos(theta) - m); ARCFACE adds to the angle (cos(theta + m)), which gives a constant linear margin on the hypersphere and is the cleanest geometrically. ArcFace is the usual default, with s ~ 64 and m ~ 0.5. WHY THIS BEATS TRIPLET LOSS. (1) NO MINING. Every example is contrasted against every class centroid every step - the hard-negative problem dissolves because you never choose. (2) DENSE SIGNAL: one forward pass gives K-1 comparisons instead of one. (3) GLOBAL GEOMETRY: the class weight vectors act as learned centroids distributed over the sphere, so the loss shapes the whole space rather than local neighbourhoods. (4) STABILITY: it is ordinary classification training, with none of triplet loss's collapse modes. (5) The margin is a single interpretable hyperparameter instead of a margin plus a mining strategy plus a batch scheme. THE COSTS, which are real. (a) You need CLASS LABELS for training - identities, not just pairs - so it does not apply when you only have same/different supervision. (b) The classification layer is K x d parameters, and with millions of identities that layer dominates memory, requiring partial-FC or sharded softmax tricks. (c) It assumes a fixed training identity set, though the learned EMBEDDING still generalizes to unseen identities, which is the point. (d) The scale s and margin m interact and need tuning. WHERE EACH IS STILL RIGHT: margin-softmax when you have identity labels and a large training set (face recognition, essentially always now). Triplet or contrastive when supervision is only PAIRWISE (this pair matches, this pair does not), when the label set is enormous and unstable, or in cross-modal settings where there are no shared classes - which is why CLIP is contrastive and not ArcFace. THE PATTERN WORTH NAMING: a hard SAMPLING problem was dissolved by changing the loss so that no sampling is needed. That move - replace 'choose good comparisons' with 'compare against everything cheaply' - recurs in noise-contrastive estimation, in full-softmax versus sampled-softmax debates, and in the shift from triplet to InfoNCE in self-supervised learning." }
+        "deepDive": {
+          "q": "Why did margin-based softmax losses replace triplet loss for face recognition?",
+          "a": "THE PROBLEM WITH TRIPLET LOSS AT SCALE. (1) MINING IS THE ENTIRE ENGINEERING PROBLEM - batch composition, hardness selection, and margin tuning all interact, and getting any of them wrong gives collapse or stalled training. (2) SLOW CONVERGENCE: each update sees a handful of comparisons, so information about the global structure of the embedding space arrives slowly. (3) It only ever enforces LOCAL constraints - this anchor closer to this positive than this negative - and never directly shapes the global geometry. THE ALTERNATIVE FRAMING. Train a classifier over the training identities with a softmax, then throw the classification head away and use the penultimate features as the embedding. This sounds crude and works surprisingly well, because a softmax over K classes implicitly contrasts each example against ALL K-1 other class centroids at every step - it is a much denser signal than one triplet. The catch is that plain softmax optimizes SEPARABILITY, not DISCRIMINABILITY: it only needs the classes to be separable, and gives no pressure toward large margins between them, so the features generalize poorly to identities never seen in training - which is the whole use case. THE FIX - ANGULAR MARGINS. Normalize both the feature and the class weight vectors, so the logit becomes the COSINE of the angle between them, scaled by a factor s. Then inject a margin into that angle for the true class, so the model must push the correct class not merely to the top but past a margin. The variants differ in where the margin goes: SPHEREFACE multiplies the angle (cos(m*theta)); COSFACE subtracts from the cosine (cos(theta) - m); ARCFACE adds to the angle (cos(theta + m)), which gives a constant linear margin on the hypersphere and is the cleanest geometrically. ArcFace is the usual default, with s ~ 64 and m ~ 0.5. WHY THIS BEATS TRIPLET LOSS. (1) NO MINING. Every example is contrasted against every class centroid every step - the hard-negative problem dissolves because you never choose. (2) DENSE SIGNAL: one forward pass gives K-1 comparisons instead of one. (3) GLOBAL GEOMETRY: the class weight vectors act as learned centroids distributed over the sphere, so the loss shapes the whole space rather than local neighbourhoods. (4) STABILITY: it is ordinary classification training, with none of triplet loss's collapse modes. (5) The margin is a single interpretable hyperparameter instead of a margin plus a mining strategy plus a batch scheme. THE COSTS, which are real. (a) You need CLASS LABELS for training - identities, not just pairs - so it does not apply when you only have same/different supervision. (b) The classification layer is K x d parameters, and with millions of identities that layer dominates memory, requiring partial-FC or sharded softmax tricks. (c) It assumes a fixed training identity set, though the learned EMBEDDING still generalizes to unseen identities, which is the point. (d) The scale s and margin m interact and need tuning. WHERE EACH IS STILL RIGHT: margin-softmax when you have identity labels and a large training set (face recognition, essentially always now). Triplet or contrastive when supervision is only PAIRWISE (this pair matches, this pair does not), when the label set is enormous and unstable, or in cross-modal settings where there are no shared classes - which is why CLIP is contrastive and not ArcFace. THE PATTERN WORTH NAMING: a hard SAMPLING problem was dissolved by changing the loss so that no sampling is needed. That move - replace 'choose good comparisons' with 'compare against everything cheaply' - recurs in noise-contrastive estimation, in full-softmax versus sampled-softmax debates, and in the shift from triplet to InfoNCE in self-supervised learning."
+        }
       },
       {
         "q": "Design a face verification system for building access. What are the decisions?",
@@ -141,25 +207,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Siamese network", "back": "Branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both compute the same function - that is what makes the distance meaningful, not an implementation convenience." },
-    { "type": "definition", "front": "Triplet loss", "back": "max(0, d(a,p)^2 - d(a,n)^2 + alpha). A RELATIVE constraint - only which is closer, never absolute distances. Embeddings L2-normalized so the margin has consistent meaning (otherwise the model just scales everything up)." },
-    { "type": "intuition", "front": "Why a margin at all", "back": "Without it, mapping every input to a CONSTANT satisfies 'similar things are close' perfectly and carries no information. The margin is the anti-collapse term, and every similarity-based method needs some equivalent." },
-    { "type": "pitfall", "front": "Mining is the whole problem", "back": "O(N^3) triplets, and a satisfied triplet gives EXACTLY zero gradient. After a few epochs under 1% of random triplets are active - the loss curve looks flat and the model is starved, not converged. Log the ACTIVE FRACTION (healthy 5-30%)." },
-    { "type": "pitfall", "front": "Hardest-negative mining collapses", "back": "The hardest negatives are disproportionately MISLABELLED or genuinely ambiguous, so their large gradients drag the embedding to a constant. FaceNet used SEMI-hard: violating the margin but still farther than the positive." },
-    { "type": "definition", "front": "Batch-hard + P-K sampling", "back": "Sample P identities x K images; per anchor take the hardest in-batch positive and negative. Mines against the CURRENT model, no offline pass, and the BATCH BOUNDS the difficulty - an accidental but crucial regularizer. The sampler IS the algorithm." },
-    { "type": "pitfall", "front": "Collapse looks like convergence", "back": "When all embeddings coincide, the loss sits at exactly the margin and the curve flattens - identical to success. Log the per-dimension embedding STANDARD DEVIATION; it is the only signal that separates them." },
-    { "type": "intuition", "front": "Why InfoNCE beat triplet loss", "back": "Many negatives at once (one matmul), and the softmax AUTOMATICALLY weights them by difficulty - hard ones get the gradient, easy ones get none. Mining dissolves; temperature becomes a continuous hardness dial. Cost: needs large batches, and false negatives." },
-    { "type": "definition", "front": "ArcFace / margin softmax", "back": "Normalize features AND class weights so logits are cosines, then add an angular margin to the true class. Contrasts against ALL K-1 class centroids every step - no mining at all. Beats triplet loss for faces; needs identity labels." },
-    { "type": "pitfall", "front": "Verification metrics", "back": "Report ROC and TAR@FAR (1e-3 ... 1e-6), never accuracy - negatives swamp positives so 'always different' scores well. And a FAR of 1e-6 cannot be estimated from a thousand pairs; you need tens of millions of comparisons." },
-    { "type": "pitfall", "front": "Split by IDENTITY, not by image", "back": "If the same person/product appears in train and test you are measuring memorization, and the inflation is dramatic. The single most common fatal error in metric-learning evaluation." },
-    { "type": "intuition", "front": "Dimensional collapse", "back": "Not a constant output, but the embedding occupying a low-dimensional subspace - wasting capacity while the loss looks fine. Detect via the SINGULAR VALUE SPECTRUM of a batch of embeddings; fast decay is the signature." }
+    {
+      "type": "definition",
+      "front": "Siamese network",
+      "back": "Branches with SHARED weights processing different inputs, compared at the output. Weight sharing guarantees both compute the same function - that is what makes the distance meaningful, not an implementation convenience."
+    },
+    {
+      "type": "definition",
+      "front": "Triplet loss",
+      "back": "max(0, d(a,p)^2 - d(a,n)^2 + alpha). A RELATIVE constraint - only which is closer, never absolute distances. Embeddings L2-normalized so the margin has consistent meaning (otherwise the model just scales everything up)."
+    },
+    {
+      "type": "intuition",
+      "front": "Why a margin at all",
+      "back": "Without it, mapping every input to a CONSTANT satisfies 'similar things are close' perfectly and carries no information. The margin is the anti-collapse term, and every similarity-based method needs some equivalent."
+    },
+    {
+      "type": "pitfall",
+      "front": "Mining is the whole problem",
+      "back": "O(N^3) triplets, and a satisfied triplet gives EXACTLY zero gradient. After a few epochs under 1% of random triplets are active - the loss curve looks flat and the model is starved, not converged. Log the ACTIVE FRACTION (healthy 5-30%)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Hardest-negative mining collapses",
+      "back": "The hardest negatives are disproportionately MISLABELLED or genuinely ambiguous, so their large gradients drag the embedding to a constant. FaceNet used SEMI-hard: violating the margin but still farther than the positive."
+    },
+    {
+      "type": "definition",
+      "front": "Batch-hard + P-K sampling",
+      "back": "Sample P identities x K images; per anchor take the hardest in-batch positive and negative. Mines against the CURRENT model, no offline pass, and the BATCH BOUNDS the difficulty - an accidental but crucial regularizer. The sampler IS the algorithm."
+    },
+    {
+      "type": "pitfall",
+      "front": "Collapse looks like convergence",
+      "back": "When all embeddings coincide, the loss sits at exactly the margin and the curve flattens - identical to success. Log the per-dimension embedding STANDARD DEVIATION; it is the only signal that separates them."
+    },
+    {
+      "type": "intuition",
+      "front": "Why InfoNCE beat triplet loss",
+      "back": "Many negatives at once (one matmul), and the softmax AUTOMATICALLY weights them by difficulty - hard ones get the gradient, easy ones get none. Mining dissolves; temperature becomes a continuous hardness dial. Cost: needs large batches, and false negatives."
+    },
+    {
+      "type": "definition",
+      "front": "ArcFace / margin softmax",
+      "back": "Normalize features AND class weights so logits are cosines, then add an angular margin to the true class. Contrasts against ALL K-1 class centroids every step - no mining at all. Beats triplet loss for faces; needs identity labels."
+    },
+    {
+      "type": "pitfall",
+      "front": "Verification metrics",
+      "back": "Report ROC and TAR@FAR (1e-3 ... 1e-6), never accuracy - negatives swamp positives so 'always different' scores well. And a FAR of 1e-6 cannot be estimated from a thousand pairs; you need tens of millions of comparisons."
+    },
+    {
+      "type": "pitfall",
+      "front": "Split by IDENTITY, not by image",
+      "back": "If the same person/product appears in train and test you are measuring memorization, and the inflation is dramatic. The single most common fatal error in metric-learning evaluation."
+    },
+    {
+      "type": "intuition",
+      "front": "Dimensional collapse",
+      "back": "Not a constant output, but the embedding occupying a low-dimensional subspace - wasting capacity while the loss looks fine. Detect via the SINGULAR VALUE SPECTRUM of a batch of embeddings; fast decay is the signature."
+    }
   ],
   "refs": [
-    { "title": "Schroff et al. (2015), FaceNet: A Unified Embedding for Face Recognition and Clustering", "url": "https://arxiv.org/abs/1503.03832" },
-    { "title": "Hermans et al. (2017), In Defense of the Triplet Loss for Person Re-Identification", "url": "https://arxiv.org/abs/1703.07737" },
-    { "title": "Deng et al. (2019), ArcFace: Additive Angular Margin Loss for Deep Face Recognition", "url": "https://arxiv.org/abs/1801.07698" },
-    { "title": "Hadsell et al. (2006), Dimensionality Reduction by Learning an Invariant Mapping", "url": "https://www.cs.toronto.edu/~hinton/csc2535_06/readings/hadsell-chopra-lecun-06.pdf" },
-    { "title": "Musgrave et al. (2020), A Metric Learning Reality Check", "url": "https://arxiv.org/abs/2003.08505" }
+    {
+      "title": "Schroff et al. (2015), FaceNet: A Unified Embedding for Face Recognition and Clustering",
+      "url": "https://arxiv.org/abs/1503.03832"
+    },
+    {
+      "title": "Hermans et al. (2017), In Defense of the Triplet Loss for Person Re-Identification",
+      "url": "https://arxiv.org/abs/1703.07737"
+    },
+    {
+      "title": "Deng et al. (2019), ArcFace: Additive Angular Margin Loss for Deep Face Recognition",
+      "url": "https://arxiv.org/abs/1801.07698"
+    },
+    {
+      "title": "Hadsell et al. (2006), Dimensionality Reduction by Learning an Invariant Mapping",
+      "url": "https://www.cs.toronto.edu/~hinton/csc2535_06/readings/hadsell-chopra-lecun-06.pdf"
+    },
+    {
+      "title": "Musgrave et al. (2020), A Metric Learning Reality Check",
+      "url": "https://arxiv.org/abs/2003.08505"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-02",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-02_metric_learning_siamese_networks_triplet.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-08",
   "slug": "resampling",
+  "keyBase": "causal-inference/resampling",
   "module": "causal-inference",
   "title": "Bootstrap, Permutation & Resampling",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://link.springer.com/book/10.1007/b138696"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "05-10",
+    "module": "evaluation",
+    "disposition": "clean",
+    "notebookFile": "05-10_bootstrap_permutation_significance.ipynb"
+  }
 }

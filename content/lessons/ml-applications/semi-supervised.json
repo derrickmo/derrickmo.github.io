@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-08",
   "slug": "semi-supervised",
+  "keyBase": "ml-applications/semi-supervised",
   "module": "ml-applications",
   "title": "Semi-Supervised Learning",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://arxiv.org/abs/2002.05709"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-08",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-08_semi_supervised_label_efficient_learning.ipynb"
+  }
 }

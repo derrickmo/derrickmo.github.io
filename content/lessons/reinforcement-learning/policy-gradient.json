@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-06",
   "slug": "policy-gradient",
+  "keyBase": "reinforcement-learning/policy-gradient",
   "module": "reinforcement-learning",
   "title": "Policy Gradient & REINFORCE",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "14-06_policy_gradient_reinforce.ipynb",
     "flagship": null,
-    "demos": ["policy-gradient", "gae", "max-entropy-rl", "gridworld-rl"],
+    "demos": [
+      "policy-gradient",
+      "gae",
+      "max-entropy-rl",
+      "gridworld-rl"
+    ],
     "concepts": []
   },
-  "prereqs": ["reinforcement-learning/mdp-bellman", "reinforcement-learning/dqn"],
-  "leadsTo": ["reinforcement-learning/actor-critic"],
+  "prereqs": [
+    "reinforcement-learning/mdp-bellman",
+    "reinforcement-learning/dqn"
+  ],
+  "leadsTo": [
+    "reinforcement-learning/actor-critic"
+  ],
   "body": {
     "intuition": [
       "Value-based methods learn a value function and read a policy off it. Policy-gradient methods skip the intermediary and optimize the policy's parameters directly against expected return. Three reasons that is worth doing. CONTINUOUS ACTIONS: you cannot argmax over a continuum, so any method requiring a max over actions is structurally excluded. STOCHASTIC OPTIMAL POLICIES: under partial observability or in adversarial settings the best policy is genuinely randomized, and a greedy value method cannot represent that. And SMOOTHNESS: a small parameter change produces a small change in behaviour, whereas an epsilon-greedy policy over a value function flips discontinuously the instant two action values cross - which is a real source of instability in value-based learning.",
@@ -277,5 +288,11 @@
       "url": "https://proceedings.mlr.press/v32/thomas14.html"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "14-07",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-07_policy_gradients_reinforce.ipynb"
+  }
 }

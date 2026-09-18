@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-10",
   "slug": "complexity",
+  "keyBase": "foundations/complexity",
   "module": "foundations",
   "title": "Computational Thinking & Complexity",
   "status": "LIVE",
@@ -260,5 +261,14 @@
       "url": "https://wiki.python.org/moin/TimeComplexity"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "01-10",
+    "module": "math-foundations",
+    "disposition": "split",
+    "notebookFile": "01-10_complexity_floating_point_numerical_stability.ipynb",
+    "alsoFeeds": [
+      "02-08"
+    ]
+  }
 }

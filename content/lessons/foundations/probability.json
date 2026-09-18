@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-07",
   "slug": "probability",
+  "keyBase": "foundations/probability",
   "module": "foundations",
   "title": "Probability & Statistics for ML",
   "status": "LIVE",
@@ -261,5 +262,14 @@
       "url": "https://numpy.org/doc/stable/reference/random/generator.html"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "01-05",
+    "module": "math-foundations",
+    "disposition": "split",
+    "notebookFile": "01-05_probability_random_variables.ipynb",
+    "alsoFeeds": [
+      "01-06"
+    ]
+  }
 }

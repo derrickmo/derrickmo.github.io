@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-03",
   "slug": "design-recommender",
+  "keyBase": "interview-capstone/design-recommender",
   "module": "interview-capstone",
   "title": "Design Case: Recommender & Feed",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/1209.2355"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-03",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-03_design_case_recommender_feed.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-09",
   "slug": "flash-attention",
+  "keyBase": "transformers/flash-attention",
   "module": "transformers",
   "title": "Flash Attention — Algorithm & Concepts",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-09_flash_attention_concepts.ipynb",
     "flagship": null,
-    "demos": ["attention", "paged-attention", "kv-cache"],
+    "demos": [
+      "attention",
+      "paged-attention",
+      "kv-cache"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/multi-head-attention", "transformers/transformer-block"],
-  "leadsTo": ["llm-systems/long-context", "training-systems/profiling"],
+  "prereqs": [
+    "transformers/multi-head-attention",
+    "transformers/transformer-block"
+  ],
+  "leadsTo": [
+    "llm-systems/long-context",
+    "training-systems/profiling"
+  ],
   "body": {
     "intuition": [
       "FlashAttention (Dao et al., 2022) computes EXACTLY the same function as standard attention - same output, same gradients, no approximation - and is several times faster while using O(T) memory instead of O(T^2). That combination sounds impossible until you notice what the standard implementation actually spends its time on. It is not the matmuls: attention as usually written materializes the full T x T score matrix in GPU high-bandwidth memory, writes it, reads it back for the softmax, writes the result, reads it again for the value multiply. For a 4K sequence with 16 heads that is hundreds of megabytes moved per layer to do a comparatively small amount of arithmetic. The operation is MEMORY-BANDWIDTH-BOUND, and the fix is to stop moving data, not to do less math.",
@@ -72,32 +83,83 @@
       "Thinking it fixes long-context serving: it removes the attention-matrix memory during compute, but the KV CACHE is a separate, still-linear-in-T cost. Long-context inference needs GQA, paged attention, and cache quantization as well."
     ],
     "connections": [
-      { "ref": "transformers/multi-head-attention", "text": "This computes exactly that operator - the T x T matrix it avoids materializing is the one derived there, which is why the memory accounting matters." },
-      { "ref": "transformers/kv-cache", "text": "Complementary bottlenecks: FlashAttention addresses the attention matrix during compute; the KV cache is a separate memory cost that dominates decoding." },
-      { "ref": "training-systems/gradient-checkpointing", "text": "The same trade in a different place - recompute activations instead of storing them, because compute is cheaper than memory traffic. FlashAttention applies it inside a single operator." },
-      { "ref": "llm-systems/long-context", "text": "Removing the quadratic memory term is what made long-context training viable; the positional-scaling methods handle the other half of the problem." }
+      {
+        "ref": "transformers/multi-head-attention",
+        "text": "This computes exactly that operator - the T x T matrix it avoids materializing is the one derived there, which is why the memory accounting matters."
+      },
+      {
+        "ref": "transformers/kv-cache",
+        "text": "Complementary bottlenecks: FlashAttention addresses the attention matrix during compute; the KV cache is a separate memory cost that dominates decoding."
+      },
+      {
+        "ref": "training-systems/gradient-checkpointing",
+        "text": "The same trade in a different place - recompute activations instead of storing them, because compute is cheaper than memory traffic. FlashAttention applies it inside a single operator."
+      },
+      {
+        "ref": "llm-systems/long-context",
+        "text": "Removing the quadratic memory term is what made long-context training viable; the positional-scaling methods handle the other half of the problem."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is FlashAttention?", "a": "An IO-aware exact attention algorithm: tile the computation so the T x T score matrix is never written to HBM, using an online-softmax recurrence to keep it exact." },
-      { "q": "Is it an approximation?", "a": "No - identical outputs and gradients to standard attention (up to floating-point reassociation). That exactness is why it could be adopted as a drop-in default." },
-      { "q": "What is the actual bottleneck it addresses?", "a": "Memory bandwidth. Standard attention writes and re-reads the T x T matrix several times; the operation is bandwidth-bound, not compute-bound." },
-      { "q": "What is online softmax?", "a": "A recurrence maintaining a running max and running sum of exponentials, rescaling accumulated results by exp(m_old - m_new) when a new block raises the max - so softmax can be computed blockwise, exactly." },
-      { "q": "Why is the running max needed?", "a": "Numerical stability - subtracting the max before exponentiating prevents overflow. Tiling means the max is only known incrementally, hence the rescaling." },
-      { "q": "What does the backward pass do differently?", "a": "It RECOMPUTES the attention tiles from saved q, k, v rather than storing the T x T matrix - extra FLOPs, far less memory traffic, net win." },
-      { "q": "What is the memory complexity?", "a": "O(T) instead of O(T^2) for the attention matrix, because the matrix is never materialized. This is the change that made long-context training possible." },
-      { "q": "What speedup is typical?", "a": "Roughly 2-4x on attention, growing with sequence length. End-to-end model speedup is smaller, since attention is only part of the block." },
-      { "q": "How do you use it in PyTorch?", "a": "F.scaled_dot_product_attention dispatches to a FlashAttention kernel automatically when shapes, dtype, and bias pattern qualify." },
-      { "q": "When does it NOT apply?", "a": "Unsupported head dimensions, fp32 on most versions, or custom additive attention biases (T5 relative bias, logit soft-capping) - these silently fall back to the slow math backend." },
-      { "q": "What changed in FlashAttention-2 and -3?", "a": "Same math, better scheduling: FA-2 improved work partitioning across warps/thread blocks (~2x); FA-3 exploits Hopper's asynchronous copies and FP8." },
-      { "q": "Does it help inference decoding?", "a": "Partly - it helps prefill (long prompts). Decode is dominated by KV-cache and weight reads, which need GQA, paged attention, and quantization instead." }
+      {
+        "q": "What is FlashAttention?",
+        "a": "An IO-aware exact attention algorithm: tile the computation so the T x T score matrix is never written to HBM, using an online-softmax recurrence to keep it exact."
+      },
+      {
+        "q": "Is it an approximation?",
+        "a": "No - identical outputs and gradients to standard attention (up to floating-point reassociation). That exactness is why it could be adopted as a drop-in default."
+      },
+      {
+        "q": "What is the actual bottleneck it addresses?",
+        "a": "Memory bandwidth. Standard attention writes and re-reads the T x T matrix several times; the operation is bandwidth-bound, not compute-bound."
+      },
+      {
+        "q": "What is online softmax?",
+        "a": "A recurrence maintaining a running max and running sum of exponentials, rescaling accumulated results by exp(m_old - m_new) when a new block raises the max - so softmax can be computed blockwise, exactly."
+      },
+      {
+        "q": "Why is the running max needed?",
+        "a": "Numerical stability - subtracting the max before exponentiating prevents overflow. Tiling means the max is only known incrementally, hence the rescaling."
+      },
+      {
+        "q": "What does the backward pass do differently?",
+        "a": "It RECOMPUTES the attention tiles from saved q, k, v rather than storing the T x T matrix - extra FLOPs, far less memory traffic, net win."
+      },
+      {
+        "q": "What is the memory complexity?",
+        "a": "O(T) instead of O(T^2) for the attention matrix, because the matrix is never materialized. This is the change that made long-context training possible."
+      },
+      {
+        "q": "What speedup is typical?",
+        "a": "Roughly 2-4x on attention, growing with sequence length. End-to-end model speedup is smaller, since attention is only part of the block."
+      },
+      {
+        "q": "How do you use it in PyTorch?",
+        "a": "F.scaled_dot_product_attention dispatches to a FlashAttention kernel automatically when shapes, dtype, and bias pattern qualify."
+      },
+      {
+        "q": "When does it NOT apply?",
+        "a": "Unsupported head dimensions, fp32 on most versions, or custom additive attention biases (T5 relative bias, logit soft-capping) - these silently fall back to the slow math backend."
+      },
+      {
+        "q": "What changed in FlashAttention-2 and -3?",
+        "a": "Same math, better scheduling: FA-2 improved work partitioning across warps/thread blocks (~2x); FA-3 exploits Hopper's asynchronous copies and FP8."
+      },
+      {
+        "q": "Does it help inference decoding?",
+        "a": "Partly - it helps prefill (long prompts). Decode is dominated by KV-cache and weight reads, which need GQA, paged attention, and quantization instead."
+      }
     ],
     "standard": [
       {
         "q": "Explain FlashAttention: what problem it solves, how tiling plus online softmax works, and why the result is exact.",
         "a": "THE PROBLEM. Write standard attention as it appears in textbooks: S = QK^T/sqrt(d), P = softmax(S), O = PV. Each of those lines materializes a T x T matrix in GPU high-bandwidth memory. So the sequence of memory operations is: write S (T^2 values), read S, write P, read P, write O. For batch 8, 16 heads, T = 4096 in fp16, one attention matrix is ~4 GB, and it is traversed several times per layer, per forward pass, and again in the backward pass. Meanwhile the arithmetic - two matmuls of order T^2*d - is modest by GPU standards. The consequence is that attention is MEMORY-BANDWIDTH-BOUND: the GPU is idle waiting on HBM. And separately, the O(T^2) peak memory is what makes long sequences impossible regardless of speed. THE INSIGHT. GPUs have a small amount of extremely fast on-chip SRAM (tens of KB to a few hundred KB per streaming multiprocessor, with bandwidth an order of magnitude above HBM). If you can arrange the computation so that each piece of work fits in SRAM and produces its final contribution before being evicted, you never write the intermediate to HBM at all. That is TILING, and it is standard practice for matmuls. The obstacle specific to attention is the SOFTMAX, which normalizes over an entire row - so you seemingly cannot finish any part of the output until you have seen every key. THE RESOLUTION - ONLINE SOFTMAX (Milakov and Gimelshein, 2018). Maintain, for each query row, a running maximum m and a running sum of exponentials l, plus a running unnormalized output O. Process keys in blocks. For a new block: compute its local scores, take m_new = max(m_old, block max), exponentiate the block's scores relative to m_new, and RESCALE the previously accumulated l and O by exp(m_old - m_new) before adding the new contributions. At the end, divide O by l. The rescaling corrects the earlier terms for the fact that they were exponentiated relative to a smaller maximum - so the result is algebraically identical to computing the softmax over the whole row at once. THE ALGORITHM. Outer loop over query blocks, inner loop over key/value blocks; load Q_i, K_j, V_j into SRAM; compute the tile's scores; update m, l, O in place; move on. The T x T matrix exists only one tile at a time, in fast memory, and is never written to HBM. THE BACKWARD PASS. Gradients normally need the attention matrix P, which we did not store. FlashAttention RECOMPUTES the tiles from the saved Q, K, V (which are O(T*d), not O(T^2)) during the backward pass. This costs extra FLOPs - and still wins, because those FLOPs were never the bottleneck while the memory traffic was. It is the same trade as gradient checkpointing, applied inside a single operator. WHY IT IS EXACT, which is the part people doubt. Every step is an algebraic identity: the rescaling exactly compensates for the changing maximum, and the final division by l normalizes correctly. There is no dropped term, no approximation, no sparsity assumption. Numerically the result differs from the reference only by floating-point REASSOCIATION (a different summation order), which is the same magnitude of difference you get from changing batch size or using a different matmul algorithm. Verify it by running the tiled version in float64 against the reference - the difference is ~1e-15. THE RESULTS AND WHY THEY MATTER: 2-4x faster attention (growing with T) and, more importantly, O(T) memory instead of O(T^2), which is what turned 8K-64K training from impossible into routine. FlashAttention-2 rewrote the work partitioning across warps and thread blocks for roughly another 2x; FlashAttention-3 targets Hopper's asynchronous copy engines and FP8. Same mathematics throughout - the improvements are entirely in scheduling. THE GENERALIZABLE LESSON, and the thing to say last: on modern accelerators, arithmetic is cheap and data movement is expensive. An algorithm that performs MORE FLOPs to move LESS data usually wins, and FLOPs are therefore a poor proxy for speed. That reframing is the paper's real contribution - it is titled 'IO-Awareness' for a reason.",
-        "deepDive": { "q": "Derive the online softmax recurrence and prove the rescaling makes it exact.", "a": "SETUP. We want softmax(x_1, ..., x_N) computed in blocks, where the standard stable formulation is p_i = exp(x_i - m) / sum_j exp(x_j - m) with m = max_j x_j (the max subtraction prevents overflow). The difficulty is that m depends on all N values. STATE. After processing the first k elements, maintain: m^(k) = max over the first k of x, and l^(k) = sum over the first k of exp(x_i - m^(k)). Note the crucial detail - l is defined relative to the CURRENT max, so it must be corrected whenever the max changes. THE RECURRENCE. Suppose we now see element x_{k+1}. The new max is m^(k+1) = max(m^(k), x_{k+1}). We need l^(k+1) = sum over the first k+1 of exp(x_i - m^(k+1)). Split the sum: the new term is exp(x_{k+1} - m^(k+1)). For the old terms, sum over the first k of exp(x_i - m^(k+1)) = sum over the first k of exp(x_i - m^(k)) * exp(m^(k) - m^(k+1)) = exp(m^(k) - m^(k+1)) * l^(k), because the exponent difference factors out of every term identically. So l^(k+1) = exp(m^(k) - m^(k+1)) * l^(k) + exp(x_{k+1} - m^(k+1)). That is the recurrence, and the derivation IS the proof - each step is an exact factorization, not an approximation. Note that exp(m^(k) - m^(k+1)) <= 1 always, so the rescaling never amplifies, which is why the scheme is numerically well-behaved. EXTENDING TO THE ATTENTION OUTPUT. We do not just want the softmax weights; we want O = sum_i p_i v_i. Maintain an UNNORMALIZED running output O^(k) = sum over the first k of exp(x_i - m^(k)) * v_i. The same factorization applies: when the max updates, every previously accumulated term must be multiplied by exp(m^(k) - m^(k+1)), giving O^(k+1) = exp(m^(k) - m^(k+1)) * O^(k) + exp(x_{k+1} - m^(k+1)) * v_{k+1}. At the very end, divide: O = O^(N) / l^(N). Again exact. BLOCK VERSION. Nothing changes if you process B elements at a time - compute the block's local max, take the running max against it, rescale, and add the block's contributions. This is what makes it useful: the inner loop is a matmul over a tile, not a scalar loop. THE FLOATING-POINT CAVEAT, which is worth stating precisely because 'exact' invites scepticism: the recurrence is exact in REAL arithmetic. In floating point, the result differs from the one-shot computation by REASSOCIATION error - you are summing the same terms in a different order, and floating-point addition is not associative. The magnitude is the ordinary accumulation error of the summation, comparable to what you already accept when a matmul library chooses a different tiling, or when you change batch size. It is emphatically NOT the kind of error an approximation introduces (dropped terms, sparsity assumptions), and it does not grow with sequence length in any problematic way, since the rescaling keeps all accumulated quantities bounded. WHERE ELSE THIS PATTERN APPEARS, which shows it is a general technique rather than an attention trick: streaming/one-pass computation of any normalized quantity - log-sum-exp in HMM forward algorithms, streaming statistics (Welford's algorithm for running variance is the same idea), and split-K reductions in matmul kernels. The unifying principle is: if your reduction has a normalizer that depends on all elements, keep the normalizer as running state and rescale the accumulator whenever it changes. Being able to derive that on the spot is a much better answer than citing the paper." }
+        "deepDive": {
+          "q": "Derive the online softmax recurrence and prove the rescaling makes it exact.",
+          "a": "SETUP. We want softmax(x_1, ..., x_N) computed in blocks, where the standard stable formulation is p_i = exp(x_i - m) / sum_j exp(x_j - m) with m = max_j x_j (the max subtraction prevents overflow). The difficulty is that m depends on all N values. STATE. After processing the first k elements, maintain: m^(k) = max over the first k of x, and l^(k) = sum over the first k of exp(x_i - m^(k)). Note the crucial detail - l is defined relative to the CURRENT max, so it must be corrected whenever the max changes. THE RECURRENCE. Suppose we now see element x_{k+1}. The new max is m^(k+1) = max(m^(k), x_{k+1}). We need l^(k+1) = sum over the first k+1 of exp(x_i - m^(k+1)). Split the sum: the new term is exp(x_{k+1} - m^(k+1)). For the old terms, sum over the first k of exp(x_i - m^(k+1)) = sum over the first k of exp(x_i - m^(k)) * exp(m^(k) - m^(k+1)) = exp(m^(k) - m^(k+1)) * l^(k), because the exponent difference factors out of every term identically. So l^(k+1) = exp(m^(k) - m^(k+1)) * l^(k) + exp(x_{k+1} - m^(k+1)). That is the recurrence, and the derivation IS the proof - each step is an exact factorization, not an approximation. Note that exp(m^(k) - m^(k+1)) <= 1 always, so the rescaling never amplifies, which is why the scheme is numerically well-behaved. EXTENDING TO THE ATTENTION OUTPUT. We do not just want the softmax weights; we want O = sum_i p_i v_i. Maintain an UNNORMALIZED running output O^(k) = sum over the first k of exp(x_i - m^(k)) * v_i. The same factorization applies: when the max updates, every previously accumulated term must be multiplied by exp(m^(k) - m^(k+1)), giving O^(k+1) = exp(m^(k) - m^(k+1)) * O^(k) + exp(x_{k+1} - m^(k+1)) * v_{k+1}. At the very end, divide: O = O^(N) / l^(N). Again exact. BLOCK VERSION. Nothing changes if you process B elements at a time - compute the block's local max, take the running max against it, rescale, and add the block's contributions. This is what makes it useful: the inner loop is a matmul over a tile, not a scalar loop. THE FLOATING-POINT CAVEAT, which is worth stating precisely because 'exact' invites scepticism: the recurrence is exact in REAL arithmetic. In floating point, the result differs from the one-shot computation by REASSOCIATION error - you are summing the same terms in a different order, and floating-point addition is not associative. The magnitude is the ordinary accumulation error of the summation, comparable to what you already accept when a matmul library chooses a different tiling, or when you change batch size. It is emphatically NOT the kind of error an approximation introduces (dropped terms, sparsity assumptions), and it does not grow with sequence length in any problematic way, since the rescaling keeps all accumulated quantities bounded. WHERE ELSE THIS PATTERN APPEARS, which shows it is a general technique rather than an attention trick: streaming/one-pass computation of any normalized quantity - log-sum-exp in HMM forward algorithms, streaming statistics (Welford's algorithm for running variance is the same idea), and split-K reductions in matmul kernels. The unifying principle is: if your reduction has a normalizer that depends on all elements, keep the normalizer as running state and rescale the accumulator whenever it changes. Being able to derive that on the spot is a much better answer than citing the paper."
+        }
       },
       {
         "q": "Why does an algorithm that does MORE arithmetic run faster? Explain the roofline reasoning.",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "FlashAttention", "back": "An IO-aware EXACT attention algorithm: tile the computation into SRAM so the T x T score matrix is never written to HBM, using online softmax to keep it exact. 2-4x faster, O(T) memory instead of O(T^2)." },
-    { "type": "pitfall", "front": "It is not an approximation", "back": "Identical outputs and gradients (differing only by floating-point reassociation). That exactness is why it became a zero-risk drop-in default - unlike sparse/linear attention, which change the function and need retraining." },
-    { "type": "formula", "front": "Online softmax recurrence", "back": "m_new = max(m_old, block_max); l = exp(m_old-m_new)*l + block_sum; O = exp(m_old-m_new)*O + P_block @ V_block; divide by l at the end. The rescaling exactly corrects earlier terms for the changed max." },
-    { "type": "intuition", "front": "Why more FLOPs can be faster", "back": "Attention is MEMORY-BANDWIDTH-BOUND, so the arithmetic units are idle. Recomputing tiles in the backward pass adds free FLOPs and removes HBM traffic. Roofline: perf = min(peak compute, intensity x bandwidth)." },
-    { "type": "definition", "front": "Backward-pass recomputation", "back": "Rather than storing the T x T attention matrix for gradients, recompute tiles from the saved q,k,v (which are only O(T*d)). Same trade as gradient checkpointing, applied inside one operator." },
-    { "type": "pitfall", "front": "Silent fallback in PyTorch", "back": "scaled_dot_product_attention quietly uses the slow math backend when ineligible: unsupported head dim, fp32, or a custom additive bias (T5 relative bias, logit soft-capping). Force the flash-only backend to make it error instead." },
-    { "type": "intuition", "front": "Attention's share of runtime", "back": "Projections+FFN are O(T*d^2), attention is O(T^2*d) - attention dominates only once T > d_model. At T=1024, d=4096, a 4x attention speedup is maybe 15% end-to-end. Profile before concluding the kernel is broken." },
-    { "type": "definition", "front": "FA-1 vs FA-2 vs FA-3", "back": "Same mathematics, better scheduling: FA-2 improved work partitioning across warps/thread blocks (~2x); FA-3 exploits Hopper async copies and FP8. Version and hardware mismatches leave large gains unclaimed." },
-    { "type": "pitfall", "front": "It does not fix long-context serving", "back": "It removes the attention-MATRIX memory during compute, but the KV CACHE is a separate cost that is still linear in T and dominates decode. Long context also needs GQA, paged attention, and cache quantization." },
-    { "type": "intuition", "front": "The transferable pattern", "back": "Tile so the working set fits fast memory; use a running-state recurrence for any global reduction; recompute instead of storing in backward. Applies to fused large-vocabulary cross-entropy, fused MLPs, ring attention, and top-k search." }
+    {
+      "type": "definition",
+      "front": "FlashAttention",
+      "back": "An IO-aware EXACT attention algorithm: tile the computation into SRAM so the T x T score matrix is never written to HBM, using online softmax to keep it exact. 2-4x faster, O(T) memory instead of O(T^2)."
+    },
+    {
+      "type": "pitfall",
+      "front": "It is not an approximation",
+      "back": "Identical outputs and gradients (differing only by floating-point reassociation). That exactness is why it became a zero-risk drop-in default - unlike sparse/linear attention, which change the function and need retraining."
+    },
+    {
+      "type": "formula",
+      "front": "Online softmax recurrence",
+      "back": "m_new = max(m_old, block_max); l = exp(m_old-m_new)*l + block_sum; O = exp(m_old-m_new)*O + P_block @ V_block; divide by l at the end. The rescaling exactly corrects earlier terms for the changed max."
+    },
+    {
+      "type": "intuition",
+      "front": "Why more FLOPs can be faster",
+      "back": "Attention is MEMORY-BANDWIDTH-BOUND, so the arithmetic units are idle. Recomputing tiles in the backward pass adds free FLOPs and removes HBM traffic. Roofline: perf = min(peak compute, intensity x bandwidth)."
+    },
+    {
+      "type": "definition",
+      "front": "Backward-pass recomputation",
+      "back": "Rather than storing the T x T attention matrix for gradients, recompute tiles from the saved q,k,v (which are only O(T*d)). Same trade as gradient checkpointing, applied inside one operator."
+    },
+    {
+      "type": "pitfall",
+      "front": "Silent fallback in PyTorch",
+      "back": "scaled_dot_product_attention quietly uses the slow math backend when ineligible: unsupported head dim, fp32, or a custom additive bias (T5 relative bias, logit soft-capping). Force the flash-only backend to make it error instead."
+    },
+    {
+      "type": "intuition",
+      "front": "Attention's share of runtime",
+      "back": "Projections+FFN are O(T*d^2), attention is O(T^2*d) - attention dominates only once T > d_model. At T=1024, d=4096, a 4x attention speedup is maybe 15% end-to-end. Profile before concluding the kernel is broken."
+    },
+    {
+      "type": "definition",
+      "front": "FA-1 vs FA-2 vs FA-3",
+      "back": "Same mathematics, better scheduling: FA-2 improved work partitioning across warps/thread blocks (~2x); FA-3 exploits Hopper async copies and FP8. Version and hardware mismatches leave large gains unclaimed."
+    },
+    {
+      "type": "pitfall",
+      "front": "It does not fix long-context serving",
+      "back": "It removes the attention-MATRIX memory during compute, but the KV CACHE is a separate cost that is still linear in T and dominates decode. Long context also needs GQA, paged attention, and cache quantization."
+    },
+    {
+      "type": "intuition",
+      "front": "The transferable pattern",
+      "back": "Tile so the working set fits fast memory; use a running-state recurrence for any global reduction; recompute instead of storing in backward. Applies to fused large-vocabulary cross-entropy, fused MLPs, ring attention, and top-k search."
+    }
   ],
   "refs": [
-    { "title": "Dao et al. (2022), FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness", "url": "https://arxiv.org/abs/2205.14135" },
-    { "title": "Dao (2023), FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning", "url": "https://arxiv.org/abs/2307.08691" },
-    { "title": "Milakov & Gimelshein (2018), Online normalizer calculation for softmax", "url": "https://arxiv.org/abs/1805.02867" },
-    { "title": "Williams, Waterman & Patterson (2009), Roofline: An Insightful Visual Performance Model", "url": "https://dl.acm.org/doi/10.1145/1498765.1498785" }
+    {
+      "title": "Dao et al. (2022), FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+      "url": "https://arxiv.org/abs/2205.14135"
+    },
+    {
+      "title": "Dao (2023), FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning",
+      "url": "https://arxiv.org/abs/2307.08691"
+    },
+    {
+      "title": "Milakov & Gimelshein (2018), Online normalizer calculation for softmax",
+      "url": "https://arxiv.org/abs/1805.02867"
+    },
+    {
+      "title": "Williams, Waterman & Patterson (2009), Roofline: An Insightful Visual Performance Model",
+      "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-09",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-09_flash_attention.ipynb"
+  }
 }

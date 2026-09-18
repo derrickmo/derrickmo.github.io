@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-08",
   "slug": "ddp",
+  "keyBase": "training-systems/ddp",
   "module": "training-systems",
   "title": "Distributed Data Parallel (DDP)",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Patarasuk & Yuan (2009) — Bandwidth Optimal All-reduce Algorithms for Clusters of Workstations",
       "url": "https://www.sciencedirect.com/science/article/pii/S0743731508001767"
     }
-  ]
+  ],
+  "v2": {
+    "id": "21-07",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-07_distributed_data_parallel.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-06",
   "slug": "multi-agent",
+  "keyBase": "agentic-ai/multi-agent",
   "module": "agentic-ai",
   "title": "Multi-Agent Orchestration",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-06_multi_agent.ipynb",
     "flagship": null,
-    "demos": ["agent-router", "bagging-boosting", "react-agent", "guardrails"],
+    "demos": [
+      "agent-router",
+      "bagging-boosting",
+      "react-agent",
+      "guardrails"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/react-planning", "rag-agents/multi-agent"],
-  "leadsTo": ["agentic-ai/agent-evaluation", "agentic-ai/agent-capstone"],
+  "prereqs": [
+    "agentic-ai/react-planning",
+    "rag-agents/multi-agent"
+  ],
+  "leadsTo": [
+    "agentic-ai/agent-evaluation",
+    "agentic-ai/agent-capstone"
+  ],
   "body": {
     "intuition": [
       "The structural argument for and against multi-agent systems is made in 18-07: three mechanisms, each conditional, each failing when its condition is unmet. This lesson does the thing that makes those conditions usable - it locates the CROSSOVERS. Knowing that specialization needs accurate routing is a caution; knowing that a specialist team falls below a single generalist once routing error exceeds 0.37 is a design constraint you can check against your router's measured accuracy this afternoon.",
@@ -274,5 +286,11 @@
       "url": "https://www.anthropic.com/engineering/multi-agent-research-system"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-07",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-07_multi_agent_orchestration.ipynb"
+  }
 }

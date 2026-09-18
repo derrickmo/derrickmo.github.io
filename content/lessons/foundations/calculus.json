@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-09",
   "slug": "calculus",
+  "keyBase": "foundations/calculus",
   "module": "foundations",
   "title": "Calculus & Optimization Foundations",
   "status": "LIVE",
@@ -260,5 +261,14 @@
       "url": "https://pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "01-03",
+    "module": "math-foundations",
+    "disposition": "split",
+    "notebookFile": "01-03_calculus_vector_calculus_ml.ipynb",
+    "alsoFeeds": [
+      "01-04"
+    ]
+  }
 }

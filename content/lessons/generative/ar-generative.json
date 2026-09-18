@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-10",
   "slug": "ar-generative",
+  "keyBase": "generative/ar-generative",
   "module": "generative",
   "title": "Autoregressive Generative Models",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "11-10_autoregressive_generative_models.ipynb",
     "flagship": null,
-    "demos": ["decoding", "tokenizer", "beam-search", "convolution"],
+    "demos": [
+      "decoding",
+      "tokenizer",
+      "beam-search",
+      "convolution"
+    ],
     "concepts": []
   },
-  "prereqs": ["generative/latent-diffusion", "advanced-nlp/architectures"],
-  "leadsTo": ["multimodal/vlm-captioning", "llm-systems/llm-architectures"],
+  "prereqs": [
+    "generative/latent-diffusion",
+    "advanced-nlp/architectures"
+  ],
+  "leadsTo": [
+    "multimodal/vlm-captioning",
+    "llm-systems/llm-architectures"
+  ],
   "body": {
     "intuition": [
       "Autoregressive models take the most direct route available to a valid probability distribution: apply the chain rule. Any joint distribution factorizes into a product of conditionals, each conditioned on everything before it, and each conditional is a small softmax that normalizes trivially. So there is no intractable partition function, no variational bound, no adversary - just exact maximum likelihood on a sequence of classification problems. This is why autoregressive models report the best likelihoods of any generative family, and why they are the only family whose numbers are directly comparable to each other.",
@@ -82,33 +94,87 @@
       "Choosing a raster ordering without thinking. There is no canonical order for a 2-D image, the model's conditional structure depends entirely on it, and alternatives - multi-scale, next-scale, or bidirectional-with-masking - can be substantially better."
     ],
     "connections": [
-      { "ref": "generative/latent-diffusion", "text": "Both are two-stage: compress cheaply with an autoencoder, then generate in the small space. Only the prior differs - a transformer versus a diffusion model." },
-      { "ref": "generative/autoencoders", "text": "VQ-VAE is the compression stage that made autoregressive image generation viable, and its discreteness is exactly what a transformer prior needs." },
-      { "ref": "advanced-nlp/architectures", "text": "Decoder-only transformers ARE this family; the causal mask is what enforces the chain-rule factorization." },
-      { "ref": "generative/ebm-score", "text": "Factorization is one of the five escapes from the normalizing constant - the most direct one, paid for entirely in sampling speed." },
-      { "ref": "transformers/kv-cache", "text": "Without KV caching, sequential sampling recomputes attention over the whole prefix at every step, turning O(n) generation into O(n^2) work." }
+      {
+        "ref": "generative/latent-diffusion",
+        "text": "Both are two-stage: compress cheaply with an autoencoder, then generate in the small space. Only the prior differs - a transformer versus a diffusion model."
+      },
+      {
+        "ref": "generative/autoencoders",
+        "text": "VQ-VAE is the compression stage that made autoregressive image generation viable, and its discreteness is exactly what a transformer prior needs."
+      },
+      {
+        "ref": "advanced-nlp/architectures",
+        "text": "Decoder-only transformers ARE this family; the causal mask is what enforces the chain-rule factorization."
+      },
+      {
+        "ref": "generative/ebm-score",
+        "text": "Factorization is one of the five escapes from the normalizing constant - the most direct one, paid for entirely in sampling speed."
+      },
+      {
+        "ref": "transformers/kv-cache",
+        "text": "Without KV caching, sequential sampling recomputes attention over the whole prefix at every step, turning O(n) generation into O(n^2) work."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is an autoregressive generative model?", "a": "It factorizes p(x) by the chain rule into a product of conditionals, each predicting one element given all previous ones. Each conditional is a small normalized softmax, so the likelihood is exact." },
-      { "q": "Why is the likelihood exact?", "a": "Each conditional normalizes over a small support, so the product is automatically a valid distribution. There is no partition function to compute - factorization is the escape." },
-      { "q": "What is the fundamental cost?", "a": "Sampling is SEQUENTIAL - O(n) network evaluations, one per element. A 32x32 RGB image needs 3,072 forward passes." },
-      { "q": "Why is training parallel but sampling not?", "a": "At training the ground-truth prefix is available, so all conditionals evaluate at once with a causal mask. At sampling each step's input is the previous step's output." },
-      { "q": "What is PixelCNN's blind spot?", "a": "Stacked masked convolutions leave a triangular region above and to the right unreachable, denying the model legitimate causal context. Fixed by separate vertical and horizontal stacks." },
-      { "q": "Why a discretized logistic mixture instead of a 256-way softmax?", "a": "A softmax over 256 categories discards ORDINALITY - it treats 127 and 128 as unrelated. A logistic mixture integrated over bins respects the ordering and uses far fewer parameters." },
-      { "q": "How did autoregressive image generation become viable?", "a": "By changing what it factorizes over: a VQ autoencoder turns 256x256x3 into a 16x16 token grid, so 196,608 sequential steps become 256 over semantically meaningful units." },
-      { "q": "What is VQGAN?", "a": "VQ-VAE with perceptual and patch-adversarial losses for sharp reconstruction, paired with a transformer prior over the discrete codes. Image generation as language modelling." },
-      { "q": "Do good likelihoods imply good samples?", "a": "No. Theis et al. showed they are only loosely coupled in high dimensions - you can construct models with excellent likelihood and terrible samples, and the reverse." },
-      { "q": "What is bits-per-dimension?", "a": "Log-likelihood normalized per dimension and converted to base 2 - the standard comparable unit for exact-likelihood image models, and directly the achievable code length under arithmetic coding." },
-      { "q": "Why does ordering matter for images?", "a": "There is no canonical order for a 2-D grid, and the model's entire conditional structure depends on the one you choose. Raster order is arbitrary; multi-scale and next-scale orderings can be better." },
-      { "q": "Where does this family sit in the trilemma?", "a": "Exact likelihood and excellent mode coverage - a likelihood objective is mode-covering by construction - paid for entirely in sampling speed." }
+      {
+        "q": "What is an autoregressive generative model?",
+        "a": "It factorizes p(x) by the chain rule into a product of conditionals, each predicting one element given all previous ones. Each conditional is a small normalized softmax, so the likelihood is exact."
+      },
+      {
+        "q": "Why is the likelihood exact?",
+        "a": "Each conditional normalizes over a small support, so the product is automatically a valid distribution. There is no partition function to compute - factorization is the escape."
+      },
+      {
+        "q": "What is the fundamental cost?",
+        "a": "Sampling is SEQUENTIAL - O(n) network evaluations, one per element. A 32x32 RGB image needs 3,072 forward passes."
+      },
+      {
+        "q": "Why is training parallel but sampling not?",
+        "a": "At training the ground-truth prefix is available, so all conditionals evaluate at once with a causal mask. At sampling each step's input is the previous step's output."
+      },
+      {
+        "q": "What is PixelCNN's blind spot?",
+        "a": "Stacked masked convolutions leave a triangular region above and to the right unreachable, denying the model legitimate causal context. Fixed by separate vertical and horizontal stacks."
+      },
+      {
+        "q": "Why a discretized logistic mixture instead of a 256-way softmax?",
+        "a": "A softmax over 256 categories discards ORDINALITY - it treats 127 and 128 as unrelated. A logistic mixture integrated over bins respects the ordering and uses far fewer parameters."
+      },
+      {
+        "q": "How did autoregressive image generation become viable?",
+        "a": "By changing what it factorizes over: a VQ autoencoder turns 256x256x3 into a 16x16 token grid, so 196,608 sequential steps become 256 over semantically meaningful units."
+      },
+      {
+        "q": "What is VQGAN?",
+        "a": "VQ-VAE with perceptual and patch-adversarial losses for sharp reconstruction, paired with a transformer prior over the discrete codes. Image generation as language modelling."
+      },
+      {
+        "q": "Do good likelihoods imply good samples?",
+        "a": "No. Theis et al. showed they are only loosely coupled in high dimensions - you can construct models with excellent likelihood and terrible samples, and the reverse."
+      },
+      {
+        "q": "What is bits-per-dimension?",
+        "a": "Log-likelihood normalized per dimension and converted to base 2 - the standard comparable unit for exact-likelihood image models, and directly the achievable code length under arithmetic coding."
+      },
+      {
+        "q": "Why does ordering matter for images?",
+        "a": "There is no canonical order for a 2-D grid, and the model's entire conditional structure depends on the one you choose. Raster order is arbitrary; multi-scale and next-scale orderings can be better."
+      },
+      {
+        "q": "Where does this family sit in the trilemma?",
+        "a": "Exact likelihood and excellent mode coverage - a likelihood objective is mode-covering by construction - paid for entirely in sampling speed."
+      }
     ],
     "standard": [
       {
         "q": "Compare autoregressive and diffusion models for image generation.",
         "a": "THE STRUCTURAL DIFFERENCE. Autoregressive models factorize over SPACE - generate element 1, then 2 conditioned on 1, and so on. Diffusion factorizes over NOISE LEVEL - generate the whole image at once, repeatedly, refining from noise to data. Both are iterative; they iterate along different axes, and almost every practical difference follows from that. AUTOREGRESSIVE ADVANTAGES. (1) EXACT LIKELIHOOD, directly comparable across models and directly usable for compression and density estimation. Diffusion gives a bound, or an exact likelihood only via the probability-flow ODE at extra cost. (2) A MATURE, SHARED STACK - if images are tokens, every transformer optimization applies: KV caching, FlashAttention, speculative decoding, quantization, established serving infrastructure. This is a bigger practical advantage than it sounds. (3) NATURAL MULTIMODALITY: one model over interleaved text and image tokens, which is the strongest current argument for the approach. (4) VARIABLE-LENGTH output is natural. (5) Sampling control is well understood - temperature, top-k, nucleus, and beam search all transfer. DIFFUSION ADVANTAGES. (1) PARALLEL generation within each step - the whole image is produced at once, refined - so it maps far better onto accelerators than a sequential loop. (2) NO ORDERING ARTIFACT. Raster order makes the top-left corner unconditioned and the bottom-right conditioned on everything, which is an arbitrary asymmetry with no basis in image structure. Diffusion treats all positions symmetrically. (3) ITERATIVE REFINEMENT means every position can be revised in light of every other, whereas an autoregressive model cannot revisit a committed token - there is no undo. (4) MUCH BETTER CONTROLLABILITY: intervening at every denoising step is what makes inpainting, guidance, and ControlNet natural. (5) It is the more mature path for high-resolution images with a large ecosystem. THE STEP-COUNT COMPARISON, which is more even than it first appears. Diffusion: 20-50 steps, each a full network pass over the whole image, and 2x that with guidance. Token-based autoregressive: ~256 steps for a 16x16 grid, each cheap with KV caching. The totals are closer than the raw counts suggest, and both are being attacked - diffusion by distillation to 1-4 steps, autoregressive by parallel decoding schemes. WHERE THINGS STAND, honestly. Diffusion dominates pure image quality and the tooling ecosystem. Autoregressive is winning the MULTIMODAL argument, because unifying modalities as token sequences is architecturally clean and lets image generation inherit everything built for LLMs. VAR (visual autoregressive, next-SCALE prediction rather than next-token) reported beating diffusion on ImageNet with better scaling behaviour, which is a genuine result and suggests the ordering choice was more of the handicap than the factorization. And several recent systems are HYBRID - autoregressive over coarse structure with a diffusion decoder for detail - which is a sensible reading of where each is strong. WHAT I WOULD SAY IN AN INTERVIEW: the choice is increasingly about the SYSTEM rather than the images. If you are building a unified multimodal model, tokens and a transformer are the coherent design. If you are building the best possible image generator with fine-grained control, diffusion has the ecosystem and the controllability. And the fact that both use the SAME two-stage compression (VQGAN or a VAE, then an expensive generative model in the small space) is the deeper point - that factorization is the settled part, and the prior is still contested.",
-        "deepDive": { "q": "What is VAR (visual autoregressive modelling), and why does next-scale prediction help?", "a": "THE PROBLEM IT ADDRESSES. Standard autoregressive image models predict the next TOKEN in raster order over a flattened token grid. That imposes three unnatural things on a 2-D image. (1) An ARBITRARY ORDER: the top-left corner is generated with no context and the bottom-right with full context, an asymmetry with no basis in image structure. (2) A BROKEN LOCALITY structure: adjacent rows are far apart in the flattened sequence, so vertical neighbours are distant in the model's conditioning. (3) LONG SEQUENCES with quadratic attention cost - a 32x32 token grid is 1,024 steps. VAR'S REFRAMING (Tian et al., 2024). Predict the next SCALE rather than the next token. Encode an image into a multi-scale pyramid of token maps - 1x1, then 2x2, 4x4, 8x8, up to 16x16 - using a residual quantizer where each scale encodes what the previous scales could not represent. Then generate scale by scale: produce the entire 1x1 map, then the entire 2x2 map conditioned on it, and so on. Within a scale, ALL tokens are predicted in PARALLEL; the autoregression is across scales only. WHY THIS IS BETTER, and the reasons are distinct. (1) IT MATCHES HOW IMAGES ARE STRUCTURED - coarse-to-fine. Global composition is decided first and detail is filled in conditioned on it, which is both a better inductive bias and closer to how humans describe and perceive images. (2) NO ARBITRARY ORDERING WITHIN A SCALE. Every token at a given scale sees the same context (all coarser scales) and is generated simultaneously, restoring the spatial symmetry that raster order destroys. (3) FAR FEWER SEQUENTIAL STEPS - the number of SCALES, roughly 10, rather than the number of tokens, roughly 1,000. Each step is a bigger parallel computation, which suits accelerators far better than a long thin sequential loop. This is a large wall-clock win. (4) The conditioning at each step is 2-D and local rather than a flattened prefix, so the attention structure is more natural. THE RESULTS. VAR reported beating diffusion transformers on ImageNet 256x256 generation in both FID and inference speed, and - more interestingly - exhibited POWER-LAW SCALING in model size and compute of the kind seen in LLMs, with predictable improvement. It also showed zero-shot generalization to inpainting and editing. It won a NeurIPS best paper award. WHAT IT SUGGESTS, which is the part worth taking away. The handicap of autoregressive image modelling may have been the ORDERING, not the autoregressive factorization. Raster order was inherited from how images are stored in memory, not from anything about images, and it imposed a poor conditional structure. Change the order to something that respects image structure and the family becomes competitive with diffusion. That is a specific instance of a general point: in an autoregressive model the ORDER IS A MODELLING DECISION and a consequential one, and defaults inherited from data formats are rarely the right choice. THE CAVEATS I would attach. It requires a multi-scale residual quantizer, so stage one is more complex than a plain VQ-VAE and its quality caps the system as usual. The results are on class-conditional ImageNet, which is a narrower setting than open-domain text-to-image where diffusion's ecosystem advantages are largest. And 'coarse-to-fine generation' is not a new idea - it is what cascaded diffusion and Laplacian-pyramid GANs also do; VAR's contribution is making it the autoregressive factorization itself rather than a multi-stage pipeline." }
+        "deepDive": {
+          "q": "What is VAR (visual autoregressive modelling), and why does next-scale prediction help?",
+          "a": "THE PROBLEM IT ADDRESSES. Standard autoregressive image models predict the next TOKEN in raster order over a flattened token grid. That imposes three unnatural things on a 2-D image. (1) An ARBITRARY ORDER: the top-left corner is generated with no context and the bottom-right with full context, an asymmetry with no basis in image structure. (2) A BROKEN LOCALITY structure: adjacent rows are far apart in the flattened sequence, so vertical neighbours are distant in the model's conditioning. (3) LONG SEQUENCES with quadratic attention cost - a 32x32 token grid is 1,024 steps. VAR'S REFRAMING (Tian et al., 2024). Predict the next SCALE rather than the next token. Encode an image into a multi-scale pyramid of token maps - 1x1, then 2x2, 4x4, 8x8, up to 16x16 - using a residual quantizer where each scale encodes what the previous scales could not represent. Then generate scale by scale: produce the entire 1x1 map, then the entire 2x2 map conditioned on it, and so on. Within a scale, ALL tokens are predicted in PARALLEL; the autoregression is across scales only. WHY THIS IS BETTER, and the reasons are distinct. (1) IT MATCHES HOW IMAGES ARE STRUCTURED - coarse-to-fine. Global composition is decided first and detail is filled in conditioned on it, which is both a better inductive bias and closer to how humans describe and perceive images. (2) NO ARBITRARY ORDERING WITHIN A SCALE. Every token at a given scale sees the same context (all coarser scales) and is generated simultaneously, restoring the spatial symmetry that raster order destroys. (3) FAR FEWER SEQUENTIAL STEPS - the number of SCALES, roughly 10, rather than the number of tokens, roughly 1,000. Each step is a bigger parallel computation, which suits accelerators far better than a long thin sequential loop. This is a large wall-clock win. (4) The conditioning at each step is 2-D and local rather than a flattened prefix, so the attention structure is more natural. THE RESULTS. VAR reported beating diffusion transformers on ImageNet 256x256 generation in both FID and inference speed, and - more interestingly - exhibited POWER-LAW SCALING in model size and compute of the kind seen in LLMs, with predictable improvement. It also showed zero-shot generalization to inpainting and editing. It won a NeurIPS best paper award. WHAT IT SUGGESTS, which is the part worth taking away. The handicap of autoregressive image modelling may have been the ORDERING, not the autoregressive factorization. Raster order was inherited from how images are stored in memory, not from anything about images, and it imposed a poor conditional structure. Change the order to something that respects image structure and the family becomes competitive with diffusion. That is a specific instance of a general point: in an autoregressive model the ORDER IS A MODELLING DECISION and a consequential one, and defaults inherited from data formats are rarely the right choice. THE CAVEATS I would attach. It requires a multi-scale residual quantizer, so stage one is more complex than a plain VQ-VAE and its quality caps the system as usual. The results are on class-conditional ImageNet, which is a narrower setting than open-domain text-to-image where diffusion's ecosystem advantages are largest. And 'coarse-to-fine generation' is not a new idea - it is what cascaded diffusion and Laplacian-pyramid GANs also do; VAR's contribution is making it the autoregressive factorization itself rather than a multi-stage pipeline."
+        }
       },
       {
         "q": "Why do likelihood and sample quality diverge, and what should you report?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Autoregressive factorization", "back": "p(x) = product of p(x_i | x_<i) by the chain rule. Each conditional is a small normalized softmax, so the likelihood is EXACT - factorization is the escape from the partition function." },
-    { "type": "intuition", "front": "The defining asymmetry", "back": "Training is parallel (ground-truth prefixes + causal mask = one pass); sampling is SEQUENTIAL, O(n) network evaluations. A 32x32 RGB image needs 3,072 passes. This asymmetry is the family's whole cost." },
-    { "type": "pitfall", "front": "PixelCNN's blind spot", "back": "Stacked masked convolutions leave a TRIANGULAR region above-and-right unreachable at any depth - legitimate context the model is denied, invisible in the loss. Fix: separate vertical and horizontal stacks. Always DRAW the effective receptive field." },
-    { "type": "pitfall", "front": "256-way softmax for pixels", "back": "Discards ORDINALITY - 127 and 128 become unrelated categories. Use a discretized logistic mixture (K~10) integrated over bins. General rule: a softmax over an ORDERED categorical throws away structure." },
-    { "type": "definition", "front": "VQGAN + transformer", "back": "Stage 1 compresses 256x256x3 to a 16x16 token grid (~768x shorter), trained with perceptual + adversarial losses. Stage 2 is a plain decoder-only transformer over those tokens. Image generation as language modelling." },
-    { "type": "intuition", "front": "Why tokens rescued AR image generation", "back": "256 sequential steps instead of 196,608, over units carrying SEMANTIC content rather than one subpixel of texture - and you inherit the whole LLM stack (KV cache, FlashAttention, serving)." },
-    { "type": "pitfall", "front": "Likelihood does not imply sample quality", "back": "Mix 99% bad generator with 1% good: in high dimensions log(0.01) is negligible against thousands of nats, so likelihood is near-optimal while 99% of SAMPLES are bad. The reverse also constructs. Report both." },
-    { "type": "definition", "front": "Bits-per-dimension", "back": "Log-likelihood normalized per dimension in base 2 - and it IS the achievable arithmetic-coding length, not a proxy. State the dequantization convention (uniform vs variational); it changes the number materially." },
-    { "type": "intuition", "front": "VAR: next-SCALE prediction", "back": "Autoregress across a coarse-to-fine pyramid (1x1, 2x2, ... 16x16), all tokens within a scale in PARALLEL. ~10 sequential steps not ~1000, no arbitrary within-scale ordering, and LLM-like power-law scaling. The handicap was the ORDER, not the factorization." },
-    { "type": "pitfall", "front": "The degeneration paradox", "back": "Maximizing likelihood (beam/greedy) produces REPETITIVE degenerate text - the most probable sequence is not a typical one. So neither faithful sampling nor likelihood maximization works; hence temperature, top-k, nucleus." },
-    { "type": "definition", "front": "Teacher forcing and exposure bias", "back": "Train on GROUND-TRUTH prefixes (which is what makes training parallel), sample on the model's OWN outputs. The mismatch compounds along a sequence. Much less severe at LLM scale than in the RNN era - often conflated with underfitting." },
-    { "type": "intuition", "front": "One dial, three families", "back": "Temperature/top-p in AR models, guidance scale w in diffusion, truncation in GANs - all the same inference-time quality-vs-diversity slider, and all sample from a distribution the model was never trained to represent." }
+    {
+      "type": "definition",
+      "front": "Autoregressive factorization",
+      "back": "p(x) = product of p(x_i | x_<i) by the chain rule. Each conditional is a small normalized softmax, so the likelihood is EXACT - factorization is the escape from the partition function."
+    },
+    {
+      "type": "intuition",
+      "front": "The defining asymmetry",
+      "back": "Training is parallel (ground-truth prefixes + causal mask = one pass); sampling is SEQUENTIAL, O(n) network evaluations. A 32x32 RGB image needs 3,072 passes. This asymmetry is the family's whole cost."
+    },
+    {
+      "type": "pitfall",
+      "front": "PixelCNN's blind spot",
+      "back": "Stacked masked convolutions leave a TRIANGULAR region above-and-right unreachable at any depth - legitimate context the model is denied, invisible in the loss. Fix: separate vertical and horizontal stacks. Always DRAW the effective receptive field."
+    },
+    {
+      "type": "pitfall",
+      "front": "256-way softmax for pixels",
+      "back": "Discards ORDINALITY - 127 and 128 become unrelated categories. Use a discretized logistic mixture (K~10) integrated over bins. General rule: a softmax over an ORDERED categorical throws away structure."
+    },
+    {
+      "type": "definition",
+      "front": "VQGAN + transformer",
+      "back": "Stage 1 compresses 256x256x3 to a 16x16 token grid (~768x shorter), trained with perceptual + adversarial losses. Stage 2 is a plain decoder-only transformer over those tokens. Image generation as language modelling."
+    },
+    {
+      "type": "intuition",
+      "front": "Why tokens rescued AR image generation",
+      "back": "256 sequential steps instead of 196,608, over units carrying SEMANTIC content rather than one subpixel of texture - and you inherit the whole LLM stack (KV cache, FlashAttention, serving)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Likelihood does not imply sample quality",
+      "back": "Mix 99% bad generator with 1% good: in high dimensions log(0.01) is negligible against thousands of nats, so likelihood is near-optimal while 99% of SAMPLES are bad. The reverse also constructs. Report both."
+    },
+    {
+      "type": "definition",
+      "front": "Bits-per-dimension",
+      "back": "Log-likelihood normalized per dimension in base 2 - and it IS the achievable arithmetic-coding length, not a proxy. State the dequantization convention (uniform vs variational); it changes the number materially."
+    },
+    {
+      "type": "intuition",
+      "front": "VAR: next-SCALE prediction",
+      "back": "Autoregress across a coarse-to-fine pyramid (1x1, 2x2, ... 16x16), all tokens within a scale in PARALLEL. ~10 sequential steps not ~1000, no arbitrary within-scale ordering, and LLM-like power-law scaling. The handicap was the ORDER, not the factorization."
+    },
+    {
+      "type": "pitfall",
+      "front": "The degeneration paradox",
+      "back": "Maximizing likelihood (beam/greedy) produces REPETITIVE degenerate text - the most probable sequence is not a typical one. So neither faithful sampling nor likelihood maximization works; hence temperature, top-k, nucleus."
+    },
+    {
+      "type": "definition",
+      "front": "Teacher forcing and exposure bias",
+      "back": "Train on GROUND-TRUTH prefixes (which is what makes training parallel), sample on the model's OWN outputs. The mismatch compounds along a sequence. Much less severe at LLM scale than in the RNN era - often conflated with underfitting."
+    },
+    {
+      "type": "intuition",
+      "front": "One dial, three families",
+      "back": "Temperature/top-p in AR models, guidance scale w in diffusion, truncation in GANs - all the same inference-time quality-vs-diversity slider, and all sample from a distribution the model was never trained to represent."
+    }
   ],
   "refs": [
-    { "title": "van den Oord et al. (2016), Conditional Image Generation with PixelCNN Decoders", "url": "https://arxiv.org/abs/1606.05328" },
-    { "title": "Esser et al. (2021), Taming Transformers for High-Resolution Image Synthesis (VQGAN)", "url": "https://arxiv.org/abs/2012.09841" },
-    { "title": "Tian et al. (2024), Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction (VAR)", "url": "https://arxiv.org/abs/2404.02905" },
-    { "title": "Theis et al. (2016), A note on the evaluation of generative models", "url": "https://arxiv.org/abs/1511.01844" },
-    { "title": "Holtzman et al. (2020), The Curious Case of Neural Text Degeneration", "url": "https://arxiv.org/abs/1904.09751" }
+    {
+      "title": "van den Oord et al. (2016), Conditional Image Generation with PixelCNN Decoders",
+      "url": "https://arxiv.org/abs/1606.05328"
+    },
+    {
+      "title": "Esser et al. (2021), Taming Transformers for High-Resolution Image Synthesis (VQGAN)",
+      "url": "https://arxiv.org/abs/2012.09841"
+    },
+    {
+      "title": "Tian et al. (2024), Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction (VAR)",
+      "url": "https://arxiv.org/abs/2404.02905"
+    },
+    {
+      "title": "Theis et al. (2016), A note on the evaluation of generative models",
+      "url": "https://arxiv.org/abs/1511.01844"
+    },
+    {
+      "title": "Holtzman et al. (2020), The Curious Case of Neural Text Degeneration",
+      "url": "https://arxiv.org/abs/1904.09751"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "12-05",
+    "module": "generative",
+    "disposition": "clean",
+    "notebookFile": "12-05_autoregressive_generative_models.ipynb"
+  }
 }

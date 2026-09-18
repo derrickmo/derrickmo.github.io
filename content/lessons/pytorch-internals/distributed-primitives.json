@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-08",
   "slug": "distributed-primitives",
+  "keyBase": "pytorch-internals/distributed-primitives",
   "module": "pytorch-internals",
   "title": "Distributed Communication Primitives",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "15-08_distributed_communication_primitives.ipynb",
     "flagship": null,
-    "demos": ["batching", "moe", "mixed-precision", "autoscaling"],
+    "demos": [
+      "batching",
+      "moe",
+      "mixed-precision",
+      "autoscaling"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/cuda-memory"],
-  "leadsTo": ["training-systems/ddp", "training-systems/fsdp"],
+  "prereqs": [
+    "pytorch-internals/cuda-memory"
+  ],
+  "leadsTo": [
+    "training-systems/ddp",
+    "training-systems/fsdp"
+  ],
   "body": {
     "intuition": [
       "Every distributed training strategy - DDP, FSDP, tensor parallelism, expert parallelism - is built from about eight collective operations. Learning them directly, rather than meeting them as implementation details of a wrapper, is what turns those strategies from recipes into things you can reason about and modify. All-reduce combines a tensor across all ranks and gives every rank the result. All-gather concatenates. Reduce-scatter combines and gives each rank one slice. Broadcast sends one rank's copy to everyone. And the identity that organizes the rest of the subject is that ALL-REDUCE EQUALS REDUCE-SCATTER FOLLOWED BY ALL-GATHER - which is exactly why ZeRO and FSDP can decompose a data-parallel step into two halves and shard state in between.",
@@ -277,5 +288,11 @@
       "url": "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/index.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "21-06",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-06_collectives_ring_all_reduce.ipynb"
+  }
 }

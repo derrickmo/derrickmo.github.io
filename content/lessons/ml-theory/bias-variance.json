@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-07",
   "slug": "bias-variance",
+  "keyBase": "ml-theory/bias-variance",
   "module": "ml-theory",
   "title": "Bias-Variance Decomposition & ML Debugging",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-07_bias_variance_decomposition_ml_debugging.ipynb",
     "flagship": null,
-    "demos": ["bias-variance-decomp", "overfitting", "double-descent"],
+    "demos": [
+      "bias-variance-decomp",
+      "overfitting",
+      "double-descent"
+    ],
     "concepts": []
   },
-  "prereqs": ["ml-theory/cross-validation", "supervised-learning/model-comparison"],
-  "leadsTo": ["ml-theory/learning-theory", "neural-nets/regularization"],
+  "prereqs": [
+    "ml-theory/cross-validation",
+    "supervised-learning/model-comparison"
+  ],
+  "leadsTo": [
+    "ml-theory/learning-theory",
+    "neural-nets/regularization"
+  ],
   "body": {
     "intuition": [
       "The bias-variance decomposition is the closest thing applied machine learning has to a diagnostic framework. It says that a model's expected error on a new point splits into three parts: BIAS, the error from the model being systematically wrong (too simple to represent the truth); VARIANCE, the error from the model being sensitive to which particular training sample it saw; and IRREDUCIBLE NOISE, the part no model can remove. The value is not the algebra - it is that the three parts have DIFFERENT REMEDIES, so knowing which one dominates tells you what to do next, and knowing the noise floor tells you when to stop.",
@@ -72,32 +83,83 @@
       "Applying the framework under distribution shift: it assumes test and train come from the same distribution. A model can have low bias and low variance and still fail in deployment because the world moved - that failure needs shifted evaluation, not more data or more regularization."
     ],
     "connections": [
-      { "ref": "ml-theory/learning-theory", "text": "VC dimension and PAC bounds are the formal version of the capacity/generalization trade-off this lesson treats empirically - and they explain why the classical picture predicted a U-curve." },
-      { "ref": "neural-nets/regularization", "text": "Every regularizer is a deliberate trade of a little bias for a lot of variance reduction; this lesson is the diagnosis that tells you whether that trade is the one you need." },
-      { "ref": "supervised-learning/ensembles", "text": "Bagging reduces variance as (1-rho)/M while leaving bias unchanged, which is exactly why random forests decorrelate their trees by sampling features." },
-      { "ref": "ml-theory/cross-validation", "text": "Learning curves and the variance estimates that drive this diagnosis are built from cross-validated folds, so the leakage and splitting discipline there is a prerequisite for trusting them." }
+      {
+        "ref": "ml-theory/learning-theory",
+        "text": "VC dimension and PAC bounds are the formal version of the capacity/generalization trade-off this lesson treats empirically - and they explain why the classical picture predicted a U-curve."
+      },
+      {
+        "ref": "neural-nets/regularization",
+        "text": "Every regularizer is a deliberate trade of a little bias for a lot of variance reduction; this lesson is the diagnosis that tells you whether that trade is the one you need."
+      },
+      {
+        "ref": "supervised-learning/ensembles",
+        "text": "Bagging reduces variance as (1-rho)/M while leaving bias unchanged, which is exactly why random forests decorrelate their trees by sampling features."
+      },
+      {
+        "ref": "ml-theory/cross-validation",
+        "text": "Learning curves and the variance estimates that drive this diagnosis are built from cross-validated folds, so the leakage and splitting discipline there is a prerequisite for trusting them."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "State the bias-variance decomposition.", "a": "E[(y - fhat(x))^2] = bias^2 + variance + irreducible noise, where bias is the average model's deviation from truth and variance is the spread of models across training samples." },
-      { "q": "What is bias?", "a": "Error from systematically wrong assumptions - the model class is too simple to represent the truth, so even the AVERAGE fitted model misses. Underfitting." },
-      { "q": "What is variance?", "a": "Error from sensitivity to the particular training sample - fit the same model to a different sample and you get a noticeably different function. Overfitting." },
-      { "q": "What is irreducible error?", "a": "Noise in the labels or unmeasured causes: the floor no model can beat. Estimate it from annotator agreement or repeated measurements before setting targets." },
-      { "q": "How do you tell underfitting from overfitting?", "a": "Look at TRAINING error first. Both high and close = high bias. Train low, validation much higher = high variance. Checking the gap alone is ambiguous." },
-      { "q": "Remedies for high bias?", "a": "More capacity, better features, train longer, LESS regularization, a more expressive model class. More data does not help." },
-      { "q": "Remedies for high variance?", "a": "More data, regularization, augmentation, ensembling, fewer features, less capacity, early stopping." },
-      { "q": "How does a learning curve tell you if more data will help?", "a": "If the train/validation gap is still CLOSING at your largest training size, more data will help. If both curves have flattened and converged, it will not." },
-      { "q": "Why does bagging reduce variance but not bias?", "a": "Averaging M models shrinks the independent part of their error as (1-rho)/M but leaves their shared systematic error untouched. Hence random forests decorrelate trees to lower rho." },
-      { "q": "What is double descent?", "a": "Test error falls, rises to a peak at the interpolation threshold (where the model just barely fits the training data), then falls AGAIN as capacity grows further." },
-      { "q": "Does the decomposition hold for classification?", "a": "Not as a clean additive identity - it is exact for squared loss. For 0-1 loss there are unified treatments (Domingos) but no simple split; use it as a mental model." },
-      { "q": "When does the framework not apply?", "a": "Under distribution shift. It assumes test matches train, so a model can be low-bias and low-variance and still fail in deployment - that needs shifted evaluation, not more data." }
+      {
+        "q": "State the bias-variance decomposition.",
+        "a": "E[(y - fhat(x))^2] = bias^2 + variance + irreducible noise, where bias is the average model's deviation from truth and variance is the spread of models across training samples."
+      },
+      {
+        "q": "What is bias?",
+        "a": "Error from systematically wrong assumptions - the model class is too simple to represent the truth, so even the AVERAGE fitted model misses. Underfitting."
+      },
+      {
+        "q": "What is variance?",
+        "a": "Error from sensitivity to the particular training sample - fit the same model to a different sample and you get a noticeably different function. Overfitting."
+      },
+      {
+        "q": "What is irreducible error?",
+        "a": "Noise in the labels or unmeasured causes: the floor no model can beat. Estimate it from annotator agreement or repeated measurements before setting targets."
+      },
+      {
+        "q": "How do you tell underfitting from overfitting?",
+        "a": "Look at TRAINING error first. Both high and close = high bias. Train low, validation much higher = high variance. Checking the gap alone is ambiguous."
+      },
+      {
+        "q": "Remedies for high bias?",
+        "a": "More capacity, better features, train longer, LESS regularization, a more expressive model class. More data does not help."
+      },
+      {
+        "q": "Remedies for high variance?",
+        "a": "More data, regularization, augmentation, ensembling, fewer features, less capacity, early stopping."
+      },
+      {
+        "q": "How does a learning curve tell you if more data will help?",
+        "a": "If the train/validation gap is still CLOSING at your largest training size, more data will help. If both curves have flattened and converged, it will not."
+      },
+      {
+        "q": "Why does bagging reduce variance but not bias?",
+        "a": "Averaging M models shrinks the independent part of their error as (1-rho)/M but leaves their shared systematic error untouched. Hence random forests decorrelate trees to lower rho."
+      },
+      {
+        "q": "What is double descent?",
+        "a": "Test error falls, rises to a peak at the interpolation threshold (where the model just barely fits the training data), then falls AGAIN as capacity grows further."
+      },
+      {
+        "q": "Does the decomposition hold for classification?",
+        "a": "Not as a clean additive identity - it is exact for squared loss. For 0-1 loss there are unified treatments (Domingos) but no simple split; use it as a mental model."
+      },
+      {
+        "q": "When does the framework not apply?",
+        "a": "Under distribution shift. It assumes test matches train, so a model can be low-bias and low-variance and still fail in deployment - that needs shifted evaluation, not more data."
+      }
     ],
     "standard": [
       {
         "q": "Explain the bias-variance decomposition and how you use it to debug a model.",
         "a": "THE DECOMPOSITION. For squared loss, the expected error of a model at a point - averaged over both the label noise and over which training set you happened to draw - splits exactly into three terms. BIAS squared: how far the AVERAGE fitted model is from the truth. This is error from the model class being too restrictive - a linear model fitting a curve is wrong in a systematic way that more data cannot fix. VARIANCE: how much the fitted model varies across different training samples. A high-variance model fits the noise in whatever sample it saw, so refitting on a different draw gives a noticeably different function. IRREDUCIBLE NOISE (sigma^2): variance in the labels themselves, from measurement error or unmeasured causes. No model touches this. The terms trade off through model capacity: increasing capacity reduces bias (the class can represent more functions) and increases variance (more parameters to be pinned down by finite data). Measured on a polynomial-regression sweep, bias^2 falls 0.362 -> 0.001 as degree goes 1 -> 9 while variance climbs 0.025 -> 3.061, and the total bottoms out in between. HOW I ACTUALLY USE IT - the practical form. You cannot compute the decomposition in production (it needs many training sets and the true function), so the operational proxy is the pair of TRAINING and VALIDATION errors. (1) BOTH HIGH AND CLOSE TOGETHER -> high bias. The model cannot even fit the data it has seen. Remedies: more capacity, better features, longer training, LESS regularization, a different model class. More data will NOT help, which is the important negative result. (2) TRAINING LOW, VALIDATION MUCH HIGHER -> high variance. Remedies: more data (the most reliable), regularization, augmentation, ensembling, reduced capacity, early stopping. (3) BOTH LOW AND CLOSE -> you are near the noise floor; further effort has poor returns and you should check what the floor actually is. THE ORDER MATTERS, and it is where people go wrong: look at TRAINING error FIRST. The gap alone is ambiguous - a model with 40% training error and 45% validation error has a small gap and is badly underfit, and the instinctive response of adding regularization makes it strictly worse. This single check - 'is my training error acceptable?' - resolves most misdiagnoses. LEARNING CURVES are the richer version: plot both errors against training-set size. The shape tells you not just which regime you are in but whether MORE DATA is worth buying - if the gap is still closing at your largest size, collecting more labels will pay; if both curves have flattened and converged, it will not, and you need better features or a different model. That is a concrete, defensible input to a budget conversation, which is unusual and valuable. THE NOISE FLOOR deserves its own step. Estimate it - from inter-annotator agreement, from repeated measurements, from human performance on the task. If two expert annotators disagree 12% of the time, then ~88% is the practical ceiling, and a team chasing 95% is measuring label noise. Andrew Ng's framing of comparing to human-level performance is the standard operationalization, and knowing the ceiling changes what counts as success. THE LIMITS I would state to close: the decomposition is exact only for squared loss (classification has no clean additive split); the classical U-curve is incomplete because of double descent; and the whole framework assumes test and train come from the same distribution, so it says nothing about deployment failures caused by shift. It is a debugging tool for the i.i.d. regime, and an excellent one - but knowing where it stops applying is part of using it well.",
-        "deepDive": { "q": "Explain double descent. Does it invalidate the bias-variance trade-off?", "a": "THE CLASSICAL PICTURE predicts a U: as capacity grows, bias falls and variance rises, so test error decreases to a sweet spot and then increases. This implies an optimal model size and warns against over-parameterization. DOUBLE DESCENT (Belkin et al., 2019; observed earlier and systematized by Nakkiran et al.) says the curve does not end there. Keep increasing capacity past the INTERPOLATION THRESHOLD - the point where the model has just enough parameters to fit the training data exactly - and test error, after PEAKING at that threshold, DECREASES AGAIN, often reaching a new minimum lower than the classical sweet spot. So the full curve is: descend, ascend to a peak at interpolation, descend again. WHY THE PEAK IS THERE. Right at the threshold, the model has exactly enough capacity to interpolate and essentially one way to do it. That solution is forced to contort through every noisy point, producing an extremely high-norm, wiggly function - maximum variance. It is the worst of both worlds: enough capacity to fit the noise, not enough freedom to fit it gracefully. WHY IT DESCENDS AGAIN. Past the threshold there are MANY ways to interpolate the data, and the training procedure does not pick one at random - gradient descent has an IMPLICIT BIAS toward minimum-norm / smooth solutions (provably so for linear models and least squares, and empirically for networks). So more capacity means a larger set of interpolating solutions to choose from, and the optimizer selects a smoother member of that set. Extra capacity buys BETTER-CONDITIONED solutions, not more overfitting. DOES IT INVALIDATE THE TRADE-OFF? No - it extends it, and being precise about this is the point of the question. (1) In the UNDER-parameterized regime (left of the threshold), the classical U-curve holds exactly and the trade-off is the right frame. That regime still describes most classical ML: linear models, small trees, tabular problems. (2) The trade-off is a statement about EXPECTED error decomposing into bias and variance, which remains true as an identity. What double descent shows is that VARIANCE IS NOT MONOTONE in parameter count - the naive assumption 'more parameters means more variance' is what fails, not the decomposition itself. (3) Crucially, GOOD REGULARIZATION LARGELY ERASES THE PEAK. Nakkiran and others showed that with optimal regularization the curve becomes roughly monotone decreasing - meaning the peak is partly a symptom of UNDER-regularization at the interpolation threshold rather than a fundamental phenomenon. That is a satisfying reconciliation: regularization was always the tool, and double descent is what happens when you vary capacity without adjusting it. WHAT ELSE EXHIBITS IT: the phenomenon appears not just in model size but EPOCH-WISE (test error can rise then fall again with longer training) and SAMPLE-WISE (bizarrely, MORE data can temporarily HURT, because adding data moves the interpolation threshold relative to your fixed model size). Sample-wise double descent is the most counterintuitive and the best evidence that the mechanism is about the relationship between capacity and data size rather than about either alone. THE PRACTICAL IMPLICATIONS I would draw. (a) In deep learning, 'reduce model size to fix overfitting' is often the WRONG reflex - going bigger with proper regularization is frequently better, which is exactly what the field's scaling practice reflects. (b) If you observe test error rising as you scale, check whether you are near the interpolation threshold before concluding you have hit a capacity limit. (c) The diagnostic value of the classical framework is undiminished for deciding between bias and variance remedies; what changes is the specific advice 'make the model smaller'. So the honest summary: the decomposition survives, the U-curve is the left portion of a longer curve, the peak is largely an under-regularization artifact, and the practical lesson is that over-parameterization plus regularization is a safe regime - which is precisely the recipe modern deep learning uses." }
+        "deepDive": {
+          "q": "Explain double descent. Does it invalidate the bias-variance trade-off?",
+          "a": "THE CLASSICAL PICTURE predicts a U: as capacity grows, bias falls and variance rises, so test error decreases to a sweet spot and then increases. This implies an optimal model size and warns against over-parameterization. DOUBLE DESCENT (Belkin et al., 2019; observed earlier and systematized by Nakkiran et al.) says the curve does not end there. Keep increasing capacity past the INTERPOLATION THRESHOLD - the point where the model has just enough parameters to fit the training data exactly - and test error, after PEAKING at that threshold, DECREASES AGAIN, often reaching a new minimum lower than the classical sweet spot. So the full curve is: descend, ascend to a peak at interpolation, descend again. WHY THE PEAK IS THERE. Right at the threshold, the model has exactly enough capacity to interpolate and essentially one way to do it. That solution is forced to contort through every noisy point, producing an extremely high-norm, wiggly function - maximum variance. It is the worst of both worlds: enough capacity to fit the noise, not enough freedom to fit it gracefully. WHY IT DESCENDS AGAIN. Past the threshold there are MANY ways to interpolate the data, and the training procedure does not pick one at random - gradient descent has an IMPLICIT BIAS toward minimum-norm / smooth solutions (provably so for linear models and least squares, and empirically for networks). So more capacity means a larger set of interpolating solutions to choose from, and the optimizer selects a smoother member of that set. Extra capacity buys BETTER-CONDITIONED solutions, not more overfitting. DOES IT INVALIDATE THE TRADE-OFF? No - it extends it, and being precise about this is the point of the question. (1) In the UNDER-parameterized regime (left of the threshold), the classical U-curve holds exactly and the trade-off is the right frame. That regime still describes most classical ML: linear models, small trees, tabular problems. (2) The trade-off is a statement about EXPECTED error decomposing into bias and variance, which remains true as an identity. What double descent shows is that VARIANCE IS NOT MONOTONE in parameter count - the naive assumption 'more parameters means more variance' is what fails, not the decomposition itself. (3) Crucially, GOOD REGULARIZATION LARGELY ERASES THE PEAK. Nakkiran and others showed that with optimal regularization the curve becomes roughly monotone decreasing - meaning the peak is partly a symptom of UNDER-regularization at the interpolation threshold rather than a fundamental phenomenon. That is a satisfying reconciliation: regularization was always the tool, and double descent is what happens when you vary capacity without adjusting it. WHAT ELSE EXHIBITS IT: the phenomenon appears not just in model size but EPOCH-WISE (test error can rise then fall again with longer training) and SAMPLE-WISE (bizarrely, MORE data can temporarily HURT, because adding data moves the interpolation threshold relative to your fixed model size). Sample-wise double descent is the most counterintuitive and the best evidence that the mechanism is about the relationship between capacity and data size rather than about either alone. THE PRACTICAL IMPLICATIONS I would draw. (a) In deep learning, 'reduce model size to fix overfitting' is often the WRONG reflex - going bigger with proper regularization is frequently better, which is exactly what the field's scaling practice reflects. (b) If you observe test error rising as you scale, check whether you are near the interpolation threshold before concluding you have hit a capacity limit. (c) The diagnostic value of the classical framework is undiminished for deciding between bias and variance remedies; what changes is the specific advice 'make the model smaller'. So the honest summary: the decomposition survives, the U-curve is the left portion of a longer curve, the peak is largely an under-regularization artifact, and the practical lesson is that over-parameterization plus regularization is a safe regime - which is precisely the recipe modern deep learning uses."
+        }
       },
       {
         "q": "A model has 8% training error and 26% validation error. Walk through your response.",
@@ -122,22 +184,83 @@
     ]
   },
   "flashcards": [
-    { "type": "formula", "front": "Bias-variance decomposition", "back": "E[(y - fhat)^2] = bias^2 + variance + sigma^2. Bias: the AVERAGE model's deviation from truth. Variance: spread across training samples. Sigma^2: irreducible. Exact for squared loss only." },
-    { "type": "intuition", "front": "The diagnostic (check training error FIRST)", "back": "Both errors high and close = high BIAS (capacity/features/less regularization; more data won't help). Train low, val high = high VARIANCE (data/regularization/augmentation). The gap alone is ambiguous." },
-    { "type": "intuition", "front": "Reading a learning curve", "back": "Gap still CLOSING at your largest training size -> more data will help (worth the budget). Both curves flat and converged -> more data is wasted; change features or model." },
-    { "type": "formula", "front": "Why ensembling cuts variance only", "back": "Var(mean of M) = rho*sigma^2 + (1-rho)/M*sigma^2; bias unchanged. Floor is rho*sigma^2, so DECORRELATION matters more than M - hence random forests subsample features." },
-    { "type": "intuition", "front": "Bagging vs boosting", "back": "Bagging averages independent high-variance learners -> reduces VARIANCE (deep trees). Boosting fits sequentially to correct errors -> reduces BIAS (shallow stumps). Different diagnoses, different tools." },
-    { "type": "definition", "front": "Double descent", "back": "Test error descends, PEAKS at the interpolation threshold (just enough capacity to fit exactly, one contorted solution), then descends again as many interpolating solutions exist and SGD picks a smooth one." },
-    { "type": "intuition", "front": "Does double descent kill the trade-off?", "back": "No - it shows VARIANCE IS NOT MONOTONE in parameter count. The decomposition still holds; the U-curve is its left half; and good regularization largely ERASES the peak (it is partly an under-regularization artifact)." },
-    { "type": "intuition", "front": "Estimating the noise floor", "back": "Inter-annotator agreement, human-level performance under the SAME information, repeated measurements, or a known DGP in simulation. Without it you cannot tell a mediocre model from a nearly optimal one." },
-    { "type": "pitfall", "front": "'Irreducible' is relative to your features", "back": "The floor is a property of the problem GIVEN YOUR INPUTS. Adding an informative feature lowers it, and better annotation guidelines lower label noise - so a high floor can be an argument for better data, not for giving up." },
-    { "type": "pitfall", "front": "First debugging step: overfit 20 examples", "back": "If the model cannot fit a tiny subset perfectly, you have a BUG (loss, label alignment, frozen params, learning rate, pipeline) - not a modelling problem. Minutes to run, catches a large fraction of real issues." }
+    {
+      "type": "formula",
+      "front": "Bias-variance decomposition",
+      "back": "E[(y - fhat)^2] = bias^2 + variance + sigma^2. Bias: the AVERAGE model's deviation from truth. Variance: spread across training samples. Sigma^2: irreducible. Exact for squared loss only."
+    },
+    {
+      "type": "intuition",
+      "front": "The diagnostic (check training error FIRST)",
+      "back": "Both errors high and close = high BIAS (capacity/features/less regularization; more data won't help). Train low, val high = high VARIANCE (data/regularization/augmentation). The gap alone is ambiguous."
+    },
+    {
+      "type": "intuition",
+      "front": "Reading a learning curve",
+      "back": "Gap still CLOSING at your largest training size -> more data will help (worth the budget). Both curves flat and converged -> more data is wasted; change features or model."
+    },
+    {
+      "type": "formula",
+      "front": "Why ensembling cuts variance only",
+      "back": "Var(mean of M) = rho*sigma^2 + (1-rho)/M*sigma^2; bias unchanged. Floor is rho*sigma^2, so DECORRELATION matters more than M - hence random forests subsample features."
+    },
+    {
+      "type": "intuition",
+      "front": "Bagging vs boosting",
+      "back": "Bagging averages independent high-variance learners -> reduces VARIANCE (deep trees). Boosting fits sequentially to correct errors -> reduces BIAS (shallow stumps). Different diagnoses, different tools."
+    },
+    {
+      "type": "definition",
+      "front": "Double descent",
+      "back": "Test error descends, PEAKS at the interpolation threshold (just enough capacity to fit exactly, one contorted solution), then descends again as many interpolating solutions exist and SGD picks a smooth one."
+    },
+    {
+      "type": "intuition",
+      "front": "Does double descent kill the trade-off?",
+      "back": "No - it shows VARIANCE IS NOT MONOTONE in parameter count. The decomposition still holds; the U-curve is its left half; and good regularization largely ERASES the peak (it is partly an under-regularization artifact)."
+    },
+    {
+      "type": "intuition",
+      "front": "Estimating the noise floor",
+      "back": "Inter-annotator agreement, human-level performance under the SAME information, repeated measurements, or a known DGP in simulation. Without it you cannot tell a mediocre model from a nearly optimal one."
+    },
+    {
+      "type": "pitfall",
+      "front": "'Irreducible' is relative to your features",
+      "back": "The floor is a property of the problem GIVEN YOUR INPUTS. Adding an informative feature lowers it, and better annotation guidelines lower label noise - so a high floor can be an argument for better data, not for giving up."
+    },
+    {
+      "type": "pitfall",
+      "front": "First debugging step: overfit 20 examples",
+      "back": "If the model cannot fit a tiny subset perfectly, you have a BUG (loss, label alignment, frozen params, learning rate, pipeline) - not a modelling problem. Minutes to run, catches a large fraction of real issues."
+    }
   ],
   "refs": [
-    { "title": "Hastie, Tibshirani & Friedman, The Elements of Statistical Learning, Ch. 7", "url": "https://hastie.su.domains/ElemStatLearn/" },
-    { "title": "Belkin et al. (2019), Reconciling modern machine-learning practice and the classical bias-variance trade-off", "url": "https://arxiv.org/abs/1812.11118" },
-    { "title": "Nakkiran et al. (2019), Deep Double Descent: Where Bigger Models and More Data Hurt", "url": "https://arxiv.org/abs/1912.02292" },
-    { "title": "Zhang et al. (2017), Understanding deep learning requires rethinking generalization", "url": "https://arxiv.org/abs/1611.03530" }
+    {
+      "title": "Hastie, Tibshirani & Friedman, The Elements of Statistical Learning, Ch. 7",
+      "url": "https://hastie.su.domains/ElemStatLearn/"
+    },
+    {
+      "title": "Belkin et al. (2019), Reconciling modern machine-learning practice and the classical bias-variance trade-off",
+      "url": "https://arxiv.org/abs/1812.11118"
+    },
+    {
+      "title": "Nakkiran et al. (2019), Deep Double Descent: Where Bigger Models and More Data Hurt",
+      "url": "https://arxiv.org/abs/1912.02292"
+    },
+    {
+      "title": "Zhang et al. (2017), Understanding deep learning requires rethinking generalization",
+      "url": "https://arxiv.org/abs/1611.03530"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "06-01",
+    "module": "learning-theory",
+    "disposition": "split",
+    "notebookFile": "06-01_bias_variance_double_descent.ipynb",
+    "alsoFeeds": [
+      "06-06"
+    ]
+  }
 }

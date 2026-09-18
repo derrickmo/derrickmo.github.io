@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-06",
   "slug": "linear-algebra",
+  "keyBase": "foundations/linear-algebra",
   "module": "foundations",
   "title": "Linear Algebra for Machine Learning",
   "status": "LIVE",
@@ -188,5 +189,14 @@
       "title": "Santurkar et al. (2018) — How Does Batch Normalization Help Optimization?",
       "url": "https://arxiv.org/abs/1805.11604"
     }
-  ]
+  ],
+  "v2": {
+    "id": "01-01",
+    "module": "math-foundations",
+    "disposition": "split",
+    "notebookFile": "01-01_linear_algebra_i_vectors_matrices.ipynb",
+    "alsoFeeds": [
+      "01-02"
+    ]
+  }
 }

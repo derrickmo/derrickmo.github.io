@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-03",
   "slug": "mcp",
+  "keyBase": "agentic-ai/mcp",
   "module": "agentic-ai",
   "title": "MCP: Protocol, Clients & Servers",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-03_mcp.ipynb",
     "flagship": null,
-    "demos": ["agent-router", "react-agent", "guardrails", "constrained-decoding"],
+    "demos": [
+      "agent-router",
+      "react-agent",
+      "guardrails",
+      "constrained-decoding"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/tool-calling", "agentic-ai/agent-loop"],
-  "leadsTo": ["agentic-ai/multi-agent", "agentic-ai/agent-security"],
+  "prereqs": [
+    "agentic-ai/tool-calling",
+    "agentic-ai/agent-loop"
+  ],
+  "leadsTo": [
+    "agentic-ai/multi-agent",
+    "agentic-ai/agent-security"
+  ],
   "body": {
     "intuition": [
       "MCP is a protocol, not a framework, and the difference is the whole argument for it. Without a shared protocol, connecting N agent clients to M tool servers takes N times M bespoke integrations, and every new client re-implements every existing integration. With one, it takes N plus M: each client speaks the protocol once, each server speaks it once, and any client works with any server. That is the same trade the Language Server Protocol made for editors and compilers, and MCP is explicitly built on that precedent.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/2503.23278"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-03",
+    "module": "agentic-ai",
+    "disposition": "clean",
+    "notebookFile": "19-03_model_context_protocol.ipynb"
+  }
 }

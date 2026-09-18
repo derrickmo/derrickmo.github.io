@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-05",
   "slug": "vit",
+  "keyBase": "advanced-cv/vit",
   "module": "advanced-cv",
   "title": "Vision Transformers (ViT)",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "09-05_vision_transformers_vit.ipynb",
     "flagship": null,
-    "demos": ["attention", "multi-head-attention", "attention-rollout"],
+    "demos": [
+      "attention",
+      "multi-head-attention",
+      "attention-rollout"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/transformer-block", "cnn/cnn-architectures"],
-  "leadsTo": ["advanced-cv/dino-mae", "multimodal/clip"],
+  "prereqs": [
+    "transformers/transformer-block",
+    "cnn/cnn-architectures"
+  ],
+  "leadsTo": [
+    "advanced-cv/dino-mae",
+    "multimodal/clip"
+  ],
   "body": {
     "intuition": [
       "The Vision Transformer (Dosovitskiy et al., 2020) is almost provocatively simple: cut the image into 16x16 patches, flatten each into a vector, project it linearly, add a position embedding, and feed the resulting sequence to a standard transformer encoder - the SAME architecture as BERT, essentially unmodified. No convolutions, no pooling pyramid, no hand-designed locality. The paper's title, 'An Image is Worth 16x16 Words', is the whole idea. What made it a landmark result was not the architecture but the finding attached to it: with enough pretraining data, this deliberately prior-free model BEATS the convolutional networks that had dominated vision for a decade.",
@@ -72,32 +83,83 @@
       "Assuming the ViT-versus-CNN gap is architectural: ConvNeXt matched Swin by modernizing a ResNet with the transformer era's training recipe, and 'ResNet Strikes Back' reached ~80% ImageNet top-1 with a 2015 architecture. Compare architectures only under matched recipes."
     ],
     "connections": [
-      { "ref": "transformers/transformer-block", "text": "A ViT is that block, unmodified, applied to patch tokens - so pre-norm, the FFN's parameter dominance, and the residual-stream view all carry over directly." },
-      { "ref": "cnn/fc-for-images", "text": "The inductive-bias argument is the same one made there for convolution, run in reverse: ViT gives up locality and weight sharing and pays for it in data." },
-      { "ref": "advanced-cv/dino-mae", "text": "Self-supervised pretraining is what made ViTs practical without proprietary billion-image datasets, and DINO's attention maps segment objects with no segmentation labels at all." },
-      { "ref": "transformers/flash-attention", "text": "The quadratic token cost that limits ViT resolution is exactly what FlashAttention's IO-aware tiling and windowed attention schemes address." }
+      {
+        "ref": "transformers/transformer-block",
+        "text": "A ViT is that block, unmodified, applied to patch tokens - so pre-norm, the FFN's parameter dominance, and the residual-stream view all carry over directly."
+      },
+      {
+        "ref": "cnn/fc-for-images",
+        "text": "The inductive-bias argument is the same one made there for convolution, run in reverse: ViT gives up locality and weight sharing and pays for it in data."
+      },
+      {
+        "ref": "advanced-cv/dino-mae",
+        "text": "Self-supervised pretraining is what made ViTs practical without proprietary billion-image datasets, and DINO's attention maps segment objects with no segmentation labels at all."
+      },
+      {
+        "ref": "transformers/flash-attention",
+        "text": "The quadratic token cost that limits ViT resolution is exactly what FlashAttention's IO-aware tiling and windowed attention schemes address."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is a Vision Transformer?", "a": "Split the image into fixed-size patches, linearly embed each, add position embeddings, prepend a CLS token, and run a standard transformer encoder. Classification reads the CLS token's final state." },
-      { "q": "How many tokens for a 224x224 image with 16x16 patches?", "a": "196 patches (14x14 grid), plus the CLS token = 197 tokens, each of dimension 768 in ViT-Base." },
-      { "q": "Is the patch embedding really convolution-free?", "a": "No - splitting into non-overlapping patches and linearly projecting is exactly a Conv2d with kernel = stride = patch size. ViT keeps a minimal locality prior at the patch level." },
-      { "q": "Why does ViT need more data than a CNN?", "a": "It lacks locality and translation equivariance, which a CNN has built in. It must LEARN that structure from data, so priors substitute for data and the crossover is where data suffices." },
-      { "q": "What is the empirical crossover point?", "a": "ImageNet-1k: ResNet wins. ImageNet-21k (14M): roughly a tie. JFT-300M: ViT wins. That progression is the paper's central result." },
-      { "q": "What is DeiT's contribution?", "a": "Reaching ViT-level accuracy on ImageNet-1k alone via heavy augmentation, regularization, and DISTILLATION from a CNN teacher (with a dedicated distillation token) - substituting a prior for missing data." },
-      { "q": "What does Swin change?", "a": "Windowed attention (linear rather than quadratic in tokens) with SHIFTED windows between layers for cross-window flow, plus a hierarchical pyramid - which is what makes transformers viable for detection and segmentation." },
-      { "q": "How does attention cost scale with resolution?", "a": "Tokens scale as (H*W)/P^2 and attention as tokens squared, so cost scales with the FOURTH power of image side at fixed patch size. Halving the patch size is ~16x more attention compute." },
-      { "q": "How do you fine-tune at a higher resolution?", "a": "Interpolate the learned position embeddings to the new patch grid (bicubic), keeping the CLS embedding separate, then fine-tune. Forgetting to exclude CLS is the classic bug." },
-      { "q": "What is the CLS token?", "a": "A learned vector prepended to the sequence whose final hidden state is used for classification - a learned attention-weighted pool over the patches. Some models use mean-pooling instead, with similar results." },
-      { "q": "Do ViTs learn locality anyway?", "a": "Yes - analyses of attention distance show early heads attend locally and later heads globally, so the model discovers a CNN-like hierarchy when it has enough data to do so." },
-      { "q": "What did ConvNeXt demonstrate?", "a": "A ResNet modernized with the transformer era's training recipe and design choices matches Swin - suggesting much of the reported ViT advantage was training recipe rather than architecture." }
+      {
+        "q": "What is a Vision Transformer?",
+        "a": "Split the image into fixed-size patches, linearly embed each, add position embeddings, prepend a CLS token, and run a standard transformer encoder. Classification reads the CLS token's final state."
+      },
+      {
+        "q": "How many tokens for a 224x224 image with 16x16 patches?",
+        "a": "196 patches (14x14 grid), plus the CLS token = 197 tokens, each of dimension 768 in ViT-Base."
+      },
+      {
+        "q": "Is the patch embedding really convolution-free?",
+        "a": "No - splitting into non-overlapping patches and linearly projecting is exactly a Conv2d with kernel = stride = patch size. ViT keeps a minimal locality prior at the patch level."
+      },
+      {
+        "q": "Why does ViT need more data than a CNN?",
+        "a": "It lacks locality and translation equivariance, which a CNN has built in. It must LEARN that structure from data, so priors substitute for data and the crossover is where data suffices."
+      },
+      {
+        "q": "What is the empirical crossover point?",
+        "a": "ImageNet-1k: ResNet wins. ImageNet-21k (14M): roughly a tie. JFT-300M: ViT wins. That progression is the paper's central result."
+      },
+      {
+        "q": "What is DeiT's contribution?",
+        "a": "Reaching ViT-level accuracy on ImageNet-1k alone via heavy augmentation, regularization, and DISTILLATION from a CNN teacher (with a dedicated distillation token) - substituting a prior for missing data."
+      },
+      {
+        "q": "What does Swin change?",
+        "a": "Windowed attention (linear rather than quadratic in tokens) with SHIFTED windows between layers for cross-window flow, plus a hierarchical pyramid - which is what makes transformers viable for detection and segmentation."
+      },
+      {
+        "q": "How does attention cost scale with resolution?",
+        "a": "Tokens scale as (H*W)/P^2 and attention as tokens squared, so cost scales with the FOURTH power of image side at fixed patch size. Halving the patch size is ~16x more attention compute."
+      },
+      {
+        "q": "How do you fine-tune at a higher resolution?",
+        "a": "Interpolate the learned position embeddings to the new patch grid (bicubic), keeping the CLS embedding separate, then fine-tune. Forgetting to exclude CLS is the classic bug."
+      },
+      {
+        "q": "What is the CLS token?",
+        "a": "A learned vector prepended to the sequence whose final hidden state is used for classification - a learned attention-weighted pool over the patches. Some models use mean-pooling instead, with similar results."
+      },
+      {
+        "q": "Do ViTs learn locality anyway?",
+        "a": "Yes - analyses of attention distance show early heads attend locally and later heads globally, so the model discovers a CNN-like hierarchy when it has enough data to do so."
+      },
+      {
+        "q": "What did ConvNeXt demonstrate?",
+        "a": "A ResNet modernized with the transformer era's training recipe and design choices matches Swin - suggesting much of the reported ViT advantage was training recipe rather than architecture."
+      }
     ],
     "standard": [
       {
         "q": "Explain the Vision Transformer and the inductive-bias argument behind its data requirements.",
         "a": "THE ARCHITECTURE, which is deliberately minimal. Take a 224x224 image, cut it into non-overlapping 16x16 patches (196 of them), flatten each patch to a 768-dimensional vector, project it linearly, add a learned position embedding, prepend a learned CLS token, and feed the 197-token sequence to a standard transformer encoder - the same blocks as BERT, with pre-norm, multi-head self-attention, and a 4x FFN. Classify from the CLS token's final state. That is the entire model. Note that the patch embedding is literally a Conv2d with kernel size and stride both 16, so even this 'convolution-free' architecture starts with one convolution - it retains a minimal locality prior at the patch level, but nothing beyond it. THE INDUCTIVE-BIAS ARGUMENT. A CNN encodes two assumptions about images structurally: LOCALITY (a unit sees only a small neighbourhood, because meaningful visual patterns are local) and TRANSLATION EQUIVARIANCE via weight sharing (a pattern worth detecting in one place is worth detecting everywhere). These are true of natural images, and because they are built in, the CNN does not spend data learning them. A ViT has neither: self-attention at layer 1 can relate any patch to any other, and position enters only through a learned embedding, so 'patch 5 is adjacent to patch 6' is something the model must infer. THE CONSEQUENCE, which is the paper's central empirical result: with limited data the CNN's true priors are worth more than the transformer's flexibility, and with abundant data the flexibility wins because the model can learn better structure than we would have imposed. The measured progression - ResNet ahead on ImageNet-1k (1.3M images), roughly tied on ImageNet-21k (14M), ViT ahead on JFT-300M - is one of the cleanest quantitative demonstrations of the priors-versus-data trade-off in the literature. WHAT THE MODEL ACTUALLY LEARNS, which supports the story. Analyses of ViT attention show that early layers develop heads with SHORT attention distance (effectively local receptive fields) alongside heads with long distance, and that mean attention distance grows with depth - the model rediscovers a CNN-like local-to-global hierarchy when it has enough data, rather than using global attention uniformly. Likewise, visualizing the learned 1D position embeddings shows they organize into a 2D grid structure, recovering the spatial layout nobody told it about. WHAT CAME AFTER, and why each follows from the argument. DeiT (Touvron et al.) reached ViT-level accuracy on ImageNet-1k ALONE using heavy augmentation, strong regularization, and DISTILLATION from a CNN teacher via a dedicated distillation token - which is substituting a different prior (the teacher's learned inductive bias, plus augmentation-encoded invariances) for the missing data. SWIN reintroduced locality and hierarchy explicitly: windowed attention with shifted windows, and a resolution pyramid, which both restores the CNN's priors and makes the cost linear rather than quadratic in token count - necessary for detection and segmentation. And CONVNEXT ran the experiment in the other direction, modernizing a ResNet with the transformer era's recipe (AdamW, 300 epochs, heavy augmentation, large depthwise kernels, LayerNorm, inverted bottleneck) and matching Swin - which is strong evidence that a large share of the reported architectural gap was actually the TRAINING RECIPE. THE HONEST CONCLUSION I would offer: the ViT result is not 'transformers are better at vision'; it is 'architectural priors are a substitute for data, and at sufficient scale you can afford to learn them'. That framing predicts everything that followed, including the recipe-versus-architecture confound, and it generalizes well beyond vision.",
-        "deepDive": { "q": "Compare ViT, Swin and ConvNeXt. What does the comparison tell you about how to read architecture papers?", "a": "THE THREE DESIGNS. ViT (2020): plain transformer on 16x16 patches, single resolution throughout, global attention in every layer, minimal priors. Its costs are quadratic attention in token count and no multi-scale features, so it is well-suited to classification and poorly suited to dense prediction. SWIN (Liu et al., 2021): reintroduces two CNN properties deliberately. (a) WINDOWED attention - restrict self-attention to non-overlapping M x M windows (M=7), making cost LINEAR in tokens rather than quadratic; and to restore cross-window information flow, SHIFT the window partition by half a window every other layer, so windows from adjacent layers overlap and information propagates. (b) HIERARCHY - merge patches between stages to build a resolution pyramid (1/4, 1/8, 1/16, 1/32), giving multi-scale features that detection and segmentation heads (FPN, Mask R-CNN) expect. The result was a transformer that could serve as a general-purpose backbone, not just a classifier, and it swept detection and segmentation benchmarks. CONVNEXT (Liu et al., 2022): starts from a ResNet-50 and applies, one at a time, the design choices and training recipe that accompanied transformers - AdamW instead of SGD, 300 epochs instead of 90, heavy augmentation (Mixup, CutMix, RandAugment, random erasing), stochastic depth and label smoothing, a Swin-like stage compute ratio, patchify stem, depthwise 7x7 convolutions, inverted bottleneck, fewer activations and normalizations, LayerNorm instead of BatchNorm, and separate downsampling layers. The result MATCHES Swin at comparable FLOPs on classification, detection, and segmentation - with no attention anywhere. WHAT THE COMPARISON TELLS YOU, which is the real content. (1) MUCH OF THE 'ARCHITECTURAL' GAP WAS THE RECIPE. ConvNeXt's own ablation is explicit: a large fraction of the improvement over the original ResNet-50 came from the training procedure alone, BEFORE any architectural change. The companion result, 'ResNet Strikes Back', retrained an unmodified 2015 ResNet-50 to ~80% ImageNet top-1 against its original 76%, purely with a modern recipe. So papers comparing a new architecture trained with a 2021 recipe against a baseline trained with a 2016 recipe were measuring the recipe. (2) THE PRIORS WERE RIGHT AFTER ALL - or at least, they were not the problem. Swin's success came from adding locality and hierarchy BACK to transformers, and ConvNeXt's from keeping them. That two independent lines converged on 'local + hierarchical + modern recipe' suggests the structure matters and the attention-versus-convolution question matters less than either camp claimed. (3) THE OPERATOR IS LESS IMPORTANT THAN THE MACRO-DESIGN. At matched compute and recipe, a hierarchical local-attention model and a hierarchical large-kernel-depthwise-conv model perform the same. What differentiates them is second-order: attention is data-dependent (weights depend on content) while convolution is not, which matters more at very large scale and for multimodal fusion; convolution is cheaper and better supported on constrained hardware. HOW THIS SHOULD CHANGE HOW YOU READ AN ARCHITECTURE PAPER. Ask: (a) Were the baselines trained with the SAME recipe, epochs, augmentation, and optimizer? If not, the comparison is confounded and you cannot attribute the gain. (b) Is compute (FLOPs AND wall-clock) matched, or is the new model simply bigger? (c) Was the ablation done one change at a time, and does it separate recipe from architecture? (d) Does the advantage hold at multiple scales, or only at the one reported? (e) Does it transfer to downstream tasks, or only to the classification benchmark? THE META-POINT: the field went through a full cycle - CNNs, then 'attention is all you need for vision', then 'actually a modernized CNN matches it' - and the durable knowledge from that cycle is methodological rather than architectural. When someone reports a new block, the prior should be that a meaningful part of the gain is recipe until an ablation proves otherwise." }
+        "deepDive": {
+          "q": "Compare ViT, Swin and ConvNeXt. What does the comparison tell you about how to read architecture papers?",
+          "a": "THE THREE DESIGNS. ViT (2020): plain transformer on 16x16 patches, single resolution throughout, global attention in every layer, minimal priors. Its costs are quadratic attention in token count and no multi-scale features, so it is well-suited to classification and poorly suited to dense prediction. SWIN (Liu et al., 2021): reintroduces two CNN properties deliberately. (a) WINDOWED attention - restrict self-attention to non-overlapping M x M windows (M=7), making cost LINEAR in tokens rather than quadratic; and to restore cross-window information flow, SHIFT the window partition by half a window every other layer, so windows from adjacent layers overlap and information propagates. (b) HIERARCHY - merge patches between stages to build a resolution pyramid (1/4, 1/8, 1/16, 1/32), giving multi-scale features that detection and segmentation heads (FPN, Mask R-CNN) expect. The result was a transformer that could serve as a general-purpose backbone, not just a classifier, and it swept detection and segmentation benchmarks. CONVNEXT (Liu et al., 2022): starts from a ResNet-50 and applies, one at a time, the design choices and training recipe that accompanied transformers - AdamW instead of SGD, 300 epochs instead of 90, heavy augmentation (Mixup, CutMix, RandAugment, random erasing), stochastic depth and label smoothing, a Swin-like stage compute ratio, patchify stem, depthwise 7x7 convolutions, inverted bottleneck, fewer activations and normalizations, LayerNorm instead of BatchNorm, and separate downsampling layers. The result MATCHES Swin at comparable FLOPs on classification, detection, and segmentation - with no attention anywhere. WHAT THE COMPARISON TELLS YOU, which is the real content. (1) MUCH OF THE 'ARCHITECTURAL' GAP WAS THE RECIPE. ConvNeXt's own ablation is explicit: a large fraction of the improvement over the original ResNet-50 came from the training procedure alone, BEFORE any architectural change. The companion result, 'ResNet Strikes Back', retrained an unmodified 2015 ResNet-50 to ~80% ImageNet top-1 against its original 76%, purely with a modern recipe. So papers comparing a new architecture trained with a 2021 recipe against a baseline trained with a 2016 recipe were measuring the recipe. (2) THE PRIORS WERE RIGHT AFTER ALL - or at least, they were not the problem. Swin's success came from adding locality and hierarchy BACK to transformers, and ConvNeXt's from keeping them. That two independent lines converged on 'local + hierarchical + modern recipe' suggests the structure matters and the attention-versus-convolution question matters less than either camp claimed. (3) THE OPERATOR IS LESS IMPORTANT THAN THE MACRO-DESIGN. At matched compute and recipe, a hierarchical local-attention model and a hierarchical large-kernel-depthwise-conv model perform the same. What differentiates them is second-order: attention is data-dependent (weights depend on content) while convolution is not, which matters more at very large scale and for multimodal fusion; convolution is cheaper and better supported on constrained hardware. HOW THIS SHOULD CHANGE HOW YOU READ AN ARCHITECTURE PAPER. Ask: (a) Were the baselines trained with the SAME recipe, epochs, augmentation, and optimizer? If not, the comparison is confounded and you cannot attribute the gain. (b) Is compute (FLOPs AND wall-clock) matched, or is the new model simply bigger? (c) Was the ablation done one change at a time, and does it separate recipe from architecture? (d) Does the advantage hold at multiple scales, or only at the one reported? (e) Does it transfer to downstream tasks, or only to the classification benchmark? THE META-POINT: the field went through a full cycle - CNNs, then 'attention is all you need for vision', then 'actually a modernized CNN matches it' - and the durable knowledge from that cycle is methodological rather than architectural. When someone reports a new block, the prior should be that a meaningful part of the gain is recipe until an ablation proves otherwise."
+        }
       },
       {
         "q": "Why is a plain ViT poorly suited to detection and segmentation, and what fixes it?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Vision Transformer", "back": "Cut into 16x16 patches, linearly embed, add position embeddings, prepend CLS, run a standard transformer encoder. 224px/16 = 196 patches + CLS = 197 tokens. Almost nothing is vision-specific." },
-    { "type": "intuition", "front": "Patch embedding is a convolution", "back": "Non-overlapping patches + linear projection IS a Conv2d with kernel = stride = patch size. So even 'convolution-free' ViT keeps a minimal locality prior at the patch level." },
-    { "type": "intuition", "front": "The data-scale crossover", "back": "ImageNet-1k: ResNet wins. ImageNet-21k (14M): tie. JFT-300M: ViT wins. Priors substitute for data - the crossover is where you have enough data to LEARN what the CNN was given free." },
-    { "type": "formula", "front": "Resolution cost", "back": "Tokens = HW/P^2, attention = O(tokens^2), so cost scales with the FOURTH power of image side at fixed patch size. Halving the patch size is ~16x more attention compute." },
-    { "type": "definition", "front": "Swin's two changes", "back": "(1) WINDOWED attention (linear not quadratic in tokens) with SHIFTED windows between layers for cross-window flow. (2) HIERARCHY via patch merging (1/4,1/8,1/16,1/32) - which is what detection/segmentation heads need." },
-    { "type": "pitfall", "front": "Position-embedding interpolation", "back": "Learned embeddings are tied to the patch grid. To fine-tune at a new resolution, reshape to 2D and bicubically interpolate - keeping the CLS embedding SEPARATE. Including CLS in the reshape corrupts every position silently." },
-    { "type": "intuition", "front": "ViT rediscovers locality", "back": "Attention-distance analyses show early heads attend locally, later heads globally; and the learned 1D position embeddings organize into a 2D grid. It learns the structure a CNN is given - when it has enough data." },
-    { "type": "pitfall", "front": "ConvNeXt's warning about recipes", "back": "A modernized ResNet (AdamW, 300 epochs, heavy aug, 7x7 depthwise, LayerNorm) MATCHES Swin. 'ResNet Strikes Back' got 76%->80% from recipe alone. Compare architectures only under matched recipes." },
-    { "type": "pitfall", "front": "Register tokens", "back": "ViTs repurpose background patches as global scratchpads, creating HIGH-NORM outlier tokens that corrupt attention maps. Adding dedicated register tokens fixes the maps - an interpretability finding that changed the architecture." },
-    { "type": "intuition", "front": "Where transformers actually won", "back": "Foundation models, multimodal, and self-supervised pretraining (masking is natural in a token sequence). NOT at matched-compute architecture, small data, or edge deployment - where modernized CNNs still win." }
+    {
+      "type": "definition",
+      "front": "Vision Transformer",
+      "back": "Cut into 16x16 patches, linearly embed, add position embeddings, prepend CLS, run a standard transformer encoder. 224px/16 = 196 patches + CLS = 197 tokens. Almost nothing is vision-specific."
+    },
+    {
+      "type": "intuition",
+      "front": "Patch embedding is a convolution",
+      "back": "Non-overlapping patches + linear projection IS a Conv2d with kernel = stride = patch size. So even 'convolution-free' ViT keeps a minimal locality prior at the patch level."
+    },
+    {
+      "type": "intuition",
+      "front": "The data-scale crossover",
+      "back": "ImageNet-1k: ResNet wins. ImageNet-21k (14M): tie. JFT-300M: ViT wins. Priors substitute for data - the crossover is where you have enough data to LEARN what the CNN was given free."
+    },
+    {
+      "type": "formula",
+      "front": "Resolution cost",
+      "back": "Tokens = HW/P^2, attention = O(tokens^2), so cost scales with the FOURTH power of image side at fixed patch size. Halving the patch size is ~16x more attention compute."
+    },
+    {
+      "type": "definition",
+      "front": "Swin's two changes",
+      "back": "(1) WINDOWED attention (linear not quadratic in tokens) with SHIFTED windows between layers for cross-window flow. (2) HIERARCHY via patch merging (1/4,1/8,1/16,1/32) - which is what detection/segmentation heads need."
+    },
+    {
+      "type": "pitfall",
+      "front": "Position-embedding interpolation",
+      "back": "Learned embeddings are tied to the patch grid. To fine-tune at a new resolution, reshape to 2D and bicubically interpolate - keeping the CLS embedding SEPARATE. Including CLS in the reshape corrupts every position silently."
+    },
+    {
+      "type": "intuition",
+      "front": "ViT rediscovers locality",
+      "back": "Attention-distance analyses show early heads attend locally, later heads globally; and the learned 1D position embeddings organize into a 2D grid. It learns the structure a CNN is given - when it has enough data."
+    },
+    {
+      "type": "pitfall",
+      "front": "ConvNeXt's warning about recipes",
+      "back": "A modernized ResNet (AdamW, 300 epochs, heavy aug, 7x7 depthwise, LayerNorm) MATCHES Swin. 'ResNet Strikes Back' got 76%->80% from recipe alone. Compare architectures only under matched recipes."
+    },
+    {
+      "type": "pitfall",
+      "front": "Register tokens",
+      "back": "ViTs repurpose background patches as global scratchpads, creating HIGH-NORM outlier tokens that corrupt attention maps. Adding dedicated register tokens fixes the maps - an interpretability finding that changed the architecture."
+    },
+    {
+      "type": "intuition",
+      "front": "Where transformers actually won",
+      "back": "Foundation models, multimodal, and self-supervised pretraining (masking is natural in a token sequence). NOT at matched-compute architecture, small data, or edge deployment - where modernized CNNs still win."
+    }
   ],
   "refs": [
-    { "title": "Dosovitskiy et al. (2020), An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale", "url": "https://arxiv.org/abs/2010.11929" },
-    { "title": "Liu et al. (2021), Swin Transformer: Hierarchical Vision Transformer using Shifted Windows", "url": "https://arxiv.org/abs/2103.14030" },
-    { "title": "Liu et al. (2022), A ConvNet for the 2020s (ConvNeXt)", "url": "https://arxiv.org/abs/2201.03545" },
-    { "title": "Darcet et al. (2023), Vision Transformers Need Registers", "url": "https://arxiv.org/abs/2309.16588" }
+    {
+      "title": "Dosovitskiy et al. (2020), An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "url": "https://arxiv.org/abs/2010.11929"
+    },
+    {
+      "title": "Liu et al. (2021), Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "url": "https://arxiv.org/abs/2103.14030"
+    },
+    {
+      "title": "Liu et al. (2022), A ConvNet for the 2020s (ConvNeXt)",
+      "url": "https://arxiv.org/abs/2201.03545"
+    },
+    {
+      "title": "Darcet et al. (2023), Vision Transformers Need Registers",
+      "url": "https://arxiv.org/abs/2309.16588"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "13-01",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-01_vision_transformers.ipynb"
+  }
 }

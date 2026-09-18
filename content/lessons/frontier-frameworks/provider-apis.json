@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-07",
   "slug": "provider-apis",
+  "keyBase": "frontier-frameworks/provider-apis",
   "module": "frontier-frameworks",
   "title": "Provider APIs in Production",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-07_provider_apis.ipynb",
     "flagship": null,
-    "demos": ["batching", "kv-cache", "decoding", "tokenizer"],
+    "demos": [
+      "batching",
+      "kv-cache",
+      "decoding",
+      "tokenizer"
+    ],
     "concepts": []
   },
-  "prereqs": ["frontier-frameworks/vllm-inference", "mlops/model-serving"],
-  "leadsTo": ["frontier-frameworks/eval-harnesses", "mlops/monitoring"],
+  "prereqs": [
+    "frontier-frameworks/vllm-inference",
+    "mlops/model-serving"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/eval-harnesses",
+    "mlops/monitoring"
+  ],
   "body": {
     "intuition": [
       "Almost nothing in this lesson is about machine learning. Retries with exponential backoff and jitter, token-bucket rate limiting, idempotency keys and streaming responses are distributed-systems client engineering that predates language models by decades. That is precisely why they are worth learning here: the provider, the model and the endpoint will all change, and a correctly built client will keep working against whatever replaces them.",
@@ -274,5 +286,11 @@
       "url": "https://research.google/pubs/pub40801/"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "22-09",
+    "module": "inference-serving",
+    "disposition": "clean",
+    "notebookFile": "22-09_provider_apis_production.ipynb"
+  }
 }

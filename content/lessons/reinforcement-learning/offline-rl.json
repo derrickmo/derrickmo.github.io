@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-09",
   "slug": "offline-rl",
+  "keyBase": "reinforcement-learning/offline-rl",
   "module": "reinforcement-learning",
   "title": "Offline RL — CQL & IQL",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "14-09_offline_rl_cql_iql.ipynb",
     "flagship": null,
-    "demos": ["dqn", "value-iteration", "distributional-rl", "importance-sampling"],
+    "demos": [
+      "dqn",
+      "value-iteration",
+      "distributional-rl",
+      "importance-sampling"
+    ],
     "concepts": []
   },
-  "prereqs": ["reinforcement-learning/dqn", "reinforcement-learning/actor-critic"],
-  "leadsTo": ["reinforcement-learning/imitation-learning", "fine-tuning/dpo-grpo"],
+  "prereqs": [
+    "reinforcement-learning/dqn",
+    "reinforcement-learning/actor-critic"
+  ],
+  "leadsTo": [
+    "reinforcement-learning/imitation-learning",
+    "fine-tuning/dpo-grpo"
+  ],
   "body": {
     "intuition": [
       "Offline RL is reinforcement learning from a fixed dataset with no environment access. The motivation is obvious - healthcare, driving, industrial control and recommendation all have enormous logged datasets and prohibitive or dangerous exploration - and the obvious approach fails badly. Fujimoto et al. showed that standard off-policy algorithms, run on a fixed buffer, degrade catastrophically even when the data comes from an EXPERT policy and the algorithm would have learned fine had it collected that same data itself. That result is the entry point to the subject, because it says the problem is not data quality.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/2106.06860"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "14-11",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-11_offline_rl_cql_iql.ipynb"
+  }
 }

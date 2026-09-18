@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-04",
   "slug": "instrumental-variables",
+  "keyBase": "causal-inference/instrumental-variables",
   "module": "causal-inference",
   "title": "Instrumental Variables",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://www.aeaweb.org/articles?id=10.1257/aer.20211063"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-05",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-05_instrumental_variables_two_stage_least.ipynb"
+  }
 }

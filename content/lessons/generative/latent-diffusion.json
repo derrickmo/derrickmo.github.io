@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-06",
   "slug": "latent-diffusion",
+  "keyBase": "generative/latent-diffusion",
   "module": "generative",
   "title": "Latent Diffusion Models",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "11-06_latent_diffusion_models.ipynb",
     "flagship": null,
-    "demos": ["diffusion", "vae", "quantization", "embeddings"],
+    "demos": [
+      "diffusion",
+      "vae",
+      "quantization",
+      "embeddings"
+    ],
     "concepts": []
   },
-  "prereqs": ["generative/ddpm", "generative/autoencoders"],
-  "leadsTo": ["generative/diffusion-guidance", "multimodal/clip"],
+  "prereqs": [
+    "generative/ddpm",
+    "generative/autoencoders"
+  ],
+  "leadsTo": [
+    "generative/diffusion-guidance",
+    "multimodal/clip"
+  ],
   "body": {
     "intuition": [
       "Pixel-space diffusion works and is ruinously expensive. Every denoising step is a full forward pass over a 512x512x3 tensor, and you need tens to hundreds of steps, so generating one image costs more than most people can spend and training costs more than most labs can raise. Latent diffusion's answer is a single observation about WHERE that compute goes: most of the bits in a natural image are high-frequency detail - texture grain, exact edge placement, sensor noise - that contributes almost nothing to what the image MEANS, and the diffusion model is spending most of its capacity modelling it.",
@@ -82,33 +94,87 @@
       "Assuming latent-space operations behave like pixel-space ones. Latent interpolation, arithmetic, and masking do not map cleanly onto their pixel equivalents, and a small latent perturbation can produce a large, structured pixel change."
     ],
     "connections": [
-      { "ref": "generative/autoencoders", "text": "This is the autoencoder's most consequential deployment - as pure compression, with a tiny regularization weight, precisely because it is NOT being asked to be a generative prior." },
-      { "ref": "generative/ddpm", "text": "The diffusion objective is completely unchanged; only the space it operates in differs, which is why every schedule, sampler, and guidance technique transfers unmodified." },
-      { "ref": "generative/conditional-generation", "text": "Cross-attention over a frozen text encoder's embeddings is what turns this from an unconditional model into a text-to-image system." },
-      { "ref": "multimodal/clip", "text": "The text encoder is the conditioning pathway, and Imagen's finding that a larger frozen language model beats CLIP's text tower is a direct argument about where the language understanding should live." },
-      { "ref": "generative/ar-generative", "text": "VQ-GAN plus a transformer is the same two-stage factorization with an autoregressive prior instead of a diffusion one - compression and generation solved separately, either way." }
+      {
+        "ref": "generative/autoencoders",
+        "text": "This is the autoencoder's most consequential deployment - as pure compression, with a tiny regularization weight, precisely because it is NOT being asked to be a generative prior."
+      },
+      {
+        "ref": "generative/ddpm",
+        "text": "The diffusion objective is completely unchanged; only the space it operates in differs, which is why every schedule, sampler, and guidance technique transfers unmodified."
+      },
+      {
+        "ref": "generative/conditional-generation",
+        "text": "Cross-attention over a frozen text encoder's embeddings is what turns this from an unconditional model into a text-to-image system."
+      },
+      {
+        "ref": "multimodal/clip",
+        "text": "The text encoder is the conditioning pathway, and Imagen's finding that a larger frozen language model beats CLIP's text tower is a direct argument about where the language understanding should live."
+      },
+      {
+        "ref": "generative/ar-generative",
+        "text": "VQ-GAN plus a transformer is the same two-stage factorization with an autoregressive prior instead of a diffusion one - compression and generation solved separately, either way."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is latent diffusion?", "a": "Run the diffusion process in a pretrained autoencoder's latent space rather than in pixels. Stable Diffusion maps 512x512x3 to 64x64x4 - about 48x fewer elements per denoising step." },
-      { "q": "Why is that so much cheaper?", "a": "Convolution and attention costs scale with the number of spatial elements (attention quadratically), and the saving is paid on EVERY denoising step, of which there are many." },
-      { "q": "What is the perceptual/semantic split?", "a": "Most bits in a natural image are high-frequency detail that contributes little to meaning. Let a cheap autoencoder discard it and spend the expensive iterative model on the semantic content." },
-      { "q": "Is the diffusion objective different?", "a": "No. It is the identical denoising objective applied to z = E(x) instead of x, which is why schedules, samplers, and guidance all transfer unchanged." },
-      { "q": "What is the latent scale factor?", "a": "A constant (0.18215 in Stable Diffusion) multiplying the latent so it has roughly unit variance, because the noise schedule assumes that. Omitting it makes the SNR wrong at every timestep." },
-      { "q": "How is the autoencoder trained?", "a": "Separately and beforehand, with reconstruction plus PERCEPTUAL (LPIPS) plus patch-adversarial losses, and only very light KL or VQ regularization. Then frozen." },
-      { "q": "Why is the KL weight so small?", "a": "The autoencoder is a compressor, not a generative prior - the diffusion model provides the prior. A strong KL would trade reconstruction fidelity for a property nothing needs." },
-      { "q": "What limits a latent diffusion model's fidelity?", "a": "The autoencoder. Whatever it cannot reconstruct, the system can never generate - which is why small faces and in-image text fail regardless of the U-Net." },
-      { "q": "How do you test that ceiling?", "a": "Encode a real image and immediately decode it, with no diffusion. Whatever is lost in that round trip bounds everything downstream, and it partitions the failure space." },
-      { "q": "How is text conditioning added?", "a": "Cross-attention in the denoising network, with a frozen text encoder supplying keys and values, plus classifier-free guidance for the adherence dial." },
-      { "q": "What downsampling factor is best?", "a": "4 to 8 by Rombach et al.'s sweep. Less saves little; more discards semantic content the diffusion model cannot recover." },
-      { "q": "What changed in later versions?", "a": "More latent channels (4 to 16 in SD3/Flux), which directly raises the reconstruction ceiling, plus a shift from U-Net to transformer backbones and flow-matching objectives." }
+      {
+        "q": "What is latent diffusion?",
+        "a": "Run the diffusion process in a pretrained autoencoder's latent space rather than in pixels. Stable Diffusion maps 512x512x3 to 64x64x4 - about 48x fewer elements per denoising step."
+      },
+      {
+        "q": "Why is that so much cheaper?",
+        "a": "Convolution and attention costs scale with the number of spatial elements (attention quadratically), and the saving is paid on EVERY denoising step, of which there are many."
+      },
+      {
+        "q": "What is the perceptual/semantic split?",
+        "a": "Most bits in a natural image are high-frequency detail that contributes little to meaning. Let a cheap autoencoder discard it and spend the expensive iterative model on the semantic content."
+      },
+      {
+        "q": "Is the diffusion objective different?",
+        "a": "No. It is the identical denoising objective applied to z = E(x) instead of x, which is why schedules, samplers, and guidance all transfer unchanged."
+      },
+      {
+        "q": "What is the latent scale factor?",
+        "a": "A constant (0.18215 in Stable Diffusion) multiplying the latent so it has roughly unit variance, because the noise schedule assumes that. Omitting it makes the SNR wrong at every timestep."
+      },
+      {
+        "q": "How is the autoencoder trained?",
+        "a": "Separately and beforehand, with reconstruction plus PERCEPTUAL (LPIPS) plus patch-adversarial losses, and only very light KL or VQ regularization. Then frozen."
+      },
+      {
+        "q": "Why is the KL weight so small?",
+        "a": "The autoencoder is a compressor, not a generative prior - the diffusion model provides the prior. A strong KL would trade reconstruction fidelity for a property nothing needs."
+      },
+      {
+        "q": "What limits a latent diffusion model's fidelity?",
+        "a": "The autoencoder. Whatever it cannot reconstruct, the system can never generate - which is why small faces and in-image text fail regardless of the U-Net."
+      },
+      {
+        "q": "How do you test that ceiling?",
+        "a": "Encode a real image and immediately decode it, with no diffusion. Whatever is lost in that round trip bounds everything downstream, and it partitions the failure space."
+      },
+      {
+        "q": "How is text conditioning added?",
+        "a": "Cross-attention in the denoising network, with a frozen text encoder supplying keys and values, plus classifier-free guidance for the adherence dial."
+      },
+      {
+        "q": "What downsampling factor is best?",
+        "a": "4 to 8 by Rombach et al.'s sweep. Less saves little; more discards semantic content the diffusion model cannot recover."
+      },
+      {
+        "q": "What changed in later versions?",
+        "a": "More latent channels (4 to 16 in SD3/Flux), which directly raises the reconstruction ceiling, plus a shift from U-Net to transformer backbones and flow-matching objectives."
+      }
     ],
     "standard": [
       {
         "q": "Explain the latent diffusion architecture and why the two-stage design is correct.",
         "a": "THE ARCHITECTURE. Stage one is an AUTOENCODER, trained separately on images and then frozen. Its encoder maps 512x512x3 to a 64x64x4 latent - a factor of 8 spatially and roughly 48x fewer elements - and it is trained with reconstruction plus a perceptual (LPIPS) loss plus a patch discriminator, with only very light KL or VQ regularization. Stage two is a DIFFUSION MODEL operating entirely on those latents, conditioned through cross-attention on a frozen text encoder's embeddings. At inference you sample noise in latent space, denoise it, and decode once at the end. WHY IT IS CORRECT - the argument in three steps. (1) COMPUTE FOLLOWS ELEMENT COUNT. Both convolution and attention scale with the number of spatial positions, attention quadratically, and diffusion pays that cost on every one of many denoising steps. Reducing elements 48x is therefore an enormous saving, and it is multiplied by the step count. (2) THE DISCARDED INFORMATION IS THE CHEAP KIND. Rombach et al.'s framing - perceptual versus semantic compression - is the substance of the argument. Most bits in a natural image are high-frequency detail that contributes almost nothing to meaning, and a pixel-space diffusion model demonstrably spends most of its capacity modelling exactly that. An autoencoder can strip it far more cheaply, because RECONSTRUCTION IS A MUCH EASIER PROBLEM THAN GENERATION - reconstruction has the answer available as input. (3) THE TWO PROBLEMS HAVE DIFFERENT BEST TOOLS. Compression wants a feedforward encoder-decoder with perceptual losses; generation wants an iterative denoiser. Solving them jointly forces one architecture to do both jobs at whatever compromise is achievable. THE PAYOFF WAS QUALITATIVE, NOT INCREMENTAL. The saving is what made training feasible on an academic budget and inference feasible on a consumer GPU, which is the reason there is an open text-to-image ecosystem at all. That is a case where an efficiency result changed who could participate in the field, not just how fast the field moved. THE COSTS, which I would state without hedging. (a) THE AUTOENCODER IS A HARD CEILING. Whatever it cannot reconstruct, the system can never generate. Stable Diffusion's difficulty with small faces and with text in images is largely this, and it is not addressable by any improvement to the diffusion model. Later versions raised the latent channel count from 4 to 16 precisely to lift the ceiling, which is a bigger quality change than its description suggests. (b) ERRORS COMPOUND ACROSS STAGES: a slightly implausible latent gets amplified by the decoder in ways that are hard to predict from the latent alone. (c) DEBUGGING requires attributing failures to a stage, for which the encode-decode round trip is the essential test. (d) The latent space is not interpretable, so latent-space edits behave less predictably than pixel edits. THE ALTERNATIVE, for contrast: Imagen used CASCADED PIXEL-SPACE diffusion - a small base model at 64x64 followed by super-resolution diffusion stages. It also works and produces excellent results, and it avoids the autoencoder ceiling. It is more expensive and involves more models to train and serve, and the field went latent, but the comparison is genuinely close and worth knowing rather than dismissing. THE GENERAL LESSON I would draw: when a system spends most of its expensive computation on a subproblem a cheap method could handle, that is a factoring opportunity. The same reasoning gives VQ-GAN plus a transformer, retrieve-then-read in QA, and cascaded models generally.",
-        "deepDive": { "q": "What exactly does the Stable Diffusion autoencoder lose, and how would you improve it?", "a": "MEASURING IT FIRST, because the answer should be empirical. Encode and immediately decode a set of real images and measure PSNR, LPIPS, and - most informatively - look at the residual. For the SD 1.x autoencoder (f=8, 4 latent channels) the pattern is consistent: large-scale structure and colour are essentially perfect; texture is slightly altered but plausible; SMALL FACES are distorted, with eyes and mouths shifting position; TEXT is unreadable and letterforms are invented; thin high-contrast lines soften or break; and fine periodic patterns can alias. WHY THOSE THINGS SPECIFICALLY. The bottleneck is a 4-channel 64x64 grid for a 512x512x3 image - a compression ratio of 48:1. What survives is what the training objective rewarded, and the objective was reconstruction plus LPIPS plus a patch discriminator. LPIPS and a patch discriminator both reward PERCEPTUAL PLAUSIBILITY of local texture rather than exact correspondence, so the autoencoder learns to produce something that looks like the right kind of texture rather than the exact one. For most content that is exactly what you want and is why the reconstructions look so good. For content where the exact arrangement IS the meaning - a face at 30 pixels, the word 'OPEN' on a sign - plausible-looking texture is wrong, and the model has no way to know the difference. It is the same failure as a GAN inventing detail, deployed deliberately. THE IMPROVEMENTS, in order of impact. (1) MORE LATENT CHANNELS. Going from 4 to 16 channels at the same spatial resolution is a 4x increase in latent capacity and it dramatically improves reconstruction of faces and text. This is what SD3 and Flux did and it is the single largest available win. The cost is that the diffusion model now works in a higher-dimensional space, which is somewhat harder to model and slightly more expensive - a genuine trade, but at current compute levels clearly worth it. (2) LESS SPATIAL DOWNSAMPLING (f=4 rather than 8) trades directly against the compute saving that motivated the whole design, so it is usually the wrong lever. (3) BETTER LOSSES: more weight on adversarial and perceptual terms, or a discriminator that specifically attends to faces and text regions. (4) A DIFFUSION DECODER instead of a feedforward one - sampling from the conditional distribution of images given the latent rather than predicting a point estimate. This produces noticeably sharper output and is used in some systems; it costs extra inference steps at decode time, which partly undoes the efficiency argument. (5) DOMAIN-SPECIFIC FINE-TUNING of the autoencoder: if you generate a narrow domain (product photos, faces, medical images), fine-tuning the VAE on that domain raises its ceiling substantially and is cheap. This is underused - people fine-tune the U-Net constantly and the VAE almost never. (6) HYBRID APPROACHES: generate in latent space and then run a pixel-space refinement or super-resolution pass, which is how several production systems handle faces. THE STRATEGIC POINT I would make in a design review: the community spent years fine-tuning U-Nets on top of a frozen autoencoder whose limitations were the binding constraint for two of the most-complained-about failure modes. That is a good example of optimizing the component you can see rather than the one that is limiting, and the diagnostic that would have revealed it - the encode-decode round trip - takes ten lines and almost nobody ran it." }
+        "deepDive": {
+          "q": "What exactly does the Stable Diffusion autoencoder lose, and how would you improve it?",
+          "a": "MEASURING IT FIRST, because the answer should be empirical. Encode and immediately decode a set of real images and measure PSNR, LPIPS, and - most informatively - look at the residual. For the SD 1.x autoencoder (f=8, 4 latent channels) the pattern is consistent: large-scale structure and colour are essentially perfect; texture is slightly altered but plausible; SMALL FACES are distorted, with eyes and mouths shifting position; TEXT is unreadable and letterforms are invented; thin high-contrast lines soften or break; and fine periodic patterns can alias. WHY THOSE THINGS SPECIFICALLY. The bottleneck is a 4-channel 64x64 grid for a 512x512x3 image - a compression ratio of 48:1. What survives is what the training objective rewarded, and the objective was reconstruction plus LPIPS plus a patch discriminator. LPIPS and a patch discriminator both reward PERCEPTUAL PLAUSIBILITY of local texture rather than exact correspondence, so the autoencoder learns to produce something that looks like the right kind of texture rather than the exact one. For most content that is exactly what you want and is why the reconstructions look so good. For content where the exact arrangement IS the meaning - a face at 30 pixels, the word 'OPEN' on a sign - plausible-looking texture is wrong, and the model has no way to know the difference. It is the same failure as a GAN inventing detail, deployed deliberately. THE IMPROVEMENTS, in order of impact. (1) MORE LATENT CHANNELS. Going from 4 to 16 channels at the same spatial resolution is a 4x increase in latent capacity and it dramatically improves reconstruction of faces and text. This is what SD3 and Flux did and it is the single largest available win. The cost is that the diffusion model now works in a higher-dimensional space, which is somewhat harder to model and slightly more expensive - a genuine trade, but at current compute levels clearly worth it. (2) LESS SPATIAL DOWNSAMPLING (f=4 rather than 8) trades directly against the compute saving that motivated the whole design, so it is usually the wrong lever. (3) BETTER LOSSES: more weight on adversarial and perceptual terms, or a discriminator that specifically attends to faces and text regions. (4) A DIFFUSION DECODER instead of a feedforward one - sampling from the conditional distribution of images given the latent rather than predicting a point estimate. This produces noticeably sharper output and is used in some systems; it costs extra inference steps at decode time, which partly undoes the efficiency argument. (5) DOMAIN-SPECIFIC FINE-TUNING of the autoencoder: if you generate a narrow domain (product photos, faces, medical images), fine-tuning the VAE on that domain raises its ceiling substantially and is cheap. This is underused - people fine-tune the U-Net constantly and the VAE almost never. (6) HYBRID APPROACHES: generate in latent space and then run a pixel-space refinement or super-resolution pass, which is how several production systems handle faces. THE STRATEGIC POINT I would make in a design review: the community spent years fine-tuning U-Nets on top of a frozen autoencoder whose limitations were the binding constraint for two of the most-complained-about failure modes. That is a good example of optimizing the component you can see rather than the one that is limiting, and the diagnostic that would have revealed it - the encode-decode round trip - takes ten lines and almost nobody ran it."
+        }
       },
       {
         "q": "Your generated images have a specific recurring flaw. How do you determine which component is responsible?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Latent diffusion", "back": "Run diffusion in a frozen autoencoder's latent space. 512x512x3 -> 64x64x4 = ~48x fewer elements, paid on EVERY denoising step. The objective is unchanged - only the space differs." },
-    { "type": "intuition", "front": "Perceptual vs semantic compression", "back": "Most bits in an image are high-frequency detail contributing little to meaning, and pixel diffusion spends most of its capacity there. Let a cheap autoencoder strip it - reconstruction is far easier than generation because the answer is the input." },
-    { "type": "pitfall", "front": "The latent scale factor", "back": "0.18215 in Stable Diffusion. The noise schedule assumes ~unit-variance data; raw SD latents have std ~5.5. Omit it and the SNR is wrong at every timestep - output looks washed out or noisy, which reads as a model defect." },
-    { "type": "pitfall", "front": "The autoencoder is a hard ceiling", "back": "Whatever it cannot reconstruct, the system can NEVER generate. Small faces and in-image text degrade in the round trip alone - unfixable by any U-Net, sampler, or prompt. SD3/Flux raised latent channels 4 -> 16 for exactly this." },
-    { "type": "definition", "front": "The round-trip test", "back": "Encode a real image, decode immediately, no diffusion. Whatever is lost bounds everything downstream. If a flaw survives the round trip it is an AUTOENCODER problem; if the round trip is clean it is a diffusion problem. Ten lines that partition the failure space." },
-    { "type": "intuition", "front": "Why the KL weight is tiny", "back": "The autoencoder is a COMPRESSOR - the diffusion model supplies the prior. Strong regularization would trade reconstruction fidelity for a property nothing downstream needs. Trained with perceptual + patch-adversarial losses, then FROZEN." },
-    { "type": "definition", "front": "Downsampling factor f", "back": "Rombach et al. swept it: f = 4-8 optimal. Below, little is saved; above, the autoencoder discards semantics that are then unrecoverable. An empirical trade, not a free parameter." },
-    { "type": "intuition", "front": "Latent vs cascaded pixel diffusion", "back": "Latent: one model + one reusable autoencoder, cheaper, but a fixed reconstruction ceiling. Cascaded (Imagen): pixel-space base + SR stages, no ceiling, more models. Latent won partly on cost and partly because a shared VAE enabled an open ecosystem." },
-    { "type": "definition", "front": "Noise conditioning augmentation", "back": "The cascade line's durable idea: train each super-resolution stage on deliberately DEGRADED versions of what the previous stage will actually produce, not on ground truth it will never see. General exposure-bias fix for staged pipelines." },
-    { "type": "pitfall", "front": "Zero-terminal-SNR", "back": "Standard schedules do not reach SNR=0 at t=T, so training keeps a faint signal trace while inference starts from PURE noise. The model leans on that trace for mean brightness -> SD 1.x cannot make genuinely dark or bright images. Fix: rescale the schedule AND switch to v-prediction." },
-    { "type": "intuition", "front": "U-Net -> transformer backbones", "back": "DiT scales better with FLOPs: fewer inductive biases, global attention at every layer, and the whole transformer infrastructure applies. LATENT COMPRESSION is what makes it affordable (64x64 latent = ~1-4k tokens). Third instance of general-beats-specific at scale." },
-    { "type": "intuition", "front": "Adaptation ladder for a new domain", "back": "Prompting -> textual inversion (3-5 imgs, KBs) -> LoRA (tens of imgs, MBs) -> DreamBooth -> full U-Net fine-tune -> and the one everyone skips: FINE-TUNE THE VAE, which is the only fix if the round trip loses what matters." }
+    {
+      "type": "definition",
+      "front": "Latent diffusion",
+      "back": "Run diffusion in a frozen autoencoder's latent space. 512x512x3 -> 64x64x4 = ~48x fewer elements, paid on EVERY denoising step. The objective is unchanged - only the space differs."
+    },
+    {
+      "type": "intuition",
+      "front": "Perceptual vs semantic compression",
+      "back": "Most bits in an image are high-frequency detail contributing little to meaning, and pixel diffusion spends most of its capacity there. Let a cheap autoencoder strip it - reconstruction is far easier than generation because the answer is the input."
+    },
+    {
+      "type": "pitfall",
+      "front": "The latent scale factor",
+      "back": "0.18215 in Stable Diffusion. The noise schedule assumes ~unit-variance data; raw SD latents have std ~5.5. Omit it and the SNR is wrong at every timestep - output looks washed out or noisy, which reads as a model defect."
+    },
+    {
+      "type": "pitfall",
+      "front": "The autoencoder is a hard ceiling",
+      "back": "Whatever it cannot reconstruct, the system can NEVER generate. Small faces and in-image text degrade in the round trip alone - unfixable by any U-Net, sampler, or prompt. SD3/Flux raised latent channels 4 -> 16 for exactly this."
+    },
+    {
+      "type": "definition",
+      "front": "The round-trip test",
+      "back": "Encode a real image, decode immediately, no diffusion. Whatever is lost bounds everything downstream. If a flaw survives the round trip it is an AUTOENCODER problem; if the round trip is clean it is a diffusion problem. Ten lines that partition the failure space."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the KL weight is tiny",
+      "back": "The autoencoder is a COMPRESSOR - the diffusion model supplies the prior. Strong regularization would trade reconstruction fidelity for a property nothing downstream needs. Trained with perceptual + patch-adversarial losses, then FROZEN."
+    },
+    {
+      "type": "definition",
+      "front": "Downsampling factor f",
+      "back": "Rombach et al. swept it: f = 4-8 optimal. Below, little is saved; above, the autoencoder discards semantics that are then unrecoverable. An empirical trade, not a free parameter."
+    },
+    {
+      "type": "intuition",
+      "front": "Latent vs cascaded pixel diffusion",
+      "back": "Latent: one model + one reusable autoencoder, cheaper, but a fixed reconstruction ceiling. Cascaded (Imagen): pixel-space base + SR stages, no ceiling, more models. Latent won partly on cost and partly because a shared VAE enabled an open ecosystem."
+    },
+    {
+      "type": "definition",
+      "front": "Noise conditioning augmentation",
+      "back": "The cascade line's durable idea: train each super-resolution stage on deliberately DEGRADED versions of what the previous stage will actually produce, not on ground truth it will never see. General exposure-bias fix for staged pipelines."
+    },
+    {
+      "type": "pitfall",
+      "front": "Zero-terminal-SNR",
+      "back": "Standard schedules do not reach SNR=0 at t=T, so training keeps a faint signal trace while inference starts from PURE noise. The model leans on that trace for mean brightness -> SD 1.x cannot make genuinely dark or bright images. Fix: rescale the schedule AND switch to v-prediction."
+    },
+    {
+      "type": "intuition",
+      "front": "U-Net -> transformer backbones",
+      "back": "DiT scales better with FLOPs: fewer inductive biases, global attention at every layer, and the whole transformer infrastructure applies. LATENT COMPRESSION is what makes it affordable (64x64 latent = ~1-4k tokens). Third instance of general-beats-specific at scale."
+    },
+    {
+      "type": "intuition",
+      "front": "Adaptation ladder for a new domain",
+      "back": "Prompting -> textual inversion (3-5 imgs, KBs) -> LoRA (tens of imgs, MBs) -> DreamBooth -> full U-Net fine-tune -> and the one everyone skips: FINE-TUNE THE VAE, which is the only fix if the round trip loses what matters."
+    }
   ],
   "refs": [
-    { "title": "Rombach et al. (2022), High-Resolution Image Synthesis with Latent Diffusion Models", "url": "https://arxiv.org/abs/2112.10752" },
-    { "title": "Peebles & Xie (2023), Scalable Diffusion Models with Transformers (DiT)", "url": "https://arxiv.org/abs/2212.09748" },
-    { "title": "Lin et al. (2024), Common Diffusion Noise Schedules and Sample Steps Are Flawed", "url": "https://arxiv.org/abs/2305.08891" },
-    { "title": "Saharia et al. (2022), Photorealistic Text-to-Image Diffusion Models (Imagen, cascaded pixel diffusion)", "url": "https://arxiv.org/abs/2205.11487" },
-    { "title": "Podell et al. (2023), SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis", "url": "https://arxiv.org/abs/2307.01952" }
+    {
+      "title": "Rombach et al. (2022), High-Resolution Image Synthesis with Latent Diffusion Models",
+      "url": "https://arxiv.org/abs/2112.10752"
+    },
+    {
+      "title": "Peebles & Xie (2023), Scalable Diffusion Models with Transformers (DiT)",
+      "url": "https://arxiv.org/abs/2212.09748"
+    },
+    {
+      "title": "Lin et al. (2024), Common Diffusion Noise Schedules and Sample Steps Are Flawed",
+      "url": "https://arxiv.org/abs/2305.08891"
+    },
+    {
+      "title": "Saharia et al. (2022), Photorealistic Text-to-Image Diffusion Models (Imagen, cascaded pixel diffusion)",
+      "url": "https://arxiv.org/abs/2205.11487"
+    },
+    {
+      "title": "Podell et al. (2023), SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis",
+      "url": "https://arxiv.org/abs/2307.01952"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "12-10",
+    "module": "generative",
+    "disposition": "clean",
+    "notebookFile": "12-10_latent_diffusion_diffusion_transformers.ipynb"
+  }
 }

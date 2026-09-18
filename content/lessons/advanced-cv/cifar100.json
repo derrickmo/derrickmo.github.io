@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-10",
   "slug": "cifar100",
+  "keyBase": "advanced-cv/cifar100",
   "module": "advanced-cv",
   "title": "CNN Training Deep Dive — CIFAR-100",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "09-10_cnn_training_deep_dive_cifar100.ipynb",
     "flagship": null,
-    "demos": ["image-augmentation", "lr-schedule", "batch-norm", "weight-init"],
+    "demos": [
+      "image-augmentation",
+      "lr-schedule",
+      "batch-norm",
+      "weight-init"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/cnn-architectures", "neural-nets/adam-lr-scheduling"],
-  "leadsTo": ["ml-theory/bias-variance", "training-systems/training-stability"],
+  "prereqs": [
+    "cnn/cnn-architectures",
+    "neural-nets/adam-lr-scheduling"
+  ],
+  "leadsTo": [
+    "ml-theory/bias-variance",
+    "training-systems/training-stability"
+  ],
   "body": {
     "intuition": [
       "This is the module's capstone: not a new architecture but the CRAFT of actually training one well. CIFAR-100 is the right vehicle because it is small enough to iterate on in minutes and hard enough to expose everything - 100 classes with only 500 training images each, so it overfits readily, the classes are fine-grained (maple versus oak, boy versus man), and the 32x32 resolution means every architectural and augmentation choice shows up in the number. A default ResNet-18 with a naive recipe lands around 72-76%; a carefully-tuned one exceeds 80% with the SAME architecture and parameter count.",
@@ -72,32 +84,83 @@
       "Comparing architectures under different recipes: the majority of many reported architectural gains is recipe. Match epochs, augmentation, optimizer, and schedule before attributing a difference to the architecture - and say which you matched."
     ],
     "connections": [
-      { "ref": "ml-theory/bias-variance", "text": "The train-versus-validation diagnosis that drives every decision here is that lesson's framework applied in practice, including the learning-curve reading that tells you whether more data would help." },
-      { "ref": "ml-theory/data-augmentation", "text": "Augmentation contributes more than any other single ingredient in the ablation, and the choice of transforms is the domain-knowledge step - crop and flip are valid for CIFAR, and would not be for text or laterality-sensitive images." },
-      { "ref": "neural-nets/adam-lr-scheduling", "text": "Warmup, cosine decay, and the linear scaling rule come from there; this lesson measures what they are worth on a real task." },
-      { "ref": "cnn/cnn-architectures", "text": "The architecture matters less than the recipe on this task, which is the honest conclusion the ConvNeXt and 'ResNet Strikes Back' results reached at ImageNet scale." }
+      {
+        "ref": "ml-theory/bias-variance",
+        "text": "The train-versus-validation diagnosis that drives every decision here is that lesson's framework applied in practice, including the learning-curve reading that tells you whether more data would help."
+      },
+      {
+        "ref": "ml-theory/data-augmentation",
+        "text": "Augmentation contributes more than any other single ingredient in the ablation, and the choice of transforms is the domain-knowledge step - crop and flip are valid for CIFAR, and would not be for text or laterality-sensitive images."
+      },
+      {
+        "ref": "neural-nets/adam-lr-scheduling",
+        "text": "Warmup, cosine decay, and the linear scaling rule come from there; this lesson measures what they are worth on a real task."
+      },
+      {
+        "ref": "cnn/cnn-architectures",
+        "text": "The architecture matters less than the recipe on this task, which is the honest conclusion the ConvNeXt and 'ResNet Strikes Back' results reached at ImageNet scale."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why is CIFAR-100 harder than CIFAR-10?", "a": "100 classes with only 500 training images each (versus 5,000), and the classes are fine-grained (maple vs oak, boy vs man) at 32x32 resolution - so it overfits readily and every choice shows up in the number." },
-      { "q": "What should the initial loss be for 100 balanced classes?", "a": "ln(100) = 4.605. A very different starting value means a mis-initialized head or a broken label mapping - a two-second check that catches a real class of bugs." },
-      { "q": "What is the first debugging step?", "a": "Try to overfit 20 examples to near-zero loss. If the model cannot, you have a BUG (labels, loss, frozen parameters, learning rate) rather than a modelling problem." },
-      { "q": "Why use warmup?", "a": "Early gradients are large and the loss surface is poorly conditioned, so full-rate steps can destabilize training. A few epochs of linear ramp lets the model reach a better-conditioned region first." },
-      { "q": "Why cosine decay?", "a": "It spends most of the budget at a high rate (exploration and implicit regularization) then anneals smoothly to near zero for final convergence - fewer hyperparameters than step decay and generally slightly better." },
-      { "q": "What is the linear scaling rule?", "a": "Scale the peak learning rate roughly linearly with batch size (0.1 at batch 128 -> 0.4 at batch 512), with warmup. It is what makes large-batch training stable." },
-      { "q": "Why exclude BatchNorm parameters and biases from weight decay?", "a": "Decaying a normalization scale toward zero shrinks the layer's output for no useful reason and measurably hurts. Split the optimizer into decay and no-decay parameter groups." },
-      { "q": "Adam + L2 versus AdamW?", "a": "Adam divides the gradient (including the L2 term) by a per-parameter running magnitude, distorting the decay. AdamW applies decay directly to the weights, decoupled from the adaptive scaling." },
-      { "q": "Why not use the ImageNet ResNet stem on CIFAR?", "a": "A 7x7 stride-2 conv plus max-pool reduces 32x32 to 8x8 before the network starts, discarding most spatial information. Use a 3x3 stem with no initial pooling - worth several points." },
-      { "q": "How large is seed variance on CIFAR-100?", "a": "Roughly 0.4 points standard deviation, so a single-run gain under about one point is indistinguishable from noise. Three seeds is the minimum before believing a result." },
-      { "q": "Which contributes more, schedule and augmentation or architecture?", "a": "Schedule plus augmentation are worth ~9.6 points in a controlled ablation, more than everything else combined - and neither changes the architecture." },
-      { "q": "What is label smoothing worth here?", "a": "About half a point, and it also improves calibration by preventing the logits from growing without bound. Caveat: it degrades a model's usefulness as a distillation teacher." }
+      {
+        "q": "Why is CIFAR-100 harder than CIFAR-10?",
+        "a": "100 classes with only 500 training images each (versus 5,000), and the classes are fine-grained (maple vs oak, boy vs man) at 32x32 resolution - so it overfits readily and every choice shows up in the number."
+      },
+      {
+        "q": "What should the initial loss be for 100 balanced classes?",
+        "a": "ln(100) = 4.605. A very different starting value means a mis-initialized head or a broken label mapping - a two-second check that catches a real class of bugs."
+      },
+      {
+        "q": "What is the first debugging step?",
+        "a": "Try to overfit 20 examples to near-zero loss. If the model cannot, you have a BUG (labels, loss, frozen parameters, learning rate) rather than a modelling problem."
+      },
+      {
+        "q": "Why use warmup?",
+        "a": "Early gradients are large and the loss surface is poorly conditioned, so full-rate steps can destabilize training. A few epochs of linear ramp lets the model reach a better-conditioned region first."
+      },
+      {
+        "q": "Why cosine decay?",
+        "a": "It spends most of the budget at a high rate (exploration and implicit regularization) then anneals smoothly to near zero for final convergence - fewer hyperparameters than step decay and generally slightly better."
+      },
+      {
+        "q": "What is the linear scaling rule?",
+        "a": "Scale the peak learning rate roughly linearly with batch size (0.1 at batch 128 -> 0.4 at batch 512), with warmup. It is what makes large-batch training stable."
+      },
+      {
+        "q": "Why exclude BatchNorm parameters and biases from weight decay?",
+        "a": "Decaying a normalization scale toward zero shrinks the layer's output for no useful reason and measurably hurts. Split the optimizer into decay and no-decay parameter groups."
+      },
+      {
+        "q": "Adam + L2 versus AdamW?",
+        "a": "Adam divides the gradient (including the L2 term) by a per-parameter running magnitude, distorting the decay. AdamW applies decay directly to the weights, decoupled from the adaptive scaling."
+      },
+      {
+        "q": "Why not use the ImageNet ResNet stem on CIFAR?",
+        "a": "A 7x7 stride-2 conv plus max-pool reduces 32x32 to 8x8 before the network starts, discarding most spatial information. Use a 3x3 stem with no initial pooling - worth several points."
+      },
+      {
+        "q": "How large is seed variance on CIFAR-100?",
+        "a": "Roughly 0.4 points standard deviation, so a single-run gain under about one point is indistinguishable from noise. Three seeds is the minimum before believing a result."
+      },
+      {
+        "q": "Which contributes more, schedule and augmentation or architecture?",
+        "a": "Schedule plus augmentation are worth ~9.6 points in a controlled ablation, more than everything else combined - and neither changes the architecture."
+      },
+      {
+        "q": "What is label smoothing worth here?",
+        "a": "About half a point, and it also improves calibration by preventing the logits from growing without bound. Caveat: it degrades a model's usefulness as a distillation teacher."
+      }
     ],
     "standard": [
       {
         "q": "Walk through how you would take a baseline CNN from 72% to over 80% on CIFAR-100.",
         "a": "I would work in a fixed order, because the components differ enormously in value and some interact. STEP 0 - VERIFY THE PIPELINE BEFORE TUNING ANYTHING. Can the model overfit 20 examples to near-zero loss? If not, there is a bug - wrong label mapping, frozen parameters, a loss applied to the wrong tensor - and no amount of tuning fixes it. Check that the initial loss is ln(100) = 4.605. Check that the ResNet is the CIFAR variant (3x3 stem, no initial max-pool); using the ImageNet stem on 32x32 images reduces them to 8x8 before the network starts and costs several points immediately. These checks take minutes and prevent days of confused tuning. STEP 1 - LEARNING RATE AND SCHEDULE, the highest-value change. A constant learning rate with SGD is leaving a lot on the table; adding warmup (about 5 epochs) plus cosine decay to near zero is worth roughly 5 points on its own in a controlled ablation. Find the peak rate with a short range test or a small sweep - it is the single most important hyperparameter and it interacts with batch size via the linear scaling rule. STEP 2 - AUGMENTATION, the strongest regularizer for images and worth about another 5 points. Random crop with 4-pixel padding and horizontal flip is the CIFAR standard and does most of the work. Then the stronger modern additions: Mixup or CutMix (roughly +0.8), RandAugment or TrivialAugment, and random erasing. Note these require LONGER training to pay off, because they make the task harder - a short-schedule comparison can show them hurting, which is a common confound. STEP 3 - THE REGULARIZATION STACK. Weight decay around 5e-4, EXCLUDING normalization parameters and biases (worth ~1.2 points, and the exclusion detail matters). Label smoothing 0.1 (~0.6, and it improves calibration). Stochastic depth for deeper models. These are cheap and additive up to a point, and over-applying them tips you into underfitting - watch the training accuracy. STEP 4 - TRAIN LONGER. With strong augmentation the model is far from memorizing, so 200 epochs to 600 buys about another point. This is the least intellectually satisfying and most reliable lever, and it is why published comparisons must match epoch budgets. STEP 5 - ONLY NOW THE ARCHITECTURE. A wider or deeper network (ResNet-34, WideResNet-28-10) adds perhaps a point at meaningfully more compute. Note it comes LAST because at this scale it is worth less than the recipe. STEP 6 - CHEAP EXTRAS if you want the last fraction: exponential moving average of weights, test-time augmentation, and ensembling - though these change inference cost and should be reported as such. THE MEASUREMENT DISCIPLINE THROUGHOUT, which is the part that determines whether any of this is real: seed standard deviation on CIFAR-100 is around 0.4 points, so any single-run difference under about one point is noise. Run three seeds, report mean and spread, change one thing at a time, and keep a fixed validation split (carved from training data) with the test set touched once at the end. Without that, you will confidently attribute noise to your changes - which is the most common failure mode in this kind of work and the reason so many small reported improvements do not replicate. THE HONEST SUMMARY I would give: the architecture contributes about a point, the recipe about nine. That ratio is the reason 'ResNet Strikes Back' could take a 2015 architecture to near-modern ImageNet accuracy with nothing but a training recipe, and it is why comparing architectures under mismatched recipes measures the recipe.",
-        "deepDive": { "q": "How do you know an improvement is real rather than noise, and how should experiments be designed?", "a": "THE PROBLEM, quantified. Retraining the same model with a different random seed on CIFAR-100 gives results varying by roughly 0.4 points standard deviation - from initialization, data ordering, augmentation randomness, and (on GPU) non-deterministic kernels. So two runs differing by 0.5 points are entirely consistent with being the same configuration. The failure mode this creates is systematic: you try twenty variations, pick the best, and report it - and the expected maximum of twenty draws from a distribution with sigma = 0.4 exceeds the mean by roughly sigma*sqrt(2 ln 20) ~ 1.0 point, purely from selection. So a 1-point 'improvement' found by trying twenty things is exactly what noise produces. THE DESIGN PRINCIPLES. (1) MULTIPLE SEEDS, ALWAYS. Three is the practical minimum, five is better. Report mean and standard deviation, not a single number, and compare distributions rather than points. If the intervals overlap substantially, you have not shown anything. (2) PAIRED COMPARISON: use the SAME set of seeds for both configurations and compare per-seed differences, which removes the shared seed-to-seed variation and is far more powerful than comparing two independent means. This one change often turns an ambiguous comparison into a clear one at no extra cost. (3) CHANGE ONE THING AT A TIME. Bundled changes cannot be attributed, and components interact (stronger augmentation needs longer training; higher learning rate needs warmup), so a bundle that helps may contain a component that hurts. (4) FIX THE BUDGET. Compare at matched epochs, matched wall-clock, or matched compute - and say which. A method that wins at 200 epochs and loses at 600 is a different claim from one that wins at both. (5) TUNE BOTH ARMS EQUALLY. A new component with a tuned learning rate against a baseline using an old default is a learning-rate result. If you tuned for the new thing, re-tune for the baseline. (6) HOLD OUT A REAL TEST SET. Carve a validation split from the training data for all development, and touch the test set once. Every evaluation on test leaks a little, and after twenty evaluations it is a validation set with an optimistic bias. (7) LOG EVERYTHING - config, seed, git commit, and curves - so that a surprising result can be re-run exactly. Irreproducible improvements are worse than no improvements because they consume trust. WHAT TO DO WHEN THE EFFECT IS GENUINELY SMALL: if you need to detect a 0.3-point difference with sigma = 0.4, you need many seeds (roughly, to resolve a difference of d with confidence you want n such that sigma*sqrt(2/n) is comfortably below d - here around 15-20 runs per arm). At that point ask whether a 0.3-point difference is worth the compute and the complexity it adds. Frequently the honest answer is no, and the ONE-STANDARD-ERROR RULE applies: among configurations within one standard error of the best, choose the simplest. THE META-POINT worth stating: this is the same max-over-noise phenomenon as tuning optimism in cross-validation, multiple testing in experiments, and headline regression in benchmark reporting. The mechanism is identical - selecting the maximum over noisy draws - and so is the defence: report variance, use paired comparisons, hold out a final evaluation, and prefer simpler configurations when differences are within noise. Internalizing that pattern once transfers everywhere, and it is probably the single most useful methodological habit in applied ML." }
+        "deepDive": {
+          "q": "How do you know an improvement is real rather than noise, and how should experiments be designed?",
+          "a": "THE PROBLEM, quantified. Retraining the same model with a different random seed on CIFAR-100 gives results varying by roughly 0.4 points standard deviation - from initialization, data ordering, augmentation randomness, and (on GPU) non-deterministic kernels. So two runs differing by 0.5 points are entirely consistent with being the same configuration. The failure mode this creates is systematic: you try twenty variations, pick the best, and report it - and the expected maximum of twenty draws from a distribution with sigma = 0.4 exceeds the mean by roughly sigma*sqrt(2 ln 20) ~ 1.0 point, purely from selection. So a 1-point 'improvement' found by trying twenty things is exactly what noise produces. THE DESIGN PRINCIPLES. (1) MULTIPLE SEEDS, ALWAYS. Three is the practical minimum, five is better. Report mean and standard deviation, not a single number, and compare distributions rather than points. If the intervals overlap substantially, you have not shown anything. (2) PAIRED COMPARISON: use the SAME set of seeds for both configurations and compare per-seed differences, which removes the shared seed-to-seed variation and is far more powerful than comparing two independent means. This one change often turns an ambiguous comparison into a clear one at no extra cost. (3) CHANGE ONE THING AT A TIME. Bundled changes cannot be attributed, and components interact (stronger augmentation needs longer training; higher learning rate needs warmup), so a bundle that helps may contain a component that hurts. (4) FIX THE BUDGET. Compare at matched epochs, matched wall-clock, or matched compute - and say which. A method that wins at 200 epochs and loses at 600 is a different claim from one that wins at both. (5) TUNE BOTH ARMS EQUALLY. A new component with a tuned learning rate against a baseline using an old default is a learning-rate result. If you tuned for the new thing, re-tune for the baseline. (6) HOLD OUT A REAL TEST SET. Carve a validation split from the training data for all development, and touch the test set once. Every evaluation on test leaks a little, and after twenty evaluations it is a validation set with an optimistic bias. (7) LOG EVERYTHING - config, seed, git commit, and curves - so that a surprising result can be re-run exactly. Irreproducible improvements are worse than no improvements because they consume trust. WHAT TO DO WHEN THE EFFECT IS GENUINELY SMALL: if you need to detect a 0.3-point difference with sigma = 0.4, you need many seeds (roughly, to resolve a difference of d with confidence you want n such that sigma*sqrt(2/n) is comfortably below d - here around 15-20 runs per arm). At that point ask whether a 0.3-point difference is worth the compute and the complexity it adds. Frequently the honest answer is no, and the ONE-STANDARD-ERROR RULE applies: among configurations within one standard error of the best, choose the simplest. THE META-POINT worth stating: this is the same max-over-noise phenomenon as tuning optimism in cross-validation, multiple testing in experiments, and headline regression in benchmark reporting. The mechanism is identical - selecting the maximum over noisy draws - and so is the defence: report variance, use paired comparisons, hold out a final evaluation, and prefer simpler configurations when differences are within noise. Internalizing that pattern once transfers everywhere, and it is probably the single most useful methodological habit in applied ML."
+        }
       },
       {
         "q": "Which hyperparameters matter most, and how would you tune them efficiently?",
@@ -122,22 +185,80 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "Recipe beats architecture", "back": "CIFAR-100 ablation: schedule + augmentation ~9.6 points, wider architecture ~1. 'ResNet Strikes Back' took a 2015 ResNet-50 from 76.1% to 80.4% on ImageNet with recipe alone." },
-    { "type": "pitfall", "front": "Seed variance sets the noise floor", "back": "CIFAR-100 seed std is ~0.4 points, so a single-run gain under ~1 point is noise. Three seeds minimum, PAIRED on the same seeds, before believing anything." },
-    { "type": "formula", "front": "Warmup + cosine", "back": "Linear ramp for ~5 epochs (avoids large poorly-conditioned early steps), then cosine anneal to ~0. Worth ~5 points over a constant rate. Peak LR scales LINEARLY with batch size." },
-    { "type": "pitfall", "front": "Exclude norms and biases from weight decay", "back": "Decaying a BatchNorm gamma toward zero shrinks the layer's output for no reason and measurably hurts. Split optimizer parameter groups - 5 lines, standard practice, easily missed." },
-    { "type": "formula", "front": "AdamW vs Adam + L2", "back": "Adam divides the gradient INCLUDING the L2 term by the running magnitude, so parameters with large gradients get less effective decay. AdamW applies decay directly to weights, decoupled." },
-    { "type": "pitfall", "front": "Use the CIFAR stem on 32x32", "back": "The ImageNet stem (7x7 stride-2 + maxpool) reduces 32x32 to 8x8 BEFORE the network starts. Use a 3x3 stem with no initial pooling - worth several points on its own." },
-    { "type": "intuition", "front": "Step 0: overfit 20 examples", "back": "If the model cannot drive 20 examples to ~zero loss, it is a BUG (labels, loss, frozen params, LR), not a modelling problem. Also check initial loss = ln(n_classes) = 4.605 for 100 classes." },
-    { "type": "intuition", "front": "Reading the curves", "back": "Both high and close = BIAS (capacity/longer/less regularization). Train low, val high = VARIANCE (augmentation/weight decay/data). Val loss rising while val ACCURACY rises = growing confidence, usually benign." },
-    { "type": "intuition", "front": "Tuning order", "back": "Learning rate and schedule -> augmentation -> regularization stack -> training length -> architecture. Tune interacting parameters TOGETHER (LR with batch size, augmentation with epochs)." },
-    { "type": "pitfall", "front": "How to read an architecture paper", "back": "Were baselines RETRAINED with the same recipe/epochs/augmentation? Is compute matched? Is there a one-change-at-a-time ablation? Multiple scales? Seed variance? Reproduce the BASELINE first - it is usually decisive." }
+    {
+      "type": "intuition",
+      "front": "Recipe beats architecture",
+      "back": "CIFAR-100 ablation: schedule + augmentation ~9.6 points, wider architecture ~1. 'ResNet Strikes Back' took a 2015 ResNet-50 from 76.1% to 80.4% on ImageNet with recipe alone."
+    },
+    {
+      "type": "pitfall",
+      "front": "Seed variance sets the noise floor",
+      "back": "CIFAR-100 seed std is ~0.4 points, so a single-run gain under ~1 point is noise. Three seeds minimum, PAIRED on the same seeds, before believing anything."
+    },
+    {
+      "type": "formula",
+      "front": "Warmup + cosine",
+      "back": "Linear ramp for ~5 epochs (avoids large poorly-conditioned early steps), then cosine anneal to ~0. Worth ~5 points over a constant rate. Peak LR scales LINEARLY with batch size."
+    },
+    {
+      "type": "pitfall",
+      "front": "Exclude norms and biases from weight decay",
+      "back": "Decaying a BatchNorm gamma toward zero shrinks the layer's output for no reason and measurably hurts. Split optimizer parameter groups - 5 lines, standard practice, easily missed."
+    },
+    {
+      "type": "formula",
+      "front": "AdamW vs Adam + L2",
+      "back": "Adam divides the gradient INCLUDING the L2 term by the running magnitude, so parameters with large gradients get less effective decay. AdamW applies decay directly to weights, decoupled."
+    },
+    {
+      "type": "pitfall",
+      "front": "Use the CIFAR stem on 32x32",
+      "back": "The ImageNet stem (7x7 stride-2 + maxpool) reduces 32x32 to 8x8 BEFORE the network starts. Use a 3x3 stem with no initial pooling - worth several points on its own."
+    },
+    {
+      "type": "intuition",
+      "front": "Step 0: overfit 20 examples",
+      "back": "If the model cannot drive 20 examples to ~zero loss, it is a BUG (labels, loss, frozen params, LR), not a modelling problem. Also check initial loss = ln(n_classes) = 4.605 for 100 classes."
+    },
+    {
+      "type": "intuition",
+      "front": "Reading the curves",
+      "back": "Both high and close = BIAS (capacity/longer/less regularization). Train low, val high = VARIANCE (augmentation/weight decay/data). Val loss rising while val ACCURACY rises = growing confidence, usually benign."
+    },
+    {
+      "type": "intuition",
+      "front": "Tuning order",
+      "back": "Learning rate and schedule -> augmentation -> regularization stack -> training length -> architecture. Tune interacting parameters TOGETHER (LR with batch size, augmentation with epochs)."
+    },
+    {
+      "type": "pitfall",
+      "front": "How to read an architecture paper",
+      "back": "Were baselines RETRAINED with the same recipe/epochs/augmentation? Is compute matched? Is there a one-change-at-a-time ablation? Multiple scales? Seed variance? Reproduce the BASELINE first - it is usually decisive."
+    }
   ],
   "refs": [
-    { "title": "Wightman, Touvron & Jegou (2021), ResNet Strikes Back: An Improved Training Procedure in timm", "url": "https://arxiv.org/abs/2110.00476" },
-    { "title": "Loshchilov & Hutter (2019), Decoupled Weight Decay Regularization (AdamW)", "url": "https://arxiv.org/abs/1711.05101" },
-    { "title": "Goyal et al. (2017), Accurate, Large Minibatch SGD (linear scaling rule and warmup)", "url": "https://arxiv.org/abs/1706.02677" },
-    { "title": "Karpathy, A Recipe for Training Neural Networks", "url": "https://karpathy.github.io/2019/04/25/recipe/" }
+    {
+      "title": "Wightman, Touvron & Jegou (2021), ResNet Strikes Back: An Improved Training Procedure in timm",
+      "url": "https://arxiv.org/abs/2110.00476"
+    },
+    {
+      "title": "Loshchilov & Hutter (2019), Decoupled Weight Decay Regularization (AdamW)",
+      "url": "https://arxiv.org/abs/1711.05101"
+    },
+    {
+      "title": "Goyal et al. (2017), Accurate, Large Minibatch SGD (linear scaling rule and warmup)",
+      "url": "https://arxiv.org/abs/1706.02677"
+    },
+    {
+      "title": "Karpathy, A Recipe for Training Neural Networks",
+      "url": "https://karpathy.github.io/2019/04/25/recipe/"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "09-05",
+    "module": "cnn",
+    "disposition": "merge",
+    "notebookFile": "09-05_residual_networks.ipynb"
+  }
 }

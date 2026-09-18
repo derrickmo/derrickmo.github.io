@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-04",
   "slug": "mediapipe",
+  "keyBase": "advanced-cv/mediapipe",
   "module": "advanced-cv",
   "title": "MediaPipe Real-Time Vision",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "09-04_mediapipe_real_time_vision.ipynb",
     "flagship": null,
-    "demos": ["optical-flow", "harris-corners", "nms"],
+    "demos": [
+      "optical-flow",
+      "harris-corners",
+      "nms"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-cv/yolo", "cnn/efficient-cnns"],
-  "leadsTo": ["advanced-cv/video", "mlops/model-serving"],
+  "prereqs": [
+    "advanced-cv/yolo",
+    "cnn/efficient-cnns"
+  ],
+  "leadsTo": [
+    "advanced-cv/video",
+    "mlops/model-serving"
+  ],
   "body": {
     "intuition": [
       "MediaPipe is Google's framework for real-time perception pipelines - hand tracking, face mesh, pose estimation, segmentation - running on phones and in browsers at 30+ FPS. It is worth studying not for the API but for the ENGINEERING PATTERN it embodies, because that pattern is how essentially every real-time vision product is built and it is rarely taught: the hard problem is not accuracy, it is hitting a latency budget on a device with a fraction of a GPU while a user watches.",
@@ -72,32 +83,83 @@
       "Ignoring the non-model stages: image capture, colour conversion, resizing, tensor copies to and from the accelerator, and rendering can dominate a pipeline whose inference is only 2 ms. Profile the whole graph, not just the model."
     ],
     "connections": [
-      { "ref": "cnn/efficient-cnns", "text": "The landmark models are depthwise-separable, quantized, mobile architectures, and the FLOPs-versus-latency caution from that lesson applies directly - measured device latency is the only objective that matters here." },
-      { "ref": "advanced-cv/video", "text": "The cascade is the simplest form of exploiting temporal redundancy; video understanding generalizes it to models that reason over time rather than merely reusing the previous frame's ROI." },
-      { "ref": "advanced-cv/yolo", "text": "The detector stage is typically a small single-stage detector (BlazeFace/BlazePalm are anchor-based SSD-style models), so the detection machinery carries over directly." },
-      { "ref": "mlops/model-serving", "text": "Latency percentiles, sustained-load measurement, and the distinction between average throughput and tail latency are serving concerns that apply identically on-device." }
+      {
+        "ref": "cnn/efficient-cnns",
+        "text": "The landmark models are depthwise-separable, quantized, mobile architectures, and the FLOPs-versus-latency caution from that lesson applies directly - measured device latency is the only objective that matters here."
+      },
+      {
+        "ref": "advanced-cv/video",
+        "text": "The cascade is the simplest form of exploiting temporal redundancy; video understanding generalizes it to models that reason over time rather than merely reusing the previous frame's ROI."
+      },
+      {
+        "ref": "advanced-cv/yolo",
+        "text": "The detector stage is typically a small single-stage detector (BlazeFace/BlazePalm are anchor-based SSD-style models), so the detection machinery carries over directly."
+      },
+      {
+        "ref": "mlops/model-serving",
+        "text": "Latency percentiles, sustained-load measurement, and the distinction between average throughput and tail latency are serving concerns that apply identically on-device."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is the detector-tracker cascade?", "a": "Run an expensive detector only on acquisition or tracking loss; every other frame run a cheap landmark model on a crop derived from the previous frame's result. Typically 5-10x less compute per frame." },
-      { "q": "Why is the cropped landmark model so much cheaper?", "a": "It solves an easier problem: the crop is already localized, scale-normalized, and rotation-aligned, so the model does not have to search the image or handle arbitrary scale." },
-      { "q": "How does the pipeline know tracking is lost?", "a": "The landmark model outputs a PRESENCE/confidence score alongside the coordinates; below a threshold the ROI is discarded and the detector runs on the next frame." },
-      { "q": "Why landmarks instead of boxes or masks?", "a": "Downstream logic is geometry - pinch detection, gaze direction, joint angles - which is directly computable from keypoints, and regressing a few dozen coordinates is cheaper than dense prediction." },
-      { "q": "What is the One-Euro filter?", "a": "A speed-adaptive low-pass filter: heavy smoothing when the signal is slow, light smoothing when fast, so it removes jitter without introducing visible lag. Two intuitive parameters." },
-      { "q": "Why not a fixed low-pass filter?", "a": "A fixed cutoff trades jitter against lag globally - smooth enough to look stable at rest feels sluggish during motion. Adaptivity is what resolves the trade-off." },
-      { "q": "What is MediaPipe's graph abstraction?", "a": "A dataflow graph of 'calculators' (nodes) with typed streams and explicit synchronization, so capture, inference, tracking, smoothing, and rendering are separate stages that can run on different devices and threads." },
-      { "q": "Why measure p95/p99 rather than mean latency?", "a": "Interactive systems are judged by their worst frames. A good average with occasional spikes reads as stutter; the tail is what the user perceives." },
-      { "q": "What causes the latency spikes in a cascade?", "a": "Redetection. Every tracking loss triggers a full detector run, so the p99 is essentially the detector's cost - which is why robust tracking is a latency optimization." },
-      { "q": "What is thermal throttling and why does it matter?", "a": "Phones reduce clock speed under sustained load, so a 10-second benchmark can overstate real performance substantially. Measure over minutes on the lowest-end supported device." },
-      { "q": "How many landmarks do the standard models predict?", "a": "21 per hand, 468 for the face mesh (plus iris refinements), and 33 for full-body pose - dense enough for geometric reasoning, sparse enough to regress cheaply." },
-      { "q": "What runs the models on-device?", "a": "TFLite with GPU/NNAPI/Core ML delegates, usually with quantized (int8 or fp16) weights - and operator support in the delegate constrains which architectures are viable." }
+      {
+        "q": "What is the detector-tracker cascade?",
+        "a": "Run an expensive detector only on acquisition or tracking loss; every other frame run a cheap landmark model on a crop derived from the previous frame's result. Typically 5-10x less compute per frame."
+      },
+      {
+        "q": "Why is the cropped landmark model so much cheaper?",
+        "a": "It solves an easier problem: the crop is already localized, scale-normalized, and rotation-aligned, so the model does not have to search the image or handle arbitrary scale."
+      },
+      {
+        "q": "How does the pipeline know tracking is lost?",
+        "a": "The landmark model outputs a PRESENCE/confidence score alongside the coordinates; below a threshold the ROI is discarded and the detector runs on the next frame."
+      },
+      {
+        "q": "Why landmarks instead of boxes or masks?",
+        "a": "Downstream logic is geometry - pinch detection, gaze direction, joint angles - which is directly computable from keypoints, and regressing a few dozen coordinates is cheaper than dense prediction."
+      },
+      {
+        "q": "What is the One-Euro filter?",
+        "a": "A speed-adaptive low-pass filter: heavy smoothing when the signal is slow, light smoothing when fast, so it removes jitter without introducing visible lag. Two intuitive parameters."
+      },
+      {
+        "q": "Why not a fixed low-pass filter?",
+        "a": "A fixed cutoff trades jitter against lag globally - smooth enough to look stable at rest feels sluggish during motion. Adaptivity is what resolves the trade-off."
+      },
+      {
+        "q": "What is MediaPipe's graph abstraction?",
+        "a": "A dataflow graph of 'calculators' (nodes) with typed streams and explicit synchronization, so capture, inference, tracking, smoothing, and rendering are separate stages that can run on different devices and threads."
+      },
+      {
+        "q": "Why measure p95/p99 rather than mean latency?",
+        "a": "Interactive systems are judged by their worst frames. A good average with occasional spikes reads as stutter; the tail is what the user perceives."
+      },
+      {
+        "q": "What causes the latency spikes in a cascade?",
+        "a": "Redetection. Every tracking loss triggers a full detector run, so the p99 is essentially the detector's cost - which is why robust tracking is a latency optimization."
+      },
+      {
+        "q": "What is thermal throttling and why does it matter?",
+        "a": "Phones reduce clock speed under sustained load, so a 10-second benchmark can overstate real performance substantially. Measure over minutes on the lowest-end supported device."
+      },
+      {
+        "q": "How many landmarks do the standard models predict?",
+        "a": "21 per hand, 468 for the face mesh (plus iris refinements), and 33 for full-body pose - dense enough for geometric reasoning, sparse enough to regress cheaply."
+      },
+      {
+        "q": "What runs the models on-device?",
+        "a": "TFLite with GPU/NNAPI/Core ML delegates, usually with quantized (int8 or fp16) weights - and operator support in the delegate constrains which architectures are viable."
+      }
     ],
     "standard": [
       {
         "q": "Explain the detector-tracker cascade and why it is the standard pattern for real-time vision.",
         "a": "THE PROBLEM. Running a detector on every frame of a 30 FPS stream means 30 detections per second. Even a fast mobile detector at 10-15 ms per frame consumes most of a 33 ms budget, leaving nothing for the landmark model, the application logic, or rendering - and it drains the battery and heats the device, which triggers throttling and makes everything worse. But detection every frame is also WASTEFUL, because consecutive frames are nearly identical: an object that was at position x in frame t is within a few pixels of x in frame t+1. THE CASCADE. Split the work into two models with very different costs and roles. The DETECTOR is expensive and answers 'is there a hand/face/person, and where?' - it runs on the first frame and thereafter only when tracking is lost. The LANDMARK (or tracking) model is cheap and answers 'given this crop that almost certainly contains the object, where exactly are its keypoints?' - it runs every frame on a region of interest derived from the previous frame's output. The landmark model also emits a PRESENCE score, and when that drops below a threshold the ROI is discarded and the detector fires again next frame. WHY THE SECOND MODEL CAN BE SO MUCH CHEAPER - this is the crux, and it is not just 'smaller input'. The crop is LOCALIZED (no search over the image), SCALE-NORMALIZED (the object fills a known fraction of the crop, so the model never sees an object at 1/20th scale), and often ROTATION-ALIGNED (MediaPipe rotates the crop so a hand's wrist-to-knuckle axis is vertical). Each of those removes a source of variation the model would otherwise need capacity and data to handle. The result is a genuinely easier learning problem, so a much smaller network reaches high accuracy. Measured: roughly 10 ms for the detector versus 2 ms for the landmark model, and with redetection on ~1% of frames the average per-frame cost falls about 5x. THE SECOND-ORDER CONSEQUENCE worth naming: because every tracking loss costs a full detector run, ROBUST TRACKING IS A LATENCY OPTIMIZATION, not just an accuracy one. A fragile tracker degrades toward detect-every-frame precisely under fast motion and occlusion - the conditions where the user is most likely to notice. So effort spent on presence estimation, ROI margin, and smoothing pays off twice. WHERE THE PATTERN GENERALIZES, because it is not specific to landmarks: detect-then-track in object tracking (ByteTrack and the SORT family associate per-frame detections rather than re-searching); coarse-to-fine detection in aerial imagery (find regions cheaply, detect precisely within them); cascade classifiers going back to Viola-Jones (reject easy negatives with a cheap stage, spend compute only on hard candidates); and model cascades in serving generally (a small model handles most requests, escalating only uncertain ones to a large one). The unifying principle is to spend compute in proportion to difficulty rather than uniformly. THE FAILURE MODES to state. (1) DRIFT: the ROI is derived from the model's own previous output, so errors compound - which is why the presence score and periodic redetection matter. (2) MULTIPLE OBJECTS require tracking each independently plus an association step, and the cost scales with the count. (3) FAST MOTION can move the object outside the predicted ROI entirely, so the margin is a real hyperparameter (too small loses track, too large defeats the purpose). (4) NEW OBJECTS entering the scene are invisible until a redetection, so systems that need to notice arrivals promptly must run the detector periodically regardless - which is a genuine constraint on the design.",
-        "deepDive": { "q": "How would you design a latency budget for an on-device pipeline, end to end?", "a": "START FROM THE PERCEPTUAL REQUIREMENT, not from the model. For an interactive camera feature the target is usually motion-to-photon latency under ~100 ms (below which the response feels attached to the user's action) and a STEADY frame rate at the display's cadence - 33 ms per frame at 30 FPS, 16 ms at 60. Steadiness matters more than the mean: users perceive VARIANCE as stutter, so a consistent 28 FPS beats an average of 32 FPS with periodic 80 ms frames. That immediately tells you the budget is on the p99, not the mean. THEN ENUMERATE THE WHOLE PIPELINE, because inference is often not the largest term. A realistic breakdown for a 33 ms budget: camera capture and colour conversion (2-4 ms, and the format matters - YUV to RGB conversion on the CPU is a classic hidden cost); resize and normalization (1-2 ms); CPU-to-accelerator tensor copy (1-3 ms, and this is frequently underestimated - a copy can cost as much as the inference); MODEL INFERENCE (the part everyone measures); post-processing including NMS and coordinate transforms (1-3 ms); temporal filtering (negligible); application logic; and RENDERING plus compositing (2-5 ms). Sum the non-inference stages first and the remainder is your actual model budget - which is often half of what people assume. ALLOCATE WITHIN THE MODEL BUDGET using the cascade's cost model: average = p_redetect * C_detector + C_landmark. Since the detector spike lands on single frames, the constraint is that C_detector plus the fixed overheads must fit in ONE frame budget, or you drop a frame on every redetection. That is a sharper constraint than the average and it is the one that determines whether the detector can be a 10 ms model or must be a 5 ms one. MEASURE PROPERLY, which is where most on-device benchmarking goes wrong. (a) WARM UP - JIT compilation, GPU context creation, and kernel autotuning make the first several frames unrepresentative. (b) Report PERCENTILES (p50/p95/p99/max), never just the mean. (c) Run for MINUTES, not seconds, because thermal throttling is the dominant effect on phones - sustained numbers can be 30-50% worse than a short burst. (d) Measure on the LOWEST-END device you support and on a device with a warm battery, since both are the real conditions. (e) Measure END TO END with a physical method if the requirement is motion-to-photon (a high-speed camera filming the screen and the hand) rather than summing stage timings, because buffering and vsync add latency that per-stage profiling misses. OPTIMIZE IN THE ORDER THAT PAYS. (1) Eliminate copies and format conversions - use zero-copy paths, keep data on the GPU, choose a camera format the pipeline can consume directly. Often the single largest win and it costs no accuracy. (2) QUANTIZE to int8, which typically gives 2-4x on mobile accelerators with under a point of accuracy loss - and check that every operator is supported by the delegate, because ONE unsupported op forces a CPU fallback for that layer and can cost more than the quantization saved. (3) Reduce input RESOLUTION, the highest-leverage model-side knob since cost scales with H*W. (4) Then architecture: a smaller or more efficient backbone. (5) System-level tricks: run the detector on a background thread so its spike does not block the render loop, process at a lower rate than display and interpolate, or skip frames adaptively under load. THE DESIGN PRINCIPLE I would state: build the pipeline against a FRAME DEADLINE with an explicit budget per stage, measure the tail under sustained load on the worst device, and treat any stage that can exceed its slice as a bug - because in real-time systems, a missed deadline is a functional failure, not a performance degradation." }
+        "deepDive": {
+          "q": "How would you design a latency budget for an on-device pipeline, end to end?",
+          "a": "START FROM THE PERCEPTUAL REQUIREMENT, not from the model. For an interactive camera feature the target is usually motion-to-photon latency under ~100 ms (below which the response feels attached to the user's action) and a STEADY frame rate at the display's cadence - 33 ms per frame at 30 FPS, 16 ms at 60. Steadiness matters more than the mean: users perceive VARIANCE as stutter, so a consistent 28 FPS beats an average of 32 FPS with periodic 80 ms frames. That immediately tells you the budget is on the p99, not the mean. THEN ENUMERATE THE WHOLE PIPELINE, because inference is often not the largest term. A realistic breakdown for a 33 ms budget: camera capture and colour conversion (2-4 ms, and the format matters - YUV to RGB conversion on the CPU is a classic hidden cost); resize and normalization (1-2 ms); CPU-to-accelerator tensor copy (1-3 ms, and this is frequently underestimated - a copy can cost as much as the inference); MODEL INFERENCE (the part everyone measures); post-processing including NMS and coordinate transforms (1-3 ms); temporal filtering (negligible); application logic; and RENDERING plus compositing (2-5 ms). Sum the non-inference stages first and the remainder is your actual model budget - which is often half of what people assume. ALLOCATE WITHIN THE MODEL BUDGET using the cascade's cost model: average = p_redetect * C_detector + C_landmark. Since the detector spike lands on single frames, the constraint is that C_detector plus the fixed overheads must fit in ONE frame budget, or you drop a frame on every redetection. That is a sharper constraint than the average and it is the one that determines whether the detector can be a 10 ms model or must be a 5 ms one. MEASURE PROPERLY, which is where most on-device benchmarking goes wrong. (a) WARM UP - JIT compilation, GPU context creation, and kernel autotuning make the first several frames unrepresentative. (b) Report PERCENTILES (p50/p95/p99/max), never just the mean. (c) Run for MINUTES, not seconds, because thermal throttling is the dominant effect on phones - sustained numbers can be 30-50% worse than a short burst. (d) Measure on the LOWEST-END device you support and on a device with a warm battery, since both are the real conditions. (e) Measure END TO END with a physical method if the requirement is motion-to-photon (a high-speed camera filming the screen and the hand) rather than summing stage timings, because buffering and vsync add latency that per-stage profiling misses. OPTIMIZE IN THE ORDER THAT PAYS. (1) Eliminate copies and format conversions - use zero-copy paths, keep data on the GPU, choose a camera format the pipeline can consume directly. Often the single largest win and it costs no accuracy. (2) QUANTIZE to int8, which typically gives 2-4x on mobile accelerators with under a point of accuracy loss - and check that every operator is supported by the delegate, because ONE unsupported op forces a CPU fallback for that layer and can cost more than the quantization saved. (3) Reduce input RESOLUTION, the highest-leverage model-side knob since cost scales with H*W. (4) Then architecture: a smaller or more efficient backbone. (5) System-level tricks: run the detector on a background thread so its spike does not block the render loop, process at a lower rate than display and interpolate, or skip frames adaptively under load. THE DESIGN PRINCIPLE I would state: build the pipeline against a FRAME DEADLINE with an explicit budget per stage, measure the tail under sustained load on the worst device, and treat any stage that can exceed its slice as a bug - because in real-time systems, a missed deadline is a functional failure, not a performance degradation."
+        }
       },
       {
         "q": "Why does MediaPipe use landmarks rather than segmentation or bounding boxes?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Detector-tracker cascade", "back": "Expensive detector on acquisition/loss only; cheap landmark model every frame on a crop from the previous result. ~5x less compute (10ms detector + 2ms landmark, redetect ~1% of frames)." },
-    { "type": "intuition", "front": "Why the cropped model is cheap", "back": "The crop is localized, SCALE-normalized, and rotation-ALIGNED, so the model never searches or handles arbitrary scale. Removing those variations makes it a genuinely easier problem, not just a smaller input." },
-    { "type": "intuition", "front": "Robust tracking IS a latency optimization", "back": "Every tracking loss costs a full detector run, so a fragile tracker degrades toward detect-every-frame exactly under fast motion and occlusion. The p99 spike in a cascade IS redetection." },
-    { "type": "formula", "front": "One-Euro filter", "back": "Adaptive low-pass: cutoff f_c = f_cmin + beta*|speed|. Heavy smoothing at rest (kills jitter), light during motion (kills lag). Two parameters tuned by feel - the reason it is ubiquitous." },
-    { "type": "pitfall", "front": "Measure p95/p99, not the mean", "back": "Interactive systems are judged by worst frames - a steady 24 FPS beats an average 32 FPS with 80ms spikes. And phones THROTTLE, so run for minutes on the LOWEST-end supported device." },
-    { "type": "intuition", "front": "Why landmarks, not masks or boxes", "back": "Downstream logic is geometry (pinch distance, joint angles, gaze). 21 keypoints = ~50 numbers vs 65k for a mask; strong structural prior; cheaper annotation; synthetic data gives exact ground truth." },
-    { "type": "pitfall", "front": "The non-model stages dominate", "back": "Capture, YUV->RGB conversion, resize, CPU<->accelerator COPIES, and rendering can exceed a 2ms inference. Budget the whole graph; eliminating copies is often the largest win and costs no accuracy." },
-    { "type": "definition", "front": "On-device vs server", "back": "Fixed weak heterogeneous hardware; thermal throttling; NO batching (permanently bandwidth-bound, so quantization matters more); tight memory; latency-not-throughput; slow versioned deploys. Upside: no network, and privacy." },
-    { "type": "pitfall", "front": "Gesture logic, not the model, is the risk", "back": "Per-frame classification is noisy: require N-frame consistency, use HYSTERESIS, debounce, and train with abundant NEGATIVES (ordinary hand motion). Report false positives per MINUTE, not per-frame accuracy." },
-    { "type": "intuition", "front": "Why a calculator graph", "back": "Real-time pipelines are DATAFLOW problems: heterogeneous placement (GPU/NPU/CPU), timestamp SYNCHRONIZATION across streams running at different rates, and pipelining. Same reasoning as GStreamer and ROS." }
+    {
+      "type": "definition",
+      "front": "Detector-tracker cascade",
+      "back": "Expensive detector on acquisition/loss only; cheap landmark model every frame on a crop from the previous result. ~5x less compute (10ms detector + 2ms landmark, redetect ~1% of frames)."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the cropped model is cheap",
+      "back": "The crop is localized, SCALE-normalized, and rotation-ALIGNED, so the model never searches or handles arbitrary scale. Removing those variations makes it a genuinely easier problem, not just a smaller input."
+    },
+    {
+      "type": "intuition",
+      "front": "Robust tracking IS a latency optimization",
+      "back": "Every tracking loss costs a full detector run, so a fragile tracker degrades toward detect-every-frame exactly under fast motion and occlusion. The p99 spike in a cascade IS redetection."
+    },
+    {
+      "type": "formula",
+      "front": "One-Euro filter",
+      "back": "Adaptive low-pass: cutoff f_c = f_cmin + beta*|speed|. Heavy smoothing at rest (kills jitter), light during motion (kills lag). Two parameters tuned by feel - the reason it is ubiquitous."
+    },
+    {
+      "type": "pitfall",
+      "front": "Measure p95/p99, not the mean",
+      "back": "Interactive systems are judged by worst frames - a steady 24 FPS beats an average 32 FPS with 80ms spikes. And phones THROTTLE, so run for minutes on the LOWEST-end supported device."
+    },
+    {
+      "type": "intuition",
+      "front": "Why landmarks, not masks or boxes",
+      "back": "Downstream logic is geometry (pinch distance, joint angles, gaze). 21 keypoints = ~50 numbers vs 65k for a mask; strong structural prior; cheaper annotation; synthetic data gives exact ground truth."
+    },
+    {
+      "type": "pitfall",
+      "front": "The non-model stages dominate",
+      "back": "Capture, YUV->RGB conversion, resize, CPU<->accelerator COPIES, and rendering can exceed a 2ms inference. Budget the whole graph; eliminating copies is often the largest win and costs no accuracy."
+    },
+    {
+      "type": "definition",
+      "front": "On-device vs server",
+      "back": "Fixed weak heterogeneous hardware; thermal throttling; NO batching (permanently bandwidth-bound, so quantization matters more); tight memory; latency-not-throughput; slow versioned deploys. Upside: no network, and privacy."
+    },
+    {
+      "type": "pitfall",
+      "front": "Gesture logic, not the model, is the risk",
+      "back": "Per-frame classification is noisy: require N-frame consistency, use HYSTERESIS, debounce, and train with abundant NEGATIVES (ordinary hand motion). Report false positives per MINUTE, not per-frame accuracy."
+    },
+    {
+      "type": "intuition",
+      "front": "Why a calculator graph",
+      "back": "Real-time pipelines are DATAFLOW problems: heterogeneous placement (GPU/NPU/CPU), timestamp SYNCHRONIZATION across streams running at different rates, and pipelining. Same reasoning as GStreamer and ROS."
+    }
   ],
   "refs": [
-    { "title": "Lugaresi et al. (2019), MediaPipe: A Framework for Building Perception Pipelines", "url": "https://arxiv.org/abs/1906.08172" },
-    { "title": "Zhang et al. (2020), MediaPipe Hands: On-device Real-time Hand Tracking", "url": "https://arxiv.org/abs/2006.10214" },
-    { "title": "Casiez, Roussel & Vogel (2012), 1 Euro Filter: A Simple Speed-based Low-pass Filter", "url": "https://dl.acm.org/doi/10.1145/2207676.2208639" },
-    { "title": "Bazarevsky et al. (2019), BlazeFace: Sub-millisecond Neural Face Detection on Mobile GPUs", "url": "https://arxiv.org/abs/1907.05047" }
+    {
+      "title": "Lugaresi et al. (2019), MediaPipe: A Framework for Building Perception Pipelines",
+      "url": "https://arxiv.org/abs/1906.08172"
+    },
+    {
+      "title": "Zhang et al. (2020), MediaPipe Hands: On-device Real-time Hand Tracking",
+      "url": "https://arxiv.org/abs/2006.10214"
+    },
+    {
+      "title": "Casiez, Roussel & Vogel (2012), 1 Euro Filter: A Simple Speed-based Low-pass Filter",
+      "url": "https://dl.acm.org/doi/10.1145/2207676.2208639"
+    },
+    {
+      "title": "Bazarevsky et al. (2019), BlazeFace: Sub-millisecond Neural Face Detection on Mobile GPUs",
+      "url": "https://arxiv.org/abs/1907.05047"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": null,
+    "module": null,
+    "disposition": "cut",
+    "notebookFile": null
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-05",
   "slug": "shap",
+  "keyBase": "ml-applications/shap",
   "module": "ml-applications",
   "title": "SHAP & Model-Agnostic Explainability",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://christophm.github.io/interpretable-ml-book/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "24-05",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-05_attribution_ii_shapley_kernelshap_pdp.ipynb"
+  }
 }

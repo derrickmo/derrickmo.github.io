@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-07",
   "slug": "reward-modeling",
+  "keyBase": "fine-tuning/reward-modeling",
   "module": "fine-tuning",
   "title": "Reward Modeling (Bradley-Terry)",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-07_reward_modeling_bradley_terry.ipynb",
     "flagship": null,
-    "demos": ["reward-model", "roc", "calibration", "classification-metrics"],
+    "demos": [
+      "reward-model",
+      "roc",
+      "calibration",
+      "classification-metrics"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/instruction-tuning", "supervised-learning/logistic-regression"],
-  "leadsTo": ["fine-tuning/rlhf-ppo", "fine-tuning/dpo-grpo"],
+  "prereqs": [
+    "fine-tuning/instruction-tuning",
+    "supervised-learning/logistic-regression"
+  ],
+  "leadsTo": [
+    "fine-tuning/rlhf-ppo",
+    "fine-tuning/dpo-grpo"
+  ],
   "body": {
     "intuition": [
       "SFT can only imitate demonstrations, and for most of what we want from a model there is no demonstration. Nobody can write the ideal response to an open-ended question, but almost anyone can look at two responses and say which is better. Preferences are cheap where demonstrations are expensive, and they carry information demonstrations cannot: a demonstration says 'this is good', a comparison says 'this is better than that', which is the only kind of statement that can rank the model's own outputs.",
@@ -276,5 +288,11 @@
       "url": "https://arxiv.org/abs/2403.13787"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-08",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-08_reward_modeling.ipynb"
+  }
 }

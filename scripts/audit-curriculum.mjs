@@ -229,6 +229,93 @@ hf-lectures cur[]: ${rows} notebook rows, ${refs} lesson refs, ${hfBad.length} p
   for (const b of hfBad) { console.log('   ', b); problems.push(b); }
 }
 
+// ── every module must be REACHABLE from the hub ─────────────────────────────
+// learn-app.jsx groups the module cards into named rows by numeric range, and
+// the ranges were hand-written to stop at 25. A module outside every range used
+// to render nowhere: no error, no warning, just an absent card on the page whose
+// whole job is listing the curriculum. Proven in a browser — with a 26th module
+// in the data, the page showed 25 and threw nothing.
+//
+// ModulesGrid now sweeps the unmatched into a trailing row so nothing can be
+// lost, but that row is a safety net, not a home. This check fails so the
+// ranges get updated deliberately instead of the module living in "More".
+{
+  const src = fs.readFileSync('learn-app.jsx', 'utf8');
+  const block = (src.match(/const ROW_GROUPS = \[([\s\S]*?)\];/) || [])[1];
+  if (!block) {
+    problems.push('[hub] ROW_GROUPS not found in learn-app.jsx — this check went blind');
+  } else {
+    const ranges = [...block.matchAll(/name:\s*"([^"]+)"[^}]*?lo:\s*(\d+)[^}]*?hi:\s*(\d+)/g)]
+      .map(m => ({ name: m[1], lo: Number(m[2]), hi: Number(m[3]) }));
+    const homeless = [], doubled = [];
+    for (const m of win.CURRICULUM.modules) {
+      const n = parseInt(m.n, 10);
+      const hits = ranges.filter(g => n >= g.lo && n <= g.hi);
+      if (hits.length === 0) homeless.push(`${m.n} ${m.slug}`);
+      if (hits.length > 1) doubled.push(`${m.n} ${m.slug} -> ${hits.map(h => h.name).join(' + ')}`);
+    }
+    console.log(`
+hub row groups: ${ranges.length} ranges cover ${win.CURRICULUM.modules.length} modules — ${homeless.length} homeless, ${doubled.length} double-counted`);
+    for (const h of homeless) problems.push(`[hub] module ${h} matches no ROW_GROUPS range — it would land in the "More" row`);
+    for (const d of doubled) problems.push(`[hub] module ${d} matches two ranges — it renders twice`);
+  }
+}
+
+// ── the v2 outline the Learn hub renders ────────────────────────────────────
+// The notebooks lead and the site presents their 26-module structure while its
+// own routes stay put, so every lesson in the outline links to the page it
+// lives on TODAY. Three ways that can rot, all silent on the page:
+//   1. a link to a page that does not exist (an invented URL reads as a broken
+//      page, and this repo has shipped those before);
+//   2. a written lesson that appears NOWHERE in the outline — it would simply
+//      drop out of the syllabus with nothing to notice it;
+//   3. the outline disagreeing with the artifact it was generated from.
+if (win.CURRICULUM_V2) {
+  const V2 = win.CURRICULUM_V2;
+  const mapPath = 'content/migrations/v1-to-v2.json';
+  const bad = [];
+
+  const seen = new Set();
+  let links = 0, planned = 0, extra = 0;
+  for (const m of V2.modules) {
+    for (const l of m.lessons) {
+      if (!l.href) { planned++; continue; }
+      links++;
+      seen.add(l.on);
+      for (const x of (l.more || [])) { seen.add(x.on); extra++; }
+      if (!fs.existsSync(l.href + 'index.html')) {
+        bad.push(`[v2] ${m.slug} ${l.n} links to ${l.href}, which has no page`);
+      }
+    }
+  }
+  for (const k of (V2.kept || [])) {
+    if (!fs.existsSync(k.href + 'index.html')) bad.push(`[v2] kept ${k.n} links to ${k.href}, which has no page`);
+    seen.add(k.href.replace(/^learn\//, '').replace(/\/$/, ''));
+  }
+
+  // Every LIVE store lesson must be reachable from the outline.
+  let orphans = 0;
+  for (const m of win.CURRICULUM.modules) {
+    for (const l of m.lessons) {
+      if (!seen.has(`${m.slug}/${l.slug}`)) {
+        orphans++;
+        bad.push(`[v2] ${m.slug}/${l.slug} is written but appears nowhere in the v2 outline`);
+      }
+    }
+  }
+
+  if (fs.existsSync(mapPath)) {
+    const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+    const c = V2.counts();
+    if (c.modules !== map.to.modules) bad.push(`[v2] outline has ${c.modules} modules, the map declares ${map.to.modules}`);
+    if (c.slots !== map.to.slots) bad.push(`[v2] outline has ${c.slots} slots, the map declares ${map.to.slots}`);
+  }
+
+  console.log(`
+v2 outline: ${V2.modules.length} modules / ${links + planned} slots — ${links} link to a live page (+${extra} merged-in pages), ${planned} planned, ${orphans} written lessons unreachable`);
+  for (const b of bad) { console.log('   ', b); problems.push(b); }
+}
+
 // exit non-zero only on real defects; refs<5 is informational
 const real = problems.filter(p => !p.includes('refs='));
 if (real.length) { console.log(`\nFAIL — ${real.length} real defect(s) (refs<5 excluded as informational).`); process.exit(1); }

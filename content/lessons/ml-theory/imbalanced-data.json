@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-05",
   "slug": "imbalanced-data",
+  "keyBase": "ml-theory/imbalanced-data",
   "module": "ml-theory",
   "title": "Handling Imbalanced Data",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-05_handling_imbalanced_data.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "roc", "active-learning"],
+    "demos": [
+      "classification-metrics",
+      "roc",
+      "active-learning"
+    ],
     "concepts": []
   },
-  "prereqs": ["ml-theory/evaluation-metrics", "supervised-learning/logistic-regression"],
-  "leadsTo": ["ml-theory/calibration", "interview-capstone/design-fraud-llm"],
+  "prereqs": [
+    "ml-theory/evaluation-metrics",
+    "supervised-learning/logistic-regression"
+  ],
+  "leadsTo": [
+    "ml-theory/calibration",
+    "interview-capstone/design-fraud-llm"
+  ],
   "body": {
     "intuition": [
       "Class imbalance is the normal condition for the problems worth solving: fraud is rare, disease is rare, equipment failure is rare, and the click-through rate on an ad is a few percent. The trouble is that a loss averaged over examples is dominated by the majority class, so 99% of the gradient signal comes from examples the model already gets right, and the easiest way to reduce training loss is to ignore the minority class entirely. The result is a model that scores 99% accuracy and finds nothing - which is why the first and most important response to imbalance is not a technique at all, it is choosing a metric that cannot be gamed this way.",
@@ -72,32 +83,83 @@
       "Evaluating on a rebalanced test set: the test distribution must match deployment. Balancing the test set makes precision meaningless because it depends on the base rate - a common and badly misleading mistake in reported results."
     ],
     "connections": [
-      { "ref": "ml-theory/evaluation-metrics", "text": "Imbalance is exactly the condition under which accuracy and ROC-AUC mislead; the metric and threshold choices from that lesson are the first line of response here." },
-      { "ref": "ml-theory/calibration", "text": "Resampling and class weighting distort predicted probabilities, so any rebalanced model that feeds a cost calculation needs recalibration or a prior correction." },
-      { "ref": "unsupervised-learning/anomaly-detection", "text": "At extreme imbalance - a handful of positives, or positives that are all different from each other - the problem is better framed as anomaly detection than as supervised classification." },
-      { "ref": "interview-capstone/design-fraud-llm", "text": "The fraud design case runs this whole toolkit end to end: PR-AUC over ROC-AUC, precision@k as the review-queue metric, and a cost-optimal threshold that beats the 0.5 default by roughly 10x." }
+      {
+        "ref": "ml-theory/evaluation-metrics",
+        "text": "Imbalance is exactly the condition under which accuracy and ROC-AUC mislead; the metric and threshold choices from that lesson are the first line of response here."
+      },
+      {
+        "ref": "ml-theory/calibration",
+        "text": "Resampling and class weighting distort predicted probabilities, so any rebalanced model that feeds a cost calculation needs recalibration or a prior correction."
+      },
+      {
+        "ref": "unsupervised-learning/anomaly-detection",
+        "text": "At extreme imbalance - a handful of positives, or positives that are all different from each other - the problem is better framed as anomaly detection than as supervised classification."
+      },
+      {
+        "ref": "interview-capstone/design-fraud-llm",
+        "text": "The fraud design case runs this whole toolkit end to end: PR-AUC over ROC-AUC, precision@k as the review-queue metric, and a cost-optimal threshold that beats the 0.5 default by roughly 10x."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why is imbalance a problem?", "a": "A loss averaged over examples is dominated by the majority class, so the easiest way to reduce it is to ignore the minority. The model can score 99% accuracy while finding nothing." },
-      { "q": "What is the first thing you change?", "a": "The metric. Accuracy is unusable under imbalance; report per-class precision/recall, PR-AUC, and precision@k - the metric choice comes before any technique." },
-      { "q": "What are the three levels of intervention?", "a": "Data (resample/synthesize), loss (class weights, focal loss), and decision (threshold). The threshold is the cheapest and often sufficient." },
-      { "q": "What is SMOTE?", "a": "Synthetic Minority Over-sampling: create new minority points by interpolating between a minority example and one of its minority nearest neighbours." },
-      { "q": "What is the most dangerous SMOTE mistake?", "a": "Applying it before the train/test split. Synthetic points are interpolations of real ones, so they leak across the split - F1 0.94 fake versus 0.19 honest." },
-      { "q": "Does class weighting improve ranking?", "a": "Usually no - PR-AUC is roughly unchanged. It relocates the operating point, which the threshold does for free and without distorting probabilities." },
-      { "q": "What is focal loss?", "a": "FL = -alpha*(1-p_t)^gamma*log(p_t): down-weights EASY examples by difficulty rather than by class. gamma=2, alpha=0.25 standard; designed for ~1000:1 detection imbalance." },
-      { "q": "How does resampling affect calibration?", "a": "It changes the implied class prior, so probabilities no longer reflect the true rate - a balanced-trained model is overconfident about the minority class. Correct back to the original prior or skip rebalancing." },
-      { "q": "Should you balance the test set?", "a": "Never. The test distribution must match deployment; balancing it makes precision meaningless, since precision depends on the base rate." },
-      { "q": "When is undersampling reasonable?", "a": "When you have abundant majority data and compute is the constraint. Prefer ensembles over several undersampled subsets (EasyEnsemble) so you do not discard information permanently." },
-      { "q": "When should you switch to anomaly detection?", "a": "When positives are extremely rare, heterogeneous, or unknown at training time - then modelling 'normal' and flagging deviations beats trying to learn a positive class from a handful of examples." },
-      { "q": "What is precision@k and why use it here?", "a": "Precision among the top k ranked cases, where k is the real review capacity. It answers the operational question directly: 'of the 500 cases we can review daily, how many are real?'" }
+      {
+        "q": "Why is imbalance a problem?",
+        "a": "A loss averaged over examples is dominated by the majority class, so the easiest way to reduce it is to ignore the minority. The model can score 99% accuracy while finding nothing."
+      },
+      {
+        "q": "What is the first thing you change?",
+        "a": "The metric. Accuracy is unusable under imbalance; report per-class precision/recall, PR-AUC, and precision@k - the metric choice comes before any technique."
+      },
+      {
+        "q": "What are the three levels of intervention?",
+        "a": "Data (resample/synthesize), loss (class weights, focal loss), and decision (threshold). The threshold is the cheapest and often sufficient."
+      },
+      {
+        "q": "What is SMOTE?",
+        "a": "Synthetic Minority Over-sampling: create new minority points by interpolating between a minority example and one of its minority nearest neighbours."
+      },
+      {
+        "q": "What is the most dangerous SMOTE mistake?",
+        "a": "Applying it before the train/test split. Synthetic points are interpolations of real ones, so they leak across the split - F1 0.94 fake versus 0.19 honest."
+      },
+      {
+        "q": "Does class weighting improve ranking?",
+        "a": "Usually no - PR-AUC is roughly unchanged. It relocates the operating point, which the threshold does for free and without distorting probabilities."
+      },
+      {
+        "q": "What is focal loss?",
+        "a": "FL = -alpha*(1-p_t)^gamma*log(p_t): down-weights EASY examples by difficulty rather than by class. gamma=2, alpha=0.25 standard; designed for ~1000:1 detection imbalance."
+      },
+      {
+        "q": "How does resampling affect calibration?",
+        "a": "It changes the implied class prior, so probabilities no longer reflect the true rate - a balanced-trained model is overconfident about the minority class. Correct back to the original prior or skip rebalancing."
+      },
+      {
+        "q": "Should you balance the test set?",
+        "a": "Never. The test distribution must match deployment; balancing it makes precision meaningless, since precision depends on the base rate."
+      },
+      {
+        "q": "When is undersampling reasonable?",
+        "a": "When you have abundant majority data and compute is the constraint. Prefer ensembles over several undersampled subsets (EasyEnsemble) so you do not discard information permanently."
+      },
+      {
+        "q": "When should you switch to anomaly detection?",
+        "a": "When positives are extremely rare, heterogeneous, or unknown at training time - then modelling 'normal' and flagging deviations beats trying to learn a positive class from a handful of examples."
+      },
+      {
+        "q": "What is precision@k and why use it here?",
+        "a": "Precision among the top k ranked cases, where k is the real review capacity. It answers the operational question directly: 'of the 500 cases we can review daily, how many are real?'"
+      }
     ],
     "standard": [
       {
         "q": "Walk through how you would approach a classification problem with 1% positives.",
         "a": "I would work through five stages, deliberately putting the cheap and decisive steps first. (1) FIX THE METRIC BEFORE ANYTHING ELSE. Accuracy is unusable - 'predict nothing' scores 99%. I would report PR-AUC (whose baseline is the base rate, so I would state that too), precision and recall at the intended operating point, and precision@k where k is the actual review capacity. ROC-AUC I would report only as a secondary number, because its false-positive rate divides by a huge negative count and hides a flood of false alarms. This step costs nothing and prevents every subsequent decision from being made on a misleading signal. (2) ESTABLISH THE COST STRUCTURE. What does a missed positive cost, and what does a false alarm cost? Even a rough ratio determines the threshold analytically (t* = C_FP/(C_FP+C_FN)) and lets me rank models by expected cost rather than by a generic metric. If nobody can give me costs, I convert the question into capacity: 'the team can review 500 cases a day', which fixes the operating point equally well. (3) TRAIN A HONEST BASELINE ON THE NATURAL DISTRIBUTION, and evaluate its RANKING. This is the step people skip. A well-regularized model on imbalanced data is often perfectly good at ordering examples; what is broken is the 0.5 cutoff. So I check PR-AUC first, then sweep the threshold. In controlled comparisons, moving the threshold recovers essentially the same precision/recall trade-off as class weighting or SMOTE - for free, with no retraining and no distortion of the probabilities. If the baseline ranks well, I may be done. (4) IF RANKING IS GENUINELY POOR, intervene, and in this order of preference. CLASS WEIGHTS (or a cost-sensitive loss) first - one argument, no data distortion. FOCAL LOSS if the imbalance is extreme and dominated by easy negatives (detection-style, 1000:1), since it reweights by difficulty rather than by class. RESAMPLING last: oversampling the minority (simple duplication or SMOTE) when the minority is so rare that the model cannot see its structure, undersampling the majority (preferably as an ensemble over subsets, EasyEnsemble-style, so information is not discarded) when majority data is abundant. Always inside the pipeline, never before the split. (5) RECONSIDER THE FRAMING if none of that works. If positives are extremely rare, heterogeneous, or if new kinds of positives keep appearing, supervised classification may be the wrong tool and ANOMALY DETECTION (model normal, flag deviations) is better. If labels are the constraint rather than the algorithm, ACTIVE LEARNING - having the model rank unlabelled cases by uncertainty so annotators see the informative ones - buys more than any technique. And often the highest-value move is collecting more positives, which is a data problem, not a modelling one. THE THINGS I WOULD BE CAREFUL ABOUT THROUGHOUT: stratify every split so folds contain positives; never balance the TEST set (its distribution must match deployment); watch calibration if anything downstream consumes probabilities, since rebalancing shifts the implied prior; and report per-slice performance, because with 1% positives an aggregate number is dominated by very few examples and its confidence interval is wide. THE SUMMARY I would give: imbalance is usually a METRIC and THRESHOLD problem before it is a training problem, and the discipline of proving that - by checking whether the model's ranking is actually poor before changing how it is trained - is what separates a considered approach from reflexively reaching for SMOTE.",
-        "deepDive": { "q": "Explain SMOTE in detail: how it works, when it helps, and its failure modes.", "a": "HOW IT WORKS. SMOTE (Chawla et al., 2002) creates synthetic minority examples rather than duplicating existing ones. For a minority point x, find its k nearest MINORITY neighbours (k=5 typically), pick one at random, and generate a new point at a random position along the segment between them: x_new = x + u * (x_neighbour - x) with u ~ Uniform(0,1). Repeat until the desired balance is reached. The motivation over plain duplication is that duplicates give the model nothing new - they just reweight - and encourage overfitting to those exact points, whereas interpolated points expand the minority region and encourage broader decision boundaries. WHEN IT HELPS. Low-dimensional, continuous features; a minority class that is reasonably CLUSTERED (so the segment between two minority points is plausibly also minority); and moderate imbalance where the model has enough minority examples to learn structure but is being swamped. In those conditions it modestly improves recall and sometimes PR-AUC. THE FAILURE MODES, which matter more than the successes. (1) LEAKAGE ACROSS THE SPLIT - the most damaging and most common. Applying SMOTE to the whole dataset before splitting means a synthetic training point can be an interpolation involving a real VALIDATION point, so the model has effectively seen the validation data. The measured effect is dramatic: F1 0.94 when done wrong versus 0.19 done correctly on the same data. The fix is imbalanced-learn's Pipeline, which applies resamplers during fit only and skips them at predict/transform time - scikit-learn's own Pipeline cannot express this, which is precisely why the separate library exists. (2) THE CURSE OF DIMENSIONALITY. In high dimensions, nearest neighbours become nearly equidistant and the notion of 'between two minority points' loses meaning, so interpolated points land off the data manifold - they are not plausible examples of anything. Empirically SMOTE degrades or hurts as dimensionality grows (a measured example: PR-AUC 0.51 without, 0.44 with, on a 200-dimensional version of the same problem). This is why SMOTE is far more common in classical low-dimensional tabular work than in high-dimensional or deep-learning settings. (3) INTERPOLATING ACROSS A CLASS BOUNDARY or into majority territory: if a minority point sits near the boundary or is an outlier, its neighbours may be on the other side, and the synthetic points invade the majority region - creating label noise and blurring exactly the boundary you care about. Variants exist specifically for this: BORDERLINE-SMOTE (only generate from minority points near the boundary), ADASYN (generate more where the local density of majority points is higher, i.e. where learning is hard), and SMOTE-ENN or SMOTE-Tomek (generate, then CLEAN by removing points whose neighbours disagree). (4) NOISE AMPLIFICATION: SMOTE happily interpolates from a mislabelled minority point, manufacturing a cluster of wrong labels. (5) CATEGORICAL FEATURES: interpolation is undefined for them - SMOTE-NC handles this by taking the majority category among neighbours, which is a heuristic rather than a principled fix. (6) IT BREAKS CALIBRATION like any resampling, by changing the implied prior. THE HONEST VERDICT I would give: SMOTE is worth trying on low-dimensional tabular problems with a clustered minority, always inside a proper pipeline, and always compared against the much simpler baselines - class weights and threshold tuning - which frequently match or beat it. Several careful comparative studies have found that its advantage over simple reweighting is small or absent once the threshold is tuned, which fits the general principle that resampling relocates the operating point rather than improving the model's ranking. It is a reasonable tool, not the default response to imbalance that its popularity suggests." }
+        "deepDive": {
+          "q": "Explain SMOTE in detail: how it works, when it helps, and its failure modes.",
+          "a": "HOW IT WORKS. SMOTE (Chawla et al., 2002) creates synthetic minority examples rather than duplicating existing ones. For a minority point x, find its k nearest MINORITY neighbours (k=5 typically), pick one at random, and generate a new point at a random position along the segment between them: x_new = x + u * (x_neighbour - x) with u ~ Uniform(0,1). Repeat until the desired balance is reached. The motivation over plain duplication is that duplicates give the model nothing new - they just reweight - and encourage overfitting to those exact points, whereas interpolated points expand the minority region and encourage broader decision boundaries. WHEN IT HELPS. Low-dimensional, continuous features; a minority class that is reasonably CLUSTERED (so the segment between two minority points is plausibly also minority); and moderate imbalance where the model has enough minority examples to learn structure but is being swamped. In those conditions it modestly improves recall and sometimes PR-AUC. THE FAILURE MODES, which matter more than the successes. (1) LEAKAGE ACROSS THE SPLIT - the most damaging and most common. Applying SMOTE to the whole dataset before splitting means a synthetic training point can be an interpolation involving a real VALIDATION point, so the model has effectively seen the validation data. The measured effect is dramatic: F1 0.94 when done wrong versus 0.19 done correctly on the same data. The fix is imbalanced-learn's Pipeline, which applies resamplers during fit only and skips them at predict/transform time - scikit-learn's own Pipeline cannot express this, which is precisely why the separate library exists. (2) THE CURSE OF DIMENSIONALITY. In high dimensions, nearest neighbours become nearly equidistant and the notion of 'between two minority points' loses meaning, so interpolated points land off the data manifold - they are not plausible examples of anything. Empirically SMOTE degrades or hurts as dimensionality grows (a measured example: PR-AUC 0.51 without, 0.44 with, on a 200-dimensional version of the same problem). This is why SMOTE is far more common in classical low-dimensional tabular work than in high-dimensional or deep-learning settings. (3) INTERPOLATING ACROSS A CLASS BOUNDARY or into majority territory: if a minority point sits near the boundary or is an outlier, its neighbours may be on the other side, and the synthetic points invade the majority region - creating label noise and blurring exactly the boundary you care about. Variants exist specifically for this: BORDERLINE-SMOTE (only generate from minority points near the boundary), ADASYN (generate more where the local density of majority points is higher, i.e. where learning is hard), and SMOTE-ENN or SMOTE-Tomek (generate, then CLEAN by removing points whose neighbours disagree). (4) NOISE AMPLIFICATION: SMOTE happily interpolates from a mislabelled minority point, manufacturing a cluster of wrong labels. (5) CATEGORICAL FEATURES: interpolation is undefined for them - SMOTE-NC handles this by taking the majority category among neighbours, which is a heuristic rather than a principled fix. (6) IT BREAKS CALIBRATION like any resampling, by changing the implied prior. THE HONEST VERDICT I would give: SMOTE is worth trying on low-dimensional tabular problems with a clustered minority, always inside a proper pipeline, and always compared against the much simpler baselines - class weights and threshold tuning - which frequently match or beat it. Several careful comparative studies have found that its advantage over simple reweighting is small or absent once the threshold is tuned, which fits the general principle that resampling relocates the operating point rather than improving the model's ranking. It is a reasonable tool, not the default response to imbalance that its popularity suggests."
+        }
       },
       {
         "q": "Why does rebalancing break calibration, and when does that matter?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "Why imbalance breaks training", "back": "The averaged loss is dominated by the majority class, so most of the gradient comes from examples already correct - the cheapest way to reduce loss is to ignore the minority. 99% accuracy, zero recall." },
-    { "type": "definition", "front": "The three levels of intervention", "back": "DATA (resample/SMOTE), LOSS (class weights, focal), DECISION (threshold). The threshold is free, needs no retraining, and is often sufficient - try it before the others." },
-    { "type": "intuition", "front": "Rebalancing does not improve ranking", "back": "In controlled comparisons, class weighting and SMOTE leave PR-AUC essentially unchanged - they relocate the operating point, which the threshold does for free and without distorting probabilities." },
-    { "type": "pitfall", "front": "SMOTE before the split", "back": "Synthetic points are INTERPOLATIONS of real points, so they leak across the split: F1 0.94 fake vs 0.19 honest. Use imbalanced-learn's Pipeline (sklearn's cannot skip a resampler at predict time)." },
-    { "type": "pitfall", "front": "SMOTE in high dimensions", "back": "Neighbours become equidistant, so interpolated points leave the data manifold. Measured: PR-AUC 0.51 without vs 0.44 with, at 200 dims. SMOTE suits low-dimensional, clustered minorities." },
-    { "type": "formula", "front": "Focal loss", "back": "FL = -alpha_t (1-p_t)^gamma log(p_t), gamma=2, alpha=0.25. Reweights by DIFFICULTY not class: an easy example at p_t=0.9 is down-weighted 100x, a hard one at 0.5 only 4x. gamma=0 recovers weighted CE." },
-    { "type": "intuition", "front": "Why detection needed focal loss", "back": "~100k anchors per image, ~12 with objects, and the negatives are EASY - individually tiny losses that dominate in aggregate. Two-stage detectors avoided this via proposal filtering; focal loss fixed it directly." },
-    { "type": "pitfall", "front": "Resampling breaks calibration", "back": "It changes the implied PRIOR, so probabilities no longer reflect the true rate. Correct via the odds-reweighting formula or recalibrate on a true-distribution holdout - essential if anything downstream consumes probabilities." },
-    { "type": "pitfall", "front": "Never balance the test set", "back": "Test distribution must match deployment. Precision depends on the base rate, so a balanced test set inflates it and the number does not transfer - a common way published comparisons become meaningless." },
-    { "type": "intuition", "front": "When to switch to anomaly detection", "back": "When positives are very few, HETEROGENEOUS (no shared structure), or novel kinds keep appearing. Then model 'normal' and flag deviations. With thousands of structurally-similar positives, supervised wins." }
+    {
+      "type": "intuition",
+      "front": "Why imbalance breaks training",
+      "back": "The averaged loss is dominated by the majority class, so most of the gradient comes from examples already correct - the cheapest way to reduce loss is to ignore the minority. 99% accuracy, zero recall."
+    },
+    {
+      "type": "definition",
+      "front": "The three levels of intervention",
+      "back": "DATA (resample/SMOTE), LOSS (class weights, focal), DECISION (threshold). The threshold is free, needs no retraining, and is often sufficient - try it before the others."
+    },
+    {
+      "type": "intuition",
+      "front": "Rebalancing does not improve ranking",
+      "back": "In controlled comparisons, class weighting and SMOTE leave PR-AUC essentially unchanged - they relocate the operating point, which the threshold does for free and without distorting probabilities."
+    },
+    {
+      "type": "pitfall",
+      "front": "SMOTE before the split",
+      "back": "Synthetic points are INTERPOLATIONS of real points, so they leak across the split: F1 0.94 fake vs 0.19 honest. Use imbalanced-learn's Pipeline (sklearn's cannot skip a resampler at predict time)."
+    },
+    {
+      "type": "pitfall",
+      "front": "SMOTE in high dimensions",
+      "back": "Neighbours become equidistant, so interpolated points leave the data manifold. Measured: PR-AUC 0.51 without vs 0.44 with, at 200 dims. SMOTE suits low-dimensional, clustered minorities."
+    },
+    {
+      "type": "formula",
+      "front": "Focal loss",
+      "back": "FL = -alpha_t (1-p_t)^gamma log(p_t), gamma=2, alpha=0.25. Reweights by DIFFICULTY not class: an easy example at p_t=0.9 is down-weighted 100x, a hard one at 0.5 only 4x. gamma=0 recovers weighted CE."
+    },
+    {
+      "type": "intuition",
+      "front": "Why detection needed focal loss",
+      "back": "~100k anchors per image, ~12 with objects, and the negatives are EASY - individually tiny losses that dominate in aggregate. Two-stage detectors avoided this via proposal filtering; focal loss fixed it directly."
+    },
+    {
+      "type": "pitfall",
+      "front": "Resampling breaks calibration",
+      "back": "It changes the implied PRIOR, so probabilities no longer reflect the true rate. Correct via the odds-reweighting formula or recalibrate on a true-distribution holdout - essential if anything downstream consumes probabilities."
+    },
+    {
+      "type": "pitfall",
+      "front": "Never balance the test set",
+      "back": "Test distribution must match deployment. Precision depends on the base rate, so a balanced test set inflates it and the number does not transfer - a common way published comparisons become meaningless."
+    },
+    {
+      "type": "intuition",
+      "front": "When to switch to anomaly detection",
+      "back": "When positives are very few, HETEROGENEOUS (no shared structure), or novel kinds keep appearing. Then model 'normal' and flag deviations. With thousands of structurally-similar positives, supervised wins."
+    }
   ],
   "refs": [
-    { "title": "Chawla et al. (2002), SMOTE: Synthetic Minority Over-sampling Technique", "url": "https://arxiv.org/abs/1106.1813" },
-    { "title": "Lin et al. (2017), Focal Loss for Dense Object Detection", "url": "https://arxiv.org/abs/1708.02002" },
-    { "title": "He & Garcia (2009), Learning from Imbalanced Data", "url": "https://ieeexplore.ieee.org/document/5128907" },
-    { "title": "imbalanced-learn documentation (pipelines that resample only during fit)", "url": "https://imbalanced-learn.org/stable/" }
+    {
+      "title": "Chawla et al. (2002), SMOTE: Synthetic Minority Over-sampling Technique",
+      "url": "https://arxiv.org/abs/1106.1813"
+    },
+    {
+      "title": "Lin et al. (2017), Focal Loss for Dense Object Detection",
+      "url": "https://arxiv.org/abs/1708.02002"
+    },
+    {
+      "title": "He & Garcia (2009), Learning from Imbalanced Data",
+      "url": "https://ieeexplore.ieee.org/document/5128907"
+    },
+    {
+      "title": "imbalanced-learn documentation (pipelines that resample only during fit)",
+      "url": "https://imbalanced-learn.org/stable/"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "05-05",
+    "module": "evaluation",
+    "disposition": "clean",
+    "notebookFile": "05-05_imbalanced_data_cost_sensitive_learning.ipynb"
+  }
 }

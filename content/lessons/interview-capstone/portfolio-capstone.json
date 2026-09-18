@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-10",
   "slug": "portfolio-capstone",
+  "keyBase": "interview-capstone/portfolio-capstone",
   "module": "interview-capstone",
   "title": "Take-Homes, Storytelling & Portfolio Capstone",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://proceedings.neurips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-11",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-11_take_homes_storytelling_portfolio.ipynb"
+  }
 }

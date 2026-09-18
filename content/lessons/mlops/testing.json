@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-08",
   "slug": "testing",
+  "keyBase": "mlops/testing",
   "module": "mlops",
   "title": "ML Testing & Data Validation",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://docs.greatexpectations.io/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-04",
+    "module": "mlops",
+    "disposition": "clean",
+    "notebookFile": "23-04_ml_testing_data_validation.ipynb"
+  }
 }

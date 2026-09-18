@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-04",
   "slug": "design-search-ads",
+  "keyBase": "interview-capstone/design-search-ads",
   "module": "interview-capstone",
   "title": "Design Case: Search & Ads",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://www.nowpublishers.com/article/Details/INR-051"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-04",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-04_design_case_search_ads.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "17-02",
   "slug": "scaling-laws",
+  "keyBase": "llm-systems/scaling-laws",
   "module": "llm-systems",
   "title": "Scaling Laws & Chinchilla",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "17-02_scaling_laws_chinchilla.ipynb",
     "flagship": null,
-    "demos": ["scaling-laws", "batching", "lr-schedule", "moe"],
+    "demos": [
+      "scaling-laws",
+      "batching",
+      "lr-schedule",
+      "moe"
+    ],
     "concepts": []
   },
-  "prereqs": ["llm-systems/llm-architectures", "ml-theory/learning-theory"],
-  "leadsTo": ["llm-systems/llm-data-pipelines", "training-systems/optimized-pipeline"],
+  "prereqs": [
+    "llm-systems/llm-architectures",
+    "ml-theory/learning-theory"
+  ],
+  "leadsTo": [
+    "llm-systems/llm-data-pipelines",
+    "training-systems/optimized-pipeline"
+  ],
   "body": {
     "intuition": [
       "Scaling laws are the training regime's central result: language-model loss falls as a smooth POWER LAW in parameters, in data, and in compute, and it does so predictably across many orders of magnitude. That predictability is the practically important part and it is under-appreciated. It means you can run a handful of small models, fit a curve, and forecast what a run a thousand times larger will achieve - which turns the decision to spend millions of dollars of compute into an extrapolation you can check rather than a bet.",
@@ -163,8 +175,7 @@
         "q": "Explain scaling laws and the Chinchilla result.",
         "a": "THE PHENOMENON. Language-model loss falls as a smooth POWER LAW in parameters, in data, and in compute, and it does so over many orders of magnitude with remarkably little noise. That predictability is the substantive finding - it means the outcome of a very large run can be forecast from a ladder of small ones. THE PARAMETRIC FORM. L(N, D) = E + A/N^alpha + B/D^beta. E is irreducible - the entropy of natural language, which no scale removes. The two exponents are both around 0.34, and their near-equality is the whole Chinchilla result in one line: since the parameter term and the data term fall at similar rates, neither should be scaled preferentially. THE ALLOCATION PROBLEM. Compute is about 6ND. Minimizing loss subject to a compute budget, with roughly equal exponents, gives both N and D scaling as the square root of C - so doubling your budget means about 1.4 times the parameters and 1.4 times the tokens. The ratio that falls out is about twenty tokens per parameter. THE HISTORY, which is a methodology story and is the instructive part. Kaplan et al. established the laws and concluded that parameters should be scaled much faster than data - roughly N proportional to C to the 0.73. The field followed that for two years and built very large, comparatively under-trained models. Chinchilla re-ran it and found the near-equal scaling. The discrepancy traces to a LEARNING-RATE SCHEDULE not matched to each run's token count: a fixed schedule under-trains the shorter runs, which makes small models look worse than they are and biases the conclusion toward size. The headline demonstration was a 70B model on 1.4T tokens beating a 280B model on 300B tokens at equal compute. I would emphasize that the correction was not a better theory but a better experiment, which is a useful thing to notice about empirical scaling work generally. THE MODERN POSITION, which goes past Chinchilla. Compute-optimal means optimal for TRAINING compute. But a served model incurs inference cost forever, and inference cost scales with PARAMETERS and not with the tokens you trained on. Adding it to the objective - minimize training plus expected inference cost subject to hitting a target loss - moves the optimum monotonically toward smaller models trained on more data as the serving volume grows. That is why the widely-deployed open models are trained far past twenty tokens per parameter, and it means quoting Chinchilla-optimal is a training-regime answer to what is usually a two-regime question. THE CAVEATS I WOULD ATTACH. The laws predict cross-entropy, which is smooth; downstream capability is measured differently and much of apparent emergence is a metric artefact. The constants are properties of a fixed architecture and data distribution, so curves do not transfer across mixtures - which is precisely why comparing mixtures by their curves is a good use and transferring one is not. And the data supply eventually binds, which turns quality and deduplication into scaling concerns.",
         "deepDive": {
-          "q": "Derive the compute-optimal allocation, and show how adding inference changes it."
-          ,
+          "q": "Derive the compute-optimal allocation, and show how adding inference changes it.",
           "a": "THE TRAINING-ONLY DERIVATION. Minimize L(N,D) = E + A/N^a + B/D^b subject to 6ND = C. Substitute D = C/(6N) and differentiate with respect to N. The derivative of A/N^a is -aA/N^(a+1); the data term becomes B(6N/C)^b, whose derivative is bB*6^b*N^(b-1)/C^b. Setting the sum to zero gives aA/N^(a+1) = bB*6^b*N^(b-1)/C^b, so N^(a+b) is proportional to C^b, giving N* proportional to C^(b/(a+b)). With a and b both about 0.34, that exponent is about one half - hence N* proportional to the square root of C, and by the constraint D* likewise. The ratio D*/N* is then a constant determined by A, B, a and b, and Chinchilla's fit puts it around twenty. THE KEY SENSITIVITY. Notice the exponent is b/(a+b). If a exceeds b - the parameter term falling faster - the exponent exceeds one half and you should scale parameters preferentially. Kaplan's fit effectively had that, giving roughly C^0.73. So the entire disagreement reduces to the relative size of two exponents, and those exponents are sensitive to whether each run was trained to convergence for its token budget. A fixed learning-rate schedule that does not decay fully by the end of a short run leaves it under-trained, inflating the measured loss at small D, which inflates b's apparent effect... and the fit moves. That is a remarkably delicate dependence for a conclusion the field acted on for two years, and it is the reason I would treat any scaling-law recommendation as contingent on its experimental protocol. ADDING INFERENCE. The objective becomes minimize 6ND + 2N*D_inf subject to L(N,D) = L_target, where D_inf is the expected total tokens generated over the model's life and the factor 2 is the forward-only cost per parameter per token. Two structural observations. First, the constraint is now a TARGET LOSS rather than a compute budget - you are asking for the cheapest way to reach a given quality, which is the question a product actually poses. Second, and decisively, the inference term contains N and NOT D. Training on more tokens is free at serving time. So the marginal cost of buying quality via D is only the training term, while buying it via N is charged twice - once in training and again on every future request. Differentiating, the optimum shifts toward smaller N and larger D, monotonically in D_inf, and at high serving volume it goes far past twenty tokens per parameter. WHAT THIS PREDICTS AND WHAT IS OBSERVED. It predicts that models built to be deployed widely should look over-trained by Chinchilla's standard, which is exactly what the popular open models look like - small parameter counts with token counts many times the compute-optimal ratio. And it predicts that a model trained purely to demonstrate a capability, with no serving plan, should sit at the Chinchilla point. Both hold. THE LIMIT WORTH NAMING. This assumes tokens are available. Once you exhaust high-quality data, increasing D means repeating it, and repeated data has diminishing returns - a few epochs are close to as good as fresh tokens, many epochs are not. So the inference-aware optimum is bounded by the data supply, which is why the data-constrained scaling work matters and why quality filtering and deduplication are now scaling-law concerns rather than pipeline hygiene."
         }
       },
@@ -274,5 +285,11 @@
       "url": "https://arxiv.org/abs/2305.16264"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "16-01",
+    "module": "reasoning-scaling",
+    "disposition": "clean",
+    "notebookFile": "16-01_scaling_laws_chinchilla.ipynb"
+  }
 }

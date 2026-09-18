@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-08",
   "slug": "convex-optimization",
+  "keyBase": "ml-theory/convex-optimization",
   "module": "ml-theory",
   "title": "Convex Optimization Foundations",
   "status": "LIVE",
@@ -11,11 +12,23 @@
     "notebook": true,
     "notebookFile": "04-08_convex_optimization_foundations.ipynb",
     "flagship": null,
-    "demos": ["gradient-descent", "newton-vs-gradient", "coordinate-descent", "ista", "l-bfgs"],
+    "demos": [
+      "gradient-descent",
+      "newton-vs-gradient",
+      "coordinate-descent",
+      "ista",
+      "l-bfgs"
+    ],
     "concepts": []
   },
-  "prereqs": ["foundations/calculus", "foundations/linear-algebra"],
-  "leadsTo": ["neural-nets/sgd-momentum", "supervised-learning/svm"],
+  "prereqs": [
+    "foundations/calculus",
+    "foundations/linear-algebra"
+  ],
+  "leadsTo": [
+    "neural-nets/sgd-momentum",
+    "supervised-learning/svm"
+  ],
   "body": {
     "intuition": [
       "A function is CONVEX if the line segment between any two points on its graph lies on or above the graph - a bowl, not a mountain range. That single property buys an enormous amount: any local minimum is a GLOBAL minimum, so an optimizer cannot get stuck in a bad solution; the set of minimizers is convex; and you get certificates of optimality (conditions you can check to prove you have converged). This is why the classical machine-learning canon - linear and ridge regression, logistic regression, SVMs, LASSO - is built almost entirely from convex problems: you can guarantee the answer you found is THE answer, and results are reproducible across runs and libraries.",
@@ -72,32 +85,83 @@
       "Forgetting that a fixed step size must respect smoothness: gradient descent diverges if eta > 2/L, and L is unknown in practice - which is why learning-rate warmup, gradient clipping, and adaptive methods exist. Divergence is usually a step-size violation, not a bad model."
     ],
     "connections": [
-      { "ref": "neural-nets/sgd-momentum", "text": "Momentum's sqrt(kappa) improvement on ill-conditioned problems is the convex-analysis explanation for why it is standard in deep learning - the same mechanism, applied where the guarantees no longer hold." },
-      { "ref": "supervised-learning/svm", "text": "The SVM is the canonical constrained convex program, and its dual formulation (with KKT conditions and the kernel trick) is the standard worked example of Lagrangian duality." },
-      { "ref": "unsupervised-learning/kernel-methods", "text": "Kernel methods stay convex because the kernel enters linearly in the dual - which is precisely what distinguishes them from neural networks and gives them unique solutions." },
-      { "ref": "foundations/calculus", "text": "Gradients, Hessians, and Taylor expansion are the machinery this lesson builds on; convexity is the condition under which the first-order expansion certifies a global answer." }
+      {
+        "ref": "neural-nets/sgd-momentum",
+        "text": "Momentum's sqrt(kappa) improvement on ill-conditioned problems is the convex-analysis explanation for why it is standard in deep learning - the same mechanism, applied where the guarantees no longer hold."
+      },
+      {
+        "ref": "supervised-learning/svm",
+        "text": "The SVM is the canonical constrained convex program, and its dual formulation (with KKT conditions and the kernel trick) is the standard worked example of Lagrangian duality."
+      },
+      {
+        "ref": "unsupervised-learning/kernel-methods",
+        "text": "Kernel methods stay convex because the kernel enters linearly in the dual - which is precisely what distinguishes them from neural networks and gives them unique solutions."
+      },
+      {
+        "ref": "foundations/calculus",
+        "text": "Gradients, Hessians, and Taylor expansion are the machinery this lesson builds on; convexity is the condition under which the first-order expansion certifies a global answer."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is a convex function?", "a": "One where the chord between any two points lies on or above the graph: f(lx + (1-l)y) <= l f(x) + (1-l) f(y). Equivalently, the Hessian is positive semi-definite everywhere." },
-      { "q": "Why does convexity matter?", "a": "Every local minimum is global, so a vanishing gradient certifies a globally optimal solution. You get uniqueness (under strict convexity), reproducibility, and optimality certificates." },
-      { "q": "Which classical ML problems are convex?", "a": "Linear/ridge regression, logistic regression, SVMs, LASSO, and most of the classical canon. Neural networks and k-means are not." },
-      { "q": "What is the condition number?", "a": "kappa = L/mu, the ratio of largest to smallest curvature. It controls gradient descent's rate: error contracts by ((kappa-1)/(kappa+1)) per step, so iterations scale ~linearly with kappa." },
-      { "q": "What does momentum buy?", "a": "It improves the dependence from kappa to sqrt(kappa) - on a kappa=1000 problem, roughly 2,600 iterations become ~90. That is why it is standard, not optional." },
-      { "q": "Why not use Newton's method everywhere?", "a": "It costs O(d^3) per step to solve with the Hessian and O(d^2) memory to store it - impossible at billions of parameters. Hence L-BFGS (low-rank) and Adam (diagonal)." },
-      { "q": "What is the maximum stable step size?", "a": "For an L-smooth function, gradient descent diverges if eta > 2/L. Since L is usually unknown, practice uses warmup, clipping, and adaptive step sizes." },
-      { "q": "How do you handle a non-differentiable penalty like L1?", "a": "Subgradient methods (slow), proximal methods (ISTA/FISTA, whose prox step is soft-thresholding), or coordinate descent - which is what LASSO solvers actually use." },
-      { "q": "What is strong convexity?", "a": "The Hessian is bounded below by mu*I > 0 - the function curves up at least quadratically everywhere. It is what upgrades convergence from sublinear to linear." },
-      { "q": "Are saddle points or local minima the problem in deep learning?", "a": "Saddle points. In high dimensions a critical point needs every eigenvalue positive to be a minimum, which is exponentially unlikely - so most critical points are saddles." },
-      { "q": "What is Lagrangian duality used for?", "a": "Converting a constrained problem into an unconstrained one via multipliers. For convex problems with Slater's condition, strong duality holds - the dual optimum equals the primal, which is how SVMs get their kernel formulation." },
-      { "q": "How do you prove a new objective is convex?", "a": "Compose known convex functions with operations that preserve convexity: non-negative weighted sums, affine substitution, pointwise maximum, and composition rules - far easier than computing a Hessian." }
+      {
+        "q": "What is a convex function?",
+        "a": "One where the chord between any two points lies on or above the graph: f(lx + (1-l)y) <= l f(x) + (1-l) f(y). Equivalently, the Hessian is positive semi-definite everywhere."
+      },
+      {
+        "q": "Why does convexity matter?",
+        "a": "Every local minimum is global, so a vanishing gradient certifies a globally optimal solution. You get uniqueness (under strict convexity), reproducibility, and optimality certificates."
+      },
+      {
+        "q": "Which classical ML problems are convex?",
+        "a": "Linear/ridge regression, logistic regression, SVMs, LASSO, and most of the classical canon. Neural networks and k-means are not."
+      },
+      {
+        "q": "What is the condition number?",
+        "a": "kappa = L/mu, the ratio of largest to smallest curvature. It controls gradient descent's rate: error contracts by ((kappa-1)/(kappa+1)) per step, so iterations scale ~linearly with kappa."
+      },
+      {
+        "q": "What does momentum buy?",
+        "a": "It improves the dependence from kappa to sqrt(kappa) - on a kappa=1000 problem, roughly 2,600 iterations become ~90. That is why it is standard, not optional."
+      },
+      {
+        "q": "Why not use Newton's method everywhere?",
+        "a": "It costs O(d^3) per step to solve with the Hessian and O(d^2) memory to store it - impossible at billions of parameters. Hence L-BFGS (low-rank) and Adam (diagonal)."
+      },
+      {
+        "q": "What is the maximum stable step size?",
+        "a": "For an L-smooth function, gradient descent diverges if eta > 2/L. Since L is usually unknown, practice uses warmup, clipping, and adaptive step sizes."
+      },
+      {
+        "q": "How do you handle a non-differentiable penalty like L1?",
+        "a": "Subgradient methods (slow), proximal methods (ISTA/FISTA, whose prox step is soft-thresholding), or coordinate descent - which is what LASSO solvers actually use."
+      },
+      {
+        "q": "What is strong convexity?",
+        "a": "The Hessian is bounded below by mu*I > 0 - the function curves up at least quadratically everywhere. It is what upgrades convergence from sublinear to linear."
+      },
+      {
+        "q": "Are saddle points or local minima the problem in deep learning?",
+        "a": "Saddle points. In high dimensions a critical point needs every eigenvalue positive to be a minimum, which is exponentially unlikely - so most critical points are saddles."
+      },
+      {
+        "q": "What is Lagrangian duality used for?",
+        "a": "Converting a constrained problem into an unconstrained one via multipliers. For convex problems with Slater's condition, strong duality holds - the dual optimum equals the primal, which is how SVMs get their kernel formulation."
+      },
+      {
+        "q": "How do you prove a new objective is convex?",
+        "a": "Compose known convex functions with operations that preserve convexity: non-negative weighted sums, affine substitution, pointwise maximum, and composition rules - far easier than computing a Hessian."
+      }
     ],
     "standard": [
       {
         "q": "What is convexity, why does it matter for machine learning, and what changed with deep learning?",
         "a": "THE DEFINITION AND ITS CONSEQUENCES. A function is convex if the chord between any two points on its graph lies on or above the graph; for twice-differentiable functions this is exactly the condition that the Hessian is positive semi-definite everywhere. Three consequences make it valuable. (1) EVERY LOCAL MINIMUM IS GLOBAL - so an optimizer cannot get trapped in a bad solution, and a point with zero gradient is provably optimal. (2) UNIQUENESS under strict convexity, so the solution does not depend on initialization or on the solver, which means reproducible results across runs, libraries, and machines. (3) OPTIMALITY CERTIFICATES - duality gives you a lower bound on the optimum, so you can prove how close you are, which is what lets a solver report 'converged to within 1e-9' rather than 'stopped improving'. WHY CLASSICAL ML IS BUILT ON IT. Linear and ridge regression, logistic regression, SVMs, and LASSO are all convex programs, and that is not an accident - it is why they were tractable in the era before massive compute, why their solvers are mature and reliable, and why their results are reproducible. When you fit a logistic regression in two different libraries you get the same coefficients; that is a convexity guarantee. WHAT DEEP LEARNING GAVE UP, and how much it mattered. Neural network losses are non-convex - compositions of nonlinearities and the permutation symmetry of hidden units alone guarantee many equivalent minima - so there is no global-optimum guarantee, results depend on initialization and seed, and there is no certificate of convergence. Classically this was expected to be fatal. Empirically it was not, for reasons worth knowing: (a) BAD LOCAL MINIMA ARE RARE IN HIGH DIMENSIONS. For a critical point to be a local minimum, EVERY Hessian eigenvalue must be positive; with millions of parameters that is exponentially unlikely, so the overwhelming majority of critical points are SADDLE POINTS, which gradient descent (especially with noise) escapes. Dauphin et al. (2014) made this argument concretely. (b) The minima that SGD does find tend to have similar loss values, so 'which minimum' matters much less than expected. (c) Over-parameterization smooths the landscape - with enough capacity, many parameter settings interpolate the data. So the practical cost of losing convexity was far smaller than the theory suggested. WHAT SURVIVED, and this is the part I would emphasize. The MACHINERY of convex optimization is still how everyone reasons about training: gradient descent and its convergence analysis, momentum, smoothness constants (L) and the 2/L stability limit on step size, strong convexity, and above all CONDITION NUMBER. When someone explains why batch normalization helps, or why Adam adapts per-parameter step sizes, or why learning-rate warmup prevents early divergence, the explanation is in the language of conditioning and smoothness that convex analysis provides. The guarantees are gone; the vocabulary and the intuitions are load-bearing. WHERE CONVEXITY STILL DIRECTLY APPLIES in modern practice: the final layer of many systems (logistic regression on frozen features is convex), calibration (Platt scaling, isotonic regression), constrained resource allocation and control, and any problem where you must be able to PROVE optimality rather than merely observe convergence. It is also worth noting that convex relaxations of hard problems (LP relaxations, SDP relaxations) remain a standard tool for getting bounds on non-convex problems.",
-        "deepDive": { "q": "Explain the condition number's role, and connect it to why feature scaling, momentum, batch norm, and Adam all help.", "a": "THE GEOMETRY. Near a minimum, a smooth function looks quadratic, and its Hessian's eigenvalues describe the curvature in each direction. The CONDITION NUMBER kappa = L/mu is the ratio of the largest to the smallest curvature. kappa = 1 is a perfectly round bowl; large kappa is a long narrow valley - steep across, nearly flat along. THE PROBLEM THIS CREATES FOR GRADIENT DESCENT. The gradient points in the direction of STEEPEST ASCENT, which in a narrow valley points mostly ACROSS the valley rather than along it. So the iterates zigzag between the walls while creeping along the floor. Quantitatively, with the optimal fixed step, the error contracts by ((kappa-1)/(kappa+1)) per iteration - which for kappa = 1000 is 0.998, so you need thousands of steps. And there is a hard constraint you cannot escape: the step size must satisfy eta < 2/L (set by the STEEPEST direction, or you diverge), while progress along the FLATTEST direction is proportional to eta*mu. So the flat direction's progress per step is bounded by roughly mu/L = 1/kappa. Measured: kappa = 1 converges in 1 iteration, kappa = 10 in 27, kappa = 100 in 264, kappa = 1000 in 2,643 - linear in kappa, exactly as predicted. NOW THE FOUR TECHNIQUES, all of which are attacks on this one quantity. (1) FEATURE SCALING. For linear and logistic regression the Hessian is essentially X'X (times a weighting), so features on wildly different scales - one in units of 1, another in units of 100,000 - produce eigenvalues differing by ~10^10 and a catastrophic kappa. Standardizing each feature to unit variance makes X'X much closer to a multiple of the identity, cutting kappa by orders of magnitude and therefore cutting iterations proportionally. This is why scaling is not cosmetic preprocessing - it changes the convergence rate directly. (Trees are exempt precisely because they do not do gradient descent on a shared surface.) (2) MOMENTUM. Accumulating a velocity damps oscillation across the valley (successive gradients point in opposite directions and cancel) while accumulating along the floor (successive gradients agree and add). The theory is sharp: heavy-ball and Nesterov momentum improve the dependence from kappa to SQRT(kappa), which is provably optimal for first-order methods on smooth convex problems (Nesterov's lower bound). Measured on the kappa = 1000 problem: 2,643 iterations become ~94, and sqrt(1000) ~ 32 predicts the order of the improvement. (3) BATCH NORMALIZATION. Normalizing activations keeps each layer's inputs at a controlled scale, which prevents the effective curvature from varying wildly across layers and parameters - the layer-wise version of feature scaling. Santurkar et al.'s analysis frames the benefit exactly this way: BN improves the SMOOTHNESS of the loss landscape (better Lipschitz constants for the loss and its gradient), which permits larger stable step sizes. That is a conditioning argument, and it displaced the original 'internal covariate shift' story. (4) ADAM AND ADAPTIVE METHODS. Dividing each coordinate's step by a running estimate of its gradient magnitude gives each parameter its own effective learning rate - a DIAGONAL approximation to Newton's rescaling by inverse curvature. It cannot fix ill-conditioning that lies along non-axis-aligned directions (a rotation of the problem defeats it), but in deep networks much of the scale disparity IS roughly per-parameter, which is why it works so well in practice and why it is the default for transformers. THE UNIFYING STATEMENT: Newton's method removes the kappa dependence entirely by rescaling with the inverse Hessian, but costs O(d^3) per step and O(d^2) memory. Everything in the list above is a cheap approximation to that rescaling - scaling fixes it in the data, normalization fixes it in the architecture, momentum compensates for it in the trajectory, and Adam approximates it diagonally. Seeing them as four answers to one question is, I think, the single most useful thing convex optimization gives a deep-learning practitioner." }
+        "deepDive": {
+          "q": "Explain the condition number's role, and connect it to why feature scaling, momentum, batch norm, and Adam all help.",
+          "a": "THE GEOMETRY. Near a minimum, a smooth function looks quadratic, and its Hessian's eigenvalues describe the curvature in each direction. The CONDITION NUMBER kappa = L/mu is the ratio of the largest to the smallest curvature. kappa = 1 is a perfectly round bowl; large kappa is a long narrow valley - steep across, nearly flat along. THE PROBLEM THIS CREATES FOR GRADIENT DESCENT. The gradient points in the direction of STEEPEST ASCENT, which in a narrow valley points mostly ACROSS the valley rather than along it. So the iterates zigzag between the walls while creeping along the floor. Quantitatively, with the optimal fixed step, the error contracts by ((kappa-1)/(kappa+1)) per iteration - which for kappa = 1000 is 0.998, so you need thousands of steps. And there is a hard constraint you cannot escape: the step size must satisfy eta < 2/L (set by the STEEPEST direction, or you diverge), while progress along the FLATTEST direction is proportional to eta*mu. So the flat direction's progress per step is bounded by roughly mu/L = 1/kappa. Measured: kappa = 1 converges in 1 iteration, kappa = 10 in 27, kappa = 100 in 264, kappa = 1000 in 2,643 - linear in kappa, exactly as predicted. NOW THE FOUR TECHNIQUES, all of which are attacks on this one quantity. (1) FEATURE SCALING. For linear and logistic regression the Hessian is essentially X'X (times a weighting), so features on wildly different scales - one in units of 1, another in units of 100,000 - produce eigenvalues differing by ~10^10 and a catastrophic kappa. Standardizing each feature to unit variance makes X'X much closer to a multiple of the identity, cutting kappa by orders of magnitude and therefore cutting iterations proportionally. This is why scaling is not cosmetic preprocessing - it changes the convergence rate directly. (Trees are exempt precisely because they do not do gradient descent on a shared surface.) (2) MOMENTUM. Accumulating a velocity damps oscillation across the valley (successive gradients point in opposite directions and cancel) while accumulating along the floor (successive gradients agree and add). The theory is sharp: heavy-ball and Nesterov momentum improve the dependence from kappa to SQRT(kappa), which is provably optimal for first-order methods on smooth convex problems (Nesterov's lower bound). Measured on the kappa = 1000 problem: 2,643 iterations become ~94, and sqrt(1000) ~ 32 predicts the order of the improvement. (3) BATCH NORMALIZATION. Normalizing activations keeps each layer's inputs at a controlled scale, which prevents the effective curvature from varying wildly across layers and parameters - the layer-wise version of feature scaling. Santurkar et al.'s analysis frames the benefit exactly this way: BN improves the SMOOTHNESS of the loss landscape (better Lipschitz constants for the loss and its gradient), which permits larger stable step sizes. That is a conditioning argument, and it displaced the original 'internal covariate shift' story. (4) ADAM AND ADAPTIVE METHODS. Dividing each coordinate's step by a running estimate of its gradient magnitude gives each parameter its own effective learning rate - a DIAGONAL approximation to Newton's rescaling by inverse curvature. It cannot fix ill-conditioning that lies along non-axis-aligned directions (a rotation of the problem defeats it), but in deep networks much of the scale disparity IS roughly per-parameter, which is why it works so well in practice and why it is the default for transformers. THE UNIFYING STATEMENT: Newton's method removes the kappa dependence entirely by rescaling with the inverse Hessian, but costs O(d^3) per step and O(d^2) memory. Everything in the list above is a cheap approximation to that rescaling - scaling fixes it in the data, normalization fixes it in the architecture, momentum compensates for it in the trajectory, and Adam approximates it diagonally. Seeing them as four answers to one question is, I think, the single most useful thing convex optimization gives a deep-learning practitioner."
+        }
       },
       {
         "q": "Compare first-order, second-order, and quasi-Newton methods. When would you use each?",
@@ -122,22 +186,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Convex function", "back": "Chord lies on or above the graph; equivalently Hessian PSD everywhere. Buys: every local min is GLOBAL, uniqueness (strict), reproducibility, and optimality certificates via duality." },
-    { "type": "formula", "front": "Condition number and GD rate", "back": "kappa = L/mu. Error contracts by ((kappa-1)/(kappa+1)) per step, so iterations scale ~linearly with kappa: measured 1, 27, 264, 2643 for kappa = 1, 10, 100, 1000." },
-    { "type": "intuition", "front": "Why ill-conditioning is slow", "back": "The step is capped at 2/L by the STEEPEST direction, while progress along the FLATTEST is ~eta*mu - so per-step progress in the flat direction is bounded by mu/L = 1/kappa. Hence the zigzag." },
-    { "type": "intuition", "front": "One idea behind four tricks", "back": "Feature scaling, batch norm, momentum, and Adam are all attacks on CONDITIONING. Newton fixes it exactly (rescale by inverse Hessian) at O(d^3); the others are cheap approximations." },
-    { "type": "formula", "front": "What momentum buys", "back": "Improves kappa -> sqrt(kappa), which is Nesterov's optimal rate for first-order methods on smooth convex problems. Measured: 2643 iterations -> ~94 at kappa=1000." },
-    { "type": "definition", "front": "First / quasi-Newton / second order", "back": "GD: O(d) memory, kappa or sqrt(kappa) rate. L-BFGS: O(md) via low-rank curvature from past gradients, superlinear, but NEEDS consistent (full-batch) gradients. Newton: O(d^2) memory, O(d^3)/step, kappa-independent." },
-    { "type": "pitfall", "front": "Max stable step size", "back": "GD diverges if eta > 2/L, and L is unknown AND changes during training. That is why warmup, clipping, and adaptive methods exist - divergence is usually a step-size violation, not a bad model." },
-    { "type": "definition", "front": "Handling L1 (non-differentiable)", "back": "Proximal gradient (ISTA): gradient step + SOFT-THRESHOLDING, which gives exact zeros at the smooth O(1/k) rate; FISTA accelerates to O(1/k^2). Coordinate descent is what real LASSO solvers use." },
-    { "type": "intuition", "front": "Why non-convexity is survivable", "back": "A critical point needs ALL Hessian eigenvalues positive to be a minimum - exponentially unlikely at high d, so most are SADDLES (escapable). Minima SGD finds have similar loss; symmetry explains most multiplicity." },
-    { "type": "definition", "front": "Why the SVM dual", "back": "Data enters only via inner products -> the KERNEL TRICK; complementary slackness makes alpha_i > 0 only on the margin -> SUPPORT VECTORS; and n variables instead of d. (When n >> d, solve the PRIMAL - LIBLINEAR.)" }
+    {
+      "type": "definition",
+      "front": "Convex function",
+      "back": "Chord lies on or above the graph; equivalently Hessian PSD everywhere. Buys: every local min is GLOBAL, uniqueness (strict), reproducibility, and optimality certificates via duality."
+    },
+    {
+      "type": "formula",
+      "front": "Condition number and GD rate",
+      "back": "kappa = L/mu. Error contracts by ((kappa-1)/(kappa+1)) per step, so iterations scale ~linearly with kappa: measured 1, 27, 264, 2643 for kappa = 1, 10, 100, 1000."
+    },
+    {
+      "type": "intuition",
+      "front": "Why ill-conditioning is slow",
+      "back": "The step is capped at 2/L by the STEEPEST direction, while progress along the FLATTEST is ~eta*mu - so per-step progress in the flat direction is bounded by mu/L = 1/kappa. Hence the zigzag."
+    },
+    {
+      "type": "intuition",
+      "front": "One idea behind four tricks",
+      "back": "Feature scaling, batch norm, momentum, and Adam are all attacks on CONDITIONING. Newton fixes it exactly (rescale by inverse Hessian) at O(d^3); the others are cheap approximations."
+    },
+    {
+      "type": "formula",
+      "front": "What momentum buys",
+      "back": "Improves kappa -> sqrt(kappa), which is Nesterov's optimal rate for first-order methods on smooth convex problems. Measured: 2643 iterations -> ~94 at kappa=1000."
+    },
+    {
+      "type": "definition",
+      "front": "First / quasi-Newton / second order",
+      "back": "GD: O(d) memory, kappa or sqrt(kappa) rate. L-BFGS: O(md) via low-rank curvature from past gradients, superlinear, but NEEDS consistent (full-batch) gradients. Newton: O(d^2) memory, O(d^3)/step, kappa-independent."
+    },
+    {
+      "type": "pitfall",
+      "front": "Max stable step size",
+      "back": "GD diverges if eta > 2/L, and L is unknown AND changes during training. That is why warmup, clipping, and adaptive methods exist - divergence is usually a step-size violation, not a bad model."
+    },
+    {
+      "type": "definition",
+      "front": "Handling L1 (non-differentiable)",
+      "back": "Proximal gradient (ISTA): gradient step + SOFT-THRESHOLDING, which gives exact zeros at the smooth O(1/k) rate; FISTA accelerates to O(1/k^2). Coordinate descent is what real LASSO solvers use."
+    },
+    {
+      "type": "intuition",
+      "front": "Why non-convexity is survivable",
+      "back": "A critical point needs ALL Hessian eigenvalues positive to be a minimum - exponentially unlikely at high d, so most are SADDLES (escapable). Minima SGD finds have similar loss; symmetry explains most multiplicity."
+    },
+    {
+      "type": "definition",
+      "front": "Why the SVM dual",
+      "back": "Data enters only via inner products -> the KERNEL TRICK; complementary slackness makes alpha_i > 0 only on the margin -> SUPPORT VECTORS; and n variables instead of d. (When n >> d, solve the PRIMAL - LIBLINEAR.)"
+    }
   ],
   "refs": [
-    { "title": "Boyd & Vandenberghe, Convex Optimization (free PDF)", "url": "https://web.stanford.edu/~boyd/cvxbook/" },
-    { "title": "Nocedal & Wright, Numerical Optimization (L-BFGS, trust regions)", "url": "https://link.springer.com/book/10.1007/978-0-387-40065-5" },
-    { "title": "Dauphin et al. (2014), Identifying and attacking the saddle point problem in high-dimensional non-convex optimization", "url": "https://arxiv.org/abs/1406.2572" },
-    { "title": "Beck & Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm (FISTA)", "url": "https://epubs.siam.org/doi/10.1137/080716542" }
+    {
+      "title": "Boyd & Vandenberghe, Convex Optimization (free PDF)",
+      "url": "https://web.stanford.edu/~boyd/cvxbook/"
+    },
+    {
+      "title": "Nocedal & Wright, Numerical Optimization (L-BFGS, trust regions)",
+      "url": "https://link.springer.com/book/10.1007/978-0-387-40065-5"
+    },
+    {
+      "title": "Dauphin et al. (2014), Identifying and attacking the saddle point problem in high-dimensional non-convex optimization",
+      "url": "https://arxiv.org/abs/1406.2572"
+    },
+    {
+      "title": "Beck & Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm (FISTA)",
+      "url": "https://epubs.siam.org/doi/10.1137/080716542"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "01-08",
+    "module": "math-foundations",
+    "disposition": "clean",
+    "notebookFile": "01-08_convex_optimization_duality.ipynb"
+  }
 }

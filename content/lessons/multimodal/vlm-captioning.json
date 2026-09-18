@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-05",
   "slug": "vlm-captioning",
+  "keyBase": "multimodal/vlm-captioning",
   "module": "multimodal",
   "title": "Vision-Language Models & Image Captioning",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-05_vision_language_models_image_captioning.ipynb",
     "flagship": null,
-    "demos": ["attention", "attention-rollout", "decoding", "beam-search"],
+    "demos": [
+      "attention",
+      "attention-rollout",
+      "decoding",
+      "beam-search"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/clip", "advanced-nlp/architectures"],
-  "leadsTo": ["multimodal/vqa", "multimodal/multimodal-eval"],
+  "prereqs": [
+    "multimodal/clip",
+    "advanced-nlp/architectures"
+  ],
+  "leadsTo": [
+    "multimodal/vqa",
+    "multimodal/multimodal-eval"
+  ],
   "body": {
     "intuition": [
       "CLIP can tell you which of several captions matches an image. It cannot WRITE one, because a dual encoder only ranks. Generating language about an image needs a language model, and the entire modern vision-language field reduces to one engineering question: how do you get visual information INTO a language model that was trained on text?",
@@ -82,33 +94,87 @@
       "Evaluating on benchmarks whose images are in the training data. Web-scale image-text pretraining plausibly includes COCO, and the model may be recalling annotations rather than perceiving - which is the same contamination problem as in text benchmarks, with less attention paid to it."
     ],
     "connections": [
-      { "ref": "multimodal/clip", "text": "The vision encoder in nearly every VLM is a CLIP-style ViT, chosen because contrastive image-text pretraining already aligned its features with language." },
-      { "ref": "multimodal/vqa", "text": "The language-prior failure here is the same one VQA-CP exposed - a model answering from what usually goes with what it sees rather than from the image." },
-      { "ref": "advanced-nlp/nli", "text": "Entailment between a generated caption and a source description is one automatic groundedness check, and the artifact story is structurally identical." },
-      { "ref": "multimodal/multimodal-eval", "text": "Caption metrics, CLIPScore, and hallucination benchmarks in full - including why reference-based overlap metrics are the wrong tool for this failure." },
-      { "ref": "advanced-nlp/architectures", "text": "The connector question is a special case of how to condition a decoder: cross-attention (Flamingo), soft prompts (Q-Former), or in-sequence tokens (LLaVA)." }
+      {
+        "ref": "multimodal/clip",
+        "text": "The vision encoder in nearly every VLM is a CLIP-style ViT, chosen because contrastive image-text pretraining already aligned its features with language."
+      },
+      {
+        "ref": "multimodal/vqa",
+        "text": "The language-prior failure here is the same one VQA-CP exposed - a model answering from what usually goes with what it sees rather than from the image."
+      },
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "Entailment between a generated caption and a source description is one automatic groundedness check, and the artifact story is structurally identical."
+      },
+      {
+        "ref": "multimodal/multimodal-eval",
+        "text": "Caption metrics, CLIPScore, and hallucination benchmarks in full - including why reference-based overlap metrics are the wrong tool for this failure."
+      },
+      {
+        "ref": "advanced-nlp/architectures",
+        "text": "The connector question is a special case of how to condition a decoder: cross-attention (Flamingo), soft prompts (Q-Former), or in-sequence tokens (LLaVA)."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why can't CLIP generate captions?", "a": "A dual encoder only scores image-text pairs, so it can RANK candidate captions but has no decoder to produce text. Generation needs a language model." },
-      { "q": "What is the connector in a VLM?", "a": "The module mapping vision-encoder features into a form the language model can consume - a linear projection, an MLP, a Q-Former, or cross-attention layers." },
-      { "q": "How does LLaVA connect the modalities?", "a": "One linear projection from the vision encoder's output space to the LLM's token-embedding space, so image patches become pseudo-tokens read alongside text." },
-      { "q": "What is BLIP-2's Q-Former?", "a": "A small transformer with a fixed set of learned query tokens that extract a fixed-length visual summary, fed to the LLM as soft prompts. Fixes the token count regardless of image size." },
-      { "q": "How does Flamingo differ?", "a": "It interleaves gated cross-attention layers into a frozen LLM, so text tokens attend to image features rather than images becoming tokens in the sequence." },
-      { "q": "What did LLaVA's ablations find?", "a": "A linear projection is competitive with elaborate connectors; the INSTRUCTION DATA dominated. Their data was generated by prompting a text-only GPT-4 with COCO annotations." },
-      { "q": "What is the two-stage training recipe?", "a": "Stage 1: freeze vision and LLM, train only the projection on caption pairs (alignment). Stage 2: instruction-tune with the LLM unfrozen or LoRA'd, which is where capability comes from." },
-      { "q": "What is object hallucination?", "a": "Describing objects not present in the image. It is systematic - models mention objects that CO-OCCUR with what is present, driven by the LLM's scene prior." },
-      { "q": "What is POPE?", "a": "Yes/no probes - 'is there a {object} in the image?' - balanced 50/50, with absent objects chosen randomly, by popularity, or ADVERSARIALLY by co-occurrence. Accuracy falls sharply on the adversarial split." },
-      { "q": "What is the yes-bias?", "a": "Instruction-tuned VLMs answer 'yes' well above 50% on balanced probes - an agreeableness artifact of instruction tuning rather than a perception failure." },
-      { "q": "Why do VLMs read small text poorly?", "a": "Resolution. A 336px ViT/14 gives 576 tokens; tripling the side gives 5184 tokens and ~81x the attention cost. Fine detail is simply not in the tokens." },
-      { "q": "What is CHAIR?", "a": "A hallucination metric counting mentioned objects that are not annotated as present, at instance level (fraction of mentions wrong) and sentence level (fraction of captions containing any error)." }
+      {
+        "q": "Why can't CLIP generate captions?",
+        "a": "A dual encoder only scores image-text pairs, so it can RANK candidate captions but has no decoder to produce text. Generation needs a language model."
+      },
+      {
+        "q": "What is the connector in a VLM?",
+        "a": "The module mapping vision-encoder features into a form the language model can consume - a linear projection, an MLP, a Q-Former, or cross-attention layers."
+      },
+      {
+        "q": "How does LLaVA connect the modalities?",
+        "a": "One linear projection from the vision encoder's output space to the LLM's token-embedding space, so image patches become pseudo-tokens read alongside text."
+      },
+      {
+        "q": "What is BLIP-2's Q-Former?",
+        "a": "A small transformer with a fixed set of learned query tokens that extract a fixed-length visual summary, fed to the LLM as soft prompts. Fixes the token count regardless of image size."
+      },
+      {
+        "q": "How does Flamingo differ?",
+        "a": "It interleaves gated cross-attention layers into a frozen LLM, so text tokens attend to image features rather than images becoming tokens in the sequence."
+      },
+      {
+        "q": "What did LLaVA's ablations find?",
+        "a": "A linear projection is competitive with elaborate connectors; the INSTRUCTION DATA dominated. Their data was generated by prompting a text-only GPT-4 with COCO annotations."
+      },
+      {
+        "q": "What is the two-stage training recipe?",
+        "a": "Stage 1: freeze vision and LLM, train only the projection on caption pairs (alignment). Stage 2: instruction-tune with the LLM unfrozen or LoRA'd, which is where capability comes from."
+      },
+      {
+        "q": "What is object hallucination?",
+        "a": "Describing objects not present in the image. It is systematic - models mention objects that CO-OCCUR with what is present, driven by the LLM's scene prior."
+      },
+      {
+        "q": "What is POPE?",
+        "a": "Yes/no probes - 'is there a {object} in the image?' - balanced 50/50, with absent objects chosen randomly, by popularity, or ADVERSARIALLY by co-occurrence. Accuracy falls sharply on the adversarial split."
+      },
+      {
+        "q": "What is the yes-bias?",
+        "a": "Instruction-tuned VLMs answer 'yes' well above 50% on balanced probes - an agreeableness artifact of instruction tuning rather than a perception failure."
+      },
+      {
+        "q": "Why do VLMs read small text poorly?",
+        "a": "Resolution. A 336px ViT/14 gives 576 tokens; tripling the side gives 5184 tokens and ~81x the attention cost. Fine detail is simply not in the tokens."
+      },
+      {
+        "q": "What is CHAIR?",
+        "a": "A hallucination metric counting mentioned objects that are not annotated as present, at instance level (fraction of mentions wrong) and sentence level (fraction of captions containing any error)."
+      }
     ],
     "standard": [
       {
         "q": "How do you connect a vision encoder to a language model? Compare the approaches.",
         "a": "THE PROBLEM. A language model consumes a sequence of token embeddings. A vision encoder produces a grid of patch features in a different space with different statistics. The connector's job is to bridge that, and the design space is small enough to enumerate. (1) LINEAR PROJECTION (LLaVA). One matrix mapping vision features to the LLM's token embedding dimension; image patches become pseudo-tokens prepended to the text sequence. Advantages: trivially simple, preserves all spatial detail (every patch gets a token), and the LLM's self-attention handles the interaction natively so nothing about the LLM architecture changes. Disadvantages: the token count is fixed by the vision encoder's patch grid, so 576 tokens for a 336px image and much more at higher resolution - visual tokens consume context and compute. (2) MLP PROJECTION (LLaVA-1.5). The same with a two-layer MLP, which is a consistent small improvement over linear for essentially no cost. This is the current default. (3) Q-FORMER (BLIP-2). A small transformer with a fixed number of LEARNED QUERY tokens (32) that cross-attend to the vision features and extract a fixed-length summary, fed to the LLM as soft prompts. Advantages: a constant, small token count regardless of image resolution, which is a real efficiency win, and it can be pretrained separately on image-text tasks. Disadvantages: it is an information BOTTLENECK - 32 vectors for an entire image - which hurts on tasks needing fine spatial detail like OCR and dense description, and it adds a component with its own training complexity. (4) CROSS-ATTENTION (Flamingo). Insert gated cross-attention layers into a FROZEN LLM, so text tokens attend to visual features at multiple depths. Advantages: the LLM's weights are untouched so its text capability is fully preserved, visual tokens do not consume context, and it handles interleaved image-text sequences naturally. Disadvantages: it modifies the LLM's architecture (new layers to train), and the gating is needed to keep early training from destroying the LLM's behaviour. WHAT THE EVIDENCE SAYS, and this is the part that matters. LLaVA's result was that a LINEAR projection with good instruction data beat much more elaborate systems. That is a strong claim and it held up: the community converged on simple MLP connectors. The interpretation is that with a strong pretrained vision encoder (CLIP, already aligned to language by its own pretraining) and a strong LLM, the connector is not the bottleneck - the model has the visual information and the language ability, and what it needs is training data teaching it to USE them together. The connector just has to not destroy anything. WHERE THE CHOICE STILL MATTERS. Efficiency at high resolution: Q-Former's fixed budget is genuinely attractive when images are large or numerous, and the modern compromise is tiling plus a resampler. Interleaved multi-image or video input: cross-attention or a resampler handles many images far better than concatenating thousands of tokens. Preserving text-only capability: Flamingo's frozen-LLM design is the strongest option, and full fine-tuning in the LLaVA recipe does degrade pure-text performance measurably. WHAT I WOULD BUILD TODAY: an MLP connector over a high-resolution vision encoder with dynamic tiling, LoRA on the LLM, and most of my effort on the instruction data - because that is where every ablation says the returns are.",
-        "deepDive": { "q": "Explain object hallucination in VLMs: causes, measurement, and mitigations.", "a": "THE PHENOMENON. A VLM produces a fluent, detailed caption that mentions objects the image does not contain. It is not random noise - the hallucinated objects are systematically ones that CO-OCCUR with what is actually present. A model seeing a plate mentions a dining table; seeing a bicycle it mentions a person; seeing a kitchen counter it mentions a sink. THE CAUSES, and they are separable. (1) THE LANGUAGE PRIOR DOMINATES. The LLM was trained on enormous amounts of text and has strong expectations about what scenes contain. The visual signal enters through a comparatively thin connector and competes against that prior. When the visual evidence is weak or ambiguous, the prior wins - and its prediction is a co-occurring object. This is the dominant cause. (2) THE TRAINING DATA REWARDS IT. Caption datasets describe salient objects, and instruction data generated by prompting a text model with annotations inherits that model's tendency to elaborate. If training captions routinely mention typical scene elements, the model learns to produce them. (3) SNOWBALLING within a generation: once a hallucinated object is in the context, subsequent tokens condition on it, so a single early error propagates into a coherent but wrong description. Longer captions hallucinate more, and this is measurable. (4) RESOLUTION AND ATTENTION: fine detail may genuinely not be in the visual tokens, so the model fills the gap. (5) THE YES-BIAS from instruction tuning: models trained to be helpful and agreeable answer affirmatively more often than chance, which is a separate failure that compounds with the first. MEASUREMENT, which is where the field made real progress. CHAIR counts mentioned objects absent from the annotation, at instance and sentence level - simple, and limited to the annotated object vocabulary. POPE is better designed: it reframes the problem as balanced yes/no questions ('is there a {object} in the image?'), which removes all metric ambiguity and, crucially, chooses the ABSENT objects three ways - randomly, by dataset popularity, and ADVERSARIALLY by co-occurrence with present objects. Accuracy falls monotonically across those splits, which is direct evidence that the language prior is the mechanism rather than general unreliability. The yes-rate rising above 50% simultaneously separates the sycophancy component from the perception component, which is a nice piece of experimental design. Later benchmarks (AMBER, HallusionBench) extend this to attributes, relations, and counting. THE MITIGATIONS, in rough order of effectiveness. (a) BETTER AND MORE NEGATIVE DATA: instruction data that includes explicit negatives ('there is no X in this image') and corrections directly reduces the yes-bias, and this is the most reliable fix. (b) HIGHER RESOLUTION and more visual tokens, which addresses the cases where the detail genuinely was not available. (c) DECODING INTERVENTIONS: contrastive decoding approaches (VCD) generate with the original image and with a distorted one and take the difference, amplifying what is genuinely image-driven and suppressing what comes from the prior. This is classifier-free guidance's logic applied to hallucination and it works reasonably well with no retraining. (d) POST-HOC VERIFICATION: run an object detector or a separate VLM over the generated claims and check each mention against the image, which is the most reliable and the most expensive. (e) RLHF or DPO on preference data that penalizes hallucination. (f) Shorter, less elaborate generations, since hallucination rate rises with length - a real trade against descriptiveness. WHAT I WOULD SAY IN A DESIGN REVIEW: for accessibility applications this is the central risk, because the user cannot verify the description and a confident wrong detail is worse than an omission. I would evaluate with POPE-style probes on my own image distribution, report the yes-rate alongside accuracy, prefer shorter grounded descriptions over fluent elaborate ones, and add post-hoc verification for any high-stakes deployment." }
+        "deepDive": {
+          "q": "Explain object hallucination in VLMs: causes, measurement, and mitigations.",
+          "a": "THE PHENOMENON. A VLM produces a fluent, detailed caption that mentions objects the image does not contain. It is not random noise - the hallucinated objects are systematically ones that CO-OCCUR with what is actually present. A model seeing a plate mentions a dining table; seeing a bicycle it mentions a person; seeing a kitchen counter it mentions a sink. THE CAUSES, and they are separable. (1) THE LANGUAGE PRIOR DOMINATES. The LLM was trained on enormous amounts of text and has strong expectations about what scenes contain. The visual signal enters through a comparatively thin connector and competes against that prior. When the visual evidence is weak or ambiguous, the prior wins - and its prediction is a co-occurring object. This is the dominant cause. (2) THE TRAINING DATA REWARDS IT. Caption datasets describe salient objects, and instruction data generated by prompting a text model with annotations inherits that model's tendency to elaborate. If training captions routinely mention typical scene elements, the model learns to produce them. (3) SNOWBALLING within a generation: once a hallucinated object is in the context, subsequent tokens condition on it, so a single early error propagates into a coherent but wrong description. Longer captions hallucinate more, and this is measurable. (4) RESOLUTION AND ATTENTION: fine detail may genuinely not be in the visual tokens, so the model fills the gap. (5) THE YES-BIAS from instruction tuning: models trained to be helpful and agreeable answer affirmatively more often than chance, which is a separate failure that compounds with the first. MEASUREMENT, which is where the field made real progress. CHAIR counts mentioned objects absent from the annotation, at instance and sentence level - simple, and limited to the annotated object vocabulary. POPE is better designed: it reframes the problem as balanced yes/no questions ('is there a {object} in the image?'), which removes all metric ambiguity and, crucially, chooses the ABSENT objects three ways - randomly, by dataset popularity, and ADVERSARIALLY by co-occurrence with present objects. Accuracy falls monotonically across those splits, which is direct evidence that the language prior is the mechanism rather than general unreliability. The yes-rate rising above 50% simultaneously separates the sycophancy component from the perception component, which is a nice piece of experimental design. Later benchmarks (AMBER, HallusionBench) extend this to attributes, relations, and counting. THE MITIGATIONS, in rough order of effectiveness. (a) BETTER AND MORE NEGATIVE DATA: instruction data that includes explicit negatives ('there is no X in this image') and corrections directly reduces the yes-bias, and this is the most reliable fix. (b) HIGHER RESOLUTION and more visual tokens, which addresses the cases where the detail genuinely was not available. (c) DECODING INTERVENTIONS: contrastive decoding approaches (VCD) generate with the original image and with a distorted one and take the difference, amplifying what is genuinely image-driven and suppressing what comes from the prior. This is classifier-free guidance's logic applied to hallucination and it works reasonably well with no retraining. (d) POST-HOC VERIFICATION: run an object detector or a separate VLM over the generated claims and check each mention against the image, which is the most reliable and the most expensive. (e) RLHF or DPO on preference data that penalizes hallucination. (f) Shorter, less elaborate generations, since hallucination rate rises with length - a real trade against descriptiveness. WHAT I WOULD SAY IN A DESIGN REVIEW: for accessibility applications this is the central risk, because the user cannot verify the description and a confident wrong detail is worse than an omission. I would evaluate with POPE-style probes on my own image distribution, report the yes-rate alongside accuracy, prefer shorter grounded descriptions over fluent elaborate ones, and add post-hoc verification for any high-stakes deployment."
+        }
       },
       {
         "q": "How would you evaluate an image captioning system?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "The connector problem", "back": "How to get vision features into an LLM. Options: linear/MLP projection (LLaVA, patches become pseudo-tokens), Q-Former (BLIP-2, fixed 32 learned queries), or gated cross-attention into a frozen LLM (Flamingo)." },
-    { "type": "intuition", "front": "LLaVA's finding", "back": "A single LINEAR projection is competitive with elaborate connectors. What dominated was the INSTRUCTION DATA - generated by prompting a text-only GPT-4 with COCO annotations. With a strong encoder and a strong LLM, the connector is not the bottleneck." },
-    { "type": "definition", "front": "The two-stage recipe", "back": "Stage 1 ALIGNMENT: freeze vision + LLM, train only the projection on caption pairs. Stage 2 INSTRUCTION TUNING: unfreeze (or LoRA) the LLM on visual instruction data - this is where capability comes from; freezing here costs a lot." },
-    { "type": "pitfall", "front": "Object hallucination is systematic", "back": "VLMs describe objects that CO-OCCUR with what is present (plate -> dining table), because the LLM's scene prior beats thin visual evidence. Longer captions hallucinate more - errors snowball once in context." },
-    { "type": "definition", "front": "POPE", "back": "Balanced yes/no probes: 'is there a {object}?', with absent objects chosen RANDOM / POPULAR / ADVERSARIAL (co-occurring). Accuracy falls monotonically across those splits - direct evidence the language prior is the mechanism." },
-    { "type": "pitfall", "front": "The yes-bias", "back": "Instruction-tuned VLMs answer 'yes' well above 50% on balanced probes - agreeableness from instruction tuning, NOT a perception failure. Report the yes-rate alongside accuracy to separate the two." },
-    { "type": "intuition", "front": "Visual tokens are a sequence-length problem", "back": "336px ViT/14 = 576 tokens; 1008px = 5184 tokens and ~81x the attention cost. Small text and dense charts fail because the information is not in the tokens - no prompting fixes it. Tiling (AnyRes) or OCR does." },
-    { "type": "pitfall", "front": "Caption overlap metrics miss the failure", "back": "BLEU/ROUGE/CIDEr score n-gram overlap with references, so a caption that hallucinates one object but matches the reference's phrasing scores well. Optimizing CIDEr with RL produces generic hedge-everything captions." },
-    { "type": "definition", "front": "CHAIR", "back": "Hallucination metric: CHAIR_i = fraction of MENTIONS that are absent objects; CHAIR_s = fraction of CAPTIONS containing any hallucination. Report both - a low per-mention rate can coexist with most captions being wrong." },
-    { "type": "intuition", "front": "Diagnose a document failure in two minutes", "back": "Render the input at the resolution the model ACTUALLY receives and look at it. If a human cannot read it either, it is resolution (fix: tiling or a dedicated OCR pass). If a human can, it is training data or the encoder." },
-    { "type": "pitfall", "front": "Visual instruction tuning degrades text ability", "back": "Full fine-tuning on visual data measurably harms pure-text benchmarks. Mitigate with LoRA + a text-data mix, and evaluate a text suite every checkpoint. Flamingo's frozen-LLM design is the only option giving a hard guarantee." },
-    { "type": "intuition", "front": "Contrastive decoding for hallucination (VCD)", "back": "Generate with the real image and with a distorted one, then take the difference in logits - amplifying what is genuinely image-driven and suppressing the language prior. Classifier-free guidance's logic, no retraining needed." }
+    {
+      "type": "definition",
+      "front": "The connector problem",
+      "back": "How to get vision features into an LLM. Options: linear/MLP projection (LLaVA, patches become pseudo-tokens), Q-Former (BLIP-2, fixed 32 learned queries), or gated cross-attention into a frozen LLM (Flamingo)."
+    },
+    {
+      "type": "intuition",
+      "front": "LLaVA's finding",
+      "back": "A single LINEAR projection is competitive with elaborate connectors. What dominated was the INSTRUCTION DATA - generated by prompting a text-only GPT-4 with COCO annotations. With a strong encoder and a strong LLM, the connector is not the bottleneck."
+    },
+    {
+      "type": "definition",
+      "front": "The two-stage recipe",
+      "back": "Stage 1 ALIGNMENT: freeze vision + LLM, train only the projection on caption pairs. Stage 2 INSTRUCTION TUNING: unfreeze (or LoRA) the LLM on visual instruction data - this is where capability comes from; freezing here costs a lot."
+    },
+    {
+      "type": "pitfall",
+      "front": "Object hallucination is systematic",
+      "back": "VLMs describe objects that CO-OCCUR with what is present (plate -> dining table), because the LLM's scene prior beats thin visual evidence. Longer captions hallucinate more - errors snowball once in context."
+    },
+    {
+      "type": "definition",
+      "front": "POPE",
+      "back": "Balanced yes/no probes: 'is there a {object}?', with absent objects chosen RANDOM / POPULAR / ADVERSARIAL (co-occurring). Accuracy falls monotonically across those splits - direct evidence the language prior is the mechanism."
+    },
+    {
+      "type": "pitfall",
+      "front": "The yes-bias",
+      "back": "Instruction-tuned VLMs answer 'yes' well above 50% on balanced probes - agreeableness from instruction tuning, NOT a perception failure. Report the yes-rate alongside accuracy to separate the two."
+    },
+    {
+      "type": "intuition",
+      "front": "Visual tokens are a sequence-length problem",
+      "back": "336px ViT/14 = 576 tokens; 1008px = 5184 tokens and ~81x the attention cost. Small text and dense charts fail because the information is not in the tokens - no prompting fixes it. Tiling (AnyRes) or OCR does."
+    },
+    {
+      "type": "pitfall",
+      "front": "Caption overlap metrics miss the failure",
+      "back": "BLEU/ROUGE/CIDEr score n-gram overlap with references, so a caption that hallucinates one object but matches the reference's phrasing scores well. Optimizing CIDEr with RL produces generic hedge-everything captions."
+    },
+    {
+      "type": "definition",
+      "front": "CHAIR",
+      "back": "Hallucination metric: CHAIR_i = fraction of MENTIONS that are absent objects; CHAIR_s = fraction of CAPTIONS containing any hallucination. Report both - a low per-mention rate can coexist with most captions being wrong."
+    },
+    {
+      "type": "intuition",
+      "front": "Diagnose a document failure in two minutes",
+      "back": "Render the input at the resolution the model ACTUALLY receives and look at it. If a human cannot read it either, it is resolution (fix: tiling or a dedicated OCR pass). If a human can, it is training data or the encoder."
+    },
+    {
+      "type": "pitfall",
+      "front": "Visual instruction tuning degrades text ability",
+      "back": "Full fine-tuning on visual data measurably harms pure-text benchmarks. Mitigate with LoRA + a text-data mix, and evaluate a text suite every checkpoint. Flamingo's frozen-LLM design is the only option giving a hard guarantee."
+    },
+    {
+      "type": "intuition",
+      "front": "Contrastive decoding for hallucination (VCD)",
+      "back": "Generate with the real image and with a distorted one, then take the difference in logits - amplifying what is genuinely image-driven and suppressing the language prior. Classifier-free guidance's logic, no retraining needed."
+    }
   ],
   "refs": [
-    { "title": "Liu et al. (2023), Visual Instruction Tuning (LLaVA)", "url": "https://arxiv.org/abs/2304.08485" },
-    { "title": "Li et al. (2023), BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and LLMs", "url": "https://arxiv.org/abs/2301.12597" },
-    { "title": "Alayrac et al. (2022), Flamingo: a Visual Language Model for Few-Shot Learning", "url": "https://arxiv.org/abs/2204.14198" },
-    { "title": "Li et al. (2023), Evaluating Object Hallucination in Large Vision-Language Models (POPE)", "url": "https://arxiv.org/abs/2305.10355" },
-    { "title": "Rohrbach et al. (2018), Object Hallucination in Image Captioning (CHAIR)", "url": "https://arxiv.org/abs/1809.02156" }
+    {
+      "title": "Liu et al. (2023), Visual Instruction Tuning (LLaVA)",
+      "url": "https://arxiv.org/abs/2304.08485"
+    },
+    {
+      "title": "Li et al. (2023), BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and LLMs",
+      "url": "https://arxiv.org/abs/2301.12597"
+    },
+    {
+      "title": "Alayrac et al. (2022), Flamingo: a Visual Language Model for Few-Shot Learning",
+      "url": "https://arxiv.org/abs/2204.14198"
+    },
+    {
+      "title": "Li et al. (2023), Evaluating Object Hallucination in Large Vision-Language Models (POPE)",
+      "url": "https://arxiv.org/abs/2305.10355"
+    },
+    {
+      "title": "Rohrbach et al. (2018), Object Hallucination in Image Captioning (CHAIR)",
+      "url": "https://arxiv.org/abs/1809.02156"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-07",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-07_vision_language_models_captioning.ipynb"
+  }
 }

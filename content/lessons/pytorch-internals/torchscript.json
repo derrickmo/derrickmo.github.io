@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-05",
   "slug": "torchscript",
+  "keyBase": "pytorch-internals/torchscript",
   "module": "pytorch-internals",
   "title": "TorchScript & JIT Compilation",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "15-05_torchscript_jit_compilation.ipynb",
     "flagship": null,
-    "demos": ["quantization", "pruning", "batching", "mixed-precision"],
+    "demos": [
+      "quantization",
+      "pruning",
+      "batching",
+      "mixed-precision"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/nn-module-patterns"],
-  "leadsTo": ["pytorch-internals/torch-fx", "mlops/torchscript-onnx"],
+  "prereqs": [
+    "pytorch-internals/nn-module-patterns"
+  ],
+  "leadsTo": [
+    "pytorch-internals/torch-fx",
+    "mlops/torchscript-onnx"
+  ],
   "body": {
     "intuition": [
       "Eager PyTorch is a Python program. That is its great virtue - you can print, branch, debug, and use any library - and it is exactly what you cannot ship to a production server that must not run a Python interpreter, or to a mobile device, or into a C++ service. TorchScript is the answer to that: a statically-typed subset of Python with its own intermediate representation, serializable to a single file, and executable by LibTorch with no Python at all. Getting a model into it means confronting a fact eager mode works hard to hide - that your model is a PROGRAM, not a graph, and the two are not the same thing.",
@@ -277,5 +288,11 @@
       "url": "https://onnx.ai/"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-09",
+    "module": "pytorch-internals",
+    "disposition": "merge",
+    "notebookFile": "20-09_torchscript_torch_fx_graph_transformations.ipynb"
+  }
 }

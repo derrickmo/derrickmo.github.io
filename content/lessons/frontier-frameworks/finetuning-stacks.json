@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-08",
   "slug": "finetuning-stacks",
+  "keyBase": "frontier-frameworks/finetuning-stacks",
   "module": "frontier-frameworks",
   "title": "Modern Fine-Tuning Stacks",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-08_lora_qlora.ipynb",
     "flagship": null,
-    "demos": ["quantization", "pruning", "distillation", "optimizers"],
+    "demos": [
+      "quantization",
+      "pruning",
+      "distillation",
+      "optimizers"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/lora", "fine-tuning/qlora"],
-  "leadsTo": ["frontier-frameworks/eval-harnesses", "fine-tuning/unsloth"],
+  "prereqs": [
+    "fine-tuning/lora",
+    "fine-tuning/qlora"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/eval-harnesses",
+    "fine-tuning/unsloth"
+  ],
   "body": {
     "intuition": [
       "LoRA's claim is that the update a fine-tuning task needs has low intrinsic rank, so you can represent it with two thin matrices instead of a full one. That is an empirical claim about tasks, and the usual evidence for it is a table of benchmark scores - which cannot separate 'the update really is low rank' from 'the benchmark could not tell the difference'. The way to settle it is to construct a task whose update is EXACTLY rank two by design, and then sweep the adapter rank against a known answer.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/2402.09353"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "17-06",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-06_model_merging_task_arithmetic_model.ipynb"
+  }
 }

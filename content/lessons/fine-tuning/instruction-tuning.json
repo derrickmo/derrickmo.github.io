@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-06",
   "slug": "instruction-tuning",
+  "keyBase": "fine-tuning/instruction-tuning",
   "module": "fine-tuning",
   "title": "Instruction Tuning & SFT",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-06_instruction_tuning_sft.ipynb",
     "flagship": null,
-    "demos": ["distillation", "dataset-distillation", "decoding", "calibration"],
+    "demos": [
+      "distillation",
+      "dataset-distillation",
+      "decoding",
+      "calibration"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/full-fine-tuning", "transformers/full-transformer"],
-  "leadsTo": ["fine-tuning/reward-modeling", "fine-tuning/rlhf-ppo"],
+  "prereqs": [
+    "fine-tuning/full-fine-tuning",
+    "transformers/full-transformer"
+  ],
+  "leadsTo": [
+    "fine-tuning/reward-modeling",
+    "fine-tuning/rlhf-ppo"
+  ],
   "body": {
     "intuition": [
       "A pretrained language model predicts the next token. Ask it a question and a plausible continuation is another question, because that is what documents containing questions look like. Instruction tuning fixes this with the least exotic technique available: supervised next-token prediction on (instruction, response) pairs, with the loss computed only over the response. That is all supervised fine-tuning is. The interesting part was never the objective - it is what the data does.",
@@ -276,5 +288,11 @@
       "url": "https://arxiv.org/abs/2110.08207"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-07",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-07_instruction_tuning_sft_trl.ipynb"
+  }
 }

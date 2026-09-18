@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-03",
   "slug": "cnn-architectures",
+  "keyBase": "cnn/cnn-architectures",
   "module": "cnn",
   "title": "CNN Architectures — LeNet to ResNet",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Liu et al. (2022) — A ConvNet for the 2020s (ConvNeXt)",
       "url": "https://arxiv.org/abs/2201.03545"
     }
-  ]
+  ],
+  "v2": {
+    "id": "09-04",
+    "module": "cnn",
+    "disposition": "merge",
+    "notebookFile": "09-04_classic_architectures_lenet_alexnet_vgg.ipynb"
+  }
 }

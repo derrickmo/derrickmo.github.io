@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-01",
   "slug": "ml-strategy",
+  "keyBase": "mlops/ml-strategy",
   "module": "mlops",
   "title": "ML Strategy & Error Analysis",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-01",
+    "module": "mlops",
+    "disposition": "clean",
+    "notebookFile": "23-01_ml_strategy_error_analysis.ipynb"
+  }
 }

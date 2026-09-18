@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-06",
   "slug": "monitoring",
+  "keyBase": "mlops/monitoring",
   "module": "mlops",
   "title": "Data Drift & Model Monitoring",
   "status": "LIVE",
@@ -301,5 +302,14 @@
       "url": "https://arxiv.org/abs/2201.04234"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-05",
+    "module": "mlops",
+    "disposition": "merge",
+    "notebookFile": "23-05_drift_detection_shift_adaptation.ipynb",
+    "alsoFeeds": [
+      "23-06"
+    ]
+  }
 }

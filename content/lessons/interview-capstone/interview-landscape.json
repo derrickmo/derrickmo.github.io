@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-01",
   "slug": "interview-landscape",
+  "keyBase": "interview-capstone/interview-landscape",
   "module": "interview-capstone",
   "title": "The ML Interview Landscape & Strategy",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-01",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-01_interview_landscape_preparation_strategy.ipynb"
+  }
 }

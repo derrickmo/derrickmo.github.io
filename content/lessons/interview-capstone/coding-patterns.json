@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-06",
   "slug": "coding-patterns",
+  "keyBase": "interview-capstone/coding-patterns",
   "module": "interview-capstone",
   "title": "Coding Patterns for ML Interviews",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://jakevdp.github.io/PythonDataScienceHandbook/02.03-computation-on-arrays-ufuncs.html"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-07",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-07_ml_coding_patterns_scratch.ipynb"
+  }
 }

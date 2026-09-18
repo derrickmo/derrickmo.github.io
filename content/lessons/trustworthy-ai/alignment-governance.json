@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-10",
   "slug": "alignment-governance",
+  "keyBase": "trustworthy-ai/alignment-governance",
   "module": "trustworthy-ai",
   "title": "Alignment & Governance Overview",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://www.nist.gov/itl/ai-risk-management-framework"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "24-12",
+    "module": "trustworthy-ai",
+    "disposition": "merge",
+    "notebookFile": "24-12_red_teaming_watermarking_governance.ipynb"
+  }
 }

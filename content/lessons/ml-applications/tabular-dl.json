@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-10",
   "slug": "tabular-dl",
+  "keyBase": "ml-applications/tabular-dl",
   "module": "ml-applications",
   "title": "Tabular Deep Learning",
   "status": "LIVE",
@@ -303,5 +304,14 @@
       "url": "https://arxiv.org/abs/1604.06737"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-07",
+    "module": "applications",
+    "disposition": "split",
+    "notebookFile": "25-07_tabular_deep_learning_versus_gradient.ipynb",
+    "alsoFeeds": [
+      "25-12"
+    ]
+  }
 }

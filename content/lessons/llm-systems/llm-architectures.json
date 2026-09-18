@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "17-01",
   "slug": "llm-architectures",
+  "keyBase": "llm-systems/llm-architectures",
   "module": "llm-systems",
   "title": "LLM Architecture Patterns",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "17-01_llm_architecture_patterns.ipynb",
     "flagship": null,
-    "demos": ["kv-cache", "rope", "multi-head-attention", "moe"],
+    "demos": [
+      "kv-cache",
+      "rope",
+      "multi-head-attention",
+      "moe"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/full-transformer", "transformers/gqa-mqa"],
-  "leadsTo": ["llm-systems/moe", "llm-systems/long-context"],
+  "prereqs": [
+    "transformers/full-transformer",
+    "transformers/gqa-mqa"
+  ],
+  "leadsTo": [
+    "llm-systems/moe",
+    "llm-systems/long-context"
+  ],
   "body": {
     "intuition": [
       "The transformer block's mechanisms - attention, normalization, position - belong to the architecture lessons. What belongs here is the SYSTEMS reading of the same block: which choices are driven by parameter count, which by training stability, and which by what has to be read from memory during generation. Those are three different pressures and they point in different directions, which is why a modern LLM's design looks arbitrary until you know which pressure each decision is answering.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/2307.09288"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "22-01",
+    "module": "inference-serving",
+    "disposition": "clean",
+    "notebookFile": "22-01_llm_architecture_patterns_production.ipynb"
+  }
 }

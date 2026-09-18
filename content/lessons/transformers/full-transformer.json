@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-05",
   "slug": "full-transformer",
+  "keyBase": "transformers/full-transformer",
   "module": "transformers",
   "title": "Full Transformer — Encoder-Decoder",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Elhage et al. (2021) — A Mathematical Framework for Transformer Circuits",
       "url": "https://transformer-circuits.pub/2021/framework/index.html"
     }
-  ]
+  ],
+  "v2": {
+    "id": "11-06",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-06_encoder_decoder_transformers.ipynb"
+  }
 }

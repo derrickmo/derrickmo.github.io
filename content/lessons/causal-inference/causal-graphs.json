@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-02",
   "slug": "causal-graphs",
+  "keyBase": "causal-inference/causal-graphs",
   "module": "causal-inference",
   "title": "Causal Graphs & do-Calculus",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://journals.sagepub.com/doi/10.1177/00491241221099552"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-02",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-02_causal_graphs_do_calculus.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "02-04",
   "slug": "boosting",
+  "keyBase": "supervised-learning/boosting",
   "module": "supervised-learning",
   "title": "Gradient Boosting & AdaBoost",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Grinsztajn et al. (2022) — Why Do Tree-Based Models Still Outperform Deep Learning on Tabular Data?",
       "url": "https://arxiv.org/abs/2207.08815"
     }
-  ]
+  ],
+  "v2": {
+    "id": "03-10",
+    "module": "supervised-learning",
+    "disposition": "clean",
+    "notebookFile": "03-10_boosting_adaboost_gradient_boosting_xgboost.ipynb"
+  }
 }

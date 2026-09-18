@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-10",
   "slug": "kv-cache",
+  "keyBase": "transformers/kv-cache",
   "module": "transformers",
   "title": "KV Cache & Autoregressive Inference",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "08-10_kv_cache_autoregressive_inference.ipynb",
     "flagship": null,
-    "demos": ["kv-cache", "kv-cache-eviction", "speculative-decoding", "paged-attention"],
+    "demos": [
+      "kv-cache",
+      "kv-cache-eviction",
+      "speculative-decoding",
+      "paged-attention"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/multi-head-attention", "transformers/transformer-block"],
-  "leadsTo": ["transformers/gqa-mqa", "llm-systems/speculative-decoding"],
+  "prereqs": [
+    "transformers/multi-head-attention",
+    "transformers/transformer-block"
+  ],
+  "leadsTo": [
+    "transformers/gqa-mqa",
+    "llm-systems/speculative-decoding"
+  ],
   "body": {
     "intuition": [
       "Training and generation look like the same computation and are not. In TRAINING, the whole sequence is available, so every position is processed in parallel in one forward pass - which is the property that made transformers scalable in the first place. In GENERATION you have only what you have produced so far, so tokens come out one at a time, each requiring its own forward pass. Done naively, generating token t re-runs the model over the entire prefix, recomputing keys and values for every earlier position - and since those recomputations are identical every step, producing a sequence of length T costs O(T^3) work instead of O(T^2).",
@@ -72,32 +84,83 @@
       "Optimizing throughput and latency as if they were one goal: batching raises tokens-per-second for the system while raising time-per-token for each user. The operating point is a product decision, and reporting a single 'speed' number hides it."
     ],
     "connections": [
-      { "ref": "transformers/gqa-mqa", "text": "Grouped-query attention exists specifically to shrink this cache - the formula's n_kv_heads term is the lever, and an 8x reduction is what makes long-context serving feasible." },
-      { "ref": "transformers/rope", "text": "Cached keys carry the rotation for their original positions, which is why the most common cache bug is re-applying RoPE to the whole cache each step." },
-      { "ref": "llm-systems/speculative-decoding", "text": "Speculative decoding attacks the other side of the same asymmetry: it turns several sequential decode steps into one parallel verification pass, with identical output distribution." },
-      { "ref": "mlops/model-serving", "text": "Continuous batching, paged attention, and prefix sharing are serving-layer solutions to cache management, and usually give larger wins than any model-level change." }
+      {
+        "ref": "transformers/gqa-mqa",
+        "text": "Grouped-query attention exists specifically to shrink this cache - the formula's n_kv_heads term is the lever, and an 8x reduction is what makes long-context serving feasible."
+      },
+      {
+        "ref": "transformers/rope",
+        "text": "Cached keys carry the rotation for their original positions, which is why the most common cache bug is re-applying RoPE to the whole cache each step."
+      },
+      {
+        "ref": "llm-systems/speculative-decoding",
+        "text": "Speculative decoding attacks the other side of the same asymmetry: it turns several sequential decode steps into one parallel verification pass, with identical output distribution."
+      },
+      {
+        "ref": "mlops/model-serving",
+        "text": "Continuous batching, paged attention, and prefix sharing are serving-layer solutions to cache management, and usually give larger wins than any model-level change."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is the KV cache?", "a": "Stored keys and values for all previously-processed tokens, so each new token computes only its own K and V and attends against the cache instead of recomputing the prefix." },
-      { "q": "Why is it valid to cache them?", "a": "A token's key and value depend only on that token's hidden state, which does not change as later tokens are generated (guaranteed by causal masking)." },
-      { "q": "What does it save?", "a": "Per-token cost drops from O(T^2) to O(T); total generation cost from O(T^3) to O(T^2)." },
-      { "q": "Why are queries not cached?", "a": "A query is used once, at the step that creates it - only keys and values are consulted by FUTURE tokens." },
-      { "q": "What is the cache size formula?", "a": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes_per_element. The 2 is K and V; note it uses KV heads, not query heads." },
-      { "q": "What is prefill vs decode?", "a": "Prefill processes the whole prompt in one parallel pass (compute-bound). Decode generates one token per forward pass (sequential, memory-bandwidth-bound)." },
-      { "q": "Why is decode so inefficient at batch 1?", "a": "It reads every weight to do a tiny amount of arithmetic - roughly 1 FLOP per byte, far below the roofline knee, so the GPU runs at a few percent of peak FLOPs." },
-      { "q": "What fixes decode's inefficiency?", "a": "Batching (amortize weight reads over many sequences), quantization (fewer bytes to read), MoE (read only routed experts), and speculative decoding." },
-      { "q": "What is paged attention?", "a": "vLLM's technique of allocating the cache in fixed-size blocks on demand rather than pre-allocating max length per sequence, eliminating internal fragmentation - typically several-fold more effective batch." },
-      { "q": "What is prefix caching?", "a": "Computing the KV cache for a shared prompt prefix once and reusing it across requests - a large win for chat systems with a long common system prompt." },
-      { "q": "What is time-to-first-token driven by?", "a": "Prefill: prompt length and compute. Tokens-per-second afterwards is driven by decode: weight and cache bandwidth. Different causes, different fixes." },
-      { "q": "What is the single best test for a cache implementation?", "a": "Cached incremental generation must produce the same logits as one full-sequence forward pass over the same tokens." }
+      {
+        "q": "What is the KV cache?",
+        "a": "Stored keys and values for all previously-processed tokens, so each new token computes only its own K and V and attends against the cache instead of recomputing the prefix."
+      },
+      {
+        "q": "Why is it valid to cache them?",
+        "a": "A token's key and value depend only on that token's hidden state, which does not change as later tokens are generated (guaranteed by causal masking)."
+      },
+      {
+        "q": "What does it save?",
+        "a": "Per-token cost drops from O(T^2) to O(T); total generation cost from O(T^3) to O(T^2)."
+      },
+      {
+        "q": "Why are queries not cached?",
+        "a": "A query is used once, at the step that creates it - only keys and values are consulted by FUTURE tokens."
+      },
+      {
+        "q": "What is the cache size formula?",
+        "a": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes_per_element. The 2 is K and V; note it uses KV heads, not query heads."
+      },
+      {
+        "q": "What is prefill vs decode?",
+        "a": "Prefill processes the whole prompt in one parallel pass (compute-bound). Decode generates one token per forward pass (sequential, memory-bandwidth-bound)."
+      },
+      {
+        "q": "Why is decode so inefficient at batch 1?",
+        "a": "It reads every weight to do a tiny amount of arithmetic - roughly 1 FLOP per byte, far below the roofline knee, so the GPU runs at a few percent of peak FLOPs."
+      },
+      {
+        "q": "What fixes decode's inefficiency?",
+        "a": "Batching (amortize weight reads over many sequences), quantization (fewer bytes to read), MoE (read only routed experts), and speculative decoding."
+      },
+      {
+        "q": "What is paged attention?",
+        "a": "vLLM's technique of allocating the cache in fixed-size blocks on demand rather than pre-allocating max length per sequence, eliminating internal fragmentation - typically several-fold more effective batch."
+      },
+      {
+        "q": "What is prefix caching?",
+        "a": "Computing the KV cache for a shared prompt prefix once and reusing it across requests - a large win for chat systems with a long common system prompt."
+      },
+      {
+        "q": "What is time-to-first-token driven by?",
+        "a": "Prefill: prompt length and compute. Tokens-per-second afterwards is driven by decode: weight and cache bandwidth. Different causes, different fixes."
+      },
+      {
+        "q": "What is the single best test for a cache implementation?",
+        "a": "Cached incremental generation must produce the same logits as one full-sequence forward pass over the same tokens."
+      }
     ],
     "standard": [
       {
         "q": "Explain the KV cache: why it is necessary, what it costs, and how prefill differs from decode.",
         "a": "WHY IT IS NECESSARY. A transformer processes a whole sequence in parallel during training, which is what makes it efficient to train. Generation cannot work that way: token t+1 depends on token t, so you produce one token per forward pass. Naively, each pass runs the model over the entire sequence so far, recomputing the keys and values of every previous token. But those keys and values are IDENTICAL every time - a token's K and V depend only on its own hidden state, and because of causal masking that hidden state never changes when later tokens arrive. So the naive loop redoes the same work T times: total cost O(T^3) instead of O(T^2). The KV cache stores K and V per layer per position; each step computes them only for the NEW token, appends, and attends against the whole cache. Per-token cost falls from O(T^2) to O(T). Note queries are NOT cached, because a query is consumed at the step that creates it - only keys and values are read by future tokens. WHAT IT COSTS. Size = 2 * n_layers * n_kv_heads * d_k * T * batch * bytes. For LLaMA-2 70B (80 layers, d_k 128, 8 GQA groups) at 4K context in fp16: ~2.7 GB per sequence; with full multi-head attention it would be ~21.5 GB. At batch 32 and 32K context, even the GQA version is hundreds of gigabytes. Two consequences: (1) the cache, not the weights, usually limits BATCH SIZE, and batch size determines serving throughput; (2) since decoding must READ the whole cache to produce each token, and decode is bandwidth-bound, cache size directly limits tokens-per-second. PREFILL VERSUS DECODE - the most important distinction in LLM serving. PREFILL processes the entire prompt in ONE forward pass with all tokens in parallel. It is COMPUTE-BOUND: a 2000-token prompt through a 7B model is ~28 TFLOPs, which a modern GPU does at high utilization. It determines TIME-TO-FIRST-TOKEN. It benefits from FlashAttention, from more FLOPs, and from chunking to overlap with other work. DECODE generates one token per pass. It is MEMORY-BANDWIDTH-BOUND: to produce a single token you must read all 14 GB of a 7B model's fp16 weights plus the relevant cache, to perform roughly 14 GFLOPs - about 1 FLOP per byte, two orders of magnitude below the roofline knee. The GPU runs at a few percent of peak. It determines TOKENS-PER-SECOND. It benefits from quantization (fewer bytes), batching (amortize the weight read across sequences), MoE (read only routed experts), and speculative decoding (verify several tokens in one pass). THE KEY IMPLICATION: because decode's arithmetic intensity is roughly proportional to BATCH SIZE, batching is the primary fix - at batch 1 you are hopelessly bandwidth-bound, at batch 64-128 you approach compute-bound. But larger batches raise per-user latency while raising system throughput, so throughput and latency are in direct tension, and where you sit is a product decision. This is why modern serving uses CONTINUOUS BATCHING (schedule at the token level, letting sequences join and leave mid-flight) rather than static batches. THE ENGINEERING AGENDA that follows from all this, which is what a strong answer ends with: shrink the cache (GQA, MLA, quantization), stop wasting it (paged attention eliminates the fragmentation from pre-allocating max length), share it (prefix caching for common system prompts), bound it (sliding windows, eviction), and work around the sequential nature of decode (speculative decoding). Nearly every LLM inference optimization of the last three years is one of those five things.",
-        "deepDive": { "q": "Walk through the memory and bandwidth arithmetic that determines how many users a node can serve and at what speed.", "a": "Let me do it concretely for a 70B model on an 8xA100-80GB node (640 GB, ~2 TB/s per GPU). STEP 1 - WEIGHTS. 70B parameters at fp16 = 140 GB. This is a fixed cost paid once, and it AMORTIZES over concurrent users, so serving one user and serving fifty both pay it. Quantized to int8 it is 70 GB; int4, 35 GB. STEP 2 - CACHE PER SEQUENCE. With LLaMA-2-70B geometry (80 layers, 8 GQA KV heads, d_k 128) at fp16: per token, 2 * 80 * 8 * 128 * 2 bytes = 327 KB. At 4K context that is ~1.3 GB per sequence; at 32K, ~10.7 GB. (Note the useful intermediate quantity - bytes per token - since it makes the length scaling obvious.) STEP 3 - HOW MANY SEQUENCES FIT. 640 GB total, minus 140 GB weights, minus ~40 GB for activations, framework overhead, and fragmentation, leaves ~460 GB for cache. At 4K context: ~350 sequences. At 32K: ~43 sequences. Quantize weights to int8 and you free another 70 GB: ~400 and ~50 respectively. That number IS your concurrency limit, and it is set by the cache, not the model. STEP 4 - DECODE SPEED. Per generated token, per sequence, the GPU must read: all the weights (140 GB, but amortized across the batch since one weight read serves every sequence in the batch) plus that sequence's cache (1.3 GB at 4K). For a batch of B sequences, bytes read per DECODE STEP = 140 GB + B * 1.3 GB, and that step produces B tokens. At 2 TB/s aggregate: B=1 gives (140+1.3)/2000 = ~71 ms per token = ~14 tokens/s. B=32 gives (140 + 42)/2000 = ~91 ms per step but produces 32 tokens = ~350 tokens/s aggregate, i.e. ~11 tokens/s per user. B=128 gives (140+166)/2000 = ~153 ms for 128 tokens = ~836 tokens/s aggregate, ~6.5 tokens/s per user. THE TENSION, made numeric: going from batch 1 to batch 128 multiplies system throughput ~60x while cutting per-user speed roughly in half. That is the whole throughput-versus-latency trade, and it is why the right batch size depends entirely on the product - a chat UI needs maybe 20+ tokens/s per user to feel responsive (so a moderate batch), while an offline summarization job wants maximum throughput and does not care. STEP 5 - PREFILL AND TTFT. A 2000-token prompt through 70B is roughly 2 * 70e9 * 2000 = 280 TFLOPs. At an achieved ~150 TFLOP/s (realistic fraction of peak across the node) that is ~2 seconds - and note prefill competes with decode for the GPU, so a long prompt arriving mid-stream stalls other users' token generation unless the scheduler CHUNKS the prefill and interleaves it. That is a real production issue and the reason chunked prefill exists. STEP 6 - WHAT MOVES THE NUMBERS MOST, in order: (a) paged attention, because without it you allocate max-length cache per sequence and at a realistic length distribution you waste most of your cache memory - often a 2-4x effective concurrency gain for free; (b) weight quantization, which both frees cache memory and speeds decode by reducing the dominant bandwidth term; (c) KV quantization to int8, halving the per-sequence term; (d) prefix caching if requests share a system prompt; (e) speculative decoding, which improves per-user latency without needing more batch. THE CHECK I WOULD ALWAYS DO: profile the ACTUAL distribution of prompt and generation lengths in production traffic. Provisioning for 32K when P95 is 3K is the most expensive mistake in this area and requires no technology to fix - just measurement." }
+        "deepDive": {
+          "q": "Walk through the memory and bandwidth arithmetic that determines how many users a node can serve and at what speed.",
+          "a": "Let me do it concretely for a 70B model on an 8xA100-80GB node (640 GB, ~2 TB/s per GPU). STEP 1 - WEIGHTS. 70B parameters at fp16 = 140 GB. This is a fixed cost paid once, and it AMORTIZES over concurrent users, so serving one user and serving fifty both pay it. Quantized to int8 it is 70 GB; int4, 35 GB. STEP 2 - CACHE PER SEQUENCE. With LLaMA-2-70B geometry (80 layers, 8 GQA KV heads, d_k 128) at fp16: per token, 2 * 80 * 8 * 128 * 2 bytes = 327 KB. At 4K context that is ~1.3 GB per sequence; at 32K, ~10.7 GB. (Note the useful intermediate quantity - bytes per token - since it makes the length scaling obvious.) STEP 3 - HOW MANY SEQUENCES FIT. 640 GB total, minus 140 GB weights, minus ~40 GB for activations, framework overhead, and fragmentation, leaves ~460 GB for cache. At 4K context: ~350 sequences. At 32K: ~43 sequences. Quantize weights to int8 and you free another 70 GB: ~400 and ~50 respectively. That number IS your concurrency limit, and it is set by the cache, not the model. STEP 4 - DECODE SPEED. Per generated token, per sequence, the GPU must read: all the weights (140 GB, but amortized across the batch since one weight read serves every sequence in the batch) plus that sequence's cache (1.3 GB at 4K). For a batch of B sequences, bytes read per DECODE STEP = 140 GB + B * 1.3 GB, and that step produces B tokens. At 2 TB/s aggregate: B=1 gives (140+1.3)/2000 = ~71 ms per token = ~14 tokens/s. B=32 gives (140 + 42)/2000 = ~91 ms per step but produces 32 tokens = ~350 tokens/s aggregate, i.e. ~11 tokens/s per user. B=128 gives (140+166)/2000 = ~153 ms for 128 tokens = ~836 tokens/s aggregate, ~6.5 tokens/s per user. THE TENSION, made numeric: going from batch 1 to batch 128 multiplies system throughput ~60x while cutting per-user speed roughly in half. That is the whole throughput-versus-latency trade, and it is why the right batch size depends entirely on the product - a chat UI needs maybe 20+ tokens/s per user to feel responsive (so a moderate batch), while an offline summarization job wants maximum throughput and does not care. STEP 5 - PREFILL AND TTFT. A 2000-token prompt through 70B is roughly 2 * 70e9 * 2000 = 280 TFLOPs. At an achieved ~150 TFLOP/s (realistic fraction of peak across the node) that is ~2 seconds - and note prefill competes with decode for the GPU, so a long prompt arriving mid-stream stalls other users' token generation unless the scheduler CHUNKS the prefill and interleaves it. That is a real production issue and the reason chunked prefill exists. STEP 6 - WHAT MOVES THE NUMBERS MOST, in order: (a) paged attention, because without it you allocate max-length cache per sequence and at a realistic length distribution you waste most of your cache memory - often a 2-4x effective concurrency gain for free; (b) weight quantization, which both frees cache memory and speeds decode by reducing the dominant bandwidth term; (c) KV quantization to int8, halving the per-sequence term; (d) prefix caching if requests share a system prompt; (e) speculative decoding, which improves per-user latency without needing more batch. THE CHECK I WOULD ALWAYS DO: profile the ACTUAL distribution of prompt and generation lengths in production traffic. Provisioning for 32K when P95 is 3K is the most expensive mistake in this area and requires no technology to fix - just measurement."
+        }
       },
       {
         "q": "What are the main techniques for managing KV cache memory, and how do they compose?",
@@ -122,22 +185,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "KV cache", "back": "Stored keys and values for all previous tokens, so each step computes K/V only for the new token. Valid because a token's K/V depend only on its own hidden state, which causal masking keeps fixed." },
-    { "type": "formula", "front": "What the cache saves", "back": "Per-token cost O(T^2) -> O(T); total generation O(T^3) -> O(T^2). Queries are NOT cached - a query is used once, at the step that creates it." },
-    { "type": "formula", "front": "Cache size", "back": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. LLaMA-2 70B at 4K, fp16, batch 1: ~2.7 GB with GQA-8, ~21.5 GB with full MHA. It usually limits batch size, not the weights." },
-    { "type": "intuition", "front": "Prefill vs decode", "back": "Prefill: whole prompt in one parallel pass, COMPUTE-bound, sets time-to-first-token. Decode: one token per pass, sequential, BANDWIDTH-bound, sets tokens/second. Different bottlenecks, different fixes." },
-    { "type": "intuition", "front": "Why decode runs at ~1-3% of peak", "back": "It reads all the weights (14 GB for a 7B fp16 model) to do ~14 GFLOPs - about 1 FLOP per byte against a roofline knee near 150. Batching raises intensity roughly proportionally to B." },
-    { "type": "definition", "front": "Paged attention", "back": "Allocate the cache in fixed-size blocks on demand (vLLM) instead of pre-allocating max length per sequence. Removes internal fragmentation and enables copy-on-write prefix sharing - typically 2-4x effective batch, free." },
-    { "type": "definition", "front": "Speculative decoding", "back": "A cheap draft model proposes k tokens; the target verifies all k in ONE pass; accept with prob min(1, p/q), else sample from the normalized residual max(0, p-q). Output distribution is EXACTLY the target's. 2-3x at low batch." },
-    { "type": "pitfall", "front": "The cache-implementation invariant", "back": "Cached incremental generation must produce the same logits as one full-sequence forward pass. This single test catches wrong position ids, re-applied RoPE, prefill/decode off-by-one, and mask misalignment." },
-    { "type": "intuition", "front": "The five ways to manage the cache", "back": "Shrink it (GQA, MLA), compress it (int8 KV), stop wasting it (paged attention), bound it (windows, eviction, sinks), share it (prefix caching). Largely multiplicative; paging and quantization need no retraining." },
-    { "type": "intuition", "front": "State size vs recall fidelity", "back": "RNNs/SSMs have O(1) state but lossy recall; transformers have O(T) state and perfect recall. The cache IS the price of exact retrieval. Hybrids keep a few attention layers for lookup and cheap fixed-state layers elsewhere." }
+    {
+      "type": "definition",
+      "front": "KV cache",
+      "back": "Stored keys and values for all previous tokens, so each step computes K/V only for the new token. Valid because a token's K/V depend only on its own hidden state, which causal masking keeps fixed."
+    },
+    {
+      "type": "formula",
+      "front": "What the cache saves",
+      "back": "Per-token cost O(T^2) -> O(T); total generation O(T^3) -> O(T^2). Queries are NOT cached - a query is used once, at the step that creates it."
+    },
+    {
+      "type": "formula",
+      "front": "Cache size",
+      "back": "2 * n_layers * n_kv_heads * d_k * T * batch * bytes. LLaMA-2 70B at 4K, fp16, batch 1: ~2.7 GB with GQA-8, ~21.5 GB with full MHA. It usually limits batch size, not the weights."
+    },
+    {
+      "type": "intuition",
+      "front": "Prefill vs decode",
+      "back": "Prefill: whole prompt in one parallel pass, COMPUTE-bound, sets time-to-first-token. Decode: one token per pass, sequential, BANDWIDTH-bound, sets tokens/second. Different bottlenecks, different fixes."
+    },
+    {
+      "type": "intuition",
+      "front": "Why decode runs at ~1-3% of peak",
+      "back": "It reads all the weights (14 GB for a 7B fp16 model) to do ~14 GFLOPs - about 1 FLOP per byte against a roofline knee near 150. Batching raises intensity roughly proportionally to B."
+    },
+    {
+      "type": "definition",
+      "front": "Paged attention",
+      "back": "Allocate the cache in fixed-size blocks on demand (vLLM) instead of pre-allocating max length per sequence. Removes internal fragmentation and enables copy-on-write prefix sharing - typically 2-4x effective batch, free."
+    },
+    {
+      "type": "definition",
+      "front": "Speculative decoding",
+      "back": "A cheap draft model proposes k tokens; the target verifies all k in ONE pass; accept with prob min(1, p/q), else sample from the normalized residual max(0, p-q). Output distribution is EXACTLY the target's. 2-3x at low batch."
+    },
+    {
+      "type": "pitfall",
+      "front": "The cache-implementation invariant",
+      "back": "Cached incremental generation must produce the same logits as one full-sequence forward pass. This single test catches wrong position ids, re-applied RoPE, prefill/decode off-by-one, and mask misalignment."
+    },
+    {
+      "type": "intuition",
+      "front": "The five ways to manage the cache",
+      "back": "Shrink it (GQA, MLA), compress it (int8 KV), stop wasting it (paged attention), bound it (windows, eviction, sinks), share it (prefix caching). Largely multiplicative; paging and quantization need no retraining."
+    },
+    {
+      "type": "intuition",
+      "front": "State size vs recall fidelity",
+      "back": "RNNs/SSMs have O(1) state but lossy recall; transformers have O(T) state and perfect recall. The cache IS the price of exact retrieval. Hybrids keep a few attention layers for lookup and cheap fixed-state layers elsewhere."
+    }
   ],
   "refs": [
-    { "title": "Pope et al. (2022), Efficiently Scaling Transformer Inference", "url": "https://arxiv.org/abs/2211.05102" },
-    { "title": "Kwon et al. (2023), Efficient Memory Management for LLM Serving with PagedAttention (vLLM)", "url": "https://arxiv.org/abs/2309.06180" },
-    { "title": "Leviathan, Kalman & Matias (2023), Fast Inference from Transformers via Speculative Decoding", "url": "https://arxiv.org/abs/2211.17192" },
-    { "title": "Xiao et al. (2023), Efficient Streaming Language Models with Attention Sinks", "url": "https://arxiv.org/abs/2309.17453" }
+    {
+      "title": "Pope et al. (2022), Efficiently Scaling Transformer Inference",
+      "url": "https://arxiv.org/abs/2211.05102"
+    },
+    {
+      "title": "Kwon et al. (2023), Efficient Memory Management for LLM Serving with PagedAttention (vLLM)",
+      "url": "https://arxiv.org/abs/2309.06180"
+    },
+    {
+      "title": "Leviathan, Kalman & Matias (2023), Fast Inference from Transformers via Speculative Decoding",
+      "url": "https://arxiv.org/abs/2211.17192"
+    },
+    {
+      "title": "Xiao et al. (2023), Efficient Streaming Language Models with Attention Sinks",
+      "url": "https://arxiv.org/abs/2309.17453"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-10",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-10_kv_cache_autoregressive_inference.ipynb"
+  }
 }

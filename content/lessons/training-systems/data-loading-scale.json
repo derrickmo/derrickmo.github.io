@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-05",
   "slug": "data-loading-scale",
+  "keyBase": "training-systems/data-loading-scale",
   "module": "training-systems",
   "title": "Data Loading at Scale",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "16-05_data_loading_at_scale.ipynb",
     "flagship": null,
-    "demos": ["reservoir-sampling", "importance-sampling", "batching", "bloom-filter"],
+    "demos": [
+      "reservoir-sampling",
+      "importance-sampling",
+      "batching",
+      "bloom-filter"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/data-pipelines"],
-  "leadsTo": ["training-systems/optimized-pipeline", "llm-systems/llm-data-pipelines"],
+  "prereqs": [
+    "pytorch-internals/data-pipelines"
+  ],
+  "leadsTo": [
+    "training-systems/optimized-pipeline",
+    "llm-systems/llm-data-pipelines"
+  ],
   "body": {
     "intuition": [
       "At single-machine scale the data pipeline is a tuning question. At cluster scale it is a capacity-planning question, and the first thing to do is arithmetic: how many bytes per second must reach the accelerators to keep them busy? Multiply the samples per second the devices can consume by the bytes per sample, times the number of devices. For a vision job on decoded images that is often gigabytes per second; for language-model pretraining on pre-tokenized data it is far less. That single number tells you whether your storage can possibly work, and it is computable before you write any code.",
@@ -179,8 +190,7 @@
         "q": "Your GPUs are at 40% utilization on a 64-node job. Walk through the investigation.",
         "a": "LOW UTILIZATION MEANS THE DEVICES ARE WAITING, and there are four things they can be waiting for. I would distinguish them before optimizing anything. STEP 1: IS IT INPUT OR COMMUNICATION? Run the training loop with SYNTHETIC data - a fixed tensor in a loop, no loader at all. If utilization jumps, you are input-bound. If it stays at 40%, the problem is communication, synchronization, or the model itself, and the data pipeline is innocent. This experiment takes ten minutes and it splits the investigation in half, which is why it goes first. STEP 2, IF INPUT-BOUND: WHERE IN THE PIPELINE? Time the loader alone with the model removed, per rank. Then look at whether the bottleneck is storage, network, or CPU. Storage and network show as low CPU utilization in the workers with the loader still slow. CPU shows as workers pegged at 100%. The distinction determines everything downstream. STEP 3: THE COMMON CAUSES AT SCALE, in order. (a) RANDOM ACCESS - one remote read per sample. Latency-bound, unfixable by adding workers, and the fix is repacking into sequential shards. This is the big one and the symptom is that throughput does not improve with more workers. (b) TOO MANY SMALL FILES - metadata operations dominating, which is the same problem wearing different clothes. (c) DECODE-BOUND - workers at 100% CPU. Fix by moving decode to the GPU, pre-decoding, or storing at the training resolution. (d) INSUFFICIENT WORKERS OR PREFETCH - the cheapest to test and worth ruling out early, remembering the count is an inverted V rather than monotone. (e) SHARED FILESYSTEM CONTENTION - 64 nodes hitting one mount is a different workload from one node, and per-node caching is the fix. STEP 4: THE STRAGGLER CHECK, which is specific to distributed training and often missed. Utilization is an average. If one rank is slow, every rank waits at the all-reduce, so all of them show low utilization while only one has a problem. Log per-rank step times and look at the distribution rather than the mean. A single slow node - a bad disk, a thermal issue, a noisy neighbour - presents exactly as a global slowdown, and no amount of pipeline optimization fixes it. STEP 5: IF NOT INPUT-BOUND. Profile and look at the timeline. Communication not overlapping with computation, a per-step synchronization from logging, or a small model that simply cannot fill the device are the candidates - and they are diagnosed by the timeline's shape rather than by aggregates. WHAT I WOULD FIX FIRST given the finding. Format before workers, caching before format changes if a local cache is available, and the straggler before anything if the per-rank distribution is skewed. THE MEASUREMENT I WOULD ADD PERMANENTLY. Per-rank data time and compute time, logged separately, so the next occurrence is diagnosed from a dashboard rather than from an investigation. That is cheap and it turns a recurring multi-day question into a glance.",
         "deepDive": {
-          "q": "Explain data echoing - what it trades, and how you would evaluate whether it helped."
-          ,
+          "q": "Explain data echoing - what it trades, and how you would evaluate whether it helped.",
           "a": "WHAT IT IS. When the input pipeline cannot keep up, reuse each loaded batch e times before fetching the next - either by repeating the whole batch, or by re-shuffling and re-augmenting the buffered examples between uses. The accelerator is then fed from memory rather than waiting on storage. Choi et al. formalized and measured this. WHAT IT TRADES. Sample FRESHNESS for device UTILIZATION. Each optimizer step now uses data that is partly repeated, so a step carries less new information than a step on fresh data. In exchange, you take steps at the rate the device can sustain rather than the rate the pipeline can supply. THE ARGUMENT FOR IT is blunt and correct: if the GPU would otherwise be IDLE, repeated data beats no data. A step on echoed data is worth less than a step on fresh data, and it is worth more than zero. WHERE ON THE PIPELINE YOU ECHO MATTERS, which is the part people miss. You can echo after reading but before augmentation, in which case each repeat gets different random augmentation and is meaningfully different - this is the good case, and for vision it recovers most of the value of fresh data. Or you can echo after the full transform, in which case the repeats are identical and the marginal value is lower. Echoing as EARLY as possible in the pipeline, subject to the bottleneck being upstream of that point, is the rule. HOW I WOULD EVALUATE IT, and the measurement design is the substance of the answer. The wrong metric is STEPS to a target loss - echoing needs more steps by construction, so it always looks worse. The wrong metric is also steps per second, which always looks better. The right metric is WALL-CLOCK TIME to a target loss, or equivalently to a target validation metric. That is the only comparison that reflects the actual trade. I would run three configurations - no echoing, echo 2, echo 4 - to the same target metric and compare elapsed time, with the learning rate re-tuned per configuration since the effective data distribution has changed. WHAT I WOULD EXPECT. A benefit that grows with how input-bound you are and shrinks as e increases, since the marginal value of each repeat falls. Choi et al. found meaningful wall-clock improvements when the pipeline was the bottleneck and, importantly, that the benefit depends on where in the pipeline the echoing happens. THE RISKS TO WATCH. Repeated data increases the effective number of passes over each example, so OVERFITTING arrives sooner in terms of unique data seen - which matters for small datasets and barely at all for a corpus you will not finish one pass of. And the gradient becomes more correlated between consecutive steps, which interacts with momentum in ways that may need the learning rate adjusting. WHEN I WOULD USE IT AT ALL. Only after the structural fixes - sharding, caching, format, GPU decode - have been applied and the pipeline still cannot keep up. Echoing is the last resort in that list because it is the only one that degrades the training signal rather than merely moving work around. But it is a legitimate and under-used tool when the alternative is an accelerator sitting idle, and framing it as an explicit exchange rather than a hack is what makes it defensible."
         }
       },
@@ -278,5 +288,11 @@
       "url": "https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "21-04",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-04_data_loading_at_scale.ipynb"
+  }
 }

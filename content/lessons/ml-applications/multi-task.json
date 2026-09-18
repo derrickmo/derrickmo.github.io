@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-09",
   "slug": "multi-task",
+  "keyBase": "ml-applications/multi-task",
   "module": "ml-applications",
   "title": "Multi-Task & Multi-Output Learning",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://dl.acm.org/doi/10.1145/3383313.3412236"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-09",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-09_multi_task_learning.ipynb"
+  }
 }

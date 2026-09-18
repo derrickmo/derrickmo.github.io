@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-02",
   "slug": "bert",
+  "keyBase": "advanced-nlp/bert",
   "module": "advanced-nlp",
   "title": "BERT-Style Masked Language Modeling",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-02_bert_style_masked_language_modeling.ipynb",
     "flagship": null,
-    "demos": ["tokenizer", "attention", "probing-classifier", "embeddings"],
+    "demos": [
+      "tokenizer",
+      "attention",
+      "probing-classifier",
+      "embeddings"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/full-transformer", "rnn-nlp/tokenization"],
-  "leadsTo": ["advanced-nlp/architectures", "advanced-nlp/fine-tuning-transformers"],
+  "prereqs": [
+    "transformers/full-transformer",
+    "rnn-nlp/tokenization"
+  ],
+  "leadsTo": [
+    "advanced-nlp/architectures",
+    "advanced-nlp/fine-tuning-transformers"
+  ],
   "body": {
     "intuition": [
       "A left-to-right language model reading 'the bank was steep and muddy' has already committed to a representation of 'bank' before it sees 'steep'. That is fine if your goal is to GENERATE the next word - you never have the future - but it is a needless handicap if your goal is to UNDERSTAND a sentence you already have in full. BERT's premise (Devlin et al., 2018) is that for classification, tagging, and extraction, you should let every token see every other token in both directions, and the way to train that is to hide some of the input and predict it from the rest.",
@@ -73,33 +85,87 @@
       "Fine-tuning on a small dataset and trusting a single run. Encoder fine-tuning is genuinely unstable at small n - across seeds the spread can exceed the difference between the methods you are comparing. Report a mean and spread over several seeds."
     ],
     "connections": [
-      { "ref": "transformers/full-transformer", "text": "BERT is the transformer ENCODER stack with a new pretraining objective bolted on - no architectural invention, which is part of why it landed so fast." },
-      { "ref": "advanced-nlp/architectures", "text": "The encoder/decoder/encoder-decoder comparison is the direct sequel: MLM is what makes an encoder an encoder, and the objective is what determines what transfers." },
-      { "ref": "advanced-cv/dino-mae", "text": "MAE is masked modelling for images, and the mask ratio difference (75% vs 15%) is entirely about redundancy - a pixel patch is interpolable from neighbours, a word is not." },
-      { "ref": "rnn-nlp/word-vectors", "text": "The jump from word2vec's one-vector-per-type to BERT's contextual vectors is the single clearest before/after in modern NLP representation learning." },
-      { "ref": "rag-agents/embeddings-vector-stores", "text": "Modern retrievers are BERT-family encoders fine-tuned with a contrastive objective - the architecture is BERT's, the training is not." }
+      {
+        "ref": "transformers/full-transformer",
+        "text": "BERT is the transformer ENCODER stack with a new pretraining objective bolted on - no architectural invention, which is part of why it landed so fast."
+      },
+      {
+        "ref": "advanced-nlp/architectures",
+        "text": "The encoder/decoder/encoder-decoder comparison is the direct sequel: MLM is what makes an encoder an encoder, and the objective is what determines what transfers."
+      },
+      {
+        "ref": "advanced-cv/dino-mae",
+        "text": "MAE is masked modelling for images, and the mask ratio difference (75% vs 15%) is entirely about redundancy - a pixel patch is interpolable from neighbours, a word is not."
+      },
+      {
+        "ref": "rnn-nlp/word-vectors",
+        "text": "The jump from word2vec's one-vector-per-type to BERT's contextual vectors is the single clearest before/after in modern NLP representation learning."
+      },
+      {
+        "ref": "rag-agents/embeddings-vector-stores",
+        "text": "Modern retrievers are BERT-family encoders fine-tuned with a contrastive objective - the architecture is BERT's, the training is not."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is masked language modelling?", "a": "Corrupt ~15% of the input tokens and train the model to recover the originals from the surrounding context on BOTH sides. The head is discarded afterwards; the contextual encoder is the product." },
-      { "q": "Why can BERT be bidirectional when GPT cannot?", "a": "Because the prediction targets are HIDDEN. GPT predicts the next token, so seeing the future would leak the answer; BERT predicts masked tokens, which are removed from the input, so full attention leaks nothing." },
-      { "q": "What is the 80/10/10 split?", "a": "Of the 15% selected: 80% become [MASK], 10% a random token, 10% are left unchanged. It narrows the pretrain/finetune gap ([MASK] never appears downstream) and forces a real representation at every position." },
-      { "q": "What is next sentence prediction, and is it used?", "a": "A binary 'does sentence B follow sentence A' objective in the original BERT. RoBERTa showed it contributes essentially nothing; the field dropped it." },
-      { "q": "What did RoBERTa change?", "a": "Removed NSP, used dynamic masking, much more data, larger batches, and longer training. No architectural change - the conclusion was that BERT was UNDERTRAINED." },
-      { "q": "Why is MLM less sample-efficient per token than autoregressive LM?", "a": "Only the ~15% masked positions produce a loss signal, versus every position in an autoregressive model. You buy bidirectionality with signal density." },
-      { "q": "What does [CLS] do?", "a": "A prepended token whose final representation is used as a sequence-level summary for classification. It works well WHEN fine-tuned for the task and poorly as a frozen sentence embedding." },
-      { "q": "Why are raw BERT embeddings bad for similarity?", "a": "Nothing in MLM or NSP asks the space to be metrically meaningful, so cosine similarity is near-meaningless - raw BERT underperforms averaged GloVe on STS. Sentence-BERT fixes it by training for the objective." },
-      { "q": "What is BERT's sequence-length limit and why?", "a": "512 tokens, because the position embeddings are LEARNED and absolute - there are only 512 of them. It is a hard limit, and truncation is silent." },
-      { "q": "When would you pick an encoder over a decoder LLM today?", "a": "Fixed-taxonomy classification or token labelling at volume, where you have labelled data. A 110M encoder can match a much larger generative model at far lower latency and cost." },
-      { "q": "What is continued pretraining?", "a": "Running MLM on your own unlabelled in-domain corpus before fine-tuning. It is the BioBERT/SciBERT pattern and pays off most when your domain is far from web text." },
-      { "q": "Which layer's features should you use if you freeze BERT?", "a": "Not automatically the last. Syntactic information peaks in the middle layers and the top layers specialize to the pretraining objective, so middle-layer or layer-averaged features are often better frozen." }
+      {
+        "q": "What is masked language modelling?",
+        "a": "Corrupt ~15% of the input tokens and train the model to recover the originals from the surrounding context on BOTH sides. The head is discarded afterwards; the contextual encoder is the product."
+      },
+      {
+        "q": "Why can BERT be bidirectional when GPT cannot?",
+        "a": "Because the prediction targets are HIDDEN. GPT predicts the next token, so seeing the future would leak the answer; BERT predicts masked tokens, which are removed from the input, so full attention leaks nothing."
+      },
+      {
+        "q": "What is the 80/10/10 split?",
+        "a": "Of the 15% selected: 80% become [MASK], 10% a random token, 10% are left unchanged. It narrows the pretrain/finetune gap ([MASK] never appears downstream) and forces a real representation at every position."
+      },
+      {
+        "q": "What is next sentence prediction, and is it used?",
+        "a": "A binary 'does sentence B follow sentence A' objective in the original BERT. RoBERTa showed it contributes essentially nothing; the field dropped it."
+      },
+      {
+        "q": "What did RoBERTa change?",
+        "a": "Removed NSP, used dynamic masking, much more data, larger batches, and longer training. No architectural change - the conclusion was that BERT was UNDERTRAINED."
+      },
+      {
+        "q": "Why is MLM less sample-efficient per token than autoregressive LM?",
+        "a": "Only the ~15% masked positions produce a loss signal, versus every position in an autoregressive model. You buy bidirectionality with signal density."
+      },
+      {
+        "q": "What does [CLS] do?",
+        "a": "A prepended token whose final representation is used as a sequence-level summary for classification. It works well WHEN fine-tuned for the task and poorly as a frozen sentence embedding."
+      },
+      {
+        "q": "Why are raw BERT embeddings bad for similarity?",
+        "a": "Nothing in MLM or NSP asks the space to be metrically meaningful, so cosine similarity is near-meaningless - raw BERT underperforms averaged GloVe on STS. Sentence-BERT fixes it by training for the objective."
+      },
+      {
+        "q": "What is BERT's sequence-length limit and why?",
+        "a": "512 tokens, because the position embeddings are LEARNED and absolute - there are only 512 of them. It is a hard limit, and truncation is silent."
+      },
+      {
+        "q": "When would you pick an encoder over a decoder LLM today?",
+        "a": "Fixed-taxonomy classification or token labelling at volume, where you have labelled data. A 110M encoder can match a much larger generative model at far lower latency and cost."
+      },
+      {
+        "q": "What is continued pretraining?",
+        "a": "Running MLM on your own unlabelled in-domain corpus before fine-tuning. It is the BioBERT/SciBERT pattern and pays off most when your domain is far from web text."
+      },
+      {
+        "q": "Which layer's features should you use if you freeze BERT?",
+        "a": "Not automatically the last. Syntactic information peaks in the middle layers and the top layers specialize to the pretraining objective, so middle-layer or layer-averaged features are often better frozen."
+      }
     ],
     "standard": [
       {
         "q": "Explain BERT's pretraining objectives and design choices, and say which ones survived.",
         "a": "THE SETUP. BERT is the transformer encoder stack - no architectural invention - pretrained with two objectives on BooksCorpus plus English Wikipedia. The contribution was the OBJECTIVE and the transfer recipe, not the model. OBJECTIVE 1 - MASKED LANGUAGE MODELLING. Select ~15% of token positions. Of those, replace 80% with [MASK], 10% with a random vocabulary token, and leave 10% unchanged. Run the full bidirectional encoder and predict the ORIGINAL token at each selected position with cross-entropy. The key structural point is why bidirectionality is legal here: an autoregressive model cannot attend to the future because the future contains the label, but BERT's labels are REMOVED from the input, so every token may attend to every other token without leakage. That is the whole reason the objective exists. WHY 80/10/10, which is the detail interviewers probe. [MASK] is a pretraining artifact that never appears at fine-tuning time, so a model trained purely on [MASK] learns the shortcut 'only masked slots need contextualizing' and suffers a train/test input distribution mismatch. The random-token 10% forces the model to maintain a genuine contextual representation of EVERY position, because any position might be corrupted and it cannot tell. The unchanged 10% means a token that looks correct might still be a prediction target, so the model cannot simply copy. It is a hedge against the model exploiting the corruption pattern itself. OBJECTIVE 2 - NEXT SENTENCE PREDICTION. Feed two segments and classify whether B genuinely followed A, with the aim of teaching inter-sentence relationships for QA and NLI. This one DID NOT SURVIVE. RoBERTa ablated it and found removing NSP matched or improved every downstream task; the leading explanation is that the negative examples came from different documents, so the task collapsed into TOPIC detection, which is far easier than coherence and teaches little. Later models replaced it with sentence-order prediction (ALBERT) or dropped it entirely. WHAT ELSE CHANGED. RoBERTa also introduced DYNAMIC masking - BERT masked once during preprocessing so the model saw the same mask pattern every epoch, whereas resampling per epoch is strictly better and free. And RoBERTa trained on roughly 10x the data for longer with bigger batches. The headline conclusion, which is the more important lesson: BERT's published numbers reflected a model that was substantially UNDERTRAINED, and a large fraction of the 'architecture improvements' published in the following year were partially recovering that gap. Ablations are conducted inside a compute budget, and their conclusions do not automatically survive a larger one. WHAT SURVIVED. Bidirectional masked pretraining, absolutely - it is still how encoders are trained, and it generalized to images (MAE) and speech. Subword tokenization, the fine-tuning-with-a-small-head transfer recipe, and the [CLS] convention all survived. NSP did not. The 15% constant survived as a default but has since been shown scale-dependent - larger models do better at up to ~40%. And ELECTRA offered a genuinely better alternative: instead of predicting masked tokens at 15% of positions, train a discriminator to detect which tokens a small generator REPLACED, giving a signal at every position and markedly better compute efficiency.",
-        "deepDive": { "q": "What have probing studies found out about what BERT actually learns, and how much should we trust them?", "a": "THE FIELD. 'BERTology' is the body of work analyzing what pretrained encoders represent, mostly via PROBING: train a small classifier on frozen representations to predict a linguistic property, and treat its accuracy as evidence the property is encoded. THE MAIN FINDINGS, which are genuinely interesting. (1) A LAYER HIERARCHY that loosely mirrors the classical NLP pipeline (Tenney et al., 'BERT Rediscovers the Classical NLP Pipeline'): surface features such as sentence length live in the lowest layers, SYNTAX peaks in the middle layers, and SEMANTICS and task-specific information in the upper layers. This is why the last layer is often not the best frozen feature - it has specialized to the MLM objective. (2) SYNTAX IS RECOVERABLE GEOMETRICALLY. Hewitt & Manning's structural probe found a linear transformation of BERT's space under which SQUARED L2 DISTANCE approximates parse-tree path distance - dependency structure is present in a strikingly simple form, without ever being supervised. (3) ATTENTION HEADS SPECIALIZE, with individual heads tracking direct objects, coreference, or determiner-noun links (Clark et al.). (4) MASSIVE REDUNDANCY: most heads can be pruned with little loss (Michel et al. found many layers run acceptably with a SINGLE head at inference), and layers can be dropped. THE CRITICISMS, which matter as much as the findings. (a) PROBE ACCURACY CONFLATES 'the information is present' WITH 'the probe extracted it'. A sufficiently powerful probe can recover almost anything from almost any representation - random vectors included, given enough dimensions. Hewitt & Liang's answer is CONTROL TASKS: build a task with the same structure but RANDOM labels, and report SELECTIVITY (real-task accuracy minus control accuracy). A probe that scores well on both is memorizing, not reading. This is the single most important methodological correction in the area. (b) PRESENCE IS NOT USE. Even a well-controlled probe showing a property is linearly decodable says nothing about whether the model USES it in its computation. This is exactly why causal methods - activation patching, ablation, causal tracing - superseded probing as the standard of evidence in mechanistic interpretability. (c) The findings are ARCHITECTURE- AND CHECKPOINT-SPECIFIC and often do not replicate across models, seeds, or even fine-tuning runs. (d) ATTENTION IS NOT EXPLANATION (Jain & Wallace): you can frequently find very different attention distributions that produce the same output, so 'this head attends to the object' is a weaker claim than it sounds. HOW MUCH TO TRUST IT. As a description of what is LINEARLY DECODABLE, with control tasks reported, probing is sound and useful - it is genuinely informative that parse structure is recoverable by a linear map. As a claim about the model's mechanism, it is weak evidence, and the field has moved to causal interventions for that. My practical use of it is narrow and defensible: probing tells me WHICH LAYER to take frozen features from, and that is a decision it answers well." }
+        "deepDive": {
+          "q": "What have probing studies found out about what BERT actually learns, and how much should we trust them?",
+          "a": "THE FIELD. 'BERTology' is the body of work analyzing what pretrained encoders represent, mostly via PROBING: train a small classifier on frozen representations to predict a linguistic property, and treat its accuracy as evidence the property is encoded. THE MAIN FINDINGS, which are genuinely interesting. (1) A LAYER HIERARCHY that loosely mirrors the classical NLP pipeline (Tenney et al., 'BERT Rediscovers the Classical NLP Pipeline'): surface features such as sentence length live in the lowest layers, SYNTAX peaks in the middle layers, and SEMANTICS and task-specific information in the upper layers. This is why the last layer is often not the best frozen feature - it has specialized to the MLM objective. (2) SYNTAX IS RECOVERABLE GEOMETRICALLY. Hewitt & Manning's structural probe found a linear transformation of BERT's space under which SQUARED L2 DISTANCE approximates parse-tree path distance - dependency structure is present in a strikingly simple form, without ever being supervised. (3) ATTENTION HEADS SPECIALIZE, with individual heads tracking direct objects, coreference, or determiner-noun links (Clark et al.). (4) MASSIVE REDUNDANCY: most heads can be pruned with little loss (Michel et al. found many layers run acceptably with a SINGLE head at inference), and layers can be dropped. THE CRITICISMS, which matter as much as the findings. (a) PROBE ACCURACY CONFLATES 'the information is present' WITH 'the probe extracted it'. A sufficiently powerful probe can recover almost anything from almost any representation - random vectors included, given enough dimensions. Hewitt & Liang's answer is CONTROL TASKS: build a task with the same structure but RANDOM labels, and report SELECTIVITY (real-task accuracy minus control accuracy). A probe that scores well on both is memorizing, not reading. This is the single most important methodological correction in the area. (b) PRESENCE IS NOT USE. Even a well-controlled probe showing a property is linearly decodable says nothing about whether the model USES it in its computation. This is exactly why causal methods - activation patching, ablation, causal tracing - superseded probing as the standard of evidence in mechanistic interpretability. (c) The findings are ARCHITECTURE- AND CHECKPOINT-SPECIFIC and often do not replicate across models, seeds, or even fine-tuning runs. (d) ATTENTION IS NOT EXPLANATION (Jain & Wallace): you can frequently find very different attention distributions that produce the same output, so 'this head attends to the object' is a weaker claim than it sounds. HOW MUCH TO TRUST IT. As a description of what is LINEARLY DECODABLE, with control tasks reported, probing is sound and useful - it is genuinely informative that parse structure is recoverable by a linear map. As a claim about the model's mechanism, it is weak evidence, and the field has moved to causal interventions for that. My practical use of it is narrow and defensible: probing tells me WHICH LAYER to take frozen features from, and that is a decision it answers well."
+        }
       },
       {
         "q": "You need a text classifier for 50,000 labelled support tickets into 12 categories. Encoder fine-tune or LLM prompt?",
@@ -124,25 +190,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Masked language modelling", "back": "Corrupt ~15% of tokens, predict the originals from BOTH-side context. Legal to be bidirectional because the targets are REMOVED from the input - unlike next-token prediction, where the future is the answer." },
-    { "type": "definition", "front": "BERT's 80/10/10 split", "back": "Of the 15% selected: 80% -> [MASK], 10% -> random token, 10% unchanged. Narrows the pretrain/finetune gap ([MASK] never appears downstream) and forces a real representation at EVERY position." },
-    { "type": "intuition", "front": "Why MLM needs more steps than autoregressive LM", "back": "Loss signal comes from only ~15% of positions vs 100% for next-token prediction, while compute covers all positions. You buy bidirectionality with signal density - which is exactly what ELECTRA fixes." },
-    { "type": "pitfall", "front": "Next sentence prediction", "back": "BERT's second objective - and it does NOTHING. RoBERTa's ablation showed removing it matches or improves everything; negatives came from other documents, so it collapsed to topic detection. Dropped by the field." },
-    { "type": "pitfall", "front": "Raw BERT [CLS] as a sentence embedding", "back": "Scores WORSE than averaged GloVe on STS (~0.2-0.3 vs ~0.58 Spearman). Nothing in MLM/NSP makes the space metric. Fix by training for it (Sentence-BERT ~0.85), not by changing the pooling." },
-    { "type": "definition", "front": "RoBERTa's changes", "back": "Drop NSP, dynamic masking (resample per epoch, not once in preprocessing), 10x data, bigger batches, longer training. NO architecture change - the finding was that BERT was UNDERTRAINED." },
-    { "type": "definition", "front": "ELECTRA / replaced token detection", "back": "A small generator fills masks; a larger discriminator classifies EVERY token as original-or-replaced. Signal at 100% of positions, no [MASK] mismatch. ELECTRA-base beat BERT-large on GLUE at <1/4 the compute. NOT a GAN - the generator trains with MLM." },
-    { "type": "pitfall", "front": "Fine-tuning instability at small n", "back": "On small GLUE tasks BERT-large diverges to majority-class on a real fraction of seeds, and seed spread often EXCEEDS the gap between published methods. Fix: warmup, Adam bias correction, more epochs + early stopping, and report 3-5 seeds." },
-    { "type": "intuition", "front": "Which BERT layer to freeze-and-use", "back": "Not the last. Surface features low, SYNTAX in the middle, task-specific/objective-specific at the top. Frozen features from middle layers often beat the final layer." },
-    { "type": "pitfall", "front": "Subword label alignment", "back": "Labels are per WORD, the model is per SUBWORD. Convention: label the first subword, set the rest to -100. Get it wrong and token accuracy still looks fine while entity F1 quietly collapses." },
-    { "type": "pitfall", "front": "The 512-token wall", "back": "BERT's position embeddings are LEARNED and absolute - there are exactly 512. Truncation is silent, with no warning, so tail content in long documents disappears from training and inference alike." },
-    { "type": "intuition", "front": "Probing vs causal evidence", "back": "A probe recovering a property proves it is DECODABLE, not that the model uses it - a strong probe recovers things from random vectors. Report SELECTIVITY against a random-label control task (Hewitt & Liang); use activation patching for causal claims." }
+    {
+      "type": "definition",
+      "front": "Masked language modelling",
+      "back": "Corrupt ~15% of tokens, predict the originals from BOTH-side context. Legal to be bidirectional because the targets are REMOVED from the input - unlike next-token prediction, where the future is the answer."
+    },
+    {
+      "type": "definition",
+      "front": "BERT's 80/10/10 split",
+      "back": "Of the 15% selected: 80% -> [MASK], 10% -> random token, 10% unchanged. Narrows the pretrain/finetune gap ([MASK] never appears downstream) and forces a real representation at EVERY position."
+    },
+    {
+      "type": "intuition",
+      "front": "Why MLM needs more steps than autoregressive LM",
+      "back": "Loss signal comes from only ~15% of positions vs 100% for next-token prediction, while compute covers all positions. You buy bidirectionality with signal density - which is exactly what ELECTRA fixes."
+    },
+    {
+      "type": "pitfall",
+      "front": "Next sentence prediction",
+      "back": "BERT's second objective - and it does NOTHING. RoBERTa's ablation showed removing it matches or improves everything; negatives came from other documents, so it collapsed to topic detection. Dropped by the field."
+    },
+    {
+      "type": "pitfall",
+      "front": "Raw BERT [CLS] as a sentence embedding",
+      "back": "Scores WORSE than averaged GloVe on STS (~0.2-0.3 vs ~0.58 Spearman). Nothing in MLM/NSP makes the space metric. Fix by training for it (Sentence-BERT ~0.85), not by changing the pooling."
+    },
+    {
+      "type": "definition",
+      "front": "RoBERTa's changes",
+      "back": "Drop NSP, dynamic masking (resample per epoch, not once in preprocessing), 10x data, bigger batches, longer training. NO architecture change - the finding was that BERT was UNDERTRAINED."
+    },
+    {
+      "type": "definition",
+      "front": "ELECTRA / replaced token detection",
+      "back": "A small generator fills masks; a larger discriminator classifies EVERY token as original-or-replaced. Signal at 100% of positions, no [MASK] mismatch. ELECTRA-base beat BERT-large on GLUE at <1/4 the compute. NOT a GAN - the generator trains with MLM."
+    },
+    {
+      "type": "pitfall",
+      "front": "Fine-tuning instability at small n",
+      "back": "On small GLUE tasks BERT-large diverges to majority-class on a real fraction of seeds, and seed spread often EXCEEDS the gap between published methods. Fix: warmup, Adam bias correction, more epochs + early stopping, and report 3-5 seeds."
+    },
+    {
+      "type": "intuition",
+      "front": "Which BERT layer to freeze-and-use",
+      "back": "Not the last. Surface features low, SYNTAX in the middle, task-specific/objective-specific at the top. Frozen features from middle layers often beat the final layer."
+    },
+    {
+      "type": "pitfall",
+      "front": "Subword label alignment",
+      "back": "Labels are per WORD, the model is per SUBWORD. Convention: label the first subword, set the rest to -100. Get it wrong and token accuracy still looks fine while entity F1 quietly collapses."
+    },
+    {
+      "type": "pitfall",
+      "front": "The 512-token wall",
+      "back": "BERT's position embeddings are LEARNED and absolute - there are exactly 512. Truncation is silent, with no warning, so tail content in long documents disappears from training and inference alike."
+    },
+    {
+      "type": "intuition",
+      "front": "Probing vs causal evidence",
+      "back": "A probe recovering a property proves it is DECODABLE, not that the model uses it - a strong probe recovers things from random vectors. Report SELECTIVITY against a random-label control task (Hewitt & Liang); use activation patching for causal claims."
+    }
   ],
   "refs": [
-    { "title": "Devlin et al. (2018), BERT: Pre-training of Deep Bidirectional Transformers", "url": "https://arxiv.org/abs/1810.04805" },
-    { "title": "Liu et al. (2019), RoBERTa: A Robustly Optimized BERT Pretraining Approach", "url": "https://arxiv.org/abs/1907.11692" },
-    { "title": "Clark et al. (2020), ELECTRA: Pre-training Text Encoders as Discriminators", "url": "https://arxiv.org/abs/2003.10555" },
-    { "title": "Rogers et al. (2020), A Primer in BERTology: What We Know About How BERT Works", "url": "https://arxiv.org/abs/2002.12327" },
-    { "title": "Reimers & Gurevych (2019), Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks", "url": "https://arxiv.org/abs/1908.10084" }
+    {
+      "title": "Devlin et al. (2018), BERT: Pre-training of Deep Bidirectional Transformers",
+      "url": "https://arxiv.org/abs/1810.04805"
+    },
+    {
+      "title": "Liu et al. (2019), RoBERTa: A Robustly Optimized BERT Pretraining Approach",
+      "url": "https://arxiv.org/abs/1907.11692"
+    },
+    {
+      "title": "Clark et al. (2020), ELECTRA: Pre-training Text Encoders as Discriminators",
+      "url": "https://arxiv.org/abs/2003.10555"
+    },
+    {
+      "title": "Rogers et al. (2020), A Primer in BERTology: What We Know About How BERT Works",
+      "url": "https://arxiv.org/abs/2002.12327"
+    },
+    {
+      "title": "Reimers & Gurevych (2019), Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks",
+      "url": "https://arxiv.org/abs/1908.10084"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-02",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-02_bert_style_masked_lm_scratch.ipynb"
+  }
 }

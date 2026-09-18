@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-10",
   "slug": "staying-current",
+  "keyBase": "frontier-frameworks/staying-current",
   "module": "frontier-frameworks",
   "title": "Staying Current: Releases, Benchmarks & Changelogs",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-10_staying_current.ipynb",
     "flagship": null,
-    "demos": ["calibration", "cross-validation", "bagging-boosting", "classification-metrics"],
+    "demos": [
+      "calibration",
+      "cross-validation",
+      "bagging-boosting",
+      "classification-metrics"
+    ],
     "concepts": []
   },
-  "prereqs": ["frontier-frameworks/eval-harnesses", "ml-theory/cross-validation"],
-  "leadsTo": ["interview-capstone/portfolio-capstone", "mlops/ml-strategy"],
+  "prereqs": [
+    "frontier-frameworks/eval-harnesses",
+    "ml-theory/cross-validation"
+  ],
+  "leadsTo": [
+    "interview-capstone/portfolio-capstone",
+    "mlops/ml-strategy"
+  ],
   "body": {
     "intuition": [
       "This module has argued throughout that mechanisms outlive tools, and the capstone is where that stops being a preference and becomes a calculation. Model knowledge as a stock that you add to by studying and lose to forgetting: it settles where the two balance, at study rate over decay rate. Principles decay slowly - a half-life measured in years - and tool trivia decays fast, measured in months. Under the modelled half-lives, an hour spent on principles builds about 7.2 times more retained knowledge than an hour spent on tool specifics.",
@@ -282,5 +294,11 @@
       "url": "https://psycnet.apa.org/record/2006-05288-004"
     }
   ],
-  "updatedAt": "2026-08-09"
+  "updatedAt": "2026-08-09",
+  "v2": {
+    "id": "16-10",
+    "module": "reasoning-scaling",
+    "disposition": "merge",
+    "notebookFile": "16-10_emergence_capability_forecasting_reading_frontier.ipynb"
+  }
 }

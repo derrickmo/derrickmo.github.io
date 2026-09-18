@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-01",
   "slug": "full-fine-tuning",
+  "keyBase": "fine-tuning/full-fine-tuning",
   "module": "fine-tuning",
   "title": "Full Fine-Tuning vs Feature Extraction",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-01_full_finetuning_vs_feature_extraction.ipynb",
     "flagship": null,
-    "demos": ["overfitting", "bias-variance-decomp", "lr-schedule", "drift-detection"],
+    "demos": [
+      "overfitting",
+      "bias-variance-decomp",
+      "lr-schedule",
+      "drift-detection"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/transfer-learning", "advanced-nlp/fine-tuning-transformers"],
-  "leadsTo": ["fine-tuning/lora", "fine-tuning/instruction-tuning"],
+  "prereqs": [
+    "cnn/transfer-learning",
+    "advanced-nlp/fine-tuning-transformers"
+  ],
+  "leadsTo": [
+    "fine-tuning/lora",
+    "fine-tuning/instruction-tuning"
+  ],
   "body": {
     "intuition": [
       "You have a pretrained model and a task it was not trained on. There are two extremes. FREEZE the backbone and train only a new head on top of its features - feature extraction, and when the head is a single linear layer, linear probing. Or UNFREEZE everything and let gradients rewrite every weight - full fine-tuning. Every other method in this module is a point between those two, defined by how much of the update it allows and where.",
@@ -275,5 +287,11 @@
       "url": "https://arxiv.org/abs/1612.00796"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-01",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-01_full_fine_tuning_versus_feature.ipynb"
+  }
 }

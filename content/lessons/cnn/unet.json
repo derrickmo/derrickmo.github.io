@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-05",
   "slug": "unet",
+  "keyBase": "cnn/unet",
   "module": "cnn",
   "title": "U-Net & Encoder-Decoder Architecture",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "06-05_unet_encoder_decoder_architecture.ipynb",
     "flagship": null,
-    "demos": ["diffusion", "watershed", "convolution"],
+    "demos": [
+      "diffusion",
+      "watershed",
+      "convolution"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/convolution", "cnn/cnn-architectures"],
-  "leadsTo": ["cnn/segmentation", "generative/ddpm"],
+  "prereqs": [
+    "cnn/convolution",
+    "cnn/cnn-architectures"
+  ],
+  "leadsTo": [
+    "cnn/segmentation",
+    "generative/ddpm"
+  ],
   "body": {
     "intuition": [
       "A classification CNN is a funnel: it downsamples relentlessly until a 224x224 image becomes a 7x7 map and finally a single vector. That is exactly right when the answer is one label, and exactly wrong when the answer is an IMAGE - a per-pixel segmentation mask, a denoised photo, a depth map. For those you need an architecture that ends where it started, at full resolution. The ENCODER-DECODER shape does this: an encoder (the usual downsampling CNN) compresses the image into a small, semantically rich representation, then a decoder upsamples that representation back to full size, turning 'what is in this image' into 'what is at every pixel'.",
@@ -72,32 +83,83 @@
       "Evaluating on the wrong metric or the wrong unit: mean IoU averaged over classes hides catastrophic failure on small classes; boundary quality is invisible to region metrics (use boundary-F1 or Hausdorff distance); and in medical settings the clinically relevant unit is often the LESION, not the pixel, so per-pixel Dice can look fine while lesions are missed entirely."
     ],
     "connections": [
-      { "ref": "cnn/segmentation", "text": "U-Net is the workhorse architecture for the semantic-segmentation task defined in the next lesson; that lesson covers the metrics, the instance/panoptic variants, and the alternatives (FCN, DeepLab, Mask R-CNN)." },
-      { "ref": "generative/ddpm", "text": "Diffusion models are trained to predict the noise in an image - an image-to-image task - and the network that does it is a U-Net with timestep conditioning and attention at low resolutions." },
-      { "ref": "cnn/cnn-architectures", "text": "The encoder is usually a standard classification backbone (ResNet, EfficientNet), often pretrained - so U-Net inherits residual connections and the whole architectural arc covered there." },
-      { "ref": "ml-theory/data-augmentation", "text": "U-Net's original result depended as much on heavy elastic deformation augmentation as on the architecture - the canonical demonstration that architecture plus augmentation can substitute for data volume." }
+      {
+        "ref": "cnn/segmentation",
+        "text": "U-Net is the workhorse architecture for the semantic-segmentation task defined in the next lesson; that lesson covers the metrics, the instance/panoptic variants, and the alternatives (FCN, DeepLab, Mask R-CNN)."
+      },
+      {
+        "ref": "generative/ddpm",
+        "text": "Diffusion models are trained to predict the noise in an image - an image-to-image task - and the network that does it is a U-Net with timestep conditioning and attention at low resolutions."
+      },
+      {
+        "ref": "cnn/cnn-architectures",
+        "text": "The encoder is usually a standard classification backbone (ResNet, EfficientNet), often pretrained - so U-Net inherits residual connections and the whole architectural arc covered there."
+      },
+      {
+        "ref": "ml-theory/data-augmentation",
+        "text": "U-Net's original result depended as much on heavy elastic deformation augmentation as on the architecture - the canonical demonstration that architecture plus augmentation can substitute for data volume."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is an encoder-decoder architecture?", "a": "An encoder downsamples the input into a compact, semantically rich representation; a decoder upsamples it back to the input's spatial size, producing a dense (per-pixel) output." },
-      { "q": "What makes U-Net a 'U'?", "a": "The symmetric shape: a contracting encoder path down the left, an expanding decoder path up the right, and horizontal SKIP CONNECTIONS joining matching resolutions." },
-      { "q": "What do the skip connections carry?", "a": "High-resolution spatial detail from the encoder (precise edges/boundaries) that the bottleneck has thrown away - combined with the decoder's coarse semantic information." },
-      { "q": "Are U-Net skips additive like ResNet's?", "a": "No - they CONCATENATE along the channel axis, so the following conv can weight the fine-detail and coarse-semantic channels independently. (Some variants do add; concat is the original.)" },
-      { "q": "What is a transposed convolution?", "a": "A learnable upsampling layer that applies the transpose of the convolution matrix - it restores the SHAPE of a strided conv's input, not its values. Also (misleadingly) called deconvolution." },
-      { "q": "What causes checkerboard artifacts?", "a": "Uneven overlap in transposed convolution when kernel size is not divisible by stride, so some output pixels receive more contributions than others. Fix: k divisible by s, or upsample + 3x3 conv." },
-      { "q": "Why not just use bilinear upsampling?", "a": "You can, and many models do - 'nearest/bilinear upsample then 3x3 conv' avoids checkerboarding and works about as well; transposed conv just puts the upsampling weights under the optimizer's control." },
-      { "q": "What loss is used for segmentation?", "a": "Cross-entropy per pixel, usually combined with Dice (or Tversky/focal) because masks are severely class-imbalanced and Dice optimizes overlap directly." },
-      { "q": "Why is pixel accuracy a bad metric?", "a": "With 1% foreground, predicting all background scores 99%. Use IoU (Jaccard) or Dice per class, plus boundary metrics if edge quality matters." },
-      { "q": "Why must input size be divisible by 2^depth?", "a": "Each downsampling halves the resolution; with odd sizes the upsampled map and its skip differ by a pixel and the concatenation fails. Pad the input (e.g. to a multiple of 32) or crop/interpolate to match." },
-      { "q": "Where else is U-Net used besides segmentation?", "a": "Diffusion-model denoisers (DDPM, Stable Diffusion), super-resolution, denoising, inpainting, image-to-image translation, depth estimation, and audio source separation on spectrograms." },
-      { "q": "Why was U-Net designed for tiny datasets?", "a": "Biomedical annotation is expensive - the original used ~30 images, relying on skip connections plus heavy elastic-deformation augmentation to generalize." }
+      {
+        "q": "What is an encoder-decoder architecture?",
+        "a": "An encoder downsamples the input into a compact, semantically rich representation; a decoder upsamples it back to the input's spatial size, producing a dense (per-pixel) output."
+      },
+      {
+        "q": "What makes U-Net a 'U'?",
+        "a": "The symmetric shape: a contracting encoder path down the left, an expanding decoder path up the right, and horizontal SKIP CONNECTIONS joining matching resolutions."
+      },
+      {
+        "q": "What do the skip connections carry?",
+        "a": "High-resolution spatial detail from the encoder (precise edges/boundaries) that the bottleneck has thrown away - combined with the decoder's coarse semantic information."
+      },
+      {
+        "q": "Are U-Net skips additive like ResNet's?",
+        "a": "No - they CONCATENATE along the channel axis, so the following conv can weight the fine-detail and coarse-semantic channels independently. (Some variants do add; concat is the original.)"
+      },
+      {
+        "q": "What is a transposed convolution?",
+        "a": "A learnable upsampling layer that applies the transpose of the convolution matrix - it restores the SHAPE of a strided conv's input, not its values. Also (misleadingly) called deconvolution."
+      },
+      {
+        "q": "What causes checkerboard artifacts?",
+        "a": "Uneven overlap in transposed convolution when kernel size is not divisible by stride, so some output pixels receive more contributions than others. Fix: k divisible by s, or upsample + 3x3 conv."
+      },
+      {
+        "q": "Why not just use bilinear upsampling?",
+        "a": "You can, and many models do - 'nearest/bilinear upsample then 3x3 conv' avoids checkerboarding and works about as well; transposed conv just puts the upsampling weights under the optimizer's control."
+      },
+      {
+        "q": "What loss is used for segmentation?",
+        "a": "Cross-entropy per pixel, usually combined with Dice (or Tversky/focal) because masks are severely class-imbalanced and Dice optimizes overlap directly."
+      },
+      {
+        "q": "Why is pixel accuracy a bad metric?",
+        "a": "With 1% foreground, predicting all background scores 99%. Use IoU (Jaccard) or Dice per class, plus boundary metrics if edge quality matters."
+      },
+      {
+        "q": "Why must input size be divisible by 2^depth?",
+        "a": "Each downsampling halves the resolution; with odd sizes the upsampled map and its skip differ by a pixel and the concatenation fails. Pad the input (e.g. to a multiple of 32) or crop/interpolate to match."
+      },
+      {
+        "q": "Where else is U-Net used besides segmentation?",
+        "a": "Diffusion-model denoisers (DDPM, Stable Diffusion), super-resolution, denoising, inpainting, image-to-image translation, depth estimation, and audio source separation on spectrograms."
+      },
+      {
+        "q": "Why was U-Net designed for tiny datasets?",
+        "a": "Biomedical annotation is expensive - the original used ~30 images, relying on skip connections plus heavy elastic-deformation augmentation to generalize."
+      }
     ],
     "standard": [
       {
         "q": "Explain the U-Net architecture end to end and why the skip connections are essential.",
         "a": "THE SHAPE. U-Net has three parts. The ENCODER (contracting path) is a standard CNN: repeated blocks of two 3x3 convolutions with ReLU, each block followed by a 2x2 downsampling step, with channel count doubling each time it downsamples (64 -> 128 -> 256 -> 512). After four such stages a 256x256 input has become a 16x16 map with 512 channels - spatially coarse but semantically rich. The BOTTLENECK is another conv block at the lowest resolution, where the receptive field covers most of the image, so this is where global context lives. The DECODER (expanding path) mirrors the encoder: at each level it upsamples by 2 (transposed convolution, or interpolation followed by a conv), CONCATENATES the encoder's feature map from the SAME resolution along the channel dimension, and applies two 3x3 convolutions. After four such stages the map is back at 256x256, and a final 1x1 convolution maps the channels to per-pixel class logits. The 1x1 head is worth noticing: it is a per-pixel classifier with shared weights, which is what makes the whole network fully convolutional and therefore resolution-agnostic. WHY THE SKIPS ARE ESSENTIAL. Downsampling is not optional - you need it for receptive field and for compute, and it is what lets the bottleneck know 'this image contains a cell nucleus'. But downsampling is LOSSY IN A SPECIFIC WAY: it preserves 'what' and destroys 'where at high precision'. A 16x16 map cannot represent a boundary to the pixel; each of its cells summarizes a 16x16 block of the input. If the decoder had only the bottleneck to work from, its job would be to hallucinate precise boundaries from a coarse semantic summary, and the result is exactly what you observe when you ablate the skips: the segmentation identifies the right regions but with blurry, misplaced edges (in a controlled ablation, semantics largely survive - IoU falls modestly - while boundary-F1 collapses). The encoder's EARLY layers, by contrast, still have full spatial precision; they just lack semantics (they know 'edge here', not 'nucleus boundary here'). The skip connection is what lets the decoder use both: at each resolution, it concatenates the coarse-but-semantic upsampled features with the fine-but-shallow encoder features and convolves them together, so the following layer can learn 'this region is foreground (from the deep path) and its boundary lies exactly along this edge (from the shallow path)'. That is the entire architectural insight, and it is why the network is drawn with horizontal wires. THREE SECONDARY BENEFITS, worth mentioning because they show depth of understanding. (1) GRADIENT FLOW: skips create short paths from the loss back to the early encoder layers, so the encoder trains well even in a deep network - the same benefit as residual connections, obtained a different way. (2) MULTI-SCALE FUSION: because skips exist at every level, the output is informed by features at all scales simultaneously, which matters when objects in the image vary in size. (3) DATA EFFICIENCY: reusing encoder features rather than forcing the decoder to relearn spatial detail means fewer effective parameters to fit, which is part of why it works with 30 training images. CONCAT VS ADD. U-Net concatenates; ResNet adds. Concatenation keeps the two information sources SEPARATE and lets the subsequent convolution learn how to weight them, at the cost of doubling the channels entering that convolution (so more compute/memory). Addition is cheaper and forces the two to live in the same space, which is a stronger assumption. Both work - some U-Net variants add - but concatenation is the original and generally performs slightly better for dense prediction, where you genuinely want the decoder to treat detail and semantics differently. THE CLOSING POINT I would make: the U-Net shape is not really about segmentation; it is the general answer to 'my output is an image the same size as my input, and I need both global context and local precision'. That is why the same architecture is the denoiser inside every diffusion model.",
-        "deepDive": { "q": "What EXACTLY is lost by downsampling, and can you quantify how much the skips recover?", "a": "It is worth being precise here, because 'downsampling loses information' is true but vague. WHAT IS LOST, INFORMATION-THEORETICALLY. Downsampling by a factor of 2 in each spatial dimension keeps 1/4 of the positions. If the layer's channel count doubles, the total number of activation values only halves, so the network can in principle preserve half the information - and a well-trained encoder does preserve what the loss needs. But two specific things go: (1) HIGH SPATIAL FREQUENCIES above the new Nyquist limit. Subsampling without band-limiting causes ALIASING: content at frequencies above the new Nyquist rate is folded onto lower frequencies rather than merely discarded, so it is not just missing but actively corrupting. This is measurable - it is why CNN predictions are not shift-invariant (a one-pixel shift can change the output), and why anti-aliased downsampling (blur before subsample, Zhang 2019) improves both accuracy and shift-consistency. (2) SUB-CELL POSITION. After 4 stride-2 stages, one bottleneck cell covers a 16x16 input block. Where within that block a boundary lies is representable only implicitly, in the relative activations of channels, and only to the extent that the encoder chose to encode it - the loss never asked it to. The most useful way to state the loss is therefore in terms of the OUTPUT SPACE: the bottleneck has a spatial resolution of H/16 x W/16, so the maximum boundary precision expressible from it alone is ~16 pixels, and everything finer must be either hallucinated (a prior over shapes) or recovered from elsewhere. HOW MUCH THE SKIPS RECOVER - the ablation, done properly. Train the identical network twice, with and without skips, matching parameter count (add channels to the no-skip decoder to compensate) so the comparison is about information routing rather than capacity. Then measure with metrics that separate the two failure modes: REGION quality (mean IoU/Dice) and BOUNDARY quality (boundary-F1 within a small tolerance, or 95th-percentile Hausdorff distance). The characteristic result is that region metrics degrade modestly - the no-skip model still finds roughly the right regions, because that information genuinely survives to the bottleneck - while boundary metrics degrade dramatically, and the gap WIDENS as you tighten the boundary tolerance. That pattern is the empirical signature of the claim: what the skips restore is precisely the high-frequency, sub-cell localization that downsampling destroyed, not the semantics. A second, sharper experiment: ablate skips ONE AT A TIME. Removing the deepest skip (lowest resolution) costs little, because that information is largely redundant with the bottleneck. Removing the SHALLOWEST skip (full or half resolution) costs the most, because it is the only carrier of fine detail. This monotone pattern is worth knowing, and it explains design variants: some architectures keep only the high-resolution skips, and some (U-Net++) add dense nested skips to reduce the semantic gap between encoder and decoder features being fused. THE ALTERNATIVES, which frame what the skips are 'competing' with. (a) DILATED convolutions (DeepLab): don't downsample as much in the first place - keep resolution at H/8 and grow the receptive field with dilation, so less is lost and less must be recovered; the cost is compute and memory at high resolution. (b) HIGH-RESOLUTION-THROUGHOUT designs (HRNet): maintain a full-resolution stream in parallel with downsampled streams and fuse repeatedly, so high-frequency information is never destroyed. (c) LEARNED UPSAMPLING WITH GUIDANCE (CARAFE, guided filters, or CRF post-processing) which uses the input image itself to sharpen boundaries. Each is a different answer to the same accounting problem: downsampling buys receptive field and compute at the price of high-frequency spatial information, and every dense-prediction architecture is a scheme for paying that price back. Being able to name the trade-off, the measurement that exposes it (region vs boundary metrics), and three architectural responses is what a strong answer looks like." }
+        "deepDive": {
+          "q": "What EXACTLY is lost by downsampling, and can you quantify how much the skips recover?",
+          "a": "It is worth being precise here, because 'downsampling loses information' is true but vague. WHAT IS LOST, INFORMATION-THEORETICALLY. Downsampling by a factor of 2 in each spatial dimension keeps 1/4 of the positions. If the layer's channel count doubles, the total number of activation values only halves, so the network can in principle preserve half the information - and a well-trained encoder does preserve what the loss needs. But two specific things go: (1) HIGH SPATIAL FREQUENCIES above the new Nyquist limit. Subsampling without band-limiting causes ALIASING: content at frequencies above the new Nyquist rate is folded onto lower frequencies rather than merely discarded, so it is not just missing but actively corrupting. This is measurable - it is why CNN predictions are not shift-invariant (a one-pixel shift can change the output), and why anti-aliased downsampling (blur before subsample, Zhang 2019) improves both accuracy and shift-consistency. (2) SUB-CELL POSITION. After 4 stride-2 stages, one bottleneck cell covers a 16x16 input block. Where within that block a boundary lies is representable only implicitly, in the relative activations of channels, and only to the extent that the encoder chose to encode it - the loss never asked it to. The most useful way to state the loss is therefore in terms of the OUTPUT SPACE: the bottleneck has a spatial resolution of H/16 x W/16, so the maximum boundary precision expressible from it alone is ~16 pixels, and everything finer must be either hallucinated (a prior over shapes) or recovered from elsewhere. HOW MUCH THE SKIPS RECOVER - the ablation, done properly. Train the identical network twice, with and without skips, matching parameter count (add channels to the no-skip decoder to compensate) so the comparison is about information routing rather than capacity. Then measure with metrics that separate the two failure modes: REGION quality (mean IoU/Dice) and BOUNDARY quality (boundary-F1 within a small tolerance, or 95th-percentile Hausdorff distance). The characteristic result is that region metrics degrade modestly - the no-skip model still finds roughly the right regions, because that information genuinely survives to the bottleneck - while boundary metrics degrade dramatically, and the gap WIDENS as you tighten the boundary tolerance. That pattern is the empirical signature of the claim: what the skips restore is precisely the high-frequency, sub-cell localization that downsampling destroyed, not the semantics. A second, sharper experiment: ablate skips ONE AT A TIME. Removing the deepest skip (lowest resolution) costs little, because that information is largely redundant with the bottleneck. Removing the SHALLOWEST skip (full or half resolution) costs the most, because it is the only carrier of fine detail. This monotone pattern is worth knowing, and it explains design variants: some architectures keep only the high-resolution skips, and some (U-Net++) add dense nested skips to reduce the semantic gap between encoder and decoder features being fused. THE ALTERNATIVES, which frame what the skips are 'competing' with. (a) DILATED convolutions (DeepLab): don't downsample as much in the first place - keep resolution at H/8 and grow the receptive field with dilation, so less is lost and less must be recovered; the cost is compute and memory at high resolution. (b) HIGH-RESOLUTION-THROUGHOUT designs (HRNet): maintain a full-resolution stream in parallel with downsampled streams and fuse repeatedly, so high-frequency information is never destroyed. (c) LEARNED UPSAMPLING WITH GUIDANCE (CARAFE, guided filters, or CRF post-processing) which uses the input image itself to sharpen boundaries. Each is a different answer to the same accounting problem: downsampling buys receptive field and compute at the price of high-frequency spatial information, and every dense-prediction architecture is a scheme for paying that price back. Being able to name the trade-off, the measurement that exposes it (region vs boundary metrics), and three architectural responses is what a strong answer looks like."
+        }
       },
       {
         "q": "How do you upsample in a decoder? Compare transposed convolution, interpolation plus convolution, and pixel shuffle.",
@@ -106,7 +168,10 @@
       {
         "q": "Why is U-Net the standard backbone for diffusion models, and how is it modified for that use?",
         "a": "WHY THE SHAPE FITS. A diffusion model is trained to predict the noise (or equivalently the denoised image) given a noisy image and a timestep. That is an IMAGE-TO-IMAGE problem with exactly the requirements U-Net was designed for: (a) the output has the same spatial size as the input, (b) predicting the noise at a given pixel needs GLOBAL context (what object is being formed, what the overall composition is) which requires downsampling to get receptive field, and (c) it simultaneously needs LOCAL precision (the exact high-frequency content at that pixel), which requires the skip connections. Notably, a diffusion model at high noise levels is mostly doing global structure work, while at low noise levels it is mostly doing fine texture - so a single network must operate at both extremes, which is precisely what a multi-scale encoder-decoder with skips provides. THE MODIFICATIONS, which are what the question is really asking. (1) TIMESTEP CONDITIONING. The network must know the noise level t. The standard approach is a sinusoidal positional embedding of t (the same construction as transformer position encodings), passed through a small MLP, then injected into every residual block - typically by adding it to the feature map after a projection, or via FiLM-style scale-and-shift on the group-normalized activations (adaptive group norm). Without this the network cannot know how much noise to remove. (2) RESIDUAL BLOCKS INSTEAD OF PLAIN CONV BLOCKS. Diffusion U-Nets use ResNet-style blocks (norm -> activation -> conv, twice, plus a skip) rather than the original's plain double conv - the network is much deeper than the 2015 U-Net, so residual connections are needed for trainability. GroupNorm is used instead of BatchNorm, because batch statistics are unreliable with the small batches and the varying noise conditioning used in diffusion training. (3) SELF-ATTENTION AT LOW RESOLUTIONS. Attention blocks are inserted at the coarser levels (commonly 16x16 and 8x8, sometimes 32x32), where the token count is small enough for O(N^2) attention to be affordable. This gives genuine global interaction that convolutions only approximate, and it measurably improves sample coherence. Attention is deliberately NOT used at high resolution because the cost is quadratic in the number of pixels. (4) CROSS-ATTENTION FOR CONDITIONING. For text-to-image models, cross-attention layers are inserted alongside the self-attention blocks, with keys and values coming from the text encoder's output (e.g. CLIP or T5 embeddings) - this is the mechanism by which the prompt actually steers generation in Stable Diffusion. (5) SCALE. Widths and depths are far larger than the original (hundreds of millions of parameters), with channel multipliers per resolution level and multiple residual blocks per level. (6) LATENT SPACE. Stable Diffusion runs the U-Net not on pixels but on a VAE's latent grid (e.g. 64x64x4 for a 512x512 image), which cuts the spatial cost ~64x and is why it can be trained and run at consumer scale. The U-Net's job is unchanged; the grid it operates on is just smaller and more semantic. WHAT THIS TELLS YOU GENERALLY. The persistence of U-Net across a decade and across completely different objectives (supervised segmentation on 30 medical images, and generative modeling on billions of images) is evidence that the shape encodes something real about dense prediction on grids - multi-scale processing with explicit high-frequency shortcuts. That said, the story is not frozen: DiT (Diffusion Transformers) replaced the U-Net entirely with a plain transformer over latent patches and scales better, and it is what newer large models (including Sora-class video models) use. So the honest current picture is: U-Net remains the standard and best-understood diffusion backbone, especially at moderate scale, but at very large scale transformers are displacing it - the same arc convolution-versus-attention has followed everywhere else in vision.",
-        "deepDive": { "q": "Diffusion U-Nets put attention only at low resolutions. What is the cost argument, and what breaks if you add it everywhere?", "a": "THE COST ARGUMENT is quadratic scaling in the number of spatial positions. Self-attention over N tokens costs O(N^2 * d) for the attention matrix (and O(N^2) memory for it, unless you use a memory-efficient/flash implementation). For an image feature map, N = H*W. Take a 512x512 pixel image processed in Stable Diffusion's latent space at 64x64: at that resolution N = 4,096, so the attention matrix has ~16.8M entries per head - affordable. Go down one level to 32x32: N = 1,024, matrix ~1M - cheap. But go UP to the full latent resolution and beyond: at 128x128, N = 16,384 and the matrix is ~268M entries per head; at 256x256, N = 65,536 and the matrix is ~4.3 BILLION entries per head, which is hundreds of gigabytes of activations across heads and layers even in fp16. Since cost grows as N^2 = (H*W)^2, doubling the resolution multiplies attention cost by 16. Convolutions, by contrast, cost O(N * k^2 * C^2) - LINEAR in N - which is exactly why the architecture uses convolutions at high resolution and attention at low resolution. This is not a small constant-factor issue; it is a different complexity class, and it dictates the design. WHAT BREAKS IF YOU ADD IT EVERYWHERE. (1) MEMORY, immediately - training simply OOMs, and even with flash attention (which avoids materializing the N^2 matrix, reducing memory to O(N)) the COMPUTE remains quadratic, so training time balloons. (2) WASTED CAPACITY ON THE WRONG JOB. High-resolution layers are doing local, high-frequency work - textures, edges, fine detail - where a 3x3 convolution's locality prior is exactly right and global interaction is nearly useless. Attention at 256x256 spends enormous compute letting a pixel attend to a pixel 200 away, which for texture synthesis contributes almost nothing. Empirically, ablations show attention at high resolution gives little or no quality gain for its cost. (3) OPTIMIZATION AND DATA EFFICIENCY. Attention has a weaker inductive bias, so replacing convolutions with attention at high resolution means relearning locality from data, which needs more data and longer training - the same trade-off as ViT versus CNN. WHAT PEOPLE DO INSTEAD, which is the useful part of the answer. (a) PLACE ATTENTION WHERE N IS SMALL - the standard: self-attention at 32x32, 16x16, 8x8 only, which captures global composition where it matters (layout, object identity, long-range coherence) at negligible cost. (b) WINDOWED / LOCAL ATTENTION (Swin-style): attend within non-overlapping windows and shift them between layers, making cost linear in N while retaining some of attention's flexibility - used in several high-resolution generative and segmentation models. (c) LINEAR-ATTENTION VARIANTS (performer, linear attention) which approximate the softmax kernel to get O(N) cost; used in some efficient diffusion implementations, with some quality cost. (d) LATENT DIFFUSION - the dominant practical answer: don't operate at pixel resolution at all. Compress 512x512x3 to a 64x64x4 latent with a VAE, and now full attention is affordable at the resolutions that matter. This is the single biggest reason Stable Diffusion is runnable on consumer GPUs. (e) FLASH ATTENTION and memory-efficient kernels, which do not change the complexity but reduce the constant and the memory enough to push the affordable resolution up a level. (f) DiT's approach: give up the pixel grid entirely, patchify the latent into tokens (e.g. 2x2 latent patches), and run a uniform transformer - accepting quadratic cost over a deliberately small token count, which scales better with model size than the U-Net does. THE PRINCIPLE TO STATE: match the operator to the resolution and to the job. Local, high-frequency work at high resolution -> convolution (linear cost, correct prior). Global, semantic work at low resolution -> attention (quadratic cost, but N is small there, and global interaction is what you actually need). Nearly every modern vision architecture, generative or discriminative, is some version of that allocation." }
+        "deepDive": {
+          "q": "Diffusion U-Nets put attention only at low resolutions. What is the cost argument, and what breaks if you add it everywhere?",
+          "a": "THE COST ARGUMENT is quadratic scaling in the number of spatial positions. Self-attention over N tokens costs O(N^2 * d) for the attention matrix (and O(N^2) memory for it, unless you use a memory-efficient/flash implementation). For an image feature map, N = H*W. Take a 512x512 pixel image processed in Stable Diffusion's latent space at 64x64: at that resolution N = 4,096, so the attention matrix has ~16.8M entries per head - affordable. Go down one level to 32x32: N = 1,024, matrix ~1M - cheap. But go UP to the full latent resolution and beyond: at 128x128, N = 16,384 and the matrix is ~268M entries per head; at 256x256, N = 65,536 and the matrix is ~4.3 BILLION entries per head, which is hundreds of gigabytes of activations across heads and layers even in fp16. Since cost grows as N^2 = (H*W)^2, doubling the resolution multiplies attention cost by 16. Convolutions, by contrast, cost O(N * k^2 * C^2) - LINEAR in N - which is exactly why the architecture uses convolutions at high resolution and attention at low resolution. This is not a small constant-factor issue; it is a different complexity class, and it dictates the design. WHAT BREAKS IF YOU ADD IT EVERYWHERE. (1) MEMORY, immediately - training simply OOMs, and even with flash attention (which avoids materializing the N^2 matrix, reducing memory to O(N)) the COMPUTE remains quadratic, so training time balloons. (2) WASTED CAPACITY ON THE WRONG JOB. High-resolution layers are doing local, high-frequency work - textures, edges, fine detail - where a 3x3 convolution's locality prior is exactly right and global interaction is nearly useless. Attention at 256x256 spends enormous compute letting a pixel attend to a pixel 200 away, which for texture synthesis contributes almost nothing. Empirically, ablations show attention at high resolution gives little or no quality gain for its cost. (3) OPTIMIZATION AND DATA EFFICIENCY. Attention has a weaker inductive bias, so replacing convolutions with attention at high resolution means relearning locality from data, which needs more data and longer training - the same trade-off as ViT versus CNN. WHAT PEOPLE DO INSTEAD, which is the useful part of the answer. (a) PLACE ATTENTION WHERE N IS SMALL - the standard: self-attention at 32x32, 16x16, 8x8 only, which captures global composition where it matters (layout, object identity, long-range coherence) at negligible cost. (b) WINDOWED / LOCAL ATTENTION (Swin-style): attend within non-overlapping windows and shift them between layers, making cost linear in N while retaining some of attention's flexibility - used in several high-resolution generative and segmentation models. (c) LINEAR-ATTENTION VARIANTS (performer, linear attention) which approximate the softmax kernel to get O(N) cost; used in some efficient diffusion implementations, with some quality cost. (d) LATENT DIFFUSION - the dominant practical answer: don't operate at pixel resolution at all. Compress 512x512x3 to a 64x64x4 latent with a VAE, and now full attention is affordable at the resolutions that matter. This is the single biggest reason Stable Diffusion is runnable on consumer GPUs. (e) FLASH ATTENTION and memory-efficient kernels, which do not change the complexity but reduce the constant and the memory enough to push the affordable resolution up a level. (f) DiT's approach: give up the pixel grid entirely, patchify the latent into tokens (e.g. 2x2 latent patches), and run a uniform transformer - accepting quadratic cost over a deliberately small token count, which scales better with model size than the U-Net does. THE PRINCIPLE TO STATE: match the operator to the resolution and to the job. Local, high-frequency work at high resolution -> convolution (linear cost, correct prior). Global, semantic work at low resolution -> attention (quadratic cost, but N is small there, and global interaction is what you actually need). Nearly every modern vision architecture, generative or discriminative, is some version of that allocation."
+        }
       },
       {
         "q": "You have 40 labelled medical images and need a segmentation model. Walk through your approach.",
@@ -123,21 +188,75 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "U-Net", "back": "Encoder-decoder with CONCATENATING skip connections at each resolution. Encoder = downsampling CNN (semantics), decoder = upsampling path, skips = high-resolution spatial detail. Output size = input size." },
-    { "type": "intuition", "front": "Why skip connections are essential", "back": "The bottleneck knows WHAT but has lost precise WHERE. Skips reinject the encoder's high-resolution detail so the decoder can combine 'this is foreground' with 'the boundary is exactly here'. Ablate them: semantics survive, boundaries collapse." },
-    { "type": "definition", "front": "Concat skip vs additive skip", "back": "U-Net CONCATENATES along channels (the next conv learns how to weight detail vs semantics; doubles channel count). ResNet ADDS (cheaper, forces a shared space). Both work; concat is the U-Net original." },
-    { "type": "definition", "front": "Transposed convolution", "back": "Learnable upsampling = applying the transpose of the conv matrix. Recovers the SHAPE, not the inverse. H_out = (H_in-1)s - 2p + k. Not divisible k/s -> checkerboard artifacts." },
-    { "type": "pitfall", "front": "Checkerboard artifacts", "back": "Uneven kernel overlap in transposed conv when k is not divisible by s. Fix: use k=4,s=2, or replace with nearest/bilinear upsample + 3x3 conv (the modern default), or pixel shuffle with ICNR init." },
-    { "type": "formula", "front": "Dice loss", "back": "Dice = 2|X and Y|/(|X|+|Y|); loss = 1 - soft Dice. A RATIO, so invariant to background volume - which is why it beats plain CE on 1%-foreground masks. Standard practice: CE + Dice combined." },
-    { "type": "pitfall", "front": "Never report pixel accuracy", "back": "With 1% foreground, all-background scores 99%. Report per-class IoU/Dice, precision and recall separately, boundary-F1/Hausdorff if edges matter, and lesion-level detection if that is the real decision unit." },
-    { "type": "intuition", "front": "U-Net in diffusion models", "back": "Denoising is image-to-image with global context + local detail = the U-Net problem. Modifications: timestep embedding injected into every block, residual blocks + GroupNorm, self-attention at LOW resolutions, cross-attention for text." },
-    { "type": "pitfall", "front": "Input size divisible by 2^depth", "back": "Odd dimensions make the upsampled map and its skip differ by a pixel and the concat fails. Pad inputs to a multiple of 32 (or crop/interpolate) - and use the SAME rule at train and inference time." }
+    {
+      "type": "definition",
+      "front": "U-Net",
+      "back": "Encoder-decoder with CONCATENATING skip connections at each resolution. Encoder = downsampling CNN (semantics), decoder = upsampling path, skips = high-resolution spatial detail. Output size = input size."
+    },
+    {
+      "type": "intuition",
+      "front": "Why skip connections are essential",
+      "back": "The bottleneck knows WHAT but has lost precise WHERE. Skips reinject the encoder's high-resolution detail so the decoder can combine 'this is foreground' with 'the boundary is exactly here'. Ablate them: semantics survive, boundaries collapse."
+    },
+    {
+      "type": "definition",
+      "front": "Concat skip vs additive skip",
+      "back": "U-Net CONCATENATES along channels (the next conv learns how to weight detail vs semantics; doubles channel count). ResNet ADDS (cheaper, forces a shared space). Both work; concat is the U-Net original."
+    },
+    {
+      "type": "definition",
+      "front": "Transposed convolution",
+      "back": "Learnable upsampling = applying the transpose of the conv matrix. Recovers the SHAPE, not the inverse. H_out = (H_in-1)s - 2p + k. Not divisible k/s -> checkerboard artifacts."
+    },
+    {
+      "type": "pitfall",
+      "front": "Checkerboard artifacts",
+      "back": "Uneven kernel overlap in transposed conv when k is not divisible by s. Fix: use k=4,s=2, or replace with nearest/bilinear upsample + 3x3 conv (the modern default), or pixel shuffle with ICNR init."
+    },
+    {
+      "type": "formula",
+      "front": "Dice loss",
+      "back": "Dice = 2|X and Y|/(|X|+|Y|); loss = 1 - soft Dice. A RATIO, so invariant to background volume - which is why it beats plain CE on 1%-foreground masks. Standard practice: CE + Dice combined."
+    },
+    {
+      "type": "pitfall",
+      "front": "Never report pixel accuracy",
+      "back": "With 1% foreground, all-background scores 99%. Report per-class IoU/Dice, precision and recall separately, boundary-F1/Hausdorff if edges matter, and lesion-level detection if that is the real decision unit."
+    },
+    {
+      "type": "intuition",
+      "front": "U-Net in diffusion models",
+      "back": "Denoising is image-to-image with global context + local detail = the U-Net problem. Modifications: timestep embedding injected into every block, residual blocks + GroupNorm, self-attention at LOW resolutions, cross-attention for text."
+    },
+    {
+      "type": "pitfall",
+      "front": "Input size divisible by 2^depth",
+      "back": "Odd dimensions make the upsampled map and its skip differ by a pixel and the concat fails. Pad inputs to a multiple of 32 (or crop/interpolate) - and use the SAME rule at train and inference time."
+    }
   ],
   "refs": [
-    { "title": "Ronneberger, Fischer & Brox (2015), U-Net: Convolutional Networks for Biomedical Image Segmentation", "url": "https://arxiv.org/abs/1505.04597" },
-    { "title": "Odena, Dumoulin & Olah (2016), Deconvolution and Checkerboard Artifacts", "url": "https://distill.pub/2016/deconv-checkerboard/" },
-    { "title": "Isensee et al. (2021), nnU-Net: a self-configuring method for biomedical image segmentation", "url": "https://www.nature.com/articles/s41592-020-01008-z" },
-    { "title": "Rombach et al. (2022), High-Resolution Image Synthesis with Latent Diffusion Models", "url": "https://arxiv.org/abs/2112.10752" }
+    {
+      "title": "Ronneberger, Fischer & Brox (2015), U-Net: Convolutional Networks for Biomedical Image Segmentation",
+      "url": "https://arxiv.org/abs/1505.04597"
+    },
+    {
+      "title": "Odena, Dumoulin & Olah (2016), Deconvolution and Checkerboard Artifacts",
+      "url": "https://distill.pub/2016/deconv-checkerboard/"
+    },
+    {
+      "title": "Isensee et al. (2021), nnU-Net: a self-configuring method for biomedical image segmentation",
+      "url": "https://www.nature.com/articles/s41592-020-01008-z"
+    },
+    {
+      "title": "Rombach et al. (2022), High-Resolution Image Synthesis with Latent Diffusion Models",
+      "url": "https://arxiv.org/abs/2112.10752"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "09-08",
+    "module": "cnn",
+    "disposition": "clean",
+    "notebookFile": "09-08_encoder_decoder_u_net.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-03",
   "slug": "torchscript-onnx",
+  "keyBase": "mlops/torchscript-onnx",
   "module": "mlops",
   "title": "Model Export — TorchScript & ONNX",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://arxiv.org/abs/2208.07339"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "22-06",
+    "module": "inference-serving",
+    "disposition": "merge",
+    "notebookFile": "22-06_model_export_torchscript_onnx_runtimes.ipynb"
+  }
 }

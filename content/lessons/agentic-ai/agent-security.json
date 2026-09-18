@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-09",
   "slug": "agent-security",
+  "keyBase": "agentic-ai/agent-security",
   "module": "agentic-ai",
   "title": "Guardrails & Agent Security",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-09_agent_security.ipynb",
     "flagship": null,
-    "demos": ["guardrails", "prompt-injection", "classification-metrics", "calibration"],
+    "demos": [
+      "guardrails",
+      "prompt-injection",
+      "classification-metrics",
+      "calibration"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/tool-calling", "rag-agents/guardrails"],
-  "leadsTo": ["agentic-ai/agent-capstone", "trustworthy-ai/red-teaming"],
+  "prereqs": [
+    "agentic-ai/tool-calling",
+    "rag-agents/guardrails"
+  ],
+  "leadsTo": [
+    "agentic-ai/agent-capstone",
+    "trustworthy-ai/red-teaming"
+  ],
   "body": {
     "intuition": [
       "This lesson is defensive throughout: it measures what BOUNDS a compromised agent, using a simulation where the attack is assumed to succeed against the model and the question is what the architecture does about it. That framing is the honest one, because there is currently no reliable detector for prompt injection, and a design whose safety depends on detection is depending on a moving quantity.",
@@ -274,5 +286,11 @@
       "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-11",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-11_guardrails_prompt_injection_agent_security.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-04",
   "slug": "matplotlib",
+  "keyBase": "foundations/matplotlib",
   "module": "foundations",
   "title": "Visualization with Matplotlib",
   "status": "LIVE",
@@ -14,8 +15,12 @@
     "demos": [],
     "concepts": []
   },
-  "prereqs": ["foundations/pandas"],
-  "leadsTo": ["foundations/pytorch-data-loading"],
+  "prereqs": [
+    "foundations/pandas"
+  ],
+  "leadsTo": [
+    "foundations/pytorch-data-loading"
+  ],
   "body": {
     "intuition": [
       "A model's numbers lie to you far less often than its numbers *summarized wrong* do. A loss curve, a confusion matrix, a scatter of predicted-vs-actual - these are how you catch overfitting, class imbalance, and outliers before they cost you a week of debugging. Visualization isn't decoration on top of ML; for most practitioners it's the primary debugging tool, used more often than a debugger.",
@@ -72,73 +77,181 @@
       "Plotting a huge scatter (100k+ points) with the default opaque markers - overplotting hides density entirely; use alpha= transparency or a 2-D histogram/hexbin instead."
     ],
     "connections": [
-      { "ref": "foundations/pandas", "text": "DataFrame.plot() is a thin wrapper that calls into matplotlib directly - everything learned here explains what that convenience method is doing." },
-      { "ref": "foundations/probability", "text": "Histograms and density plots in the next lessons are how you visually check whether sampled data matches an assumed distribution." },
-      { "text": "Module 20 (MLOps/experiment tracking) automates exactly these plots - loss curves, confusion matrices - into dashboards logged per run." },
-      { "text": "The site's own Visualize section (/visualize/, 179 interactive demos) is this lesson's ideas taken further: matplotlib static plots become canvas + requestAnimationFrame animations." }
+      {
+        "ref": "foundations/pandas",
+        "text": "DataFrame.plot() is a thin wrapper that calls into matplotlib directly - everything learned here explains what that convenience method is doing."
+      },
+      {
+        "ref": "foundations/probability",
+        "text": "Histograms and density plots in the next lessons are how you visually check whether sampled data matches an assumed distribution."
+      },
+      {
+        "text": "Module 20 (MLOps/experiment tracking) automates exactly these plots - loss curves, confusion matrices - into dashboards logged per run."
+      },
+      {
+        "text": "The site's own Visualize section (/visualize/, 179 interactive demos) is this lesson's ideas taken further: matplotlib static plots become canvas + requestAnimationFrame animations."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What's the difference between a Figure and an Axes in matplotlib?", "a": "Figure is the whole canvas/window; Axes is one individual plot (its own x/y scales, ticks, data) - a Figure can contain multiple Axes." },
-      { "q": "Why prefer fig, ax = plt.subplots() over bare plt.plot()?", "a": "It's explicit about which subplot you're drawing into - bare plt.* calls act on an implicit 'current axes', which gets ambiguous with multiple subplots." },
-      { "q": "Why plot loss curves on a log y-axis?", "a": "Loss typically decays geometrically; log-scale renders that as a straight line, making late-training plateaus/drops visible instead of compressed near zero." },
-      { "q": "What does a confusion matrix show that accuracy doesn't?", "a": "Which specific classes get mistaken for which - accuracy is one aggregate number that hides per-class failure patterns." },
-      { "q": "Fix for overlapping subplot titles/labels?", "a": "fig.tight_layout() or constrained_layout=True when creating the figure." },
-      { "q": "What's overplotting, and one fix?", "a": "Too many overlapping opaque points hide density; fix with alpha= transparency or switch to a 2-D histogram/hexbin." },
-      { "q": "What does Anscombe's quartet demonstrate?", "a": "Four datasets with identical mean/variance/correlation/regression line can look completely different when plotted - summary stats are lossy." },
-      { "q": "How do you save a figure to a file?", "a": "fig.savefig('name.png', dpi=150) - dpi controls resolution for raster formats." },
-      { "q": "Why add a y=x reference line to a predicted-vs-actual scatter?", "a": "It makes systematic bias instantly visible - points consistently above/below the line show over/under-prediction." },
-      { "q": "How do you make two subplots share the same y-axis scale for fair comparison?", "a": "Pass sharey=True to plt.subplots(), or set the same ylim explicitly on both Axes." }
+      {
+        "q": "What's the difference between a Figure and an Axes in matplotlib?",
+        "a": "Figure is the whole canvas/window; Axes is one individual plot (its own x/y scales, ticks, data) - a Figure can contain multiple Axes."
+      },
+      {
+        "q": "Why prefer fig, ax = plt.subplots() over bare plt.plot()?",
+        "a": "It's explicit about which subplot you're drawing into - bare plt.* calls act on an implicit 'current axes', which gets ambiguous with multiple subplots."
+      },
+      {
+        "q": "Why plot loss curves on a log y-axis?",
+        "a": "Loss typically decays geometrically; log-scale renders that as a straight line, making late-training plateaus/drops visible instead of compressed near zero."
+      },
+      {
+        "q": "What does a confusion matrix show that accuracy doesn't?",
+        "a": "Which specific classes get mistaken for which - accuracy is one aggregate number that hides per-class failure patterns."
+      },
+      {
+        "q": "Fix for overlapping subplot titles/labels?",
+        "a": "fig.tight_layout() or constrained_layout=True when creating the figure."
+      },
+      {
+        "q": "What's overplotting, and one fix?",
+        "a": "Too many overlapping opaque points hide density; fix with alpha= transparency or switch to a 2-D histogram/hexbin."
+      },
+      {
+        "q": "What does Anscombe's quartet demonstrate?",
+        "a": "Four datasets with identical mean/variance/correlation/regression line can look completely different when plotted - summary stats are lossy."
+      },
+      {
+        "q": "How do you save a figure to a file?",
+        "a": "fig.savefig('name.png', dpi=150) - dpi controls resolution for raster formats."
+      },
+      {
+        "q": "Why add a y=x reference line to a predicted-vs-actual scatter?",
+        "a": "It makes systematic bias instantly visible - points consistently above/below the line show over/under-prediction."
+      },
+      {
+        "q": "How do you make two subplots share the same y-axis scale for fair comparison?",
+        "a": "Pass sharey=True to plt.subplots(), or set the same ylim explicitly on both Axes."
+      }
     ],
     "standard": [
       {
         "q": "You have a script that creates two subplots with plt.subplots(1,2) and then calls plt.title('My Plot') once. Why might the title end up on the wrong subplot, or only one subplot?",
         "a": "plt.title() is part of the implicit pyplot state-machine API - it doesn't take an axes argument, so it applies to whichever Axes matplotlib currently considers 'active' (generally the most recently created or most recently drawn-into one), not necessarily the one you intended. With two subplots this is ambiguous the moment you've called anything on the second axes. The fix is to use the explicit object-oriented API throughout: ax1.set_title(...) and ax2.set_title(...) on the specific Axes objects returned by subplots(), removing any ambiguity about which plot is being labeled.",
-        "deepDive": { "q": "Why does matplotlib even offer both APIs instead of just one?", "a": "The pyplot state-machine API (plt.plot, plt.title, ...) is a MATLAB-style convenience layer designed for quick, single-plot interactive use (a REPL or a notebook cell with one figure); the object-oriented API (fig, ax = plt.subplots(); ax.plot(...)) is what pyplot itself calls under the hood and is the recommended approach for anything programmatic, reusable, or with multiple subplots, precisely because it removes the hidden 'current axes' state." }
+        "deepDive": {
+          "q": "Why does matplotlib even offer both APIs instead of just one?",
+          "a": "The pyplot state-machine API (plt.plot, plt.title, ...) is a MATLAB-style convenience layer designed for quick, single-plot interactive use (a REPL or a notebook cell with one figure); the object-oriented API (fig, ax = plt.subplots(); ax.plot(...)) is what pyplot itself calls under the hood and is the recommended approach for anything programmatic, reusable, or with multiple subplots, precisely because it removes the hidden 'current axes' state."
+        }
       },
       {
         "q": "A training loss curve looks like it's flattened out completely after epoch 20 on a linear y-axis, but the model keeps improving on the validation metric. What's going on, and how do you fix the plot?",
         "a": "Loss usually decays roughly geometrically (each epoch multiplies remaining loss by some factor < 1), so on a linear axis the early large drops compress the y-range and all the smaller-but-still-real late-training improvements become invisible near the x-axis. Switching to ax.set_yscale('log') turns a geometric decay into a straight line and rescales so late-training changes - which might be a 5% relative improvement, just as meaningful as an early 50% drop - become visually proportionate to their relative size rather than their absolute size.",
-        "deepDive": { "q": "When would a linear scale actually be the right choice instead?", "a": "When the quantity you're plotting doesn't decay multiplicatively - e.g., a metric bounded in [0,1] like accuracy, or a loss that's expected to plateau near a genuine floor (irreducible noise) rather than keep shrinking - a log scale on a metric that isn't behaving geometrically can visually exaggerate noise near a low value, since equal-looking gaps near zero on a log scale represent huge relative swings." }
+        "deepDive": {
+          "q": "When would a linear scale actually be the right choice instead?",
+          "a": "When the quantity you're plotting doesn't decay multiplicatively - e.g., a metric bounded in [0,1] like accuracy, or a loss that's expected to plateau near a genuine floor (irreducible noise) rather than keep shrinking - a log scale on a metric that isn't behaving geometrically can visually exaggerate noise near a low value, since equal-looking gaps near zero on a log scale represent huge relative swings."
+        }
       },
       {
         "q": "Design a single figure that would help you diagnose whether a regression model is overfitting, and walk through what each panel tells you.",
         "a": "A 1x2 figure: left panel plots train and validation loss vs epoch on a log y-axis - overfitting shows as train loss continuing to fall while val loss flattens or rises (the classic diverging-curves signature); right panel is a scatter of predicted vs actual values on the validation set with a y=x reference line - overfitting to specific training examples (rather than the underlying function) often shows as a *good* fit on a train-set version of this plot but a scattered, biased cloud on the val-set version, and the reference line makes any systematic over/under-prediction pattern visible at a glance rather than buried in an aggregate R^2 number.",
-        "deepDive": { "q": "What would each panel look like under underfitting instead, and how would you tell the two failure modes apart from the plots alone?", "a": "Underfitting shows both train and val loss curves plateauing together at a high value (never diverging, because the model is too simple to fit even the training data) - the left panel's tell is 'both curves flat and close together but high', versus overfitting's 'curves clearly diverging with val above train'. On the right panel, underfitting typically shows a systematic pattern in the residuals (e.g., points curving away from y=x in one direction) because the model's functional form is too limited, whereas overfitting's scatter looks noisier/wider but without a systematic curved pattern." }
+        "deepDive": {
+          "q": "What would each panel look like under underfitting instead, and how would you tell the two failure modes apart from the plots alone?",
+          "a": "Underfitting shows both train and val loss curves plateauing together at a high value (never diverging, because the model is too simple to fit even the training data) - the left panel's tell is 'both curves flat and close together but high', versus overfitting's 'curves clearly diverging with val above train'. On the right panel, underfitting typically shows a systematic pattern in the residuals (e.g., points curving away from y=x in one direction) because the model's functional form is too limited, whereas overfitting's scatter looks noisier/wider but without a systematic curved pattern."
+        }
       },
       {
         "q": "You're plotting a scatter of 500,000 data points and the resulting figure is just a solid block of color with no visible structure. What's happening and what are two fixes?",
         "a": "This is overplotting: at that density, opaque markers stack on top of each other and the plot only shows 'point present or not', losing all information about relative density. Fix 1: set alpha=0.02-0.1 on the scatter so overlapping points visually accumulate into darker regions, recovering a density signal. Fix 2: abandon the scatter entirely for a 2-D histogram (ax.hist2d) or hexbin (ax.hexbin), which bins the plane and colors each cell by count - both are designed for exactly this data volume and render in roughly the same time regardless of point count.",
-        "deepDive": { "q": "Why might hexbin be preferred over a rectangular 2-D histogram for this?", "a": "Hexagonal binning has more uniform neighbor-distance properties than square binning (every hexagon's neighbors are equidistant, unlike a square grid where diagonal neighbors are farther), which tends to produce a visually less grid-artifacted density estimate - it's a minor aesthetic/perceptual advantage rather than a fundamental statistical one." }
+        "deepDive": {
+          "q": "Why might hexbin be preferred over a rectangular 2-D histogram for this?",
+          "a": "Hexagonal binning has more uniform neighbor-distance properties than square binning (every hexagon's neighbors are equidistant, unlike a square grid where diagonal neighbors are farther), which tends to produce a visually less grid-artifacted density estimate - it's a minor aesthetic/perceptual advantage rather than a fundamental statistical one."
+        }
       },
       {
         "q": "Explain Anscombe's quartet as an interview-ready argument for why you should always plot data, not just compute summary statistics.",
         "a": "Anscombe's quartet is four (x,y) datasets constructed so that the mean of x, mean of y, variance of both, Pearson correlation, and the fitted linear regression line are identical (to two decimal places) across all four - yet plotted, they look nothing alike: one is a clean linear relationship, one is a clear nonlinear curve that a linear fit misses entirely, one is a perfect line except for a single outlier that drags the fit off course, and one is a vertical cluster of x-values plus one high-leverage outlier that manufactures a fake correlation. It's the canonical demonstration that any fixed set of summary statistics is a lossy projection of a distribution - two datasets can agree on every number you'd normally report and still require completely different modeling decisions, which is why EDA always includes plots, not just a stats table.",
-        "deepDive": { "q": "What's a modern, higher-dimensional analogue of this same lesson?", "a": "The Datasaurus Dozen extends the idea to a dozen wildly different 2-D shapes (including a dinosaur silhouette) all sharing the same summary statistics to two decimals; in higher dimensions, the analogous caution is that PCA/UMAP/t-SNE visualizations of feature spaces (Module 11+) can reveal cluster structure, outliers, or leakage patterns that column-wise summary statistics alone never would." }
+        "deepDive": {
+          "q": "What's a modern, higher-dimensional analogue of this same lesson?",
+          "a": "The Datasaurus Dozen extends the idea to a dozen wildly different 2-D shapes (including a dinosaur silhouette) all sharing the same summary statistics to two decimals; in higher dimensions, the analogous caution is that PCA/UMAP/t-SNE visualizations of feature spaces (Module 11+) can reveal cluster structure, outliers, or leakage patterns that column-wise summary statistics alone never would."
+        }
       },
       {
         "q": "You need to compare four models' training curves on one figure, but the lines are hard to tell apart in grayscale printouts and for colorblind viewers. How would you fix this without just picking 'nicer' colors?",
         "a": "Don't rely on color alone to encode a categorical distinction that needs to survive grayscale or colorblind viewing - pair color with a redundant visual channel: a different linestyle per series (solid/dashed/dotted/dash-dot via the linestyle= argument), different marker shapes at intervals (marker='o','s','^','x'), and direct end-of-line labels (annotating each curve's final point with its name) instead of relying solely on a color-keyed legend. This is the same 'don't encode information in a single fragile channel' principle as accessible web design - redundant encoding degrades gracefully instead of failing completely when one channel (color) is unavailable.",
-        "deepDive": { "q": "Beyond linestyle/markers, what's a colormap-level choice that specifically helps colorblind viewers when color IS necessary (e.g., a continuous heatmap)?", "a": "Use a perceptually uniform, colorblind-safe colormap such as matplotlib's 'viridis' (the default since matplotlib 2.0) instead of 'jet' or 'rainbow' - viridis is designed so perceived brightness changes monotonically with the data value (so it still reads correctly when converted to grayscale) and remains distinguishable under the most common forms of color vision deficiency, whereas 'jet' has non-monotonic luminance and creates false visual boundaries/artifacts that don't correspond to real jumps in the underlying data." }
+        "deepDive": {
+          "q": "Beyond linestyle/markers, what's a colormap-level choice that specifically helps colorblind viewers when color IS necessary (e.g., a continuous heatmap)?",
+          "a": "Use a perceptually uniform, colorblind-safe colormap such as matplotlib's 'viridis' (the default since matplotlib 2.0) instead of 'jet' or 'rainbow' - viridis is designed so perceived brightness changes monotonically with the data value (so it still reads correctly when converted to grayscale) and remains distinguishable under the most common forms of color vision deficiency, whereas 'jet' has non-monotonic luminance and creates false visual boundaries/artifacts that don't correspond to real jumps in the underlying data."
+        }
       }
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Figure vs Axes", "back": "Figure = the whole canvas/window; Axes = one individual plot (own x/y scales, ticks, data) - a Figure can hold multiple Axes." },
-    { "type": "intuition", "front": "Why the explicit fig, ax = plt.subplots() pattern", "back": "Every call targets a specific Axes object - no ambiguity about 'current axes' the way bare plt.plot()/plt.title() have." },
-    { "type": "pitfall", "front": "Linear-scale loss curve", "back": "Geometric decay compresses late-training signal near zero on a linear axis - use ax.set_yscale('log') to see it as a straight line." },
-    { "type": "intuition", "front": "Confusion matrix vs accuracy", "back": "Accuracy is one number; a confusion matrix shows which specific classes get confused for which - the diagnostic detail accuracy hides." },
-    { "type": "pitfall", "front": "Overplotting", "back": "Too many opaque points stack into a solid block, hiding density - fix with alpha= transparency or hist2d/hexbin." },
-    { "type": "definition", "front": "Anscombe's quartet", "back": "Four datasets with identical mean/variance/correlation/regression line that look completely different plotted - proof summary stats are lossy." },
-    { "type": "pitfall", "front": "Overlapping subplot labels/titles", "back": "Fix with fig.tight_layout() or constrained_layout=True when creating the figure." },
-    { "type": "intuition", "front": "y=x reference line on predicted-vs-actual", "back": "Makes systematic prediction bias (over/under-prediction) instantly visible instead of buried in an aggregate error metric." }
+    {
+      "type": "definition",
+      "front": "Figure vs Axes",
+      "back": "Figure = the whole canvas/window; Axes = one individual plot (own x/y scales, ticks, data) - a Figure can hold multiple Axes."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the explicit fig, ax = plt.subplots() pattern",
+      "back": "Every call targets a specific Axes object - no ambiguity about 'current axes' the way bare plt.plot()/plt.title() have."
+    },
+    {
+      "type": "pitfall",
+      "front": "Linear-scale loss curve",
+      "back": "Geometric decay compresses late-training signal near zero on a linear axis - use ax.set_yscale('log') to see it as a straight line."
+    },
+    {
+      "type": "intuition",
+      "front": "Confusion matrix vs accuracy",
+      "back": "Accuracy is one number; a confusion matrix shows which specific classes get confused for which - the diagnostic detail accuracy hides."
+    },
+    {
+      "type": "pitfall",
+      "front": "Overplotting",
+      "back": "Too many opaque points stack into a solid block, hiding density - fix with alpha= transparency or hist2d/hexbin."
+    },
+    {
+      "type": "definition",
+      "front": "Anscombe's quartet",
+      "back": "Four datasets with identical mean/variance/correlation/regression line that look completely different plotted - proof summary stats are lossy."
+    },
+    {
+      "type": "pitfall",
+      "front": "Overlapping subplot labels/titles",
+      "back": "Fix with fig.tight_layout() or constrained_layout=True when creating the figure."
+    },
+    {
+      "type": "intuition",
+      "front": "y=x reference line on predicted-vs-actual",
+      "back": "Makes systematic prediction bias (over/under-prediction) instantly visible instead of buried in an aggregate error metric."
+    }
   ],
   "refs": [
-    { "title": "Matplotlib: Quick start guide (Figure/Axes anatomy)", "url": "https://matplotlib.org/stable/users/explain/quick_start.html" },
-    { "title": "Matplotlib: pyplot vs object-oriented interface", "url": "https://matplotlib.org/stable/users/explain/figure/api_interfaces.html" },
-    { "title": "Anscombe, Graphs in Statistical Analysis (1973)", "url": "https://www.tandfonline.com/doi/abs/10.1080/00031305.1973.10478966" },
-    { "title": "Matplotlib: hexbin / hist2d for large scatter", "url": "https://matplotlib.org/stable/gallery/statistics/hexbin_demo.html" }
+    {
+      "title": "Matplotlib: Quick start guide (Figure/Axes anatomy)",
+      "url": "https://matplotlib.org/stable/users/explain/quick_start.html"
+    },
+    {
+      "title": "Matplotlib: pyplot vs object-oriented interface",
+      "url": "https://matplotlib.org/stable/users/explain/figure/api_interfaces.html"
+    },
+    {
+      "title": "Anscombe, Graphs in Statistical Analysis (1973)",
+      "url": "https://www.tandfonline.com/doi/abs/10.1080/00031305.1973.10478966"
+    },
+    {
+      "title": "Matplotlib: hexbin / hist2d for large scatter",
+      "url": "https://matplotlib.org/stable/gallery/statistics/hexbin_demo.html"
+    }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "02-04",
+    "module": "python-toolchain",
+    "disposition": "clean",
+    "notebookFile": "02-04_visualization_machine_learning.ipynb"
+  }
 }

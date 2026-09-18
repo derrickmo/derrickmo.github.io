@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "05-04",
   "slug": "loss-functions",
+  "keyBase": "neural-nets/loss-functions",
   "module": "neural-nets",
   "title": "Loss Functions Deep Dive",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Gneiting & Raftery (2007) — Strictly Proper Scoring Rules, Prediction, and Estimation",
       "url": "https://sites.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf"
     }
-  ]
+  ],
+  "v2": {
+    "id": "08-04",
+    "module": "neural-nets",
+    "disposition": "clean",
+    "notebookFile": "08-04_loss_functions.ipynb"
+  }
 }

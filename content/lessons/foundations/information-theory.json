@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-08",
   "slug": "information-theory",
+  "keyBase": "foundations/information-theory",
   "module": "foundations",
   "title": "Information Theory for ML",
   "status": "LIVE",
@@ -260,5 +261,11 @@
       "url": "https://arxiv.org/abs/cond-mat/0305641"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "01-07",
+    "module": "math-foundations",
+    "disposition": "clean",
+    "notebookFile": "01-07_information_theory_ml.ipynb"
+  }
 }

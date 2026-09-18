@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-02",
   "slug": "torch-compile",
+  "keyBase": "training-systems/torch-compile",
   "module": "training-systems",
   "title": "torch.compile — Dynamo & Inductor",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "16-02_torch_compile_dynamo_inductor.ipynb",
     "flagship": null,
-    "demos": ["batching", "kv-cache", "quantization", "moe"],
+    "demos": [
+      "batching",
+      "kv-cache",
+      "quantization",
+      "moe"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/torch-fx", "pytorch-internals/torchscript"],
-  "leadsTo": ["training-systems/profiling", "frontier-frameworks/torch-compile-triton"],
+  "prereqs": [
+    "pytorch-internals/torch-fx",
+    "pytorch-internals/torchscript"
+  ],
+  "leadsTo": [
+    "training-systems/profiling",
+    "frontier-frameworks/torch-compile-triton"
+  ],
   "body": {
     "intuition": [
       "torch.compile is three components. DYNAMO analyses Python bytecode at runtime and captures what it can into an FX graph, recording GUARDS - the conditions under which that capture is valid. AOTAUTOGRAD then traces the backward pass ahead of time, so the compiler sees forward and backward together, which is why it can fuse the backward at all - something TorchScript never did. INDUCTOR generates the actual kernels: Triton for GPU, C++ with OpenMP for CPU. The exchange is compile time and debuggability for throughput, and as always the rate depends on your configuration.",
@@ -277,5 +289,14 @@
       "url": "https://triton-lang.org/"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-07",
+    "module": "pytorch-internals",
+    "disposition": "split",
+    "notebookFile": "20-07_torch_compile_dynamo_inductor.ipynb",
+    "alsoFeeds": [
+      "21-09"
+    ]
+  }
 }

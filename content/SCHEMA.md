@@ -11,7 +11,29 @@ notebooks repo and the mobile app consume the compiled `content.json`.
 (canonical notebook filename, set for all 250 lessons from the notebooks repo)
 and `module.notebooksSynced` (per-module gate for per-lesson GitHub deep links —
 needed because the GitHub drip still carries pre-B2-rename filenames until
-Derrick syncs each module; flip it per module after syncing, then regenerate). Breaking changes (renames, removals, type changes) require a
+Derrick syncs each module; flip it per module after syncing, then regenerate).
+
+**contentVersion 1.2.0 (2026-09-17, additive):** `lesson.keyBase` and `lesson.v2`.
+
+- **`keyBase`** — `"<module>/<slug>"`, written once and then CARRIED. It is what
+  the interview and pitfalls indexes hash to make a card id, in place of the
+  lesson's live module and slug. ⚠ **Identity must not be location.** A card id
+  keys the reader's own SM-2 schedule in `localStorage` and in the app, so
+  hashing the current module means that MOVING a lesson silently wipes its
+  schedule — the notebooks' v2 reshuffle alone would have re-keyed 1,695
+  questions and 896 flashcards. Backfilled to the current `module/slug` on all
+  250 lessons, so nothing changed the day it landed (verified: 0 of 7,975 ids
+  moved). Do not "simplify" a hasher back to `module, slug`.
+- **`v2`** — where this lesson lands in the notebooks repo's 26-module / 282-slot
+  curriculum: `{ id, module, disposition, notebookFile }`, plus `alsoFeeds` when
+  one lesson supplies more than one v2 slot. `disposition` is `clean` | `split` |
+  `merge` | `promote` | `cut`. Written by `scripts/sync-v2-map.mjs` from that
+  repo's own `docs/curriculum/index.json` + `docs/migration/RENUMBER_MAP.csv`;
+  re-run it when the curriculum moves again rather than hand-editing. **Nothing
+  renders from it** — it is the bridge that keeps the two surfaces reconcilable
+  while the site's own routes stay put.
+
+Breaking changes (renames, removals, type changes) require a
 `schemaVersion` bump and a migration note here — avoid until after app launch.
 
 ## Layout
@@ -22,10 +44,12 @@ content/
   meta.json                                  { schemaVersion, contentVersion, updatedAt }
   modules/<module-slug>.json                 25 files - one per module
   lessons/<module-slug>/<lesson-slug>.json   250 files - one per curriculum lesson
-  concepts/<module-slug>/<concept-id>.json   one per taught sub-lesson (91; 104 at seed,
-                                             minus the 31 retired by RC-0001 whose URL a
-                                             store lesson now owns, plus 18 authored for
-                                             modules 21-25 by GA-0001)
+  concepts/<module-slug>/<concept-id>.json   one per taught sub-lesson (155 — the count
+                                             drifted past the 91 recorded here through
+                                             later authoring batches; audit-counts.mjs
+                                             now checks this file against reality)
+  migrations/v1-to-v2.json                   generated: the notebooks repo's 26-module
+                                             curriculum, joined to this store
 ```
 
 A build step compiles the tree into one versioned `content.json`

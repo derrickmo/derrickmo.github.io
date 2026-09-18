@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-05",
   "slug": "ner",
+  "keyBase": "advanced-nlp/ner",
   "module": "advanced-nlp",
   "title": "Named Entity Recognition",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-05_named_entity_recognition.ipynb",
     "flagship": null,
-    "demos": ["probing-classifier", "hmm-viterbi", "tokenizer", "embeddings"],
+    "demos": [
+      "probing-classifier",
+      "hmm-viterbi",
+      "tokenizer",
+      "embeddings"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/fine-tuning-transformers", "rnn-nlp/sequence-labeling"],
-  "leadsTo": ["advanced-nlp/qa", "advanced-nlp/nlp-eval"],
+  "prereqs": [
+    "advanced-nlp/fine-tuning-transformers",
+    "rnn-nlp/sequence-labeling"
+  ],
+  "leadsTo": [
+    "advanced-nlp/qa",
+    "advanced-nlp/nlp-eval"
+  ],
   "body": {
     "intuition": [
       "Named entity recognition is the task of finding the spans in a text that refer to specific things - people, organizations, places, dates, drugs, gene names, invoice numbers - and labelling what kind of thing each one is. It is the workhorse of information extraction: before you can populate a database, link records, redact personal data, or build a knowledge graph, you have to find where the entities are.",
@@ -82,33 +94,87 @@
       "Ignoring nested and discontinuous entities because BIO cannot express them. 'University of Washington Medical Center' contains an organization inside an organization, and flat BIO forces you to pick one - which may be the wrong one for your consumer."
     ],
     "connections": [
-      { "ref": "rnn-nlp/sequence-labeling", "text": "BIO tagging, CRFs, and Viterbi decoding predate transformers entirely - the encoder changed, the output structure and its constraints did not." },
-      { "ref": "advanced-nlp/fine-tuning-transformers", "text": "Token-level fine-tuning is where subword alignment, windowing, and metric choice all bite at once; the classification recipe does not transfer unmodified." },
-      { "ref": "ml-theory/imbalanced-data", "text": "The 85%-'O' distribution is structural class imbalance, and it is why accuracy is the wrong metric and why per-class reporting is mandatory." },
-      { "ref": "advanced-nlp/nlp-eval", "text": "Exact-span F1 is a deliberately strict proxy; whether it matches what your consumer needs is the same question that governs every generation metric." },
-      { "ref": "rag-agents/chunking-retrieval", "text": "The overlapping-window problem in NER is the same boundary problem as document chunking for retrieval, with the same stride-and-reconcile answer." }
+      {
+        "ref": "rnn-nlp/sequence-labeling",
+        "text": "BIO tagging, CRFs, and Viterbi decoding predate transformers entirely - the encoder changed, the output structure and its constraints did not."
+      },
+      {
+        "ref": "advanced-nlp/fine-tuning-transformers",
+        "text": "Token-level fine-tuning is where subword alignment, windowing, and metric choice all bite at once; the classification recipe does not transfer unmodified."
+      },
+      {
+        "ref": "ml-theory/imbalanced-data",
+        "text": "The 85%-'O' distribution is structural class imbalance, and it is why accuracy is the wrong metric and why per-class reporting is mandatory."
+      },
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "Exact-span F1 is a deliberately strict proxy; whether it matches what your consumer needs is the same question that governs every generation metric."
+      },
+      {
+        "ref": "rag-agents/chunking-retrieval",
+        "text": "The overlapping-window problem in NER is the same boundary problem as document chunking for retrieval, with the same stride-and-reconcile answer."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is NER?", "a": "Finding spans of text that refer to specific entities - people, organizations, locations, dates, domain-specific types - and labelling each span's type. The first stage of most information-extraction pipelines." },
-      { "q": "What is BIO tagging?", "a": "B-TYPE for the first token of an entity, I-TYPE for continuations, O for outside. Turns span extraction into per-token classification with 2k+1 labels for k types." },
-      { "q": "What does BIOES add?", "a": "Explicit End and Single tags (4k+1 labels), giving a sharper training signal at boundaries. Slightly better in practice, at the cost of more labels and more sparsity per label." },
-      { "q": "Why is token accuracy a bad metric here?", "a": "About 85% of tokens are 'O', so predicting 'O' everywhere scores 85%. Use entity-level F1 with exact span-and-type matching." },
-      { "q": "How harsh is exact-span F1?", "a": "A one-token boundary slip counts as a false positive AND a false negative - two errors for one near-miss. This is why boundary errors dominate real error analyses." },
-      { "q": "What are invalid BIO transitions?", "a": "Sequences no annotation could produce, like O -> I-PER or B-PER -> I-LOC. An independent per-token argmax can emit them; constrained Viterbi decoding cannot." },
-      { "q": "Is a CRF layer still worth it on top of a transformer?", "a": "Marginally. The contextual encoder already captures most tag dependency, so the learned transitions add little - but HARD constrained decoding is nearly free and should be used regardless." },
-      { "q": "How do you align word labels to subword tokens?", "a": "Label the first subword of each word, set continuations to -100 so the loss ignores them, and use the tokenizer's word_ids() mapping. Apply the same convention at training and inference." },
-      { "q": "How do you handle documents longer than the context window?", "a": "Chunk with an overlapping STRIDE, then reconcile predictions in the overlap - preferring the window where the token sits furthest from an edge, since edge tokens have the least context." },
-      { "q": "What are nested entities?", "a": "Entities contained inside other entities - 'University of Washington' inside 'University of Washington Medical Center'. Flat BIO cannot express them; span-based or layered approaches can." },
-      { "q": "Why does casing matter so much for NER?", "a": "Capitalization is one of the strongest surface cues for names. Uncased models are materially worse, and lowercased input (ASR output, some logs) needs truecasing or a model trained for that condition." },
-      { "q": "How clean is CoNLL-2003?", "a": "Not very. Re-annotation found over 5% of TEST labels incorrect, so systems reported at 93-94 F1 are competing inside the annotation noise. Treat small benchmark gaps as unmeasurable." }
+      {
+        "q": "What is NER?",
+        "a": "Finding spans of text that refer to specific entities - people, organizations, locations, dates, domain-specific types - and labelling each span's type. The first stage of most information-extraction pipelines."
+      },
+      {
+        "q": "What is BIO tagging?",
+        "a": "B-TYPE for the first token of an entity, I-TYPE for continuations, O for outside. Turns span extraction into per-token classification with 2k+1 labels for k types."
+      },
+      {
+        "q": "What does BIOES add?",
+        "a": "Explicit End and Single tags (4k+1 labels), giving a sharper training signal at boundaries. Slightly better in practice, at the cost of more labels and more sparsity per label."
+      },
+      {
+        "q": "Why is token accuracy a bad metric here?",
+        "a": "About 85% of tokens are 'O', so predicting 'O' everywhere scores 85%. Use entity-level F1 with exact span-and-type matching."
+      },
+      {
+        "q": "How harsh is exact-span F1?",
+        "a": "A one-token boundary slip counts as a false positive AND a false negative - two errors for one near-miss. This is why boundary errors dominate real error analyses."
+      },
+      {
+        "q": "What are invalid BIO transitions?",
+        "a": "Sequences no annotation could produce, like O -> I-PER or B-PER -> I-LOC. An independent per-token argmax can emit them; constrained Viterbi decoding cannot."
+      },
+      {
+        "q": "Is a CRF layer still worth it on top of a transformer?",
+        "a": "Marginally. The contextual encoder already captures most tag dependency, so the learned transitions add little - but HARD constrained decoding is nearly free and should be used regardless."
+      },
+      {
+        "q": "How do you align word labels to subword tokens?",
+        "a": "Label the first subword of each word, set continuations to -100 so the loss ignores them, and use the tokenizer's word_ids() mapping. Apply the same convention at training and inference."
+      },
+      {
+        "q": "How do you handle documents longer than the context window?",
+        "a": "Chunk with an overlapping STRIDE, then reconcile predictions in the overlap - preferring the window where the token sits furthest from an edge, since edge tokens have the least context."
+      },
+      {
+        "q": "What are nested entities?",
+        "a": "Entities contained inside other entities - 'University of Washington' inside 'University of Washington Medical Center'. Flat BIO cannot express them; span-based or layered approaches can."
+      },
+      {
+        "q": "Why does casing matter so much for NER?",
+        "a": "Capitalization is one of the strongest surface cues for names. Uncased models are materially worse, and lowercased input (ASR output, some logs) needs truecasing or a model trained for that condition."
+      },
+      {
+        "q": "How clean is CoNLL-2003?",
+        "a": "Not very. Re-annotation found over 5% of TEST labels incorrect, so systems reported at 93-94 F1 are competing inside the annotation noise. Treat small benchmark gaps as unmeasurable."
+      }
     ],
     "standard": [
       {
         "q": "Design an NER system for extracting drug names, dosages, and adverse events from clinical notes.",
         "a": "I would treat this as a specification-and-data problem first and a modelling problem second, because in clinical NER the model is rarely the binding constraint. STEP 1 - PIN DOWN THE ANNOTATION GUIDELINES, before anything else. Clinical text makes the boundary questions unusually painful and every one of them must be decided explicitly and written down. Is the drug 'metformin' or 'metformin HCl' or 'metformin 500mg PO BID'? Is the dosage one entity or three (amount, unit, frequency)? Is a NEGATED mention ('patient denies chest pain') an adverse event? Is a HYPOTHETICAL or family-history mention ('mother had a reaction to penicillin') an event for this patient? These are not edge cases in clinical text - negation and non-patient attribution are pervasive, and a system that extracts them as positives is actively dangerous. I would budget real time for guideline development and measure INTER-ANNOTATOR AGREEMENT before training anything; if two clinicians agree at 0.7 F1, no model will exceed that and you have found your ceiling. STEP 2 - CHOOSE THE BASE MODEL, and here the domain matters enormously. General BERT is a poor fit: clinical text is dense with abbreviations, misspellings, non-standard syntax, and specialist vocabulary that a general tokenizer shreds. I would start from a domain model - BioClinicalBERT, PubMedBERT, or a modern clinical model - and check tokenizer FERTILITY on my own notes; if drug names are splitting into four or five subwords, that alone predicts weaker performance. Continued pretraining on my own unlabelled notes (of which there will be many) is the highest-return next step. STEP 3 - EXPLOIT THE STRUCTURE THE DOMAIN GIVES YOU FOR FREE, which is what distinguishes a real clinical system from a benchmark one. Drugs are a CLOSED-ISH SET: RxNorm exists, and gazetteer features or a dictionary-match channel combined with the neural model catches rare drugs the model has never seen and gives you a linkable identifier. Dosages are highly REGULAR - '500mg PO BID' is close to a grammar - so a rule-based extractor may beat a learned one and will certainly be more auditable. Adverse events are the genuinely hard part and need the model. Being willing to use rules where rules are correct is a strength, not a compromise. STEP 4 - HANDLE NEGATION AND ATTRIBUTION AS A SEPARATE STAGE. Do not ask the NER model to learn 'is negated' implicitly. Extract the mention, then run a dedicated assertion classifier (negated / historical / hypothetical / family / present) over each mention with its context. This is the standard clinical NLP architecture, it is far more accurate than folding it into the tag set, and it makes the failure modes inspectable. STEP 5 - PICK THE OPERATING POINT DELIBERATELY. For pharmacovigilance, RECALL on adverse events dominates - a missed event is a safety signal lost, a false positive is a reviewer's minute. I would tune the threshold for high recall, then put a human review queue behind it, and report a precision-recall curve rather than a single F1. This is also where calibration matters, because the review queue is thresholded on confidence. STEP 6 - EVALUATE HONESTLY. Entity-level F1 per type; a relaxed-boundary score alongside it (for dosage extraction, a boundary that includes the unit but not a trailing period is fine, and exact match punishes it); a temporal split, since clinical documentation practices change; and a split by SITE or CLINICIAN rather than randomly, because notes from one author are highly self-similar and a random split leaks. And I would evaluate the end-to-end task - did we correctly populate the medication record - not only the span task, because a boundary error that still resolves to the right RxNorm code is not a real error. THE RISKS I WOULD FLAG EXPLICITLY: PHI handling and where the model runs; that performance will differ across sites and specialties in ways the aggregate hides; and that the system should be positioned as decision support with human review rather than as an autonomous extractor.",
-        "deepDive": { "q": "How do you handle nested, overlapping, and discontinuous entities, which flat BIO cannot represent?", "a": "THE LIMITATION. Flat BIO assigns exactly one label per token, so it can represent a partition of the text into disjoint spans and nothing else. Three real phenomena break that. NESTED: 'University of Washington Medical Center' is an organization containing 'Washington', a location, and arguably 'University of Washington', another organization. OVERLAPPING: two entities share tokens without one containing the other. DISCONTINUOUS: 'left and right ventricles' contains 'left ventricle' and 'right ventricle', neither of which is a contiguous span. These are not exotic - nested entities are common in biomedical corpora (GENIA annotates them heavily) and discontinuous mentions are frequent in clinical text, so any real biomedical system must have an answer. THE APPROACHES, with their trade-offs. (1) LAYERED / STACKED BIO: run several BIO layers, one per nesting depth, either as separate heads or by iteratively identifying and then removing the outermost entities. Simple and reuses everything you have, but you must fix a maximum depth, deeper layers have very little training data, and errors cascade downward. (2) SPAN-BASED CLASSIFICATION, which is the most common modern answer. Enumerate candidate spans up to a maximum length, build a representation for each (typically concatenating its start and end token vectors plus a width embedding), and classify each independently as one of the entity types or 'not an entity'. This handles nesting and overlap naturally because span decisions are independent. The costs are real: O(T * L) candidate spans for max length L, a severe negative/positive imbalance, and no built-in mechanism to prevent inconsistent predictions. SpERT and similar models work this way, and it extends cleanly to joint entity-and-relation extraction. (3) HYPERGRAPH AND TRANSITION-BASED methods represent overlapping structure explicitly with a shift-reduce style parser. Expressive, including for discontinuous mentions, but complex and largely superseded. (4) SEQUENCE-TO-SEQUENCE / GENERATIVE: generate the entities directly as text ('Washington | LOC ; University of Washington Medical Center | ORG'). This handles every case including discontinuous ones without any structural machinery, which is a genuine advantage, and it is what an LLM does by default. The costs are that you must constrain or post-process the output to be grounded in the source (generative models will hallucinate spans that are not present), it is slower, and you lose calibrated per-span probabilities. (5) MACHINE-READING-COMPREHENSION FRAMING: for each entity type ask a question ('find all organizations in this text') and extract answer spans. Nesting falls out because each type is queried separately, and it transfers well to few-shot settings because the question carries the type semantics. Slower - one pass per type. (6) FOR DISCONTINUOUS specifically, the standard trick is a two-stage decomposition: extract the contiguous FRAGMENTS, then classify which fragments combine into one entity. This keeps the sequence-labelling machinery and adds a small combination model. WHAT I WOULD ACTUALLY CHOOSE. If nesting is rare in my data, flat BIO with a documented rule for which reading wins (usually the outermost or the longest), plus a measurement of how much I am losing - quantify before you engineer. If nesting is common, span-based classification, because it is well-understood, gives per-span scores, and is easy to debug. If discontinuous entities matter, the fragment-plus-combination approach, or a generative model with grounding constraints. THE POINT WORTH MAKING IN AN INTERVIEW: the first question is not 'which architecture' but WHAT DOES THE DOWNSTREAM CONSUMER NEED. If the consumer wants one entity per mention for record linkage, flat extraction of the outermost span may be exactly right and the nesting is a non-problem. Solving a representation problem your consumer does not have is a common and expensive mistake." }
+        "deepDive": {
+          "q": "How do you handle nested, overlapping, and discontinuous entities, which flat BIO cannot represent?",
+          "a": "THE LIMITATION. Flat BIO assigns exactly one label per token, so it can represent a partition of the text into disjoint spans and nothing else. Three real phenomena break that. NESTED: 'University of Washington Medical Center' is an organization containing 'Washington', a location, and arguably 'University of Washington', another organization. OVERLAPPING: two entities share tokens without one containing the other. DISCONTINUOUS: 'left and right ventricles' contains 'left ventricle' and 'right ventricle', neither of which is a contiguous span. These are not exotic - nested entities are common in biomedical corpora (GENIA annotates them heavily) and discontinuous mentions are frequent in clinical text, so any real biomedical system must have an answer. THE APPROACHES, with their trade-offs. (1) LAYERED / STACKED BIO: run several BIO layers, one per nesting depth, either as separate heads or by iteratively identifying and then removing the outermost entities. Simple and reuses everything you have, but you must fix a maximum depth, deeper layers have very little training data, and errors cascade downward. (2) SPAN-BASED CLASSIFICATION, which is the most common modern answer. Enumerate candidate spans up to a maximum length, build a representation for each (typically concatenating its start and end token vectors plus a width embedding), and classify each independently as one of the entity types or 'not an entity'. This handles nesting and overlap naturally because span decisions are independent. The costs are real: O(T * L) candidate spans for max length L, a severe negative/positive imbalance, and no built-in mechanism to prevent inconsistent predictions. SpERT and similar models work this way, and it extends cleanly to joint entity-and-relation extraction. (3) HYPERGRAPH AND TRANSITION-BASED methods represent overlapping structure explicitly with a shift-reduce style parser. Expressive, including for discontinuous mentions, but complex and largely superseded. (4) SEQUENCE-TO-SEQUENCE / GENERATIVE: generate the entities directly as text ('Washington | LOC ; University of Washington Medical Center | ORG'). This handles every case including discontinuous ones without any structural machinery, which is a genuine advantage, and it is what an LLM does by default. The costs are that you must constrain or post-process the output to be grounded in the source (generative models will hallucinate spans that are not present), it is slower, and you lose calibrated per-span probabilities. (5) MACHINE-READING-COMPREHENSION FRAMING: for each entity type ask a question ('find all organizations in this text') and extract answer spans. Nesting falls out because each type is queried separately, and it transfers well to few-shot settings because the question carries the type semantics. Slower - one pass per type. (6) FOR DISCONTINUOUS specifically, the standard trick is a two-stage decomposition: extract the contiguous FRAGMENTS, then classify which fragments combine into one entity. This keeps the sequence-labelling machinery and adds a small combination model. WHAT I WOULD ACTUALLY CHOOSE. If nesting is rare in my data, flat BIO with a documented rule for which reading wins (usually the outermost or the longest), plus a measurement of how much I am losing - quantify before you engineer. If nesting is common, span-based classification, because it is well-understood, gives per-span scores, and is easy to debug. If discontinuous entities matter, the fragment-plus-combination approach, or a generative model with grounding constraints. THE POINT WORTH MAKING IN AN INTERVIEW: the first question is not 'which architecture' but WHAT DOES THE DOWNSTREAM CONSUMER NEED. If the consumer wants one entity per mention for record linkage, flat extraction of the outermost span may be exactly right and the nesting is a non-problem. Solving a representation problem your consumer does not have is a common and expensive mistake."
+        }
       },
       {
         "q": "Your NER model gets 92 F1 on the test set but users say it misses obvious entities. Investigate.",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "BIO / BIOES tagging", "back": "BIO: B-TYPE starts an entity, I-TYPE continues, O is outside (2k+1 labels). BIOES adds End and Single (4k+1), giving a sharper boundary signal at the cost of sparser labels." },
-    { "type": "pitfall", "front": "Token accuracy is meaningless for NER", "back": "~85% of tokens are 'O', so predicting 'O' everywhere scores 85%. Use ENTITY-level F1 with exact span + type match, and always read the per-type breakdown - a 98.7% token accuracy model can sit at 91 micro-F1 with its worst type at 79." },
-    { "type": "intuition", "front": "Why boundary errors dominate", "back": "Exact-span F1 scores a one-token slip as a false positive AND a false negative. 'Bank of England' vs 'the Bank of England' is a GUIDELINE decision, not a language problem - which is why annotation quality caps F1 more than architecture does." },
-    { "type": "pitfall", "front": "Subword label alignment", "back": "Label the FIRST subword of each word, -100 on continuations, using the tokenizer's word_ids(). Applying different conventions at train vs inference leaves token accuracy fine and quietly destroys entity F1." },
-    { "type": "pitfall", "front": "Windowing without a stride", "back": "Entities straddling a 512-token boundary are lost with no warning. Overlap windows (stride ~128) and reconcile in the overlap, preferring the window where the token is furthest from an edge." },
-    { "type": "definition", "front": "Constrained Viterbi decoding", "back": "Score whole sequences with a transition matrix that sets illegal BIO moves (O -> I-PER, B-PER -> I-LOC) to -inf, then decode with Viterbi in O(T k^2). No parameters to learn, and it eliminates malformed output entirely." },
-    { "type": "intuition", "front": "Is a CRF still worth it on a transformer?", "back": "Barely - self-attention already puts sequence context in every token's representation, so a learned CRF adds a few tenths of a point. Use HARD constrained decoding instead: same validity guarantee, no training complexity." },
-    { "type": "pitfall", "front": "Nested and discontinuous entities", "back": "Flat BIO gives one label per token, so it cannot represent 'University of Washington' inside 'University of Washington Medical Center', nor 'left and right ventricles'. Use span classification, layered BIO, or generative extraction - and first check whether your consumer cares." },
-    { "type": "pitfall", "front": "CoNLL-2003 is not clean", "back": "Re-annotation found >5% of TEST labels wrong, so systems at 93-94 F1 compete inside annotation noise. Also: 1996-97 newswire, four coarse types - performance on clinical, legal, chat, or ASR text is far lower." },
-    { "type": "intuition", "front": "Seen vs unseen entities", "back": "Benchmarks share entity vocabulary between train and test, which flatters models. Report performance separately on entities that appear in training and those that do not - the gap is the honest generalization measure, and it is where a gazetteer channel pays." },
-    { "type": "intuition", "front": "LLM vs fine-tuned encoder for NER", "back": "LLM wins zero-shot, on custom/open types, and on nested or reasoning-dependent extraction. Encoder wins on exact boundaries, cost, latency, grounding (a tagger cannot hallucinate a span), and calibration. Standard path: LLM labels, encoder deploys." },
-    { "type": "intuition", "front": "Negation and attribution are a separate stage", "back": "Do not fold 'is this negated / hypothetical / about the patient' into the tag set. Extract mentions, then run a dedicated assertion classifier over each with its context - more accurate and far more inspectable. Standard in clinical NLP." }
+    {
+      "type": "definition",
+      "front": "BIO / BIOES tagging",
+      "back": "BIO: B-TYPE starts an entity, I-TYPE continues, O is outside (2k+1 labels). BIOES adds End and Single (4k+1), giving a sharper boundary signal at the cost of sparser labels."
+    },
+    {
+      "type": "pitfall",
+      "front": "Token accuracy is meaningless for NER",
+      "back": "~85% of tokens are 'O', so predicting 'O' everywhere scores 85%. Use ENTITY-level F1 with exact span + type match, and always read the per-type breakdown - a 98.7% token accuracy model can sit at 91 micro-F1 with its worst type at 79."
+    },
+    {
+      "type": "intuition",
+      "front": "Why boundary errors dominate",
+      "back": "Exact-span F1 scores a one-token slip as a false positive AND a false negative. 'Bank of England' vs 'the Bank of England' is a GUIDELINE decision, not a language problem - which is why annotation quality caps F1 more than architecture does."
+    },
+    {
+      "type": "pitfall",
+      "front": "Subword label alignment",
+      "back": "Label the FIRST subword of each word, -100 on continuations, using the tokenizer's word_ids(). Applying different conventions at train vs inference leaves token accuracy fine and quietly destroys entity F1."
+    },
+    {
+      "type": "pitfall",
+      "front": "Windowing without a stride",
+      "back": "Entities straddling a 512-token boundary are lost with no warning. Overlap windows (stride ~128) and reconcile in the overlap, preferring the window where the token is furthest from an edge."
+    },
+    {
+      "type": "definition",
+      "front": "Constrained Viterbi decoding",
+      "back": "Score whole sequences with a transition matrix that sets illegal BIO moves (O -> I-PER, B-PER -> I-LOC) to -inf, then decode with Viterbi in O(T k^2). No parameters to learn, and it eliminates malformed output entirely."
+    },
+    {
+      "type": "intuition",
+      "front": "Is a CRF still worth it on a transformer?",
+      "back": "Barely - self-attention already puts sequence context in every token's representation, so a learned CRF adds a few tenths of a point. Use HARD constrained decoding instead: same validity guarantee, no training complexity."
+    },
+    {
+      "type": "pitfall",
+      "front": "Nested and discontinuous entities",
+      "back": "Flat BIO gives one label per token, so it cannot represent 'University of Washington' inside 'University of Washington Medical Center', nor 'left and right ventricles'. Use span classification, layered BIO, or generative extraction - and first check whether your consumer cares."
+    },
+    {
+      "type": "pitfall",
+      "front": "CoNLL-2003 is not clean",
+      "back": "Re-annotation found >5% of TEST labels wrong, so systems at 93-94 F1 compete inside annotation noise. Also: 1996-97 newswire, four coarse types - performance on clinical, legal, chat, or ASR text is far lower."
+    },
+    {
+      "type": "intuition",
+      "front": "Seen vs unseen entities",
+      "back": "Benchmarks share entity vocabulary between train and test, which flatters models. Report performance separately on entities that appear in training and those that do not - the gap is the honest generalization measure, and it is where a gazetteer channel pays."
+    },
+    {
+      "type": "intuition",
+      "front": "LLM vs fine-tuned encoder for NER",
+      "back": "LLM wins zero-shot, on custom/open types, and on nested or reasoning-dependent extraction. Encoder wins on exact boundaries, cost, latency, grounding (a tagger cannot hallucinate a span), and calibration. Standard path: LLM labels, encoder deploys."
+    },
+    {
+      "type": "intuition",
+      "front": "Negation and attribution are a separate stage",
+      "back": "Do not fold 'is this negated / hypothetical / about the patient' into the tag set. Extract mentions, then run a dedicated assertion classifier over each with its context - more accurate and far more inspectable. Standard in clinical NLP."
+    }
   ],
   "refs": [
-    { "title": "Lample et al. (2016), Neural Architectures for Named Entity Recognition", "url": "https://arxiv.org/abs/1603.01360" },
-    { "title": "Reiss et al. (2020), Identifying Incorrect Labels in the CoNLL-2003 Corpus", "url": "https://aclanthology.org/2020.conll-1.16/" },
-    { "title": "Li et al. (2020), A Unified MRC Framework for Named Entity Recognition", "url": "https://arxiv.org/abs/1910.11476" },
-    { "title": "Eberts & Ulges (2020), Span-based Joint Entity and Relation Extraction (SpERT)", "url": "https://arxiv.org/abs/1909.07755" },
-    { "title": "Pan et al. (2017), Cross-lingual Name Tagging and Linking for 282 Languages (WikiAnn)", "url": "https://aclanthology.org/P17-1178/" }
+    {
+      "title": "Lample et al. (2016), Neural Architectures for Named Entity Recognition",
+      "url": "https://arxiv.org/abs/1603.01360"
+    },
+    {
+      "title": "Reiss et al. (2020), Identifying Incorrect Labels in the CoNLL-2003 Corpus",
+      "url": "https://aclanthology.org/2020.conll-1.16/"
+    },
+    {
+      "title": "Li et al. (2020), A Unified MRC Framework for Named Entity Recognition",
+      "url": "https://arxiv.org/abs/1910.11476"
+    },
+    {
+      "title": "Eberts & Ulges (2020), Span-based Joint Entity and Relation Extraction (SpERT)",
+      "url": "https://arxiv.org/abs/1909.07755"
+    },
+    {
+      "title": "Pan et al. (2017), Cross-lingual Name Tagging and Linking for 282 Languages (WikiAnn)",
+      "url": "https://aclanthology.org/P17-1178/"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-06",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-06_named_entity_recognition.ipynb"
+  }
 }

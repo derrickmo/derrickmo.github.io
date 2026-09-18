@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-09",
   "slug": "debugging-profiling",
+  "keyBase": "pytorch-internals/debugging-profiling",
   "module": "pytorch-internals",
   "title": "PyTorch Debugging & Profiling",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "15-09_pytorch_debugging_profiling.ipynb",
     "flagship": null,
-    "demos": ["optimizers", "gradient-clipping", "batch-norm", "mixed-precision"],
+    "demos": [
+      "optimizers",
+      "gradient-clipping",
+      "batch-norm",
+      "mixed-precision"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/cuda-memory", "pytorch-internals/custom-loss"],
-  "leadsTo": ["training-systems/profiling", "training-systems/training-stability"],
+  "prereqs": [
+    "pytorch-internals/cuda-memory",
+    "pytorch-internals/custom-loss"
+  ],
+  "leadsTo": [
+    "training-systems/profiling",
+    "training-systems/training-stability"
+  ],
   "body": {
     "intuition": [
       "Every lesson in this module has ended the same way: the abstraction hid a mechanism, and when the mechanism fails there is no symptom that names it. This lesson is the method for that situation. Machine-learning bugs are unusually hard not because they are subtle but because THEY DO NOT ANNOUNCE THEMSELVES - a model with a third of its layers unregistered still trains, a loss with the wrong normalization still falls, a traced model still returns numbers. The training curve is a terrible detector, because almost everything produces a plausible one.",
@@ -277,5 +289,11 @@
       "url": "https://pytorch.org/docs/stable/notes/faq.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-06",
+    "module": "pytorch-internals",
+    "disposition": "merge",
+    "notebookFile": "20-06_profiling_bottleneck_analysis.ipynb"
+  }
 }

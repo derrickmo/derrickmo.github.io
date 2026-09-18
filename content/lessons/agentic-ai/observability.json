@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-08",
   "slug": "observability",
+  "keyBase": "agentic-ai/observability",
   "module": "agentic-ai",
   "title": "Observability, Tracing & Cost Control",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-08_observability.ipynb",
     "flagship": null,
-    "demos": ["kv-cache", "kv-cache-eviction", "tokenizer", "react-agent"],
+    "demos": [
+      "kv-cache",
+      "kv-cache-eviction",
+      "tokenizer",
+      "react-agent"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-memory", "agentic-ai/agent-loop"],
-  "leadsTo": ["agentic-ai/agent-security", "agentic-ai/agent-capstone"],
+  "prereqs": [
+    "agentic-ai/agent-memory",
+    "agentic-ai/agent-loop"
+  ],
+  "leadsTo": [
+    "agentic-ai/agent-security",
+    "agentic-ai/agent-capstone"
+  ],
   "body": {
     "intuition": [
       "An agent run is a distributed trace whether or not you instrument it as one: a sequence of spans, each with a duration and a cost, nested under a single request. Instrumenting it that way produces a finding that changes where you spend effort - the LATENCY bottleneck and the COST bottleneck are usually DIFFERENT STEPS. Latency concentrates in tool and network calls; cost concentrates in model calls with large token counts. So 'optimize the slow part' and 'optimize the expensive part' send you to different places, and an aggregate number sends you to neither.",
@@ -274,5 +286,11 @@
       "url": "https://arxiv.org/abs/2407.01502"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-10",
+    "module": "agentic-ai",
+    "disposition": "clean",
+    "notebookFile": "19-10_observability_tracing_cost_control.ipynb"
+  }
 }

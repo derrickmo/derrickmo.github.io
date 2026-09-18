@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-09",
   "slug": "bayesian-workflow",
+  "keyBase": "causal-inference/bayesian-workflow",
   "module": "causal-inference",
   "title": "The Bayesian Workflow",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/1701.02434"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-10",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-10_bayesian_workflow_mcmc.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-01",
   "slug": "embeddings-vector-stores",
+  "keyBase": "rag-agents/embeddings-vector-stores",
   "module": "rag-agents",
   "title": "Embeddings & Vector Stores",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-01_embeddings_vector_stores.ipynb",
     "flagship": null,
-    "demos": ["embeddings", "vector-search", "tokenizer", "quantization"],
+    "demos": [
+      "embeddings",
+      "vector-search",
+      "tokenizer",
+      "quantization"
+    ],
     "concepts": []
   },
-  "prereqs": ["rnn-nlp/word-vectors", "advanced-nlp/bert"],
-  "leadsTo": ["rag-agents/chunking-retrieval", "rag-agents/advanced-rag"],
+  "prereqs": [
+    "rnn-nlp/word-vectors",
+    "advanced-nlp/bert"
+  ],
+  "leadsTo": [
+    "rag-agents/chunking-retrieval",
+    "rag-agents/advanced-rag"
+  ],
   "body": {
     "intuition": [
       "A vector store does not search your documents. It searches a GEOMETRY that an embedding model built, and that model's training decided what 'similar' means before you wrote a line of code. Swap the model and the same query returns different neighbours from the same corpus - not because the corpus changed, but because the definition of relevance did. This is the first thing to internalize about retrieval: the embedding model is not a preprocessing step, it is the specification.",
@@ -273,5 +285,14 @@
       "url": "https://arxiv.org/abs/2112.09118"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "18-01",
+    "module": "retrieval-rag",
+    "disposition": "split",
+    "notebookFile": "18-01_embeddings_vector_spaces.ipynb",
+    "alsoFeeds": [
+      "18-02"
+    ]
+  }
 }

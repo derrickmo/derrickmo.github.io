@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-06",
   "slug": "torch-fx",
+  "keyBase": "pytorch-internals/torch-fx",
   "module": "pytorch-internals",
   "title": "torch.fx Graph Transformations",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "15-06_torch_fx_graph_transformations.ipynb",
     "flagship": null,
-    "demos": ["pruning", "quantization", "batch-norm", "distillation"],
+    "demos": [
+      "pruning",
+      "quantization",
+      "batch-norm",
+      "distillation"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/torchscript", "pytorch-internals/nn-module-patterns"],
-  "leadsTo": ["llm-systems/quantization", "training-systems/torch-compile"],
+  "prereqs": [
+    "pytorch-internals/torchscript",
+    "pytorch-internals/nn-module-patterns"
+  ],
+  "leadsTo": [
+    "llm-systems/quantization",
+    "training-systems/torch-compile"
+  ],
   "body": {
     "intuition": [
       "torch.fx turns a Module into a data structure you can edit. symbolic_trace runs the forward pass with PROXY objects instead of tensors - every operation on a proxy records a node rather than computing anything - and the result is a Graph of six node kinds, which fx can then regenerate as ordinary Python and recompile into a working Module. So the round trip is model, graph, edited graph, model, and the output is a normal nn.Module you can train, script, or deploy.",
@@ -277,5 +289,11 @@
       "url": "https://pytorch.org/docs/stable/torch.compiler_deepdive.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-09",
+    "module": "pytorch-internals",
+    "disposition": "merge",
+    "notebookFile": "20-09_torchscript_torch_fx_graph_transformations.ipynb"
+  }
 }

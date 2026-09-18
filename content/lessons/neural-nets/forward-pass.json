@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "05-05",
   "slug": "forward-pass",
+  "keyBase": "neural-nets/forward-pass",
   "module": "neural-nets",
   "title": "Forward Pass & Computational Graphs",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Williams, Waterman & Patterson (2009) — Roofline: An Insightful Visual Performance Model",
       "url": "https://dl.acm.org/doi/10.1145/1498765.1498785"
     }
-  ]
+  ],
+  "v2": {
+    "id": "08-05",
+    "module": "neural-nets",
+    "disposition": "clean",
+    "notebookFile": "08-05_forward_pass_computational_graphs_universal.ipynb"
+  }
 }

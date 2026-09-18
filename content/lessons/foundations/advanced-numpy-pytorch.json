@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-02",
   "slug": "advanced-numpy-pytorch",
+  "keyBase": "foundations/advanced-numpy-pytorch",
   "module": "foundations",
   "title": "Advanced NumPy & PyTorch Operations",
   "status": "LIVE",
@@ -261,5 +262,14 @@
       "url": "https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "02-02",
+    "module": "python-toolchain",
+    "disposition": "split",
+    "notebookFile": "02-02_broadcasting_einsum_vectorization.ipynb",
+    "alsoFeeds": [
+      "02-05"
+    ]
+  }
 }

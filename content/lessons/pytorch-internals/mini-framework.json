@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-10",
   "slug": "mini-framework",
+  "keyBase": "pytorch-internals/mini-framework",
   "module": "pytorch-internals",
   "title": "Mini Training Framework",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "15-10_mini_training_framework.ipynb",
     "flagship": null,
-    "demos": ["backprop", "optimizers", "lr-schedule", "neural-playground"],
+    "demos": [
+      "backprop",
+      "optimizers",
+      "lr-schedule",
+      "neural-playground"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/custom-autograd", "pytorch-internals/nn-module-patterns"],
-  "leadsTo": ["neural-nets/nn-walkthrough", "training-systems/optimized-pipeline"],
+  "prereqs": [
+    "pytorch-internals/custom-autograd",
+    "pytorch-internals/nn-module-patterns"
+  ],
+  "leadsTo": [
+    "neural-nets/nn-walkthrough",
+    "training-systems/optimized-pipeline"
+  ],
   "body": {
     "intuition": [
       "This module has been a tour of abstractions that hide mechanisms: registration hides the parameter tree, the caching allocator hides memory, tracing hides that your model is a program, collectives hide synchronization. Each one fails silently, and each lesson was about knowing what was hidden. The capstone is to build the abstractions yourself, at which point nothing is hidden - and every silent failure from the earlier lessons becomes obvious rather than memorized.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/1711.05101"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-10",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-10_build_mini_training_framework.ipynb"
+  }
 }

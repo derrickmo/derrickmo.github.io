@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-07",
   "slug": "adversarial-robustness",
+  "keyBase": "trustworthy-ai/adversarial-robustness",
   "module": "trustworthy-ai",
   "title": "Adversarial Robustness & Certified Defenses",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/1905.02175"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "24-10",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-10_certified_defences_adversarial_training.ipynb"
+  }
 }

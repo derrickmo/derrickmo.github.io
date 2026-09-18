@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-05",
   "slug": "torch-compile-triton",
+  "keyBase": "frontier-frameworks/torch-compile-triton",
   "module": "frontier-frameworks",
   "title": "torch.compile & GPU Kernels with Triton",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-05_torch_compile_triton.ipynb",
     "flagship": null,
-    "demos": ["kv-cache", "batching", "quantization", "kv-cache-eviction"],
+    "demos": [
+      "kv-cache",
+      "batching",
+      "quantization",
+      "kv-cache-eviction"
+    ],
     "concepts": []
   },
-  "prereqs": ["training-systems/torch-compile", "pytorch-internals/torch-fx"],
-  "leadsTo": ["frontier-frameworks/onnx-export", "frontier-frameworks/vllm-inference"],
+  "prereqs": [
+    "training-systems/torch-compile",
+    "pytorch-internals/torch-fx"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/onnx-export",
+    "frontier-frameworks/vllm-inference"
+  ],
   "body": {
     "intuition": [
       "Every compiler for tensor programs does the same three things, and the flags differ far more than the mechanisms. It CAPTURES a graph, so it can see more than one operation at a time. It FUSES memory-bound operations, so a chain of elementwise ops becomes one pass over memory instead of many. And it REDUCES LAUNCH OVERHEAD, so thousands of tiny operations stop paying a fixed cost each. Inductor, XLA, TVM and TensorRT are four answers to those three problems, which is why learning the problems transfers and learning the flags does not.",
@@ -273,5 +285,11 @@
       "url": "https://pytorch.org/docs/stable/torch.compiler.html"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "20-08",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-08_triton_kernels_custom_ops.ipynb"
+  }
 }

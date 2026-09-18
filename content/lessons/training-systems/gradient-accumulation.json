@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-04",
   "slug": "gradient-accumulation",
+  "keyBase": "training-systems/gradient-accumulation",
   "module": "training-systems",
   "title": "Gradient Accumulation & Large Batch Training",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "16-04_gradient_accumulation_large_batch_training.ipynb",
     "flagship": null,
-    "demos": ["lr-schedule", "scaling-laws", "optimizers", "batching"],
+    "demos": [
+      "lr-schedule",
+      "scaling-laws",
+      "optimizers",
+      "batching"
+    ],
     "concepts": []
   },
-  "prereqs": ["neural-nets/sgd-momentum", "training-systems/mixed-precision"],
-  "leadsTo": ["training-systems/ddp", "llm-systems/scaling-laws"],
+  "prereqs": [
+    "neural-nets/sgd-momentum",
+    "training-systems/mixed-precision"
+  ],
+  "leadsTo": [
+    "training-systems/ddp",
+    "llm-systems/scaling-laws"
+  ],
   "body": {
     "intuition": [
       "Gradient accumulation needs no special support because backward already accumulates into .grad - a value used in several places receives a contribution from each, which is the multivariable chain rule. So running k micro-batches without calling zero_grad between them, and dividing each loss by k, gives exactly the gradient of the concatenated batch. Two lines. The exchange is wall-clock time for effective batch size: you get the large-batch gradient on hardware that cannot hold a large batch, and you pay k forward-backward passes per optimizer step.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/1904.00962"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "21-03",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-03_gradient_accumulation_large_batch_training.ipynb"
+  }
 }

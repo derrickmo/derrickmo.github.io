@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "12-06",
   "slug": "vqa",
+  "keyBase": "multimodal/vqa",
   "module": "multimodal",
   "title": "Visual Question Answering",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "12-06_visual_question_answering.ipynb",
     "flagship": null,
-    "demos": ["attention", "classification-metrics", "embeddings", "saliency"],
+    "demos": [
+      "attention",
+      "classification-metrics",
+      "embeddings",
+      "saliency"
+    ],
     "concepts": []
   },
-  "prereqs": ["multimodal/vlm-captioning", "advanced-nlp/qa"],
-  "leadsTo": ["multimodal/multimodal-eval", "multimodal/multimodal-fusion"],
+  "prereqs": [
+    "multimodal/vlm-captioning",
+    "advanced-nlp/qa"
+  ],
+  "leadsTo": [
+    "multimodal/multimodal-eval",
+    "multimodal/multimodal-fusion"
+  ],
   "body": {
     "intuition": [
       "Visual question answering looks like the ideal test of multimodal understanding: you cannot answer 'what colour is the umbrella' without both reading the question and looking at the image. It was proposed on exactly that reasoning, and for a few years progress on the VQA benchmark was treated as progress on grounded understanding.",
@@ -82,27 +94,78 @@
       "Assuming modern VLMs fixed this. They are much better and the language-prior failure persists in a related form - POPE's adversarial split and compositional benchmarks show the same 'answer from what usually co-occurs' behaviour."
     ],
     "connections": [
-      { "ref": "advanced-nlp/nli", "text": "The hypothesis-only baseline and HANS are exactly this story in text: an ablation revealing a shortcut, then a constructed test set proving the model relies on it." },
-      { "ref": "multimodal/vlm-captioning", "text": "Object hallucination is the generative form of the same failure - describing what usually co-occurs rather than what is present, and POPE is the VQA-shaped test for it." },
-      { "ref": "multimodal/multimodal-fusion", "text": "Modality dominance is the architectural version: one modality's signal is easier to learn from, so the model uses it and effectively ignores the other." },
-      { "ref": "advanced-nlp/qa", "text": "SQuAD's AddSent result is the same shape - one appended sentence halving F1 because the model was ranking by question similarity rather than comprehending." },
-      { "ref": "multimodal/multimodal-eval", "text": "Unimodal ablations, shifted splits, and per-question-type breakdowns are the evaluation discipline this failure demands, and they generalize to every multimodal system." }
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "The hypothesis-only baseline and HANS are exactly this story in text: an ablation revealing a shortcut, then a constructed test set proving the model relies on it."
+      },
+      {
+        "ref": "multimodal/vlm-captioning",
+        "text": "Object hallucination is the generative form of the same failure - describing what usually co-occurs rather than what is present, and POPE is the VQA-shaped test for it."
+      },
+      {
+        "ref": "multimodal/multimodal-fusion",
+        "text": "Modality dominance is the architectural version: one modality's signal is easier to learn from, so the model uses it and effectively ignores the other."
+      },
+      {
+        "ref": "advanced-nlp/qa",
+        "text": "SQuAD's AddSent result is the same shape - one appended sentence halving F1 because the model was ranking by question similarity rather than comprehending."
+      },
+      {
+        "ref": "multimodal/multimodal-eval",
+        "text": "Unimodal ablations, shifted splits, and per-question-type breakdowns are the evaluation discipline this failure demands, and they generalize to every multimodal system."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is VQA?", "a": "Answering a natural-language question about an image. Proposed as a test of grounded understanding because you appear to need both modalities to answer." },
-      { "q": "What did the question-only baseline show?", "a": "A model with no image scored ~44% on VQA v1 against ~55% for full models. Most of the task was solvable from answer priors conditioned on question type." },
-      { "q": "Give examples of the priors.", "a": "'What sport' is tennis ~41% of the time; 'how many' is most often '2'; yes/no questions are 'yes' ~70% of the time. Answering 'yes' to everything is a strong baseline." },
-      { "q": "How did VQA v2 fix it?", "a": "COMPLEMENTARY PAIRS: for every question, a second similar image with a DIFFERENT answer. The question alone becomes uninformative by construction - a data-side fix." },
-      { "q": "What is VQA-CP?", "a": "Changing Priors: re-split so the answer distribution per question type DIFFERS between train and test. Models dropped roughly 20-25 points on identical images and questions." },
-      { "q": "What is VQA-CP's own flaw?", "a": "Its shift is systematic and known, so methods can exploit the INVERSE prior and score well without better grounding. A good diagnostic, a bad optimization target." },
-      { "q": "How is VQA accuracy computed?", "a": "min(number of the 10 annotators giving that answer / 3, 1). Three agreeing annotators gives full credit, two gives 2/3 - it accommodates genuine ambiguity." },
-      { "q": "What is human performance on VQA v2?", "a": "Around 80%, not 100%, because annotators genuinely disagree on open-ended visual questions. A model at 80% is at the measurement ceiling." },
-      { "q": "Why is VQA usually posed as classification?", "a": "The standard setup takes the top ~3000 answers as a fixed label set, which makes training and evaluation tractable - and caps the task and hides failures outside that vocabulary." },
-      { "q": "What is VizWiz?", "a": "VQA from blind users' real photographs. Images are blurry and poorly framed, and a large fraction of questions are UNANSWERABLE from the photo - which benchmark datasets never contain." },
-      { "q": "Do modern VLMs still show language priors?", "a": "Yes, in a related form. POPE's adversarial split and compositional benchmarks show the same 'answer from what usually co-occurs' behaviour, though the models are much better overall." },
-      { "q": "What is the general diagnostic here?", "a": "The UNIMODAL ABLATION - train on each modality alone and see what survives. One training run per modality, and it is the difference between knowing and assuming." }
+      {
+        "q": "What is VQA?",
+        "a": "Answering a natural-language question about an image. Proposed as a test of grounded understanding because you appear to need both modalities to answer."
+      },
+      {
+        "q": "What did the question-only baseline show?",
+        "a": "A model with no image scored ~44% on VQA v1 against ~55% for full models. Most of the task was solvable from answer priors conditioned on question type."
+      },
+      {
+        "q": "Give examples of the priors.",
+        "a": "'What sport' is tennis ~41% of the time; 'how many' is most often '2'; yes/no questions are 'yes' ~70% of the time. Answering 'yes' to everything is a strong baseline."
+      },
+      {
+        "q": "How did VQA v2 fix it?",
+        "a": "COMPLEMENTARY PAIRS: for every question, a second similar image with a DIFFERENT answer. The question alone becomes uninformative by construction - a data-side fix."
+      },
+      {
+        "q": "What is VQA-CP?",
+        "a": "Changing Priors: re-split so the answer distribution per question type DIFFERS between train and test. Models dropped roughly 20-25 points on identical images and questions."
+      },
+      {
+        "q": "What is VQA-CP's own flaw?",
+        "a": "Its shift is systematic and known, so methods can exploit the INVERSE prior and score well without better grounding. A good diagnostic, a bad optimization target."
+      },
+      {
+        "q": "How is VQA accuracy computed?",
+        "a": "min(number of the 10 annotators giving that answer / 3, 1). Three agreeing annotators gives full credit, two gives 2/3 - it accommodates genuine ambiguity."
+      },
+      {
+        "q": "What is human performance on VQA v2?",
+        "a": "Around 80%, not 100%, because annotators genuinely disagree on open-ended visual questions. A model at 80% is at the measurement ceiling."
+      },
+      {
+        "q": "Why is VQA usually posed as classification?",
+        "a": "The standard setup takes the top ~3000 answers as a fixed label set, which makes training and evaluation tractable - and caps the task and hides failures outside that vocabulary."
+      },
+      {
+        "q": "What is VizWiz?",
+        "a": "VQA from blind users' real photographs. Images are blurry and poorly framed, and a large fraction of questions are UNANSWERABLE from the photo - which benchmark datasets never contain."
+      },
+      {
+        "q": "Do modern VLMs still show language priors?",
+        "a": "Yes, in a related form. POPE's adversarial split and compositional benchmarks show the same 'answer from what usually co-occurs' behaviour, though the models are much better overall."
+      },
+      {
+        "q": "What is the general diagnostic here?",
+        "a": "The UNIMODAL ABLATION - train on each modality alone and see what survives. One training run per modality, and it is the difference between knowing and assuming."
+      }
     ],
     "standard": [
       {
@@ -132,25 +195,94 @@
     ]
   },
   "flashcards": [
-    { "type": "pitfall", "front": "The question-only baseline", "back": "A BLIND model scored ~44% on VQA v1 vs ~55% for full models. Vision's measurable contribution was ~11 points. Run the unimodal ablation before believing any multimodal result - one training run per modality." },
-    { "type": "intuition", "front": "Where VQA's language priors come from", "back": "'What sport' -> tennis ~41%; 'how many' -> '2' most often; yes/no -> 'yes' ~70%. Not a model bug - a correct read of the training distribution, which is exactly what supervised learning optimizes for." },
-    { "type": "definition", "front": "VQA v2's complementary pairs", "back": "For every question, a SECOND similar image with a DIFFERENT answer, so p(answer|question) is uninformative by construction. A DATA-side fix - removes the signal rather than regularizing against it, which is why it is robust." },
-    { "type": "definition", "front": "VQA-CP", "back": "Changing Priors: train and test answer distributions per question type deliberately DIFFER. Models dropped ~20-25 points on identical images and questions. Same construction as HANS in NLI." },
-    { "type": "pitfall", "front": "VQA-CP is a diagnostic, not a target", "back": "Its shift is systematic and KNOWN, so methods can exploit the inverse prior and score well without better grounding - several published debiasing methods were shown to be partly doing this. Any structured adversarial benchmark becomes gameable once targeted." },
-    { "type": "definition", "front": "VQA accuracy is not accuracy", "back": "min(#of 10 annotators giving that answer / 3, 1). Human performance is ~80%, not 100%, because open-ended visual questions genuinely have multiple valid answers - so 80% is the measurement ceiling." },
-    { "type": "intuition", "front": "i.i.d. test sets cannot find shortcuts", "back": "Structural, not a sampling problem: the shortcut works on the test set for exactly the reason it works in training. Detection requires data built so the shortcut and the task DISAGREE." },
-    { "type": "pitfall", "front": "Unanswerable questions", "back": "Benchmark questions are always answerable; real ones are not - VizWiz (blind users' real photos) found a large fraction cannot be answered from the image. Without trained abstention the model confidently guesses." },
-    { "type": "definition", "front": "The modality-corruption test", "back": "No retraining needed: feed the trained model a BLANK, SHUFFLED, or MISMATCHED image with the same question. If answers barely change, it is ignoring that modality. Mismatched is the most informative variant." },
-    { "type": "intuition", "front": "Why counting fails", "back": "No architectural counting primitive (pooling loses cardinality); contrastive pretraining never required it (unrelated negatives make presence sufficient); captions rarely state counts; and '2' is a strong prior. Fix by DELEGATING to a detector." },
-    { "type": "pitfall", "front": "Elicitation protocol creates the artifacts", "back": "Showing an annotator an image and asking for a question yields salient, usually-affirmative questions - that is where the 70% 'yes' rate came from. Ask for a question with a SPECIFIED answer, or separate question-writer from answerer." },
-    { "type": "intuition", "front": "What to report instead of one number", "back": "A table: full model, each unimodal ablation, mismatched-modality accuracy, shifted-split accuracy, counterfactual consistency. 70% with a 65% blind baseline is a different object from 70% with a 40% one." }
+    {
+      "type": "pitfall",
+      "front": "The question-only baseline",
+      "back": "A BLIND model scored ~44% on VQA v1 vs ~55% for full models. Vision's measurable contribution was ~11 points. Run the unimodal ablation before believing any multimodal result - one training run per modality."
+    },
+    {
+      "type": "intuition",
+      "front": "Where VQA's language priors come from",
+      "back": "'What sport' -> tennis ~41%; 'how many' -> '2' most often; yes/no -> 'yes' ~70%. Not a model bug - a correct read of the training distribution, which is exactly what supervised learning optimizes for."
+    },
+    {
+      "type": "definition",
+      "front": "VQA v2's complementary pairs",
+      "back": "For every question, a SECOND similar image with a DIFFERENT answer, so p(answer|question) is uninformative by construction. A DATA-side fix - removes the signal rather than regularizing against it, which is why it is robust."
+    },
+    {
+      "type": "definition",
+      "front": "VQA-CP",
+      "back": "Changing Priors: train and test answer distributions per question type deliberately DIFFER. Models dropped ~20-25 points on identical images and questions. Same construction as HANS in NLI."
+    },
+    {
+      "type": "pitfall",
+      "front": "VQA-CP is a diagnostic, not a target",
+      "back": "Its shift is systematic and KNOWN, so methods can exploit the inverse prior and score well without better grounding - several published debiasing methods were shown to be partly doing this. Any structured adversarial benchmark becomes gameable once targeted."
+    },
+    {
+      "type": "definition",
+      "front": "VQA accuracy is not accuracy",
+      "back": "min(#of 10 annotators giving that answer / 3, 1). Human performance is ~80%, not 100%, because open-ended visual questions genuinely have multiple valid answers - so 80% is the measurement ceiling."
+    },
+    {
+      "type": "intuition",
+      "front": "i.i.d. test sets cannot find shortcuts",
+      "back": "Structural, not a sampling problem: the shortcut works on the test set for exactly the reason it works in training. Detection requires data built so the shortcut and the task DISAGREE."
+    },
+    {
+      "type": "pitfall",
+      "front": "Unanswerable questions",
+      "back": "Benchmark questions are always answerable; real ones are not - VizWiz (blind users' real photos) found a large fraction cannot be answered from the image. Without trained abstention the model confidently guesses."
+    },
+    {
+      "type": "definition",
+      "front": "The modality-corruption test",
+      "back": "No retraining needed: feed the trained model a BLANK, SHUFFLED, or MISMATCHED image with the same question. If answers barely change, it is ignoring that modality. Mismatched is the most informative variant."
+    },
+    {
+      "type": "intuition",
+      "front": "Why counting fails",
+      "back": "No architectural counting primitive (pooling loses cardinality); contrastive pretraining never required it (unrelated negatives make presence sufficient); captions rarely state counts; and '2' is a strong prior. Fix by DELEGATING to a detector."
+    },
+    {
+      "type": "pitfall",
+      "front": "Elicitation protocol creates the artifacts",
+      "back": "Showing an annotator an image and asking for a question yields salient, usually-affirmative questions - that is where the 70% 'yes' rate came from. Ask for a question with a SPECIFIED answer, or separate question-writer from answerer."
+    },
+    {
+      "type": "intuition",
+      "front": "What to report instead of one number",
+      "back": "A table: full model, each unimodal ablation, mismatched-modality accuracy, shifted-split accuracy, counterfactual consistency. 70% with a 65% blind baseline is a different object from 70% with a 40% one."
+    }
   ],
   "refs": [
-    { "title": "Goyal et al. (2017), Making the V in VQA Matter: Elevating the Role of Image Understanding (VQA v2)", "url": "https://arxiv.org/abs/1612.00837" },
-    { "title": "Agrawal et al. (2018), Don't Just Assume; Look and Answer: Overcoming Priors for VQA (VQA-CP)", "url": "https://arxiv.org/abs/1712.00377" },
-    { "title": "Antol et al. (2015), VQA: Visual Question Answering", "url": "https://arxiv.org/abs/1505.00468" },
-    { "title": "Gurari et al. (2018), VizWiz Grand Challenge: Answering Visual Questions from Blind People", "url": "https://arxiv.org/abs/1802.08218" },
-    { "title": "Dancette et al. (2021), Beyond Question-Based Biases: Assessing Multimodal Shortcut Learning in VQA", "url": "https://arxiv.org/abs/2104.03149" }
+    {
+      "title": "Goyal et al. (2017), Making the V in VQA Matter: Elevating the Role of Image Understanding (VQA v2)",
+      "url": "https://arxiv.org/abs/1612.00837"
+    },
+    {
+      "title": "Agrawal et al. (2018), Don't Just Assume; Look and Answer: Overcoming Priors for VQA (VQA-CP)",
+      "url": "https://arxiv.org/abs/1712.00377"
+    },
+    {
+      "title": "Antol et al. (2015), VQA: Visual Question Answering",
+      "url": "https://arxiv.org/abs/1505.00468"
+    },
+    {
+      "title": "Gurari et al. (2018), VizWiz Grand Challenge: Answering Visual Questions from Blind People",
+      "url": "https://arxiv.org/abs/1802.08218"
+    },
+    {
+      "title": "Dancette et al. (2021), Beyond Question-Based Biases: Assessing Multimodal Shortcut Learning in VQA",
+      "url": "https://arxiv.org/abs/2104.03149"
+    }
   ],
-  "updatedAt": "2026-08-03"
+  "updatedAt": "2026-08-03",
+  "v2": {
+    "id": "13-08",
+    "module": "multimodal",
+    "disposition": "clean",
+    "notebookFile": "13-08_visual_question_answering.ipynb"
+  }
 }

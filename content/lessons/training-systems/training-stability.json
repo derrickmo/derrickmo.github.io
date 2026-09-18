@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-06",
   "slug": "training-stability",
+  "keyBase": "training-systems/training-stability",
   "module": "training-systems",
   "title": "Training Stability & NaN Recovery",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "16-06_training_stability_nan_recovery.ipynb",
     "flagship": null,
-    "demos": ["gradient-clipping", "mixed-precision", "optimizers", "weight-init"],
+    "demos": [
+      "gradient-clipping",
+      "mixed-precision",
+      "optimizers",
+      "weight-init"
+    ],
     "concepts": []
   },
-  "prereqs": ["training-systems/mixed-precision", "pytorch-internals/custom-loss"],
-  "leadsTo": ["training-systems/optimized-pipeline", "llm-systems/llm-architectures"],
+  "prereqs": [
+    "training-systems/mixed-precision",
+    "pytorch-internals/custom-loss"
+  ],
+  "leadsTo": [
+    "training-systems/optimized-pipeline",
+    "llm-systems/llm-architectures"
+  ],
   "body": {
     "intuition": [
       "Stability is the exchange in this module whose value depends most sharply on context. Every guard - clipping, finite checks, skip-steps, warmup, a lower learning rate - costs a little throughput and a little complexity, and buys protection against events that may never happen. On a job you can restart in ten minutes, that is a bad trade. On a three-week run across a thousand accelerators, where a single poisoned step can silently destroy days of work and where nobody is watching at three in the morning, it is the best trade in the module.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/2302.05442"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "21-05",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-05_training_stability_nan_forensics.ipynb"
+  }
 }

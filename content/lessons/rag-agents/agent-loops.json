@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-06",
   "slug": "agent-loops",
+  "keyBase": "rag-agents/agent-loops",
   "module": "rag-agents",
   "title": "Agent Loops, Tool Use & Planning",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "18-06_agent_loops_tool_use_planning.ipynb",
     "flagship": null,
-    "demos": ["react-agent", "agent-router", "constrained-decoding", "guardrails"],
+    "demos": [
+      "react-agent",
+      "agent-router",
+      "constrained-decoding",
+      "guardrails"
+    ],
     "concepts": []
   },
-  "prereqs": ["llm-systems/structured-output", "rag-agents/advanced-rag"],
-  "leadsTo": ["rag-agents/multi-agent", "agentic-ai/agent-loop"],
+  "prereqs": [
+    "llm-systems/structured-output",
+    "rag-agents/advanced-rag"
+  ],
+  "leadsTo": [
+    "rag-agents/multi-agent",
+    "agentic-ai/agent-loop"
+  ],
   "body": {
     "intuition": [
       "An agent is a loop in which the MODEL decides the control flow. A pipeline's sequence of steps is written by you; an agent's is chosen at runtime by a component whose behaviour you cannot fully specify. That is the entire distinction, and everything attractive and everything dangerous about agents follows from it. The attraction is generality - one loop handles tasks you did not enumerate. The danger is that you have replaced a specified control flow with a sampled one.",
@@ -274,5 +286,11 @@
       "url": "https://www.anthropic.com/engineering/building-effective-agents"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-01",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-01_agent_loop.ipynb"
+  }
 }

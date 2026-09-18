@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-09",
   "slug": "cot",
+  "keyBase": "advanced-nlp/cot",
   "module": "advanced-nlp",
   "title": "Chain-of-Thought & In-Context Learning",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-09_chain_of_thought_in_context_learning.ipynb",
     "flagship": null,
-    "demos": ["self-consistency", "decoding", "constrained-decoding", "react-agent"],
+    "demos": [
+      "self-consistency",
+      "decoding",
+      "constrained-decoding",
+      "react-agent"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/architectures", "advanced-nlp/qa"],
-  "leadsTo": ["advanced-nlp/interpretability", "rag-agents/agent-loops"],
+  "prereqs": [
+    "advanced-nlp/architectures",
+    "advanced-nlp/qa"
+  ],
+  "leadsTo": [
+    "advanced-nlp/interpretability",
+    "rag-agents/agent-loops"
+  ],
   "body": {
     "intuition": [
       "Two capabilities appeared at scale that nobody trained for directly. IN-CONTEXT LEARNING: put a few input-output examples in the prompt and the model performs the task, with no gradient step - the 'learning' happens entirely in the forward pass. CHAIN OF THOUGHT: ask the model to work through the problem before answering and accuracy on multi-step problems jumps dramatically, with PaLM-540B going from 17.9% to 56.9% on GSM8K grade-school maths purely from the prompt format.",
@@ -82,27 +94,78 @@
       "Deploying in-context learning where a few hundred labels exist. A fine-tuned small model will usually beat few-shot prompting, run far cheaper, and be more consistent. ICL's niche is genuinely zero-data or fast-changing tasks."
     ],
     "connections": [
-      { "ref": "advanced-nlp/interpretability", "text": "The faithfulness problem is precisely why mechanistic interpretability uses CAUSAL interventions rather than asking the model what it did - self-report is not evidence." },
-      { "ref": "advanced-nlp/nli", "text": "Same structure as the artifact story: a model achieving the right output through a mechanism other than the one assumed, invisible to the metric being reported." },
-      { "ref": "llm-systems/scaling-laws", "text": "CoT and in-context learning are the canonical 'emergent' capabilities, and whether emergence is real or an artifact of discontinuous metrics is an open and consequential argument." },
-      { "ref": "rag-agents/agent-loops", "text": "ReAct and agent scaffolds are chain of thought with tool calls interleaved - the same mechanism, with external actions grounding the intermediate steps." },
-      { "ref": "advanced-nlp/nlp-eval", "text": "A plausible-sounding chain is exactly the kind of output an LLM judge rewards, which is how style-over-substance bias and unfaithful reasoning compound." }
+      {
+        "ref": "advanced-nlp/interpretability",
+        "text": "The faithfulness problem is precisely why mechanistic interpretability uses CAUSAL interventions rather than asking the model what it did - self-report is not evidence."
+      },
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "Same structure as the artifact story: a model achieving the right output through a mechanism other than the one assumed, invisible to the metric being reported."
+      },
+      {
+        "ref": "llm-systems/scaling-laws",
+        "text": "CoT and in-context learning are the canonical 'emergent' capabilities, and whether emergence is real or an artifact of discontinuous metrics is an open and consequential argument."
+      },
+      {
+        "ref": "rag-agents/agent-loops",
+        "text": "ReAct and agent scaffolds are chain of thought with tool calls interleaved - the same mechanism, with external actions grounding the intermediate steps."
+      },
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "A plausible-sounding chain is exactly the kind of output an LLM judge rewards, which is how style-over-substance bias and unfaithful reasoning compound."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is chain-of-thought prompting?", "a": "Prompting the model to produce intermediate reasoning steps before its answer. On GSM8K, PaLM-540B went from 17.9% to 56.9% purely from the prompt format." },
-      { "q": "What is zero-shot CoT?", "a": "Appending 'Let's think step by step' with no worked examples. Substantially cheaper than few-shot CoT and recovers much of the gain (Kojima et al.)." },
-      { "q": "Why do intermediate tokens help mechanically?", "a": "They add serial computation. A direct answer must be computed within L layers; n reasoning tokens give n additional forward passes, each conditioned on the partial result, so effective depth scales with chain length." },
-      { "q": "When does CoT NOT help?", "a": "Single-step tasks, where it adds cost and can talk the model out of a correct immediate answer; and small models (below roughly 10B), where incoherent chains get conditioned on and hurt." },
-      { "q": "What is self-consistency?", "a": "Sample k reasoning chains at temperature, then majority-vote on the FINAL ANSWER. About +18 points on GSM8K at k~40; the agreement rate is also a useful confidence estimate." },
-      { "q": "Why does self-consistency work?", "a": "It marginalizes the reasoning path as a latent variable. There are many routes to a correct answer and comparatively few to any specific wrong one, so correct answers accumulate votes." },
-      { "q": "What is in-context learning?", "a": "Performing a task from examples in the prompt, with no weight update. The adaptation happens entirely in the forward pass." },
-      { "q": "What did Min et al. find about demonstrations?", "a": "Replacing every demonstration label with a RANDOM one barely hurts. The label space, input distribution, and format do the work; the input-label mapping contributes little." },
-      { "q": "How sensitive is ICL to example order?", "a": "Severely. Permuting the same few examples can span near-state-of-the-art to near-chance on the same model and task, so a single ordering's result is not a measurement." },
-      { "q": "What is the CoT faithfulness problem?", "a": "The stated reasoning does not reflect the actual computation. Biasing models with a position cue shifted accuracy by up to 36 points while the chains never mentioned the cue - they confabulated other justifications." },
-      { "q": "How do you test whether a chain is load-bearing?", "a": "Truncate it and force an early answer; inject a mistake mid-chain; paraphrase it. If the final answer is unchanged, the chain was not doing the work." },
-      { "q": "What is STaR-style bootstrapping?", "a": "Sample reasoning chains, keep only those reaching a verified-correct answer, fine-tune on them, repeat. It converts a prompting trick into trained capability and needs only the ANSWER to be checkable." }
+      {
+        "q": "What is chain-of-thought prompting?",
+        "a": "Prompting the model to produce intermediate reasoning steps before its answer. On GSM8K, PaLM-540B went from 17.9% to 56.9% purely from the prompt format."
+      },
+      {
+        "q": "What is zero-shot CoT?",
+        "a": "Appending 'Let's think step by step' with no worked examples. Substantially cheaper than few-shot CoT and recovers much of the gain (Kojima et al.)."
+      },
+      {
+        "q": "Why do intermediate tokens help mechanically?",
+        "a": "They add serial computation. A direct answer must be computed within L layers; n reasoning tokens give n additional forward passes, each conditioned on the partial result, so effective depth scales with chain length."
+      },
+      {
+        "q": "When does CoT NOT help?",
+        "a": "Single-step tasks, where it adds cost and can talk the model out of a correct immediate answer; and small models (below roughly 10B), where incoherent chains get conditioned on and hurt."
+      },
+      {
+        "q": "What is self-consistency?",
+        "a": "Sample k reasoning chains at temperature, then majority-vote on the FINAL ANSWER. About +18 points on GSM8K at k~40; the agreement rate is also a useful confidence estimate."
+      },
+      {
+        "q": "Why does self-consistency work?",
+        "a": "It marginalizes the reasoning path as a latent variable. There are many routes to a correct answer and comparatively few to any specific wrong one, so correct answers accumulate votes."
+      },
+      {
+        "q": "What is in-context learning?",
+        "a": "Performing a task from examples in the prompt, with no weight update. The adaptation happens entirely in the forward pass."
+      },
+      {
+        "q": "What did Min et al. find about demonstrations?",
+        "a": "Replacing every demonstration label with a RANDOM one barely hurts. The label space, input distribution, and format do the work; the input-label mapping contributes little."
+      },
+      {
+        "q": "How sensitive is ICL to example order?",
+        "a": "Severely. Permuting the same few examples can span near-state-of-the-art to near-chance on the same model and task, so a single ordering's result is not a measurement."
+      },
+      {
+        "q": "What is the CoT faithfulness problem?",
+        "a": "The stated reasoning does not reflect the actual computation. Biasing models with a position cue shifted accuracy by up to 36 points while the chains never mentioned the cue - they confabulated other justifications."
+      },
+      {
+        "q": "How do you test whether a chain is load-bearing?",
+        "a": "Truncate it and force an early answer; inject a mistake mid-chain; paraphrase it. If the final answer is unchanged, the chain was not doing the work."
+      },
+      {
+        "q": "What is STaR-style bootstrapping?",
+        "a": "Sample reasoning chains, keep only those reaching a verified-correct answer, fine-tune on them, repeat. It converts a prompting trick into trained capability and needs only the ANSWER to be checkable."
+      }
     ],
     "standard": [
       {
@@ -112,7 +175,10 @@
       {
         "q": "How does in-context learning work, and what do the ablations tell us?",
         "a": "THE PHENOMENON. Put a few input-output examples in the prompt and the model performs the task on a new input, with no gradient update. GPT-3 made this the dominant interface, and it is genuinely strange: the adaptation happens entirely inside a forward pass over the context. WHAT THE ABLATIONS FOUND, which is where the interest is. Min et al. decomposed the demonstrations into four factors and ablated each. The headline: replacing every demonstration's label with a RANDOM one - deliberately pairing inputs with wrong labels - costs only a few points on many classification tasks. What DOES matter: (a) the LABEL SPACE, so the model knows the possible outputs; (b) the INPUT DISTRIBUTION, so it knows what kind of text it is dealing with; (c) the FORMAT, so it knows the response shape; and (d) the number of examples, with diminishing returns. The input-label MAPPING - the thing 'learning from examples' implies - contributes least. Lu et al. added the ORDER result: permuting the same examples can move a model from near state-of-the-art to near chance, which is not the behaviour of something learning a mapping. WHAT THAT IMPLIES. The demonstrations largely LOCATE a capability the model already has rather than teaching a new one - they specify the task, the vocabulary, and the format, and the model's pretrained knowledge does the rest. That reframes 'in-context learning' as 'task identification' for a large class of cases. THE IMPORTANT CAVEAT, because the story got more nuanced. This holds most strongly for tasks the model already knows. For genuinely NOVEL mappings - arbitrary or flipped label semantics - larger models CAN override their priors and learn the demonstrated mapping (Wei et al., 'Larger language models do in-context learning differently'). So there is a spectrum: small models rely almost entirely on priors and format, large models can genuinely use the mapping when it conflicts with what they expect. Both findings are real and the apparent contradiction is a scale effect. THE MECHANISTIC ACCOUNTS, none fully settled. (1) INDUCTION HEADS: attention heads implementing 'find the previous occurrence of the current token and copy what followed it'. Olsson et al. showed these form abruptly during training at the same point ICL ability appears, and ablating them damages it - the strongest mechanistic evidence available, though induction heads clearly do not explain all of ICL. (2) IMPLICIT GRADIENT DESCENT: several groups showed transformers CAN implement gradient descent on a linear model within their forward pass, and trained transformers on linear-regression tasks behave consistently with that. Elegant, demonstrated in toy settings, and the extent to which real LLMs do it is unresolved. (3) BAYESIAN TASK INFERENCE: the model treats the prompt as evidence about which latent task is being requested and conditions on the posterior. This matches the ablation results best - it explains why format and label space matter more than the mapping, since they are what identify the task. (4) The pretraining data's structure - documents containing repeated patterns and analogies - creates the pressure for these circuits. WHAT I TAKE FROM IT PRACTICALLY. (a) Spend effort on FORMAT and on choosing REPRESENTATIVE inputs, not only on label correctness. (b) Test multiple ORDERINGS and report the variance; a single ordering's number is not a measurement. (c) Retrieve demonstrations similar to the test input rather than using a fixed set - consistently helps. (d) If you have a few hundred labels, fine-tune instead; ICL's real niche is zero-data and fast iteration. (e) Do not describe ICL as 'the model learns from your examples' to stakeholders, because it sets an expectation the mechanism does not meet - it will not reliably absorb a correction you put in the prompt.",
-        "deepDive": { "q": "Is 'emergence' at scale real, or an artifact of how capabilities are measured?", "a": "THE CLAIM. Certain capabilities - multi-step arithmetic, CoT benefit, some in-context learning - are absent in smaller models, appear abruptly beyond a parameter threshold, and cannot be predicted by extrapolating smaller models' performance. Wei et al. catalogued dozens of such curves and the framing became widespread, with real consequences: if capabilities appear discontinuously and unpredictably, then small-scale evaluation cannot tell you what a larger model will do, which is an argument about safety as much as about science. THE CHALLENGE (Schaeffer et al., 'Are Emergent Abilities of Large Language Models a Mirage?'). Emergence may be a property of the METRIC rather than of the model. The argument: many emergent capabilities are measured with DISCONTINUOUS, ALL-OR-NOTHING metrics - exact match on a multi-digit arithmetic answer, or accuracy on a task where every step must be right. Consider 5-digit addition scored by exact match. If per-digit accuracy improves smoothly from 0.7 to 0.9, exact-match accuracy on all five digits goes from 0.7^5 ~ 0.17 to 0.9^5 ~ 0.59 - and if per-digit accuracy is lower still, the exact-match curve looks flat and then explodes. The underlying capability improved SMOOTHLY; the metric manufactured the cliff. Their evidence: switching to continuous metrics on the same tasks and models - token edit distance, per-token accuracy, log-probability of the correct answer - makes the sharp transitions disappear and reveals smooth, predictable improvement. They also produce emergence artificially in vision models by choosing a discontinuous metric, showing the effect is metric-driven rather than domain-specific. WHERE THIS LEAVES THE ARGUMENT, honestly. The critique is correct that many published emergence curves are metric artifacts, and this is now widely accepted. It does not fully dissolve the phenomenon, for several reasons. (1) SOME transitions survive continuous metrics, and INDUCTION HEADS are the cleanest case - Olsson et al. observed a genuine phase change during training, visible as a bump in the loss curve, with a mechanistic correlate (the circuit forming) and a behavioural correlate (ICL appearing). That is a real discontinuity in the model, not in the measurement. (2) The metric-artifact argument explains why the CURVE looks sharp; it does not remove the fact that the model could not do the task at one scale and can at another. If exact-match on 5-digit addition is what your application needs, the practical discontinuity is real even if the underlying quantity moved smoothly. (3) Discontinuities in the LOSS LANDSCAPE and in learned circuits are documented independently - grokking is a related phenomenon where generalization appears long after memorization, with the loss showing a genuine phase transition. WHAT I THINK THE DEFENSIBLE SYNTHESIS IS. Underlying capabilities improve smoothly and predictably with scale, and this is well supported - scaling laws work. Many reported 'emergent' jumps are the composition of that smooth improvement with a thresholded metric. But circuits do form discretely during training, and downstream USABILITY genuinely is thresholded, because applications require tasks to be done correctly end to end rather than 80% correctly. WHY IT MATTERS BEYOND THE SEMANTICS. If emergence is a mirage, then small-scale experiments plus continuous metrics let you predict large-model behaviour, and evaluation should switch to continuous metrics wherever possible - which is good practice regardless. If some emergence is real, then there are capabilities you cannot anticipate before training, and safety evaluation must happen after training at scale. Both conclusions have teeth, and the practical recommendation is the same in either case: measure with continuous metrics so you can see the trend, AND evaluate at the scale you intend to deploy, because the thresholded version is what your users experience." }
+        "deepDive": {
+          "q": "Is 'emergence' at scale real, or an artifact of how capabilities are measured?",
+          "a": "THE CLAIM. Certain capabilities - multi-step arithmetic, CoT benefit, some in-context learning - are absent in smaller models, appear abruptly beyond a parameter threshold, and cannot be predicted by extrapolating smaller models' performance. Wei et al. catalogued dozens of such curves and the framing became widespread, with real consequences: if capabilities appear discontinuously and unpredictably, then small-scale evaluation cannot tell you what a larger model will do, which is an argument about safety as much as about science. THE CHALLENGE (Schaeffer et al., 'Are Emergent Abilities of Large Language Models a Mirage?'). Emergence may be a property of the METRIC rather than of the model. The argument: many emergent capabilities are measured with DISCONTINUOUS, ALL-OR-NOTHING metrics - exact match on a multi-digit arithmetic answer, or accuracy on a task where every step must be right. Consider 5-digit addition scored by exact match. If per-digit accuracy improves smoothly from 0.7 to 0.9, exact-match accuracy on all five digits goes from 0.7^5 ~ 0.17 to 0.9^5 ~ 0.59 - and if per-digit accuracy is lower still, the exact-match curve looks flat and then explodes. The underlying capability improved SMOOTHLY; the metric manufactured the cliff. Their evidence: switching to continuous metrics on the same tasks and models - token edit distance, per-token accuracy, log-probability of the correct answer - makes the sharp transitions disappear and reveals smooth, predictable improvement. They also produce emergence artificially in vision models by choosing a discontinuous metric, showing the effect is metric-driven rather than domain-specific. WHERE THIS LEAVES THE ARGUMENT, honestly. The critique is correct that many published emergence curves are metric artifacts, and this is now widely accepted. It does not fully dissolve the phenomenon, for several reasons. (1) SOME transitions survive continuous metrics, and INDUCTION HEADS are the cleanest case - Olsson et al. observed a genuine phase change during training, visible as a bump in the loss curve, with a mechanistic correlate (the circuit forming) and a behavioural correlate (ICL appearing). That is a real discontinuity in the model, not in the measurement. (2) The metric-artifact argument explains why the CURVE looks sharp; it does not remove the fact that the model could not do the task at one scale and can at another. If exact-match on 5-digit addition is what your application needs, the practical discontinuity is real even if the underlying quantity moved smoothly. (3) Discontinuities in the LOSS LANDSCAPE and in learned circuits are documented independently - grokking is a related phenomenon where generalization appears long after memorization, with the loss showing a genuine phase transition. WHAT I THINK THE DEFENSIBLE SYNTHESIS IS. Underlying capabilities improve smoothly and predictably with scale, and this is well supported - scaling laws work. Many reported 'emergent' jumps are the composition of that smooth improvement with a thresholded metric. But circuits do form discretely during training, and downstream USABILITY genuinely is thresholded, because applications require tasks to be done correctly end to end rather than 80% correctly. WHY IT MATTERS BEYOND THE SEMANTICS. If emergence is a mirage, then small-scale experiments plus continuous metrics let you predict large-model behaviour, and evaluation should switch to continuous metrics wherever possible - which is good practice regardless. If some emergence is real, then there are capabilities you cannot anticipate before training, and safety evaluation must happen after training at scale. Both conclusions have teeth, and the practical recommendation is the same in either case: measure with continuous metrics so you can see the trend, AND evaluate at the scale you intend to deploy, because the thresholded version is what your users experience."
+        }
       },
       {
         "q": "How would you make a model's reasoning more trustworthy given the faithfulness problem?",
@@ -133,25 +199,97 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Chain-of-thought prompting", "back": "Prompt for intermediate steps before the answer. PaLM-540B on GSM8K: 17.9% -> 56.9% from the prompt format alone. Zero-shot variant: 'Let's think step by step'." },
-    { "type": "intuition", "front": "Why intermediate tokens help", "back": "They add SERIAL COMPUTATION. A direct answer must be computed in L layers; n reasoning tokens give n more forward passes, each conditioned on the partial result. Explains why CoT helps on multi-step and not single-step problems." },
-    { "type": "pitfall", "front": "CoT is not an explanation", "back": "Turpin et al.: bias the few-shot examples so the answer is always (A), and accuracy drops up to 36 points while the chains essentially NEVER mention the cue - they confabulate other justifications. Generated text that looks like reasoning, not a log of it." },
-    { "type": "definition", "front": "Testing whether a chain is load-bearing", "back": "TRUNCATE it and force an early answer; INJECT a mistake mid-chain; PARAPHRASE it. If the final answer does not change, the chain was decoration. Larger models are often LESS faithful on easy tasks - they don't need the chain." },
-    { "type": "definition", "front": "Self-consistency", "back": "Sample k chains at temperature, majority-vote the FINAL ANSWER (~+18 pts on GSM8K at k=40). Works because many paths reach a correct answer and few reach any specific wrong one. Agreement rate = a free confidence estimate." },
-    { "type": "pitfall", "front": "Self-consistency does not fix unfaithfulness", "back": "It marginalizes SAMPLING NOISE in the reasoning path. A systematic bias shifts every sampled path in the same direction and survives the vote untouched." },
-    { "type": "pitfall", "front": "Random demonstration labels barely hurt", "back": "Min et al.: replacing every few-shot label with a wrong one costs a few points. What matters is the LABEL SPACE, INPUT DISTRIBUTION, and FORMAT. Demonstrations largely LOCATE an existing capability rather than teach a mapping." },
-    { "type": "pitfall", "front": "Demonstration order sensitivity", "back": "Permuting the same few examples can span near-SOTA to near-chance on the same model and task. Report variance across permutations, or you are reporting one lucky ordering." },
-    { "type": "definition", "front": "Induction heads", "back": "Attention heads implementing 'find the previous occurrence of this token and copy what followed'. They form ABRUPTLY during training at the same point ICL appears, and ablating them damages it - the strongest mechanistic evidence for ICL." },
-    { "type": "intuition", "front": "Is emergence real?", "back": "Many emergence curves are METRIC artifacts - exact-match on multi-step tasks turns smooth per-step improvement into a cliff (0.7^5=0.17 -> 0.9^5=0.59). Continuous metrics flatten most of them. But induction-head formation is a genuine phase change, and thresholded USABILITY is real regardless." },
-    { "type": "intuition", "front": "Fix arithmetic errors by delegating", "back": "Don't prompt the model to be careful - have it write CODE and execute it (PAL), or give it a calculator. Models compute arithmetic by pattern-matching over inconsistently-tokenized digits. Never make an LLM the arithmetic unit when one is available." },
-    { "type": "definition", "front": "STaR bootstrapping", "back": "Sample chains, KEEP only those reaching a verified-correct answer, fine-tune on them, repeat. Needs only the ANSWER to be checkable, not the reasoning. The bridge from CoT-as-prompting to reasoning models trained with outcome-based RL." }
+    {
+      "type": "definition",
+      "front": "Chain-of-thought prompting",
+      "back": "Prompt for intermediate steps before the answer. PaLM-540B on GSM8K: 17.9% -> 56.9% from the prompt format alone. Zero-shot variant: 'Let's think step by step'."
+    },
+    {
+      "type": "intuition",
+      "front": "Why intermediate tokens help",
+      "back": "They add SERIAL COMPUTATION. A direct answer must be computed in L layers; n reasoning tokens give n more forward passes, each conditioned on the partial result. Explains why CoT helps on multi-step and not single-step problems."
+    },
+    {
+      "type": "pitfall",
+      "front": "CoT is not an explanation",
+      "back": "Turpin et al.: bias the few-shot examples so the answer is always (A), and accuracy drops up to 36 points while the chains essentially NEVER mention the cue - they confabulate other justifications. Generated text that looks like reasoning, not a log of it."
+    },
+    {
+      "type": "definition",
+      "front": "Testing whether a chain is load-bearing",
+      "back": "TRUNCATE it and force an early answer; INJECT a mistake mid-chain; PARAPHRASE it. If the final answer does not change, the chain was decoration. Larger models are often LESS faithful on easy tasks - they don't need the chain."
+    },
+    {
+      "type": "definition",
+      "front": "Self-consistency",
+      "back": "Sample k chains at temperature, majority-vote the FINAL ANSWER (~+18 pts on GSM8K at k=40). Works because many paths reach a correct answer and few reach any specific wrong one. Agreement rate = a free confidence estimate."
+    },
+    {
+      "type": "pitfall",
+      "front": "Self-consistency does not fix unfaithfulness",
+      "back": "It marginalizes SAMPLING NOISE in the reasoning path. A systematic bias shifts every sampled path in the same direction and survives the vote untouched."
+    },
+    {
+      "type": "pitfall",
+      "front": "Random demonstration labels barely hurt",
+      "back": "Min et al.: replacing every few-shot label with a wrong one costs a few points. What matters is the LABEL SPACE, INPUT DISTRIBUTION, and FORMAT. Demonstrations largely LOCATE an existing capability rather than teach a mapping."
+    },
+    {
+      "type": "pitfall",
+      "front": "Demonstration order sensitivity",
+      "back": "Permuting the same few examples can span near-SOTA to near-chance on the same model and task. Report variance across permutations, or you are reporting one lucky ordering."
+    },
+    {
+      "type": "definition",
+      "front": "Induction heads",
+      "back": "Attention heads implementing 'find the previous occurrence of this token and copy what followed'. They form ABRUPTLY during training at the same point ICL appears, and ablating them damages it - the strongest mechanistic evidence for ICL."
+    },
+    {
+      "type": "intuition",
+      "front": "Is emergence real?",
+      "back": "Many emergence curves are METRIC artifacts - exact-match on multi-step tasks turns smooth per-step improvement into a cliff (0.7^5=0.17 -> 0.9^5=0.59). Continuous metrics flatten most of them. But induction-head formation is a genuine phase change, and thresholded USABILITY is real regardless."
+    },
+    {
+      "type": "intuition",
+      "front": "Fix arithmetic errors by delegating",
+      "back": "Don't prompt the model to be careful - have it write CODE and execute it (PAL), or give it a calculator. Models compute arithmetic by pattern-matching over inconsistently-tokenized digits. Never make an LLM the arithmetic unit when one is available."
+    },
+    {
+      "type": "definition",
+      "front": "STaR bootstrapping",
+      "back": "Sample chains, KEEP only those reaching a verified-correct answer, fine-tune on them, repeat. Needs only the ANSWER to be checkable, not the reasoning. The bridge from CoT-as-prompting to reasoning models trained with outcome-based RL."
+    }
   ],
   "refs": [
-    { "title": "Wei et al. (2022), Chain-of-Thought Prompting Elicits Reasoning in Large Language Models", "url": "https://arxiv.org/abs/2201.11903" },
-    { "title": "Min et al. (2022), Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?", "url": "https://arxiv.org/abs/2202.12837" },
-    { "title": "Turpin et al. (2023), Language Models Don't Always Say What They Think", "url": "https://arxiv.org/abs/2305.04388" },
-    { "title": "Wang et al. (2023), Self-Consistency Improves Chain of Thought Reasoning", "url": "https://arxiv.org/abs/2203.11171" },
-    { "title": "Schaeffer et al. (2023), Are Emergent Abilities of Large Language Models a Mirage?", "url": "https://arxiv.org/abs/2304.15004" }
+    {
+      "title": "Wei et al. (2022), Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "url": "https://arxiv.org/abs/2201.11903"
+    },
+    {
+      "title": "Min et al. (2022), Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?",
+      "url": "https://arxiv.org/abs/2202.12837"
+    },
+    {
+      "title": "Turpin et al. (2023), Language Models Don't Always Say What They Think",
+      "url": "https://arxiv.org/abs/2305.04388"
+    },
+    {
+      "title": "Wang et al. (2023), Self-Consistency Improves Chain of Thought Reasoning",
+      "url": "https://arxiv.org/abs/2203.11171"
+    },
+    {
+      "title": "Schaeffer et al. (2023), Are Emergent Abilities of Large Language Models a Mirage?",
+      "url": "https://arxiv.org/abs/2304.15004"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-10",
+    "module": "pretrained-lms",
+    "disposition": "split",
+    "notebookFile": "15-10_context_learning_induction_heads.ipynb",
+    "alsoFeeds": [
+      "16-05"
+    ]
+  }
 }

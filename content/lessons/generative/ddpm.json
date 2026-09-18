@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-05",
   "slug": "ddpm",
+  "keyBase": "generative/ddpm",
   "module": "generative",
   "title": "DDPM Diffusion from Scratch",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Lin et al. (2023) — Common Diffusion Noise Schedules and Sample Steps are Flawed",
       "url": "https://arxiv.org/abs/2305.08891"
     }
-  ]
+  ],
+  "v2": {
+    "id": "12-08",
+    "module": "generative",
+    "disposition": "clean",
+    "notebookFile": "12-08_ddpm_scratch.ipynb"
+  }
 }

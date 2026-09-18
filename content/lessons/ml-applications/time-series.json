@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-03",
   "slug": "time-series",
+  "keyBase": "ml-applications/time-series",
   "module": "ml-applications",
   "title": "Time Series Forecasting",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://www.sciencedirect.com/science/article/abs/pii/S0169207006000239"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-05",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-05_time_series_forecasting.ipynb"
+  }
 }

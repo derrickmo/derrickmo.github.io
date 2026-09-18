@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "17-08",
   "slug": "long-context",
+  "keyBase": "llm-systems/long-context",
   "module": "llm-systems",
   "title": "Long Context — RoPE Scaling & Sliding Window",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Hsieh et al. (2024) — RULER: What's the Real Context Size of Your Long-Context Language Models?",
       "url": "https://arxiv.org/abs/2404.06654"
     }
-  ]
+  ],
+  "v2": {
+    "id": "16-08",
+    "module": "reasoning-scaling",
+    "disposition": "clean",
+    "notebookFile": "16-08_long_context_position_interpolation_yarn.ipynb"
+  }
 }

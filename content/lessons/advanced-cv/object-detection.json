@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-02",
   "slug": "object-detection",
+  "keyBase": "advanced-cv/object-detection",
   "module": "advanced-cv",
   "title": "Object Detection Fundamentals",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Bodla et al. (2017) — Soft-NMS: Improving Object Detection With One Line of Code",
       "url": "https://arxiv.org/abs/1704.04503"
     }
-  ]
+  ],
+  "v2": {
+    "id": "09-10",
+    "module": "cnn",
+    "disposition": "clean",
+    "notebookFile": "09-10_detection_fundamentals.ipynb"
+  }
 }

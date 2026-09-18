@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-05",
   "slug": "propensity-matching",
+  "keyBase": "causal-inference/propensity-matching",
   "module": "causal-inference",
   "title": "Propensity Scores & Matching",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://academic.oup.com/ectj/article/21/1/C1/5056401"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-04",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-04_propensity_scores_matching_ipw.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "18-04",
   "slug": "rag-pipeline",
+  "keyBase": "rag-agents/rag-pipeline",
   "module": "rag-agents",
   "title": "RAG Pipeline End-to-End",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Cormack, Clarke & Buettcher (2009) — Reciprocal Rank Fusion",
       "url": "https://dl.acm.org/doi/10.1145/1571941.1572114"
     }
-  ]
+  ],
+  "v2": {
+    "id": "18-08",
+    "module": "retrieval-rag",
+    "disposition": "clean",
+    "notebookFile": "18-08_rag_end_end_assembly_citation.ipynb"
+  }
 }

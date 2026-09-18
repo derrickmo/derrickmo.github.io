@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "23-03",
   "slug": "confounding",
+  "keyBase": "causal-inference/confounding",
   "module": "causal-inference",
   "title": "Confounding & Simpson's Paradox",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://academic.oup.com/jrsssb/article/82/1/39/7056023"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "07-03",
+    "module": "causal-inference",
+    "disposition": "clean",
+    "notebookFile": "07-03_confounding_colliders_simpson_s_paradox.ipynb"
+  }
 }

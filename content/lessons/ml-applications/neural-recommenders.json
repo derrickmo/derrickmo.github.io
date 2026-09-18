@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-02",
   "slug": "neural-recommenders",
+  "keyBase": "ml-applications/neural-recommenders",
   "module": "ml-applications",
   "title": "Neural Recommenders & Two-Tower Architecture",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://arxiv.org/abs/1603.09320"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-02",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-02_two_tower_neural_retrieval.ipynb"
+  }
 }

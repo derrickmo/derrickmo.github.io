@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "16-03",
   "slug": "gradient-checkpointing",
+  "keyBase": "training-systems/gradient-checkpointing",
   "module": "training-systems",
   "title": "Gradient Checkpointing",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "16-03_gradient_checkpointing.ipynb",
     "flagship": null,
-    "demos": ["mixed-precision", "quantization", "batching", "backprop"],
+    "demos": [
+      "mixed-precision",
+      "quantization",
+      "batching",
+      "backprop"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/cuda-memory", "neural-nets/backprop"],
-  "leadsTo": ["training-systems/fsdp", "training-systems/optimized-pipeline"],
+  "prereqs": [
+    "pytorch-internals/cuda-memory",
+    "neural-nets/backprop"
+  ],
+  "leadsTo": [
+    "training-systems/fsdp",
+    "training-systems/optimized-pipeline"
+  ],
   "body": {
     "intuition": [
       "This is the module's theme in its purest form, because it is the one technique whose exchange rate you can write down exactly. Reverse-mode autodiff must keep the intermediate activations the backward pass needs, which is why activations dominate the training memory budget. Gradient checkpointing declines to store most of them: it saves only the values at a few SEGMENT BOUNDARIES, and when the backward pass reaches a segment it re-runs that segment's forward to rebuild the intermediates, uses them, and frees them again. You pay roughly one extra forward pass and receive a large reduction in activation memory.",
@@ -277,5 +289,11 @@
       "url": "https://pytorch.org/docs/stable/checkpoint.html"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "21-02",
+    "module": "distributed-training",
+    "disposition": "clean",
+    "notebookFile": "21-02_gradient_checkpointing.ipynb"
+  }
 }

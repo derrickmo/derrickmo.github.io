@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-06",
   "slug": "gnn",
+  "keyBase": "ml-applications/gnn",
   "module": "ml-applications",
   "title": "Graph Neural Networks",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://arxiv.org/abs/2006.05205"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-06",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-06_graph_neural_networks.ipynb"
+  }
 }

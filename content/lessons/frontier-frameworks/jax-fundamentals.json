@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "22-01",
   "slug": "jax-fundamentals",
+  "keyBase": "frontier-frameworks/jax-fundamentals",
   "module": "frontier-frameworks",
   "title": "JAX & Functional ML: jit, grad, vmap",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "22-01_jax_fundamentals.ipynb",
     "flagship": null,
-    "demos": ["backprop", "gradient-descent", "optimizers", "activations"],
+    "demos": [
+      "backprop",
+      "gradient-descent",
+      "optimizers",
+      "activations"
+    ],
     "concepts": []
   },
-  "prereqs": ["neural-nets/backprop", "foundations/calculus"],
-  "leadsTo": ["frontier-frameworks/flax-optax", "frontier-frameworks/torch-compile-triton"],
+  "prereqs": [
+    "neural-nets/backprop",
+    "foundations/calculus"
+  ],
+  "leadsTo": [
+    "frontier-frameworks/flax-optax",
+    "frontier-frameworks/torch-compile-triton"
+  ],
   "body": {
     "intuition": [
       "The durable idea in JAX is not JAX. It is that if your functions are PURE - same inputs, same outputs, no hidden state - then a compiler can treat them as mathematical objects and rewrite them. That buys a set of function-to-function TRANSFORMS: differentiate this function, vectorize this function, compile this function. And because the functions are pure, the transforms COMPOSE, so you can differentiate a vectorized compiled function and get exactly what the names say.",
@@ -273,5 +285,11 @@
       "url": "https://arxiv.org/abs/1607.00133"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": null,
+    "module": null,
+    "disposition": "cut",
+    "notebookFile": null
+  }
 }

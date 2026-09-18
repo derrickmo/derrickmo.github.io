@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-07",
   "slug": "cicd",
+  "keyBase": "mlops/cicd",
   "module": "mlops",
   "title": "CI/CD for ML",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://dl.acm.org/doi/10.1145/3097983.3097992"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-03",
+    "module": "mlops",
+    "disposition": "clean",
+    "notebookFile": "23-03_ci_cd_machine_learning.ipynb"
+  }
 }

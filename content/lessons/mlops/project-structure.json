@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-09",
   "slug": "project-structure",
+  "keyBase": "mlops/project-structure",
   "module": "mlops",
   "title": "ML Project Structure & Best Practices",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://developers.google.com/machine-learning/guides/rules-of-ml"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "23-10",
+    "module": "mlops",
+    "disposition": "clean",
+    "notebookFile": "23-10_production_pipeline_end_end.ipynb"
+  }
 }

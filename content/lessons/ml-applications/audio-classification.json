@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "19-07",
   "slug": "audio-classification",
+  "keyBase": "ml-applications/audio-classification",
   "module": "ml-applications",
   "title": "Audio Classification",
   "status": "LIVE",
@@ -304,5 +305,11 @@
       "url": "https://arxiv.org/abs/2104.01778"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "25-10",
+    "module": "applications",
+    "disposition": "clean",
+    "notebookFile": "25-10_audio_classification.ipynb"
+  }
 }

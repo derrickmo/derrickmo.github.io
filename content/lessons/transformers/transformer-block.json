@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-04",
   "slug": "transformer-block",
+  "keyBase": "transformers/transformer-block",
   "module": "transformers",
   "title": "The Transformer Block",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-04_transformer_block.ipynb",
     "flagship": null,
-    "demos": ["multi-head-attention", "attention", "batch-norm"],
+    "demos": [
+      "multi-head-attention",
+      "attention",
+      "batch-norm"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/multi-head-attention", "transformers/positional-encoding"],
-  "leadsTo": ["transformers/full-transformer", "transformers/modern-blocks"],
+  "prereqs": [
+    "transformers/multi-head-attention",
+    "transformers/positional-encoding"
+  ],
+  "leadsTo": [
+    "transformers/full-transformer",
+    "transformers/modern-blocks"
+  ],
   "body": {
     "intuition": [
       "Attention alone is not a neural network layer - it is a routing operation. It moves information between positions with a weighted average, but the aggregation itself is linear in the values, so a stack of pure attention layers cannot compute much. The TRANSFORMER BLOCK is the unit that makes it a real architecture, and it is built from exactly four pieces: multi-head attention (mix information ACROSS positions), a position-wise feed-forward network (process each position INDEPENDENTLY, and supply the nonlinearity), residual connections (make depth trainable), and layer normalization (keep activations well-scaled). Stack N identical copies and you have GPT, BERT, ViT, or Whisper - the block is the entire architecture, repeated.",
@@ -72,32 +83,83 @@
       "Treating dropout placement as arbitrary: dropout goes on the sublayer OUTPUT before the residual addition (and optionally on attention weights), not on the residual stream itself - dropping the residual path directly damages the identity that makes depth trainable."
     ],
     "connections": [
-      { "ref": "transformers/modern-blocks", "text": "The modern variant of this block swaps LayerNorm for RMSNorm and the ReLU/GELU FFN for SwiGLU - same skeleton, cheaper and slightly better components." },
-      { "ref": "transformers/full-transformer", "text": "The flagship lesson assembles these blocks into the complete encoder-decoder architecture, with cross-attention as the third sublayer in each decoder block." },
-      { "ref": "neural-nets/regularization", "text": "Residual connections plus normalization are what make very deep stacks trainable; this block is where the optimization tricks from the neural-network module become architectural." },
-      { "ref": "llm-systems/moe", "text": "Mixture-of-experts replaces this block's FFN with many experts and a router - a direct consequence of the FFN being where two-thirds of the parameters live." }
+      {
+        "ref": "transformers/modern-blocks",
+        "text": "The modern variant of this block swaps LayerNorm for RMSNorm and the ReLU/GELU FFN for SwiGLU - same skeleton, cheaper and slightly better components."
+      },
+      {
+        "ref": "transformers/full-transformer",
+        "text": "The flagship lesson assembles these blocks into the complete encoder-decoder architecture, with cross-attention as the third sublayer in each decoder block."
+      },
+      {
+        "ref": "neural-nets/regularization",
+        "text": "Residual connections plus normalization are what make very deep stacks trainable; this block is where the optimization tricks from the neural-network module become architectural."
+      },
+      {
+        "ref": "llm-systems/moe",
+        "text": "Mixture-of-experts replaces this block's FFN with many experts and a router - a direct consequence of the FFN being where two-thirds of the parameters live."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What are the components of a transformer block?", "a": "Multi-head attention, a position-wise feed-forward network, residual connections around each, and layer normalization - repeated N times to form the model." },
-      { "q": "What does the FFN do that attention cannot?", "a": "Attention aggregates linearly across positions; the FFN applies a nonlinear transformation to each position independently. It supplies the per-position computation and most of the nonlinearity." },
-      { "q": "Why is d_ff usually 4*d_model?", "a": "An empirical convention from the original paper that has held up: it gives enough expansion for the nonlinearity to be useful without dominating cost. Modern SwiGLU models use ~8/3*d_model per matrix to keep parameters comparable." },
-      { "q": "How many parameters does a block have?", "a": "About 12*d_model^2: 4*d^2 for attention (Q,K,V,O) and 8*d^2 for the FFN (two d x 4d matrices). Hence 'params ~ 12 * n_layers * d_model^2'." },
-      { "q": "Pre-norm vs post-norm?", "a": "Post-norm: x <- LN(x + Sublayer(x)) (original). Pre-norm: x <- x + Sublayer(LN(x)) (GPT-2 onward). Pre-norm trains stably at depth without warmup." },
-      { "q": "Why does pre-norm train more stably?", "a": "It leaves a clean identity path from input to output with nothing applied to it, so gradients reach early layers undisturbed. Post-norm normalizes after every residual addition, attenuating that path." },
-      { "q": "What extra piece does pre-norm require?", "a": "A final LayerNorm after the last block - the residual stream is otherwise never normalized on the way out. Forgetting it is a classic reimplementation bug." },
-      { "q": "Why LayerNorm rather than BatchNorm?", "a": "LayerNorm normalizes over features within each token, so it has no batch dependence: identical behaviour at train and test, works at batch size 1, and handles variable-length sequences." },
-      { "q": "What is the residual stream?", "a": "The interpretability view of the residual path: a shared channel that every attention head and MLP reads from and writes to, so layers incrementally edit a running representation rather than replacing it." },
-      { "q": "Where does dropout go?", "a": "On each sublayer's output before the residual addition, and optionally on attention weights. Never on the residual path itself - that damages the identity that makes depth trainable." },
-      { "q": "Which sublayer costs more?", "a": "Parameters: the FFN, two-thirds of the block. Long-sequence compute and memory: attention, because of its O(T^2) term. Different bottlenecks, different fixes." },
-      { "q": "How does a decoder block differ from an encoder block?", "a": "Causal masking in self-attention, and (in encoder-decoder models) a third sublayer: cross-attention to the encoder output, between self-attention and the FFN." }
+      {
+        "q": "What are the components of a transformer block?",
+        "a": "Multi-head attention, a position-wise feed-forward network, residual connections around each, and layer normalization - repeated N times to form the model."
+      },
+      {
+        "q": "What does the FFN do that attention cannot?",
+        "a": "Attention aggregates linearly across positions; the FFN applies a nonlinear transformation to each position independently. It supplies the per-position computation and most of the nonlinearity."
+      },
+      {
+        "q": "Why is d_ff usually 4*d_model?",
+        "a": "An empirical convention from the original paper that has held up: it gives enough expansion for the nonlinearity to be useful without dominating cost. Modern SwiGLU models use ~8/3*d_model per matrix to keep parameters comparable."
+      },
+      {
+        "q": "How many parameters does a block have?",
+        "a": "About 12*d_model^2: 4*d^2 for attention (Q,K,V,O) and 8*d^2 for the FFN (two d x 4d matrices). Hence 'params ~ 12 * n_layers * d_model^2'."
+      },
+      {
+        "q": "Pre-norm vs post-norm?",
+        "a": "Post-norm: x <- LN(x + Sublayer(x)) (original). Pre-norm: x <- x + Sublayer(LN(x)) (GPT-2 onward). Pre-norm trains stably at depth without warmup."
+      },
+      {
+        "q": "Why does pre-norm train more stably?",
+        "a": "It leaves a clean identity path from input to output with nothing applied to it, so gradients reach early layers undisturbed. Post-norm normalizes after every residual addition, attenuating that path."
+      },
+      {
+        "q": "What extra piece does pre-norm require?",
+        "a": "A final LayerNorm after the last block - the residual stream is otherwise never normalized on the way out. Forgetting it is a classic reimplementation bug."
+      },
+      {
+        "q": "Why LayerNorm rather than BatchNorm?",
+        "a": "LayerNorm normalizes over features within each token, so it has no batch dependence: identical behaviour at train and test, works at batch size 1, and handles variable-length sequences."
+      },
+      {
+        "q": "What is the residual stream?",
+        "a": "The interpretability view of the residual path: a shared channel that every attention head and MLP reads from and writes to, so layers incrementally edit a running representation rather than replacing it."
+      },
+      {
+        "q": "Where does dropout go?",
+        "a": "On each sublayer's output before the residual addition, and optionally on attention weights. Never on the residual path itself - that damages the identity that makes depth trainable."
+      },
+      {
+        "q": "Which sublayer costs more?",
+        "a": "Parameters: the FFN, two-thirds of the block. Long-sequence compute and memory: attention, because of its O(T^2) term. Different bottlenecks, different fixes."
+      },
+      {
+        "q": "How does a decoder block differ from an encoder block?",
+        "a": "Causal masking in self-attention, and (in encoder-decoder models) a third sublayer: cross-attention to the encoder output, between self-attention and the FFN."
+      }
     ],
     "standard": [
       {
         "q": "Walk through a transformer block component by component, explaining what each part contributes.",
         "a": "THE SKELETON. A block applies two sublayers, each wrapped in a residual connection and a layer normalization. In the modern (pre-norm) arrangement: x = x + Attention(LN(x)); then x = x + FFN(LN(x)). Stack N of these and you have the model. (1) MULTI-HEAD ATTENTION - the COMMUNICATION step. This is the ONLY place in the entire architecture where information moves between positions. Each position forms a query, compares it against every key, and takes a weighted average of values - so token 50 can pull in information from token 3. Multi-head means several such comparisons happen in parallel in different learned subspaces. Without it, the model would be a per-token MLP with no context whatsoever. (2) THE POSITION-WISE FFN - the COMPUTATION step. A two-layer MLP applied identically and independently at each position: expand from d_model to d_ff (conventionally 4x), apply a nonlinearity (ReLU originally, GELU in BERT/GPT, SwiGLU in modern models), project back. Two things to say about why it matters. First, attention's aggregation is LINEAR in the values, so without the FFN a stack of attention layers would have severely limited expressive power - the FFN supplies the nonlinearity that makes depth meaningful. Second, this is where most of the model LIVES: 8*d^2 parameters versus attention's 4*d^2, so two-thirds of every block, and interpretability work (Geva et al.) suggests MLP layers act as key-value memories storing factual associations, which fits the ROME/model-editing results that locate facts in specific MLP layers. (3) RESIDUAL CONNECTIONS - what makes depth possible. Each sublayer's output is ADDED to its input rather than replacing it, so the block computes an UPDATE to a running representation. This gives a direct gradient path from the loss to every layer (no vanishing through 96 layers) and means each sublayer only has to learn a refinement, not a full transformation. In the interpretability framing this creates the RESIDUAL STREAM: a shared communication channel that every head and MLP reads from and writes into, usually in different subspaces - which is the mental model behind transformer-circuits work and explains how information from layer 2 can be used directly at layer 40. (4) LAYER NORMALIZATION - keeping activations well-conditioned. Normalize each token's feature vector to zero mean and unit variance, then apply a learned scale and shift. LayerNorm rather than BatchNorm because it has no batch dependence: it behaves identically at train and test, works at batch size 1, and handles variable-length sequences - all essential for sequence models, and the reason the whole eval()/running-statistics apparatus of BatchNorm is irrelevant here. Its PLACEMENT matters a great deal (see below). THE ALTERNATION - the framing I would lead with: communicate (attention), then compute (FFN), repeatedly. Every transformer is that loop. The masking and the source of Q/K/V determine what kind of model it is - causal mask gives GPT, no mask gives BERT, and an extra cross-attention sublayer gives an encoder-decoder. THE COST STRUCTURE, which is what system-design questions actually want: per block, parameters are ~12*d_model^2 (attention 4, FFN 8); compute is O(T*d^2) for the projections and FFN plus O(T^2*d) for attention, so attention dominates once T exceeds d_model; activation memory is dominated by the T x T attention matrix in a naive implementation, which is precisely what FlashAttention eliminates. Knowing which part dominates which resource is what lets you answer 'this model is too slow/too big' with a targeted fix rather than a guess.",
-        "deepDive": { "q": "Explain the residual stream view of a transformer and why it changes how you think about layers.", "a": "THE STANDARD PICTURE is a pipeline: layer 1 transforms the input, layer 2 transforms that, and so on, each layer's output being the next layer's input. THE RESIDUAL STREAM PICTURE (Elhage et al., 'A Mathematical Framework for Transformer Circuits') is different and more accurate. Because every sublayer ADDS to its input rather than replacing it, the value flowing through the network is a running SUM: x_final = x_embed + sum over all attention heads of their outputs + sum over all MLPs of their outputs. The residual path is a shared BUS that every component reads from and writes to. Nothing is ever destroyed by a later layer; contributions accumulate. FOUR CONSEQUENCES THAT CHANGE HOW YOU THINK. (1) LAYERS COMMUNICATE DIRECTLY ACROSS DEPTH. A head in layer 2 can write information that a head in layer 40 reads, without any intervening layer needing to preserve or forward it - the residual stream carries it untouched. So 'depth' is not a strict pipeline; it is a sequence of read-modify-write operations on shared state. This is what makes CIRCUITS possible: an induction circuit is a previous-token head in an early layer writing something that an induction head in a later layer reads, which is only coherent under this view. (2) COMPONENTS COMMUNICATE VIA SUBSPACES. The stream has d_model dimensions but there are far more components than dimensions, so components use different (approximately orthogonal) SUBSPACES to avoid interfering. Each head's output projection W_O determines which subspace it writes to, and each head's W_Q/W_K/W_V determine which it reads from. This immediately connects to SUPERPOSITION - the stream carries more features than it has dimensions, packed into near-orthogonal directions with some interference, which is the motivation for sparse autoencoders in interpretability. (3) THE STREAM IS A PRIVILEGED BASIS ONLY WHERE SOMETHING BREAKS ROTATION SYMMETRY. Because everything reads and writes linearly, the stream itself has no preferred coordinate system - except that LayerNorm and the elementwise nonlinearity inside MLPs do break it. This is why 'neuron 1432 means X' claims are more meaningful for MLP neurons than for residual-stream dimensions, and it is a subtle point that shows real familiarity with the framework. (4) IT EXPLAINS PRACTICAL PHENOMENA. LOGIT LENS works (decode the residual stream at intermediate layers with the final unembedding and you get an interpretable, progressively-refining prediction) precisely because the stream is in the same space throughout. LAYER PRUNING often causes surprisingly little damage because removing one contributor from a sum degrades it gracefully. MODEL EDITING (ROME) works by changing what a specific MLP writes. And the observation that later layers often make small refinements is natural if each layer is an incremental edit rather than a transformation. WHY PRE-NORM FITS THIS VIEW BETTER, tying it back: in pre-norm, the residual path is a pure identity - nothing is applied to the stream itself, only to the copies fed into sublayers - so the stream really is a clean accumulator. In post-norm, every addition is followed by a normalization that rescales the whole stream, which both hurts gradient flow and muddies the interpretation. That the architecture the field converged on for optimization reasons is also the one with the cleaner conceptual story is a nice convergence, and worth pointing out. THE PRACTICAL PAYOFF for an interview: this view is what lets you reason about WHERE to intervene. Want to know what a layer contributes? Ablate its write to the stream. Want to know what information is present at layer L? Probe or logit-lens the stream there. Want to edit a fact? Change what the relevant MLP writes. The pipeline view suggests none of these; the residual-stream view makes them obvious." }
+        "deepDive": {
+          "q": "Explain the residual stream view of a transformer and why it changes how you think about layers.",
+          "a": "THE STANDARD PICTURE is a pipeline: layer 1 transforms the input, layer 2 transforms that, and so on, each layer's output being the next layer's input. THE RESIDUAL STREAM PICTURE (Elhage et al., 'A Mathematical Framework for Transformer Circuits') is different and more accurate. Because every sublayer ADDS to its input rather than replacing it, the value flowing through the network is a running SUM: x_final = x_embed + sum over all attention heads of their outputs + sum over all MLPs of their outputs. The residual path is a shared BUS that every component reads from and writes to. Nothing is ever destroyed by a later layer; contributions accumulate. FOUR CONSEQUENCES THAT CHANGE HOW YOU THINK. (1) LAYERS COMMUNICATE DIRECTLY ACROSS DEPTH. A head in layer 2 can write information that a head in layer 40 reads, without any intervening layer needing to preserve or forward it - the residual stream carries it untouched. So 'depth' is not a strict pipeline; it is a sequence of read-modify-write operations on shared state. This is what makes CIRCUITS possible: an induction circuit is a previous-token head in an early layer writing something that an induction head in a later layer reads, which is only coherent under this view. (2) COMPONENTS COMMUNICATE VIA SUBSPACES. The stream has d_model dimensions but there are far more components than dimensions, so components use different (approximately orthogonal) SUBSPACES to avoid interfering. Each head's output projection W_O determines which subspace it writes to, and each head's W_Q/W_K/W_V determine which it reads from. This immediately connects to SUPERPOSITION - the stream carries more features than it has dimensions, packed into near-orthogonal directions with some interference, which is the motivation for sparse autoencoders in interpretability. (3) THE STREAM IS A PRIVILEGED BASIS ONLY WHERE SOMETHING BREAKS ROTATION SYMMETRY. Because everything reads and writes linearly, the stream itself has no preferred coordinate system - except that LayerNorm and the elementwise nonlinearity inside MLPs do break it. This is why 'neuron 1432 means X' claims are more meaningful for MLP neurons than for residual-stream dimensions, and it is a subtle point that shows real familiarity with the framework. (4) IT EXPLAINS PRACTICAL PHENOMENA. LOGIT LENS works (decode the residual stream at intermediate layers with the final unembedding and you get an interpretable, progressively-refining prediction) precisely because the stream is in the same space throughout. LAYER PRUNING often causes surprisingly little damage because removing one contributor from a sum degrades it gracefully. MODEL EDITING (ROME) works by changing what a specific MLP writes. And the observation that later layers often make small refinements is natural if each layer is an incremental edit rather than a transformation. WHY PRE-NORM FITS THIS VIEW BETTER, tying it back: in pre-norm, the residual path is a pure identity - nothing is applied to the stream itself, only to the copies fed into sublayers - so the stream really is a clean accumulator. In post-norm, every addition is followed by a normalization that rescales the whole stream, which both hurts gradient flow and muddies the interpretation. That the architecture the field converged on for optimization reasons is also the one with the cleaner conceptual story is a nice convergence, and worth pointing out. THE PRACTICAL PAYOFF for an interview: this view is what lets you reason about WHERE to intervene. Want to know what a layer contributes? Ablate its write to the stream. Want to know what information is present at layer L? Probe or logit-lens the stream there. Want to edit a fact? Change what the relevant MLP writes. The pipeline view suggests none of these; the residual-stream view makes them obvious."
+        }
       },
       {
         "q": "Explain pre-norm versus post-norm in depth. Why did the field switch?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "The transformer block", "back": "Multi-head attention (COMMUNICATE across positions) + position-wise FFN (COMPUTE per position), each wrapped in a residual connection and a LayerNorm. Stack N copies = the whole model." },
-    { "type": "formula", "front": "Block parameter count", "back": "~12*d_model^2: attention 4*d^2 (Q,K,V,O) + FFN 8*d^2 (two d x 4d matrices). Hence 'params ~ 12 * n_layers * d_model^2'. The FFN is TWO-THIRDS of the block." },
-    { "type": "formula", "front": "Pre-norm vs post-norm", "back": "Post: x <- LN(x + Sublayer(x)) (original, needs warmup, LR-sensitive). Pre: x <- x + Sublayer(LN(x)) (modern, stable at depth, clean identity path). Pre-norm REQUIRES a final LN after the last block." },
-    { "type": "intuition", "front": "Why the FFN is necessary", "back": "Attention's aggregation is LINEAR in the values, so stacked attention alone has limited expressive power. The FFN supplies the per-position nonlinearity - and interpretability work suggests MLPs act as key-value memories storing facts." },
-    { "type": "definition", "front": "The residual stream", "back": "Because every sublayer ADDS to its input, the value is a running sum that all heads and MLPs read from and write to (in different subspaces). Layers edit shared state rather than forming a strict pipeline - the basis of circuits work and logit lens." },
-    { "type": "intuition", "front": "LayerNorm vs BatchNorm", "back": "LN normalizes over FEATURES within one token: no batch dependence, identical at train/test, works at batch size 1 and with variable lengths. BN fails all of those for sequences. Modern models use RMSNorm (drop the mean-centering, keep the rescaling)." },
-    { "type": "formula", "front": "Attention/FFN cost crossover", "back": "Projections + FFN: O(T*d^2). Attention scores: O(T^2*d). Attention dominates once T > d_model (~4K tokens for a 4096-wide model). Params: FFN dominates always." },
-    { "type": "pitfall", "front": "Missing final LayerNorm (pre-norm)", "back": "Pre-norm normalizes sublayer INPUTS, so the residual stream is never normalized on the way out. A pre-norm stack needs one LN after the last block before the head - omitting it is a classic reimplementation bug." },
-    { "type": "intuition", "front": "Encoder / decoder / decoder-only", "back": "Encoder: bidirectional self-attn + FFN. Encoder-decoder's decoder: causal self-attn + CROSS-attn + FFN. Decoder-only: causal self-attn + FFN, conditioning via a prefix. Same components, different mask and sublayer count." },
-    { "type": "pitfall", "front": "Target the right bottleneck", "back": "Decode latency = weights/bandwidth -> quantize, MoE, batch. Long context = KV cache -> GQA, paged attention, cache quantization. Long prompt = O(T^2) attention -> FlashAttention. Different problems, different fixes." }
+    {
+      "type": "definition",
+      "front": "The transformer block",
+      "back": "Multi-head attention (COMMUNICATE across positions) + position-wise FFN (COMPUTE per position), each wrapped in a residual connection and a LayerNorm. Stack N copies = the whole model."
+    },
+    {
+      "type": "formula",
+      "front": "Block parameter count",
+      "back": "~12*d_model^2: attention 4*d^2 (Q,K,V,O) + FFN 8*d^2 (two d x 4d matrices). Hence 'params ~ 12 * n_layers * d_model^2'. The FFN is TWO-THIRDS of the block."
+    },
+    {
+      "type": "formula",
+      "front": "Pre-norm vs post-norm",
+      "back": "Post: x <- LN(x + Sublayer(x)) (original, needs warmup, LR-sensitive). Pre: x <- x + Sublayer(LN(x)) (modern, stable at depth, clean identity path). Pre-norm REQUIRES a final LN after the last block."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the FFN is necessary",
+      "back": "Attention's aggregation is LINEAR in the values, so stacked attention alone has limited expressive power. The FFN supplies the per-position nonlinearity - and interpretability work suggests MLPs act as key-value memories storing facts."
+    },
+    {
+      "type": "definition",
+      "front": "The residual stream",
+      "back": "Because every sublayer ADDS to its input, the value is a running sum that all heads and MLPs read from and write to (in different subspaces). Layers edit shared state rather than forming a strict pipeline - the basis of circuits work and logit lens."
+    },
+    {
+      "type": "intuition",
+      "front": "LayerNorm vs BatchNorm",
+      "back": "LN normalizes over FEATURES within one token: no batch dependence, identical at train/test, works at batch size 1 and with variable lengths. BN fails all of those for sequences. Modern models use RMSNorm (drop the mean-centering, keep the rescaling)."
+    },
+    {
+      "type": "formula",
+      "front": "Attention/FFN cost crossover",
+      "back": "Projections + FFN: O(T*d^2). Attention scores: O(T^2*d). Attention dominates once T > d_model (~4K tokens for a 4096-wide model). Params: FFN dominates always."
+    },
+    {
+      "type": "pitfall",
+      "front": "Missing final LayerNorm (pre-norm)",
+      "back": "Pre-norm normalizes sublayer INPUTS, so the residual stream is never normalized on the way out. A pre-norm stack needs one LN after the last block before the head - omitting it is a classic reimplementation bug."
+    },
+    {
+      "type": "intuition",
+      "front": "Encoder / decoder / decoder-only",
+      "back": "Encoder: bidirectional self-attn + FFN. Encoder-decoder's decoder: causal self-attn + CROSS-attn + FFN. Decoder-only: causal self-attn + FFN, conditioning via a prefix. Same components, different mask and sublayer count."
+    },
+    {
+      "type": "pitfall",
+      "front": "Target the right bottleneck",
+      "back": "Decode latency = weights/bandwidth -> quantize, MoE, batch. Long context = KV cache -> GQA, paged attention, cache quantization. Long prompt = O(T^2) attention -> FlashAttention. Different problems, different fixes."
+    }
   ],
   "refs": [
-    { "title": "Vaswani et al. (2017), Attention Is All You Need", "url": "https://arxiv.org/abs/1706.03762" },
-    { "title": "Xiong et al. (2020), On Layer Normalization in the Transformer Architecture", "url": "https://arxiv.org/abs/2002.04745" },
-    { "title": "Geva et al. (2021), Transformer Feed-Forward Layers Are Key-Value Memories", "url": "https://arxiv.org/abs/2012.14913" },
-    { "title": "Elhage et al. (2021), A Mathematical Framework for Transformer Circuits (residual stream)", "url": "https://transformer-circuits.pub/2021/framework/index.html" }
+    {
+      "title": "Vaswani et al. (2017), Attention Is All You Need",
+      "url": "https://arxiv.org/abs/1706.03762"
+    },
+    {
+      "title": "Xiong et al. (2020), On Layer Normalization in the Transformer Architecture",
+      "url": "https://arxiv.org/abs/2002.04745"
+    },
+    {
+      "title": "Geva et al. (2021), Transformer Feed-Forward Layers Are Key-Value Memories",
+      "url": "https://arxiv.org/abs/2012.14913"
+    },
+    {
+      "title": "Elhage et al. (2021), A Mathematical Framework for Transformer Circuits (residual stream)",
+      "url": "https://transformer-circuits.pub/2021/framework/index.html"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-05",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-05_transformer_block.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-08",
   "slug": "model-based-rl",
+  "keyBase": "reinforcement-learning/model-based-rl",
   "module": "reinforcement-learning",
   "title": "Model-Based RL & MCTS",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Browne et al. (2012) — A Survey of Monte Carlo Tree Search Methods",
       "url": "https://ieeexplore.ieee.org/document/6145622"
     }
-  ]
+  ],
+  "v2": {
+    "id": "14-10",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-10_model_based_rl_mcts.ipynb"
+  }
 }

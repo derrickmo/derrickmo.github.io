@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "04-02",
   "slug": "cross-validation",
+  "keyBase": "ml-theory/cross-validation",
   "module": "ml-theory",
   "title": "Cross-Validation & Hyperparameter Tuning",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "04-02_cross_validation_hyperparameter_tuning.ipynb",
     "flagship": null,
-    "demos": ["cross-validation", "overfitting", "bias-variance-decomp"],
+    "demos": [
+      "cross-validation",
+      "overfitting",
+      "bias-variance-decomp"
+    ],
     "concepts": []
   },
-  "prereqs": ["ml-theory/evaluation-metrics", "supervised-learning/model-comparison"],
-  "leadsTo": ["ml-theory/bias-variance", "mlops/testing"],
+  "prereqs": [
+    "ml-theory/evaluation-metrics",
+    "supervised-learning/model-comparison"
+  ],
+  "leadsTo": [
+    "ml-theory/bias-variance",
+    "mlops/testing"
+  ],
   "body": {
     "intuition": [
       "A single train/test split gives you one number, and that number has variance you cannot see. Split differently and you get a different answer - on a small dataset, sometimes several points different. CROSS-VALIDATION fixes this by rotating the held-out set: partition the data into k folds, train on k-1 and evaluate on the remaining one, repeat k times, and average. You get an estimate that uses every example for both training and evaluation, plus something a single split cannot give you at all - the SPREAD across folds, which tells you how much of any apparent difference between two models is real.",
@@ -72,32 +83,83 @@
       "Treating fold-to-fold standard error as a valid confidence interval: the folds share training data so they are correlated, and Bengio & Grandvalet showed no unbiased variance estimator exists. Use the spread as a sanity check and prefer paired tests for comparisons."
     ],
     "connections": [
-      { "ref": "ml-theory/bias-variance", "text": "CV is how you measure the variance side of the trade-off empirically - learning curves built from CV folds are the standard tool for deciding whether you need more data or more capacity." },
-      { "ref": "ml-theory/evaluation-metrics", "text": "CV estimates whatever metric you give it, so the metric choice from that lesson determines what the whole selection procedure optimizes toward." },
-      { "ref": "causal-inference/ab-testing", "text": "The tuning-optimism effect here is the same max-over-noise phenomenon as multiple testing and peeking in experiments - selection over many noisy candidates inflates the winner." },
-      { "ref": "mlops/testing", "text": "The leakage checks in this lesson belong in CI, not in a notebook - a pipeline test that fails when preprocessing is fitted outside the fold catches the bug permanently." }
+      {
+        "ref": "ml-theory/bias-variance",
+        "text": "CV is how you measure the variance side of the trade-off empirically - learning curves built from CV folds are the standard tool for deciding whether you need more data or more capacity."
+      },
+      {
+        "ref": "ml-theory/evaluation-metrics",
+        "text": "CV estimates whatever metric you give it, so the metric choice from that lesson determines what the whole selection procedure optimizes toward."
+      },
+      {
+        "ref": "causal-inference/ab-testing",
+        "text": "The tuning-optimism effect here is the same max-over-noise phenomenon as multiple testing and peeking in experiments - selection over many noisy candidates inflates the winner."
+      },
+      {
+        "ref": "mlops/testing",
+        "text": "The leakage checks in this lesson belong in CI, not in a notebook - a pipeline test that fails when preprocessing is fitted outside the fold catches the bug permanently."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is k-fold cross-validation?", "a": "Partition the data into k folds; train on k-1 and evaluate on the held-out one; repeat k times and average. Every example is used for both training and evaluation." },
-      { "q": "Why not just use one train/test split?", "a": "One split gives one noisy number with no measure of its variance. CV averages over k splits and reveals the fold-to-fold spread." },
-      { "q": "What is stratified k-fold?", "a": "Folds preserve the class distribution of the full dataset - essential for imbalanced classification, where a random fold might contain almost no positives." },
-      { "q": "What is GroupKFold for?", "a": "Data with multiple rows per entity (patients, users, sessions). It keeps every row of a group in the same fold so near-duplicates cannot straddle the split." },
-      { "q": "How do you cross-validate time series?", "a": "Forward chaining (TimeSeriesSplit): always train on the past and validate on the future, with a gap at least as long as the forecast horizon. Never shuffle." },
-      { "q": "What is leave-one-out CV?", "a": "k = n. Nearly unbiased but high-variance and expensive; the training sets are almost identical, so the estimates are highly correlated. k = 5 or 10 is the usual compromise." },
-      { "q": "Why is k=5 or 10 standard?", "a": "It balances bias (small k means each model trains on less data, so performance is pessimistic) against variance and compute. Empirically 5-10 works well." },
-      { "q": "What is the most common CV bug?", "a": "Fitting preprocessing (scaler, imputer, feature selector, SMOTE) on the whole dataset before splitting, leaking held-out information into training. Use a Pipeline." },
-      { "q": "What is nested CV?", "a": "An inner loop for hyperparameter selection and an outer loop for evaluation, so the reported score estimates the whole 'search then fit' procedure rather than the winning configuration." },
-      { "q": "Why does tuning inflate the score?", "a": "You report the MAXIMUM over m noisy candidates, and E[max] > E[single] by roughly sigma*sqrt(2 ln m) - phantom improvement from selection even with no real difference." },
-      { "q": "Can you use fold standard error as a confidence interval?", "a": "Not rigorously - folds share training data so they are correlated, and Bengio & Grandvalet proved no unbiased variance estimator exists. Use it as a rough signal." },
-      { "q": "How should you compare two models with CV?", "a": "Paired, on identical folds, with a paired test (or bootstrap of the per-fold differences) - much more powerful than comparing two independent means." }
+      {
+        "q": "What is k-fold cross-validation?",
+        "a": "Partition the data into k folds; train on k-1 and evaluate on the held-out one; repeat k times and average. Every example is used for both training and evaluation."
+      },
+      {
+        "q": "Why not just use one train/test split?",
+        "a": "One split gives one noisy number with no measure of its variance. CV averages over k splits and reveals the fold-to-fold spread."
+      },
+      {
+        "q": "What is stratified k-fold?",
+        "a": "Folds preserve the class distribution of the full dataset - essential for imbalanced classification, where a random fold might contain almost no positives."
+      },
+      {
+        "q": "What is GroupKFold for?",
+        "a": "Data with multiple rows per entity (patients, users, sessions). It keeps every row of a group in the same fold so near-duplicates cannot straddle the split."
+      },
+      {
+        "q": "How do you cross-validate time series?",
+        "a": "Forward chaining (TimeSeriesSplit): always train on the past and validate on the future, with a gap at least as long as the forecast horizon. Never shuffle."
+      },
+      {
+        "q": "What is leave-one-out CV?",
+        "a": "k = n. Nearly unbiased but high-variance and expensive; the training sets are almost identical, so the estimates are highly correlated. k = 5 or 10 is the usual compromise."
+      },
+      {
+        "q": "Why is k=5 or 10 standard?",
+        "a": "It balances bias (small k means each model trains on less data, so performance is pessimistic) against variance and compute. Empirically 5-10 works well."
+      },
+      {
+        "q": "What is the most common CV bug?",
+        "a": "Fitting preprocessing (scaler, imputer, feature selector, SMOTE) on the whole dataset before splitting, leaking held-out information into training. Use a Pipeline."
+      },
+      {
+        "q": "What is nested CV?",
+        "a": "An inner loop for hyperparameter selection and an outer loop for evaluation, so the reported score estimates the whole 'search then fit' procedure rather than the winning configuration."
+      },
+      {
+        "q": "Why does tuning inflate the score?",
+        "a": "You report the MAXIMUM over m noisy candidates, and E[max] > E[single] by roughly sigma*sqrt(2 ln m) - phantom improvement from selection even with no real difference."
+      },
+      {
+        "q": "Can you use fold standard error as a confidence interval?",
+        "a": "Not rigorously - folds share training data so they are correlated, and Bengio & Grandvalet proved no unbiased variance estimator exists. Use it as a rough signal."
+      },
+      {
+        "q": "How should you compare two models with CV?",
+        "a": "Paired, on identical folds, with a paired test (or bootstrap of the per-fold differences) - much more powerful than comparing two independent means."
+      }
     ],
     "standard": [
       {
         "q": "Explain cross-validation, the main variants, and how you choose which to use.",
         "a": "THE CORE IDEA. A single train/test split estimates performance from one particular partition, and that estimate has variance you cannot observe from within it - on a small dataset, re-splitting can move the number by several points. K-fold CV partitions the data into k folds, trains on k-1 and evaluates on the held-out fold, rotating k times and averaging. Two benefits: every example contributes to both training and evaluation (efficient use of scarce data), and the SPREAD across folds gives a signal about how precisely you have measured performance. THE VARIANTS AND WHEN EACH APPLIES. (1) PLAIN K-FOLD: for i.i.d. data with no structure. (2) STRATIFIED K-FOLD: preserves the class distribution in every fold. Essential for imbalanced classification - with 2% positives and 5 folds, a random split can leave a fold with almost no positives, making its metric meaningless. This is the default for classification. (3) GROUP K-FOLD: when rows are not independent because they share an entity - multiple images per patient, multiple sessions per user, multiple frames per video, multiple sentences per document. All rows of a group go into the same fold. Without this, near-duplicates land on both sides and the model gets credit for recognizing the ENTITY rather than the pattern; on medical data this routinely inflates AUC by 10-20 points. StratifiedGroupKFold combines both constraints. (4) TIME SERIES SPLIT (forward chaining): train on the past, validate on the future, with an expanding or sliding window and a GAP at least as long as the forecast horizon. Any random split on temporal data lets the model see the future, which is the most damaging leak in the catalogue because the resulting model looks excellent and fails completely in production. (5) LEAVE-ONE-OUT: k = n. Nearly unbiased (each model trains on almost all the data) but high variance and expensive, and the n models are so similar that their errors are strongly correlated. Mostly of theoretical interest; k = 5 or 10 is the practical standard. (6) REPEATED K-FOLD: run k-fold several times with different random partitions and average - reduces the dependence on one particular partition, cheap insurance on small datasets. HOW I CHOOSE, as a decision procedure: start by asking WHAT MAKES TWO ROWS NON-INDEPENDENT in this dataset. If the answer is 'nothing', use stratified k-fold. If it is 'they come from the same patient/user/device', use GroupKFold on that id. If it is 'they are adjacent in time', use forward chaining. If it is both grouped and temporal (common in healthcare and finance), you need both constraints, which usually means a custom splitter. This question - what is the unit of independence? - is the one that determines whether your validation is honest, and it is far more important than the choice of k. THE BIAS-VARIANCE PROPERTY OF k ITSELF, worth knowing: small k means each model trains on less data, so the estimate is PESSIMISTIC (biased down) but the folds are more independent (lower variance in a sense). Large k reduces that bias but the training sets overlap heavily so the estimates are correlated. k = 5 to 10 is the empirical sweet spot, and the choice rarely matters as much as people fear. WHAT CV DOES NOT DO, which I would state to close: it does not fix leakage from preprocessing (that needs a Pipeline), it does not fix a badly-chosen metric, and it does not give you an unbiased estimate of a model you SELECTED using those same folds - which is what the test set and nested CV are for.",
-        "deepDive": { "q": "Explain nested cross-validation. When is it necessary, and what exactly does it estimate?", "a": "THE PROBLEM IT SOLVES. Suppose you use 5-fold CV to choose among 100 hyperparameter configurations and then report the best configuration's CV score. That number is biased upward, because you selected the maximum over 100 noisy estimates - the winner's curse. The reported score is not an estimate of how the model will perform; it is an estimate of the best-case sampling noise. The bias grows with the number of configurations and with the noise level, and it can be several points on small datasets. THE STRUCTURE OF NESTED CV. Two loops. The OUTER loop splits the data into (say) 5 folds and holds out one; the INNER loop runs a full hyperparameter search using CV WITHIN the outer training portion only; the winning configuration is then refit on the whole outer-training portion and evaluated once on the outer held-out fold. Repeat for each outer fold and average. Cost: outer_k x inner_k x n_configs model fits, so it is expensive - 5 x 5 x 100 = 2,500 fits for a modest search. WHAT IT ACTUALLY ESTIMATES, which is the subtle and most-misunderstood part. Nested CV does NOT estimate the performance of one particular model or one particular hyperparameter setting. It estimates the performance of the ENTIRE PROCEDURE - 'run this search on a dataset of this size, then fit the winner'. Each outer fold may select a DIFFERENT configuration, and that is not a bug: the quantity being estimated is 'if I apply this whole pipeline to fresh data, how well will the result do?'. This is exactly the right question when you are choosing between procedures (e.g. 'is random forest with tuning better than gradient boosting with tuning on this problem?'), and it is the wrong framing if you wanted to know 'how good is THIS specific model I am about to ship'. WHEN IT IS NECESSARY. (a) Small datasets where you cannot afford a separate held-out test set - nested CV recovers an honest estimate without sacrificing data. (b) When you are comparing MODEL FAMILIES that each need tuning, and want the comparison to be fair (tuning both inside the procedure rather than giving one an advantage). (c) In research/publication settings where the reported number must be defensible. WHEN IT IS OVERKILL. If you have enough data for a genuine three-way split (train / validation / test), that is simpler, cheaper, and answers the more common question - 'how good is the model I am shipping?'. Tune on validation, touch test once, report test. Most industrial projects should do this. Nested CV is the small-data substitute. THE PRACTICAL MIDDLE GROUND that I would actually recommend in most cases: use plain CV for the search (fast, and selection does not need to be unbiased - it only needs to rank candidates approximately), then evaluate the single chosen configuration on a held-out test set touched once. This gives an honest number for the shipped model at a fraction of nested CV's cost. The one thing you must not do is report the best CV score from the search as your expected performance. A RELATED SUBTLETY worth mentioning: if the inner folds select wildly different configurations across outer folds, that is diagnostic information - it means your search is not finding a stable optimum, usually because the dataset is too small relative to the search space, and the honest conclusion is that hyperparameter choice is not well-determined by your data. That instability is itself a result worth reporting, and it argues for a simpler model." }
+        "deepDive": {
+          "q": "Explain nested cross-validation. When is it necessary, and what exactly does it estimate?",
+          "a": "THE PROBLEM IT SOLVES. Suppose you use 5-fold CV to choose among 100 hyperparameter configurations and then report the best configuration's CV score. That number is biased upward, because you selected the maximum over 100 noisy estimates - the winner's curse. The reported score is not an estimate of how the model will perform; it is an estimate of the best-case sampling noise. The bias grows with the number of configurations and with the noise level, and it can be several points on small datasets. THE STRUCTURE OF NESTED CV. Two loops. The OUTER loop splits the data into (say) 5 folds and holds out one; the INNER loop runs a full hyperparameter search using CV WITHIN the outer training portion only; the winning configuration is then refit on the whole outer-training portion and evaluated once on the outer held-out fold. Repeat for each outer fold and average. Cost: outer_k x inner_k x n_configs model fits, so it is expensive - 5 x 5 x 100 = 2,500 fits for a modest search. WHAT IT ACTUALLY ESTIMATES, which is the subtle and most-misunderstood part. Nested CV does NOT estimate the performance of one particular model or one particular hyperparameter setting. It estimates the performance of the ENTIRE PROCEDURE - 'run this search on a dataset of this size, then fit the winner'. Each outer fold may select a DIFFERENT configuration, and that is not a bug: the quantity being estimated is 'if I apply this whole pipeline to fresh data, how well will the result do?'. This is exactly the right question when you are choosing between procedures (e.g. 'is random forest with tuning better than gradient boosting with tuning on this problem?'), and it is the wrong framing if you wanted to know 'how good is THIS specific model I am about to ship'. WHEN IT IS NECESSARY. (a) Small datasets where you cannot afford a separate held-out test set - nested CV recovers an honest estimate without sacrificing data. (b) When you are comparing MODEL FAMILIES that each need tuning, and want the comparison to be fair (tuning both inside the procedure rather than giving one an advantage). (c) In research/publication settings where the reported number must be defensible. WHEN IT IS OVERKILL. If you have enough data for a genuine three-way split (train / validation / test), that is simpler, cheaper, and answers the more common question - 'how good is the model I am shipping?'. Tune on validation, touch test once, report test. Most industrial projects should do this. Nested CV is the small-data substitute. THE PRACTICAL MIDDLE GROUND that I would actually recommend in most cases: use plain CV for the search (fast, and selection does not need to be unbiased - it only needs to rank candidates approximately), then evaluate the single chosen configuration on a held-out test set touched once. This gives an honest number for the shipped model at a fraction of nested CV's cost. The one thing you must not do is report the best CV score from the search as your expected performance. A RELATED SUBTLETY worth mentioning: if the inner folds select wildly different configurations across outer folds, that is diagnostic information - it means your search is not finding a stable optimum, usually because the dataset is too small relative to the search space, and the honest conclusion is that hyperparameter choice is not well-determined by your data. That instability is itself a result worth reporting, and it argues for a simpler model."
+        }
       },
       {
         "q": "What is data leakage in cross-validation, and how do you prevent it?",
@@ -122,22 +184,83 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "k-fold cross-validation", "back": "Partition into k folds; train on k-1, evaluate on the held-out one, rotate and average. Uses every example for both roles and exposes fold-to-fold spread. k=5 or 10 is the standard compromise." },
-    { "type": "pitfall", "front": "The #1 CV bug: preprocessing outside the fold", "back": "Scalers, imputers, feature selectors, target encoders, and SMOTE all LEARN from data. Fit them on the full dataset and you leak. Hastie's construction: 0.85 'accuracy' on pure noise vs 0.52 done correctly. Use a Pipeline." },
-    { "type": "definition", "front": "GroupKFold", "back": "Keeps all rows of an entity (patient, user, session) in the SAME fold. Random splitting of grouped data puts near-duplicates on both sides - typically 10-20 points of inflated AUC on medical data." },
-    { "type": "pitfall", "front": "Time series need forward chaining", "back": "Never shuffle. Train on the past, validate on the future, with a GAP >= the forecast horizon. Also audit that every feature was point-in-time KNOWABLE, not merely timestamped." },
-    { "type": "formula", "front": "Why tuning inflates scores", "back": "You report max over m noisy candidates: E[max] ~ mu + sigma*sqrt(2 ln m). With m=40, sigma=0.03 that is ~8 points of phantom gain. Hence a test set touched exactly ONCE." },
-    { "type": "definition", "front": "Nested CV", "back": "Inner loop selects hyperparameters, outer loop evaluates. Estimates the whole 'search then fit' PROCEDURE, not one model - different outer folds may pick different configs, and that is by design." },
-    { "type": "pitfall", "front": "Fold SE is not a confidence interval", "back": "Folds share training data so they are correlated; Bengio & Grandvalet proved no unbiased variance estimator exists. Use spread as a sanity signal; compare models PAIRED on identical folds." },
-    { "type": "intuition", "front": "Random search beats grid search", "back": "Bergstra & Bengio: only a few hyperparameters matter, and a grid tries few distinct values of each. 100 random samples try 100 distinct learning rates; a 5-per-dim grid tries 5." },
-    { "type": "intuition", "front": "One-standard-error rule", "back": "Among configurations within 1 SE of the best, pick the SIMPLEST (most regularized). Deliberately gives up apparent performance that was probably noise, and generalizes better." },
-    { "type": "pitfall", "front": "When CV is the wrong tool", "back": "It answers 'same distribution, sampled the same way'. If the risk is transfer (new site/time/population), use a SHIFTED holdout (leave-one-site-out). If the model affects its own data (recommenders), use off-policy evaluation or an A/B test." }
+    {
+      "type": "definition",
+      "front": "k-fold cross-validation",
+      "back": "Partition into k folds; train on k-1, evaluate on the held-out one, rotate and average. Uses every example for both roles and exposes fold-to-fold spread. k=5 or 10 is the standard compromise."
+    },
+    {
+      "type": "pitfall",
+      "front": "The #1 CV bug: preprocessing outside the fold",
+      "back": "Scalers, imputers, feature selectors, target encoders, and SMOTE all LEARN from data. Fit them on the full dataset and you leak. Hastie's construction: 0.85 'accuracy' on pure noise vs 0.52 done correctly. Use a Pipeline."
+    },
+    {
+      "type": "definition",
+      "front": "GroupKFold",
+      "back": "Keeps all rows of an entity (patient, user, session) in the SAME fold. Random splitting of grouped data puts near-duplicates on both sides - typically 10-20 points of inflated AUC on medical data."
+    },
+    {
+      "type": "pitfall",
+      "front": "Time series need forward chaining",
+      "back": "Never shuffle. Train on the past, validate on the future, with a GAP >= the forecast horizon. Also audit that every feature was point-in-time KNOWABLE, not merely timestamped."
+    },
+    {
+      "type": "formula",
+      "front": "Why tuning inflates scores",
+      "back": "You report max over m noisy candidates: E[max] ~ mu + sigma*sqrt(2 ln m). With m=40, sigma=0.03 that is ~8 points of phantom gain. Hence a test set touched exactly ONCE."
+    },
+    {
+      "type": "definition",
+      "front": "Nested CV",
+      "back": "Inner loop selects hyperparameters, outer loop evaluates. Estimates the whole 'search then fit' PROCEDURE, not one model - different outer folds may pick different configs, and that is by design."
+    },
+    {
+      "type": "pitfall",
+      "front": "Fold SE is not a confidence interval",
+      "back": "Folds share training data so they are correlated; Bengio & Grandvalet proved no unbiased variance estimator exists. Use spread as a sanity signal; compare models PAIRED on identical folds."
+    },
+    {
+      "type": "intuition",
+      "front": "Random search beats grid search",
+      "back": "Bergstra & Bengio: only a few hyperparameters matter, and a grid tries few distinct values of each. 100 random samples try 100 distinct learning rates; a 5-per-dim grid tries 5."
+    },
+    {
+      "type": "intuition",
+      "front": "One-standard-error rule",
+      "back": "Among configurations within 1 SE of the best, pick the SIMPLEST (most regularized). Deliberately gives up apparent performance that was probably noise, and generalizes better."
+    },
+    {
+      "type": "pitfall",
+      "front": "When CV is the wrong tool",
+      "back": "It answers 'same distribution, sampled the same way'. If the risk is transfer (new site/time/population), use a SHIFTED holdout (leave-one-site-out). If the model affects its own data (recommenders), use off-policy evaluation or an A/B test."
+    }
   ],
   "refs": [
-    { "title": "Hastie, Tibshirani & Friedman, The Elements of Statistical Learning, Ch. 7 (Model Assessment and Selection)", "url": "https://hastie.su.domains/ElemStatLearn/" },
-    { "title": "Bergstra & Bengio (2012), Random Search for Hyper-Parameter Optimization", "url": "https://www.jmlr.org/papers/v13/bergstra12a.html" },
-    { "title": "Bengio & Grandvalet (2004), No Unbiased Estimator of the Variance of K-Fold Cross-Validation", "url": "https://www.jmlr.org/papers/v5/grandvalet04a.html" },
-    { "title": "Dietterich (1998), Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms", "url": "https://direct.mit.edu/neco/article/10/7/1895/6224" }
+    {
+      "title": "Hastie, Tibshirani & Friedman, The Elements of Statistical Learning, Ch. 7 (Model Assessment and Selection)",
+      "url": "https://hastie.su.domains/ElemStatLearn/"
+    },
+    {
+      "title": "Bergstra & Bengio (2012), Random Search for Hyper-Parameter Optimization",
+      "url": "https://www.jmlr.org/papers/v13/bergstra12a.html"
+    },
+    {
+      "title": "Bengio & Grandvalet (2004), No Unbiased Estimator of the Variance of K-Fold Cross-Validation",
+      "url": "https://www.jmlr.org/papers/v5/grandvalet04a.html"
+    },
+    {
+      "title": "Dietterich (1998), Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms",
+      "url": "https://direct.mit.edu/neco/article/10/7/1895/6224"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "05-02",
+    "module": "evaluation",
+    "disposition": "split",
+    "notebookFile": "05-02_cross_validation_model_selection.ipynb",
+    "alsoFeeds": [
+      "05-03"
+    ]
+  }
 }

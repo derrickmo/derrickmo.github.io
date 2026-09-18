@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-05",
   "slug": "agent-memory",
+  "keyBase": "agentic-ai/agent-memory",
   "module": "agentic-ai",
   "title": "Agent Memory & Context Management",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-05_agent_memory.ipynb",
     "flagship": null,
-    "demos": ["embeddings", "vector-search", "kv-cache-eviction", "lost-in-the-middle"],
+    "demos": [
+      "embeddings",
+      "vector-search",
+      "kv-cache-eviction",
+      "lost-in-the-middle"
+    ],
     "concepts": []
   },
-  "prereqs": ["agentic-ai/agent-loop", "rag-agents/embeddings-vector-stores"],
-  "leadsTo": ["agentic-ai/multi-agent", "agentic-ai/observability"],
+  "prereqs": [
+    "agentic-ai/agent-loop",
+    "rag-agents/embeddings-vector-stores"
+  ],
+  "leadsTo": [
+    "agentic-ai/multi-agent",
+    "agentic-ai/observability"
+  ],
   "body": {
     "intuition": [
       "An agent's history grows every step and its context does not, so something must be dropped. The interesting question is not which strategy is best - none of them dominates - but what SHAPE each one's failure has, because the shapes are completely different and that is what determines which is survivable for your traffic. Measured on the same task, with a fact buried d turns back and a budget too small to hold everything, the three standard strategies fail in three unrelated ways.",
@@ -274,5 +286,11 @@
       "url": "https://arxiv.org/abs/2307.03172"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-05",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-05_agent_memory.ipynb"
+  }
 }

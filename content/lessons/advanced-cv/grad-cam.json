@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "09-01",
   "slug": "grad-cam",
+  "keyBase": "advanced-cv/grad-cam",
   "module": "advanced-cv",
   "title": "Grad-CAM & Saliency Maps",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "09-01_grad_cam_saliency_maps.ipynb",
     "flagship": null,
-    "demos": ["saliency", "attention-rollout", "convolution"],
+    "demos": [
+      "saliency",
+      "attention-rollout",
+      "convolution"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/cnn-architectures", "neural-nets/backprop"],
-  "leadsTo": ["trustworthy-ai/attribution", "advanced-cv/vit"],
+  "prereqs": [
+    "cnn/cnn-architectures",
+    "neural-nets/backprop"
+  ],
+  "leadsTo": [
+    "trustworthy-ai/attribution",
+    "advanced-cv/vit"
+  ],
   "body": {
     "intuition": [
       "You have a CNN that classifies an X-ray as pneumonia. Which pixels did it use? The family of methods answering that question is ATTRIBUTION, and Grad-CAM is the one that became standard for convolutional networks because it is cheap, requires no retraining, and produces a heatmap that lines up with objects rather than with individual pixels. The core insight is that the LAST convolutional layer is the right place to look: its feature maps are still spatial (typically 7x7 or 14x14, so each cell corresponds to a region of the image) but they are already semantic, encoding 'dog face' or 'wheel' rather than 'edge at 30 degrees'.",
@@ -72,32 +83,83 @@
       "Forgetting that attribution is not causation: a highlighted region is correlated with the model's output on this input, which says nothing about what would happen under intervention or about whether the feature is causally related to the label in the world."
     ],
     "connections": [
-      { "ref": "trustworthy-ai/attribution", "text": "The trustworthy-AI module derives saliency, Integrated Gradients, exact Shapley values, and attention rollout from scratch and grades them against a KNOWN planted signal - the quantitative version of this lesson." },
-      { "ref": "cnn/cnn-architectures", "text": "Grad-CAM depends on the last conv layer being both spatial and semantic, which is a property of the downsampling hierarchy those architectures build." },
-      { "ref": "advanced-cv/vit", "text": "Transformers have no last conv layer, so attribution there uses attention rollout or applies Grad-CAM to the final block's token activations reshaped to a grid - the method has to be adapted." },
-      { "ref": "cnn/style-transfer", "text": "Optimizing an input under a frozen network is the shared machinery of feature visualization and attribution; style transfer is the constructive branch of the same family." }
+      {
+        "ref": "trustworthy-ai/attribution",
+        "text": "The trustworthy-AI module derives saliency, Integrated Gradients, exact Shapley values, and attention rollout from scratch and grades them against a KNOWN planted signal - the quantitative version of this lesson."
+      },
+      {
+        "ref": "cnn/cnn-architectures",
+        "text": "Grad-CAM depends on the last conv layer being both spatial and semantic, which is a property of the downsampling hierarchy those architectures build."
+      },
+      {
+        "ref": "advanced-cv/vit",
+        "text": "Transformers have no last conv layer, so attribution there uses attention rollout or applies Grad-CAM to the final block's token activations reshaped to a grid - the method has to be adapted."
+      },
+      {
+        "ref": "cnn/style-transfer",
+        "text": "Optimizing an input under a frozen network is the shared machinery of feature visualization and attribution; style transfer is the constructive branch of the same family."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is Grad-CAM?", "a": "Weight the last conv layer's feature maps by their global-average-pooled gradients for a class, sum, ReLU, and upsample - giving a coarse heatmap of where the class evidence is." },
-      { "q": "Why use the LAST convolutional layer?", "a": "It is the best trade-off: still spatial (7x7 or 14x14, so positions map to image regions) but already semantic (object parts rather than edges)." },
-      { "q": "Why the ReLU?", "a": "To keep only features that contribute POSITIVELY to the class. Negative contributions are evidence for other classes, so removing them makes the map class-discriminative." },
-      { "q": "Logit or softmax probability?", "a": "The pre-softmax logit. Softmax normalizes across classes, so its gradient mixes in information about competitors and dilutes class-specificity." },
-      { "q": "How does Grad-CAM differ from CAM?", "a": "CAM required global average pooling feeding directly into the classifier, so it worked only for specific architectures. Grad-CAM uses gradients as the channel weights and works for any CNN with no retraining." },
-      { "q": "What is the resolution limitation?", "a": "The map is computed at the last conv layer's spatial size (often 7x7) and bilinearly upsampled, so it is inherently coarse - apparent pixel precision is an interpolation artifact." },
-      { "q": "Why does plain gradient saliency fail?", "a": "It measures LOCAL sensitivity, so a saturated feature has zero gradient even if it drove the prediction. Integrated Gradients accumulates gradients along a path from a baseline to fix this." },
-      { "q": "What is completeness in Integrated Gradients?", "a": "The attributions sum exactly to f(x) - f(baseline). It is an axiom the method satisfies by construction, and a numerical check on whether you used enough integration steps." },
-      { "q": "What are Adebayo's sanity checks?", "a": "Randomize model weights (or labels) and see whether the attribution changes. A faithful method should degrade to noise; Guided Backprop and Guided Grad-CAM largely do not, so they fail." },
-      { "q": "Which methods fail the sanity check?", "a": "Guided Backprop and Guided Grad-CAM - they produce the sharpest, most convincing maps and behave essentially like edge detectors independent of the weights." },
-      { "q": "How would you test a heatmap causally?", "a": "Occlude or perturb the highlighted region and measure the drop in the class score, compared against occluding a random region of the same size (deletion/insertion metrics)." },
-      { "q": "How do you attribute for a Vision Transformer?", "a": "There is no last conv layer - use attention rollout (multiplying attention across layers, accounting for residuals), or apply Grad-CAM to the final block's token activations reshaped into a grid." }
+      {
+        "q": "What is Grad-CAM?",
+        "a": "Weight the last conv layer's feature maps by their global-average-pooled gradients for a class, sum, ReLU, and upsample - giving a coarse heatmap of where the class evidence is."
+      },
+      {
+        "q": "Why use the LAST convolutional layer?",
+        "a": "It is the best trade-off: still spatial (7x7 or 14x14, so positions map to image regions) but already semantic (object parts rather than edges)."
+      },
+      {
+        "q": "Why the ReLU?",
+        "a": "To keep only features that contribute POSITIVELY to the class. Negative contributions are evidence for other classes, so removing them makes the map class-discriminative."
+      },
+      {
+        "q": "Logit or softmax probability?",
+        "a": "The pre-softmax logit. Softmax normalizes across classes, so its gradient mixes in information about competitors and dilutes class-specificity."
+      },
+      {
+        "q": "How does Grad-CAM differ from CAM?",
+        "a": "CAM required global average pooling feeding directly into the classifier, so it worked only for specific architectures. Grad-CAM uses gradients as the channel weights and works for any CNN with no retraining."
+      },
+      {
+        "q": "What is the resolution limitation?",
+        "a": "The map is computed at the last conv layer's spatial size (often 7x7) and bilinearly upsampled, so it is inherently coarse - apparent pixel precision is an interpolation artifact."
+      },
+      {
+        "q": "Why does plain gradient saliency fail?",
+        "a": "It measures LOCAL sensitivity, so a saturated feature has zero gradient even if it drove the prediction. Integrated Gradients accumulates gradients along a path from a baseline to fix this."
+      },
+      {
+        "q": "What is completeness in Integrated Gradients?",
+        "a": "The attributions sum exactly to f(x) - f(baseline). It is an axiom the method satisfies by construction, and a numerical check on whether you used enough integration steps."
+      },
+      {
+        "q": "What are Adebayo's sanity checks?",
+        "a": "Randomize model weights (or labels) and see whether the attribution changes. A faithful method should degrade to noise; Guided Backprop and Guided Grad-CAM largely do not, so they fail."
+      },
+      {
+        "q": "Which methods fail the sanity check?",
+        "a": "Guided Backprop and Guided Grad-CAM - they produce the sharpest, most convincing maps and behave essentially like edge detectors independent of the weights."
+      },
+      {
+        "q": "How would you test a heatmap causally?",
+        "a": "Occlude or perturb the highlighted region and measure the drop in the class score, compared against occluding a random region of the same size (deletion/insertion metrics)."
+      },
+      {
+        "q": "How do you attribute for a Vision Transformer?",
+        "a": "There is no last conv layer - use attention rollout (multiplying attention across layers, accounting for residuals), or apply Grad-CAM to the final block's token activations reshaped into a grid."
+      }
     ],
     "standard": [
       {
         "q": "Explain Grad-CAM: how it works, why the design choices are what they are, and its limitations.",
         "a": "THE MECHANISM, step by step. (1) Run the image forward and pick the class c you want to explain. (2) Take that class's PRE-SOFTMAX logit and backpropagate it to the activations A^k of the last convolutional layer. (3) GLOBAL-AVERAGE-POOL those gradients over the spatial dimensions, giving one scalar alpha_k per channel - an importance weight answering 'how much does increasing this feature map's activation increase the class score?'. (4) Take the weighted sum of the feature maps, sum_k alpha_k A^k. (5) Apply a ReLU. (6) Bilinearly upsample to the input resolution and overlay. WHY EACH CHOICE. LAST CONV LAYER: it is the sweet spot between spatial and semantic. Early layers are high-resolution but encode edges and colours, so a map there would be sharp and meaningless; the classifier head has no spatial extent at all. The last conv block (7x7 for a 224px ResNet) still has spatial structure where each cell summarizes a large receptive field, and its channels encode object parts. GLOBAL-AVERAGE-POOLED GRADIENTS: a single scalar per channel treats the channel as a unit - 'how important is this concept' - rather than weighting positions individually, which is what makes the map smooth and object-shaped rather than noisy. RELU: negative contributions are evidence for OTHER classes; removing them is what makes the map class-DISCRIMINATIVE, which is Grad-CAM's headline property - you can ask for 'dog' and 'cat' on the same image and get different maps. LOGIT NOT PROBABILITY: softmax couples classes, so its gradient includes 'this is not a cat' information and dilutes specificity. THE HISTORICAL POINT worth making: CAM (Zhou et al., 2016) did something similar but required an architecture ending in global average pooling straight into a linear classifier, and used the classifier weights as the channel importances - so applying it meant modifying and retraining your network. Grad-CAM's contribution (Selvaraju et al., 2017) was recognizing that the gradient generalizes those weights, so the method works on ANY CNN, unmodified, post hoc. That generality is why it became standard. THE LIMITATIONS, which I would be careful to state. (1) COARSE RESOLUTION: a 7x7 map upsampled to 224x224 looks precise but is not - the apparent detail is bilinear interpolation. Grad-CAM++ and Score-CAM improve on this, and layer choice trades resolution against semantics. (2) IT LOCALIZES, IT DOES NOT EXPLAIN. The map says where evidence was, not what about that region mattered - texture? shape? colour? For a model relying on texture rather than shape, Grad-CAM would highlight the object either way. (3) POOR WITH MULTIPLE INSTANCES: the original struggles when several instances of a class are present, which Grad-CAM++ specifically addresses. (4) ARCHITECTURE-DEPENDENT: no last conv layer means no Grad-CAM, so transformers need adaptation. (5) NOT CAUSAL: the map reports a gradient-weighted correlation on this input, not what would happen under intervention. THE DISCIPLINE I WOULD ATTACH: before believing any attribution method, run the model-randomization sanity check, and support any specific claim with a causal test - occlude the highlighted region and measure the score drop against a random-region control (the deletion/insertion metrics). Grad-CAM passes the sanity check, which is why it is a reasonable default; several sharper-looking methods do not.",
-        "deepDive": { "q": "Explain the Adebayo sanity checks in detail. Why do Guided Backprop and Guided Grad-CAM fail them?", "a": "THE PROBLEM THEY ADDRESS. Attribution maps are evaluated by eye, and human judgement of 'does this highlight the object' rewards PLAUSIBILITY rather than FAITHFULNESS. Adebayo et al. (2018), 'Sanity Checks for Saliency Maps', proposed falsifiable tests: state a property any faithful method must have, then check it. THE TWO TESTS. (1) MODEL PARAMETER RANDOMIZATION. Progressively randomize the trained network's weights, from the top layer downward, recomputing the attribution at each step. A method that explains the MODEL must produce increasingly different maps as the model is destroyed - by the time all weights are random, the map should be uncorrelated with the original. (2) DATA RANDOMIZATION. Train the same architecture on data with RANDOMLY PERMUTED LABELS (so it memorizes noise and has learned nothing generalizable), then compare attributions to those from the properly-trained model. A faithful method should produce very different maps, because the two models have learned completely different functions. THE RESULTS. Grad-CAM and Integrated Gradients pass both tests - their maps degrade toward noise as the model is randomized (rank correlation with the original falling to around 0.06-0.09 after full randomization). Plain gradient saliency passes, weakly. GUIDED BACKPROP and GUIDED GRAD-CAM largely FAIL: their maps remain visually similar and highly rank-correlated (0.85-0.95) even with fully random weights. WHY THEY FAIL - the mechanism. Guided Backprop modifies the backward pass through ReLUs: it zeroes negative gradients AND negative activations' gradients, keeping only positive signals. This produces beautifully sharp, edge-like visualizations. But that filtering is doing something specific: it behaves like a partial image RECONSTRUCTION, recovering the input's edge structure rather than the model's decision process. Nie et al. (2018) analysed this and showed guided backprop is essentially performing image reconstruction, which is why the output resembles an edge detector applied to the input - and an edge detector does not care what the network's weights are. Guided Grad-CAM multiplies Guided Backprop by the Grad-CAM map, so it inherits the sharpness AND the pathology: the sharp detail comes from the failing component while only the coarse envelope comes from the faithful one. THE UNCOMFORTABLE IRONY that makes this memorable: the methods producing the most convincing, publication-friendly visualizations are the ones that fail hardest. Visual quality and faithfulness are anti-correlated here, because sharpness comes from responding to image edges, and image edges are model-independent. WHAT TO DO WITH THIS. (a) Run the randomization check on any attribution method before deploying it, and report the result - it takes an afternoon. (b) Prefer methods that pass: Grad-CAM for CNNs, Integrated Gradients with enough steps (checking the completeness error), or Shapley-based methods where affordable. (c) Do not use Guided Backprop or Guided Grad-CAM for claims about model behaviour; they remain acceptable as visualization aesthetics if you say so. (d) Add CAUSAL evaluation on top: deletion/insertion curves (progressively remove the highest-attributed pixels and measure how fast the score falls, versus a random-order control), or pointing-game accuracy against ground-truth boxes. (e) Recognize the general principle, which transfers well beyond vision: an interpretability method must be VALIDATED, and the validation must be a test the method could fail. This is the same move as control tasks for probing classifiers (Hewitt and Liang) and as activation patching for causal claims - the field's response to a decade of plausible-looking but unvalidated explanations." }
+        "deepDive": {
+          "q": "Explain the Adebayo sanity checks in detail. Why do Guided Backprop and Guided Grad-CAM fail them?",
+          "a": "THE PROBLEM THEY ADDRESS. Attribution maps are evaluated by eye, and human judgement of 'does this highlight the object' rewards PLAUSIBILITY rather than FAITHFULNESS. Adebayo et al. (2018), 'Sanity Checks for Saliency Maps', proposed falsifiable tests: state a property any faithful method must have, then check it. THE TWO TESTS. (1) MODEL PARAMETER RANDOMIZATION. Progressively randomize the trained network's weights, from the top layer downward, recomputing the attribution at each step. A method that explains the MODEL must produce increasingly different maps as the model is destroyed - by the time all weights are random, the map should be uncorrelated with the original. (2) DATA RANDOMIZATION. Train the same architecture on data with RANDOMLY PERMUTED LABELS (so it memorizes noise and has learned nothing generalizable), then compare attributions to those from the properly-trained model. A faithful method should produce very different maps, because the two models have learned completely different functions. THE RESULTS. Grad-CAM and Integrated Gradients pass both tests - their maps degrade toward noise as the model is randomized (rank correlation with the original falling to around 0.06-0.09 after full randomization). Plain gradient saliency passes, weakly. GUIDED BACKPROP and GUIDED GRAD-CAM largely FAIL: their maps remain visually similar and highly rank-correlated (0.85-0.95) even with fully random weights. WHY THEY FAIL - the mechanism. Guided Backprop modifies the backward pass through ReLUs: it zeroes negative gradients AND negative activations' gradients, keeping only positive signals. This produces beautifully sharp, edge-like visualizations. But that filtering is doing something specific: it behaves like a partial image RECONSTRUCTION, recovering the input's edge structure rather than the model's decision process. Nie et al. (2018) analysed this and showed guided backprop is essentially performing image reconstruction, which is why the output resembles an edge detector applied to the input - and an edge detector does not care what the network's weights are. Guided Grad-CAM multiplies Guided Backprop by the Grad-CAM map, so it inherits the sharpness AND the pathology: the sharp detail comes from the failing component while only the coarse envelope comes from the faithful one. THE UNCOMFORTABLE IRONY that makes this memorable: the methods producing the most convincing, publication-friendly visualizations are the ones that fail hardest. Visual quality and faithfulness are anti-correlated here, because sharpness comes from responding to image edges, and image edges are model-independent. WHAT TO DO WITH THIS. (a) Run the randomization check on any attribution method before deploying it, and report the result - it takes an afternoon. (b) Prefer methods that pass: Grad-CAM for CNNs, Integrated Gradients with enough steps (checking the completeness error), or Shapley-based methods where affordable. (c) Do not use Guided Backprop or Guided Grad-CAM for claims about model behaviour; they remain acceptable as visualization aesthetics if you say so. (d) Add CAUSAL evaluation on top: deletion/insertion curves (progressively remove the highest-attributed pixels and measure how fast the score falls, versus a random-order control), or pointing-game accuracy against ground-truth boxes. (e) Recognize the general principle, which transfers well beyond vision: an interpretability method must be VALIDATED, and the validation must be a test the method could fail. This is the same move as control tasks for probing classifiers (Hewitt and Liang) and as activation patching for causal claims - the field's response to a decade of plausible-looking but unvalidated explanations."
+        }
       },
       {
         "q": "Compare the main attribution methods. How would you choose between them?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "formula", "front": "Grad-CAM", "back": "alpha_k = GAP over space of d(logit_c)/d(A^k); map = ReLU(sum_k alpha_k A^k), upsampled. Computed at the LAST conv layer - still spatial (7x7) but already semantic." },
-    { "type": "intuition", "front": "Why the ReLU and why the logit", "back": "ReLU keeps only POSITIVE contributions to class c (negatives are evidence for other classes) - this is what makes the map class-discriminative. Use the pre-softmax logit; softmax couples classes and dilutes specificity." },
-    { "type": "definition", "front": "CAM vs Grad-CAM", "back": "CAM needed an architecture ending in GAP -> linear classifier and used the classifier weights. Grad-CAM uses GRADIENTS as those weights, so it works on any CNN post hoc with no retraining." },
-    { "type": "pitfall", "front": "Grad-CAM's resolution is an illusion", "back": "The map is 7x7 for a 224px input, bilinearly upsampled - apparent pixel precision is interpolation. Never quote it as pixel-accurate; use Grad-CAM++ / Score-CAM if detail matters." },
-    { "type": "formula", "front": "Integrated Gradients", "back": "IG_i = (x_i - b_i) * integral over alpha of d f(b + alpha(x-b))/dx_i. Fixes SATURATION (a decisive but saturated feature has zero local gradient) and satisfies COMPLETENESS: attributions sum to f(x) - f(b)." },
-    { "type": "pitfall", "front": "Adebayo sanity checks", "back": "Randomize model weights (or train on permuted labels); a faithful map must change. Grad-CAM and IG pass (corr ~0.06-0.09); Guided Backprop and Guided Grad-CAM FAIL (~0.85-0.95) - they act as edge detectors." },
-    { "type": "intuition", "front": "The sharpest maps fail hardest", "back": "Guided Backprop's beautiful edge-like output comes from partial image RECONSTRUCTION, which is model-independent. Visual quality and faithfulness are anti-correlated here - plausibility is not evidence." },
-    { "type": "definition", "front": "Deletion / insertion curves", "back": "Remove pixels in attribution order (steep score drop = faithful, LOW AUC good) or add them to a blank image (fast rise, HIGH AUC good). Always report against a RANDOM-order control." },
-    { "type": "pitfall", "front": "Attention is not attribution (ViTs)", "back": "Information also flows through RESIDUALS, so raw last-layer attention can be at or below chance on the decisive patch. Use attention ROLLOUT (multiply across layers, add identity for residuals) or Chefer's gradient-weighted relevance." },
-    { "type": "intuition", "front": "Using attribution to find shortcuts", "back": "Look at CORRECT confident predictions, not just errors. Then confirm causally: mask the suspected artifact (accuracy should collapse) AND mask the object (if accuracy survives, the model is using context)." }
+    {
+      "type": "formula",
+      "front": "Grad-CAM",
+      "back": "alpha_k = GAP over space of d(logit_c)/d(A^k); map = ReLU(sum_k alpha_k A^k), upsampled. Computed at the LAST conv layer - still spatial (7x7) but already semantic."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the ReLU and why the logit",
+      "back": "ReLU keeps only POSITIVE contributions to class c (negatives are evidence for other classes) - this is what makes the map class-discriminative. Use the pre-softmax logit; softmax couples classes and dilutes specificity."
+    },
+    {
+      "type": "definition",
+      "front": "CAM vs Grad-CAM",
+      "back": "CAM needed an architecture ending in GAP -> linear classifier and used the classifier weights. Grad-CAM uses GRADIENTS as those weights, so it works on any CNN post hoc with no retraining."
+    },
+    {
+      "type": "pitfall",
+      "front": "Grad-CAM's resolution is an illusion",
+      "back": "The map is 7x7 for a 224px input, bilinearly upsampled - apparent pixel precision is interpolation. Never quote it as pixel-accurate; use Grad-CAM++ / Score-CAM if detail matters."
+    },
+    {
+      "type": "formula",
+      "front": "Integrated Gradients",
+      "back": "IG_i = (x_i - b_i) * integral over alpha of d f(b + alpha(x-b))/dx_i. Fixes SATURATION (a decisive but saturated feature has zero local gradient) and satisfies COMPLETENESS: attributions sum to f(x) - f(b)."
+    },
+    {
+      "type": "pitfall",
+      "front": "Adebayo sanity checks",
+      "back": "Randomize model weights (or train on permuted labels); a faithful map must change. Grad-CAM and IG pass (corr ~0.06-0.09); Guided Backprop and Guided Grad-CAM FAIL (~0.85-0.95) - they act as edge detectors."
+    },
+    {
+      "type": "intuition",
+      "front": "The sharpest maps fail hardest",
+      "back": "Guided Backprop's beautiful edge-like output comes from partial image RECONSTRUCTION, which is model-independent. Visual quality and faithfulness are anti-correlated here - plausibility is not evidence."
+    },
+    {
+      "type": "definition",
+      "front": "Deletion / insertion curves",
+      "back": "Remove pixels in attribution order (steep score drop = faithful, LOW AUC good) or add them to a blank image (fast rise, HIGH AUC good). Always report against a RANDOM-order control."
+    },
+    {
+      "type": "pitfall",
+      "front": "Attention is not attribution (ViTs)",
+      "back": "Information also flows through RESIDUALS, so raw last-layer attention can be at or below chance on the decisive patch. Use attention ROLLOUT (multiply across layers, add identity for residuals) or Chefer's gradient-weighted relevance."
+    },
+    {
+      "type": "intuition",
+      "front": "Using attribution to find shortcuts",
+      "back": "Look at CORRECT confident predictions, not just errors. Then confirm causally: mask the suspected artifact (accuracy should collapse) AND mask the object (if accuracy survives, the model is using context)."
+    }
   ],
   "refs": [
-    { "title": "Selvaraju et al. (2017), Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization", "url": "https://arxiv.org/abs/1610.02391" },
-    { "title": "Adebayo et al. (2018), Sanity Checks for Saliency Maps", "url": "https://arxiv.org/abs/1810.03292" },
-    { "title": "Sundararajan, Taly & Yan (2017), Axiomatic Attribution for Deep Networks (Integrated Gradients)", "url": "https://arxiv.org/abs/1703.01365" },
-    { "title": "Abnar & Zuidema (2020), Quantifying Attention Flow in Transformers (attention rollout)", "url": "https://arxiv.org/abs/2005.00928" }
+    {
+      "title": "Selvaraju et al. (2017), Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization",
+      "url": "https://arxiv.org/abs/1610.02391"
+    },
+    {
+      "title": "Adebayo et al. (2018), Sanity Checks for Saliency Maps",
+      "url": "https://arxiv.org/abs/1810.03292"
+    },
+    {
+      "title": "Sundararajan, Taly & Yan (2017), Axiomatic Attribution for Deep Networks (Integrated Gradients)",
+      "url": "https://arxiv.org/abs/1703.01365"
+    },
+    {
+      "title": "Abnar & Zuidema (2020), Quantifying Attention Flow in Transformers (attention rollout)",
+      "url": "https://arxiv.org/abs/2005.00928"
+    }
   ],
-  "updatedAt": "2026-08-01"
+  "updatedAt": "2026-08-01",
+  "v2": {
+    "id": "24-04",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-04_attribution_i_saliency_grad_cam.ipynb"
+  }
 }

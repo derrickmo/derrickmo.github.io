@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "11-04",
   "slug": "conditional-generation",
+  "keyBase": "generative/conditional-generation",
   "module": "generative",
   "title": "Conditional Generation",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "11-04_conditional_generation.ipynb",
     "flagship": null,
-    "demos": ["gan", "diffusion", "embeddings", "vae"],
+    "demos": [
+      "gan",
+      "diffusion",
+      "embeddings",
+      "vae"
+    ],
     "concepts": []
   },
-  "prereqs": ["generative/gan", "generative/vae"],
-  "leadsTo": ["generative/diffusion-guidance", "generative/latent-diffusion"],
+  "prereqs": [
+    "generative/gan",
+    "generative/vae"
+  ],
+  "leadsTo": [
+    "generative/diffusion-guidance",
+    "generative/latent-diffusion"
+  ],
   "body": {
     "intuition": [
       "Unconditional generation samples from p(x) - you get something from the data distribution and you have no say in what. Almost every useful application wants p(x | c): this class, this text description, this sketch, this segmentation map, this reference face. Conditioning is what turned generative models from research demonstrations into products, and the interesting part is that the mechanism you choose determines both how strongly the condition binds and what fails.",
@@ -82,33 +94,87 @@
       "Letting the model ignore the noise instead of the condition. In image-to-image especially, the generator can become a deterministic function of the condition - one-to-one translation dressed up as generation. Check that different seeds give different outputs."
     ],
     "connections": [
-      { "ref": "generative/gan", "text": "The projection discriminator and the truncation trick were the GAN world's answers to the same two problems - making the condition bind, and trading diversity for fidelity at inference." },
-      { "ref": "generative/diffusion-guidance", "text": "Guidance in full - samplers, schedules, and the evaluation machinery that measures what the guidance scale is actually costing you." },
-      { "ref": "generative/latent-diffusion", "text": "Cross-attention over text embeddings is the conditioning mechanism that made latent diffusion a text-to-image system rather than an unconditional one." },
-      { "ref": "multimodal/clip", "text": "CLIP's joint text-image space is what makes text conditioning and CLIP-score evaluation possible - and Imagen's finding that a frozen T5 text encoder works better is a direct argument about where language understanding should come from." },
-      { "ref": "advanced-nlp/cot", "text": "Raising p(c|x) to a power is the same operation as low-temperature sampling in a language model - sharpening a conditional at the cost of coverage, in both cases a user-facing dial." }
+      {
+        "ref": "generative/gan",
+        "text": "The projection discriminator and the truncation trick were the GAN world's answers to the same two problems - making the condition bind, and trading diversity for fidelity at inference."
+      },
+      {
+        "ref": "generative/diffusion-guidance",
+        "text": "Guidance in full - samplers, schedules, and the evaluation machinery that measures what the guidance scale is actually costing you."
+      },
+      {
+        "ref": "generative/latent-diffusion",
+        "text": "Cross-attention over text embeddings is the conditioning mechanism that made latent diffusion a text-to-image system rather than an unconditional one."
+      },
+      {
+        "ref": "multimodal/clip",
+        "text": "CLIP's joint text-image space is what makes text conditioning and CLIP-score evaluation possible - and Imagen's finding that a frozen T5 text encoder works better is a direct argument about where language understanding should come from."
+      },
+      {
+        "ref": "advanced-nlp/cot",
+        "text": "Raising p(c|x) to a power is the same operation as low-temperature sampling in a language model - sharpening a conditional at the cost of coverage, in both cases a user-facing dial."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is conditional generation?", "a": "Sampling from p(x|c) rather than p(x) - generating an image of a specific class, matching a text description, or completing a given sketch or layout." },
-      { "q": "Why does naive concatenation of the condition fail?", "a": "Nothing forces the model to use it, so you get good samples that ignore the condition. The fix is a mechanism that makes the condition structurally unavoidable." },
-      { "q": "What is a projection discriminator?", "a": "Incorporate the label into the discriminator via an inner product between the label embedding and the feature vector, added to the unconditional score. Better quality and intra-class diversity than an auxiliary classifier." },
-      { "q": "What is wrong with AC-GAN's auxiliary classifier?", "a": "It rewards the generator for producing EASILY CLASSIFIABLE samples, which pushes toward prototypical, low-diversity outputs near each class centre." },
-      { "q": "What is classifier guidance?", "a": "Train a classifier on NOISY images and push the diffusion sampler along grad log p(c|x). Works, but needs a separate noise-aware classifier and inherits its failure modes." },
-      { "q": "What is classifier-free guidance?", "a": "Randomly drop the condition during training (~10-20%) so one network learns both conditional and unconditional prediction, then extrapolate: eps_uncond + w(eps_cond - eps_uncond)." },
-      { "q": "What does the guidance scale w do?", "a": "w=1 is the true conditional, w=0 unconditional, w>1 extrapolates past the conditional - sharpening prompt adherence and per-sample quality while reducing diversity." },
-      { "q": "What is CFG doing distributionally?", "a": "Sampling from p(x)p(c|x)^w - raising the conditional likelihood to a power concentrates mass on samples the model is most confident match the condition." },
-      { "q": "How do negative prompts work?", "a": "Same formula with a non-empty anchor: eps_neg + w(eps_cond - eps_neg). You extrapolate away from the negative prompt's prediction instead of away from the null one." },
-      { "q": "What does CFG cost?", "a": "Two forward passes per denoising step, so roughly 2x inference compute. Guidance distillation trains a network to emit the guided prediction directly to recover it." },
-      { "q": "What is dynamic thresholding?", "a": "At each step clip the predicted x0 to a high percentile of its own magnitude and rescale, instead of hard-clipping. It prevents the oversaturation that high guidance otherwise causes (Imagen)." },
-      { "q": "Should you tune w on FID?", "a": "No. FID is minimized around w=1-3 while human preference and prompt adherence peak near 7-8. The metric wants distribution-matching; users want striking on-prompt images." }
+      {
+        "q": "What is conditional generation?",
+        "a": "Sampling from p(x|c) rather than p(x) - generating an image of a specific class, matching a text description, or completing a given sketch or layout."
+      },
+      {
+        "q": "Why does naive concatenation of the condition fail?",
+        "a": "Nothing forces the model to use it, so you get good samples that ignore the condition. The fix is a mechanism that makes the condition structurally unavoidable."
+      },
+      {
+        "q": "What is a projection discriminator?",
+        "a": "Incorporate the label into the discriminator via an inner product between the label embedding and the feature vector, added to the unconditional score. Better quality and intra-class diversity than an auxiliary classifier."
+      },
+      {
+        "q": "What is wrong with AC-GAN's auxiliary classifier?",
+        "a": "It rewards the generator for producing EASILY CLASSIFIABLE samples, which pushes toward prototypical, low-diversity outputs near each class centre."
+      },
+      {
+        "q": "What is classifier guidance?",
+        "a": "Train a classifier on NOISY images and push the diffusion sampler along grad log p(c|x). Works, but needs a separate noise-aware classifier and inherits its failure modes."
+      },
+      {
+        "q": "What is classifier-free guidance?",
+        "a": "Randomly drop the condition during training (~10-20%) so one network learns both conditional and unconditional prediction, then extrapolate: eps_uncond + w(eps_cond - eps_uncond)."
+      },
+      {
+        "q": "What does the guidance scale w do?",
+        "a": "w=1 is the true conditional, w=0 unconditional, w>1 extrapolates past the conditional - sharpening prompt adherence and per-sample quality while reducing diversity."
+      },
+      {
+        "q": "What is CFG doing distributionally?",
+        "a": "Sampling from p(x)p(c|x)^w - raising the conditional likelihood to a power concentrates mass on samples the model is most confident match the condition."
+      },
+      {
+        "q": "How do negative prompts work?",
+        "a": "Same formula with a non-empty anchor: eps_neg + w(eps_cond - eps_neg). You extrapolate away from the negative prompt's prediction instead of away from the null one."
+      },
+      {
+        "q": "What does CFG cost?",
+        "a": "Two forward passes per denoising step, so roughly 2x inference compute. Guidance distillation trains a network to emit the guided prediction directly to recover it."
+      },
+      {
+        "q": "What is dynamic thresholding?",
+        "a": "At each step clip the predicted x0 to a high percentile of its own magnitude and rescale, instead of hard-clipping. It prevents the oversaturation that high guidance otherwise causes (Imagen)."
+      },
+      {
+        "q": "Should you tune w on FID?",
+        "a": "No. FID is minimized around w=1-3 while human preference and prompt adherence peak near 7-8. The metric wants distribution-matching; users want striking on-prompt images."
+      }
     ],
     "standard": [
       {
         "q": "Explain classifier-free guidance and why it replaced classifier guidance.",
         "a": "CLASSIFIER GUIDANCE FIRST, because CFG is best understood as its correction. Dhariwal & Nichol wanted class-conditional diffusion good enough to beat GANs on ImageNet. Their approach used Bayes' rule on scores: grad log p(x|c) = grad log p(x) + grad log p(c|x). The first term is what an unconditional diffusion model already estimates. The second is a classifier's gradient. So train a classifier and add s times its gradient to the sampler's step, where s is a guidance scale. Raising s above 1 improves sample quality and class adherence dramatically - this is what let diffusion beat BigGAN on ImageNet FID and was the result that started the diffusion era. THE PROBLEMS WITH IT, which are practical and add up. (1) You need a SEPARATE CLASSIFIER trained on NOISY images at every noise level. Off-the-shelf classifiers are useless because they have never seen x_t at high noise, so this is an extra model, an extra training run, and extra maintenance. (2) The classifier's gradient at high noise is a poor signal - it is being asked to classify near-pure noise. (3) You are doing GRADIENT ASCENT on a classifier's output, which is literally the construction of an adversarial example, so you partly optimize for the classifier's quirks rather than for genuine class-membership. (4) It does not extend gracefully to rich conditions - there is no natural 'classifier' for an arbitrary text prompt. CLASSIFIER-FREE GUIDANCE (Ho & Salimans). Observe that the classifier gradient can be written in terms of the conditional and unconditional score functions - both of which a diffusion model can provide itself. Train ONE network with the condition randomly dropped 10-20% of the time and replaced by a learned null embedding, so it learns both p(x|c) and p(x). Then at sampling: eps_tilde = eps_uncond + w(eps_cond - eps_uncond). WHY THIS IS BETTER, point for point. (a) NO SECOND MODEL - one network, one training run, and the dropout is a single line. (b) No adversarial-example pathology, since you are extrapolating between two predictions from the SAME model rather than ascending an external classifier. (c) It works with ARBITRARY conditions - text embeddings, images, layouts, anything you can feed the network - which is the decisive advantage and the reason every text-to-image system uses it. (d) Empirically better quality at matched conditioning strength. THE INTERPRETATION worth carrying: the guided prediction corresponds to sampling from p(x)p(c|x)^w. For w > 1 you are raising the conditional likelihood to a power, which sharpens the distribution toward samples the model is most sure match the condition. That is exactly the fidelity-for-diversity trade, and it is the same operation as low-temperature sampling in an LM or the truncation trick in a GAN. THE COSTS, stated honestly. (1) TWO FORWARD PASSES PER STEP, so guidance roughly doubles inference cost - a real serving line item, batched as a 2x batch rather than two calls, and addressed by guidance distillation. (2) High w causes OVERSATURATION, because the predicted x0 leaves the valid range; Imagen's dynamic thresholding is the standard fix and is what makes very high guidance usable. (3) REDUCED DIVERSITY, which at high w becomes severe - many prompts collapse to near-identical compositions. (4) The optimal w depends on the model, the sampler, and the prompt, and it is a user-facing parameter for good reason. THE THING I WOULD EMPHASIZE: CFG is the reason text-to-image works. Without it, models produce plausible images loosely related to the prompt; with it, they follow instructions. It is a small change with an outsized effect, and it converted conditioning strength from a training-time property into an inference-time dial - which is a design pattern worth generalizing.",
-        "deepDive": { "q": "How does text conditioning actually work in a text-to-image model, and what determines its quality?", "a": "THE PIPELINE. Text goes through a frozen TEXT ENCODER producing a sequence of token embeddings. Those embeddings condition the denoising network via CROSS-ATTENTION: at multiple resolutions in the U-Net or DiT, the image features form queries and the text embeddings supply keys and values, so every spatial location can attend to every token. Classifier-free guidance then supplies the adherence dial, with the null condition being an empty-string embedding. WHY CROSS-ATTENTION RATHER THAN CONCATENATION. Text is a variable-length sequence and the image is spatial; cross-attention handles the mismatch naturally and lets DIFFERENT SPATIAL REGIONS attend to DIFFERENT TOKENS, which is what compositional prompts require ('a red cube on a blue sphere' needs the cube region attending to 'red' and the sphere region to 'blue'). Concatenating a single pooled text vector destroys exactly that, and pooled-vector conditioning is a large part of why early text-to-image models produced 'vibes of the prompt' rather than its content. WHAT DETERMINES QUALITY - and Imagen's ablation is the most informative result here. Saharia et al. compared text encoders and found that SCALING THE TEXT ENCODER improved image-text alignment MORE than scaling the diffusion model itself. A frozen T5-XXL (a large language model trained only on text) outperformed CLIP's text encoder. That is a striking result with a clear reading: the hard part of text-to-image is UNDERSTANDING THE TEXT, and a model trained on far more text than any image-text corpus contains understands it better. It also means you should think of the text encoder as a component to be chosen deliberately, not as plumbing. CLIP versus T5 is a real trade: CLIP's embeddings are already aligned to visual concepts, which helps for short descriptive prompts; T5 has far better compositional and syntactic understanding, which helps for long, structured ones. Several systems use BOTH, concatenating the two encoders' outputs. THE KNOWN FAILURE MODES, which all trace to the mechanism. (1) ATTRIBUTE BINDING: 'a red cube and a blue sphere' produces a blue cube. Cross-attention gives every region access to every token, and nothing enforces that 'red' binds to the cube - the model learns binding statistically and fails when the combination is unusual. Attend-and-Excite and similar methods intervene on attention maps at inference to force each subject token to be attended somewhere. (2) COUNTING is unreliable, because nothing in the architecture counts. (3) SPATIAL RELATIONS ('left of', 'behind') are weak, since the training captions rarely describe layout precisely and the model has little pressure to learn it - which is why ControlNet-style spatial conditioning exists and is popular. (4) NEGATION largely fails: 'a room without a chair' often produces a chair, because the text encoder's embedding of the phrase still activates chair-related directions. Negative prompts exist partly to work around this and are a better mechanism for it than text. (5) TEXT RENDERING inside images is poor when the tokenizer and encoder discard character-level information; models that render text well feed character-aware encoders. (6) LONG PROMPTS get truncated at the encoder's context limit - CLIP's 77 tokens is a hard wall people routinely exceed without noticing. WHAT I WOULD CHECK when diagnosing a conditioning problem: visualize the CROSS-ATTENTION MAPS per token. They show directly which region attended to which word, and attribute-binding failures are immediately visible as the wrong region attending to the adjective. That is the single most useful debugging tool in this area and it is cheap to produce." }
+        "deepDive": {
+          "q": "How does text conditioning actually work in a text-to-image model, and what determines its quality?",
+          "a": "THE PIPELINE. Text goes through a frozen TEXT ENCODER producing a sequence of token embeddings. Those embeddings condition the denoising network via CROSS-ATTENTION: at multiple resolutions in the U-Net or DiT, the image features form queries and the text embeddings supply keys and values, so every spatial location can attend to every token. Classifier-free guidance then supplies the adherence dial, with the null condition being an empty-string embedding. WHY CROSS-ATTENTION RATHER THAN CONCATENATION. Text is a variable-length sequence and the image is spatial; cross-attention handles the mismatch naturally and lets DIFFERENT SPATIAL REGIONS attend to DIFFERENT TOKENS, which is what compositional prompts require ('a red cube on a blue sphere' needs the cube region attending to 'red' and the sphere region to 'blue'). Concatenating a single pooled text vector destroys exactly that, and pooled-vector conditioning is a large part of why early text-to-image models produced 'vibes of the prompt' rather than its content. WHAT DETERMINES QUALITY - and Imagen's ablation is the most informative result here. Saharia et al. compared text encoders and found that SCALING THE TEXT ENCODER improved image-text alignment MORE than scaling the diffusion model itself. A frozen T5-XXL (a large language model trained only on text) outperformed CLIP's text encoder. That is a striking result with a clear reading: the hard part of text-to-image is UNDERSTANDING THE TEXT, and a model trained on far more text than any image-text corpus contains understands it better. It also means you should think of the text encoder as a component to be chosen deliberately, not as plumbing. CLIP versus T5 is a real trade: CLIP's embeddings are already aligned to visual concepts, which helps for short descriptive prompts; T5 has far better compositional and syntactic understanding, which helps for long, structured ones. Several systems use BOTH, concatenating the two encoders' outputs. THE KNOWN FAILURE MODES, which all trace to the mechanism. (1) ATTRIBUTE BINDING: 'a red cube and a blue sphere' produces a blue cube. Cross-attention gives every region access to every token, and nothing enforces that 'red' binds to the cube - the model learns binding statistically and fails when the combination is unusual. Attend-and-Excite and similar methods intervene on attention maps at inference to force each subject token to be attended somewhere. (2) COUNTING is unreliable, because nothing in the architecture counts. (3) SPATIAL RELATIONS ('left of', 'behind') are weak, since the training captions rarely describe layout precisely and the model has little pressure to learn it - which is why ControlNet-style spatial conditioning exists and is popular. (4) NEGATION largely fails: 'a room without a chair' often produces a chair, because the text encoder's embedding of the phrase still activates chair-related directions. Negative prompts exist partly to work around this and are a better mechanism for it than text. (5) TEXT RENDERING inside images is poor when the tokenizer and encoder discard character-level information; models that render text well feed character-aware encoders. (6) LONG PROMPTS get truncated at the encoder's context limit - CLIP's 77 tokens is a hard wall people routinely exceed without noticing. WHAT I WOULD CHECK when diagnosing a conditioning problem: visualize the CROSS-ATTENTION MAPS per token. They show directly which region attended to which word, and attribute-binding failures are immediately visible as the wrong region attending to the adjective. That is the single most useful debugging tool in this area and it is cheap to produce."
+        }
       },
       {
         "q": "How would you add a new type of control to an existing text-to-image model?",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Classifier-free guidance", "back": "Drop the condition ~10-20% of training so one net learns p(x|c) AND p(x), then extrapolate: eps_uncond + w(eps_cond - eps_uncond). w=1 true conditional, w=0 unconditional, w>1 sharpens adherence and cuts diversity." },
-    { "type": "intuition", "front": "What CFG does distributionally", "back": "Samples from p(x)p(c|x)^w. Raising the conditional likelihood to a power concentrates mass on samples the model is most confident match c - the same operation as low temperature in an LM or truncation in a GAN." },
-    { "type": "definition", "front": "Classifier guidance, and why it lost", "back": "grad log p(x|c) = grad log p(x) + grad log p(c|x), using a classifier trained on NOISY images. Needs a second model, is gradient ascent on a classifier (i.e. adversarial-example construction), and has no analogue for free-form text." },
-    { "type": "pitfall", "front": "Do not tune w on FID", "back": "FID is minimized near w=1-3; human preference and prompt adherence peak near 7-8. FID rewards matching the DATA distribution; users want striking on-prompt images. Report the FID-vs-CLIP-score CURVE across w." },
-    { "type": "definition", "front": "Dynamic thresholding", "back": "Clip predicted x0 to +/- a high percentile (~99.5%) of its own |values|, then RESCALE by that percentile. The rescale is the point - it pushes saturation inward instead of flattening it. Makes high guidance usable (Imagen)." },
-    { "type": "intuition", "front": "Why high guidance oversaturates", "back": "w>1 extrapolates the prediction beyond anything the model was trained to output, so the derived x0 leaves the valid range. Guidance is a HACK - p(x)p(c|x)^w is a distribution nobody fitted." },
-    { "type": "definition", "front": "Negative prompts", "back": "CFG with a non-empty anchor: eps_neg + w(eps_cond - eps_neg). You extrapolate AWAY from the negative prompt's prediction rather than away from the null embedding. No new machinery." },
-    { "type": "pitfall", "front": "The condition gets ignored", "back": "The most common conditioning failure - good samples unrelated to c. Diagnose by FIXING the seed and VARYING the condition; if outputs barely move, conditioning failed. Fix with projection/cross-attention/conditional norm, not concatenation." },
-    { "type": "pitfall", "front": "AC-GAN's diversity problem", "back": "An auxiliary classification loss rewards EASILY CLASSIFIABLE samples, pushing the generator to prototypical outputs near each class centre. The projection discriminator (inner product with the feature vector) avoids this." },
-    { "type": "definition", "front": "ControlNet's zero-init", "back": "Freeze the base model, train a COPY of the encoder on the control signal, and connect it back through ZERO-INITIALIZED convolutions - so at step 0 the control contributes nothing and training starts from the unmodified base. No destructive phase." },
-    { "type": "intuition", "front": "Text encoder > diffusion model (Imagen)", "back": "Scaling the frozen TEXT encoder improved image-text alignment more than scaling the diffusion model, and T5-XXL beat CLIP's text encoder. The hard part of text-to-image is understanding the text." },
-    { "type": "pitfall", "front": "Compositional failures are systematic", "back": "Attribute binding ('red cube, blue sphere' -> blue cube), counting, spatial relations, and negation all fail and are invisible to FID/CLIP score. Debug by visualizing per-token CROSS-ATTENTION MAPS - binding errors are immediately visible." }
+    {
+      "type": "definition",
+      "front": "Classifier-free guidance",
+      "back": "Drop the condition ~10-20% of training so one net learns p(x|c) AND p(x), then extrapolate: eps_uncond + w(eps_cond - eps_uncond). w=1 true conditional, w=0 unconditional, w>1 sharpens adherence and cuts diversity."
+    },
+    {
+      "type": "intuition",
+      "front": "What CFG does distributionally",
+      "back": "Samples from p(x)p(c|x)^w. Raising the conditional likelihood to a power concentrates mass on samples the model is most confident match c - the same operation as low temperature in an LM or truncation in a GAN."
+    },
+    {
+      "type": "definition",
+      "front": "Classifier guidance, and why it lost",
+      "back": "grad log p(x|c) = grad log p(x) + grad log p(c|x), using a classifier trained on NOISY images. Needs a second model, is gradient ascent on a classifier (i.e. adversarial-example construction), and has no analogue for free-form text."
+    },
+    {
+      "type": "pitfall",
+      "front": "Do not tune w on FID",
+      "back": "FID is minimized near w=1-3; human preference and prompt adherence peak near 7-8. FID rewards matching the DATA distribution; users want striking on-prompt images. Report the FID-vs-CLIP-score CURVE across w."
+    },
+    {
+      "type": "definition",
+      "front": "Dynamic thresholding",
+      "back": "Clip predicted x0 to +/- a high percentile (~99.5%) of its own |values|, then RESCALE by that percentile. The rescale is the point - it pushes saturation inward instead of flattening it. Makes high guidance usable (Imagen)."
+    },
+    {
+      "type": "intuition",
+      "front": "Why high guidance oversaturates",
+      "back": "w>1 extrapolates the prediction beyond anything the model was trained to output, so the derived x0 leaves the valid range. Guidance is a HACK - p(x)p(c|x)^w is a distribution nobody fitted."
+    },
+    {
+      "type": "definition",
+      "front": "Negative prompts",
+      "back": "CFG with a non-empty anchor: eps_neg + w(eps_cond - eps_neg). You extrapolate AWAY from the negative prompt's prediction rather than away from the null embedding. No new machinery."
+    },
+    {
+      "type": "pitfall",
+      "front": "The condition gets ignored",
+      "back": "The most common conditioning failure - good samples unrelated to c. Diagnose by FIXING the seed and VARYING the condition; if outputs barely move, conditioning failed. Fix with projection/cross-attention/conditional norm, not concatenation."
+    },
+    {
+      "type": "pitfall",
+      "front": "AC-GAN's diversity problem",
+      "back": "An auxiliary classification loss rewards EASILY CLASSIFIABLE samples, pushing the generator to prototypical outputs near each class centre. The projection discriminator (inner product with the feature vector) avoids this."
+    },
+    {
+      "type": "definition",
+      "front": "ControlNet's zero-init",
+      "back": "Freeze the base model, train a COPY of the encoder on the control signal, and connect it back through ZERO-INITIALIZED convolutions - so at step 0 the control contributes nothing and training starts from the unmodified base. No destructive phase."
+    },
+    {
+      "type": "intuition",
+      "front": "Text encoder > diffusion model (Imagen)",
+      "back": "Scaling the frozen TEXT encoder improved image-text alignment more than scaling the diffusion model, and T5-XXL beat CLIP's text encoder. The hard part of text-to-image is understanding the text."
+    },
+    {
+      "type": "pitfall",
+      "front": "Compositional failures are systematic",
+      "back": "Attribute binding ('red cube, blue sphere' -> blue cube), counting, spatial relations, and negation all fail and are invisible to FID/CLIP score. Debug by visualizing per-token CROSS-ATTENTION MAPS - binding errors are immediately visible."
+    }
   ],
   "refs": [
-    { "title": "Ho & Salimans (2022), Classifier-Free Diffusion Guidance", "url": "https://arxiv.org/abs/2207.12598" },
-    { "title": "Dhariwal & Nichol (2021), Diffusion Models Beat GANs on Image Synthesis", "url": "https://arxiv.org/abs/2105.05233" },
-    { "title": "Saharia et al. (2022), Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding (Imagen)", "url": "https://arxiv.org/abs/2205.11487" },
-    { "title": "Zhang et al. (2023), Adding Conditional Control to Text-to-Image Diffusion Models (ControlNet)", "url": "https://arxiv.org/abs/2302.05543" },
-    { "title": "Miyato & Koyama (2018), cGANs with Projection Discriminator", "url": "https://arxiv.org/abs/1802.05637" }
+    {
+      "title": "Ho & Salimans (2022), Classifier-Free Diffusion Guidance",
+      "url": "https://arxiv.org/abs/2207.12598"
+    },
+    {
+      "title": "Dhariwal & Nichol (2021), Diffusion Models Beat GANs on Image Synthesis",
+      "url": "https://arxiv.org/abs/2105.05233"
+    },
+    {
+      "title": "Saharia et al. (2022), Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding (Imagen)",
+      "url": "https://arxiv.org/abs/2205.11487"
+    },
+    {
+      "title": "Zhang et al. (2023), Adding Conditional Control to Text-to-Image Diffusion Models (ControlNet)",
+      "url": "https://arxiv.org/abs/2302.05543"
+    },
+    {
+      "title": "Miyato & Koyama (2018), cGANs with Projection Discriminator",
+      "url": "https://arxiv.org/abs/1802.05637"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "12-04",
+    "module": "generative",
+    "disposition": "merge",
+    "notebookFile": "12-04_wgan_gp_conditional_generation.ipynb"
+  }
 }

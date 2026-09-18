@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-08",
   "slug": "nlp-eval",
+  "keyBase": "advanced-nlp/nlp-eval",
   "module": "advanced-nlp",
   "title": "NLP Evaluation",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-08_nlp_evaluation_pipeline.ipynb",
     "flagship": null,
-    "demos": ["classification-metrics", "calibration", "embeddings", "edit-distance"],
+    "demos": [
+      "classification-metrics",
+      "calibration",
+      "embeddings",
+      "edit-distance"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/nli", "ml-theory/evaluation-metrics"],
-  "leadsTo": ["llm-systems/llm-eval", "rag-agents/rag-eval"],
+  "prereqs": [
+    "advanced-nlp/nli",
+    "ml-theory/evaluation-metrics"
+  ],
+  "leadsTo": [
+    "llm-systems/llm-eval",
+    "rag-agents/rag-eval"
+  ],
   "body": {
     "intuition": [
       "Evaluating a classifier is easy: there is a right answer and you either produced it or you did not. Evaluating GENERATED TEXT is not, because there are many correct outputs and no way to enumerate them. Every automatic metric for generation is therefore a PROXY - it measures similarity to one or a few reference texts and hopes that correlates with quality. Understanding which proxy fails how, and when, is most of what evaluation expertise consists of.",
@@ -83,33 +95,87 @@
       "Treating human evaluation as automatically trustworthy. Without clear guidelines, measured inter-annotator agreement, attention checks, and enough items for a confidence interval, human evaluation can be noisier than the metrics it is meant to validate."
     ],
     "connections": [
-      { "ref": "advanced-nlp/nli", "text": "Entailment-based consistency metrics are the most reliable automatic groundedness check available, and the artifact story there is the same proxy-gaming problem in a different costume." },
-      { "ref": "ml-theory/evaluation-metrics", "text": "The general discipline - choose the metric from the decision it informs, report intervals, and distrust single numbers - applies here with the extra difficulty that the target itself is not enumerable." },
-      { "ref": "ml-theory/calibration", "text": "A generation system that must abstain needs calibrated confidence, and calibration is measured separately from quality - a well-scoring system can be badly calibrated." },
-      { "ref": "llm-systems/llm-eval", "text": "LLM-as-judge, arena-style pairwise preference, and contamination are the modern continuation of exactly these problems at a larger scale." },
-      { "ref": "rag-agents/rag-eval", "text": "RAG evaluation decomposes into retrieval metrics and generation metrics, and the generation half inherits every difficulty in this lesson." }
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "Entailment-based consistency metrics are the most reliable automatic groundedness check available, and the artifact story there is the same proxy-gaming problem in a different costume."
+      },
+      {
+        "ref": "ml-theory/evaluation-metrics",
+        "text": "The general discipline - choose the metric from the decision it informs, report intervals, and distrust single numbers - applies here with the extra difficulty that the target itself is not enumerable."
+      },
+      {
+        "ref": "ml-theory/calibration",
+        "text": "A generation system that must abstain needs calibrated confidence, and calibration is measured separately from quality - a well-scoring system can be badly calibrated."
+      },
+      {
+        "ref": "llm-systems/llm-eval",
+        "text": "LLM-as-judge, arena-style pairwise preference, and contamination are the modern continuation of exactly these problems at a larger scale."
+      },
+      {
+        "ref": "rag-agents/rag-eval",
+        "text": "RAG evaluation decomposes into retrieval metrics and generation metrics, and the generation half inherits every difficulty in this lesson."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What does BLEU measure?", "a": "Modified n-gram precision (clipped at reference counts) geometrically averaged over n = 1..4, times a brevity penalty. Precision-oriented, corpus-level, and reference-based." },
-      { "q": "Why is the brevity penalty needed?", "a": "Precision alone rewards short output - emitting one confident word would give perfect precision. The penalty multiplies the score down when the candidate is shorter than the reference." },
-      { "q": "Why is sentence-level BLEU unreliable?", "a": "The geometric mean over n = 1..4 is zero whenever any order has no match, which happens constantly in a single short sentence. BLEU was defined and validated at the corpus level." },
-      { "q": "What is sacreBLEU?", "a": "A standardized BLEU implementation that fixes tokenization and normalization and emits a SIGNATURE describing every choice. It exists because unqualified BLEU numbers are not comparable across papers." },
-      { "q": "How does ROUGE differ from BLEU?", "a": "ROUGE is RECALL-oriented - how much of the reference's content the candidate covered - which suits summarization. Consequently longer outputs score higher, so length must be controlled." },
-      { "q": "What is ROUGE-L?", "a": "F-measure over the longest common subsequence between candidate and reference, rewarding order preservation without requiring contiguous n-grams." },
-      { "q": "What is BERTScore?", "a": "Greedy matching of candidate and reference tokens by cosine similarity of contextual embeddings, giving precision, recall, and F1. Handles paraphrase, which n-gram overlap cannot." },
-      { "q": "What are COMET and BLEURT?", "a": "LEARNED metrics - neural models trained directly to predict human quality judgments, optionally using the source as well as the reference. They correlate best with humans and are the recommended default for MT." },
-      { "q": "What biases does an LLM judge have?", "a": "POSITION (prefers the first-presented option), VERBOSITY (prefers longer answers), and SELF-PREFERENCE (prefers outputs from its own model family). All three are measurable and partly controllable." },
-      { "q": "How do you control position bias?", "a": "Evaluate each pair in BOTH orders and require consistency, or randomize order and aggregate. Disagreement between the two orders is itself a useful measure of judge reliability on that item." },
-      { "q": "When is perplexity comparable across models?", "a": "Only when the tokenizer and vocabulary are identical. Perplexity is per-token, so different segmentations put it on different scales - normalize per character or per word to compare across vocabularies." },
-      { "q": "What must a metric-human correlation be reported with?", "a": "The human-human agreement ceiling. Without it, a correlation of 0.58 is uninterpretable - it might be near the limit of the measurement or half of what is achievable." }
+      {
+        "q": "What does BLEU measure?",
+        "a": "Modified n-gram precision (clipped at reference counts) geometrically averaged over n = 1..4, times a brevity penalty. Precision-oriented, corpus-level, and reference-based."
+      },
+      {
+        "q": "Why is the brevity penalty needed?",
+        "a": "Precision alone rewards short output - emitting one confident word would give perfect precision. The penalty multiplies the score down when the candidate is shorter than the reference."
+      },
+      {
+        "q": "Why is sentence-level BLEU unreliable?",
+        "a": "The geometric mean over n = 1..4 is zero whenever any order has no match, which happens constantly in a single short sentence. BLEU was defined and validated at the corpus level."
+      },
+      {
+        "q": "What is sacreBLEU?",
+        "a": "A standardized BLEU implementation that fixes tokenization and normalization and emits a SIGNATURE describing every choice. It exists because unqualified BLEU numbers are not comparable across papers."
+      },
+      {
+        "q": "How does ROUGE differ from BLEU?",
+        "a": "ROUGE is RECALL-oriented - how much of the reference's content the candidate covered - which suits summarization. Consequently longer outputs score higher, so length must be controlled."
+      },
+      {
+        "q": "What is ROUGE-L?",
+        "a": "F-measure over the longest common subsequence between candidate and reference, rewarding order preservation without requiring contiguous n-grams."
+      },
+      {
+        "q": "What is BERTScore?",
+        "a": "Greedy matching of candidate and reference tokens by cosine similarity of contextual embeddings, giving precision, recall, and F1. Handles paraphrase, which n-gram overlap cannot."
+      },
+      {
+        "q": "What are COMET and BLEURT?",
+        "a": "LEARNED metrics - neural models trained directly to predict human quality judgments, optionally using the source as well as the reference. They correlate best with humans and are the recommended default for MT."
+      },
+      {
+        "q": "What biases does an LLM judge have?",
+        "a": "POSITION (prefers the first-presented option), VERBOSITY (prefers longer answers), and SELF-PREFERENCE (prefers outputs from its own model family). All three are measurable and partly controllable."
+      },
+      {
+        "q": "How do you control position bias?",
+        "a": "Evaluate each pair in BOTH orders and require consistency, or randomize order and aggregate. Disagreement between the two orders is itself a useful measure of judge reliability on that item."
+      },
+      {
+        "q": "When is perplexity comparable across models?",
+        "a": "Only when the tokenizer and vocabulary are identical. Perplexity is per-token, so different segmentations put it on different scales - normalize per character or per word to compare across vocabularies."
+      },
+      {
+        "q": "What must a metric-human correlation be reported with?",
+        "a": "The human-human agreement ceiling. Without it, a correlation of 0.58 is uninterpretable - it might be near the limit of the measurement or half of what is achievable."
+      }
     ],
     "standard": [
       {
         "q": "Design an evaluation for a summarization system.",
         "a": "I would start from the DECISIONS the evaluation must inform, because 'is this summary good' decomposes into several independent questions that no single metric answers. THE DIMENSIONS, and they are genuinely separate. (1) FACTUAL CONSISTENCY - does the summary state anything the source does not support? This is the dimension that matters most in deployment and the one surface metrics are blindest to; a summary can score well on ROUGE while inventing a number. (2) RELEVANCE - did it capture the important content rather than arbitrary content? (3) COHERENCE AND FLUENCY - is it well-formed and readable? Modern models are near-ceiling here, so it is mostly a regression check now. (4) CONCISENESS - length relative to information conveyed. A system can improve on one and regress on another, so an aggregate score hides exactly what you need to see. THE AUTOMATIC LAYER, for fast iteration. ROUGE-1/2/L against references, reported WITH output length, because ROUGE is recall-oriented and rewards verbosity mechanically - a system that got 'better' by writing longer summaries is the classic false positive here. BERTScore, which handles paraphrase and correlates better. And an ENTAILMENT-BASED CONSISTENCY score, which I would treat as the primary automatic metric: decompose the summary into sentences or atomic claims, score each against each SOURCE sentence, take the max, and aggregate. This is SummaC's design and the sentence-level granularity matters - document-level NLI degrades badly on long premises. I would use these for CI and for detecting regressions, not for claiming improvement. THE JUDGE LAYER. An LLM judge scoring each dimension separately on a defined rubric, or making pairwise comparisons against a baseline system. Controls that are not optional: randomize or double-run the presentation order, check whether the preferred output is simply longer, and use a judge from a different model family than the system being evaluated. I would validate the judge against human ratings on a sample before trusting it, and report that agreement. THE HUMAN LAYER, which is the ground truth everything else is calibrated against. A few hundred summaries, rated by multiple annotators on each dimension with written guidelines and examples. I would MEASURE inter-annotator agreement first and report it, because it is the ceiling; if annotators agree at 0.5 on relevance, that dimension is not well-defined and the guidelines need work before any model comparison is meaningful. For factual consistency specifically, the better protocol is not a rating but a task: ask annotators to HIGHLIGHT unsupported spans, which is more reliable than a 1-5 score and produces error analysis for free. THE THINGS I WOULD BUILD IN DELIBERATELY. (a) A challenge set of documents where the easy strategy fails - the LEAD-3 baseline (just take the first three sentences) is famously hard to beat on news ROUGE, so if my system cannot beat lead-3, that is the finding. Reporting lead-3 alongside is non-negotiable in news summarization. (b) Documents with numbers, negation, and attributed statements, since these are where consistency failures concentrate. (c) Out-of-domain documents. (d) Long documents that exceed the context window, to see what truncation does. WHAT I WOULD REPORT: a table with one row per system and one column per dimension, automatic and human, with confidence intervals and the human-human ceiling, plus the lead-3 and reference-quality baselines. AND THE CAVEAT I would state explicitly: reference summaries are one valid summary among many, written by one person with one notion of importance. CNN/DailyMail references are famously extractive and noisy, which is why lead-3 competes with trained systems. Any reference-based metric is measuring agreement with that person's choices, and a system that summarizes differently but well is penalized. That is the fundamental limitation, and it is why the reference-free consistency check carries the most weight in my design.",
-        "deepDive": { "q": "Why do surface-overlap metrics correlate poorly with human judgment, and what actually fixes it?", "a": "THE CORE MISMATCH. BLEU and ROUGE measure lexical overlap with a reference. Human quality judgment measures whether the output conveys the right meaning, well. These come apart in both directions and the failures are SYSTEMATIC rather than random, which is what makes them dangerous. FALSE NEGATIVES - good output, low score. (1) PARAPHRASE: 'the cat sat on the mat' and 'a feline was resting on the rug' share almost no n-grams and mean the same thing. (2) LEGITIMATE STYLISTIC VARIATION: a system with a different but valid register scores low against a reference in another register. (3) A SINGLE REFERENCE cannot cover the space of valid outputs, and almost every evaluation uses one - BLEU's original validation used four. (4) WORD ORDER flexibility in many languages means n-gram matching penalizes a correct alternative ordering. FALSE POSITIVES - bad output, high score. (1) FLUENT NONSENSE that reuses reference vocabulary. (2) A single word changed - a negation dropped, a number altered, an entity swapped - barely moves a 4-gram overlap score while completely inverting the meaning. This is the most serious one, because those are exactly the errors that matter most. (3) EXTRACTIVE COPYING scores well on ROUGE without any summarization occurring, which is why lead-3 is competitive on news. WHAT MAKES IT WORSE IN PRACTICE. The correlation is much weaker among systems of SIMILAR quality, which is precisely the comparison you usually want - metrics can distinguish terrible from good and struggle to distinguish good from slightly better. It degrades as systems improve, because good systems increasingly produce valid outputs unlike the reference. And it is not robust to OPTIMIZATION: as soon as you tune against the metric, you move into the region where it and quality diverge, which is Goodhart's law with a specific mechanism. WHAT ACTUALLY FIXES IT, in increasing order of effectiveness. (1) MORE REFERENCES help substantially and are rarely available. (2) EMBEDDING-BASED metrics (BERTScore, MoverScore) fix paraphrase by comparing in a semantic space rather than a lexical one. Real improvement, and still reference-based, so single-reference coverage remains a limitation. (3) LEARNED METRICS - COMET, BLEURT - are trained directly to predict human judgments from (source, candidate, reference) triples. Since the objective IS correlation with humans, they correlate best, and in WMT evaluations they now clearly outperform BLEU. Their costs are that they need human-judgment training data, they inherit the biases of that data, they are model-dependent and versioned, and they are themselves gameable if you optimize against them. (4) REFERENCE-FREE metrics evaluate the candidate against the SOURCE - entailment for consistency, QA-based methods that generate questions from the output and answer them from the source. These escape the single-reference problem entirely, which is conceptually the most important step, and they measure a specific property (groundedness) rather than overall quality. (5) LLM JUDGES, which are the most flexible and correlate well, with the biases discussed elsewhere. THE DEEPER POINT I would make, because it is the transferable one: the problem is not that BLEU is a bad metric. It is that AUTOMATIC EVALUATION OF OPEN-ENDED GENERATION IS FUNDAMENTALLY HARD, because the target is a SET of acceptable outputs that cannot be enumerated. Every method above is a different approximation of set membership - overlap with a sample from the set, semantic proximity to a sample, a learned model of the set, or a check of specific properties any member must have. That last framing is the most promising: rather than asking 'how close is this to a good output', decompose into checkable properties - is it grounded, does it cover the key content, is it the right length, does it follow the format - and verify each. It is less elegant and far more useful, because each property comes with an actionable failure mode." }
+        "deepDive": {
+          "q": "Why do surface-overlap metrics correlate poorly with human judgment, and what actually fixes it?",
+          "a": "THE CORE MISMATCH. BLEU and ROUGE measure lexical overlap with a reference. Human quality judgment measures whether the output conveys the right meaning, well. These come apart in both directions and the failures are SYSTEMATIC rather than random, which is what makes them dangerous. FALSE NEGATIVES - good output, low score. (1) PARAPHRASE: 'the cat sat on the mat' and 'a feline was resting on the rug' share almost no n-grams and mean the same thing. (2) LEGITIMATE STYLISTIC VARIATION: a system with a different but valid register scores low against a reference in another register. (3) A SINGLE REFERENCE cannot cover the space of valid outputs, and almost every evaluation uses one - BLEU's original validation used four. (4) WORD ORDER flexibility in many languages means n-gram matching penalizes a correct alternative ordering. FALSE POSITIVES - bad output, high score. (1) FLUENT NONSENSE that reuses reference vocabulary. (2) A single word changed - a negation dropped, a number altered, an entity swapped - barely moves a 4-gram overlap score while completely inverting the meaning. This is the most serious one, because those are exactly the errors that matter most. (3) EXTRACTIVE COPYING scores well on ROUGE without any summarization occurring, which is why lead-3 is competitive on news. WHAT MAKES IT WORSE IN PRACTICE. The correlation is much weaker among systems of SIMILAR quality, which is precisely the comparison you usually want - metrics can distinguish terrible from good and struggle to distinguish good from slightly better. It degrades as systems improve, because good systems increasingly produce valid outputs unlike the reference. And it is not robust to OPTIMIZATION: as soon as you tune against the metric, you move into the region where it and quality diverge, which is Goodhart's law with a specific mechanism. WHAT ACTUALLY FIXES IT, in increasing order of effectiveness. (1) MORE REFERENCES help substantially and are rarely available. (2) EMBEDDING-BASED metrics (BERTScore, MoverScore) fix paraphrase by comparing in a semantic space rather than a lexical one. Real improvement, and still reference-based, so single-reference coverage remains a limitation. (3) LEARNED METRICS - COMET, BLEURT - are trained directly to predict human judgments from (source, candidate, reference) triples. Since the objective IS correlation with humans, they correlate best, and in WMT evaluations they now clearly outperform BLEU. Their costs are that they need human-judgment training data, they inherit the biases of that data, they are model-dependent and versioned, and they are themselves gameable if you optimize against them. (4) REFERENCE-FREE metrics evaluate the candidate against the SOURCE - entailment for consistency, QA-based methods that generate questions from the output and answer them from the source. These escape the single-reference problem entirely, which is conceptually the most important step, and they measure a specific property (groundedness) rather than overall quality. (5) LLM JUDGES, which are the most flexible and correlate well, with the biases discussed elsewhere. THE DEEPER POINT I would make, because it is the transferable one: the problem is not that BLEU is a bad metric. It is that AUTOMATIC EVALUATION OF OPEN-ENDED GENERATION IS FUNDAMENTALLY HARD, because the target is a SET of acceptable outputs that cannot be enumerated. Every method above is a different approximation of set membership - overlap with a sample from the set, semantic proximity to a sample, a learned model of the set, or a check of specific properties any member must have. That last framing is the most promising: rather than asking 'how close is this to a good output', decompose into checkable properties - is it grounded, does it cover the key content, is it the right length, does it follow the format - and verify each. It is less elegant and far more useful, because each property comes with an actionable failure mode."
+        }
       },
       {
         "q": "How would you use an LLM as a judge, and what would you control for?",
@@ -134,25 +200,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "BLEU", "back": "Clipped n-gram PRECISION, geometric mean over n=1..4, times a brevity penalty. Corpus-level only - the geometric mean zeroes out whenever any n-gram order has no match, which is common in one short sentence." },
-    { "type": "pitfall", "front": "Unqualified BLEU is not comparable", "back": "Tokenization, casing, and normalization move it by several points, so 1-2 BLEU differences between papers were often preprocessing differences. Use sacreBLEU and report its SIGNATURE, not just the number." },
-    { "type": "pitfall", "front": "ROUGE rewards length", "back": "It is recall-oriented, so longer outputs cover more reference n-grams mechanically. Comparing systems with different output lengths ranks verbosity. Constrain length or use an F-measure variant." },
-    { "type": "definition", "front": "BERTScore", "back": "Greedy match candidate to reference tokens by cosine similarity of CONTEXTUAL embeddings. Handles paraphrase, which n-gram overlap cannot. Score depends on the embedding checkpoint - report which one." },
-    { "type": "definition", "front": "Learned metrics (COMET, BLEURT)", "back": "Neural models trained directly to predict human quality judgments from (source, candidate, reference). Since the objective IS human correlation, they correlate best - now the recommended default for MT." },
-    { "type": "pitfall", "front": "LLM-judge biases", "back": "POSITION (prefers the first option), VERBOSITY (prefers longer), SELF-PREFERENCE (prefers its own family), and style-over-substance. Fix: both orders with consistency required, report length distributions, use a different model family, pairwise not 1-10." },
-    { "type": "intuition", "front": "Always report the human-human ceiling", "back": "A metric correlating 0.58 with humans is uninterpretable alone. If annotators agree at 0.62, that metric is near the limit of the measurement; if they agree at 0.90, there is real headroom." },
-    { "type": "pitfall", "front": "Perplexity across tokenizers", "back": "It is per-TOKEN, and different vocabularies segment text differently - larger vocabularies give fewer, harder tokens and higher perplexity at equal quality. Normalize to bits-per-character to compare." },
-    { "type": "intuition", "front": "What perplexity does not measure", "back": "Downstream capability at close range (instruction tuning IMPROVES usefulness while WORSENING raw-text perplexity), generation quality under sampling, or anything cross-dataset. It measures surprise at given text." },
-    { "type": "pitfall", "front": "The lead-3 baseline", "back": "Just taking a news article's first three sentences is famously competitive on ROUGE, because references are extractive and lead-biased. Report it alongside your system or the comparison is not interpretable." },
-    { "type": "intuition", "front": "Reference-free evaluation", "back": "With no gold answer, stop scoring similarity and start CHECKING PROPERTIES: groundedness (entailment vs source), instruction compliance, schema validity, self-consistency across samples, and executable checks. Each failure is actionable; a similarity score never is." },
-    { "type": "intuition", "front": "Benchmark contamination", "back": "Detect with n-gram overlap (needs corpus access), verbatim-completion probes, option-shuffling sensitivity, or post-cutoff data. Handle with private held-out sets, perturbed variants, and above all your OWN data - which is in nobody's pretraining corpus." }
+    {
+      "type": "definition",
+      "front": "BLEU",
+      "back": "Clipped n-gram PRECISION, geometric mean over n=1..4, times a brevity penalty. Corpus-level only - the geometric mean zeroes out whenever any n-gram order has no match, which is common in one short sentence."
+    },
+    {
+      "type": "pitfall",
+      "front": "Unqualified BLEU is not comparable",
+      "back": "Tokenization, casing, and normalization move it by several points, so 1-2 BLEU differences between papers were often preprocessing differences. Use sacreBLEU and report its SIGNATURE, not just the number."
+    },
+    {
+      "type": "pitfall",
+      "front": "ROUGE rewards length",
+      "back": "It is recall-oriented, so longer outputs cover more reference n-grams mechanically. Comparing systems with different output lengths ranks verbosity. Constrain length or use an F-measure variant."
+    },
+    {
+      "type": "definition",
+      "front": "BERTScore",
+      "back": "Greedy match candidate to reference tokens by cosine similarity of CONTEXTUAL embeddings. Handles paraphrase, which n-gram overlap cannot. Score depends on the embedding checkpoint - report which one."
+    },
+    {
+      "type": "definition",
+      "front": "Learned metrics (COMET, BLEURT)",
+      "back": "Neural models trained directly to predict human quality judgments from (source, candidate, reference). Since the objective IS human correlation, they correlate best - now the recommended default for MT."
+    },
+    {
+      "type": "pitfall",
+      "front": "LLM-judge biases",
+      "back": "POSITION (prefers the first option), VERBOSITY (prefers longer), SELF-PREFERENCE (prefers its own family), and style-over-substance. Fix: both orders with consistency required, report length distributions, use a different model family, pairwise not 1-10."
+    },
+    {
+      "type": "intuition",
+      "front": "Always report the human-human ceiling",
+      "back": "A metric correlating 0.58 with humans is uninterpretable alone. If annotators agree at 0.62, that metric is near the limit of the measurement; if they agree at 0.90, there is real headroom."
+    },
+    {
+      "type": "pitfall",
+      "front": "Perplexity across tokenizers",
+      "back": "It is per-TOKEN, and different vocabularies segment text differently - larger vocabularies give fewer, harder tokens and higher perplexity at equal quality. Normalize to bits-per-character to compare."
+    },
+    {
+      "type": "intuition",
+      "front": "What perplexity does not measure",
+      "back": "Downstream capability at close range (instruction tuning IMPROVES usefulness while WORSENING raw-text perplexity), generation quality under sampling, or anything cross-dataset. It measures surprise at given text."
+    },
+    {
+      "type": "pitfall",
+      "front": "The lead-3 baseline",
+      "back": "Just taking a news article's first three sentences is famously competitive on ROUGE, because references are extractive and lead-biased. Report it alongside your system or the comparison is not interpretable."
+    },
+    {
+      "type": "intuition",
+      "front": "Reference-free evaluation",
+      "back": "With no gold answer, stop scoring similarity and start CHECKING PROPERTIES: groundedness (entailment vs source), instruction compliance, schema validity, self-consistency across samples, and executable checks. Each failure is actionable; a similarity score never is."
+    },
+    {
+      "type": "intuition",
+      "front": "Benchmark contamination",
+      "back": "Detect with n-gram overlap (needs corpus access), verbatim-completion probes, option-shuffling sensitivity, or post-cutoff data. Handle with private held-out sets, perturbed variants, and above all your OWN data - which is in nobody's pretraining corpus."
+    }
   ],
   "refs": [
-    { "title": "Papineni et al. (2002), BLEU: a Method for Automatic Evaluation of Machine Translation", "url": "https://aclanthology.org/P02-1040/" },
-    { "title": "Post (2018), A Call for Clarity in Reporting BLEU Scores (sacreBLEU)", "url": "https://arxiv.org/abs/1804.08771" },
-    { "title": "Zhang et al. (2020), BERTScore: Evaluating Text Generation with BERT", "url": "https://arxiv.org/abs/1904.09675" },
-    { "title": "Rei et al. (2020), COMET: A Neural Framework for MT Evaluation", "url": "https://arxiv.org/abs/2009.09025" },
-    { "title": "Zheng et al. (2023), Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena", "url": "https://arxiv.org/abs/2306.05685" }
+    {
+      "title": "Papineni et al. (2002), BLEU: a Method for Automatic Evaluation of Machine Translation",
+      "url": "https://aclanthology.org/P02-1040/"
+    },
+    {
+      "title": "Post (2018), A Call for Clarity in Reporting BLEU Scores (sacreBLEU)",
+      "url": "https://arxiv.org/abs/1804.08771"
+    },
+    {
+      "title": "Zhang et al. (2020), BERTScore: Evaluating Text Generation with BERT",
+      "url": "https://arxiv.org/abs/1904.09675"
+    },
+    {
+      "title": "Rei et al. (2020), COMET: A Neural Framework for MT Evaluation",
+      "url": "https://arxiv.org/abs/2009.09025"
+    },
+    {
+      "title": "Zheng et al. (2023), Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+      "url": "https://arxiv.org/abs/2306.05685"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-09",
+    "module": "pretrained-lms",
+    "disposition": "merge",
+    "notebookFile": "15-09_nlp_evaluation_significance.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "01-01",
   "slug": "python-numpy-tensor-speed",
+  "keyBase": "foundations/python-numpy-tensor-speed",
   "module": "foundations",
   "title": "Python, NumPy & Tensor Speed",
   "status": "LIVE",
@@ -257,5 +258,11 @@
       "url": "https://www.nature.com/articles/s41586-020-2649-2"
     }
   ],
-  "updatedAt": "2026-07-19"
+  "updatedAt": "2026-07-19",
+  "v2": {
+    "id": "02-01",
+    "module": "python-toolchain",
+    "disposition": "clean",
+    "notebookFile": "02-01_numpy_tensor_mechanics.ipynb"
+  }
 }

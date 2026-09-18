@@ -90,6 +90,48 @@ const GEN_NOTE = (src) => `// GENERATED from content/ by scripts/gen-from-store.
 
 const J = (v) => JSON.stringify(v, null, 2);
 
+// ── the v2 curriculum, from content/migrations/ ─────────────────────────────
+// The notebooks repo restructured to 26 modules / 282 slots and now LEADS
+// (policy reversed 2026-09-17). The site presents that structure while its own
+// routes stay put, so a v2 slot renders as a link to the page its content lives
+// on TODAY — the mapping is data, not a move. Written by sync-v2-map.mjs.
+// Absent artifact => no CURRICULUM_V2 and the hub falls back to the v1 grouping,
+// so a clone without the notebooks repo still builds.
+const V2_PATH = join(STORE, "migrations", "v1-to-v2.json");
+const V2 = existsSync(V2_PATH) ? readJ(V2_PATH) : null;
+
+const V2_MODULES = V2 ? V2.modules.map((m) => ({
+  n: m.n, slug: m.slug, title: m.title, track: m.track, trackName: m.trackName,
+  wasSlug: m.wasSlug,
+  lessons: V2.slots
+    .filter((s) => s.moduleSlug === m.slug)
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((s) => ({
+      n: s.id,
+      title: s.title,
+      kind: s.sourceKind,
+      // `href` is the lesson's CURRENT page. null = planned, not written: the
+      // 25 new + 7 promoted slots the notebooks declare and the site has no
+      // content for. Rendering those as links would 404.
+      href: s.site ? `learn/${s.site.module}/${s.site.slug}/` : null,
+      on: s.site ? `${s.site.module}/${s.site.slug}` : null,
+      // A merge draws on more than one written lesson; all of them stay
+      // reachable from the syllabus or they are effectively unpublished.
+      // Linking only the primary dropped 15 live pages out of the outline —
+      // caught by audit-curriculum's orphan check on its first run.
+      more: (s.sites || []).slice(1).map((x) => ({
+        href: `learn/${x.module}/${x.slug}/`, on: `${x.module}/${x.slug}`, title: x.title,
+      })),
+    })),
+})) : null;
+
+// The 3 topics the notebooks CUT that the site still teaches. They belong to no
+// v2 module, so without this they would silently vanish from the outline.
+const V2_KEPT = V2 ? V2.cuts.filter((c) => c.site).map((c) => ({
+  n: c.id, title: c.site.title, reason: c.reason,
+  href: `learn/${c.site.module}/${c.site.slug}/`,
+})) : null;
+
 const curriculumJs = `${GEN_NOTE("modules/, lessons/")}// curriculum.js — window.CURRICULUM for all ${CURR_MODULES.length} modules + ${CURR_MODULES.reduce((a, m) => a + m.lessons.length, 0)} lessons.
 // Loaded BEFORE any *-app.jsx. The learn / module / lesson page apps all
 // consume window.CURRICULUM.
@@ -150,7 +192,35 @@ window.CURRICULUM = {
       .replace("/blob/main/", "/blob/main/");
   },
 };
-`;
+${V2_MODULES ? `
+// ── window.CURRICULUM_V2 — the notebooks' 26-module / ${V2.to.slots}-slot curriculum ──
+// The structure the course is being rebuilt to. Consumed by learn-app.jsx to
+// render the syllabus; every lesson links to the page it lives on TODAY, so no
+// route here is new. \`href: null\` means the notebooks declare the slot and the
+// site has not written it — ${V2_MODULES.reduce((a, m) => a + m.lessons.filter((l) => !l.href).length, 0)} of ${V2.to.slots}.
+// GENERATED from content/migrations/v1-to-v2.json — re-run sync-v2-map.mjs.
+window.CURRICULUM_V2 = {
+  modules: ${J(V2_MODULES).replace(/\n/g, "\n  ")},
+
+  // Kept on the site, cut from the notebooks — see the block comment above.
+  kept: ${J(V2_KEPT).replace(/\n/g, "\n  ")},
+
+  tracks() {
+    const out = [];
+    for (const m of this.modules) {
+      let t = out.find(x => x.id === m.track);
+      if (!t) { t = { id: m.track, name: m.trackName, modules: [] }; out.push(t); }
+      t.modules.push(m);
+    }
+    return out;
+  },
+  counts() {
+    const slots = this.modules.reduce((a, m) => a + m.lessons.length, 0);
+    const written = this.modules.reduce((a, m) => a + m.lessons.filter(l => l.href).length, 0);
+    return { modules: this.modules.length, slots, written, planned: slots - written };
+  },
+};
+` : ""}`;
 
 const lecturesJs = `${GEN_NOTE("modules/")}// lectures.js — condensed on-site lectures for the ${modules.length} ML-from-Scratch modules.
 // Each is a high-level distillation; the full runnable notebooks live on GitHub.
@@ -228,6 +298,22 @@ deepEq(cur.CURRICULUM.modules, gen.CURRICULUM.modules, "CURRICULUM.modules");
 deepEq(cur.LECTURES, gen.LECTURES, "LECTURES");
 deepEq(cur.LECTURE_CODE, gen.LECTURE_CODE, "LECTURE_CODE");
 deepEq(cur.SUB_LESSONS, gen.SUB_LESSONS, "SUB_LESSONS");
+// ⚠ A GLOBAL NOT LISTED HERE IS NOT CHECKED. Parity loads every global the
+// generated text defines, but only compares the ones named on these lines — so
+// CURRICULUM_V2 was invisible to it the moment it was added, and a curriculum.js
+// stale against content/migrations/ would have reported "parity: 0 diffs".
+// Same class as content.json drifting while parity stayed clean (RC-0002).
+// Compared both ways so ADDING or REMOVING the bridge is also a diff.
+deepEq(
+  cur.CURRICULUM_V2 ? cur.CURRICULUM_V2.modules : null,
+  gen.CURRICULUM_V2 ? gen.CURRICULUM_V2.modules : null,
+  "CURRICULUM_V2.modules",
+);
+deepEq(
+  cur.CURRICULUM_V2 ? cur.CURRICULUM_V2.kept : null,
+  gen.CURRICULUM_V2 ? gen.CURRICULUM_V2.kept : null,
+  "CURRICULUM_V2.kept",
+);
 // helper behavior spot-checks — WARN only (helpers change intentionally via this
 // template; data diffs above are the hard gate)
 let helperDiffs = 0;

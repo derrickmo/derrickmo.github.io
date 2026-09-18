@@ -95,6 +95,12 @@ for (const l of C.lessons) {
   });
   (bodies[l.module] ||= []).push({
     id: l.id, slug: l.slug, title: l.title,
+    // The app derives card ids itself (models.dart fnvId) and must hash the
+    // SAME thing the site does. keyBase is that thing: identity, not location.
+    // Ship it so a lesson can change module without resetting a reader's
+    // schedule on either surface. Absent → the app falls back to module/slug,
+    // which is what keyBase currently equals.
+    keyBase: l.keyBase ?? `${l.module}/${l.slug}`,
     body: l.body ?? null,                   // null for the 25 flagships — see the header note
     interview: l.interview ?? null,
     flashcards: l.flashcards || [],

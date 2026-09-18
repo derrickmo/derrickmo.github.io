@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-03",
   "slug": "positional-encoding",
+  "keyBase": "transformers/positional-encoding",
   "module": "transformers",
   "title": "Positional Encoding — Sinusoidal & Learned",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-03_positional_encoding_sinusoidal_learned.ipynb",
     "flagship": null,
-    "demos": ["positional-encoding", "rope", "attention"],
+    "demos": [
+      "positional-encoding",
+      "rope",
+      "attention"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/self-attention", "transformers/multi-head-attention"],
-  "leadsTo": ["transformers/rope", "transformers/transformer-block"],
+  "prereqs": [
+    "transformers/self-attention",
+    "transformers/multi-head-attention"
+  ],
+  "leadsTo": [
+    "transformers/rope",
+    "transformers/transformer-block"
+  ],
   "body": {
     "intuition": [
       "Self-attention has a property that is easy to state and easy to underestimate: it is PERMUTATION EQUIVARIANT. Shuffle the input tokens and the outputs shuffle identically - the operation computes a weighted average over a SET, with no notion of order anywhere in it. There is no recurrence tracking time and no convolution defining adjacency. So 'the dog bit the man' and 'the man bit the dog' produce, before any positional information is added, exactly the same bag of representations. For language, code, audio, or any sequence, that is fatal. Positional encoding is the machinery that puts order back in.",
@@ -72,32 +83,83 @@
       "Overlooking that padding and left-truncation shift positions: if you left-pad a batch, every real token's position index changes, which silently changes the encoding it receives. Use attention masks plus correct position ids, and check them explicitly."
     ],
     "connections": [
-      { "ref": "transformers/rope", "text": "RoPE applies exactly the rotation matrix that appears in the sinusoidal shift identity, but to the queries and keys directly - which converts a suggestive property into a structural guarantee that scores depend only on relative offset." },
-      { "ref": "transformers/self-attention", "text": "Permutation equivariance is a property of the attention operator itself; this lesson is the fix for the specific limitation that operator has." },
-      { "ref": "llm-systems/long-context", "text": "Position interpolation, NTK-aware scaling, and YaRN all extend context by rescaling a positional scheme - the base-10000 wavelength story here is what they manipulate." },
-      { "ref": "generative/ddpm", "text": "Diffusion models embed the denoising timestep with the identical sinusoidal construction, which is a nice reminder that this is a general scalar-to-vector encoding, not a language-specific trick." }
+      {
+        "ref": "transformers/rope",
+        "text": "RoPE applies exactly the rotation matrix that appears in the sinusoidal shift identity, but to the queries and keys directly - which converts a suggestive property into a structural guarantee that scores depend only on relative offset."
+      },
+      {
+        "ref": "transformers/self-attention",
+        "text": "Permutation equivariance is a property of the attention operator itself; this lesson is the fix for the specific limitation that operator has."
+      },
+      {
+        "ref": "llm-systems/long-context",
+        "text": "Position interpolation, NTK-aware scaling, and YaRN all extend context by rescaling a positional scheme - the base-10000 wavelength story here is what they manipulate."
+      },
+      {
+        "ref": "generative/ddpm",
+        "text": "Diffusion models embed the denoising timestep with the identical sinusoidal construction, which is a nice reminder that this is a general scalar-to-vector encoding, not a language-specific trick."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "Why do transformers need positional encoding?", "a": "Self-attention is permutation equivariant - it computes a weighted average over a SET. Without positional information, 'dog bites man' and 'man bites dog' give identical representations." },
-      { "q": "What is sinusoidal positional encoding?", "a": "A fixed vector per position whose dimension pairs are sine/cosine at geometrically spaced wavelengths (10000^(2i/d)), added to the token embedding. Zero parameters, defined at any position." },
-      { "q": "Why sines and cosines at different frequencies?", "a": "It writes position as a multi-scale code: fast dimensions distinguish neighbours, slow dimensions distinguish distant regions - like a binary counter with continuous digits." },
-      { "q": "What is the relative-offset property?", "a": "PE(p+k) = M_k PE(p) where M_k is a rotation depending only on k, not p - so relative offsets are a linear function of the encoding, at least in principle." },
-      { "q": "Learned positional embeddings - what are they?", "a": "An nn.Embedding table indexed by position, trained like token embeddings (BERT, GPT-2). d_model * max_len parameters, and a hard maximum context length." },
-      { "q": "Which performs better in-distribution?", "a": "Learned is usually marginally better within the trained length; the original Transformer paper reported nearly identical results and chose sinusoidal for its extrapolation potential." },
-      { "q": "Do sinusoidal encodings really extrapolate?", "a": "The formula does; the model largely does not. Perplexity degrades sharply beyond the training length because the model never learned attention patterns at those offsets." },
-      { "q": "Why add rather than concatenate?", "a": "Concatenation would spend dimensions permanently on position; addition keeps d_model fixed and lets the model learn to separate the two signals. It is a compromise that works empirically." },
-      { "q": "What is ALiBi?", "a": "Attention with Linear Biases: add a per-head penalty -m*|i-j| to attention scores instead of any positional embedding. Extrapolates gently to longer contexts than it trained on." },
-      { "q": "What is T5's relative position bias?", "a": "A learned scalar bias added to attention logits, indexed by BUCKETED relative distance (fine buckets near, log-spaced far), shared across layers." },
-      { "q": "Why did the field move to relative schemes?", "a": "Attention fundamentally compares a query to a key, and what matters is their OFFSET. Absolute encodings added at the input make the model infer offsets; relative schemes give them structurally." },
-      { "q": "How do ViTs handle position at a new resolution?", "a": "Interpolate the learned 2D position-embedding grid to the new patch layout (usually bicubic), then fine-tune - the standard recipe for running a 224px-pretrained ViT at 384px." }
+      {
+        "q": "Why do transformers need positional encoding?",
+        "a": "Self-attention is permutation equivariant - it computes a weighted average over a SET. Without positional information, 'dog bites man' and 'man bites dog' give identical representations."
+      },
+      {
+        "q": "What is sinusoidal positional encoding?",
+        "a": "A fixed vector per position whose dimension pairs are sine/cosine at geometrically spaced wavelengths (10000^(2i/d)), added to the token embedding. Zero parameters, defined at any position."
+      },
+      {
+        "q": "Why sines and cosines at different frequencies?",
+        "a": "It writes position as a multi-scale code: fast dimensions distinguish neighbours, slow dimensions distinguish distant regions - like a binary counter with continuous digits."
+      },
+      {
+        "q": "What is the relative-offset property?",
+        "a": "PE(p+k) = M_k PE(p) where M_k is a rotation depending only on k, not p - so relative offsets are a linear function of the encoding, at least in principle."
+      },
+      {
+        "q": "Learned positional embeddings - what are they?",
+        "a": "An nn.Embedding table indexed by position, trained like token embeddings (BERT, GPT-2). d_model * max_len parameters, and a hard maximum context length."
+      },
+      {
+        "q": "Which performs better in-distribution?",
+        "a": "Learned is usually marginally better within the trained length; the original Transformer paper reported nearly identical results and chose sinusoidal for its extrapolation potential."
+      },
+      {
+        "q": "Do sinusoidal encodings really extrapolate?",
+        "a": "The formula does; the model largely does not. Perplexity degrades sharply beyond the training length because the model never learned attention patterns at those offsets."
+      },
+      {
+        "q": "Why add rather than concatenate?",
+        "a": "Concatenation would spend dimensions permanently on position; addition keeps d_model fixed and lets the model learn to separate the two signals. It is a compromise that works empirically."
+      },
+      {
+        "q": "What is ALiBi?",
+        "a": "Attention with Linear Biases: add a per-head penalty -m*|i-j| to attention scores instead of any positional embedding. Extrapolates gently to longer contexts than it trained on."
+      },
+      {
+        "q": "What is T5's relative position bias?",
+        "a": "A learned scalar bias added to attention logits, indexed by BUCKETED relative distance (fine buckets near, log-spaced far), shared across layers."
+      },
+      {
+        "q": "Why did the field move to relative schemes?",
+        "a": "Attention fundamentally compares a query to a key, and what matters is their OFFSET. Absolute encodings added at the input make the model infer offsets; relative schemes give them structurally."
+      },
+      {
+        "q": "How do ViTs handle position at a new resolution?",
+        "a": "Interpolate the learned 2D position-embedding grid to the new patch layout (usually bicubic), then fine-tune - the standard recipe for running a 224px-pretrained ViT at 384px."
+      }
     ],
     "standard": [
       {
         "q": "Why do transformers need positional encoding, and how do sinusoidal and learned encodings compare?",
         "a": "THE PROBLEM. Self-attention computes, for each query, a softmax-weighted average of value vectors. Nothing in that computation references position: if you permute the input tokens, the outputs permute identically (permutation EQUIVARIANCE), and if you then pool, the result is fully permutation INVARIANT. Unlike an RNN (which processes sequentially, so order is intrinsic) or a CNN (whose kernels define adjacency), a transformer sees a SET. For language that is catastrophic - 'the dog bit the man' and 'the man bit the dog' would be indistinguishable - so positional information must be injected explicitly. SINUSOIDAL ENCODING (Vaswani et al., 2017). For position p and dimension pair (2i, 2i+1), PE = sin(p / 10000^(2i/d)) and cos(p / 10000^(2i/d)). Wavelengths form a geometric series from about 2*pi to 10000*2*pi, so the encoding is a multi-scale positional code: high-frequency dimensions distinguish adjacent tokens, low-frequency dimensions distinguish coarse regions of the sequence - conceptually a binary counter with continuous digits. This vector is ADDED to the token embedding. Two claimed advantages: (a) ZERO PARAMETERS and defined for any position, so nothing structurally prevents running on longer sequences; (b) the RELATIVE-OFFSET property - by angle addition, PE(p+k) = M_k PE(p) where M_k is a rotation depending only on k, so a linear projection could in principle read off relative offsets. LEARNED ENCODING (BERT, GPT-2, ViT). Just an embedding table with one trainable vector per position, learned by backprop like token embeddings. Costs d_model * max_len parameters (for BERT-base, 768 * 512 = 393K - trivial) and has a HARD maximum length: position 513 simply does not exist. THE COMPARISON. In-distribution quality: essentially a wash. The original paper reported 'nearly identical results' and chose sinusoidal for its extrapolation potential; later work generally finds learned marginally better within the training length, since it can adapt to the actual positional statistics of the data. Extrapolation: this is the real difference, and the honest version is more nuanced than the paper's hope. Learned embeddings CANNOT extrapolate at all - there is no vector for an unseen position. Sinusoidal encodings are DEFINED at any position but the model still degrades badly beyond its training length, because it never learned to handle attention patterns at those offsets. So the sinusoidal advantage is real but much weaker than advertised, and 'sinusoidal extrapolates' is a claim worth correcting in an interview. Parameters: sinusoidal free, learned negligible - not a real consideration. Flexibility: learned can capture data-specific positional structure (e.g. document formatting regularities); sinusoidal imposes a fixed prior. WHY BOTH LOST. Both are ABSOLUTE encodings added at the INPUT, and that is a structural mismatch with what attention does. Attention scores a query at position i against a key at position j, and what should matter is (i - j) - the offset - not the absolute indices. With input-added absolute encodings, the model has to infer offsets from the difference of two encodings that have already been mixed with token content and transformed by several layers. The field therefore moved to RELATIVE schemes injected INSIDE attention: Shaw et al. (2018) added learned relative-position vectors to keys; T5 uses a learned scalar bias per bucketed relative distance added to attention logits; ALiBi (Press et al., 2022) adds a simple linear penalty -m*|i-j| with per-head slopes and no embeddings at all, which extrapolates gracefully; and RoPE (Su et al., 2021) rotates queries and keys by an angle proportional to position, so their dot product depends provably on (i - j) alone. RoPE is now the default in essentially every modern LLM (LLaMA, Mistral, Qwen, Gemma). THE THROUGH-LINE worth stating: the progression from sinusoidal to learned to relative to RoPE is a story about moving positional information from a bolt-on at the input to a structural property of the attention operation itself - and each step improved both quality and length generalization.",
-        "deepDive": { "q": "Sinusoidal encodings are defined at any position, yet models still fail beyond their training length. Explain precisely why, and what actually fixes it.", "a": "THE DISTINCTION that resolves the puzzle: being DEFINED at a position and being TRAINED on the attention patterns that occur at that position are different things. Four concrete mechanisms cause the failure. (1) UNSEEN RELATIVE OFFSETS. A model trained on 512-token contexts has never computed attention between tokens 3000 apart. Even though PE(3000) is a perfectly well-defined vector, the query-key interaction pattern it produces is out of distribution for every learned projection in the network. The model has no idea what to do with it, and the resulting attention logits are effectively arbitrary. (2) ATTENTION ENTROPY GROWS WITH LENGTH. Softmax over more keys spreads probability more thinly. A model trained to attend over 512 positions has learned logit scales that produce useful distributions at that length; at 4096 the same logits produce a much flatter, noisier distribution, diluting the signal. This is a length-generalization problem independent of the positional scheme. (3) NORM AND DISTRIBUTION SHIFT. Attention outputs are averages over more vectors, changing their statistics, which shifts every downstream LayerNorm and MLP away from the distribution it was trained on - a cascading out-of-distribution failure. (4) HIGH-FREQUENCY ALIASING. In the sinusoidal construction the fastest dimensions have wavelength ~2*pi, so at large p they oscillate rapidly and nearby distant positions look nearly identical or spuriously similar; the encoding stops being a clean monotone signal of distance far out. WHAT ACTUALLY FIXES IT, in the order the field discovered them. (a) ALiBi - remove positional embeddings entirely and add a per-head linear penalty -m*|i-j| to attention logits. Because the penalty is a MONOTONE function of distance defined at every offset, and because it says something simple and true at any length ('closer is more relevant, with a head-specific strength'), it extrapolates gracefully - Press et al. showed a model trained at 1024 evaluating well beyond it. The cost is a hard recency prior that limits genuinely long-range retrieval, which is why ALiBi did not become universal. (b) ROPE PLUS SCALING - RoPE alone extrapolates poorly for the same reason sinusoids do (unseen rotation angles), but because position enters as a ROTATION FREQUENCY, you can rescale it. POSITION INTERPOLATION (Chen et al., 2023) divides position indices by a factor s so a model trained at L handles s*L by mapping new positions into the trained angular range - with a little fine-tuning this works remarkably well. NTK-AWARE SCALING adjusts the rotation BASE (the 10000 constant) instead, scaling low frequencies more than high ones to preserve local resolution, and often works with no fine-tuning. YaRN combines these with an attention-temperature correction and is the strongest of the family. This is now the standard way long-context models are made, and it is why the base constant matters. (c) TRAINING ON LONG SEQUENCES - the unglamorous but decisive answer. Nothing substitutes for having actually trained at the target length, which is why frontier models do a long-context continuation phase (progressively increasing sequence length) rather than relying on extrapolation. (d) ARCHITECTURAL alternatives - sliding-window or local attention (Mistral), attention sinks (keeping the first few tokens always attendable, which fixes the StreamingLLM failure mode), or recurrence/state-space hybrids. THE EVALUATION CAVEAT worth raising: perplexity at long context is a weak measure - a model can have decent perplexity while being unable to USE distant information, since most next-token predictions depend on nearby context. Test with needle-in-a-haystack retrieval, long-document QA, or RULER-style benchmarks that require actually using distant tokens. A model advertised at 128K context can be near-useless past 32K on those, and the gap between 'supported context' and 'effective context' is one of the more important practical facts in current LLM deployment." }
+        "deepDive": {
+          "q": "Sinusoidal encodings are defined at any position, yet models still fail beyond their training length. Explain precisely why, and what actually fixes it.",
+          "a": "THE DISTINCTION that resolves the puzzle: being DEFINED at a position and being TRAINED on the attention patterns that occur at that position are different things. Four concrete mechanisms cause the failure. (1) UNSEEN RELATIVE OFFSETS. A model trained on 512-token contexts has never computed attention between tokens 3000 apart. Even though PE(3000) is a perfectly well-defined vector, the query-key interaction pattern it produces is out of distribution for every learned projection in the network. The model has no idea what to do with it, and the resulting attention logits are effectively arbitrary. (2) ATTENTION ENTROPY GROWS WITH LENGTH. Softmax over more keys spreads probability more thinly. A model trained to attend over 512 positions has learned logit scales that produce useful distributions at that length; at 4096 the same logits produce a much flatter, noisier distribution, diluting the signal. This is a length-generalization problem independent of the positional scheme. (3) NORM AND DISTRIBUTION SHIFT. Attention outputs are averages over more vectors, changing their statistics, which shifts every downstream LayerNorm and MLP away from the distribution it was trained on - a cascading out-of-distribution failure. (4) HIGH-FREQUENCY ALIASING. In the sinusoidal construction the fastest dimensions have wavelength ~2*pi, so at large p they oscillate rapidly and nearby distant positions look nearly identical or spuriously similar; the encoding stops being a clean monotone signal of distance far out. WHAT ACTUALLY FIXES IT, in the order the field discovered them. (a) ALiBi - remove positional embeddings entirely and add a per-head linear penalty -m*|i-j| to attention logits. Because the penalty is a MONOTONE function of distance defined at every offset, and because it says something simple and true at any length ('closer is more relevant, with a head-specific strength'), it extrapolates gracefully - Press et al. showed a model trained at 1024 evaluating well beyond it. The cost is a hard recency prior that limits genuinely long-range retrieval, which is why ALiBi did not become universal. (b) ROPE PLUS SCALING - RoPE alone extrapolates poorly for the same reason sinusoids do (unseen rotation angles), but because position enters as a ROTATION FREQUENCY, you can rescale it. POSITION INTERPOLATION (Chen et al., 2023) divides position indices by a factor s so a model trained at L handles s*L by mapping new positions into the trained angular range - with a little fine-tuning this works remarkably well. NTK-AWARE SCALING adjusts the rotation BASE (the 10000 constant) instead, scaling low frequencies more than high ones to preserve local resolution, and often works with no fine-tuning. YaRN combines these with an attention-temperature correction and is the strongest of the family. This is now the standard way long-context models are made, and it is why the base constant matters. (c) TRAINING ON LONG SEQUENCES - the unglamorous but decisive answer. Nothing substitutes for having actually trained at the target length, which is why frontier models do a long-context continuation phase (progressively increasing sequence length) rather than relying on extrapolation. (d) ARCHITECTURAL alternatives - sliding-window or local attention (Mistral), attention sinks (keeping the first few tokens always attendable, which fixes the StreamingLLM failure mode), or recurrence/state-space hybrids. THE EVALUATION CAVEAT worth raising: perplexity at long context is a weak measure - a model can have decent perplexity while being unable to USE distant information, since most next-token predictions depend on nearby context. Test with needle-in-a-haystack retrieval, long-document QA, or RULER-style benchmarks that require actually using distant tokens. A model advertised at 128K context can be near-useless past 32K on those, and the gap between 'supported context' and 'effective context' is one of the more important practical facts in current LLM deployment."
+        }
       },
       {
         "q": "Compare relative position encodings - Shaw, T5 bias, ALiBi, RoPE - and explain why relative beat absolute.",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "Why positional encoding exists", "back": "Self-attention is permutation equivariant - it averages over a SET. Without position, 'dog bites man' = 'man bites dog'. No recurrence, no convolution, so order must be injected explicitly." },
-    { "type": "formula", "front": "Sinusoidal encoding", "back": "PE(p,2i)=sin(p/10000^(2i/d)), PE(p,2i+1)=cos(...). Wavelengths geometric from ~2*pi to 10000*2*pi: fast dims separate neighbours, slow dims separate regions. Zero parameters, ADDED to the embedding." },
-    { "type": "formula", "front": "The relative-offset property", "back": "PE(p+k) = M_k PE(p) with M_k a rotation depending only on k. Relative position is a LINEAR function of the encoding - suggestive, but attention scores still aren't guaranteed to depend only on (i-j). RoPE makes that guarantee." },
-    { "type": "pitfall", "front": "Sinusoids don't really extrapolate", "back": "The formula is defined at any p, but perplexity still explodes past the training length - the model never learned attention patterns at those offsets. Defined is not the same as trained. ALiBi's monotone distance penalty is what extrapolates." },
-    { "type": "definition", "front": "Learned position embeddings", "back": "nn.Embedding indexed by position (BERT, GPT-2, ViT). d_model*max_len params, marginally better in-distribution, and a HARD context cap - position max_len simply does not exist." },
-    { "type": "definition", "front": "ALiBi", "back": "No embeddings: subtract m_h*|i-j| from attention logits with per-head slopes. Extrapolates gracefully because a monotone distance penalty is meaningful at any offset. Cost: a hard recency prior that limits long-range retrieval." },
-    { "type": "definition", "front": "T5 relative bias", "back": "A learned SCALAR added to each attention logit, indexed by BUCKETED relative distance (fine near, log-spaced far), per head. Cheap and effective; log buckets give graceful degradation." },
-    { "type": "intuition", "front": "Why relative beat absolute", "back": "Attention compares a query at i to a key at j, and what matters is the OFFSET (i-j). Absolute-at-the-input forces the model to infer offsets from mixed signals. The progression moved position closer to the operation that uses it, ending at RoPE." },
-    { "type": "pitfall", "front": "Add vs concatenate is moot", "back": "Adding keeps d_model fixed and lets the model separate signals in near-orthogonal subspaces (hence the sqrt(d_model) embedding scale). But modern models do NEITHER - RoPE rotates q/k, ALiBi biases logits. Position should modify the COMPUTATION, not the representation." },
-    { "type": "pitfall", "front": "ViT resolution change", "back": "Learned patch-position embeddings are tied to the grid size. To fine-tune at higher resolution, reshape to a 2D grid and bicubically interpolate (handling the CLS token separately), then fine-tune. Forgetting the CLS token is a classic bug." }
+    {
+      "type": "intuition",
+      "front": "Why positional encoding exists",
+      "back": "Self-attention is permutation equivariant - it averages over a SET. Without position, 'dog bites man' = 'man bites dog'. No recurrence, no convolution, so order must be injected explicitly."
+    },
+    {
+      "type": "formula",
+      "front": "Sinusoidal encoding",
+      "back": "PE(p,2i)=sin(p/10000^(2i/d)), PE(p,2i+1)=cos(...). Wavelengths geometric from ~2*pi to 10000*2*pi: fast dims separate neighbours, slow dims separate regions. Zero parameters, ADDED to the embedding."
+    },
+    {
+      "type": "formula",
+      "front": "The relative-offset property",
+      "back": "PE(p+k) = M_k PE(p) with M_k a rotation depending only on k. Relative position is a LINEAR function of the encoding - suggestive, but attention scores still aren't guaranteed to depend only on (i-j). RoPE makes that guarantee."
+    },
+    {
+      "type": "pitfall",
+      "front": "Sinusoids don't really extrapolate",
+      "back": "The formula is defined at any p, but perplexity still explodes past the training length - the model never learned attention patterns at those offsets. Defined is not the same as trained. ALiBi's monotone distance penalty is what extrapolates."
+    },
+    {
+      "type": "definition",
+      "front": "Learned position embeddings",
+      "back": "nn.Embedding indexed by position (BERT, GPT-2, ViT). d_model*max_len params, marginally better in-distribution, and a HARD context cap - position max_len simply does not exist."
+    },
+    {
+      "type": "definition",
+      "front": "ALiBi",
+      "back": "No embeddings: subtract m_h*|i-j| from attention logits with per-head slopes. Extrapolates gracefully because a monotone distance penalty is meaningful at any offset. Cost: a hard recency prior that limits long-range retrieval."
+    },
+    {
+      "type": "definition",
+      "front": "T5 relative bias",
+      "back": "A learned SCALAR added to each attention logit, indexed by BUCKETED relative distance (fine near, log-spaced far), per head. Cheap and effective; log buckets give graceful degradation."
+    },
+    {
+      "type": "intuition",
+      "front": "Why relative beat absolute",
+      "back": "Attention compares a query at i to a key at j, and what matters is the OFFSET (i-j). Absolute-at-the-input forces the model to infer offsets from mixed signals. The progression moved position closer to the operation that uses it, ending at RoPE."
+    },
+    {
+      "type": "pitfall",
+      "front": "Add vs concatenate is moot",
+      "back": "Adding keeps d_model fixed and lets the model separate signals in near-orthogonal subspaces (hence the sqrt(d_model) embedding scale). But modern models do NEITHER - RoPE rotates q/k, ALiBi biases logits. Position should modify the COMPUTATION, not the representation."
+    },
+    {
+      "type": "pitfall",
+      "front": "ViT resolution change",
+      "back": "Learned patch-position embeddings are tied to the grid size. To fine-tune at higher resolution, reshape to a 2D grid and bicubically interpolate (handling the CLS token separately), then fine-tune. Forgetting the CLS token is a classic bug."
+    }
   ],
   "refs": [
-    { "title": "Vaswani et al. (2017), Attention Is All You Need (sinusoidal encoding)", "url": "https://arxiv.org/abs/1706.03762" },
-    { "title": "Shaw, Uszkoreit & Vaswani (2018), Self-Attention with Relative Position Representations", "url": "https://arxiv.org/abs/1803.02155" },
-    { "title": "Press, Smith & Lewis (2022), Train Short, Test Long: Attention with Linear Biases (ALiBi)", "url": "https://arxiv.org/abs/2108.12409" },
-    { "title": "Chen et al. (2023), Extending Context Window of LLMs via Position Interpolation", "url": "https://arxiv.org/abs/2306.15595" }
+    {
+      "title": "Vaswani et al. (2017), Attention Is All You Need (sinusoidal encoding)",
+      "url": "https://arxiv.org/abs/1706.03762"
+    },
+    {
+      "title": "Shaw, Uszkoreit & Vaswani (2018), Self-Attention with Relative Position Representations",
+      "url": "https://arxiv.org/abs/1803.02155"
+    },
+    {
+      "title": "Press, Smith & Lewis (2022), Train Short, Test Long: Attention with Linear Biases (ALiBi)",
+      "url": "https://arxiv.org/abs/2108.12409"
+    },
+    {
+      "title": "Chen et al. (2023), Extending Context Window of LLMs via Position Interpolation",
+      "url": "https://arxiv.org/abs/2306.15595"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-03",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-03_positional_encoding.ipynb"
+  }
 }

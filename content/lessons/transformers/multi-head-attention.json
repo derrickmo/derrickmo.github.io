@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-02",
   "slug": "multi-head-attention",
+  "keyBase": "transformers/multi-head-attention",
   "module": "transformers",
   "title": "Multi-Head Attention",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-02_multi_head_attention.ipynb",
     "flagship": null,
-    "demos": ["multi-head-attention", "attention", "attention-rollout"],
+    "demos": [
+      "multi-head-attention",
+      "attention",
+      "attention-rollout"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/self-attention", "foundations/linear-algebra"],
-  "leadsTo": ["transformers/transformer-block", "transformers/gqa-mqa"],
+  "prereqs": [
+    "transformers/self-attention",
+    "foundations/linear-algebra"
+  ],
+  "leadsTo": [
+    "transformers/transformer-block",
+    "transformers/gqa-mqa"
+  ],
   "body": {
     "intuition": [
       "A single attention head computes ONE weighted average per position: it decides, with one set of query and key projections, which other tokens matter and blends their values accordingly. That is a real limitation, and it is easiest to see with a sentence. In 'the cat that the dog chased ran away', the word 'ran' needs to attend to 'cat' (its subject, a syntactic relation), and separately to 'chased' (the embedded verb, a different relation), and perhaps to 'away' (its complement). One head must compress all of those relationships into a single softmax distribution, so strengthening one necessarily weakens the others - a single average cannot represent several different relationships at once.",
@@ -72,37 +83,91 @@
       "Confusing head count with sequence-length cost: attention memory and compute scale as O(T^2) in sequence length regardless of h. Changing head count does nothing for long-context cost - that needs FlashAttention, GQA (for the cache), or a different attention pattern."
     ],
     "connections": [
-      { "ref": "transformers/self-attention", "text": "The flagship lesson derives single-head scaled dot-product attention in full; this one is the parallel-heads generalization built directly on it." },
-      { "ref": "transformers/gqa-mqa", "text": "Grouped-query and multi-query attention keep multiple QUERY heads but share key/value heads - a direct modification of this operator driven entirely by KV-cache memory at inference." },
-      { "ref": "transformers/flash-attention", "text": "FlashAttention computes exactly this operator without ever materializing the T x T matrix, which is what makes long contexts affordable." },
-      { "ref": "trustworthy-ai/probing-patching", "text": "Activation patching on individual heads is how interpretability work establishes that a specific head causally implements a specific behaviour - beyond what attention weights alone can show." }
+      {
+        "ref": "transformers/self-attention",
+        "text": "The flagship lesson derives single-head scaled dot-product attention in full; this one is the parallel-heads generalization built directly on it."
+      },
+      {
+        "ref": "transformers/gqa-mqa",
+        "text": "Grouped-query and multi-query attention keep multiple QUERY heads but share key/value heads - a direct modification of this operator driven entirely by KV-cache memory at inference."
+      },
+      {
+        "ref": "transformers/flash-attention",
+        "text": "FlashAttention computes exactly this operator without ever materializing the T x T matrix, which is what makes long contexts affordable."
+      },
+      {
+        "ref": "trustworthy-ai/probing-patching",
+        "text": "Activation patching on individual heads is how interpretability work establishes that a specific head causally implements a specific behaviour - beyond what attention weights alone can show."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is multi-head attention?", "a": "Running h attention operations in parallel, each with its own Q/K/V projections into a d_model/h subspace, then concatenating the outputs and mixing them with a learned output projection W_O." },
-      { "q": "Why use multiple heads instead of one?", "a": "One softmax can express only one weighted average, so a single head must compress all relationships into one distribution. Multiple heads let different subspaces capture different relations (syntax, coreference, position) simultaneously." },
-      { "q": "How many parameters does MHA have?", "a": "4*d_model^2 (W_Q, W_K, W_V, W_O), independent of head count - heads repartition the same budget rather than adding to it." },
-      { "q": "What is d_k?", "a": "The per-head dimension, d_model/h. With d_model=512 and h=8, d_k=64. It is the width of the subspace each head compares in." },
-      { "q": "Why divide by sqrt(d_k)?", "a": "Dot products over d_k dimensions have variance d_k, so logits grow as sqrt(d_k) and saturate the softmax (vanishing gradients). Dividing restores unit variance." },
-      { "q": "What does the output projection W_O do?", "a": "Mixes the concatenated head outputs. Without it each head would write into its own fixed slice of the residual stream and never interact." },
-      { "q": "How is the head axis implemented efficiently?", "a": "Reshape (B,T,d_model) to (B,h,T,d_k) so the head axis becomes a batch dimension - all heads are computed in one batched matmul, never a Python loop." },
-      { "q": "What is the compute and memory cost?", "a": "O(T^2 * d) compute and O(T^2) attention-matrix memory per head-batch, plus O(T*d^2) for the projections. The T^2 term is what limits context length." },
-      { "q": "How is causal masking applied?", "a": "Set the disallowed positions to -inf BEFORE the softmax so they get exactly zero weight. Masking after softmax leaves the distribution un-normalized." },
-      { "q": "What makes heads different from each other?", "a": "Nothing explicit - only different random initializations plus gradient descent finding specialization useful. There is no diversity or orthogonality penalty, which is why many heads end up redundant." },
-      { "q": "Can you prune attention heads?", "a": "Yes - a large fraction of heads can be removed after training with minimal accuracy loss, which shows specialization is emergent and uneven rather than uniformly distributed." },
-      { "q": "What is cross-attention?", "a": "The same operator with queries from one sequence and keys/values from another - used in encoder-decoder models, multimodal fusion, and diffusion text conditioning." }
+      {
+        "q": "What is multi-head attention?",
+        "a": "Running h attention operations in parallel, each with its own Q/K/V projections into a d_model/h subspace, then concatenating the outputs and mixing them with a learned output projection W_O."
+      },
+      {
+        "q": "Why use multiple heads instead of one?",
+        "a": "One softmax can express only one weighted average, so a single head must compress all relationships into one distribution. Multiple heads let different subspaces capture different relations (syntax, coreference, position) simultaneously."
+      },
+      {
+        "q": "How many parameters does MHA have?",
+        "a": "4*d_model^2 (W_Q, W_K, W_V, W_O), independent of head count - heads repartition the same budget rather than adding to it."
+      },
+      {
+        "q": "What is d_k?",
+        "a": "The per-head dimension, d_model/h. With d_model=512 and h=8, d_k=64. It is the width of the subspace each head compares in."
+      },
+      {
+        "q": "Why divide by sqrt(d_k)?",
+        "a": "Dot products over d_k dimensions have variance d_k, so logits grow as sqrt(d_k) and saturate the softmax (vanishing gradients). Dividing restores unit variance."
+      },
+      {
+        "q": "What does the output projection W_O do?",
+        "a": "Mixes the concatenated head outputs. Without it each head would write into its own fixed slice of the residual stream and never interact."
+      },
+      {
+        "q": "How is the head axis implemented efficiently?",
+        "a": "Reshape (B,T,d_model) to (B,h,T,d_k) so the head axis becomes a batch dimension - all heads are computed in one batched matmul, never a Python loop."
+      },
+      {
+        "q": "What is the compute and memory cost?",
+        "a": "O(T^2 * d) compute and O(T^2) attention-matrix memory per head-batch, plus O(T*d^2) for the projections. The T^2 term is what limits context length."
+      },
+      {
+        "q": "How is causal masking applied?",
+        "a": "Set the disallowed positions to -inf BEFORE the softmax so they get exactly zero weight. Masking after softmax leaves the distribution un-normalized."
+      },
+      {
+        "q": "What makes heads different from each other?",
+        "a": "Nothing explicit - only different random initializations plus gradient descent finding specialization useful. There is no diversity or orthogonality penalty, which is why many heads end up redundant."
+      },
+      {
+        "q": "Can you prune attention heads?",
+        "a": "Yes - a large fraction of heads can be removed after training with minimal accuracy loss, which shows specialization is emergent and uneven rather than uniformly distributed."
+      },
+      {
+        "q": "What is cross-attention?",
+        "a": "The same operator with queries from one sequence and keys/values from another - used in encoder-decoder models, multimodal fusion, and diffusion text conditioning."
+      }
     ],
     "standard": [
       {
         "q": "Explain multi-head attention in full: what it computes, why multiple heads help, and how the parameter budget works.",
         "a": "WHAT IT COMPUTES. Start from single-head scaled dot-product attention: project the input X into queries Q = XW^Q, keys K = XW^K and values V = XW^V; compute scores QK^T scaled by 1/sqrt(d_k); softmax over the key axis to get attention weights; multiply by V. The result at each position is a weighted average of value vectors, with weights determined by query-key similarity. MULTI-HEAD attention runs h such operations in parallel, each with its OWN W_i^Q, W_i^K, W_i^V projecting into a d_k = d_model/h dimensional subspace. The h outputs (each d_k wide) are CONCATENATED back to d_model and passed through a final learned projection W^O. WHY MULTIPLE HEADS HELP. A single attention head produces exactly one softmax distribution per query position, which means one weighted average - so it can express one relationship. Consider 'the cat that the dog chased ran away': the token 'ran' needs its subject 'cat' (a long-range syntactic dependency) and also relates to 'chased' (the embedded clause verb). One head must trade these off inside a single distribution - putting more weight on 'cat' necessarily means less on 'chased'. With multiple heads, each has its own projections and therefore its OWN notion of similarity - its own subspace in which 'related' is defined - so one head can specialize in subject-verb dependencies while another tracks positional adjacency and another does coreference. Empirically this is observable: interpretability work has identified previous-token heads, induction heads that complete repeated sequences, and name-mover heads in specific models. THE PARAMETER BUDGET - the part people most often get wrong. Because each head projects to d_k = d_model/h rather than d_model, the h per-head matrices stack into exactly the same total as one full-width projection: h * (d_model x d_k) = d_model x d_model. So the layer has four d_model x d_model matrices (Q, K, V, O) for a total of 4*d_model^2 parameters, REGARDLESS of h. h=1 and h=64 have identical parameter counts and near-identical FLOPs. This is the crucial insight: multi-head attention is not a capacity increase, it is a REPARTITIONING of a fixed budget into several independent comparison subspaces. The cost of more heads is that each head's subspace gets narrower - at d_model=512, h=64 gives each head only 8 dimensions, which is too few to define a meaningful similarity and makes the attention scores noisy. That is why production models keep d_k in the 64-128 range (BERT-base: d_model=768, h=12, d_k=64; GPT-3: d_k=128) and scale h with d_model rather than independently. THE IMPLEMENTATION detail worth mentioning: you never loop over heads. Project once to 3*d_model with a fused QKV matrix, reshape to (batch, heads, seq, d_k) so the head axis becomes a batch dimension, and every head is computed in one batched matmul. THE ROLE OF W^O, which is easy to under-explain: after concatenation, each head's output occupies a distinct 64-dimensional slice of the vector. Without W^O, those slices would be written into the residual stream unchanged and never mixed, so heads could not combine their findings and later layers would see a fixed partition. W^O is a learned mixing of what the heads found, and in the interpretability framing it is what determines how each head 'writes' into the residual stream. COSTS: attention is O(T^2 * d_model) compute and O(h * T^2) attention-weight memory, versus O(T * d_model^2) for the projections. For short sequences the projections dominate; past T ~ d_model the quadratic term takes over, which is the entire long-context problem.",
-        "deepDive": { "q": "Do heads actually specialize, and what happens if you prune them?", "a": "THE EVIDENCE THAT THEY SPECIALIZE. Interpretability research has identified heads with clearly nameable functions. Clark et al. (2019) analyzed BERT and found heads that attend almost exclusively to the next token, heads that attend to the previous token, heads that attend to the sentence-separator token, and heads whose attention aligns with specific syntactic dependency relations (direct objects to their verbs, determiners to their nouns) far better than chance. Olsson et al. (2022) identified INDUCTION HEADS in autoregressive models - a two-head circuit where a previous-token head writes information that lets a later head complete the pattern '[A][B] ... [A] -> [B]', which is the mechanism behind much of in-context learning, and whose formation coincides with a visible phase change in the training loss curve. Wang et al.'s IOI work traced a specific circuit for indirect-object identification through named head roles (duplicate-token heads, S-inhibition heads, name-mover heads). So specialization is real and, in some cases, causally verified rather than merely correlational. THE EVIDENCE THAT SPECIALIZATION IS UNEVEN - the pruning result. Michel, Levy and Neubig (2019), 'Are Sixteen Heads Really Better than One?', showed that at test time most heads can be removed individually with negligible performance change, and that many layers can be reduced to a SINGLE head with small degradation. Voita et al. (2019) found similar results for machine translation: a small subset of heads are 'important' (identifiable as positional, syntactic, or rare-token heads) and the rest can be pruned with minor loss. So the picture is: a minority of heads do identifiable, important work; the majority are redundant or weakly used. WHY REDUNDANCY ARISES. There is NO mechanism encouraging diversity - no orthogonality penalty, no diversity loss. Heads differ only because of random initialization and whatever specialization gradient descent finds useful. With more heads than the task needs, gradient descent has no pressure to make them distinct, so they duplicate. There is also a training-versus-inference asymmetry worth knowing: heads that are prunable at test time are not necessarily unnecessary DURING training - they may aid optimization (more parallel paths, a form of implicit ensembling) even if the trained model does not need them. That is a real caveat to 'just train with fewer heads'. WHAT THIS IMPLIES PRACTICALLY. (1) Head pruning is a legitimate compression technique, usually structured (remove whole heads, giving a genuinely smaller dense model and real speedups) and typically done with an importance score (gradient-based or ablation-based) plus fine-tuning. (2) Do not conclude 'use fewer heads from the start' - the evidence is that many heads help training even when they are removable afterwards, so the safer recipe is train wide, prune after. (3) It is a caution against over-reading head interpretations: if most heads are redundant, a story about what head 7 does may not describe a load-bearing part of the computation - which is exactly why ablation and activation patching (does removing it change the behaviour?) are required for causal claims, rather than attention-weight inspection alone. (4) It connects to the broader superposition picture: features are not neatly one-per-head, and the clean named-head examples are the exception that got isolated, not the typical case. THE HONEST SUMMARY for an interview: yes, heads demonstrably specialize, with induction heads the best-documented and most consequential example; but specialization is uneven and heavily redundant, most heads can be pruned at test time with little loss, and this both enables a compression technique and warrants caution about interpretability claims based on attention patterns alone." }
+        "deepDive": {
+          "q": "Do heads actually specialize, and what happens if you prune them?",
+          "a": "THE EVIDENCE THAT THEY SPECIALIZE. Interpretability research has identified heads with clearly nameable functions. Clark et al. (2019) analyzed BERT and found heads that attend almost exclusively to the next token, heads that attend to the previous token, heads that attend to the sentence-separator token, and heads whose attention aligns with specific syntactic dependency relations (direct objects to their verbs, determiners to their nouns) far better than chance. Olsson et al. (2022) identified INDUCTION HEADS in autoregressive models - a two-head circuit where a previous-token head writes information that lets a later head complete the pattern '[A][B] ... [A] -> [B]', which is the mechanism behind much of in-context learning, and whose formation coincides with a visible phase change in the training loss curve. Wang et al.'s IOI work traced a specific circuit for indirect-object identification through named head roles (duplicate-token heads, S-inhibition heads, name-mover heads). So specialization is real and, in some cases, causally verified rather than merely correlational. THE EVIDENCE THAT SPECIALIZATION IS UNEVEN - the pruning result. Michel, Levy and Neubig (2019), 'Are Sixteen Heads Really Better than One?', showed that at test time most heads can be removed individually with negligible performance change, and that many layers can be reduced to a SINGLE head with small degradation. Voita et al. (2019) found similar results for machine translation: a small subset of heads are 'important' (identifiable as positional, syntactic, or rare-token heads) and the rest can be pruned with minor loss. So the picture is: a minority of heads do identifiable, important work; the majority are redundant or weakly used. WHY REDUNDANCY ARISES. There is NO mechanism encouraging diversity - no orthogonality penalty, no diversity loss. Heads differ only because of random initialization and whatever specialization gradient descent finds useful. With more heads than the task needs, gradient descent has no pressure to make them distinct, so they duplicate. There is also a training-versus-inference asymmetry worth knowing: heads that are prunable at test time are not necessarily unnecessary DURING training - they may aid optimization (more parallel paths, a form of implicit ensembling) even if the trained model does not need them. That is a real caveat to 'just train with fewer heads'. WHAT THIS IMPLIES PRACTICALLY. (1) Head pruning is a legitimate compression technique, usually structured (remove whole heads, giving a genuinely smaller dense model and real speedups) and typically done with an importance score (gradient-based or ablation-based) plus fine-tuning. (2) Do not conclude 'use fewer heads from the start' - the evidence is that many heads help training even when they are removable afterwards, so the safer recipe is train wide, prune after. (3) It is a caution against over-reading head interpretations: if most heads are redundant, a story about what head 7 does may not describe a load-bearing part of the computation - which is exactly why ablation and activation patching (does removing it change the behaviour?) are required for causal claims, rather than attention-weight inspection alone. (4) It connects to the broader superposition picture: features are not neatly one-per-head, and the clean named-head examples are the exception that got isolated, not the typical case. THE HONEST SUMMARY for an interview: yes, heads demonstrably specialize, with induction heads the best-documented and most consequential example; but specialization is uneven and heavily redundant, most heads can be pruned at test time with little loss, and this both enables a compression technique and warrants caution about interpretability claims based on attention patterns alone."
+        }
       },
       {
         "q": "Why is attention scaled by 1/sqrt(d_k)? What happens without it?",
         "a": "THE VARIANCE ARGUMENT. Suppose query and key components are approximately independent with mean 0 and variance 1 (which is roughly what standard initialization plus layer normalization gives you). Their dot product is a sum of d_k such products, so it has mean 0 and VARIANCE d_k - meaning a standard deviation of sqrt(d_k). With d_k = 64, the raw logits have standard deviation 8, so differences of 20-30 between the largest and typical logits are common. WHAT THAT DOES TO SOFTMAX. Softmax of logits separated by tens is effectively a hard argmax: one weight near 1, the rest near 0. Two things break. (1) GRADIENTS VANISH. The Jacobian of softmax is diag(p) - pp^T, whose entries all go to zero as p approaches one-hot - so almost no gradient flows back to the queries and keys, and the attention pattern stops being learnable. Early in training, when the model has no idea which tokens matter, being locked into near-deterministic attention is fatal. (2) THE MODEL LOSES THE ABILITY TO BLEND. Attention's value is in producing a weighted AVERAGE over several tokens; a saturated softmax reduces it to a hard lookup, discarding the soft-combination capability entirely. THE FIX: dividing by sqrt(d_k) rescales the logits to unit variance regardless of head width, keeping the softmax in the regime where it produces meaningful distributions and useful gradients. Notice the fix must be sqrt(d_k) specifically - the standard deviation, not the variance - and it must scale with the PER-HEAD dimension, not d_model, which is a detail people get wrong when they change head counts. WHAT HAPPENS WITHOUT IT, empirically: training is slow or fails to converge; attention entropy collapses immediately; and the effect worsens as d_k grows, which is exactly why the original Transformer paper introduced the scaling when moving to larger models (their footnote makes the variance argument explicitly). You can partially compensate with a much smaller initialization for W^Q and W^K, which is really the same fix applied at a different place - what matters is the SCALE of the logits entering the softmax, however you control it. RELATED PLACES THE SAME ISSUE APPEARS, which shows you understand the general principle rather than a memorized fact: (a) contrastive learning with cosine similarities needs a TEMPERATURE (tau ~ 0.07 in CLIP/SimCLR) because cosine logits live in [-1, 1] and give an almost uniform softmax - the same problem in the opposite direction, logits too SMALL rather than too large; (b) knowledge distillation uses a temperature to soften teacher logits and expose inter-class structure; (c) muP and other scaling-law-aware initialization schemes generalize this reasoning to every layer, prescribing how initialization and learning rates should scale with width so activations stay well-conditioned. THE GENERAL PRINCIPLE to state: whenever a softmax consumes inner products, you must control the scale of those inner products, because softmax is only informative over a limited logit range - too large and it saturates to argmax with vanishing gradients, too small and it flattens to uniform and carries no signal. 1/sqrt(d_k) is the specific instance of that principle for dot-product attention.",
-        "deepDive": { "q": "Attention entropy sometimes collapses during training even with the sqrt(d_k) scaling. Why, and what fixes it?", "a": "THE PHENOMENON, called entropy collapse or attention collapse: partway through training, some heads' attention distributions become extremely peaked - all mass on one token, often a special token like BOS or a punctuation mark - and stay that way. The head stops contributing anything useful, and in bad cases the loss spikes or training diverges. This has been documented as a real instability in large-model training, notably in Google's work on training stability and in analyses of ViT and large language model training. WHY IT HAPPENS DESPITE THE SCALING. The sqrt(d_k) factor fixes the scale of logits AT INITIALIZATION, under the assumption that q and k components have unit variance. But nothing keeps that true during training: gradient descent can grow the norms of W^Q and W^K, which grows ||q|| and ||k||, which grows the logits multiplicatively - the scaling constant does not adapt. There is a positive feedback loop: a slightly peaked attention pattern that happens to be useful gets reinforced, its logits grow, it becomes more peaked, gradients through the softmax shrink so the pattern cannot be revised, and the head freezes. Because the softmax gradient vanishes exactly in the saturated regime, the collapse is self-locking - the head cannot easily escape once there. THE FIXES, roughly in order of how commonly they are used. (1) QK-LAYERNORM (or QK-RMSNorm) - apply a normalization to the queries and keys BEFORE computing the dot product. This bounds ||q|| and ||k|| so the logits cannot grow without limit no matter what the weights do; it is the most direct fix and has been adopted in several large-model training recipes (Gemma and others) specifically for stability. (2) sigma-REPARAM or explicit spectral control - constrain or penalize the spectral norm of the attention weight matrices, attacking the same growth from the weight side; the sigma-Reparam paper showed this prevents entropy collapse and improves stability across transformer variants. (3) ATTENTION LOGIT SOFT-CAPPING - pass logits through a bounded function like c * tanh(logit / c) so they can never exceed a cap. Gemma-2 used this; it is crude but effective, though it interacts awkwardly with FlashAttention kernels that assume a plain softmax. (4) STANDARD STABILITY MEASURES that help indirectly: careful learning-rate warmup (the original transformer's warmup exists in part for this reason - large early updates are what kick the logits into the saturated regime), gradient clipping, and pre-norm rather than post-norm placement. (5) ENTROPY REGULARIZATION - explicitly penalize very low attention entropy. Conceptually direct but rarely used in practice because it adds a hyperparameter and the normalization-based fixes are cleaner. HOW TO DIAGNOSE IT, which is the practical part: log the mean attention ENTROPY per layer and per head during training. Healthy heads show entropy that decreases gradually as the model learns what to attend to and then plateaus; collapsing heads show entropy dropping to near zero and staying pinned, often coinciding with a loss spike. Also log the maximum attention logit magnitude - if it is climbing into the tens or hundreds, you are heading for saturation. Both are cheap to log and are standard instrumentation in large-scale training runs. THE BROADER LESSON worth stating: a fix that is correct at initialization is not automatically correct throughout training, because training changes the very statistics the fix assumed. That pattern recurs - BatchNorm's running statistics drifting, initialization schemes that stop holding after weight growth, learning rates tuned at one scale failing at another - and the robust solutions are usually ones that NORMALIZE at every step (QK-LayerNorm) rather than ones that set a constant once (1/sqrt(d_k))." }
+        "deepDive": {
+          "q": "Attention entropy sometimes collapses during training even with the sqrt(d_k) scaling. Why, and what fixes it?",
+          "a": "THE PHENOMENON, called entropy collapse or attention collapse: partway through training, some heads' attention distributions become extremely peaked - all mass on one token, often a special token like BOS or a punctuation mark - and stay that way. The head stops contributing anything useful, and in bad cases the loss spikes or training diverges. This has been documented as a real instability in large-model training, notably in Google's work on training stability and in analyses of ViT and large language model training. WHY IT HAPPENS DESPITE THE SCALING. The sqrt(d_k) factor fixes the scale of logits AT INITIALIZATION, under the assumption that q and k components have unit variance. But nothing keeps that true during training: gradient descent can grow the norms of W^Q and W^K, which grows ||q|| and ||k||, which grows the logits multiplicatively - the scaling constant does not adapt. There is a positive feedback loop: a slightly peaked attention pattern that happens to be useful gets reinforced, its logits grow, it becomes more peaked, gradients through the softmax shrink so the pattern cannot be revised, and the head freezes. Because the softmax gradient vanishes exactly in the saturated regime, the collapse is self-locking - the head cannot easily escape once there. THE FIXES, roughly in order of how commonly they are used. (1) QK-LAYERNORM (or QK-RMSNorm) - apply a normalization to the queries and keys BEFORE computing the dot product. This bounds ||q|| and ||k|| so the logits cannot grow without limit no matter what the weights do; it is the most direct fix and has been adopted in several large-model training recipes (Gemma and others) specifically for stability. (2) sigma-REPARAM or explicit spectral control - constrain or penalize the spectral norm of the attention weight matrices, attacking the same growth from the weight side; the sigma-Reparam paper showed this prevents entropy collapse and improves stability across transformer variants. (3) ATTENTION LOGIT SOFT-CAPPING - pass logits through a bounded function like c * tanh(logit / c) so they can never exceed a cap. Gemma-2 used this; it is crude but effective, though it interacts awkwardly with FlashAttention kernels that assume a plain softmax. (4) STANDARD STABILITY MEASURES that help indirectly: careful learning-rate warmup (the original transformer's warmup exists in part for this reason - large early updates are what kick the logits into the saturated regime), gradient clipping, and pre-norm rather than post-norm placement. (5) ENTROPY REGULARIZATION - explicitly penalize very low attention entropy. Conceptually direct but rarely used in practice because it adds a hyperparameter and the normalization-based fixes are cleaner. HOW TO DIAGNOSE IT, which is the practical part: log the mean attention ENTROPY per layer and per head during training. Healthy heads show entropy that decreases gradually as the model learns what to attend to and then plateaus; collapsing heads show entropy dropping to near zero and staying pinned, often coinciding with a loss spike. Also log the maximum attention logit magnitude - if it is climbing into the tens or hundreds, you are heading for saturation. Both are cheap to log and are standard instrumentation in large-scale training runs. THE BROADER LESSON worth stating: a fix that is correct at initialization is not automatically correct throughout training, because training changes the very statistics the fix assumed. That pattern recurs - BatchNorm's running statistics drifting, initialization schemes that stop holding after weight growth, learning rates tuned at one scale failing at another - and the robust solutions are usually ones that NORMALIZE at every step (QK-LayerNorm) rather than ones that set a constant once (1/sqrt(d_k))."
+        }
       },
       {
         "q": "Walk through the shapes and computational cost of multi-head attention for a realistic configuration.",
@@ -123,22 +188,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Multi-head attention", "back": "h parallel attention operations, each with its own Q/K/V projections into a d_model/h subspace; outputs concatenated and mixed by W_O. Each head gets its own notion of 'similar'." },
-    { "type": "formula", "front": "MHA parameter count", "back": "4 * d_model^2 (W_Q, W_K, W_V, W_O) - INDEPENDENT of head count. Heads repartition a fixed budget; d_k = d_model/h is what actually changes." },
-    { "type": "formula", "front": "Why 1/sqrt(d_k)", "back": "Dot products over d_k dims have variance d_k, so logits have sd sqrt(d_k) and saturate softmax (vanishing gradients). Dividing restores unit variance. Same principle as contrastive learning's temperature." },
-    { "type": "intuition", "front": "Why more than one head", "back": "One softmax = one weighted average = one relationship. 'ran' needs its subject AND its clause verb; a single head must trade them off inside one distribution. Heads give parallel, independent comparisons." },
-    { "type": "definition", "front": "The role of W_O", "back": "Mixes the concatenated head outputs. Without it, each head writes into its own fixed slice of the residual stream and heads never interact - it is part of the operator, not an extra layer." },
-    { "type": "formula", "front": "Attention cost crossover", "back": "Projections O(T*d^2), attention O(T^2*d). Attention dominates once T > d_model. At T=1024,d=1024 they are comparable; at T=8192 attention is ~8x. Head count affects NEITHER." },
-    { "type": "pitfall", "front": "Head count is not a capacity knob", "back": "h=1 and h=64 have identical params and FLOPs. More heads = narrower d_k. Keep d_k at 64-128 (BERT 64, GPT-3 128, LLaMA-2 128) and change d_model for capacity." },
-    { "type": "pitfall", "front": "Mask BEFORE softmax", "back": "Set disallowed positions to -inf before the softmax so they get exactly zero weight. Zeroing after softmax leaves the distribution un-normalized. Off-by-one in a causal mask = label leakage." },
-    { "type": "intuition", "front": "Heads specialize but redundantly", "back": "Induction heads, previous-token heads, name-mover heads are real and causally verified. But most heads prune away with little loss (Michel 2019) - specialization is emergent, uneven, and heavily duplicated." },
-    { "type": "pitfall", "front": "Attention is not explanation", "back": "Different attention distributions can give identical outputs (Jain & Wallace), and information flows through residuals that attention maps do not show. Attention shows what a head READ, not what the model USED - use ablation/patching for causal claims." }
+    {
+      "type": "definition",
+      "front": "Multi-head attention",
+      "back": "h parallel attention operations, each with its own Q/K/V projections into a d_model/h subspace; outputs concatenated and mixed by W_O. Each head gets its own notion of 'similar'."
+    },
+    {
+      "type": "formula",
+      "front": "MHA parameter count",
+      "back": "4 * d_model^2 (W_Q, W_K, W_V, W_O) - INDEPENDENT of head count. Heads repartition a fixed budget; d_k = d_model/h is what actually changes."
+    },
+    {
+      "type": "formula",
+      "front": "Why 1/sqrt(d_k)",
+      "back": "Dot products over d_k dims have variance d_k, so logits have sd sqrt(d_k) and saturate softmax (vanishing gradients). Dividing restores unit variance. Same principle as contrastive learning's temperature."
+    },
+    {
+      "type": "intuition",
+      "front": "Why more than one head",
+      "back": "One softmax = one weighted average = one relationship. 'ran' needs its subject AND its clause verb; a single head must trade them off inside one distribution. Heads give parallel, independent comparisons."
+    },
+    {
+      "type": "definition",
+      "front": "The role of W_O",
+      "back": "Mixes the concatenated head outputs. Without it, each head writes into its own fixed slice of the residual stream and heads never interact - it is part of the operator, not an extra layer."
+    },
+    {
+      "type": "formula",
+      "front": "Attention cost crossover",
+      "back": "Projections O(T*d^2), attention O(T^2*d). Attention dominates once T > d_model. At T=1024,d=1024 they are comparable; at T=8192 attention is ~8x. Head count affects NEITHER."
+    },
+    {
+      "type": "pitfall",
+      "front": "Head count is not a capacity knob",
+      "back": "h=1 and h=64 have identical params and FLOPs. More heads = narrower d_k. Keep d_k at 64-128 (BERT 64, GPT-3 128, LLaMA-2 128) and change d_model for capacity."
+    },
+    {
+      "type": "pitfall",
+      "front": "Mask BEFORE softmax",
+      "back": "Set disallowed positions to -inf before the softmax so they get exactly zero weight. Zeroing after softmax leaves the distribution un-normalized. Off-by-one in a causal mask = label leakage."
+    },
+    {
+      "type": "intuition",
+      "front": "Heads specialize but redundantly",
+      "back": "Induction heads, previous-token heads, name-mover heads are real and causally verified. But most heads prune away with little loss (Michel 2019) - specialization is emergent, uneven, and heavily duplicated."
+    },
+    {
+      "type": "pitfall",
+      "front": "Attention is not explanation",
+      "back": "Different attention distributions can give identical outputs (Jain & Wallace), and information flows through residuals that attention maps do not show. Attention shows what a head READ, not what the model USED - use ablation/patching for causal claims."
+    }
   ],
   "refs": [
-    { "title": "Vaswani et al. (2017), Attention Is All You Need", "url": "https://arxiv.org/abs/1706.03762" },
-    { "title": "Michel, Levy & Neubig (2019), Are Sixteen Heads Really Better than One?", "url": "https://arxiv.org/abs/1905.10650" },
-    { "title": "Elhage et al. (2021), A Mathematical Framework for Transformer Circuits", "url": "https://transformer-circuits.pub/2021/framework/index.html" },
-    { "title": "Jain & Wallace (2019), Attention is not Explanation", "url": "https://arxiv.org/abs/1902.10186" }
+    {
+      "title": "Vaswani et al. (2017), Attention Is All You Need",
+      "url": "https://arxiv.org/abs/1706.03762"
+    },
+    {
+      "title": "Michel, Levy & Neubig (2019), Are Sixteen Heads Really Better than One?",
+      "url": "https://arxiv.org/abs/1905.10650"
+    },
+    {
+      "title": "Elhage et al. (2021), A Mathematical Framework for Transformer Circuits",
+      "url": "https://transformer-circuits.pub/2021/framework/index.html"
+    },
+    {
+      "title": "Jain & Wallace (2019), Attention is not Explanation",
+      "url": "https://arxiv.org/abs/1902.10186"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-02",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-02_multi_head_attention.ipynb"
+  }
 }

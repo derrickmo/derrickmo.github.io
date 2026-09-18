@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-02",
   "slug": "conformal-prediction",
+  "keyBase": "trustworthy-ai/conformal-prediction",
   "module": "trustworthy-ai",
   "title": "Conformal Prediction",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/2106.00170"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "24-02",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-02_conformal_prediction.ipynb"
+  }
 }

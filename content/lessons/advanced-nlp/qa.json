@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-07",
   "slug": "qa",
+  "keyBase": "advanced-nlp/qa",
   "module": "advanced-nlp",
   "title": "Question Answering",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-07_question_answering.ipynb",
     "flagship": null,
-    "demos": ["vector-search", "rag-chunking", "rag-reranker", "lost-in-the-middle"],
+    "demos": [
+      "vector-search",
+      "rag-chunking",
+      "rag-reranker",
+      "lost-in-the-middle"
+    ],
     "concepts": []
   },
-  "prereqs": ["advanced-nlp/fine-tuning-transformers", "advanced-nlp/ner"],
-  "leadsTo": ["rag-agents/rag-pipeline", "advanced-nlp/nlp-eval"],
+  "prereqs": [
+    "advanced-nlp/fine-tuning-transformers",
+    "advanced-nlp/ner"
+  ],
+  "leadsTo": [
+    "rag-agents/rag-pipeline",
+    "advanced-nlp/nlp-eval"
+  ],
   "body": {
     "intuition": [
       "Question answering splits into three settings that share a name and little else. EXTRACTIVE QA gives you a passage and asks you to point at the span that answers the question - the model predicts a start position and an end position, and the answer is guaranteed to be text that exists. OPEN-DOMAIN QA gives you only the question and a corpus, so you must retrieve before you can read. GENERATIVE QA lets the model compose an answer in its own words, which is what every LLM assistant does and what makes grounding hard.",
@@ -82,33 +94,87 @@
       "Assuming the position of the answer does not matter. Long-context readers show a documented U-shaped accuracy curve over the position of the relevant passage - information in the middle of a long context is used substantially less reliably than information at either end."
     ],
     "connections": [
-      { "ref": "rag-agents/rag-pipeline", "text": "Open-domain QA IS retrieval-augmented generation with a longer history - the retriever-reader decomposition and its recall ceiling are the same analysis." },
-      { "ref": "advanced-nlp/ner", "text": "Span extraction with decode-time constraints is structurally the same problem as BIO decoding: the loss does not enforce well-formedness, so the decoder must." },
-      { "ref": "advanced-nlp/nli", "text": "Entailment between the answer and its supporting passage is the standard automatic groundedness check, and both tasks were undone by the same class of adversarial probe." },
-      { "ref": "advanced-nlp/nlp-eval", "text": "Exact match and token-F1 are surface-overlap proxies with the same failure mode as BLEU - they reward matching the reference's form rather than its content." },
-      { "ref": "llm-systems/long-context", "text": "The lost-in-the-middle position effect determines how much of a long retrieved context is actually usable, which changes how you order and how much you retrieve." }
+      {
+        "ref": "rag-agents/rag-pipeline",
+        "text": "Open-domain QA IS retrieval-augmented generation with a longer history - the retriever-reader decomposition and its recall ceiling are the same analysis."
+      },
+      {
+        "ref": "advanced-nlp/ner",
+        "text": "Span extraction with decode-time constraints is structurally the same problem as BIO decoding: the loss does not enforce well-formedness, so the decoder must."
+      },
+      {
+        "ref": "advanced-nlp/nli",
+        "text": "Entailment between the answer and its supporting passage is the standard automatic groundedness check, and both tasks were undone by the same class of adversarial probe."
+      },
+      {
+        "ref": "advanced-nlp/nlp-eval",
+        "text": "Exact match and token-F1 are surface-overlap proxies with the same failure mode as BLEU - they reward matching the reference's form rather than its content."
+      },
+      {
+        "ref": "llm-systems/long-context",
+        "text": "The lost-in-the-middle position effect determines how much of a long retrieved context is actually usable, which changes how you order and how much you retrieve."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What are the three QA settings?", "a": "EXTRACTIVE (find a span in a given passage), OPEN-DOMAIN (retrieve then read from a corpus), and GENERATIVE (compose an answer in the model's own words). They share a name and little else." },
-      { "q": "How does extractive QA work mechanically?", "a": "Two linear heads over the encoder output produce start and end logits at every token, softmaxed over positions. The answer is the highest-scoring valid span." },
-      { "q": "What constraints must the decoder impose?", "a": "End at or after start, a maximum answer length, and both endpoints inside the passage rather than the question. None of these is in the loss, so all must be applied at decode time." },
-      { "q": "What did SQuAD 2.0 add?", "a": "50,000 questions that look answerable from the passage but are not, requiring the model to abstain. Performance dropped sharply because models had never needed to ask whether an answer existed." },
-      { "q": "How does a model abstain?", "a": "Score the null answer by pointing start and end at [CLS], and abstain when the best span's score minus the null score falls below a threshold tuned on dev data." },
-      { "q": "What was the AddSent result?", "a": "Appending ONE grammatical, topical distractor sentence that shares words with the question dropped sixteen systems from an average 75 F1 to 36 - a human reader ignores it effortlessly." },
-      { "q": "What does that failure reveal?", "a": "The models were ranking spans by lexical similarity to the question. In natural SQuAD passages that coincides with comprehension, so the benchmark could not distinguish the two." },
-      { "q": "What is the retriever-reader decomposition?", "a": "Retrieve k candidate passages, then read them for the answer. End-to-end accuracy is bounded by Recall@k times reader accuracy given the gold passage - measure both separately." },
-      { "q": "What is DPR?", "a": "Dense Passage Retrieval: a dual encoder trained contrastively so question and passage embeddings align. It beat BM25 substantially on open-domain QA and started the dense-retrieval era." },
-      { "q": "What is Fusion-in-Decoder?", "a": "Encode each retrieved passage independently, then let the decoder cross-attend over the concatenation of all of them. Scales to many passages because the expensive encoding stays per-passage." },
-      { "q": "Why is exact match a poor metric for generative QA?", "a": "It requires character-identical output, so a correct answer phrased differently scores zero. Adequate for span extraction against a fixed reference; misleading for anything that composes." },
-      { "q": "What is 'lost in the middle'?", "a": "Long-context models show a U-shaped accuracy curve over the position of the relevant passage - evidence at the start or end is used far more reliably than evidence in the middle." }
+      {
+        "q": "What are the three QA settings?",
+        "a": "EXTRACTIVE (find a span in a given passage), OPEN-DOMAIN (retrieve then read from a corpus), and GENERATIVE (compose an answer in the model's own words). They share a name and little else."
+      },
+      {
+        "q": "How does extractive QA work mechanically?",
+        "a": "Two linear heads over the encoder output produce start and end logits at every token, softmaxed over positions. The answer is the highest-scoring valid span."
+      },
+      {
+        "q": "What constraints must the decoder impose?",
+        "a": "End at or after start, a maximum answer length, and both endpoints inside the passage rather than the question. None of these is in the loss, so all must be applied at decode time."
+      },
+      {
+        "q": "What did SQuAD 2.0 add?",
+        "a": "50,000 questions that look answerable from the passage but are not, requiring the model to abstain. Performance dropped sharply because models had never needed to ask whether an answer existed."
+      },
+      {
+        "q": "How does a model abstain?",
+        "a": "Score the null answer by pointing start and end at [CLS], and abstain when the best span's score minus the null score falls below a threshold tuned on dev data."
+      },
+      {
+        "q": "What was the AddSent result?",
+        "a": "Appending ONE grammatical, topical distractor sentence that shares words with the question dropped sixteen systems from an average 75 F1 to 36 - a human reader ignores it effortlessly."
+      },
+      {
+        "q": "What does that failure reveal?",
+        "a": "The models were ranking spans by lexical similarity to the question. In natural SQuAD passages that coincides with comprehension, so the benchmark could not distinguish the two."
+      },
+      {
+        "q": "What is the retriever-reader decomposition?",
+        "a": "Retrieve k candidate passages, then read them for the answer. End-to-end accuracy is bounded by Recall@k times reader accuracy given the gold passage - measure both separately."
+      },
+      {
+        "q": "What is DPR?",
+        "a": "Dense Passage Retrieval: a dual encoder trained contrastively so question and passage embeddings align. It beat BM25 substantially on open-domain QA and started the dense-retrieval era."
+      },
+      {
+        "q": "What is Fusion-in-Decoder?",
+        "a": "Encode each retrieved passage independently, then let the decoder cross-attend over the concatenation of all of them. Scales to many passages because the expensive encoding stays per-passage."
+      },
+      {
+        "q": "Why is exact match a poor metric for generative QA?",
+        "a": "It requires character-identical output, so a correct answer phrased differently scores zero. Adequate for span extraction against a fixed reference; misleading for anything that composes."
+      },
+      {
+        "q": "What is 'lost in the middle'?",
+        "a": "Long-context models show a U-shaped accuracy curve over the position of the relevant passage - evidence at the start or end is used far more reliably than evidence in the middle."
+      }
     ],
     "standard": [
       {
         "q": "Design a question-answering system over 500,000 internal documents.",
         "a": "THE ARCHITECTURE IS RETRIEVE-THEN-READ, and I would spend most of the design effort on retrieval and on the abstention behaviour, because that is where the failures come from. STAGE 1 - INGESTION AND CHUNKING, which is more consequential than it looks. Chunk documents into passages of roughly 200-500 tokens with meaningful OVERLAP, and prefer boundaries that respect structure - sections, paragraphs, table rows - over fixed token counts, because a chunk that splits a sentence from its subject is unanswerable no matter how good the reader is. Carry metadata on every chunk: source document, section heading, date, author, access-control identifiers. The heading in particular should be PREPENDED to the chunk text, because a chunk reading 'The limit is 30 days' is meaningless in isolation and retrievable when it begins 'Refund Policy > Timeframes: The limit is 30 days'. STAGE 2 - HYBRID RETRIEVAL, and I would not choose between dense and lexical. BM25 handles exact terms, product names, error codes, and identifiers that embeddings blur together; dense retrieval handles paraphrase and synonymy. Combine with reciprocal rank fusion, which needs no score calibration between the two. Retrieve generously - 50 to 100 candidates. STAGE 3 - RERANKING. A cross-encoder reranker over the top ~50, cut to the top 5-10 for the reader. This is consistently the highest-return single component in a RAG system, because a bi-encoder compresses each passage into one vector before it has seen the question, while a cross-encoder scores the pair jointly. Reranking is where most of the precision comes from. STAGE 4 - READING AND ANSWERING. For a modern system this is an LLM prompted with the top passages and instructed to answer only from them and to cite chunk identifiers. Two non-negotiable properties: it must ABSTAIN when the passages do not contain the answer, and it must CITE, because citation is what makes the answer verifiable by the user. On ordering, place the strongest passages at the beginning and end of the context rather than the middle, given the documented position effect. STAGE 5 - VERIFICATION, before the answer is shown. Run an entailment check between each generated sentence and the cited passages, and either flag or suppress unsupported claims. This is cheap relative to generation and catches the failure mode users punish hardest. THE THINGS THAT ACTUALLY DECIDE WHETHER THIS WORKS, which are not in the diagram. (1) ACCESS CONTROL must be enforced at RETRIEVAL, by filtering the index on the user's permissions before scoring - never by filtering the answer afterwards, which leaks through the answer text itself. This is the most common serious security bug in enterprise RAG. (2) FRESHNESS AND CONFLICT: 500,000 internal documents will contain superseded policies, drafts, and contradictions. Metadata filtering by date and status, and preferring current documents in ranking, matters more than model quality. When sources genuinely conflict, surfacing both is better than silently picking one. (3) ABSTENTION IS THE PRODUCT REQUIREMENT. In an internal knowledge setting a confident wrong answer is worse than 'I could not find this', because it will be acted on. Tune the operating point accordingly and measure the refusal rate as a first-class metric. EVALUATION, which I would build before the system. A set of a few hundred real questions with human-verified answers and the passages that support them, then measure separately: Recall@k for retrieval, answer accuracy GIVEN correct retrieval, groundedness (is every claim supported), and abstention behaviour on questions the corpus genuinely cannot answer - which must be part of the set, or you have no measurement of the most important behaviour. Log every production query with its retrieved passages and let users flag bad answers; that stream becomes both your evaluation set and your reranker training data. WHAT I WOULD NOT DO: fine-tune a reader before exhausting retrieval quality, and use a single similarity threshold as the abstention mechanism, since retrieval scores are not comparable across queries.",
-        "deepDive": { "q": "When does fine-tuning beat retrieval, and when should you use both?", "a": "THE TWO WAYS TO GET KNOWLEDGE INTO A MODEL'S ANSWER: put it in the WEIGHTS (fine-tuning, continued pretraining) or put it in the CONTEXT (retrieval). They fail differently and the choice is not primarily about accuracy. WHAT RETRIEVAL IS FOR. Facts that CHANGE - prices, policies, inventory, personnel, current events - because updating an index is instant and retraining is not. Facts that must be ATTRIBUTED, since retrieval gives you a source to cite and weights do not. Large, sparse knowledge where any given fact is rarely needed, because there is no reason to pay for it in parameters. Access-controlled knowledge, since retrieval can filter per user and weights cannot - a model fine-tuned on documents some users may not see has no mechanism to unlearn them per request. And any setting where you must be able to REMOVE a fact, for legal or privacy reasons. WHAT FINE-TUNING IS FOR. FORMAT, STYLE, AND BEHAVIOUR - how to structure an answer, what tone to use, which conventions to follow, when to refuse. Retrieval cannot teach this and prompting teaches it expensively and inconsistently. DOMAIN LANGUAGE - terminology, abbreviations, and phrasing patterns that the base model handles poorly, where the problem is comprehension of the input rather than access to facts. SKILLS AND TASK SHAPE - a specialized reasoning pattern, a fixed output schema, a multi-step procedure. And LATENCY-OR-COST-CRITICAL deployments where you cannot afford long contexts or a retrieval hop. STABLE, DENSE knowledge that is needed on nearly every query is also reasonable to bake in. WHERE THE COMPARISON IS OFTEN MISSTATED: people fine-tune to inject facts, and it works poorly. Facts learned by fine-tuning are diffuse, hard to update, prone to interference with existing knowledge, and impossible to attribute - and the model will still confidently produce a plausible variant when uncertain, because nothing in the training signal distinguished 'I know this' from 'this is the kind of thing I would say'. The empirical finding that RAG generally beats fine-tuning for knowledge injection is consistent and worth quoting. THE COMBINATION, which is what mature systems do. Fine-tune the model to be a GOOD READER - to use retrieved context faithfully, to cite, to abstain when the context is insufficient, and to produce your output format - then retrieve the facts at query time. This is exactly what RA-DIT and similar recipes do, and it addresses the most common RAG failure: a general model given retrieved passages does not reliably prefer them over its parametric priors, will answer from memory when the context is inconvenient, and abstains too rarely. Fine-tuning on examples where the correct behaviour is 'the context does not say' is the direct fix, and it is a behaviour, not a fact, so it is the right thing to put in weights. THE DECISION PROCEDURE I would state. Does the knowledge change? Retrieve. Must the answer be attributable? Retrieve. Is it access-controlled? Retrieve, always. Is the problem HOW the model answers rather than WHAT it knows? Fine-tune. Is the model failing to understand the domain's language? Fine-tune, or continue pretraining. Is the model failing to USE what it retrieves? Fine-tune for that specific behaviour, which is the case people most often miss. AND THE COST ASYMMETRY that usually settles it in practice: retrieval costs inference tokens and an index; fine-tuning costs a training run plus a model artifact to version, evaluate, and re-do every time the base model or the knowledge changes. For most teams retrieval is both cheaper and more maintainable, and the right question is what MINIMUM amount of fine-tuning makes retrieval work well." }
+        "deepDive": {
+          "q": "When does fine-tuning beat retrieval, and when should you use both?",
+          "a": "THE TWO WAYS TO GET KNOWLEDGE INTO A MODEL'S ANSWER: put it in the WEIGHTS (fine-tuning, continued pretraining) or put it in the CONTEXT (retrieval). They fail differently and the choice is not primarily about accuracy. WHAT RETRIEVAL IS FOR. Facts that CHANGE - prices, policies, inventory, personnel, current events - because updating an index is instant and retraining is not. Facts that must be ATTRIBUTED, since retrieval gives you a source to cite and weights do not. Large, sparse knowledge where any given fact is rarely needed, because there is no reason to pay for it in parameters. Access-controlled knowledge, since retrieval can filter per user and weights cannot - a model fine-tuned on documents some users may not see has no mechanism to unlearn them per request. And any setting where you must be able to REMOVE a fact, for legal or privacy reasons. WHAT FINE-TUNING IS FOR. FORMAT, STYLE, AND BEHAVIOUR - how to structure an answer, what tone to use, which conventions to follow, when to refuse. Retrieval cannot teach this and prompting teaches it expensively and inconsistently. DOMAIN LANGUAGE - terminology, abbreviations, and phrasing patterns that the base model handles poorly, where the problem is comprehension of the input rather than access to facts. SKILLS AND TASK SHAPE - a specialized reasoning pattern, a fixed output schema, a multi-step procedure. And LATENCY-OR-COST-CRITICAL deployments where you cannot afford long contexts or a retrieval hop. STABLE, DENSE knowledge that is needed on nearly every query is also reasonable to bake in. WHERE THE COMPARISON IS OFTEN MISSTATED: people fine-tune to inject facts, and it works poorly. Facts learned by fine-tuning are diffuse, hard to update, prone to interference with existing knowledge, and impossible to attribute - and the model will still confidently produce a plausible variant when uncertain, because nothing in the training signal distinguished 'I know this' from 'this is the kind of thing I would say'. The empirical finding that RAG generally beats fine-tuning for knowledge injection is consistent and worth quoting. THE COMBINATION, which is what mature systems do. Fine-tune the model to be a GOOD READER - to use retrieved context faithfully, to cite, to abstain when the context is insufficient, and to produce your output format - then retrieve the facts at query time. This is exactly what RA-DIT and similar recipes do, and it addresses the most common RAG failure: a general model given retrieved passages does not reliably prefer them over its parametric priors, will answer from memory when the context is inconvenient, and abstains too rarely. Fine-tuning on examples where the correct behaviour is 'the context does not say' is the direct fix, and it is a behaviour, not a fact, so it is the right thing to put in weights. THE DECISION PROCEDURE I would state. Does the knowledge change? Retrieve. Must the answer be attributable? Retrieve. Is it access-controlled? Retrieve, always. Is the problem HOW the model answers rather than WHAT it knows? Fine-tune. Is the model failing to understand the domain's language? Fine-tune, or continue pretraining. Is the model failing to USE what it retrieves? Fine-tune for that specific behaviour, which is the case people most often miss. AND THE COST ASYMMETRY that usually settles it in practice: retrieval costs inference tokens and an index; fine-tuning costs a training run plus a model artifact to version, evaluate, and re-do every time the base model or the knowledge changes. For most teams retrieval is both cheaper and more maintainable, and the right question is what MINIMUM amount of fine-tuning makes retrieval work well."
+        }
       },
       {
         "q": "Explain the Jia & Liang adversarial SQuAD result and what it means for evaluation.",
@@ -133,25 +199,94 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Extractive QA", "back": "Two heads produce start and end logits per token; the answer is the highest-scoring valid span. Grounding is guaranteed by construction - the model cannot return text absent from the passage." },
-    { "type": "pitfall", "front": "Span constraints are not in the loss", "back": "Two independent position softmaxes can put the end before the start, span the question, or cover half the document. Enforce end >= start, a max length, and passage-only endpoints at DECODE time." },
-    { "type": "pitfall", "front": "The AddSent result", "back": "Append ONE grammatical, topical distractor sentence sharing words with the question: 16 systems dropped from 75.4 to 36.4 average F1. They were ranking spans by question similarity, which coincides with comprehension in natural SQuAD passages." },
-    { "type": "definition", "front": "SQuAD 2.0", "back": "Adds 50k questions that look answerable but are not, requiring abstention. Models had only ever been asked WHICH span, never WHETHER one exists - so performance collapsed." },
-    { "type": "definition", "front": "Null-answer abstention", "back": "Score the null by pointing start and end at [CLS]; abstain when (best span score - null score) < tau. Tau is an OPERATING POINT tuned per domain, not a model property - report the risk-coverage curve, not one F1." },
-    { "type": "intuition", "front": "The retriever-reader ceiling", "back": "Acc_e2e <= Recall@k x Acc_reader-given-gold. With 0.80 x 0.75 = 0.60, improving retrieval to 0.92 buys as much as improving the reader to 0.85. Measure both before choosing where to work." },
-    { "type": "definition", "front": "Fusion-in-Decoder", "back": "Encode each retrieved passage INDEPENDENTLY (linear cost in n), then let the decoder cross-attend over all encoder outputs at once. Scales to ~100 passages and genuinely fuses evidence - aggregation happens in cross-attention, not in the encoder." },
-    { "type": "pitfall", "front": "Exact match for generative answers", "back": "EM needs character-identical output: 'John Elway' / 'Elway' / 'John Elway, the quarterback' score 1 / 0 / 0. Fine for benchmarking a span extractor, misleading for anything that composes an answer." },
-    { "type": "intuition", "front": "Lost in the middle", "back": "Long-context readers show a U-shaped accuracy curve over the position of the relevant passage - evidence at either end is used far more reliably than evidence in the middle. Put your strongest passages first and last." },
-    { "type": "pitfall", "front": "Access control belongs in RETRIEVAL", "back": "Filter the index by the user's permissions BEFORE scoring. Filtering the answer afterwards leaks through the answer text itself - the most common serious security bug in enterprise RAG." },
-    { "type": "intuition", "front": "Hard negatives for abstention training", "back": "Unanswerable training examples must LOOK answerable - same topic, plausible answer-type entities present. Randomly pairing questions with unrelated passages only teaches topic mismatch, which is not the production failure." },
-    { "type": "intuition", "front": "Retrieval vs fine-tuning for knowledge", "back": "Retrieve what CHANGES, what must be ATTRIBUTED, and what is ACCESS-CONTROLLED. Fine-tune the BEHAVIOUR - format, domain language, faithful context use, and abstention. The common mistake is fine-tuning to inject facts." }
+    {
+      "type": "definition",
+      "front": "Extractive QA",
+      "back": "Two heads produce start and end logits per token; the answer is the highest-scoring valid span. Grounding is guaranteed by construction - the model cannot return text absent from the passage."
+    },
+    {
+      "type": "pitfall",
+      "front": "Span constraints are not in the loss",
+      "back": "Two independent position softmaxes can put the end before the start, span the question, or cover half the document. Enforce end >= start, a max length, and passage-only endpoints at DECODE time."
+    },
+    {
+      "type": "pitfall",
+      "front": "The AddSent result",
+      "back": "Append ONE grammatical, topical distractor sentence sharing words with the question: 16 systems dropped from 75.4 to 36.4 average F1. They were ranking spans by question similarity, which coincides with comprehension in natural SQuAD passages."
+    },
+    {
+      "type": "definition",
+      "front": "SQuAD 2.0",
+      "back": "Adds 50k questions that look answerable but are not, requiring abstention. Models had only ever been asked WHICH span, never WHETHER one exists - so performance collapsed."
+    },
+    {
+      "type": "definition",
+      "front": "Null-answer abstention",
+      "back": "Score the null by pointing start and end at [CLS]; abstain when (best span score - null score) < tau. Tau is an OPERATING POINT tuned per domain, not a model property - report the risk-coverage curve, not one F1."
+    },
+    {
+      "type": "intuition",
+      "front": "The retriever-reader ceiling",
+      "back": "Acc_e2e <= Recall@k x Acc_reader-given-gold. With 0.80 x 0.75 = 0.60, improving retrieval to 0.92 buys as much as improving the reader to 0.85. Measure both before choosing where to work."
+    },
+    {
+      "type": "definition",
+      "front": "Fusion-in-Decoder",
+      "back": "Encode each retrieved passage INDEPENDENTLY (linear cost in n), then let the decoder cross-attend over all encoder outputs at once. Scales to ~100 passages and genuinely fuses evidence - aggregation happens in cross-attention, not in the encoder."
+    },
+    {
+      "type": "pitfall",
+      "front": "Exact match for generative answers",
+      "back": "EM needs character-identical output: 'John Elway' / 'Elway' / 'John Elway, the quarterback' score 1 / 0 / 0. Fine for benchmarking a span extractor, misleading for anything that composes an answer."
+    },
+    {
+      "type": "intuition",
+      "front": "Lost in the middle",
+      "back": "Long-context readers show a U-shaped accuracy curve over the position of the relevant passage - evidence at either end is used far more reliably than evidence in the middle. Put your strongest passages first and last."
+    },
+    {
+      "type": "pitfall",
+      "front": "Access control belongs in RETRIEVAL",
+      "back": "Filter the index by the user's permissions BEFORE scoring. Filtering the answer afterwards leaks through the answer text itself - the most common serious security bug in enterprise RAG."
+    },
+    {
+      "type": "intuition",
+      "front": "Hard negatives for abstention training",
+      "back": "Unanswerable training examples must LOOK answerable - same topic, plausible answer-type entities present. Randomly pairing questions with unrelated passages only teaches topic mismatch, which is not the production failure."
+    },
+    {
+      "type": "intuition",
+      "front": "Retrieval vs fine-tuning for knowledge",
+      "back": "Retrieve what CHANGES, what must be ATTRIBUTED, and what is ACCESS-CONTROLLED. Fine-tune the BEHAVIOUR - format, domain language, faithful context use, and abstention. The common mistake is fine-tuning to inject facts."
+    }
   ],
   "refs": [
-    { "title": "Rajpurkar et al. (2018), Know What You Don't Know: Unanswerable Questions for SQuAD", "url": "https://arxiv.org/abs/1806.03822" },
-    { "title": "Jia & Liang (2017), Adversarial Examples for Evaluating Reading Comprehension Systems", "url": "https://arxiv.org/abs/1707.07328" },
-    { "title": "Karpukhin et al. (2020), Dense Passage Retrieval for Open-Domain Question Answering", "url": "https://arxiv.org/abs/2004.04906" },
-    { "title": "Izacard & Grave (2021), Leveraging Passage Retrieval with Generative Models (Fusion-in-Decoder)", "url": "https://arxiv.org/abs/2007.01282" },
-    { "title": "Liu et al. (2023), Lost in the Middle: How Language Models Use Long Contexts", "url": "https://arxiv.org/abs/2307.03172" }
+    {
+      "title": "Rajpurkar et al. (2018), Know What You Don't Know: Unanswerable Questions for SQuAD",
+      "url": "https://arxiv.org/abs/1806.03822"
+    },
+    {
+      "title": "Jia & Liang (2017), Adversarial Examples for Evaluating Reading Comprehension Systems",
+      "url": "https://arxiv.org/abs/1707.07328"
+    },
+    {
+      "title": "Karpukhin et al. (2020), Dense Passage Retrieval for Open-Domain Question Answering",
+      "url": "https://arxiv.org/abs/2004.04906"
+    },
+    {
+      "title": "Izacard & Grave (2021), Leveraging Passage Retrieval with Generative Models (Fusion-in-Decoder)",
+      "url": "https://arxiv.org/abs/2007.01282"
+    },
+    {
+      "title": "Liu et al. (2023), Lost in the Middle: How Language Models Use Long Contexts",
+      "url": "https://arxiv.org/abs/2307.03172"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-08",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-08_extractive_question_answering.ipynb"
+  }
 }

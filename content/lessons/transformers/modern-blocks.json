@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "08-06",
   "slug": "modern-blocks",
+  "keyBase": "transformers/modern-blocks",
   "module": "transformers",
   "title": "RMSNorm, SwiGLU & Modern Building Blocks",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "08-06_rmsnorm_swiglu_modern_blocks.ipynb",
     "flagship": null,
-    "demos": ["activations", "batch-norm", "attention"],
+    "demos": [
+      "activations",
+      "batch-norm",
+      "attention"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/transformer-block", "neural-nets/activation-functions"],
-  "leadsTo": ["transformers/gqa-mqa", "llm-systems/llm-architectures"],
+  "prereqs": [
+    "transformers/transformer-block",
+    "neural-nets/activation-functions"
+  ],
+  "leadsTo": [
+    "transformers/gqa-mqa",
+    "llm-systems/llm-architectures"
+  ],
   "body": {
     "intuition": [
       "The 2017 transformer block and a 2024 LLaMA block have the same skeleton - attend, then feed-forward, each with a residual and a normalization - but almost every component inside has been replaced. LayerNorm became RMSNorm. The ReLU/GELU feed-forward became SwiGLU. Absolute positional encodings became RoPE. Multi-head attention became grouped-query attention. Biases were deleted. None of these changes is individually dramatic; together they are the difference between the original architecture and what every modern open model actually ships, and each one has a specific, checkable justification.",
@@ -72,32 +83,83 @@
       "Ignoring hardware alignment when choosing d_ff: 8/3 * d_model is rarely a nice number, so implementations round it to a multiple of 64 or 256. Skipping the rounding costs real throughput on tensor cores."
     ],
     "connections": [
-      { "ref": "transformers/transformer-block", "text": "This is the same block with modernized components - the skeleton (attend, feed-forward, residual, normalize) is unchanged, which is why the 2017 paper still reads as current." },
-      { "ref": "neural-nets/activation-functions", "text": "Swish/SiLU and GELU come from that lesson's family of smooth activations; SwiGLU is the gated combination of one of them with a linear branch." },
-      { "ref": "transformers/rope", "text": "RoPE is the positional half of the same modernization, and the one change with a genuine mathematical justification rather than a purely empirical one." },
-      { "ref": "llm-systems/llm-architectures", "text": "The systems view of these choices - how component selection interacts with serving cost, quantization, and kernel support." }
+      {
+        "ref": "transformers/transformer-block",
+        "text": "This is the same block with modernized components - the skeleton (attend, feed-forward, residual, normalize) is unchanged, which is why the 2017 paper still reads as current."
+      },
+      {
+        "ref": "neural-nets/activation-functions",
+        "text": "Swish/SiLU and GELU come from that lesson's family of smooth activations; SwiGLU is the gated combination of one of them with a linear branch."
+      },
+      {
+        "ref": "transformers/rope",
+        "text": "RoPE is the positional half of the same modernization, and the one change with a genuine mathematical justification rather than a purely empirical one."
+      },
+      {
+        "ref": "llm-systems/llm-architectures",
+        "text": "The systems view of these choices - how component selection interacts with serving cost, quantization, and kernel support."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is RMSNorm?", "a": "LayerNorm without the mean-subtraction and without the learned bias: divide by the root mean square of the features and apply a learned gain." },
-      { "q": "Why is RMSNorm faster?", "a": "One fewer reduction over the feature vector and no subtraction. Normalization is memory-bandwidth-bound and runs 2N times per forward pass, so the saving is real at scale (typically 10-30% of the norm op)." },
-      { "q": "What does RMSNorm's success tell us?", "a": "That the re-CENTERING in LayerNorm was doing little work - only the re-SCALING mattered. An informative negative result." },
-      { "q": "What is SwiGLU?", "a": "A gated FFN: Swish(x W_gate) * (x W_up), then down-projected. Three matrices instead of two, with an elementwise product providing multiplicative interaction." },
-      { "q": "Why is d_ff 8/3*d_model in SwiGLU models?", "a": "To keep parameters equal to the classic two-matrix 4x FFN. Three matrices of size d x d_ff means d_ff = 8/3 * d gives 8*d^2, matching." },
-      { "q": "What is Swish/SiLU?", "a": "z * sigmoid(z) - a smooth, non-monotonic activation. Smooth like GELU, and used as the gate nonlinearity in SwiGLU." },
-      { "q": "Why does gating help?", "a": "The honest answer: nobody has established why. The plausible hypothesis is multiplicative interactions and data-dependent information flow. Shazeer's paper explicitly declines to explain it." },
-      { "q": "Why remove biases from linear layers?", "a": "No measurable quality loss, slightly better training stability at scale, and fewer parameters/ops. Modern LLMs (LLaMA, PaLM) drop them from attention and FFN projections." },
-      { "q": "What is the full modern component set?", "a": "Pre-norm RMSNorm, no biases, RoPE, grouped-query attention, SwiGLU FFN. That is a LLaMA block, and essentially every current open model uses it." },
-      { "q": "Are these changes individually large?", "a": "No - each is worth a small perplexity gain or a modest speedup. They matter because they compose and because they were validated repeatedly at scale." },
-      { "q": "What is GeGLU?", "a": "The same gated FFN with GELU as the gate activation instead of Swish. Comparable to SwiGLU; both beat the ungated baseline, and the choice between them is largely convention." },
-      { "q": "Where does normalization time actually go?", "a": "Memory bandwidth, not arithmetic - reading and writing the activation tensor. That is why removing one reduction pass (RMSNorm) is worth measurable wall-clock time." }
+      {
+        "q": "What is RMSNorm?",
+        "a": "LayerNorm without the mean-subtraction and without the learned bias: divide by the root mean square of the features and apply a learned gain."
+      },
+      {
+        "q": "Why is RMSNorm faster?",
+        "a": "One fewer reduction over the feature vector and no subtraction. Normalization is memory-bandwidth-bound and runs 2N times per forward pass, so the saving is real at scale (typically 10-30% of the norm op)."
+      },
+      {
+        "q": "What does RMSNorm's success tell us?",
+        "a": "That the re-CENTERING in LayerNorm was doing little work - only the re-SCALING mattered. An informative negative result."
+      },
+      {
+        "q": "What is SwiGLU?",
+        "a": "A gated FFN: Swish(x W_gate) * (x W_up), then down-projected. Three matrices instead of two, with an elementwise product providing multiplicative interaction."
+      },
+      {
+        "q": "Why is d_ff 8/3*d_model in SwiGLU models?",
+        "a": "To keep parameters equal to the classic two-matrix 4x FFN. Three matrices of size d x d_ff means d_ff = 8/3 * d gives 8*d^2, matching."
+      },
+      {
+        "q": "What is Swish/SiLU?",
+        "a": "z * sigmoid(z) - a smooth, non-monotonic activation. Smooth like GELU, and used as the gate nonlinearity in SwiGLU."
+      },
+      {
+        "q": "Why does gating help?",
+        "a": "The honest answer: nobody has established why. The plausible hypothesis is multiplicative interactions and data-dependent information flow. Shazeer's paper explicitly declines to explain it."
+      },
+      {
+        "q": "Why remove biases from linear layers?",
+        "a": "No measurable quality loss, slightly better training stability at scale, and fewer parameters/ops. Modern LLMs (LLaMA, PaLM) drop them from attention and FFN projections."
+      },
+      {
+        "q": "What is the full modern component set?",
+        "a": "Pre-norm RMSNorm, no biases, RoPE, grouped-query attention, SwiGLU FFN. That is a LLaMA block, and essentially every current open model uses it."
+      },
+      {
+        "q": "Are these changes individually large?",
+        "a": "No - each is worth a small perplexity gain or a modest speedup. They matter because they compose and because they were validated repeatedly at scale."
+      },
+      {
+        "q": "What is GeGLU?",
+        "a": "The same gated FFN with GELU as the gate activation instead of Swish. Comparable to SwiGLU; both beat the ungated baseline, and the choice between them is largely convention."
+      },
+      {
+        "q": "Where does normalization time actually go?",
+        "a": "Memory bandwidth, not arithmetic - reading and writing the activation tensor. That is why removing one reduction pass (RMSNorm) is worth measurable wall-clock time."
+      }
     ],
     "standard": [
       {
         "q": "What is RMSNorm, why did it replace LayerNorm, and what does its success imply?",
         "a": "THE DEFINITION. LayerNorm computes, per token, the mean and variance across its d_model features, subtracts the mean, divides by the standard deviation, then applies a learned per-feature gain (gamma) and bias (beta). RMSNorm (Zhang and Sennrich, 2019) keeps only the scaling: divide each token's feature vector by its root mean square (sqrt of the mean of squares) and apply a learned gain. No mean subtraction, no bias parameter. WHY IT REPLACED LayerNorm - three reasons. (1) IT IS CHEAPER, and the saving is larger than it looks. LayerNorm requires two reduction passes over the feature vector (one for the mean, one for the variance given the mean) or a fused two-moment pass, plus the subtraction; RMSNorm needs one accumulation of squares. More importantly, normalization is MEMORY-BANDWIDTH-BOUND, not compute-bound - the cost is dominated by reading and writing the activation tensor - so reducing the work per element and the number of passes translates fairly directly into wall-clock time. And it runs 2N times per forward pass (twice per block), so a 10-30% saving on that op is a measurable fraction of training and inference time at scale. (2) IT IS EQUALLY GOOD. Across many replications - and now across essentially every major open model - swapping LayerNorm for RMSNorm costs no measurable quality. That is the empirical basis for the switch. (3) FEWER PARAMETERS AND SIMPLER KERNELS: no beta, and a simpler fused kernel, which also helps quantization and export. WHAT ITS SUCCESS IMPLIES - the more interesting part of the question. LayerNorm was introduced with a story about reducing 'internal covariate shift' by re-centering AND re-scaling activations. If removing the re-centering costs nothing, then the re-centering was not doing the work the story attributed to it. That fits a broader re-evaluation: Santurkar et al. (2018) argued BatchNorm's benefit comes from SMOOTHING THE OPTIMIZATION LANDSCAPE (making the loss surface better conditioned and gradients more predictable) rather than from covariate-shift correction, and the RMSNorm result points the same way - what matters is keeping activation MAGNITUDES in a stable range so that gradients through the layer are well-behaved, and the mean is largely irrelevant to that. A second implication is methodological and worth stating: this is a case where the field's stated justification for a component was wrong, and the way that was discovered was by ablating the component into pieces and measuring. That is a good template - when a technique has several parts bundled with one explanation, test the parts separately. THE CAVEATS, for completeness. RMSNorm is not universally better - it is equal-and-cheaper, which is enough. Some architectures still use LayerNorm (BERT-family, ViT variants) simply because they predate the switch or inherit pretrained weights. And porting weights between the two is not a rename: an RMSNorm model has no beta, and its gamma is fitting a different function, so conversion requires care. Also note that normalization PLACEMENT (pre vs post) is a separate and larger effect than the choice of normalizer - if asked what matters more, placement does. THE CURRENT PICTURE: essentially every modern LLM (LLaMA, Mistral, Qwen, Gemma, DeepSeek) uses pre-norm RMSNorm, and the remaining research activity in this area is about additional normalization for stability - QK-norm on queries and keys to prevent attention logit growth, and Gemma-2-style norms both before and after each sublayer.",
-        "deepDive": { "q": "Normalization layers are usually explained as fixing 'internal covariate shift'. Is that right, and what is actually going on?", "a": "THE ORIGINAL CLAIM. Ioffe and Szegedy (2015) introduced BatchNorm with the argument that as earlier layers' parameters change during training, the DISTRIBUTION of inputs to later layers shifts ('internal covariate shift'), forcing later layers to continually re-adapt; normalizing each layer's inputs removes that shift and so speeds training. It is an intuitive story and it dominated textbook explanations for years. THE EVIDENCE AGAINST IT. Santurkar et al. (2018), 'How Does Batch Normalization Help Optimization?', ran the decisive experiment: they DELIBERATELY INJECTED covariate shift after the BatchNorm layer - adding time-varying random noise to the normalized activations, so the distributions fed to later layers were explicitly unstable - and training was still fast. If BatchNorm's benefit came from removing distribution shift, reintroducing shift should have destroyed the benefit. It did not. They also measured the actual distributional shift with and without BatchNorm and found the relationship to training speed weak. So the stated mechanism does not survive testing. WHAT THEY PROPOSED INSTEAD: normalization SMOOTHS THE OPTIMIZATION LANDSCAPE. Concretely, they showed BatchNorm improves the Lipschitz constants of both the loss and its gradient - the loss surface changes less abruptly, gradients are more predictive of what happens after a step, and therefore larger learning rates are stable and training is faster and less sensitive to initialization. The benefit is about CONDITIONING, not about distributions per se. OTHER THREADS THAT FIT. (a) SCALE INVARIANCE: normalization makes a layer's output invariant to the scale of its weights, which means the effective learning rate adapts automatically - a weight-norm-growth argument that explains why normalized networks tolerate a much wider range of learning rates. (b) IMPLICIT REGULARIZATION in BatchNorm's case, from the noise in mini-batch statistics (which LayerNorm and RMSNorm do NOT have - hence transformers relying more on dropout and weight decay). (c) LENGTH-DIRECTION DECOUPLING: normalization separates the magnitude and direction of the weight vector, making the direction easier to optimize (the WeightNorm view). (d) At the extreme, several lines of work (Fixup, NFNets, and careful-initialization schemes) train deep networks WITHOUT normalization at all by controlling initialization and residual scaling directly - which is strong evidence that normalization is one convenient way to achieve well-conditioned signal propagation, not a uniquely necessary mechanism. WHAT THE RMSNorm RESULT ADDS to this picture: if re-centering can be dropped with no cost, then the mean was not the operative quantity - only the SCALE was. That is exactly what the conditioning story predicts (keeping activation magnitudes bounded is what stabilizes gradient magnitudes) and hard to explain under the covariate-shift story, which treats the whole distribution as the problem. So RMSNorm is a small piece of corroborating evidence for the modern explanation. WHAT I WOULD SAY IN AN INTERVIEW: internal covariate shift is the historical motivation and is largely discredited as the mechanism; the better-supported account is that normalization improves the conditioning of the optimization problem - smoother loss landscape, more predictive gradients, scale-invariance that stabilizes effective learning rates - which is why it permits higher learning rates and reduces initialization sensitivity. And I would add the honest caveat that this is still an area of active debate rather than a settled theory, and that the practical rules (normalize, use pre-norm, use RMSNorm because it is cheaper) are all empirically rather than theoretically grounded." }
+        "deepDive": {
+          "q": "Normalization layers are usually explained as fixing 'internal covariate shift'. Is that right, and what is actually going on?",
+          "a": "THE ORIGINAL CLAIM. Ioffe and Szegedy (2015) introduced BatchNorm with the argument that as earlier layers' parameters change during training, the DISTRIBUTION of inputs to later layers shifts ('internal covariate shift'), forcing later layers to continually re-adapt; normalizing each layer's inputs removes that shift and so speeds training. It is an intuitive story and it dominated textbook explanations for years. THE EVIDENCE AGAINST IT. Santurkar et al. (2018), 'How Does Batch Normalization Help Optimization?', ran the decisive experiment: they DELIBERATELY INJECTED covariate shift after the BatchNorm layer - adding time-varying random noise to the normalized activations, so the distributions fed to later layers were explicitly unstable - and training was still fast. If BatchNorm's benefit came from removing distribution shift, reintroducing shift should have destroyed the benefit. It did not. They also measured the actual distributional shift with and without BatchNorm and found the relationship to training speed weak. So the stated mechanism does not survive testing. WHAT THEY PROPOSED INSTEAD: normalization SMOOTHS THE OPTIMIZATION LANDSCAPE. Concretely, they showed BatchNorm improves the Lipschitz constants of both the loss and its gradient - the loss surface changes less abruptly, gradients are more predictive of what happens after a step, and therefore larger learning rates are stable and training is faster and less sensitive to initialization. The benefit is about CONDITIONING, not about distributions per se. OTHER THREADS THAT FIT. (a) SCALE INVARIANCE: normalization makes a layer's output invariant to the scale of its weights, which means the effective learning rate adapts automatically - a weight-norm-growth argument that explains why normalized networks tolerate a much wider range of learning rates. (b) IMPLICIT REGULARIZATION in BatchNorm's case, from the noise in mini-batch statistics (which LayerNorm and RMSNorm do NOT have - hence transformers relying more on dropout and weight decay). (c) LENGTH-DIRECTION DECOUPLING: normalization separates the magnitude and direction of the weight vector, making the direction easier to optimize (the WeightNorm view). (d) At the extreme, several lines of work (Fixup, NFNets, and careful-initialization schemes) train deep networks WITHOUT normalization at all by controlling initialization and residual scaling directly - which is strong evidence that normalization is one convenient way to achieve well-conditioned signal propagation, not a uniquely necessary mechanism. WHAT THE RMSNorm RESULT ADDS to this picture: if re-centering can be dropped with no cost, then the mean was not the operative quantity - only the SCALE was. That is exactly what the conditioning story predicts (keeping activation magnitudes bounded is what stabilizes gradient magnitudes) and hard to explain under the covariate-shift story, which treats the whole distribution as the problem. So RMSNorm is a small piece of corroborating evidence for the modern explanation. WHAT I WOULD SAY IN AN INTERVIEW: internal covariate shift is the historical motivation and is largely discredited as the mechanism; the better-supported account is that normalization improves the conditioning of the optimization problem - smoother loss landscape, more predictive gradients, scale-invariance that stabilizes effective learning rates - which is why it permits higher learning rates and reduces initialization sensitivity. And I would add the honest caveat that this is still an area of active debate rather than a settled theory, and that the practical rules (normalize, use pre-norm, use RMSNorm because it is cheaper) are all empirically rather than theoretically grounded."
+        }
       },
       {
         "q": "Explain SwiGLU. Why do gated FFNs beat plain ones, and how do you compare them fairly?",
@@ -122,22 +184,80 @@
     ]
   },
   "flashcards": [
-    { "type": "formula", "front": "RMSNorm", "back": "x / sqrt(mean(x^2) + eps) * gain. LayerNorm without the mean-subtraction and without the bias. Cheaper (one reduction, bandwidth-bound op run 2N times per pass), equal quality." },
-    { "type": "intuition", "front": "What RMSNorm's success implies", "back": "Re-CENTERING was doing little work; only re-SCALING mattered. Consistent with the modern view that normalization helps by improving optimization conditioning, not by fixing 'internal covariate shift'." },
-    { "type": "formula", "front": "SwiGLU", "back": "(Swish(x W_gate) * (x W_up)) W_down - three matrices, an elementwise product giving multiplicative interaction. Swish(z) = z*sigmoid(z)." },
-    { "type": "pitfall", "front": "SwiGLU needs d_ff = 8/3 * d_model", "back": "Three matrices instead of two: at 4x expansion SwiGLU has 50% MORE FFN parameters. Use 8/3*d_model (rounded to a multiple of 64) to match the classic FFN's 8*d^2 - otherwise you are measuring capacity, not gating." },
-    { "type": "intuition", "front": "Why gating helps - the honest answer", "back": "Not established. Shazeer's GLU paper reports the gain and explicitly declines to explain it. Plausible: multiplicative interactions + data-dependent information flow. Say 'reliably measured, not understood'." },
-    { "type": "definition", "front": "The modern (LLaMA) block", "back": "Pre-norm RMSNorm + no biases + RoPE + grouped-query attention + SwiGLU FFN. Same 2017 skeleton, every component replaced. LLaMA, Mistral, Qwen, Gemma, DeepSeek all use this set." },
-    { "type": "intuition", "front": "Why biases were removed", "back": "No measured quality loss + better stability at scale (PaLM). Their function is largely absorbed by the normalization's gain and the residual stream. Counterpoint: BitFit shows bias-only fine-tuning works, so they are redundant, not useless." },
-    { "type": "intuition", "front": "Sorting the modern changes", "back": "PRINCIPLED: pre-norm (gradient path), RoPE (relative position by construction). EMPIRICAL: RMSNorm, SwiGLU, no-bias. ECONOMIC: GQA (KV-cache size, not quality). Knowing which is which beats listing them." },
-    { "type": "pitfall", "front": "Evaluating a new component", "back": "Match parameters AND FLOPs; tune both arms equally; test at 3+ scales and check whether the gap widens or closes; report seed variance; measure wall-clock, memory, and kernel compatibility - not just perplexity." },
-    { "type": "intuition", "front": "Why the skeleton survived", "back": "Alternating content-based routing with per-position computation is PARALLELIZABLE - it can absorb arbitrary compute, unlike an RNN. Components are local, swappable details. The one structural weakness, O(T^2) attention, is where all serious competition sits." }
+    {
+      "type": "formula",
+      "front": "RMSNorm",
+      "back": "x / sqrt(mean(x^2) + eps) * gain. LayerNorm without the mean-subtraction and without the bias. Cheaper (one reduction, bandwidth-bound op run 2N times per pass), equal quality."
+    },
+    {
+      "type": "intuition",
+      "front": "What RMSNorm's success implies",
+      "back": "Re-CENTERING was doing little work; only re-SCALING mattered. Consistent with the modern view that normalization helps by improving optimization conditioning, not by fixing 'internal covariate shift'."
+    },
+    {
+      "type": "formula",
+      "front": "SwiGLU",
+      "back": "(Swish(x W_gate) * (x W_up)) W_down - three matrices, an elementwise product giving multiplicative interaction. Swish(z) = z*sigmoid(z)."
+    },
+    {
+      "type": "pitfall",
+      "front": "SwiGLU needs d_ff = 8/3 * d_model",
+      "back": "Three matrices instead of two: at 4x expansion SwiGLU has 50% MORE FFN parameters. Use 8/3*d_model (rounded to a multiple of 64) to match the classic FFN's 8*d^2 - otherwise you are measuring capacity, not gating."
+    },
+    {
+      "type": "intuition",
+      "front": "Why gating helps - the honest answer",
+      "back": "Not established. Shazeer's GLU paper reports the gain and explicitly declines to explain it. Plausible: multiplicative interactions + data-dependent information flow. Say 'reliably measured, not understood'."
+    },
+    {
+      "type": "definition",
+      "front": "The modern (LLaMA) block",
+      "back": "Pre-norm RMSNorm + no biases + RoPE + grouped-query attention + SwiGLU FFN. Same 2017 skeleton, every component replaced. LLaMA, Mistral, Qwen, Gemma, DeepSeek all use this set."
+    },
+    {
+      "type": "intuition",
+      "front": "Why biases were removed",
+      "back": "No measured quality loss + better stability at scale (PaLM). Their function is largely absorbed by the normalization's gain and the residual stream. Counterpoint: BitFit shows bias-only fine-tuning works, so they are redundant, not useless."
+    },
+    {
+      "type": "intuition",
+      "front": "Sorting the modern changes",
+      "back": "PRINCIPLED: pre-norm (gradient path), RoPE (relative position by construction). EMPIRICAL: RMSNorm, SwiGLU, no-bias. ECONOMIC: GQA (KV-cache size, not quality). Knowing which is which beats listing them."
+    },
+    {
+      "type": "pitfall",
+      "front": "Evaluating a new component",
+      "back": "Match parameters AND FLOPs; tune both arms equally; test at 3+ scales and check whether the gap widens or closes; report seed variance; measure wall-clock, memory, and kernel compatibility - not just perplexity."
+    },
+    {
+      "type": "intuition",
+      "front": "Why the skeleton survived",
+      "back": "Alternating content-based routing with per-position computation is PARALLELIZABLE - it can absorb arbitrary compute, unlike an RNN. Components are local, swappable details. The one structural weakness, O(T^2) attention, is where all serious competition sits."
+    }
   ],
   "refs": [
-    { "title": "Zhang & Sennrich (2019), Root Mean Square Layer Normalization", "url": "https://arxiv.org/abs/1910.07467" },
-    { "title": "Shazeer (2020), GLU Variants Improve Transformer", "url": "https://arxiv.org/abs/2002.05202" },
-    { "title": "Touvron et al. (2023), LLaMA: Open and Efficient Foundation Language Models", "url": "https://arxiv.org/abs/2302.13971" },
-    { "title": "Santurkar et al. (2018), How Does Batch Normalization Help Optimization?", "url": "https://arxiv.org/abs/1805.11604" }
+    {
+      "title": "Zhang & Sennrich (2019), Root Mean Square Layer Normalization",
+      "url": "https://arxiv.org/abs/1910.07467"
+    },
+    {
+      "title": "Shazeer (2020), GLU Variants Improve Transformer",
+      "url": "https://arxiv.org/abs/2002.05202"
+    },
+    {
+      "title": "Touvron et al. (2023), LLaMA: Open and Efficient Foundation Language Models",
+      "url": "https://arxiv.org/abs/2302.13971"
+    },
+    {
+      "title": "Santurkar et al. (2018), How Does Batch Normalization Help Optimization?",
+      "url": "https://arxiv.org/abs/1805.11604"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "11-07",
+    "module": "transformers",
+    "disposition": "clean",
+    "notebookFile": "11-07_modern_blocks_rmsnorm_swiglu_llama.ipynb"
+  }
 }

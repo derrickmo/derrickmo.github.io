@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-04",
   "slug": "transfer-learning",
+  "keyBase": "cnn/transfer-learning",
   "module": "cnn",
   "title": "Transfer Learning & Fine-Tuning",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Howard & Ruder (2018) — Universal Language Model Fine-tuning (ULMFiT; discriminative LRs)",
       "url": "https://arxiv.org/abs/1801.06146"
     }
-  ]
+  ],
+  "v2": {
+    "id": "09-07",
+    "module": "cnn",
+    "disposition": "clean",
+    "notebookFile": "09-07_transfer_learning_timm.ipynb"
+  }
 }

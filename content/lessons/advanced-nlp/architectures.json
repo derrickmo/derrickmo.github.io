@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "10-03",
   "slug": "architectures",
+  "keyBase": "advanced-nlp/architectures",
   "module": "advanced-nlp",
   "title": "Encoder vs Decoder vs Encoder-Decoder",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "10-03_encoder_decoder_architectures.ipynb",
     "flagship": null,
-    "demos": ["attention", "multi-head-attention", "decoding", "beam-search"],
+    "demos": [
+      "attention",
+      "multi-head-attention",
+      "decoding",
+      "beam-search"
+    ],
     "concepts": []
   },
-  "prereqs": ["transformers/full-transformer", "advanced-nlp/bert"],
-  "leadsTo": ["advanced-nlp/fine-tuning-transformers", "llm-systems/llm-architectures"],
+  "prereqs": [
+    "transformers/full-transformer",
+    "advanced-nlp/bert"
+  ],
+  "leadsTo": [
+    "advanced-nlp/fine-tuning-transformers",
+    "llm-systems/llm-architectures"
+  ],
   "body": {
     "intuition": [
       "There are three named transformer families and they are not three architectures. They are ONE architecture with three ATTENTION MASKS. An encoder lets every position attend to every other; a decoder masks the future so position i sees only 1..i; an encoder-decoder runs a bidirectional stack over the input and a causal stack over the output, with cross-attention connecting them. Once you see that the mask is the whole difference, the design space becomes something you can reason about instead of memorize.",
@@ -81,33 +93,87 @@
       "Believing the choice is permanent. Architectural ADAPTATION is cheap: a modest amount of continued pretraining converts a decoder to a prefix-LM or an encoder-decoder to a decoder at a fraction of pretraining cost, which is why the choice matters less than it appears."
     ],
     "connections": [
-      { "ref": "transformers/full-transformer", "text": "The original 2017 model was an encoder-decoder built for translation - the two single-stack families are both simplifications of it, which is a useful historical inversion of how they are usually taught." },
-      { "ref": "advanced-nlp/bert", "text": "Masked language modelling is what makes an encoder worth having; without a bidirectional objective the bidirectional mask has nothing to exploit." },
-      { "ref": "transformers/kv-cache", "text": "The KV cache is what makes decoder-only inference tractable, and its size is the main inference-economics difference between the families." },
-      { "ref": "llm-systems/llm-architectures", "text": "Every frontier LLM is a decoder-only stack with the same mask and different everything-else - the family question was settled before the interesting engineering started." },
-      { "ref": "rnn-nlp/seq2seq-attention", "text": "Cross-attention is the direct descendant of Bahdanau attention over an RNN encoder's hidden states; the encoder-decoder factorization predates transformers entirely." }
+      {
+        "ref": "transformers/full-transformer",
+        "text": "The original 2017 model was an encoder-decoder built for translation - the two single-stack families are both simplifications of it, which is a useful historical inversion of how they are usually taught."
+      },
+      {
+        "ref": "advanced-nlp/bert",
+        "text": "Masked language modelling is what makes an encoder worth having; without a bidirectional objective the bidirectional mask has nothing to exploit."
+      },
+      {
+        "ref": "transformers/kv-cache",
+        "text": "The KV cache is what makes decoder-only inference tractable, and its size is the main inference-economics difference between the families."
+      },
+      {
+        "ref": "llm-systems/llm-architectures",
+        "text": "Every frontier LLM is a decoder-only stack with the same mask and different everything-else - the family question was settled before the interesting engineering started."
+      },
+      {
+        "ref": "rnn-nlp/seq2seq-attention",
+        "text": "Cross-attention is the direct descendant of Bahdanau attention over an RNN encoder's hidden states; the encoder-decoder factorization predates transformers entirely."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What actually distinguishes encoder, decoder, and encoder-decoder?", "a": "The attention mask, plus cross-attention. Encoder = full bidirectional; decoder = causal (lower-triangular); encoder-decoder = bidirectional stack over the input plus a causal stack that cross-attends to it." },
-      { "q": "Why must a decoder be causal?", "a": "It predicts token i+1 from tokens 1..i. If it could attend to future positions the answer would be in the input, and the loss would be trivially satisfied without learning anything." },
-      { "q": "What is cross-attention?", "a": "Attention where queries come from the decoder and keys/values from the ENCODER output. It is the only channel by which the input reaches the generated sequence." },
-      { "q": "What is a prefix-LM?", "a": "Bidirectional attention within a prefix (the prompt), causal after it. It generalizes both other families: prefix = whole sequence gives an encoder, prefix = empty gives a decoder." },
-      { "q": "What did T5's architecture ablation find?", "a": "At matched parameters and matched compute, ENCODER-DECODER with a span-corruption objective transferred best - which is the opposite of what the field subsequently adopted." },
-      { "q": "So why did decoder-only win?", "a": "Training signal at every position, one model for every task via prompting with no task head, in-context learning at scale, and simpler inference. Interface generality and economics, not representational superiority." },
-      { "q": "Which family for translation or summarization?", "a": "Encoder-decoder is the natural fit - long input read once and cached, short output generated against it. Decoder-only works but carries the whole input in its KV cache at every step." },
-      { "q": "Which family for embeddings?", "a": "Encoder-only, by default - bidirectional attention gives every token full context, which is what a single fixed representation wants. Decoder-only models can be adapted (LLM2Vec) but need the causal mask removed." },
-      { "q": "Can an encoder generate text?", "a": "Not naturally. You can iteratively unmask, but quality is poor - the objective never trained a left-to-right factorization of the sequence probability." },
-      { "q": "How many extra parameters does cross-attention add?", "a": "Roughly 4d^2 per decoder layer (Q, K, V, O projections), on top of an encoder-decoder already having about twice the layers of a comparable single stack." },
-      { "q": "What is UL2's mixture of denoisers?", "a": "Pretraining on a blend of objectives - short spans (R), long spans / extreme corruption (X), and pure prefix-LM continuation (S) - so one model gets both understanding and generation ability. It also showed the objective, not the stack, does most of the work." },
-      { "q": "Is the architecture choice reversible?", "a": "Largely yes, and cheaply. Modest continued pretraining converts between families (decoder to prefix-LM, encoder-decoder to decoder), which is why the choice matters less than the debate suggests." }
+      {
+        "q": "What actually distinguishes encoder, decoder, and encoder-decoder?",
+        "a": "The attention mask, plus cross-attention. Encoder = full bidirectional; decoder = causal (lower-triangular); encoder-decoder = bidirectional stack over the input plus a causal stack that cross-attends to it."
+      },
+      {
+        "q": "Why must a decoder be causal?",
+        "a": "It predicts token i+1 from tokens 1..i. If it could attend to future positions the answer would be in the input, and the loss would be trivially satisfied without learning anything."
+      },
+      {
+        "q": "What is cross-attention?",
+        "a": "Attention where queries come from the decoder and keys/values from the ENCODER output. It is the only channel by which the input reaches the generated sequence."
+      },
+      {
+        "q": "What is a prefix-LM?",
+        "a": "Bidirectional attention within a prefix (the prompt), causal after it. It generalizes both other families: prefix = whole sequence gives an encoder, prefix = empty gives a decoder."
+      },
+      {
+        "q": "What did T5's architecture ablation find?",
+        "a": "At matched parameters and matched compute, ENCODER-DECODER with a span-corruption objective transferred best - which is the opposite of what the field subsequently adopted."
+      },
+      {
+        "q": "So why did decoder-only win?",
+        "a": "Training signal at every position, one model for every task via prompting with no task head, in-context learning at scale, and simpler inference. Interface generality and economics, not representational superiority."
+      },
+      {
+        "q": "Which family for translation or summarization?",
+        "a": "Encoder-decoder is the natural fit - long input read once and cached, short output generated against it. Decoder-only works but carries the whole input in its KV cache at every step."
+      },
+      {
+        "q": "Which family for embeddings?",
+        "a": "Encoder-only, by default - bidirectional attention gives every token full context, which is what a single fixed representation wants. Decoder-only models can be adapted (LLM2Vec) but need the causal mask removed."
+      },
+      {
+        "q": "Can an encoder generate text?",
+        "a": "Not naturally. You can iteratively unmask, but quality is poor - the objective never trained a left-to-right factorization of the sequence probability."
+      },
+      {
+        "q": "How many extra parameters does cross-attention add?",
+        "a": "Roughly 4d^2 per decoder layer (Q, K, V, O projections), on top of an encoder-decoder already having about twice the layers of a comparable single stack."
+      },
+      {
+        "q": "What is UL2's mixture of denoisers?",
+        "a": "Pretraining on a blend of objectives - short spans (R), long spans / extreme corruption (X), and pure prefix-LM continuation (S) - so one model gets both understanding and generation ability. It also showed the objective, not the stack, does most of the work."
+      },
+      {
+        "q": "Is the architecture choice reversible?",
+        "a": "Largely yes, and cheaply. Modest continued pretraining converts between families (decoder to prefix-LM, encoder-decoder to decoder), which is why the choice matters less than the debate suggests."
+      }
     ],
     "standard": [
       {
         "q": "Compare the three transformer families and say how you would choose between them.",
         "a": "THE UNIFYING FRAME I would start with: these are not three architectures. They are one architecture with three attention masks, plus cross-attention in one case. Getting that across first makes everything else follow. ENCODER-ONLY (BERT, RoBERTa, DeBERTa). Full bidirectional attention; every token sees every token. Pretrained with a denoising objective, usually masked language modelling, because next-token prediction would leak through the bidirectional mask. Output is a contextual vector per token, so you attach a head: [CLS] for classification, per-token linear for tagging, start/end logits for span extraction. STRENGTHS: the richest possible representation per token (full context in both directions), parameter-efficient for understanding tasks, fast single-pass inference, calibrated probabilities. WEAKNESSES: cannot generate, needs a fine-tune per task, and needs labelled data. DECODER-ONLY (GPT, Llama, Mistral). Causal mask; trained with next-token prediction; generates autoregressively with a KV cache. STRENGTHS: a training signal at every position (more efficient per token of data than MLM's 15%), one model for all tasks via prompting, in-context learning at scale, and the simplest possible training and inference stack. WEAKNESSES: no bidirectional context, so per-token representations are weaker for understanding tasks; generation is sequential and therefore latency-bound; and the KV cache grows with the full sequence. ENCODER-DECODER (T5, BART, Whisper). Bidirectional encoder over the input, causal decoder over the output, cross-attention between. STRENGTHS: the right inductive bias when input and output are genuinely different objects; the encoder memory is computed ONCE and cross-attended repeatedly, so a long input amortizes across a short output; and the decoder's self-attention is only over what it has generated, which keeps its cache small. WEAKNESSES: roughly twice the parameters for a given depth, more complex to train and serve, and no advantage when the task is a single growing sequence. HOW I WOULD CHOOSE, as a decision procedure. (1) Do you need to GENERATE? If not, encoder-only, and stop - you will get better accuracy per parameter and far lower cost. (2) If you do generate: is there a clean, long INPUT that is distinct from the output? Translation, summarization, speech-to-text - encoder-decoder is a genuinely better fit, and the KV-cache arithmetic backs that up (summarizing 4000 tokens into 100, the encoder-decoder's decoder cache is ~40x smaller). (3) Is the task set open-ended, changing, or conversational? Decoder-only, decisively - multi-turn dialogue has no input/output split to exploit and benefits from cache reuse across turns. (4) Are you constrained to what exists? This dominates in practice: the ecosystem, the tooling, the fine-tuning recipes, and the serving stacks are overwhelmingly decoder-only, and 'the best model I can actually get' beats 'the right family' most of the time. THE HONEST CAVEAT I would add. T5's controlled ablation - matched parameters and matched FLOPs, which most comparisons do not do - found encoder-decoder best on transfer. Wang et al. (2022) later found the answer depends on what comes next: causal decoder plus LM objective is best for zero-shot after pretraining alone, while encoder-decoder plus masked objective is best after multitask fine-tuning. So the literature does not support a simple ranking, and the field's convergence on decoder-only was driven by generality, scaling behaviour, and engineering economics rather than by a benchmark win. Saying that plainly is worth more in an interview than picking a side.",
-        "deepDive": { "q": "Why does the pretraining objective matter more than the architecture, and what is the evidence?", "a": "THE CLAIM. Architecture and objective are separable choices that get conflated because the famous models pair them conventionally - BERT is 'encoder + MLM', GPT is 'decoder + next-token'. But you can train a decoder with a denoising objective, an encoder-decoder with pure LM, and so on, and when people run that grid the OBJECTIVE explains more of the variance than the mask does. THE EVIDENCE. (1) T5 (Raffel et al., 2020) ran the systematic grid - architectures crossed with objectives at matched compute. Across architectures, DENOISING objectives beat plain language modelling for transfer, and among denoising variants, SPAN CORRUPTION (mask contiguous spans, replace each with a single sentinel, generate the spans) beat independent-token masking. Mask ratio and span length mattered less than the choice of denoising at all. The architectural effect was real but smaller than the objective effect. (2) Wang et al. (2022) ran architecture x objective x adaptation for zero-shot generalization, and found the ranking REVERSES depending on the downstream regime: causal-decoder + LM is best zero-shot straight out of pretraining, encoder-decoder + MLM is best after multitask fine-tuning. An architecture claim that flips under a change of downstream protocol is not primarily an architecture claim. Crucially they also showed ADAPTATION IS CHEAP - a small amount of continued pretraining with a different objective converts a model between regimes and recovers most of the gap, which directly undercuts the idea that the mask locks in a capability. (3) UL2 (Tay et al., 2022) made the point constructively with MIXTURE-OF-DENOISERS: train one model on a blend of R-denoising (short spans, BERT-like), X-denoising (long spans or high corruption, aggressive), and S-denoising (sequential prefix-LM, GPT-like), with a mode token telling the model which regime it is in. The result was a single model strong at both understanding and generation, beating T5 and GPT-style baselines at matched compute on both kinds of task. The lever they pulled was the objective mixture, not the stack. (4) ELECTRA is the same lesson inside the encoder family: replaced-token detection, at identical architecture, beat BERT-large using less than a quarter of the pretraining compute. Same mask, different objective, large win. WHY THE OBJECTIVE DOMINATES, mechanistically. The objective determines WHAT INFORMATION THE MODEL IS FORCED TO ENCODE and how much signal it receives per unit of compute. Next-token prediction on a huge corpus is an extraordinarily rich objective - to predict well you need syntax, world knowledge, arithmetic, and something like reasoning - and it delivers a gradient at every position. MLM delivers a richer per-position task but at only 15% of positions. Span corruption sits between. The mask, by contrast, only constrains which context is AVAILABLE, and for most tasks the missing direction turns out to be substitutable given enough scale and data. THE CAVEATS I would attach. The claim is not that architecture is irrelevant - it clearly determines inference economics (KV cache size, prefill/decode split, amortization of a long input), which is a large practical difference even if downstream quality is similar. And it is not that any objective works: the SPACE of good objectives is narrow, and most inventive pretext tasks are worse than plain next-token prediction. THE TRANSFERABLE LESSON, which is why this is worth knowing beyond NLP trivia: when you are designing a self-supervised system, spend your thinking on WHAT SIGNAL YOU ARE EXTRACTING FROM THE DATA and how densely, and treat the architecture as the thing that has to be efficient enough to consume it. The same conclusion emerged independently in vision - MAE's mask ratio mattered more than the ViT variant." }
+        "deepDive": {
+          "q": "Why does the pretraining objective matter more than the architecture, and what is the evidence?",
+          "a": "THE CLAIM. Architecture and objective are separable choices that get conflated because the famous models pair them conventionally - BERT is 'encoder + MLM', GPT is 'decoder + next-token'. But you can train a decoder with a denoising objective, an encoder-decoder with pure LM, and so on, and when people run that grid the OBJECTIVE explains more of the variance than the mask does. THE EVIDENCE. (1) T5 (Raffel et al., 2020) ran the systematic grid - architectures crossed with objectives at matched compute. Across architectures, DENOISING objectives beat plain language modelling for transfer, and among denoising variants, SPAN CORRUPTION (mask contiguous spans, replace each with a single sentinel, generate the spans) beat independent-token masking. Mask ratio and span length mattered less than the choice of denoising at all. The architectural effect was real but smaller than the objective effect. (2) Wang et al. (2022) ran architecture x objective x adaptation for zero-shot generalization, and found the ranking REVERSES depending on the downstream regime: causal-decoder + LM is best zero-shot straight out of pretraining, encoder-decoder + MLM is best after multitask fine-tuning. An architecture claim that flips under a change of downstream protocol is not primarily an architecture claim. Crucially they also showed ADAPTATION IS CHEAP - a small amount of continued pretraining with a different objective converts a model between regimes and recovers most of the gap, which directly undercuts the idea that the mask locks in a capability. (3) UL2 (Tay et al., 2022) made the point constructively with MIXTURE-OF-DENOISERS: train one model on a blend of R-denoising (short spans, BERT-like), X-denoising (long spans or high corruption, aggressive), and S-denoising (sequential prefix-LM, GPT-like), with a mode token telling the model which regime it is in. The result was a single model strong at both understanding and generation, beating T5 and GPT-style baselines at matched compute on both kinds of task. The lever they pulled was the objective mixture, not the stack. (4) ELECTRA is the same lesson inside the encoder family: replaced-token detection, at identical architecture, beat BERT-large using less than a quarter of the pretraining compute. Same mask, different objective, large win. WHY THE OBJECTIVE DOMINATES, mechanistically. The objective determines WHAT INFORMATION THE MODEL IS FORCED TO ENCODE and how much signal it receives per unit of compute. Next-token prediction on a huge corpus is an extraordinarily rich objective - to predict well you need syntax, world knowledge, arithmetic, and something like reasoning - and it delivers a gradient at every position. MLM delivers a richer per-position task but at only 15% of positions. Span corruption sits between. The mask, by contrast, only constrains which context is AVAILABLE, and for most tasks the missing direction turns out to be substitutable given enough scale and data. THE CAVEATS I would attach. The claim is not that architecture is irrelevant - it clearly determines inference economics (KV cache size, prefill/decode split, amortization of a long input), which is a large practical difference even if downstream quality is similar. And it is not that any objective works: the SPACE of good objectives is narrow, and most inventive pretext tasks are worse than plain next-token prediction. THE TRANSFERABLE LESSON, which is why this is worth knowing beyond NLP trivia: when you are designing a self-supervised system, spend your thinking on WHAT SIGNAL YOU ARE EXTRACTING FROM THE DATA and how densely, and treat the architecture as the thing that has to be efficient enough to consume it. The same conclusion emerged independently in vision - MAE's mask ratio mattered more than the ViT variant."
+        }
       },
       {
         "q": "Why is an encoder-decoder cheaper for summarization but not for chat? Work through the arithmetic.",
@@ -132,23 +198,84 @@
     ]
   },
   "flashcards": [
-    { "type": "intuition", "front": "The three families in one sentence", "back": "One architecture, three attention masks: encoder = full bidirectional, decoder = causal lower-triangular, encoder-decoder = both stacks joined by cross-attention. The mask is the difference." },
-    { "type": "definition", "front": "Cross-attention", "back": "Queries from the DECODER, keys and values from the ENCODER output. The only channel by which the input reaches the generated sequence. Adds ~4d^2 parameters per decoder layer." },
-    { "type": "definition", "front": "Prefix-LM", "back": "Bidirectional within a prefix, causal after it. The general case: prefix = whole sequence gives an encoder, prefix = empty gives a decoder. Used by UL2 and PaLM." },
-    { "type": "intuition", "front": "T5's ablation result", "back": "At MATCHED parameters and FLOPs, encoder-decoder + span corruption transferred best - the opposite of what the field adopted. Worth knowing because most architecture comparisons do not match budget at all." },
-    { "type": "intuition", "front": "Why decoder-only actually won", "back": "Signal at every position, one model for every task via prompting, in-context learning at scale, simplest inference. Interface generality and economics - NOT better language understanding." },
-    { "type": "definition", "front": "Span corruption (T5)", "back": "Mask CONTIGUOUS spans (avg ~3 tokens), replace each with one sentinel, generate the spans as the target. Harder than independent masking (no partial-word crutch), shorter targets (cheaper), and teaches variable-length generation." },
-    { "type": "intuition", "front": "Input/output ratio picks the family", "back": "Long-in / short-out (summarize, translate, transcribe) -> encoder-decoder: encode once, amortize over the output; decoder cache 40x smaller. Growing conversation -> decoder-only: cache reuses across turns, no stable input/output split." },
-    { "type": "pitfall", "front": "Unfair architecture comparisons", "back": "An L-layer encoder-decoder has ~2x the parameters of an L-layer decoder plus cross-attention. Match parameters AND FLOPs, or the gap you measured is a budget difference." },
-    { "type": "pitfall", "front": "Decoder-only embeddings", "back": "Causal attention means token 1 saw only itself and token T saw everything, so mean-pooling averages incomparable things. Fix: LLM2Vec - drop the causal mask, briefly continue pretraining, then contrastive fine-tune." },
-    { "type": "intuition", "front": "Objective > architecture", "back": "T5, UL2, ELECTRA and Wang et al. (2022) all point the same way: the pretraining objective explains more variance than the mask, and the ranking of architectures flips with the downstream protocol. Adaptation between families is also cheap." }
+    {
+      "type": "intuition",
+      "front": "The three families in one sentence",
+      "back": "One architecture, three attention masks: encoder = full bidirectional, decoder = causal lower-triangular, encoder-decoder = both stacks joined by cross-attention. The mask is the difference."
+    },
+    {
+      "type": "definition",
+      "front": "Cross-attention",
+      "back": "Queries from the DECODER, keys and values from the ENCODER output. The only channel by which the input reaches the generated sequence. Adds ~4d^2 parameters per decoder layer."
+    },
+    {
+      "type": "definition",
+      "front": "Prefix-LM",
+      "back": "Bidirectional within a prefix, causal after it. The general case: prefix = whole sequence gives an encoder, prefix = empty gives a decoder. Used by UL2 and PaLM."
+    },
+    {
+      "type": "intuition",
+      "front": "T5's ablation result",
+      "back": "At MATCHED parameters and FLOPs, encoder-decoder + span corruption transferred best - the opposite of what the field adopted. Worth knowing because most architecture comparisons do not match budget at all."
+    },
+    {
+      "type": "intuition",
+      "front": "Why decoder-only actually won",
+      "back": "Signal at every position, one model for every task via prompting, in-context learning at scale, simplest inference. Interface generality and economics - NOT better language understanding."
+    },
+    {
+      "type": "definition",
+      "front": "Span corruption (T5)",
+      "back": "Mask CONTIGUOUS spans (avg ~3 tokens), replace each with one sentinel, generate the spans as the target. Harder than independent masking (no partial-word crutch), shorter targets (cheaper), and teaches variable-length generation."
+    },
+    {
+      "type": "intuition",
+      "front": "Input/output ratio picks the family",
+      "back": "Long-in / short-out (summarize, translate, transcribe) -> encoder-decoder: encode once, amortize over the output; decoder cache 40x smaller. Growing conversation -> decoder-only: cache reuses across turns, no stable input/output split."
+    },
+    {
+      "type": "pitfall",
+      "front": "Unfair architecture comparisons",
+      "back": "An L-layer encoder-decoder has ~2x the parameters of an L-layer decoder plus cross-attention. Match parameters AND FLOPs, or the gap you measured is a budget difference."
+    },
+    {
+      "type": "pitfall",
+      "front": "Decoder-only embeddings",
+      "back": "Causal attention means token 1 saw only itself and token T saw everything, so mean-pooling averages incomparable things. Fix: LLM2Vec - drop the causal mask, briefly continue pretraining, then contrastive fine-tune."
+    },
+    {
+      "type": "intuition",
+      "front": "Objective > architecture",
+      "back": "T5, UL2, ELECTRA and Wang et al. (2022) all point the same way: the pretraining objective explains more variance than the mask, and the ranking of architectures flips with the downstream protocol. Adaptation between families is also cheap."
+    }
   ],
   "refs": [
-    { "title": "Raffel et al. (2020), Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer (T5)", "url": "https://arxiv.org/abs/1910.10683" },
-    { "title": "Wang et al. (2022), What Language Model Architecture and Pretraining Objective Work Best for Zero-Shot Generalization?", "url": "https://arxiv.org/abs/2204.05832" },
-    { "title": "Tay et al. (2022), UL2: Unifying Language Learning Paradigms", "url": "https://arxiv.org/abs/2205.05131" },
-    { "title": "Lewis et al. (2019), BART: Denoising Sequence-to-Sequence Pre-training", "url": "https://arxiv.org/abs/1910.13461" },
-    { "title": "BehnamGhader et al. (2024), LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders", "url": "https://arxiv.org/abs/2404.05961" }
+    {
+      "title": "Raffel et al. (2020), Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer (T5)",
+      "url": "https://arxiv.org/abs/1910.10683"
+    },
+    {
+      "title": "Wang et al. (2022), What Language Model Architecture and Pretraining Objective Work Best for Zero-Shot Generalization?",
+      "url": "https://arxiv.org/abs/2204.05832"
+    },
+    {
+      "title": "Tay et al. (2022), UL2: Unifying Language Learning Paradigms",
+      "url": "https://arxiv.org/abs/2205.05131"
+    },
+    {
+      "title": "Lewis et al. (2019), BART: Denoising Sequence-to-Sequence Pre-training",
+      "url": "https://arxiv.org/abs/1910.13461"
+    },
+    {
+      "title": "BehnamGhader et al. (2024), LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders",
+      "url": "https://arxiv.org/abs/2404.05961"
+    }
   ],
-  "updatedAt": "2026-08-02"
+  "updatedAt": "2026-08-02",
+  "v2": {
+    "id": "15-03",
+    "module": "pretrained-lms",
+    "disposition": "clean",
+    "notebookFile": "15-03_encoder_decoder_encoder_decoder.ipynb"
+  }
 }

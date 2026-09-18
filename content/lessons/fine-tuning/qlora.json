@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-03",
   "slug": "qlora",
+  "keyBase": "fine-tuning/qlora",
   "module": "fine-tuning",
   "title": "QLoRA — 4-Bit Quantization + LoRA",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-03_qlora_4bit_quantization.ipynb",
     "flagship": null,
-    "demos": ["quantization", "mixed-precision", "lora", "pruning"],
+    "demos": [
+      "quantization",
+      "mixed-precision",
+      "lora",
+      "pruning"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/lora", "llm-systems/quantization"],
-  "leadsTo": ["fine-tuning/unsloth", "fine-tuning/instruction-tuning"],
+  "prereqs": [
+    "fine-tuning/lora",
+    "llm-systems/quantization"
+  ],
+  "leadsTo": [
+    "fine-tuning/unsloth",
+    "fine-tuning/instruction-tuning"
+  ],
   "body": {
     "intuition": [
       "LoRA removed fourteen of the sixteen bytes per parameter. The two that remain are the frozen weights themselves, and at 65B parameters in fp16 that is still 130 GB - more than any single accelerator holds. QLoRA's observation is that a FROZEN weight has weaker precision requirements than a trainable one. It is never a gradient target and never accumulates small updates; it only has to be accurate enough to compute a forward pass and to pass gradients through to the adapter. So store it in 4 bits, dequantize on the fly for each matmul, and keep the LoRA adapters in bf16 where the actual learning happens. That took 65B fine-tuning from a multi-node job to a single 48 GB GPU.",
@@ -276,5 +288,11 @@
       "url": "https://arxiv.org/abs/2306.00978"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-03",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-03_qlora_quantized_fine_tuning.ipynb"
+  }
 }

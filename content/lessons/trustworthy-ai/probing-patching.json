@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-06",
   "slug": "probing-patching",
+  "keyBase": "trustworthy-ai/probing-patching",
   "module": "trustworthy-ai",
   "title": "Mechanistic Interpretability II: Probing & Activation Patching",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/2309.16042"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "24-08",
+    "module": "trustworthy-ai",
+    "disposition": "merge",
+    "notebookFile": "24-08_mechanistic_interpretability_ii_probing_patching.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "25-08",
   "slug": "breadth-rapid-fire",
+  "keyBase": "interview-capstone/breadth-rapid-fire",
   "module": "interview-capstone",
   "title": "ML Breadth Rapid-Fire",
   "status": "LIVE",
@@ -302,5 +303,11 @@
       "url": "https://arxiv.org/abs/1801.05134"
     }
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-15",
+  "v2": {
+    "id": "26-09",
+    "module": "interview-capstone",
+    "disposition": "clean",
+    "notebookFile": "26-09_ml_breadth_rapid_fire.ipynb"
+  }
 }

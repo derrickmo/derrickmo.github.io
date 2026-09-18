@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "06-10",
   "slug": "adversarial",
+  "keyBase": "cnn/adversarial",
   "module": "cnn",
   "title": "Adversarial Examples & Robustness",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "06-10_adversarial_examples_robustness.ipynb",
     "flagship": null,
-    "demos": ["adversarial-examples", "certified-robustness", "saliency"],
+    "demos": [
+      "adversarial-examples",
+      "certified-robustness",
+      "saliency"
+    ],
     "concepts": []
   },
-  "prereqs": ["cnn/cnn-architectures", "cnn/convolution"],
-  "leadsTo": ["trustworthy-ai/adversarial-robustness", "trustworthy-ai/distribution-shift"],
+  "prereqs": [
+    "cnn/cnn-architectures",
+    "cnn/convolution"
+  ],
+  "leadsTo": [
+    "trustworthy-ai/adversarial-robustness",
+    "trustworthy-ai/distribution-shift"
+  ],
   "body": {
     "intuition": [
       "Take an image a CNN classifies correctly with 99% confidence. Add a perturbation so small that every pixel changes by at most 1/255 - invisible to a human, and smaller than JPEG compression noise. The network now says 'gibbon' with 99% confidence. That is an ADVERSARIAL EXAMPLE (Szegedy et al., 2013), and the uncomfortable fact is that these are not rare corner cases you have to hunt for: for a standard model you can find one for essentially ANY input, in a fraction of a second, using the same gradient machinery that trained the network. The direction matters, not the magnitude - a random perturbation of the same size does almost nothing.",
@@ -72,38 +83,95 @@
       "Treating adversarial robustness and corruption robustness as the same problem: they correlate weakly, so gains on ImageNet-C do not imply gains under PGD and vice versa - and clean accuracy, corruption robustness, and adversarial robustness must each be measured separately."
     ],
     "connections": [
-      { "ref": "trustworthy-ai/adversarial-robustness", "text": "The full treatment - certified defenses via randomized smoothing, the certified-radius formula, and the measured verification that the guarantee holds inside the radius - lives in the trustworthy-AI module." },
-      { "ref": "cnn/style-transfer", "text": "The same mechanic: optimize the INPUT with the network frozen. Style transfer uses it constructively, adversarial attacks destructively - one gradient tool, two applications." },
-      { "ref": "trustworthy-ai/distribution-shift", "text": "Adversarial examples are the worst-case end of a spectrum whose average-case end is distribution shift and corruption robustness; the two correlate weakly and must be measured separately." },
-      { "ref": "ml-theory/data-augmentation", "text": "Adversarial training is augmentation with worst-case rather than random transformations - the same mechanism, at the opposite extreme of the difficulty distribution." }
+      {
+        "ref": "trustworthy-ai/adversarial-robustness",
+        "text": "The full treatment - certified defenses via randomized smoothing, the certified-radius formula, and the measured verification that the guarantee holds inside the radius - lives in the trustworthy-AI module."
+      },
+      {
+        "ref": "cnn/style-transfer",
+        "text": "The same mechanic: optimize the INPUT with the network frozen. Style transfer uses it constructively, adversarial attacks destructively - one gradient tool, two applications."
+      },
+      {
+        "ref": "trustworthy-ai/distribution-shift",
+        "text": "Adversarial examples are the worst-case end of a spectrum whose average-case end is distribution shift and corruption robustness; the two correlate weakly and must be measured separately."
+      },
+      {
+        "ref": "ml-theory/data-augmentation",
+        "text": "Adversarial training is augmentation with worst-case rather than random transformations - the same mechanism, at the opposite extreme of the difficulty distribution."
+      }
     ]
   },
   "interview": {
     "quickGrind": [
-      { "q": "What is an adversarial example?", "a": "An input with a small, usually imperceptible perturbation crafted to make a model misclassify it - typically with high confidence, while a human sees no change." },
-      { "q": "What is FGSM?", "a": "Fast Gradient Sign Method: one step of x + eps*sign(grad_x loss). A single forward/backward pass, L-infinity-optimal for a linear model." },
-      { "q": "Why the SIGN of the gradient?", "a": "Under an L-infinity budget, the loss-maximizing linear step sets every pixel to its limit in the gradient's direction - which is exactly eps*sign(grad)." },
-      { "q": "What is PGD?", "a": "Projected Gradient Descent: iterate small signed-gradient steps, projecting back into the epsilon-ball each time, usually with a random start. The standard strong first-order attack." },
-      { "q": "Why does a random perturbation of the same size not work?", "a": "In high dimensions a random direction is nearly orthogonal to the gradient, so it barely changes the loss. The attack's power is in the DIRECTION, not the magnitude." },
-      { "q": "What is the linearity hypothesis?", "a": "Goodfellow et al.: networks are locally too linear, so a tiny per-pixel change aligned with the weights accumulates across ~150,000 input dimensions into a large logit change." },
-      { "q": "What are non-robust features?", "a": "Ilyas et al. (2019): genuinely predictive but human-imperceptible patterns in the data. Models use them because they generalize - so adversarial examples are a property of the DATA, not just a model bug." },
-      { "q": "What is transferability?", "a": "An adversarial example crafted on one model often fools a different model with different architecture and training data - which enables black-box attacks without any access to the target's gradients." },
-      { "q": "What is adversarial training?", "a": "Generate PGD examples on the fly and train on them - solving the min-max problem of Madry et al. The only empirical defense that has consistently survived adaptive attacks." },
-      { "q": "What does adversarial training cost?", "a": "Roughly (PGD steps + 1)x compute, plus a documented clean-accuracy drop - on CIFAR-10, about 94% -> 83% clean for ~48% robust accuracy under AutoAttack." },
-      { "q": "What is gradient masking?", "a": "A defense that makes gradients uninformative (via randomization or non-differentiable steps) without making the model robust. Broken by BPDA, EOT, or transfer attacks. A red flag: FGSM appearing stronger than PGD." },
-      { "q": "What is AutoAttack?", "a": "A standardized parameter-free ensemble of four diverse attacks (including two APGD variants and a black-box attack), used as the default reliable benchmark on RobustBench." },
-      { "q": "What is randomized smoothing?", "a": "Add Gaussian noise and take a majority vote; this yields a CERTIFIED L2 radius R = sigma * Phi^-1(p_A) - a provable guarantee rather than an empirical one." }
+      {
+        "q": "What is an adversarial example?",
+        "a": "An input with a small, usually imperceptible perturbation crafted to make a model misclassify it - typically with high confidence, while a human sees no change."
+      },
+      {
+        "q": "What is FGSM?",
+        "a": "Fast Gradient Sign Method: one step of x + eps*sign(grad_x loss). A single forward/backward pass, L-infinity-optimal for a linear model."
+      },
+      {
+        "q": "Why the SIGN of the gradient?",
+        "a": "Under an L-infinity budget, the loss-maximizing linear step sets every pixel to its limit in the gradient's direction - which is exactly eps*sign(grad)."
+      },
+      {
+        "q": "What is PGD?",
+        "a": "Projected Gradient Descent: iterate small signed-gradient steps, projecting back into the epsilon-ball each time, usually with a random start. The standard strong first-order attack."
+      },
+      {
+        "q": "Why does a random perturbation of the same size not work?",
+        "a": "In high dimensions a random direction is nearly orthogonal to the gradient, so it barely changes the loss. The attack's power is in the DIRECTION, not the magnitude."
+      },
+      {
+        "q": "What is the linearity hypothesis?",
+        "a": "Goodfellow et al.: networks are locally too linear, so a tiny per-pixel change aligned with the weights accumulates across ~150,000 input dimensions into a large logit change."
+      },
+      {
+        "q": "What are non-robust features?",
+        "a": "Ilyas et al. (2019): genuinely predictive but human-imperceptible patterns in the data. Models use them because they generalize - so adversarial examples are a property of the DATA, not just a model bug."
+      },
+      {
+        "q": "What is transferability?",
+        "a": "An adversarial example crafted on one model often fools a different model with different architecture and training data - which enables black-box attacks without any access to the target's gradients."
+      },
+      {
+        "q": "What is adversarial training?",
+        "a": "Generate PGD examples on the fly and train on them - solving the min-max problem of Madry et al. The only empirical defense that has consistently survived adaptive attacks."
+      },
+      {
+        "q": "What does adversarial training cost?",
+        "a": "Roughly (PGD steps + 1)x compute, plus a documented clean-accuracy drop - on CIFAR-10, about 94% -> 83% clean for ~48% robust accuracy under AutoAttack."
+      },
+      {
+        "q": "What is gradient masking?",
+        "a": "A defense that makes gradients uninformative (via randomization or non-differentiable steps) without making the model robust. Broken by BPDA, EOT, or transfer attacks. A red flag: FGSM appearing stronger than PGD."
+      },
+      {
+        "q": "What is AutoAttack?",
+        "a": "A standardized parameter-free ensemble of four diverse attacks (including two APGD variants and a black-box attack), used as the default reliable benchmark on RobustBench."
+      },
+      {
+        "q": "What is randomized smoothing?",
+        "a": "Add Gaussian noise and take a majority vote; this yields a CERTIFIED L2 radius R = sigma * Phi^-1(p_A) - a provable guarantee rather than an empirical one."
+      }
     ],
     "standard": [
       {
         "q": "What are adversarial examples, why do they exist, and how do the standard attacks work?",
         "a": "THE PHENOMENON. Take an image a CNN classifies correctly with high confidence, add a perturbation with L-infinity norm below 8/255 (each pixel changes by at most about 3%), and the model confidently outputs a different class. The perturbation is invisible to humans and smaller than JPEG artifacts. Crucially these are not rare: for a standard model you can find one for essentially any input in milliseconds. THE ATTACKS. FGSM (Goodfellow et al., 2015) takes the gradient of the loss with respect to the INPUT and moves one step in the direction of its SIGN: x + eps*sign(grad). The sign is not arbitrary - under an L-infinity budget the loss-maximizing linear step puts every pixel at its limit in the gradient's direction, so sign() is exactly optimal for a linearized model. One forward and one backward pass. PGD (Madry et al., 2018) iterates: take many small signed-gradient steps of size alpha, projecting back into the epsilon-ball after each, starting from a random point inside the ball. It approximately solves the inner maximization properly and is far stronger; PGD with enough steps and restarts drives a standard CIFAR-10 model to 0% accuracy. Other important variants: C&W (an optimization-based attack that minimizes perturbation size subject to misclassification, and is the standard for measuring minimal perturbations), and AUTOATTACK, a parameter-free ensemble of four diverse attacks that is now the default benchmark because it removes the 'weak attack' failure mode from evaluation. WHY THEY EXIST - three explanations, which build on each other. (1) LOCAL LINEARITY (Goodfellow). Networks behave approximately linearly over small input neighbourhoods (ReLU nets are piecewise linear exactly). For a linear model, perturbing x by eps*sign(w) changes the logit by eps * ||w||_1, which grows with the input DIMENSION. With 150,000 input dimensions, a per-pixel change of 1/255 accumulates into a large logit change. This also explains why a RANDOM perturbation of the same size is harmless: in high dimensions a random direction is nearly orthogonal to the gradient, so it contributes almost nothing - the direction is the attack, not the magnitude. (2) HIGH-DIMENSIONAL GEOMETRY. Decision boundaries in very high-dimensional space are close to almost every data point in SOME direction, even if far in most directions. The data manifold is low-dimensional relative to the input space, so there is enormous room to move off-manifold quickly. (3) NON-ROBUST FEATURES (Ilyas et al., 2019) - the deepest explanation, and the one that reframes the problem. They showed that a dataset consisting only of adversarially-perturbed images labelled with the ATTACK's target class trains a model that generalizes to the CLEAN test set. That is only possible if the perturbations contain genuinely predictive signal. So adversarial vulnerability comes from real, generalizing features that happen to be imperceptible to humans and easy to flip. The model is not broken; it is using signal we did not intend it to use, and the vulnerability is a property of the DATA DISTRIBUTION as much as of the model. Their complementary result - a 'robustified' dataset produces a robust model with standard training - supports this cleanly. WHY IT MATTERS PRACTICALLY. (a) Security: any deployed classifier facing motivated adversaries (moderation, fraud, malware, biometrics) can be attacked, and TRANSFERABILITY means the attacker often does not need access to your model - examples crafted on a surrogate frequently transfer. (b) Trust: high confidence is not evidence of understanding, which undermines naive uses of softmax probabilities. (c) Diagnosis: attacks are the sharpest probe of what a model actually relies on. THE HONEST STATE OF DEFENSES, which I would state plainly: adversarial training is the only empirical defense that has consistently held up, at roughly 8-10x training cost and ~11 points of clean accuracy on CIFAR-10 for ~48% robust accuracy under AutoAttack. Certified defenses (randomized smoothing) give provable but conservative guarantees. The problem is not solved, and any claim of a cheap defense should be met with 'how was it evaluated, and was the attack adaptive?'.",
-        "deepDive": { "q": "Explain the non-robust features result in detail. Why is it more than a reinterpretation, and what follows from it?", "a": "THE SETUP. Ilyas et al. (2019) proposed that features in a dataset split into two kinds: ROBUST features - predictive AND stable under small perturbations (roughly, what humans use: shape, large-scale structure) - and NON-ROBUST features - predictive on the data distribution but flippable by tiny perturbations (fine texture statistics and high-frequency patterns humans cannot perceive). Standard training has no reason to prefer robust features; it optimizes accuracy, so it uses whatever generalizes, including the non-robust ones. THE TWO EXPERIMENTS, which is why this is a result rather than a story. EXPERIMENT 1 - the non-robust dataset. Take each training image x with true label y, run a targeted attack to make the model predict a DIFFERENT class t, and label the perturbed image with t. To a human, this dataset is completely mislabelled: every image looks like its original class but carries a different label. Train a fresh model on it with standard training. That model achieves NON-TRIVIAL ACCURACY ON THE CLEAN TEST SET (well above chance - around 44% on CIFAR-10 in their setup). Think about what that requires: the only thing correlating the perturbed input with label t is the adversarial perturbation itself, so the perturbation must contain features that GENERALIZE to real, unperturbed images of class t. Adversarial perturbations are therefore not noise or a model artifact - they are real, transferable signal. EXPERIMENT 2 - the robust dataset. Construct a dataset in which the non-robust features have been removed (by matching the representations of a robustly-trained model), then train a NEW model on it with completely STANDARD training - no adversarial training, no defense. The resulting model is substantially robust. This is the converse: robustness can be inherited from the DATA rather than imposed by the training procedure. TOGETHER these show that adversarial vulnerability is a property of the DATA DISTRIBUTION (specifically, of features that are predictive but brittle) rather than a bug in optimization or architecture. WHY THIS IS MORE THAN A REINTERPRETATION - five consequences. (1) IT EXPLAINS TRANSFERABILITY, which the linearity story explains only partly. If non-robust features are properties of the dataset, then ANY model trained on that dataset learns them, so an attack that manipulates them fools all such models - which is exactly what is observed, across architectures and training runs. This is the cleanest available explanation of black-box transfer attacks. (2) IT PREDICTS THE ROBUSTNESS/ACCURACY TRADE-OFF. Non-robust features are genuinely predictive, so discarding them (which is what robust training does) necessarily gives up accuracy on the clean distribution. The observed ~11-point clean-accuracy cost is not an artifact of poor optimization; it is the price of refusing to use real signal. That reframes the trade-off from 'we need better training' to 'this is inherent unless the data changes'. (3) IT REFRAMES 'MISALIGNMENT'. The model is not wrong; it is optimizing exactly what we asked (accuracy) using all available signal. The mismatch is between the model's feature vocabulary and HUMAN perception. Making models robust is therefore about ALIGNING them to a human prior, not about fixing a defect - a small but genuinely useful reframing for how you think about the problem. (4) IT CONNECTS TO SHORTCUT LEARNING AND TEXTURE BIAS. This is the same phenomenon as CNNs classifying by texture rather than shape (Geirhos et al.): the model uses whatever cue is most predictive and easiest to extract, and that cue frequently is not the one humans use. Adversarial examples are the extreme, worst-case version of shortcut learning. (5) IT SUGGESTS WHERE FIXES CAN COME FROM: change the data (robustified datasets, aggressive augmentation, stylization) or change the objective to encode a human-aligned prior - not merely a cleverer regularizer. THE CAVEATS worth voicing. The framing depends on the robust/non-robust split, which is defined relative to a specific threat model (an L-p ball) - so 'robust feature' means 'stable under this perturbation set', not 'the feature a human uses'. And the experiments are on small datasets with specific constructions; the qualitative conclusion has held up well but the quantitative story is model- and dataset-dependent. Still, this is one of the most important conceptual results in the area, and being able to describe the labelled-with-the-wrong-class experiment precisely is a strong signal in an interview." }
+        "deepDive": {
+          "q": "Explain the non-robust features result in detail. Why is it more than a reinterpretation, and what follows from it?",
+          "a": "THE SETUP. Ilyas et al. (2019) proposed that features in a dataset split into two kinds: ROBUST features - predictive AND stable under small perturbations (roughly, what humans use: shape, large-scale structure) - and NON-ROBUST features - predictive on the data distribution but flippable by tiny perturbations (fine texture statistics and high-frequency patterns humans cannot perceive). Standard training has no reason to prefer robust features; it optimizes accuracy, so it uses whatever generalizes, including the non-robust ones. THE TWO EXPERIMENTS, which is why this is a result rather than a story. EXPERIMENT 1 - the non-robust dataset. Take each training image x with true label y, run a targeted attack to make the model predict a DIFFERENT class t, and label the perturbed image with t. To a human, this dataset is completely mislabelled: every image looks like its original class but carries a different label. Train a fresh model on it with standard training. That model achieves NON-TRIVIAL ACCURACY ON THE CLEAN TEST SET (well above chance - around 44% on CIFAR-10 in their setup). Think about what that requires: the only thing correlating the perturbed input with label t is the adversarial perturbation itself, so the perturbation must contain features that GENERALIZE to real, unperturbed images of class t. Adversarial perturbations are therefore not noise or a model artifact - they are real, transferable signal. EXPERIMENT 2 - the robust dataset. Construct a dataset in which the non-robust features have been removed (by matching the representations of a robustly-trained model), then train a NEW model on it with completely STANDARD training - no adversarial training, no defense. The resulting model is substantially robust. This is the converse: robustness can be inherited from the DATA rather than imposed by the training procedure. TOGETHER these show that adversarial vulnerability is a property of the DATA DISTRIBUTION (specifically, of features that are predictive but brittle) rather than a bug in optimization or architecture. WHY THIS IS MORE THAN A REINTERPRETATION - five consequences. (1) IT EXPLAINS TRANSFERABILITY, which the linearity story explains only partly. If non-robust features are properties of the dataset, then ANY model trained on that dataset learns them, so an attack that manipulates them fools all such models - which is exactly what is observed, across architectures and training runs. This is the cleanest available explanation of black-box transfer attacks. (2) IT PREDICTS THE ROBUSTNESS/ACCURACY TRADE-OFF. Non-robust features are genuinely predictive, so discarding them (which is what robust training does) necessarily gives up accuracy on the clean distribution. The observed ~11-point clean-accuracy cost is not an artifact of poor optimization; it is the price of refusing to use real signal. That reframes the trade-off from 'we need better training' to 'this is inherent unless the data changes'. (3) IT REFRAMES 'MISALIGNMENT'. The model is not wrong; it is optimizing exactly what we asked (accuracy) using all available signal. The mismatch is between the model's feature vocabulary and HUMAN perception. Making models robust is therefore about ALIGNING them to a human prior, not about fixing a defect - a small but genuinely useful reframing for how you think about the problem. (4) IT CONNECTS TO SHORTCUT LEARNING AND TEXTURE BIAS. This is the same phenomenon as CNNs classifying by texture rather than shape (Geirhos et al.): the model uses whatever cue is most predictive and easiest to extract, and that cue frequently is not the one humans use. Adversarial examples are the extreme, worst-case version of shortcut learning. (5) IT SUGGESTS WHERE FIXES CAN COME FROM: change the data (robustified datasets, aggressive augmentation, stylization) or change the objective to encode a human-aligned prior - not merely a cleverer regularizer. THE CAVEATS worth voicing. The framing depends on the robust/non-robust split, which is defined relative to a specific threat model (an L-p ball) - so 'robust feature' means 'stable under this perturbation set', not 'the feature a human uses'. And the experiments are on small datasets with specific constructions; the qualitative conclusion has held up well but the quantitative story is model- and dataset-dependent. Still, this is one of the most important conceptual results in the area, and being able to describe the labelled-with-the-wrong-class experiment precisely is a strong signal in an interview."
+        }
       },
       {
         "q": "How would you defend a deployed model against adversarial attacks? Be honest about what works.",
         "a": "THE FIRST MOVE IS TO DEFINE THE THREAT MODEL, because 'defend against adversarial attacks' is not yet a specification. Who is the attacker (a bored user, a motivated fraudster, a nation state)? What access do they have - the model weights (white-box), query access (black-box), or only the deployed product? How many queries can they make, and at what cost? What norm and budget are physically realizable in your setting - a digital L-infinity ball is meaningful for an API, a printed patch is the realistic threat for a camera? And what does a successful attack COST you - one wrong moderation decision, or a safety incident? Most systems are not facing white-box adversaries, and the appropriate response differs by an order of magnitude between those cases. WHAT ACTUALLY WORKS, ranked. (1) ADVERSARIAL TRAINING is the only empirical defense that has consistently survived adaptive evaluation since 2018. Generate PGD examples in the training loop and minimize loss on them. Cost: roughly (steps+1)x training compute and a real clean-accuracy drop (CIFAR-10: ~94% -> ~83% clean, for ~48% robust under AutoAttack). Variants worth knowing: TRADES (explicitly trades off clean vs robust accuracy with a KL term), and fast adversarial training (FGSM with random start plus cyclic learning rates) which recovers much of the benefit at much lower cost, with care taken to avoid catastrophic overfitting. (2) CERTIFIED DEFENSES - randomized smoothing (Cohen et al.) adds Gaussian noise at inference and takes a majority vote, yielding a PROVABLE L2 radius R = sigma * Phi^-1(p_A) estimated with a Clopper-Pearson lower bound. The guarantee is real and cannot be broken by a smarter attack, which is its whole value; the costs are that it is L2-only, conservative (certified radii are small), requires many forward passes per prediction, and forces abstention on low-confidence inputs. (3) SYSTEM-LEVEL DEFENSES, which are usually the highest-value response in practice and are frequently overlooked in interviews. Rate-limit and authenticate queries so an attacker cannot iterate freely; do not expose confidence scores or logits (they make black-box attacks vastly easier); add anomaly/OOD detection on inputs; ENSEMBLE diverse models; add a human review step for high-stakes decisions; monitor for query patterns consistent with attack search; and rotate or randomize models periodically so a surrogate goes stale. An attacker who gets 10 queries a minute with no gradient and no confidence values is in a very different position from one with white-box access. (4) INPUT PREPROCESSING (JPEG compression, bit-depth reduction, blurring, random resizing) - mostly BROKEN as a defense. These raise the bar against naive attacks but fall to BPDA (approximate the non-differentiable step with the identity in the backward pass) and EOT (expectation over transformations for randomized defenses). Worth including as a cheap layer in depth, worth nothing as a claimed defense. WHAT DOES NOT WORK, and why it is worth naming: dozens of published defenses were broken within months, almost always because they caused GRADIENT MASKING rather than robustness - obfuscated, shattered, or stochastic gradients make gradient-based attacks fail while the model remains just as vulnerable to transfer attacks, black-box attacks, or an adapted gradient estimate. Athalye et al.'s 'Obfuscated Gradients Give a False Sense of Security' broke 7 of 9 ICLR 2018 defenses this way. The diagnostic red flags: single-step FGSM appears stronger than iterative PGD; robustness does not decrease as epsilon increases; black-box attacks outperform white-box ones; or unbounded attacks still fail to reach 0% accuracy. Any of those means you are measuring masking, not robustness. HOW I WOULD EVALUATE MY OWN DEFENSE: assume the attacker knows the defense completely (Kerckhoffs); use AutoAttack plus a hand-designed adaptive attack targeting the specific mechanism; report accuracy at several epsilon values, not one; check the red flags above; and publish the attack code alongside the defense. THE HONEST BOTTOM LINE I would give: for most products, threat-model first and invest in system-level controls, because they are cheap and effective against the realistic attacker. Use adversarial training when robustness is genuinely required and you can afford the compute and accuracy cost. Use certification when you need a guarantee rather than an empirical number. And never claim robustness on the basis of a single non-adaptive evaluation.",
-        "deepDive": { "q": "Explain gradient masking precisely, how defenses fall into it, and the techniques used to break through it.", "a": "THE DEFINITION. Gradient masking (or obfuscated gradients) is when a defense makes the gradients that attacks rely on UNINFORMATIVE, so gradient-based attacks fail to find adversarial examples that nonetheless exist. The model's decision boundary is unchanged in any meaningful way - only the attacker's ability to search has been degraded. It is security by making the optimization hard, not by moving the boundary, and it fails as soon as the attacker adapts. THE THREE FLAVOURS (Athalye, Carlini and Wagner, 2018). (1) SHATTERED GRADIENTS - the defense includes a non-differentiable or numerically unstable operation (JPEG compression, quantization, discretization, a nearest-neighbour lookup), so autograd returns garbage or nothing. (2) STOCHASTIC GRADIENTS - the defense is randomized (random resizing/padding, random dropout at inference, noise injection), so a single gradient sample is a noisy estimate of the true one and the attack's direction is unreliable. (3) VANISHING OR EXPLODING GRADIENTS - typically from a very deep or recurrent defensive computation (multi-step purification, an optimization loop inside the forward pass), so gradients through the whole pipeline are numerically useless. THE ATTACKS THAT BREAK EACH. (a) BPDA - Backward Pass Differentiable Approximation. For a non-differentiable component g(x) that is approximately identity-like (e.g. JPEG, denoising, quantization), run the true g in the FORWARD pass but substitute the identity (or a smooth surrogate) in the BACKWARD pass. You get a usable gradient estimate and the attack proceeds. This alone broke most preprocessing defenses. (b) EOT - Expectation Over Transformations. For randomized defenses, take the gradient of the EXPECTED loss by averaging gradients over many samples of the randomness. This finds perturbations that work in expectation rather than for one random draw, and it is also how physically-robust attacks (patches that survive varying angle, lighting, and distance) are constructed. (c) REPARAMETERIZATION or attacking an inner objective - if the defense solves an optimization problem in the forward pass, attack through a differentiable reformulation or attack the objective directly. (d) TRANSFER AND BLACK-BOX ATTACKS - the simplest and most damning check. Craft examples on an undefended surrogate model trained on similar data and transfer them; or use a query-based black-box attack (SPSA, NES, Square Attack) that estimates gradients from outputs or needs no gradients at all. If a 'robust' model falls to a black-box attack that never touched its gradients, the defense was masking - a genuinely robust model is HARDER to attack in black-box than white-box, never easier. THE DIAGNOSTIC CHECKLIST, which is the practical takeaway and worth reciting: you probably have gradient masking if (1) single-step attacks (FGSM) outperform iterative ones (PGD) - impossible for a genuinely robust model, since PGD strictly generalizes FGSM; (2) black-box attacks outperform white-box attacks - more information should never hurt the attacker; (3) increasing the perturbation budget does not decrease accuracy - with unbounded epsilon, accuracy MUST go to zero (you can replace the image entirely), so if it does not, your attack is broken, not your model robust; (4) increasing PGD steps or restarts does not reduce accuracy further; (5) robust accuracy is suspiciously high relative to the clean-accuracy cost - the field's Pareto frontier is well documented on RobustBench, and a defense far above it deserves scepticism. WHY THIS KEEPS HAPPENING, which is the meta-point: defenses are usually evaluated by their authors, with the attacks available at the time, and it is very easy to build something that defeats a STANDARD attack without defeating an ADAPTIVE one. The field's response was methodological - Carlini et al.'s 'On Evaluating Adversarial Robustness' checklist, the demand that defenses be evaluated with attacks designed specifically against them, and standardized benchmarks (AutoAttack, RobustBench) that remove the option of using a weak attack. The transferable lesson beyond adversarial ML: when you evaluate a defense against an ADAPTIVE adversary, you must model the adversary adapting - a static evaluation of a dynamic threat measures the wrong thing, which is equally true of fraud, spam, and abuse systems." }
+        "deepDive": {
+          "q": "Explain gradient masking precisely, how defenses fall into it, and the techniques used to break through it.",
+          "a": "THE DEFINITION. Gradient masking (or obfuscated gradients) is when a defense makes the gradients that attacks rely on UNINFORMATIVE, so gradient-based attacks fail to find adversarial examples that nonetheless exist. The model's decision boundary is unchanged in any meaningful way - only the attacker's ability to search has been degraded. It is security by making the optimization hard, not by moving the boundary, and it fails as soon as the attacker adapts. THE THREE FLAVOURS (Athalye, Carlini and Wagner, 2018). (1) SHATTERED GRADIENTS - the defense includes a non-differentiable or numerically unstable operation (JPEG compression, quantization, discretization, a nearest-neighbour lookup), so autograd returns garbage or nothing. (2) STOCHASTIC GRADIENTS - the defense is randomized (random resizing/padding, random dropout at inference, noise injection), so a single gradient sample is a noisy estimate of the true one and the attack's direction is unreliable. (3) VANISHING OR EXPLODING GRADIENTS - typically from a very deep or recurrent defensive computation (multi-step purification, an optimization loop inside the forward pass), so gradients through the whole pipeline are numerically useless. THE ATTACKS THAT BREAK EACH. (a) BPDA - Backward Pass Differentiable Approximation. For a non-differentiable component g(x) that is approximately identity-like (e.g. JPEG, denoising, quantization), run the true g in the FORWARD pass but substitute the identity (or a smooth surrogate) in the BACKWARD pass. You get a usable gradient estimate and the attack proceeds. This alone broke most preprocessing defenses. (b) EOT - Expectation Over Transformations. For randomized defenses, take the gradient of the EXPECTED loss by averaging gradients over many samples of the randomness. This finds perturbations that work in expectation rather than for one random draw, and it is also how physically-robust attacks (patches that survive varying angle, lighting, and distance) are constructed. (c) REPARAMETERIZATION or attacking an inner objective - if the defense solves an optimization problem in the forward pass, attack through a differentiable reformulation or attack the objective directly. (d) TRANSFER AND BLACK-BOX ATTACKS - the simplest and most damning check. Craft examples on an undefended surrogate model trained on similar data and transfer them; or use a query-based black-box attack (SPSA, NES, Square Attack) that estimates gradients from outputs or needs no gradients at all. If a 'robust' model falls to a black-box attack that never touched its gradients, the defense was masking - a genuinely robust model is HARDER to attack in black-box than white-box, never easier. THE DIAGNOSTIC CHECKLIST, which is the practical takeaway and worth reciting: you probably have gradient masking if (1) single-step attacks (FGSM) outperform iterative ones (PGD) - impossible for a genuinely robust model, since PGD strictly generalizes FGSM; (2) black-box attacks outperform white-box attacks - more information should never hurt the attacker; (3) increasing the perturbation budget does not decrease accuracy - with unbounded epsilon, accuracy MUST go to zero (you can replace the image entirely), so if it does not, your attack is broken, not your model robust; (4) increasing PGD steps or restarts does not reduce accuracy further; (5) robust accuracy is suspiciously high relative to the clean-accuracy cost - the field's Pareto frontier is well documented on RobustBench, and a defense far above it deserves scepticism. WHY THIS KEEPS HAPPENING, which is the meta-point: defenses are usually evaluated by their authors, with the attacks available at the time, and it is very easy to build something that defeats a STANDARD attack without defeating an ADAPTIVE one. The field's response was methodological - Carlini et al.'s 'On Evaluating Adversarial Robustness' checklist, the demand that defenses be evaluated with attacks designed specifically against them, and standardized benchmarks (AutoAttack, RobustBench) that remove the option of using a weak attack. The transferable lesson beyond adversarial ML: when you evaluate a defense against an ADAPTIVE adversary, you must model the adversary adapting - a static evaluation of a dynamic threat measures the wrong thing, which is equally true of fraud, spam, and abuse systems."
+        }
       },
       {
         "q": "Why does adversarial training reduce clean accuracy? Is that trade-off fundamental?",
@@ -124,22 +192,80 @@
     ]
   },
   "flashcards": [
-    { "type": "definition", "front": "Adversarial example", "back": "An input with a small, usually imperceptible perturbation crafted to cause misclassification - typically with high confidence. Findable for essentially any input on a standard model in milliseconds." },
-    { "type": "formula", "front": "FGSM", "back": "x_adv = x + eps * sign(grad_x loss). One step. sign() is L-infinity-optimal: with a per-pixel budget, the loss-maximizing linear step puts every pixel at its limit." },
-    { "type": "formula", "front": "PGD", "back": "Iterate x <- Proj_ball(x + alpha*sign(grad)), usually with a random start. Standard strong first-order attack; drives an undefended CIFAR-10 model to 0%. eps=8/255, alpha=eps/4, 20+ steps." },
-    { "type": "intuition", "front": "Why direction, not magnitude", "back": "A random perturbation of the same budget costs ~1 point of accuracy; PGD costs everything. In ~150K dimensions a random direction is near-orthogonal to the gradient - the aligned direction accumulates across all dimensions." },
-    { "type": "intuition", "front": "Non-robust features (Ilyas 2019)", "back": "Train on adversarially-perturbed images labelled with the ATTACK's target class -> the model generalizes to the CLEAN test set. So perturbations carry real predictive signal: vulnerability is a property of the DATA." },
-    { "type": "formula", "front": "Adversarial training (Madry)", "back": "min_theta E[ max_{||delta||<=eps} L(f(x+delta), y) ] - inner max approximated by PGD. Cost ~(steps+1)x compute; CIFAR-10: 94%->83% clean for ~48% robust under AutoAttack." },
-    { "type": "pitfall", "front": "Gradient masking red flags", "back": "FGSM beats PGD; black-box beats white-box; accuracy does not fall as eps grows; more PGD steps do not help. Any of these means the defense obscures gradients, not the boundary. Break it with BPDA, EOT, or transfer." },
-    { "type": "definition", "front": "Randomized smoothing", "back": "Majority-vote f over Gaussian noise -> CERTIFIED L2 radius R = sigma * Phi^-1(p_A) (Clopper-Pearson lower bound), with abstention when p_A is too low. A proof, not a benchmark - but L2-only, conservative, and thousands of forward passes." },
-    { "type": "pitfall", "front": "'Robust' needs a threat model", "back": "State the norm (L-inf/L2/L0), the budget eps, and the attacker's access (white-box/black-box/query-limited). Numbers at different eps are not comparable, and L-p robustness does not imply robustness to blur, crops, weather, or patches." },
-    { "type": "intuition", "front": "System-level defenses first", "back": "Hide confidence scores, rate-limit and authenticate queries, add anomaly detection, ensemble, route high-stakes decisions to humans. Cheap, effective against realistic attackers, and no clean-accuracy cost - price model hardening against the actual threat." }
+    {
+      "type": "definition",
+      "front": "Adversarial example",
+      "back": "An input with a small, usually imperceptible perturbation crafted to cause misclassification - typically with high confidence. Findable for essentially any input on a standard model in milliseconds."
+    },
+    {
+      "type": "formula",
+      "front": "FGSM",
+      "back": "x_adv = x + eps * sign(grad_x loss). One step. sign() is L-infinity-optimal: with a per-pixel budget, the loss-maximizing linear step puts every pixel at its limit."
+    },
+    {
+      "type": "formula",
+      "front": "PGD",
+      "back": "Iterate x <- Proj_ball(x + alpha*sign(grad)), usually with a random start. Standard strong first-order attack; drives an undefended CIFAR-10 model to 0%. eps=8/255, alpha=eps/4, 20+ steps."
+    },
+    {
+      "type": "intuition",
+      "front": "Why direction, not magnitude",
+      "back": "A random perturbation of the same budget costs ~1 point of accuracy; PGD costs everything. In ~150K dimensions a random direction is near-orthogonal to the gradient - the aligned direction accumulates across all dimensions."
+    },
+    {
+      "type": "intuition",
+      "front": "Non-robust features (Ilyas 2019)",
+      "back": "Train on adversarially-perturbed images labelled with the ATTACK's target class -> the model generalizes to the CLEAN test set. So perturbations carry real predictive signal: vulnerability is a property of the DATA."
+    },
+    {
+      "type": "formula",
+      "front": "Adversarial training (Madry)",
+      "back": "min_theta E[ max_{||delta||<=eps} L(f(x+delta), y) ] - inner max approximated by PGD. Cost ~(steps+1)x compute; CIFAR-10: 94%->83% clean for ~48% robust under AutoAttack."
+    },
+    {
+      "type": "pitfall",
+      "front": "Gradient masking red flags",
+      "back": "FGSM beats PGD; black-box beats white-box; accuracy does not fall as eps grows; more PGD steps do not help. Any of these means the defense obscures gradients, not the boundary. Break it with BPDA, EOT, or transfer."
+    },
+    {
+      "type": "definition",
+      "front": "Randomized smoothing",
+      "back": "Majority-vote f over Gaussian noise -> CERTIFIED L2 radius R = sigma * Phi^-1(p_A) (Clopper-Pearson lower bound), with abstention when p_A is too low. A proof, not a benchmark - but L2-only, conservative, and thousands of forward passes."
+    },
+    {
+      "type": "pitfall",
+      "front": "'Robust' needs a threat model",
+      "back": "State the norm (L-inf/L2/L0), the budget eps, and the attacker's access (white-box/black-box/query-limited). Numbers at different eps are not comparable, and L-p robustness does not imply robustness to blur, crops, weather, or patches."
+    },
+    {
+      "type": "intuition",
+      "front": "System-level defenses first",
+      "back": "Hide confidence scores, rate-limit and authenticate queries, add anomaly detection, ensemble, route high-stakes decisions to humans. Cheap, effective against realistic attackers, and no clean-accuracy cost - price model hardening against the actual threat."
+    }
   ],
   "refs": [
-    { "title": "Goodfellow, Shlens & Szegedy (2015), Explaining and Harnessing Adversarial Examples (FGSM)", "url": "https://arxiv.org/abs/1412.6572" },
-    { "title": "Madry et al. (2018), Towards Deep Learning Models Resistant to Adversarial Attacks (PGD, adversarial training)", "url": "https://arxiv.org/abs/1706.06083" },
-    { "title": "Athalye, Carlini & Wagner (2018), Obfuscated Gradients Give a False Sense of Security", "url": "https://arxiv.org/abs/1802.00420" },
-    { "title": "Ilyas et al. (2019), Adversarial Examples Are Not Bugs, They Are Features", "url": "https://arxiv.org/abs/1905.02175" }
+    {
+      "title": "Goodfellow, Shlens & Szegedy (2015), Explaining and Harnessing Adversarial Examples (FGSM)",
+      "url": "https://arxiv.org/abs/1412.6572"
+    },
+    {
+      "title": "Madry et al. (2018), Towards Deep Learning Models Resistant to Adversarial Attacks (PGD, adversarial training)",
+      "url": "https://arxiv.org/abs/1706.06083"
+    },
+    {
+      "title": "Athalye, Carlini & Wagner (2018), Obfuscated Gradients Give a False Sense of Security",
+      "url": "https://arxiv.org/abs/1802.00420"
+    },
+    {
+      "title": "Ilyas et al. (2019), Adversarial Examples Are Not Bugs, They Are Features",
+      "url": "https://arxiv.org/abs/1905.02175"
+    }
   ],
-  "updatedAt": "2026-07-25"
+  "updatedAt": "2026-07-25",
+  "v2": {
+    "id": "24-09",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-09_adversarial_attacks.ipynb"
+  }
 }

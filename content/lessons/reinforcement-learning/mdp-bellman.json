@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "14-01",
   "slug": "mdp-bellman",
+  "keyBase": "reinforcement-learning/mdp-bellman",
   "module": "reinforcement-learning",
   "title": "MDPs, Bellman Equations & Value/Policy Iteration",
   "status": "LIVE",
@@ -11,11 +12,21 @@
     "notebook": true,
     "notebookFile": "14-01_mdps_bellman_value_policy_iteration.ipynb",
     "flagship": null,
-    "demos": ["value-iteration", "gridworld-rl", "markov", "pathfinding"],
+    "demos": [
+      "value-iteration",
+      "gridworld-rl",
+      "markov",
+      "pathfinding"
+    ],
     "concepts": []
   },
-  "prereqs": ["foundations/probability"],
-  "leadsTo": ["reinforcement-learning/mc-td", "reinforcement-learning/q-learning"],
+  "prereqs": [
+    "foundations/probability"
+  ],
+  "leadsTo": [
+    "reinforcement-learning/mc-td",
+    "reinforcement-learning/q-learning"
+  ],
   "body": {
     "intuition": [
       "A Markov decision process is five things: states, actions, a transition kernel saying where you land, a reward function, and a discount factor. The Markov property is the assumption that carries all the weight - the next state depends on the current state and action ONLY, not on how you arrived. That assumption is what turns an intractable problem over histories into a tractable one over states, and it is also the assumption most often false in practice, which is why so much applied RL work is really state-design work in disguise.",
@@ -277,5 +288,11 @@
       "url": "https://www.jstor.org/stable/24900506"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "14-01",
+    "module": "reinforcement-learning",
+    "disposition": "clean",
+    "notebookFile": "14-01_mdps_bellman_equations.ipynb"
+  }
 }

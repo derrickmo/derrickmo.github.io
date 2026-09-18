@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "15-04",
   "slug": "custom-loss",
+  "keyBase": "pytorch-internals/custom-loss",
   "module": "pytorch-internals",
   "title": "Custom Loss Functions & Gradient Utilities",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "15-04_custom_loss_functions_gradient_utilities.ipynb",
     "flagship": null,
-    "demos": ["backprop", "gradient-clipping", "optimizers", "activations"],
+    "demos": [
+      "backprop",
+      "gradient-clipping",
+      "optimizers",
+      "activations"
+    ],
     "concepts": []
   },
-  "prereqs": ["pytorch-internals/custom-autograd", "neural-nets/backprop"],
-  "leadsTo": ["pytorch-internals/debugging-profiling", "training-systems/training-stability"],
+  "prereqs": [
+    "pytorch-internals/custom-autograd",
+    "neural-nets/backprop"
+  ],
+  "leadsTo": [
+    "pytorch-internals/debugging-profiling",
+    "training-systems/training-stability"
+  ],
   "body": {
     "intuition": [
       "Writing a loss function in PyTorch is writing a differentiable expression - autograd supplies the backward pass for free. That freedom is real, and it hides three things that bite. The composed backward may be numerically unstable even when the forward looks fine. The reduction you chose may be dividing by the wrong number. And some operations you want are not differentiable at all, so autograd will silently hand you a zero gradient rather than an error.",
@@ -277,5 +289,11 @@
       "url": "https://arxiv.org/abs/1704.00028"
     }
   ],
-  "updatedAt": "2026-08-07"
+  "updatedAt": "2026-08-07",
+  "v2": {
+    "id": "20-03",
+    "module": "pytorch-internals",
+    "disposition": "clean",
+    "notebookFile": "20-03_custom_losses_gradient_utilities.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "20-10",
   "slug": "system-design",
+  "keyBase": "mlops/system-design",
   "module": "mlops",
   "title": "ML System Design Patterns",
   "status": "LIVE",
@@ -184,5 +185,11 @@
       "title": "Huyen — Designing Machine Learning Systems (2022)",
       "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/"
     }
-  ]
+  ],
+  "v2": {
+    "id": "22-12",
+    "module": "inference-serving",
+    "disposition": "clean",
+    "notebookFile": "22-12_ml_system_design_patterns.ipynb"
+  }
 }

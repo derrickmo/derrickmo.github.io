@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "13-02",
   "slug": "lora",
+  "keyBase": "fine-tuning/lora",
   "module": "fine-tuning",
   "title": "LoRA — Low-Rank Adaptation from Scratch",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "13-02_lora_low_rank_adaptation.ipynb",
     "flagship": null,
-    "demos": ["lora", "pca", "quantization", "pruning"],
+    "demos": [
+      "lora",
+      "pca",
+      "quantization",
+      "pruning"
+    ],
     "concepts": []
   },
-  "prereqs": ["fine-tuning/full-fine-tuning", "unsupervised-learning/pca"],
-  "leadsTo": ["fine-tuning/qlora", "fine-tuning/adapters"],
+  "prereqs": [
+    "fine-tuning/full-fine-tuning",
+    "unsupervised-learning/pca"
+  ],
+  "leadsTo": [
+    "fine-tuning/qlora",
+    "fine-tuning/adapters"
+  ],
   "body": {
     "intuition": [
       "The previous lesson left a constraint table with one row unexplained: instead of choosing WHICH parameters may move, constrain the SHAPE of the update. LoRA's claim is that the update a fine-tune needs is intrinsically low-rank, so you can write it as a product of two thin matrices and train those instead. Freeze W, learn B and A with inner dimension r, and use W + BA. For a 4096 x 4096 projection at r = 8, that is 65,536 trainable numbers in place of 16.8 million - about 0.4%.",
@@ -276,5 +288,11 @@
       "url": "https://arxiv.org/abs/2311.03285"
     }
   ],
-  "updatedAt": "2026-08-06"
+  "updatedAt": "2026-08-06",
+  "v2": {
+    "id": "17-02",
+    "module": "post-training",
+    "disposition": "clean",
+    "notebookFile": "17-02_lora_scratch_then_peft.ipynb"
+  }
 }

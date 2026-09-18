@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "24-01",
   "slug": "calibration",
+  "keyBase": "trustworthy-ai/calibration",
   "module": "trustworthy-ai",
   "title": "Calibration & Temperature Scaling",
   "status": "LIVE",
@@ -303,5 +304,11 @@
       "url": "https://arxiv.org/abs/1612.01474"
     }
   ],
-  "updatedAt": "2026-08-14"
+  "updatedAt": "2026-08-14",
+  "v2": {
+    "id": "24-01",
+    "module": "trustworthy-ai",
+    "disposition": "clean",
+    "notebookFile": "24-01_uncertainty_epistemic_aleatoric_bayesian_deep.ipynb"
+  }
 }

@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "id": "21-01",
   "slug": "agent-loop",
+  "keyBase": "agentic-ai/agent-loop",
   "module": "agentic-ai",
   "title": "The Agent Loop: Perceive, Reason, Act",
   "status": "LIVE",
@@ -11,11 +12,22 @@
     "notebook": true,
     "notebookFile": "21-01_agent_loop.ipynb",
     "flagship": null,
-    "demos": ["react-agent", "agent-router", "constrained-decoding", "guardrails"],
+    "demos": [
+      "react-agent",
+      "agent-router",
+      "constrained-decoding",
+      "guardrails"
+    ],
     "concepts": []
   },
-  "prereqs": ["rag-agents/agent-loops", "llm-systems/structured-output"],
-  "leadsTo": ["agentic-ai/tool-calling", "agentic-ai/react-planning"],
+  "prereqs": [
+    "rag-agents/agent-loops",
+    "llm-systems/structured-output"
+  ],
+  "leadsTo": [
+    "agentic-ai/tool-calling",
+    "agentic-ai/react-planning"
+  ],
   "body": {
     "intuition": [
       "Almost everything written about agents is a claim without a measurement attached. The loop helps. Tools help. Retries help. Planning helps. Each of these is probably true in some regime, and the regime is almost never stated - which is why agent projects so often reproduce a demo and then fail to reproduce the result. This module takes the opposite approach throughout: plant a known ground truth in a small world, run the technique against it, and report the number and the CONDITION under which it holds.",
@@ -273,5 +285,11 @@
       "url": "https://www.anthropic.com/engineering/building-effective-agents"
     }
   ],
-  "updatedAt": "2026-08-08"
+  "updatedAt": "2026-08-08",
+  "v2": {
+    "id": "19-01",
+    "module": "agentic-ai",
+    "disposition": "merge",
+    "notebookFile": "19-01_agent_loop.ipynb"
+  }
 }
