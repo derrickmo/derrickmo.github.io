@@ -86,6 +86,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "branch-and-bound"
+    },
+    {
+      "kind": "game",
+      "slug": "tic-tac-toe"
     }
   ]
 };

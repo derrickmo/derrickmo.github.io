@@ -203,7 +203,7 @@ function BiasVarianceDecompDemo() {
       </DemoP>
       <DemoP>
         Caveats: the clean three-way split assumes squared-error loss; for other
-        losses the decomposition is messier. And the tidy U-curve is the <i>classical</i>
+        losses the decomposition is messier. And the tidy U-curve is the <i>classical</i>{" "}
         story — in heavily over-parameterized models it breaks down and you get the
         second descent shown in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/double-descent/`} style={{ color: "#a855f7" }}>double descent</a>,

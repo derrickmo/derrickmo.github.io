@@ -1,12 +1,13 @@
 // GENERATED from concepts-index.js by scripts/gen-tag-slices.mjs -- DO NOT EDIT.
-// Only the concepts tagged to games "wordle" (1), for its Connections panel.
-// Same global names as concepts-index.js, with 187 fewer concepts in them.
+// Only the concepts tagged to games "wordle" (2), for its Connections panel.
+// Same global names as concepts-index.js, with 186 fewer concepts in them.
 
 window.CONCEPT_TAGS = {
   "demos": {},
   "games": {
     "wordle": [
-      "entropy"
+      "entropy",
+      "mutual-information"
     ]
   }
 };
@@ -23,6 +24,19 @@ window.CONCEPTS_INDEX = {
       "huffman-coding"
     ],
     "prereqs": []
+  },
+  "mutual-information": {
+    "id": "mutual-information",
+    "name": "Mutual Information",
+    "area": "Information Theory",
+    "summary": "How much knowing one variable reduces uncertainty about another — dependence of ANY kind, not just linear correlation. MI = H(X)+H(Y)−H(X,Y); zero iff independent. The objective behind InfoNCE/contrastive learning and the information-bottleneck view of deep nets; brutal to estimate in high dimensions.",
+    "tex": "I(X;Y) = \\sum_{x,y} p(x,y)\\,\\log\\frac{p(x,y)}{p(x)\\,p(y)}",
+    "prereqs": [
+      "entropy"
+    ],
+    "leadsTo": [
+      "channel-capacity"
+    ]
   }
 };
 window.CONCEPT_REVERSE = {
@@ -38,6 +52,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "huffman-coding"
+    },
+    {
+      "kind": "demo",
+      "slug": "histogram-equalization"
     },
     {
       "kind": "demo",
@@ -58,6 +76,20 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "module",
       "slug": "foundations"
+    }
+  ],
+  "mutual-information": [
+    {
+      "kind": "demo",
+      "slug": "mutual-information"
+    },
+    {
+      "kind": "demo",
+      "slug": "channel-capacity"
+    },
+    {
+      "kind": "game",
+      "slug": "wordle"
     }
   ]
 };

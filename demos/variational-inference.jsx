@@ -246,8 +246,8 @@ function VariationalInferenceDemo() {
       </DemoP>
       <DemoP>
         Watch the two famous failure modes. On <b>Correlated</b> with mean-field q (axis-aligned),
-        q shrinks <i>inside</i> the target — VI systematically <b>underestimates variance</b>
-        because reverse-KL punishes putting mass where p is low; flip on <b>full covariance</b>
+        q shrinks <i>inside</i> the target — VI systematically <b>underestimates variance</b>{" "}
+        because reverse-KL punishes putting mass where p is low; flip on <b>full covariance</b>{" "}
         and q tilts to fit. On <b>Bimodal</b>, q collapses onto a <b>single mode</b> and ignores
         the other — reverse-KL is <b>mode-seeking</b>, the opposite of what
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}> MCMC</a> does (it explores both,

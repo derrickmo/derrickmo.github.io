@@ -204,7 +204,7 @@ function ImbalancedDemo() {
         need to price a fraud loss exactly — you need to know it is fifty times a wasted review. At
         $100 a miss and $2 a false alarm, t* = 0.0196, and the demo's swept minimum over every
         candidate threshold in the data lands at 0.0247 — five thousandths away, on 295 positives.
-        Against the 0.5 default that is measured at <strong>2.70× cheaper</strong> here, and
+        Against the 0.5 default that is measured at <strong>2.70× cheaper</strong> here, and{" "}
         <strong>6.87×</strong> when a miss costs $500. The default threshold is a convention
         inherited from balanced problems; it is not a decision.
       </DemoP>
@@ -213,7 +213,7 @@ function ImbalancedDemo() {
         increasing, so <em>ROC-AUC and PR-AUC do not move a digit</em> — every ranking metric says
         the model is unchanged, and the best cost it can reach is unchanged too, because that is a
         property of the ordering. What moves is where you have to stand to reach it: the swept
-        argmin jumps <strong>0.0247 → 0.1373</strong>, and the analytic t* now costs
+        argmin jumps <strong>0.0247 → 0.1373</strong>, and the analytic t* now costs{" "}
         <strong>3.15×</strong> the achievable best — <em>worse than simply leaving the threshold at
         0.5</em>. That is the whole reason calibration is a separate property from accuracy or
         ranking: the moment a score is compared against a <em>price</em> rather than against other

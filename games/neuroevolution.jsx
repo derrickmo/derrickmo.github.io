@@ -279,7 +279,7 @@ function NeuroEvolutionGame() {
   );
   return (
     <DemoLayout topic="NEUROEVOLUTION · GAME" title="Neuroevolution: Flappy"
-      subtitle="Watch neural-network birds evolve to fly — then take the controls and race the champion the AI trained."
+      subtitle="Watch neural-network birds evolve to fly, then take the controls and race the champion the AI trained."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );

@@ -143,7 +143,7 @@ function ForecastDemo() {
         repeats the recent mean — flat, blind to trend or season. <b>Simple
         exponential smoothing</b> (SES) weights recent points more via <b>α</b>, but
         still forecasts a flat line. <b>Holt</b> adds a <b>trend</b> term (β) so the
-        forecast can slope, and <b>Holt-Winters</b> adds a repeating <b>seasonal</b>
+        forecast can slope, and <b>Holt-Winters</b> adds a repeating <b>seasonal</b>{" "}
         component — the only one that can reproduce the wave. The forecast is fit on the
         history and drawn against the <i>held-out</i> future, with MAE measuring how
         close it landed.

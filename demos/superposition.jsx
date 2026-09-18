@@ -172,7 +172,7 @@ function SuperpositionDemo() {
       <DemoP>
         How does a network store thousands of concepts in only a few hundred dimensions? This is
         the toy model that answered it. A linear model is asked to reconstruct sparse inputs through
-        a 2-D bottleneck, weighted by each feature's importance. With enough features it <i>can't</i>
+        a 2-D bottleneck, weighted by each feature's importance. With enough features it <i>can't</i>{" "}
         give each one its own axis — so it learns a geometry (the arrows) that packs them in.
       </DemoP>
       <DemoP>

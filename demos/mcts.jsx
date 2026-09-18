@@ -227,7 +227,7 @@ function MCTSDemo() {
         Watch what happens as you step. Early on the tree is shallow and the
         algorithm explores broadly. As N grows, UCB sharpens — the search
         starts spending all its time refining the apparently-best line. The
-        per-node readouts show <b>N</b> on top and the average value <b>W/N</b>
+        per-node readouts show <b>N</b> on top and the average value <b>W/N</b>{" "}
         below. Hit STEP 100 a few times and the visit counts down the
         principal variation should be much larger than everywhere else.
       </DemoP>
@@ -254,7 +254,7 @@ function MCTSDemo() {
   );
   return (
     <DemoLayout title="MCTS Tree Search"
-      subtitle="Monte-Carlo Tree Search, iteration by iteration — select, expand, rollout, backup."
+      subtitle="Monte-Carlo Tree Search, iteration by iteration: select, expand, rollout, backup."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       tone="violet" />

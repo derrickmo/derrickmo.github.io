@@ -222,7 +222,7 @@ function BilateralDemo() {
   );
   return (
     <DemoLayout title="Bilateral Filter"
-      subtitle="Smooth the noise, keep the edges — by weighting neighbours on how similar they are, not just how close."
+      subtitle="Smooth the noise, keep the edges, by weighting neighbours on how similar they are rather than just how close."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

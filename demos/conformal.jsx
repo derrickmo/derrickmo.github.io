@@ -155,7 +155,7 @@ function ConformalDemo() {
         the green ring means the truth landed in its set, red means it slipped out.
       </DemoP>
       <DemoP>
-        The surprising part: drag MODEL SKILL down to near-useless and coverage
+        The surprising part: drag MODEL SKILL down to near-useless and coverage{" "}
         <i>still</i> sits on the target line — the sets just swell to include
         almost every class. That's the distribution-free guarantee. Model quality
         doesn't buy coverage (the calibration step always delivers that); it buys
@@ -189,7 +189,7 @@ function ConformalDemo() {
   );
   return (
     <DemoLayout title="Conformal Prediction"
-      subtitle="Output a label set guaranteed to contain the truth (1−α) of the time — for any model. Watch coverage hold even as the model gets worse; only set size suffers."
+      subtitle="Output a label set guaranteed to contain the truth (1−α) of the time, for any model. Watch coverage hold even as the model gets worse; only set size suffers."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

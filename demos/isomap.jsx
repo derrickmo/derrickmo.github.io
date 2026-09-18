@@ -247,7 +247,7 @@ function IsomapDemo() {
   );
   return (
     <DemoLayout title="Isomap (Manifold Learning)"
-      subtitle="Unroll a curved manifold by measuring distance ALONG the data instead of straight through it. A k-NN graph plus shortest paths gives geodesic distances; classical MDS lays them on a line — recovering an order that straight-line PCA folds and scrambles."
+      subtitle="Unroll a curved manifold by measuring distance ALONG the data instead of straight through it. A k-NN graph plus shortest paths gives geodesic distances; classical MDS lays them on a line, recovering an order that straight-line PCA folds and scrambles."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

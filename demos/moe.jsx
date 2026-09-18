@@ -200,7 +200,7 @@ function MoEDemo() {
   );
   return (
     <DemoLayout title="Mixture of Experts (MoE)"
-      subtitle="Route each token to a few of many experts — scale parameters, not per-token compute. Watch specialization emerge, and fight the load-imbalance failure."
+      subtitle="Route each token to a few of many experts, so you scale parameters rather than per-token compute. Watch specialization emerge, and fight the load-imbalance failure."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

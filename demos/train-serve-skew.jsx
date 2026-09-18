@@ -227,8 +227,8 @@ function SkewDemo() {
       </DemoP>
       <DemoP>
         Then push <strong>DISTRIBUTION DRIFT</strong> to 1.5, which is where this stops being subtle
-        and starts being instructive. Served ROC-AUC reads <strong>0.8797</strong> against an offline
-        <strong>0.8798</strong> — unchanged to four decimals — while accuracy collapses from
+        and starts being instructive. Served ROC-AUC reads <strong>0.8797</strong> against an offline{" "}
+        <strong>0.8798</strong> — unchanged to four decimals — while accuracy collapses from{" "}
         <strong>0.8376 to 0.6164</strong> and <strong>41.35%</strong> of decisions flip. AUC is
         threshold-free: it asks only whether the scores are in the right ORDER, and refitting a
         scaler preserves the order almost perfectly while moving every score's level. So the one

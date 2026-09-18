@@ -48,6 +48,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "channel-capacity"
+    },
+    {
+      "kind": "game",
+      "slug": "wordle"
     }
   ],
   "entropy": [
@@ -62,6 +66,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "huffman-coding"
+    },
+    {
+      "kind": "demo",
+      "slug": "histogram-equalization"
     },
     {
       "kind": "demo",

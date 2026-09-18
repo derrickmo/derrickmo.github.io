@@ -200,7 +200,7 @@ function PyramidDemo() {
         has exactly two steps: blur, then drop every other pixel. The blur is not
         cosmetic. A grid half the size cannot represent the finest frequencies in the
         original, and if you leave them in they do not vanish — they <i>fold down</i> and
-        reappear as a coarser pattern that was never in the scene. Switch <b>pre-blur</b>
+        reappear as a coarser pattern that was never in the scene. Switch <b>pre-blur</b>{" "}
         off and watch the stripes turn into something wider and, misleadingly, more
         contrasty.
       </DemoP>
@@ -244,7 +244,7 @@ function PyramidDemo() {
   );
   return (
     <DemoLayout title="Image Pyramids"
-      subtitle="Blur, then halve — and see what goes wrong when you skip the blur."
+      subtitle="Blur, then halve. Then see what goes wrong when you skip the blur."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

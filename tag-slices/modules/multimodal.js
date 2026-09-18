@@ -103,6 +103,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "tokenizer"
+    },
+    {
+      "kind": "demo",
       "slug": "embeddings"
     },
     {

@@ -189,7 +189,7 @@ function RNNGatesDemo() {
   const explainer = (
     <>
       <DemoP>
-        An <b>LSTM cell</b> threads two signals through time: a hidden state <i>h_t</i>
+        An <b>LSTM cell</b> threads two signals through time: a hidden state <i>h_t</i>{" "}
         and a <b>cell state</b> <i>c_t</i> that survives unchanged unless a gate decides
         otherwise. Three sigmoid gates control the flow: the <b>forget gate</b>
         <i> f_t</i> erases parts of <i>c</i>; the <b>input gate</b> <i>i_t</i> writes a
@@ -230,7 +230,7 @@ function RNNGatesDemo() {
   );
   return (
     <DemoLayout title="LSTM Gates"
-      subtitle="A live LSTM cell processing a 1-D sequence — see the forget, input, and output gates open and close over time."
+      subtitle="A live LSTM cell processing a 1-D sequence. See the forget, input, and output gates open and close over time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rnn-nlp/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

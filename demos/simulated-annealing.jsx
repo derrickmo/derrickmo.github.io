@@ -221,7 +221,7 @@ function SADemo() {
   );
   return (
     <DemoLayout title="Simulated Annealing"
-      subtitle="Watch a tangled traveling-salesman tour cool into a clean one — Metropolis acceptance with a falling temperature."
+      subtitle="Watch a tangled traveling-salesman tour cool into a clean one, using Metropolis acceptance with a falling temperature."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       tone="violet" />

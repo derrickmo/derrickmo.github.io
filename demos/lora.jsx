@@ -165,7 +165,7 @@ function LoRADemo() {
   );
   return (
     <DemoLayout title="LoRA — Low-Rank Adaptation"
-      subtitle="Approximate a full weight update with two thin matrices — most of the change, a fraction of the parameters."
+      subtitle="Approximate a full weight update with two thin matrices. Most of the change, a fraction of the parameters."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

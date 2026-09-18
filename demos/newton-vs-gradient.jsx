@@ -379,7 +379,7 @@ function NewtonVsGradientDemo() {
         and the ones that scale. Pure Newton needs the full Hessian (O(n²) memory) and its
         inverse (O(n³)) — impossible for a model with billions of parameters — which is why
         deep learning runs on first-order methods like <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD and Adam</a> instead.
-        The practical middle ground is <b>quasi-Newton</b> (L-BFGS) and <b>natural-gradient</b>
+        The practical middle ground is <b>quasi-Newton</b> (L-BFGS) and <b>natural-gradient</b>{" "}
         methods, which approximate the curvature cheaply; Adam's per-parameter scaling is
         itself a crude diagonal-curvature estimate.
       </DemoP>

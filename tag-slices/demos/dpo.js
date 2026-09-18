@@ -104,6 +104,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "max-entropy-rl"
+    },
+    {
+      "kind": "game",
+      "slug": "self-driving"
     }
   ]
 };

@@ -173,12 +173,12 @@ function BootstrapDemo() {
       <DemoP>
         Its real value is the STATISTIC control. There is a textbook standard error for the mean;
         there is none for the median or the 90th percentile, and the bootstrap does not care. Press
-        <strong> MEASURE COVERAGE</strong> on NORMAL: <strong>93.7%</strong> for the mean and
+        <strong> MEASURE COVERAGE</strong> on NORMAL: <strong>93.7%</strong> for the mean and{" "}
         <strong>93.0%</strong> for the median at n=40 — close to the 95% a 95% interval is supposed
         to deliver, and short of it by about the Monte-Carlo error of 300 trials.
       </DemoP>
       <DemoP>
-        <strong>Now switch to SKEWED and press it again.</strong> Coverage falls to
+        <strong>Now switch to SKEWED and press it again.</strong> Coverage falls to{" "}
         <strong>82.7%</strong> at n=15 — a "95%" interval that misses almost one time in five.
         Raise n to 60 and it reaches 91.7%; at n=200 it is still only 92.7%, and it gets there
         slowly. That is the honest headline: <em>the bootstrap is

@@ -217,7 +217,7 @@ function ReservoirDemo() {
   );
   return (
     <DemoLayout title="Reservoir Sampling"
-      subtitle="Keep a uniform random sample of k items from a stream you can't store and whose length you don't know — in one pass, O(k) memory. The histogram proves every position survives with equal probability k/N, while the naive 'keep first/last k' shortcuts are visibly biased."
+      subtitle="Keep a uniform random sample of k items from a stream you cannot store and whose length you do not know, in one pass and O(k) memory. The histogram proves every position survives with equal probability k/N, while the naive keep-first-k and keep-last-k shortcuts are visibly biased."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

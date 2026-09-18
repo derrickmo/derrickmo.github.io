@@ -315,7 +315,7 @@ function RewardModelDemo() {
   );
   return (
     <DemoLayout title="Reward Model (RLHF)"
-      subtitle="Learn a scalar reward from pairwise human preferences with Bradley-Terry — the signal PPO maximizes in RLHF. Watch the learned field reconstruct the hidden one."
+      subtitle="Learn a scalar reward from pairwise human preferences with Bradley-Terry. This is the signal PPO maximizes in RLHF. Watch the learned field reconstruct the hidden one."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

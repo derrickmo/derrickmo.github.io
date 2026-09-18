@@ -175,7 +175,7 @@ function SimpsonsDemo() {
   );
   return (
     <DemoLayout title="Simpson's Paradox"
-      subtitle="Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion — and why you have to condition on it."
+      subtitle="Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion, and why you have to condition on it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

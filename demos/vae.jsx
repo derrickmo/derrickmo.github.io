@@ -182,7 +182,7 @@ function VAEDemo() {
         <i> generative</i>. First, the encoder doesn't output a point — it outputs a
         <b> distribution</b> (a mean μ and variance) per input, and we sample the latent
         <b> z</b> from it via the <b>reparameterization trick</b> (z = μ + σ·ε), which
-        keeps the randomness differentiable so we can still backprop. Hit <b>Train</b>
+        keeps the randomness differentiable so we can still backprop. Hit <b>Train</b>{" "}
         and watch the <span style={{ color: "#60a5fa" }}>reconstructions</span> snap
         onto the data while the <span style={{ color: "#fbbf24" }}>generated samples</span>
         (decoded from pure noise) start to look like real data — that's generation.

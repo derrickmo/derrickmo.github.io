@@ -187,7 +187,7 @@ function ContrastiveLearningDemo() {
         self-supervised and multimodal representation learning works: learn an
         embedding where augmentations of the same thing agree and everything else is
         separated, then fine-tune a tiny head for downstream tasks. The
-        alignment-plus-uniformity view (Wang & Isola 2020) shown here explains <i>why</i>
+        alignment-plus-uniformity view (Wang & Isola 2020) shown here explains <i>why</i>{" "}
         the InfoNCE loss produces useful{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/embeddings/`} style={{ color: "#a855f7" }}>embeddings</a>.
         CLIP applies the exact same loss across image-text pairs, powering{" "}
@@ -206,7 +206,7 @@ function ContrastiveLearningDemo() {
   );
   return (
     <DemoLayout title="Contrastive Learning"
-      subtitle="Optimize the SimCLR / NT-Xent loss live: two views of each item pull together (alignment) while every other item is pushed away (uniformity) — all without labels. Tune temperature and batch size to feel the tradeoffs."
+      subtitle="Optimize the SimCLR / NT-Xent loss live: two views of each item pull together (alignment) while every other item is pushed away (uniformity), all without labels. Tune temperature and batch size to feel the tradeoffs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

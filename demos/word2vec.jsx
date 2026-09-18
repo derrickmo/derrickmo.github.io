@@ -195,7 +195,7 @@ function Word2VecDemo() {
   );
   return (
     <DemoLayout title="word2vec (Skip-gram)"
-      subtitle="Train real 2-D word vectors with skip-gram SGD and watch topics self-organize into clusters from co-occurrence alone. Raise the cross-topic mix to see the geometry blur — embeddings only separate what the contexts do."
+      subtitle="Train real 2-D word vectors with skip-gram SGD and watch topics self-organize into clusters from co-occurrence alone. Raise the cross-topic mix to see the geometry blur, because embeddings only separate what the contexts do."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

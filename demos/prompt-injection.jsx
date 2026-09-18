@@ -257,7 +257,7 @@ function PromptInjectionDemo() {
 
   return (
     <DemoLayout title="Prompt Injection"
-      subtitle="Untrusted content posing as instructions. Pick an attack, layer the defenses, and watch how much of it survives — no single control reaches zero."
+      subtitle="Untrusted content posing as instructions. Pick an attack, layer the defenses, and watch how much of it survives. No single control reaches zero."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

@@ -206,7 +206,7 @@ function KalmanDemo() {
         filter ever sees — the same position, buried in sensor noise. The purple
         line is the Kalman estimate, and the shaded band is its own sense of how
         unsure it is (±2σ). Each tick it does two things: <b>predict</b> the next
-        position from a constant-velocity model (the band widens), then <b>update</b>
+        position from a constant-velocity model (the band widens), then <b>update</b>{" "}
         toward the new measurement by an amount set by the Kalman gain K (the band
         snaps tight). K is the optimal blend of "how much do I trust my model" vs
         "how much do I trust this sensor."
@@ -249,7 +249,7 @@ function KalmanDemo() {
   );
   return (
     <DemoLayout title="Kalman Filter"
-      subtitle="A real 2-state (position, velocity) Kalman filter tracks a maneuvering target from noisy measurements. Tune process noise Q and sensor noise R to move the Kalman gain — and watch the estimate denoise the sensor in real time."
+      subtitle="A real 2-state (position, velocity) Kalman filter tracks a maneuvering target from noisy measurements. Tune process noise Q and sensor noise R to move the Kalman gain, and watch the estimate denoise the sensor in real time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

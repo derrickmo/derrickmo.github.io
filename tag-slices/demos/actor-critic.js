@@ -107,9 +107,17 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "max-entropy-rl"
+    },
+    {
+      "kind": "game",
+      "slug": "self-driving"
     }
   ],
   "mdp-bellman": [
+    {
+      "kind": "demo",
+      "slug": "bandit"
+    },
     {
       "kind": "demo",
       "slug": "gridworld-rl"

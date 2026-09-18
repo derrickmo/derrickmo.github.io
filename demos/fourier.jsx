@@ -140,7 +140,7 @@ function FourierDemo() {
   );
   return (
     <DemoLayout title="Fourier Series"
-      subtitle="Watch rotating circles — one per sine wave — sum into a square, sawtooth, or triangle wave."
+      subtitle="Watch rotating circles, one per sine wave, sum into a square, sawtooth, or triangle wave."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       repoHref="https://github.com/derrickmo" tone="violet" />
   );

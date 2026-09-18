@@ -71,6 +71,10 @@ window.CONCEPT_REVERSE = {
   "mcmc": [
     {
       "kind": "demo",
+      "slug": "clt"
+    },
+    {
+      "kind": "demo",
       "slug": "mcmc"
     },
     {
@@ -126,6 +130,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "mle"
+    },
+    {
+      "kind": "game",
+      "slug": "minesweeper"
     },
     {
       "kind": "module",

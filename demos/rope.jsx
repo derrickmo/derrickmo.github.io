@@ -242,7 +242,7 @@ function RopeDemo() {
   );
   return (
     <DemoLayout title="RoPE Explorer"
-      subtitle="Rotary position embeddings — see relative-position invariance fall out of pair-wise rotations."
+      subtitle="Rotary position embeddings. See relative-position invariance fall out of pair-wise rotations."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/transformers/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

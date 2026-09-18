@@ -193,7 +193,7 @@ function AutoscalingDemo() {
   return (
     <DemoLayout
       title="Autoscaling"
-      subtitle="Size the replica pool to chase a moving load — and watch cold-start lag breach the SLO on spikes while spare headroom trades cost for safety. A live control-loop simulation."
+      subtitle="Size the replica pool to chase a moving load. Watch cold-start lag breach the SLO on spikes while spare headroom trades cost for safety. A live control-loop simulation."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

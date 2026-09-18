@@ -141,7 +141,7 @@ function RPSDemo() {
   );
   return (
     <DemoLayout topic="GAME · SEQUENCE MODEL" title="Rock-Paper-Scissors Mind-Reader"
-      subtitle="An AI that learns your habits and predicts your next move. Stay unpredictable — it's harder than it sounds."
+      subtitle="An AI that learns your habits and predicts your next move. Stay unpredictable: it is harder than it sounds."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );

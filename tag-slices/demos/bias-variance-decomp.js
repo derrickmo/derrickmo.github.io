@@ -139,6 +139,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "bias-variance-decomp"
+    },
+    {
+      "kind": "demo",
+      "slug": "scaling-laws"
     }
   ]
 };

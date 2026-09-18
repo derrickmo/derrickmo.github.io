@@ -173,7 +173,7 @@ function MutualInformationDemo() {
       <DemoP>
         The honest catch you can see on screen is why MI is hard in practice: estimating it from samples in
         more than a couple of dimensions is <i>statistically brutal</i> — plug-in binning is biased and
-        explodes with dimension, which is exactly why modern methods (MINE, InfoNCE) estimate <i>bounds</i>
+        explodes with dimension, which is exactly why modern methods (MINE, InfoNCE) estimate <i>bounds</i>{" "}
         on MI with neural networks instead of computing it directly. It's built from
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`}> entropy</a>, the same quantity behind
         compression and cross-entropy loss — information theory quietly underlies most of what training a

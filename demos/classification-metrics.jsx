@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -157,19 +157,36 @@ function ClassificationMetricsDemo() {
   const explainer = (
     <>
       <DemoP>
-        Every classification metric is just a way of reading the <b>confusion matrix</b> — the table
-        of true class (rows) vs predicted class (columns). The green diagonal is correct predictions;
-        red off-diagonals are the mistakes. From it, each class gets a <b>precision</b> (of what I
-        called class C, how much was right), a <b>recall</b> (of the true class C, how much I caught),
-        and their harmonic mean, <b>F1</b>.
+        Every classification metric is a way of reading the{" "}
+        <b>confusion matrix</b>, the table of true class (rows) against predicted
+        class (columns). The green diagonal is correct predictions and the red
+        off-diagonals are the mistakes. Each class gets three numbers out of it:
       </DemoP>
+      <DemoUL>
+        <DemoLI><b>Precision</b>: of what I called class C, how much was right.</DemoLI>
+        <DemoLI><b>Recall</b>: of the true class C, how much I caught.</DemoLI>
+        <DemoLI><b>F1</b>: the harmonic mean of the two.</DemoLI>
+      </DemoUL>
       <DemoP>
-        The headline is what happens when you combine per-class F1 across classes. <b>Micro-F1 equals
-        accuracy</b> and is dominated by the majority class; <b>macro-F1</b> averages classes equally,
-        so it <i>punishes</i> a model that ignores rare classes; <b>weighted-F1</b> sits in between,
-        weighting by support. Crank <b>imbalance</b> up and watch accuracy stay high while macro-F1
-        collapses — the single most common way ML results are oversold. The <b>F-β</b> knob then trades
-        precision against recall for when false positives and false negatives cost different amounts.
+        The headline is what happens when you combine per-class F1 across classes:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Micro-F1 equals accuracy</b>, so the majority class dominates it.
+        </DemoLI>
+        <DemoLI>
+          <b>Macro-F1</b> averages the classes equally, so it punishes a model
+          that ignores rare ones.
+        </DemoLI>
+        <DemoLI>
+          <b>Weighted-F1</b> sits in between, weighting each class by its support.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        Turn <b>imbalance</b> up and watch accuracy stay high while macro-F1
+        collapses. That is the most common way ML results get oversold. The{" "}
+        <b>F-&beta;</b> knob then trades precision against recall, for when a
+        false positive and a false negative cost different amounts.
       </DemoP>
     </>
   );
@@ -177,20 +194,32 @@ function ClassificationMetricsDemo() {
   const concepts = (
     <>
       <DemoP>
-        Choosing the right metric is half of doing ML responsibly. Accuracy is fine on balanced data
-        and dangerously misleading on imbalanced data (fraud, disease, defects) — where macro-F1, the
-        <a href={`${window.__DM_BASE || "../../"}visualize/roc/`}> ROC/PR curves</a>, and per-class recall
-        are what actually matter. F-β encodes the real-world asymmetry: a spam filter wants precision
-        (don't drop good mail), a cancer screen wants recall (don't miss a case). These are the numbers
-        every model card, leaderboard, and A/B test reports — and the ones interviewers probe.
+        Choosing the metric is half of doing ML responsibly. Accuracy is fine on
+        balanced data and misleading on imbalanced data like fraud, disease or
+        defects, where macro-F1, the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/roc/`}>ROC and PR curves</a>{" "}
+        and per-class recall are what actually matter. F-&beta; encodes the real
+        asymmetry: a spam filter wants precision so it does not drop good mail, a
+        cancer screen wants recall so it does not miss a case.
       </DemoP>
-      <DemoP>
-        The same confusion-matrix view scales up: macro vs micro averaging is exactly the choice
-        behind multi-label and retrieval metrics (mAP, micro/macro-averaged F1 in NER and segmentation),
-        and pairing it with <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}>calibration</a>
-        tells you not just <i>whether</i> predictions are right but whether their <i>confidences</i> are
-        honest. Metric literacy is what separates "97% accurate!" hype from a model you'd actually deploy.
-      </DemoP>
+      <DemoP>The same confusion-matrix view scales up:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Macro against micro averaging is the same choice behind multi-label and
+          retrieval metrics, including mAP and the averaged F1 used in NER and
+          segmentation.
+        </DemoLI>
+        <DemoLI>
+          Pairing it with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}>calibration</a>{" "}
+          tells you not just whether predictions are right, but whether their
+          confidences are honest.
+        </DemoLI>
+        <DemoLI>
+          Metric literacy is what separates "97% accurate" from a model you would
+          actually deploy.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

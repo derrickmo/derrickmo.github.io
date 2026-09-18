@@ -202,7 +202,7 @@ function ShapDemo() {
   );
   return (
     <DemoLayout title="Feature Attribution (SHAP)"
-      subtitle="Why did the model decide that? Exact Shapley values credit each feature's contribution — including the interaction — as a waterfall from base to prediction."
+      subtitle="Why did the model decide that? Exact Shapley values credit the contribution of each feature, including the interaction, as a waterfall from base to prediction."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

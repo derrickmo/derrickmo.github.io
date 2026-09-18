@@ -251,7 +251,7 @@ function ConformalRegressionDemo() {
   );
   return (
     <DemoLayout title="Conformal Regression"
-      subtitle="Turn a point regressor into a prediction interval with a coverage guarantee. Watch coverage hold even when the mean is underfit — and see the band breathe with the noise once you make the score locally adaptive."
+      subtitle="Turn a point regressor into a prediction interval with a coverage guarantee. Watch coverage hold even when the mean is underfit, then see the band breathe with the noise once you make the score locally adaptive."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

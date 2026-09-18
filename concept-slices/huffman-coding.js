@@ -34,6 +34,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "huffman-coding"
+    },
+    {
+      "kind": "demo",
+      "slug": "tokenizer"
     }
   ]
 };

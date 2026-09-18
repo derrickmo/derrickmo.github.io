@@ -361,4 +361,39 @@ function DemoP({ children }) {
   return <p className="t-body" style={{ color: "var(--white)", opacity: 0.88, fontSize: 16, lineHeight: 1.65, margin: 0 }}>{children}</p>;
 }
 
-Object.assign(window, { DemoLayout, DemoP });
+// Bulleted explainer copy. Same type as DemoP so a list and a paragraph can sit
+// next to each other without the text size shifting.
+//
+// House rule: at most THREE items per level. A list longer than that is a
+// paragraph that has not been edited yet, and `audit-demo-prose.mjs` fails on it.
+// Nest by putting a <DemoUL> inside a <DemoLI> for the second level.
+function DemoUL({ children, nested = false }) {
+  return (
+    <ul
+      className="t-body"
+      style={{
+        color: "var(--white)", opacity: 0.88, fontSize: 16, lineHeight: 1.65,
+        margin: nested ? "6px 0 0" : 0, paddingLeft: nested ? 20 : 20,
+        listStyle: "none", display: "flex", flexDirection: "column",
+        gap: nested ? 4 : 8,
+      }}
+    >
+      {children}
+    </ul>
+  );
+}
+
+// `marker` overrides the bullet glyph. The nested level uses a lighter dash so
+// the two levels are distinguishable without indentation alone carrying it.
+function DemoLI({ children, nested = false }) {
+  return (
+    <li style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+      <span aria-hidden="true" style={{ color: nested ? "var(--dim)" : "var(--blue-lt)", flex: "0 0 auto", fontSize: nested ? 13 : 15, lineHeight: 1.65 }}>
+        {nested ? "–" : "▸"}
+      </span>
+      <span style={{ minWidth: 0 }}>{children}</span>
+    </li>
+  );
+}
+
+Object.assign(window, { DemoLayout, DemoP, DemoUL, DemoLI });

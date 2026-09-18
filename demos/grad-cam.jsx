@@ -309,7 +309,7 @@ function GradCamDemo() {
         same shape should produce a <i>useless</i> map, and if the picture barely changes
         then the method was tracking the image all along. Averaged over 200 held-out
         images the trained model puts <b>54%</b> of the heatmap's mass on a shape
-        occupying <b>13%</b> of the frame, and randomising the weights drops that to
+        occupying <b>13%</b> of the frame, and randomising the weights drops that to{" "}
         <b>20%</b> — barely above what scattering it uniformly would give.
       </DemoP>
       <DemoP>
@@ -345,7 +345,7 @@ function GradCamDemo() {
   );
   return (
     <DemoLayout title="Grad-CAM"
-      subtitle="Train a small CNN here, then ask it where it looked — and check the answer is about the model."
+      subtitle="Train a small CNN here, then ask it where it looked, and check that the answer is about the model."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/grad-cam/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

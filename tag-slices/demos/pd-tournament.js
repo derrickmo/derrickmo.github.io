@@ -70,6 +70,14 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "pd-tournament"
+    },
+    {
+      "kind": "game",
+      "slug": "poker"
+    },
+    {
+      "kind": "game",
+      "slug": "rps"
     }
   ],
   "replicator-dynamics": [
@@ -80,6 +88,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "pd-tournament"
+    },
+    {
+      "kind": "game",
+      "slug": "rps"
     }
   ]
 };

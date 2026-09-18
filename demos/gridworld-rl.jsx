@@ -225,7 +225,7 @@ function GridworldDemo() {
   return (
     <DemoLayout
       title="Q-Learning Gridworld"
-      subtitle="Watch a tabular Q-learning agent discover a policy — value propagates backward from the goal, one update at a time."
+      subtitle="Watch a tabular Q-learning agent discover a policy. Value propagates backward from the goal, one update at a time."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

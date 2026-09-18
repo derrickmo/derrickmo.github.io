@@ -246,7 +246,7 @@ function EdgeDetectionDemo() {
   return (
     <DemoLayout
       title="Canny Edge Detection"
-      subtitle="Walk the classic five-stage pipeline — blur, Sobel gradient, non-max suppression, double threshold, hysteresis — and watch edges emerge from pixels."
+      subtitle="Walk the classic five-stage pipeline (blur, Sobel gradient, non-max suppression, double threshold, hysteresis) and watch edges emerge from pixels."
       stage={stage_el} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

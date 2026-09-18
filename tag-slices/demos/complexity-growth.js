@@ -79,6 +79,10 @@ window.CONCEPT_REVERSE = {
   "graph-search": [
     {
       "kind": "demo",
+      "slug": "pathfinding"
+    },
+    {
+      "kind": "demo",
       "slug": "dijkstra"
     },
     {

@@ -160,7 +160,7 @@ function GoDemo() {
   );
   return (
     <DemoLayout topic="GAME · MONTE-CARLO SEARCH" title="Go 7x7"
-      subtitle="Real Go on a small board against a Monte-Carlo rollout AI — the idea that, scaled up, became AlphaGo."
+      subtitle="Real Go on a small board against a Monte-Carlo rollout AI. This is the idea that, scaled up, became AlphaGo."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );

@@ -128,6 +128,10 @@ window.CONCEPT_REVERSE = {
       "slug": "mle"
     },
     {
+      "kind": "game",
+      "slug": "minesweeper"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     },

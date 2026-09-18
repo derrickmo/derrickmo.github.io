@@ -387,7 +387,7 @@ function GANDemo() {
   );
   return (
     <DemoLayout title="GAN 2-D"
-      subtitle="Two tiny networks duel in your browser — generator chases the real distribution, discriminator polices the boundary."
+      subtitle="Two tiny networks duel in your browser. The generator chases the real distribution, the discriminator polices the boundary."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/generative/`}
       tone="violet" />

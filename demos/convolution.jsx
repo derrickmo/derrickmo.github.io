@@ -133,8 +133,8 @@ function ConvolutionDemo() {
         A convolution slides a small <b>kernel</b> over the image and, at every
         pixel, computes a weighted sum of the neighborhood. That tiny 3×3 grid of
         numbers is the entire operation — change it and you change what the layer
-        "sees." <b>Box/Gaussian</b> kernels average neighbors (blur). <b>Sharpen</b>
-        amplifies the center against its surround. <b>Sobel</b> and <b>Edge</b>
+        "sees." <b>Box/Gaussian</b> kernels average neighbors (blur). <b>Sharpen</b>{" "}
+        amplifies the center against its surround. <b>Sobel</b> and <b>Edge</b>{" "}
         kernels sum to zero, so flat regions cancel out and only intensity
         <i> changes</i> survive — that's edge detection.
       </DemoP>
@@ -171,7 +171,7 @@ function ConvolutionDemo() {
   return (
     <DemoLayout
       title="Convolution Lab"
-      subtitle="Slide a 3×3 kernel over an image and see what each filter detects — the core operation inside every CNN."
+      subtitle="Slide a 3×3 kernel over an image and see what each filter detects. This is the core operation inside every CNN."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

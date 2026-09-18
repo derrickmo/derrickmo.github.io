@@ -200,7 +200,7 @@ function CanaryRolloutDemo() {
   return (
     <DemoLayout
       title="Canary Rollout"
-      subtitle="Ship a new model to a sliver of live traffic, guard it with an automated metric test, and widen or roll back — capping the blast radius of a bad deploy."
+      subtitle="Ship a new model to a sliver of live traffic, guard it with an automated metric test, and widen or roll back. That caps the blast radius of a bad deploy."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

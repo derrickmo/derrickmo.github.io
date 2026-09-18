@@ -169,7 +169,7 @@ function PCADemo() {
   );
   return (
     <DemoLayout title="Principal Component Analysis"
-      subtitle="Find the axes of greatest variance — then project onto them. Dimensionality reduction, made visible."
+      subtitle="Find the axes of greatest variance, then project onto them. Dimensionality reduction, made visible."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

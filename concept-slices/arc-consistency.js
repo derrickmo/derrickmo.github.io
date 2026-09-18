@@ -51,6 +51,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "sudoku"
+    },
+    {
+      "kind": "game",
+      "slug": "minesweeper"
     }
   ]
 };

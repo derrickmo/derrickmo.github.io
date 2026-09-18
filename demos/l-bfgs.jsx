@@ -317,7 +317,7 @@ function LBFGSDemo() {
         scaling wall that stops pure <a href={`${window.__DM_BASE || "../../"}visualize/newton-vs-gradient/`}>Newton's method</a>.
       </DemoP>
       <DemoP>
-        Why isn't it the default for deep learning? Because it assumes a <i>consistent</i>
+        Why isn't it the default for deep learning? Because it assumes a <i>consistent</i>{" "}
         gradient, and mini-batch <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD</a> gradients
         are noisy — the (s, y) curvature pairs become unreliable, and the line search needs
         full-batch evaluations that are too expensive. That trade-off (cheap noisy first-order

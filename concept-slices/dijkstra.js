@@ -60,6 +60,10 @@ window.CONCEPT_REVERSE = {
   "dijkstra": [
     {
       "kind": "demo",
+      "slug": "pathfinding"
+    },
+    {
+      "kind": "demo",
       "slug": "dijkstra"
     },
     {

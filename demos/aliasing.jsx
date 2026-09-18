@@ -138,7 +138,7 @@ function AliasingDemo() {
 
   return (
     <DemoLayout title="Aliasing & the Nyquist Limit"
-      subtitle="Sample a sine too slowly and a phantom lower frequency appears. The Nyquist-Shannon theorem says why — and why every digitizer filters before it samples."
+      subtitle="Sample a sine too slowly and a phantom lower frequency appears. The Nyquist-Shannon theorem says why, and why every digitizer filters before it samples."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

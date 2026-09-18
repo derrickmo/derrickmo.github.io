@@ -302,7 +302,7 @@ function PathfindingDemo() {
     <>
       <DemoP>
         Every algorithm here explores the grid by repeatedly expanding the most
-        promising cell, but they disagree on what "promising" means. <b>Dijkstra</b>
+        promising cell, but they disagree on what "promising" means. <b>Dijkstra</b>{" "}
         and <b>BFS</b> expand by distance from the start (guaranteed shortest path,
         but they fan out in every direction). <b>Greedy</b> best-first expands by the
         heuristic estimate of distance to the goal (fast, but can miss the shortest
@@ -331,7 +331,7 @@ function PathfindingDemo() {
       </DemoP>
       <DemoP>
         The same "expand the most promising frontier node first" idea generalizes straight
-        into modern AI: <b>beam search</b> in language-model decoding, <b>branch-and-bound</b>
+        into modern AI: <b>beam search</b> in language-model decoding, <b>branch-and-bound</b>{" "}
         in optimization, and <b>Monte-Carlo Tree Search</b> in game-playing agents (the
         engine behind AlphaGo) all trade completeness for speed using a heuristic. The
         through-line is <i>admissibility</i> — knowing when a heuristic is optimistic enough

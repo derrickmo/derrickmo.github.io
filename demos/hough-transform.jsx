@@ -171,7 +171,7 @@ function HoughTransformDemo() {
         know where it is or how long it is? The Hough transform flips the problem
         around. Instead of searching the image, every edge point <b>votes</b> for
         all the lines that could pass through it. A line in (x, y) space is written
-        as ρ = x·cosθ + y·sinθ, so a single point traces out a whole <i>sinusoid</i>
+        as ρ = x·cosθ + y·sinθ, so a single point traces out a whole <i>sinusoid</i>{" "}
         in (ρ, θ) parameter space — one vote per possible angle.
       </DemoP>
       <DemoP>
@@ -213,7 +213,7 @@ function HoughTransformDemo() {
   return (
     <DemoLayout
       title="Hough Transform"
-      subtitle="Every edge point votes for the lines that could pass through it — and real lines emerge as bright peaks in the accumulator."
+      subtitle="Every edge point votes for the lines that could pass through it, and real lines emerge as bright peaks in the accumulator."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

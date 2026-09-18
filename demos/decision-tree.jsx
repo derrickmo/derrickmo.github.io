@@ -155,7 +155,7 @@ function DecisionTreeDemo() {
   );
   return (
     <DemoLayout title="Decision Tree"
-      subtitle="Watch a CART tree carve the plane into axis-aligned regions — and overfit as it deepens."
+      subtitle="Watch a CART tree carve the plane into axis-aligned regions, then overfit as it deepens."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/supervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

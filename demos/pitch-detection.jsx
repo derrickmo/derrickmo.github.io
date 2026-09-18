@@ -156,7 +156,7 @@ function PitchDetectionDemo() {
 
   return (
     <DemoLayout title="Pitch Detection (Autocorrelation)"
-      subtitle="Find the note in a sound. A periodic signal autocorrelates to a peak at its period — f0 = sample rate / peak lag — and noise is what makes it hard."
+      subtitle="Find the note in a sound. A periodic signal autocorrelates to a peak at its period, so f0 = sample rate / peak lag, and noise is what makes it hard."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

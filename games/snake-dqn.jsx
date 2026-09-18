@@ -182,7 +182,7 @@ function SnakeDemo() {
   );
   return (
     <DemoLayout topic="REINFORCEMENT LEARNING" title="Snake: Self-Taught"
-      subtitle="A snake that learns to feed itself from reward alone — real Q-learning, sharpening episode by episode."
+      subtitle="A snake that learns to feed itself from reward alone. Real Q-learning, sharpening episode by episode."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );

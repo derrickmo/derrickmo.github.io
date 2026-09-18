@@ -186,7 +186,7 @@ function LabelNoiseDemo() {
   );
   return (
     <DemoLayout title="Label Noise"
-      subtitle="Flip some training labels and watch the boundary warp around them. Train longer and the model memorizes the noise — true accuracy falls while train accuracy climbs."
+      subtitle="Flip some training labels and watch the boundary warp around them. Train longer and the model memorizes the noise: true accuracy falls while train accuracy climbs."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

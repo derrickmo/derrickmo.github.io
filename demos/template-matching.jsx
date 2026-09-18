@@ -165,7 +165,7 @@ function TemplateMatchingDemo() {
         vision: OCR, manufacturing defect/QA inspection, medical landmark localization, GUI test
         automation, and the "find this icon on screen" of RPA all run NCC under the hood. It's literally a
         <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}> convolution</a> with the
-        template as the kernel — which is why the first layers of a CNN can be read as <i>learned</i>
+        template as the kernel — which is why the first layers of a CNN can be read as <i>learned</i>{" "}
         template matchers, and why correlation is the workhorse of tracking and stereo matching.
       </DemoP>
       <DemoP>

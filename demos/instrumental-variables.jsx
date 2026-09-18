@@ -155,7 +155,7 @@ function IVDemo() {
       </DemoP>
       <DemoP>
         Two assumptions do all the work, and the demo lets you break each. Pull
-        INSTRUMENT STRENGTH toward zero and the first-stage F drops below 10 — a
+        INSTRUMENT STRENGTH toward zero and the first-stage F drops below 10 — a{" "}
         <i>weak instrument</i>, where dividing by a near-zero covariance makes IV
         wildly noisy. Raise EXCLUSION VIOLATION and Z leaks straight into Y; IV
         becomes biased again (β̂ ≈ β + e/a). Relevance you can measure from data;
@@ -190,7 +190,7 @@ function IVDemo() {
   );
   return (
     <DemoLayout title="Instrumental Variables"
-      subtitle="Recover a causal effect when a hidden confounder biases the obvious regression. An instrument that moves the treatment — but not the outcome directly — lets 2SLS read the true effect. Then break relevance and exclusion to see it fail."
+      subtitle="Recover a causal effect when a hidden confounder biases the obvious regression. An instrument that moves the treatment but not the outcome directly lets 2SLS read the true effect. Then break relevance and exclusion to see it fail."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

@@ -56,7 +56,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   },
   "activations": {
     "id": "activations",
@@ -86,7 +87,8 @@ window.CONCEPTS_INDEX = {
     ],
     "leadsTo": [
       "lr-schedule"
-    ]
+    ],
+    "animation": "viz/gradient-momentum.html"
   }
 };
 window.CONCEPT_REVERSE = {

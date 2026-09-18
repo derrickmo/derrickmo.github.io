@@ -70,10 +70,18 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "game",
+      "slug": "poker"
+    },
+    {
+      "kind": "game",
       "slug": "twenty48"
     }
   ],
   "mdp-bellman": [
+    {
+      "kind": "demo",
+      "slug": "bandit"
+    },
     {
       "kind": "demo",
       "slug": "gridworld-rl"

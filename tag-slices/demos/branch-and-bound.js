@@ -59,6 +59,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "branch-and-bound"
+    },
+    {
+      "kind": "game",
+      "slug": "tic-tac-toe"
     }
   ],
   "dynamic-programming": [
@@ -96,6 +100,10 @@ window.CONCEPT_REVERSE = {
     }
   ],
   "graph-search": [
+    {
+      "kind": "demo",
+      "slug": "pathfinding"
+    },
     {
       "kind": "demo",
       "slug": "dijkstra"

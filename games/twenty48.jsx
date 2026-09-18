@@ -162,7 +162,7 @@ function Game2048() {
   );
   return (
     <DemoLayout topic="GAME · EXPECTIMAX" title="2048 + AI Assist"
-      subtitle="Play with arrow keys — or hand it to an expectimax AI that searches against the random spawns."
+      subtitle="Play with the arrow keys, or hand it to an expectimax AI that searches against the random spawns."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );

@@ -215,7 +215,7 @@ function DistributionalRLDemo() {
         Distributional RL learns the entire <b>distribution of returns</b> as
         probabilities over a fixed grid of <b>atoms</b>. Here the only reward is a
         coin-flip payoff at the goal, so the goal state's return distribution is
-        genuinely <b>bimodal</b> (green). The <b>distributional Bellman backup</b>
+        genuinely <b>bimodal</b> (green). The <b>distributional Bellman backup</b>{" "}
         carries that shape back through the chain, scaling it by γ each step so both
         modes drift toward 0 and the spread tightens.
       </DemoP>
@@ -259,7 +259,7 @@ function DistributionalRLDemo() {
 
   return (
     <DemoLayout title="Distributional RL (C51)"
-      subtitle="Learn the whole distribution of returns, not just its mean. The distributional Bellman backup carries a bimodal payoff back through the chain — and the scalar value hides it."
+      subtitle="Learn the whole distribution of returns, not just its mean. The distributional Bellman backup carries a bimodal payoff back through the chain, and the scalar value hides it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

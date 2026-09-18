@@ -67,6 +67,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "histogram-equalization"
+    },
+    {
+      "kind": "demo",
       "slug": "decision-tree"
     },
     {

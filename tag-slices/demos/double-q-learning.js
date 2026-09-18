@@ -65,6 +65,10 @@ window.CONCEPT_REVERSE = {
   "q-learning": [
     {
       "kind": "demo",
+      "slug": "bandit"
+    },
+    {
+      "kind": "demo",
       "slug": "gridworld-rl"
     },
     {

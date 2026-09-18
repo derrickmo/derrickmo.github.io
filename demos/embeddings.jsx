@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -169,18 +169,26 @@ function EmbeddingsDemo() {
     <>
       <DemoP>
         Embeddings turn words into vectors so that <b>distance means similarity</b>.
-        In <b>Neighbors</b> mode, click any word and its nearest vectors light up —
-        notice how same-category words cluster together, because the model places
-        things used in similar contexts near each other.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          In <b>Neighbors</b> mode, click any word and its nearest vectors light
+          up. Same-category words cluster, because the model puts things used in
+          similar contexts near each other.
+        </DemoLI>
+        <DemoLI>
+          <b>Directions</b> carry meaning too. The vector from "man" to "king" is
+          about the same as the one from "woman" to "queen", so{" "}
+          <i>king &minus; man + woman</i> lands right next to "queen".
+        </DemoLI>
+        <DemoLI>
+          The same trick gives you capitals from countries. These are the word2vec
+          analogies, drawn here as parallelograms.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The surprising part is that <b>directions</b> carry meaning too. The vector
-        from "man" to "king" is roughly the same as "woman" to "queen" — a
-        "royalty" direction — so <i>king − man + woman</i> lands right next to
-        "queen." Same trick gives capitals from countries. That's the famous word2vec
-        analogy property, shown here as parallelograms. <em>This is a small hand-built
-        2D space for clarity; real embeddings live in hundreds of dimensions but
-        behave exactly like this.</em>
+        This is a small hand-built 2D space so you can see it. Real embeddings
+        live in hundreds of dimensions and behave the same way.
       </DemoP>
     </>
   );
@@ -188,26 +196,39 @@ function EmbeddingsDemo() {
   const concepts = (
     <>
       <DemoP>
-        Embeddings are the lingua franca of modern AI: every LLM begins by mapping tokens
-        to vectors, and the same idea powers semantic search, recommendation,
-        retrieval-augmented generation, clustering, and de-duplication. "Similar things sit
-        close together" is precisely what lets a model generalize from the words (or
-        images, or users) it saw to the ones it didn't.
+        Embeddings are the common currency of modern AI. Every LLM starts by
+        mapping tokens to vectors, and the same idea drives semantic search,
+        recommendation, retrieval-augmented generation, clustering and
+        de-duplication. "Similar things sit close together" is what lets a model
+        generalize from the words, images or users it saw to the ones it did not.
       </DemoP>
       <DemoP>
-        The directions-have-meaning property on screen (the word2vec analogies) was the
-        first clear sign that learned representations capture structure, not just a lookup
-        table. Today's sentence and document embeddings — and CLIP's shared image-text
-        space — extend it to whole passages and modalities. Cosine similarity over these
-        vectors, backed by approximate-nearest-neighbor indexes, is literally the retrieval
-        step inside RAG systems and vector databases.
+        Directions having meaning was the first clear sign that learned
+        representations capture structure rather than a lookup table. That idea
+        extends three ways:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Sentence and document embeddings carry it from single words up to whole
+          passages.
+        </DemoLI>
+        <DemoLI>
+          CLIP puts images and text in one shared space, so the distance works
+          across modalities.
+        </DemoLI>
+        <DemoLI>
+          Cosine similarity over these vectors, backed by an approximate
+          nearest-neighbor index, is the retrieval step inside every RAG system
+          and vector database.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout
       title="Embedding Atlas"
-      subtitle="Explore the geometry of word vectors — nearest neighbors and the analogy parallelograms that make king−man+woman≈queen."
+      subtitle="Explore the geometry of word vectors: nearest neighbors, and the analogy parallelograms that make king−man+woman≈queen."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/huggingface_tutorials"

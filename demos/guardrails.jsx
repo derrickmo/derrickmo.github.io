@@ -225,7 +225,7 @@ function GuardrailsDemo() {
   );
   return (
     <DemoLayout title="Guardrails"
-      subtitle="The input/output safety pipeline around an LLM. Toggle a guard off and watch the matching threat reach the model — or leak back out."
+      subtitle="The input and output safety pipeline around an LLM. Toggle a guard off and watch the matching threat reach the model, or leak back out."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

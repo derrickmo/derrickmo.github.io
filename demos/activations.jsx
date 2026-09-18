@@ -135,7 +135,7 @@ function ActivationsDemo() {
   );
   return (
     <DemoLayout title="Activation Functions"
-      subtitle="The nonlinearities that make deep learning deep — and the gradients that decide whether it trains."
+      subtitle="The nonlinearities that make deep learning deep, and the gradients that decide whether it trains."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

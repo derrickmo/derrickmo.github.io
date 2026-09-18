@@ -213,7 +213,7 @@ function MCDropoutDemo() {
   );
   return (
     <DemoLayout title="MC Dropout"
-      subtitle="Keep dropout on at inference and sample many times — the spread is the model's uncertainty, and it grows where the data runs out."
+      subtitle="Keep dropout on at inference and sample many times. The spread is the uncertainty of the model, and it grows where the data runs out."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

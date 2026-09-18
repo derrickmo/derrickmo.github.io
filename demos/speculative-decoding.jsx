@@ -177,7 +177,7 @@ function SpeculativeDecodingDemo() {
   );
   return (
     <DemoLayout title="Speculative Decoding"
-      subtitle="A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step — a lossless speedup set by draft agreement and lookahead."
+      subtitle="A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step, a lossless speedup set by draft agreement and lookahead."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

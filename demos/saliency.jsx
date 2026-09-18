@@ -187,7 +187,7 @@ function SaliencyDemo() {
   );
   return (
     <DemoLayout title="Saliency Maps"
-      subtitle="Gradient of the output w.r.t. each input pixel — a per-example map of what the model is looking at. Paint the grid and watch the explanation move."
+      subtitle="Gradient of the output with respect to each input pixel, a per-example map of what the model is looking at. Paint the grid and watch the explanation move."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

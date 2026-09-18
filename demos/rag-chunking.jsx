@@ -246,7 +246,7 @@ function RagChunkingDemo() {
   );
   return (
     <DemoLayout title="RAG Chunking"
-      subtitle="Chunk size, overlap, and strategy decide whether the answer survives retrieval. Real TF-IDF cosine over the chunks — watch the verdict flip."
+      subtitle="Chunk size, overlap, and strategy decide whether the answer survives retrieval. Real TF-IDF cosine over the chunks, so watch the verdict flip."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

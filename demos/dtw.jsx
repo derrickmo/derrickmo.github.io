@@ -176,7 +176,7 @@ function DTWDemo() {
 
   return (
     <DemoLayout title="Dynamic Time Warping"
-      subtitle="Align two series at different speeds. DTW finds the cheapest nonlinear warp between them — where rigid Euclidean distance fails on the smallest time shift."
+      subtitle="Align two series at different speeds. DTW finds the cheapest nonlinear warp between them, where rigid Euclidean distance fails on the smallest time shift."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

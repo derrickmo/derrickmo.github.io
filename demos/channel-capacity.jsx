@@ -124,7 +124,7 @@ function ChannelCapacityDemo() {
         however clever, can send anything reliably.
       </DemoP>
       <DemoP>
-        Two knobs, two lessons. <b>Input P(X=1)</b>: the I-vs-input curve peaks at a <b>uniform</b>
+        Two knobs, two lessons. <b>Input P(X=1)</b>: the I-vs-input curve peaks at a <b>uniform</b>{" "}
         0.5 — using the channel asymmetrically wastes it (hit OPTIMAL INPUT to sit at the peak).
         <b> Flip probability</b>: the capacity curve is C = 1 − H(p), the clean statement that the
         channel's noise <i>is</i> an entropy you must pay. Shannon's coding theorem says you can

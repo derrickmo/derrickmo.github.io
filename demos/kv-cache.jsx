@@ -237,7 +237,7 @@ function KVCacheDemo() {
         The KV cache is the single largest reason production LLM inference is feasible.
         Without it, generating a 4k-token response would re-do attention on the entire
         prefix at every token — quadratic in length on top of an already enormous
-        model. Memory cost grows linearly (<i>2 · L · n_layers · n_heads · d_head</i>
+        model. Memory cost grows linearly (<i>2 · L · n_layers · n_heads · d_head</i>{" "}
         per request), which is why <b>context length</b> is a hardware question:
         Llama 3 70B at 128k context needs tens of gigabytes of KV alone, per request.
       </DemoP>
@@ -253,7 +253,7 @@ function KVCacheDemo() {
   );
   return (
     <DemoLayout title="KV Cache"
-      subtitle="Toggle the KV cache and watch per-step compute either stay flat or grow with prefix length — the trick that makes LLM inference tractable."
+      subtitle="Toggle the KV cache and watch per-step compute either stay flat or grow with prefix length. This is the trick that makes LLM inference tractable."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/llm-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

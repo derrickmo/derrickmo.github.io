@@ -174,7 +174,7 @@ function HarrisDemo() {
         large. The response R = det(M) − k·trace(M)² is a cheap eigenvalue-free way
         to find that "both large" case: it's positive at corners, negative at edges,
         near zero on flat areas. The right panel paints corners hot and edges cold so
-        you can see the separation directly. Tune <b>k</b> and the <b>threshold</b>
+        you can see the separation directly. Tune <b>k</b> and the <b>threshold</b>{" "}
         and watch the checkerboard's L-junctions light up.
       </DemoP>
     </>
@@ -206,7 +206,7 @@ function HarrisDemo() {
   return (
     <DemoLayout
       title="Harris Corner Detector"
-      subtitle="A corner is where intensity changes in two directions at once — find them from the eigenvalues of the local gradient structure tensor."
+      subtitle="A corner is where intensity changes in two directions at once. Find them from the eigenvalues of the local gradient structure tensor."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

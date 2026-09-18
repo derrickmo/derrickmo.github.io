@@ -187,7 +187,7 @@ function RFDemo() {
       </DemoP>
       <DemoP>
         The three levers are not equivalent. <b>Depth</b> at stride 1 grows the field
-        additively and slowly: five 3×3 layers reach only 11 pixels. <b>Stride</b>
+        additively and slowly: five 3×3 layers reach only 11 pixels. <b>Stride</b>{" "}
         compounds — the same five layers at stride 2 reach 63, because every later step
         is measured in units of all the strides before it. <b>Dilation</b> enlarges the
         reach without adding a single parameter. Click through the real stacks and compare
@@ -228,7 +228,7 @@ function RFDemo() {
   );
   return (
     <DemoLayout title="Receptive Field"
-      subtitle="How far back one unit can see — and how much less of that it actually uses."
+      subtitle="How far back one unit can see, and how much less of that it actually uses."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/cnn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

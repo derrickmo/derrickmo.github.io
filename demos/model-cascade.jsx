@@ -193,7 +193,7 @@ function ModelCascadeDemo() {
   return (
     <DemoLayout
       title="Model Cascade (Early-Exit)"
-      subtitle="Let a cheap model answer the easy inputs and escalate only the uncertain ones to an expensive model — spend big compute where it actually changes the answer."
+      subtitle="Let a cheap model answer the easy inputs and escalate only the uncertain ones to an expensive model. Spend big compute where it actually changes the answer."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

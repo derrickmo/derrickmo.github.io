@@ -212,7 +212,7 @@ function TSNEDemo() {
       </DemoP>
       <DemoP>
         Read t-SNE plots with care — it's a visualization tool, not a clustering or
-        distance-preserving one. Cluster <i>sizes</i> and the <i>gaps between</i>
+        distance-preserving one. Cluster <i>sizes</i> and the <i>gaps between</i>{" "}
         clusters are largely meaningless (the algorithm equalizes density), so don't
         infer "these two groups are far apart" from the picture. Results depend on
         perplexity, learning rate, and the random seed; apparent clusters can be
@@ -223,7 +223,7 @@ function TSNEDemo() {
   );
   return (
     <DemoLayout title="t-SNE"
-      subtitle="Watch real KL-divergence gradient descent pull high-dimensional clusters apart in 2D. Tune perplexity, separation, and learning rate to see t-SNE work — and to see the ways it famously misleads."
+      subtitle="Watch real KL-divergence gradient descent pull high-dimensional clusters apart in 2D. Tune perplexity, separation, and learning rate to see t-SNE work, and to see the ways it famously misleads."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/ml-theory/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

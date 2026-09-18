@@ -39,7 +39,8 @@ window.CONCEPTS_INDEX = {
       "pruning",
       "saliency",
       "mixed-precision"
-    ]
+    ],
+    "animation": "viz/backpropagation.html"
   }
 };
 window.CONCEPT_REVERSE = {

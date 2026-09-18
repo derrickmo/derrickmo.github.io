@@ -243,7 +243,7 @@ function DoubleQDemo() {
 
   return (
     <DemoLayout title="Double Q-Learning"
-      subtitle="Selecting and evaluating with the same noisy max overestimates — so Q-learning prefers a losing action. Two decoupled estimators cancel the bias."
+      subtitle="Selecting and evaluating with the same noisy max overestimates, so Q-learning prefers a losing action. Two decoupled estimators cancel the bias."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

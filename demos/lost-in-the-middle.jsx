@@ -205,7 +205,7 @@ function LostInTheMiddleDemo() {
   );
   return (
     <DemoLayout title="Lost in the Middle"
-      subtitle="Models use the start and end of a long context far better than the middle. Slide the answer's position — and rerank it to the front to fix it."
+      subtitle="Models use the start and end of a long context far better than the middle. Slide the position of the answer, then rerank it to the front to fix it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

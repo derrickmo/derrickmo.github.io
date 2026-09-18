@@ -21,6 +21,7 @@ window.CONCEPTS_INDEX = {
       "mlp",
       "vae"
     ],
+    "animation": "viz/diffusion.html",
     "leadsTo": []
   },
   "vae": {

@@ -67,6 +67,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "game",
+      "slug": "poker"
+    },
+    {
+      "kind": "game",
       "slug": "twenty48"
     }
   ]

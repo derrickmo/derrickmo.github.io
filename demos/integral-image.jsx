@@ -202,7 +202,7 @@ function IntegralDemo() {
     <>
       <DemoP>
         An integral image stores, at every position, the sum of everything above and to
-        the left of it. Build it in one pass, and afterwards the sum of <i>any</i>
+        the left of it. Build it in one pass, and afterwards the sum of <i>any</i>{" "}
         rectangle is four reads and three additions: take the bottom-right corner, add
         back the top-left, subtract the two you double-counted. Widen the rectangle and
         the brute-force counter climbs into the thousands while the integral cost does
@@ -245,7 +245,7 @@ function IntegralDemo() {
   );
   return (
     <DemoLayout title="Integral Images & Haar Features"
-      subtitle="Precompute once, then sum any rectangle in four reads — the trick that made real-time face detection possible."
+      subtitle="Precompute once, then sum any rectangle in four reads. This is the trick that made real-time face detection possible."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

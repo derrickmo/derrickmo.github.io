@@ -180,7 +180,7 @@ function AgentRouterDemo() {
   );
   return (
     <DemoLayout title="Agent Tool Router"
-      subtitle="Which tool handles this query? Score the request against each tool, route to the top one above a confidence threshold — and fall back to the model when nothing fits."
+      subtitle="Which tool handles this query? Score the request against each tool, route to the top one above a confidence threshold, and fall back to the model when nothing fits."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

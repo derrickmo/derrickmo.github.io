@@ -141,7 +141,7 @@ function PdTournamentDemo() {
         The repeated result is one of the most cited findings in social science: <b>TitForTat</b>
         — cooperate first, then mirror your opponent — tends to win. It is <b>nice</b> (never defects
         first), <b>retaliatory</b> (punishes defection), and <b>forgiving</b> (returns to cooperation).
-        Drop ROUNDS to <b>1</b> and the order inverts — AllD wins the one-shot game. Add <b>noise</b>
+        Drop ROUNDS to <b>1</b> and the order inverts — AllD wins the one-shot game. Add <b>noise</b>{" "}
         and unforgiving <b>Grim</b> collapses (one accidental defection and it defects forever), while
         forgiving strategies recover. The matrix on the right shows who exploits whom.
       </DemoP>

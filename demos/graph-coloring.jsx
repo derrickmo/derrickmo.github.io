@@ -239,7 +239,7 @@ function GraphColoringDemo() {
   );
   return (
     <DemoLayout title="Graph Coloring (AC-3)"
-      subtitle="Color the map so neighbors differ. Backtracking with arc-consistency propagation — watch domains shrink, and compare backtracks with AC-3 on vs off."
+      subtitle="Color the map so neighbors differ. Backtracking with arc-consistency propagation: watch domains shrink, and compare backtracks with AC-3 on against off."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

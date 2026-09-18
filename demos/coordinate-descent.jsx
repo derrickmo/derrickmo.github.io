@@ -254,7 +254,7 @@ function CoordinateDescentDemo() {
         Turn on the gradient-descent overlay to see the contrast: GD steps along the true
         downhill direction (diagonally), so it isn't confused by rotation, but it has its
         own trouble with conditioning — it zig-zags across a stretched ravine. The two
-        methods fail for <i>different</i> reasons: coordinate descent hates <b>correlation</b>
+        methods fail for <i>different</i> reasons: coordinate descent hates <b>correlation</b>{" "}
         between variables; gradient descent hates <b>ill-conditioning</b>.
       </DemoP>
     </>

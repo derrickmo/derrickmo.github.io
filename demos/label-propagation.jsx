@@ -237,7 +237,7 @@ function LabelPropDemo() {
   );
   return (
     <DemoLayout title="Label Propagation"
-      subtitle="Semi-supervised learning: give one or two labels per class and watch them spread through a similarity graph to color hundreds of unlabeled points along the data's shape. Tune the graph width to see why the geometry — not the labels — does the work."
+      subtitle="Semi-supervised learning: give one or two labels per class and watch them spread through a similarity graph to color hundreds of unlabeled points along the shape of the data. Tune the graph width to see why the geometry, not the labels, does the work."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

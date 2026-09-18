@@ -233,7 +233,7 @@ function CTCDemo() {
         at each frame and collapsing — greedy, or "best path" — is not the same question as finding
         the most probable <em>labelling</em>, because the labelling's probability is a sum over
         alignments and the best path may belong to a labelling that has no others. Drag TEMPERATURE.
-        Measured over 120 random emission matrices at T=8: at <strong>τ = 0.15</strong> the two agree
+        Measured over 120 random emission matrices at T=8: at <strong>τ = 0.15</strong> the two agree{" "}
         <strong>96%</strong> of the time, at <strong>τ = 1</strong> only <strong>28%</strong>, and at
         τ = 2 greedy is wrong <strong>87%</strong> of the time, landing on a labelling worth 0.56 of
         the best one's probability. Best-path

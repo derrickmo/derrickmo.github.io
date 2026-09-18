@@ -253,7 +253,7 @@ function BackpropDemo() {
         Backprop isn't witchcraft, it's the chain rule run on a computational
         graph. The <b style={{ color: "#60a5fa" }}>forward</b> pass walks
         left to right: each node is a small function of the ones to its left,
-        and we just plug numbers in. The <b style={{ color: "#c084fc" }}>backward</b>
+        and we just plug numbers in. The <b style={{ color: "#c084fc" }}>backward</b>{" "}
         pass walks right to left: at each node we ask "if I bump this value a
         little, how much does L change?" — and that's exactly the gradient.
       </DemoP>
@@ -290,7 +290,7 @@ function BackpropDemo() {
   );
   return (
     <DemoLayout title="Backprop Graph"
-      subtitle="Step through forward then backward on a tiny network — every value, every gradient, by the chain rule."
+      subtitle="Step through forward then backward on a tiny network. Every value, every gradient, by the chain rule."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/neural-nets/`}
       tone="blue" />

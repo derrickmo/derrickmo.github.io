@@ -111,6 +111,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "forecasting"
+    },
+    {
+      "kind": "demo",
       "slug": "bootstrap"
     },
     {

@@ -203,7 +203,7 @@ function BFSDFSAStarDemo() {
   );
   return (
     <DemoLayout title="BFS vs DFS vs A*"
-      subtitle="Three searches, one maze. Watch uninformed rings and dives versus A*'s heuristic beeline — and compare nodes expanded and path optimality."
+      subtitle="Three searches, one maze. Watch uninformed rings and dives against the heuristic beeline of A*, then compare nodes expanded and path optimality."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/foundations/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

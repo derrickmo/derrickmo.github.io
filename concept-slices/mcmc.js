@@ -107,6 +107,10 @@ window.CONCEPT_REVERSE = {
   "mcmc": [
     {
       "kind": "demo",
+      "slug": "clt"
+    },
+    {
+      "kind": "demo",
       "slug": "mcmc"
     },
     {

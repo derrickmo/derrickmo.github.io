@@ -213,7 +213,7 @@ function MaxEntropyRLDemo() {
 
   return (
     <DemoLayout title="Maximum-Entropy RL (Soft Value Iteration)"
-      subtitle="Maximize reward plus entropy. The temperature α slides from a single greedy path to a stochastic policy that keeps its options open — the idea behind Soft Actor-Critic."
+      subtitle="Maximize reward plus entropy. The temperature α slides from a single greedy path to a stochastic policy that keeps its options open. That is the idea behind Soft Actor-Critic."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

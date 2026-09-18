@@ -63,6 +63,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "game",
+      "slug": "tic-tac-toe"
+    },
+    {
+      "kind": "game",
       "slug": "go"
     }
   ]

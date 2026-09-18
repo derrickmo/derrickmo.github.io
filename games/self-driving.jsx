@@ -177,7 +177,7 @@ function SelfDrivingDemo() {
   );
   return (
     <DemoLayout topic="NEUROEVOLUTION · CONTROL" title="Evolving Drivers"
-      subtitle="Cars with five sensors and a tiny neural net evolve to take the track — no rules, just survival of the furthest."
+      subtitle="Cars with five sensors and a tiny neural net evolve to take the track. No rules, just survival of the furthest."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="violet" />
   );

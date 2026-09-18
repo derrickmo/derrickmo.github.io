@@ -53,6 +53,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "sudoku"
+    },
+    {
+      "kind": "demo",
+      "slug": "edit-distance"
     }
   ],
   "search-astar": [

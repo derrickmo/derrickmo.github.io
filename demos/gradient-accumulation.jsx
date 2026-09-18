@@ -200,7 +200,7 @@ function AccumDemo() {
         exact, at a relative error around 10<sup>-16</sup>, which is floating point and nothing else.
         That is because a mean over the batch is a mean of the microbatch means when the pieces are
         the same size. Switch SPLIT to <strong>UNEVEN</strong> and the bars come apart: dividing by M
-        makes a small microbatch count as much as a large one, and the measured error jumps to
+        makes a small microbatch count as much as a large one, and the measured error jumps to{" "}
         <strong>15%</strong>. Nothing errors, nothing warns; the run just optimises a slightly
         different objective. Switching ACCUMULATE BY to <strong>WEIGHT BY SIZE</strong> takes it back
         to 10<sup>-16</sup>. The averaging was the bug, not the accumulation.
@@ -211,8 +211,8 @@ function AccumDemo() {
         sum of per-example terms and cannot be decomposed over a partition at all. Splitting into 2
         microbatches gives a relative error of <strong>0.31</strong>; into 8, <strong>0.74</strong> —
         worse as the microbatch shrinks, because the number of negatives each example sees shrinks
-        with it. The two other readouts say precisely what kind of wrong it is: the cosine stays at
-        <strong>0.996 / 0.983 / 0.981</strong> while the norm ratio collapses
+        with it. The two other readouts say precisely what kind of wrong it is: the cosine stays at{" "}
+        <strong>0.996 / 0.983 / 0.981</strong> while the norm ratio collapses{" "}
         <strong>0.70 → 0.43 → 0.27</strong>. The direction survives almost intact and the magnitude
         does not, so at 8 microbatches you are taking a step roughly a quarter the length the
         objective asks for. The run trains; it just trains on a weaker objective than the config

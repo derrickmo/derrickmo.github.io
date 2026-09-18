@@ -172,7 +172,7 @@ function MixedPrecisionDemo() {
   );
   return (
     <DemoLayout title="Mixed Precision"
-      subtitle="fp16's narrow range makes small gradients vanish and big ones blow up. Slide loss scaling to rescue them — or switch to bf16 and trade precision for range."
+      subtitle="The narrow range of fp16 makes small gradients vanish and big ones blow up. Slide loss scaling to rescue them, or switch to bf16 and trade precision for range."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

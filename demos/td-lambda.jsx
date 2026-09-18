@@ -217,7 +217,7 @@ function TDLambdaDemo() {
 
   return (
     <DemoLayout title="TD(λ) & Eligibility Traces"
-      subtitle="One knob from one-step TD to Monte Carlo. Eligibility traces carry a reward's credit backward along the path you took — and an intermediate λ usually learns fastest."
+      subtitle="One knob takes you from one-step TD to Monte Carlo. Eligibility traces carry the credit for a reward backward along the path you took, and an intermediate λ usually learns fastest."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/reinforcement-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

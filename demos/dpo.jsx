@@ -309,7 +309,7 @@ function DPODemo() {
   );
   return (
     <DemoLayout title="DPO vs RLHF"
-      subtitle="Two ways to align a policy from the same human preferences — RLHF's reward model + RL loop, or DPO's direct update. Watch them converge to the same policy."
+      subtitle="Two ways to align a policy from the same human preferences: the RLHF reward model plus RL loop, or the direct DPO update. Watch them converge to the same policy."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

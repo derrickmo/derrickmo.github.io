@@ -246,7 +246,7 @@ function RansacDemo() {
   );
   return (
     <DemoLayout title="RANSAC"
-      subtitle="Fit a model to data that is mostly wrong — by sampling, counting agreement, and ignoring everything else."
+      subtitle="Fit a model to data that is mostly wrong, by sampling, counting agreement, and ignoring everything else."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

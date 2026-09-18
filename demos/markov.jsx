@@ -140,7 +140,7 @@ function MarkovDemo() {
   );
   return (
     <DemoLayout title="Markov Text Generator"
-      subtitle="The simplest language model — count which token follows which, then sample. The ancestor of every LLM."
+      subtitle="The simplest language model: count which token follows which, then sample. The ancestor of every LLM."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rnn-nlp/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

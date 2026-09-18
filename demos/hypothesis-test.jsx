@@ -138,7 +138,7 @@ function HypothesisDemo() {
       </DemoP>
       <DemoP>
         <strong>Leave TRUE EFFECT at zero</strong> — the arms are genuinely identical, so every
-        "significant" result is a lie — and raise LOOKS. With one look the measured rate is
+        "significant" result is a lie — and raise LOOKS. With one look the measured rate is{" "}
         <strong>4.8%</strong>, as promised. With five it is <strong>14.6%</strong>, with ten
         <strong> 18.8%</strong>, with twenty <strong>24.5%</strong>. Those are Armitage's classical
         numbers, reproduced here by simulation. Nothing about the test changed; you simply gave

@@ -52,6 +52,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "demo",
       "slug": "pd-tournament"
+    },
+    {
+      "kind": "game",
+      "slug": "rps"
     }
   ]
 };

@@ -156,7 +156,7 @@ function HuffmanCodingDemo() {
         Compare the two numbers: the average code length <b>L</b> always sits in the band
         <b> H ≤ L &lt; H+1</b> — Huffman is provably optimal among prefix codes and never more than a bit
         from the entropy floor. Skew the distribution toward one dominant symbol and watch entropy
-        <i> drop</i> while the tree grows lopsided and L shrinks with it; flatten it to <b>uniform</b>
+        <i> drop</i> while the tree grows lopsided and L shrinks with it; flatten it to <b>uniform</b>{" "}
         and there's nothing to compress (every code becomes the same length). Efficiency H/L is how
         close you are to the theoretical limit.
       </DemoP>

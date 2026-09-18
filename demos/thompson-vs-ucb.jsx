@@ -210,7 +210,7 @@ function ThompsonVsUcbDemo() {
       <DemoP>
         Both agents face the same arms and must trade <b>exploration</b> (try uncertain arms)
         against <b>exploitation</b> (pump the best-looking one) — but they reason differently.
-        <b style={{ color: C_TS }}> Thompson sampling</b> is Bayesian: it keeps a <b>Beta posterior</b>
+        <b style={{ color: C_TS }}> Thompson sampling</b> is Bayesian: it keeps a <b>Beta posterior</b>{" "}
         over each arm's win rate (the cyan violins), draws one sample from each, and pulls the
         winner — so an arm is explored exactly in proportion to the probability it's best.
         <b style={{ color: C_UCB }}> UCB</b> is frequentist optimism: it pulls whichever arm has the

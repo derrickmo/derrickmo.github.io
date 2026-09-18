@@ -219,7 +219,7 @@ function ImageAugmentationDemo() {
   return (
     <DemoLayout
       title="Data Augmentation"
-      subtitle="Manufacture endless training views from one labeled image with label-preserving random transforms — the cheapest, most reliable regularizer in deep learning."
+      subtitle="Manufacture endless training views from one labeled image with label-preserving random transforms. It is the cheapest, most reliable regularizer in deep learning."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

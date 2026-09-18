@@ -57,6 +57,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "game",
+      "slug": "tic-tac-toe"
+    },
+    {
+      "kind": "game",
       "slug": "go"
     }
   ],
@@ -114,6 +118,10 @@ window.CONCEPT_REVERSE = {
     {
       "kind": "game",
       "slug": "go"
+    },
+    {
+      "kind": "game",
+      "slug": "poker"
     },
     {
       "kind": "game",

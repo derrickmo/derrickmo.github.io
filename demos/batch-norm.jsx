@@ -208,7 +208,7 @@ function BatchNormDemo() {
   );
   return (
     <DemoLayout title="Batch Normalization"
-      subtitle="Watch a mini-batch's activation distribution drift, explode, or saturate across a deep stack — then turn BatchNorm on and see every layer snap back to a healthy unit-variance spread."
+      subtitle="Watch a mini-batch activation distribution drift, explode, or saturate across a deep stack. Then turn BatchNorm on and see every layer snap back to a healthy unit-variance spread."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/training-systems/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

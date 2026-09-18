@@ -180,7 +180,7 @@ function MFCCDemo() {
 
   return (
     <DemoLayout title="Mel Filterbank & MFCC"
-      subtitle="Turn a sound into a dozen numbers. Spectrum to perceptual mel bands to log to DCT — the feature that named phonemes for decades of speech recognition."
+      subtitle="Turn a sound into a dozen numbers. Spectrum to perceptual mel bands to log to DCT, the feature that named phonemes for decades of speech recognition."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

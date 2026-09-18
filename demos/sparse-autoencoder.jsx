@@ -189,7 +189,7 @@ function SparseAutoencoderDemo() {
         crammed into a 2-D activation space, so the two raw axes are hopelessly mixed. A
         <b> sparse autoencoder</b> is trained to reconstruct each activation while keeping its
         hidden code <b>sparse</b> (an L1 penalty), and an overcomplete dictionary plus that
-        sparsity pressure forces each learned atom (white arrow) to specialize onto <i>one</i>
+        sparsity pressure forces each learned atom (white arrow) to specialize onto <i>one</i>{" "}
         true feature (colored spoke).
       </DemoP>
       <DemoP>

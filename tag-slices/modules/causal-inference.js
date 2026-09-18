@@ -182,6 +182,10 @@ window.CONCEPT_REVERSE = {
       "slug": "mle"
     },
     {
+      "kind": "game",
+      "slug": "minesweeper"
+    },
+    {
       "kind": "module",
       "slug": "foundations"
     },
@@ -191,6 +195,10 @@ window.CONCEPT_REVERSE = {
     }
   ],
   "mcmc": [
+    {
+      "kind": "demo",
+      "slug": "clt"
+    },
     {
       "kind": "demo",
       "slug": "mcmc"

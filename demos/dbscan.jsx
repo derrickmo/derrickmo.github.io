@@ -231,7 +231,7 @@ function DBSCANDemo() {
   );
   return (
     <DemoLayout title="DBSCAN — Density-Based Clustering"
-      subtitle="No k to pick. The density threshold defines the cluster — and labels the rest as noise."
+      subtitle="No k to pick. The density threshold defines the cluster and labels the rest as noise."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/unsupervised-learning/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

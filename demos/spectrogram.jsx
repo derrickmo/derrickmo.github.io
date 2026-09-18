@@ -179,7 +179,7 @@ function SpectrogramDemo() {
 
   return (
     <DemoLayout title="Spectrogram (STFT)"
-      subtitle="See frequency change over time. The STFT windows a signal and Fourier-transforms each chunk — and the window length forces a tradeoff between time and frequency resolution."
+      subtitle="See frequency change over time. The STFT windows a signal and Fourier-transforms each chunk, and the window length forces a tradeoff between time and frequency resolution."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

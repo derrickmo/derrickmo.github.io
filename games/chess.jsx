@@ -237,7 +237,7 @@ function ChessDemo() {
   );
   return (
     <DemoLayout topic="GAME · NEGAMAX + ALPHA-BETA" title="Chess"
-      subtitle="Full-rules chess against a real search engine — material + piece-square evaluation, a few plies deep."
+      subtitle="Full-rules chess against a real search engine, using material plus piece-square evaluation, a few plies deep."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       backHref={`${window.__DM_BASE || "../../"}play/`} backLabel="PLAY" tone="blue" />
   );

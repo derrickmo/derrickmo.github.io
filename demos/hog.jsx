@@ -183,7 +183,7 @@ function HogDemo() {
         same ones in <a href={`${window.__DM_BASE || "../../"}visualize/edge-detection/`}>edge detection</a>,
         the orientation histogram is a coarser cousin of the orientation assignment in
         SIFT keypoints from <a href={`${window.__DM_BASE || "../../"}visualize/harris-corners/`}>corner detection</a>,
-        and the normalize-to-shape move is the recurring lesson that <i>relative</i>
+        and the normalize-to-shape move is the recurring lesson that <i>relative</i>{" "}
         structure generalizes better than absolute values.
       </DemoP>
     </>
@@ -192,7 +192,7 @@ function HogDemo() {
   return (
     <DemoLayout
       title="Histogram of Oriented Gradients"
-      subtitle="Summarize an image by where its edges point — per-cell orientation histograms, block-normalized into the descriptor behind classic object detection."
+      subtitle="Summarize an image by where its edges point. Per-cell orientation histograms, block-normalized into the descriptor behind classic object detection."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

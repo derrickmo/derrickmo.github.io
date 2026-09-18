@@ -97,7 +97,7 @@ function DecodingDemo() {
     <>
       <DemoP>
         A language model outputs a probability over the whole vocabulary; how you
-        <i> sample</i> from it decides the output's character. <b>Temperature</b>
+        <i> sample</i> from it decides the output's character. <b>Temperature</b>{" "}
         rescales the logits before softmax: below 1 it sharpens toward the top token
         (safe, repetitive); above 1 it flattens the distribution (diverse, riskier).
         Drag it and watch the bars concentrate or spread.
@@ -136,7 +136,7 @@ function DecodingDemo() {
   );
   return (
     <DemoLayout title="Decoding Strategies"
-      subtitle="Temperature, top-k, and top-p — how the same model becomes safe or wild depending on how you sample."
+      subtitle="Temperature, top-k, and top-p: how the same model becomes safe or wild depending on how you sample."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-nlp/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

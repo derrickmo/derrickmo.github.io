@@ -1,9 +1,9 @@
-// demos/gradient-descent.jsx — optimizer playground on 2D loss surfaces.
+// demos/gradient-descent.jsx - optimizer playground on 2D loss surfaces.
 // Real SGD / Momentum / RMSProp / Adam descending real analytic gradients.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -19,8 +19,15 @@ const SURFACES = {
   saddle: {
     label: "Saddle", domain: { xmin: -2.2, xmax: 2.2, ymin: -2.2, ymax: 2.2 },
     start: { x: -1.8, y: 0.06 },
-    f: (x, y) => x * x - y * y,
-    grad: (x, y) => [2 * x, -2 * y],
+    // x^2 - y^2 is the textbook saddle and it was WRONG here, because it is
+    // unbounded below: every optimizer slid down the y axis for ever, hit the
+    // clamp at the domain edge and parked there at loss -4.840 with gradient
+    // norm 4.4, reporting DESCENDING while nothing descended. The quartic term
+    // closes the surface, putting real minima at (0, +/-1.291) to reach, and
+    // the constant keeps the loss at or above 0 so "loss" stays a loss.
+    // The saddle itself is untouched: the gradient at the origin is still 0.
+    f: (x, y) => x * x - y * y + 0.3 * y ** 4 + 0.8333,
+    grad: (x, y) => [2 * x, -2 * y + 1.2 * y ** 3],
   },
   rosenbrock: {
     label: "Rosenbrock", domain: { xmin: -2, xmax: 2, ymin: -1, ymax: 3 },
@@ -138,14 +145,19 @@ function GradientDescentDemo() {
       dx = -a * mhx / (Math.sqrt(vhx) + 1e-8); dy = -a * mhy / (Math.sqrt(vhy) + 1e-8);
     }
     const d = S.domain;
-    p.x = clamp(p.x + dx, d.xmin, d.xmax);
-    p.y = clamp(p.y + dy, d.ymin, d.ymax);
+    const ux = p.x + dx, uy = p.y + dy;   // where the step actually wanted to go
+    p.x = clamp(ux, d.xmin, d.xmax);
+    p.y = clamp(uy, d.ymin, d.ymax);
     pathRef.current.push({ x: p.x, y: p.y });
     setSteps(v => v + 1);
     const L = S.f(p.x, p.y);
     setLoss(+L.toFixed(3));
     if (!isFinite(L) || L > 1e7) { setStatus("DIVERGED"); return true; }
     if (gnorm < 1e-3) { setStatus("CONVERGED"); return true; }
+    // The clamp keeps the dot on screen, which is what hid the old saddle bug:
+    // a run that wanted to leave the domain looked like a run still working.
+    // A step the clamp had to catch has left the picture, so say so and stop.
+    if (ux !== p.x || uy !== p.y) { setStatus("OFF THE SURFACE"); return true; }
     setStatus("DESCENDING");
     return false;
   }
@@ -218,14 +230,14 @@ function GradientDescentDemo() {
     <ControlGroup>
       <SegmentedControl label="// LOSS SURFACE" value={surf} onChange={v => { setRunning(false); setSurf(v); }}
         options={Object.entries(SURFACES).map(([k, v]) => ({ value: k, label: v.label }))}
-        help="The error landscape to descend. Each is a classic stress test: a stretched ravine, a saddle, Rosenbrock's banana valley, and a bumpy surface with many local minima." />
+        help="The error landscape to descend. Each one is a classic stress test: a stretched ravine, a saddle, Rosenbrock's banana valley, and a bumpy surface with many local minima." />
       <SegmentedControl label="// OPTIMIZER" tone="violet" value={opt} onChange={v => { setRunning(false); setOpt(v); }}
         options={[{ value: "sgd", label: "SGD" }, { value: "momentum", label: "Momentum" }, { value: "rmsprop", label: "RMSProp" }, { value: "adam", label: "Adam" }]}
-        help="The update rule. SGD steps along the raw gradient; Momentum builds velocity; RMSProp rescales each direction by its recent gradient; Adam combines momentum with per-direction scaling." />
+        help="The update rule. SGD steps along the raw gradient. Momentum builds velocity. RMSProp rescales each direction by its recent gradient. Adam does both." />
       <Slider label="// LEARNING RATE" min={0.001} max={0.3} step={0.001} value={lr} onChange={setLr}
-        help="How big each step is. Too small crawls; too large overshoots and can diverge — watch the loss blow up." />
+        help="How big each step is. Too small crawls. Too large overshoots and can diverge, so watch the loss blow up." />
       <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed} suffix=" /frame"
-        help="How many optimizer steps run per animation frame. Purely visual pacing — it does not change the math." />
+        help="How many optimizer steps run per animation frame. This is visual pacing only and does not change the math." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={handleRun} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={handleStep} disabled={running}>STEP</DemoButton>
@@ -245,42 +257,85 @@ function GradientDescentDemo() {
   const explainer = (
     <>
       <DemoP>
-        Every optimizer here follows the negative gradient downhill, but they
-        differ in how they use past gradients. <b>SGD</b> takes a fixed step along
-        the current slope — on a stretched "ravine" it bounces across the steep
-        walls and crawls along the flat floor. <b>Momentum</b> accumulates velocity,
-        so it powers through that ravine. <b>RMSProp</b> scales each dimension by its
-        recent gradient magnitude, evening out steep and flat directions. <b>Adam</b>
-        combines momentum and per-dimension scaling — usually the most forgiving.
+        All four optimizers walk downhill on the same gradient. What separates
+        them is what they remember from the steps before.
       </DemoP>
-      <DemoP>
-        Try the same surface and learning rate across all four. Crank the rate on
-        SGD until it <span style={{ color: "#f87171" }}>diverges</span>. On
-        "Many minima," drop the start point in different basins and watch it settle
-        into different local minima. Rosenbrock's banana valley is the classic
-        stress test — most optimizers need a small rate to navigate it.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>SGD</b> remembers nothing. It steps a fixed fraction of the current
+          slope, so on the Ravine it bounces across the steep walls and crawls
+          along the flat floor.
+        </DemoLI>
+        <DemoLI>
+          <b>Momentum</b> remembers direction. Velocity builds up along the floor
+          and cancels out across the walls, so it drives straight through the
+          ravine that stalls SGD.
+        </DemoLI>
+        <DemoLI>
+          <b>RMSProp</b> and <b>Adam</b> remember gradient size and divide it out.
+          <DemoUL nested>
+            <DemoLI nested>
+              RMSProp scales each direction by its own recent gradient, which
+              evens out steep and flat.
+            </DemoLI>
+            <DemoLI nested>
+              Adam adds momentum on top of that, which is why it is the usual
+              default when you do not want to tune anything.
+            </DemoLI>
+          </DemoUL>
+        </DemoLI>
+      </DemoUL>
+      <DemoP>Three things worth trying:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Raise the learning rate on SGD until the run reports{" "}
+          <span style={{ color: "#f87171" }}>DIVERGED</span>, then step it back
+          one notch. That edge is where real training sits.
+        </DemoLI>
+        <DemoLI>
+          On Many minima, click different spots to start. Where you click decides
+          which basin you fall into, and none of them knows the others exist.
+        </DemoLI>
+        <DemoLI>
+          On Saddle, start right on the flat ridge. Only SGD slows down: starting
+          300x closer to the ridge takes it from 134 steps to 214, while Momentum
+          holds near 135 and RMSProp stays flat at 92. Dividing by gradient size
+          is exactly what makes the adaptive methods indifferent to a flat spot.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        Gradient descent is the engine of essentially all of modern ML: every neural
-        network — from a tiny MLP to a frontier LLM — is trained by some variant of what
-        you're watching, following the loss gradient over millions or billions of
-        parameters. <b>Adam</b> is the de-facto default for training transformers; SGD
-        with momentum still wins for many vision models. The pathologies on screen are
-        the real ones engineers fight: ravines (ill-conditioned curvature), saddle points
-        (which dominate high-dimensional landscapes), and local minima.
+        Every neural network you have heard of is trained by a variant of what is
+        on this screen, following the loss gradient over millions or billions of
+        parameters. Adam is the default for transformers. SGD with momentum still
+        wins on plenty of vision models.
       </DemoP>
+      <DemoP>The three shapes here are the three you actually fight:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Ravines</b> are ill-conditioned curvature, and they are the everyday
+          case. Momentum and per-direction scaling exist because of them.
+        </DemoLI>
+        <DemoLI>
+          <b>Saddles</b> dominate high-dimensional landscapes. With a thousand
+          directions, a flat point is far more likely to go up in some of them
+          than to be a true minimum.
+        </DemoLI>
+        <DemoLI>
+          <b>Local minima</b> matter less than people expect once you have many
+          dimensions, but they are real whenever the loss is genuinely multi-modal.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The <b>learning rate</b> is the single most consequential hyperparameter in deep
-        learning — too high and training diverges into NaNs, too low and it never
-        finishes. That fragility is exactly why <i>learning-rate schedules</i> (warmup
-        then cosine decay) exist, and why adaptive optimizers that auto-scale each
-        direction took over. Build the intuition here for "why is my model not training"
-        and a huge fraction of practical deep-learning debugging stops being mysterious.
+        The learning rate decides whether training works at all. Too high and the
+        loss goes to NaN. Too low and it never finishes. That is why schedules
+        exist, warming up and then decaying, and why optimizers that pick their
+        own per-direction step size took over. Most of "why is my model not
+        training" is visible on this screen.
       </DemoP>
     </>
   );

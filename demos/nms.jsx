@@ -153,7 +153,7 @@ function NMSDemo() {
   );
   return (
     <DemoLayout title="IoU & Non-Max Suppression"
-      subtitle="From a cloud of overlapping detections to one clean box per object — the greedy algorithm every detector ends with."
+      subtitle="From a cloud of overlapping detections to one clean box per object. This is the greedy algorithm every detector ends with."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-cv/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

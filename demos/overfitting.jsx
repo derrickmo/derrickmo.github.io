@@ -158,10 +158,10 @@ function OverfittingDemo() {
       <DemoP>
         Start at degree 1 (underfit — too rigid to follow the curve). Raise the
         degree and the fit improves… until it doesn't: past a point the curve
-        contorts to pass through every training point and the <b>test RMSE</b>
+        contorts to pass through every training point and the <b>test RMSE</b>{" "}
         shoots up while train RMSE keeps falling. That gap <i>is</i> overfitting —
         the bias-variance tradeoff made visible. Now add a little <b>ridge λ</b> and
-        watch it tame the wild high-degree wiggles, or add more <b>data points</b>
+        watch it tame the wild high-degree wiggles, or add more <b>data points</b>{" "}
         and watch overfitting get harder to trigger.
       </DemoP>
     </>

@@ -209,7 +209,7 @@ function BeamSearchDemo() {
       <DemoP>
         Each step, a language model gives you a probability distribution over the next
         token. <b>Greedy</b> just takes the top one — fast, often suboptimal, because a
-        locally-best token can lead into a low-probability dead end. <b>Beam search</b>
+        locally-best token can lead into a low-probability dead end. <b>Beam search</b>{" "}
         keeps the top <i>K</i> running candidates by total log-probability and expands
         all of them in parallel. The yellow path is the surviving top beam; green nodes
         are finished sequences (ended with ".").
@@ -245,7 +245,7 @@ function BeamSearchDemo() {
   );
   return (
     <DemoLayout title="Beam Search Tree"
-      subtitle="Greedy vs beam vs sampling on a toy language model — see the search frontier expand and prune step by step."
+      subtitle="Greedy against beam against sampling on a toy language model. See the search frontier expand and prune step by step."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/advanced-nlp/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="blue" />

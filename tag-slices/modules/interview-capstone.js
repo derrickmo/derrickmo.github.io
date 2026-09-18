@@ -135,6 +135,10 @@ window.CONCEPT_REVERSE = {
     },
     {
       "kind": "demo",
+      "slug": "forecasting"
+    },
+    {
+      "kind": "demo",
       "slug": "bootstrap"
     },
     {
@@ -191,6 +195,10 @@ window.CONCEPT_REVERSE = {
     }
   ],
   "graph-search": [
+    {
+      "kind": "demo",
+      "slug": "pathfinding"
+    },
     {
       "kind": "demo",
       "slug": "dijkstra"

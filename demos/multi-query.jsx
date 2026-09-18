@@ -154,7 +154,7 @@ function MultiQueryDemo() {
   );
   return (
     <DemoLayout title="Multi-Query & RAG-Fusion"
-      subtitle="One phrasing misses docs another catches. Retrieve with several query variants and fuse the ranked lists by reciprocal rank — recall beats any single query."
+      subtitle="One phrasing misses docs another catches. Retrieve with several query variants and fuse the ranked lists by reciprocal rank, because recall beats any single query."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />

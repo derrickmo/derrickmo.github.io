@@ -300,7 +300,7 @@ function WatershedDemo() {
   return (
     <DemoLayout
       title="Watershed Segmentation"
-      subtitle="Separate touching objects by flooding the distance transform from markers and damming where basins meet — the classic marker-controlled watershed."
+      subtitle="Separate touching objects by flooding the distance transform from markers and damming where basins meet. The classic marker-controlled watershed."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials"

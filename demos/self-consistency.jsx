@@ -204,7 +204,7 @@ function SelfConsistencyDemo() {
         effect, the statistical engine behind self-consistency. Now drag ERROR
         CORRELATION up: the wrong answers pile onto one option (orange), a
         confident false consensus forms, and the curve sags back down. Voting
-        averages away <i>random</i> error; it is powerless against a <i>shared</i>
+        averages away <i>random</i> error; it is powerless against a <i>shared</i>{" "}
         bias — exactly why self-consistency boosts arithmetic but not a
         misconception every chain holds.
       </DemoP>
@@ -234,7 +234,7 @@ function SelfConsistencyDemo() {
   );
   return (
     <DemoLayout title="Self-Consistency"
-      subtitle="Sample many chains of thought and majority-vote the answer. See why it lifts accuracy — and why correlated errors defeat it."
+      subtitle="Sample many chains of thought and majority-vote the answer. See why it lifts accuracy, and why correlated errors defeat it."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}
       repoHref="https://github.com/derrickmo/machine_learning_tutorials" tone="violet" />
