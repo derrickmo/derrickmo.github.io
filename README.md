@@ -14,12 +14,15 @@ This site is the **visual, concept-first** surface of a single ML curriculum del
 three ways from one source of content:
 1. **Website** (this repo) — interactive, visual, intuition-building demos + walk-through lessons.
 2. **Notebooks** — [machine_learning_tutorials](https://github.com/derrickmo/machine_learning_tutorials),
-   the comprehensive, runnable, code-first reference (282 notebooks across 26 modules).
+   the comprehensive, runnable, code-first reference (282 notebooks across 26 modules,
+   published progressively).
+3. **Mobile app** — a **Flutter** client for on-the-go learning, spaced-repetition flashcards
+   and interview drills. It is **built and not yet published**: it reads the same content this
+   repo generates, over the versioned JSON contract under `public/app/`, and authors none of its
+   own. Nothing in this repo ships the app itself.
 
-The site visualizes concepts and links out to the notebooks for full code. A **Flutter app**
-for on-the-go learning, flashcards and interview prep is a goal for a later phase — it does
-not exist yet, and nothing in this repo ships it. (Internal planning lives in `_private/`,
-kept out of the repo.)
+The site visualizes concepts and links out to the notebooks for full code; the app mirrors both.
+(Internal planning lives in `_private/`, kept out of the repo.)
 
 ## Stack
 - **Vite** multi-page static build → **GitHub Pages** (free tier).
