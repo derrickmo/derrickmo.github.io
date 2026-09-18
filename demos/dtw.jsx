@@ -118,7 +118,7 @@ function DTWDemo() {
         help="Random noise added to both series. DTW aligns shape, so a little noise barely moves the path; a lot starts to fool the cheapest-path search." />
       <Slider label="// BAND RADIUS" min={2} max={N} step={1} value={band} onChange={setBand} tone="blue"
         suffix={band >= N ? " (none)" : ""}
-        help="Sakoe-Chiba constraint: the path may stray at most this far from the diagonal. Tightening it speeds DTW and prevents pathological warps — but set it below the true warp and the optimal alignment is blocked, so the distance jumps." />
+        help="Sakoe-Chiba constraint: the path may stray at most this far from the diagonal. Tightening it speeds DTW and prevents pathological warps, but set it below the true warp and the optimal alignment is blocked, so the distance jumps." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="DTW DISTANCE" value={data.blocked ? "blocked" : data.dtwDist.toFixed(3)} accent={data.blocked ? "#f87171" : "#34d399"} />
         <StatReadout label="EUCLIDEAN" value={data.eucl.toFixed(3)} accent="#fbbf24" />
@@ -135,8 +135,8 @@ function DTWDemo() {
         speed. <b>Euclidean</b> distance compares them position-by-position, so even a
         small time shift makes identical shapes look wildly different (watch the amber
         readout balloon as you add warp). <b>DTW</b> instead searches for the cheapest
-        way to <i>align</i> them — letting time stretch and compress — and reports the
-        residual mismatch.
+        way to <i>align</i> them, letting time stretch and compress, and reports the residual
+        mismatch.
       </DemoP>
       <DemoP>
         The heatmap is the accumulated-cost matrix; the gold <b>warping path</b> from
@@ -144,8 +144,7 @@ function DTWDemo() {
         dynamic program as edit distance. When B runs slower than A the path bends
         above the diagonal (one A-point matches several B-points) and back below where
         it runs faster. The <b>band radius</b> trades speed for freedom: a wide band
-        finds any warp; tighten it past the true warp and the path is fenced off — the
-        distance jumps and the corner goes unreachable.
+        finds any warp; tighten it past the true warp and the path is fenced off. The distance jumps and the corner goes unreachable.
       </DemoP>
     </>
   );
@@ -157,8 +156,7 @@ function DTWDemo() {
         recognition, signature verification, ECG and sensor matching, and the
         DTW-kNN classifier that's a famously strong baseline. It's the continuous-
         valued sibling of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/edit-distance/`} style={{ color: "#a855f7" }}>edit
-        distance</a> — same matrix, same backtrack — and another member of the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/edit-distance/`} style={{ color: "#a855f7" }}>edit distance</a>, same matrix and same backtrack, and another member of the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>dynamic
         programming</a> family.
       </DemoP>

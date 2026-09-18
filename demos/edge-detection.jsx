@@ -185,7 +185,7 @@ function EdgeDetectionDemo() {
       <Slider label="// BLUR sigma" min={0} max={3} step={0.1} value={sigma} onChange={setSigma} tone="violet"
         help="Gaussian smoothing applied before differentiation. Too little and noise becomes fake edges; too much and real edges blur away. The first Canny step." />
       <Slider label="// LOW THRESHOLD" min={1} max={50} step={1} value={low} onChange={setLow} suffix="%" tone="blue"
-        help="Percent of max gradient. Pixels above this but below the high threshold are 'weak' — kept only if connected to a strong edge (hysteresis)." />
+        help="Percent of max gradient. Pixels above this but below the high threshold are 'weak', kept only if connected to a strong edge (hysteresis)." />
       <Slider label="// HIGH THRESHOLD" min={2} max={60} step={1} value={high} onChange={setHigh} suffix="%" tone="blue"
         help="Percent of max gradient. Pixels above this are 'strong' edges, kept unconditionally and used as seeds to rescue connected weak pixels." />
       <StatReadout label="EDGE PIXELS" value={edgePct + "%"} accent="var(--violet-lt)" />
@@ -202,8 +202,7 @@ function EdgeDetectionDemo() {
       <DemoP>
         Canny edge detection is a five-stage pipeline, and you can step through each
         one with the <b>stage</b> selector. First a <b>Gaussian blur</b> removes
-        noise (differentiation amplifies it). Then a <b>Sobel</b> operator estimates
-        the image gradient ∇ — its magnitude is large wherever brightness changes
+        noise (differentiation amplifies it). Then a <b>Sobel</b> operator estimates the image gradient ∇, whose magnitude is large wherever brightness changes
         fast. Raw gradients are fat and fuzzy, so <b>non-maximum suppression</b> keeps
         only pixels that are a local maximum <i>along the gradient direction</i>,
         thinning every edge to a single pixel.
@@ -212,7 +211,7 @@ function EdgeDetectionDemo() {
         The last two stages clean it up. A <b>double threshold</b> labels pixels
         <i> strong</i> (definitely an edge), <i>weak</i> (maybe), or suppressed.
         Then <b>hysteresis</b> walks outward from the strong pixels and keeps any
-        weak pixel connected to them — this is what links a broken edge into one
+        weak pixel connected to them. This is what links a broken edge into one
         continuous contour while dropping isolated noise specks. Drop the high
         threshold and watch weak detail flood in; raise the blur and watch fine
         edges dissolve.
@@ -223,8 +222,7 @@ function EdgeDetectionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Edge detection is one of the oldest and most useful operations in computer
-        vision — the Sobel gradient here is the exact same 3×3 kernel you can type
+        Edge detection is one of the oldest and most useful operations in computer vision. The Sobel gradient here is the exact same 3×3 kernel you can type
         into the <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}>Convolution Lab</a>,
         and a CNN's first layer reliably <i>learns</i> filters that look just like it.
         Edges feed classical features (HOG, SIFT), document/lane/medical-image
@@ -233,11 +231,10 @@ function EdgeDetectionDemo() {
       </DemoP>
       <DemoP>
         The two ideas that make Canny work generalize far beyond images.
-        <b> Non-maximum suppression</b> — keep only the local peak — is the same trick
+        <b> Non-maximum suppression</b>, keeping only the local peak, is the same trick
         that turns a cloud of detection boxes into one box per object in
         <a href={`${window.__DM_BASE || "../../"}visualize/nms/`}> IoU &amp; NMS</a>.
-        And <b>hysteresis</b> — a high bar to start, a low bar to continue — is a
-        general recipe for trading precision against recall while staying robust to
+        And <b>hysteresis</b>, a high bar to start and a low bar to continue, is a general recipe for trading precision against recall while staying robust to
         noise.
       </DemoP>
     </>

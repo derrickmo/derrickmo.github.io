@@ -153,7 +153,7 @@ function ICADemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// MIXING STRENGTH" min={0} max={0.95} step={0.05} value={mix} onChange={setMix} tone="violet"
-        help="Off-diagonal of the mixing matrix A=[[1,m],[m,1]]. At 0 the microphones already hold separate sources; raise it to blend them harder. ICA still recovers the sources for any m below 1 (where A becomes singular) — separation quality barely depends on it." />
+        help="Off-diagonal of the mixing matrix A=[[1,m],[m,1]]. At 0 the microphones already hold separate sources; raise it to blend them harder. ICA still recovers the sources for any m below 1 (where A becomes singular). Separation quality barely depends on it." />
       <SegmentedControl label="// SOURCES" value={kind} onChange={setKind}
         options={[{ value: "tones", label: "Sine+Square" }, { value: "saw", label: "Sine+Saw" }, { value: "gauss", label: "Two Gaussians" }]}
         help="The two hidden signals. Sine/square/saw are strongly non-Gaussian and separate cleanly. Two Gaussians is the textbook failure case: a mix of Gaussians is Gaussian, so there's no non-Gaussianity for ICA to latch onto and recovery collapses." />
@@ -176,22 +176,18 @@ function ICADemo() {
     <>
       <DemoP>
         Top row: two independent signals we pretend not to see. Middle row: each
-        microphone hears a different BLEND of both — garbled, and neither one is
-        either original. ICA gets only the middle row and must invert the mixing. Its
+        microphone hears a different BLEND of both, garbled, and neither one is either original. ICA gets only the middle row and must invert the mixing. Its
         trick is statistical: by the Central Limit Theorem a sum of independent things
         looks more bell-shaped (Gaussian) than its parts, so the unmixing directions
         that make the outputs the LEAST Gaussian are the ones that pull the original
-        independent signals back apart. The bottom row is what it recovers — flip a
-        sign or swap the two and they're the sources again.
+        independent signals back apart. The bottom row is what it recovers. Flip a sign or swap the two and they're the sources again.
       </DemoP>
       <DemoP>
         Mixing strength barely matters: ICA nails it for any invertible mix. What
         matters is non-Gaussianity. Switch SOURCES to "Two Gaussians" and recovery
-        collapses to noise (RECOVERY drops, STATUS reads FAILED) — because a mixture
-        of Gaussians is itself Gaussian, leaving no non-Gaussian structure to exploit
+        collapses to noise (RECOVERY drops, STATUS reads FAILED), because a mixture of Gaussians is itself Gaussian, leaving no non-Gaussian structure to exploit
         and no way to tell the rotation apart. That's ICA's defining rule: it can
-        separate at most one Gaussian source. It's also why ICA succeeds where PCA
-        can't — PCA only finds uncorrelated, orthogonal directions, while ICA finds
+        separate at most one Gaussian source. It's also why ICA succeeds where PCA cannot. PCA only finds uncorrelated, orthogonal directions, while ICA finds
         independent ones, which is a strictly stronger (and non-orthogonal) condition.
       </DemoP>
     </>
@@ -204,8 +200,7 @@ function ICADemo() {
         Its banner uses are the cocktail-party problem (separating voices), and
         removing eye-blink/heartbeat artifacts from EEG and MEG, plus separating
         sources in fMRI and finance. It's a cousin of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/pca/`} style={{ color: "#a855f7" }}>PCA</a>{" "}
-        — both are linear, and ICA literally whitens with PCA first — but PCA
+        <a href={`${window.__DM_BASE || "../../"}visualize/pca/`} style={{ color: "#a855f7" }}>PCA</a>{" "}, since both are linear and ICA literally whitens with PCA first, but PCA
         decorrelates (second-order) while ICA makes components statistically
         independent (all orders), which is why it can unmix what PCA only rotates.
         The frequency-domain view of these same signals is the{" "}

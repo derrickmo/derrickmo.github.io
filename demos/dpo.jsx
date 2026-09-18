@@ -172,12 +172,12 @@ function DPODemo() {
     const piRlhf = softmax(s.thRlhf), piDpo = softmax(s.thDpo);
 
     drawPanel(ctx, LEFT_X, "RLHF", "reward model (amber) → KL-regularized policy", piRlhf, true);
-    drawPanel(ctx, RIGHT_X, "DPO", "no reward model — preferences update policy directly", piDpo, false);
+    drawPanel(ctx, RIGHT_X, "DPO", "no reward model: preferences update policy directly", piDpo, false);
 
     // bottom: expected true reward under each policy
     const BY = 256, BH = H - BY - 16, BX = MARGIN, BW = W - 2 * MARGIN;
     ctx.fillStyle = "#94a3b8"; ctx.font = "11px JetBrains Mono";
-    ctx.fillText("EXPECTED TRUE REWARD under each policy  ·  they converge — DPO matches RLHF", BX, BY - 8);
+    ctx.fillText("EXPECTED TRUE REWARD under each policy · they converge, DPO matches RLHF", BX, BY - 8);
     ctx.strokeStyle = "rgba(96,165,250,0.18)"; ctx.strokeRect(BX, BY, BW, BH);
     const rMax = Math.max(...s.rStar), refER = s.piRef.reduce((a, p, i) => a + p * s.rStar[i], 0);
     const lo = Math.min(refER, ...s.rStar) - 0.05, hi = rMax + 0.05, span = Math.max(hi - lo, 1e-6);
@@ -236,7 +236,7 @@ function DPODemo() {
       <Slider label="// LR" min={0.05} max={1} step={0.05} value={lr} onChange={setLr}
         help="Step size shared by the reward-model fit, the RLHF policy step, and the DPO update. Larger converges faster but makes both policies jitter." />
       <Slider label="// PAIRS / STEP" min={1} max={16} step={1} value={batch} onChange={setBatch}
-        help="Preference comparisons sampled per step — fed identically to both pipelines so the comparison is fair. More pairs = a lower-variance update." />
+        help="Preference comparisons sampled per step, fed identically to both pipelines so the comparison is fair. More pairs = a lower-variance update." />
       <Slider label="// SPEED (steps/sec)" min={4} max={120} step={2} value={speed} onChange={setSpeed}
         help="Training steps per second." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
@@ -268,8 +268,7 @@ function DPODemo() {
         stream of "A beat B" preferences, but by different routes. <b>RLHF</b>{" "}
         (left) does it in two stages: fit a reward model (the amber dots, a scalar
         per response), then nudge the policy up the reward while a KL penalty keeps
-        it near the reference. <b>DPO</b> (right) skips the reward model entirely —
-        a bit of algebra shows the policy itself <i>is</i> an implicit reward,
+        it near the reference. <b>DPO</b> (right) skips the reward model entirely. A bit of algebra shows the policy itself <i>is</i> an implicit reward,
         r(y) = β·log(π/π_ref), so the same Bradley-Terry objective updates the
         policy directly.
       </DemoP>
@@ -290,7 +289,7 @@ function DPODemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/reward-model/`} style={{ color: "#a855f7" }}>reward
         model</a> demo. Classic RLHF chains that reward model into a{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>policy-gradient</a>{" "}
-        / PPO loop — powerful but fiddly: a second network to train, an RL
+        / PPO loop, which is powerful but fiddly: a second network to train, an RL
         optimization that can reward-hack the imperfect reward model, and a KL
         term to hold it together. DPO (Rafailov et al., 2023) collapses the two
         stages into one supervised-style loss on preference pairs, which is why so
@@ -298,8 +297,7 @@ function DPODemo() {
         ORPO) instead of full RLHF.
       </DemoP>
       <DemoP>
-        The β you're turning is the same KL coefficient in both — it sets how far
-        alignment is allowed to drag the model from its pretrained behavior, the
+        The β you're turning is the same KL coefficient in both. It sets how far alignment is allowed to drag the model from its pretrained behavior, the
         central safety/usefulness dial of preference tuning. The catch the demo
         hides: with finite, noisy preferences neither method recovers the true
         reward exactly, so very low β (aggressive optimization) is exactly when

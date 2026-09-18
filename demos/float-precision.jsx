@@ -136,14 +136,12 @@ function FloatPrecisionDemo() {
     <>
       <DemoP>
         Floating point stores a fixed number of significant digits, not a fixed spacing. The gap
-        between representable numbers grows with magnitude, so <code>1.0 + 1e-8</code> in fp32 is
-        exactly <code>1.0</code> — the addend falls below one unit in the last place and there is
+        between representable numbers grows with magnitude, so <code>1.0 + 1e-8</code> in fp32 is exactly <code>1.0</code>, because the addend falls below one unit in the last place and there is
         nowhere to put it. Nothing errors, nothing warns.
       </DemoP>
       <DemoP>
         Watch the naive curve bend away from the dashed exact line. Summing a million copies of
-        <code> 1e-3</code> in fp32 gives about <strong>991.14</strong>, not 1000 — a
-        <strong> 0.886% error</strong> from arithmetic alone, and it gets worse as the running total
+        <code> 1e-3</code> in fp32 gives about <strong>991.14</strong>, not 1000, a <strong>0.886% error</strong> from arithmetic alone, and it gets worse as the running total
         grows because the gaps widen with it. The STALLS AT readout is where the process dies
         entirely: once the total exceeds term / epsilon, every further addition is a no-op and the
         sum simply stops moving.
@@ -151,7 +149,7 @@ function FloatPrecisionDemo() {
       <DemoP>
         Switch to <strong>COMPENSATED</strong>. Kahan summation keeps the bits that fell off the
         end in a second variable and feeds them back next iteration, recovering ~1000.0001 in the
-        same fp32. The lesson is not "use float64" — it is that the <em>order and method</em> of
+        same fp32. The lesson is not "use float64". It is that the <em>order and method</em> of
         accumulation matter as much as the type. Then switch to <strong>FP16</strong> and watch it
         fall apart much sooner: 10 mantissa bits instead of 23, and a subnormal floor near 6e-8
         below which a gradient is not small, it is zero.
@@ -164,8 +162,7 @@ function FloatPrecisionDemo() {
       <DemoP>
         This is the whole reason
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/mixed-precision/`}>mixed precision</a>{" "}
-        exists. fp16 halves memory and doubles throughput, but gradients routinely live below its
-        subnormal floor — so loss scaling multiplies them up into representable range before the
+        exists. fp16 halves memory and doubles throughput, but gradients routinely live below its subnormal floor, so loss scaling multiplies them up into representable range before the
         backward pass and divides back after. bf16 solves it differently, keeping fp32's exponent
         range and sacrificing mantissa bits instead, which is why it usually needs no scaler at all.
       </DemoP>

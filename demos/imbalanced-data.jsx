@@ -190,8 +190,7 @@ function ImbalancedDemo() {
   const explainer = (
     <>
       <DemoP>
-        At a 1.5% positive rate, a model that flags nothing at all is <strong>98.52% accurate</strong>
-        {" "}— and that is not a quirk, it is the accuracy-optimal rule for any event rarer than a
+        At a 1.5% positive rate, a model that flags nothing at all is <strong>98.52% accurate</strong>{" "}, and that is not a quirk, it is the accuracy-optimal rule for any event rarer than a
         coin flip. Accuracy answers "how often am I right", which on a rare event is a question about
         the majority class you did not care about. The readouts put the honest pair beside it:
         ROC-AUC looks strong because it is an average over the many negatives, while PR-AUC is
@@ -201,21 +200,19 @@ function ImbalancedDemo() {
         The threshold is where the money is. Cost = FP × (false-alarm cost) + FN × (miss cost), and
         minimising it has a closed form: <strong>t* = c<sub>FP</sub> / (c<sub>FP</sub> +
         c<sub>FN</sub>)</strong>. Only the RATIO of the two costs matters, which is why you never
-        need to price a fraud loss exactly — you need to know it is fifty times a wasted review. At
+        need to price a fraud loss exactly. You need to know it is fifty times a wasted review. At
         $100 a miss and $2 a false alarm, t* = 0.0196, and the demo's swept minimum over every
-        candidate threshold in the data lands at 0.0247 — five thousandths away, on 295 positives.
+        candidate threshold in the data lands at 0.0247, five thousandths away, on 295 positives.
         Against the 0.5 default that is measured at <strong>2.70× cheaper</strong> here, and{" "}
         <strong>6.87×</strong> when a miss costs $500. The default threshold is a convention
         inherited from balanced problems; it is not a decision.
       </DemoP>
       <DemoP>
         Now switch on <strong>MISCALIBRATE</strong>. It halves the logit, which is strictly
-        increasing, so <em>ROC-AUC and PR-AUC do not move a digit</em> — every ranking metric says
-        the model is unchanged, and the best cost it can reach is unchanged too, because that is a
+        increasing, so <em>ROC-AUC and PR-AUC do not move a digit</em>. Every ranking metric says the model is unchanged, and the best cost it can reach is unchanged too, because that is a
         property of the ordering. What moves is where you have to stand to reach it: the swept
         argmin jumps <strong>0.0247 → 0.1373</strong>, and the analytic t* now costs{" "}
-        <strong>3.15×</strong> the achievable best — <em>worse than simply leaving the threshold at
-        0.5</em>. That is the whole reason calibration is a separate property from accuracy or
+        <strong>3.15×</strong> the achievable best, <em>worse than simply leaving the threshold at 0.5</em>. That is the whole reason calibration is a separate property from accuracy or
         ranking: the moment a score is compared against a <em>price</em> rather than against other
         scores its level has to be right, and no AUC will ever tell you that it isn't.
       </DemoP>
@@ -225,8 +222,7 @@ function ImbalancedDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is the shape of fraud, click prediction, medical screening, defect detection and abuse
-        classification — anything where the interesting class is 1% of traffic. It is also why
+        This is the shape of fraud, click prediction, medical screening, defect detection and abuse classification: anything where the interesting class is 1% of traffic. It is also why
         resampling and class weights are a subtler tool than they look:
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}>they shift the prior</a>{" "}
         the model has learned, so the output stops being a posterior for the real population and
@@ -235,8 +231,7 @@ function ImbalancedDemo() {
       <DemoP>
         In practice the threshold is often set by capacity rather than by cost: a review team can
         look at 500 cases a day, so the operating point is "top 500" and the number to report is
-        precision@500. That is the same curve read from the other axis, and it makes the metric
-        argument concrete — {" "}
+        precision@500. That is the same curve read from the other axis, and it makes the metric argument concrete.{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/classification-metrics/`}>precision, recall and the confusion matrix</a>{" "}
         are not four competing scores but one 2×2 table read four ways.
       </DemoP>

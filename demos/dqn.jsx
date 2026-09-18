@@ -285,9 +285,9 @@ function DQNDemo() {
       <Slider label="// TARGET SYNC (C)" min={5} max={150} step={5} value={syncC} onChange={setSyncC}
         help="How often (in steps) the target network is overwritten with the online weights. Small C → target chases the online net (less stable); large C → stable but stale targets that lag real progress." />
       <Toggle label="// EXPERIENCE REPLAY" checked={useReplay} onChange={setUseReplay}
-        help="On: train on a random minibatch from the buffer (decorrelates samples, reuses data). Off: train only on the most recent transition — watch the Q-curves thrash from correlated, non-stationary updates." />
+        help="On: train on a random minibatch from the buffer (decorrelates samples, reuses data). Off: train only on the most recent transition, and watch the Q-curves thrash from correlated, non-stationary updates." />
       <Toggle label="// TARGET NETWORK" checked={useTarget} onChange={setUseTarget}
-        help="On: bootstrap the TD target from a frozen copy of Q, synced every C steps. Off: bootstrap from the online net itself — a moving target that chases its own tail and often diverges." />
+        help="On: bootstrap the TD target from a frozen copy of Q, synced every C steps. Off: bootstrap from the online net itself, a moving target that chases its own tail and often diverges." />
       <Slider label="// SPEED (steps/sec)" min={4} max={120} step={2} value={speed} onChange={setSpeed}
         help="Environment + learning steps per second." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
@@ -311,13 +311,12 @@ function DQNDemo() {
   const explainer = (
     <>
       <DemoP>
-        Tabular Q-learning needs one cell per state — hopeless once the state is
-        continuous. DQN replaces the table with a small neural network that{" "}
+        Tabular Q-learning needs one cell per state, which is hopeless once the state is continuous. DQN replaces the table with a small neural network that{" "}
         <i>approximates</i> Q(s, a), so it can generalize across nearby states.
         The three curves are the network's value estimate for moving left,
         staying, and moving right at every point on the line; the agent acts
         greedily (argmax) with a little ε-exploration. Watch the curves bend into
-        a tent that peaks at the green goal — the network is learning that getting
+        a tent that peaks at the green goal. The network is learning that getting
         near zero is worth +1.
       </DemoP>
       <DemoP>
@@ -327,16 +326,14 @@ function DQNDemo() {
         gradient steps aren't correlated and rare goal-reaching steps get reused
         many times. The <b>target network</b> freezes the weights used to compute
         r + γ·maxₐ Q(s′,a) for C steps, so the network isn't chasing a target that
-        moves every update. Turn either off and the loss curve gets violent — that
-        instability is exactly the problem the 2015 DQN paper solved.
+        moves every update. Turn either off and the loss curve gets violent. That instability is exactly the problem the 2015 DQN paper solved.
       </DemoP>
     </>
   );
   const concepts = (
     <>
       <DemoP>
-        DQN (Mnih et al., 2015) is what put deep RL on the map — one architecture
-        learning to play 49 Atari games from raw pixels and a score. The version
+        DQN (Mnih et al., 2015) is what put deep RL on the map: one architecture learning to play 49 Atari games from raw pixels and a score. The version
         here is the same algorithm with a 1-input network instead of a
         convolutional one: ε-greedy behavior, a replay buffer, a periodically
         synced target net, and a squared TD loss. Everything that made it famous

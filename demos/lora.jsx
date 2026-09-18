@@ -109,7 +109,7 @@ function LoRADemo() {
   const controls = (
     <ControlGroup>
       <Slider label={`// RANK r (of ${D})`} min={1} max={12} value={rank} onChange={setRank}
-        help="The rank of the B·A approximation — how many directions the update is allowed. Higher rank fits ΔW more exactly but uses more parameters (2·d·r vs the full d²)." />
+        help="The rank of the B·A approximation, meaning how many directions the update is allowed. Higher rank fits ΔW more exactly but uses more parameters (2·d·r vs the full d²)." />
       <DemoButton onClick={() => { seedRef.current += 1; targetRef.current = makeTarget(seedRef.current); draw(); }} primary>NEW UPDATE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="FULL PARAMS" value={stats.full} accent="#c084fc" />
@@ -124,8 +124,7 @@ function LoRADemo() {
   const explainer = (
     <>
       <DemoP>
-        Full fine-tuning learns a dense update <b>ΔW</b> for every weight matrix —
-        billions of trainable parameters. <b>LoRA</b> bets that the update you actually
+        Full fine-tuning learns a dense update <b>ΔW</b> for every weight matrix, billions of trainable parameters. <b>LoRA</b> bets that the update you actually
         need is <i>low-rank</i>, so it freezes W and learns only two thin matrices,
         <b> B</b> (d×r) and <b>A</b> (r×d), whose product B·A stands in for ΔW. Slide
         the <b>rank r</b> and compare the panels: the right one is the best rank-r
@@ -135,8 +134,7 @@ function LoRADemo() {
       </DemoP>
       <DemoP>
         The win is the parameter count: full = d², LoRA = 2·d·r. At r = 2 on this
-        24×24 matrix you're already training a fraction of the weights while recovering
-        most of the update — and at GPT scale that's the difference between needing a
+        24×24 matrix you're already training a fraction of the weights while recovering most of the update, and at GPT scale that is the difference between needing a
         cluster and fine-tuning on a single GPU. This is why LoRA (and QLoRA) became
         the default way to adapt large models, and why you can ship dozens of tiny
         per-task adapters instead of dozens of full model copies.
@@ -147,15 +145,14 @@ function LoRADemo() {
     <>
       <DemoP>
         LoRA is the default way to adapt large models on a budget. Instead of fine-tuning
-        billions of weights, you train two thin matrices per layer — often under 1% of the
-        parameters — which means a single GPU instead of a cluster, and tiny per-task
+        billions of weights, you train two thin matrices per layer, often under 1% of the parameters, which means a single
+        GPU instead of a cluster, and tiny per-task
         adapters (a few MB) you can swap or stack at serving time rather than storing full
         model copies. <b>QLoRA</b> pushes it further by combining LoRA with a 4-bit
         quantized base.
       </DemoP>
       <DemoP>
-        It works because fine-tuning updates are empirically <i>low-rank</i> — adapting a
-        pretrained model nudges a few directions rather than rewriting everything (the same
+        It works because fine-tuning updates are empirically <i>low-rank</i>. Adapting a pretrained model nudges a few directions rather than rewriting everything (the same
         low-rank/SVD intuition behind PCA and matrix factorization). That insight powers a
         whole family of parameter-efficient methods (adapters, prefix and prompt tuning),
         and it's what makes the ecosystem of community fine-tunes and per-customer
@@ -164,7 +161,7 @@ function LoRADemo() {
     </>
   );
   return (
-    <DemoLayout title="LoRA — Low-Rank Adaptation"
+    <DemoLayout title="LoRA: Low-Rank Adaptation"
       subtitle="Approximate a full weight update with two thin matrices. Most of the change, a fraction of the parameters."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/fine-tuning/`}

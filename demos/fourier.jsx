@@ -91,11 +91,11 @@ function FourierDemo() {
     <ControlGroup>
       <SegmentedControl label="// TARGET WAVE" value={kind} onChange={setKind}
         options={[{ value: "square", label: "Square" }, { value: "sawtooth", label: "Sawtooth" }, { value: "triangle", label: "Triangle" }]}
-        help="The periodic signal to rebuild. Each has a known harmonic recipe — square and sawtooth have sharp jumps that need many terms; triangle converges fastest." />
+        help="The periodic signal to rebuild. Each has a known harmonic recipe. Square and sawtooth have sharp jumps that need many terms; triangle converges fastest." />
       <Slider label="// HARMONICS" min={1} max={30} value={n} onChange={setN} tone="violet"
         help="How many sine waves (rotating circles) are summed. More harmonics sharpen the corners and shrink the error, approaching the exact wave." />
       <Slider label="// SPEED" min={1} max={20} value={speed} onChange={setSpeed}
-        help="How fast the epicycles rotate. Visual only — it does not affect the reconstruction." />
+        help="How fast the epicycles rotate. Visual only: it does not affect the reconstruction." />
       <StatReadout label="ROTATING TERMS" value={n} accent="var(--violet-lt)" />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Each circle is one sine wave; their sum traces the curve.</div>
     </ControlGroup>
@@ -104,17 +104,16 @@ function FourierDemo() {
     <>
       <DemoP>
         Fourier's idea: <b>any</b> periodic signal is a sum of sine waves at integer
-        multiples of a base frequency. Here each rotating circle (an "epicycle") is
-        one of those sines — its radius is the amplitude, its speed is the frequency
-        — and chaining them tip-to-tail, the final point traces the target wave on
+        multiples of a base frequency. Here each rotating circle (an "epicycle") is one of those sines, with its radius the amplitude and its speed the frequency, and
+        chaining them tip-to-tail, the final point traces the target wave on
         the right. Add <b>harmonics</b> and watch a few circles turn into a crisp
         square, sawtooth, or triangle.
       </DemoP>
       <DemoP>
         Notice the sharp corners need many high-frequency terms, and that the square
         wave's overshoot at each jump never quite goes away (the Gibbs phenomenon).
-        This decomposition is the foundation of signal processing — audio, images,
-        compression — and the same frequency-domain thinking shows up in positional
+        This decomposition is the foundation of signal processing for audio, images and compression, and the same
+        frequency-domain thinking shows up in positional
         encodings and spectral methods across modern ML.
       </DemoP>
     </>
@@ -133,8 +132,7 @@ function FourierDemo() {
         sinusoidal <i>positional encodings</i> in transformers are literally Fourier
         features; "Fourier feature" mappings help networks learn high-frequency detail
         (e.g. in NeRF and implicit image models); and FFT-based layers accelerate
-        long-convolution sequence models. Even the <b>Gibbs overshoot</b> at each jump is a
-        useful caution — finite models approximate sharp discontinuities imperfectly.
+        long-convolution sequence models. Even the <b>Gibbs overshoot</b> at each jump is a useful caution. Finite models approximate sharp discontinuities imperfectly.
       </DemoP>
     </>
   );

@@ -142,9 +142,9 @@ function KnapsackDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CAPACITY (C)" min={6} max={14} step={1} value={C} onChange={setC} tone="violet"
-        help="The weight budget — the number of table columns. The DP runs in O(N·C) time and space, which is pseudo-polynomial: linear in the numeric capacity, not in its bit-length. That subtlety is why knapsack is NP-hard despite this neat table." />
+        help="The weight budget, which is the number of table columns. The DP runs in O(N·C) time and space, which is pseudo-polynomial: linear in the numeric capacity, not in its bit-length. That subtlety is why knapsack is NP-hard despite this neat table." />
       <Slider label="// ITEMS (N)" min={3} max={6} step={1} value={Nit} onChange={setNit}
-        help="Number of items, each with a random weight and value — the table rows. Each row decides one item: take it or skip it, reusing the row above." />
+        help="Number of items, each with a random weight and value, which are the table rows. Each row decides one item: take it or skip it, reusing the row above." />
       <Slider label="// SPEED (cells/sec)" min={2} max={40} step={2} value={speed} onChange={setSpeed}
         help="Table-fill speed. Slow it down to watch each cell take the max of 'skip this item' (cell directly above) and 'take it' (cell above, shifted left by its weight, plus its value)." />
       <DemoButton onClick={() => { if (done) setStep(0); setRunning(r => !r); }} primary>{running ? "PAUSE" : (done ? "REPLAY" : "FILL TABLE")}</DemoButton>
@@ -167,14 +167,12 @@ function KnapsackDemo() {
         Brute-forcing 0/1 knapsack means trying all 2ᴺ subsets. Dynamic programming
         does far better by noticing the subproblems overlap: the best you can do
         with the first i items and capacity c only depends on smaller versions of
-        the same question. Each cell takes the max of two already-computed cells —
-        "skip item i" (the cell directly above) and "take item i" (the cell above,
+        the same question. Each cell takes the max of two already-computed cells: "skip item i" (the cell directly above) and "take item i" (the cell above,
         shifted left by the item's weight, plus its value). Watch the green
         outlines show exactly those two sources for every cell.
       </DemoP>
       <DemoP>
-        Once the table is full, the bottom-right cell holds the optimal value — but
-        not which items to pack. So we backtrack (the yellow path): at each row,
+        Once the table is full, the bottom-right cell holds the optimal value, but not which items to pack. So we backtrack (the yellow path): at each row,
         if the value changed from the row above, that item was taken; step left by
         its weight and continue. The chosen items light up green. Fill order and
         backtracking are the two halves every DP shares: compute the values
@@ -185,8 +183,7 @@ function KnapsackDemo() {
   const concepts = (
     <>
       <DemoP>
-        Dynamic programming is one of the pillars of algorithms — optimal
-        substructure plus overlapping subproblems, solved once and memoized. The
+        Dynamic programming is one of the pillars of algorithms: optimal substructure plus overlapping subproblems, solved once and memoized. The
         knapsack table is the canonical example, but the same pattern powers edit
         distance, sequence alignment in bioinformatics, shortest paths
         (Bellman-Ford, Floyd-Warshall), and resource allocation. It's the
@@ -198,8 +195,7 @@ function KnapsackDemo() {
         It runs through machine learning too: the Bellman equation behind{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/value-iteration/`} style={{ color: "#a855f7" }}>value
         iteration</a> is dynamic programming over states, the Viterbi algorithm
-        decodes HMMs, and CTC alignment trains speech models — all the same
-        "build optimal answers from optimal sub-answers" idea. The catch knapsack
+        decodes HMMs, and CTC alignment trains speech models, all the same "build optimal answers from optimal sub-answers" idea. The catch knapsack
         exposes: the table is O(N·C), pseudo-polynomial in the capacity, so DP is
         only practical when that dimension stays small.
       </DemoP>

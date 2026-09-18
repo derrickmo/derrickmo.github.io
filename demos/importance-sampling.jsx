@@ -181,23 +181,20 @@ function ImportanceSamplingDemo() {
   const explainer = (
     <>
       <DemoP>
-        We want the probability that a standard normal exceeds t — the shaded violet
-        tail. Sampling straight from p (gray line below) almost never lands there, so
+        We want the probability that a standard normal exceeds t, the shaded violet tail. Sampling straight from p (gray line below) almost never lands there, so
         naive Monte Carlo sits stuck near zero and jumps every time it gets a lucky
         hit. Importance sampling instead draws from the cyan proposal q, which we aim
         into the tail so samples actually arrive, then corrects for the cheat by
         weighting each sample by w = p(x)/q(x). Oversampled regions get down-weighted,
-        and the weighted tail fraction is an unbiased estimate of the true probability
-        — watch the violet trace lock onto the green truth line fast.
+        and the weighted tail fraction is an unbiased estimate of the true probability. Watch the violet trace lock onto the green truth line fast.
       </DemoP>
       <DemoP>
-        The catch is the proposal. Slide PROPOSAL MEAN to 0 and you're back to naive
-        sampling — the estimate crawls. Aim it near t and ESS/N stays high and
+        The catch is the proposal. Slide PROPOSAL MEAN to 0 and you're back to naive sampling and the estimate crawls. Aim it near t and ESS/N stays high and
         convergence is quick. But push mu_q far past t, or make sigma_q too narrow,
         and a handful of samples land where p is much larger than q, so their weights
         explode: the estimate is then carried by two or three points, the variance
-        skyrockets, and the Effective Sample Size — (Σw)²/Σw², the count of
-        "equivalent independent samples" — collapses toward 1 (it turns red). That ESS
+        skyrockets, and the Effective Sample Size, (Σw)²/Σw², the count of "equivalent independent samples",
+        collapses toward 1 (it turns red). That ESS
         crash is the universal diagnostic for a bad proposal, and the reason
         importance weights are notoriously fragile in high dimensions.
       </DemoP>
@@ -215,14 +212,13 @@ function ImportanceSamplingDemo() {
         Markov chain like{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`} style={{ color: "#a855f7" }}>MCMC</a>{" "}
         when you have a decent proposal, and the self-normalized variant only needs the
-        target up to a constant — exactly the setting of{" "}
+        target up to a constant, exactly the setting of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/bayes/`} style={{ color: "#a855f7" }}>Bayesian</a>{" "}
         posteriors.
       </DemoP>
       <DemoP>
         Caveats: the estimator is only as good as the proposal. If q has thinner tails
-        than p, the weights have infinite variance and the estimate is silently
-        unreliable — always monitor ESS, not just the point estimate. The method
+        than p, the weights have infinite variance and the estimate is silently unreliable, so always monitor ESS, not just the point estimate. The method
         degrades badly in high dimensions (weights become astronomically skewed), which
         motivates adaptive IS, annealed IS, and sequential Monte Carlo. The
         self-normalized form trades a small bias for not needing the normalizing

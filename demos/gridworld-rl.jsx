@@ -164,7 +164,7 @@ function GridworldDemo() {
       <Slider label="// EXPLORATION ε" min={0} max={1} step={0.05} value={eps} onChange={setEps}
         help="Fraction of moves taken at random. 0 greedily exploits a half-learned map (can get stuck); high keeps exploring but never commits to the best route." />
       <Slider label="// SPEED" min={1} max={60} value={speed} onChange={setSpeed} suffix=" /s"
-        help="Q-learning steps per second. Visual pacing only — it does not change what the agent learns." />
+        help="Q-learning steps per second. Visual pacing only: it does not change what the agent learns." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
         <DemoButton onClick={() => { if (!running) { stepEnv(); draw(); } }} disabled={running}>STEP</DemoButton>
@@ -185,8 +185,7 @@ function GridworldDemo() {
   const explainer = (
     <>
       <DemoP>
-        The agent (gold) knows nothing at first — it stumbles around taking random
-        actions. Every move it applies the <b>Q-learning update</b>:
+        The agent (gold) knows nothing at first. It stumbles around taking random actions. Every move it applies the <b>Q-learning update</b>:
         <i> Q(s,a) ← Q(s,a) + α·[r + γ·maxₐ′Q(s′,a′) − Q(s,a)]</i>. That one line
         propagates reward backward through the grid: reaching the goal (+1) nudges
         up the cells next to it, which nudge up <i>their</i> neighbors, until a value
@@ -194,8 +193,7 @@ function GridworldDemo() {
         greedy policy; the color is each cell's value (red low → green high).
       </DemoP>
       <DemoP>
-        Play with the knobs. <b>ε</b> trades off exploration vs exploitation — at 0
-        the agent greedily exploits a half-learned map and can get stuck; too high
+        Play with the knobs. <b>ε</b> trades off exploration against exploitation. At 0 the agent greedily exploits a half-learned map and can get stuck; too high
         and it never commits. <b>γ</b> sets how much it cares about future reward
         (low γ → short-sighted). <b>α</b> is how fast it overwrites old estimates.
         Drop a New Grid and watch a fresh value landscape form.
@@ -206,16 +204,14 @@ function GridworldDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is <b>model-free</b> reinforcement learning — the agent learns purely from
-        trial-and-error reward, never told the environment's rules (contrast the
+        This is <b>model-free</b> reinforcement learning: the agent learns purely from trial-and-error reward, never told the environment's rules (contrast the
         value-iteration demo, where the dynamics are known and solved exactly). Learning
         straight from experience is what lets RL tackle problems too complex to model:
         game-playing, robotics, recommendation, and the RLHF that aligns LLMs to human
         preferences.
       </DemoP>
       <DemoP>
-        The one-line Q-learning update is a cornerstone algorithm, and its limitation here —
-        a table with one entry per state — is exactly what <b>Deep Q-Networks</b> fixed by
+        The one-line Q-learning update is a cornerstone algorithm, and its limitation here, a table with one entry per state, is exactly what <b>Deep Q-Networks</b> fixed by
         replacing the table with a neural network, enabling Atari-from-pixels and beyond.
         The α/γ/ε knobs are real and finicky: this is where you feel why RL is famously
         sample-hungry and sensitive to its hyperparameters and reward design.

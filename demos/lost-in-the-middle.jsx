@@ -141,13 +141,13 @@ function LostInTheMiddleDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CONTEXT LENGTH (passages)" min={3} max={20} step={1} value={N} onChange={setN}
-        help="How many retrieved passages are stuffed into the prompt. The longer the context, the deeper the middle sags — cramming more documents in can actively hurt if the answer lands in the dead zone." />
+        help="How many retrieved passages are stuffed into the prompt. The longer the context, the deeper the middle sags. Cramming more documents in can actively hurt if the answer lands in the dead zone." />
       <Slider label="// GOLD POSITION" min={1} max={N} step={1} value={goldClamped} onChange={setGold}
         help="Where the answer-bearing passage sits in the prompt. Slide it from front to back and watch accuracy trace the U: strong at the edges, weak in the middle." />
       <Slider label="// MIDDLE DROP" min={0} max={0.8} step={0.05} value={drop} onChange={setDrop} tone="violet"
         help="How badly this particular model loses the middle. Newer long-context models flatten the curve (low drop); weaker or very long-context setups have a deep valley. The position bias, not raw capacity." />
       <Toggle label="// RERANK relevant-to-front" checked={reorder} onChange={setReorder}
-        help="Reorder the passages so the most relevant one leads the prompt (what a reranker does). It jumps the gold passage to position 1 — watch accuracy snap up to the edge value regardless of where retrieval originally placed it." />
+        help="Reorder the passages so the most relevant one leads the prompt (what a reranker does). It jumps the gold passage to position 1. Watch accuracy snap up to the edge value regardless of where retrieval originally placed it." />
       <DemoButton onClick={() => setScan(s => !s)} primary>{scan ? "STOP SCAN" : "SCAN POSITIONS"}</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="ACCURACY" value={(eAcc * 100).toFixed(0) + "%"} accent={eAcc > 0.8 ? "#34d399" : eAcc > 0.6 ? "#fbbf24" : "#f87171"} />
@@ -163,20 +163,17 @@ function LostInTheMiddleDemo() {
   const explainer = (
     <>
       <DemoP>
-        Stuffing more retrieved passages into the prompt feels safe — surely the
-        answer is in there somewhere. But models don't read a long context evenly.
+        Stuffing more retrieved passages into the prompt feels safe, since surely the answer is in there somewhere. But models don't read a long context evenly.
         Accuracy is highest when the relevant passage is near the <b>start</b> or{" "}
         <b>end</b> and sags in the <b>middle</b>, tracing the U-shaped curve here.
         Slide the gold position across the context and watch the accuracy readout
         rise at the edges and collapse in the center.
       </DemoP>
       <DemoP>
-        Two levers make it worse or better. Grow CONTEXT LENGTH and the middle
-        valley deepens — more passages, more dead zone. Flip on RERANK and the gold
+        Two levers make it worse or better. Grow CONTEXT LENGTH and the middle valley deepens: more passages, more dead zone. Flip on RERANK and the gold
         passage jumps to the front: accuracy snaps from the red middle value up to
-        the green edge value, no model change required. That single move — order
-        retrieved chunks by relevance and put the best at the ends — is one of the
-        highest-leverage, lowest-cost fixes in a RAG pipeline.
+        the green edge value, no model change required. That single move, ordering retrieved chunks by relevance and putting the best at the
+        ends, is one of the highest-leverage, lowest-cost fixes in a RAG pipeline.
       </DemoP>
     </>
   );
@@ -195,10 +192,8 @@ function LostInTheMiddleDemo() {
         It's the other half of the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>RAG
         chunking</a> story: chunking decides <i>what</i> gets retrieved, ordering
-        decides <i>whether the model uses it</i>. The practical playbook — rerank
-        with a cross-encoder, put the top hit first or last, keep contexts tight
-        rather than maximal, and prefer fewer high-precision chunks over many noisy
-        ones — all falls out of this curve. Newer long-context models flatten it
+        decides <i>whether the model uses it</i>. The practical playbook, rerank with a cross-encoder, put the top hit first or last, keep contexts tight
+        rather than maximal, and prefer fewer high-precision chunks over many noisy ones, all falls out of this curve. Newer long-context models flatten it
         but rarely erase it.
       </DemoP>
     </>

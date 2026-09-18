@@ -121,11 +121,11 @@ function IVDemo() {
       <Slider label="// TRUE EFFECT β" min={-1} max={2} step={0.1} value={beta} onChange={setBeta} tone="violet"
         help="The causal effect of X on Y we're trying to recover. The green dashed line. IV should land on it; naive OLS generally won't." />
       <Slider label="// CONFOUNDING (U→X,Y)" min={0} max={2} step={0.1} value={confound} onChange={setConfound}
-        help="Strength of the hidden common cause U pushing on both treatment and outcome. This is what biases OLS — turn it up and watch the red line peel away from the green truth while IV stays put." />
+        help="Strength of the hidden common cause U pushing on both treatment and outcome. This is what biases OLS. Turn it up and watch the red line peel away from the green truth while IV stays put." />
       <Slider label="// INSTRUMENT STRENGTH (Z→X)" min={0.1} max={2} step={0.1} value={relevance} onChange={setRelevance}
         help="How strongly the instrument Z moves the treatment X (relevance). Strong → IV is precise. Drag it toward 0 to create a WEAK instrument: the F-stat drops below 10 and the IV estimate goes wild." />
       <Slider label="// EXCLUSION VIOLATION (Z→Y)" min={0} max={1} step={0.05} value={exclusion} onChange={setExclusion}
-        help="A forbidden direct path from Z to Y. The IV recipe assumes this is exactly 0. Nudge it up and watch IV become biased too (β̂_IV ≈ β + e/a) — the assumption you can't test from data." />
+        help="A forbidden direct path from Z to Y. The IV recipe assumes this is exactly 0. Nudge it up and watch IV become biased too (β̂_IV ≈ β + e/a), the assumption you cannot test from data." />
       <DemoButton onClick={() => { gen(); setTick(t => t + 1); }} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="OLS β̂" value={olsSlope.toFixed(2)} accent={Math.abs(olsBias) < 0.1 ? "#34d399" : "#f87171"} />
@@ -146,20 +146,18 @@ function IVDemo() {
     <>
       <DemoP>
         We want the causal effect of X on Y, but a hidden confounder U stirs both,
-        so the naive regression line (red) is biased — crank CONFOUNDING and watch
+        so the naive regression line (red) is biased. Crank CONFOUNDING and watch
         it swing away from the true effect (green dashed), sometimes flipping sign.
         An instrument Z offers a way out: it perturbs X but touches Y only through X.
-        IV keeps just the slice of X that Z explains — that slice is uncontaminated
-        by U — and reads the effect off it: β̂ = Cov(Z,Y)/Cov(Z,X). The purple line
+        IV keeps just the slice of X that Z explains, a slice uncontaminated by U, and reads the effect off it: β̂ = Cov(Z,Y)/Cov(Z,X). The purple line
         snaps back onto the truth.
       </DemoP>
       <DemoP>
         Two assumptions do all the work, and the demo lets you break each. Pull
-        INSTRUMENT STRENGTH toward zero and the first-stage F drops below 10 — a{" "}
-        <i>weak instrument</i>, where dividing by a near-zero covariance makes IV
+        INSTRUMENT STRENGTH toward zero and the first-stage F drops below 10, a{" "} <i>weak instrument</i>, where dividing by a near-zero covariance makes IV
         wildly noisy. Raise EXCLUSION VIOLATION and Z leaks straight into Y; IV
         becomes biased again (β̂ ≈ β + e/a). Relevance you can measure from data;
-        exclusion you can only argue for — which is why good instruments are rare.
+        exclusion you can only argue for, which is why good instruments are rare.
       </DemoP>
     </>
   );
@@ -179,8 +177,7 @@ function IVDemo() {
       <DemoP>
         Caveats are exactly the two assumptions: relevance is testable (report the
         first-stage F; below ~10 is the classic weak-instrument danger zone), but
-        exclusion is fundamentally untestable from the data — it's a causal claim you
-        defend with domain knowledge. IV also estimates effects with more variance
+        exclusion is fundamentally untestable from the data. It is a causal claim you defend with domain knowledge. IV also estimates effects with more variance
         than OLS, and under treatment-effect heterogeneity it answers a narrower
         question (the effect on compliers) than the population average. Related ideas
         live in{" "}

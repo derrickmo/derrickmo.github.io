@@ -107,16 +107,13 @@ function KnnDemo() {
     <>
       <DemoP>
         k-Nearest Neighbors is the simplest classifier there is: to label a point,
-        find its <i>k</i> closest training examples and take a majority vote. There's
-        no training — the data <i>is</i> the model. The shaded regions show how every
+        find its <i>k</i> closest training examples and take a majority vote. There is no training: the data <i>is</i> the model. The shaded regions show how every
         point in the plane would be classified for the current <b>k</b>.
       </DemoP>
       <DemoP>
         At <b>k = 1</b> the boundary is jagged and wraps tightly around every point
-        (low bias, high variance — it overfits, and noisy points create little
-        islands). Crank <b>k</b> up and the boundary smooths out and the islands
-        dissolve (higher bias, lower variance) — until very large k washes the
-        classes together. The leave-one-out accuracy readout is a quick honest
+        (low bias, high variance, so it overfits and noisy points create little islands). Crank <b>k</b> up and the boundary smooths out and the islands
+        dissolve (higher bias, lower variance), until very large k washes the classes together. The leave-one-out accuracy readout is a quick honest
         score; click to add points and watch the regions redraw instantly.
       </DemoP>
     </>
@@ -124,8 +121,8 @@ function KnnDemo() {
   const concepts = (
     <>
       <DemoP>
-        kNN is the textbook lazy, instance-based learner — there's no training, the data
-        <i> is</i> the model — and its core idea drives a surprising amount of modern AI.
+        kNN is the textbook lazy, instance-based learner. There is no training, the data <i>is</i> the model, and
+        its core idea drives a surprising amount of modern AI.
         Semantic / <b>vector search</b> and RAG are kNN at scale: embed everything, then
         retrieve the k closest vectors. Recommenders ("users like you"), de-duplication,
         and few-shot example selection all do the same nearest-neighbor lookup over learned
@@ -133,8 +130,7 @@ function KnnDemo() {
       </DemoP>
       <DemoP>
         It also crystallizes two ideas you reuse everywhere: the bias-variance tradeoff as
-        a single knob (k), and the <b>curse of dimensionality</b> — distances grow
-        meaningless as dimensions pile up. That's why production kNN runs over compact
+        a single knob (k), and the <b>curse of dimensionality</b>, where distances grow meaningless as dimensions pile up. That's why production kNN runs over compact
         learned embeddings with approximate-nearest-neighbor indexes (HNSW, IVF) instead of
         raw features, trading a little accuracy for huge speed.
       </DemoP>

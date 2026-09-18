@@ -156,7 +156,7 @@ function DistillationDemo() {
   const explainer = (
     <>
       <DemoP>
-        A hard label says "this is class A" — one bit. A trained teacher says
+        A hard label says "this is class A", which is one bit. A trained teacher says
         "85% A, 12% B, 3% C", and that extra structure (the teacher's <i>dark
         knowledge</i>) tells the student which classes are similar and how
         confident to be. Knowledge distillation trains a small student to match the
@@ -165,7 +165,7 @@ function DistillationDemo() {
         learned distribution below.
       </DemoP>
       <DemoP>
-        Push SOFT WEIGHT α up and the two bar charts converge — the student inherits
+        Push SOFT WEIGHT α up and the two bar charts converge. The student inherits
         the teacher's confidence structure, and the distribution-match metric
         climbs, even though top-class accuracy was already near-perfect. TEMPERATURE
         controls how much of that structure is visible: at T=1 the targets are
@@ -179,8 +179,7 @@ function DistillationDemo() {
     <>
       <DemoP>
         Distillation (Hinton et al., 2015) compresses a big, accurate teacher into
-        a small, deployable student that punches above its size — the third pillar
-        of model efficiency alongside{" "}
+        a small, deployable student that punches above its size, the third pillar of model efficiency alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>{" "}
         and <a href={`${window.__DM_BASE || "../../"}visualize/pruning/`} style={{ color: "#a855f7" }}>pruning</a>,
         and the technique behind DistilBERT, TinyLlama-style models, and most

@@ -124,11 +124,11 @@ function ForecastDemo() {
     <ControlGroup>
       <SegmentedControl label="// METHOD" value={method} onChange={setMethod}
         options={[{ value: "ma", label: "Moving Avg" }, { value: "ses", label: "SES" }, { value: "holt", label: "Holt" }, { value: "holt-winters", label: "Holt-Winters" }]}
-        help="The forecasting model. Moving Avg and SES predict a flat line; Holt adds a sloping trend; Holt-Winters adds a repeating seasonal cycle — the only one that tracks the wave." />
+        help="The forecasting model. Moving Avg and SES predict a flat line; Holt adds a sloping trend; Holt-Winters adds a repeating seasonal cycle, and it is the only one that tracks the wave." />
       {showAlpha && <Slider label="// α (level)" min={0.02} max={0.95} step={0.02} value={alpha} onChange={setAlpha}
         help="How fast the level adapts to recent observations. High reacts quickly (and to noise); low is smooth and sluggish." />}
       {showBeta && <Slider label="// β (trend)" min={0.0} max={0.6} step={0.02} value={beta} onChange={setBeta} tone="violet"
-        help="How fast the trend (slope) adapts. High lets the forecast re-aim quickly; low holds a steady slope — too high chases noise into wild extrapolation." />}
+        help="How fast the trend (slope) adapts. High lets the forecast re-aim quickly; low holds a steady slope. Too high chases noise into wild extrapolation." />}
       <DemoButton onClick={reseed} primary>NEW SERIES</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
         <StatReadout label="HOLDOUT MAE (lower is better)" value={stats.mae.toFixed(2)} accent="#fbbf24" />
@@ -140,17 +140,16 @@ function ForecastDemo() {
     <>
       <DemoP>
         Forecasting starts simple and adds structure. A <b>moving average</b> just
-        repeats the recent mean — flat, blind to trend or season. <b>Simple
+        repeats the recent mean, flat and blind to trend or season. <b>Simple
         exponential smoothing</b> (SES) weights recent points more via <b>α</b>, but
         still forecasts a flat line. <b>Holt</b> adds a <b>trend</b> term (β) so the
-        forecast can slope, and <b>Holt-Winters</b> adds a repeating <b>seasonal</b>{" "}
-        component — the only one that can reproduce the wave. The forecast is fit on the
+        forecast can slope, and <b>Holt-Winters</b> adds a repeating <b>seasonal</b>{" "} component, and it is the only one that can reproduce the wave. The forecast is fit on the
         history and drawn against the <i>held-out</i> future, with MAE measuring how
         close it landed.
       </DemoP>
       <DemoP>
         Step through the methods on a seasonal series and watch the error drop as the
-        model gains the structure the data actually has — then overshoot if you crank
+        model gains the structure the data actually has, then overshoot if you crank
         α/β too high and let it chase noise. That tension (enough flexibility to track
         real patterns, not so much that it fits randomness) is the same bias-variance
         story as the rest of ML, and these smoothing models remain strong, cheap
@@ -164,8 +163,7 @@ function ForecastDemo() {
         Time-series forecasting is one of the most commercially deployed forms of ML:
         demand and inventory planning, capacity and staffing, energy load, finance, and
         anomaly detection on operational metrics all run on it. Exponential smoothing and
-        ARIMA are decades old and still the backbone of tools like Prophet — cheap,
-        interpretable, and genuinely hard to beat on many real series.
+        ARIMA are decades old and still the backbone of tools like Prophet: cheap, interpretable, and genuinely hard to beat on many real series.
       </DemoP>
       <DemoP>
         The level/trend/seasonality decomposition you're toggling is the mental model

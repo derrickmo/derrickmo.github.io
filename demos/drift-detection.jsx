@@ -103,7 +103,7 @@ function DriftDetectionDemo() {
     }
     // status
     ctx.font = "600 16px Space Grotesk, JetBrains Mono"; ctx.fillStyle = alarm ? "#f87171" : "#34d399";
-    ctx.fillText(alarm ? "⚠ DRIFT DETECTED — retrain" : "✓ stable (PSI " + curPsi.toFixed(2) + ")", sX, sy + sh + 26);
+    ctx.fillText(alarm ? "⚠ DRIFT DETECTED: retrain" : "✓ stable (PSI " + curPsi.toFixed(2) + ")", sX, sy + sh + 26);
   }
 
   _useEffect(() => {
@@ -139,28 +139,25 @@ function DriftDetectionDemo() {
   const explainer = (
     <>
       <DemoP>
-        A model is only valid on data like what it was trained on — but the world
-        moves. Here the live feature stream starts matching the reference (white
+        A model is only valid on data like what it was trained on, but the world moves. Here the live feature stream starts matching the reference (white
         outline) and then its mean slowly drifts, so the filled histogram peels
         away. You can't see labels in production fast enough to catch this by
         accuracy, so you monitor the inputs directly: the Population Stability Index
         sums how far each bin's live frequency has moved from the reference.
       </DemoP>
       <DemoP>
-        Watch the PSI trace climb as the distributions diverge and cross the red
-        threshold — that's the alarm that says "the data you're serving no longer
+        Watch the PSI trace climb as the distributions diverge and cross the red threshold. That is the alarm that says "the data you're serving no longer
         looks like training data; investigate or retrain." The controls expose the
         real tradeoffs: a tighter window reacts faster but cries wolf more, and a
         lower threshold catches drift earlier at the cost of false alarms. Set drift
-        magnitude to 0 and the stream stays stable, PSI flat near zero — no alarm.
+        magnitude to 0 and the stream stays stable, PSI flat near zero, and no alarm.
       </DemoP>
     </>
   );
   const concepts = (
     <>
       <DemoP>
-        Drift detection is the monitoring backbone of MLOps. This is <i>covariate
-        shift</i> — the input distribution P(X) changes; its cousins are label
+        Drift detection is the monitoring backbone of MLOps. This is <i>covariate shift</i>, where the input distribution P(X) changes; its cousins are label
         shift (P(Y) moves) and concept drift (the X→Y relationship itself changes).
         Detectors range from population statistics like PSI and KL divergence to
         two-sample tests (Kolmogorov–Smirnov, MMD) and sequential change-point
@@ -171,7 +168,7 @@ function DriftDetectionDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibrated</a>{" "}
         and well-explained at launch and still rot silently as the world shifts. In
         practice drift alarms trigger investigation, shadow evaluation, and
-        retraining or rollback — and the hard parts the demo abstracts away are
+        retraining or rollback, and the hard parts the demo abstracts away are
         choosing what to monitor (raw features, embeddings, predictions, or
         delayed-label performance) and tuning thresholds so the alerts are
         trustworthy rather than ignored.

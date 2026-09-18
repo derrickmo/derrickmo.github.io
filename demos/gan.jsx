@@ -352,16 +352,14 @@ function GANDemo() {
         tries to spit out points that look like the
         <b style={{ color: "#60a5fa" }}> real</b> distribution. The
         <b> discriminator</b> looks at a point and outputs the probability
-        that it's real. The background shading is the D's current decision
-        field — blue means "I think this is real," violet means "fake."
+        that it's real. The background shading is the D's current decision field. Blue means "I think this is real," violet means "fake."
       </DemoP>
       <DemoP>
-        Run it. At first the fakes are scattered noise and D pins them down
-        easily — the violet region is huge. As G learns to game D, fakes drift
+        Run it. At first the fakes are scattered noise and D pins them down easily, so the violet region is huge. As G learns to game D, fakes drift
         toward the ring; the violet patch shrinks. D fights back by sharpening
         the boundary. The losses (G in green, D in yellow) bob: both should hover
         around log 2 ≈ 0.69 at the equilibrium where D can't tell them apart.
-        Hit RESET and try the moons — same dynamics, different shape.
+        Hit RESET and try the moons: same dynamics, different shape.
       </DemoP>
     </>
   );
@@ -369,15 +367,13 @@ function GANDemo() {
     <>
       <DemoP>
         Every modern image / video generator descends from this two-player game.
-        StyleGAN, BigGAN, CycleGAN, pix2pix, super-resolution, image-to-image
-        translation — all built on the GAN objective you're looking at here,
+        StyleGAN, BigGAN, CycleGAN, pix2pix, super-resolution, image-to-image translation are all built on the GAN objective you're looking at here,
         with bigger nets and tricks (spectral norm, gradient penalty, progressive
         growth) to stabilize training. Even text-to-image diffusion borrowed
         the adversarial idea via classifier-guided sampling.
       </DemoP>
       <DemoP>
-        The deep insight is the framing: don't define a loss on individual
-        samples — define one model that learns to recognize the whole
+        The deep insight is the framing: don't define a loss on individual samples. Define one model that learns to recognize the whole
         distribution, and use its gradient as the loss. That move lets you
         learn implicit densities you'd never write down in closed form, which
         is also exactly what discriminator-as-critic does in score-based

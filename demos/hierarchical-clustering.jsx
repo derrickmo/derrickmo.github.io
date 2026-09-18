@@ -157,7 +157,7 @@ function HierClustDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CUT -> CLUSTERS  k" min={1} max={8} step={1} value={kClusters} onChange={setK} tone="violet"
-        help="Where to slice the dendrogram. The SAME tree gives any number of clusters — slide the cut down for more, finer clusters, up for fewer, coarser ones. No re-fitting needed, unlike k-means." />
+        help="Where to slice the dendrogram. The SAME tree gives any number of clusters. Slide the cut down for more, finer clusters, up for fewer, coarser ones. No re-fitting needed, unlike k-means." />
       <SegmentedControl label="// LINKAGE" value={linkage} onChange={setLinkage}
         options={[{ value: "single", label: "Single" }, { value: "complete", label: "Complete" }, { value: "average", label: "Average" }, { value: "ward", label: "Ward" }]}
         help="How distance between two clusters is defined. Single = nearest pair (follows chains, can straggle); Complete = farthest pair (compact, equal-size clusters); Average = mean pair; Ward = the merge that least increases within-cluster variance (k-means-like, usually the best default)." />
@@ -185,18 +185,17 @@ function HierClustDemo() {
         point, and each upside-down U is a merge drawn at the height (distance) where
         the two clusters joined. Tall joins mean two very different groups fused late;
         short ones mean near-identical points merged early. The beauty is that you
-        don't pick the number of clusters first — you build the tree once and then
+        don't pick the number of clusters first. You build the tree once and then
         SLIDE the amber cut line. Where it crosses the branches is how many clusters
         you get, and the left scatter recolors instantly to match. No re-fitting, and
         you can read off 2, 5, or 8 clusters from the same structure.
       </DemoP>
       <DemoP>
         The LINKAGE rule changes everything. On the Chain data, switch to Single
-        linkage and it happily follows the curve as one snaking cluster (it merges via
-        the nearest pair) — but that same chaining makes it straggle and chain through
+        linkage and it happily follows the curve as one snaking cluster (it merges via the nearest pair), but that same chaining makes it straggle and chain through
         noise on blobs. Complete and Ward instead prefer compact, balanced clusters,
-        so they chop the chain into pieces but nail the blobs. Ward — merge whichever
-        pair least inflates within-cluster variance — behaves the most like k-means and
+        so they chop the chain into pieces but nail the blobs. Ward, which merges whichever pair least inflates within-cluster
+        variance, behaves the most like k-means and
         is the usual default. There's no universally "right" linkage; it encodes what
         shape of cluster you believe in.
       </DemoP>
@@ -205,8 +204,7 @@ function HierClustDemo() {
   const concepts = (
     <>
       <DemoP>
-        Agglomerative hierarchical clustering is a staple of exploratory data analysis
-        — the dendrogram + heatmap you see in genomics (gene/sample clustering),
+        Agglomerative hierarchical clustering is a staple of exploratory data analysis. The dendrogram and heatmap you see in genomics (gene/sample clustering),
         phylogenetics, customer segmentation, and document organization. Unlike{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kmeans/`} style={{ color: "#a855f7" }}>k-means</a>{" "}
         it needs no k in advance and yields a full multi-resolution hierarchy, and
@@ -219,8 +217,8 @@ function HierClustDemo() {
       <DemoP>
         Caveats: the naive algorithm is O(n²) memory and O(n³) time (n² log n with
         heaps), so it doesn't scale to huge datasets without approximations. Merges are
-        greedy and irreversible — an early mistake can't be undone — and the result is
-        very sensitive to the linkage and distance metric (single-linkage chaining is
+        greedy and irreversible, so an early mistake cannot be undone, and the result is very
+        sensitive to the linkage and distance metric (single-linkage chaining is
         the classic failure). The dendrogram tempts you to read meaning into every
         split; cutting it into clusters is still a judgment call (gap statistic,
         silhouette, or domain knowledge), and for non-Euclidean structure a

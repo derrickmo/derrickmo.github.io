@@ -134,8 +134,8 @@ function LouvainDemo() {
   const explainer = (
     <>
       <DemoP>
-        Community detection asks: which nodes form tightly-knit groups? The score is
-        <b> modularity Q</b> — how many more edges fall inside communities than you'd
+        Community detection asks: which nodes form tightly-knit groups? The score is{" "}
+        <b>modularity Q</b>, how many more edges fall inside communities than you'd
         expect if the same nodes wired up at random. Here every node starts in its
         own community (all different colors), and the algorithm repeatedly moves each
         node into whichever neighboring community raises Q the most. Watch the colors
@@ -146,7 +146,7 @@ function LouvainDemo() {
         then collapses each community into a super-node and repeats). The catch is in
         the <b>inter-community edge</b> slider: with few cross-edges the clusters pop
         out cleanly, but as you blur them, modularity flattens and the algorithm
-        starts merging real groups or splitting them — there's no ground-truth label,
+        starts merging real groups or splitting them. There is no ground-truth label,
         only the Q surface, and it has many near-equal optima (the resolution-limit
         problem).
       </DemoP>
@@ -165,8 +165,7 @@ function LouvainDemo() {
         clustering</a>, but on a graph instead of points in space.
       </DemoP>
       <DemoP>
-        It connects to the spectral view of graphs — communities are roughly the
-        pieces you'd get from the eigenvectors of the graph Laplacian, the same math
+        It connects to the spectral view of graphs, because communities are roughly the pieces you'd get from the eigenvectors of the graph Laplacian, the same math
         as <a href={`${window.__DM_BASE || "../../"}visualize/spectral-clustering/`} style={{ color: "#a855f7" }}>spectral
         clustering</a> and the structure that{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/pagerank/`} style={{ color: "#a855f7" }}>PageRank</a>{" "}

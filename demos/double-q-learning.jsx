@@ -178,7 +178,7 @@ function DoubleQDemo() {
       <Slider label="// REWARD NOISE σ" min={0.1} max={2} step={0.1} value={sigma} onChange={setSigma}
         help="Standard deviation of B's rewards. Bias comes from noise in the estimates, so more noise = more overestimation of max_a Q(B,a) = stronger pull toward the wrong LEFT action." />
       <Slider label="// EXPLORATION ε" min={0.02} max={0.4} step={0.02} value={eps} onChange={setEps}
-        help="Random-action rate. Even an optimal agent picks LEFT ε/2 of the time by chance — that dashed line is the floor both methods should approach." />
+        help="Random-action rate. Even an optimal agent picks LEFT ε/2 of the time by chance, so that dashed line is the floor both methods should approach." />
       <Slider label="// SPEED" min={4} max={120} value={speed} onChange={setSpeed} suffix=" ep/s"
         help="Episodes per second across all parallel runs. Visual pacing only." />
       <div style={{ display: "flex", gap: 8 }}>
@@ -197,19 +197,18 @@ function DoubleQDemo() {
   const explainer = (
     <>
       <DemoP>
-        Going RIGHT from A is optimal — it returns 0, while every action at B averages
+        Going RIGHT from A is optimal, because it returns 0, while every action at B averages
         −0.1. Yet plain <b>Q-learning</b> (red) chooses the wrong LEFT action far more
         than the {Math.round(eps / 2 * 100)}% an optimal explorer would, especially
         early. The culprit is <b>maximization bias</b>: Q-learning bootstraps off{" "}
         <i>maxₐ Q(B,a)</i>, and because those estimates are noisy, their max is
-        systematically too high. The bars show it directly — Q-learning's estimated
-        value of LEFT sits well <i>above</i> zero even though the truth is −0.1.
+        systematically too high. The bars show it directly. The Q-learning estimate of of LEFT sits well <i>above</i> zero even though the truth is −0.1.
       </DemoP>
       <DemoP>
         <b>Double Q-learning</b> (green) keeps two value tables and uses one to <i>pick</i>{" "}
         the best action and the other to <i>evaluate</i> it. Since the noise in the two
         tables is independent, the action that looks best in one isn't systematically
-        overvalued by the other, and the bias cancels — its LEFT estimate hugs −0.1 and
+        overvalued by the other, and the bias cancels. Its LEFT estimate hugs −0.1 and
         it quickly settles to near the optimal floor. Add more actions at B or crank the
         reward noise and watch the red curve balloon while green holds.
       </DemoP>
@@ -220,8 +219,8 @@ function DoubleQDemo() {
     <>
       <DemoP>
         Maximization bias is a quiet but pervasive flaw: any time you both select and
-        evaluate with the same noisy max — Q-learning, value estimates, even "pick the
-        best of N validation runs" — you overestimate. The double-estimator trick is the
+        evaluate with the same noisy max, whether Q-learning, value estimates, or "pick the best of N
+        validation runs", you overestimate. The double-estimator trick is the
         general fix. In deep RL it became <b>Double DQN</b>, which uses the online
         network to choose the action and the target network to value it, a one-line
         change to{" "}
@@ -235,7 +234,7 @@ function DoubleQDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/sarsa-vs-qlearning/`} style={{ color: "#a855f7" }}>SARSA
         vs Q-learning</a>: the very maximization that makes Q-learning learn the optimal
         policy off-policy is also what biases it. The same "optimizer's curse" shows up
-        in model selection and in bandits — it's why honest evaluation needs held-out
+        in model selection and in bandits. It is why honest evaluation needs held-out
         data the selection step never touched.
       </DemoP>
     </>

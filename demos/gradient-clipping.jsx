@@ -145,11 +145,11 @@ function GradientClippingDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// LEARNING RATE" min={0.01} max={0.12} step={0.005} value={lr} onChange={setLr}
-        help="Step size. Bigger learning rate makes the cliff explosion more violent for the unclipped walker — and is exactly why large-LR training needs clipping." />
+        help="Step size. Bigger learning rate makes the cliff explosion more violent for the unclipped walker, and is exactly why large-LR training needs clipping." />
       <Slider label="// CLIP THRESHOLD τ" min={0.2} max={4} step={0.1} value={tau} onChange={setTau}
         help="Maximum allowed gradient norm. Any gradient longer than τ is rescaled to length τ (same direction). Small τ = very cautious near the cliff; large τ ≈ no clipping. The green walker uses it." />
       <Slider label="// CLIFF STEEPNESS" min={4} max={20} step={1} value={k} onChange={setK}
-        help="How abruptly the wall rises. Steeper = a taller, narrower gradient spike at the edge — the regime where unclipped optimization blows up. Resets the run." />
+        help="How abruptly the wall rises. Steeper = a taller, narrower gradient spike at the edge, the regime where unclipped optimization blows up. Resets the run." />
       <Slider label="// SPEED" min={1} max={20} step={1} value={speed} onChange={setSpeed}
         help="Animation speed of the descent. Purely visual." />
       <div style={{ display: "flex", gap: 8 }}>
@@ -171,20 +171,20 @@ function GradientClippingDemo() {
   const explainer = (
     <>
       <DemoP>
-        The surface is mostly a gentle plateau with one steep wall — a cliff. Both
+        The surface is mostly a gentle plateau with one steep wall, a cliff. Both
         walkers start at the white dot and run plain gradient descent on the same
         loss. On the flat part the gradient is small and both crawl together. The
         moment they reach the wall the gradient norm spikes (watch RAW ‖g‖ jump): the
         red, unclipped walker multiplies that by the learning rate and gets flung
-        clear across the map — often right off it. The green walker clips the
+        clear across the map, often right off it. The green walker clips the
         gradient to length τ first, so its step stays bounded and it slides down the
         cliff face under control.
       </DemoP>
       <DemoP>
         Push LEARNING RATE or CLIFF STEEPNESS up and the red trajectory detonates
         sooner and harder. Then lower the CLIP THRESHOLD τ and the green walker gets
-        even more cautious at the edge. Clipping doesn't change the gradient's
-        <i> direction</i> — it only caps its <i>length</i> — so you keep descending
+        even more cautious at the edge. Clipping doesn't change the gradient's{" "}
+        <i>direction</i>, it only caps its <i>length</i>, so you keep descending
         the right way, you just refuse to take an absurd step because one mini-batch
         landed on a wall.
       </DemoP>
@@ -202,17 +202,14 @@ function GradientClippingDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/rnn-gates/`} style={{ color: "#a855f7" }}>RNN gates</a>,
         and it interacts with the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/optimizers/`} style={{ color: "#a855f7" }}>optimizer</a> and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/lr-schedule/`} style={{ color: "#a855f7" }}>learning-rate schedule</a> —
-        warmup plus clipping is a common stability recipe.
+        <a href={`${window.__DM_BASE || "../../"}visualize/lr-schedule/`} style={{ color: "#a855f7" }}>learning-rate schedule</a>, because warmup plus clipping is a common stability recipe.
       </DemoP>
       <DemoP>
-        Caveats: clipping introduces bias — when it's active the step no longer
-        follows the true gradient magnitude, which can slow convergence if τ is set
+        Caveats: clipping introduces bias. When it is active the step no longer follows the true gradient magnitude, which can slow convergence if τ is set
         too low, so it's usually tuned as a safety rail (e.g. global-norm 1.0) rather
         than an always-on regularizer. It treats a symptom (sharp loss geometry);
         normalization, better initialization, and architecture choices attack the
-        cause. And it only bounds the step it sees — it won't rescue a run that's
-        already diverged.
+        cause. And it only bounds the step it sees. It will not rescue a run that has already diverged.
       </DemoP>
     </>
   );

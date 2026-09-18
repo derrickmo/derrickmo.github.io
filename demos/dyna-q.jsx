@@ -175,7 +175,7 @@ function DynaQDemo() {
       <Slider label="// PLANNING STEPS n" min={0} max={50} step={1} value={n} onChange={setN} tone="violet"
         help="Imagined updates from the learned model after each real step. 0 = plain Q-learning. Raise it and the value (violet shading) floods back from the goal across the whole maze in a fraction of the real experience." />
       <Slider label="// LEARNING RATE α" min={0.05} max={1} step={0.05} value={alpha} onChange={setAlpha}
-        help="Step size for every Q update — real and planned alike. Shared by both agents so planning is the only difference." />
+        help="Step size for every Q update, real and planned alike. Shared by both agents so planning is the only difference." />
       <Slider label="// EXPLORATION ε" min={0} max={0.4} step={0.02} value={eps} onChange={setEps}
         help="Fraction of random moves. Some exploration is needed to discover the goal the first time; after that, planning does the heavy lifting of spreading its value." />
       <Slider label="// SPEED" min={4} max={160} value={speed} onChange={setSpeed} suffix=" /s"
@@ -197,8 +197,7 @@ function DynaQDemo() {
     <>
       <DemoP>
         Both agents run the exact same Q-learning. The only difference: after every
-        real step, the <b>Dyna-Q</b> agent does <b>n planning steps</b> — it samples a
-        transition it already remembers, replays it through its learned model, and
+        real step, the <b>Dyna-Q</b> agent does <b>n planning steps</b>. It samples a transition it already remembers, replays it through its learned model, and
         applies the same update. It's "thinking" between actions, squeezing far more
         learning out of each real experience. Watch the violet value shading flood
         back from the goal across the maze; with n=0 it would creep one cell per
@@ -209,8 +208,7 @@ function DynaQDemo() {
         (random wandering) and drops to the optimal path length once the policy is
         learned. The Dyna-Q curve (violet) plummets in a handful of episodes; the
         model-free agent (gray) takes many more. Slide n up and the gap widens; drop
-        it to 0 and the two curves coincide. This is the core argument for
-        model-based RL — sample efficiency.
+        it to 0 and the two curves coincide. This is the core argument for model-based RL: sample efficiency.
       </DemoP>
     </>
   );
@@ -227,14 +225,13 @@ function DynaQDemo() {
         gets the sample efficiency of planning without needing the rules handed to it.
         Experience replay in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>DQN</a>{" "}
-        is the same idea in disguise — replaying stored transitions is planning with a
+        is the same idea in disguise. Replaying stored transitions is planning with a
         non-parametric model.
       </DemoP>
       <DemoP>
         Model-based RL is what powers the most sample-efficient modern agents
         (Dyna-style replay, World Models, MuZero, Dreamer). The catch is model error:
-        plan inside a wrong model and you confidently learn the wrong thing — so real
-        systems weight planning by model confidence and keep correcting it with fresh
+        plan inside a wrong model and you confidently learn the wrong thing, so real systems weight planning by model confidence and keep correcting it with fresh
         experience. It's the planning counterpart to the search in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mcts/`} style={{ color: "#a855f7" }}>MCTS</a>.
       </DemoP>

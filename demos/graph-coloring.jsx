@@ -201,14 +201,12 @@ function GraphColoringDemo() {
         Coloring a map so neighboring regions differ is a constraint-satisfaction
         problem: each region is a variable, its domain is the available colors, and
         every shared border is a "must differ" constraint. The solver assigns one
-        region at a time, choosing the most-constrained region first (MRV — fewest
-        colors left), and the small dots inside each uncolored region show its
+        region at a time, choosing the most-constrained region first (MRV, meaning fewest colors left), and the small dots inside each uncolored region show its
         live domain shrinking as neighbors get colored.
       </DemoP>
       <DemoP>
         Toggle AC-3 and re-solve. With propagation on, the instant a region is
-        colored, arc-consistency strips that color from neighbors and cascades the
-        consequences — so a doomed branch is caught before the solver wanders into
+        colored, arc-consistency strips that color from neighbors and cascades the consequences, so a doomed branch is caught before the solver wanders into
         it. Turn it off and watch backtracks climb as plain search only discovers
         conflicts at the dead end. Set k=2 to see the dramatic case: no 2-coloring
         exists, so the search must exhaust every option and prove it.
@@ -232,7 +230,7 @@ function GraphColoringDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/pathfinding/`} style={{ color: "#a855f7" }}>A* search</a>:
         it will find a coloring if one exists or prove none does. For the hardest
         instances, constraint solvers escalate to conflict-driven clause learning
-        (the engine inside modern SAT/SMT solvers) — but the assign-propagate-
+        (the engine inside modern SAT/SMT solvers), but the assign-propagate-
         backtrack loop you're watching is the foundation under all of it.
       </DemoP>
     </>

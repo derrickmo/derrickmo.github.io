@@ -146,14 +146,14 @@ function GNNDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// LAYERS" min={0} max={10} step={1} value={layers} onChange={setLayers}
-        help="How many rounds of message passing. 0 = raw features. 1-3 = useful smoothing. Past ~5 you'll start to see over-smoothing — all nodes converge to similar features." />
+        help="How many rounds of message passing. 0 = raw features. 1-3 = useful smoothing. Past ~5 you'll start to see over-smoothing, where all nodes converge to similar features." />
       <Slider label="// WEIGHT W" min={0.3} max={1.2} step={0.05} value={w} onChange={setW} tone="violet"
         help="Scalar weight applied before the tanh nonlinearity. Lower W = features shrink each layer; higher W = updates push harder. Real GCNs learn this per layer." />
       <Slider label="// GRAPH SEED" min={1} max={20} step={1} value={seed} onChange={setSeed}
         help="Re-roll the random graph (preserving the 3-cluster structure). Different seeds give different connectivities; the qualitative smoothing behavior is the same." />
       <SegmentedControl label="// COLOR" value={view} onChange={setView}
         options={[{ value: "feat", label: "Feature" }, { value: "cluster", label: "True cluster" }]}
-        help="Color nodes by their current feature value (the GCN output) or by their ground-truth cluster id. Compare the two — the GCN is recovering cluster structure." />
+        help="Color nodes by their current feature value (the GCN output) or by their ground-truth cluster id. Compare the two: the GCN is recovering cluster structure." />
       <DemoButton onClick={() => setSeed(Math.floor(Math.random() * 20) + 1)} primary>NEW GRAPH</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="WITHIN VAR" value={within.toFixed(3)} />
@@ -170,16 +170,15 @@ function GNNDemo() {
     <>
       <DemoP>
         A <b>graph neural network</b> updates each node's feature by averaging over its
-        neighbors and itself, then applying a nonlinearity — exactly the rule
+        neighbors and itself, then applying a nonlinearity, exactly the rule
         <i> h_v ← tanh(W · mean(h_u for u in N(v) ∪ &#123;v&#125;))</i>. With <b>0
         layers</b> the colors just reflect cluster id (with noise). Crank up the
-        layers slider and watch features <b>smooth</b> within each cluster — that's
-        message passing pushing the GNN toward a representation where same-cluster
+        layers slider and watch features <b>smooth</b> within each cluster. That is message passing pushing the GNN toward a representation where same-cluster
         nodes look alike.
       </DemoP>
       <DemoP>
         Push the layers past ~5 and the "within variance" stat collapses, but so does
-        the <b>between</b>-variance — every node ends up looking the same. That's
+        the <b>between</b>-variance. Every node ends up looking the same. That's
         <b> over-smoothing</b>, the fundamental limitation of plain GCNs and why most
         production graph models cap at 2-4 layers, use residuals, or switch to graph
         transformers that attend to a fixed local window.
@@ -193,17 +192,13 @@ function GNNDemo() {
         (Pinterest's PinSAGE, the embedding behind your Pinterest feed),
         <b> fraud detection</b> (transaction graphs at every major fintech),
         <b> drug discovery</b> (DeepMind's GNoME found 2.2M new crystals), and
-        <b> Google Maps ETAs</b> (a GNN over the road network). The structure is the
-        signal — when relationships matter more than raw features, GNNs win.
+        <b> Google Maps ETAs</b> (a GNN over the road network). The structure is the signal: when relationships matter more than raw features, GNNs win.
       </DemoP>
       <DemoP>
-        Three big variants are worth knowing: <b>GCN</b> (what we're running — mean
-        over neighbors), <b>GraphSAGE</b> (sample a fixed number of neighbors so it
-        scales to billion-node graphs), and <b>GAT</b> (attention-weighted aggregation
-        — yes, the same softmax-over-keys that's everywhere else). Modern <b>graph
+        Three big variants are worth knowing: <b>GCN</b> (what we are running, a mean over neighbors), <b>GraphSAGE</b> (sample a fixed number of neighbors so it
+        scales to billion-node graphs), and <b>GAT</b> (attention-weighted aggregation, and yes, the same softmax-over-keys that's everywhere else). Modern <b>graph
         transformers</b> drop the locality entirely and run full self-attention with
-        positional encodings derived from graph structure — but they all start from
-        the message-passing primitive you're watching here.
+        positional encodings derived from graph structure, but they all start from the message-passing primitive you're watching here.
       </DemoP>
     </>
   );

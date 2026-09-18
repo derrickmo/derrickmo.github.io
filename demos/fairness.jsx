@@ -125,11 +125,12 @@ function FairnessDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// MEASUREMENT BIAS (group B)" min={0} max={2.5} step={0.1} value={bias} onChange={setBias} tone="violet"
-        help="How far group B's scores are pushed down despite identical true qualification — historical/measurement bias baked into the features. At 0 the groups are identical and fairness is easy; raise it and a shared threshold starts treating the groups very differently." />
+        help="How far group B's scores are pushed down despite identical true qualification, which is historical and measurement bias baked
+        into the features. At 0 the groups are identical and fairness is easy; raise it and a shared threshold starts treating the groups very differently." />
       <Slider label="// THRESHOLD A" min={0.05} max={0.95} step={0.05} value={tauA} onChange={setTauA}
         help="Select group-A applicants scoring above this. With LINK on it also drives group B." />
       <Slider label="// THRESHOLD B" min={0.05} max={0.95} step={0.05} value={tauB} onChange={setTauB}
-        help="Group B's own threshold (used only when LINK is off). Lowering it raises B's selection and true-positive rates — the per-group fix — but pushes B's false-positive rate up, breaking equalized odds." />
+        help="Group B's own threshold (used only when LINK is off). Lowering it raises B's selection and true-positive rates, the per-group fix, but pushes the false-positive rate of B up, breaking equalized odds." />
       <Toggle label="// LINK (single threshold)" checked={linked} onChange={setLinked}
         help="On: one global threshold for everyone (group-blind). Off: separate per-group thresholds, which can equalize a chosen metric but is itself ethically and legally fraught (disparate treatment)." />
       <DemoButton onClick={matchTPR} primary>MATCH TPR (equal opportunity)</DemoButton>
@@ -159,7 +160,7 @@ function FairnessDemo() {
       </DemoP>
       <DemoP>
         Now turn LINK off and hit MATCH TPR: lowering group B's threshold equalizes
-        the true-positive rate (equal opportunity) — but watch the selection-rate
+        the true-positive rate (equal opportunity), but watch the selection-rate
         and false-positive gaps that opens up. You can satisfy demographic parity,
         equal opportunity, or equalized odds, but with unequal score distributions
         you generally <i>cannot</i> satisfy more than one at once. That's a proven
@@ -174,15 +175,13 @@ function FairnessDemo() {
         statistical criteria: demographic parity (equal selection rate), equal
         opportunity (equal TPR), and equalized odds (equal TPR and FPR). Chouldechova
         and Kleinberg–Mullainathan–Raghavan showed these are mutually incompatible
-        whenever base rates or score distributions differ — so fairness is a
-        value-laden choice of <i>which</i> metric matters here, not a box to check.
+        whenever base rates or score distributions differ, so fairness is a value-laden choice of <i>which</i> metric matters here, not a box to check.
       </DemoP>
       <DemoP>
         It's the equity pillar of trustworthy ML, alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
         and <a href={`${window.__DM_BASE || "../../"}visualize/shap/`} style={{ color: "#a855f7" }}>explainability</a>.
-        The bias here is upstream (in the data), which no threshold fully fixes —
-        mitigations span pre-processing (reweighting, repairing features),
+        The bias here is upstream (in the data), which no threshold fully fixes. Mitigations span pre-processing (reweighting, repairing features),
         in-processing (fairness constraints during training), and post-processing
         (the per-group thresholds shown here). Per-group thresholds also raise the
         legal tension between disparate <i>impact</i> and disparate <i>treatment</i>.

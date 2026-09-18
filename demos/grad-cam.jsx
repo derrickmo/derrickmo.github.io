@@ -293,8 +293,8 @@ function GradCamDemo() {
         Grad-CAM asks a specific question: which regions of the last convolutional feature
         maps <i>increased</i> the score for a given class? It weights each feature map by
         how much the class score responds to it, sums them, and keeps the positive part.
-        The result is coarse — it lives at the resolution of the last conv layer, here
-        14×14 — but it points at evidence rather than at edges.
+        The result is coarse, living at the resolution of the last conv layer, here 14×14, but
+        it points at evidence rather than at edges.
       </DemoP>
       <DemoP>
         Nothing here is pre-baked. The network starts untrained at chance accuracy, and
@@ -309,13 +309,11 @@ function GradCamDemo() {
         same shape should produce a <i>useless</i> map, and if the picture barely changes
         then the method was tracking the image all along. Averaged over 200 held-out
         images the trained model puts <b>54%</b> of the heatmap's mass on a shape
-        occupying <b>13%</b> of the frame, and randomising the weights drops that to{" "}
-        <b>20%</b> — barely above what scattering it uniformly would give.
+        occupying <b>13%</b> of the frame, and randomising the weights drops that to{" "} <b>20%</b>, barely above what scattering it uniformly would give.
       </DemoP>
       <DemoP>
-        Click through several images before believing any of it. A single one swings
-        wildly — the same trained network gives anything from 9% to 84% depending on the
-        shape and where it sits — which is a small lesson in itself: an explanation
+        Click through several images before believing any of it. A single one swings wildly. The same trained network gives anything from 9% to 84% depending on the
+        shape and where it sits, which is a small lesson in itself: an explanation
         method is evaluated over a distribution, and a screenshot of one convincing
         heatmap is the weakest possible evidence that a method works.
       </DemoP>
@@ -327,15 +325,14 @@ function GradCamDemo() {
         There is a detail in this architecture worth knowing rather than hiding. Because
         global average pooling feeds a single linear layer, the gradient of the class
         score with respect to each feature map is <i>constant across the map</i> and
-        equals that class's weight — so Grad-CAM here collapses exactly onto <b>CAM</b>,
+        equals the weight of that class, so Grad-CAM here collapses exactly onto <b>CAM</b>,
         the older method it generalises. Grad-CAM's contribution was removing the
         architectural requirement: it works on any network, at any layer, without a GAP
         bottleneck, because it takes the gradients instead of reading the weights off.
       </DemoP>
       <DemoP>
         The wider lesson is what an explanation is <i>for</i>. A heatmap that looks
-        plausible is not evidence that the model is right — plausibility and faithfulness
-        are different properties, and a model can attend to the correct object for the
+        plausible is not evidence that the model is right. Plausibility and faithfulness are different properties, and a model can attend to the correct object for the
         wrong reason. The useful uses are diagnostic: asking for a class the model
         rejected to see where it looked, catching a network that has locked onto a
         watermark or a background texture, and confirming the failure mode before

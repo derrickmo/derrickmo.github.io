@@ -120,7 +120,7 @@ function GAEDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// GAE λ" min={0} max={1} step={0.01} value={lambda} onChange={setLambda} tone="violet"
-        help="The bias/variance dial. λ=0 uses only the one-step TD residual (low variance, but trusts the imperfect critic — biased). λ=1 sums the whole trajectory (unbiased, but high variance). The gold dot is your current MSE on the curve." />
+        help="The bias/variance dial. λ=0 uses only the one-step TD residual (low variance, but trusts the imperfect critic, so it is biased). λ=1 sums the whole trajectory (unbiased, but high variance). The gold dot is your current MSE on the curve." />
       <Slider label="// CRITIC ERROR" min={0} max={1.5} step={0.05} value={critErr} onChange={setCritErr}
         help="How wrong the value function is. Bias comes entirely from bootstrapping through this error, so a worse critic inflates the bias² curve and pushes the optimal λ* toward 1 (Monte Carlo, which doesn't trust the critic)." />
       <Slider label="// REWARD NOISE σ" min={0.1} max={2.5} step={0.1} value={sigma} onChange={setSigma}
@@ -141,17 +141,14 @@ function GAEDemo() {
   const explainer = (
     <>
       <DemoP>
-        Policy-gradient methods need an estimate of the <b>advantage</b> — how much
-        better an action was than the critic expected. GAE forms it as a
+        Policy-gradient methods need an estimate of the <b>advantage</b>, how much better an action was than the critic expected. GAE forms it as a
         discounted sum of TD residuals, with <b>λ</b> controlling how far down the
         trajectory the credit reaches (the violet bars). The whole method is one
         bias/variance dial: the curves above are exact, not sampled.
       </DemoP>
       <DemoP>
-        At <b>λ=0</b> you trust the critic completely — only the one-step residual —
-        so variance is tiny but every bit of the critic's error leaks straight into
-        the estimate (high bias²). At <b>λ=1</b> you ignore the critic and sum the
-        real rewards — unbiased, but the noise piles up (high variance). The
+        At <b>λ=0</b> you trust the critic completely, using only the one-step residual, so variance is tiny but every bit of the critic's error leaks straight into
+        the estimate (high bias²). At <b>λ=1</b> you ignore the critic and sum the real rewards, which is unbiased, but the noise piles up (high variance). The
         <b> MSE</b> is U-shaped and the best λ sits in between. Now turn up the
         <b> critic error</b>: bias² balloons and λ* slides toward 1. Turn up the
         <b> reward noise</b> instead and λ* slides toward 0. That trade is exactly
@@ -177,8 +174,7 @@ function GAEDemo() {
         bias</b>. Leaning on a learned estimate (low λ) is cheap and stable but
         inherits that estimate's mistakes; using raw long-horizon samples (high λ)
         is honest but noisy. Good defaults like λ=0.95 keep most of the
-        variance reduction while letting the real returns correct a flawed critic —
-        the same instinct behind n-step returns and the bias/variance decomposition
+        variance reduction while letting the real returns correct a flawed critic, the same instinct behind n-step returns and the bias/variance decomposition
         elsewhere in ML.
       </DemoP>
     </>

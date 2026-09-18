@@ -202,8 +202,7 @@ function KalmanDemo() {
   const explainer = (
     <>
       <DemoP>
-        The green curve is where the target really is; the blue dots are all the
-        filter ever sees — the same position, buried in sensor noise. The purple
+        The green curve is where the target really is; the blue dots are all the filter ever sees: the same position, buried in sensor noise. The purple
         line is the Kalman estimate, and the shaded band is its own sense of how
         unsure it is (±2σ). Each tick it does two things: <b>predict</b> the next
         position from a constant-velocity model (the band widens), then <b>update</b>{" "}
@@ -213,9 +212,8 @@ function KalmanDemo() {
       </DemoP>
       <DemoP>
         Watch NOISE REDUCED: the estimate's RMSE is well below the raw sensor's,
-        so the filter genuinely denoises in real time. Crank MEASUREMENT NOISE R up
-        and K shrinks — the estimate ignores the wild dots and glides on its model.
-        Crank PROCESS NOISE Q up and K grows — the estimate chases every dot and
+        so the filter genuinely denoises in real time. Crank MEASUREMENT NOISE R up and K shrinks. The estimate ignores the wild dots and glides on its model.
+        Crank PROCESS NOISE Q up and K grows. The estimate chases every dot and
         gets jumpy. The art is matching Q and R to reality: too little Q and the
         estimate lags and overshoots on the sharp turns; too much and you've just
         re-drawn the noise.
@@ -225,8 +223,7 @@ function KalmanDemo() {
   const concepts = (
     <>
       <DemoP>
-        The Kalman filter is the optimal recursive estimator for a linear system
-        with Gaussian noise — exact Bayesian belief updating where the belief stays
+        The Kalman filter is the optimal recursive estimator for a linear system with Gaussian noise, exact Bayesian belief updating where the belief stays
         Gaussian, so you only carry a mean and covariance. It runs everywhere state
         must be inferred from noisy streams: GPS/IMU sensor fusion, robotics and
         SLAM, flight control, object tracking, even smoothing financial series. It's
@@ -237,7 +234,7 @@ function KalmanDemo() {
       </DemoP>
       <DemoP>
         Caveats: optimality assumes the model (F), noise covariances (Q, R), and
-        linearity are all correct and Gaussian — get them wrong and the filter is
+        linearity are all correct and Gaussian. Get them wrong and the filter is
         confidently off, or diverges. Real targets maneuver and sensors are
         nonlinear, which is why practitioners reach for the Extended or Unscented
         Kalman filter, or particle filters for multimodal beliefs. Tuning Q and R

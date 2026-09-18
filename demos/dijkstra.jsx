@@ -171,16 +171,15 @@ function DijkstraDemo() {
   const concepts = (
     <>
       <DemoP>
-        Dijkstra is the canonical weighted shortest-path algorithm — routing and
-        maps, network packets, and any least-cost planning. With a binary heap it
+        Dijkstra is the canonical weighted shortest-path algorithm: routing and maps, network packets, and any least-cost planning. With a binary heap it
         runs in O(E log V). It's the weighted generalization of breadth-first search
         and the parent of <a href={`${window.__DM_BASE || "../../"}visualize/bfs-dfs-astar/`} style={{ color: "#a855f7" }}>A*</a>,
         which is just Dijkstra plus an admissible heuristic that aims the search at
         the goal.
       </DemoP>
       <DemoP>
-        The relaxation step — "is a cheaper path available through this node?" — is
-        the same{" "}
+        The relaxation step, asking "is a cheaper path available through this node?", is the
+        same{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>dynamic-programming</a>{" "}
         optimal-substructure idea behind shortest paths everywhere, and shortest-path
         distances on a graph are exactly what nonlinear dimensionality reduction like{" "}

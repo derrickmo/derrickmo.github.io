@@ -146,7 +146,7 @@ function ImageAugmentationDemo() {
         <span className="t-mono-s" style={{ color: "var(--muted)" }}>AUGMENTED SAMPLES (same label)</span>
         <canvas ref={gridRef} width={gw} height={gh}
           style={{ width: gw * (mobile ? 0.78 : 1), height: gh * (mobile ? 0.78 : 1), borderRadius: 4, border: "1px solid var(--border)", background: "#05060f" }} />
-        <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 9 }}>{anyAug ? "every tile is a fresh random transform" : "all knobs at zero — identical copies"}</span>
+        <span className="t-mono-s" style={{ color: "var(--dim)", fontSize: 9 }}>{anyAug ? "every tile is a fresh random transform" : "all knobs at zero: identical copies"}</span>
       </div>
     </div>
   );
@@ -155,7 +155,7 @@ function ImageAugmentationDemo() {
     <ControlGroup>
       <DemoButton onClick={() => setSeed(s => s + 1)} tone="violet" primary>RESAMPLE</DemoButton>
       <Toggle label="// HORIZONTAL FLIP" checked={flip} onChange={setFlip} tone="violet"
-        help="Randomly mirror left-right with 50% probability. Safe when the label is flip-invariant (a rocket is still a rocket) but wrong for text or left/right-handed classes — choosing label-preserving transforms is the whole art of augmentation." />
+        help="Randomly mirror left-right with 50% probability. Safe when the label is flip-invariant (a rocket is still a rocket) but wrong for text or left/right-handed classes. Choosing label-preserving transforms is the whole art of augmentation." />
       <Slider label="// ROTATION" min={0} max={45} step={1} value={rot} onChange={setRot} suffix="deg" tone="blue"
         help="Maximum random rotation each way. Teaches rotation tolerance; too much can push the object out of frame or create unrealistic poses." />
       <Slider label="// SCALE / CROP" min={0} max={45} step={1} value={zoom} onChange={setZoom} suffix="%" tone="violet"
@@ -163,7 +163,7 @@ function ImageAugmentationDemo() {
       <Slider label="// COLOR JITTER" min={0} max={80} step={1} value={jitter} onChange={setJitter} suffix="%" tone="blue"
         help="Random brightness + contrast shift per sample. Builds invariance to lighting and camera exposure so the model keys on shape, not absolute pixel values." />
       <Slider label="// CUTOUT" min={0} max={45} step={1} value={cut} onChange={setCut} suffix="%" tone="violet"
-        help="Erase a random square (Cutout / Random Erasing). Stops the model from leaning on one tell-tale patch and forces it to use the whole object — a form of dropout on the input." />
+        help="Erase a random square (Cutout / Random Erasing). Stops the model from leaning on one tell-tale patch and forces it to use the whole object, a form of dropout on the input." />
       <StatReadout label="MEAN PIXEL CHANGE" value={meanDiff.toFixed(1) + "%"} accent="var(--violet-lt)" />
       <StatReadout label="EFFECTIVE VARIETY" value={anyAug ? "1 image -> infinite views" : "1 image (no aug)"} accent="var(--blue-lt)" />
       <Legend items={[{ label: "fin tints mark left/right", color: "#a855f7" }]} />
@@ -182,8 +182,7 @@ function ImageAugmentationDemo() {
       </DemoP>
       <DemoP>
         Watch the <b>mean pixel change</b>: even modest knobs move a large fraction of
-        the pixels, yet a human reads every tile as the same object. That gap is the
-        free lunch — you multiply a small dataset into endless views and bake in the
+        the pixels, yet a human reads every tile as the same object. That gap is the free lunch. You multiply a small dataset into endless views and bake in the
         invariances you know are true (a rocket is still a rocket flipped, rotated, or
         partly hidden). The cost is that each transform encodes an assumption: flip a
         digit and you may turn a 6 into something that isn't a 6, so the right
@@ -195,8 +194,7 @@ function ImageAugmentationDemo() {
   const concepts = (
     <>
       <DemoP>
-        Augmentation is one of the most reliable regularizers in deep learning — it
-        directly attacks <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>overfitting</a> by
+        Augmentation is one of the most reliable regularizers in deep learning. It directly attacks <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>overfitting</a> by
         enlarging and diversifying the data the model sees, which is why ImageNet-scale
         vision, self-supervised pretraining, and almost every winning competition model
         lean on it. <b>Cutout</b> is essentially

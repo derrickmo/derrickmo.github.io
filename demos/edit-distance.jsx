@@ -152,8 +152,7 @@ function EditDistanceDemo() {
         Edit distance is the fewest single-character insertions, deletions, and
         substitutions to turn one string into another. The DP table builds the
         answer from prefixes: every cell is the cheapest way to align A's first i
-        characters with B's first j, computed from three already-solved neighbors —
-        the diagonal (the characters match for free, or substitute for +1), the
+        characters with B's first j, computed from three already-solved neighbors: the diagonal (the characters match for free, or substitute for +1), the
         cell above (delete from A, +1), and the cell to the left (insert into B,
         +1). Green outlines mark exactly those three sources.
       </DemoP>
@@ -162,8 +161,7 @@ function EditDistanceDemo() {
         script. Backtracking from that corner recovers the alignment shown below:
         green columns are matches, amber are substitutions, red are gaps
         (insert/delete). It's the same fill-then-backtrack two-step as the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a>{" "}
-        table — dynamic programming applied to strings rather than items.
+        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a>{" "} table, dynamic programming applied to strings rather than items.
       </DemoP>
     </>
   );
@@ -174,8 +172,7 @@ function EditDistanceDemo() {
         fuzzy search rank candidates by it, diff and version-control tools compute
         it on lines, and the identical recurrence (Needleman-Wunsch / Smith-
         Waterman) aligns DNA and protein sequences in bioinformatics. It's a clean
-        case of the dynamic-programming pattern — optimal substructure plus
-        overlapping subproblems, O(m·n) in time and space (reducible to O(min(m,n))
+        case of the dynamic-programming pattern: optimal substructure plus overlapping subproblems, O(m·n) in time and space (reducible to O(min(m,n))
         space if you only need the number).
       </DemoP>
       <DemoP>
@@ -183,7 +180,7 @@ function EditDistanceDemo() {
         similarity, and the same alignment DP underlies dynamic time warping for
         time series and CTC alignment when training speech and handwriting models.
         Whenever "how similar are these two sequences, and how do they line up?"
-        comes up, this table is the answer — the string sibling of the{" "}
+        comes up, this table is the answer, the string sibling of the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack DP</a>.
       </DemoP>
     </>

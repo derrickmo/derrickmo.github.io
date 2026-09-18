@@ -149,7 +149,7 @@ function HarrisDemo() {
         help="Size of the Gaussian window that sums gradient products into the structure tensor. Larger windows are more robust to noise but blur nearby corners together." />
       <SegmentedControl label="// RIGHT VIEW" value={view} onChange={setView} tone="blue"
         options={[{ value: "response", label: "Signed R" }, { value: "mag", label: "Corner heat" }]}
-        help="Signed R colors corners hot (violet/white) and edges cold (blue) — showing why Harris separates the two; Corner heat shows only the positive corner response." />
+        help="Signed R colors corners hot (violet/white) and edges cold (blue), showing why Harris separates the two; Corner heat shows only the positive corner response." />
       <StatReadout label="CORNERS FOUND" value={corners.length} accent="var(--violet-lt)" />
       <Legend items={[
         { label: "corner", color: "#a855f7" },
@@ -161,8 +161,7 @@ function HarrisDemo() {
   const explainer = (
     <>
       <DemoP>
-        A good feature point to track is a <b>corner</b> — a spot where the image
-        looks different no matter which way you nudge the window. Harris measures
+        A good feature point to track is a <b>corner</b>, a spot where the image looks different no matter which way you nudge the window. Harris measures
         this with the <b>structure tensor</b> M: at each pixel it sums the gradient
         products (I<sub>x</sub>², I<sub>y</sub>², I<sub>x</sub>I<sub>y</sub>) over a
         small Gaussian window. The two eigenvalues of M say how much the intensity
@@ -188,14 +187,12 @@ function HarrisDemo() {
         stitch a panorama or estimate camera motion (structure-from-motion, SLAM),
         and calibrate cameras with a checkerboard.
         Harris reads straight out of the same Sobel gradients used in
-        <a href={`${window.__DM_BASE || "../../"}visualize/edge-detection/`}> edge detection</a> —
-        corners are just where edges of two orientations meet.
+        <a href={`${window.__DM_BASE || "../../"}visualize/edge-detection/`}> edge detection</a>, because corners are just where edges of two orientations meet.
       </DemoP>
       <DemoP>
         The structure tensor's eigen-analysis is the same "how much does it vary, and
         in which directions" question that
-        <a href={`${window.__DM_BASE || "../../"}visualize/pca/`}> PCA</a> asks of a data
-        cloud — here applied to a tiny window of gradients. Modern detectors (SIFT,
+        <a href={`${window.__DM_BASE || "../../"}visualize/pca/`}> PCA</a> asks of a data cloud, here applied to a tiny window of gradients. Modern detectors (SIFT,
         ORB, FAST) refine the idea with scale and rotation invariance, and deep
         networks now learn keypoints end-to-end, but they all chase the same target
         Harris defined: distinctive, repeatable, well-localized points.

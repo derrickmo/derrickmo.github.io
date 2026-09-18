@@ -196,8 +196,7 @@ function AccumDemo() {
         what accumulation produced.
       </DemoP>
       <DemoP>
-        With a per-example mean loss and equal microbatches it is <strong>exact</strong> — not close,
-        exact, at a relative error around 10<sup>-16</sup>, which is floating point and nothing else.
+        With a per-example mean loss and equal microbatches it is <strong>exact</strong>. Not close, exact, at a relative error around 10<sup>-16</sup>, which is floating point and nothing else.
         That is because a mean over the batch is a mean of the microbatch means when the pieces are
         the same size. Switch SPLIT to <strong>UNEVEN</strong> and the bars come apart: dividing by M
         makes a small microbatch count as much as a large one, and the measured error jumps to{" "}
@@ -209,8 +208,7 @@ function AccumDemo() {
         The second failure has no fix. Switch LOSS to <strong>IN-BATCH CONTRASTIVE</strong>. InfoNCE
         scores each example against <em>the other examples in its batch</em>, so the loss is not a
         sum of per-example terms and cannot be decomposed over a partition at all. Splitting into 2
-        microbatches gives a relative error of <strong>0.31</strong>; into 8, <strong>0.74</strong> —
-        worse as the microbatch shrinks, because the number of negatives each example sees shrinks
+        microbatches gives a relative error of <strong>0.31</strong>; into 8, <strong>0.74</strong>, worse as the microbatch shrinks, because the number of negatives each example sees shrinks
         with it. The two other readouts say precisely what kind of wrong it is: the cosine stays at{" "}
         <strong>0.996 / 0.983 / 0.981</strong> while the norm ratio collapses{" "}
         <strong>0.70 → 0.43 → 0.27</strong>. The direction survives almost intact and the magnitude
@@ -225,20 +223,18 @@ function AccumDemo() {
     <>
       <DemoP>
         The same decomposability question decides several other things at once. BatchNorm computes
-        statistics over whatever is in front of it, so accumulation silently changes them the way it
-        changes InfoNCE's negatives — which is part of why
+        statistics over whatever is in front of it, so accumulation silently changes them the way it changes the negatives of InfoNCE, which is part of why
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/batch-norm/`}>normalisation choice</a>{" "}
         and distributed training are entangled, and why LayerNorm is the default in transformers.
-        Losses with a per-example reduction — cross-entropy, MSE, most of what a language model
-        trains on — are safe.
+        Losses with a per-example reduction, such as cross-entropy, MSE and most of what a language model
+        trains on, are safe.
       </DemoP>
       <DemoP>
         Accumulation trades wall-clock for memory: M passes per update means M times the compute per
         step, with no reduction in FLOPs. It sits beside
         {" "}<a href={`${window.__DM_BASE || "../../"}learn/training-systems/gradient-checkpointing/`}>activation checkpointing</a>{" "}
         and {" "}<a href={`${window.__DM_BASE || "../../"}visualize/mixed-precision/`}>mixed precision</a>{" "}
-        as one of three ways to buy memory, and the three compose — which also means their
-        interactions are where the surprises live.
+        as one of three ways to buy memory, and the three compose, which also means their interactions are where the surprises live.
       </DemoP>
     </>
   );

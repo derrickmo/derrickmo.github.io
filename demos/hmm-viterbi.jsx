@@ -198,8 +198,7 @@ function HMMViterbiDemo() {
         the white rings, the decode is correct.
       </DemoP>
       <DemoP>
-        The magic is that Viterbi doesn't decode each step independently — a noisy
-        "down" day inside a clear bull run gets overruled because flipping regimes
+        The magic is that Viterbi doesn't decode each step independently. A noisy "down" day inside a clear bull run gets overruled because flipping regimes
         costs transition probability. Crank REGIME PERSISTENCE up and the path
         snaps to long clean runs (accuracy soars); turn EMISSION NOISE up and the
         moves stop revealing the regime, so accuracy collapses toward chance. This
@@ -212,8 +211,7 @@ function HMMViterbiDemo() {
     <>
       <DemoP>
         The Viterbi algorithm is exact MAP inference over the hidden state sequence
-        of a hidden Markov model — a dynamic program that's the discrete-state
-        sibling of the continuous{" "}
+        of a hidden Markov model, a dynamic program that is the discrete-state sibling of the continuous{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kalman-filter/`} style={{ color: "#a855f7" }}>Kalman filter</a>.
         HMMs + Viterbi powered classical speech recognition, part-of-speech tagging,
         gene/protein sequence labeling, and regime detection in finance, and the
@@ -224,8 +222,7 @@ function HMMViterbiDemo() {
       </DemoP>
       <DemoP>
         Caveats: Viterbi gives the single best path, not per-step marginals (the
-        posterior-marginal "max-of-margins" path can differ — that's what
-        forward-backward computes). It assumes the model (A, B, π) is correct and
+        posterior-marginal "max-of-margins" path can differ, which is what forward-backward computes). It assumes the model (A, B, π) is correct and
         the Markov/output-independence assumptions hold; real sequences have
         long-range dependencies an HMM can't capture, which is exactly why neural
         sequence models and{" "}

@@ -107,7 +107,7 @@ function KVCacheEvictionDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <span className="t-mono-s" style={{ color: "var(--muted)" }}>KV CACHE — bar height = attention mass · kept vs evicted under the policy</span>
+      <span className="t-mono-s" style={{ color: "var(--muted)" }}>KV CACHE: bar height = attention mass · kept vs evicted under the policy</span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 1.05 : 1.4), height: CH * (mobile ? 1.05 : 1.4), borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={[
@@ -130,7 +130,7 @@ function KVCacheEvictionDemo() {
         ]}
         help="How to choose which past tokens to drop. Full = keep everything (unbounded memory). Sliding = keep only the most recent B. Sink+window (StreamingLLM) = a few initial sink tokens + a recent window. H2O = recent window + the heavy-hitter tokens by attention." />
       <Slider label="// CACHE BUDGET" min={6} max={N} step={2} value={budget} onChange={setBudget} suffix={" / " + N} tone="violet"
-        help="Max tokens whose keys/values you keep. This is the memory cap. Lower it and every bounded policy must evict more — watch which tokens each one sacrifices and what that does to retained attention." />
+        help="Max tokens whose keys/values you keep. This is the memory cap. Lower it and every bounded policy must evict more. Watch which tokens each one sacrifices and what that does to retained attention." />
       <Slider label="// SEQUENCE" min={1} max={9} step={1} value={seed} onChange={setSeed} tone="blue"
         help="Resample the attention pattern: where the heavy-hitter tokens fall. The sink tokens (front) and recency (back) structure are always present, as in real decoder attention." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -147,17 +147,15 @@ function KVCacheEvictionDemo() {
       <DemoP>
         Every generated token has to attend back over the whole cache, so the KV
         cache grows with the sequence and quickly dominates memory in long-context
-        serving. To bound it you must <b>evict</b> past tokens — and the policy is
-        everything. Set a tight <b>cache budget</b> and compare: the bars are
+        serving. To bound it you must <b>evict</b> past tokens, and the policy is everything. Set a tight <b>cache budget</b> and compare: the bars are
         per-token attention mass, violet = kept, gray = evicted.
       </DemoP>
       <DemoP>
-        <b>Sliding window</b> keeps only recent tokens — and throws away the
-        <b> attention sinks</b> at the very front (blue ticks), which carry huge
+        <b>Sliding window</b> keeps only recent tokens, and throws away the <b>attention sinks</b> at the very front (blue ticks), which carry huge
         mass; retained attention collapses and perplexity spikes. <b>Sink + window</b>{" "}
         (StreamingLLM) keeps just those few sink tokens plus the window and almost
         fully recovers quality at the same memory. <b>H2O</b> goes further by also
-        retaining the <b>heavy hitters</b> (amber) — the handful of older tokens
+        retaining the <b>heavy hitters</b> (amber), the handful of older tokens
         that everything attends to. Same budget, very different retained attention.
       </DemoP>
     </>
@@ -167,9 +165,8 @@ function KVCacheEvictionDemo() {
     <>
       <DemoP>
         KV-cache eviction is one of the central levers of long-context LLM serving.
-        StreamingLLM's discovery — that a few initial tokens become "attention
-        sinks" and dropping them wrecks a sliding-window cache — and H2O's
-        heavy-hitter eviction are the canonical results modeled here. The same
+        The StreamingLLM discovery, that a few initial tokens become "attention sinks" and
+        dropping them wrecks a sliding-window cache, and the heavy-hitter eviction of H2O are the canonical results modeled here. The same
         memory pressure drives{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`} style={{ color: "#a855f7" }}>paged
         attention</a> (don't waste cache to fragmentation) and the basic{" "}

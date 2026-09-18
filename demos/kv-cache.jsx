@@ -197,7 +197,8 @@ function KVCacheDemo() {
   const controls = (
     <ControlGroup>
       <Toggle label="// KV CACHE" checked={useCache} onChange={setUseCache}
-        help="When ON, we only compute K and V for the new token each step (the rest stay in the cache). When OFF, we recompute K and V for every token in the prefix — wasted work, the standard 'no-cache' baseline." />
+        help="When ON, we only compute K and V for the new token each step (the rest stay in the cache). When OFF, we recompute K and V for every token in the prefix, which is wasted work and the standard 'no-cache'
+        baseline." />
       <DemoButton onClick={step1} primary disabled={seq.length >= MAX}>STEP +1 TOKEN</DemoButton>
       <DemoButton onClick={() => setAuto(a => !a)} tone="violet">{auto ? "PAUSE" : "AUTO"}</DemoButton>
       <DemoButton onClick={reset}>RESET</DemoButton>
@@ -218,13 +219,12 @@ function KVCacheDemo() {
         Autoregressive generation feeds the model one new token at a time. The
         expensive part of each step is self-attention's keys (<i>K</i>) and values
         (<i>V</i>) for every token in the prefix. Without a cache, you recompute
-        every K and V every step — quadratic work. The <b>KV cache</b> stashes them
+        every K and V every step, which is quadratic work. The <b>KV cache</b> stashes them
         so the new step only computes one new K and one new V, then runs a single
         dot product against the cache.
       </DemoP>
       <DemoP>
-        Toggle the cache off and the per-step FLOPs bar grows linearly with sequence
-        length — total cost is <i>O(n²)</i> over n steps. Toggle it on and per-step
+        Toggle the cache off and the per-step FLOPs bar grows linearly with sequence length, so total cost is <i>O(n²)</i> over n steps. Toggle it on and per-step
         FLOPs stays nearly flat (just the new row). The K and V grids show the cache
         filling row by row; with cache off, you're recomputing the same rows you
         already saw, every single step.
@@ -236,8 +236,7 @@ function KVCacheDemo() {
       <DemoP>
         The KV cache is the single largest reason production LLM inference is feasible.
         Without it, generating a 4k-token response would re-do attention on the entire
-        prefix at every token — quadratic in length on top of an already enormous
-        model. Memory cost grows linearly (<i>2 · L · n_layers · n_heads · d_head</i>{" "}
+        prefix at every token, quadratic in length on top of an already enormous model. Memory cost grows linearly (<i>2 · L · n_layers · n_heads · d_head</i>{" "}
         per request), which is why <b>context length</b> is a hardware question:
         Llama 3 70B at 128k context needs tens of gigabytes of KV alone, per request.
       </DemoP>

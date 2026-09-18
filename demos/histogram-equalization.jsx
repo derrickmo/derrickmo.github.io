@@ -128,8 +128,7 @@ function HistogramEqualizationDemo() {
   const explainer = (
     <>
       <DemoP>
-        A washed-out image has all its pixels crammed into a narrow band of grays — its histogram is a
-        tall, skinny spike. <b>Histogram equalization</b> fixes this by using the image's own
+        A washed-out image has all its pixels crammed into a narrow band of grays, so its histogram is a tall, skinny spike. <b>Histogram equalization</b> fixes this by using the image's own
         <b> cumulative distribution</b> (the green CDF curve) as a <b>transfer function</b>: each input
         intensity is mapped to its percentile. Tones that are common get stretched apart (more contrast
         where it matters); tones that are rare get squeezed together. The output histogram comes out
@@ -138,8 +137,7 @@ function HistogramEqualizationDemo() {
       <DemoP>
         Drop <b>source contrast</b> to see a grayer input get dramatically revived, and watch the after-
         histogram spread to fill the axis while the contrast readout jumps. Plain global equalization can
-        over-amplify noise in flat areas, so lower the <b>clip limit</b> to apply <b>CLAHE</b> — it caps
-        how tall any histogram bin can get before equalizing, trading a bit of contrast for a cleaner,
+        over-amplify noise in flat areas, so lower the <b>clip limit</b> to apply <b>CLAHE</b>. It caps how tall any histogram bin can get before equalizing, trading a bit of contrast for a cleaner,
         less noisy result.
       </DemoP>
     </>
@@ -156,7 +154,8 @@ function HistogramEqualizationDemo() {
         images to a CNN, so the model sees consistent contrast regardless of the capture conditions.
       </DemoP>
       <DemoP>
-        The underlying trick — pushing a distribution through its own CDF to make it uniform — is the
+        The underlying trick, pushing a distribution through its own CDF to make it uniform,
+        is the
         <b> probability integral transform</b>, the exact same identity behind inverse-transform sampling
         and quantile normalization in statistics and ML pipelines. It's a clean example of an
         information-preserving, monotonic remap: it never reorders pixel brightness, it just re-spaces it.

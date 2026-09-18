@@ -151,7 +151,7 @@ function HoughTransformDemo() {
       <Slider label="// VOTE THRESHOLD" min={20} max={Math.max(40, maxVotes)} step={1} value={Math.min(threshold, Math.max(40, maxVotes))} onChange={setThreshold} tone="violet"
         help="Minimum number of edge points that must agree on a line before it counts. Lower it to find faint/short lines (and noise); raise it to keep only the strongest." />
       <Slider label="// NOISE POINTS" min={0} max={250} step={5} value={noise} onChange={setNoise} tone="blue"
-        help="Random scattered edge pixels added on top of the real lines. They smear the accumulator with low background votes but rarely conspire into a false peak — which is exactly why Hough voting is robust." />
+        help="Random scattered edge pixels added on top of the real lines. They smear the accumulator with low background votes but rarely conspire into a false peak, which is exactly why Hough voting is robust." />
       <Toggle label="// OVERLAY DETECTED LINES" checked={overlay} onChange={setOverlay} tone="violet"
         help="Draw every accumulator peak back onto the image as a full line. Turn off to see the raw edge points alone." />
       <StatReadout label="LINES FOUND" value={peaks.length} accent="var(--violet-lt)" />
@@ -172,13 +172,12 @@ function HoughTransformDemo() {
         around. Instead of searching the image, every edge point <b>votes</b> for
         all the lines that could pass through it. A line in (x, y) space is written
         as ρ = x·cosθ + y·sinθ, so a single point traces out a whole <i>sinusoid</i>{" "}
-        in (ρ, θ) parameter space — one vote per possible angle.
+        in (ρ, θ) parameter space, one vote per possible angle.
       </DemoP>
       <DemoP>
         Points that are collinear in the image vote for the <i>same</i> (ρ, θ) cell,
         so a real line shows up as a bright <b>peak</b> where many sinusoids cross.
-        Read the peaks back out and you have the lines — and because each point votes
-        independently, scattered noise just spreads thin background votes that almost
+        Read the peaks back out and you have the lines, and because each point votes independently, scattered noise just spreads thin background votes that almost
         never pile up into a false peak. Crank the <b>noise</b> slider and watch the
         true peaks survive. Lower the <b>threshold</b> to pull in fainter lines.
       </DemoP>
@@ -191,8 +190,7 @@ function HoughTransformDemo() {
         The Hough transform is the classic next step after
         <a href={`${window.__DM_BASE || "../../"}visualize/edge-detection/`}> edge detection</a>:
         Canny gives you a sparse set of edge pixels, Hough turns them into actual
-        geometric lines. It still ships in real systems — lane detection in driver
-        assistance, document and form de-skewing, barcode and grid finding, detecting
+        geometric lines. It still ships in real systems: lane detection in driver assistance, document and form de-skewing, barcode and grid finding, detecting
         the horizon or runway edges. The same accumulator idea extends to circles
         (vote in (a, b, r) space) and arbitrary shapes (the generalized Hough
         transform).
@@ -202,7 +200,7 @@ function HoughTransformDemo() {
         local observation cast a weak vote, and trust the consensus instead of any one
         measurement. That's the same robustness principle behind
         <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`}> self-consistency</a> in
-        LLMs and RANSAC in geometry — many noisy votes beat one fragile fit. Reading
+        LLMs and RANSAC in geometry. Many noisy votes beat one fragile fit. Reading
         a peak out of the accumulator is itself a
         <a href={`${window.__DM_BASE || "../../"}visualize/nms/`}> non-maximum suppression</a> step,
         just like the one inside Canny and every object detector.

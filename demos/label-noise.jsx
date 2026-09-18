@@ -119,9 +119,9 @@ function LabelNoiseDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// LABEL NOISE" min={0} max={0.4} step={0.05} value={noise} onChange={setNoise} tone="violet"
-        help="Fraction of training labels randomly flipped to the wrong class (ringed red). The test set stays clean. As noise rises, true test accuracy falls — and a flexible model starts contorting its boundary to fit the mislabeled points." />
+        help="Fraction of training labels randomly flipped to the wrong class (ringed red). The test set stays clean. As noise rises, true test accuracy falls, and a flexible model starts contorting its boundary to fit the mislabeled points." />
       <Slider label="// EPOCHS" min={20} max={600} step={20} value={epochs} onChange={setEpochs}
-        help="How long to train. Early on the net fits the real cluster structure and ignores the noise (good test accuracy); train too long and it memorizes the flipped points — train-on-noisy accuracy climbs while TRUE test accuracy dips. That's the early-stopping argument." />
+        help="How long to train. Early on the net fits the real cluster structure and ignores the noise (good test accuracy); train too long and it memorizes the flipped points, so train-on-noisy accuracy climbs while TRUE test accuracy dips. That's the early-stopping argument." />
       <DemoButton onClick={fresh} primary>NEW DATA</DemoButton>
       <DemoButton onClick={train}>RETRAIN</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -140,8 +140,7 @@ function LabelNoiseDemo() {
   const explainer = (
     <>
       <DemoP>
-        Real datasets are mislabeled — crowdsourced tags, weak supervision, plain
-        human error. Here a slice of the training labels (ringed red) is flipped to
+        Real datasets are mislabeled: crowdsourced tags, weak supervision, plain human error. Here a slice of the training labels (ringed red) is flipped to
         the wrong class, while the test set stays clean. A flexible network has
         enough capacity to fit those wrong points, so its decision boundary buckles
         and pokes out toward each mislabeled example, carving little islands of the
@@ -149,12 +148,10 @@ function LabelNoiseDemo() {
       </DemoP>
       <DemoP>
         Watch the two accuracy bars. With moderate training the net latches onto the
-        genuine cluster structure and shrugs off the noise — true test accuracy
-        stays high even though it's "wrong" on the flipped training labels. Push
+        genuine cluster structure and shrugs off the noise, so true test accuracy stays high even though it's "wrong" on the flipped training labels. Push
         EPOCHS up and it memorizes: accuracy on the noisy labels climbs while TRUE
         test accuracy sags, opening a memorization gap. That gap is exactly why
-        practitioners use early stopping, robust losses, label smoothing, and data
-        cleaning — and it's the dark side of the same capacity that lets nets
+        practitioners use early stopping, robust losses, label smoothing, and data cleaning. It is the dark side of the same capacity that lets nets
         generalize.
       </DemoP>
     </>
@@ -164,7 +161,7 @@ function LabelNoiseDemo() {
       <DemoP>
         Learning with noisy labels is a core data-centric ML problem: label quality
         often matters more than model architecture. The memorization you can trigger
-        here is a real phenomenon — deep nets can fit randomly labeled data given
+        here is a real phenomenon. Deep nets can fit randomly labeled data given
         enough capacity and epochs (Zhang et al., 2017), yet they tend to learn the
         clean, generalizable patterns first. That ordering is what early stopping
         exploits, and it connects straight to{" "}
@@ -179,7 +176,7 @@ function LabelNoiseDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/active-learning/`} style={{ color: "#a855f7" }}>active
         learning</a> (spend the labeling budget well) and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
-        (noise inflates overconfidence) — three faces of the trustworthy-ML question
+        (noise inflates overconfidence) are three faces of the trustworthy-ML question
         of whether you can believe your data and your model.
       </DemoP>
     </>

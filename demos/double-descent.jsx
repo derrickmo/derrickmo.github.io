@@ -199,15 +199,13 @@ function DoubleDescentDemo() {
         model has enough parameters to interpolate the data. Test error (purple)
         does something the classic U-shape forbids: it dips, then <i>spikes</i> right
         at P/N = 1, then dips a second time as capacity grows. At the threshold the
-        model can <i>just barely</i> fit every noisy point, so it contorts violently
-        to do so — that's the peak.
+        model can <i>just barely</i> fit every noisy point, so it contorts violently to do so. That is the peak.
       </DemoP>
       <DemoP>
         Drag CAPACITY across the peak and watch the bottom panel. Below P/N=1 the fit
         underfits the truth; right at 1.0 it whipsaws through every training point
         (huge test error); past 2.0 the minimum-norm solution among the many perfect
-        fits is smooth again. Now turn LABEL NOISE to zero — the peak nearly
-        disappears (double descent is a noise effect). Or raise RIDGE λ: optimal
+        fits is smooth again. Now turn LABEL NOISE to zero and the peak nearly disappears (double descent is a noise effect). Or raise RIDGE λ: optimal
         regularization flattens the whole curve into one clean descent. Capacity isn't
         the enemy; unregularized interpolation of noise is.
       </DemoP>
@@ -219,8 +217,7 @@ function DoubleDescentDemo() {
         Double descent (Belkin et al. 2019; Nakkiran et al.) reconciles classical
         bias-variance with the fact that giant over-parameterized networks generalize
         well. The same shape appears in model size, training time ("epoch-wise"), and
-        data size. It's why the modern recipe — make the model big, then regularize —
-        works, and it reframes the{" "}
+        data size. It's why the modern recipe, make the model big and then regularize, works, and it reframes the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`} style={{ color: "#a855f7" }}>overfitting</a>
         story: the danger zone is the interpolation threshold, not sheer size. The
         implicit bias toward minimum-norm solutions (what gradient descent finds) is

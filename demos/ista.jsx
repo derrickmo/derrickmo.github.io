@@ -266,14 +266,13 @@ function IstaDemo() {
         of sixteen features actually matter). Plain least squares would give every feature
         some nonzero weight; the <b>L1 penalty</b> instead drives irrelevant coefficients
         <i> exactly</i> to zero. The engine is <b>proximal gradient descent</b>: take a
-        normal gradient step on the data-fit term, then apply the L1 <b>proximal operator</b> —
-        which is just <b>soft-thresholding</b>, shown bottom-left. Anything inside the
+        normal gradient step on the data-fit term, then apply the L1 <b>proximal operator</b>, which is just <b>soft-thresholding</b>, shown bottom-left. Anything inside the
         <span style={{ color: "#f87171" }}> dead zone</span> ±tλ is snapped to zero; everything
         else is shrunk toward zero.
       </DemoP>
       <DemoP>
         Raise <b>λ</b> and watch coefficients switch off one by one until only the true four
-        survive (SUPPORT FOUND turns green) — push it too far and even real ones die. Switch
+        survive (SUPPORT FOUND turns green). Push it too far and even real ones die. Switch
         from <b>ISTA</b> to <b>FISTA</b> and the objective curve plunges far faster for the
         same number of steps: that is Nesterov momentum turning O(1/k) convergence into
         O(1/k²), the single most-cited trick in convex optimization.
@@ -284,8 +283,7 @@ function IstaDemo() {
   const concepts = (
     <>
       <DemoP>
-        Soft-thresholding is the workhorse of <b>sparse</b> modeling — Lasso regression,
-        compressed sensing, sparse coding, and the L1 penalties sprinkled across modern ML to
+        Soft-thresholding is the workhorse of <b>sparse</b> modeling: Lasso regression, compressed sensing, sparse coding, and the L1 penalties sprinkled across modern ML to
         prune features or compress models. The key idea generalizes far beyond L1:
         <b> proximal gradient</b> methods handle any objective that splits into a smooth part
         (here the squared error, which you optimize with a <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>gradient step</a>)
@@ -295,8 +293,7 @@ function IstaDemo() {
       <DemoP>
         Note the two solvers for the very same Lasso problem: this proximal view, and the
         <a href={`${window.__DM_BASE || "../../"}visualize/coordinate-descent/`}> coordinate-descent</a> view
-        (what glmnet actually runs). The deeper lesson is that the <i>structure</i> of your
-        regularizer — not just its value — determines which algorithm is efficient, and that a
+        (what glmnet actually runs). The deeper lesson is that the <i>structure</i> of your regularizer, not just its value, determines which algorithm is efficient, and that a
         well-chosen penalty buys you <b>feature selection for free</b> as a side effect of optimization.
       </DemoP>
     </>

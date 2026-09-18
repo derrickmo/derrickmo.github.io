@@ -126,8 +126,7 @@ function EigenDemo() {
       <DemoP>
         Almost every vector gets rotated when you apply a matrix. The dashed lines are the
         exceptions: directions the matrix leaves alone, stretching them by a factor λ and nothing
-        more. Those are the eigenvectors, and the blue ellipse — the image of the unit circle —
-        has its axes along exactly those directions, with lengths |λ₁| and |λ₂|.
+        more. Those are the eigenvectors, and the blue ellipse, the image of the unit circle, has its axes along exactly those directions, with lengths |λ₁| and |λ₂|.
       </DemoP>
       <DemoP>
         Drag <strong>POWER ITERATION STEP</strong>. It starts from a deliberately arbitrary vector,
@@ -138,8 +137,7 @@ function EigenDemo() {
         while the rest die off at a rate set by |λ₂/λ₁|.
       </DemoP>
       <DemoP>
-        Two edge cases worth reaching for. Make the eigenvalues equal and the ellipse becomes a
-        circle — <em>every</em> direction is now an eigenvector, and power iteration has nothing to
+        Two edge cases worth reaching for. Make the eigenvalues equal and the ellipse becomes a circle. <em>Every</em> direction is now an eigenvector, and power iteration has nothing to
         converge to. Set the off-diagonal to zero and the eigenvectors snap to the axes, which is
         all a diagonal matrix ever does: scale each coordinate independently. Diagonalising a
         matrix is precisely the change of basis that makes it look like that.
@@ -162,7 +160,7 @@ function EigenDemo() {
       <DemoP>
         The |λ₂/λ₁| ratio also explains conditioning. When the largest and smallest eigenvalues of
         a loss's curvature are far apart, gradient descent zig-zags across the steep direction
-        while crawling along the shallow one — the condition number is that ratio, and it is the
+        while crawling along the shallow one. The condition number is that ratio, and it is the
         single number behind why feature scaling, momentum and Adam all help.
       </DemoP>
     </>

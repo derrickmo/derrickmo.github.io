@@ -101,7 +101,7 @@ function LRScheduleDemo() {
     <ControlGroup>
       <SegmentedControl label="// SCHEDULE" value={sched} onChange={setSched}
         options={Object.keys(SCHEDULES).map(k => ({ value: k, label: LABELS[k] }))}
-        help="The shape of the learning-rate curve over training — constant, step decay, exponential, cosine-with-warmup, or warmup-then-linear. The loss panel shows how each fares." />
+        help="The shape of the learning-rate curve over training: constant, step decay, exponential, cosine-with-warmup, or warmup-then-linear. The loss panel shows how each fares." />
       <Slider label="// WARMUP STEPS" min={0} max={200} value={warmup} onChange={setWarmup} tone="violet"
         help="How long the rate ramps up from zero at the start. Warmup keeps the first noisy gradients from blowing up a fresh model and lets you use a higher peak safely." />
       <Slider label="// PEAK LR" min={0.05} max={2.2} step={0.05} value={peak} onChange={setPeak}

@@ -157,9 +157,9 @@ function IsomapDemo() {
     ctx.fillStyle = "#34d399"; ctx.fillText("geodesic", PX(pts[b][0]) + 6, PY(pts[b][1]));
 
     // ---- bottom: 1D embeddings ----
-    strip(ctx, st.isoCoord, ts, 18, 322, W - 36, "ISOMAP 1-D (geodesic MDS)  —  recovers the order");
-    strip(ctx, st.pcaCoord, ts, 18, 378, W - 36, "PCA 1-D (straight projection)  —  folds the manifold");
-    if (st.disc > 0) { ctx.fillStyle = "#f87171"; ctx.font = "10px JetBrains Mono"; ctx.fillText("graph DISCONNECTED at this k — raise neighbors", 18, 418); }
+    strip(ctx, st.isoCoord, ts, 18, 322, W - 36, "ISOMAP 1-D (geodesic MDS): recovers the order");
+    strip(ctx, st.pcaCoord, ts, 18, 378, W - 36, "PCA 1-D (straight projection): folds the manifold");
+    if (st.disc > 0) { ctx.fillStyle = "#f87171"; ctx.font = "10px JetBrains Mono"; ctx.fillText("graph DISCONNECTED at this k: raise neighbors", 18, 418); }
   }
 
   _useEffect(() => {
@@ -174,7 +174,7 @@ function IsomapDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// NEIGHBORS  k" min={2} max={16} step={1} value={k} onChange={setK} tone="violet"
-        help="Edges per point in the k-NN graph that defines geodesic distance. Too small and the graph splits into pieces (no path between them); too large and edges jump across folds, 'short-circuiting' the geodesic back toward straight-line distance — and Isomap degrades to PCA." />
+        help="Edges per point in the k-NN graph that defines geodesic distance. Too small and the graph splits into pieces (no path between them); too large and edges jump across folds, 'short-circuiting' the geodesic back toward straight-line distance, and Isomap degrades to PCA." />
       <SegmentedControl label="// MANIFOLD" value={shape} onChange={setShape}
         options={[{ value: "spiral", label: "Spiral" }, { value: "roll", label: "Tight Roll" }, { value: "arc", label: "Arc" }]}
         help="The 1-D shape the points lie on. All three curve through 2-D so straight-line distance is misleading; the Tight Roll has arms close together, making short-circuits (and PCA's failure) most dramatic." />
@@ -198,9 +198,8 @@ function IsomapDemo() {
     <>
       <DemoP>
         The points trace a curve through 2-D, colored from blue to red by their true
-        position along it. Pick the two end points: the red dashed line is their
-        straight-line distance — short, because it cuts straight across the gap — while
-        the green path is the GEODESIC, the shortest route that stays on the k-NN graph
+        position along it. Pick the two end points: the red dashed line is their straight-line distance, short because it cuts straight across the gap, while the
+        green path is the GEODESIC, the shortest route that stays on the k-NN graph
         and so follows the curve. Isomap measures every pair of points this geodesic
         way, then lays them on a line (classical MDS). The bottom ISOMAP strip comes
         out as a clean blue→red rainbow: the 1-D structure recovered. PCA, which only
@@ -209,8 +208,7 @@ function IsomapDemo() {
       <DemoP>
         Watch the ISOMAP corr (agreement between recovered order and true order) sit
         near 1 while PCA's lags. Then push the NEIGHBORS slider to its extremes. Too
-        few neighbors and the graph fractures into disconnected islands — there's no
-        path across the gap, the warning lights up, and Isomap breaks. Too many, and
+        few neighbors and the graph fractures into disconnected islands. There is no path across the gap, the warning lights up, and Isomap breaks. Too many, and
         edges leap across the folds (especially on the Tight Roll): the geodesic
         "short-circuits" straight across, geodesic distance collapses back toward
         Euclidean, and Isomap's rainbow scrambles just like PCA's. That sweet spot for
@@ -229,8 +227,7 @@ function IsomapDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/spectral-clustering/`} style={{ color: "#a855f7" }}>spectral clustering</a>{" "}
         and LLE, and sits alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/tsne/`} style={{ color: "#a855f7" }}>t-SNE</a>{" "}
-        and UMAP in the visualization toolbox — the difference being that Isomap
-        preserves global geometry (true distances) while t-SNE/UMAP prioritize local
+        and UMAP in the visualization toolbox. The difference is that Isomap preserves global geometry (true distances) while t-SNE/UMAP prioritize local
         neighborhoods.
       </DemoP>
       <DemoP>
@@ -239,8 +236,7 @@ function IsomapDemo() {
         the graph. It assumes a single, smooth, well-sampled manifold with no holes,
         struggles with non-convex or multi-component data, and the full all-pairs
         shortest-path + dense eigendecomposition scale poorly (landmark/L-Isomap help).
-        Like other spectral embeddings it's transductive — adding new points means
-        re-solving. When you only care about cluster structure for a 2-D picture, t-SNE
+        Like other spectral embeddings it is transductive: adding new points means re-solving. When you only care about cluster structure for a 2-D picture, t-SNE
         or UMAP are usually the more practical choice.
       </DemoP>
     </>

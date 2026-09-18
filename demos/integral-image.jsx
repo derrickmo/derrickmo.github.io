@@ -210,7 +210,7 @@ function IntegralDemo() {
       </DemoP>
       <DemoP>
         Both sums are computed every frame and printed together, so you are not being
-        asked to take the identity on trust — they agree to floating point for every
+        asked to take the identity on trust. They agree to floating point for every
         rectangle, including one covering the whole image, where brute force needs 9,216
         additions and the table needs four reads.
       </DemoP>
@@ -227,8 +227,7 @@ function IntegralDemo() {
     <>
       <DemoP>
         This is the trick that made Viola-Jones real-time in 2001, on hardware slower than
-        a modern watch. The insight was not a better classifier — it was that if every
-        feature costs the same tiny constant regardless of size, you can evaluate an
+        a modern watch. The insight was not a better classifier. It was that if every feature costs the same tiny constant regardless of size, you can evaluate an
         enormous pool of them and let a boosted cascade reject easy background windows
         after two or three. Most of the speed came from the cascade and the constant-time
         feature together, not from either alone.

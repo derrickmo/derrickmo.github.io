@@ -155,7 +155,7 @@ function GaussianProcessDemo() {
       <Slider label="// LENGTHSCALE ℓ" min={0.03} max={0.5} step={0.01} value={ell} onChange={setEll} tone="violet"
         help="How far the kernel reaches: small ℓ = wiggly functions that only trust nearby points (band snaps back to wide between points); large ℓ = smooth functions that share information over long ranges." />
       <Slider label="// SIGNAL σ_f" min={0.3} max={2} step={0.1} value={sigf} onChange={setSigf}
-        help="Prior amplitude — how far functions are expected to swing from zero. Sets the width of the band where you have no data." />
+        help="Prior amplitude, meaning how far functions are expected to swing from zero. Sets the width of the band where you have no data." />
       <Slider label="// NOISE σ_n" min={0.01} max={0.6} step={0.01} value={noise} onChange={setNoise}
         help="Assumed observation noise. Higher = the mean no longer passes exactly through points (it smooths through them) and the band stays wider even at the data." />
       <div style={{ display: "flex", gap: 8 }}>
@@ -176,15 +176,13 @@ function GaussianProcessDemo() {
       <DemoP>
         A Gaussian process is a distribution over functions: before any data, every
         smooth curve is plausible (the purple samples fan out across the whole band).
-        Click to drop an observation and the posterior updates in closed form — the
-        mean (blue) bends to pass near your point and the ±2σ band pinches shut right
+        Click to drop an observation and the posterior updates in closed form. The mean (blue) bends to pass near your point and the ±2σ band pinches shut right
         there, because the GP is now certain nearby. Move away from data and the band
         flares back open: that widening is honest "I don't know here," the thing a
         single point-prediction model can never tell you.
       </DemoP>
       <DemoP>
-        The kernel sets the personality. Shrink LENGTHSCALE ℓ and functions become
-        twitchy — each point only constrains its immediate neighborhood, so the band
+        The kernel sets the personality. Shrink LENGTHSCALE ℓ and functions become twitchy, because each point only constrains its immediate neighborhood, so the band
         re-opens fast between observations. Stretch ℓ and one point informs a wide
         region. Raise NOISE σ_n and the mean stops threading exactly through the dots
         (it assumes they're noisy) and keeps a floor of uncertainty even at the data.
@@ -206,8 +204,7 @@ function GaussianProcessDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/conformal-regression/`} style={{ color: "#a855f7" }}>conformal regression</a>.
       </DemoP>
       <DemoP>
-        Caveats: exact GP inference inverts an n×n matrix, so it's O(n³) — fine for
-        the handful of points here, painful past a few thousand without sparse/inducing-
+        Caveats: exact GP inference inverts an n×n matrix, so it is O(n³), fine for the handful of points here, painful past a few thousand without sparse/inducing-
         point approximations. The uncertainty is only as honest as the kernel and noise
         assumptions: pick the wrong lengthscale and the bands are confidently wrong.
         And vanilla GPs assume stationary, Gaussian-noise, low-dimensional inputs;

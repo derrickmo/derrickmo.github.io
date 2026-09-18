@@ -78,7 +78,7 @@ function HypothesisDemo() {
     ctx.beginPath(); ctx.moveTo(pad, Y(nominal)); ctx.lineTo(pad + w, Y(nominal)); ctx.stroke();
     ctx.setLineDash([]);
     ctx.font = "10px JetBrains Mono, monospace"; ctx.fillStyle = "#34d399";
-    ctx.fillText("5% — what the test promises", pad + 6, Y(nominal) - 6);
+    ctx.fillText("5%: what the test promises", pad + 6, Y(nominal) - 6);
 
     // bar for the measured rate
     const bw = 70, bx = pad + w / 2 - bw / 2;
@@ -133,12 +133,11 @@ function HypothesisDemo() {
       <DemoP>
         A p-value guarantees exactly one thing: <em>if the null hypothesis is true</em>, you will
         call a result significant no more than 5% of the time. That guarantee is about a procedure
-        fixed in advance, not about the data in front of you — and the two controls here are the
+        fixed in advance, not about the data in front of you, and the two controls here are the
         two standard ways of voiding it.
       </DemoP>
       <DemoP>
-        <strong>Leave TRUE EFFECT at zero</strong> — the arms are genuinely identical, so every
-        "significant" result is a lie — and raise LOOKS. With one look the measured rate is{" "}
+        <strong>Leave TRUE EFFECT at zero</strong>. The arms are genuinely identical, so every "significant" result is a lie. Now raise LOOKS. With one look the measured rate is{" "}
         <strong>4.8%</strong>, as promised. With five it is <strong>14.6%</strong>, with ten
         <strong> 18.8%</strong>, with twenty <strong>24.5%</strong>. Those are Armitage's classical
         numbers, reproduced here by simulation. Nothing about the test changed; you simply gave
@@ -146,8 +145,7 @@ function HypothesisDemo() {
         most of the damage happening at the earliest, smallest-sample looks.
       </DemoP>
       <DemoP>
-        Now <strong>raise TRUE EFFECT</strong> and the same bar becomes power — the chance of
-        detecting a real difference. At effect 0.3, one honest look gives 56% at n=100 and 85% at
+        Now <strong>raise TRUE EFFECT</strong> and the same bar becomes power, the chance of detecting a real difference. At effect 0.3, one honest look gives 56% at n=100 and 85% at
         n=200. Shrink the effect instead and the picture is bleaker: a true effect of 0.1 is caught
         only <strong>29% of the time even at n=400</strong>. An underpowered experiment that reports
         "no significant difference" has told you almost nothing, because it would have missed a real
@@ -161,8 +159,8 @@ function HypothesisDemo() {
     <>
       <DemoP>
         This is why online experimentation platforms do not simply expose a p-value on a dashboard.
-        Continuous monitoring needs a procedure designed for it — alpha spending, group-sequential
-        boundaries, or always-valid confidence sequences — all of which pay for the extra looks up
+        Continuous monitoring needs a procedure designed for it: alpha spending, group-sequential boundaries, or
+        always-valid confidence sequences, all of which pay for the extra looks up
         front. And variance reduction such as CUPED is the honest way to reach significance sooner,
         because it shrinks the noise rather than lowering the bar.
       </DemoP>
@@ -170,7 +168,7 @@ function HypothesisDemo() {
         The same arithmetic governs metric dashboards: twenty independent null metrics give roughly
         a 64% chance that at least one looks significant, which is the multiple-comparisons problem
         wearing different clothes. It is also why a model comparison decided by one lucky seed on a
-        small evaluation set is not a result — see
+        small evaluation set is not a result. See
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/bootstrap/`}>the bootstrap</a>{" "}
         for putting an interval around that number instead.
       </DemoP>

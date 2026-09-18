@@ -136,9 +136,10 @@ function HogDemo() {
       <Slider label="// ORIENTATION BINS" min={4} max={12} step={1} value={bins} onChange={setBins} tone="blue"
         help="Number of angle buckets spanning 0-180 degrees (unsigned gradients). 9 bins is the classic Dalal-Triggs choice. More bins resolve angle finer at the cost of descriptor length." />
       <Toggle label="// BLOCK NORMALIZE (L2)" checked={blockNorm} onChange={setBlockNorm} tone="violet"
-        help="Normalize each cell's histogram to unit length. This is what makes HOG robust to lighting and contrast — only the SHAPE of the orientation distribution matters, not the absolute gradient strength. Off = raw magnitudes, so bright edges dominate." />
+        help="Normalize each cell's histogram to unit length. This is what makes HOG robust to lighting and contrast: only the SHAPE of the orientation distribution
+        matters, not the absolute gradient strength. Off = raw magnitudes, so bright edges dominate." />
       <Toggle label="// SHOW GRADIENT MAGNITUDE" checked={showMag} onChange={setShowMag} tone="blue"
-        help="Swap the left panel between the original image and its gradient magnitude — the raw edge energy HOG summarizes." />
+        help="Swap the left panel between the original image and its gradient magnitude, the raw edge energy HOG summarizes." />
       <StatReadout label="DESCRIPTOR LENGTH" value={featureDim} accent="var(--violet-lt)" />
       <StatReadout label="CELL GRID" value={`${nx} x ${ny}`} accent="var(--blue-lt)" />
       <Legend items={[{ label: "orientation spoke (len = energy)", color: "#a855f7" }]} />
@@ -150,8 +151,7 @@ function HogDemo() {
       <DemoP>
         HOG throws away exact pixel values and keeps only <b>where edges point</b>.
         It computes the gradient at every pixel, splits the image into small
-        <b> cells</b>, and in each cell builds a <b>histogram of gradient
-        orientations</b> — each pixel votes for its angle, weighted by how strong its
+        <b> cells</b>, and in each cell builds a <b>histogram of gradient orientations</b>. Each pixel votes for its angle, weighted by how strong its
         gradient is. The right panel draws that histogram as a star of spokes: a long
         spoke means lots of edge energy at that angle. Trace the figure and you can
         see its outline emerge purely from local edge directions.
@@ -159,8 +159,7 @@ function HogDemo() {
       <DemoP>
         The crucial step is <b>block normalization</b>. Toggle it off and bright,
         high-contrast edges dominate; toggle it on and each cell is rescaled to unit
-        length, so only the <i>shape</i> of the orientation distribution survives —
-        not the lighting. That single trick is why HOG works across shadows and
+        length, so only the <i>shape</i> of the orientation distribution survives, not the lighting. That single trick is why HOG works across shadows and
         exposure changes. The result is a fixed-length vector (the <b>descriptor
         length</b> here) you can feed to a linear classifier.
       </DemoP>
@@ -175,8 +174,7 @@ function HogDemo() {
         learning (Dalal &amp; Triggs, 2005), and the descriptor still shows up where
         compute is tight or data is scarce. It's the hand-designed ancestor of what a
         <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}> CNN</a> learns:
-        the first conv layers discover oriented-edge filters and pool them spatially —
-        exactly HOG's cells-of-oriented-gradients, only learned instead of specified.
+        the first conv layers discover oriented-edge filters and pool them spatially, exactly the cells-of-oriented-gradients of HOG, only learned instead of specified.
       </DemoP>
       <DemoP>
         Every piece here reuses ideas from the rest of vision: the gradients are the

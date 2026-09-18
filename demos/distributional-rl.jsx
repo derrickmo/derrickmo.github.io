@@ -120,7 +120,7 @@ function DistributionalRLDemo() {
     const selK = Math.min(sel, Z.length - 1);
     // small multiples row
     const sy0 = 18, sh = 46, pad = 6; const sw = (CW - 12 - (K - 1) * pad) / K;
-    ctx.fillStyle = "#94a3b8"; ctx.font = "8px monospace"; ctx.textAlign = "left"; ctx.fillText("return distribution Z(s) per state — contracts toward 0 by γ each step back", 6, sy0 - 5);
+    ctx.fillStyle = "#94a3b8"; ctx.font = "8px monospace"; ctx.textAlign = "left"; ctx.fillText("return distribution Z(s) per state, contracting toward 0 by γ each step back", 6, sy0 - 5);
     for (let k = 0; k < K; k++) {
       const x0 = 6 + k * (sw + pad);
       ctx.fillStyle = k === selK ? "rgba(168,85,247,0.12)" : "transparent"; ctx.fillRect(x0 - 2, sy0 - 2, sw + 4, sh + 14);
@@ -131,7 +131,7 @@ function DistributionalRLDemo() {
     }
     // big selected histogram
     const by0 = 96, bh = 110, bx0 = 30, bw = CW - 40;
-    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("Z(s" + (selK === K - 1 ? "_goal" : selK) + ")  — learned (violet) vs exact (line)", bx0, by0 - 6);
+    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "left"; ctx.fillText("Z(s" + (selK === K - 1 ? "_goal" : selK) + "): learned (violet) vs exact (line)", bx0, by0 - 6);
     drawHist(ctx, Z[selK], bx0, by0, bw, bh, "rgba(168,85,247,0.8)", trueZ[selK]);
     // mean marker
     const mu = meanOf(Z[selK]); const mx = bx0 + ((mu - VMIN) / (VMAX - VMIN)) * bw;
@@ -211,7 +211,7 @@ function DistributionalRLDemo() {
   const explainer = (
     <>
       <DemoP>
-        Ordinary value learning tracks a single number — the <i>expected</i> return.
+        Ordinary value learning tracks a single number, the <i>expected</i> return.
         Distributional RL learns the entire <b>distribution of returns</b> as
         probabilities over a fixed grid of <b>atoms</b>. Here the only reward is a
         coin-flip payoff at the goal, so the goal state's return distribution is
@@ -220,11 +220,10 @@ function DistributionalRLDemo() {
         modes drift toward 0 and the spread tightens.
       </DemoP>
       <DemoP>
-        The gold line is the <b>mean</b> — the scalar value a normal agent would
+        The gold line is the <b>mean</b>, the scalar value a normal agent would
         learn. Set the win probability near 0.5 and watch it sit at ~0, halfway
         between two outcomes it never actually produces: the average hides the risk
-        entirely. That extra shape is what distributional agents exploit — for more
-        stable learning and for genuinely <b>risk-aware</b> decisions. The learned
+        entirely. That extra shape is what distributional agents exploit, for more stable learning and for genuinely <b>risk-aware</b> decisions. The learned
         violet bars converge to the exact gray curve as it trains.
       </DemoP>
     </>
@@ -235,9 +234,8 @@ function DistributionalRLDemo() {
       <DemoP>
         C51 and its successors (QR-DQN, IQN) were a real jump in deep-RL performance,
         and "predict a distribution, not just a mean" is the same idea behind
-        learning return <i>quantiles</i> or full densities elsewhere. The categorical
-        projection step — splitting each target's probability onto the two nearest
-        atoms — is the crux, and it's what keeps the support fixed while still
+        learning return <i>quantiles</i> or full densities elsewhere. The categorical projection step, splitting the probability of each target onto the two
+        nearest atoms, is the crux, and it's what keeps the support fixed while still
         representing arbitrary shapes. It extends ordinary{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/gridworld-rl/`} style={{ color: "#a855f7" }}>Q-learning</a>{" "}
         and the Bellman backups of{" "}

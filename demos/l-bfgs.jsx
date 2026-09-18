@@ -292,16 +292,14 @@ function LBFGSDemo() {
         without ever forming a Hessian. Each step it reconstructs a curvature-aware search
         direction from just the last <b>m</b> pairs of (how the point moved, how the gradient
         changed) using the famous <b>two-loop recursion</b>, then takes a backtracking line
-        search along it. Steepest descent (gold) uses the exact same line search — the only
-        difference you see is the <i>direction</i>.
+        search along it. Steepest descent (gold) uses the exact same line search, so the only difference you see is the <i>direction</i>.
       </DemoP>
       <DemoP>
         On <b>Rosenbrock</b>, steepest descent gets trapped oscillating across the banana
         valley while L-BFGS quickly learns the valley's shape and curves down it. Drop the
         memory to <b>m = 1</b> and L-BFGS degrades toward steepest descent; raise it and it
         sharpens toward full Newton. On the <b>Correlated</b> surface, notice L-BFGS handles
-        the coupling that crippled <a href={`${window.__DM_BASE || "../../"}visualize/coordinate-descent/`}>coordinate descent</a> —
-        it works in the full space, not one axis at a time.
+        the coupling that crippled <a href={`${window.__DM_BASE || "../../"}visualize/coordinate-descent/`}>coordinate descent</a>, because it works in the full space, not one axis at a time.
       </DemoP>
     </>
   );
@@ -312,14 +310,13 @@ function LBFGSDemo() {
         L-BFGS is the default optimizer for <b>smooth, deterministic</b> problems with up to
         millions of parameters: logistic regression, CRFs, full-batch fine-tuning, and the
         inner loop of many scientific-computing and classical-ML solvers (it is what
-        <code> scipy.optimize.minimize</code> reaches for). Its trick — approximating the
-        inverse Hessian with O(m·n) memory instead of O(n²) — is the practical answer to the
+        <code> scipy.optimize.minimize</code> reaches for). Its trick, approximating the inverse Hessian with O(m·n) memory instead of O(n²), is
+        the practical answer to the
         scaling wall that stops pure <a href={`${window.__DM_BASE || "../../"}visualize/newton-vs-gradient/`}>Newton's method</a>.
       </DemoP>
       <DemoP>
         Why isn't it the default for deep learning? Because it assumes a <i>consistent</i>{" "}
-        gradient, and mini-batch <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD</a> gradients
-        are noisy — the (s, y) curvature pairs become unreliable, and the line search needs
+        gradient, and mini-batch <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD</a> gradients are noisy, the (s, y) curvature pairs become unreliable, and the line search needs
         full-batch evaluations that are too expensive. That trade-off (cheap noisy first-order
         steps vs expensive accurate curvature) is exactly why large models train with Adam, not
         L-BFGS, and it's a clean illustration of how the <i>data regime</i> picks the optimizer.

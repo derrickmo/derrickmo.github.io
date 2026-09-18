@@ -169,7 +169,7 @@ function LabelPropDemo() {
         help="RBF kernel width = how far a node 'sees' neighbors. Too small disconnects the graph (labels can't spread, points stay gray); too large links the two classes so labels bleed across the gap and accuracy falls. Tune it to the manifold." />
       <SegmentedControl label="// DATA" value={dataset} onChange={setDataset}
         options={[{ value: "moons", label: "Moons" }, { value: "circles", label: "Circles" }, { value: "blobs", label: "Blobs" }]}
-        help="Shape of the two classes. Moons and concentric circles are non-convex — propagation follows the curve where a linear model can't; blobs are the easy convex case." />
+        help="Shape of the two classes. Moons and concentric circles are non-convex, so propagation follows the curve where a linear model can't; blobs are the easy convex case." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE</DemoButton>
         <DemoButton onClick={() => { stepRef.current = 0; if (sim.current) { const st2 = sim.current; for (let i = 0; i < st2.N; i++) if (!st2.isSeed[i]) { st2.F[i][0] = 0; st2.F[i][1] = 0; } st2.conv = false; } }}>REPLAY</DemoButton>
@@ -192,19 +192,17 @@ function LabelPropDemo() {
         step, every unlabeled node pulls in a weighted average of its neighbors' label
         scores (weights = graph similarity), and the seeds are re-pinned to their true
         labels so they keep injecting signal. Label mass flows outward along the dense
-        parts of the graph, so color creeps along each crescent and fills it — watch
-        the gray vanish. With just one or two labels per class, UNLABELED ACCURACY
+        parts of the graph, so color creeps along each crescent and fills it. Watch the gray vanish. With just one or two labels per class, UNLABELED ACCURACY
         climbs near 100% on the moons, because the GRAPH carried the labels where a
         straight-line classifier never could.
       </DemoP>
       <DemoP>
         This only works if the graph matches the data's geometry, and GRAPH WIDTH σ is
-        that dial. Shrink it and nodes stop seeing neighbors — islands stay gray and
-        accuracy stalls. Grow it and the two moons start linking across the empty gap,
+        that dial. Shrink it and nodes stop seeing neighbors, so islands stay gray and accuracy stalls. Grow it and the two moons start linking across the empty gap,
         so a class's labels leak into the other and accuracy drops. It rests on the
         cluster/manifold assumption: points connected through high-density regions
-        share a label. Break that — switch to overlapping Blobs, or place a seed in the
-        wrong spot — and propagation confidently spreads the wrong answer.
+        share a label. Break that, by switching to overlapping Blobs or placing a seed in the
+        wrong spot, and propagation confidently spreads the wrong answer.
       </DemoP>
     </>
   );
@@ -224,7 +222,7 @@ function LabelPropDemo() {
         and pseudo-label methods.
       </DemoP>
       <DemoP>
-        Caveats: it's transductive — it labels THIS unlabeled set, not a model you can
+        Caveats: it is transductive. It labels THIS unlabeled set, not a model you can
         apply to new points without rebuilding the graph. It's exquisitely sensitive to
         graph construction (σ, k, the metric); a bad graph spreads confident errors,
         and unlabeled data can HURT when the cluster assumption is violated. It assumes

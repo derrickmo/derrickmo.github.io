@@ -144,7 +144,7 @@ function PyramidDemo() {
       const stack = view === "gaussian" ? gauss : lap;
       let x = 8, y = 34;
       ctx.fillStyle = "#e6edfb"; ctx.font = "12px JetBrains Mono, monospace";
-      ctx.fillText(view === "gaussian" ? "GAUSSIAN PYRAMID — each level half the size" : "LAPLACIAN PYRAMID — what each level ADDS (x4)", 8, 22);
+      ctx.fillText(view === "gaussian" ? "GAUSSIAN PYRAMID: each level half the size" : "LAPLACIAN PYRAMID: what each level ADDS (x4)", 8, 22);
       for (let i = 0; i < stack.length; i++) {
         const size = Math.max(24, 232 / Math.pow(1.55, i));
         paint(ctx, stack[i], x, y, size, size, `L${i} ${stack[i].w}px`, view === "laplacian");
@@ -189,7 +189,7 @@ function PyramidDemo() {
       <StatReadout label="FINE-DETAIL CONTRAST" value={`blur ${stats.aliasBlur.toFixed(3)} · drop ${stats.aliasNaive.toFixed(3)}`} accent="#c084fc" />
       <Legend items={[{ color: "#34d399", label: "LOSSLESS" }, { color: "#c084fc", label: "ALIASED" }]} />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>
-        Higher "drop" contrast is not more detail — it is a pattern that is not in the scene.
+        Higher "drop" contrast is not more detail. It is a pattern that is not in the scene.
       </div>
     </ControlGroup>
   );
@@ -199,20 +199,18 @@ function PyramidDemo() {
         A Gaussian pyramid is the same image at halving resolutions, and the construction
         has exactly two steps: blur, then drop every other pixel. The blur is not
         cosmetic. A grid half the size cannot represent the finest frequencies in the
-        original, and if you leave them in they do not vanish — they <i>fold down</i> and
+        original, and if you leave them in they do not vanish. They <i>fold down</i> and
         reappear as a coarser pattern that was never in the scene. Switch <b>pre-blur</b>{" "}
         off and watch the stripes turn into something wider and, misleadingly, more
         contrasty.
       </DemoP>
       <DemoP>
         That last part is the trap worth remembering. Naive downsampling can raise the
-        measured contrast of a region — the readout shows it — so "sharper" is not
-        evidence of "better". A period-4 stripe sampled every second pixel becomes a
+        measured contrast of a region, and the readout shows it, so "sharper" is not evidence of "better". A period-4 stripe sampled every second pixel becomes a
         period-2 stripe at full amplitude: a confident, high-contrast lie.
       </DemoP>
       <DemoP>
-        The Laplacian pyramid stores what each level <i>adds back</i> — the difference
-        between a level and its upsampled coarser neighbour. Those differences are almost
+        The Laplacian pyramid stores what each level <i>adds back</i>, the difference between a level and its upsampled coarser neighbour. Those differences are almost
         all zero (that is why the view is amplified 4x to be visible at all), which is
         what makes it compressible, and stacking them back up reconstructs the original
         to machine precision. The whole pyramid costs about 4/3 of the original, not
@@ -227,8 +225,7 @@ function PyramidDemo() {
         appear at unknown size: SIFT searches for keypoints across pyramid levels so a
         feature found on a small object matches the same feature on a large one, and
         sliding-window detectors ran the same fixed-size window over every level rather
-        than resizing the window. Laplacian pyramids also give the classic seamless image
-        blend — blend each frequency band with a differently-sized mask and the join
+        than resizing the window. Laplacian pyramids also give the classic seamless image blend. Blend each frequency band with a differently-sized mask and the join
         disappears.
       </DemoP>
       <DemoP>

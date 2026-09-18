@@ -110,7 +110,7 @@ function DoInterventionDemo() {
   const stage = <canvas ref={canvasRef} style={{ maxWidth: "100%", borderRadius: 4 }} />;
   const controls = (
     <ControlGroup>
-      <Toggle label="// do(X) — INTERVENE" checked={doMode} onChange={setDoMode} tone="violet"
+      <Toggle label="// do(X): INTERVENE" checked={doMode} onChange={setDoMode} tone="violet"
         help="Off = OBSERVE: you read X off confounded data, so the headline estimate is the biased naive association. On = INTERVENE: do(X) cuts the Z→X arrow (you set X yourself), and the headline jumps to the backdoor-adjusted = true causal effect." />
       <Slider label="// CONFOUNDING" min={0} max={2} step={0.1} value={conf} onChange={setConf}
         help="Strength of Z's effect on both X and Y (the backdoor path). At 0 there's no confounding and naive = causal; turn it up and the naive estimate inflates away from the true β while the adjusted estimate stays put." />
@@ -137,14 +137,13 @@ function DoInterventionDemo() {
         that high-X cases tend to have high Y and fit a line (the red, naive
         estimate), part of that slope is the real effect X→Y and part is the
         backdoor X←Z→Y leaking through. The red bar sits above the true β by exactly
-        the confounding bias. Pulling CONFOUNDING up makes the gap explode — pure
-        correlation masquerading as effect.
+        the confounding bias. Pulling CONFOUNDING up makes the gap explode, pure correlation masquerading as effect.
       </DemoP>
       <DemoP>
         The do-operator is the fix in principle: do(X) means you <i>set</i> X
         yourself, which severs the Z→X arrow (flip the toggle to cut it) and leaves
         only the genuine X→Y path. You can't always run that experiment, so backdoor
-        adjustment estimates it from observational data instead — condition on Z
+        adjustment estimates it from observational data instead. Condition on Z
         (regress Y on X <i>and</i> Z) and the green adjusted estimate snaps back to
         the true β no matter how strong the confounding. Same data, right question.
       </DemoP>
@@ -153,8 +152,7 @@ function DoInterventionDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is the heart of causal inference (Pearl): P(Y | X) — what you see — is
-        not P(Y | do(X)) — what happens if you act. The do-operator formalizes
+        This is the heart of causal inference (Pearl): P(Y | X), what you see, is not P(Y | do(X)), what happens if you act. The do-operator formalizes
         intervention as cutting incoming arrows to the variable you set, and the
         back-door criterion tells you which variables to condition on to recover the
         causal effect from observation. It's the rigorous version of the reversal in{" "}
@@ -164,11 +162,9 @@ function DoInterventionDemo() {
         controls actually answer your question.
       </DemoP>
       <DemoP>
-        It underpins A/B testing and randomized trials (randomization is do(X) by
-        construction — it breaks confounding), quasi-experimental methods (matching,
+        It underpins A/B testing and randomized trials (randomization is do(X) by construction, because it breaks confounding), quasi-experimental methods (matching,
         instrumental variables, difference-in-differences), and uplift modeling. The
-        catch the demo hides: you can only adjust for confounders you've measured —
-        condition on the wrong variable (a collider or mediator) and you introduce
+        catch the demo hides: you can only adjust for confounders you have measured. Condition on the wrong variable (a collider or mediator) and you introduce
         bias instead of removing it, which is why the causal graph, not the data,
         has to come first.
       </DemoP>

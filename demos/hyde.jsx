@@ -148,7 +148,7 @@ function HydeDemo() {
       <Slider label="// HYPOTHETICAL DRAFTS (M)" min={1} max={6} step={1} value={M} onChange={setM}
         help="How many hypothetical answers the model drafts and embeds. Averaging several drafts cancels the noise (and the occasional hallucinated draft that lands in the wrong cluster), so the HyDE point sits more reliably inside the relevant region." />
       <Slider label="// DRAFT NOISE" min={0.05} max={1} step={0.05} value={noise} onChange={setNoise}
-        help="How scattered each drafted answer is around the true topic — a stand-in for model quality and sampling temperature. High noise spreads the drafts out, so you need more of them to pin down the relevant cluster." />
+        help="How scattered each drafted answer is around the true topic, a stand-in for model quality and sampling temperature. High noise spreads the drafts out, so you need more of them to pin down the relevant cluster." />
       <Slider label="// TOP-K" min={1} max={8} step={1} value={k} onChange={setK}
         help="How many nearest documents are retrieved. Larger k is more forgiving but pulls in more distractors and spends more context downstream." />
       <DemoButton onClick={resample} primary>RESAMPLE</DemoButton>
@@ -171,16 +171,15 @@ function HydeDemo() {
         embed to the same spot. The violet query lands in a "question" region
         offset from the green passages that actually answer it, so searching by the
         bare query (the purple bar) drags in neighbors from the wrong clusters as
-        you raise the asymmetry. HyDE sidesteps this: the model writes a
-        hypothetical answer, which — being phrased like a document — embeds right
-        into the green cluster (the amber point), and you retrieve by <i>that</i>.
+        you raise the asymmetry. HyDE sidesteps this: the model writes a hypothetical answer, which, being phrased like a document, embeds right into the
+        green cluster (the amber point), and you retrieve by <i>that</i>.
       </DemoP>
       <DemoP>
         It works even when the hypothetical is factually wrong, because retrieval
         only needs it to be in the right neighborhood, not correct. Watch the
         amber drafts: one occasionally hallucinates into a wrong cluster, but
         averaging several (raise M) cancels the strays and locks the HyDE point
-        onto the relevant docs — so the HyDE bar stays high exactly where the
+        onto the relevant docs, so the HyDE bar stays high exactly where the
         query-only bar falls apart.
       </DemoP>
     </>
@@ -195,23 +194,22 @@ function HydeDemo() {
         <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector
         search</a> do the lookup, <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>chunking</a>{" "}
         decides what's in the index, and HyDE reshapes the <i>query side</i> so it
-        lands where the answers live. It's one of a family — multi-query expansion,
-        RAG-Fusion, step-back prompting — all spending a cheap extra LLM call to
+        lands where the answers live. It's one of a family, alongside multi-query expansion, RAG-Fusion and step-back prompting,
+        all spending a cheap extra LLM call to
         make retrieval hit.
       </DemoP>
       <DemoP>
         The tradeoffs the demo makes tangible: HyDE costs a generation per query
         (latency) and can backfire when the model has no idea what a plausible
         answer looks like (its drafts scatter, the centroid drifts). It shines on
-        the asymmetric, jargon-light queries where the bare question is a poor
-        search key — and degrades gracefully toward plain retrieval as the
+        the asymmetric, jargon-light queries where the bare question is a poor search key, and degrades gracefully toward plain retrieval as the
         asymmetry shrinks, which is why you tune it per workload rather than
         switching it on blindly.
       </DemoP>
     </>
   );
   return (
-    <DemoLayout title="HyDE — Hypothetical Document Embeddings"
+    <DemoLayout title="HyDE: Hypothetical Document Embeddings"
       subtitle="Questions embed away from their answers. Draft a hypothetical answer, embed that instead, and retrieval lands on the right documents."
       stage={stage} controls={controls} explainer={explainer} concepts={concepts}
       lessonHref={`${window.__DM_BASE || "../../"}learn/rag-agents/`}

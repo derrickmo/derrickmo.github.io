@@ -147,14 +147,15 @@ function HuffmanCodingDemo() {
     <>
       <DemoP>
         How few bits can you use to store a stream of symbols without losing anything? Shannon's answer
-        is the <b>entropy</b> H — the average surprise per symbol — and no lossless code can beat it.
+        is the <b>entropy</b> H, the average surprise per symbol, and no lossless code can beat
+        it.
         <b> Huffman coding</b> is the algorithm that gets there: repeatedly merge the two least-likely
         symbols into a subtree, and the path from root to each leaf becomes its codeword. Frequent
         symbols end up near the root with <b>short codes</b>, rare ones get long codes.
       </DemoP>
       <DemoP>
-        Compare the two numbers: the average code length <b>L</b> always sits in the band
-        <b> H ≤ L &lt; H+1</b> — Huffman is provably optimal among prefix codes and never more than a bit
+        Compare the two numbers: the average code length <b>L</b> always sits in the band{" "}
+        <b>H ≤ L &lt; H+1</b>. Huffman is provably optimal among prefix codes and never more than a bit
         from the entropy floor. Skew the distribution toward one dominant symbol and watch entropy
         <i> drop</i> while the tree grows lopsided and L shrinks with it; flatten it to <b>uniform</b>{" "}
         and there's nothing to compress (every code becomes the same length). Efficiency H/L is how
@@ -170,16 +171,14 @@ function HuffmanCodingDemo() {
         data: Huffman coding is inside JPEG, PNG, MP3, ZIP, and HTTP/2 header compression, usually as the
         final entropy-coding stage (modern codecs use arithmetic/range coding to shave off that last
         fraction of a bit). The same quantity, <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`}>entropy</a>,
-        is exactly what a language model's <b>cross-entropy loss</b> measures — bits-per-token <i>is</i> the
-        compression rate of the model, which is why "a better model is a better compressor" is literally true.
+        is exactly what a language model's <b>cross-entropy loss</b> measures: bits-per-token <i>is</i> the compression rate of the model, which is why "a better model is a better compressor" is literally true.
       </DemoP>
       <DemoP>
         The link to learning is direct: minimizing cross-entropy = finding the code (model) that compresses
         the data best, and the <a href={`${window.__DM_BASE || "../../"}visualize/mutual-information/`}>mutual
         information</a> and <a href={`${window.__DM_BASE || "../../"}visualize/channel-capacity/`}>channel-capacity</a>
         results pin down how much of that information can survive noise or a bottleneck. Source coding
-        (compression) and channel coding (reliable transmission) are the two halves of information theory —
-        and both are quietly running whenever a model is trained or deployed.
+        (compression) and channel coding (reliable transmission) are the two halves of information theory, and both are quietly running whenever a model is trained or deployed.
       </DemoP>
     </>
   );
