@@ -66,9 +66,17 @@ const T = (re, key) => {
 const SURFACES = [
   ["README.md", [
     T("# hands-on demos", "demos"),
+    // The site's own store: 25 module directories, 250 written lessons.
     T("#-module", "modules"),
     T("#-lesson", "topics"),
     T("# per-concept sub-lessons", "concepts"),
+    // The curriculum those mirror, which is a different pair of numbers. Both
+    // halves of each phrase get a token — a pattern only captures its first #,
+    // and an uncovered number is exactly the drift this script exists to stop.
+    T("notebooks' # modules", "v2modules"),
+    T("and # slots", "v2slots"),
+    T("\\(# notebooks across", "v2slots"),
+    T("notebooks across # modules", "v2modules"),
   ]],
   ["learn-hub-app.jsx", [
     T("# modules · # notebooks", "v2modules"),

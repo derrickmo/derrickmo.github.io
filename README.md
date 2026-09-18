@@ -3,7 +3,8 @@
 Personal website of **Derrick Mo** — machine-learning engineer and educator.
 Part portfolio (Research · Learn · Build), part **interactive ML curriculum**: a
 browser-based lab of **200 hands-on demos** across 19 areas, a **25-module,
-250-lesson** course, flagship lessons, guided learning paths, and a linked concept
+250-lesson** course, now presented in the structure of the notebooks' 26 modules
+and 282 slots, flagship lessons, guided learning paths, and a linked concept
 graph — every algorithm runs entirely in your browser.
 
 🔗 Live: https://derrickmo.github.io
@@ -13,7 +14,7 @@ This site is the **visual, concept-first** surface of a single ML curriculum del
 three ways from one source of content:
 1. **Website** (this repo) — interactive, visual, intuition-building demos + walk-through lessons.
 2. **Notebooks** — [machine_learning_tutorials](https://github.com/derrickmo/machine_learning_tutorials),
-   the comprehensive, runnable, code-first reference (250 notebooks, one per lesson).
+   the comprehensive, runnable, code-first reference (282 notebooks across 26 modules).
 
 The site visualizes concepts and links out to the notebooks for full code. A **Flutter app**
 for on-the-go learning, flashcards and interview prep is a goal for a later phase — it does
