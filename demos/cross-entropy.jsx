@@ -184,15 +184,14 @@ function CrossEntropyDemo() {
       <DemoP>
         The left panel is the loss itself. Squared error is <b>bounded by 1</b> no matter how wrong the
         model is; cross-entropy is <b>unbounded</b> and climbs without limit as p → 0. The right panel
-        is what actually drives learning — the gradient with respect to the logit, on a log axis.
+        is what actually drives learning: the gradient with respect to the logit, on a log axis.
         Press <b>CONFIDENTLY WRONG</b>: at z = −8 with the true label 1, cross-entropy still delivers a
-        gradient of essentially 1, while squared error's has collapsed to about 7e-4. The badge shows
-        the live ratio — roughly <b>1,500×</b> more learning signal, at exactly the example the model
+        gradient of essentially 1, while squared error's has collapsed to about 7e-4. The badge shows the live ratio, roughly <b>1,500×</b> more learning signal, at exactly the example the model
         most needs to learn from.
       </DemoP>
       <DemoP>
         The reason is visible in the algebra on screen. Differentiating cross-entropy through a softmax
-        gives exactly <b>p − y</b> — the log and the exponential cancel. Squared error keeps an extra
+        gives exactly <b>p − y</b>, because the log and the exponential cancel. Squared error keeps an extra
         <b> s(1 − s)</b> factor from the sigmoid, and that factor goes to zero precisely when the model
         is most confident. Being confidently wrong is the worst state to be in and the one squared error
         is least able to escape.
@@ -206,8 +205,7 @@ function CrossEntropyDemo() {
         Cross-entropy is not an arbitrary choice: minimising it <i>is</i> maximum-likelihood estimation,
         and for a one-hot target it equals the <b>KL divergence</b> between the true distribution and the
         model's. That is why the same quantity appears in
-        <a href={`${window.__DM_BASE || "../../"}visualize/huffman-coding/`}> compression</a> — a model's
-        cross-entropy on held-out text is literally the number of bits per token it needs to encode it, so
+        <a href={`${window.__DM_BASE || "../../"}visualize/huffman-coding/`}> compression</a>: the cross-entropy of a model on held-out text is literally the number of bits per token it needs to encode it, so
         a better language model is a better compressor of the same file.
       </DemoP>
       <DemoP>

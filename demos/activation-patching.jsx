@@ -184,7 +184,7 @@ function ActivationPatchingDemo() {
         on the path; one that does nothing isn't.
       </DemoP>
       <DemoP>
-        The heatmap scores every neuron this way — bright green cells are the components the model
+        The heatmap scores every neuron this way. Bright green cells are the components the model
         relies on to carry the flipped feature, the dim cells are bystanders, and the gold box marks
         the single most causal neuron. Switch which feature you corrupt and a <i>different</i> set of
         neurons lights up: you've localized where each piece of information lives. This is exactly the
@@ -209,8 +209,7 @@ function ActivationPatchingDemo() {
         baseline gives misleading effects), patching one component at a time can miss distributed or
         redundant circuits, and self-repair means ablating a component sometimes does less than
         expected because others compensate. Still, "change one thing and measure the effect" is the
-        cleanest available evidence that a specific part of a network does a specific job — the same
-        interventional logic as <a href={`${window.__DM_BASE || "../../"}visualize/do-intervention/`}>causal
+        cleanest available evidence that a specific part of a network does a specific job, the same interventional logic as <a href={`${window.__DM_BASE || "../../"}visualize/do-intervention/`}>causal
         inference</a>, applied to a model's own internals.
       </DemoP>
     </>

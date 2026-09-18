@@ -186,9 +186,9 @@ function DistributionalRLDemo() {
       <Slider label="// VIEW STATE" min={0} max={K - 1} step={1} value={Math.min(sel, K - 1)} onChange={setSel} tone="violet"
         help="Which state's return distribution to show enlarged. The goal-adjacent state mirrors the reward distribution; earlier states show it contracted toward 0 by γ for each step of distance." />
       <Slider label="// WIN PROBABILITY" min={0} max={1} step={0.05} value={pWin} onChange={setPWin}
-        help="Probability the terminal payoff is +magnitude (vs -magnitude). Around 0.5 the return distribution is strongly bimodal — two outcomes with the same mean a scalar value would blur into one." />
+        help="Probability the terminal payoff is +magnitude (vs -magnitude). Around 0.5 the return distribution is strongly bimodal: two outcomes with the same mean, which a scalar value would blur into one." />
       <Slider label="// PAYOFF MAGNITUDE" min={0.3} max={1.1} step={0.05} value={mag} onChange={setMag}
-        help="Size of the two outcomes (±magnitude). Wider payoffs spread the two modes apart, making the distribution's shape — and the risk it encodes — more pronounced." />
+        help="Size of the two outcomes (±magnitude). Wider payoffs spread the two modes apart, making the shape of the distribution, and the risk it encodes, more pronounced." />
       <Slider label="// DISCOUNT γ" min={0.6} max={0.97} step={0.01} value={gamma} onChange={setGamma} tone="blue"
         help="Each step back from the goal, the distributional Bellman backup scales the return distribution by γ, pulling both modes toward 0 and shrinking the spread." />
       <Slider label="// CHAIN LENGTH" min={2} max={7} step={1} value={K} onChange={setK} tone="blue"

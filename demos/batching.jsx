@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 360, CH = 232;
@@ -161,7 +161,7 @@ function BatchingDemo() {
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
       <span className="t-mono-s" style={{ color: overloaded ? "var(--violet-lt)" : "var(--muted)" }}>
-        {overloaded ? "OVERLOADED — arrivals exceed capacity, queue grows without bound" : "INFERENCE SERVER — requests in, batches out"}
+        {overloaded ? "OVERLOADED: arrivals exceed capacity, queue grows without bound" : "INFERENCE SERVER: requests in, batches out"}
       </span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 0.92 : 1.2), height: CH * (mobile ? 0.92 : 1.2), borderRadius: 4, border: "1px solid var(--border)", background: "#05060f" }} />
@@ -174,7 +174,7 @@ function BatchingDemo() {
       <DemoButton onClick={() => setRunning(r => !r)} tone="violet" primary>{running ? "PAUSE" : "PLAY"}</DemoButton>
       <DemoButton onClick={() => { resetSim(); setStats({ thru: 0, mlat: 0, p99: 0, q: 0, util: 0, served: 0 }); }} tone="blue">RESET</DemoButton>
       <Slider label="// ARRIVAL RATE" min={2} max={48} step={1} value={lam} onChange={setLam} suffix=" req/s" tone="blue"
-        help="How fast requests arrive. The server's capacity is fixed by the batch settings — push arrivals above it and utilization passes 1, so the queue (and latency) grow without bound. This is the load knob." />
+        help="How fast requests arrive. The server's capacity is fixed by the batch settings. Push arrivals above it and utilization passes 1, so the queue and the latency grow without bound. This is the load knob." />
       <Slider label="// MAX BATCH SIZE" min={1} max={24} step={1} value={maxB} onChange={setMaxB} tone="violet"
         help="Most requests the GPU runs at once. A batch costs base + slope*size, so bigger batches amortize the fixed overhead -> more throughput (higher capacity), but each request waits for the batch to fill and run -> higher latency. The core tradeoff." />
       <Slider label="// BATCH WINDOW" min={0} max={150} step={5} value={winMs} onChange={setWinMs} suffix=" ms" tone="violet"
@@ -190,22 +190,33 @@ function BatchingDemo() {
   const explainer = (
     <>
       <DemoP>
-        A GPU is wildly more efficient running many inputs at once than one at a time:
-        a batch costs roughly <b>a fixed overhead plus a small per-item cost</b>
-        (base + slope·size here). So batching <b>amortizes the overhead</b> — double the
-        batch and you barely raise the run time, which means more requests served per
-        second. Raise <b>MAX BATCH SIZE</b> and watch the capacity readout (and
-        throughput) climb.
+        A GPU is far more efficient running many inputs at once than one at a
+        time. A batch costs <b>a fixed overhead plus a small per-item cost</b>
+        (base + slope&middot;size here), so batching <b>amortizes the overhead</b>.
+        Double the batch and the run time barely moves, which means more requests
+        served per second. Raise <b>MAX BATCH SIZE</b> and watch capacity and
+        throughput climb together.
       </DemoP>
+      <DemoP>The catch is latency, and it arrives in three ways:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Every request waits for the batch to form, up to the <b>BATCH WINDOW</b>,
+          and then waits for the whole batch to finish. Mean latency grows, and the{" "}
+          <b>p99 tail</b> grows faster.
+        </DemoLI>
+        <DemoLI>
+          There is a hard wall. The server can only do{" "}
+          <i>capacity = batch &divide; batch-time</i> requests per second.
+        </DemoLI>
+        <DemoLI>
+          Push <b>ARRIVAL RATE</b> past it and <b>utilization</b> crosses 100%.
+          Arrivals outpace departures, the queue grows every second, and latency
+          runs away without limit.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The catch is <b>latency</b>. Every request now waits for the batch to form (up
-        to the <b>BATCH WINDOW</b>) and for the whole batch to finish, so the mean and
-        especially the <b>p99 tail</b> grow as batches get bigger. And there's a hard
-        wall: the server can only do <i>capacity</i> = batch ÷ batch-time requests per
-        second. Push <b>ARRIVAL RATE</b> above it and <b>utilization</b> crosses 100% —
-        now arrivals outpace departures, the queue grows every second, and latency runs
-        away to infinity. That knee near 100% utilization is the single most important
-        fact in serving.
+        That knee near 100% utilization is the single most important fact in
+        serving.
       </DemoP>
     </>
   );
@@ -213,23 +224,34 @@ function BatchingDemo() {
   const concepts = (
     <>
       <DemoP>
-        Throughput-vs-latency under batching is the central tradeoff of model serving —
-        it's exactly what Triton, vLLM, TensorFlow Serving, and every managed inference
-        API tune for you, and continuous/in-flight batching for LLMs is a refinement of
-        the same idea (swap finished sequences out of the batch mid-flight instead of
-        waiting). It pairs naturally with
-        <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`}> PagedAttention</a>,
-        which is what lets a server hold many concurrent sequences in memory so there's
+        Throughput against latency under batching is the central tradeoff of model
+        serving. It is what Triton, vLLM, TensorFlow Serving and every managed
+        inference API tune for you. Continuous batching for LLMs refines the same
+        idea by swapping finished sequences out of the batch mid-flight instead of
+        waiting for the slowest one. It pairs naturally with{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`}>PagedAttention</a>,
+        which is what lets a server hold enough concurrent sequences in memory for
         a big batch to form in the first place.
       </DemoP>
       <DemoP>
-        The runaway-queue behavior past 100% utilization is plain queueing theory
-        (Little's law: average queue = arrival rate × wait time), and it's why
-        autoscaling and admission control exist — you add replicas or shed load to keep
-        utilization off the knee. The same capacity-vs-load reasoning governs request
-        routing and <a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>monitoring</a>:
-        a deployed model is a queueing system first and a math function second.
+        The runaway queue past 100% utilization is plain queueing theory, and it
+        has three practical consequences:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Little&apos;s law says average queue = arrival rate &times; wait time, so
+          the queue is not a mystery once you know the two inputs.
+        </DemoLI>
+        <DemoLI>
+          Autoscaling and admission control exist to keep utilization off the knee,
+          by adding replicas or shedding load.
+        </DemoLI>
+        <DemoLI>
+          The same capacity-against-load reasoning governs request routing and{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>monitoring</a>.
+          A deployed model is a queueing system first and a math function second.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

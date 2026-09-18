@@ -137,7 +137,7 @@ function DistillationDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// TEMPERATURE (T)" min={1} max={6} step={0.5} value={T} onChange={setT} tone="violet"
-        help="Softens the teacher's targets: at T=1 they're nearly one-hot (little extra info), and as T rises the runner-up classes lift off the floor, exposing the teacher's 'this is mostly A but a bit B' structure — the dark knowledge the student learns from." />
+        help="Softens the teacher's targets: at T=1 they're nearly one-hot (little extra info), and as T rises the runner-up classes lift off the floor, exposing the teacher's 'this is mostly A but a bit B' structure. That is the dark knowledge the student learns from." />
       <Slider label="// SOFT WEIGHT (α)" min={0} max={1} step={0.05} value={alpha} onChange={setAlpha}
         help="Mixes the loss: α=0 trains the student on hard one-hot labels only (it copies the top class), α=1 trains purely on the teacher's soft distribution. Watch the distribution-match metric climb with α even though top-class accuracy barely changes." />
       <DemoButton onClick={build} primary>RETRAIN</DemoButton>

@@ -105,28 +105,26 @@ function DecisionTreeDemo() {
         options={[{ value: "blobs", label: "Blobs" }, { value: "xor", label: "XOR" }, { value: "circles", label: "Circles" }]}
         help="The class shape. Trees split one axis at a time, so they nail XOR but only staircase-approximate the smooth circular boundary." />
       <Slider label="// MAX DEPTH" min={1} max={8} value={maxDepth} onChange={setMaxDepth} tone="violet"
-        help="How many times the tree may keep splitting. Deeper trees fit finer detail and push train accuracy toward 100% — straight into overfitting." />
+        help="How many times the tree may keep splitting. Deeper trees fit finer detail and push train accuracy toward 100%, straight into overfitting." />
       <DemoButton onClick={reseed} primary>NEW DATA</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="LEAVES" value={stats.leaves} />
         <StatReadout label="TRAIN ACC" value={stats.acc + "%"} accent="#34d399" />
       </div>
       <Legend items={COLORS.slice(0, dataset === "blobs" ? 3 : 2).map((c, i) => ({ color: c, label: "CLASS " + i }))} />
-      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Regions are axis-aligned — that's the whole story of a tree.</div>
+      <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Regions are axis-aligned. That is the whole story of a tree.</div>
     </ControlGroup>
   );
   const explainer = (
     <>
       <DemoP>
         A decision tree splits the feature space one axis-aligned cut at a time,
-        always choosing the split that most reduces <b>Gini impurity</b> — i.e. that
-        best separates the classes. This is real CART, built greedily in the
+        always choosing the split that most reduces <b>Gini impurity</b>, meaning the split that best separates the classes. This is real CART, built greedily in the
         browser; the shaded rectangles are the regions it carves, and each is
         labeled by the majority class of the training points that land in it.
       </DemoP>
       <DemoP>
-        Raise <b>max depth</b> and watch the boundary turn into a staircase of ever
-        smaller boxes — train accuracy climbs toward 100% as the tree memorizes
+        Raise <b>max depth</b> and watch the boundary turn into a staircase of ever smaller boxes. Train accuracy climbs toward 100% as the tree memorizes
         individual points (overfitting). Notice trees handle <b>XOR</b> cleanly but
         approximate <b>circles</b> with a jagged staircase, because every boundary
         must be horizontal or vertical. That limitation is exactly why we ensemble
@@ -144,8 +142,7 @@ function DecisionTreeDemo() {
         whether the impurity is Gini or entropy / information gain.
       </DemoP>
       <DemoP>
-        Trees are also prized for <b>interpretability</b> — every prediction is a readable
-        chain of if/else rules, which matters in regulated domains like credit and
+        Trees are also prized for <b>interpretability</b>. Every prediction is a readable chain of if/else rules, which matters in regulated domains like credit and
         healthcare. The overfitting-with-depth on screen is exactly why we prune, cap depth
         and min-samples, and above all <i>ensemble</i>: averaging many decorrelated trees
         (bagging) or sequentially correcting their residuals (boosting) keeps the accuracy

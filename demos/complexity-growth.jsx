@@ -119,20 +119,18 @@ function ComplexityDemo() {
       <DemoP>
         These are real timings taken in your browser when you press MEASURE, not a plotted formula.
         Three kernels run over the same array: a single pass, a comparison sort, and a genuine
-        double loop. Doubling n should multiply their times by roughly 2, a little over 2, and 4 —
-        and the ratio readouts show that happening on your machine, hardware and all.
+        double loop. Doubling n should multiply their times by roughly 2, a little over 2, and 4, and the ratio readouts show that happening on your machine, hardware and all.
       </DemoP>
       <DemoP>
         The absolute gap is the part worth internalising, and it is on screen: at the default
         largest n the quadratic kernel is several thousand times slower than the linear one on the
-        same data and the same machine. Push LARGEST n one step and watch that multiple roughly
-        quadruple again — it is not a fixed penalty, it widens without limit. That is the
+        same data and the same machine. Push LARGEST n one step and watch that multiple roughly quadruple again. It is not a fixed penalty, it widens without limit. That is the
         difference between an interactive response and a coffee break, and it comes entirely from
         the shape of the loops rather than from anything clever in the code.
       </DemoP>
       <DemoP>
         Two honest caveats the numbers will show you. First, at small n the constants dominate and
-        the ordering can even invert — big-O describes growth, not speed, and a well-implemented
+        the ordering can even invert. Big-O describes growth, not speed, and a well-implemented
         n² can beat an n log n on tiny inputs. Second, the sort curve is slightly steeper than 2×
         because that extra log n is real. Turn on LOG SCALE: on a linear axis the quadratic curve
         flattens the other two into the floor, which is exactly why complexity plots are almost
@@ -146,15 +144,14 @@ function ComplexityDemo() {
       <DemoP>
         This is why attention's cost is the defining constraint of long-context models: it compares
         every token with every other, so doubling the sequence quadruples the work and the memory.
-        Every technique in that area —
+        Every technique in that area, from
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`}>paged attention</a>,
-        {" "}<a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`}>KV caching</a>, sparse
-        and linear attention — is an attempt to move that curve down a class.
+        {" "}<a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`}>KV caching</a>, sparse and linear attention, is an attempt to move that curve down a class.
       </DemoP>
       <DemoP>
         It is also the practical reason to distrust an accidental broadcast or an inner loop that
         creeps in during refactoring. A model that trains fine at batch 8 and dies at batch 64 is
-        usually not out of memory by a little — it is on the wrong curve, and the fix is structural
+        usually not out of memory by a little. It is on the wrong curve, and the fix is structural
         rather than a smaller batch.
       </DemoP>
     </>

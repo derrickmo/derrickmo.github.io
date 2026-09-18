@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -149,7 +149,7 @@ function CalibrationDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// OVERCONFIDENCE (β)" min={1} max={3} step={0.1} value={beta} onChange={setBeta} tone="violet"
-        help="How much the model's stated confidence outruns its real accuracy. At 1 it's perfectly calibrated; above 1 the points drop below the diagonal — when it says 90% it's right far less often. Modern deep nets sit well above 1." />
+        help="How much the model's stated confidence outruns its real accuracy. At 1 it's perfectly calibrated; above 1 the points drop below the diagonal, so when it says 90% it is right far less often. Modern deep nets sit well above 1." />
       <Slider label="// TEMPERATURE (T)" min={0.5} max={3} step={0.1} value={T} onChange={setT}
         help="The post-hoc fix: divide the logits by T before softmax. T > 1 softens overconfident probabilities toward the diagonal; T < 1 sharpens. It never changes the argmax (the predicted class), only the confidence. Slide it to β to recalibrate." />
       <Slider label="// BINS" min={5} max={15} step={1} value={bins} onChange={setBins}
@@ -172,48 +172,72 @@ function CalibrationDemo() {
   const explainer = (
     <>
       <DemoP>
-        Accuracy tells you how often a model is right; calibration tells you
-        whether you can trust the number it prints next to the answer. A calibrated
-        model that says "0.9" is correct 90% of the time — its points sit on the
-        dashed diagonal. Raise OVERCONFIDENCE and the points sink below it: the
-        model keeps saying 0.9 while only being right 75% of the time. <b>ECE</b>{" "}
-        (expected calibration error) is the average gap, weighted by how many
-        predictions fall in each confidence bin.
+        Accuracy tells you how often a model is right. Calibration tells you
+        whether you can trust the number it prints next to the answer.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A calibrated model that says "0.9" is right 90% of the time, so its
+          points sit on the dashed diagonal.
+        </DemoLI>
+        <DemoLI>
+          Raise OVERCONFIDENCE and the points sink below it. The model keeps saying
+          0.9 while being right only 75% of the time.
+        </DemoLI>
+        <DemoLI>
+          <b>ECE</b>, expected calibration error, is the average gap, weighted by
+          how many predictions land in each confidence bin.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now slide TEMPERATURE up toward β, or hit AUTO-CALIBRATE. The points rise
-        onto the diagonal and ECE collapses — yet not a single prediction changed,
-        because dividing the logits by a constant can't alter which class scores
-        highest. That's temperature scaling: one number, fit on a validation set,
-        that makes the probabilities honest without touching accuracy. Overshoot
-        past β and the model flips to <i>under</i>confident (points above the line).
+        Now slide TEMPERATURE up toward &beta;, or press AUTO-CALIBRATE. The points
+        rise onto the diagonal and ECE collapses, yet not a single prediction
+        changed, because dividing the logits by a constant cannot alter which class
+        scores highest. That is temperature scaling: one number, fit on a validation
+        set, that makes the probabilities honest without touching accuracy. Overshoot
+        past &beta; and the model flips to <i>under</i>confident, with the points
+        above the line.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Calibration is the trust layer over a classifier. It matters anywhere a
         probability feeds a decision: a 0.7 cancer-risk score, a confidence
-        threshold for human handoff, abstaining when unsure, or fusing model
-        outputs. Guo et al. (2017) showed modern deep nets are systematically
-        overconfident and that <b>temperature scaling</b> — the single parameter
-        you're tuning — fixes most of it cheaply. The same softmax temperature
-        knob appears in the{" "}
+        threshold for human handoff, abstaining when unsure, or fusing several model
+        outputs. Guo et al. (2017) showed that modern deep nets are systematically
+        overconfident, and that <b>temperature scaling</b> fixes most of it with a
+        single parameter. That same knob appears in the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>decoding</a>{" "}
-        demo, there used to control diversity rather than calibration.
+        demo, where it controls diversity rather than calibration.
       </DemoP>
       <DemoP>
-        It's complementary to{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/roc/`} style={{ color: "#a855f7" }}>ROC/threshold</a>{" "}
-        analysis: ROC asks how to <i>rank and threshold</i> scores, calibration
-        asks whether the scores mean what they say as probabilities — a model can
-        have great AUC and terrible calibration. Beyond temperature scaling there's
-        Platt scaling, isotonic regression, and proper scoring rules (Brier, NLL);
-        ECE itself is binning-sensitive, which is why the bin count is a knob here.
+        Calibration and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/roc/`} style={{ color: "#a855f7" }}>ROC and threshold</a>{" "}
+        analysis answer different questions, and a model can score well on one and
+        badly on the other:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          ROC asks how to <i>rank and threshold</i> scores. A model can have
+          excellent AUC and terrible calibration, because ranking survives any
+          monotone squashing of the scores.
+        </DemoLI>
+        <DemoLI>
+          Calibration asks whether the scores mean what they say as probabilities.
+          Beyond temperature scaling there is Platt scaling, isotonic regression,
+          and proper scoring rules such as Brier and NLL.
+        </DemoLI>
+        <DemoLI>
+          ECE is binning-sensitive, which is why the bin count is a knob here rather
+          than a hidden constant.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Model Calibration"
       subtitle="A '90% confident' model should be right 90% of the time. See overconfidence on a reliability diagram, measure it with ECE, and fix it with one temperature knob."

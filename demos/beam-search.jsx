@@ -208,7 +208,7 @@ function BeamSearchDemo() {
     <>
       <DemoP>
         Each step, a language model gives you a probability distribution over the next
-        token. <b>Greedy</b> just takes the top one — fast, often suboptimal, because a
+        token. <b>Greedy</b> just takes the top one, which is fast but often suboptimal, because a
         locally-best token can lead into a low-probability dead end. <b>Beam search</b>{" "}
         keeps the top <i>K</i> running candidates by total log-probability and expands
         all of them in parallel. The yellow path is the surviving top beam; green nodes
@@ -217,7 +217,7 @@ function BeamSearchDemo() {
       <DemoP>
         Drop the beam width to 1 and beam search collapses into greedy. Crank the
         sampling temperature on the right and the sampled sequence drifts from "the
-        cat slept well" toward unlikelier sentences — that's how creativity gets
+        cat slept well" toward unlikelier sentences. That is how creativity gets
         injected without retraining the model. Beam search is deterministic; sampling
         is the source of variety in generative LMs.
       </DemoP>

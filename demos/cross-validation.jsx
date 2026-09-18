@@ -185,7 +185,7 @@ function CrossValDemo() {
       <Slider label="// FOLDS  k" min={2} max={10} step={1} value={k} onChange={setK}
         help="Number of cross-validation folds. More folds = more training data per fit (less pessimistic bias) but higher variance and cost; k=5 or 10 is the usual compromise. k=N is leave-one-out." />
       <Slider label="// NOISE" min={0.02} max={0.4} step={0.02} value={noise} onChange={setNoise}
-        help="Standard deviation of the noise added to the true curve. More noise pushes the CV-optimal degree LOWER — there's less real signal to justify a complex model. Resets the data." />
+        help="Standard deviation of the noise added to the true curve. More noise pushes the CV-optimal degree LOWER, because there is less real signal to justify a complex model. Resets the data." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => st && setDegree(st.best)} primary>SELECT BEST (CV)</DemoButton>
         <DemoButton onClick={() => setSeed(s => s + 1)}>RESAMPLE</DemoButton>
@@ -208,10 +208,8 @@ function CrossValDemo() {
       <DemoP>
         Top: the points, the true curve (dashed green), and your degree-{degree}
         polynomial. Each moment, one fold (yellow) is held out, the model is trained
-        on the rest, and its error on that yellow fold is what CV records — then the
-        held-out fold rotates so every point gets scored exactly once as unseen data.
-        Bottom: do that across all complexities. The green TRAIN error only ever
-        falls — a degree-9 polynomial threads every point and looks perfect, which is
+        on the rest, and its error on that yellow fold is what CV records. Then the held-out fold rotates so every point gets scored exactly once as unseen data.
+        Bottom: do that across all complexities. The green TRAIN error only ever falls. A degree-9 polynomial threads every point and looks perfect, which is
         why train error can't be trusted to pick a model.
       </DemoP>
       <DemoP>
@@ -219,8 +217,8 @@ function CrossValDemo() {
         to capture the real signal, bottoms out at the ★ best degree, then climbs as
         higher degrees start fitting the noise and fail on held-out folds. That U is
         the bias/variance tradeoff made measurable. Hit SELECT BEST to jump to the CV
-        minimum. Turn NOISE up and watch the sweet spot slide to a SIMPLER model —
-        noisier data supports less complexity — and turn it down to justify more.
+        minimum. Turn NOISE up and watch the sweet spot slide to a SIMPLER model, because noisier data supports less complexity, and turn it down to
+        justify more.
         This is how degree, regularization strength, tree depth, and k in k-NN are
         actually chosen in practice.
       </DemoP>
@@ -241,7 +239,7 @@ function CrossValDemo() {
         and expensive.
       </DemoP>
       <DemoP>
-        Caveats: folds must respect structure — shuffle and stratify for class
+        Caveats: folds must respect structure. Shuffle and stratify for class
         balance, but use grouped or time-series splits when points are correlated
         (otherwise leakage makes CV wildly optimistic). Selecting a model AND
         reporting its CV score on the same folds is itself a form of overfitting to

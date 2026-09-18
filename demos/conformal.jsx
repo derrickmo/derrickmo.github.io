@@ -122,9 +122,9 @@ function ConformalDemo() {
       <Slider label="// ALPHA (miscoverage)" min={0.02} max={0.4} step={0.02} value={alpha} onChange={setAlpha} tone="violet"
         help="The error you'll tolerate: the set is guaranteed to contain the true label at least (1−α) of the time. Lower α → stronger guarantee → larger sets. The coverage knob you actually control." />
       <Slider label="// MODEL SKILL" min={0.5} max={6} step={0.5} value={skill} onChange={setSkill}
-        help="How good the underlying classifier is (logit boost on the true class). Crucially, coverage stays at the target no matter what you set here — a worse model just produces bigger sets. Drop it to watch sets balloon while coverage holds." />
+        help="How good the underlying classifier is (logit boost on the true class). Crucially, coverage stays at the target no matter what you set here. A worse model just produces bigger sets. Drop it to watch sets balloon while coverage holds." />
       <Slider label="// CONFIDENCE (temp)" min={0.3} max={2} step={0.1} value={temp} onChange={setTemp}
-        help="Softmax temperature shaping how peaked the scores are. Conformal doesn't need the model to be calibrated — it recalibrates the threshold from data — so coverage is robust to this too; it mainly nudges set sizes." />
+        help="Softmax temperature shaping how peaked the scores are. Conformal doesn't need the model to be calibrated, because it recalibrates the threshold from data, so coverage is robust to this too. It mainly nudges set sizes." />
       <Slider label="// CLASSES" min={3} max={8} step={1} value={C} onChange={setC}
         help="Number of labels. More classes generally means larger prediction sets for the same α and skill." />
       <DemoButton onClick={() => { gen(); setTick(t => t + 1); }} primary>RESAMPLE</DemoButton>
@@ -156,11 +156,10 @@ function ConformalDemo() {
       </DemoP>
       <DemoP>
         The surprising part: drag MODEL SKILL down to near-useless and coverage{" "}
-        <i>still</i> sits on the target line — the sets just swell to include
+        <i>still</i> sits on the target line. The sets just swell to include
         almost every class. That's the distribution-free guarantee. Model quality
         doesn't buy coverage (the calibration step always delivers that); it buys
-        small, informative sets. Tighten α and watch sets grow as the guarantee
-        gets stricter — the fundamental coverage-vs-size tradeoff.
+        small, informative sets. Tighten α and watch sets grow as the guarantee gets stricter, the fundamental coverage-against-size tradeoff.
       </DemoP>
     </>
   );
@@ -168,8 +167,7 @@ function ConformalDemo() {
     <>
       <DemoP>
         Conformal prediction (Vovk; popularized by Angelopoulos & Bates) gives
-        finite-sample, distribution-free coverage with essentially no assumptions
-        on the model — wrap it around any classifier or regressor and get
+        finite-sample, distribution-free coverage with essentially no assumptions on the model. Wrap it around any classifier or regressor and get
         guaranteed marginal coverage. That makes it a workhorse of trustworthy ML
         for high-stakes settings, and the complement to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>:
@@ -178,8 +176,7 @@ function ConformalDemo() {
       </DemoP>
       <DemoP>
         Caveats worth knowing: the guarantee is <i>marginal</i> (averaged over the
-        population), not conditional — coverage can still be uneven across
-        subgroups, which motivates Mondrian/class-conditional and adaptive variants
+        population), not conditional, so coverage can still be uneven across subgroups, which motivates Mondrian/class-conditional and adaptive variants
         like APS and RAPS. It also assumes exchangeability between calibration and
         test data, so distribution shift breaks it. And the LAC method shown here is
         the simplest; richer score functions trade a bit of that simplicity for

@@ -174,7 +174,7 @@ function DoubleQDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// ACTIONS AT B" min={2} max={30} step={1} value={nB} onChange={setNB} tone="violet"
-        help="How many actions the B state offers, all with the same N(-0.1, σ²) reward. The more there are, the higher the max of their noisy estimates climbs — so maximization bias grows with the number of actions. Rebuilds the run." />
+        help="How many actions the B state offers, all with the same N(-0.1, σ²) reward. The more there are, the higher the max of their noisy estimates climbs, so maximization bias grows with the number of actions. Rebuilds the run." />
       <Slider label="// REWARD NOISE σ" min={0.1} max={2} step={0.1} value={sigma} onChange={setSigma}
         help="Standard deviation of B's rewards. Bias comes from noise in the estimates, so more noise = more overestimation of max_a Q(B,a) = stronger pull toward the wrong LEFT action." />
       <Slider label="// EXPLORATION ε" min={0.02} max={0.4} step={0.02} value={eps} onChange={setEps}

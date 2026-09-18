@@ -168,11 +168,11 @@ function AttentionDemo() {
         placeholder="type a short sentence…" />
       <SegmentedControl label="// HEAD" tone="violet" value={head} onChange={setHead}
         options={[0, 1, 2, 3].map(h => ({ value: h, label: "H" + (h + 1) }))}
-        help="Which attention head to view. Each head uses its own query/key projection, so each produces a different pattern — real transformers run many in parallel." />
+        help="Which attention head to view. Each head uses its own query/key projection, so each produces a different pattern. Real transformers run many in parallel." />
       <Toggle label="// CAUSAL MASK" checked={causal} onChange={setCausal}
         help="Block each token from attending to later ones (the upper triangle goes dark). This is what makes left-to-right generation possible in GPT-style decoders." />
       <Toggle label="// SCALE BY √dₖ" checked={scale} onChange={setScale}
-        help="Divide scores by √dₖ before softmax. Without it, large dot products saturate the softmax into near one-hot weights and gradients vanish — why the scale factor exists." />
+        help="Divide scores by √dₖ before softmax. Without it, large dot products saturate the softmax into near one-hot weights and gradients vanish. That is why the scale factor exists." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="TOKENS" value={tokenCount} />
         <StatReadout label="HEAD" value={"H" + (head + 1)} accent="var(--violet-lt)" />
@@ -186,20 +186,17 @@ function AttentionDemo() {
     <>
       <DemoP>
         Each row is a <b>query</b> token asking "who should I pay attention to?";
-        each column is a <b>key</b> token answering. The cell is the attention
-        weight — how much the row token pulls from the column token — and every row
-        sums to 1 (that's the softmax). Concretely, we project each token's
+        each column is a <b>key</b> token answering. The cell is the attention weight, how much the row token pulls from the column token, and every
+        row sums to 1 (that's the softmax). Concretely, we project each token's
         embedding into a query and a key, score every pair with a dot product,
         divide by <i>√dₖ</i>, and softmax across the row: <i>softmax(QKᵀ/√dₖ)</i>.
       </DemoP>
       <DemoP>
-        Turn off <b>scaling</b> and watch the weights get spikier — without the
-        <i> √dₖ</i> term, large dot products saturate the softmax and gradients
+        Turn off <b>scaling</b> and watch the weights get spikier. Without the <i>√dₖ</i> term, large dot products saturate the softmax and gradients
         vanish, which is exactly why the scale factor exists. Turn on the
         <b> causal mask</b> and the upper triangle goes dark: a token can only
         attend to itself and earlier tokens, the rule that makes GPT-style
-        generation possible. Repeat a word (note the two "the"s) — identical tokens
-        share an embedding, so they light up for each other. <em>Projections here
+        generation possible. Repeat a word (note the two "the"s) and identical tokens share an embedding, so they light up for each other. <em>Projections here
         are random, not trained, so this shows the mechanism, not learned
         meaning.</em>
       </DemoP>
@@ -209,8 +206,7 @@ function AttentionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Scaled dot-product attention is the single operation the entire transformer era is
-        built on — GPT, BERT, Llama, Claude, plus vision (ViT), audio, and multimodal
+        Scaled dot-product attention is the single operation the entire transformer era is built on: GPT, BERT, Llama, Claude, plus vision (ViT), audio, and multimodal
         models all stack it. Its superpower over RNNs is that every token can look at every
         other token in one step (full context, fully parallelizable), which is what made
         training on internet-scale data practical.
@@ -219,7 +215,7 @@ function AttentionDemo() {
         The mechanics you're toggling are load-bearing in production. The √dₖ scaling keeps
         gradients healthy; the causal mask is what separates <b>decoder</b> (generation)
         from <b>encoder</b> (understanding) models; and "every token attends to all others"
-        is also attention's cost — <i>O(n²)</i> in sequence length, the bottleneck that
+        is also the cost of attention, <i>O(n²)</i> in sequence length, the bottleneck that
         FlashAttention, KV-caching, and sparse/linear-attention variants all attack.
         Interpretability researchers read these very heatmaps to find induction and other
         circuits.

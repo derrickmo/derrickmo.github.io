@@ -95,7 +95,7 @@ function CanaryRolloutDemo() {
   }, []);
 
   const statusColor = ui && ui.status === "rolledback" ? "rgba(239,68,68,0.95)" : ui && ui.status === "promoted" ? "var(--blue-lt)" : "var(--violet-lt)";
-  const statusText = !ui ? "" : ui.status === "rolledback" ? "ROLLED BACK — guard caught v2's regression" : ui.status === "promoted" ? "PROMOTED — v2 is now serving 100%" : `RAMPING — v2 at ${Math.round(ui.frac * 100)}% of traffic`;
+  const statusText = !ui ? "" : ui.status === "rolledback" ? "ROLLED BACK: guard caught v2's regression" : ui.status === "promoted" ? "PROMOTED: v2 is now serving 100%" : `RAMPING: v2 at ${Math.round(ui.frac * 100)}% of traffic`;
 
   // visual: traffic split bar + two error gauges
   const SplitBar = () => {
@@ -157,8 +157,7 @@ function CanaryRolloutDemo() {
         Shipping a new model is risky: it might be worse in ways your offline tests
         missed. A <b>canary</b> rollout de-risks it by exposing v2 to a small slice of
         live traffic first (5%), watching a health metric, and only widening the slice
-        (25% → 50% → 100%) if it stays healthy. The key property is a small <b>blast
-        radius</b> — compare <b>users hit by v2 errors</b> to the counterfactual of a
+        (25% → 50% → 100%) if it stays healthy. The key property is a small <b>blast radius</b>. Compare <b>users hit by v2 errors</b> to the counterfactual of a
         full deploy: the canary caps how many people a bad model can hurt before you
         catch it.
       </DemoP>
@@ -167,8 +166,7 @@ function CanaryRolloutDemo() {
         observed error against v1's baseline. Significantly worse → <b>roll back</b>;
         otherwise → advance. That makes <b>GUARD SENSITIVITY</b> a detection tradeoff:
         too twitchy and ordinary noise rolls back good models (false alarms); too lax
-        and a genuinely worse model slips through to 100%. And it's fundamentally
-        statistical — at 5% traffic you have few v2 samples, so a <i>small</i> regression
+        and a genuinely worse model slips through to 100%. And it's fundamentally statistical: at 5% traffic you have few v2 samples, so a <i>small</i> regression
         is hard to distinguish from noise until the canary widens. Set v2's true error
         just barely above baseline and watch the guard struggle.
       </DemoP>
@@ -178,17 +176,16 @@ function CanaryRolloutDemo() {
   const concepts = (
     <>
       <DemoP>
-        Progressive delivery — canaries, blue/green, and feature flags — is how mature
+        Progressive delivery, meaning canaries, blue/green and feature flags, is how mature
         teams ship models and code without all-or-nothing risk, and it's exactly what
         Argo Rollouts, Flagger, and SageMaker/Vertex traffic-splitting automate. The
         same automated-metric-guard idea powers A/B tests and bandit rollouts (route more
-        traffic to the better arm — the live cousin of the
+        traffic to the better arm, the live cousin of the
         <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}> multi-armed bandit</a>),
         and shadow deployments that send v2 a copy of traffic with its outputs discarded.
       </DemoP>
       <DemoP>
-        Underneath, the guard is hypothesis testing under a sequential, low-sample
-        regime — the same significance-vs-power tension as any
+        Underneath, the guard is hypothesis testing under a sequential, low-sample regime, the same significance-against-power tension as any
         <a href={`${window.__DM_BASE || "../../"}visualize/roc/`}> detection threshold</a>, and
         a close relative of the <a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>drift
         detection</a> that watches an already-deployed model. Canarying catches a bad

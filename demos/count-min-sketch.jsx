@@ -165,14 +165,13 @@ function CountMinDemo() {
   const explainer = (
     <>
       <DemoP>
-        The grid is the entire data structure — d rows of w counters, far smaller than
+        The grid is the entire data structure: d rows of w counters, far smaller than
         a counter per key. Every item that streams in lights up exactly one cell per
         row (its hash positions) and bumps them. To look an item up, you read just
         those d amber cells and take the smallest. Why the minimum? Two different keys
         can collide into the same counter, and a collision only ever ADDS, so each
         counter is an over-count; the smallest of the d is the one least polluted, and
-        it's still guaranteed ≥ the true count. The estimate bar never drops below the
-        true bar — Count-Min never underestimates.
+        it's still guaranteed ≥ the true count. The estimate bar never drops below the true bar, because Count-Min never underestimates.
       </DemoP>
       <DemoP>
         The bottom strip shows every key: violet estimates against green true counts,
@@ -181,7 +180,7 @@ function CountMinDemo() {
         and frequency-cap problems. The error lives in the rare keys on the right,
         where a few collisions can double their tiny counts. Widen w to spread keys out
         (collisions and AVG OVEREST. drop), or add rows d so it's unlikely ALL of a
-        key's counters got hit — both shrink the error, trading memory for accuracy. A
+        key's counters got hit. Both shrink the error, trading memory for accuracy. A
         sketch a thousandth the size of the exact table still ranks the popular items
         correctly.
       </DemoP>
@@ -197,8 +196,7 @@ function CountMinDemo() {
         trending-item and top-k queries, frequency capping in ad systems, and NLP
         feature counting over massive corpora. It sits in the same streaming toolbox as{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/reservoir-sampling/`} style={{ color: "#a855f7" }}>reservoir sampling</a>{" "}
-        (uniform samples), Bloom filters (set membership), and HyperLogLog (distinct
-        counts) — all trading exactness for tiny, fixed memory.
+        (uniform samples), Bloom filters (set membership), and HyperLogLog (distinct counts), all trading exactness for tiny, fixed memory.
       </DemoP>
       <DemoP>
         Caveats: it OVERestimates (Count-Min); the related Count-Sketch is unbiased but

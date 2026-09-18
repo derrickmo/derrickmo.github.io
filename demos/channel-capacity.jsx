@@ -117,18 +117,16 @@ function ChannelCapacityDemo() {
     <>
       <DemoP>
         Send a bit down a noisy wire that flips it with probability <b>p</b>. How much information
-        actually gets through? That's the <b>mutual information</b> I(X;Y) between what you send and
-        what arrives — and the maximum of it over all ways of using the channel is its <b>capacity</b>,
+        actually gets through? That's the <b>mutual information</b> I(X;Y) between what you send and what arrives, and the maximum of it over all ways of using the channel is its <b>capacity</b>,
         Shannon's famous C = 1 − H(p). At p = 0 a full bit survives; as noise rises capacity falls; at
-        <b> p = 0.5</b> the output is pure coin-flip noise and capacity hits <b>zero</b> — no code,
-        however clever, can send anything reliably.
+        <b> p = 0.5</b> the output is pure coin-flip noise and capacity hits <b>zero</b>. No code, however clever, can send anything reliably.
       </DemoP>
       <DemoP>
         Two knobs, two lessons. <b>Input P(X=1)</b>: the I-vs-input curve peaks at a <b>uniform</b>{" "}
-        0.5 — using the channel asymmetrically wastes it (hit OPTIMAL INPUT to sit at the peak).
+        0.5, and using the channel asymmetrically wastes it (hit OPTIMAL INPUT to sit at the peak).
         <b> Flip probability</b>: the capacity curve is C = 1 − H(p), the clean statement that the
         channel's noise <i>is</i> an entropy you must pay. Shannon's coding theorem says you can
-        communicate at any rate below C with vanishing error — and nothing above it.
+        communicate at any rate below C with vanishing error, and nothing above it.
       </DemoP>
     </>
   );
@@ -147,9 +145,8 @@ function ChannelCapacityDemo() {
         The same capacity lens increasingly frames machine learning itself: the information-bottleneck
         view treats a network layer as a channel that must pass label-relevant information while
         discarding the rest, and "channel capacity" arguments appear in analyses of attention bandwidth,
-        quantized/low-precision links, and what a finite context window can actually carry. The deep
-        idea on screen — that noise sets a hard, computable ceiling on reliable information — recurs far
-        beyond communication.
+        quantized/low-precision links, and what a finite context window can actually carry. The deep idea on screen, that noise sets a hard and computable ceiling on reliable
+        information, recurs far beyond communication.
       </DemoP>
     </>
   );

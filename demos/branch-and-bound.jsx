@@ -186,11 +186,11 @@ function BranchAndBoundDemo() {
   const controls = (
     <ControlGroup>
       <Toggle label="// BOUNDING (prune)" checked={bounding} onChange={setBounding}
-        help="On: discard a subtree the moment its optimistic LP bound can't beat the best solution found. Off: explore every branch — pure brute force. Flip it to see the pruned (red) nodes vanish and the tree balloon." />
+        help="On: discard a subtree the moment its optimistic LP bound can't beat the best solution found. Off: explore every branch, which is pure brute force. Flip it to see the pruned (red) nodes vanish and the tree balloon." />
       <Slider label="// ITEMS (n)" min={3} max={9} step={1} value={n} onChange={setN}
         help="Number of items. Brute force is 2^n leaves; branch-and-bound visits far fewer when bounding is on. Larger n makes the savings dramatic." />
       <Slider label="// CAPACITY" min={0.2} max={0.9} step={0.05} value={capPct} onChange={setCapPct}
-        help="Knapsack capacity as a fraction of total item weight. Tight or loose capacities prune differently — mid-range tends to be the hardest." />
+        help="Knapsack capacity as a fraction of total item weight. Tight or loose capacities prune differently, and mid-range tends to be the hardest." />
       <Slider label="// SPEED" min={1} max={20} step={1} value={speed} onChange={setSpeed}
         help="Animation speed of the depth-first node reveal. Purely visual; doesn't change the search." />
       <DemoButton onClick={() => setFrame(0)}>REPLAY</DemoButton>
@@ -219,14 +219,14 @@ function BranchAndBoundDemo() {
         The tree is every yes/no decision: include this item, or don't. Brute force
         walks all 2ⁿ leaves. Branch-and-bound walks the same tree but carries two
         numbers: the best complete solution found so far (the incumbent), and at each
-        node an <i>optimistic</i> upper bound — the most value this subtree could
+        node an <i>optimistic</i> upper bound, the most value this subtree could
         possibly reach, computed by letting the knapsack take fractional items. If
         that optimistic bound can't even tie the incumbent, the whole subtree is
         hopeless and gets cut (the red nodes with a bar). The answer is still exact;
         we just never opened branches we could prove were dead.
       </DemoP>
       <DemoP>
-        Toggle BOUNDING off and the red prunes disappear — the tree fills out to the
+        Toggle BOUNDING off and the red prunes disappear and the tree fills out to the
         full brute-force shape. Turn it back on and watch how a good incumbent found
         early (depth-first, include-first ordering tends to find one fast) lets later
         branches be axed at the root. Push ITEMS up: brute force grows as 2ⁿ while the
@@ -244,14 +244,12 @@ function BranchAndBoundDemo() {
         alpha-beta pruning you see in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mcts/`} style={{ color: "#a855f7" }}>game search</a>.
         It's the exact-search cousin of the dynamic-programming{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a> demo —
-        DP exploits overlapping subproblems, B&B exploits bounds to prune.
+        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a> demo: DP exploits overlapping subproblems, B&B exploits bounds to prune.
       </DemoP>
       <DemoP>
         Two things make or break it: the <i>bound</i> (tighter relaxations prune more,
         but cost more to compute) and the <i>branching/ordering</i> heuristic (finding
-        a strong incumbent early prunes everything after it). Worst case it's still
-        exponential — bounding helps on average, not in the limit. Best-first
+        a strong incumbent early prunes everything after it). Worst case it is still exponential, because bounding helps on average, not in the limit. Best-first
         (lowest-bound-first) and other node-selection rules trade memory for fewer
         expansions; this demo uses simple depth-first to keep the tree readable.
       </DemoP>

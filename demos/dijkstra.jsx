@@ -153,17 +153,16 @@ function DijkstraDemo() {
       <DemoP>
         Dijkstra grows a circle of certainty outward from the <b>source</b>. At each
         step it picks the <b>frontier</b> node with the smallest tentative distance,
-        declares it <b>settled</b> (blue — its distance is now final), and
+        declares it <b>settled</b> (blue, meaning its distance is now final), and
         <b> relaxes</b> its neighbors: if reaching them through this node is cheaper
         than their current best, update it. The numbers on the nodes are those
         running distances, starting at ∞.
       </DemoP>
       <DemoP>
         The key fact: because every edge weight is non-negative, the closest
-        unsettled node can never be improved later, so settling it greedily is safe —
-        that's why one pass gives every shortest distance. Following the
+        unsettled node can never be improved later, so settling it greedily is safe, which is why one pass gives every shortest distance. Following the
         predecessor pointers back from the <b>target</b> traces the gold shortest
-        path. (Add negative edges and this breaks — you'd need Bellman–Ford instead;
+        path. (Add negative edges and this breaks: you would need Bellman-Ford instead;
         add a goal-directed heuristic and you get A*.)
       </DemoP>
     </>

@@ -132,11 +132,11 @@ function ConvolutionDemo() {
       <DemoP>
         A convolution slides a small <b>kernel</b> over the image and, at every
         pixel, computes a weighted sum of the neighborhood. That tiny 3×3 grid of
-        numbers is the entire operation — change it and you change what the layer
+        numbers is the entire operation. Change it and you change what the layer
         "sees." <b>Box/Gaussian</b> kernels average neighbors (blur). <b>Sharpen</b>{" "}
         amplifies the center against its surround. <b>Sobel</b> and <b>Edge</b>{" "}
-        kernels sum to zero, so flat regions cancel out and only intensity
-        <i> changes</i> survive — that's edge detection.
+        kernels sum to zero, so flat regions cancel out and only intensity{" "}
+        <i>changes</i> survive, which is edge detection.
       </DemoP>
       <DemoP>
         This is exactly what a convolutional neural network does, except a CNN
@@ -151,7 +151,7 @@ function ConvolutionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Convolution is the core operation of the CNN era — image classification, object
+        Convolution is the core operation of the CNN era: image classification, object
         detection, segmentation, medical imaging, and the encoders inside many generative
         and multimodal models all stack learned convolutional filters. The key idea is
         <b> weight sharing</b>: one small kernel scans the entire image, giving
@@ -159,8 +159,7 @@ function ConvolutionDemo() {
         layer.
       </DemoP>
       <DemoP>
-        What you type by hand here, a CNN <i>learns</i> by backprop — and early layers
-        reliably converge to edge and texture detectors that look a lot like Sobel, while
+        What you type by hand here, a CNN <i>learns</i> by backprop, and early layers reliably converge to edge and texture detectors that look a lot like Sobel, while
         deeper layers compose them into parts and whole objects (a hierarchy you can
         literally visualize). The same sliding-window, local-receptive-field idea reappears
         in 1-D audio convolutions, and even a Vision Transformer's patch embedding is just

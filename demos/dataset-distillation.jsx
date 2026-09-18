@@ -197,7 +197,7 @@ function DatasetDistillationDemo() {
         options={[{ value: "moons", label: "Two moons" }, { value: "blobs", label: "Two blobs" }]}
         help="Shape of the real data being distilled. Moons need a curved boundary, so the synthetic points have to spread out cleverly; blobs are linearly separable and need fewer." />
       <Slider label="// SYNTHETIC POINTS (m)" min={2} max={12} step={1} value={m} onChange={setM}
-        help="How many synthetic training points to learn. Watch how few it takes to recover the full boundary — that's the whole pitch of distillation. Too few and accuracy caps out." />
+        help="How many synthetic training points to learn. Watch how few it takes to recover the full boundary. That is the whole pitch of distillation. Too few and accuracy caps out." />
       <Slider label="// KERNEL WIDTH σ" min={0.06} max={0.4} step={0.02} value={sigma} onChange={setSigma}
         help="RBF kernel bandwidth of the ridge model. Wide = smooth, blobby boundary; narrow = wiggly and local. The distilled points adapt to whatever width you pick." />
       <Slider label="// REGULARIZATION λ" min={0.005} max={0.3} step={0.005} value={lam} onChange={setLam}
@@ -223,19 +223,17 @@ function DatasetDistillationDemo() {
         The faint dots are 160 real points; the bold squares are a handful of
         <i> synthetic</i> training points we're learning. The model is closed-form
         kernel ridge regression, so given the synthetic set we can solve for its
-        predictions exactly and measure how well it classifies the full data — then
-        push that error back into the squares' coordinates by gradient descent. Watch
+        predictions exactly and measure how well it classifies the full data, then push that error back into the squares' coordinates by gradient descent. Watch
         them drift to the positions that best reconstruct the real decision boundary
         (the colored field), with accuracy climbing as they settle.
       </DemoP>
       <DemoP>
-        Two things to play with. Drop SYNTHETIC POINTS to the minimum and see how few
-        it takes — distillation routinely matches full-data accuracy with a tiny
+        Two things to play with. Drop SYNTHETIC POINTS to the minimum and see how few it takes. Distillation routinely matches full-data accuracy with a tiny
         fraction of the examples, because the learned points sit exactly where the
         model needs information (often along the boundary, not at class centers).
         Switch to two moons: now the squares can't just mark cluster centers, they
         have to arrange themselves to carve a curve. The synthetic points usually
-        don't look like real samples at all — they're optimized to teach, not to be
+        don't look like real samples at all. They are optimized to teach, not to be
         realistic.
       </DemoP>
     </>
@@ -248,8 +246,7 @@ function DatasetDistillationDemo() {
         almost as well as the original. It powers fast neural-architecture search,
         continual learning (tiny replay buffers), and privacy-preserving data release,
         and it's the synthetic-data cousin of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/coreset/`} style={{ color: "#a855f7" }}>coresets</a> —
-        coresets <i>select</i> real points, distillation <i>synthesizes</i> new ones,
+        <a href={`${window.__DM_BASE || "../../"}visualize/coreset/`} style={{ color: "#a855f7" }}>coresets</a>: coresets <i>select</i> real points, distillation <i>synthesizes</i> new ones,
         which can be far more compact. It also connects to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/distillation/`} style={{ color: "#a855f7" }}>model distillation</a>
         (compress the model) and{" "}
@@ -257,8 +254,7 @@ function DatasetDistillationDemo() {
         (which real points matter).
       </DemoP>
       <DemoP>
-        Caveats: the synthetic set is optimized for a specific model class and
-        objective — distill for kernel ridge here and it won't transfer cleanly to a
+        Caveats: the synthetic set is optimized for a specific model class and objective. Distill for kernel ridge here and it won't transfer cleanly to a
         deep net, and KIP-style methods need the inner learner to be differentiable
         (closed-form or unrolled). It can also overfit the distillation target,
         capturing quirks of this dataset rather than the underlying distribution. Real

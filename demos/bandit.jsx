@@ -167,7 +167,7 @@ function BanditDemo() {
       <Slider label="// ARMS" min={3} max={10} value={k} onChange={setK} tone="violet"
         help="How many slot machines to choose among. More arms means more to explore, so regret grows and the choice of strategy matters more." />
       <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /s"
-        help="Pulls per second. Visual pacing only — it does not change the strategy or the outcome." />
+        help="Pulls per second. Visual pacing only: it does not change the strategy or the outcome." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={() => { if (!running) { pull(); draw(); setTick(v => v + 1); } }} disabled={running}>PULL</DemoButton>
@@ -189,18 +189,16 @@ function BanditDemo() {
     <>
       <DemoP>
         Each arm pays out 1 with some hidden probability (violet line). You only
-        learn an arm's value by pulling it — so every pull is a tradeoff between
+        learn an arm's value by pulling it, so every pull is a tradeoff between
         <b> exploiting</b> the arm that looks best so far and <b>exploring</b> others
         that might be better. <b>ε-greedy</b> exploits the current best but picks
         random with probability ε. <b>UCB</b> adds an "optimism" bonus that shrinks
         as an arm is pulled more, so under-tried arms get a look. <b>Thompson
-        sampling</b> keeps a Beta belief per arm and samples from it — elegant and
-        usually the strongest.
+        sampling</b> keeps a Beta belief per arm and samples from it, which is elegant and usually the strongest.
       </DemoP>
       <DemoP>
         The metric that matters is <b>cumulative regret</b> (red): the reward lost by
-        not always pulling the true best arm. Good strategies make that curve bend
-        flat — they stop paying to explore once they're confident. Run each strategy
+        not always pulling the true best arm. Good strategies make that curve bend flat, because they stop paying to explore once they're confident. Run each strategy
         on the same New Problem and compare the regret curves and % optimal.
       </DemoP>
     </>
@@ -216,8 +214,7 @@ function BanditDemo() {
         Thompson sampling and UCB in particular are production-grade methods, not toys.
       </DemoP>
       <DemoP>
-        It's also the simplest reinforcement-learning problem — one state, immediate reward
-        — so the machinery here scales up directly. ε-greedy is the standard exploration
+        It's also the simplest reinforcement-learning problem, one state and an immediate reward, so the machinery here scales up directly. ε-greedy is the standard exploration
         rule in Q-learning and DQN, UCB-style bonuses power the tree search in AlphaZero
         (PUCT), and "minimize cumulative <b>regret</b>" is the yardstick for online learning
         broadly. Learn to read the regret curve and you have the core metric of the whole

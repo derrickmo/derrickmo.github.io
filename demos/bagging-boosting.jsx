@@ -133,15 +133,15 @@ function BaggingBoostingDemo() {
     <ControlGroup>
       <SegmentedControl label="// METHOD" value={method} onChange={setMethod}
         options={[{ value: "bagging", label: "Bagging" }, { value: "boosting", label: "Boosting" }]}
-        help="Bagging averages trees fit on bootstrap resamples (variance reduction — wants DEEP trees). Boosting adds trees sequentially to the residual (bias reduction — wants SHALLOW trees). Flip and re-tune depth to feel the difference." />
+        help="Bagging averages trees fit on bootstrap resamples, which reduces variance and wants DEEP trees. Boosting adds trees sequentially to the residual, which reduces bias and wants SHALLOW trees. Flip and re-tune depth to feel the difference." />
       <Slider label="// N ESTIMATORS" min={1} max={60} step={1} value={M} onChange={setM}
-        help="Number of trees. Drag it up and watch the ensemble form — bagging smooths toward a stable average; boosting refines the fit round by round." />
+        help="Number of trees. Drag it up and watch the ensemble form. Bagging smooths toward a stable average; boosting refines the fit round by round." />
       <Slider label="// TREE DEPTH" min={1} max={5} step={1} value={depth} onChange={setDepth}
         help="Depth of each base tree. Set it deep (4-5) for bagging so each tree is a high-variance learner to average away; set it shallow (1-2) for boosting so each is a weak learner that only nudges the residual." />
       <Slider label="// LEARNING RATE ν" min={0.05} max={1} step={0.05} value={nu} onChange={setNu}
         help="Boosting only: shrinkage on each added tree. Smaller ν needs more trees but generalizes better (less overfitting). Has no effect in bagging." />
       <Slider label="// NOISE" min={0.05} max={0.4} step={0.01} value={noise} onChange={setNoise}
-        help="Label noise. Boosting with too many deep trees will start chasing this noise (test MSE rises) — the classic boosting overfitting failure mode." />
+        help="Label noise. Boosting with too many deep trees will start chasing this noise so test MSE rises. That is the classic boosting overfitting failure mode." />
       <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="TRAIN MSE" value={st ? st.trainMSE.toFixed(4) : "—"} accent="#60a5fa" />
@@ -160,17 +160,15 @@ function BaggingBoostingDemo() {
         Both methods stack the same kind of tree but in opposite ways. Pick BAGGING
         with a deep tree (depth 4-5): a single deep tree would overfit wildly, but
         each is trained on a different bootstrap sample, so averaging {M} of them
-        cancels the per-tree noise and lands near the truth — variance reduction, and
-        the trees never needed to talk to each other. Now pick BOOSTING with a shallow
+        cancels the per-tree noise and lands near the truth. That is variance reduction, and the trees never needed to talk to each other. Now pick BOOSTING with a shallow
         tree (depth 1-2): one stump is hopeless, but each new tree is fit to whatever
-        the running sum still gets wrong, so the ensemble climbs toward the curve one
-        correction at a time — bias reduction.
+        the running sum still gets wrong, so the ensemble climbs toward the curve one correction at a time. That is bias reduction.
       </DemoP>
       <DemoP>
         Drag N ESTIMATORS to watch each build up, and the LEARNING RATE ν to see
         boosting's speed-vs-overfitting trade (small ν, many trees generalizes best).
         Then crank NOISE and push boosting's depth and count up: train MSE keeps
-        falling but test MSE turns back up — boosting will happily memorize noise,
+        falling but test MSE turns back up. Boosting will happily memorize noise,
         while bagging's averaging makes it far more robust. That contrast is the whole
         story: bagging is a variance machine, boosting is a bias machine.
       </DemoP>
@@ -190,7 +188,7 @@ function BaggingBoostingDemo() {
       </DemoP>
       <DemoP>
         Caveats: bagging barely helps stable, high-bias learners (averaging a stump
-        with a stump is still a stump) — it needs high-variance base models.
+        with a stump is still a stump), because it needs high-variance base models.
         Boosting is sequential (harder to parallelize) and sensitive to noise and
         learning rate; without shrinkage and early stopping it overfits. Gradient
         boosting also generalizes the residual-fitting idea to any differentiable loss

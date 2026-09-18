@@ -104,8 +104,7 @@ function DecodingDemo() {
       </DemoP>
       <DemoP>
         <b>Top-k</b> keeps only the k most-likely tokens; <b>top-p</b> (nucleus)
-        keeps the smallest set whose probabilities sum to p — both then renormalize
-        and sample only from what's left (the greyed tokens can never be chosen).
+        keeps the smallest set whose probabilities sum to p. Both then renormalize and sample only from what's left (the greyed tokens can never be chosen).
         That's how you cut off the long tail of nonsense while still allowing
         variety. Hit <b>Sample</b> repeatedly and watch the tally: these three knobs
         are exactly what you tune on any real LLM API.
@@ -124,9 +123,8 @@ function DecodingDemo() {
         higher temperature for brainstorming, copywriting, and creative work.
       </DemoP>
       <DemoP>
-        The same idea generalizes far beyond text. Any model that samples from a learned
-        distribution — image and audio generators, code models, RL policies that sample
-        actions — faces the identical explore-versus-exploit tradeoff between "most
+        The same idea generalizes far beyond text. Any model that samples from a learned distribution, including image and audio generators, code models and RL
+        policies that sample actions, faces the identical explore-versus-exploit tradeoff between "most
         likely" and "diverse." Understanding how truncation (top-k / top-p) cuts the
         unreliable tail while temperature reshapes confidence is what lets you control
         the quality, safety, and variety of a generative system instead of just hoping

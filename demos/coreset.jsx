@@ -167,7 +167,7 @@ function CoresetDemo() {
     <ControlGroup>
       <SegmentedControl label="// SAMPLING" value={method} onChange={setMethod}
         options={[{ value: "uniform", label: "Uniform" }, { value: "importance", label: "Importance" }]}
-        help="Uniform picks points at random with equal weight N/m. Importance (lightweight coreset) samples proportional to squared distance from the data mean and reweights by 1/(m·q) — it spends the budget on informative points and tracks the full clustering much better." />
+        help="Uniform picks points at random with equal weight N/m. Importance (lightweight coreset) samples proportional to squared distance from the data mean and reweights by 1/(m·q). It spends the budget on informative points and tracks the full clustering much better." />
       <Slider label="// CORESET SIZE (m)" min={6} max={120} step={2} value={m} onChange={setM}
         help="How many points the coreset keeps (out of 600). Shrink it and watch the cost ratio: importance sampling degrades gracefully where uniform falls apart." />
       <Slider label="// CLUSTERS (k)" min={2} max={6} step={1} value={k} onChange={setK}
@@ -191,17 +191,15 @@ function CoresetDemo() {
         centroids fit on all of them. A coreset throws almost all the data away and
         keeps a tiny weighted subset (the bright dots, sized by weight). Fit weighted
         k-means on just those, and you get the purple ✕ centroids. When they sit on
-        top of the green rings, the coreset has preserved the answer — the cost
-        ratio near 1.0× says the clustering cost on the full data is essentially
+        top of the green rings, the coreset has preserved the answer. The cost ratio near 1.0× says the clustering cost on the full data is essentially
         unchanged.
       </DemoP>
       <DemoP>
         Now shrink CORESET SIZE and flip SAMPLING. Uniform sampling wastes its budget
         on dense cluster centers and misses the sparse, informative edges, so its
         centroids wander and the ratio climbs. Importance sampling weights each point
-        by its squared distance from the mean — the "hard" points get picked more
-        often and then down-weighted by 1/(m·q) to stay unbiased — so it keeps the
-        clustering tight with a fraction of the points.
+        by its squared distance from the mean, so the "hard" points get picked more
+        often and then down-weighted by 1/(m·q) to stay unbiased, so it keeps the clustering tight with a fraction of the points.
       </DemoP>
     </>
   );
@@ -213,19 +211,16 @@ function CoresetDemo() {
         millions of points by working on a weighted thousand. The same importance /
         sensitivity-sampling idea underlies modern <i>data selection</i> and dataset
         pruning for training large models, and it's a cousin of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/active-learning/`} style={{ color: "#a855f7" }}>active learning</a> —
-        both ask "which few examples actually matter?" It also connects to{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/active-learning/`} style={{ color: "#a855f7" }}>active learning</a>. Both ask "which few examples actually matter?" It also connects to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/kmeans/`} style={{ color: "#a855f7" }}>k-means</a>,
         the model being summarized here.
       </DemoP>
       <DemoP>
-        Caveats: coreset guarantees are problem-specific — a coreset for k-means
-        isn't automatically one for a different objective, and the weights are
+        Caveats: coreset guarantees are problem-specific. A coreset for k-means is not automatically one for a different objective, and the weights are
         essential (drop them and the estimate is biased). Sampling with replacement
         can pick duplicates; real constructions add structure (D²-sampling, sensitivity
         bounds) for worst-case (1±ε) guarantees. And like all subsampling, a coreset
-        can't recover signal carried by the points it never saw — it preserves the
-        objective you targeted, not arbitrary downstream questions.
+        can't recover signal carried by the points it never saw. It preserves the objective you targeted, not arbitrary downstream questions.
       </DemoP>
     </>
   );

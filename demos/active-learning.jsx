@@ -169,7 +169,7 @@ function ActiveLearningDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CLASS OVERLAP" min={0.5} max={1.6} step={0.1} value={overlap} onChange={setOverlap} tone="violet"
-        help="How much the two classes bleed into each other. More overlap makes the boundary genuinely fuzzy — that's where active learning's edge over random is largest, because it spends labels exactly on the ambiguous middle." />
+        help="How much the two classes bleed into each other. More overlap makes the boundary genuinely fuzzy, and that is where the edge of active learning over random is largest, because it spends labels exactly on the ambiguous middle." />
       <Slider label="// LABELS / STEP" min={1} max={5} step={1} value={batch} onChange={setBatch}
         help="How many points each learner labels per step. Batch mode is realistic (you annotate in batches), though greedily picking several near the same spot is why real batch active learning adds diversity." />
       <DemoButton onClick={() => { if (s && s.A.size >= CAP) build(); setRunning(r => !r); }} primary>{running ? "PAUSE" : (s && s.A.size >= CAP ? "RESTART" : "RUN")}</DemoButton>
@@ -191,7 +191,7 @@ function ActiveLearningDemo() {
   const explainer = (
     <>
       <DemoP>
-        The expensive thing in supervised ML is rarely compute — it's labels. Active
+        The expensive thing in supervised ML is rarely compute. It is labels. Active
         learning asks the model to choose what to label next. The cheapest useful
         rule is uncertainty sampling: label the point the model is least sure about,
         which here is the unlabeled point sitting closest to the decision boundary
@@ -203,8 +203,7 @@ function ActiveLearningDemo() {
         Watch the accuracy race at the bottom: the blue active curve climbs to high
         accuracy with a fraction of the labels the random curve needs, because every
         label it spends pins down the ambiguous middle instead of re-confirming
-        points deep inside a class. Crank CLASS OVERLAP up and the gap widens —
-        fuzzy boundaries are exactly where choosing well pays off. The active picks
+        points deep inside a class. Crank CLASS OVERLAP up and the gap widens, because fuzzy boundaries are exactly where choosing well pays off. The active picks
         visibly cluster along the boundary, not the easy interiors.
       </DemoP>
     </>
@@ -227,8 +226,7 @@ function ActiveLearningDemo() {
         pick many near-identical points (real systems add diversity/coverage terms);
         it can chase outliers or mislabeled points; and the chosen labels are no
         longer i.i.d., which biases naive evaluation. Done well it slashes labeling
-        cost dramatically; done naively it can underperform plain random — which is
-        why acquisition-function design is its own small field.
+        cost dramatically; done naively it can underperform plain random, which is why acquisition-function design is its own small field.
       </DemoP>
     </>
   );

@@ -126,9 +126,9 @@ function BloomDemo() {
       <Slider label="// BITS  m" min={64} max={512} step={32} value={m} onChange={setM} tone="violet"
         help="Size of the bit array. More bits = lower false-positive rate for the same number of keys, at the cost of memory. The whole point of a Bloom filter is using far fewer bits than storing the keys themselves." />
       <Slider label="// HASH FUNCTIONS  k" min={1} max={8} step={1} value={k} onChange={setK}
-        help={`Bits set per key. Too few and absent keys easily slip through; too many and the array fills up fast. The sweet spot is k = (m/n)*ln2 ≈ ${kOpt} here — fewer or more both raise the false-positive rate.`} />
+        help={`Bits set per key. Too few and absent keys easily slip through; too many and the array fills up fast. The sweet spot is k = (m/n)*ln2 ≈ ${kOpt} here, and fewer or more both raise the false-positive rate.`} />
       <Slider label="// KEYS INSERTED  n" min={10} max={200} step={10} value={nTarget} onChange={setNTarget}
-        help="How many keys to insert. Watch the bit array fill and the false-positive rate climb as the load n/m grows — a Bloom filter degrades gracefully but predictably as it gets crowded." />
+        help="How many keys to insert. Watch the bit array fill and the false-positive rate climb as the load n/m grows. A Bloom filter degrades gracefully but predictably as it gets crowded." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RESUME"}</DemoButton>
         <DemoButton onClick={() => reset()}>RESET</DemoButton>
@@ -150,22 +150,19 @@ function BloomDemo() {
     <>
       <DemoP>
         Each key you insert flips on k bits (the amber ones for the latest key). To
-        ask "is key X in the set?", you check its k bits: if even one is still 0, X was
-        never inserted — guaranteed, because inserting always SETS bits, never clears
+        ask "is key X in the set?", you check its k bits: if even one is still 0, X was never inserted, guaranteed, because inserting always SETS bits, never clears
         them. That's the Bloom filter's superpower: zero false negatives. The catch is
-        the other direction. If all k of X's bits happen to be 1, you answer "probably
-        yes" — but those bits could have been set by completely different keys. That's a
+        the other direction. If all k of X's bits happen to be 1, you answer "probably yes", but those bits could have been set by completely different keys. That's a
         false positive, and the measured bar counts exactly how often it happens for
         keys we never inserted.
       </DemoP>
       <DemoP>
         The measured rate (violet) tracks the formula (1 − e^(−kn/m))^k (green)
-        almost exactly, and the curve shows it climbing as the array fills — push KEYS
-        INSERTED up and the dot rides the curve toward 100%. The trade-offs are all
+        almost exactly, and the curve shows it climbing as the array fills. Push KEYS INSERTED up and the dot rides the curve toward 100%. The trade-offs are all
         here: more BITS lowers the rate, and for a given load there's an OPTIMAL k =
         (m/n)·ln 2; below or above it the rate worsens (too few bits per key leak, too
         many saturate the array). A Bloom filter answers membership in O(k) time with a
-        handful of bits per key and no false negatives — which is why it guards caches,
+        handful of bits per key and no false negatives, which is why it guards caches,
         databases, and crawlers from doing expensive lookups for things that aren't
         there.
       </DemoP>
@@ -176,18 +173,16 @@ function BloomDemo() {
       <DemoP>
         The Bloom filter is the classic space-efficient set-membership structure: a few
         bits per key, O(k) insert/query, no false negatives, tunable false positives.
-        It's everywhere as a cheap "definitely-not-here" gatekeeper — databases (Cassandra,
-        BigTable, RocksDB) skip disk reads for absent keys, CDNs and browsers screen
+        It's everywhere as a cheap "definitely-not-here" gatekeeper: databases (Cassandra, BigTable, RocksDB) skip disk reads for absent keys, CDNs and browsers screen
         URLs, crawlers dedupe seen pages, and it cuts network round-trips in distributed
         systems. It rounds out the streaming/sketch toolbox alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/count-min-sketch/`} style={{ color: "#a855f7" }}>Count-Min sketches</a>{" "}
         (frequencies) and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/reservoir-sampling/`} style={{ color: "#a855f7" }}>reservoir sampling</a>{" "}
-        (uniform samples) — all trading exactness for tiny, fixed memory.
+        (uniform samples), all trading exactness for tiny, fixed memory.
       </DemoP>
       <DemoP>
-        Caveats: a standard Bloom filter can't delete (clearing a bit could break other
-        keys — counting Bloom filters fix this) and can't be resized or enumerate its
+        Caveats: a standard Bloom filter can't delete (clearing a bit could break other keys, which counting Bloom filters fix) and can't be resized or enumerate its
         contents. You must size m and k for the EXPECTED load; oversaturate it and the
         false-positive rate explodes. Variants address the gaps: counting Bloom (deletes),
         scalable Bloom (growth), and cuckoo filters (deletes + often better space at low

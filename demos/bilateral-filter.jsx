@@ -181,16 +181,14 @@ function BilateralDemo() {
         A Gaussian blur averages each pixel with its neighbours, weighted only by how
         far away they are. That is why it destroys edges: at a boundary, half the
         window is on the wrong side and gets averaged in regardless. The bilateral
-        filter adds one more weight — how <i>similar in value</i> the neighbour is —
-        so a pixel across an edge is spatially close but photometrically distant, and
+        filter adds one more weight, how <i>similar in value</i> the neighbour is, so a pixel across an
+        edge is spatially close but photometrically distant, and
         contributes almost nothing.
       </DemoP>
       <DemoP>
         Read both readouts together, because the story is a trade and not a win. The
-        Gaussian usually removes <b>more</b> noise from the flat region — it is
-        averaging more pixels, so of course it does — while cutting the edge height to
-        roughly 60% of its true value. Bilateral removes less noise and keeps the edge
-        essentially intact — at the default settings, 0.5% versus 1.0% noise and 45.6%
+        Gaussian usually removes <b>more</b> noise from the flat region, because it is averaging more pixels, while cutting the edge height to
+        roughly 60% of its true value. Bilateral removes less noise and keeps the edge essentially intact. At the default settings, 0.5% versus 1.0% noise and 45.6%
         versus 54.4% of the true edge height. Then push <b>range sigma</b> up: the range
         term stops discriminating and the bilateral numbers slide back toward the
         Gaussian ones. The slider's maximum gets most of the way there; in the limit it
@@ -205,16 +203,14 @@ function BilateralDemo() {
         Edge-preserving smoothing is everywhere in imaging: denoising, tone mapping and
         detail enhancement all need to remove small variation without dissolving
         structure, and the phone camera pipeline that makes a night photo look clean is
-        doing a descendant of this. The cost is that the filter is <b>not separable</b> —
-        the weights depend on the pixel values, so you cannot decompose it into two 1-D
+        doing a descendant of this. The cost is that the filter is <b>not separable</b>, because the weights depend on the pixel values, so you cannot decompose it into two 1-D
         passes the way you can a Gaussian, which is why fast approximations (bilateral
         grid, guided filter, permutohedral lattice) exist at all.
       </DemoP>
       <DemoP>
         The deeper pattern is worth carrying: the filter is an <b>attention mechanism</b>.
         Each output is a weighted average of neighbours where the weight depends on how
-        similar the neighbour's content is to the query — spatial proximity times feature
-        similarity. Non-local means drops the spatial term and compares whole patches
+        similar the neighbour's content is to the query: spatial proximity times feature similarity. Non-local means drops the spatial term and compares whole patches
         anywhere in the image; self-attention drops it entirely and learns the similarity
         instead. Same skeleton, learned rather than hand-designed.
       </DemoP>

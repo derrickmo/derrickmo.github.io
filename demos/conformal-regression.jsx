@@ -180,7 +180,7 @@ function ConformalRegressionDemo() {
     <ControlGroup>
       <SegmentedControl label="// INTERVAL SCORE" value={method} onChange={setMethod}
         options={[{ value: "constant", label: "Constant" }, { value: "adaptive", label: "Adaptive σ̂(x)" }]}
-        help="Constant uses |residual| → a fixed-width band everywhere. Adaptive divides by a local spread estimate σ̂(x), so the band widens where the data is noisy and tightens where it's clean — both keep the same coverage." />
+        help="Constant uses |residual| → a fixed-width band everywhere. Adaptive divides by a local spread estimate σ̂(x), so the band widens where the data is noisy and tightens where it is clean. Both keep the same coverage." />
       <Slider label="// ALPHA (miscoverage)" min={0.02} max={0.4} step={0.02} value={alpha} onChange={setAlpha} tone="violet"
         help="Tolerated miss rate: the interval is guaranteed to contain y at least (1−α) of the time. Lower α → stronger promise → wider band." />
       <Slider label="// BASE NOISE" min={0.02} max={0.2} step={0.02} value={noise} onChange={setNoise}
@@ -188,7 +188,7 @@ function ConformalRegressionDemo() {
       <Slider label="// HETEROSCEDASTICITY" min={0} max={0.4} step={0.02} value={hetero} onChange={setHetero}
         help="How much the noise grows toward x=1. Crank it up, then compare Constant (over-wide on the left, too tight on the right) vs Adaptive (band breathes with the noise)." />
       <Slider label="// FIT DEGREE" min={1} max={8} step={1} value={degree} onChange={setDegree}
-        help="Polynomial degree of the mean model f̂. Underfit it (degree 1) and coverage STILL holds — the band just grows to absorb the bias. That's the distribution-free guarantee." />
+        help="Polynomial degree of the mean model f̂. Underfit it (degree 1) and coverage STILL holds, because the band just grows to absorb the bias. That is the distribution-free guarantee." />
       <DemoButton onClick={() => { gen(); setTick(t => t + 1); }} primary>RESAMPLE</DemoButton>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="COVERAGE" value={(coverage * 100).toFixed(1) + "%"} accent={Math.abs(coverage - target) < 0.03 ? "#34d399" : "#fbbf24"} />
@@ -217,11 +217,11 @@ function ConformalRegressionDemo() {
       </DemoP>
       <DemoP>
         Switch INTERVAL SCORE with heteroscedasticity cranked up. The constant band
-        is one-size-fits-all — wastefully wide on the calm left side, dangerously
+        is one-size-fits-all: wastefully wide on the calm left side, dangerously
         tight on the noisy right. The adaptive score divides residuals by a local
         spread estimate σ̂(x), so the band breathes with the noise while coverage
         stays pinned to target. Now drop FIT DEGREE to 1: the mean is badly underfit,
-        yet coverage <i>still</i> holds — the band simply swells to swallow the bias.
+        yet coverage <i>still</i> holds, because the band simply swells to swallow the bias.
       </DemoP>
     </>
   );
@@ -238,8 +238,7 @@ function ConformalRegressionDemo() {
         regression, and any setting where a wrong point estimate is costly.
       </DemoP>
       <DemoP>
-        Caveats mirror the classification case. Coverage is <i>marginal</i>, not
-        conditional — averaged over x, so it can still be uneven across regions even
+        Caveats mirror the classification case. Coverage is <i>marginal</i>, not conditional. It is averaged over x, so it can still be uneven across regions even
         when the adaptive band helps. It assumes exchangeability of calibration and
         test data, so distribution shift voids the guarantee (online/adaptive
         conformal patches this). And it pairs naturally with{" "}

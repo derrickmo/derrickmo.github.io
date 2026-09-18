@@ -96,15 +96,14 @@ function AliasingDemo() {
     <>
       <DemoP>
         A continuous sine (violet) is measured only at the gold sample instants.
-        While the sample rate stays above twice the signal frequency — the
-        <b> Nyquist rate</b> — those dots pin the wave down uniquely and a
+        While the sample rate stays above twice the signal frequency, the <b>Nyquist rate</b>, those dots pin the wave down uniquely and a
         reconstruction recovers it exactly. The shaded band on the frequency line is
         everything you can faithfully represent at this sample rate.
       </DemoP>
       <DemoP>
         Now raise <b>f</b> past the Nyquist frequency (or drop <b>fs</b>). The exact
-        same samples are suddenly consistent with a much slower sine — the green
-        <b> alias</b> — and that's what any reconstruction produces; the true high
+        same samples are suddenly consistent with a much slower sine, the green <b>alias</b>, and that is what any reconstruction
+        produces; the true high
         frequency is gone, masquerading as a low one. On the frequency line the true
         f "folds" back across Nyquist to its alias. This is the wagon-wheel effect in
         film, moiré in images, and the reason every real ADC puts an
@@ -121,7 +120,7 @@ function AliasingDemo() {
         avoids moiré, and the bandwidth limits of any{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/spectrogram/`} style={{ color: "#a855f7" }}>spectrogram</a>{" "}
         or <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier</a>{" "}
-        analysis — frequencies above fs/2 don't just vanish, they fold back and
+        analysis: frequencies above fs/2 do not just vanish, they fold back and
         corrupt the ones below.
       </DemoP>
       <DemoP>

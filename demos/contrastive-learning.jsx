@@ -165,7 +165,7 @@ function ContrastiveLearningDemo() {
         Each color is one item with two augmented views; a faint line links the
         positive pair. The NT-Xent loss does two things at once for every view: pull
         its partner close (numerator) and push all the other views away (denominator).
-        Run it and watch the two effects emerge — partners slide together until each
+        Run it and watch the two effects emerge. Partners slide together until each
         link shrinks to a dot (ALIGNMENT → 1), while different items fan out to share
         the circle as evenly as possible (UNIFORMITY climbs). No labels were used;
         the only supervision is "these two are the same thing."
@@ -195,7 +195,7 @@ function ContrastiveLearningDemo() {
       </DemoP>
       <DemoP>
         Caveats: the quality of the learned space lives or dies by the augmentations
-        (the definition of "positive") — bad augmentations teach shortcuts. Without
+        (the definition of "positive"). Bad augmentations teach shortcuts. Without
         enough negatives the embedding can collapse (everything maps to one point),
         which motivated non-contrastive methods like BYOL/SimSiam (stop-gradient,
         predictors) and dimension-decorrelation methods (Barlow Twins, VICReg). And

@@ -117,11 +117,11 @@ function CLTDemo() {
     <ControlGroup>
       <SegmentedControl label="// BASE DISTRIBUTION" value={dist} onChange={setDist}
         options={[{ value: "uniform", label: "Uniform" }, { value: "exponential", label: "Exponential" }, { value: "bimodal", label: "Bimodal" }]}
-        help="The raw population each sample is drawn from. Uniform, a skewed exponential, or a two-humped bimodal — the CLT works no matter how non-Gaussian this is." />
+        help="The raw population each sample is drawn from. Uniform, a skewed exponential, or a two-humped bimodal. The CLT works no matter how non-Gaussian this is." />
       <Slider label="// SAMPLE SIZE (n)" min={1} max={50} value={nn} onChange={setNn} tone="violet"
-        help="How many draws are averaged into each sample mean. Larger n makes the histogram more bell-shaped and narrower — its spread shrinks as 1/√n." />
+        help="How many draws are averaged into each sample mean. Larger n makes the histogram more bell-shaped and narrower, with its spread shrinking as 1/√n." />
       <Slider label="// SPEED" min={1} max={40} value={speed} onChange={setSpeed} suffix=" /frame"
-        help="How many sample means are drawn per frame. Visual pacing only — it does not change the statistics." />
+        help="How many sample means are drawn per frame. Visual pacing only: it does not change the statistics." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "RUN"}</DemoButton>
         <DemoButton onClick={reset}>RESET</DemoButton>
@@ -137,8 +137,8 @@ function CLTDemo() {
   const explainer = (
     <>
       <DemoP>
-        Pick any base distribution — even a lopsided <b>exponential</b> or a
-        two-humped <b>bimodal</b> — draw <i>n</i> samples, average them, and record
+        Pick any base distribution, even a lopsided <b>exponential</b> or a
+        two-humped <b>bimodal</b>, then draw <i>n</i> samples, average them, and record
         that mean. Repeat thousands of times and the histogram of those means
         always converges to a <b>bell curve</b>. That's the Central Limit Theorem,
         and it's why the Gaussian shows up everywhere in statistics and ML.
@@ -147,8 +147,7 @@ function CLTDemo() {
         Two things to watch. First, the shape becomes normal regardless of how weird
         the source is (set n = 1 to see the raw distribution, then raise it). Second,
         the spread shrinks: the standard deviation of the means is <i>σ/√n</i>, so
-        quadrupling the sample size only halves the error — the readouts show the
-        observed σ tracking the theory. This √n law underlies error bars,
+        quadrupling the sample size only halves the error. The readouts show the observed σ tracking the theory. This √n law underlies error bars,
         mini-batch gradient noise, and confidence intervals alike.
       </DemoP>
     </>
@@ -159,14 +158,12 @@ function CLTDemo() {
         The Central Limit Theorem is why the Gaussian is the default assumption across
         statistics and machine learning. The noise model in linear regression, the math
         behind least squares, Kalman filters, Gaussian processes, and the i.i.d. error
-        assumptions in A/B testing all lean on it — sums and averages of many small random
-        effects tend to a bell curve, so "assume normal" is usually a safe first move.
+        assumptions in A/B testing all lean on it, because sums and averages of many small random effects tend to a bell curve, so "assume normal" is usually a safe first move.
       </DemoP>
       <DemoP>
         The <i>σ/√n</i> shrinkage law is the quiet reason behind a lot of practice: error
         bars and confidence intervals on a metric, why a bigger validation set gives a more
-        trustworthy accuracy number, and why estimates only improve with the <i>square
-        root</i> of effort — quadrupling your data halves your uncertainty, not quarters it.
+        trustworthy accuracy number, and why estimates only improve with the <i>square root</i> of effort: quadrupling your data halves your uncertainty, not quarters it.
         The same √n shows up in mini-batch gradient noise, which is why larger batches give
         smoother (but diminishing-returns) updates.
       </DemoP>

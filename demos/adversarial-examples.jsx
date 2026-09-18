@@ -194,7 +194,7 @@ function AdversarialExamplesDemo() {
         Click to pick a point and watch the red dot get pushed across the decision boundary while
         staying inside the box. In this 2-D view the move is visible; in a 224×224 image the very same
         epsilon-bounded perturbation is <i>imperceptible</i> to a human yet flips the label. Turn on
-        <b> adversarial training</b> and the model retrains on its own attacks — the margin widens and
+        <b> adversarial training</b> and the model retrains on its own attacks. The margin widens and
         the same epsilon no longer fools it (notice the boundary gets smoother and clean confidence
         drops a little: the robustness/accuracy tradeoff).
       </DemoP>
@@ -206,19 +206,17 @@ function AdversarialExamplesDemo() {
       <DemoP>
         Adversarial examples are the headline result in <b>ML robustness</b>: tiny, worst-case
         perturbations break image classifiers, speech models, malware detectors, and even LLMs
-        (jailbreak suffixes are gradient-found adversarial tokens — see
+        (jailbreak suffixes are gradient-found adversarial tokens; see
         <a href={`${window.__DM_BASE || "../../"}visualize/prompt-injection/`}> prompt injection</a>).
         The same input-gradient that powers <a href={`${window.__DM_BASE || "../../"}visualize/saliency/`}>saliency
         maps</a> is what the attacker climbs. It matters anywhere a model faces an adversary: fraud,
         content moderation, autonomous perception, security.
       </DemoP>
       <DemoP>
-        The defense you toggled — <b>adversarial training</b> (Madry et al.) — is still the strongest
-        general defense, but it isn't free: it costs clean accuracy, compute, and only guarantees
+        The defense you toggled, <b>adversarial training</b> (Madry et al.), is still the strongest general defense, but it is not free: it costs clean accuracy, compute, and only guarantees
         robustness inside the epsilon ball you trained for. That tradeoff, plus certified defenses
         (randomized smoothing) and the endless attack/defense arms race, is why robustness is a field
-        of its own. The honest scope note: this is a 2-D illustration of the mechanism — real attacks
-        live in high dimensions where the geometry is far less forgiving.
+        of its own. The honest scope note: this is a 2-D illustration of the mechanism. Real attacks live in high dimensions where the geometry is far less forgiving.
       </DemoP>
     </>
   );

@@ -129,11 +129,11 @@ function BayesDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// PRIOR ALPHA" min={0.5} max={20} step={0.1} value={alpha0} onChange={setAlpha0} tone="violet"
-        help="Prior pseudo-count of heads. Higher = the prior already 'believes' the coin tends heads. Conjugate to a Bernoulli — the posterior is also a Beta." />
+        help="Prior pseudo-count of heads. Higher = the prior already 'believes' the coin tends heads. Conjugate to a Bernoulli, so the posterior is also a Beta." />
       <Slider label="// PRIOR BETA" min={0.5} max={20} step={0.1} value={beta0} onChange={setBeta0} tone="violet"
         help="Prior pseudo-count of tails. (Alpha-1, Beta-1) are the effective prior 'observations' baked in before any flip." />
       <Slider label="// TRUE BIAS" min={0.05} max={0.95} step={0.01} value={trueP} onChange={setTrueP}
-        help="The hidden true probability of heads — the world. The posterior should home in on this as you flip more coins." />
+        help="The hidden true probability of heads, which is the world. The posterior should home in on this as you flip more coins." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <DemoButton onClick={() => flip(1)}>FLIP 1</DemoButton>
         <DemoButton onClick={() => flip(10)}>FLIP 10</DemoButton>
@@ -156,11 +156,10 @@ function BayesDemo() {
       <DemoP>
         A coin has some hidden bias <i>p</i> = P(heads). You don't know it. So
         you write down your belief about it as a probability distribution over
-        all the values <i>p</i> could take — that's the <b style={{ color: "#c084fc" }}>prior</b>,
+        all the values <i>p</i> could take. That is the <b style={{ color: "#c084fc" }}>prior</b>,
         a Beta(α, β). Each flip updates that belief by Bayes' rule:
         posterior ∝ prior × likelihood. Beta is <b>conjugate</b> to the
-        Bernoulli, so the math is almost embarrassingly clean — the posterior
-        is just Beta(α + heads, β + tails). The two-parameter prior is a kind
+        Bernoulli, so the math is almost embarrassingly clean: the posterior is just Beta(α + heads, β + tails). The two-parameter prior is a kind
         of "pseudo-counts": Beta(2, 2) is as if you'd already seen one heads
         and one tails before this experiment.
       </DemoP>
@@ -168,8 +167,7 @@ function BayesDemo() {
         Move the sliders, flip a few coins, then flip 100. The
         <b style={{ color: "#60a5fa" }}> posterior</b> (blue) tightens around
         the <b style={{ color: "#fbbf24" }}>true p</b> (yellow) regardless of
-        how off your prior was — given enough data, the likelihood drowns out
-        the prior. Push the prior to Beta(15, 1) and try a few flips: a strong
+        how off your prior was, because given enough data the likelihood drowns out the prior. Push the prior to Beta(15, 1) and try a few flips: a strong
         prior is hard to dislodge with a small sample. That's Bayesian updating
         in one picture.
       </DemoP>
@@ -183,9 +181,8 @@ function BayesDemo() {
         over each variant's true rate and asking "is one's posterior cleanly
         above the other?" Thompson sampling for multi-armed bandits and
         contextual bandits? Sample one draw from each arm's Beta posterior and
-        pull the arg-max — that one trick gives you regret-optimal exploration.
-        Spam filters, recommender CTR estimates, click-through models — all
-        Beta posteriors under the hood.
+        pull the arg-max. That one trick gives you regret-optimal exploration.
+        Spam filters, recommender CTR estimates, click-through models are all Beta posteriors under the hood.
       </DemoP>
       <DemoP>
         The deeper idea is bigger than coins: <i>belief is a distribution, not

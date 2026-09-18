@@ -163,15 +163,14 @@ function BroadcastingDemo() {
       </DemoP>
       <DemoP>
         The stretch is a lie the library tells you, and that is the point. NumPy and PyTorch do not
-        copy the stretched axis — they read the same memory repeatedly with a stride of zero. Drag
+        copy the stretched axis. They read the same memory repeatedly with a stride of zero. Drag
         the sliders to <code>(1000, 1)</code> and <code>(1, 1000)</code> in your head: the result
         has a million elements, built from two thousand. The MEMORY SAVED readout is that ratio,
         and it is why you should not reach for <code>tile</code> or <code>repeat</code> first.
       </DemoP>
       <DemoP>
         <strong>Now press THE TRAP.</strong> Shapes <code>(4,1)</code> and <code>(1,4)</code> are
-        both "four numbers" in your head. Broadcasting turns them into a 4&times;4 matrix, and
-        nothing errors — you get 16 values, a mean over them is the mean of a matrix, and the bug
+        both "four numbers" in your head. Broadcasting turns them into a 4&times;4 matrix, and nothing errors. You get 16 values, a mean over them is the mean of a matrix, and the bug
         surfaces much later as a loss that will not go down. This is the single most common shape
         bug in ML code, and it is not a bug in the rule. It is the rule working exactly as written
         on inputs you did not mean. The fix is to say which axis you meant:
@@ -185,7 +184,7 @@ function BroadcastingDemo() {
       <DemoP>
         Every vectorised line you write depends on this. A per-channel normalisation, adding a bias
         to a batch of activations, computing a pairwise distance matrix as
-        <code> (n,1,d) - (1,m,d)</code> — all of it is broadcasting, and the last one is how a
+        <code> (n,1,d) - (1,m,d)</code>. All of it is broadcasting, and the last one is how a
         {" "}<a href={`${window.__DM_BASE || "../../"}visualize/knn/`}>k-NN</a> or a contrastive
         loss builds its distance matrix without a Python loop.
       </DemoP>

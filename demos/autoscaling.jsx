@@ -119,7 +119,7 @@ function AutoscalingDemo() {
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
       <span className="t-mono-s" style={{ color: over ? "rgba(239,68,68,0.95)" : "var(--muted)" }}>
-        {over ? "SLO BREACH — demand exceeds ready capacity (waiting on cold starts)" : "AUTOSCALER TRACKING DEMAND"}
+        {over ? "SLO BREACH: demand exceeds ready capacity (waiting on cold starts)" : "AUTOSCALER TRACKING DEMAND"}
       </span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 0.86 : 1.15), height: CH * (mobile ? 0.86 : 1.15), borderRadius: 4, border: "1px solid var(--border)", background: "#05060f" }} />
@@ -132,11 +132,11 @@ function AutoscalingDemo() {
       <DemoButton onClick={() => setRunning(r => !r)} tone="violet" primary>{running ? "PAUSE" : "PLAY"}</DemoButton>
       <DemoButton onClick={() => { const S = sim.current; if (S) S.spike = S.t + 8; }} tone="blue">INJECT SPIKE</DemoButton>
       <Slider label="// TARGET UTILIZATION" min={0.3} max={0.95} step={0.05} value={target} onChange={setTarget} tone="violet"
-        help="The controller adds replicas to keep utilization near this. Low target = lots of spare headroom, so spikes rarely breach the SLO — but you pay for idle replicas. High target = cheap but fragile: any surge breaches before new replicas warm up." />
+        help="The controller adds replicas to keep utilization near this. Low target = lots of spare headroom, so spikes rarely breach the SLO, but you pay for idle replicas. High target is cheap but fragile: any surge breaches before new replicas warm up." />
       <Slider label="// COLD START" min={0} max={16} step={1} value={cold} onChange={setCold} suffix=" s" tone="violet"
-        help="Seconds a new replica takes to become ready (image pull, model load, JIT warmup). This reaction lag is why autoscaling can't react instantly to spikes — the longer it is, the worse the transient breaches. The single biggest enemy of reactive autoscaling." />
+        help="Seconds a new replica takes to become ready (image pull, model load, JIT warmup). This reaction lag is why autoscaling can't react instantly to spikes. The longer it is, the worse the transient breaches. The single biggest enemy of reactive autoscaling." />
       <Slider label="// MAX REPLICAS" min={2} max={20} step={1} value={maxRep} onChange={setMaxRep} tone="blue"
-        help="Hard ceiling on the pool. If demand needs more than this, you're capacity-capped and breach no matter what — the case for capacity planning on top of autoscaling." />
+        help="Hard ceiling on the pool. If demand needs more than this, you're capacity-capped and breach no matter what. That is the case for capacity planning on top of autoscaling." />
       <StatReadout label="REPLICAS" value={stats.rep + (stats.pending ? " (+" + stats.pending + " warming)" : "")} accent="var(--blue-lt)" />
       <StatReadout label="UTILIZATION" value={(stats.util * 100).toFixed(0) + "%"} accent={over ? "rgba(239,68,68,0.95)" : "var(--blue-lt)"} />
       <StatReadout label="SLO VIOLATIONS" value={(stats.breach * 100).toFixed(1) + "% of time"} accent="var(--violet-lt)" />
@@ -155,12 +155,11 @@ function AutoscalingDemo() {
         the pool. The amber demand line wanders; the blue capacity staircase chases it.
       </DemoP>
       <DemoP>
-        The whole difficulty is the <b>cold start</b>. A new replica isn't instant —
-        it pulls an image, loads weights, warms up — so when demand spikes (hit
+        The whole difficulty is the <b>cold start</b>. A new replica is not instant. It pulls an image, loads weights and warms up, so when
+        demand spikes (hit
         <b> INJECT SPIKE</b>) capacity can't rise fast enough and you get a red
         <b> SLO breach</b> until the warming replicas (violet pips) come online. Drop
-        <b> TARGET UTILIZATION</b> and you carry spare headroom that absorbs spikes —
-        far fewer breaches, but the <b>cost</b> (replica-seconds) climbs because you're
+        <b> TARGET UTILIZATION</b> and you carry spare headroom that absorbs spikes, so far fewer breaches, but the <b>cost</b> (replica-seconds) climbs because you're
         running idle capacity. That headroom-vs-cost dial, plus the cold-start lag, is
         the entire game of capacity management.
       </DemoP>
@@ -171,7 +170,7 @@ function AutoscalingDemo() {
     <>
       <DemoP>
         This is exactly Kubernetes' Horizontal Pod Autoscaler, cloud autoscaling groups,
-        and serverless concurrency control — and the cold-start tax is why "scale to
+        and serverless concurrency control, and the cold-start tax is why "scale to
         zero" is hard for big models (loading weights can take many seconds) and why
         teams keep warm pools or provisioned concurrency. The reactive controller here is
         the simplest form; real systems add predictive scaling, scale-in cooldowns to
@@ -181,10 +180,8 @@ function AutoscalingDemo() {
       <DemoP>
         Underneath it's the same queueing reality as batching: utilization above 100%
         means the queue and latency run away, so the SLO breaks the instant demand
-        crosses ready capacity. Choosing the target utilization is a risk/cost decision —
-        the serving analogue of a confidence threshold in a
-        <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`}> cascade</a> — and
-        load shedding / admission control is the fallback when even max replicas aren't
+        crosses ready capacity. Choosing the target utilization is a risk and cost decision, the serving analogue of a confidence threshold in a
+        <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`}> cascade</a>, and load shedding or admission control is the fallback when even max replicas aren't
         enough.
       </DemoP>
     </>

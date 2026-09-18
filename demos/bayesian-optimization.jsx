@@ -241,17 +241,17 @@ function BayesianOptimizationDemo() {
   const explainer = (
     <>
       <DemoP>
-        When each evaluation of <i>f</i> is expensive — a hyperparameter sweep, a lab experiment,
-        a wet-chemistry assay — you can't grid-search. Bayesian optimization fits a cheap
+        When each evaluation of <i>f</i> is expensive, say a hyperparameter sweep, a lab experiment or a
+        wet-chemistry assay, you cannot grid-search. Bayesian optimization fits a cheap
         <a href={`${window.__DM_BASE || "../../"}visualize/gaussian-process/`}> Gaussian-process</a> surrogate
         to the points seen so far (blue mean + band), then a tiny inner optimization picks the next
-        point by maximizing an <b>acquisition function</b> (violet) — not where the mean is highest,
+        point by maximizing an <b>acquisition function</b> (violet), not where the mean is highest,
         but where the expected <i>payoff</i> is, blending high predicted value with high uncertainty.
       </DemoP>
       <DemoP>
         Step through it: early on the band is wide and the acquisition sends probes into unexplored
         regions; as the GP learns the shape, sampling homes in on the true peak (green) and the
-        <b> gap to max</b> collapses — usually in a dozen-ish evals, far fewer than blind search.
+        <b> gap to max</b> collapses, usually in a dozen or so evals, far fewer than blind search.
         Push <b>exploration</b> up and it surveys broadly before committing; down and it greedily
         exploits the current best, risking a local optimum. Different acquisitions encode different
         risk appetites for that same exploration/exploitation trade.
@@ -262,8 +262,7 @@ function BayesianOptimizationDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is how modern AutoML and hyperparameter tuners work under the hood — Optuna, Ax/BoTorch,
-        Vizier, and SigOpt all run Bayesian optimization to choose learning rates, architectures, and
+        This is how modern AutoML and hyperparameter tuners work under the hood: Optuna, Ax/BoTorch, Vizier and SigOpt all run Bayesian optimization to choose learning rates, architectures, and
         regularization with a tiny budget of expensive training runs. The same loop drives experiment
         design in drug discovery, materials science, and A/B-test allocation. It is the continuous-space
         sibling of the <a href={`${window.__DM_BASE || "../../"}visualize/thompson-vs-ucb/`}>bandit</a>
@@ -271,8 +270,7 @@ function BayesianOptimizationDemo() {
       </DemoP>
       <DemoP>
         The whole method lives or dies on <b>calibrated uncertainty</b>: the acquisition function only
-        knows where to look because the GP honestly reports where it's unsure. That's the recurring
-        Bayesian payoff — the same posterior <a href={`${window.__DM_BASE || "../../"}visualize/bayesian-linear-regression/`}>error
+        knows where to look because the GP honestly reports where it's unsure. That's the recurring Bayesian payoff, the same posterior <a href={`${window.__DM_BASE || "../../"}visualize/bayesian-linear-regression/`}>error
         bars</a> that quantify what you know also tell you what to do next. Its limits are the GP's:
         the cubic cost of the kernel inverse and a struggle in very high dimensions, where random or
         evolutionary search can catch up.

@@ -242,7 +242,7 @@ function ActorCriticDemo() {
       <Slider label="// ACTOR LR (αθ)" min={0.02} max={0.8} step={0.02} value={alphaA} onChange={setAlphaA} tone="violet"
         help="Step size for the policy logits. Larger = the arrows commit to a direction faster, but a noisy early critic can push them the wrong way and the policy thrashes. This is the policy-gradient learning rate." />
       <Slider label="// CRITIC LR (αV)" min={0.02} max={0.8} step={0.02} value={alphaV} onChange={setAlphaV}
-        help="Step size for the value table. The critic should usually learn at least as fast as the actor — a stale critic gives a wrong TD error, and the actor is only as good as the advantage signal it's fed." />
+        help="Step size for the value table. The critic should usually learn at least as fast as the actor. A stale critic gives a wrong TD error, and the actor is only as good as the advantage signal it's fed." />
       <Slider label="// SPEED (steps/sec)" min={4} max={120} step={2} value={speed} onChange={setSpeed}
         help="Environment steps simulated per second. Slow it down to watch a single TD update; speed it up to fast-forward to convergence." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "TRAIN"}</DemoButton>
@@ -267,13 +267,11 @@ function ActorCriticDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two tables, one error signal. The <b>critic</b> (left) learns a value
-        V(s) — how good each cell is — and the <b>actor</b> (right) learns a
+        Two tables, one error signal. The <b>critic</b> (left) learns a value V(s), how good each cell is, and the <b>actor</b> (right) learns a
         policy π(a|s), drawn as arrows sized by probability. After every move the
         agent computes one number, the <i>TD error</i>{" "}
         <i>δ = r + γ·V(s′) − V(s)</i>: was this step better or worse than the
-        critic expected? That single δ updates <i>both</i> heads — the critic
-        nudges V(s) toward the truth, and the actor pushes probability toward the
+        critic expected? That single δ updates <i>both</i> heads. The critic nudges V(s) toward the truth, and the actor pushes probability toward the
         action it just took, scaled by δ.
       </DemoP>
       <DemoP>
@@ -282,8 +280,7 @@ function ActorCriticDemo() {
         from the red trap. When δ is positive (green) the last move beat
         expectations and that action gets reinforced; negative δ (red) suppresses
         it. Crank the actor LR up with a slow critic and you'll see the policy
-        commit to a bad route before the critic has learned the terrain — the
-        classic actor-critic failure mode.
+        commit to a bad route before the critic has learned the terrain, which is the classic actor-critic failure mode.
       </DemoP>
     </>
   );
@@ -293,8 +290,7 @@ function ActorCriticDemo() {
         This is the bridge between the two halves of RL. The{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>Policy
         Gradient</a> demo had a running-mean baseline you could toggle to cut
-        variance. Actor-critic <i>replaces that baseline with a learned value
-        function</i> — a critic that's specific to each state and updates online,
+        variance. Actor-critic <i>replaces that baseline with a learned value function</i>, a critic that is specific to each state and updates online,
         step by step, instead of waiting for the episode to finish. The TD error
         is the advantage; the critic is the baseline that makes it low-variance.
       </DemoP>

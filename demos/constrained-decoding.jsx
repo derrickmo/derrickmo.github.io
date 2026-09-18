@@ -191,9 +191,9 @@ function ConstrainedDecodingDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// MODEL COMPETENCE" min={0} max={1} step={0.05} value={comp} onChange={setComp} tone="violet"
-        help="How much probability the raw model already puts on grammar-valid tokens. A strong model (high) mostly emits valid JSON on its own; a weak or small model (low) sprays mass on illegal tokens — and unconstrained generation breaks constantly." />
+        help="How much probability the raw model already puts on grammar-valid tokens. A strong model (high) mostly emits valid JSON on its own; a weak or small model (low) sprays mass on illegal tokens, and unconstrained generation breaks constantly." />
       <Slider label="// TEMPERATURE" min={0.3} max={2} step={0.1} value={temp} onChange={setTemp}
-        help="Flattens the distribution. Higher temperature spreads probability toward invalid tokens, so the unconstrained stream derails more often — the same diversity that helps sampling hurts structural validity." />
+        help="Flattens the distribution. Higher temperature spreads probability toward invalid tokens, so the unconstrained stream derails more often. The same diversity that helps sampling hurts structural validity." />
       <Slider label="// SPEED (tokens/sec)" min={2} max={30} step={1} value={speed} onChange={setSpeed}
         help="Generation speed. Slow it down to watch a single token get masked; speed it up to accumulate a validity rate." />
       <DemoButton onClick={() => setRunning(r => !r)} primary>{running ? "PAUSE" : "GENERATE"}</DemoButton>
@@ -220,14 +220,13 @@ function ConstrainedDecodingDemo() {
         this position. The unconstrained stream samples from the whole row, so the
         moment it picks a red (illegal) token the JSON is unparseable. The
         constrained stream zeroes every non-green token, renormalizes over what's
-        left, and samples — it physically cannot emit anything that breaks the
+        left, and samples. It physically cannot emit anything that breaks the
         structure.
       </DemoP>
       <DemoP>
         Push MODEL COMPETENCE down or TEMPERATURE up and watch the two validity
         bars diverge: the constrained rate stays pinned at 100% while the
-        unconstrained rate falls off a cliff. That gap is the whole argument for
-        structured decoding — it lets a smaller, cheaper, or hotter model emit
+        unconstrained rate falls off a cliff. That gap is the whole argument for structured decoding: it lets a smaller, cheaper, or hotter model emit
         guaranteed-valid output, instead of praying the raw samples happen to
         parse and retrying when they don't.
       </DemoP>
@@ -238,9 +237,9 @@ function ConstrainedDecodingDemo() {
       <DemoP>
         Constrained (or grammar-guided) decoding is how "JSON mode", function /
         tool calling, and structured outputs actually work. At every step the
-        decoder intersects the model's probability vector with the set of tokens a
-        grammar — a JSON schema, a regex, or a context-free grammar compiled to a
-        finite-state machine — permits next, then samples from the survivors. It's
+        decoder intersects the model's probability vector with the set of tokens a grammar permits next, whether that grammar is a JSON schema, a regex, or a
+        context-free grammar compiled to a finite-state machine, then samples from the
+        survivors. It's
         the same per-step distribution you tune in the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>decoding</a>{" "}
         demo, with an extra hard mask laid over it.

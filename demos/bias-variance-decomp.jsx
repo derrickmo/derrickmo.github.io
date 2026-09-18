@@ -147,7 +147,7 @@ function BiasVarianceDecompDemo() {
       <Slider label="// LABEL NOISE σ" min={0.05} max={0.4} step={0.01} value={noise} onChange={setNoise}
         help="Std of the noise added to training labels. Sets the irreducible σ² floor AND inflates variance, since noisier data makes flexible models chase the noise." />
       <Slider label="// TRAIN POINTS N" min={6} max={40} step={1} value={N} onChange={setN}
-        help="Points per training set. More data suppresses variance — the high-degree models stop overfitting — so the U-curve flattens and its minimum shifts right." />
+        help="Points per training set. More data suppresses variance, so the high-degree models stop overfitting, the U-curve flattens and its minimum shifts right." />
       <Slider label="// ENSEMBLE SIZE" min={10} max={80} step={5} value={T} onChange={setT}
         help="How many independent training sets we draw to estimate the averages. Larger = smoother, more accurate bias/variance estimates." />
       <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE</DemoButton>
@@ -171,7 +171,7 @@ function BiasVarianceDecompDemo() {
     <>
       <DemoP>
         We draw {T} independent noisy training sets and fit a degree-{degSel}
-        polynomial to each — the red spaghetti in the bottom panel is those fits, the
+        polynomial to each. The red spaghetti in the bottom panel is those fits, the
         purple line is their average, the green dashed line is the truth. Two things
         are visible at once: how far the purple average sits from the green truth
         (that gap is <i>bias</i>), and how widely the red curves fan out (that spread
@@ -180,12 +180,10 @@ function BiasVarianceDecompDemo() {
       </DemoP>
       <DemoP>
         Drag COMPLEXITY from left to right. At low degree the spaghetti is tight but
-        the average misses the wiggle — high bias, low variance. At high degree the
-        average nails the truth but the individual fits thrash wildly — low bias, high
-        variance. Total error (purple, top) is their sum plus the σ² noise floor, and
+        the average misses the wiggle: high bias, low variance. At high degree the
+        average nails the truth but the individual fits thrash wildly: low bias, high variance. Total error (purple, top) is their sum plus the σ² noise floor, and
         it bottoms out in the middle: the sweet spot. Now raise TRAIN POINTS N and
-        watch variance collapse, pushing that sweet spot toward higher complexity —
-        more data buys you the right to use a bigger model.
+        watch variance collapse, pushing that sweet spot toward higher complexity. More data buys you the right to use a bigger model.
       </DemoP>
     </>
   );
@@ -204,7 +202,7 @@ function BiasVarianceDecompDemo() {
       <DemoP>
         Caveats: the clean three-way split assumes squared-error loss; for other
         losses the decomposition is messier. And the tidy U-curve is the <i>classical</i>{" "}
-        story — in heavily over-parameterized models it breaks down and you get the
+        story. In heavily over-parameterized models it breaks down and you get the
         second descent shown in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/double-descent/`} style={{ color: "#a855f7" }}>double descent</a>,
         where adding capacity past the interpolation threshold reduces error again.

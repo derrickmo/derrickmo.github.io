@@ -178,12 +178,12 @@ function CertifiedRobustnessDemo() {
         input, returns the class the base network predicts most often under Gaussian noise. The magic:
         if the top class wins a fraction <b>pA &gt; ½</b> of the noisy votes, then g's prediction is
         <b> provably constant</b> for <i>every</i> perturbation within radius
-        <b> R = σ·Φ⁻¹(pA)</b> — no attack inside the green circle can change it, ever.
+        <b> R = σ·Φ⁻¹(pA)</b>. No attack inside the green circle can change it, ever.
       </DemoP>
       <DemoP>
         Click around and watch the certified circle grow where the model is confident and shrink to
         nothing near the boundary (where the noise votes split and g must <b>abstain</b>). Raise <b>σ</b>
-        and you can certify a bigger radius — but only up to the point where the noise cloud starts
+        and you can certify a bigger radius, but only up to the point where the noise cloud starts
         crossing the boundary and pA falls. That σ tradeoff is the whole game: more noise buys a larger
         potential guarantee at the cost of clean accuracy. It's the provable mirror of the empirical
         <a href={`${window.__DM_BASE || "../../"}visualize/adversarial-examples/`}> FGSM/PGD attack</a>.
@@ -195,8 +195,7 @@ function CertifiedRobustnessDemo() {
     <>
       <DemoP>
         Certified robustness is the rigorous end of the <b>robustness</b> field: instead of an endless
-        attack/defense arms race, you get a number you can put in a safety case — "this prediction cannot
-        be flipped by any perturbation smaller than R." Randomized smoothing (Cohen, Rosenfeld & Kolter
+        attack/defense arms race, you get a number you can put in a safety case: "this prediction cannot be flipped by any perturbation smaller than R." Randomized smoothing (Cohen, Rosenfeld & Kolter
         2019) scaled this idea to ImageNet because it treats the network as a black box, and the same
         machinery now certifies properties of larger models. It pairs naturally with
         <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`}> conformal prediction</a> (distribution-
@@ -205,8 +204,7 @@ function CertifiedRobustnessDemo() {
       <DemoP>
         The honest limits are visible on screen: the guarantee is probabilistic (estimated from finite
         samples, so the real method adds a confidence correction and may abstain), it only covers an
-        L2 ball of radius R, and bigger σ trades away accuracy. Certification is expensive and
-        conservative — which is exactly why most deployed systems still rely on empirical
+        L2 ball of radius R, and bigger σ trades away accuracy. Certification is expensive and conservative, which is exactly why most deployed systems still rely on empirical
         <a href={`${window.__DM_BASE || "../../"}visualize/adversarial-examples/`}> adversarial training</a>.
         Knowing when "we tested hard" is enough vs when you need a proof is the real engineering call.
       </DemoP>

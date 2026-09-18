@@ -168,18 +168,18 @@ function BootstrapDemo() {
         drawn a different one. The bootstrap answers by treating the sample as if it were the
         population: draw <em>n</em> values from it with replacement, recompute the statistic, repeat
         B times. The spread of those B values is the sampling distribution, and the 2.5th and 97.5th
-        percentiles are a 95% interval. That is the whole method — three lines, no formula.
+        percentiles are a 95% interval. That is the whole method: three lines, no formula.
       </DemoP>
       <DemoP>
         Its real value is the STATISTIC control. There is a textbook standard error for the mean;
         there is none for the median or the 90th percentile, and the bootstrap does not care. Press
         <strong> MEASURE COVERAGE</strong> on NORMAL: <strong>93.7%</strong> for the mean and{" "}
-        <strong>93.0%</strong> for the median at n=40 — close to the 95% a 95% interval is supposed
+        <strong>93.0%</strong> for the median at n=40, close to the 95% a 95% interval is supposed
         to deliver, and short of it by about the Monte-Carlo error of 300 trials.
       </DemoP>
       <DemoP>
         <strong>Now switch to SKEWED and press it again.</strong> Coverage falls to{" "}
-        <strong>82.7%</strong> at n=15 — a "95%" interval that misses almost one time in five.
+        <strong>82.7%</strong> at n=15, a "95%" interval that misses almost one time in five.
         Raise n to 60 and it reaches 91.7%; at n=200 it is still only 92.7%, and it gets there
         slowly. That is the honest headline: <em>the bootstrap is
         assumption-light, not assumption-free</em>. It does not repair skew, and no amount of extra
@@ -192,14 +192,12 @@ function BootstrapDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is the practical alternative to deriving a standard error whenever your metric is
-        awkward — recall@k, a ratio of means, an AUC difference between two models. It also pairs
+        This is the practical alternative to deriving a standard error whenever your metric is awkward: recall@k, a ratio of means, an AUC difference between two models. It also pairs
         with {" "}<a href={`${window.__DM_BASE || "../../"}visualize/cross-validation/`}>cross-validation</a>:
         CV tells you how the model generalises, the bootstrap tells you how uncertain that estimate is.
       </DemoP>
       <DemoP>
-        The under-coverage on skew matters in practice because ML metrics are frequently skewed —
-        latency distributions, revenue per user, per-class error on a long tail. Reporting a
+        The under-coverage on skew matters in practice because ML metrics are frequently skewed: latency distributions, revenue per user, per-class error on a long tail. Reporting a
         bootstrap interval on p99 latency and treating it as exact is precisely the failure this
         demo shows, and it is worth checking coverage on simulated data whose truth you know before
         trusting an interval on data whose truth you do not.

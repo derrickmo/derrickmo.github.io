@@ -88,7 +88,7 @@ function BFSDFSAStarDemo() {
     ctx.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0);
     ctx.clearRect(0, 0, W, H);
     ctx.font = "11px JetBrains Mono"; ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#94a3b8"; ctx.fillText(({ bfs: "BFS — uniform-cost frontier", dfs: "DFS — dives deep", astar: "A* — goal-directed (g + Manhattan h)" })[algo], 22, 24);
+    ctx.fillStyle = "#94a3b8"; ctx.fillText(({ bfs: "BFS: uniform-cost frontier", dfs: "DFS: dives deep", astar: "A*: goal-directed (g + Manhattan h)" })[algo], 22, 24);
 
     const cell = Math.min((W - 44) / COLS, 300 / ROWS), ox = (W - cell * COLS) / 2, oy = 36;
     const visitedRank = new Map(); for (let k = 0; k < Math.min(step, total); k++) visitedRank.set(res.order[k], k);
@@ -162,8 +162,7 @@ function BFSDFSAStarDemo() {
       <DemoP>
         All three searches solve the same maze, but how they explore tells the
         story. <b>BFS</b> expands outward in even rings, so the first time it
-        reaches the goal it has used the fewest steps — a shortest path — but it
-        explores almost everything closer than the goal first. <b>DFS</b> commits
+        reaches the goal it has used the fewest steps, a shortest path, but it explores almost everything closer than the goal first. <b>DFS</b> commits
         to one direction and dives until it's stuck, backtracking only when forced;
         it's cheap on memory but the path it returns is usually far from shortest.
       </DemoP>
@@ -171,7 +170,7 @@ function BFSDFSAStarDemo() {
         <b>A*</b> is the informed one: it orders the frontier by g + h, the steps
         taken so far plus a Manhattan-distance guess of steps remaining. Because the
         heuristic points at the goal, A* drives a narrow corridor of exploration
-        straight toward it — watch the EXPANDED bars, where A* typically explores a
+        straight toward it. Watch the EXPANDED bars, where A* typically explores a
         fraction of what BFS does while still returning an optimal path (h here
         never overestimates, so optimality is guaranteed). Crank up wall density and
         the gap widens.

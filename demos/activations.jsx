@@ -89,7 +89,7 @@ function ActivationsDemo() {
         options={[{ value: "All", label: "All" }].concat(NAMES.map(n => ({ value: n, label: n })))}
         help="Spotlight one activation (dimming the rest) or show all at once. Use it to compare a single function's shape and gradient against the family." />
       <Toggle label="// SHOW DERIVATIVES (dashed)" checked={showD} onChange={setShowD} tone="violet"
-        help="Overlay each function's gradient as a dashed curve. The gradient is what flows backward in training — flat regions mean vanishing gradients that stall learning." />
+        help="Overlay each function's gradient as a dashed curve. The gradient is what flows backward in training, so flat regions mean vanishing gradients that stall learning." />
       <Legend items={NAMES.map(n => ({ color: FNS[n].color, label: n.toUpperCase() }))} />
       <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 10 }}>Hover the plot to read values + gradients at any x.</div>
     </ControlGroup>
@@ -97,11 +97,10 @@ function ActivationsDemo() {
   const explainer = (
     <>
       <DemoP>
-        An activation function is the nonlinearity that lets a neural network bend —
-        without one, stacking layers just collapses to a single linear map. Each
+        An activation function is the nonlinearity that lets a neural network bend. Without one, stacking layers just collapses to a single linear map. Each
         choice has a personality. <b>Sigmoid</b> and <b>Tanh</b> squash to a bounded
         range but <i>saturate</i>: turn on derivatives and see how their gradient
-        flatlines for large |x| — the vanishing-gradient problem that stalls deep
+        flatlines for large |x|. That is the vanishing-gradient problem that stalls deep
         nets.
       </DemoP>
       <DemoP>
@@ -109,7 +108,7 @@ function ActivationsDemo() {
         gradient on the positive side (but a flat dead zone for x &lt; 0, which
         <b> Leaky ReLU</b> patches). <b>GELU</b> and <b>SiLU/Swish</b> are smooth,
         non-monotonic curves that modern transformers favor. Toggle the derivatives
-        and hover across x — the gradient is what actually flows backward during
+        and hover across x. The gradient is what actually flows backward during
         training, so its shape matters more than the function's.
       </DemoP>
     </>
@@ -120,14 +119,13 @@ function ActivationsDemo() {
         Activation choice is a real architecture decision with measurable consequences.
         Sigmoid/tanh saturation caused the vanishing-gradient problem that kept networks
         shallow for decades; <b>ReLU</b>'s constant positive-side gradient is much of why
-        deep learning took off. Modern transformers and LLMs default to smooth variants —
-        <b> GELU</b> in BERT/GPT, <b>SiLU</b>/SwiGLU in Llama-style models — for slightly
-        better gradients and accuracy.
+        deep learning took off. Modern transformers and LLMs default to smooth variants, such as
+        <b> GELU</b> in BERT/GPT, <b>SiLU</b>/SwiGLU in Llama-style models, for slightly better gradients and accuracy.
       </DemoP>
       <DemoP>
         The deeper lesson is that <i>gradients</i>, not outputs, govern training. The same
         "is the gradient alive here?" question drives weight initialization, normalization
-        layers (BatchNorm, LayerNorm), and residual connections — all of which exist to
+        layers (BatchNorm, LayerNorm), and residual connections, all of which exist to
         keep gradients flowing through deep stacks. Read an activation by its derivative and
         you're reading it the way the optimizer does.
       </DemoP>

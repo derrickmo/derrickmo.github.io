@@ -38,7 +38,10 @@ for (const rel of files) {
   lines.forEach((ln, i) => {
     // strip a whole-line source comment and the empty-value placeholder glyph
     const stripped = ln.replace(/^\s*\/\/.*$/, "").replace(/"—"/g, '""');
-    if (stripped.includes("—")) dashes.push(`${rel}:${i + 1}  ${ln.trim().slice(0, 74)}`);
+    // count OCCURRENCES, not lines: a line can carry two and the first version
+    // of this check reported 1090 where the real number was 1162.
+    for (let k = 0; k < (stripped.match(/—/g) || []).length; k++)
+      dashes.push(`${rel}:${i + 1}  ${ln.trim().slice(0, 74)}`);
   });
 
   // ── 3. bullet width ─────────────────────────────────────────────────────

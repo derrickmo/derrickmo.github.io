@@ -118,7 +118,7 @@ function ContextExtensionDemo() {
 
   const stage = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-      <span className="t-mono-s" style={{ color: "var(--muted)" }}>PERPLEXITY vs POSITION — all methods (selected bold), L_train = {(L_TRAIN_TOK / 1024).toFixed(0)}k</span>
+      <span className="t-mono-s" style={{ color: "var(--muted)" }}>PERPLEXITY vs POSITION: all methods (selected bold), L_train = {(L_TRAIN_TOK / 1024).toFixed(0)}k</span>
       <canvas ref={cvRef} width={CW} height={CH}
         style={{ width: CW * (mobile ? 1.05 : 1.4), height: CH * (mobile ? 1.05 : 1.4), borderRadius: 6, border: "1px solid var(--border)", background: "#0b1530" }} />
       <Legend items={METHODS.map(m => ({ label: m.label, color: m.color }))} />
@@ -132,7 +132,7 @@ function ContextExtensionDemo() {
         help="How inference positions are mapped onto the trained rotary range. None = use raw positions (extrapolate). PI = linearly compress them. NTK-aware = rescale the RoPE base by frequency. YaRN = per-frequency NTK plus attention scaling." />
       <Slider label="// TARGET CONTEXT" min={1} max={16} step={0.5} value={factor} onChange={setFactor}
         suffix={"x  (" + targetK.toFixed(0) + "k)"} tone="violet"
-        help="How many times longer than the training length you want to run. 1x = no extension. Push it up and watch naive extrapolation explode past L_train while the rescaling methods stay bounded — at a cost that grows with the factor." />
+        help="How many times longer than the training length you want to run. 1x = no extension. Push it up and watch naive extrapolation explode past L_train while the rescaling methods stay bounded, at a cost that grows with the factor." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <StatReadout label="EXTENSION" value={s.toFixed(1) + "x"} accent="var(--violet-lt)" />
         <StatReadout label="MEAN PERPLEXITY" value={stats.mean.toFixed(2) + "x"} accent={stats.mean < 1.3 ? "#34d399" : stats.mean < 2 ? "#fbbf24" : "#f87171"} />
@@ -147,19 +147,16 @@ function ContextExtensionDemo() {
       <DemoP>
         Rotary position embeddings encode a token's place by rotating its query and
         key vectors by an angle proportional to position. A model trained to length
-        <b> L_train</b> only ever sees those rotations up to a point — so feeding it
-        a longer context puts the far tokens at <b>unseen rotation angles</b>. With
+        <b> L_train</b> only ever sees those rotations up to a point, so feeding it a longer context puts the far tokens at <b>unseen rotation angles</b>. With
         no fix (red), perplexity is flat inside the trained range and then falls off
         a cliff the instant you cross <b>L_train</b>.
       </DemoP>
       <DemoP>
         Crank the <b>target context</b> and compare. <b>Position Interpolation</b>{" "}
-        squeezes all positions back into the trained range — bounded everywhere, but
-        it pays a flat perplexity tax that grows with the factor. <b>NTK-aware</b>{" "}
+        squeezes all positions back into the trained range. It is bounded everywhere, but it pays a flat perplexity tax that grows with the factor. <b>NTK-aware</b>{" "}
         scaling stretches only the low-frequency dimensions, keeping fine local
         resolution, so it sits lower until the very far positions. <b>YaRN</b>{" "}
-        combines both and stays nearly flat. The green shading is the usable context
-        — how far you can actually go before quality crosses the threshold.
+        combines both and stays nearly flat. The green shading is the usable context, how far you can actually go before quality crosses the threshold.
       </DemoP>
     </>
   );
@@ -185,7 +182,7 @@ function ContextExtensionDemo() {
         eviction</a> and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`} style={{ color: "#a855f7" }}>paged
         attention</a>. And a low perplexity doesn't guarantee the model <i>uses</i>{" "}
-        the long context well — see{" "}
+        the long context well, so see{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/lost-in-the-middle/`} style={{ color: "#a855f7" }}>lost
         in the middle</a>.
       </DemoP>

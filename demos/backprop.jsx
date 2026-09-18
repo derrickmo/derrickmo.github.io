@@ -222,7 +222,7 @@ function BackpropDemo() {
       <Slider label="// X2" min={-1.5} max={1.5} step={0.05} value={x2} onChange={setX2}
         help="The other input. Tries to teach you that ∂L/∂x_i is the sum of contributions through every path back to L." />
       <Slider label="// TARGET t" min={-1.5} max={1.5} step={0.05} value={target} onChange={setTarget} tone="violet"
-        help="The label the network is trying to match. The backward pass starts from (y − t) — the residual." />
+        help="The label the network is trying to match. The backward pass starts from the residual, (y − t)." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <DemoButton onClick={() => setStepIdx(i => Math.min(i + 1, STEPS.length - 1))} primary>NEXT STEP →</DemoButton>
         <DemoButton onClick={() => setStepIdx(i => Math.max(i - 1, -1))}>← BACK</DemoButton>
@@ -255,14 +255,13 @@ function BackpropDemo() {
         left to right: each node is a small function of the ones to its left,
         and we just plug numbers in. The <b style={{ color: "#c084fc" }}>backward</b>{" "}
         pass walks right to left: at each node we ask "if I bump this value a
-        little, how much does L change?" — and that's exactly the gradient.
+        little, how much does L change?" That is exactly the gradient.
       </DemoP>
       <DemoP>
         Watch the seven backward steps. Each one is a single application of the
         chain rule: ∂L/∂y travels up the v1 edge to give ∂L/∂h1; then
         through the tanh's derivative (1 − h1²) to give ∂L/∂z1; then through
-        the multiplication by x1 to give ∂L/∂w11. There is no global formula
-        — just one local derivative per edge, multiplied together. Every modern
+        the multiplication by x1 to give ∂L/∂w11. There is no global formula, just one local derivative per edge, multiplied together. Every modern
         framework (PyTorch, JAX, TensorFlow) is automating exactly this picture.
       </DemoP>
     </>
@@ -270,8 +269,7 @@ function BackpropDemo() {
   const concepts = (
     <>
       <DemoP>
-        Backpropagation is the engine inside every neural network you've ever
-        heard of — every CNN, transformer, diffusion model, RL policy. The
+        Backpropagation is the engine inside every neural network you have ever heard of: every CNN, transformer, diffusion model, RL policy. The
         autograd machinery in PyTorch / JAX builds the same graph dynamically
         at each forward pass, records the local derivative at each operation,
         and replays them in reverse to get the gradients. That's it. Once
@@ -281,8 +279,7 @@ function BackpropDemo() {
       <DemoP>
         The chain rule's reach goes well past gradients: it's why we can
         compose differentiable simulators, fluid solvers, renderers, even
-        protein folders, into end-to-end trainable systems — anywhere you can
-        write a forward function with local derivatives, you get a backward
+        protein folders, into end-to-end trainable systems. Anywhere you can write a forward function with local derivatives, you get a backward
         function for free. "Differentiable everything" is one of the defining
         moves of modern ML, and it's all this one trick scaled up.
       </DemoP>

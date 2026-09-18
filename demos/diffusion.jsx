@@ -151,7 +151,7 @@ function DiffusionDemo() {
         help="The data shape the model regenerates. Moons, ring, spiral, and blobs each give the reverse process different structure to recover from noise." />
       <SegmentedControl label="// NOISE SCHEDULE" tone="violet" value={sched} onChange={setSched}
         options={[{ value: "linear", label: "Linear" }, { value: "cosine", label: "Cosine" }]}
-        help="How fast noise is added across timesteps. Linear adds it evenly; cosine keeps more signal early and noises faster late — usually higher sample quality." />
+        help="How fast noise is added across timesteps. Linear adds it evenly; cosine keeps more signal early and noises faster late, usually giving higher sample quality." />
       <div style={{ display: "flex", gap: 8 }}>
         <DemoButton onClick={startDiffuse}>▶ DIFFUSE</DemoButton>
         <DemoButton onClick={startSample} primary tone="violet">▶ SAMPLE</DemoButton>
@@ -171,14 +171,13 @@ function DiffusionDemo() {
       <DemoP>
         Diffusion models work in two directions. <b>Forward</b> ("Diffuse") is fixed
         and easy: repeatedly add a little Gaussian noise until the data
-        distribution becomes pure noise — at timestep <i>t</i> every point is
+        distribution becomes pure noise. At timestep <i>t</i> every point is
         <i> √ᾱₜ·x₀ + √(1−ᾱₜ)·ε</i>. Watch the structured cloud dissolve. The
         <b> noise schedule</b> (linear vs cosine) controls how fast that happens.
       </DemoP>
       <DemoP>
         <b>Sampling</b> ("Sample") runs it backward: start from pure noise and
-        repeatedly denoise with DDIM. The trick a real model has to <i>learn</i> —
-        predicting the noise at each step — is computed here exactly, because for a
+        repeatedly denoise with DDIM. The trick a real model has to <i>learn</i>, predicting the noise at each step, is computed here exactly, because for a
         finite dataset the optimal denoiser is just a distance-weighted average of
         the data points (the analytic score). So this is the real reverse diffusion
         math; the cloud of noise condenses straight onto the target shape. Try the
@@ -190,16 +189,13 @@ function DiffusionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Diffusion is the dominant paradigm for high-quality image, audio, and video
-        generation — Stable Diffusion, DALL·E, Midjourney, and Sora are all diffusion (or
-        its flow-matching cousins). The two-direction recipe on screen — a fixed, easy
-        forward noising process and a <i>learned</i> reverse denoiser — is what made
-        training stable where GANs were notoriously brittle.
+        Diffusion is the dominant paradigm for high-quality image, audio, and video generation: Stable Diffusion, DALL·E, Midjourney and Sora are all diffusion (or
+        its flow-matching cousins). The two-direction recipe on screen, a fixed and easy forward noising process plus a <i>learned</i>{" "}
+        reverse denoiser, is what made training stable where GANs were notoriously brittle.
       </DemoP>
       <DemoP>
         Several pieces here are load-bearing in practice. The <b>noise schedule</b> and the
-        sampler (DDPM vs the DDIM used here) trade sample quality against the number of
-        steps — the main speed lever, since naive diffusion is slow. The denoiser secretly
+        sampler (DDPM vs the DDIM used here) trade sample quality against the number of steps, the main speed lever, since naive diffusion is slow. The denoiser secretly
         estimates the <i>score</i> (the gradient of log-density), tying diffusion to
         score-based and energy models; and real systems run it inside a VAE's latent space
         (latent diffusion) and steer it with text via classifier-free guidance.

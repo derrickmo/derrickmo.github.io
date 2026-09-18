@@ -113,7 +113,7 @@ function AttentionRolloutDemo() {
       <Slider label="// LAYERS" min={1} max={6} step={1} value={layers} onChange={setLayers} tone="violet"
         help="How many attention layers to roll up. At 1 the rollout is just that layer's attention; add layers and attribution flows multiple hops, so a token's credit reaches input tokens it never attended to directly." />
       <Slider label="// QUERY TOKEN" min={0} max={N - 1} step={1} value={sel} onChange={setSel}
-        help="Which token's attribution to inspect (the highlighted row). [CLS] is the usual choice — its rollout row is the classic 'what did the pooled representation read from the input' explanation." />
+        help="Which token's attribution to inspect (the highlighted row). [CLS] is the usual choice, because its rollout row is the classic 'what did the pooled representation read from the input' explanation." />
       <Slider label="// RESIDUAL WEIGHT" min={0.1} max={0.9} step={0.1} value={res} onChange={setRes}
         help="The mix in Â = w·A + (1−w)·I. Residual connections carry a token's own value forward, so rollout adds identity before composing. More identity (lower w) keeps attribution near the diagonal; more attention (higher w) lets it travel." />
       <DemoButton onClick={resample} primary>RESAMPLE</DemoButton>
@@ -133,8 +133,7 @@ function AttentionRolloutDemo() {
         Reading a single attention layer is misleading: it shows where a token
         looked one step back, not what it ultimately depends on in the input. By
         layer 4, a token's representation is a blend of blends of blends. Attention
-        rollout composes the layers — multiplying their attention matrices — to
-        trace that flow all the way back to the input tokens. The heatmap is the
+        rollout composes the layers, multiplying their attention matrices, to trace that flow all the way back to the input tokens. The heatmap is the
         rolled-up matrix R; the highlighted row is your query token's attribution.
       </DemoP>
       <DemoP>
@@ -142,8 +141,7 @@ function AttentionRolloutDemo() {
         rollout (violet): rollout redistributes credit toward the genuinely
         influential tokens (here the salient "cat"/"mat"), often ones the last layer
         barely attended to directly. The residual-weight knob matters because
-        skip connections carry each token's own value forward — rollout models that
-        by mixing in the identity before composing, which is why attribution stays
+        skip connections carry each token's own value forward, and rollout models that by mixing in the identity before composing, which is why attribution stays
         partly on the diagonal. Add layers and watch the credit spread further from
         it.
       </DemoP>
@@ -153,7 +151,7 @@ function AttentionRolloutDemo() {
     <>
       <DemoP>
         Attention rollout (Abnar & Zuidema, 2020) is a standard transformer
-        interpretability tool — a quick, training-free way to turn a stack of{" "}
+        interpretability tool, a quick and training-free way to turn a stack of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>attention</a>{" "}
         maps into a single input-token attribution, widely used to visualize what a
         ViT or BERT "looked at." It's the attention-flow cousin of gradient-based{" "}
@@ -166,7 +164,7 @@ function AttentionRolloutDemo() {
         averages over heads and ignores the value/MLP transformations, and it can
         wash out signal in deep models. Attention-flow (a max-flow variant) and
         gradient-weighted rollout sharpen it. Like every attribution here, it's a
-        hypothesis about the model to be checked — useful for intuition, not a
+        hypothesis about the model to be checked. It is useful for intuition, not a
         guarantee of why the model decided.
       </DemoP>
     </>

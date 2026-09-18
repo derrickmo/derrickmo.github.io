@@ -170,11 +170,11 @@ function DoubleDescentDemo() {
   const controls = (
     <ControlGroup>
       <Slider label="// CAPACITY P/N" min={0.2} max={2.5} step={0.05} value={ratioSel} onChange={setRatioSel} tone="violet"
-        help="Parameters per training point. Drag it to 1.0 and look at the bottom panel: the fit goes wild (interpolation threshold). Push past 2.0 and it smooths out again even though there are MORE parameters — that's the over-parameterized regime." />
+        help="Parameters per training point. Drag it to 1.0 and look at the bottom panel: the fit goes wild (interpolation threshold). Push past 2.0 and it smooths out again even though there are MORE parameters. That is the over-parameterized regime." />
       <Slider label="// LABEL NOISE" min={0} max={0.6} step={0.05} value={noise} onChange={setNoise}
-        help="Noise added to training labels. Double descent is noise-driven — turn it to 0 and the peak nearly vanishes; turn it up and the spike at P/N=1 grows tall." />
+        help="Noise added to training labels. Double descent is noise-driven. Turn it to 0 and the peak nearly vanishes; turn it up and the spike at P/N=1 grows tall." />
       <Slider label="// RIDGE λ" min={0} max={0.3} step={0.01} value={lam} onChange={setLam}
-        help="Explicit regularization. Optimal ridge tames the interpolation peak entirely — crank λ and watch the purple test curve flatten into a single descent. Regularization is the cure for double descent." />
+        help="Explicit regularization. Optimal ridge tames the interpolation peak entirely. Crank λ and watch the purple test curve flatten into a single descent. Regularization is the cure for double descent." />
       <Slider label="// TRAIN POINTS N" min={10} max={40} step={1} value={N} onChange={setN}
         help="Number of training samples. The peak always sits at P/N=1, so changing N just moves where 'interpolation' happens along the capacity axis." />
       <DemoButton onClick={() => setSeed(s => s + 1)} primary>RESAMPLE</DemoButton>

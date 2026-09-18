@@ -134,8 +134,8 @@ function AgentRouterDemo() {
   const explainer = (
     <>
       <DemoP>
-        An agent with many tools needs a dispatcher: given a request, which tool —
-        calculator, web search, code runner, calendar, weather — should handle it?
+        An agent with many tools needs a dispatcher: given a request, which tool should handle it: the calculator, web search, code runner, calendar, or
+        weather?
         The router scores the query against each tool's profile, turns those scores
         into confidences with a softmax, and picks the top one. Switch between the
         preset queries and watch the bars shift: a math question lights up CALC, a
@@ -148,16 +148,14 @@ function AgentRouterDemo() {
         tool's confidence is too low, the router falls back to the general model
         instead of forcing a wrong tool call. Raise the threshold and even decent
         matches fall back (cautious); lower it and the router commits aggressively.
-        That precision-vs-coverage tradeoff — and a good fallback — is what
-        separates a useful router from one that confidently does the wrong thing.
+        That precision-against-coverage tradeoff, plus a good fallback, is what separates a useful router from one that confidently does the wrong thing.
       </DemoP>
     </>
   );
   const concepts = (
     <>
       <DemoP>
-        Tool routing is the dispatch layer of agentic systems — the decision that
-        precedes the{" "}
+        Tool routing is the dispatch layer of agentic systems, the decision that precedes the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/react-agent/`} style={{ color: "#a855f7" }}>ReAct
         act step</a>. In practice the router is the model's own function-calling
         (it emits which tool + arguments), a small intent classifier over query

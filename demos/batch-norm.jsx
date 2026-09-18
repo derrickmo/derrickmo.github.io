@@ -141,7 +141,7 @@ function BatchNormDemo() {
       <Slider label="// WEIGHT GAIN" min={0.4} max={3} step={0.1} value={gain} onChange={setGain}
         help="Scale on the random weights (1.0 ≈ variance-preserving init). Above 1 the signal grows with depth, below 1 it shrinks. Without BatchNorm this wrecks deep layers; with it on, the layers stay healthy regardless." />
       <Slider label="// DEPTH" min={3} max={14} step={1} value={depth} onChange={setDepth}
-        help="Number of layers. The deeper the stack, the worse an un-normalized signal drifts — and the more BatchNorm helps." />
+        help="Number of layers. The deeper the stack, the worse an un-normalized signal drifts, and the more BatchNorm helps." />
       <SegmentedControl label="// ACTIVATION" value={act} onChange={setAct}
         options={[{ value: "tanh", label: "tanh" }, { value: "relu", label: "ReLU" }]}
         help="tanh saturates (values pile up at ±1) when the signal is too large; ReLU lets variance explode and can kill units (stuck at 0). BatchNorm addresses both failure modes." />
@@ -167,15 +167,14 @@ function BatchNormDemo() {
         Each column is one layer; the purple cloud is the spread of that layer's
         activations over a 64-example batch, with the blue band marking ±1 standard
         deviation. With BatchNorm OFF, set WEIGHT GAIN above 1 and walk your eye left
-        to right: with tanh the cloud collapses onto ±1 (saturated — gradients die),
+        to right: with tanh the cloud collapses onto ±1 (saturated, so gradients die),
         with ReLU the band balloons (variance explodes). Below 1, everything shrinks
-        toward zero. Either way the green "std across depth" line slopes off instead
-        of staying flat — the deep layers are sick.
+        toward zero. Either way the green "std across depth" line slopes off instead of staying flat. The deep layers are sick.
       </DemoP>
       <DemoP>
         Flip BATCHNORM on. Every layer now re-standardizes its features across the
         batch before the nonlinearity, so the distribution stops drifting no matter
-        what the weights above did — the std line goes flat and saturation drops.
+        what the weights above did, so the std line goes flat and saturation drops.
         That decoupling is why BatchNorm lets you train much deeper nets at higher
         learning rates. The γ and β knobs are the learnable scale/shift that let the
         network choose a non-unit distribution if it helps.
@@ -187,19 +186,16 @@ function BatchNormDemo() {
       <DemoP>
         BatchNorm (Ioffe & Szegedy 2015) was a turning point for training deep CNNs:
         it stabilizes the distribution of layer inputs, smooths the loss landscape,
-        and acts as a mild regularizer via batch noise. Its relatives — LayerNorm
-        (the norm of choice in{" "}
+        and acts as a mild regularizer via batch noise. Its relatives, LayerNorm (the norm of choice in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>transformers</a>,
-        since it doesn't depend on batch statistics), RMSNorm, GroupNorm — share the
-        same idea of controlling activation scale. It works hand in hand with good{" "}
+        since it doesn't depend on batch statistics), RMSNorm and GroupNorm, all share the same idea of controlling activation scale. It works hand in hand with good{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/activations/`} style={{ color: "#a855f7" }}>activation</a>
         choices and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/gradient-clipping/`} style={{ color: "#a855f7" }}>gradient clipping</a> for stable training.
       </DemoP>
       <DemoP>
         Caveats: BatchNorm couples examples within a batch, so it behaves differently
-        at train vs inference (it switches to running averages) and degrades with tiny
-        batches — which is why sequence and large-model work leans on LayerNorm/RMSNorm
+        at train vs inference (it switches to running averages) and degrades with tiny batches, which is why sequence and large-model work leans on LayerNorm/RMSNorm
         instead. The original "internal covariate shift" explanation is now contested;
         the smoothing-of-the-loss-landscape account is better supported. And it adds
         compute and a train/eval discrepancy you have to get right.

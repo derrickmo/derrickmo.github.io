@@ -242,18 +242,17 @@ function CoordinateDescentDemo() {
   const explainer = (
     <>
       <DemoP>
-        Coordinate descent minimizes one variable at a time, holding the rest
-        fixed — so every move is <b>axis-aligned</b> (purely horizontal, then purely
+        Coordinate descent minimizes one variable at a time, holding the rest fixed, so every move is <b>axis-aligned</b> (purely horizontal, then purely
         vertical). Here each step is an <i>exact</i> line minimization: it jumps to the
         lowest point of the surface along the current axis. With the ravine aligned to
         the axes (<b>rotation 0</b>), two moves are enough. Rotate it toward 45° and the
-        coordinates become correlated — now no single axis move makes much progress, and
+        coordinates become correlated. Now no single axis move makes much progress, and
         the path turns into a long <b>staircase</b>.
       </DemoP>
       <DemoP>
         Turn on the gradient-descent overlay to see the contrast: GD steps along the true
         downhill direction (diagonally), so it isn't confused by rotation, but it has its
-        own trouble with conditioning — it zig-zags across a stretched ravine. The two
+        own trouble with conditioning: it zig-zags across a stretched ravine. The two
         methods fail for <i>different</i> reasons: coordinate descent hates <b>correlation</b>{" "}
         between variables; gradient descent hates <b>ill-conditioning</b>.
       </DemoP>
@@ -265,7 +264,7 @@ function CoordinateDescentDemo() {
       <DemoP>
         Coordinate descent is the workhorse behind sparse linear models: <b>glmnet</b>, the
         standard Lasso/elastic-net solver, cycles through coordinates doing exactly this kind
-        of one-variable update (with a soft-threshold instead of a plain line-min — see the
+        of one-variable update (with a soft-threshold instead of a plain line-min, see the
         <a href={`${window.__DM_BASE || "../../"}visualize/ista/`}> ISTA / proximal-gradient demo</a>).
         It is attractive when each coordinate update is cheap and closed-form, and when you
         want sparsity to emerge coordinate by coordinate. SMO, the classic <a href={`${window.__DM_BASE || "../../"}visualize/svm/`}>SVM</a> trainer,
