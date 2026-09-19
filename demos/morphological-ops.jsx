@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -136,16 +136,30 @@ function MorphologicalOpsDemo() {
   const explainer = (
     <>
       <DemoP>
-        Morphology treats a binary image as a <b>set</b> of foreground pixels and reshapes it by probing
-        with a small <b>structuring element</b>. <b>Erosion</b> keeps a pixel only if the element fits
-        entirely inside the foreground there. It shrinks shapes and deletes thin protrusions and specks.
-        <b> Dilation</b> keeps a pixel if the element touches any foreground. It grows shapes and bridges gaps. Everything else is built from these two.
+        Morphology treats a binary image as a <b>set</b> of foreground pixels and
+        reshapes it by probing with a small <b>structuring element</b>. Two
+        primitives, and everything else is built from them:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Erosion</b> keeps a pixel only if the element fits entirely inside the
+          foreground there. It shrinks shapes and deletes thin protrusions and specks.
+        </DemoLI>
+        <DemoLI>
+          <b>Dilation</b> keeps a pixel if the element touches any foreground. It
+          grows shapes and bridges gaps.
+        </DemoLI>
+        <DemoLI>
+          The combinations are where it gets useful: <b>Opening</b> (erode then
+          dilate) wipes out small white noise while keeping big shapes their original
+          size, <b>Closing</b> (dilate then erode) fills small black holes and joins
+          nearby pieces, and <b>Gradient</b> (dilation minus erosion) leaves just the
+          one-pixel <b>outline</b>.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The combinations are where it gets useful. <b>Opening</b> (erode then dilate) wipes out small
-        white noise while keeping big shapes their original size; <b>Closing</b> (dilate then erode) fills
-        small black holes and joins nearby pieces; <b>Gradient</b> (dilation minus erosion) leaves just the
-        one-pixel <b>outline</b>. Add noise and toggle Open vs Close to watch each clean a different kind of speck, then grow the element to see it erase larger features.
+        Add noise and toggle Open against Close to watch each clean a different kind
+        of speck, then grow the element to see it erase larger features.
       </DemoP>
     </>
   );

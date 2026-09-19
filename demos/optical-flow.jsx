@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, Toggle, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, Toggle, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const W = 168, H = 132, SCALE = 2.1;
@@ -149,19 +149,31 @@ function OpticalFlowDemo() {
   const explainer = (
     <>
       <DemoP>
-        Optical flow asks: where did each pixel go between two frames? The key
-        assumption is <b>brightness constancy</b>: a point keeps its intensity as it moves, so I(x, y, t) = I(x + u, y + v, t + 1). Linearize that and you get the
-        <b> optical-flow constraint</b> I<sub>x</sub>u + I<sub>y</sub>v + I<sub>t</sub> = 0:
-        one equation, two unknowns (u, v). A single pixel is not enough, and that is the <b>aperture problem</b>.
+        Optical flow asks where each pixel went between two frames. The key
+        assumption is <b>brightness constancy</b>: a point keeps its intensity as it
+        moves, so I(x, y, t) = I(x + u, y + v, t + 1).
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Linearize that and you get the <b>optical-flow constraint</b>{" "}
+          I<sub>x</sub>u + I<sub>y</sub>v + I<sub>t</sub> = 0: one equation, two
+          unknowns.
+        </DemoLI>
+        <DemoLI>
+          A single pixel is not enough, and that is the <b>aperture problem</b>.
+        </DemoLI>
+        <DemoLI>
+          <b>Lucas-Kanade</b> fixes it by assuming every pixel in a small window
+          shares the same motion, stacking one constraint per pixel and solving the
+          2&times;2 least-squares system.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Lucas-Kanade</b> fixes this by assuming every pixel in a small window
-        shares the same motion, stacking one constraint per pixel and solving the
-        2×2 least-squares system. Here the whole texture is rigidly translating, so
-        the true flow is a known constant. Compare it to the violet arrows and watch
-        the <b>mean flow error</b>. Push the <b>speed</b> up and the error grows: LK
-        linearizes brightness, so it only handles small motion (real systems run it
-        on an image pyramid to cope). Toggle <b>It</b> to see the raw temporal signal.
+        Here the whole texture is rigidly translating, so the true flow is a known
+        constant. Compare it to the violet arrows and watch the <b>mean flow
+        error</b>. Push the <b>speed</b> up and the error grows, because LK
+        linearizes brightness and so only handles small motion. Real systems run it
+        on an image pyramid to cope. Toggle <b>It</b> to see the raw temporal signal.
       </DemoP>
     </>
   );

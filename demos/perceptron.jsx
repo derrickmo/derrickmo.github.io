@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -171,25 +171,32 @@ function PerceptronDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each dot is a labeled point; the white line is the perceptron's current
-        decision boundary and the yellow arrow is its weight vector w (the boundary
-        is always perpendicular to it). The rule is almost absurdly simple: walk
-        through the points, and every time one is on the wrong side (circled
-        yellow), add the coordinates of that point, times its label, onto w. That single
-        nudge rotates the boundary toward fixing it. Points it already gets right
-        cause no change at all.
+        Each dot is a labeled point, the white line is the current decision boundary
+        of the perceptron, and the yellow arrow is its weight vector w, with the
+        boundary always perpendicular to it. The rule is almost absurdly simple:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Walk through the points one at a time.</DemoLI>
+        <DemoLI>
+          Every time one is on the wrong side, circled yellow, add its coordinates
+          times its label onto w. That single nudge rotates the boundary toward
+          fixing it.
+        </DemoLI>
+        <DemoLI>Points it already gets right cause no change at all.</DemoLI>
+      </DemoUL>
       <DemoP>
-        When the classes are separable (CLASS OVERLAP = 0), mistakes per epoch fall
-        to zero and it locks onto a separating line, the Perceptron Convergence Theorem in action. Now raise CLASS OVERLAP so a few labels flip across the
-        boundary: there's no line that fits, so the perceptron keeps over-correcting
-        forever, the boundary wobbling endlessly. It never says "good enough." That
-        failure is exactly why the field moved to margins (the SVM picks the BEST
-        separator, not just any) and to smooth, differentiable losses you can
+        When the classes are separable, with CLASS OVERLAP at 0, mistakes per epoch
+        fall to zero and it locks onto a separating line, the Perceptron Convergence
+        Theorem in action. Now raise CLASS OVERLAP so a few labels flip across the
+        boundary: there is no line that fits, so the perceptron keeps over-correcting
+        forever and the boundary wobbles endlessly. It never says "good enough". That
+        failure is exactly why the field moved to margins, where the SVM picks the
+        BEST separator rather than any, and to smooth differentiable losses you can
         minimize even when no perfect boundary exists.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -214,6 +221,7 @@ function PerceptronDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="The Perceptron"
       subtitle="Watch the original learning algorithm swing a decision boundary into place, one corrective nudge per misclassified point. Separable data converges by theorem. Raise the class overlap to see it never settle, the limitation that launched margins, kernels, and backprop."

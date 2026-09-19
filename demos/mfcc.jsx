@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
 const SR = 8000, W = 512;
@@ -134,21 +134,31 @@ function MFCCDemo() {
   const explainer = (
     <>
       <DemoP>
-        Raw audio has thousands of samples per frame; MFCCs squeeze each frame into
+        Raw audio has thousands of samples per frame. MFCCs squeeze each frame into
         about a dozen numbers that capture <i>which sound</i> it is. The pipeline is
-        four steps, all shown stacked: the <b>power spectrum</b> (top, with the mel
-        filters drawn over it), the <b>mel filterbank</b> pooling it into
-        perceptually-spaced bands, a <b>log</b> to compress loudness, and a
-        <b> DCT</b> that turns the log-mel curve into a handful of cepstral
-        coefficients.
+        four steps, all shown stacked:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <b>power spectrum</b> at the top, with the mel filters drawn over it.
+        </DemoLI>
+        <DemoLI>
+          The <b>mel filterbank</b> pooling it into perceptually spaced bands, then a{" "}
+          <b>log</b> to compress loudness.
+        </DemoLI>
+        <DemoLI>
+          A <b>DCT</b> that turns the log-mel curve into a handful of cepstral
+          coefficients.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Switch between vowels and watch the bottom <b>MFCC bars</b> change shape: the
-        formants move, so the spectral envelope, and its DCT, is different, which is exactly the signal a classifier uses to tell /a/ from /i/. Crucially the
-        DCT puts the slow envelope in the first few coefficients and pitch/noise in
-        the rest, so keeping ~13 discards the speaker's pitch while preserving the
-        phoneme. That compression and decorrelation is why MFCCs were the backbone of
-        speech recognition for decades.
+        Switch between vowels and watch the bottom <b>MFCC bars</b> change shape. The
+        formants move, so the spectral envelope, and its DCT, is different, which is
+        exactly the signal a classifier uses to tell /a/ from /i/. Crucially the DCT
+        puts the slow envelope in the first few coefficients and pitch and noise in
+        the rest, so keeping about 13 discards the pitch of the speaker while
+        preserving the phoneme. That compression and decorrelation is why MFCCs were
+        the backbone of speech recognition for decades.
       </DemoP>
     </>
   );
