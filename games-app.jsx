@@ -237,7 +237,7 @@ function Games() {
           <MonoLabel color="var(--violet-lt)">// GAMES · PLAY DIRECTLY</MonoLabel>
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(36px, 4vw, 52px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>The lineup.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
-            Each game runs a real AI in the browser: a genetic algorithm, a game-tree search, a sequence model. Start with the one that's live; more are on the way.
+            Each game runs a real AI in the browser: a genetic algorithm, a game-tree search, a sequence model. All {liveCount} are playable right now.
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 52 }}>
@@ -305,12 +305,14 @@ function MLConcepts() {
   const mobile = useIsMobile();
   const BASE = window.__DM_BASE || "../";
   const concepts = [
-    { tag: "// SEARCH", name: "Minimax & alpha-beta", desc: "Look ahead through the game tree, assume the opponent plays perfectly, and pick the move with the best worst-case outcome.", games: "Tic-Tac-Toe · Connect Four" },
+    { tag: "// SEARCH", name: "Minimax & alpha-beta", desc: "Look ahead through the game tree, assume the opponent plays perfectly, and pick the move with the best worst-case outcome.", games: "Tic-Tac-Toe · Connect Four · Chess" },
     { tag: "// EVOLUTION", name: "Genetic algorithms", desc: "No gradients. Keep the fittest, breed and mutate them, repeat. Evolution used as an optimizer for neural-net controllers.", games: "Neuroevolution · Drivers" },
     { tag: "// SEQUENCE", name: "Markov models", desc: "Predict the next move from recent history. The same next-token idea that underlies language models, in miniature.", games: "Rock-Paper-Scissors" },
     { tag: "// CHANCE", name: "Expectimax", desc: "Minimax against randomness: average over chance outcomes instead of a worst-case adversary.", games: "2048" },
     { tag: "// REWARD", name: "Deep Q-learning", desc: "Learn the long-run value of each action from delayed reward, the basis of reinforcement-learning game agents.", games: "Snake" },
     { tag: "// INFORMATION", name: "Entropy & probability", desc: "Choose the move that eliminates the most uncertainty; reason about hidden state from the clues you can see.", games: "Wordle · Minesweeper" },
+    { tag: "// ROLLOUTS", name: "Monte-Carlo tree search", desc: "With no way to score a position, play it out at random a few thousand times and trust the win rate, spending more rollouts on the moves that look promising.", games: "Go" },
+    { tag: "// REGRET", name: "Counterfactual regret", desc: "Tally how much better each action would have done, then play in proportion to what you wish you had played. In self-play the average converges to a Nash equilibrium.", games: "Heads-Up Poker" },
   ];
   return (
     <Section id="concepts" style={{ paddingTop: 20, paddingBottom: 40 }}>
