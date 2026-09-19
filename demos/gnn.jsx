@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -169,22 +169,32 @@ function GNNDemo() {
   const explainer = (
     <>
       <DemoP>
-        A <b>graph neural network</b> updates each node's feature by averaging over its
-        neighbors and itself, then applying a nonlinearity, exactly the rule
-        <i> h_v ← tanh(W · mean(h_u for u in N(v) ∪ &#123;v&#125;))</i>. With <b>0
-        layers</b> the colors just reflect cluster id (with noise). Crank up the
-        layers slider and watch features <b>smooth</b> within each cluster. That is message passing pushing the GNN toward a representation where same-cluster
-        nodes look alike.
+        A <b>graph neural network</b> updates the feature of each node by averaging
+        over its neighbors and itself, then applying a nonlinearity, exactly the rule{" "}
+        <i>h_v ← tanh(W · mean(h_u for u in N(v) ∪ &#123;v&#125;))</i>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With <b>0 layers</b> the colors just reflect cluster id, plus noise.
+        </DemoLI>
+        <DemoLI>
+          Crank the layers slider up and features <b>smooth</b> within each cluster.
+          That is message passing pushing the GNN toward a representation where
+          same-cluster nodes look alike.
+        </DemoLI>
+        <DemoLI>
+          Push past about 5 layers and the "within variance" stat collapses, but so
+          does the <b>between</b>-variance. Every node ends up looking the same.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push the layers past ~5 and the "within variance" stat collapses, but so does
-        the <b>between</b>-variance. Every node ends up looking the same. That's
-        <b> over-smoothing</b>, the fundamental limitation of plain GCNs and why most
-        production graph models cap at 2-4 layers, use residuals, or switch to graph
-        transformers that attend to a fixed local window.
+        That is <b>over-smoothing</b>, the fundamental limitation of plain GCNs, and
+        why most production graph models cap at 2 to 4 layers, use residuals, or
+        switch to graph transformers that attend to a fixed local window.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -202,6 +212,7 @@ function GNNDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="GNN Message Passing"
       subtitle="Each layer averages a node feature with its neighbors. Watch features smooth across the graph, then over-smooth when you go too deep."

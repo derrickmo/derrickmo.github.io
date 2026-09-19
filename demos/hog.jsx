@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, Toggle, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, Toggle, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const W = 128, H = 160, SCALE = 2;
@@ -150,18 +150,31 @@ function HogDemo() {
     <>
       <DemoP>
         HOG throws away exact pixel values and keeps only <b>where edges point</b>.
-        It computes the gradient at every pixel, splits the image into small
-        <b> cells</b>, and in each cell builds a <b>histogram of gradient orientations</b>. Each pixel votes for its angle, weighted by how strong its
-        gradient is. The right panel draws that histogram as a star of spokes: a long
-        spoke means lots of edge energy at that angle. Trace the figure and you can
-        see its outline emerge purely from local edge directions.
+        It computes the gradient at every pixel, splits the image into small{" "}
+        <b>cells</b>, and in each cell builds a{" "}
+        <b>histogram of gradient orientations</b>, where each pixel votes for its
+        angle weighted by how strong its gradient is.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The right panel draws that histogram as a star of spokes. A long spoke
+          means lots of edge energy at that angle.
+        </DemoLI>
+        <DemoLI>
+          Trace the figure and you can see its outline emerge purely from local edge
+          directions.
+        </DemoLI>
+        <DemoLI>
+          The crucial step is <b>block normalization</b>. Toggle it off and bright,
+          high-contrast edges dominate. Toggle it on and each cell is rescaled to
+          unit length, so only the <i>shape</i> of the orientation distribution
+          survives, not the lighting.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The crucial step is <b>block normalization</b>. Toggle it off and bright,
-        high-contrast edges dominate; toggle it on and each cell is rescaled to unit
-        length, so only the <i>shape</i> of the orientation distribution survives, not the lighting. That single trick is why HOG works across shadows and
-        exposure changes. The result is a fixed-length vector (the <b>descriptor
-        length</b> here) you can feed to a linear classifier.
+        That single trick is why HOG works across shadows and exposure changes. The
+        result is a fixed-length vector, the <b>descriptor length</b> here, that you
+        can feed to a linear classifier.
       </DemoP>
     </>
   );

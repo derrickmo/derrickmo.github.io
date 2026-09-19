@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -146,20 +146,31 @@ function HuffmanCodingDemo() {
   const explainer = (
     <>
       <DemoP>
-        How few bits can you use to store a stream of symbols without losing anything? Shannon's answer
-        is the <b>entropy</b> H, the average surprise per symbol, and no lossless code can beat
-        it.
-        <b> Huffman coding</b> is the algorithm that gets there: repeatedly merge the two least-likely
-        symbols into a subtree, and the path from root to each leaf becomes its codeword. Frequent
-        symbols end up near the root with <b>short codes</b>, rare ones get long codes.
+        How few bits can you use to store a stream of symbols without losing
+        anything? The Shannon answer is the <b>entropy</b> H, the average surprise
+        per symbol, and no lossless code can beat it. <b>Huffman coding</b> is the
+        algorithm that gets there: repeatedly merge the two least likely symbols into
+        a subtree, and the path from root to each leaf becomes its codeword.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Frequent symbols end up near the root with <b>short codes</b>, rare ones
+          get long codes.
+        </DemoLI>
+        <DemoLI>
+          The average code length <b>L</b> always sits in the band{" "}
+          <b>H ≤ L &lt; H+1</b>. Huffman is provably optimal among prefix codes and
+          never more than a bit from the entropy floor.
+        </DemoLI>
+        <DemoLI>
+          Skew the distribution toward one dominant symbol and entropy <i>drops</i>{" "}
+          while the tree grows lopsided and L shrinks with it. Flatten it to{" "}
+          <b>uniform</b> and there is nothing to compress, since every code becomes
+          the same length.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Compare the two numbers: the average code length <b>L</b> always sits in the band{" "}
-        <b>H ≤ L &lt; H+1</b>. Huffman is provably optimal among prefix codes and never more than a bit
-        from the entropy floor. Skew the distribution toward one dominant symbol and watch entropy
-        <i> drop</i> while the tree grows lopsided and L shrinks with it; flatten it to <b>uniform</b>{" "}
-        and there's nothing to compress (every code becomes the same length). Efficiency H/L is how
-        close you are to the theoretical limit.
+        Efficiency H/L is how close you are to the theoretical limit.
       </DemoP>
     </>
   );

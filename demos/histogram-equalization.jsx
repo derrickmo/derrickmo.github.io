@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -128,17 +128,31 @@ function HistogramEqualizationDemo() {
   const explainer = (
     <>
       <DemoP>
-        A washed-out image has all its pixels crammed into a narrow band of grays, so its histogram is a tall, skinny spike. <b>Histogram equalization</b> fixes this by using the image's own
-        <b> cumulative distribution</b> (the green CDF curve) as a <b>transfer function</b>: each input
-        intensity is mapped to its percentile. Tones that are common get stretched apart (more contrast
-        where it matters); tones that are rare get squeezed together. The output histogram comes out
-        roughly <b>flat</b>, using the full range.
+        A washed-out image has all its pixels crammed into a narrow band of grays, so
+        its histogram is a tall, skinny spike. <b>Histogram equalization</b> fixes
+        this by using the <b>cumulative distribution</b> of the image itself, the
+        green CDF curve, as a <b>transfer function</b>: each input intensity is
+        mapped to its percentile.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Tones that are common get stretched apart, so more contrast where it
+          matters.
+        </DemoLI>
+        <DemoLI>
+          Tones that are rare get squeezed together, and the output histogram comes
+          out roughly <b>flat</b>, using the full range.
+        </DemoLI>
+        <DemoLI>
+          Drop <b>source contrast</b> to see a grayer input dramatically revived,
+          with the after-histogram spreading to fill the axis.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Drop <b>source contrast</b> to see a grayer input get dramatically revived, and watch the after-
-        histogram spread to fill the axis while the contrast readout jumps. Plain global equalization can
-        over-amplify noise in flat areas, so lower the <b>clip limit</b> to apply <b>CLAHE</b>. It caps how tall any histogram bin can get before equalizing, trading a bit of contrast for a cleaner,
-        less noisy result.
+        Plain global equalization can over-amplify noise in flat areas, so lower the{" "}
+        <b>clip limit</b> to apply <b>CLAHE</b>. It caps how tall any histogram bin
+        can get before equalizing, trading a bit of contrast for a cleaner, less
+        noisy result.
       </DemoP>
     </>
   );
