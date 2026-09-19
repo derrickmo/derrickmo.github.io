@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -262,20 +262,32 @@ function IstaDemo() {
   const explainer = (
     <>
       <DemoP>
-        This fits a linear model whose true coefficients are mostly <b>zero</b> (only four
-        of sixteen features actually matter). Plain least squares would give every feature
-        some nonzero weight; the <b>L1 penalty</b> instead drives irrelevant coefficients
-        <i> exactly</i> to zero. The engine is <b>proximal gradient descent</b>: take a
-        normal gradient step on the data-fit term, then apply the L1 <b>proximal operator</b>, which is just <b>soft-thresholding</b>, shown bottom-left. Anything inside the
-        <span style={{ color: "#f87171" }}> dead zone</span> ±tλ is snapped to zero; everything
-        else is shrunk toward zero.
+        This fits a linear model whose true coefficients are mostly <b>zero</b>, since
+        only four of sixteen features actually matter. Plain least squares would give
+        every feature some nonzero weight. The <b>L1 penalty</b> instead drives
+        irrelevant coefficients <i>exactly</i> to zero.
       </DemoP>
       <DemoP>
-        Raise <b>λ</b> and watch coefficients switch off one by one until only the true four
-        survive (SUPPORT FOUND turns green). Push it too far and even real ones die. Switch
-        from <b>ISTA</b> to <b>FISTA</b> and the objective curve plunges far faster for the
-        same number of steps: that is Nesterov momentum turning O(1/k) convergence into
-        O(1/k²), the single most-cited trick in convex optimization.
+        The engine is <b>proximal gradient descent</b>, which alternates two moves:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Take a normal gradient step on the data-fit term.</DemoLI>
+        <DemoLI>
+          Apply the L1 <b>proximal operator</b>, which is just{" "}
+          <b>soft-thresholding</b>, shown bottom-left. Anything inside the{" "}
+          <span style={{ color: "#f87171" }}>dead zone</span> ±tλ is snapped to zero and
+          everything else is shrunk toward zero.
+        </DemoLI>
+        <DemoLI>
+          Raise <b>λ</b> and watch coefficients switch off one by one until only the
+          true four survive, with SUPPORT FOUND turning green. Push it too far and even
+          real ones die.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        Switch from <b>ISTA</b> to <b>FISTA</b> and the objective curve plunges far
+        faster for the same number of steps. That is Nesterov momentum turning O(1/k)
+        convergence into O(1/k²), the single most-cited trick in convex optimization.
       </DemoP>
     </>
   );

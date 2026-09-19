@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -145,22 +145,35 @@ function IVDemo() {
   const explainer = (
     <>
       <DemoP>
-        We want the causal effect of X on Y, but a hidden confounder U stirs both,
-        so the naive regression line (red) is biased. Crank CONFOUNDING and watch
-        it swing away from the true effect (green dashed), sometimes flipping sign.
-        An instrument Z offers a way out: it perturbs X but touches Y only through X.
-        IV keeps just the slice of X that Z explains, a slice uncontaminated by U, and reads the effect off it: β̂ = Cov(Z,Y)/Cov(Z,X). The purple line
-        snaps back onto the truth.
+        We want the causal effect of X on Y, but a hidden confounder U stirs both, so
+        the naive regression line in red is biased. Crank CONFOUNDING and watch it
+        swing away from the true effect in green dashed, sometimes flipping sign.
       </DemoP>
       <DemoP>
-        Two assumptions do all the work, and the demo lets you break each. Pull
-        INSTRUMENT STRENGTH toward zero and the first-stage F drops below 10, a{" "} <i>weak instrument</i>, where dividing by a near-zero covariance makes IV
-        wildly noisy. Raise EXCLUSION VIOLATION and Z leaks straight into Y; IV
-        becomes biased again (β̂ ≈ β + e/a). Relevance you can measure from data;
-        exclusion you can only argue for, which is why good instruments are rare.
+        An instrument Z offers a way out, because it perturbs X but touches Y only
+        through X. IV keeps just the slice of X that Z explains, a slice uncontaminated
+        by U, and reads the effect off it: β̂ = Cov(Z,Y)/Cov(Z,X). The purple line snaps
+        back onto the truth.
       </DemoP>
+      <DemoP>Two assumptions do all the work, and you can break each one here:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Relevance</b>. Pull INSTRUMENT STRENGTH toward zero and the first-stage F
+          drops below 10. That is a <i>weak instrument</i>, where dividing by a
+          near-zero covariance makes IV wildly noisy.
+        </DemoLI>
+        <DemoLI>
+          <b>Exclusion</b>. Raise EXCLUSION VIOLATION and Z leaks straight into Y, so
+          IV becomes biased again at roughly β̂ ≈ β + e/a.
+        </DemoLI>
+        <DemoLI>
+          Relevance you can measure from the data. Exclusion you can only argue for,
+          which is why good instruments are rare.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -185,6 +198,7 @@ function IVDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Instrumental Variables"
       subtitle="Recover a causal effect when a hidden confounder biases the obvious regression. An instrument that moves the treatment but not the outcome directly lets 2SLS read the true effect. Then break relevance and exclusion to see it fail."

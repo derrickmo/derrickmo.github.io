@@ -8,7 +8,7 @@
 // reproduces them exactly because the seed is fixed.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, DemoButton } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, DemoButton } = window;
 
 const W = 560, H = 380;
 
@@ -131,26 +131,40 @@ function HypothesisDemo() {
   const explainer = (
     <>
       <DemoP>
-        A p-value guarantees exactly one thing: <em>if the null hypothesis is true</em>, you will
-        call a result significant no more than 5% of the time. That guarantee is about a procedure
-        fixed in advance, not about the data in front of you, and the two controls here are the
-        two standard ways of voiding it.
+        A p-value guarantees exactly one thing: <em>if the null hypothesis is true</em>,
+        you will call a result significant no more than 5% of the time. That guarantee
+        is about a procedure fixed in advance, not about the data in front of you, and
+        the two controls here are the two standard ways of voiding it.
       </DemoP>
       <DemoP>
-        <strong>Leave TRUE EFFECT at zero</strong>. The arms are genuinely identical, so every "significant" result is a lie. Now raise LOOKS. With one look the measured rate is{" "}
-        <strong>4.8%</strong>, as promised. With five it is <strong>14.6%</strong>, with ten
-        <strong> 18.8%</strong>, with twenty <strong>24.5%</strong>. Those are Armitage's classical
-        numbers, reproduced here by simulation. Nothing about the test changed; you simply gave
-        yourself twenty chances to cross a line drawn for one, and the stopped-at histogram shows
-        most of the damage happening at the earliest, smallest-sample looks.
+        <strong>Leave TRUE EFFECT at zero</strong>, so the arms are genuinely identical
+        and every "significant" result is a lie. Now raise LOOKS:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          One look gives <strong>4.8%</strong>, as promised. Five gives{" "}
+          <strong>14.6%</strong>, ten gives <strong>18.8%</strong>, twenty gives{" "}
+          <strong>24.5%</strong>.
+        </DemoLI>
+        <DemoLI>
+          Those are Armitage's classical numbers, reproduced here by simulation.
+          Nothing about the test changed. You simply gave yourself twenty chances to
+          cross a line drawn for one.
+        </DemoLI>
+        <DemoLI>
+          The stopped-at histogram shows most of the damage happening at the earliest,
+          smallest-sample looks.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now <strong>raise TRUE EFFECT</strong> and the same bar becomes power, the chance of detecting a real difference. At effect 0.3, one honest look gives 56% at n=100 and 85% at
-        n=200. Shrink the effect instead and the picture is bleaker: a true effect of 0.1 is caught
-        only <strong>29% of the time even at n=400</strong>. An underpowered experiment that reports
-        "no significant difference" has told you almost nothing, because it would have missed a real
-        effect most of the time. Absence of evidence is not evidence of absence, and power is the
-        number that decides which one you have.
+        Now <strong>raise TRUE EFFECT</strong> and the same bar becomes power, the
+        chance of detecting a real difference. At effect 0.3, one honest look gives 56%
+        at n=100 and 85% at n=200. Shrink the effect instead and the picture is
+        bleaker: a true effect of 0.1 is caught only{" "}
+        <strong>29% of the time even at n=400</strong>. An underpowered experiment that
+        reports "no significant difference" has told you almost nothing, because it
+        would have missed a real effect most of the time. Absence of evidence is not
+        evidence of absence, and power is the number that decides which one you have.
       </DemoP>
     </>
   );

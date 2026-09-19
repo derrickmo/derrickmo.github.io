@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -174,24 +174,38 @@ function ICADemo() {
   );
   const explainer = (
     <>
+      <DemoUL>
+        <DemoLI>
+          <b>Top row</b>: two independent signals we pretend not to see.
+        </DemoLI>
+        <DemoLI>
+          <b>Middle row</b>: each microphone hears a different blend of both, garbled,
+          and neither one is either original. This is all ICA gets.
+        </DemoLI>
+        <DemoLI>
+          <b>Bottom row</b>: what it recovers. Flip a sign or swap the two and they are
+          the sources again.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Top row: two independent signals we pretend not to see. Middle row: each
-        microphone hears a different BLEND of both, garbled, and neither one is either original. ICA gets only the middle row and must invert the mixing. Its
-        trick is statistical: by the Central Limit Theorem a sum of independent things
-        looks more bell-shaped (Gaussian) than its parts, so the unmixing directions
-        that make the outputs the LEAST Gaussian are the ones that pull the original
-        independent signals back apart. The bottom row is what it recovers. Flip a sign or swap the two and they're the sources again.
+        The trick is statistical. By the Central Limit Theorem a sum of independent
+        things looks more bell-shaped than its parts, so the unmixing directions that
+        make the outputs the <i>least</i> Gaussian are the ones that pull the original
+        signals back apart.
       </DemoP>
       <DemoP>
-        Mixing strength barely matters: ICA nails it for any invertible mix. What
+        Mixing strength barely matters, since ICA nails any invertible mix. What
         matters is non-Gaussianity. Switch SOURCES to "Two Gaussians" and recovery
-        collapses to noise (RECOVERY drops, STATUS reads FAILED), because a mixture of Gaussians is itself Gaussian, leaving no non-Gaussian structure to exploit
-        and no way to tell the rotation apart. That's ICA's defining rule: it can
-        separate at most one Gaussian source. It's also why ICA succeeds where PCA cannot. PCA only finds uncorrelated, orthogonal directions, while ICA finds
-        independent ones, which is a strictly stronger (and non-orthogonal) condition.
+        collapses to noise: a mixture of Gaussians is itself Gaussian, so there is no
+        structure left to exploit and no way to tell the rotation apart. That is ICA's
+        defining rule, that it can separate at most one Gaussian source. It is also why
+        ICA succeeds where PCA cannot. PCA only finds uncorrelated, orthogonal
+        directions, while ICA finds independent ones, a strictly stronger and
+        non-orthogonal condition.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -217,6 +231,7 @@ function ICADemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="ICA (Cocktail Party)"
       subtitle="Two independent signals get blended into two microphones; ICA unmixes them knowing only the blend, by hunting the directions that make the outputs least Gaussian. Crank the mixing and it still separates. Switch to two Gaussian sources and watch it fail by design."
