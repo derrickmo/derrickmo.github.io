@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -296,33 +296,45 @@ function SiftDemo() {
       <DemoP>
         SIFT answers a question that sounds impossible: find the same physical point in
         two images taken at different sizes and angles, without knowing the
-        transformation. It does it in four steps. Search a <b>scale space</b> of
-        progressively blurred copies for blob-like extrema, throw away the ones lying
-        along edges, give each survivor an <b>orientation</b> from its own dominant
-        gradient direction, and describe the patch around it in a frame aligned to that
-        orientation and sized by its own scale.
+        transformation. It does it in four steps.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Search a <b>scale space</b> of progressively blurred copies for blob-like
+          extrema, then throw away the ones lying along edges.
+        </DemoLI>
+        <DemoLI>
+          Give each survivor an <b>orientation</b> from its own dominant gradient
+          direction.
+        </DemoLI>
+        <DemoLI>
+          Describe the patch around it in a frame aligned to that orientation and
+          sized by its own scale.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The two invariances come from two different places, and the demo separates them.
-        <b> Scale</b> invariance comes from the search itself: a keypoint is found at the
-        blur level where it looks most blob-like, and the descriptor is measured in units
-        of that sigma. <b>Rotation</b> invariance comes entirely from the orientation
-        step. Set rotation to 45° and toggle it: with normalisation on, essentially every
-        surviving match is correct; with it off, most are wrong. One switch, and the
-        method stops working.
+        The two invariances come from two different places, and the demo separates
+        them. <b>Scale</b> invariance comes from the search itself, since a keypoint is
+        found at the blur level where it looks most blob-like and the descriptor is
+        measured in units of that sigma. <b>Rotation</b> invariance comes entirely from
+        the orientation step. Set rotation to 45° and toggle it: with normalisation on,
+        essentially every surviving match is correct, and with it off most are wrong.
+        One switch, and the method stops working.
       </DemoP>
       <DemoP>
         The last slider is the part people underrate. Lowe's <b>ratio test</b> keeps a
-        match only if the nearest descriptor is much closer than the second nearest, a test of <i>distinctiveness</i>, not of distance, because a good absolute
-        threshold does not exist. Drive it at 45° and the cliff sits in one place: at
-        0.7 and 0.8 <b>every</b> kept match is correct, and by 0.9 precision has already
-        collapsed to about a third, which is exactly what you get with the test switched
-        off entirely, where all 22 keypoints find a partner and roughly a third are
-        right. The test is doing all of its work in that narrow band, which is why the
-        paper's 0.8 has survived twenty-five years.
+        match only if the nearest descriptor is much closer than the second nearest,
+        which is a test of <i>distinctiveness</i> rather than of distance, because a
+        good absolute threshold does not exist. Drive it at 45° and the cliff sits in
+        one place: at 0.7 and 0.8 <b>every</b> kept match is correct, and by 0.9
+        precision has already collapsed to about a third. That is exactly what you get
+        with the test switched off entirely, where all 22 keypoints find a partner and
+        roughly a third are right. The test is doing all of its work in that narrow
+        band, which is why the paper's 0.8 has survived twenty-five years.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -342,6 +354,7 @@ function SiftDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="SIFT"
       subtitle="Find the same point in two images at different scale and angle, and see exactly which step buys which invariance."

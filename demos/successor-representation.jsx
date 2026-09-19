@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const COLS = 7, ROWS = 7, CELL = 18;
@@ -173,18 +173,29 @@ function SuccessorRepresentationDemo() {
   const explainer = (
     <>
       <DemoP>
-        The <b>successor representation</b> answers "starting here and following my
-        policy, where will I spend my discounted future time?" That is the left grid, the successor map M(s,·) of the highlighted source state, learned by a
-        random-walk agent with the very same TD update as value learning, but
+        The <b>successor representation</b> answers one question: starting here and
+        following my policy, where will I spend my discounted future time? That is the
+        left grid, the successor map M(s,·) of the highlighted source state, learned by
+        a random-walk agent with the very same TD update as value learning, but
         bootstrapping a one-hot occupancy vector instead of a reward.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The payoff is the factorization <b>V(s) = Σ M(s,s') R(s')</b>, which stores
+          dynamics and reward separately.
+        </DemoLI>
+        <DemoLI>
+          When the goal moves you just re-multiply, with <b>no relearning</b>. Click
+          around the right grid to drop the reward somewhere new and the value map
+          recomputes <i>instantly</i> as M·R while the successor map does not budge.
+        </DemoLI>
+        <DemoLI>
+          A model-free Q-learner would have to re-explore from scratch.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The payoff is the factorization <b>V(s) = Σ M(s,s') R(s')</b>. Dynamics
-        (M) and reward (R) are stored separately, so when the goal moves you just re-multiply, with <b>no relearning</b>. Click around the right grid to drop the
-        reward somewhere new: the value map recomputes <i>instantly</i> as M·R while
-        the successor map on the left doesn't budge. A model-free Q-learner would
-        have to re-explore from scratch. Raise γ and each state's reach spreads
-        farther, so value carries from more distant rewards.
+        Raise γ and each state's reach spreads farther, so value carries from more
+        distant rewards.
       </DemoP>
     </>
   );

@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, SegmentedControl, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -178,23 +178,34 @@ function SADemo() {
   const explainer = (
     <>
       <DemoP>
-        The Traveling Salesman Problem is NP-hard, but simulated annealing
-        finds near-optimal tours surprisingly fast. The move is <b>2-opt</b>:
-        pick two edges, reverse the segment between them, see if the new tour
-        is shorter. The trick is what to do when it is <i>longer</i>. Accept it anyway, with probability e<sup>-ΔE/T</sup>. At a high
-        <b style={{ color: "#fbbf24" }}> temperature</b> the search jumps
-        around freely, willing to take ugly intermediate states to escape
-        local minima. As T cools, only improvements survive and the tour crystallizes.
+        The Traveling Salesman Problem is NP-hard, but simulated annealing finds
+        near-optimal tours surprisingly fast. The move is <b>2-opt</b>: pick two edges,
+        reverse the segment between them, and see if the new tour is shorter.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The trick is what to do when it is <i>longer</i>. Accept it anyway, with
+          probability e<sup>-ΔE/T</sup>.
+        </DemoLI>
+        <DemoLI>
+          At a high <b style={{ color: "#fbbf24" }}>temperature</b> the search jumps
+          around freely, willing to take ugly intermediate states to escape local
+          minima.
+        </DemoLI>
+        <DemoLI>
+          As T cools, only improvements survive and the tour crystallizes.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Hit RUN and watch the violet tour stop crossing itself. The faint
-        blue tour is the best one seen so far. The strip at the bottom is
-        the current length over time. It ratchets down, with occasional
-        bumps where SA accepted a worse move. The schedule here is geometric
-        (T ← 0.9985·T) which is the classic recipe.
+        Hit RUN and watch the violet tour stop crossing itself. The faint blue tour is
+        the best one seen so far, and the strip at the bottom is the current length
+        over time, ratcheting down with occasional bumps where SA accepted a worse
+        move. The schedule here is geometric, T ← 0.9985·T, which is the classic
+        recipe.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -214,6 +225,7 @@ function SADemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Simulated Annealing"
       subtitle="Watch a tangled traveling-salesman tour cool into a clean one, using Metropolis acceptance with a falling temperature."

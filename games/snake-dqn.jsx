@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
 const N = 14, CELL = 22, W = N * CELL;
@@ -140,25 +140,38 @@ function SnakeDemo() {
   const explainer = (
     <>
       <DemoP>
-        Nobody told this snake the rules. It learns them from <b>reward</b>. This is
-        <b> Q-learning</b>: the agent keeps a table estimating the value of each action
-        in each situation, where a "situation" is a compact 11-feature state (is there
-        danger straight / left / right, which way is the food, which way am I heading?).
-        It gets <b>+10</b> for eating, <b>−10</b> for dying, and small nudges for moving
-        toward or away from food. After each move it updates its estimate toward
-        <i> reward + the best it expects next</i>, the temporal-difference update at the
-        heart of RL.
+        Nobody told this snake the rules. It learns them from <b>reward</b>. This is{" "}
+        <b>Q-learning</b>: the agent keeps a table estimating the value of each action
+        in each situation, where a situation is a compact 11-feature state covering
+        danger straight, left and right, which way the food is, and which way it is
+        heading.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It gets <b>+10</b> for eating and <b>−10</b> for dying, plus small nudges for
+          moving toward or away from food.
+        </DemoLI>
+        <DemoLI>
+          After each move it updates its estimate toward{" "}
+          <i>reward plus the best it expects next</i>, the temporal-difference update
+          at the heart of RL.
+        </DemoLI>
+        <DemoLI>
+          Watch <b>ε</b> decay. At first it acts randomly to discover what works, then
+          increasingly <i>exploits</i> the policy it has learned, and the{" "}
+          <span style={{ color: "#34d399" }}>average score</span> climbs from near-zero
+          to consistently feeding itself.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch <b>ε</b> (exploration) decay: at first it acts randomly to discover what
-        works, then increasingly <i>exploits</i> the policy it has learned, and the <span style={{ color: "#34d399" }}> average score</span> climbs from near-zero
-        to consistently feeding itself. That explore-vs-exploit balance, and learning
-        purely from delayed reward, is the same machinery (scaled up to deep networks)
-        behind game-playing agents and the RLHF step that aligns modern LLMs. Crank the
-        speed to fast-forward thousands of episodes.
+        That explore-versus-exploit balance, and learning purely from delayed reward,
+        is the same machinery, scaled up to deep networks, behind game-playing agents
+        and the RLHF step that aligns modern LLMs. Crank the speed to fast-forward
+        thousands of episodes.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -178,6 +191,7 @@ function SnakeDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="REINFORCEMENT LEARNING" title="Snake: Self-Taught"
       subtitle="A snake that learns to feed itself from reward alone. Real Q-learning, sharpening episode by episode."
