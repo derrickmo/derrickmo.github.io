@@ -15,7 +15,7 @@
 // real softmax temperature. Read the parameter, not the label you gave it.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, SegmentedControl, DemoButton } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, SegmentedControl, DemoButton } = window;
 
 const W = 580, H = 440;
 const SYM = ["-", "C", "A", "T"];          // 0 is the blank
@@ -211,32 +211,48 @@ function CTCDemo() {
   const explainer = (
     <>
       <DemoP>
-        CTC exists because nobody labelled which audio frame or which pixel column produced which
-        character. All you have is an image and the word in it. CTC's answer is to let the model
-        emit a symbol or a <em>blank</em> at every frame, then define a collapse rule, squashing runs of the same symbol and then dropping the blanks, and
-        score a labelling by summing over
-        <strong> every path that collapses to it</strong>. The heat grid is the model's per-frame
-        distribution; the yellow boxes are its argmax.
+        CTC exists because nobody labelled which audio frame or which pixel column
+        produced which character. All you have is an image and the word in it. CTC's
+        answer is to let the model emit a symbol or a <em>blank</em> at every frame,
+        define a collapse rule that squashes runs of the same symbol and then drops the
+        blanks, and score a labelling by summing over{" "}
+        <strong>every path that collapses to it</strong>. The heat grid is the model's
+        per-frame distribution and the yellow boxes are its argmax.
       </DemoP>
       <DemoP>
-        The order of the two collapse steps is load-bearing, and the TARGET LABEL control shows why.
-        Squashing repeats first means a genuine double letter needs a blank wedged between its two
-        halves, so <strong>CATT needs five frames, not four</strong>, and AA needs three, not two.
-        Watch the ALIGNMENTS readout: "CAT" has 1 alignment at T=3, 7 at T=4, 84 at T=6, 462 at T=8, and 6,096,454 at T=40, which is why the sum is computed by a dynamic program rather than
-        enumerated. That program is the forward algorithm, and the page does not ask you to take it
-        on faith: it brute-forces all 4<sup>T</sup> paths in parallel and prints the difference, which
-        holds at floating-point zero.
+        The order of the two collapse steps is load-bearing, and the TARGET LABEL
+        control shows why:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Squashing repeats first means a genuine double letter needs a blank wedged
+          between its two halves, so <strong>CATT needs five frames, not four</strong>,
+          and AA needs three, not two.
+        </DemoLI>
+        <DemoLI>
+          Watch the ALIGNMENTS readout. "CAT" has 1 alignment at T=3, 7 at T=4, 84 at
+          T=6, 462 at T=8, and 6,096,454 at T=40, which is why the sum is computed by
+          a dynamic program rather than enumerated.
+        </DemoLI>
+        <DemoLI>
+          That program is the forward algorithm, and the page does not ask you to take
+          it on faith. It brute-forces all 4<sup>T</sup> paths in parallel and prints
+          the difference, which holds at floating-point zero.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The last two readouts are the part that matters in production. Decoding by taking the argmax
-        at each frame and collapsing, called greedy or "best path", is not the same question as finding
-        the most probable <em>labelling</em>, because the labelling's probability is a sum over
-        alignments and the best path may belong to a labelling that has no others. Drag TEMPERATURE.
-        Measured over 120 random emission matrices at T=8: at <strong>τ = 0.15</strong> the two agree{" "}
-        <strong>96%</strong> of the time, at <strong>τ = 1</strong> only <strong>28%</strong>, and at
-        τ = 2 greedy is wrong <strong>87%</strong> of the time, landing on a labelling worth 0.56 of
-        the best one's probability. Best-path
-        decoding is a good shortcut precisely because trained models are confident, and it degrades exactly where a model is unsure, which is where you would most want the decode to be right.
+        The last two readouts are the part that matters in production. Decoding by
+        taking the argmax at each frame and collapsing, called greedy or "best path",
+        is not the same question as finding the most probable <em>labelling</em>,
+        because the labelling's probability is a sum over alignments and the best path
+        may belong to a labelling that has no others. Drag TEMPERATURE. Measured over
+        120 random emission matrices at T=8: at <strong>τ = 0.15</strong> the two
+        agree <strong>96%</strong> of the time, at <strong>τ = 1</strong> only{" "}
+        <strong>28%</strong>, and at τ = 2 greedy is wrong <strong>87%</strong> of the
+        time, landing on a labelling worth 0.56 of the best one's probability.
+        Best-path decoding is a good shortcut precisely because trained models are
+        confident, and it degrades exactly where a model is unsure, which is where you
+        would most want the decode to be right.
       </DemoP>
     </>
   );

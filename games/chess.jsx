@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP, SegmentedControl, DemoButton, StatReadout, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, SegmentedControl, DemoButton, StatReadout, ControlGroup,
 } = window;
 
 const rc = (r, c) => r * 8 + c, R = (i) => i >> 3, C = (i) => i & 7;
@@ -198,20 +198,34 @@ function ChessDemo() {
   const explainer = (
     <>
       <DemoP>
-        This is a full chess engine running in your tab: legal move generation for every piece (including castling, en passant, and promotion), plus check,
-        checkmate and stalemate detection. The opponent searches the game tree with
-        <b> negamax + alpha-beta pruning</b>: it looks several plies ahead, assumes
-        you'll always reply with your best move, and keeps the line that is best for it, pruning branches that cannot beat one it already found.
+        This is a full chess engine running in your tab, with legal move generation
+        for every piece including castling, en passant and promotion, plus check,
+        checkmate and stalemate detection. The opponent searches the game tree with{" "}
+        <b>negamax and alpha-beta pruning</b>: it looks several plies ahead, assumes
+        you will always reply with your best move, and keeps the line that is best for
+        it, pruning branches that cannot beat one it already found.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The tree is astronomically large, so it stops at a fixed depth.
+        </DemoLI>
+        <DemoLI>
+          It then <i>evaluates</i> the leaf positions with{" "}
+          <b>material values plus piece-square tables</b>, the same eval that nudges
+          knights toward the center and rewards king safety in the opening. The EVAL
+          readout shows it in centipawns, positive meaning White is better.
+        </DemoLI>
+        <DemoLI>
+          Move ordering, captures first, makes the pruning bite harder.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Because the tree is astronomically large, it stops at a fixed depth and
-        <i> evaluates</i> the leaf positions with <b>material values plus piece-square tables</b>, the same eval that nudges knights toward the center and king safety
-        in the opening (the EVAL readout shows it in centipawns, +ve = White better).
-        Move ordering (captures first) makes the pruning bite harder. It's the classic Shannon-type engine, the foundation everything from early Deep Blue to modern
-        alpha-beta engines is built on.
+        This is the classic Shannon-type engine, the foundation everything from early
+        Deep Blue to modern alpha-beta engines is built on.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -230,6 +244,7 @@ function ChessDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · NEGAMAX + ALPHA-BETA" title="Chess"
       subtitle="Full-rules chess against a real search engine, using material plus piece-square evaluation, a few plies deep."

@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, DemoButton, StatReadout, ControlGroup,
 } = window;
 
@@ -120,22 +120,34 @@ function ConnectFourDemo() {
   const explainer = (
     <>
       <DemoP>
-        The AI here plays <b>minimax with alpha-beta pruning</b>: it builds the game
-        tree a few moves deep, assumes you'll always answer with your best reply, and
-        picks the column that maximizes its worst-case outcome. The tree is far too big
-        to search to the end (unlike tic-tac-toe), so it stops at a fixed
-        <b> depth</b> and <i>estimates</i> the leftover positions with a heuristic, scoring every 4-in-a-row window by who's closer to completing it, plus a bonus
-        for the center column.
+        The AI here plays <b>minimax with alpha-beta pruning</b>. It builds the game
+        tree a few moves deep, assumes you will always answer with your best reply, and
+        picks the column that maximizes its worst-case outcome.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Unlike tic-tac-toe, the tree is far too big to search to the end, so it stops
+          at a fixed <b>depth</b>.
+        </DemoLI>
+        <DemoLI>
+          It <i>estimates</i> the leftover positions with a heuristic, scoring every
+          4-in-a-row window by who is closer to completing it, plus a bonus for the
+          center column.
+        </DemoLI>
+        <DemoLI>
+          <b>Alpha-beta</b> is the speed trick. Once a branch is proven worse than one
+          already found it is abandoned unsearched, which with good move ordering,
+          here center-out, lets the same depth run far faster.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Alpha-beta</b> is the speed trick: once a branch is proven worse than one
-        already found, it is abandoned unsearched, which (with good move ordering, here center-out) lets the same depth run far faster. Crank the difficulty to
-        <b> Expert</b> and you're facing a 6-ply look-ahead; it rarely misses a forced
-        win or an open three. This is the exact family of algorithms behind classic
-        chess and checkers engines.
+        Crank the difficulty to <b>Expert</b> and you are facing a 6-ply look-ahead
+        that rarely misses a forced win or an open three. This is the exact family of
+        algorithms behind classic chess and checkers engines.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -153,6 +165,7 @@ function ConnectFourDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · MINIMAX + ALPHA-BETA" title="Connect Four vs AI"
       subtitle="A real game-tree search with alpha-beta pruning. Tune the depth and try to force a win."

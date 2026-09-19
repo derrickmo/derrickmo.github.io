@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const COLS = 9, ROWS = 6, CELL = 26;
@@ -196,19 +196,30 @@ function DynaQDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both agents run the exact same Q-learning. The only difference: after every
-        real step, the <b>Dyna-Q</b> agent does <b>n planning steps</b>. It samples a transition it already remembers, replays it through its learned model, and
-        applies the same update. It's "thinking" between actions, squeezing far more
-        learning out of each real experience. Watch the violet value shading flood
-        back from the goal across the maze; with n=0 it would creep one cell per
-        episode.
+        Both agents run the exact same Q-learning. The only difference is that after
+        every real step the <b>Dyna-Q</b> agent does <b>n planning steps</b>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It samples a transition it already remembers, replays it through its learned
+          model, and applies the same update.
+        </DemoLI>
+        <DemoLI>
+          That is "thinking" between actions, squeezing far more learning out of each
+          real experience.
+        </DemoLI>
+        <DemoLI>
+          Watch the violet value shading flood back from the goal across the maze. With
+          n = 0 it would creep one cell per episode.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The bottom plot is the payoff: <b>steps per episode</b>, which starts huge
-        (random wandering) and drops to the optimal path length once the policy is
-        learned. The Dyna-Q curve (violet) plummets in a handful of episodes; the
-        model-free agent (gray) takes many more. Slide n up and the gap widens; drop
-        it to 0 and the two curves coincide. This is the core argument for model-based RL: sample efficiency.
+        The bottom plot is the payoff. <b>Steps per episode</b> starts huge, which is
+        random wandering, and drops to the optimal path length once the policy is
+        learned. The Dyna-Q curve in violet plummets in a handful of episodes while the
+        model-free agent in gray takes many more. Slide n up and the gap widens, drop
+        it to 0 and the two curves coincide. This is the core argument for model-based
+        RL: sample efficiency.
       </DemoP>
     </>
   );
