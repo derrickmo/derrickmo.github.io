@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const STAGES = [0.05, 0.25, 0.5, 1.0];
@@ -154,43 +154,64 @@ function CanaryRolloutDemo() {
   const explainer = (
     <>
       <DemoP>
-        Shipping a new model is risky: it might be worse in ways your offline tests
-        missed. A <b>canary</b> rollout de-risks it by exposing v2 to a small slice of
-        live traffic first (5%), watching a health metric, and only widening the slice
-        (25% → 50% → 100%) if it stays healthy. The key property is a small <b>blast radius</b>. Compare <b>users hit by v2 errors</b> to the counterfactual of a
-        full deploy: the canary caps how many people a bad model can hurt before you
-        catch it.
+        Shipping a new model is risky, because it might be worse in ways your offline
+        tests missed. A <b>canary</b> rollout de-risks it by exposing v2 to a small
+        slice of live traffic first, 5%, watching a health metric, and only widening
+        the slice, 25% then 50% then 100%, if it stays healthy. The key property is a
+        small <b>blast radius</b>. Compare <b>users hit by v2 errors</b> to the
+        counterfactual of a full deploy.
       </DemoP>
-      <DemoP>
-        The catch the guard: at each stage it runs a one-sided <b>z-test</b> of v2's
-        observed error against v1's baseline. Significantly worse → <b>roll back</b>;
-        otherwise → advance. That makes <b>GUARD SENSITIVITY</b> a detection tradeoff:
-        too twitchy and ordinary noise rolls back good models (false alarms); too lax
-        and a genuinely worse model slips through to 100%. And it's fundamentally statistical: at 5% traffic you have few v2 samples, so a <i>small</i> regression
-        is hard to distinguish from noise until the canary widens. Set v2's true error
-        just barely above baseline and watch the guard struggle.
-      </DemoP>
+      <DemoP>The catch is the guard, and it is a detection tradeoff:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          At each stage it runs a one-sided <b>z-test</b> of the observed error of v2
+          against the v1 baseline. Significantly worse means <b>roll back</b>,
+          otherwise advance.
+        </DemoLI>
+        <DemoLI>
+          Too twitchy a <b>GUARD SENSITIVITY</b> and ordinary noise rolls back good
+          models. Too lax and a genuinely worse model slips through to 100%.
+        </DemoLI>
+        <DemoLI>
+          It is fundamentally statistical. At 5% traffic you have few v2 samples, so
+          a <i>small</i> regression is hard to distinguish from noise until the
+          canary widens. Set the true v2 error just barely above baseline and watch
+          the guard struggle.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        Progressive delivery, meaning canaries, blue/green and feature flags, is how mature
-        teams ship models and code without all-or-nothing risk, and it's exactly what
-        Argo Rollouts, Flagger, and SageMaker/Vertex traffic-splitting automate. The
-        same automated-metric-guard idea powers A/B tests and bandit rollouts (route more
-        traffic to the better arm, the live cousin of the
-        <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}> multi-armed bandit</a>),
-        and shadow deployments that send v2 a copy of traffic with its outputs discarded.
+        Progressive delivery, meaning canaries, blue/green and feature flags, is how
+        mature teams ship models and code without all-or-nothing risk, and it is
+        exactly what Argo Rollouts, Flagger and the traffic splitting in SageMaker
+        and Vertex automate. The same automated-metric-guard idea powers A/B tests
+        and bandit rollouts, routing more traffic to the better arm, the live cousin
+        of the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}>multi-armed bandit</a>,
+        and shadow deployments that send v2 a copy of traffic with its outputs
+        discarded.
       </DemoP>
-      <DemoP>
-        Underneath, the guard is hypothesis testing under a sequential, low-sample regime, the same significance-against-power tension as any
-        <a href={`${window.__DM_BASE || "../../"}visualize/roc/`}> detection threshold</a>, and
-        a close relative of the <a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>drift
-        detection</a> that watches an already-deployed model. Canarying catches a bad
-        release; drift detection catches a once-good model going stale.
-      </DemoP>
+      <DemoP>Underneath, the guard is hypothesis testing in a hard regime:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Sequential and low-sample, the same significance-against-power tension as
+          any{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/roc/`}>detection threshold</a>.
+        </DemoLI>
+        <DemoLI>
+          A close relative of the{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/drift-detection/`}>drift detection</a>{" "}
+          that watches an already-deployed model.
+        </DemoLI>
+        <DemoLI>
+          Canarying catches a bad release. Drift detection catches a once-good model
+          going stale. You want both.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -170,47 +170,65 @@ function ReservoirDemo() {
     <>
       <DemoP>
         Up top, items stream past one at a time and the reservoir holds k of them.
-        The first k just fill the slots. After that, item i is accepted with probability exactly k/i. Note how that shrinks as the stream grows (item 100
-        in a size-4 reservoir has only a 4% chance), and when accepted it kicks out a
-        random current occupant. That's the entire algorithm: one pass, k slots, never
-        storing the stream, and you never had to know how long it would be.
       </DemoP>
+      <DemoUL>
+        <DemoLI>The first k just fill the slots.</DemoLI>
+        <DemoLI>
+          After that, item i is accepted with probability exactly k/i. Note how that
+          shrinks as the stream grows: item 100 in a size-4 reservoir has only a 4%
+          chance.
+        </DemoLI>
+        <DemoLI>
+          When accepted it kicks out a random current occupant. That is the entire
+          algorithm: one pass, k slots, never storing the stream, and you never had
+          to know how long it would be.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         The histogram is the proof. It counts, over thousands of complete passes, how
         often each stream POSITION ends up in the final sample. For Algorithm R every
-        bar sits on the green k/N line, perfectly uniform with MAX DEVIATION near zero, so a brand-new
-        item and the very first item are equally likely to be kept.
-        Now flip METHOD to "Keep first k" and the bars collapse to a block of 1s at
-        the start and 0s everywhere else; "Keep last k" does the mirror image. Both
-        are O(k) memory too, but they're biased samples. Reservoir sampling is the one
-        that is actually uniform, which is why it is the standard for sampling logs,
-        clickstreams, and any data too big to hold.
+        bar sits on the green k/N line, perfectly uniform with MAX DEVIATION near
+        zero, so a brand-new item and the very first item are equally likely to be
+        kept. Now flip <b>METHOD</b> to "Keep first k" and the bars collapse to a
+        block of 1s at the start and 0s everywhere else; "Keep last k" does the
+        mirror image. Both are O(k) memory too, but they are biased samples.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Reservoir sampling is the canonical streaming/online algorithm: a uniform
-        random sample from a stream of unknown or unbounded length in a single pass
-        and constant memory. It's everywhere in big-data systems: sampling log lines, events, and database rows; building train/validation splits over data that
-        won't fit in RAM; A/B test exposure; and it's a building block of approximate
-        query engines alongside count-min sketches and HyperLogLog. The accept-with-
-        decreasing-probability idea is a discrete relative of the reweighting in{" "}
+        Reservoir sampling is the canonical streaming algorithm: a uniform random
+        sample from a stream of unknown or unbounded length, in a single pass and
+        constant memory. It is everywhere in big-data systems, sampling log lines,
+        events and database rows, building train and validation splits over data that
+        will not fit in RAM, and A/B test exposure. The accept-with-decreasing-
+        probability idea is a discrete relative of the reweighting in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/importance-sampling/`} style={{ color: "#a855f7" }}>importance sampling</a>{" "}
         and the random acceptance in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`} style={{ color: "#a855f7" }}>MCMC</a>.
       </DemoP>
-      <DemoP>
-        Caveats: basic Algorithm R gives UNWEIGHTED uniform sampling. Weighted variants (A-Res / A-ExpJ) are needed when items have different importance, and
-        time-decay or sliding-window sampling needs yet other schemes. It's a sample
-        WITHOUT replacement of a fixed size; it can't grow the sample after the fact
-        without re-streaming. Vitter's Algorithm L speeds it up by sampling how many
-        items to skip instead of flipping a coin per item. And like any random sample,
-        a size-k reservoir still has sampling error ~1/√k. It shrinks the data, it does not remove variance.
-      </DemoP>
+      <DemoP>Four caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Basic Algorithm R gives UNWEIGHTED uniform sampling. Weighted variants
+          (A-Res, A-ExpJ) are needed when items have different importance, and
+          time-decay or sliding-window sampling needs yet other schemes.
+        </DemoLI>
+        <DemoLI>
+          It samples WITHOUT replacement at a fixed size, so it cannot grow the
+          sample after the fact without re-streaming.
+        </DemoLI>
+        <DemoLI>
+          Vitter Algorithm L speeds it up by sampling how many items to skip instead
+          of flipping a coin per item. And like any random sample, a size-k reservoir
+          still has error ~1/√k: it shrinks the data, it does not remove variance.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Reservoir Sampling"
       subtitle="Keep a uniform random sample of k items from a stream you cannot store and whose length you do not know, in one pass and O(k) memory. The histogram proves every position survives with equal probability k/N, while the naive keep-first-k and keep-last-k shortcuts are visibly biased."

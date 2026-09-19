@@ -17,7 +17,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -214,49 +214,70 @@ function ConstrainedDecodingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both streams draw from the same toy model and build the same JSON object
-        one token at a time. The palette shows the model's next-token
-        distribution; the green-outlined tokens are the ones the grammar allows at
-        this position. The unconstrained stream samples from the whole row, so the
-        moment it picks a red (illegal) token the JSON is unparseable. The
-        constrained stream zeroes every non-green token, renormalizes over what's
-        left, and samples. It physically cannot emit anything that breaks the
-        structure.
+        Both streams draw from the same toy model and build the same JSON object one
+        token at a time. The palette shows the next-token distribution, and the
+        green-outlined tokens are the ones the grammar allows at this position.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The unconstrained stream samples from the whole row, so the moment it picks
+          a red, illegal token the JSON is unparseable.
+        </DemoLI>
+        <DemoLI>
+          The constrained stream zeroes every non-green token, renormalizes over what
+          is left, and samples. It physically cannot emit anything that breaks the
+          structure.
+        </DemoLI>
+        <DemoLI>
+          Push <b>MODEL COMPETENCE</b> down or <b>TEMPERATURE</b> up and the two
+          validity bars diverge. The constrained rate stays pinned at 100% while the
+          unconstrained rate falls off a cliff.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push MODEL COMPETENCE down or TEMPERATURE up and watch the two validity
-        bars diverge: the constrained rate stays pinned at 100% while the
-        unconstrained rate falls off a cliff. That gap is the whole argument for structured decoding: it lets a smaller, cheaper, or hotter model emit
-        guaranteed-valid output, instead of praying the raw samples happen to
-        parse and retrying when they don't.
+        That gap is the whole argument for structured decoding. It lets a smaller,
+        cheaper or hotter model emit guaranteed-valid output, instead of praying the
+        raw samples happen to parse and retrying when they do not.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Constrained (or grammar-guided) decoding is how "JSON mode", function /
-        tool calling, and structured outputs actually work. At every step the
-        decoder intersects the model's probability vector with the set of tokens a grammar permits next, whether that grammar is a JSON schema, a regex, or a
-        context-free grammar compiled to a finite-state machine, then samples from the
-        survivors. It's
-        the same per-step distribution you tune in the{" "}
+        Constrained, or grammar-guided, decoding is how JSON mode, function and tool
+        calling, and structured outputs actually work. At every step the decoder
+        intersects the probability vector of the model with the set of tokens a
+        grammar permits next, whether that grammar is a JSON schema, a regex or a
+        context-free grammar compiled to a finite-state machine, then samples from
+        the survivors. It is the same per-step distribution you tune in the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decoding/`} style={{ color: "#a855f7" }}>decoding</a>{" "}
         demo, with an extra hard mask laid over it.
       </DemoP>
       <DemoP>
-        In production it's the backbone of reliable tool use: libraries like
-        Outlines, Guidance, and XGrammar, and the constrained-decoding endpoints
-        in vLLM and llama.cpp, compile a schema into exactly this mask. The
-        tradeoffs the demo hides: a too-tight grammar can suppress tokens the model
-        wanted and dent answer quality, and building the per-step token mask
-        efficiently (without scanning the whole vocabulary every step) is the real
-        engineering. It pairs naturally with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>validation
-        and retry</a> as the output-side guardrail of an LLM system.
+        In production it is the backbone of reliable tool use, with Outlines,
+        Guidance and XGrammar, and the constrained-decoding endpoints in vLLM and
+        llama.cpp, all compiling a schema into exactly this mask. Three tradeoffs the
+        demo hides:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A too-tight grammar can suppress tokens the model wanted and dent answer
+          quality.
+        </DemoLI>
+        <DemoLI>
+          Building the per-step token mask efficiently, without scanning the whole
+          vocabulary every step, is the real engineering.
+        </DemoLI>
+        <DemoLI>
+          It pairs naturally with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>validation and retry</a>{" "}
+          as the output-side guardrail of an LLM system.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Constrained Decoding"
       subtitle="Mask the grammar-invalid tokens at every step and structured output becomes guaranteed, not hoped-for. Compare raw vs constrained JSON generation."

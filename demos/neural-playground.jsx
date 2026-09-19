@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -185,42 +185,57 @@ function NeuralPlaygroundDemo() {
   const explainer = (
     <>
       <DemoP>
-        This is a real multilayer perceptron, forward pass and backpropagation written from scratch, training on the 2D points by gradient descent on
-        binary cross-entropy. The background shows the network's current decision
-        surface: how confidently it predicts class 0 (blue) vs class 1 (violet) at
-        every point in the plane. Watch it bend and fold as the weights update.
+        This is a real multilayer perceptron, forward pass and backpropagation
+        written from scratch, training on the 2D points by gradient descent on binary
+        cross-entropy. The background shows the current decision surface: how
+        confidently it predicts class 0 (blue) against class 1 (violet) at every
+        point in the plane. Watch it bend and fold as the weights update.
       </DemoP>
-      <DemoP>
-        Set <b>hidden layers to 0</b> and try XOR or Spiral. A linear model (logistic regression) can only draw a straight boundary, so it fails. Add a
-        hidden layer and enough units and the same network suddenly carves curves
-        and islands. That jump is the whole point of depth: composing simple units
-        into nonlinear features. <b>ReLU vs tanh</b> changes the texture of the
-        boundary; too high a <b>learning rate</b> makes loss thrash instead of
-        settle.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Set <b>hidden layers to 0</b> and try XOR or Spiral. A linear model can
+          only draw a straight boundary, so it fails.
+        </DemoLI>
+        <DemoLI>
+          Add a hidden layer with enough units and the same network suddenly carves
+          curves and islands. That jump is the whole point of depth: composing simple
+          units into nonlinear features.
+        </DemoLI>
+        <DemoLI>
+          <b>ReLU against tanh</b> changes the texture of the boundary, and too high
+          a <b>learning rate</b> makes the loss thrash instead of settle.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        This is the entire deep-learning loop in miniature: forward pass, cross-entropy loss, backpropagation,
-        gradient descent. It is the exact machinery (just far bigger)
-        behind every modern network. The jump from "0 hidden layers fails on XOR" to "one
-        hidden layer solves it" is the <b>universal approximation theorem</b> made visible:
-        depth and nonlinearity let a net <i>build features</i> instead of merely weighting
-        the raw inputs.
+        This is the entire deep-learning loop in miniature: forward pass,
+        cross-entropy loss, backpropagation, gradient descent. It is the exact
+        machinery, just far bigger, behind every modern network. The jump from "0
+        hidden layers fails on XOR" to "one hidden layer solves it" is the{" "}
+        <b>universal approximation theorem</b> made visible. Depth and nonlinearity
+        let a net <i>build features</i> instead of merely weighting the raw inputs.
       </DemoP>
+      <DemoP>Every knob maps to a real training decision:</DemoP>
+      <DemoUL>
+        <DemoLI>Depth against width.</DemoLI>
+        <DemoLI>Activation choice.</DemoLI>
+        <DemoLI>
+          The learning rate that makes or breaks convergence. A too-high rate
+          thrashing the loss, or a too-small net underfitting the spiral, is the same
+          diagnostic loop practitioners run on production models.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Every knob maps to a real training decision: depth versus width, activation
-        choice, and the learning rate that makes or breaks convergence. A too-high rate
-        thrashing the loss, or a too-small net underfitting the spiral, is the same
-        diagnostic loop practitioners run on production models. The one thing this toy
-        hides is the validation curve you'd watch there to catch overfitting before it
-        ships.
+        The one thing this toy hides is the validation curve you would watch there to
+        catch overfitting before it ships.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout
       title="Neural Playground"

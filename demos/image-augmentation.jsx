@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, Toggle, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, Toggle, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const TILE = 72;          // tile resolution (px)
@@ -173,43 +173,61 @@ function ImageAugmentationDemo() {
   const explainer = (
     <>
       <DemoP>
-        Data augmentation manufactures new training examples from old ones by applying
-        transforms that <b>change the pixels but not the label</b>. The original on the
-        left is one labeled image; every tile on the right is the <i>same</i> rocket
-        seen through a random composition of flip, rotation, scale, color jitter, and
-        cutout. The model is forced to call all of them "rocket," so it learns the
-        features that survive these nuisances instead of memorizing one exact bitmap.
+        Data augmentation manufactures new training examples from old ones by
+        applying transforms that <b>change the pixels but not the label</b>. The
+        original on the left is one labeled image; every tile on the right is the{" "}
+        <i>same</i> rocket seen through a random composition of flip, rotation,
+        scale, color jitter and cutout. The model is forced to call all of them
+        "rocket", so it learns the features that survive these nuisances instead of
+        memorizing one exact bitmap.
       </DemoP>
-      <DemoP>
-        Watch the <b>mean pixel change</b>: even modest knobs move a large fraction of
-        the pixels, yet a human reads every tile as the same object. That gap is the free lunch. You multiply a small dataset into endless views and bake in the
-        invariances you know are true (a rocket is still a rocket flipped, rotated, or
-        partly hidden). The cost is that each transform encodes an assumption: flip a
-        digit and you may turn a 6 into something that isn't a 6, so the right
-        augmentations are domain-specific.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Watch the <b>mean pixel change</b>. Even modest knobs move a large fraction
+          of the pixels, yet a human reads every tile as the same object.
+        </DemoLI>
+        <DemoLI>
+          That gap is the free lunch. You multiply a small dataset into endless views
+          and bake in the invariances you know are true.
+        </DemoLI>
+        <DemoLI>
+          The cost is that each transform encodes an assumption. Flip a digit and you
+          may turn a 6 into something that is not a 6, so the right augmentations are
+          domain-specific.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        Augmentation is one of the most reliable regularizers in deep learning. It directly attacks <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>overfitting</a> by
-        enlarging and diversifying the data the model sees, which is why ImageNet-scale
-        vision, self-supervised pretraining, and almost every winning competition model
-        lean on it. <b>Cutout</b> is essentially
-        <a href={`${window.__DM_BASE || "../../"}visualize/regularization/`}> regularization</a> applied
-        to the input (dropout on pixels), and the flip/crop/jitter family is exactly the
-        invariance a <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}>convolutional</a> network
-        only partially gets for free from weight sharing.
+        Augmentation is one of the most reliable regularizers in deep learning. It
+        directly attacks{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>overfitting</a>{" "}
+        by enlarging and diversifying the data the model sees, which is why
+        ImageNet-scale vision, self-supervised pretraining and almost every winning
+        competition model lean on it. <b>Cutout</b> is essentially{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/regularization/`}>regularization</a>{" "}
+        applied to the input, dropout on pixels, and the flip, crop and jitter family
+        is exactly the invariance a{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`}>convolutional</a>{" "}
+        network only partially gets for free from weight sharing.
       </DemoP>
+      <DemoP>The same idea generalizes far beyond images:</DemoP>
+      <DemoUL>
+        <DemoLI>Token masking and synonym swaps in NLP.</DemoLI>
+        <DemoLI>Time and frequency masking on audio spectrograms.</DemoLI>
+        <DemoLI>
+          The two-view augmentation at the heart of{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/contrastive-learning/`}>contrastive learning</a>,
+          where the model is trained to pull augmented views of the same image
+          together.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The same idea generalizes far beyond images: token masking and synonym swaps in
-        NLP, time/frequency masking on audio spectrograms, and the two-view augmentation
-        at the heart of <a href={`${window.__DM_BASE || "../../"}visualize/contrastive-learning/`}>contrastive learning</a>,
-        where the model is trained to pull augmented views of the same image together.
-        The recurring principle: if you know a transform shouldn't change the answer,
-        teach the model that invariance by showing it the transform.
+        The recurring principle: if you know a transform should not change the
+        answer, teach the model that invariance by showing it the transform.
       </DemoP>
     </>
   );

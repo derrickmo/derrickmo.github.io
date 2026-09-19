@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -181,52 +181,73 @@ function ImportanceSamplingDemo() {
   const explainer = (
     <>
       <DemoP>
-        We want the probability that a standard normal exceeds t, the shaded violet tail. Sampling straight from p (gray line below) almost never lands there, so
-        naive Monte Carlo sits stuck near zero and jumps every time it gets a lucky
-        hit. Importance sampling instead draws from the cyan proposal q, which we aim
-        into the tail so samples actually arrive, then corrects for the cheat by
-        weighting each sample by w = p(x)/q(x). Oversampled regions get down-weighted,
-        and the weighted tail fraction is an unbiased estimate of the true probability. Watch the violet trace lock onto the green truth line fast.
+        We want the probability that a standard normal exceeds t, the shaded violet
+        tail. Sampling straight from p, the gray line below, almost never lands
+        there, so naive Monte Carlo sits stuck near zero and jumps every time it gets
+        a lucky hit. Importance sampling instead draws from the cyan proposal q,
+        aimed into the tail so samples actually arrive, then corrects for the cheat
+        by weighting each sample by w = p(x)/q(x). Oversampled regions get
+        down-weighted, the weighted tail fraction is unbiased, and the violet trace
+        locks onto the green truth line fast.
       </DemoP>
+      <DemoP>The catch is the proposal:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Slide <b>PROPOSAL MEAN</b> to 0 and you are back to naive sampling, so the
+          estimate crawls. Aim it near t and ESS/N stays high and convergence is
+          quick.
+        </DemoLI>
+        <DemoLI>
+          Push mu_q far past t, or make sigma_q too narrow, and a handful of samples
+          land where p is much larger than q, so their weights explode and the
+          estimate is carried by two or three points.
+        </DemoLI>
+        <DemoLI>
+          The Effective Sample Size, (Σw)&sup2;/Σw&sup2;, the count of equivalent
+          independent samples, then collapses toward 1 and turns red.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The catch is the proposal. Slide PROPOSAL MEAN to 0 and you're back to naive sampling and the estimate crawls. Aim it near t and ESS/N stays high and
-        convergence is quick. But push mu_q far past t, or make sigma_q too narrow,
-        and a handful of samples land where p is much larger than q, so their weights
-        explode: the estimate is then carried by two or three points, the variance
-        skyrockets, and the Effective Sample Size, (Σw)²/Σw², the count of "equivalent independent samples",
-        collapses toward 1 (it turns red). That ESS
-        crash is the universal diagnostic for a bad proposal, and the reason
+        That ESS crash is the universal diagnostic for a bad proposal, and the reason
         importance weights are notoriously fragile in high dimensions.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Importance sampling estimates an expectation under a distribution that's hard
-        to sample (or to hit the region you care about) by sampling an easier proposal
-        and reweighting. It's the engine behind rare-event and tail-risk estimation
-        (reliability, finance, particle physics), off-policy evaluation in
-        reinforcement learning (reweighting trajectories from a behavior policy), and
-        the resampling step of particle filters. It's the alternative to building a
-        Markov chain like{" "}
+        Importance sampling estimates an expectation under a distribution that is
+        hard to sample, or hard to hit the region you care about, by sampling an
+        easier proposal and reweighting. It is the engine behind rare-event and
+        tail-risk estimation in reliability, finance and particle physics,
+        off-policy evaluation in reinforcement learning, and the resampling step of
+        particle filters. It is the alternative to building a Markov chain like{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`} style={{ color: "#a855f7" }}>MCMC</a>{" "}
-        when you have a decent proposal, and the self-normalized variant only needs the
-        target up to a constant, exactly the setting of{" "}
+        when you have a decent proposal, and the self-normalized variant only needs
+        the target up to a constant, exactly the setting of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/bayes/`} style={{ color: "#a855f7" }}>Bayesian</a>{" "}
         posteriors.
       </DemoP>
-      <DemoP>
-        Caveats: the estimator is only as good as the proposal. If q has thinner tails
-        than p, the weights have infinite variance and the estimate is silently unreliable, so always monitor ESS, not just the point estimate. The method
-        degrades badly in high dimensions (weights become astronomically skewed), which
-        motivates adaptive IS, annealed IS, and sequential Monte Carlo. The
-        self-normalized form trades a small bias for not needing the normalizing
-        constant. Rule of thumb: make the proposal a bit heavier-tailed than the
-        target, and never trust an importance estimate whose ESS has collapsed.
-      </DemoP>
+      <DemoP>The estimator is only as good as the proposal:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          If q has thinner tails than p, the weights have infinite variance and the
+          estimate is silently unreliable. Always monitor ESS, not just the point
+          estimate.
+        </DemoLI>
+        <DemoLI>
+          It degrades badly in high dimensions, where weights become astronomically
+          skewed, which motivates adaptive IS, annealed IS and sequential Monte Carlo.
+        </DemoLI>
+        <DemoLI>
+          Rule of thumb: make the proposal a bit heavier-tailed than the target, and
+          never trust an importance estimate whose ESS has collapsed.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Importance Sampling"
       subtitle="Estimate a rare-event probability that naive Monte Carlo never reaches by sampling a steered proposal and reweighting by p/q. Aim the proposal into the tail to watch the estimate converge, or misplace it and watch a few exploding weights crater the effective sample size."
