@@ -16,7 +16,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 330, CH = 250;
@@ -142,21 +142,29 @@ function PPODemo() {
     <>
       <DemoP>
         Policy gradients are unstable because one big step can collapse the policy,
-        and you can't safely reuse a batch of experience. PPO fixes both with a
-        <b> clipped surrogate</b>. The top plot is its objective vs the probability
-        ratio <i>r = π_new/π_old</i>: it tracks the honest importance-weighted return
-        <i> r·A</i> (gray) only inside the trust region <b>[1-ε, 1+ε]</b>. Outside it,
-        the curve goes flat, so the gradient is zero and the optimizer has no reason
-        to move <i>r</i> any further. The gold dot is where PPO's update lands.
+        and you cannot safely reuse a batch of experience. PPO fixes both with a{" "}
+        <b>clipped surrogate</b>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The top plot is its objective against the probability ratio{" "}
+          <i>r = π_new/π_old</i>. It tracks the honest importance-weighted return{" "}
+          <i>r·A</i>, in gray, only inside the trust region <b>[1-ε, 1+ε]</b>.
+        </DemoLI>
+        <DemoLI>
+          Outside it the curve goes flat, so the gradient is zero and the optimizer
+          has no reason to move <i>r</i> any further.
+        </DemoLI>
+        <DemoLI>The gold dot is where the PPO update lands.</DemoLI>
+      </DemoUL>
       <DemoP>
-        The bottom plot shows why that matters. PPO runs several gradient
-        <b> epochs on the same batch</b> for sample efficiency. Without the clip
-        (red), each epoch keeps pushing. The ratio marches far from 1.0 and the new
-        policy is wildly off from the data it was trained on: a destructive update.
-        With the clip (violet), the ratio climbs to the edge of the trust region and
-        <b> stops</b>. Crank the learning rate or the epoch count and watch the red
-        line blow out while PPO stays parked at 1±ε.
+        The bottom plot shows why that matters. PPO runs several gradient{" "}
+        <b>epochs on the same batch</b> for sample efficiency. Without the clip, in
+        red, each epoch keeps pushing: the ratio marches far from 1.0 and the new
+        policy is wildly off from the data it was trained on, a destructive update.
+        With the clip, in violet, the ratio climbs to the edge of the trust region
+        and <b>stops</b>. Crank the learning rate or the epoch count and watch the
+        red line blow out while PPO stays parked at 1&plusmn;ε.
       </DemoP>
     </>
   );

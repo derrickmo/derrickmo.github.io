@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -189,23 +189,30 @@ function RNNGatesDemo() {
   const explainer = (
     <>
       <DemoP>
-        An <b>LSTM cell</b> threads two signals through time: a hidden state <i>h_t</i>{" "}
-        and a <b>cell state</b> <i>c_t</i> that survives unchanged unless a gate decides
-        otherwise. Three sigmoid gates control the flow: the <b>forget gate</b>
-        <i> f_t</i> erases parts of <i>c</i>; the <b>input gate</b> <i>i_t</i> writes a
-        new candidate; the <b>output gate</b> <i>o_t</i> exposes <i>c</i> as the new
-        hidden state. Each row of the heatmap is one of the 6 hidden units; yellow =
-        gate open, dark = gate closed.
+        An <b>LSTM cell</b> threads two signals through time: a hidden state{" "}
+        <i>h_t</i> and a <b>cell state</b> <i>c_t</i> that survives unchanged unless
+        a gate decides otherwise. Three sigmoid gates control the flow:
       </DemoP>
+      <DemoUL>
+        <DemoLI>The <b>forget gate</b> <i>f_t</i> erases parts of <i>c</i>.</DemoLI>
+        <DemoLI>The <b>input gate</b> <i>i_t</i> writes a new candidate.</DemoLI>
+        <DemoLI>
+          The <b>output gate</b> <i>o_t</i> exposes <i>c</i> as the new hidden state.
+          Each row of the heatmap is one of the 6 hidden units, yellow for open and
+          dark for closed.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Try the <b>step</b> signal with the forget gate selected: some units will close
-        when the input jumps, dumping the past; others stay open and integrate. Switch
-        to the <b>pulse</b> signal and watch the cell state hold onto information long after the input is gone. That is the whole trick of the LSTM. The weights here are
-        random (no training), but the gate structure already gives the cell selective
-        memory.
+        Try the <b>step</b> signal with the forget gate selected: some units close
+        when the input jumps, dumping the past, while others stay open and
+        integrate. Switch to the <b>pulse</b> signal and watch the cell state hold
+        onto information long after the input is gone. That is the whole trick of
+        the LSTM. The weights here are random, with no training, but the gate
+        structure already gives the cell selective memory.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -226,6 +233,7 @@ function RNNGatesDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="LSTM Gates"
       subtitle="A live LSTM cell processing a 1-D sequence. See the forget, input, and output gates open and close over time."

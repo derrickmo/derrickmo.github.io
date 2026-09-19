@@ -2,7 +2,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -120,21 +120,31 @@ function PositionalEncodingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Attention has no built-in sense of order, so we inject position directly.
-        <b> Sinusoidal</b> encoding gives every position a fixed vector built from
-        sines and cosines at geometrically spaced frequencies:
-        <i> PE(pos, 2i) = sin(pos / θ^(2i/d))</i> and the cosine for the odd index.
-        Left columns are high-frequency (flip every few positions); right columns
-        are low-frequency (drift slowly). That mix lets the model read both fine and
-        coarse position. Raise the <b>base θ</b> and the stripes stretch into longer wavelengths, better for long contexts.
+        Attention has no built-in sense of order, so we inject position directly.{" "}
+        <b>Sinusoidal</b> encoding gives every position a fixed vector built from
+        sines and cosines at geometrically spaced frequencies:{" "}
+        <i>PE(pos, 2i) = sin(pos / θ^(2i/d))</i>, and the cosine for the odd index.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Left columns are high-frequency and flip every few positions.
+        </DemoLI>
+        <DemoLI>
+          Right columns are low-frequency and drift slowly. That mix lets the model
+          read both fine and coarse position.
+        </DemoLI>
+        <DemoLI>
+          Raise the <b>base θ</b> and the stripes stretch into longer wavelengths,
+          which is better for long contexts.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>RoPE</b> (rotary) takes the same frequency idea but <i>rotates</i> each
-        2-D slice of the query/key by an angle proportional to position. Drag the
-        position slider: each dial spins at its own rate. Because attention compares
-        a query at position <i>m</i> with a key at position <i>n</i>, the rotation
-        cancels down to a function of <i>m − n</i>, so RoPE encodes
-        <em> relative</em> position, which is why modern LLMs use it.
+        <b>RoPE</b>, rotary encoding, takes the same frequency idea but{" "}
+        <i>rotates</i> each 2-D slice of the query and key by an angle proportional
+        to position. Drag the position slider and each dial spins at its own rate.
+        Because attention compares a query at position <i>m</i> with a key at
+        position <i>n</i>, the rotation cancels down to a function of <i>m − n</i>,
+        so RoPE encodes <em>relative</em> position, which is why modern LLMs use it.
       </DemoP>
     </>
   );
@@ -157,6 +167,7 @@ function PositionalEncodingDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout
       title="Positional Encoding"

@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
 const SR = 8000, N = 1024;
@@ -110,19 +110,30 @@ function PitchDetectionDemo() {
   const explainer = (
     <>
       <DemoP>
-        A pitched sound is periodic: it looks the same after one period of
-        <i> 1/f0</i> seconds. Slide a copy of the signal against itself and the overlap, the <b>autocorrelation</b> r(lag), spikes whenever the shift
-        equals a whole number of periods. The first strong peak inside the search
-        band (shaded) marks one period, and the pitch falls right out:
-        <b> f0 = sample rate / peak lag</b>.
+        A pitched sound is periodic: it looks the same after one period of{" "}
+        <i>1/f0</i> seconds. Slide a copy of the signal against itself and the
+        overlap, the <b>autocorrelation</b> r(lag), spikes whenever the shift equals
+        a whole number of periods. The first strong peak inside the shaded search
+        band marks one period, and the pitch falls right out:{" "}
+        <b>f0 = sample rate / peak lag</b>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The autocorrelation finds the same fundamental whether the tone is a pure
+          sine or packed with <b>harmonics</b>, and that timbre-independence is why
+          it works on voices and instruments.
+        </DemoLI>
+        <DemoLI>
+          Add a little <b>noise</b> and it just roughens the curve.
+        </DemoLI>
+        <DemoLI>
+          Past a point the periodic peak no longer dominates and the estimate jumps,
+          often by an exact octave, picking twice or half the true lag.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Notice the autocorrelation finds the same fundamental whether the tone is a
-        pure sine or packed with <b>harmonics</b>, and that timbre-independence is why it works on voices and instruments. Then add <b>noise</b>: a little just
-        roughens the curve, but past a point the periodic peak no longer dominates
-        and the estimate jumps, often by an exact octave (picking 2× or ½ the true
-        lag). That octave ambiguity is the central headache of pitch detection, and
-        what refinements like YIN's difference function and cumulative-mean
+        That octave ambiguity is the central headache of pitch detection, and what
+        refinements like the difference function of YIN and cumulative-mean
         normalization are built to suppress.
       </DemoP>
     </>
