@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -170,45 +170,60 @@ function MCDropoutDemo() {
   const explainer = (
     <>
       <DemoP>
-        A normal network outputs a single number with no sense of how sure it is.
-        MC dropout turns that point estimate into a distribution almost for free:
-        leave dropout switched on at test time and run the same input through many
-        times. Each random dropout mask is a slightly different thinned network, so
-        you get a cloud of predictions (the faint blue curves) whose mean is the
-        answer and whose spread is the uncertainty (the violet band).
+        A normal network outputs a single number with no sense of how sure it is. MC
+        dropout turns that point estimate into a distribution almost for free: leave
+        dropout switched on at test time and run the same input through many times.
+        Each random dropout mask is a slightly different thinned network, so you get
+        a cloud of predictions, the faint blue curves, whose mean is the answer and
+        whose spread is the uncertainty, the violet band.
       </DemoP>
-      <DemoP>
-        The data here lives in two clusters with a gap and empty edges. Over the
-        clusters the sub-networks are tightly constrained and agree, so the band is
-        thin; in the gap and out past the data there's nothing to pin them, so they
-        fan out and the band balloons, exactly the behavior you want, encoded in
-        the σ-over-data vs σ-in-gap readout. Raise the dropout rate to make the
-        ensemble more diverse (wider, more cautious bands); add samples for a
-        smoother estimate at higher cost.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Over the clusters the sub-networks are tightly constrained and agree, so
+          the band is thin.
+        </DemoLI>
+        <DemoLI>
+          In the gap and out past the data there is nothing to pin them, so they fan
+          out and the band balloons. That is exactly the behavior you want, encoded
+          in the σ-over-data against σ-in-gap readout.
+        </DemoLI>
+        <DemoLI>
+          Raise the dropout rate for a more diverse ensemble and wider, more cautious
+          bands. Add samples for a smoother estimate at higher cost.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        MC dropout (Gal & Ghahramani, 2016) reinterprets dropout as approximate
-        Bayesian inference: averaging over dropout masks approximates integrating
-        over a posterior on the weights, giving epistemic uncertainty with no change to the architecture. Just keep dropout on and sample. It's the cheap cousin
-        of full Bayesian neural nets and of deep ensembles (train several nets;
-        usually better-calibrated but N× the training).
+        MC dropout (Gal and Ghahramani, 2016) reinterprets dropout as approximate
+        Bayesian inference. Averaging over dropout masks approximates integrating
+        over a posterior on the weights, giving epistemic uncertainty with no change
+        to the architecture: just keep dropout on and sample. It is the cheap cousin
+        of full Bayesian neural nets and of deep ensembles, which train several nets
+        and are usually better calibrated at N times the training cost.
       </DemoP>
       <DemoP>
-        Uncertainty is the third pillar of trustworthy ML alongside{" "}
+        Uncertainty is the third pillar of trustworthy ML, alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
         (are the probabilities honest?) and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`} style={{ color: "#a855f7" }}>conformal
-        prediction</a> (coverage-guaranteed sets). It powers selective prediction
-        (abstain when unsure), active-learning acquisition, and out-of-distribution detection, though the uncertainty of MC dropout is only as good as its
-        approximation, which is why it's often paired with calibration or ensembles
-        in high-stakes settings.
+        <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`} style={{ color: "#a855f7" }}>conformal prediction</a>{" "}
+        (coverage-guaranteed sets). It powers three things directly:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Selective prediction, abstaining when unsure.</DemoLI>
+        <DemoLI>Active-learning acquisition, choosing what to label next.</DemoLI>
+        <DemoLI>
+          Out-of-distribution detection, though the uncertainty of MC dropout is only
+          as good as its approximation, which is why it is often paired with
+          calibration or ensembles in high-stakes settings.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="MC Dropout"
       subtitle="Keep dropout on at inference and sample many times. The spread is the uncertainty of the model, and it grows where the data runs out."

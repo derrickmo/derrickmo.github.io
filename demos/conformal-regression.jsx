@@ -15,7 +15,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -211,43 +211,63 @@ function ConformalRegressionDemo() {
       <DemoP>
         A regressor hands you one number per x. Split conformal upgrades it to an
         interval with a promise: the true y lands inside at least (1−α) of the time.
-        It fits the mean f̂ on a training split, then on a <i>separate</i> calibration
-        split measures the residuals and takes their (1−α) quantile q̂. The band is
-        f̂(x) ± q̂. Each dot is a test point; red ones are the (≤ α) that fall outside.
       </DemoP>
+      <DemoUL>
+        <DemoLI>Fit the mean f̂ on a training split.</DemoLI>
+        <DemoLI>
+          On a <i>separate</i> calibration split, measure the residuals and take
+          their (1−α) quantile q̂.
+        </DemoLI>
+        <DemoLI>
+          The band is f̂(x) ± q̂. Each dot is a test point, and the red ones are the
+          (≤ α) that fall outside.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Switch INTERVAL SCORE with heteroscedasticity cranked up. The constant band
-        is one-size-fits-all: wastefully wide on the calm left side, dangerously
+        Switch <b>INTERVAL SCORE</b> with heteroscedasticity cranked up. The constant
+        band is one-size-fits-all: wastefully wide on the calm left side, dangerously
         tight on the noisy right. The adaptive score divides residuals by a local
         spread estimate σ̂(x), so the band breathes with the noise while coverage
-        stays pinned to target. Now drop FIT DEGREE to 1: the mean is badly underfit,
-        yet coverage <i>still</i> holds, because the band simply swells to swallow the bias.
+        stays pinned to target. Now drop <b>FIT DEGREE</b> to 1: the mean is badly
+        underfit, yet coverage <i>still</i> holds, because the band simply swells to
+        swallow the bias.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         This is the regression face of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`} style={{ color: "#a855f7" }}>conformal prediction</a>:
-        same recipe (calibrate a score, take a quantile), but the output is an
+        <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`} style={{ color: "#a855f7" }}>conformal prediction</a>.
+        Same recipe, calibrate a score and take a quantile, but the output is an
         interval instead of a label set. The adaptive variant generalizes to
-        Conformalized Quantile Regression (CQR, Romano et al.), which calibrates two
-        learned quantile regressors and tends to give the tightest valid bands. It's
+        Conformalized Quantile Regression (Romano et al.), which calibrates two
+        learned quantile regressors and tends to give the tightest valid bands. It is
         the go-to for distribution-free uncertainty in forecasting, scientific
         regression, and any setting where a wrong point estimate is costly.
       </DemoP>
-      <DemoP>
-        Caveats mirror the classification case. Coverage is <i>marginal</i>, not conditional. It is averaged over x, so it can still be uneven across regions even
-        when the adaptive band helps. It assumes exchangeability of calibration and
-        test data, so distribution shift voids the guarantee (online/adaptive
-        conformal patches this). And it pairs naturally with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a> and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/forecasting/`} style={{ color: "#a855f7" }}>forecasting</a>,
-        where honest intervals matter as much as the point prediction.
-      </DemoP>
+      <DemoP>Caveats mirror the classification case:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Coverage is <i>marginal</i>, averaged over x, so it can still be uneven
+          across regions even when the adaptive band helps.
+        </DemoLI>
+        <DemoLI>
+          It assumes exchangeability of calibration and test data, so distribution
+          shift voids the guarantee. Online and adaptive conformal patch this.
+        </DemoLI>
+        <DemoLI>
+          It pairs naturally with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
+          and{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/forecasting/`} style={{ color: "#a855f7" }}>forecasting</a>,
+          where honest intervals matter as much as the point prediction.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Conformal Regression"
       subtitle="Turn a point regressor into a prediction interval with a coverage guarantee. Watch coverage hold even when the mean is underfit, then see the band breathe with the noise once you make the score locally adaptive."
