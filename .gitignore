@@ -44,3 +44,8 @@ public/interview/
 # Same rule for the Phase D app bundle (scripts/build-app-bundle.mjs): it is a
 # projection of content/ and must never be a second copy anyone can hand-edit.
 public/app/
+
+# Session scratch scripts (reach.mjs, place.mjs, deadcount.mjs ...). Referenced by the
+# docs as tools to re-run, never shipped. Untracked-but-unignored made every `git status`
+# noisy and put 43 files one `git add -A` away from a commit.
+scratchpad/

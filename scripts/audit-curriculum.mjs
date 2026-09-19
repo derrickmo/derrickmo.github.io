@@ -206,7 +206,7 @@ if (!problems.length) console.log('  none — every LIVE store lesson passes eve
 // Another hand-maintained cross-reference nothing checked standing: each of the 38 HF
 // notebook rows names the curriculum lessons it maps onto, and hf-section-app renders
 // those as links. Validated once when B5 shipped and never since. Same drift class as
-// CONCEPT_TAGS, which had two live instances (CLAUDE.md 2026-08-30).
+// CONCEPT_TAGS, which had two live instances (_private/HISTORY.md, 2026-08-30).
 {
   const hfWin = {};
   new Function('window', fs.readFileSync('hf-lectures.js', 'utf8'))(hfWin);

@@ -4,7 +4,7 @@
 // paths.js holds 123 hand-written steps across 11 curated paths, each naming an id in
 // another registry (demo / game / module / concept / lesson / hf). Nothing generates
 // them, so it is the same drift risk as CONCEPT_TAGS — which had two live instances of
-// exactly that (see CLAUDE.md 2026-08-30).
+// exactly that (see _private/HISTORY.md, 2026-08-30).
 //
 // ⚠ WHY THIS WAS REWRITTEN: the original inferred failure from the RESOLVER echoing the
 // ref back as the title. That works for kinds whose resolver does a lookup, and silently

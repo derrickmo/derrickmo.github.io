@@ -31,7 +31,7 @@ const SKIP = new Set(["node_modules", "dist", ".git", ".gen-out", "_review", "_e
 
 // Known, deliberate exceptions: module scope, but GUARDED, so an unlucky order degrades
 // the page instead of throwing. Converting them would mean renaming a token that also
-// appears as literal JSX display text. Reviewed 2026-09-03; see CLAUDE.md.
+// appears as literal JSX display text. Reviewed 2026-09-03; see _private/HISTORY.md, 2026-09-03.
 const ALLOW = new Set([
   "module-app.jsx:LECTURES",
   "module-app.jsx:lectureFolder",
@@ -93,7 +93,7 @@ console.log(`window globals: scanned ${files.length} files, ${producedBy.size} g
 if (findings.length) {
   console.log(`\n${findings.length} module-scope capture(s) of a sibling-set global (PF-0020):`);
   for (const f of findings) console.log(`  ✗ ${f.rel}:${f.line}  window.${f.g}\n      ${f.text}`);
-  console.log("\n  Fix: read at use — const x = () => window.X;  (see CLAUDE.md PF-0020)");
+  console.log("\n  Fix: read at use — const x = () => window.X;  (see _private/HISTORY.md, PF-0020)");
   process.exit(1);
 }
 console.log("OK — no page app captures a sibling-set window global at module scope.");
