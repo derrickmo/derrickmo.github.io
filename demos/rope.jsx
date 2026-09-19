@@ -16,7 +16,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -204,20 +204,29 @@ function RopeDemo() {
   const explainer = (
     <>
       <DemoP>
-        Rotary Position Embedding (RoPE) injects token position into a transformer
-        by <b>rotating</b> the Q and K vectors in 2-D blocks, by an angle that grows
+        Rotary Position Embedding injects token position into a transformer by{" "}
+        <b>rotating</b> the Q and K vectors in 2-D blocks, by an angle that grows
         linearly with position: <i>theta_i(m) = m · 10000<sup>−2i/d</sup></i>. Each
-        block (band) rotates at its own frequency, and together they form a position
-        "fingerprint" you can read out as relative position via a dot product.
+        block, or band, rotates at its own frequency, and together they form a
+        position fingerprint you can read out as relative position via a dot product.
       </DemoP>
-      <DemoP>
-        The magic property is in the right-hand readout: <i>attn(m, n)</i> depends
-        only on <i>(m − n)</i>, not on m and n individually. Slide the query
-        position <i>m_q</i> and watch the orange attention curve translate and never change shape. That's why RoPE generalizes beyond the training-time context
-        length while learned absolute embeddings don't.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The magic property is in the right-hand readout: <i>attn(m, n)</i> depends
+          only on <i>(m − n)</i>, not on m and n individually.
+        </DemoLI>
+        <DemoLI>
+          Slide the query position <i>m_q</i> and the orange attention curve
+          translates and never changes shape.
+        </DemoLI>
+        <DemoLI>
+          That is why RoPE generalizes beyond the training-time context length while
+          learned absolute embeddings do not.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -239,6 +248,7 @@ function RopeDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="RoPE Explorer"
       subtitle="Rotary position embeddings. See relative-position invariance fall out of pair-wise rotations."

@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -183,20 +183,33 @@ function SparseAutoencoderDemo() {
   const explainer = (
     <>
       <DemoP>
-        Real networks pack far more concepts into their activations than they have neurons, which is <b>superposition</b>, so a single neuron lights up for several unrelated things
-        (it's <i>polysemantic</i>). Here the data is built from {G} hidden feature directions
-        crammed into a 2-D activation space, so the two raw axes are hopelessly mixed. A
-        <b> sparse autoencoder</b> is trained to reconstruct each activation while keeping its
-        hidden code <b>sparse</b> (an L1 penalty), and an overcomplete dictionary plus that
-        sparsity pressure forces each learned atom (white arrow) to specialize onto <i>one</i>{" "}
-        true feature (colored spoke).
+        Real networks pack far more concepts into their activations than they have
+        neurons, which is <b>superposition</b>, so a single neuron lights up for
+        several unrelated things and is <i>polysemantic</i>. Here the data is built
+        from {G} hidden feature directions crammed into a 2-D activation space, so
+        the two raw axes are hopelessly mixed. A <b>sparse autoencoder</b> is trained
+        to reconstruct each activation while keeping its hidden code <b>sparse</b>,
+        via an L1 penalty, and an overcomplete dictionary plus that sparsity pressure
+        forces each learned atom, the white arrow, to specialize onto <i>one</i> true
+        feature, the colored spoke.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Hit <b>TRAIN</b> and watch the white arrows rotate until they lock onto the
+          colored spokes. <b>Feature recovery</b> climbs toward 100%.
+        </DemoLI>
+        <DemoLI>
+          Turn <b>L1 λ</b> down and atoms stay smeared between features:
+          polysemantic, low sparsity, high L0.
+        </DemoLI>
+        <DemoLI>
+          Turn it up and the code gets sparser but reconstruction degrades. Make the
+          dictionary <b>overcomplete</b> and the extra atoms simply go dead.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Hit TRAIN and watch the white arrows rotate until they lock onto the colored spokes. <b>Feature recovery</b> climbs toward 100%. Turn the <b>L1 λ</b> down and atoms stay
-        smeared between features (polysemantic, low sparsity, high L0); turn it up and the code
-        gets sparser but reconstruction degrades. Make the dictionary <b>overcomplete</b> and the
-        extra atoms simply go dead. This is the core finding that made SAEs the leading tool for
-        prying open what's actually inside a model's activations.
+        This is the core finding that made SAEs the leading tool for prying open what
+        is actually inside the activations of a model.
       </DemoP>
     </>
   );

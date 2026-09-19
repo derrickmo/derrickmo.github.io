@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -302,20 +302,30 @@ function PathfindingDemo() {
     <>
       <DemoP>
         Every algorithm here explores the grid by repeatedly expanding the most
-        promising cell, but they disagree on what "promising" means. <b>Dijkstra</b>{" "}
-        and <b>BFS</b> expand by distance from the start (guaranteed shortest path,
-        but they fan out in every direction). <b>Greedy</b> best-first expands by the
-        heuristic estimate of distance to the goal (fast, but can miss the shortest
-        route). <b>A*</b> combines both. It ranks cells by <i>f = g + h</i>, the
-        cost so far plus the estimated cost remaining, so it heads toward the goal
-        while staying optimal when the heuristic never overestimates.
+        promising cell. They disagree on what "promising" means.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Dijkstra</b> and <b>BFS</b> expand by distance from the start. A
+          shortest path is guaranteed, but they fan out in every direction.
+        </DemoLI>
+        <DemoLI>
+          <b>Greedy</b> best-first expands by the heuristic estimate of distance to
+          the goal. Fast, but it can miss the shortest route.
+        </DemoLI>
+        <DemoLI>
+          <b>A*</b> combines both, ranking cells by <i>f = g + h</i>, the cost so
+          far plus the estimated cost remaining, so it heads toward the goal while
+          staying optimal when the heuristic never overestimates.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the <span style={{ color: "#60a5fa" }}>frontier</span> (cells queued to
-        explore) and the <span style={{ color: "#3b82f6" }}>visited</span> set grow,
-        then the <span style={{ color: "#c084fc" }}>path</span> light up. Notice how
-        A* with the Manhattan heuristic visits far fewer cells than Dijkstra to find
-        the same path. Drag the start and goal, paint walls, or drop a random maze.
+        Watch the <span style={{ color: "#60a5fa" }}>frontier</span>, the cells
+        queued to explore, and the{" "}
+        <span style={{ color: "#3b82f6" }}>visited</span> set grow, then the{" "}
+        <span style={{ color: "#c084fc" }}>path</span> light up. Notice how A* with
+        the Manhattan heuristic visits far fewer cells than Dijkstra to find the same
+        path. Drag the start and goal, paint walls, or drop a random maze.
       </DemoP>
     </>
   );
@@ -338,6 +348,7 @@ function PathfindingDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout
       title="A* Pathfinding"

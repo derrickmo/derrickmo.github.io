@@ -18,7 +18,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -271,21 +271,34 @@ function RewardModelDemo() {
   const explainer = (
     <>
       <DemoP>
-        You can't ask a human "rate this response 7.3 / 10" and get anything consistent, but ask "which of these two is better?" and the answers are
-        reliable. The reward model turns those pairwise choices into a number. Each
-        dot is a response; its color is the <i>true</i> reward a human is implicitly
-        judging by (brightest near the green "ideal"). The model never sees those colors, only a stream of "A beat B" labels, and has to reconstruct the
-        whole reward field, shown as the heatmap.
+        You cannot ask a human "rate this response 7.3 out of 10" and get anything
+        consistent, but ask "which of these two is better?" and the answers are
+        reliable. The reward model turns those pairwise choices into a number.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Each dot is a response, colored by the <i>true</i> reward a human is
+          implicitly judging by, brightest near the green ideal.
+        </DemoLI>
+        <DemoLI>
+          The model never sees those colors, only a stream of "A beat B" labels, and
+          has to reconstruct the whole reward field shown as the heatmap.
+        </DemoLI>
+        <DemoLI>
+          Training minimizes the <b>Bradley-Terry loss</b>{" "}
+          −log σ(r(chosen) − r(rejected)), so every comparison pushes the winner up
+          and the loser down.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Training minimizes the <b>Bradley-Terry loss</b> −log σ(r(chosen) −
-        r(rejected)): every comparison pushes the winner's score up and the
-        loser's down. Watch the bright patch of the heatmap drift onto the
-        high-true-reward dots and the violet "best pick" ring snap toward the green
-        ideal. Drop β to make humans noisy and the ranking accuracy stalls below 100%: garbage preferences in, a fuzzy reward out.
+        Watch the bright patch of the heatmap drift onto the high-true-reward dots
+        and the violet "best pick" ring snap toward the green ideal. Drop β to make
+        the humans noisy and the ranking accuracy stalls below 100%: garbage
+        preferences in, a fuzzy reward out.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -308,6 +321,7 @@ function RewardModelDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Reward Model (RLHF)"
       subtitle="Learn a scalar reward from pairwise human preferences with Bradley-Terry. This is the signal PPO maximizes in RLHF. Watch the learned field reconstruct the hidden one."

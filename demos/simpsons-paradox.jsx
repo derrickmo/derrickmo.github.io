@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -133,22 +133,30 @@ function SimpsonsDemo() {
     <>
       <DemoP>
         Every colored cluster slopes <i>up</i>: inside each group, more X means more
-        Y. Yet the dashed pooled line, the trend you would report if you ignored the groups, slopes{" "}
-        <i>down</i>. That's Simpson's paradox: a confounder (the
-        thing that defines the groups) shifts the clusters so that groups with high
-        X happen to sit at low Y, and naively pooling everything inverts the
-        relationship. Toggle SHOW GROUPS off to see exactly the misleading picture
-        a careless analysis would produce.
+        Y. Yet the dashed pooled line, the trend you would report if you ignored the
+        groups, slopes <i>down</i>. That is Simpson's paradox. A confounder, the
+        thing that defines the groups, shifts the clusters so that groups with high X
+        happen to sit at low Y, and naively pooling everything inverts the
+        relationship. Toggle <b>SHOW GROUPS</b> off to see exactly the misleading
+        picture a careless analysis would produce.
       </DemoP>
-      <DemoP>
-        Drag CONFOUNDING STRENGTH from 0 upward and watch the pooled slope cross
-        zero and flip sign while the within-group slopes never move. The paradox switches on. The lesson isn't that statistics lie; it's that the right
-        analysis depends on the causal story. If the group is a confounder you must
-        condition on it (the within-group trend is correct); the aggregate answer
-        is the wrong one to act on.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drag <b>CONFOUNDING STRENGTH</b> up from 0 and the pooled slope crosses
+          zero and flips sign, while the within-group slopes never move.
+        </DemoLI>
+        <DemoLI>
+          The lesson is not that statistics lie. It is that the right analysis
+          depends on the causal story.
+        </DemoLI>
+        <DemoLI>
+          If the group is a confounder you must condition on it, so the within-group
+          trend is the correct one and the aggregate is the wrong one to act on.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -170,6 +178,7 @@ function SimpsonsDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Simpson's Paradox"
       subtitle="Every subgroup trends up, the pooled data trends down. See how a confounder reverses the conclusion, and why you have to condition on it."
