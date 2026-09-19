@@ -2,7 +2,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, StatReadout, ControlGroup,
 } = window;
 
@@ -103,21 +103,32 @@ function FourierDemo() {
   const explainer = (
     <>
       <DemoP>
-        Fourier's idea: <b>any</b> periodic signal is a sum of sine waves at integer
-        multiples of a base frequency. Here each rotating circle (an "epicycle") is one of those sines, with its radius the amplitude and its speed the frequency, and
-        chaining them tip-to-tail, the final point traces the target wave on
-        the right. Add <b>harmonics</b> and watch a few circles turn into a crisp
-        square, sawtooth, or triangle.
+        The idea of Fourier: <b>any</b> periodic signal is a sum of sine waves at
+        integer multiples of a base frequency.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Each rotating circle, an epicycle, is one of those sines, with its radius
+          the amplitude and its speed the frequency.
+        </DemoLI>
+        <DemoLI>
+          Chained tip to tail, the final point traces the target wave on the right.
+        </DemoLI>
+        <DemoLI>
+          Add <b>harmonics</b> and watch a few circles turn into a crisp square,
+          sawtooth or triangle.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Notice the sharp corners need many high-frequency terms, and that the square
-        wave's overshoot at each jump never quite goes away (the Gibbs phenomenon).
-        This decomposition is the foundation of signal processing for audio, images and compression, and the same
-        frequency-domain thinking shows up in positional
-        encodings and spectral methods across modern ML.
+        Notice that the sharp corners need many high-frequency terms, and that the
+        overshoot of the square wave at each jump never quite goes away, the Gibbs
+        phenomenon. This decomposition is the foundation of signal processing for
+        audio, images and compression, and the same frequency-domain thinking shows
+        up in positional encodings and spectral methods across modern ML.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -136,6 +147,7 @@ function FourierDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Fourier Series"
       subtitle="Watch rotating circles, one per sine wave, sum into a square, sawtooth, or triangle wave."

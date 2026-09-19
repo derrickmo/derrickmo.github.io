@@ -18,7 +18,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 320, CH = 230;
@@ -141,18 +141,30 @@ function GAEDemo() {
   const explainer = (
     <>
       <DemoP>
-        Policy-gradient methods need an estimate of the <b>advantage</b>, how much better an action was than the critic expected. GAE forms it as a
-        discounted sum of TD residuals, with <b>λ</b> controlling how far down the
-        trajectory the credit reaches (the violet bars). The whole method is one
-        bias/variance dial: the curves above are exact, not sampled.
+        Policy-gradient methods need an estimate of the <b>advantage</b>, how much
+        better an action was than the critic expected. GAE forms it as a discounted
+        sum of TD residuals, with <b>λ</b> controlling how far down the trajectory
+        the credit reaches, the violet bars. The whole method is one bias and
+        variance dial, and the curves above are exact rather than sampled.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          At <b>λ=0</b> you trust the critic completely, using only the one-step
+          residual, so variance is tiny but every bit of critic error leaks straight
+          into the estimate as high bias&sup2;.
+        </DemoLI>
+        <DemoLI>
+          At <b>λ=1</b> you ignore the critic and sum the real rewards, which is
+          unbiased, but the noise piles up as high variance.
+        </DemoLI>
+        <DemoLI>
+          The <b>MSE</b> is U-shaped and the best λ sits in between.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        At <b>λ=0</b> you trust the critic completely, using only the one-step residual, so variance is tiny but every bit of the critic's error leaks straight into
-        the estimate (high bias²). At <b>λ=1</b> you ignore the critic and sum the real rewards, which is unbiased, but the noise piles up (high variance). The
-        <b> MSE</b> is U-shaped and the best λ sits in between. Now turn up the
-        <b> critic error</b>: bias² balloons and λ* slides toward 1. Turn up the
-        <b> reward noise</b> instead and λ* slides toward 0. That trade is exactly
-        what you're tuning when you set λ≈0.95 in a PPO run.
+        Now turn up the <b>critic error</b>: bias&sup2; balloons and λ* slides toward
+        1. Turn up the <b>reward noise</b> instead and λ* slides toward 0. That trade
+        is exactly what you are tuning when you set λ ≈ 0.95 in a PPO run.
       </DemoP>
     </>
   );

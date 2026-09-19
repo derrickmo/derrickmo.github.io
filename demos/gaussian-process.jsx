@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -174,22 +174,32 @@ function GaussianProcessDemo() {
   const explainer = (
     <>
       <DemoP>
-        A Gaussian process is a distribution over functions: before any data, every
-        smooth curve is plausible (the purple samples fan out across the whole band).
-        Click to drop an observation and the posterior updates in closed form. The mean (blue) bends to pass near your point and the ±2σ band pinches shut right
-        there, because the GP is now certain nearby. Move away from data and the band
-        flares back open: that widening is honest "I don't know here," the thing a
-        single point-prediction model can never tell you.
+        A Gaussian process is a distribution over functions. Before any data every
+        smooth curve is plausible, and the purple samples fan out across the whole
+        band. Click to drop an observation and the posterior updates in closed form:
+        the blue mean bends to pass near your point and the &plusmn;2σ band pinches
+        shut right there, because the GP is now certain nearby. Move away from data
+        and the band flares back open, and that widening is an honest "I do not know
+        here", the thing a single point-prediction model can never tell you.
       </DemoP>
-      <DemoP>
-        The kernel sets the personality. Shrink LENGTHSCALE ℓ and functions become twitchy, because each point only constrains its immediate neighborhood, so the band
-        re-opens fast between observations. Stretch ℓ and one point informs a wide
-        region. Raise NOISE σ_n and the mean stops threading exactly through the dots
-        (it assumes they're noisy) and keeps a floor of uncertainty even at the data.
-        These three knobs are the GP's entire inductive bias.
-      </DemoP>
+      <DemoP>The kernel sets the personality:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Shrink <b>LENGTHSCALE ℓ</b> and functions become twitchy, because each
+          point only constrains its immediate neighborhood, so the band re-opens fast
+          between observations.
+        </DemoLI>
+        <DemoLI>Stretch ℓ and one point informs a wide region.</DemoLI>
+        <DemoLI>
+          Raise <b>NOISE σ_n</b> and the mean stops threading exactly through the
+          dots, since it assumes they are noisy, and keeps a floor of uncertainty
+          even at the data.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>These three knobs are the entire inductive bias of the GP.</DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -212,6 +222,7 @@ function GaussianProcessDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Gaussian Processes"
       subtitle="A distribution over functions with closed-form uncertainty. Click to add observations and watch the posterior mean bend and the ±2σ band pinch shut at data and flare open where you have none. Tune the kernel to reshape the prior."
