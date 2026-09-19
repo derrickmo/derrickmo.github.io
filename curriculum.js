@@ -575,7 +575,7 @@ window.CURRICULUM = {
     {
       "n": "08",
       "slug": "transformers",
-      "title": "Transformers — Architecture to Attention",
+      "title": "Transformers: Architecture to Attention",
       "category": "Deep Learning Core",
       "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache — the backbone of modules 9–18.",
       "status": "LIVE",
@@ -735,7 +735,7 @@ window.CURRICULUM = {
     {
       "n": "10",
       "slug": "advanced-nlp",
-      "title": "Advanced NLP — Pretrained Language Models",
+      "title": "Advanced NLP: Pretrained Language Models",
       "category": "Advanced Deep Learning",
       "blurb": "GPT, BERT, fine-tuning, NER, NLI, QA, chain-of-thought, and mechanistic interpretability.",
       "status": "LIVE",
@@ -1295,7 +1295,7 @@ window.CURRICULUM = {
     {
       "n": "17",
       "slug": "llm-systems",
-      "title": "Large Language Models — Systems & Scaling",
+      "title": "Large Language Models: Systems & Scaling",
       "category": "LLMs & Agents",
       "blurb": "LLM architectures, scaling laws, MoE, quantization, efficient inference, long context, structured output, evaluation.",
       "status": "LIVE",

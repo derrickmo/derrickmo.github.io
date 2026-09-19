@@ -271,7 +271,7 @@ window.DM_LESSON_BODIES = {
     "demoTitles": {
       "rag-chunking": "RAG Chunking",
       "rag-reranker": "RAG Reranker",
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "guardrails": "Guardrails"
     }
   }

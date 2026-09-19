@@ -273,7 +273,7 @@ window.DM_LESSON_BODIES = {
       "kv-cache": "KV Cache",
       "kv-cache-eviction": "KV-Cache Eviction",
       "tokenizer": "Tokenizer Lab",
-      "react-agent": "ReAct — Reason + Act"
+      "react-agent": "ReAct: Reason + Act"
     }
   }
 };

@@ -269,7 +269,7 @@ window.DM_LESSON_BODIES = {
       "guardrails"
     ],
     "demoTitles": {
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "agent-router": "Agent Tool Router",
       "constrained-decoding": "Constrained Decoding",
       "guardrails": "Guardrails"

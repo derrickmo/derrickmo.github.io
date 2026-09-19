@@ -269,7 +269,7 @@ window.DM_LESSON_BODIES = {
       "mcts"
     ],
     "demoTitles": {
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "bfs-dfs-astar": "BFS vs DFS vs A*",
       "pathfinding": "A* Pathfinding",
       "mcts": "MCTS Tree Search"

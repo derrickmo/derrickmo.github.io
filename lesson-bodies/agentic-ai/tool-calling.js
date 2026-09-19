@@ -272,7 +272,7 @@ window.DM_LESSON_BODIES = {
     "demoTitles": {
       "constrained-decoding": "Constrained Decoding",
       "agent-router": "Agent Tool Router",
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "tokenizer": "Tokenizer Lab"
     }
   }

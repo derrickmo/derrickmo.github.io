@@ -270,7 +270,7 @@ window.DM_LESSON_BODIES = {
     ],
     "demoTitles": {
       "agent-router": "Agent Tool Router",
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "guardrails": "Guardrails",
       "constrained-decoding": "Constrained Decoding"
     }

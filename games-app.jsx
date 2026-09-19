@@ -160,7 +160,7 @@ function PlayHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Play against AI.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            Games you play directly in the browser — watch a neural net teach itself to fly, take on a search engine that never blunders, or face an AI that learns your patterns. No backend, no install: the AI runs in your tab.
+            Games you play directly in the browser. Watch a neural net teach itself to fly, take on a search engine that never blunders, or face an AI that learns your patterns. No backend, no install: the AI runs in your tab.
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
             <a href="#games" style={{
@@ -237,7 +237,7 @@ function Games() {
           <MonoLabel color="var(--violet-lt)">// GAMES · PLAY DIRECTLY</MonoLabel>
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(36px, 4vw, 52px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>The lineup.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
-            Each game runs a real AI in the browser — a genetic algorithm, a game-tree search, a sequence model. Start with the one that's live; more are on the way.
+            Each game runs a real AI in the browser: a genetic algorithm, a game-tree search, a sequence model. Start with the one that's live; more are on the way.
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 52 }}>
@@ -286,7 +286,7 @@ function SuggestCta() {
             <MonoLabel color="var(--violet-lt)">// REQUEST.GAME</MonoLabel>
             <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 30, letterSpacing: "-0.02em", color: "var(--white)", margin: "10px 0 12px" }}>An AI game you'd love to play?</h3>
             <div className="t-body" style={{ color: "var(--muted)", maxWidth: 580, fontSize: 15, lineHeight: 1.55 }}>
-              Send me the idea — a game, an algorithm to pit you against, anything you'd want to feel beat (or out-learn) you.
+              Send me the idea: a game, an algorithm to pit you against, anything you would want to feel beat (or out-learn) you.
             </div>
           </div>
           <button type="button" onClick={() => window.__dmCopyEmail()} title="Copy email address" style={{
@@ -306,10 +306,10 @@ function MLConcepts() {
   const BASE = window.__DM_BASE || "../";
   const concepts = [
     { tag: "// SEARCH", name: "Minimax & alpha-beta", desc: "Look ahead through the game tree, assume the opponent plays perfectly, and pick the move with the best worst-case outcome.", games: "Tic-Tac-Toe · Connect Four" },
-    { tag: "// EVOLUTION", name: "Genetic algorithms", desc: "No gradients — keep the fittest, breed and mutate them, repeat. Evolution used as an optimizer for neural-net controllers.", games: "Neuroevolution · Drivers" },
+    { tag: "// EVOLUTION", name: "Genetic algorithms", desc: "No gradients. Keep the fittest, breed and mutate them, repeat. Evolution used as an optimizer for neural-net controllers.", games: "Neuroevolution · Drivers" },
     { tag: "// SEQUENCE", name: "Markov models", desc: "Predict the next move from recent history. The same next-token idea that underlies language models, in miniature.", games: "Rock-Paper-Scissors" },
     { tag: "// CHANCE", name: "Expectimax", desc: "Minimax against randomness: average over chance outcomes instead of a worst-case adversary.", games: "2048" },
-    { tag: "// REWARD", name: "Deep Q-learning", desc: "Learn the long-run value of each action from delayed reward — the basis of reinforcement-learning game agents.", games: "Snake" },
+    { tag: "// REWARD", name: "Deep Q-learning", desc: "Learn the long-run value of each action from delayed reward, the basis of reinforcement-learning game agents.", games: "Snake" },
     { tag: "// INFORMATION", name: "Entropy & probability", desc: "Choose the move that eliminates the most uncertainty; reason about hidden state from the clues you can see.", games: "Wordle · Minesweeper" },
   ];
   return (
@@ -320,7 +320,7 @@ function MLConcepts() {
           <MonoLabel color="var(--violet-lt)">// THE ML CONCEPT BEHIND THE GAMES</MonoLabel>
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(30px, 3.6vw, 46px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>It's all real AI underneath.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
-            Every game here runs a genuine algorithm in your browser — not scripted "AI." Here's the technique behind each, and where to dig deeper in the <a href={`${BASE}visualize/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>demos</a> and <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a>.
+            Every game here runs a genuine algorithm in your browser, not scripted "AI." Here's the technique behind each, and where to dig deeper in the <a href={`${BASE}visualize/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>demos</a> and <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a>.
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>

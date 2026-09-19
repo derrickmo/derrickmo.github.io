@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "n": "08",
   "slug": "transformers",
-  "title": "Transformers — Architecture to Attention",
+  "title": "Transformers: Architecture to Attention",
   "category": "Deep Learning Core",
   "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache — the backbone of modules 9–18.",
   "status": "LIVE",

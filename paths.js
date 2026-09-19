@@ -20,7 +20,7 @@ window.LEARNING_PATHS = [
     ],
     stages: [
       { name: "Learn by descending", steps: [
-        { kind: "demo", ref: "gradient-descent", note: "The optimizer under almost every model — roll downhill on a loss surface." },
+        { kind: "demo", ref: "gradient-descent", note: "The optimizer under almost every model: roll downhill on a loss surface." },
         { kind: "demo", ref: "backprop", note: "How the gradient is actually computed through a network." },
       ] },
       { name: "Fit and generalize", steps: [
@@ -59,13 +59,13 @@ window.LEARNING_PATHS = [
       { name: "Represent", steps: [
         { kind: "demo", ref: "tokenizer", note: "Split text into the tokens a model actually sees." },
         { kind: "demo", ref: "embeddings", note: "Turn tokens into vectors with geometry that means something." },
-        { kind: "demo", ref: "word2vec", note: "Learn those vectors from context — king - man + woman." },
+        { kind: "demo", ref: "word2vec", note: "Learn those vectors from context, so king - man + woman lands on queen." },
         { kind: "demo", ref: "positional-encoding", note: "Inject order into a set-based model." },
       ] },
       { name: "Attend", steps: [
         { kind: "demo", ref: "attention", note: "The core operation: weight every token by relevance." },
         { kind: "demo", ref: "multi-head-attention", note: "Several attention patterns in parallel." },
-        { kind: "demo", ref: "rope", note: "Rotary position embeddings — relative position for free." },
+        { kind: "demo", ref: "rope", note: "Rotary position embeddings, which give you relative position for free." },
       ] },
       { name: "Assemble", steps: [
         { kind: "concept", ref: "transformer-block", note: "What one block stacks: attention + MLP + residual + norm." },
@@ -73,7 +73,7 @@ window.LEARNING_PATHS = [
         { kind: "module", ref: "transformers", note: "The full transformers module." },
       ] },
       { name: "Generate", steps: [
-        { kind: "demo", ref: "decoding", note: "Greedy, temperature, top-k, top-p — how the next token is chosen." },
+        { kind: "demo", ref: "decoding", note: "Greedy, temperature, top-k and top-p, which is how the next token gets chosen." },
         { kind: "demo", ref: "beam-search", note: "Search several continuations instead of one." },
         { kind: "demo", ref: "kv-cache", note: "Why generation is fast: cache the keys and values." },
       ] },
@@ -82,7 +82,7 @@ window.LEARNING_PATHS = [
 
   {
     id: "rl-from-scratch", title: "Reinforcement Learning from Scratch", level: "Intermediate", accent: "violet", estMinutes: 170,
-    tagline: "Learning from reward — from bandits to deep RL and RLHF.",
+    tagline: "Learning from reward, from bandits to deep RL and RLHF.",
     outcomes: [
       "Balance exploration and exploitation",
       "Derive value and policy updates from the Bellman equation",
@@ -107,13 +107,13 @@ window.LEARNING_PATHS = [
         { kind: "demo", ref: "ppo", note: "The clip that made policy gradients stable." },
       ] },
       { name: "Deep and model-based", steps: [
-        { kind: "demo", ref: "dqn", note: "Replace the Q-table with a network — replay + target net." },
+        { kind: "demo", ref: "dqn", note: "Replace the Q-table with a network, plus replay and a target net." },
         { kind: "demo", ref: "prioritized-replay", note: "Replay surprising transitions first." },
         { kind: "demo", ref: "dyna-q", note: "Learn a model and plan inside it." },
       ] },
       { name: "Align with RLHF", steps: [
         { kind: "demo", ref: "reward-model", note: "Learn a reward from human preferences." },
-        { kind: "demo", ref: "dpo", note: "Skip the RL loop — optimize preferences directly." },
+        { kind: "demo", ref: "dpo", note: "Skip the RL loop and optimize preferences directly." },
         { kind: "module", ref: "reinforcement-learning", note: "The full RL module." },
       ] },
     ],
@@ -221,7 +221,7 @@ window.LEARNING_PATHS = [
 
   {
     id: "trustworthy-ml", title: "Trustworthy & Responsible ML", level: "Intermediate", accent: "blue", estMinutes: 140,
-    tagline: "Models you can actually deploy — honest, explainable, robust, and fair.",
+    tagline: "Models you can actually deploy: honest, explainable, robust and fair.",
     outcomes: [
       "Tell whether a model's confidence scores are honest",
       "Explain a prediction and attribute it to features",
@@ -253,7 +253,7 @@ window.LEARNING_PATHS = [
 
   {
     id: "generative-models", title: "Generative Models", level: "Intermediate", accent: "violet", estMinutes: 95,
-    tagline: "Three ways to learn to create data — latent, adversarial, and iterative.",
+    tagline: "Three ways to learn to create data: latent, adversarial and iterative.",
     outcomes: [
       "Encode and sample data through a latent space",
       "Train a generator against a discriminator",

@@ -2664,7 +2664,7 @@ function PlayHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Touch the math.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            Small, interactive AI demos. Each one ships standalone — drop in, drag a slider, watch a network learn. The fastest way to build intuition is to break something live.
+            Small, interactive AI demos. Each one ships standalone, so you can drop in, drag a slider and watch a network learn. The fastest way to build intuition is to break something live.
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
             <a href="#demos" style={{
@@ -2817,7 +2817,7 @@ function Demos() {
             color: "var(--white)", margin: 0, lineHeight: 1.05,
           }}>The lineup.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
-            Grouped by what they teach — each one runs in the browser, computes the real
+            Grouped by what they teach. Each one runs in the browser, computes the real
             algorithm, and links to the matching lesson. Start anywhere.
           </div>
         </div>
@@ -2919,7 +2919,7 @@ function VizConcepts() {
           <MonoLabel color="var(--violet-lt)">// CONCEPTS IN MOTION</MonoLabel>
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: "clamp(30px, 3.6vw, 44px)", letterSpacing: "-0.02em", color: "var(--white)", margin: 0, lineHeight: 1.05 }}>The ideas, animated.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
-            Looping visual explainers for the concepts behind the demos below — a preview of the full <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a> gallery.
+            Looping visual explainers for the concepts behind the demos below, a preview of the full <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a> gallery.
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 16 }}>

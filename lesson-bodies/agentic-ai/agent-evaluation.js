@@ -273,7 +273,7 @@ window.DM_LESSON_BODIES = {
       "classification-metrics": "Classification Metrics",
       "calibration": "Model Calibration",
       "conformal": "Conformal Prediction",
-      "react-agent": "ReAct — Reason + Act"
+      "react-agent": "ReAct: Reason + Act"
     }
   }
 };

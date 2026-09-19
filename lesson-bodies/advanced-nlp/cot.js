@@ -269,7 +269,7 @@ window.DM_LESSON_BODIES = {
       "self-consistency": "Self-Consistency",
       "decoding": "Decoding Strategies",
       "constrained-decoding": "Constrained Decoding",
-      "react-agent": "ReAct — Reason + Act"
+      "react-agent": "ReAct: Reason + Act"
     }
   }
 };

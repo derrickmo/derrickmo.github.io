@@ -218,7 +218,7 @@ function PrereqLadder() {
         <SectionHeading>How to get here</SectionHeading>
         <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 16px" }}>
           {remaining.length === 0
-            ? `You have marked every prerequisite known — ${getC().name} is the next thing to learn.`
+            ? `You have marked every prerequisite known, so ${getC().name} is the next thing to learn.`
             : `${remaining.length} concept${remaining.length === 1 ? "" : "s"} come first, in this order.`}
           {skipped > 0 && <span style={{ color: "var(--dim)" }}> {skipped} already known and hidden.</span>}
           {" "}Derived from the concept graph, not hand-written.

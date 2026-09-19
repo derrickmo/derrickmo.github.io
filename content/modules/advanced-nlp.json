@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "n": "10",
   "slug": "advanced-nlp",
-  "title": "Advanced NLP — Pretrained Language Models",
+  "title": "Advanced NLP: Pretrained Language Models",
   "category": "Advanced Deep Learning",
   "blurb": "GPT, BERT, fine-tuning, NER, NLI, QA, chain-of-thought, and mechanistic interpretability.",
   "status": "LIVE",

@@ -269,7 +269,7 @@ window.DM_LESSON_BODIES = {
       "prompt-injection"
     ],
     "demoTitles": {
-      "react-agent": "ReAct — Reason + Act",
+      "react-agent": "ReAct: Reason + Act",
       "guardrails": "Guardrails",
       "agent-router": "Agent Tool Router",
       "prompt-injection": "Prompt Injection"
