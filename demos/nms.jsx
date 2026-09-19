@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -115,38 +115,60 @@ function NMSDemo() {
   const explainer = (
     <>
       <DemoP>
-        A detector doesn't emit one clean box per object. It fires dozens of overlapping candidates, each with a confidence score. <b>Non-Maximum
-        Suppression</b> cleans that up with a greedy rule: take the highest-scoring
-        box, throw away every other box that overlaps it too much, and repeat. "Too
-        much" is measured by <b>Intersection-over-Union</b>, the shared area divided by the combined area of two boxes. Drag the <b>IoU threshold</b>: low values
-        suppress aggressively (one box per object), high values let near-duplicates
-        survive.
+        A detector does not emit one clean box per object. It fires dozens of
+        overlapping candidates, each with a confidence score.{" "}
+        <b>Non-Maximum Suppression</b> cleans that up with a greedy rule: take the
+        highest-scoring box, throw away every other box that overlaps it too much,
+        and repeat.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          "Too much" is measured by <b>Intersection-over-Union</b>, the shared area
+          divided by the combined area of two boxes.
+        </DemoLI>
+        <DemoLI>
+          Drag the <b>IoU threshold</b>. Low values suppress aggressively, giving one
+          box per object; high values let near-duplicates survive.
+        </DemoLI>
+        <DemoLI>
+          The <b>confidence threshold</b> drops weak detections entirely, greyed out,
+          before NMS even runs.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The <b>confidence threshold</b> first drops weak detections entirely (greyed
-        out) before NMS even runs. Tuning these two knobs is the everyday reality of
-        shipping an object detector. Too strict and you miss real objects, too loose
-        and the image fills with duplicate boxes. The same IoU metric also defines how
-        detection accuracy (mAP) is scored against ground truth.
+        Tuning these two knobs is the everyday reality of shipping an object
+        detector. Too strict and you miss real objects, too loose and the image fills
+        with duplicate boxes.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        NMS is the universal cleanup step at the end of nearly every object detector: YOLO, Faster R-CNN and SSD all emit a flood of overlapping boxes and lean on it to reduce
-        them to one per object. It runs in real-world vision everywhere: self-driving
-        perception, retail shelf analytics, medical imaging, and face detection.
+        NMS is the universal cleanup step at the end of nearly every object detector.
+        YOLO, Faster R-CNN and SSD all emit a flood of overlapping boxes and lean on
+        it to reduce them to one per object. It runs in real-world vision everywhere:
+        self-driving perception, retail shelf analytics, medical imaging and face
+        detection.
       </DemoP>
-      <DemoP>
-        The IoU metric you're tuning does double duty. It both drives suppression and
-        defines how detection accuracy itself is scored (mAP at various IoU thresholds
-        against ground truth). The greedy algorithm's weakness, wrongly suppressing two
-        genuinely overlapping objects, motivated successors like Soft-NMS and ultimately
-        NMS-free detectors like DETR that learn set prediction end-to-end, a clean example of a hand-coded heuristic being gradually absorbed into the network.
-      </DemoP>
+      <DemoP>The IoU metric you are tuning does double duty:</DemoP>
+      <DemoUL>
+        <DemoLI>It drives the suppression itself.</DemoLI>
+        <DemoLI>
+          It also defines how detection accuracy is scored, as mAP at various IoU
+          thresholds against ground truth.
+        </DemoLI>
+        <DemoLI>
+          The weakness of the greedy algorithm, wrongly suppressing two genuinely
+          overlapping objects, motivated Soft-NMS and ultimately NMS-free detectors
+          like DETR that learn set prediction end-to-end. That is a clean example of a
+          hand-coded heuristic being gradually absorbed into the network.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="IoU & Non-Max Suppression"
       subtitle="From a cloud of overlapping detections to one clean box per object. This is the greedy algorithm every detector ends with."

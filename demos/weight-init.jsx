@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -159,44 +159,70 @@ function WeightInitDemo() {
   const explainer = (
     <>
       <DemoP>
-        The top panel tracks the standard deviation of activations layer by layer,
-        on a log scale so a healthy run sits flat on the yellow std=1 line. Pick
-        Naive init: with no fan-in scaling each layer multiplies the variance by the
-        fan-in, so the red curve rockets up (or with tanh, pins at saturation) within a few layers. Gradients downstream are dead on arrival. Pick Xavier and the
-        blue curve hugs std=1 the whole way: that 1/√fan-in scaling is exactly what
-        cancels the variance growth for a linear/tanh layer.
+        The top panel tracks the standard deviation of activations layer by layer, on
+        a log scale, so a healthy run sits flat on the yellow std=1 line.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Pick <b>Naive</b> init: with no fan-in scaling each layer multiplies the
+          variance by the fan-in, so the red curve rockets up, or with tanh pins at
+          saturation, within a few layers. Gradients downstream are dead on arrival.
+        </DemoLI>
+        <DemoLI>
+          Pick <b>Xavier</b> and the blue curve hugs std=1 the whole way. That
+          1/√fan-in scaling is exactly what cancels the variance growth for a linear
+          or tanh layer.
+        </DemoLI>
+        <DemoLI>
+          Now switch <b>ACTIVATION</b> to ReLU and watch Xavier drift <i>down</i>.
+          ReLU zeroes half its inputs, halving the variance each layer, so the
+          variance-preserving scale needs an extra factor of √2. That is <b>He</b>{" "}
+          init, in green, which stays flat instead.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now switch ACTIVATION to ReLU. Watch Xavier start drifting <i>down</i>. ReLU zeroes half its inputs, halving the variance each layer, so the variance-
-        preserving scale needs an extra factor of √2. That's He init (green), which
-        now stays flat instead. The lesson: the right init depends on the
-        nonlinearity, and getting it wrong fails exponentially in depth. This is the
-        problem <a href={`${window.__DM_BASE || "../../"}visualize/batch-norm/`} style={{ color: "#a855f7" }}>BatchNorm</a> later
-        made the network robust to.
+        The lesson: the right init depends on the nonlinearity, and getting it wrong
+        fails exponentially in depth. This is the problem{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/batch-norm/`} style={{ color: "#a855f7" }}>BatchNorm</a>{" "}
+        later made the network robust to.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Initialization scale is one of the quiet reasons deep learning works.
-        Xavier/Glorot (2010) and He (2015) init derive the weight variance that keeps forward activations, and backward gradients, at unit scale through many
+        Xavier/Glorot (2010) and He (2015) derive the weight variance that keeps
+        forward activations, and backward gradients, at unit scale through many
         layers, which is what makes training deep nets without exotic tricks
         possible. The same variance-budgeting logic shows up in residual scaling,
-        LayerNorm, and the careful init of modern transformers. It pairs directly
-        with the <a href={`${window.__DM_BASE || "../../"}visualize/activations/`} style={{ color: "#a855f7" }}>activation</a> choice
-        and is the static cousin of <a href={`${window.__DM_BASE || "../../"}visualize/batch-norm/`} style={{ color: "#a855f7" }}>normalization</a>.
+        LayerNorm and the careful init of modern transformers. It pairs directly with
+        the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/activations/`} style={{ color: "#a855f7" }}>activation</a>{" "}
+        choice and is the static cousin of{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/batch-norm/`} style={{ color: "#a855f7" }}>normalization</a>.
       </DemoP>
-      <DemoP>
-        Caveats: this demo shows the forward signal; the matching argument for the
-        backward gradient is what really matters, and Glorot's full criterion
-        averages the two (fan-in and fan-out). Real nets also have biases, residual
-        connections, and normalization layers that change the calculus. Modern architectures are often robust to init precisely because they add those.
-        Still, on a plain deep MLP, a √2 you forgot is the difference between training
-        and a flat loss curve.
-      </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          This demo shows the forward signal. The matching argument for the backward
+          gradient is what really matters, and the full Glorot criterion averages the
+          two, fan-in and fan-out.
+        </DemoLI>
+        <DemoLI>
+          Real nets also have biases, residual connections and normalization layers
+          that change the calculus, so modern architectures are often robust to init
+          precisely because they add those.
+        </DemoLI>
+        <DemoLI>
+          Still, on a plain deep MLP, a √2 you forgot is the difference between
+          training and a flat loss curve.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Weight Initialization"
       subtitle="The activation signal's std either stays near 1 or diverges exponentially with depth, depending entirely on how the weights are scaled. Compare Naive vs Xavier vs He, and switch the activation to see which scheme is right."

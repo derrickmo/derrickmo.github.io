@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -143,45 +143,62 @@ function SaliencyDemo() {
   const explainer = (
     <>
       <DemoP>
-        How do you explain an image model's decision? Saliency takes the gradient of
-        the output with respect to every input pixel: ∂(score)/∂(pixel). A pixel
-        with a large gradient is one the model is sensitive to, so nudging it moves the prediction, and the magnitude of
-        that gradient, drawn as a heatmap, is
-        a first-order "what is the model looking at?" map. Here the classifier
+        How do you explain the decision of an image model? Saliency takes the
+        gradient of the output with respect to every input pixel, ∂(score)/∂(pixel).
+        A pixel with a large gradient is one the model is sensitive to, so nudging it
+        moves the prediction, and the magnitude of that gradient, drawn as a heatmap,
+        is a first-order "what is the model looking at?" map. Here the classifier
         separates vertical from horizontal bars, and the bright saliency pixels land
         right on the bar that decides the class.
       </DemoP>
-      <DemoP>
-        Paint on the left grid (click cells) and the map recomputes live: add a
-        competing bar and you'll see saliency split between the features fighting
-        over the decision; erase the discriminative line and confidence collapses.
-        Because the network is nonlinear, the explanation is input-specific. The same model highlights different pixels for different images, which is
-        exactly what makes a per-example attribution useful (and what a single set
-        of weights can't tell you).
-      </DemoP>
+      <DemoP>Paint on the left grid and the map recomputes live:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Add a competing bar and saliency splits between the features fighting over
+          the decision.
+        </DemoLI>
+        <DemoLI>Erase the discriminative line and confidence collapses.</DemoLI>
+        <DemoLI>
+          Because the network is nonlinear, the explanation is input-specific. The
+          same model highlights different pixels for different images, which is
+          exactly what makes a per-example attribution useful.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Saliency maps (Simonyan et al., 2013) are the gradient-based branch of
-        explainability for vision and any differentiable model, the image-space sibling of the game-theoretic{" "}
+        explainability for vision and any differentiable model, the image-space
+        sibling of the game-theoretic{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/shap/`} style={{ color: "#a855f7" }}>SHAP</a>{" "}
-        attributions for tabular features. They're cheap (one backward pass) and
-        intuitive, and they underpie a family: Grad-CAM (gradients at a conv layer),
-        Integrated Gradients (average along a path from a baseline), SmoothGrad
-        (average over noised inputs), and guided backprop.
+        attributions for tabular features. They are cheap, one backward pass, and
+        intuitive, and they underpin a family: Grad-CAM uses gradients at a conv
+        layer, Integrated Gradients averages along a path from a baseline, SmoothGrad
+        averages over noised inputs, and guided backprop filters the signal.
       </DemoP>
-      <DemoP>
-        The caveats matter for trust: raw gradients are noisy and can fail sanity
-        checks (some "explanations" barely change when the model is randomized), and
-        a saliency map shows what the model is sensitive to, not whether its reasoning
-        is correct or causal. That's why it sits alongside{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
-        and SHAP in the trustworthy-ML toolkit rather than standing alone. An attribution is a hypothesis about the model, to be checked, not a guarantee.
-      </DemoP>
+      <DemoP>The caveats matter for trust:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Raw gradients are noisy and can fail sanity checks. Some "explanations"
+          barely change when the model is randomized.
+        </DemoLI>
+        <DemoLI>
+          A saliency map shows what the model is sensitive to, not whether its
+          reasoning is correct or causal.
+        </DemoLI>
+        <DemoLI>
+          That is why it sits alongside{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
+          and SHAP in the trustworthy-ML toolkit rather than standing alone. An
+          attribution is a hypothesis about the model, to be checked.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Saliency Maps"
       subtitle="Gradient of the output with respect to each input pixel, a per-example map of what the model is looking at. Paint the grid and watch the explanation move."

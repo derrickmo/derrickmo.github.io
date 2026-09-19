@@ -16,7 +16,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -243,44 +243,58 @@ function PolicyGradientDemo() {
   const explainer = (
     <>
       <DemoP>
-        The agent doesn't know the target. It samples actions from a Gaussian
-        policy <i>π(a) = N(μ, σ²)</i>, observes the reward <i>r = -(a - target)²</i>,
-        and nudges <i>μ</i> and <i>σ</i> to make high-reward actions more likely.
-        That's REINFORCE in its purest form: <i>θ ← θ + α · ∇ log π(a) · r</i>.
-        Mathematically, the mu gradient is the centered sample <i>(a - μ)/σ²</i>
-        scaled by the reward. Actions <i>better than baseline</i> pull mu toward
-        them; worse-than-baseline actions push mu away.
+        The agent does not know the target. It samples actions from a Gaussian policy{" "}
+        <i>π(a) = N(μ, σ&sup2;)</i>, observes the reward <i>r = -(a - target)&sup2;</i>,
+        and nudges <i>μ</i> and <i>σ</i> to make high-reward actions more likely. That
+        is REINFORCE in its purest form: <i>θ ← θ + α · ∇ log π(a) · r</i>.
       </DemoP>
-      <DemoP>
-        Watch sigma. Early on it stays wide (the policy explores). As mu locks
-        onto the target, the high-reward zone narrows, and the variance-update
-        term <i>((a - μ)²/σ² - 1)</i> drives sigma down and the policy commits.
-        Turn the BASELINE toggle off to see the same training run with ~3-4x
-        more noise: every batch's gradient gets dragged around by the absolute
-        scale of reward, not just its variance from the running mean.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The mu gradient is the centered sample <i>(a - μ)/σ&sup2;</i> scaled by the
+          reward. Actions <i>better than baseline</i> pull mu toward them, worse ones
+          push it away.
+        </DemoLI>
+        <DemoLI>
+          Watch sigma. Early on it stays wide and the policy explores. As mu locks
+          onto the target the high-reward zone narrows, the variance-update term{" "}
+          <i>((a - μ)&sup2;/σ&sup2; - 1)</i> drives sigma down, and the policy commits.
+        </DemoLI>
+        <DemoLI>
+          Turn the <b>BASELINE</b> toggle off for the same run with roughly 3 to 4
+          times more noise, because every gradient gets dragged by the absolute scale
+          of reward rather than its variance from the running mean.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Policy gradient is the engine behind every continuous-control RL system
-        from OpenAI Five to AlphaStar to modern RLHF. The version you are touching here, REINFORCE, is from 1992; everything since (TRPO, PPO, A2C, SAC, GRPO)
-        is a variance-reduction trick on top of the same expectation. PPO clips
-        the policy update to a trust region; SAC adds an entropy bonus to keep
-        sigma from collapsing; GRPO (used in DeepSeek-R1) replaces the value
-        baseline with a group-relative one.
+        Policy gradient is the engine behind every continuous-control RL system from
+        OpenAI Five to AlphaStar to modern RLHF. The version you are touching here,
+        REINFORCE, is from 1992, and everything since is a variance-reduction trick on
+        top of the same expectation:
       </DemoP>
+      <DemoUL>
+        <DemoLI>PPO clips the policy update to a trust region.</DemoLI>
+        <DemoLI>SAC adds an entropy bonus to keep sigma from collapsing.</DemoLI>
+        <DemoLI>
+          GRPO, used in DeepSeek-R1, replaces the value baseline with a
+          group-relative one.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        For LLMs, the action is the token, the policy is the model's softmax, and
-        the reward comes from a reward model trained on human preferences. That's
-        RLHF. The same gradient you are seeing here, push up trajectories that beat the baseline and push
-        down trajectories that do not, is what aligns ChatGPT,
-        Claude, and Llama-Instruct. The baseline matters even more there:
+        For LLMs the action is the token, the policy is the model softmax, and the
+        reward comes from a reward model trained on human preferences. That is RLHF.
+        The same gradient you are seeing here, push up trajectories that beat the
+        baseline and push down trajectories that do not, is what aligns ChatGPT,
+        Claude and Llama-Instruct. The baseline matters even more there, because
         token-level rewards are tiny and noisy, so without it training never moves.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Policy Gradient: REINFORCE"
       subtitle="A Gaussian policy finds the hidden target by sampling, scoring, and updating. The simplest possible RL, and a parent to PPO and RLHF."

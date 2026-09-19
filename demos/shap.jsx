@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -159,43 +159,63 @@ function ShapDemo() {
   const explainer = (
     <>
       <DemoP>
-        The model approves or declines, but the question that matters is <i>why
-        this applicant</i>. SHAP answers it by treating the features as players in
-        a cooperative game and asking: how much did each one contribute to moving
-        the score away from the average applicant's? The waterfall starts at the
-        base score (everyone at the 0.50 baseline) and each green/red bar is one
-        feature's exact Shapley value, ending at this applicant's score.
+        The model approves or declines, but the question that matters is{" "}
+        <i>why this applicant</i>. SHAP answers it by treating the features as
+        players in a cooperative game and asking how much each one contributed to
+        moving the score away from the average applicant. The waterfall starts at the
+        base score, everyone at the 0.50 baseline, and each green or red bar is the
+        exact Shapley value of one feature, ending at the score for this applicant.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A Shapley value is the average marginal contribution of a feature across
+          every possible order of adding features in.
+        </DemoLI>
+        <DemoLI>
+          That is why it splits the debt-by-late-payments interaction fairly between
+          the two instead of double-counting or dumping it on one.
+        </DemoLI>
+        <DemoLI>
+          The bars always sum exactly to the gap between the base score and the
+          prediction.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        A Shapley value is the feature's average marginal contribution across every
-        possible order of adding features in, which is why it splits the debt×late-payments interaction fairly between the two instead of
-        double-counting or dumping it on one. Slide a feature and watch its bar
-        grow; push both debt ratio and late payments high together and their bars
-        swell beyond their individual effects as the interaction kicks in. The bars
-        always sum exactly to the gap between the base score and the prediction.
+        Slide a feature and watch its bar grow. Push both debt ratio and late
+        payments high together and their bars swell beyond their individual effects
+        as the interaction kicks in.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        SHAP (Lundberg & Lee, 2017) is the dominant feature-attribution method for
-        tabular ML, built on Shapley values from cooperative game theory, the unique attribution that satisfies efficiency, symmetry, and the dummy
-        axioms. This demo computes them <i>exactly</i> by enumerating all 2⁵
-        coalitions; real SHAP approximates the same quantity (KernelSHAP sampling,
-        or fast exact TreeSHAP for tree ensembles) because enumeration explodes
-        with feature count.
+        SHAP (Lundberg and Lee, 2017) is the dominant feature-attribution method for
+        tabular ML, built on Shapley values from cooperative game theory, the unique
+        attribution that satisfies the efficiency, symmetry and dummy axioms. This
+        demo computes them <i>exactly</i> by enumerating all 2⁵ coalitions. Real SHAP
+        approximates the same quantity, with KernelSHAP sampling or fast exact
+        TreeSHAP for tree ensembles, because enumeration explodes with feature count.
       </DemoP>
       <DemoP>
-        It's the explainability half of trustworthy ML, paired with{" "}
+        It is the explainability half of trustworthy ML, paired with{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>:
-        one asks whether the confidence is honest, the other why the decision was made. Both are prerequisites for deploying a model where a person is owed an
-        explanation (credit, hiring, healthcare). Caveats worth knowing: attributions
-        depend on the chosen baseline, correlated features can smear credit, and an
-        explanation of the model is not a causal claim about the world. SHAP tells you what the model used, not what's true.
+        one asks whether the confidence is honest, the other why the decision was
+        made. Both are prerequisites for deploying a model where a person is owed an
+        explanation. Three caveats worth knowing:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Attributions depend on the chosen baseline.</DemoLI>
+        <DemoLI>Correlated features can smear credit between themselves.</DemoLI>
+        <DemoLI>
+          An explanation of the model is not a causal claim about the world. SHAP
+          tells you what the model used, not what is true.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Feature Attribution (SHAP)"
       subtitle="Why did the model decide that? Exact Shapley values credit the contribution of each feature, including the interaction, as a waterfall from base to prediction."
