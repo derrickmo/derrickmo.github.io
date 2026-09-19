@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -167,23 +167,34 @@ function HydeDemo() {
   const explainer = (
     <>
       <DemoP>
-        The trap in dense retrieval: a <i>question</i> and its <i>answer</i> don't
-        embed to the same spot. The violet query lands in a "question" region
+        Here is the trap in dense retrieval: a <i>question</i> and its <i>answer</i>{" "}
+        do not embed to the same spot. The violet query lands in a "question" region
         offset from the green passages that actually answer it, so searching by the
-        bare query (the purple bar) drags in neighbors from the wrong clusters as
-        you raise the asymmetry. HyDE sidesteps this: the model writes a hypothetical answer, which, being phrased like a document, embeds right into the
-        green cluster (the amber point), and you retrieve by <i>that</i>.
+        bare query, the purple bar, drags in neighbors from the wrong clusters as you
+        raise the asymmetry.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          HyDE sidesteps this by having the model write a hypothetical answer.
+        </DemoLI>
+        <DemoLI>
+          Being phrased like a document, that answer embeds right into the green
+          cluster, the amber point, and you retrieve by <i>that</i>.
+        </DemoLI>
+        <DemoLI>
+          It works even when the hypothetical is factually wrong, because retrieval
+          only needs it in the right neighborhood, not correct.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        It works even when the hypothetical is factually wrong, because retrieval
-        only needs it to be in the right neighborhood, not correct. Watch the
-        amber drafts: one occasionally hallucinates into a wrong cluster, but
-        averaging several (raise M) cancels the strays and locks the HyDE point
-        onto the relevant docs, so the HyDE bar stays high exactly where the
-        query-only bar falls apart.
+        Watch the amber drafts. One occasionally hallucinates into a wrong cluster, but
+        averaging several (raise M) cancels the strays and locks the HyDE point onto
+        the relevant docs, so the HyDE bar stays high exactly where the query-only bar
+        falls apart.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -208,6 +219,7 @@ function HydeDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="HyDE: Hypothetical Document Embeddings"
       subtitle="Questions embed away from their answers. Draft a hypothetical answer, embed that instead, and retrieval lands on the right documents."

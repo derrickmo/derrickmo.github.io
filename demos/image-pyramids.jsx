@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -196,28 +196,38 @@ function PyramidDemo() {
   const explainer = (
     <>
       <DemoP>
-        A Gaussian pyramid is the same image at halving resolutions, and the construction
-        has exactly two steps: blur, then drop every other pixel. The blur is not
-        cosmetic. A grid half the size cannot represent the finest frequencies in the
-        original, and if you leave them in they do not vanish. They <i>fold down</i> and
-        reappear as a coarser pattern that was never in the scene. Switch <b>pre-blur</b>{" "}
-        off and watch the stripes turn into something wider and, misleadingly, more
-        contrasty.
+        A Gaussian pyramid is the same image at halving resolutions, and the
+        construction has exactly two steps: blur, then drop every other pixel. The blur
+        is not cosmetic. A grid half the size cannot represent the finest frequencies
+        in the original, and if you leave them in they do not vanish. They{" "}
+        <i>fold down</i> and reappear as a coarser pattern that was never in the scene.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Switch <b>pre-blur</b> off and watch the stripes turn into something wider
+          and, misleadingly, more contrasty.
+        </DemoLI>
+        <DemoLI>
+          Naive downsampling can raise the measured contrast of a region, and the
+          readout shows it, so "sharper" is not evidence of "better".
+        </DemoLI>
+        <DemoLI>
+          A period-4 stripe sampled every second pixel becomes a period-2 stripe at
+          full amplitude, which is a confident, high-contrast lie.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        That last part is the trap worth remembering. Naive downsampling can raise the
-        measured contrast of a region, and the readout shows it, so "sharper" is not evidence of "better". A period-4 stripe sampled every second pixel becomes a
-        period-2 stripe at full amplitude: a confident, high-contrast lie.
-      </DemoP>
-      <DemoP>
-        The Laplacian pyramid stores what each level <i>adds back</i>, the difference between a level and its upsampled coarser neighbour. Those differences are almost
-        all zero (that is why the view is amplified 4x to be visible at all), which is
-        what makes it compressible, and stacking them back up reconstructs the original
-        to machine precision. The whole pyramid costs about 4/3 of the original, not
-        double, because a quarter plus a sixteenth plus… converges.
+        The Laplacian pyramid stores what each level <i>adds back</i>, the difference
+        between a level and its upsampled coarser neighbour. Those differences are
+        almost all zero, which is why the view is amplified 4x to be visible at all,
+        and it is also what makes the pyramid compressible. Stacking them back up
+        reconstructs the original to machine precision. The whole thing costs about 4/3
+        of the original rather than double, because a quarter plus a sixteenth plus the
+        rest converges.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -239,6 +249,7 @@ function PyramidDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Image Pyramids"
       subtitle="Blur, then halve. Then see what goes wrong when you skip the blur."

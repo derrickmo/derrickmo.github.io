@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, Toggle, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, Toggle, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const W = 170, H = 170, SCALE = 2;
@@ -167,19 +167,29 @@ function HoughTransformDemo() {
   const explainer = (
     <>
       <DemoP>
-        How do you find a straight line in a cloud of edge points when you don't
-        know where it is or how long it is? The Hough transform flips the problem
-        around. Instead of searching the image, every edge point <b>votes</b> for
-        all the lines that could pass through it. A line in (x, y) space is written
-        as ρ = x·cosθ + y·sinθ, so a single point traces out a whole <i>sinusoid</i>{" "}
-        in (ρ, θ) parameter space, one vote per possible angle.
+        How do you find a straight line in a cloud of edge points when you do not know
+        where it is or how long it is? The Hough transform flips the problem around.
+        Instead of searching the image, every edge point <b>votes</b> for all the lines
+        that could pass through it. A line in (x, y) space is written as
+        ρ = x·cosθ + y·sinθ, so a single point traces out a whole <i>sinusoid</i> in
+        (ρ, θ) parameter space, one vote per possible angle.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Points that are collinear in the image vote for the <i>same</i> (ρ, θ) cell,
+          so a real line shows up as a bright <b>peak</b> where many sinusoids cross.
+        </DemoLI>
+        <DemoLI>
+          Because each point votes independently, scattered noise only spreads thin
+          background votes that almost never pile up into a false peak. Crank the{" "}
+          <b>noise</b> slider and watch the true peaks survive.
+        </DemoLI>
+        <DemoLI>
+          Lower the <b>threshold</b> to pull in fainter lines.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Points that are collinear in the image vote for the <i>same</i> (ρ, θ) cell,
-        so a real line shows up as a bright <b>peak</b> where many sinusoids cross.
-        Read the peaks back out and you have the lines, and because each point votes independently, scattered noise just spreads thin background votes that almost
-        never pile up into a false peak. Crank the <b>noise</b> slider and watch the
-        true peaks survive. Lower the <b>threshold</b> to pull in fainter lines.
+        Read the peaks back out and you have the lines.
       </DemoP>
     </>
   );

@@ -18,7 +18,7 @@
 // analytic t* now costs 3.15x the best - worse than leaving the threshold at 0.5.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, Toggle } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, Toggle } = window;
 
 const W = 580, H = 420;
 const N_SAMPLES = 20000;
@@ -190,31 +190,48 @@ function ImbalancedDemo() {
   const explainer = (
     <>
       <DemoP>
-        At a 1.5% positive rate, a model that flags nothing at all is <strong>98.52% accurate</strong>{" "}, and that is not a quirk, it is the accuracy-optimal rule for any event rarer than a
-        coin flip. Accuracy answers "how often am I right", which on a rare event is a question about
-        the majority class you did not care about. The readouts put the honest pair beside it:
-        ROC-AUC looks strong because it is an average over the many negatives, while PR-AUC is
-        computed entirely against the rare class and sits far lower on exactly the same model.
+        At a 1.5% positive rate, a model that flags nothing at all is{" "}
+        <strong>98.52% accurate</strong>. That is not a quirk. It is the
+        accuracy-optimal rule for any event rarer than a coin flip. Accuracy answers
+        "how often am I right", which on a rare event is a question about the majority
+        class you did not care about. The readouts put the honest pair beside it:
+        ROC-AUC looks strong because it is an average over the many negatives, while
+        PR-AUC is computed entirely against the rare class and sits far lower on
+        exactly the same model.
       </DemoP>
       <DemoP>
-        The threshold is where the money is. Cost = FP × (false-alarm cost) + FN × (miss cost), and
-        minimising it has a closed form: <strong>t* = c<sub>FP</sub> / (c<sub>FP</sub> +
-        c<sub>FN</sub>)</strong>. Only the RATIO of the two costs matters, which is why you never
-        need to price a fraud loss exactly. You need to know it is fifty times a wasted review. At
-        $100 a miss and $2 a false alarm, t* = 0.0196, and the demo's swept minimum over every
-        candidate threshold in the data lands at 0.0247, five thousandths away, on 295 positives.
-        Against the 0.5 default that is measured at <strong>2.70× cheaper</strong> here, and{" "}
-        <strong>6.87×</strong> when a miss costs $500. The default threshold is a convention
-        inherited from balanced problems; it is not a decision.
+        The threshold is where the money is. Cost = FP × (false-alarm cost) + FN ×
+        (miss cost), and minimising it has a closed form:{" "}
+        <strong>t* = c<sub>FP</sub> / (c<sub>FP</sub> + c<sub>FN</sub>)</strong>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Only the ratio of the two costs matters, which is why you never need to price
+          a fraud loss exactly. You need to know it is fifty times a wasted review.
+        </DemoLI>
+        <DemoLI>
+          At $100 a miss and $2 a false alarm, t* = 0.0196, and the demo's swept
+          minimum over every candidate threshold in the data lands at 0.0247, five
+          thousandths away, on 295 positives.
+        </DemoLI>
+        <DemoLI>
+          Against the 0.5 default that is measured at <strong>2.70× cheaper</strong>{" "}
+          here, and <strong>6.87×</strong> when a miss costs $500. The default
+          threshold is a convention inherited from balanced problems, not a decision.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now switch on <strong>MISCALIBRATE</strong>. It halves the logit, which is strictly
-        increasing, so <em>ROC-AUC and PR-AUC do not move a digit</em>. Every ranking metric says the model is unchanged, and the best cost it can reach is unchanged too, because that is a
-        property of the ordering. What moves is where you have to stand to reach it: the swept
-        argmin jumps <strong>0.0247 → 0.1373</strong>, and the analytic t* now costs{" "}
-        <strong>3.15×</strong> the achievable best, <em>worse than simply leaving the threshold at 0.5</em>. That is the whole reason calibration is a separate property from accuracy or
-        ranking: the moment a score is compared against a <em>price</em> rather than against other
-        scores its level has to be right, and no AUC will ever tell you that it isn't.
+        Now switch on <strong>MISCALIBRATE</strong>. It halves the logit, which is
+        strictly increasing, so <em>ROC-AUC and PR-AUC do not move a digit</em>. Every
+        ranking metric says the model is unchanged, and the best cost it can reach is
+        unchanged too, because that is a property of the ordering. What moves is where
+        you have to stand to reach it. The swept argmin jumps{" "}
+        <strong>0.0247 → 0.1373</strong>, and the analytic t* now costs{" "}
+        <strong>3.15×</strong> the achievable best,{" "}
+        <em>worse than simply leaving the threshold at 0.5</em>. That is the whole
+        reason calibration is a separate property from accuracy or ranking. The moment
+        a score is compared against a <em>price</em> rather than against other scores,
+        its level has to be right, and no AUC will ever tell you that it is not.
       </DemoP>
     </>
   );
