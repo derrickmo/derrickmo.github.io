@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const W = 180, H = 150, SCALE = 2;
@@ -161,20 +161,27 @@ function HarrisDemo() {
   const explainer = (
     <>
       <DemoP>
-        A good feature point to track is a <b>corner</b>, a spot where the image looks different no matter which way you nudge the window. Harris measures
+        A good feature point to track is a <b>corner</b>, a spot where the image
+        looks different no matter which way you nudge the window. Harris measures
         this with the <b>structure tensor</b> M: at each pixel it sums the gradient
-        products (I<sub>x</sub>², I<sub>y</sub>², I<sub>x</sub>I<sub>y</sub>) over a
-        small Gaussian window. The two eigenvalues of M say how much the intensity
-        changes in the two principal directions.
+        products (I<sub>x</sub>&sup2;, I<sub>y</sub>&sup2;, I<sub>x</sub>I<sub>y</sub>)
+        over a small Gaussian window, and the two eigenvalues of M say how much the
+        intensity changes in the two principal directions.
       </DemoP>
+      <DemoUL>
+        <DemoLI><b>Flat</b> regions give two tiny eigenvalues.</DemoLI>
+        <DemoLI>
+          An <b>edge</b> gives one large and one small, because you can slide along
+          the edge without change.
+        </DemoLI>
+        <DemoLI>A <b>corner</b> gives two large ones.</DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Flat</b> regions → both eigenvalues tiny. An <b>edge</b> → one large, one
-        small (you can slide along the edge without change). A <b>corner</b> → both
-        large. The response R = det(M) − k·trace(M)² is a cheap eigenvalue-free way
-        to find that "both large" case: it's positive at corners, negative at edges,
-        near zero on flat areas. The right panel paints corners hot and edges cold so
-        you can see the separation directly. Tune <b>k</b> and the <b>threshold</b>{" "}
-        and watch the checkerboard's L-junctions light up.
+        The response R = det(M) − k·trace(M)&sup2; is a cheap eigenvalue-free way to
+        find that "both large" case: positive at corners, negative at edges, near
+        zero on flat areas. The right panel paints corners hot and edges cold so you
+        can see the separation directly. Tune <b>k</b> and the <b>threshold</b> and
+        watch the L-junctions of the checkerboard light up.
       </DemoP>
     </>
   );

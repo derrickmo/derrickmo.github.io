@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -189,24 +189,36 @@ function HMMViterbiDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each column is a time step; the three dots are the hidden regimes, and a
-        dot is bigger and brighter when Viterbi's running score δ for being in that
-        regime is higher. The white ring marks the regime that was REALLY active
-        (which the decoder never sees), and the bold violet line is the single
-        most-likely path Viterbi reconstructs from the moves alone. Watch it fill
-        left to right, then a new sequence restarts it. Where violet threads through
-        the white rings, the decode is correct.
+        Each column is a time step and the three dots are the hidden regimes, each
+        bigger and brighter when the running Viterbi score δ for being in that regime
+        is higher.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The white ring marks the regime that was REALLY active, which the decoder
+          never sees.
+        </DemoLI>
+        <DemoLI>
+          The bold violet line is the single most likely path Viterbi reconstructs
+          from the moves alone.
+        </DemoLI>
+        <DemoLI>
+          Watch it fill left to right, then a new sequence restarts it. Where violet
+          threads through the white rings, the decode is correct.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The magic is that Viterbi doesn't decode each step independently. A noisy "down" day inside a clear bull run gets overruled because flipping regimes
-        costs transition probability. Crank REGIME PERSISTENCE up and the path
-        snaps to long clean runs (accuracy soars); turn EMISSION NOISE up and the
-        moves stop revealing the regime, so accuracy collapses toward chance. This
-        is the same max-product dynamic program behind POS tagging, speech
-        recognition, and gene finding.
+        The magic is that Viterbi does not decode each step independently. A noisy
+        "down" day inside a clear bull run gets overruled, because flipping regimes
+        costs transition probability. Crank <b>REGIME PERSISTENCE</b> up and the path
+        snaps to long clean runs and accuracy soars. Turn <b>EMISSION NOISE</b> up
+        and the moves stop revealing the regime, so accuracy collapses toward chance.
+        This is the same max-product dynamic program behind POS tagging, speech
+        recognition and gene finding.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -232,6 +244,7 @@ function HMMViterbiDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="HMM & the Viterbi Algorithm"
       subtitle="Watch real Viterbi dynamic programming recover the most-likely hidden regime path from a noisy stream of market moves. Tune regime persistence and emission noise to make the hidden sequence easy or near-impossible to decode."

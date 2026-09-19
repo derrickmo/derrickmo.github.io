@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -181,26 +181,38 @@ function HierClustDemo() {
   const explainer = (
     <>
       <DemoP>
-        On the right is the whole history of the clustering as a tree: every leaf is a
-        point, and each upside-down U is a merge drawn at the height (distance) where
-        the two clusters joined. Tall joins mean two very different groups fused late;
-        short ones mean near-identical points merged early. The beauty is that you
-        don't pick the number of clusters first. You build the tree once and then
-        SLIDE the amber cut line. Where it crosses the branches is how many clusters
-        you get, and the left scatter recolors instantly to match. No re-fitting, and
-        you can read off 2, 5, or 8 clusters from the same structure.
+        On the right is the whole history of the clustering as a tree. Every leaf is
+        a point, and each upside-down U is a merge drawn at the height, the distance,
+        where the two clusters joined. Tall joins mean two very different groups
+        fused late; short ones mean near-identical points merged early.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          You do not pick the number of clusters first. Build the tree once, then
+          SLIDE the amber cut line.
+        </DemoLI>
+        <DemoLI>
+          Where it crosses the branches is how many clusters you get, and the left
+          scatter recolors instantly to match.
+        </DemoLI>
+        <DemoLI>
+          No re-fitting, and you can read off 2, 5 or 8 clusters from the same
+          structure.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The LINKAGE rule changes everything. On the Chain data, switch to Single
-        linkage and it happily follows the curve as one snaking cluster (it merges via the nearest pair), but that same chaining makes it straggle and chain through
-        noise on blobs. Complete and Ward instead prefer compact, balanced clusters,
-        so they chop the chain into pieces but nail the blobs. Ward, which merges whichever pair least inflates within-cluster
-        variance, behaves the most like k-means and
-        is the usual default. There's no universally "right" linkage; it encodes what
-        shape of cluster you believe in.
+        The LINKAGE rule changes everything. On the Chain data, Single linkage
+        happily follows the curve as one snaking cluster, because it merges via the
+        nearest pair, but that same chaining makes it straggle through noise on
+        blobs. Complete and Ward prefer compact, balanced clusters, so they chop the
+        chain into pieces but nail the blobs. Ward, which merges whichever pair least
+        inflates within-cluster variance, behaves the most like k-means and is the
+        usual default. There is no universally right linkage; it encodes what shape
+        of cluster you believe in.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -226,6 +238,7 @@ function HierClustDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Hierarchical Clustering"
       subtitle="Merge the two closest clusters over and over into a tree, then slide a cut across the dendrogram to read off any number of clusters from the same structure, with no k chosen up front. Switch the linkage to see compact, chained, or variance-minimizing clusters."

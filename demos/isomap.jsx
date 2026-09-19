@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -198,24 +198,36 @@ function IsomapDemo() {
     <>
       <DemoP>
         The points trace a curve through 2-D, colored from blue to red by their true
-        position along it. Pick the two end points: the red dashed line is their straight-line distance, short because it cuts straight across the gap, while the
-        green path is the GEODESIC, the shortest route that stays on the k-NN graph
-        and so follows the curve. Isomap measures every pair of points this geodesic
-        way, then lays them on a line (classical MDS). The bottom ISOMAP strip comes
-        out as a clean blue→red rainbow: the 1-D structure recovered. PCA, which only
-        projects onto a straight axis, folds the curve and scrambles the colors.
+        position along it. Pick the two end points and compare two distances:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The red dashed line is their straight-line distance, short because it cuts
+          straight across the gap.
+        </DemoLI>
+        <DemoLI>
+          The green path is the GEODESIC, the shortest route that stays on the k-NN
+          graph and so follows the curve.
+        </DemoLI>
+        <DemoLI>
+          Isomap measures every pair this geodesic way, then lays them on a line with
+          classical MDS. The bottom ISOMAP strip comes out as a clean blue-to-red
+          rainbow: the 1-D structure recovered. PCA only projects onto a straight
+          axis, so it folds the curve and scrambles the colors.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the ISOMAP corr (agreement between recovered order and true order) sit
-        near 1 while PCA's lags. Then push the NEIGHBORS slider to its extremes. Too
-        few neighbors and the graph fractures into disconnected islands. There is no path across the gap, the warning lights up, and Isomap breaks. Too many, and
-        edges leap across the folds (especially on the Tight Roll): the geodesic
-        "short-circuits" straight across, geodesic distance collapses back toward
-        Euclidean, and Isomap's rainbow scrambles just like PCA's. That sweet spot for
-        k is the whole craft of manifold learning.
+        Watch the ISOMAP correlation sit near 1 while PCA lags, then push the
+        NEIGHBORS slider to its extremes. Too few and the graph fractures into
+        disconnected islands, with no path across the gap, the warning lights up and
+        Isomap breaks. Too many and edges leap across the folds, especially on the
+        Tight Roll: the geodesic short-circuits straight across, geodesic distance
+        collapses back toward Euclidean, and the Isomap rainbow scrambles just like
+        the PCA one. That sweet spot for k is the whole craft of manifold learning.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -241,6 +253,7 @@ function IsomapDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Isomap (Manifold Learning)"
       subtitle="Unroll a curved manifold by measuring distance ALONG the data instead of straight through it. A k-NN graph plus shortest paths gives geodesic distances; classical MDS lays them on a line, recovering an order that straight-line PCA folds and scrambles."
