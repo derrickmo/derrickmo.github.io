@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -170,23 +170,34 @@ function ReflectionDemo() {
   const explainer = (
     <>
       <DemoP>
-        Reflection turns one shot into a loop: the agent drafts an answer, a critic
-        scores it and says what's wrong, the agent revises, and round on. The
-        violet line is the answer's true quality climbing across revisions; the
-        green dashed line is the bar it needs to clear; each dot is a critic verdict. Red "revise" keeps the loop going, green "pass" ships it. With an
-        informative critic the quality curve bends up to the bar in a couple of
-        rounds.
+        Reflection turns one shot into a loop. The agent drafts an answer, a critic
+        scores it and says what is wrong, the agent revises, and round on.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The violet line is the answer's true quality climbing across revisions.
+        </DemoLI>
+        <DemoLI>
+          The green dashed line is the bar it needs to clear.
+        </DemoLI>
+        <DemoLI>
+          Each dot is a critic verdict. Red "revise" keeps the loop going, green "pass"
+          ships it.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Then break the critic. Drop CRITIC INFORMATIVENESS and the curve flattens below the bar. The loop keeps revising but never improves, and you pay for
-        every call. Drop CRITIC ACCURACY and two new failure modes appear: a green
-        "pass" dot below the bar means it <i>false-passed</i> and shipped a bad
-        answer, while an answer that's clearly over the bar but keeps getting red
-        dots is being <i>false-failed</i> until the budget runs out. Self-correction
-        is only ever as good as the thing doing the correcting.
+        With an informative critic the quality curve bends up to the bar in a couple of
+        rounds. Then break the critic. Drop CRITIC INFORMATIVENESS and the curve
+        flattens below the bar, so the loop keeps revising, never improves, and you pay
+        for every call. Drop CRITIC ACCURACY and two new failure modes appear: a green
+        "pass" dot below the bar means it <i>false-passed</i> and shipped a bad answer,
+        while an answer clearly over the bar that keeps getting red dots is being{" "}
+        <i>false-failed</i> until the budget runs out. Self-correction is only ever as
+        good as the thing doing the correcting.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -209,6 +220,7 @@ function ReflectionDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Self-Correction (Reflection)"
       subtitle="Draft, critique, revise, repeat. Watch quality climb to the bar, then weaken the critic and see reflection stall, ship garbage, or burn the budget."

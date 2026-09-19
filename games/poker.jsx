@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, DemoButton, StatReadout, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, DemoButton, StatReadout, ControlGroup,
 } = window;
 
 const CARD = ["J", "Q", "K"];
@@ -135,22 +135,36 @@ function PokerDemo() {
   const explainer = (
     <>
       <DemoP>
-        Kuhn poker is the smallest interesting poker: a 3-card deck (J, Q, K), one card each, one round of
-        betting, small enough to <i>solve</i> exactly, yet it still
-        has bluffing. This AI taught itself by <b>Counterfactual Regret Minimization
-        (CFR)</b>: it plays the game against itself tens of thousands of times, and after
-        each one asks "for every decision, how much do I regret <i>not</i> having played
-        each other action?" It then shifts toward the actions it regretted not taking.
-        Average those strategies and they provably converge to a <b>Nash equilibrium</b>.
+        Kuhn poker is the smallest interesting poker: a 3-card deck of J, Q and K, one
+        card each, one round of betting. It is small enough to <i>solve</i> exactly,
+        and it still has bluffing. This AI taught itself by{" "}
+        <b>Counterfactual Regret Minimization (CFR)</b>:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It plays the game against itself tens of thousands of times.
+        </DemoLI>
+        <DemoLI>
+          After each one it asks, for every decision, how much it regrets <i>not</i>{" "}
+          having played each other action.
+        </DemoLI>
+        <DemoLI>
+          It shifts toward the actions it regretted not taking, and the average of
+          those strategies provably converges to a <b>Nash equilibrium</b>.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The result is genuinely game-theoretic behavior. Notice it <b>bluffs with the Jack</b> a precise fraction of the time and sometimes <i>doesn't</i> bet the
-        King, exactly the unexploitable mix the math prescribes. You can win individual
-        hands (it's still a card game), but over many hands you can't beat it. CFR is the same algorithm, scaled up massively, behind the bots that solved heads-up
-        limit hold'em and beat pros at no-limit.
+        The result is genuinely game-theoretic behavior. Notice that it{" "}
+        <b>bluffs with the Jack</b> a precise fraction of the time and sometimes{" "}
+        <i>does not</i> bet the King, exactly the unexploitable mix the math
+        prescribes. You can win individual hands, since it is still a card game, but
+        over many hands you cannot beat it. CFR is the same algorithm, scaled up
+        massively, behind the bots that solved heads-up limit hold'em and beat pros at
+        no-limit.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -169,6 +183,7 @@ function PokerDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · GAME THEORY (CFR)" title="Heads-Up Poker"
       subtitle="A poker AI that trained itself to a Nash equilibrium with counterfactual regret, bluffs and all."

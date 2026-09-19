@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -204,26 +204,36 @@ function RansacDemo() {
   const explainer = (
     <>
       <DemoP>
-        Least squares minimizes the <i>squared</i> distance to every point, so a point far
-        from the line contributes enormously, and it has no way to decline. One bad
-        measurement tilts the whole fit. RANSAC inverts the problem: instead of fitting all
-        the data at once, guess a model from the smallest possible sample (two points for a
-        line), count how many points agree with it, and keep the guess with the largest
-        agreeing set.
+        Least squares minimizes the <i>squared</i> distance to every point, so a point
+        far from the line contributes enormously and has no way to decline. One bad
+        measurement tilts the whole fit. RANSAC inverts the problem: guess a model from
+        the smallest possible sample, two points for a line, count how many points
+        agree with it, and keep the guess with the largest agreeing set.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Push <b>outliers</b> up and watch the two lines separate. The violet dashed
+          fit rotates away steadily and the blue one does not move.
+        </DemoLI>
+        <DemoLI>
+          At 60% outliers RANSAC is still within 0.01 of the true slope of 0.800 while
+          least squares has drifted past 0.86.
+        </DemoLI>
+        <DemoLI>
+          A majority of the data being wrong is survivable, because these outliers are
+          unstructured and never form a bigger consensus than the real line.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push <b>outliers</b> up and watch the two lines separate. The violet dashed fit
-        rotates away steadily; the blue one does not move. At 60% outliers RANSAC is still
-        within 0.01 of the true slope of 0.800 while least squares has drifted past 0.86. Note what that means: <i>a majority of the data being wrong is survivable</i>,
-        because the outliers here are unstructured and never form a bigger consensus than
-        the real line. What actually breaks RANSAC is outliers with structure of their own, a second line or a repeated pattern, since then the largest
-        agreeing set may not be
-        the one you wanted. Then click to drop a single point far from the line: least
-        squares lurches toward it, RANSAC does not move at all, because that point simply
-        is not in the consensus set.
+        What actually breaks RANSAC is outliers with structure of their own, a second
+        line or a repeated pattern, since then the largest agreeing set may not be the
+        one you wanted. Then click to drop a single point far from the line: least
+        squares lurches toward it and RANSAC does not move at all, because that point
+        simply is not in the consensus set.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -242,6 +252,7 @@ function RansacDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="RANSAC"
       subtitle="Fit a model to data that is mostly wrong, by sampling, counting agreement, and ignoring everything else."
