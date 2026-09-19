@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -186,24 +186,36 @@ function MCMCDemo() {
   const explainer = (
     <>
       <DemoP>
-        The violet heatmap is the distribution we want to sample, but we can only evaluate it up to a constant, so we can't sample it directly. Metropolis
-        builds a random walk whose long-run visiting frequency equals that density:
-        from the green point it proposes a Gaussian step, then accepts if the target
-        is higher there, or accepts "downhill" moves with probability p(new)/p(old).
-        Reject and it just stays and re-records the same point. The white dots are
-        the kept samples piling up, and they fill in exactly the bright regions of
-        the heatmap, with no normalization ever computed.
+        The violet heatmap is the distribution we want to sample, but we can only
+        evaluate it up to a constant, so we cannot sample it directly. Metropolis
+        builds a random walk whose long-run visiting frequency equals that density.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          From the green point it proposes a Gaussian step, then accepts if the
+          target is higher there.
+        </DemoLI>
+        <DemoLI>
+          It also accepts downhill moves, with probability p(new)/p(old). Reject and
+          it stays put and re-records the same point.
+        </DemoLI>
+        <DemoLI>
+          The white dots are the kept samples piling up, and they fill in exactly the
+          bright regions of the heatmap, with no normalization ever computed.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        PROPOSAL STEP is everything. Shrink σ and acceptance climbs toward 100%, but
-        the green trail barely moves. The samples are so correlated you'd need
-        millions for a few independent ones. Grow σ and the chain leaps into the
-        dark and gets rejected over and over, freezing in place. On the Bimodal
-        target, small steps can trap the chain in one mode for ages (poor mixing);
-        on the Banana, no single σ fits the curved ridge, which is exactly why practitioners reach for adaptive, Hamiltonian, or NUTS samplers.
+        <b>PROPOSAL STEP</b> is everything. Shrink σ and acceptance climbs toward
+        100%, but the green trail barely moves and the samples are so correlated you
+        would need millions for a few independent ones. Grow σ and the chain leaps
+        into the dark, gets rejected over and over, and freezes in place. On the
+        Bimodal target, small steps can trap the chain in one mode for ages. On the
+        Banana, no single σ fits the curved ridge, which is exactly why practitioners
+        reach for adaptive, Hamiltonian or NUTS samplers.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -230,6 +242,7 @@ function MCMCDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="MCMC (Metropolis-Hastings)"
       subtitle="Sample a distribution you can only evaluate up to a constant by building a random walk that visits it in proportion to its density. Tune the proposal step to feel the mixing-vs-acceptance tradeoff, and switch targets to see where random-walk MCMC struggles."

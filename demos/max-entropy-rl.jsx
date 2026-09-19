@@ -16,7 +16,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const COLS = 8, ROWS = 6, CELL = 30;
@@ -165,17 +165,27 @@ function MaxEntropyRLDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two goals sit on the right, a better one (+1.0) and a slightly worse one (+0.85), reachable only
-        through the top or bottom gap. Standard RL would
-        always sprint to the +1.0 goal by the single best route. <b>Max-entropy</b>{" "}
-        RL instead maximizes reward <i>plus</i> policy entropy, weighted by the
-        temperature <b>α</b>. That turns the Bellman max into a soft log-sum-exp and
-        makes the policy a softmax over Q, so the arrows show its full probability, not
-        just the best move.
+        Two goals sit on the right, a better one (+1.0) and a slightly worse one
+        (+0.85), reachable only through the top or bottom gap. Standard RL would
+        always sprint to the +1.0 goal by the single best route.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Max-entropy</b> RL instead maximizes reward <i>plus</i> policy entropy,
+          weighted by the temperature <b>α</b>.
+        </DemoLI>
+        <DemoLI>
+          That turns the Bellman max into a soft log-sum-exp and makes the policy a
+          softmax over Q, so the arrows show its full probability rather than just
+          the best move.
+        </DemoLI>
+        <DemoLI>
+          Crank <b>α</b> up and the policy fans out. The agent keeps real probability
+          on both gaps and both goals, wanders varied routes, and the entropy readout
+          climbs.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Crank <b>α</b> up and the policy fans out: the agent keeps real probability
-        on both gaps and both goals, wanders varied routes, and the entropy readout climbs. This is broad, robust behavior that explores instead of committing.
         Turn α toward 0 and it collapses onto the one greedy path to the +1.0 goal,
         and the soft values become ordinary value iteration. The temperature is the
         single dial between <b>exploration and exploitation</b>, set automatically in

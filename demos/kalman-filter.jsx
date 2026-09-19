@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -202,24 +202,37 @@ function KalmanDemo() {
   const explainer = (
     <>
       <DemoP>
-        The green curve is where the target really is; the blue dots are all the filter ever sees: the same position, buried in sensor noise. The purple
-        line is the Kalman estimate, and the shaded band is its own sense of how
-        unsure it is (±2σ). Each tick it does two things: <b>predict</b> the next
-        position from a constant-velocity model (the band widens), then <b>update</b>{" "}
-        toward the new measurement by an amount set by the Kalman gain K (the band
-        snaps tight). K is the optimal blend of "how much do I trust my model" vs
-        "how much do I trust this sensor."
+        The green curve is where the target really is. The blue dots are all the
+        filter ever sees, the same position buried in sensor noise. The purple line
+        is the Kalman estimate and the shaded band is its own sense of how unsure it
+        is, &plusmn;2σ. Each tick it does two things:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Predict</b> the next position from a constant-velocity model, and the
+          band widens.
+        </DemoLI>
+        <DemoLI>
+          <b>Update</b> toward the new measurement by an amount set by the Kalman
+          gain K, and the band snaps tight.
+        </DemoLI>
+        <DemoLI>
+          K is the optimal blend of "how much do I trust my model" against "how much
+          do I trust this sensor".
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch NOISE REDUCED: the estimate's RMSE is well below the raw sensor's,
-        so the filter genuinely denoises in real time. Crank MEASUREMENT NOISE R up and K shrinks. The estimate ignores the wild dots and glides on its model.
-        Crank PROCESS NOISE Q up and K grows. The estimate chases every dot and
+        Watch NOISE REDUCED: the RMSE of the estimate sits well below the raw sensor,
+        so the filter genuinely denoises in real time. Crank MEASUREMENT NOISE R up
+        and K shrinks, so the estimate ignores the wild dots and glides on its model.
+        Crank PROCESS NOISE Q up and K grows, so the estimate chases every dot and
         gets jumpy. The art is matching Q and R to reality: too little Q and the
-        estimate lags and overshoots on the sharp turns; too much and you've just
+        estimate lags and overshoots on the sharp turns, too much and you have just
         re-drawn the noise.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -244,6 +257,7 @@ function KalmanDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Kalman Filter"
       subtitle="A real 2-state (position, velocity) Kalman filter tracks a maneuvering target from noisy measurements. Tune process noise Q and sensor noise R to move the Kalman gain, and watch the estimate denoise the sensor in real time."

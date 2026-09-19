@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -188,24 +188,38 @@ function LabelPropDemo() {
   const explainer = (
     <>
       <DemoP>
-        Only the ringed points start with a label; everything else begins gray. Each
-        step, every unlabeled node pulls in a weighted average of its neighbors' label
-        scores (weights = graph similarity), and the seeds are re-pinned to their true
-        labels so they keep injecting signal. Label mass flows outward along the dense
-        parts of the graph, so color creeps along each crescent and fills it. Watch the gray vanish. With just one or two labels per class, UNLABELED ACCURACY
-        climbs near 100% on the moons, because the GRAPH carried the labels where a
-        straight-line classifier never could.
+        Only the ringed points start with a label and everything else begins gray.
+        Each step, every unlabeled node pulls in a weighted average of the label
+        scores of its neighbors, weighted by graph similarity, and the seeds are
+        re-pinned to their true labels so they keep injecting signal.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Label mass flows outward along the dense parts of the graph, so color
+          creeps along each crescent and fills it. Watch the gray vanish.
+        </DemoLI>
+        <DemoLI>
+          With just one or two labels per class, UNLABELED ACCURACY climbs near 100%
+          on the moons, because the GRAPH carried the labels where a straight-line
+          classifier never could.
+        </DemoLI>
+        <DemoLI>
+          This only works if the graph matches the geometry of the data, and{" "}
+          <b>GRAPH WIDTH σ</b> is that dial.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        This only works if the graph matches the data's geometry, and GRAPH WIDTH σ is
-        that dial. Shrink it and nodes stop seeing neighbors, so islands stay gray and accuracy stalls. Grow it and the two moons start linking across the empty gap,
-        so a class's labels leak into the other and accuracy drops. It rests on the
-        cluster/manifold assumption: points connected through high-density regions
-        share a label. Break that, by switching to overlapping Blobs or placing a seed in the
-        wrong spot, and propagation confidently spreads the wrong answer.
+        Shrink σ and nodes stop seeing neighbors, so islands stay gray and accuracy
+        stalls. Grow it and the two moons start linking across the empty gap, so the
+        labels of one class leak into the other and accuracy drops. It all rests on
+        the cluster and manifold assumption, that points connected through
+        high-density regions share a label. Break that, by switching to overlapping
+        Blobs or placing a seed in the wrong spot, and propagation confidently
+        spreads the wrong answer.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -233,6 +247,7 @@ function LabelPropDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Label Propagation"
       subtitle="Semi-supervised learning: give one or two labels per class and watch them spread through a similarity graph to color hundreds of unlabeled points along the shape of the data. Tune the graph width to see why the geometry, not the labels, does the work."
