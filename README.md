@@ -2,7 +2,7 @@
 
 Personal website of **Derrick Mo** — machine-learning engineer and educator.
 Part portfolio (Research · Learn · Build), part **interactive ML curriculum**: a
-browser-based lab of **200 hands-on demos** across 19 areas, a **25-module,
+browser-based lab of **200 hands-on demos** across 20 areas, a **25-module,
 250-lesson** course, now presented in the structure of the notebooks' 26 modules
 and 282 slots, flagship lessons, guided learning paths, and a linked concept
 graph — every algorithm runs entirely in your browser.

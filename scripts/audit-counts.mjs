@@ -44,6 +44,8 @@ const truth = {
   concepts: v.counts.concepts,
   demos: v.counts.demos,
   democats: demoCategories(),
+  // The GRAPH's concept count, which is larger than the taught set in v.counts.
+  graphconcepts: graphConcepts(),
   games: v.counts.games,
   paths: v.counts.paths,
   questions: v.counts.questions,
@@ -60,6 +62,12 @@ const truth = {
 // this bug was caught on the script's own first run.)
 // Categories come from the registry, not from a restated constant: the count
 // and the list in README have to agree with what the hub actually renders.
+function graphConcepts() {
+  const g = {};
+  new Function("window", readFileSync("concepts-index.js", "utf8"))(g);
+  return Object.keys(g.CONCEPTS_INDEX).length;
+}
+
 function demoCategories() {
   const src = readFileSync("play-demos.js", "utf8");
   const g = {};
@@ -81,6 +89,12 @@ const SURFACES = [
     // script reported OK. An uncovered restatement is the drift, not the number.
     T("# interactive demos", "demos"),
     T("in # categories", "democats"),
+    // ...and a THIRD phrasing of the same count on line 5. Two passes at this
+    // file each fixed the restatements they could see and missed the next one,
+    // which is the argument for enumerating every counted phrase in a surface
+    // rather than patching the one that was reported.
+    T("across # areas", "democats"),
+    T("# concepts linked by", "graphconcepts"),
     // The site's own store: 25 module directories, 250 written lessons.
     T("#-module", "modules"),
     T("#-lesson", "topics"),
