@@ -2,7 +2,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -97,40 +97,61 @@ function ActivationsDemo() {
   const explainer = (
     <>
       <DemoP>
-        An activation function is the nonlinearity that lets a neural network bend. Without one, stacking layers just collapses to a single linear map. Each
-        choice has a personality. <b>Sigmoid</b> and <b>Tanh</b> squash to a bounded
-        range but <i>saturate</i>: turn on derivatives and see how their gradient
-        flatlines for large |x|. That is the vanishing-gradient problem that stalls deep
-        nets.
+        An activation function is the nonlinearity that lets a neural network bend.
+        Without one, stacking layers just collapses to a single linear map. Each
+        choice has a personality.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Sigmoid</b> and <b>Tanh</b> squash to a bounded range but{" "}
+          <i>saturate</i>. Turn on derivatives and see the gradient flatline for
+          large |x|. That is the vanishing-gradient problem that stalls deep nets.
+        </DemoLI>
+        <DemoLI>
+          <b>ReLU</b> fixed that with a dead-simple <i>max(0, x)</i> and a constant
+          gradient on the positive side, though it has a flat dead zone for x &lt; 0
+          that <b>Leaky ReLU</b> patches.
+        </DemoLI>
+        <DemoLI>
+          <b>GELU</b> and <b>SiLU/Swish</b> are smooth, non-monotonic curves that
+          modern transformers favor.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>ReLU</b> fixed that with a dead-simple <i>max(0, x)</i> and a constant
-        gradient on the positive side (but a flat dead zone for x &lt; 0, which
-        <b> Leaky ReLU</b> patches). <b>GELU</b> and <b>SiLU/Swish</b> are smooth,
-        non-monotonic curves that modern transformers favor. Toggle the derivatives
-        and hover across x. The gradient is what actually flows backward during
-        training, so its shape matters more than the function's.
+        Toggle the derivatives and hover across x. The gradient is what actually
+        flows backward during training, so its shape matters more than the shape of
+        the function itself.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Activation choice is a real architecture decision with measurable consequences.
-        Sigmoid/tanh saturation caused the vanishing-gradient problem that kept networks
-        shallow for decades; <b>ReLU</b>'s constant positive-side gradient is much of why
-        deep learning took off. Modern transformers and LLMs default to smooth variants, such as
-        <b> GELU</b> in BERT/GPT, <b>SiLU</b>/SwiGLU in Llama-style models, for slightly better gradients and accuracy.
+        Activation choice is a real architecture decision with measurable
+        consequences. Sigmoid and tanh saturation caused the vanishing-gradient
+        problem that kept networks shallow for decades, and the constant positive-side
+        gradient of <b>ReLU</b> is much of why deep learning took off. Modern
+        transformers and LLMs default to smooth variants, such as <b>GELU</b> in BERT
+        and GPT and <b>SiLU</b> or SwiGLU in Llama-style models, for slightly better
+        gradients and accuracy.
       </DemoP>
       <DemoP>
-        The deeper lesson is that <i>gradients</i>, not outputs, govern training. The same
-        "is the gradient alive here?" question drives weight initialization, normalization
-        layers (BatchNorm, LayerNorm), and residual connections, all of which exist to
-        keep gradients flowing through deep stacks. Read an activation by its derivative and
-        you're reading it the way the optimizer does.
+        The deeper lesson is that <i>gradients</i>, not outputs, govern training. The
+        same "is the gradient alive here?" question drives three other design choices:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Weight initialization.</DemoLI>
+        <DemoLI>Normalization layers, BatchNorm and LayerNorm.</DemoLI>
+        <DemoLI>Residual connections.</DemoLI>
+      </DemoUL>
+      <DemoP>
+        All three exist to keep gradients flowing through deep stacks. Read an
+        activation by its derivative and you are reading it the way the optimizer does.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Activation Functions"
       subtitle="The nonlinearities that make deep learning deep, and the gradients that decide whether it trains."

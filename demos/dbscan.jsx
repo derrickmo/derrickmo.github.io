@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -189,44 +189,65 @@ function DBSCANDemo() {
   const explainer = (
     <>
       <DemoP>
-        DBSCAN starts from each unvisited point, asks "how many neighbors are
-        within distance <b>EPS</b>?", and if that count is at least <b>MIN_PTS</b>,
-        crowns the point as a <b>core</b>. Cores within EPS of each other share a
-        cluster, and any reachable non-core within EPS of a core gets adopted as a
-        <b> border</b> point. Everything else is labeled <b>noise</b>. No k to pick,
-        no parametric assumption about shape, which is why moons and rings work where
-        K-Means just produces wedges.
+        DBSCAN starts from each unvisited point and asks "how many neighbors are
+        within distance <b>EPS</b>?" Everything follows from that count.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          If the count is at least <b>MIN_PTS</b>, the point is crowned a{" "}
+          <b>core</b>. Cores within EPS of each other share a cluster.
+        </DemoLI>
+        <DemoLI>
+          Any reachable non-core within EPS of a core is adopted as a <b>border</b>{" "}
+          point.
+        </DemoLI>
+        <DemoLI>
+          Everything else is labeled <b>noise</b>. No k to pick, no parametric
+          assumption about shape, which is why moons and rings work where K-Means
+          just produces wedges.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push EPS too small and clusters splinter and entire moons get labeled noise.
-        Push it too large and the moons merge into a single blob. Push MIN_PTS up
-        and the algorithm gets stricter about what counts as dense; useful when your
-        background noise has its own clumps you don't want as clusters. Together the
-        two knobs answer one question: <i>at what density does a region become a
-        cluster?</i>
+        Push EPS too small and clusters splinter, with entire moons labeled noise.
+        Push it too large and the moons merge into a single blob. Push MIN_PTS up and
+        the algorithm gets stricter about what counts as dense, which is useful when
+        your background noise has its own clumps. Together the two knobs answer one
+        question: <i>at what density does a region become a cluster?</i>
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        DBSCAN is the default unsupervised clustering algorithm when you don't know
-        K and don't trust your data to be Gaussian. It's still production today in
-        anomaly detection (point declared noise = potential anomaly), spatial
-        analytics (geographic clustering of events), and bioinformatics (cell-type
-        discovery from single-cell expression, though UMAP+Leiden has eaten part of
-        that pie since 2018). The pattern survives even where DBSCAN itself doesn't:
-        the idea that "density, not distance to a centroid, defines a cluster" runs
-        through HDBSCAN, OPTICS, and the graph-clustering methods that replaced it.
+        DBSCAN is the default unsupervised clustering algorithm when you do not know
+        K and do not trust your data to be Gaussian. It is still in production today
+        in anomaly detection, where a point declared noise is a potential anomaly, in
+        spatial analytics, and in bioinformatics for cell-type discovery, though
+        UMAP with Leiden has eaten part of that since 2018. The pattern survives even
+        where DBSCAN itself does not: "density, not distance to a centroid, defines a
+        cluster" runs through HDBSCAN, OPTICS and the graph-clustering methods that
+        replaced it.
       </DemoP>
-      <DemoP>
-        Two practical lessons that don't show up in textbooks: (1) EPS is sensitive to feature scaling, so normalize first or pick EPS in units of your domain.
-        (2) DBSCAN doesn't scale well past ~10⁵ points without a spatial index
-        (k-d tree or ball tree); in practice that's why HDBSCAN exists. Use the eps
-        slider here at the limit and you can feel the O(n²) neighbor query when n gets large, which is why this demo caps at ~240 points.
-      </DemoP>
+      <DemoP>Two practical lessons that do not show up in textbooks:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          EPS is sensitive to feature scaling, so normalize first or pick EPS in
+          units of your domain.
+        </DemoLI>
+        <DemoLI>
+          DBSCAN does not scale past about 10⁵ points without a spatial index, a k-d
+          tree or ball tree, which in practice is why HDBSCAN exists.
+        </DemoLI>
+        <DemoLI>
+          Use the eps slider here at the limit and you can feel the O(n&sup2;)
+          neighbor query when n gets large, which is why this demo caps at about 240
+          points.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="DBSCAN: Density-Based Clustering"
       subtitle="No k to pick. The density threshold defines the cluster and labels the rest as noise."

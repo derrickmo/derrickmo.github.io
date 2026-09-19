@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -177,45 +177,70 @@ function VAEDemo() {
   const explainer = (
     <>
       <DemoP>
-        An autoencoder squeezes data through a bottleneck and rebuilds it. A
-        <b> variational</b> autoencoder adds two twists that make it
-        <i> generative</i>. First, the encoder does not output a point. It outputs a <b>distribution</b> (a mean μ and variance) per input, and we sample the latent
-        <b> z</b> from it via the <b>reparameterization trick</b> (z = μ + σ·ε), which
-        keeps the randomness differentiable so we can still backprop. Hit <b>Train</b>{" "}
-        and watch the <span style={{ color: "#60a5fa" }}>reconstructions</span> snap
-        onto the data while the <span style={{ color: "#fbbf24" }}>generated samples</span>
-        (decoded from pure noise) start to look like real data. That is generation.
+        An autoencoder squeezes data through a bottleneck and rebuilds it. A{" "}
+        <b>variational</b> autoencoder adds two twists that make it <i>generative</i>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The encoder does not output a point. It outputs a <b>distribution</b>, a
+          mean μ and a variance, per input, and we sample the latent <b>z</b> from it
+          via the <b>reparameterization trick</b> (z = μ + σ·ε), which keeps the
+          randomness differentiable so we can still backprop.
+        </DemoLI>
+        <DemoLI>
+          A <b>KL</b> term pulls every encoding toward a unit Gaussian, the dashed
+          rings in the latent panel, so the latent space stays packed and continuous
+          instead of scattering. That is exactly what lets you sample from it.
+        </DemoLI>
+        <DemoLI>
+          Hit <b>Train</b> and watch the{" "}
+          <span style={{ color: "#60a5fa" }}>reconstructions</span> snap onto the data
+          while the <span style={{ color: "#fbbf24" }}>generated samples</span>,
+          decoded from pure noise, start to look like real data.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Second, a <b>KL</b> term pulls every encoding toward a unit Gaussian (the dashed
-        rings in the latent panel), so the latent space stays packed and continuous
-        instead of scattering, which is exactly what lets you sample from it. The
-        <b> β</b> slider sets that pressure: too low and the latent space fragments
-        (great reconstructions, poor samples); too high and everything collapses toward
-        the origin (clean prior, blurry reconstructions). Finding that balance is the whole art of training a VAE, and this is real backprop, running as you watch.
+        The <b>β</b> slider sets the KL pressure. Too low and the latent space
+        fragments, giving great reconstructions and poor samples. Too high and
+        everything collapses toward the origin, giving a clean prior and blurry
+        reconstructions. Finding that balance is the whole art of training a VAE, and
+        this is real backprop running as you watch.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         VAEs were the first deep generative models to give a smooth, sampleable latent
-        space, and that idea is now everywhere: the latent space Stable Diffusion denoises
-        in is a VAE's, VQ-VAE tokenizes images and audio so transformers can generate them,
-        and latent-variable thinking underlies much of representation learning. The{" "}
-        <b>reparameterization trick</b>, making sampling differentiable, is a broadly reusable
-        tool for backprop through stochastic nodes.
+        space, and that idea is now everywhere. The latent space Stable Diffusion
+        denoises in belongs to a VAE, VQ-VAE tokenizes images and audio so
+        transformers can generate them, and latent-variable thinking underlies much of
+        representation learning. The <b>reparameterization trick</b>, making sampling
+        differentiable, is a broadly reusable tool for backprop through stochastic
+        nodes.
       </DemoP>
       <DemoP>
-        The β knob is a small window onto deep tensions in generative modeling: the
-        reconstruction-versus-regularization tradeoff (β-VAE turns it up to encourage
-        disentangled, interpretable factors), and the <i>posterior collapse</i> failure
-        where too-strong a prior leaves the latent code unused. The evidence-lower-bound
-        (ELBO) objective you're optimizing here is the same variational-inference machinery
-        behind the EM updates in the Gaussian-mixtures demo.
+        The β knob is a small window onto deep tensions in generative modeling:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The reconstruction-against-regularization tradeoff. β-VAE turns it up to
+          encourage disentangled, interpretable factors.
+        </DemoLI>
+        <DemoLI>
+          The <i>posterior collapse</i> failure, where too strong a prior leaves the
+          latent code unused.
+        </DemoLI>
+        <DemoLI>
+          The evidence-lower-bound objective you are optimizing here is the same
+          variational-inference machinery behind the EM updates in the
+          Gaussian-mixtures demo.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Variational Autoencoder"
       subtitle="Encode to a distribution, sample with the reparameterization trick, and let KL shape a latent space you can generate from."

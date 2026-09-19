@@ -19,7 +19,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -311,48 +311,62 @@ function DQNDemo() {
   const explainer = (
     <>
       <DemoP>
-        Tabular Q-learning needs one cell per state, which is hopeless once the state is continuous. DQN replaces the table with a small neural network that{" "}
-        <i>approximates</i> Q(s, a), so it can generalize across nearby states.
-        The three curves are the network's value estimate for moving left,
-        staying, and moving right at every point on the line; the agent acts
-        greedily (argmax) with a little ε-exploration. Watch the curves bend into
-        a tent that peaks at the green goal. The network is learning that getting
-        near zero is worth +1.
+        Tabular Q-learning needs one cell per state, which is hopeless once the state
+        is continuous. DQN replaces the table with a small neural network that{" "}
+        <i>approximates</i> Q(s, a), so it can generalize across nearby states. The
+        three curves are its value estimate for moving left, staying and moving right
+        at every point on the line, and the agent acts greedily with a little
+        ε-exploration. Watch the curves bend into a tent that peaks at the green goal.
       </DemoP>
       <DemoP>
-        Naively training a network on its own bootstrapped targets diverges, and
-        that's what the two toggles let you feel. <b>Experience replay</b> stores
-        every transition and trains on random minibatches, so consecutive
-        gradient steps aren't correlated and rare goal-reaching steps get reused
-        many times. The <b>target network</b> freezes the weights used to compute
-        r + γ·maxₐ Q(s′,a) for C steps, so the network isn't chasing a target that
-        moves every update. Turn either off and the loss curve gets violent. That instability is exactly the problem the 2015 DQN paper solved.
+        Naively training a network on its own bootstrapped targets diverges, and that
+        is what the two toggles let you feel:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Experience replay</b> stores every transition and trains on random
+          minibatches, so consecutive gradient steps are not correlated and rare
+          goal-reaching steps get reused many times.
+        </DemoLI>
+        <DemoLI>
+          The <b>target network</b> freezes the weights used to compute r + γ·maxₐ
+          Q(s′,a) for C steps, so the network is not chasing a target that moves every
+          update.
+        </DemoLI>
+        <DemoLI>
+          Turn either off and the loss curve gets violent. That instability is exactly
+          the problem the 2015 DQN paper solved.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        DQN (Mnih et al., 2015) is what put deep RL on the map: one architecture learning to play 49 Atari games from raw pixels and a score. The version
-        here is the same algorithm with a 1-input network instead of a
-        convolutional one: ε-greedy behavior, a replay buffer, a periodically
-        synced target net, and a squared TD loss. Everything that made it famous
-        is a mechanism for <i>stabilizing function approximation under
-        bootstrapping</i>.
+        DQN (Mnih et al., 2015) is what put deep RL on the map: one architecture
+        learning to play 49 Atari games from raw pixels and a score. The version here
+        is the same algorithm with a 1-input network instead of a convolutional one,
+        with ε-greedy behavior, a replay buffer, a periodically synced target net and
+        a squared TD loss. Everything that made it famous is a mechanism for{" "}
+        <i>stabilizing function approximation under bootstrapping</i>.
       </DemoP>
       <DemoP>
-        It's also the value-based counterpart to the{" "}
+        It is the value-based counterpart to the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>policy-gradient</a>{" "}
         and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/actor-critic/`} style={{ color: "#a855f7" }}>actor-critic</a>{" "}
-        demos: instead of directly parameterizing a policy, DQN learns values and
-        acts greedily on them. Double-DQN (decouples action selection from
-        evaluation), dueling heads (split value and advantage), and prioritized
-        replay (sample high-error transitions more) are all refinements of the
-        exact loop you're watching.
+        demos: instead of directly parameterizing a policy, DQN learns values and acts
+        greedily on them. Three refinements of this exact loop are standard:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Double-DQN decouples action selection from evaluation.</DemoLI>
+        <DemoLI>Dueling heads split value and advantage.</DemoLI>
+        <DemoLI>Prioritized replay samples high-error transitions more often.</DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Deep Q-Network (DQN)"
       subtitle="A neural net learns Q(s, a) on a continuous state. Toggle experience replay and the target network to see why deep RL needs both to stay stable."

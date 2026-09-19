@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -169,19 +169,31 @@ function DiffusionDemo() {
   const explainer = (
     <>
       <DemoP>
-        Diffusion models work in two directions. <b>Forward</b> ("Diffuse") is fixed
-        and easy: repeatedly add a little Gaussian noise until the data
-        distribution becomes pure noise. At timestep <i>t</i> every point is
-        <i> √ᾱₜ·x₀ + √(1−ᾱₜ)·ε</i>. Watch the structured cloud dissolve. The
-        <b> noise schedule</b> (linear vs cosine) controls how fast that happens.
+        Diffusion models work in two directions.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Forward</b> ("Diffuse") is fixed and easy: repeatedly add a little
+          Gaussian noise until the data distribution becomes pure noise. At timestep{" "}
+          <i>t</i> every point is <i>√ᾱₜ·x₀ + √(1−ᾱₜ)·ε</i>. Watch the structured
+          cloud dissolve.
+        </DemoLI>
+        <DemoLI>
+          The <b>noise schedule</b>, linear against cosine, controls how fast that
+          happens.
+        </DemoLI>
+        <DemoLI>
+          <b>Sampling</b> ("Sample") runs it backward: start from pure noise and
+          repeatedly denoise with DDIM.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Sampling</b> ("Sample") runs it backward: start from pure noise and
-        repeatedly denoise with DDIM. The trick a real model has to <i>learn</i>, predicting the noise at each step, is computed here exactly, because for a
-        finite dataset the optimal denoiser is just a distance-weighted average of
-        the data points (the analytic score). So this is the real reverse diffusion
-        math; the cloud of noise condenses straight onto the target shape. Try the
-        spiral or moons and watch structure reappear from chaos.
+        The trick a real model has to <i>learn</i>, predicting the noise at each step,
+        is computed here exactly, because for a finite dataset the optimal denoiser is
+        just a distance-weighted average of the data points, the analytic score. So
+        this is the real reverse-diffusion math, and the cloud of noise condenses
+        straight onto the target shape. Try the spiral or the moons and watch
+        structure reappear from chaos.
       </DemoP>
     </>
   );
@@ -189,19 +201,31 @@ function DiffusionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Diffusion is the dominant paradigm for high-quality image, audio, and video generation: Stable Diffusion, DALL·E, Midjourney and Sora are all diffusion (or
-        its flow-matching cousins). The two-direction recipe on screen, a fixed and easy forward noising process plus a <i>learned</i>{" "}
-        reverse denoiser, is what made training stable where GANs were notoriously brittle.
+        Diffusion is the dominant paradigm for high-quality image, audio and video
+        generation: Stable Diffusion, DALL&middot;E, Midjourney and Sora are all
+        diffusion or its flow-matching cousins. The two-direction recipe on screen, a
+        fixed and easy forward noising process plus a <i>learned</i> reverse denoiser,
+        is what made training stable where GANs were notoriously brittle.
       </DemoP>
-      <DemoP>
-        Several pieces here are load-bearing in practice. The <b>noise schedule</b> and the
-        sampler (DDPM vs the DDIM used here) trade sample quality against the number of steps, the main speed lever, since naive diffusion is slow. The denoiser secretly
-        estimates the <i>score</i> (the gradient of log-density), tying diffusion to
-        score-based and energy models; and real systems run it inside a VAE's latent space
-        (latent diffusion) and steer it with text via classifier-free guidance.
-      </DemoP>
+      <DemoP>Several pieces here are load-bearing in practice:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <b>noise schedule</b> and the sampler, DDPM against the DDIM used here,
+          trade sample quality against the number of steps. That is the main speed
+          lever, since naive diffusion is slow.
+        </DemoLI>
+        <DemoLI>
+          The denoiser secretly estimates the <i>score</i>, the gradient of
+          log-density, which ties diffusion to score-based and energy models.
+        </DemoLI>
+        <DemoLI>
+          Real systems run it inside the latent space of a VAE, latent diffusion, and
+          steer it with text via classifier-free guidance.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout
       title="Diffusion Sampler"

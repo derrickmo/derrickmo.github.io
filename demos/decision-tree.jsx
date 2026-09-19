@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -119,37 +119,59 @@ function DecisionTreeDemo() {
     <>
       <DemoP>
         A decision tree splits the feature space one axis-aligned cut at a time,
-        always choosing the split that most reduces <b>Gini impurity</b>, meaning the split that best separates the classes. This is real CART, built greedily in the
-        browser; the shaded rectangles are the regions it carves, and each is
-        labeled by the majority class of the training points that land in it.
+        always choosing the split that most reduces <b>Gini impurity</b>, meaning the
+        one that best separates the classes. This is real CART, built greedily in the
+        browser. The shaded rectangles are the regions it carves, each labeled by the
+        majority class of the training points that land in it.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Raise <b>max depth</b> and the boundary turns into a staircase of ever
+          smaller boxes. Train accuracy climbs toward 100% as the tree memorizes
+          individual points.
+        </DemoLI>
+        <DemoLI>
+          Trees handle <b>XOR</b> cleanly, because the true boundary is axis-aligned.
+        </DemoLI>
+        <DemoLI>
+          They approximate <b>circles</b> with a jagged staircase, because every
+          boundary must be horizontal or vertical.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Raise <b>max depth</b> and watch the boundary turn into a staircase of ever smaller boxes. Train accuracy climbs toward 100% as the tree memorizes
-        individual points (overfitting). Notice trees handle <b>XOR</b> cleanly but
-        approximate <b>circles</b> with a jagged staircase, because every boundary
-        must be horizontal or vertical. That limitation is exactly why we ensemble
-        many trees into random forests and gradient boosting.
+        That last limitation is exactly why we ensemble many trees into random forests
+        and gradient boosting.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Decision trees are the building block of the most dependable workhorses in tabular
-        ML: <b>random forests</b> and gradient-boosted trees (XGBoost, LightGBM) routinely
-        win on structured, business-style data where deep nets struggle. The greedy
-        "pick the split that most reduces impurity" rule you're watching is the same idea
-        whether the impurity is Gini or entropy / information gain.
+        Decision trees are the building block of the most dependable workhorses in
+        tabular ML. <b>Random forests</b> and gradient-boosted trees (XGBoost,
+        LightGBM) routinely win on structured, business-style data where deep nets
+        struggle. The greedy "pick the split that most reduces impurity" rule you are
+        watching is the same idea whether the impurity is Gini or entropy.
       </DemoP>
       <DemoP>
-        Trees are also prized for <b>interpretability</b>. Every prediction is a readable chain of if/else rules, which matters in regulated domains like credit and
-        healthcare. The overfitting-with-depth on screen is exactly why we prune, cap depth
-        and min-samples, and above all <i>ensemble</i>: averaging many decorrelated trees
-        (bagging) or sequentially correcting their residuals (boosting) keeps the accuracy
-        while taming the variance.
+        Trees are also prized for <b>interpretability</b>, since every prediction is a
+        readable chain of if/else rules, which matters in regulated domains like
+        credit and healthcare. The overfitting-with-depth on screen is exactly why we
+        do three things:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Prune the tree after growing it.</DemoLI>
+        <DemoLI>Cap depth and minimum samples per leaf.</DemoLI>
+        <DemoLI>
+          Above all <i>ensemble</i>. Averaging many decorrelated trees, or
+          sequentially correcting their residuals, keeps the accuracy while taming the
+          variance.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Decision Tree"
       subtitle="Watch a CART tree carve the plane into axis-aligned regions, then overfit as it deepens."
