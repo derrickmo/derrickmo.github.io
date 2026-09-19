@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -154,25 +154,35 @@ function BayesDemo() {
   const explainer = (
     <>
       <DemoP>
-        A coin has some hidden bias <i>p</i> = P(heads). You don't know it. So
-        you write down your belief about it as a probability distribution over
-        all the values <i>p</i> could take. That is the <b style={{ color: "#c084fc" }}>prior</b>,
-        a Beta(α, β). Each flip updates that belief by Bayes' rule:
-        posterior ∝ prior × likelihood. Beta is <b>conjugate</b> to the
-        Bernoulli, so the math is almost embarrassingly clean: the posterior is just Beta(α + heads, β + tails). The two-parameter prior is a kind
-        of "pseudo-counts": Beta(2, 2) is as if you'd already seen one heads
-        and one tails before this experiment.
+        A coin has some hidden bias <i>p</i> = P(heads) and you do not know it. So
+        you write down your belief as a probability distribution over all the values{" "}
+        <i>p</i> could take. That is the{" "}
+        <b style={{ color: "#c084fc" }}>prior</b>, a Beta(α, β), and each flip
+        updates it by Bayes rule: posterior ∝ prior &times; likelihood.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Beta is <b>conjugate</b> to the Bernoulli, so the math is almost
+          embarrassingly clean: the posterior is just Beta(α + heads, β + tails).
+        </DemoLI>
+        <DemoLI>
+          The two-parameter prior is a kind of pseudo-count. Beta(2, 2) is as if you
+          had already seen one heads and one tails before this experiment.
+        </DemoLI>
+        <DemoLI>
+          Move the sliders, flip a few coins, then flip 100. The{" "}
+          <b style={{ color: "#60a5fa" }}>posterior</b> tightens around the{" "}
+          <b style={{ color: "#fbbf24" }}>true p</b> regardless of how off your prior
+          was, because given enough data the likelihood drowns out the prior.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Move the sliders, flip a few coins, then flip 100. The
-        <b style={{ color: "#60a5fa" }}> posterior</b> (blue) tightens around
-        the <b style={{ color: "#fbbf24" }}>true p</b> (yellow) regardless of
-        how off your prior was, because given enough data the likelihood drowns out the prior. Push the prior to Beta(15, 1) and try a few flips: a strong
-        prior is hard to dislodge with a small sample. That's Bayesian updating
-        in one picture.
+        Push the prior to Beta(15, 1) and try a few flips: a strong prior is hard to
+        dislodge with a small sample. That is Bayesian updating in one picture.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -194,6 +204,7 @@ function BayesDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Bayes Updater"
       subtitle="A Beta prior meets Bernoulli flips. Watch the posterior settle on the truth, live."

@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -173,20 +173,33 @@ function CertifiedRobustnessDemo() {
   const explainer = (
     <>
       <DemoP>
-        Empirical defenses say "we couldn't find an attack"; <b>certified</b> defenses come with a
-        mathematical <i>guarantee</i>. <b>Randomized smoothing</b> builds a new classifier g that, at any
-        input, returns the class the base network predicts most often under Gaussian noise. The magic:
-        if the top class wins a fraction <b>pA &gt; ½</b> of the noisy votes, then g's prediction is
-        <b> provably constant</b> for <i>every</i> perturbation within radius
-        <b> R = σ·Φ⁻¹(pA)</b>. No attack inside the green circle can change it, ever.
+        Empirical defenses say "we could not find an attack". <b>Certified</b>{" "}
+        defenses come with a mathematical <i>guarantee</i>. <b>Randomized
+        smoothing</b> builds a new classifier g that, at any input, returns the class
+        the base network predicts most often under Gaussian noise.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          If the top class wins a fraction <b>pA &gt; &frac12;</b> of the noisy
+          votes, then the prediction of g is <b>provably constant</b> for{" "}
+          <i>every</i> perturbation within radius <b>R = σ·Φ⁻¹(pA)</b>. No attack
+          inside the green circle can change it, ever.
+        </DemoLI>
+        <DemoLI>
+          Click around and the certified circle grows where the model is confident
+          and shrinks to nothing near the boundary, where the noise votes split and g
+          must <b>abstain</b>.
+        </DemoLI>
+        <DemoLI>
+          Raise <b>σ</b> and you can certify a bigger radius, but only up to the
+          point where the noise cloud starts crossing the boundary and pA falls.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Click around and watch the certified circle grow where the model is confident and shrink to
-        nothing near the boundary (where the noise votes split and g must <b>abstain</b>). Raise <b>σ</b>
-        and you can certify a bigger radius, but only up to the point where the noise cloud starts
-        crossing the boundary and pA falls. That σ tradeoff is the whole game: more noise buys a larger
-        potential guarantee at the cost of clean accuracy. It's the provable mirror of the empirical
-        <a href={`${window.__DM_BASE || "../../"}visualize/adversarial-examples/`}> FGSM/PGD attack</a>.
+        That σ tradeoff is the whole game: more noise buys a larger potential
+        guarantee at the cost of clean accuracy. It is the provable mirror of the
+        empirical{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/adversarial-examples/`}>FGSM and PGD attack</a>.
       </DemoP>
     </>
   );

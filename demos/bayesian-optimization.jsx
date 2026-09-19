@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -241,20 +241,34 @@ function BayesianOptimizationDemo() {
   const explainer = (
     <>
       <DemoP>
-        When each evaluation of <i>f</i> is expensive, say a hyperparameter sweep, a lab experiment or a
-        wet-chemistry assay, you cannot grid-search. Bayesian optimization fits a cheap
-        <a href={`${window.__DM_BASE || "../../"}visualize/gaussian-process/`}> Gaussian-process</a> surrogate
-        to the points seen so far (blue mean + band), then a tiny inner optimization picks the next
-        point by maximizing an <b>acquisition function</b> (violet), not where the mean is highest,
-        but where the expected <i>payoff</i> is, blending high predicted value with high uncertainty.
+        When each evaluation of <i>f</i> is expensive, say a hyperparameter sweep, a
+        lab experiment or a wet-chemistry assay, you cannot grid-search. Bayesian
+        optimization fits a cheap{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/gaussian-process/`}>Gaussian-process</a>{" "}
+        surrogate to the points seen so far, the blue mean and band, then a tiny
+        inner optimization picks the next point by maximizing an{" "}
+        <b>acquisition function</b>, in violet. Not where the mean is highest, but
+        where the expected <i>payoff</i> is, blending high predicted value with high
+        uncertainty.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Early on the band is wide and the acquisition sends probes into unexplored
+          regions.
+        </DemoLI>
+        <DemoLI>
+          As the GP learns the shape, sampling homes in on the true peak in green and
+          the <b>gap to max</b> collapses, usually in a dozen or so evals, far fewer
+          than blind search.
+        </DemoLI>
+        <DemoLI>
+          Push <b>exploration</b> up and it surveys broadly before committing. Down
+          and it greedily exploits the current best, risking a local optimum.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Step through it: early on the band is wide and the acquisition sends probes into unexplored
-        regions; as the GP learns the shape, sampling homes in on the true peak (green) and the
-        <b> gap to max</b> collapses, usually in a dozen or so evals, far fewer than blind search.
-        Push <b>exploration</b> up and it surveys broadly before committing; down and it greedily
-        exploits the current best, risking a local optimum. Different acquisitions encode different
-        risk appetites for that same exploration/exploitation trade.
+        Different acquisitions encode different risk appetites for that same
+        exploration and exploitation trade.
       </DemoP>
     </>
   );

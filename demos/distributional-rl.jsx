@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 330, CH = 250;
@@ -214,17 +214,28 @@ function DistributionalRLDemo() {
         Ordinary value learning tracks a single number, the <i>expected</i> return.
         Distributional RL learns the entire <b>distribution of returns</b> as
         probabilities over a fixed grid of <b>atoms</b>. Here the only reward is a
-        coin-flip payoff at the goal, so the goal state's return distribution is
-        genuinely <b>bimodal</b> (green). The <b>distributional Bellman backup</b>{" "}
-        carries that shape back through the chain, scaling it by γ each step so both
-        modes drift toward 0 and the spread tightens.
+        coin-flip payoff at the goal, so the return distribution of the goal state is
+        genuinely <b>bimodal</b>, in green, and the <b>distributional Bellman
+        backup</b> carries that shape back through the chain, scaling it by γ each
+        step so both modes drift toward 0 and the spread tightens.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The gold line is the <b>mean</b>, the scalar value a normal agent would
+          learn.
+        </DemoLI>
+        <DemoLI>
+          Set the win probability near 0.5 and it sits at about 0, halfway between
+          two outcomes it never actually produces. The average hides the risk
+          entirely.
+        </DemoLI>
+        <DemoLI>
+          That extra shape is what distributional agents exploit, for more stable
+          learning and for genuinely <b>risk-aware</b> decisions.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The gold line is the <b>mean</b>, the scalar value a normal agent would
-        learn. Set the win probability near 0.5 and watch it sit at ~0, halfway
-        between two outcomes it never actually produces: the average hides the risk
-        entirely. That extra shape is what distributional agents exploit, for more stable learning and for genuinely <b>risk-aware</b> decisions. The learned
-        violet bars converge to the exact gray curve as it trains.
+        The learned violet bars converge to the exact gray curve as it trains.
       </DemoP>
     </>
   );
