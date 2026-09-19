@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -192,22 +192,31 @@ function ActiveLearningDemo() {
     <>
       <DemoP>
         The expensive thing in supervised ML is rarely compute. It is labels. Active
-        learning asks the model to choose what to label next. The cheapest useful
+        learning asks the model to choose what to label next, and the cheapest useful
         rule is uncertainty sampling: label the point the model is least sure about,
-        which here is the unlabeled point sitting closest to the decision boundary
-        (the yellow ring). Each round both learners fit the same logistic boundary
-        on their labeled sets; the blue one picks by uncertainty, the slate one
-        picks at random.
+        which here is the unlabeled point sitting closest to the decision boundary,
+        the yellow ring.
       </DemoP>
-      <DemoP>
-        Watch the accuracy race at the bottom: the blue active curve climbs to high
-        accuracy with a fraction of the labels the random curve needs, because every
-        label it spends pins down the ambiguous middle instead of re-confirming
-        points deep inside a class. Crank CLASS OVERLAP up and the gap widens, because fuzzy boundaries are exactly where choosing well pays off. The active picks
-        visibly cluster along the boundary, not the easy interiors.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Each round both learners fit the same logistic boundary on their labeled
+          sets. The blue one picks by uncertainty, the slate one picks at random.
+        </DemoLI>
+        <DemoLI>
+          Watch the accuracy race at the bottom. The blue active curve climbs to high
+          accuracy with a fraction of the labels the random curve needs, because
+          every label it spends pins down the ambiguous middle instead of
+          re-confirming points deep inside a class.
+        </DemoLI>
+        <DemoLI>
+          Crank <b>CLASS OVERLAP</b> up and the gap widens, because fuzzy boundaries
+          are exactly where choosing well pays off. The active picks visibly cluster
+          along the boundary, not the easy interiors.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -215,21 +224,28 @@ function ActiveLearningDemo() {
         improving <i>which</i> data gets labeled, not the architecture. Uncertainty
         sampling shown here is the simplest acquisition function; others score by
         margin, entropy, expected model change, or query-by-committee disagreement.
-        It's the engine behind efficient annotation pipelines and human-in-the-loop
+        It is the engine behind efficient annotation pipelines and human-in-the-loop
         labeling, and it connects to the same boundary-confidence signal you tune in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/svm/`} style={{ color: "#a855f7" }}>SVM</a>{" "}
         margins and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>.
       </DemoP>
-      <DemoP>
-        The caveats the demo hints at: greedy uncertainty sampling in a batch can
-        pick many near-identical points (real systems add diversity/coverage terms);
-        it can chase outliers or mislabeled points; and the chosen labels are no
-        longer i.i.d., which biases naive evaluation. Done well it slashes labeling
-        cost dramatically; done naively it can underperform plain random, which is why acquisition-function design is its own small field.
-      </DemoP>
+      <DemoP>The caveats the demo hints at:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Greedy uncertainty sampling in a batch can pick many near-identical points,
+          so real systems add diversity and coverage terms.
+        </DemoLI>
+        <DemoLI>It can chase outliers or mislabeled points.</DemoLI>
+        <DemoLI>
+          The chosen labels are no longer i.i.d., which biases naive evaluation. Done
+          well it slashes labeling cost; done naively it can underperform plain
+          random, which is why acquisition-function design is its own small field.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Active Learning"
       subtitle="Labels are expensive, so let the model pick what to label. Uncertainty sampling races random labeling and reaches high accuracy with far fewer labels."

@@ -13,7 +13,7 @@
 
 const { useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
@@ -205,42 +205,63 @@ function RagChunkingDemo() {
     <>
       <DemoP>
         RAG only answers as well as it retrieves, and retrieval only works if the
-        answer survives chunking. Each card is one chunk; the bar is its TF-IDF
-        cosine similarity to the query, and the top-k by score are marked
-        RETRIEVED. The green span is the sentence that actually answers the
-        question. The whole game is getting that green span to sit, intact, inside
-        a retrieved chunk.
+        answer survives chunking. Each card is one chunk, the bar is its TF-IDF
+        cosine similarity to the query, and the top-k by score are marked RETRIEVED.
+        The green span is the sentence that actually answers the question, and the
+        whole game is getting that span to sit intact inside a retrieved chunk.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Shrink the chunk size until a fact gets cut across two chunks. Now "holds
+          answer" disappears from every card and retrieval brings back a fragment.
+        </DemoLI>
+        <DemoLI>
+          Add overlap and the span reappears whole in a boundary chunk.
+        </DemoLI>
+        <DemoLI>
+          Grow the chunk size instead and the chunk with the answer fills with
+          unrelated sentences, its score drops, and a snappier but wrong chunk can
+          outrank it.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Shrink the chunk size until a fact gets cut across two chunks. Now "✓ holds answer" disappears from every card and retrieval brings back only
-        a fragment. Add overlap and the span reappears whole in a boundary chunk.
-        Grow the chunk size instead and the answer's chunk fills with unrelated
-        sentences, its score drops, and a snappier but wrong chunk can outrank it.
-        Sentence-aware chunking sidesteps the mid-sentence cuts entirely.
+        Sentence-aware chunking sidesteps the mid-sentence cuts entirely, which is
+        why it is the default in most production splitters.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         This is the retrieval stage of a RAG pipeline, the piece sitting between{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/embeddings/`} style={{ color: "#a855f7" }}>embeddings</a>{" "}
         and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector
-        search</a>: those demos cover how text becomes a vector and how nearest
-        neighbors are found, while chunking decides what each vector represents in
-        the first place. Real systems use recursive/semantic splitters, 10–20%
-        overlap, and a reranker, but the size-against-dilution tension you're feeling
-        here never goes away.
+        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector search</a>.
+        Those demos cover how text becomes a vector and how nearest neighbors are
+        found, while chunking decides what each vector represents in the first place.
+        Real systems use recursive or semantic splitters, 10 to 20% overlap and a
+        reranker, but the size-against-dilution tension you are feeling here never
+        goes away.
       </DemoP>
-      <DemoP>
-        It connects straight to context engineering. Retrieved chunks compete for
-        a finite context window, and because attention degrades in the middle of
-        long inputs ("lost in the middle"), placement and k matter as much as the
-        match score. Production RAG is evaluated in two halves: retrieval recall at k (did the right chunk come back?) and answer faithfulness (did the model use it?), and chunking is the single cheapest lever on the first.
-      </DemoP>
+      <DemoP>It connects straight to context engineering:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Retrieved chunks compete for a finite context window.
+        </DemoLI>
+        <DemoLI>
+          Because attention degrades in the middle of long inputs, placement and k
+          matter as much as the match score.
+        </DemoLI>
+        <DemoLI>
+          Production RAG is evaluated in two halves, retrieval recall at k (did the
+          right chunk come back?) and answer faithfulness (did the model use it?),
+          and chunking is the single cheapest lever on the first.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="RAG Chunking"
       subtitle="Chunk size, overlap, and strategy decide whether the answer survives retrieval. Real TF-IDF cosine over the chunks, so watch the verdict flip."

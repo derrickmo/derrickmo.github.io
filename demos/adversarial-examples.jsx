@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -183,20 +183,32 @@ function AdversarialExamplesDemo() {
   const explainer = (
     <>
       <DemoP>
-        A trained classifier can be confidently right on a point and confidently <b>wrong</b> on a
-        nearly identical one. To build the adversarial example you ask the model itself: which way do I
-        nudge the input to <i>increase</i> its loss? That direction is the <b>gradient of the loss with
-        respect to the input</b> (not the weights). <b>FGSM</b> takes one signed step to the edge of an
-        <b> epsilon ball</b> (the yellow box); <b>PGD</b> iterates small steps inside it to find a
-        stronger attack.
+        A trained classifier can be confidently right on a point and confidently{" "}
+        <b>wrong</b> on a nearly identical one. To build the adversarial example you
+        ask the model itself: which way do I nudge the input to <i>increase</i> its
+        loss? That direction is the <b>gradient of the loss with respect to the
+        input</b>, not the weights.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>FGSM</b> takes one signed step to the edge of an <b>epsilon ball</b>,
+          the yellow box.
+        </DemoLI>
+        <DemoLI>
+          <b>PGD</b> iterates small steps inside it to find a stronger attack.
+        </DemoLI>
+        <DemoLI>
+          Click to pick a point and watch the red dot get pushed across the decision
+          boundary while staying inside the box. In this 2-D view the move is
+          visible; in a 224&times;224 image the same epsilon-bounded perturbation is{" "}
+          <i>imperceptible</i> to a human yet flips the label.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Click to pick a point and watch the red dot get pushed across the decision boundary while
-        staying inside the box. In this 2-D view the move is visible; in a 224×224 image the very same
-        epsilon-bounded perturbation is <i>imperceptible</i> to a human yet flips the label. Turn on
-        <b> adversarial training</b> and the model retrains on its own attacks. The margin widens and
-        the same epsilon no longer fools it (notice the boundary gets smoother and clean confidence
-        drops a little: the robustness/accuracy tradeoff).
+        Turn on <b>adversarial training</b> and the model retrains on its own
+        attacks. The margin widens and the same epsilon no longer fools it. Notice
+        the boundary gets smoother and clean confidence drops a little, which is the
+        robustness and accuracy tradeoff.
       </DemoP>
     </>
   );
@@ -204,19 +216,33 @@ function AdversarialExamplesDemo() {
   const concepts = (
     <>
       <DemoP>
-        Adversarial examples are the headline result in <b>ML robustness</b>: tiny, worst-case
-        perturbations break image classifiers, speech models, malware detectors, and even LLMs
-        (jailbreak suffixes are gradient-found adversarial tokens; see
-        <a href={`${window.__DM_BASE || "../../"}visualize/prompt-injection/`}> prompt injection</a>).
-        The same input-gradient that powers <a href={`${window.__DM_BASE || "../../"}visualize/saliency/`}>saliency
-        maps</a> is what the attacker climbs. It matters anywhere a model faces an adversary: fraud,
-        content moderation, autonomous perception, security.
+        Adversarial examples are the headline result in <b>ML robustness</b>. Tiny,
+        worst-case perturbations break image classifiers, speech models, malware
+        detectors and even LLMs, since jailbreak suffixes are gradient-found
+        adversarial tokens; see{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/prompt-injection/`}>prompt injection</a>.
+        The same input gradient that powers{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/saliency/`}>saliency maps</a>{" "}
+        is what the attacker climbs. It matters anywhere a model faces an adversary:
+        fraud, content moderation, autonomous perception, security.
       </DemoP>
       <DemoP>
-        The defense you toggled, <b>adversarial training</b> (Madry et al.), is still the strongest general defense, but it is not free: it costs clean accuracy, compute, and only guarantees
-        robustness inside the epsilon ball you trained for. That tradeoff, plus certified defenses
-        (randomized smoothing) and the endless attack/defense arms race, is why robustness is a field
-        of its own. The honest scope note: this is a 2-D illustration of the mechanism. Real attacks live in high dimensions where the geometry is far less forgiving.
+        The defense you toggled, <b>adversarial training</b> (Madry et al.), is still
+        the strongest general defense, but it is not free:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>It costs clean accuracy and compute.</DemoLI>
+        <DemoLI>
+          It only guarantees robustness inside the epsilon ball you trained for.
+        </DemoLI>
+        <DemoLI>
+          That tradeoff, plus certified defenses such as randomized smoothing and the
+          endless attack-defense arms race, is why robustness is a field of its own.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        The honest scope note: this is a 2-D illustration of the mechanism. Real
+        attacks live in high dimensions where the geometry is far less forgiving.
       </DemoP>
     </>
   );

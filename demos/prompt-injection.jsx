@@ -18,7 +18,7 @@
 
 const { useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, Slider, StatReadout, ControlGroup, Legend,
 } = window;
 
@@ -209,45 +209,67 @@ function PromptInjectionDemo() {
   const explainer = (
     <>
       <DemoP>
-        An LLM application concatenates <b>trusted</b> instructions (your system
-        prompt) with <b>untrusted</b> content (a user message, a retrieved page, a
-        tool's output) into one token stream. The model has no built-in notion of
-        which bytes came from whom, so text in the untrusted region can try to
-        pose as a new instruction. That's prompt injection, the #1 risk on the
+        An LLM application concatenates <b>trusted</b> instructions, your system
+        prompt, with <b>untrusted</b> content, a user message or a retrieved page or
+        a tool output, into one token stream. The model has no built-in notion of
+        which bytes came from whom, so text in the untrusted region can try to pose
+        as a new instruction. That is prompt injection, the number one risk on the
         OWASP LLM Top 10.
       </DemoP>
       <DemoP>
-        Pick an attack and watch its <b>residual strength</b> after the defenses
-        you've enabled. Each defense subtracts a chunk, but only for the attacks it actually counters: delimiting/spotlighting crushes the direct override,
-        barely dents a jailbreak; the exfiltration filter is the <i>only</i> thing
-        that stops a leak the model already fell for. No single control zeroes the
-        bar, which is why production systems layer all of them, and why the attack-success-rate over the whole battery is the number that matters.
+        Pick an attack and watch its <b>residual strength</b> after the defenses you
+        have enabled. Each defense subtracts a chunk, but only for the attacks it
+        actually counters:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Delimiting and spotlighting crushes the direct override, and barely dents
+          a jailbreak.
+        </DemoLI>
+        <DemoLI>
+          The exfiltration filter is the <i>only</i> thing that stops a leak the
+          model already fell for.
+        </DemoLI>
+        <DemoLI>
+          No single control zeroes the bar, which is why production systems layer all
+          of them, and why the attack-success-rate over the whole battery is the
+          number that matters.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        Prompt injection is the defining security problem of LLM apps, and unlike
-        SQL injection it has <b>no clean escape</b>: instructions and data share one channel. The defenses here are the real toolbox: spotlighting /
-        datamarking (mark untrusted spans as data), the trained{" "}
-        <i>instruction hierarchy</i> (system &gt; user &gt; tool), input
-        classifiers, and output exfiltration filters. <b>Indirect</b> injection, where the payload hides in a page or tool result the agent
-        fetches, is the dangerous variant, because the attacker never talks to your app directly.
+        Prompt injection is the defining security problem of LLM apps, and unlike SQL
+        injection it has <b>no clean escape</b>, because instructions and data share
+        one channel. The defenses here are the real toolbox: spotlighting and
+        datamarking to mark untrusted spans as data, the trained{" "}
+        <i>instruction hierarchy</i> of system over user over tool, input classifiers
+        and output exfiltration filters. <b>Indirect</b> injection, where the payload
+        hides in a page or tool result the agent fetches, is the dangerous variant,
+        because the attacker never talks to your app directly.
       </DemoP>
       <DemoP>
         This is the offense to the defense in the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrails</a>{" "}
-        demo, and it composes with the rest of the agent stack:{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/react-agent/`} style={{ color: "#a855f7" }}>tool-using
-        agents</a> widen the attack surface (every fetched document is untrusted
-        input), and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/constrained-decoding/`} style={{ color: "#a855f7" }}>constrained
-        decoding</a> limits what a compromised model can emit. The honest takeaway:
-        you manage injection risk with layers and least-privilege tools, you don't
-        eliminate it.
+        demo, and it composes with the rest of the agent stack:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <a href={`${window.__DM_BASE || "../../"}visualize/react-agent/`} style={{ color: "#a855f7" }}>Tool-using agents</a>{" "}
+          widen the attack surface, since every fetched document is untrusted input.
+        </DemoLI>
+        <DemoLI>
+          <a href={`${window.__DM_BASE || "../../"}visualize/constrained-decoding/`} style={{ color: "#a855f7" }}>Constrained decoding</a>{" "}
+          limits what a compromised model can emit.
+        </DemoLI>
+        <DemoLI>
+          The honest takeaway: you manage injection risk with layers and
+          least-privilege tools. You do not eliminate it.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
