@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const W = 176, H = 136, SCALE = 2.1, BGV = 0; // background marker label = 0
@@ -253,22 +253,31 @@ function WatershedDemo() {
   const explainer = (
     <>
       <DemoP>
-        Watershed treats an image as a <b>topographic surface</b> and floods it.
-        Here the objects overlap, so a simple threshold would glue them into one
-        blob. The trick is to flood the <b>distance transform</b> instead: every
-        foreground pixel is colored by how far it sits from the background, so each
-        object's center becomes a deep basin and the thin necks where objects touch
+        Watershed treats an image as a <b>topographic surface</b> and floods it. Here
+        the objects overlap, so a simple threshold would glue them into one blob. The
+        trick is to flood the <b>distance transform</b> instead: every foreground
+        pixel is colored by how far it sits from the background, so the center of
+        each object becomes a deep basin and the thin necks where objects touch
         become high ridges. Switch to the <b>Distance</b> view to see that surface.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drop a <b>marker</b> in each basin, the regional maxima of the distance
+          map, and let water rise from them simultaneously.
+        </DemoLI>
+        <DemoLI>
+          Meyer priority flooding always fills the lowest unflooded pixel next.
+        </DemoLI>
+        <DemoLI>
+          When two rising basins are about to merge a <b>dam</b> is built. That is
+          the white <b>watershed line</b>, exactly the cut that separates touching
+          objects.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        We drop a <b>marker</b> in each basin (the regional maxima of the distance
-        map) and let water rise from them simultaneously. Meyer's priority flooding
-        always fills the lowest unflooded pixel next. When two rising basins are
-        about to merge, a <b>dam</b> is built: that's the white <b>watershed line</b>,
-        exactly the cut that separates touching objects. Now tune <b>SMOOTH</b>:
-        too little and noise spawns extra markers (<b>over-segmentation</b>, objects
-        shatter); too much and markers merge (<b>under-segmentation</b>, objects fuse).
-        Choosing good markers is the whole game.
+        Now tune <b>SMOOTH</b>. Too little and noise spawns extra markers, so
+        objects shatter into over-segmentation. Too much and markers merge, so
+        objects fuse into under-segmentation. Choosing good markers is the whole game.
       </DemoP>
     </>
   );

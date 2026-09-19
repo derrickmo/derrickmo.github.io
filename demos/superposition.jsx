@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -170,18 +170,32 @@ function SuperpositionDemo() {
   const explainer = (
     <>
       <DemoP>
-        How does a network store thousands of concepts in only a few hundred dimensions? This is
-        the toy model that answered it. A linear model is asked to reconstruct sparse inputs through
-        a 2-D bottleneck, weighted by each feature's importance. With enough features it <i>can't</i>{" "}
-        give each one its own axis, so it learns a geometry (the arrows) that packs them in.
+        How does a network store thousands of concepts in only a few hundred
+        dimensions? This is the toy model that answered it. A linear model is asked
+        to reconstruct sparse inputs through a 2-D bottleneck, weighted by the
+        importance of each feature. With enough features it <i>cannot</i> give each
+        one its own axis, so it learns a geometry, the arrows, that packs them in.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Turn <b>sparsity</b> up and, because features rarely fire together, the
+          model crams in <b>more features than dimensions</b>. That is{" "}
+          <b>superposition</b>.
+        </DemoLI>
+        <DemoLI>
+          It arranges them as antipodal pairs and regular polygons that minimize
+          interference, visible in the off-diagonal of the W·W heatmap.
+        </DemoLI>
+        <DemoLI>
+          Drop sparsity and interference becomes unaffordable, so it keeps only the
+          most important features orthogonal and discards the rest.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Turn <b>sparsity</b> up and watch the magic: because features rarely fire together, the model
-        crams in <b>more features than dimensions</b>, which is <b>superposition</b>, arranging them as
-        antipodal pairs and regular polygons that minimize interference (the W·W heatmap's off-diagonal).
-        Drop sparsity and interference becomes unaffordable, so it keeps only the most important
-        features orthogonal and discards the rest. This packing is exactly why individual neurons are polysemantic, and exactly what a <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>sparse
-        autoencoder</a> is built to undo.
+        This packing is exactly why individual neurons are polysemantic, and exactly
+        what a{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>sparse autoencoder</a>{" "}
+        is built to undo.
       </DemoP>
     </>
   );

@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -141,15 +141,31 @@ function TemplateMatchingDemo() {
   const explainer = (
     <>
       <DemoP>
-        The simplest way to find a known thing in an image: slide a <b>template</b> over every position
-        and score how well it matches. <b>SSD</b> sums squared pixel differences. Fast, but it treats a brighter or darker copy of the template as a bad match. <b>NCC</b> first subtracts each window's
-        mean and divides by its norm, so it compares the <i>shape</i> of the intensities, not their absolute level, making it invariant to brightness and contrast.
+        The simplest way to find a known thing in an image: slide a <b>template</b>{" "}
+        over every position and score how well it matches.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>SSD</b> sums squared pixel differences. Fast, but it treats a brighter
+          or darker copy of the template as a bad match.
+        </DemoLI>
+        <DemoLI>
+          <b>NCC</b> first subtracts the mean of each window and divides by its norm,
+          so it compares the <i>shape</i> of the intensities rather than their
+          absolute level, making it invariant to brightness and contrast.
+        </DemoLI>
+        <DemoLI>
+          Crank the <b>brightness shift</b> with SSD selected and detections
+          collapse. Switch to NCC and they snap back.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Crank the <b>brightness shift</b> with SSD selected and watch detections collapse; switch to
-        <b> NCC</b> and they snap back. The right panel is the score map. Bright spots are strong matches, and its peaks (after non-max suppression) become the detections (green = correct, red =
-        false). The catch you can feel: template matching only finds the pattern at the <i>same scale and rotation</i>. Tilt or resize the target and it fails, which is exactly the limitation that
-        motivated scale- and rotation-invariant features.
+        The right panel is the score map. Bright spots are strong matches, and its
+        peaks, after non-max suppression, become the detections: green correct, red
+        false. The catch you can feel is that template matching only finds the
+        pattern at the <i>same scale and rotation</i>. Tilt or resize the target and
+        it fails, which is exactly the limitation that motivated scale- and
+        rotation-invariant features.
       </DemoP>
     </>
   );

@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -238,20 +238,31 @@ function VariationalInferenceDemo() {
   const explainer = (
     <>
       <DemoP>
-        Variational inference turns Bayesian inference into <i>optimization</i>: instead of
-        sampling the posterior, pick a simple family <b>q</b> and tune it to be as close as
-        possible by maximizing the <b>ELBO</b> (evidence lower bound), equivalently minimizing KL(q ‖ p). Each step here is a real reparameterized Monte-Carlo gradient ascent on q's
-        mean and covariance.
+        Variational inference turns Bayesian inference into <i>optimization</i>.
+        Instead of sampling the posterior, pick a simple family <b>q</b> and tune it
+        to be as close as possible by maximizing the <b>ELBO</b>, the evidence lower
+        bound, equivalently minimizing KL(q ‖ p). Each step here is a real
+        reparameterized Monte-Carlo gradient ascent on the mean and covariance of q.
       </DemoP>
-      <DemoP>
-        Watch the two famous failure modes. On <b>Correlated</b> with mean-field q (axis-aligned),
-        q shrinks <i>inside</i> the target, so VI systematically <b>underestimates variance</b>{" "}
-        because reverse-KL punishes putting mass where p is low; flip on <b>full covariance</b>{" "}
-        and q tilts to fit. On <b>Bimodal</b>, q collapses onto a <b>single mode</b> and ignores the other. Reverse-KL is <b>mode-seeking</b>, the opposite of what
-        <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}> MCMC</a> does (it explores both,
-        slowly). That trade-off, fast but biased VI against slow but asymptotically exact MCMC, is the
-        central choice in approximate inference.
-      </DemoP>
+      <DemoP>Watch the two famous failure modes:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          On <b>Correlated</b> with mean-field q, which is axis-aligned, q shrinks{" "}
+          <i>inside</i> the target, so VI systematically{" "}
+          <b>underestimates variance</b>, because reverse-KL punishes putting mass
+          where p is low. Flip on <b>full covariance</b> and q tilts to fit.
+        </DemoLI>
+        <DemoLI>
+          On <b>Bimodal</b>, q collapses onto a <b>single mode</b> and ignores the
+          other. Reverse-KL is <b>mode-seeking</b>, the opposite of what{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}>MCMC</a> does,
+          since MCMC explores both, slowly.
+        </DemoLI>
+        <DemoLI>
+          That trade-off, fast but biased VI against slow but asymptotically exact
+          MCMC, is the central choice in approximate inference.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
