@@ -8,7 +8,7 @@
   "blurb": "Build production agents from first principles: the agent loop, tool calling, MCP servers, planning, memory, multi-agent orchestration, evaluation, and guardrails.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
+    "summary": "Build production agents from first principles: the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
     "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
     "takeaways": [
       "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat, and you can build one from scratch.",

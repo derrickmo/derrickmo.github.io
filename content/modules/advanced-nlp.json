@@ -9,12 +9,12 @@
   "status": "LIVE",
   "lecture": {
     "title": "Advanced NLP: Pretrained Language Models",
-    "summary": "Master the pretrained language model paradigm — GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning — on WikiText-2, AG_NEWS, and synthetic tasks.",
+    "summary": "Master the pretrained language model paradigm: GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning, on WikiText-2, AG_NEWS, and synthetic tasks.",
     "prereqs": "Modules 07, 08.",
     "takeaways": [
       "Fine-tune GPT and BERT for generation, classification, and token labeling.",
       "Generation evaluation (BLEU/ROUGE/BERTScore), RAG-lite, and LoRA-style efficient tuning.",
-      "In-context learning and probing — what pretrained models actually know."
+      "In-context learning and probing: what pretrained models actually know."
     ],
     "flagships": [
       {

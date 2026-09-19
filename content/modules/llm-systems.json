@@ -9,7 +9,7 @@
   "status": "LIVE",
   "lecture": {
     "title": "Large Language Models: Systems & Scaling",
-    "summary": "Master the systems and scaling foundations of LLMs — scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
+    "summary": "Master the systems and scaling foundations of LLMs: scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
     "prereqs": "Modules 08, 10, 13, 16.",
     "takeaways": [
       "Scaling laws, emergent abilities, and attention efficiency (FlashAttention, KV-cache, GQA).",
@@ -32,7 +32,7 @@
       },
       {
         "n": "17-02",
-        "t": "Transformer Efficiency — Attention Variants",
+        "t": "Transformer Efficiency: Attention Variants",
         "d": "Synthetic",
         "m": "25 min"
       },
@@ -44,7 +44,7 @@
       },
       {
         "n": "17-04",
-        "t": "Quantisation — INT8, INT4, GPTQ",
+        "t": "Quantisation: INT8, INT4, GPTQ",
         "d": "WikiText-2",
         "m": "25 min"
       },

@@ -206,7 +206,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "Fundamental problem of causal inference",
-        "back": "You observe Y(1) OR Y(0) for a unit, never both. The individual effect is not measured badly — it is ERASED. Every estimate substitutes other units for the missing half."
+        "back": "You observe Y(1) OR Y(0) for a unit, never both. The individual effect is not measured badly. It is ERASED. Every estimate substitutes other units for the missing half."
       },
       {
         "type": "formula",
@@ -226,7 +226,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "The three identification assumptions",
-        "back": "(1) conditional ignorability — UNTESTABLE. (2) SUTVA: no interference, one version of treatment — UNTESTABLE. (3) positivity/overlap — the ONLY one the data can check."
+        "back": "(1) conditional ignorability, UNTESTABLE. (2) SUTVA: no interference, one version of treatment, UNTESTABLE. (3) positivity/overlap, the ONLY one the data can check."
       },
       {
         "type": "intuition",
@@ -241,7 +241,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Which diagnostics stay silent under confounding?",
-        "back": "Residual normality ✓, homoscedasticity ✓, p < 1e−300 ✓, R² an ordinary 0.022 ✓ — all pass while the sign is wrong. Fit measures agreement with OBSERVED outcomes; the counterfactual isn't there to disagree."
+        "back": "Residual normality ✓, homoscedasticity ✓, p < 1e−300 ✓, R² an ordinary 0.022 ✓: all pass while the sign is wrong. Fit measures agreement with OBSERVED outcomes; the counterfactual isn't there to disagree."
       },
       {
         "type": "pitfall",
@@ -251,7 +251,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "Positivity / overlap",
-        "back": "0 < P(T=1|X) < 1 in every stratum. Where it fails there is no comparison — the estimate is functional-form extrapolation. Check with a propensity histogram by arm, not per-variable balance."
+        "back": "0 < P(T=1|X) < 1 in every stratum. Where it fails there is no comparison. The estimate is functional-form extrapolation. Check with a propensity histogram by arm, not per-variable balance."
       },
       {
         "type": "intuition",

@@ -51,7 +51,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "The router will not balance itself",
         "paras": [
           "Routing is learned, and a learned router has no reason to spread tokens evenly. Simulating 100,000 tokens over 64 experts, a mildly skewed router sends 1.62 times the ideal load to its busiest expert and 0.56 times to its quietest. Since experts are sharded across devices, the slowest device sets the step time, so imbalance converts directly into wasted hardware.",
-          "The usual fix is a capacity limit per expert, which converts the problem into dropped tokens: at a capacity factor of 1.0 the same run discards 9.85% of tokens, at 1.25 it discards 1.75%, and reaching zero needs 1.5 — half as much memory again reserved to absorb an imbalance that may not occur. That is the real cost structure of a sparse model, and it is why the auxiliary load-balancing loss exists at all: it is a term added to the objective to make the router do something the task never asked it to do."
+          "The usual fix is a capacity limit per expert, which converts the problem into dropped tokens: at a capacity factor of 1.0 the same run discards 9.85% of tokens, at 1.25 it discards 1.75%, and reaching zero needs 1.5, half as much memory again reserved to absorb an imbalance that may not occur. That is the real cost structure of a sparse model, and it is why the auxiliary load-balancing loss exists at all: it is a term added to the objective to make the router do something the task never asked it to do."
         ]
       }
     ],

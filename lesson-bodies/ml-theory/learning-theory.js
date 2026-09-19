@@ -24,7 +24,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "What does PAC learnable mean?",
-          "a": "That with probability at least 1-delta, a polynomial number of samples suffices to reach error at most epsilon — probably approximately correct."
+          "a": "That with probability at least 1-delta, a polynomial number of samples suffices to reach error at most epsilon, probably approximately correct."
         },
         {
           "q": "What is Rademacher complexity, and why is it an improvement?",
@@ -40,7 +40,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "What is the double descent phenomenon?",
-          "a": "Test error rises to a peak at the interpolation threshold, then falls again as capacity grows past it — contradicting the classical U-shaped curve."
+          "a": "Test error rises to a peak at the interpolation threshold, then falls again as capacity grows past it, contradicting the classical U-shaped curve."
         },
         {
           "q": "Why does regularization help generalization?",
@@ -52,13 +52,13 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Why is a train/test split not enough if you tune on the test set?",
-          "a": "Every decision made using the test set spends some of its independence, so the reported number is optimistically biased — that is adaptive overfitting."
+          "a": "Every decision made using the test set spends some of its independence, so the reported number is optimistically biased: that is adaptive overfitting."
         }
       ],
       "standard": [
         {
           "q": "Explain the bias-variance decomposition and where it stops being useful.",
-          "a": "For squared loss the expected test error at a point decomposes into three terms: bias squared, the systematic error of the average model over training sets; variance, how much the fitted model moves as the training set changes; and irreducible noise, which no model can remove. The classical reading is a U-shaped tradeoff — more capacity lowers bias and raises variance, so an interior optimum exists. Two limits are important. First, the decomposition is specific to squared loss; for 0-1 loss there is no clean additive version, and the analogous statements are approximations. Second, and more importantly, the U-shaped picture is empirically wrong for modern overparameterized models. Beyond the interpolation threshold, where the model can fit the training data exactly, test error can decrease again as capacity keeps growing — double descent. So variance does not simply grow with parameter count, because the implicit bias of the optimizer selects among the many interpolating solutions. The decomposition is still a correct identity and a useful conceptual tool; what fails is the assumption that variance is monotone in capacity.",
+          "a": "For squared loss the expected test error at a point decomposes into three terms: bias squared, the systematic error of the average model over training sets; variance, how much the fitted model moves as the training set changes; and irreducible noise, which no model can remove. The classical reading is a U-shaped tradeoff: more capacity lowers bias and raises variance, so an interior optimum exists. Two limits are important. First, the decomposition is specific to squared loss; for 0-1 loss there is no clean additive version, and the analogous statements are approximations. Second, and more importantly, the U-shaped picture is empirically wrong for modern overparameterized models. Beyond the interpolation threshold, where the model can fit the training data exactly, test error can decrease again as capacity keeps growing, double descent. So variance does not simply grow with parameter count, because the implicit bias of the optimizer selects among the many interpolating solutions. The decomposition is still a correct identity and a useful conceptual tool; what fails is the assumption that variance is monotone in capacity.",
           "deepDive": {
             "q": "What resolves the apparent contradiction with double descent?",
             "a": "Parameter count is the wrong capacity measure. What matters is the complexity of the function the optimizer actually selects, and gradient descent has an implicit bias toward small-norm, smooth solutions. Past the interpolation threshold there are many zero-error solutions, and more capacity gives the optimizer more room to pick a well-behaved one, so an effective-capacity measure like norm can decrease while parameter count rises."
@@ -66,27 +66,27 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Why do generalization bounds fail to explain deep learning, and what has been tried?",
-          "a": "Classical bounds pair the empirical error with a capacity term over the sample size. For a network with more parameters than samples, VC dimension is far larger than n and the bound is vacuous — it can exceed 1 for a model with a few percent test error. The decisive empirical evidence is that the same architecture can fit random labels perfectly, so the hypothesis class demonstrably CAN express arbitrary functions and no bound depending on class capacity alone can distinguish that case from real learning. The responses fall into a few families. Norm-based bounds use margin and weight norms rather than parameter counts, so capacity depends on the solution found. PAC-Bayes bounds measure the volume of good solutions around the one found, and give the tightest non-vacuous results so far. Compression bounds argue that a network compressible to few bits must generalize. Stability arguments bound generalization by how much the output changes when one training point is swapped. Each captures something real, and none yet gives tight predictive bounds for realistic networks — which is a genuinely open problem, and worth saying plainly rather than papering over.",
+          "a": "Classical bounds pair the empirical error with a capacity term over the sample size. For a network with more parameters than samples, VC dimension is far larger than n and the bound is vacuous: it can exceed 1 for a model with a few percent test error. The decisive empirical evidence is that the same architecture can fit random labels perfectly, so the hypothesis class demonstrably CAN express arbitrary functions and no bound depending on class capacity alone can distinguish that case from real learning. The responses fall into a few families. Norm-based bounds use margin and weight norms rather than parameter counts, so capacity depends on the solution found. PAC-Bayes bounds measure the volume of good solutions around the one found, and give the tightest non-vacuous results so far. Compression bounds argue that a network compressible to few bits must generalize. Stability arguments bound generalization by how much the output changes when one training point is swapped. Each captures something real, and none yet gives tight predictive bounds for realistic networks, which is a genuinely open problem, and worth saying plainly rather than papering over.",
           "deepDive": {
             "q": "What does the random-label experiment actually prove?",
-            "a": "That any explanation of generalization based only on the hypothesis class is insufficient, because the class is the same in both experiments while generalization differs completely. It shifts the explanatory burden onto the data, the algorithm and their interaction — which is why implicit regularization by SGD became a central topic."
+            "a": "That any explanation of generalization based only on the hypothesis class is insufficient, because the class is the same in both experiments while generalization differs completely. It shifts the explanatory burden onto the data, the algorithm and their interaction, which is why implicit regularization by SGD became a central topic."
           }
         },
         {
           "q": "What is the no free lunch theorem really saying, and what should you take from it?",
-          "a": "Averaged uniformly over all possible target functions, every learning algorithm has identical expected off-training-set error — including one that predicts at random. The proof is close to trivial: for every function on which algorithm A beats B there is a mirrored function on which B beats A, because the space of functions is symmetric. The correct conclusion is not that learning is impossible or that all methods are equal in practice; it is that the space of real problems is nothing like uniform, and every useful method works by encoding assumptions that match that structure. Convolution assumes translation-equivariant local structure. Boosted trees assume axis-aligned, interaction-heavy structure. Smoothness penalties assume nearby inputs have similar outputs. The practical takeaway is that model selection is really assumption selection: asking which model is best in the abstract is malformed, and the answerable question is which assumptions this data actually satisfies."
+          "a": "Averaged uniformly over all possible target functions, every learning algorithm has identical expected off-training-set error, including one that predicts at random. The proof is close to trivial: for every function on which algorithm A beats B there is a mirrored function on which B beats A, because the space of functions is symmetric. The correct conclusion is not that learning is impossible or that all methods are equal in practice; it is that the space of real problems is nothing like uniform, and every useful method works by encoding assumptions that match that structure. Convolution assumes translation-equivariant local structure. Boosted trees assume axis-aligned, interaction-heavy structure. Smoothness penalties assume nearby inputs have similar outputs. The practical takeaway is that model selection is really assumption selection: asking which model is best in the abstract is malformed, and the answerable question is which assumptions this data actually satisfies."
         },
         {
           "q": "How does the theory motivate cross-validation, and where does it mislead?",
-          "a": "Learning theory says the empirical error on data used to select a hypothesis is optimistically biased, so an independent estimate is required. Cross-validation provides one by rotating a held-out fold, using data efficiently at the cost of k fits, and k-fold is roughly unbiased for the performance of a model trained on n(k-1)/k points — slightly pessimistic for the full-data model, which is usually acceptable. It misleads in specific and common ways. If any preprocessing — scaling, feature selection, imputation, resampling — is fitted before the split, information from held-out folds leaks in and the estimate is optimistic; everything must live inside the fold. If observations are grouped, correlated in time or spatially structured, random folds put near-duplicates on both sides and the estimate is badly optimistic, so grouped or time-based splitting is required. And if the same folds are reused to make many decisions, the estimate degrades through adaptive overfitting, which is why a final untouched test set still matters even when cross-validation is used throughout."
+          "a": "Learning theory says the empirical error on data used to select a hypothesis is optimistically biased, so an independent estimate is required. Cross-validation provides one by rotating a held-out fold, using data efficiently at the cost of k fits, and k-fold is roughly unbiased for the performance of a model trained on n(k-1)/k points, slightly pessimistic for the full-data model, which is usually acceptable. It misleads in specific and common ways. If any preprocessing (scaling, feature selection, imputation, resampling) is fitted before the split, information from held-out folds leaks in and the estimate is optimistic; everything must live inside the fold. If observations are grouped, correlated in time or spatially structured, random folds put near-duplicates on both sides and the estimate is badly optimistic, so grouped or time-based splitting is required. And if the same folds are reused to make many decisions, the estimate degrades through adaptive overfitting, which is why a final untouched test set still matters even when cross-validation is used throughout."
         },
         {
           "q": "What is the relationship between capacity, sample size and the amount you can learn?",
-          "a": "The classical statement is that the sample complexity needed for a given error scales with capacity — roughly d/epsilon^2 samples for a class of VC dimension d, up to log factors — so with fixed data, more capacity means a larger generalization gap unless something else constrains the solution. This gives the familiar advice: complex models need more data. It stays useful as an ordering, not as a number: it is why a linear model can be preferable on a few hundred rows and why data augmentation, which effectively enlarges n, reliably helps. The important caveat is that the relevant capacity is EFFECTIVE capacity — the complexity of solutions the optimizer actually reaches — not the nominal size of the class. Early stopping, weight decay, dropout, augmentation and the implicit bias of SGD all reduce effective capacity without changing the architecture, which is why a heavily regularized large model can generalize better than a small unregularized one on the same data."
+          "a": "The classical statement is that the sample complexity needed for a given error scales with capacity (roughly d/epsilon^2 samples for a class of VC dimension d, up to log factors), so with fixed data, more capacity means a larger generalization gap unless something else constrains the solution. This gives the familiar advice: complex models need more data. It stays useful as an ordering, not as a number: it is why a linear model can be preferable on a few hundred rows and why data augmentation, which effectively enlarges n, reliably helps. The important caveat is that the relevant capacity is EFFECTIVE capacity (the complexity of solutions the optimizer actually reaches) not the nominal size of the class. Early stopping, weight decay, dropout, augmentation and the implicit bias of SGD all reduce effective capacity without changing the architecture, which is why a heavily regularized large model can generalize better than a small unregularized one on the same data."
         },
         {
           "q": "Someone reports 99 percent cross-validated accuracy. What do you check first?",
-          "a": "Assume leakage until it is ruled out, because at that level leakage is more likely than a genuinely easy problem. Check the class balance first — 99 percent may be below the majority-class baseline, in which case the model has learned nothing. Then check that preprocessing was fitted inside the folds, since scaling, imputation, feature selection and especially any target-based encoding fitted on the full data leak the answer. Check for near-duplicate rows across folds, and for grouped structure — repeated users, sessions, patients or devices — where random folds put the same entity on both sides. Check for a feature that is a proxy for the label, either derived from it or recorded after it, which is the classic time-leakage failure. Check that the temporal order was respected if the task is predicting the future. Then look at what the model relies on: if a single feature carries nearly all the signal, inspect that feature's provenance directly. Only after all of that is it worth believing the number."
+          "a": "Assume leakage until it is ruled out, because at that level leakage is more likely than a genuinely easy problem. Check the class balance first: 99 percent may be below the majority-class baseline, in which case the model has learned nothing. Then check that preprocessing was fitted inside the folds, since scaling, imputation, feature selection and especially any target-based encoding fitted on the full data leak the answer. Check for near-duplicate rows across folds, and for grouped structure (repeated users, sessions, patients or devices) where random folds put the same entity on both sides. Check for a feature that is a proxy for the label, either derived from it or recorded after it, which is the classic time-leakage failure. Check that the temporal order was respected if the task is predicting the future. Then look at what the model relies on: if a single feature carries nearly all the signal, inspect that feature's provenance directly. Only after all of that is it worth believing the number."
         }
       ]
     },
@@ -99,7 +99,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "VC dimension",
-        "back": "Largest set the class can shatter (label every possible way). Distribution-free capacity — and vacuous for modern networks."
+        "back": "Largest set the class can shatter (label every possible way). Distribution-free capacity, and vacuous for modern networks."
       },
       {
         "type": "definition",
@@ -114,12 +114,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "Double descent",
-        "back": "Test error peaks at the interpolation threshold then falls again as capacity grows — the classical U-curve is not the whole story."
+        "back": "Test error peaks at the interpolation threshold then falls again as capacity grows: the classical U-curve is not the whole story."
       },
       {
         "type": "intuition",
         "front": "No free lunch",
-        "back": "Averaged over all problems every algorithm ties. Useful learning comes from assumptions matching reality — model choice is assumption choice."
+        "back": "Averaged over all problems every algorithm ties. Useful learning comes from assumptions matching reality: model choice is assumption choice."
       },
       {
         "type": "intuition",
@@ -149,7 +149,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Quoting a VC bound as a guarantee",
-        "back": "For overparameterized networks the bound often exceeds 1 while test error is a few percent — true but vacuous."
+        "back": "For overparameterized networks the bound often exceeds 1 while test error is a few percent, true but vacuous."
       }
     ],
     "refs": [

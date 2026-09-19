@@ -49,7 +49,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The exponents decide how to spend the budget",
         "paras": [
-          "Fitting the Chinchilla form and optimising the split of a fixed compute budget, the answer is that parameters and tokens both grow, with tokens growing slightly faster: the optimal ratio of tokens to parameters runs 31.8 at 1e19 FLOPs, 50.3 at 1e21, 79.8 at 1e23 and 126.4 at 1e25. The headline correction stands — a budget spent entirely on parameters is being wasted — but the ratio is not a constant, and quoting a single tokens-per-parameter number is a simplification of a curve.",
+          "Fitting the Chinchilla form and optimising the split of a fixed compute budget, the answer is that parameters and tokens both grow, with tokens growing slightly faster: the optimal ratio of tokens to parameters runs 31.8 at 1e19 FLOPs, 50.3 at 1e21, 79.8 at 1e23 and 126.4 at 1e25. The headline correction stands (a budget spent entirely on parameters is being wasted), but the ratio is not a constant, and quoting a single tokens-per-parameter number is a simplification of a curve.",
           "The other half is what the money buys. Loss falls from 2.986 to 1.845 across those six orders of magnitude of compute, so a hundredfold increase is worth about 0.354 nats here. Power-law returns mean the next improvement always costs more than the last one, and the irreducible term sets a floor no budget crosses. That framing is what makes scaling laws useful in planning: they are less a promise about capability than a way of pricing the next increment before committing to it."
         ]
       }

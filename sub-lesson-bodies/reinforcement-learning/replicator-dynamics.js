@@ -67,14 +67,14 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "replicator-dynamics",
   "lesson": {
     "title": "Replicator Dynamics",
-    "oneLine": "Strategies that beat the average grow — and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium.",
+    "oneLine": "Strategies that beat the average grow, and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "Take a large population where each member plays a fixed strategy, and let strategies reproduce in proportion to how well they do against the current mix. A strategy scoring above the population average grows, one scoring below shrinks. That is the replicator equation, and it is the standard model of evolutionary game theory.",
           "It also describes learning, which is why it appears in RL rather than only in biology. The continuous-time limit of multiplicative-weights learning is exactly the replicator equation, and so is the limit of cross-learning and of a population of Q-learners with Boltzmann exploration. Anything that reinforces actions multiplicatively in proportion to their payoff traces one of these trajectories.",
-          "The immediate result is reassuring: strictly dominated strategies die out. Verified on the prisoner's dilemma, where defection strictly dominates — a population starting at 90 percent cooperators converges to all-defect. Every Nash equilibrium is a rest point of the dynamics."
+          "The immediate result is reassuring: strictly dominated strategies die out. Verified on the prisoner's dilemma, where defection strictly dominates: a population starting at 90 percent cooperators converges to all-defect. Every Nash equilibrium is a rest point of the dynamics."
         ]
       },
       {
@@ -83,7 +83,7 @@ window.DM_SUBLESSON_CTX = {
           "The replicator equation: growth rate equals payoff advantage over the population mean."
         ],
         "tex": "\\dot{x}_i = x_i\\Bigl(f_i(x) - \\bar{f}(x)\\Bigr), \\qquad f_i(x) = (Ax)_i,\\quad \\bar{f}(x) = x^\\top A x",
-        "texNote": "Every vertex of the simplex is a rest point, whether or not it is sensible, and so is every interior point where all payoffs are equal. Being a rest point is much weaker than being an attractor — which is the whole content of the section below."
+        "texNote": "Every vertex of the simplex is a rest point, whether or not it is sensible, and so is every interior point where all payoffs are equal. Being a rest point is much weaker than being an attractor, which is the whole content of the section below."
       },
       {
         "h": "In code",
@@ -93,9 +93,9 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Nash equilibria need not attract",
         "paras": [
-          "Rock-paper-scissors is the standard counterexample and it is sharp. The unique Nash equilibrium is the uniform mixture, and it is a rest point — but it is neutrally stable, not attracting. Trajectories starting anywhere else orbit around it forever.",
-          "The clean way to see this is a conserved quantity: the product of the three population shares is constant along any trajectory. Integrated with RK4 from a starting mix of 0.5, 0.3 and 0.2, that product held at 0.030000000 with zero measurable drift over the whole run. Since the equilibrium itself has a product of one twenty-seventh, about 0.037037, a trajectory starting at 0.030 can never reach it — not slowly, not asymptotically, not at all. The orbit is confined to a level set that does not contain the equilibrium.",
-          "So convergence to Nash is not something evolutionary or learning dynamics deliver in general. It holds for potential games and for games solvable by iterated dominance; it fails for cyclic games, and cyclic structure is common — it is the reason real ecosystems show persistent oscillation between competing types, and the reason self-play in a non-transitive game can cycle through strategies indefinitely, each beating the last, without any of them being good.",
+          "Rock-paper-scissors is the standard counterexample and it is sharp. The unique Nash equilibrium is the uniform mixture, and it is a rest point, but it is neutrally stable, not attracting. Trajectories starting anywhere else orbit around it forever.",
+          "The clean way to see this is a conserved quantity: the product of the three population shares is constant along any trajectory. Integrated with RK4 from a starting mix of 0.5, 0.3 and 0.2, that product held at 0.030000000 with zero measurable drift over the whole run. Since the equilibrium itself has a product of one twenty-seventh, about 0.037037, a trajectory starting at 0.030 can never reach it, not slowly, not asymptotically, not at all. The orbit is confined to a level set that does not contain the equilibrium.",
+          "So convergence to Nash is not something evolutionary or learning dynamics deliver in general. It holds for potential games and for games solvable by iterated dominance; it fails for cyclic games, and cyclic structure is common: it is the reason real ecosystems show persistent oscillation between competing types, and the reason self-play in a non-transitive game can cycle through strategies indefinitely, each beating the last, without any of them being good.",
           "Which is the practical payoff for RL. Strategy cycling in self-play is not a bug in your training loop; it is the expected behaviour of the underlying dynamics on a non-transitive game. The standard defences follow directly: keep a league or a population of past opponents rather than only the current one, and evaluate against a fixed pool, because measuring only against your current opponent will show steady improvement all the way around a loop."
         ]
       }
@@ -103,7 +103,7 @@ window.DM_SUBLESSON_CTX = {
     "takeaways": [
       "Strategies grow in proportion to their payoff advantage over the population mean; strictly dominated strategies die out, and the prisoner's dilemma converges to all-defect.",
       "Nash is a rest point but need not attract: in rock-paper-scissors the product of population shares is conserved at 0.030 while the equilibrium sits at 1/27, so the orbit provably never reaches it.",
-      "That is why self-play cycles on non-transitive games — a reason to train against a league and evaluate against a fixed pool, not against the current opponent."
+      "That is why self-play cycles on non-transitive games, a reason to train against a league and evaluate against a fixed pool, not against the current opponent."
     ],
     "demo": "replicator-dynamics"
   },

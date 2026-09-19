@@ -33,14 +33,14 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The intuition",
         "paras": [
-          "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one — and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
+          "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one, and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
           "Temperature sharpens or flattens the distribution; top-k and top-p (nucleus) clip the long tail so you sample only from plausible tokens; beam search keeps several candidate continuations at once."
         ]
       },
       {
         "h": "The math",
         "paras": [
-          "Temperature T rescales the logits before the softmax — low T concentrates probability on the top tokens, high T spreads it out:"
+          "Temperature T rescales the logits before the softmax: low T concentrates probability on the top tokens, high T spreads it out:"
         ],
         "tex": "p_i = \\frac{\\exp(z_i / T)}{\\sum_j \\exp(z_j / T)}",
         "texNote": "T -> 0 recovers greedy argmax; T = 1 is the model's raw distribution."
@@ -54,12 +54,12 @@ window.DM_SUBLESSON_CTX = {
         "h": "The most likely continuation is a loop",
         "paras": [
           "Maximising likelihood and producing good text are different objectives, and the gap is easy to see on a real if small model. Building a bigram model over this site's prose and decoding 25 tokens, greedy search achieves an average log-probability of -2.849 per token and uses 4 distinct words: it emits \"the same data and the same data and the same data\" indefinitely. Sampling from the same model scores a worse -3.315 and uses 24 distinct words.",
-          "Greedy won on the metric and lost on the task, and this is not an artefact of a small model — the same degeneration is why beam search, which finds even higher-likelihood sequences, is standard for translation and unusable for open-ended generation. A well-fitted model assigns high probability to repetition because repetition is locally predictable, so the decoding strategy has to supply the diversity the objective never asked for. That is what temperature, top-k, nucleus sampling and repetition penalties are all doing, and why the choice of decoder is a product decision rather than a detail."
+          "Greedy won on the metric and lost on the task, and this is not an artefact of a small model: the same degeneration is why beam search, which finds even higher-likelihood sequences, is standard for translation and unusable for open-ended generation. A well-fitted model assigns high probability to repetition because repetition is locally predictable, so the decoding strategy has to supply the diversity the objective never asked for. That is what temperature, top-k, nucleus sampling and repetition penalties are all doing, and why the choice of decoder is a product decision rather than a detail."
         ]
       }
     ],
     "takeaways": [
-      "Decoding is a separate policy on top of the model's distribution — it controls the style of the output.",
+      "Decoding is a separate policy on top of the model's distribution: it controls the style of the output.",
       "Temperature trades determinism for diversity; top-k / top-p remove implausible tokens.",
       "Greedy is just temperature -> 0; beam search searches several continuations at once."
     ],

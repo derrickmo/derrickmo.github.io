@@ -67,19 +67,19 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "mcts",
   "lesson": {
     "title": "Monte-Carlo Tree Search",
-    "oneLine": "Spend your search budget where it looks promising — statistics instead of enumeration, which is what made Go tractable.",
+    "oneLine": "Spend your search budget where it looks promising: statistics instead of enumeration, which is what made Go tractable.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "Alpha-beta needs two things Go does not have: a branching factor small enough to search deeply, and an evaluation function that can score a mid-game position. MCTS gives up on both. Instead of enumerating, it plays the position out to the end many times and keeps the statistics.",
-          "Each iteration is four steps. Walk down the tree choosing children by a rule that balances what looks good against what is barely explored; add a node; play the rest of the game quickly; then push the result back up every node you passed. Do that a few thousand times and the visit counts concentrate on the good lines — the tree grows asymmetrically, deep where it matters and shallow where it does not."
+          "Each iteration is four steps. Walk down the tree choosing children by a rule that balances what looks good against what is barely explored; add a node; play the rest of the game quickly; then push the result back up every node you passed. Do that a few thousand times and the visit counts concentrate on the good lines: the tree grows asymmetrically, deep where it matters and shallow where it does not."
         ]
       },
       {
         "h": "The math",
         "paras": [
-          "The selection rule is a bandit algorithm applied at every node — UCT, upper confidence bounds for trees:"
+          "The selection rule is a bandit algorithm applied at every node, UCT, upper confidence bounds for trees:"
         ],
         "tex": "\\text{UCT}(a) = \\underbrace{\\frac{W_a}{N_a}}_{\\text{exploit}} + c\\underbrace{\\sqrt{\\frac{\\ln N}{N_a}}}_{\\text{explore}}",
         "texNote": "The second term shrinks as an action is tried and grows as its siblings are, so an unvisited action is infinitely attractive and a well-tested one is judged on its record. c sets the trade; too small and it commits early on noise, too large and it spreads the budget thin and learns nothing deeply."
@@ -93,7 +93,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "What AlphaGo changed, and what it kept",
         "paras": [
           "Plain MCTS with random rollouts was already enough to beat classical Go engines, because a random playout is a surprisingly informative estimate when averaged thousands of times. But it is noisy, and it wastes most of the budget on lines a strong player would never consider.",
-          "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton — select, expand, evaluate, back up — did not change at all.",
+          "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton (select, expand, evaluate, back up) did not change at all.",
           "It is also an anytime algorithm, which matters in practice: stop it whenever the clock runs out and the answer is the best one found so far, degrading smoothly rather than returning nothing. Alpha-beta at a fixed depth cannot do that."
         ]
       }
@@ -101,7 +101,7 @@ window.DM_SUBLESSON_CTX = {
     "takeaways": [
       "MCTS replaces exhaustive enumeration with sampled playouts, so it needs neither a small branching factor nor an evaluation function.",
       "UCT is a bandit rule applied per node, which is what grows the tree asymmetrically toward good lines.",
-      "Choose the final move by visit count rather than win rate, and remember it is anytime — stop it whenever and the answer is usable."
+      "Choose the final move by visit count rather than win rate, and remember it is anytime: stop it whenever and the answer is usable."
     ],
     "demo": "mcts"
   },

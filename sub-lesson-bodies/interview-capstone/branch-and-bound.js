@@ -46,13 +46,13 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "branch-and-bound",
   "lesson": {
     "title": "Branch & Bound",
-    "oneLine": "Search the whole tree in principle, and skip almost all of it in practice — the bound does the work, not the branching.",
+    "oneLine": "Search the whole tree in principle, and skip almost all of it in practice: the bound does the work, not the branching.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem — include this item or do not — and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
-          "The guarantee survives because the bound is a genuine over-estimate for a maximisation problem: nothing below can beat it, so nothing worth having is lost. This is the difference between branch and bound and a heuristic — the answer is provably optimal, only the runtime is uncertain.",
+          "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem, include this item or do not, and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
+          "The guarantee survives because the bound is a genuine over-estimate for a maximisation problem: nothing below can beat it, so nothing worth having is lost. This is the difference between branch and bound and a heuristic: the answer is provably optimal, only the runtime is uncertain.",
           "On a 24-item knapsack with capacity 220, enumerating every subset visits 8,491,277 nodes. Branch and bound with the standard fractional relaxation as its bound visits 87 and returns the identical optimum of 589. That is 0.001 percent of the tree, roughly a 97,600-fold reduction, and it is entirely attributable to the quality of the bound."
         ]
       },
@@ -72,7 +72,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "What it does not promise",
         "paras": [
-          "Worst-case complexity is unchanged. Branch and bound on an NP-hard problem is still exponential in the worst case, and adversarial instances exist for every bound — the 97,600-fold reduction above is a property of that instance and that bound, not a theorem.",
+          "Worst-case complexity is unchanged. Branch and bound on an NP-hard problem is still exponential in the worst case, and adversarial instances exist for every bound: the 97,600-fold reduction above is a property of that instance and that bound, not a theorem.",
           "Everything therefore rests on two design choices. A weak bound prunes nothing and you have paid extra to run brute force. A bad incumbent early on means there is nothing to prune against, which is why practical solvers spend real effort on a primal heuristic before searching, and why depth-first is the usual node order: it reaches complete solutions fastest and so produces an incumbent soonest.",
           "The pattern generalises well beyond toy problems. Alpha-beta pruning is branch and bound on a game tree. Modern MILP solvers are branch and bound with LP relaxation bounds plus cutting planes. And it is the honest answer to an interview question about optimal subset selection, where the expected answer is dynamic programming but the constraints often do not fit a table."
         ]
@@ -80,7 +80,7 @@ window.DM_SUBLESSON_CTX = {
     ],
     "takeaways": [
       "Prune a subtree when its optimistic bound cannot beat the incumbent; the optimum is preserved exactly, so this is an exact method and not a heuristic.",
-      "Measured: 87 nodes against 8,491,277 for brute force on a 24-item knapsack, same optimum — the bound quality, not the branching, produces that.",
+      "Measured: 87 nodes against 8,491,277 for brute force on a 24-item knapsack, same optimum: the bound quality, not the branching, produces that.",
       "Worst case is still exponential. A weak bound or a late first incumbent turns it back into brute force with overhead."
     ],
     "demo": "branch-and-bound"

@@ -4,14 +4,14 @@
   "id": "kernel-density",
   "module": "unsupervised-learning",
   "title": "Kernel Density Estimation",
-  "oneLine": "Estimate a density by putting a bump on every point — where the bump's WIDTH matters about ten times more than its shape.",
+  "oneLine": "Estimate a density by putting a bump on every point, where the bump's WIDTH matters about ten times more than its shape.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "A histogram estimates a density but depends on where you put the bin edges, and it is discontinuous for no reason related to the data. Kernel density estimation removes both problems: centre a smooth kernel on every observation and add them up. The result is smooth, does not depend on an arbitrary origin, and integrates to one.",
-        "The only real parameter is the bandwidth, which sets how wide each bump is. It is a bias-variance dial in the most literal form. Too narrow and the estimate is a spike at every observation — no bias, enormous variance, and it generalises to nothing. Too wide and everything blurs into a single mound — low variance, and a bias that erases the structure you were looking for.",
-        "The kernel's shape, by contrast, barely matters. Measured on a bimodal density with 200 samples, comparing four kernels each at its own optimal bandwidth: integrated squared error of 0.01427 for Epanechnikov, 0.01443 triangular, 0.01494 Gaussian, 0.01542 uniform. An eight percent spread. Sweeping the bandwidth for a single kernel spanned 0.01494 to 0.14803 — a factor of ten. The bandwidth is the model; the kernel is a preference."
+        "The only real parameter is the bandwidth, which sets how wide each bump is. It is a bias-variance dial in the most literal form. Too narrow and the estimate is a spike at every observation: no bias, enormous variance, and it generalises to nothing. Too wide and everything blurs into a single mound: low variance, and a bias that erases the structure you were looking for.",
+        "The kernel's shape, by contrast, barely matters. Measured on a bimodal density with 200 samples, comparing four kernels each at its own optimal bandwidth: integrated squared error of 0.01427 for Epanechnikov, 0.01443 triangular, 0.01494 Gaussian, 0.01542 uniform. An eight percent spread. Sweeping the bandwidth for a single kernel spanned 0.01494 to 0.14803, a factor of ten. The bandwidth is the model; the kernel is a preference."
       ]
     },
     {
@@ -20,7 +20,7 @@
         "The estimator, and the asymptotically optimal bandwidth that shows why it is hard to choose:"
       ],
       "tex": "\\hat{f}_h(x) = \\frac{1}{nh}\\sum_{i=1}^{n} K\\!\\left(\\frac{x - x_i}{h}\\right), \\qquad h_{\\text{opt}} \\propto \\left(\\frac{R(K)}{n\\,\\sigma_K^4\\,R(f'')}\\right)^{1/5}",
-      "texNote": "The optimal bandwidth depends on the second derivative of the true density — the thing being estimated. That circularity is why every practical rule either assumes a shape (Silverman) or estimates it by resampling (cross-validation). The n^(-1/5) rate is also slow, which is the seed of the problem in high dimensions."
+      "texNote": "The optimal bandwidth depends on the second derivative of the true density, the thing being estimated. That circularity is why every practical rule either assumes a shape (Silverman) or estimates it by resampling (cross-validation). The n^(-1/5) rate is also slow, which is the seed of the problem in high dimensions."
     },
     {
       "h": "In code",
@@ -30,16 +30,16 @@
     {
       "h": "Where the rules of thumb fail",
       "paras": [
-        "Silverman's rule is derived assuming the underlying density is roughly normal. On the bimodal test density it prescribed a bandwidth of 0.474 when the error-optimal value was 0.180, giving an integrated squared error 3.3 times worse. The failure is systematic and in a predictable direction: the rule reads the wide overall spread of a bimodal sample as a wide single distribution and over-smooths, which merges the two modes — erasing the one feature anybody was looking for.",
+        "Silverman's rule is derived assuming the underlying density is roughly normal. On the bimodal test density it prescribed a bandwidth of 0.474 when the error-optimal value was 0.180, giving an integrated squared error 3.3 times worse. The failure is systematic and in a predictable direction: the rule reads the wide overall spread of a bimodal sample as a wide single distribution and over-smooths, which merges the two modes, erasing the one feature anybody was looking for.",
         "So use it as a starting point and cross-validate. Held-out log-likelihood makes no assumption about the shape of the density and is cheap for one parameter.",
-        "The deeper limitation is dimensional. The convergence rate degrades as the dimension rises, and the sample size needed for a fixed accuracy grows exponentially — in high dimensions almost all of the volume is far from every observation, so almost everywhere the estimate is built from the tails of distant kernels. Kernel density estimation is a good tool up to about three or four dimensions and misleading well before ten, which is why high-dimensional density estimation uses normalising flows or autoregressive models instead.",
+        "The deeper limitation is dimensional. The convergence rate degrades as the dimension rises, and the sample size needed for a fixed accuracy grows exponentially: in high dimensions almost all of the volume is far from every observation, so almost everywhere the estimate is built from the tails of distant kernels. Kernel density estimation is a good tool up to about three or four dimensions and misleading well before ten, which is why high-dimensional density estimation uses normalising flows or autoregressive models instead.",
         "Where it earns its place: one-dimensional diagnostics, where a KDE plot beats a histogram for judging modality and skew; anomaly detection in low dimensions, thresholding on estimated density; and as the smoothing step inside mean-shift clustering, which is gradient ascent on exactly this estimate."
       ]
     }
   ],
   "takeaways": [
     "Bandwidth dominates: sweeping it moved integrated squared error by a factor of ten, while four different kernels at their own best bandwidths differed by eight percent.",
-    "Silverman's rule assumes near-normality and over-smoothed a bimodal density by 2.6x, merging the modes — cross-validate on held-out log-likelihood instead.",
+    "Silverman's rule assumes near-normality and over-smoothed a bimodal density by 2.6x, merging the modes. Cross-validate on held-out log-likelihood instead.",
     "Watch the boundary on positive-only data, and do not use it above three or four dimensions, where almost every query point sits in the tails of every kernel."
   ],
   "demo": "kernel-density",

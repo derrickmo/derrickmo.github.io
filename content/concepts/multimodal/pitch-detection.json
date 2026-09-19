@@ -4,13 +4,13 @@
   "id": "pitch-detection",
   "module": "multimodal",
   "title": "Pitch Detection (Autocorrelation)",
-  "oneLine": "Find the lag at which a signal best resembles itself — then deal with the octave errors, which are the entire practical problem.",
+  "oneLine": "Find the lag at which a signal best resembles itself, then deal with the octave errors, which are the entire practical problem.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "A periodic signal resembles a delayed copy of itself when the delay equals its period. So compute the similarity between the signal and a shifted version of itself across a range of lags, find the lag that maximises it, and the pitch is the sampling rate divided by that lag. Restricting the lag range to plausible human pitches, roughly 60 to 500 Hz, is both a speed optimisation and a strong prior.",
-        "The reason to work in the time domain at all is that pitch is a property of the period, not of any single spectral peak. The strongest partial in a voiced sound is frequently not the fundamental; a telephone-band voice may contain no energy at all at its fundamental and listeners still hear the pitch clearly. Autocorrelation handles that case naturally, because the period is intact even when the fundamental's energy is gone — confirmed directly: a harmonic stack with the fundamental removed entirely is still measured at exactly 200 Hz.",
+        "The reason to work in the time domain at all is that pitch is a property of the period, not of any single spectral peak. The strongest partial in a voiced sound is frequently not the fundamental; a telephone-band voice may contain no energy at all at its fundamental and listeners still hear the pitch clearly. Autocorrelation handles that case naturally, because the period is intact even when the fundamental's energy is gone: confirmed directly: a harmonic stack with the fundamental removed entirely is still measured at exactly 200 Hz.",
         "What autocorrelation does not handle is the octave. Almost every practical failure is an estimate at half or double the true pitch, and almost every refinement to the basic method exists to address that."
       ]
     },
@@ -37,7 +37,7 @@
     }
   ],
   "takeaways": [
-    "Pitch is a property of the period, so autocorrelation finds it even with the fundamental missing entirely — measured at exactly 200 Hz on a stack with no energy at 200 Hz.",
+    "Pitch is a property of the period, so autocorrelation finds it even with the fundamental missing entirely, measured at exactly 200 Hz on a stack with no energy at 200 Hz.",
     "Octave errors are the practical problem: plain autocorrelation was right 77.3% of the time against YIN's 99.3%, with 68 subharmonic errors against none.",
     "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks, and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
   ],

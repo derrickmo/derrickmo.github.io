@@ -28,7 +28,7 @@
     {
       "h": "It is not accuracy, and it is unbounded",
       "paras": [
-        "Optimising cross-entropy is not optimising accuracy, and the two can rank models in opposite orders. On five examples, a model barely right on all of them (p = 0.51 throughout) scores 100% accuracy and mean cross-entropy 0.673; a model confident on four and wrong on the fifth scores 80% accuracy and mean cross-entropy 0.151 — 4.5x the lower loss with 20 points less accuracy. Selecting on validation loss and reporting accuracy can hand you the worse model.",
+        "Optimising cross-entropy is not optimising accuracy, and the two can rank models in opposite orders. On five examples, a model barely right on all of them (p = 0.51 throughout) scores 100% accuracy and mean cross-entropy 0.673; a model confident on four and wrong on the fifth scores 80% accuracy and mean cross-entropy 0.151, 4.5x the lower loss with 20 points less accuracy. Selecting on validation loss and reporting accuracy can hand you the worse model.",
         "The second property follows from the logarithm: the loss is unbounded, so a single example can dominate. 999 correct predictions at p = 0.99 contribute 10.04 nats between them; one confident-and-wrong prediction at p = 1e-6 contributes 13.82 nats on its own, about 1,375 times the average example. That is the mechanism behind a loss curve that spikes on one mislabelled row, and the reason label noise hurts this objective more than it hurts a bounded one."
       ]
     }

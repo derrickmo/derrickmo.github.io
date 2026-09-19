@@ -56,7 +56,7 @@ window.DM_LESSON_BODIES = {
             "One fixed set of outputs, four scorers, four incompatible conclusions."
           ],
           "code": "# SAME model outputs. TRUE skill 0.85 by construction.\n#   exact string match     0.22   <- punishes FORMATTING, not capability\n#   normalized match       0.83   <- lowercase/strip/collapse -> recovers\n#                                    the actual skill\n#   pass@1                 0.56   \\  a DIFFERENT QUESTION: does ANY of k\n#   pass@5                 0.86   /  samples succeed?\n#\n# ★ So \"what did the model score\" is UNANSWERABLE without the scorer.\n#   PIN IT FIRST, version it with the results, and treat a scorer\n#   change as INVALIDATING every comparison made across it.\n\n# WHICH SCORER IS RIGHT depends on the consumer, not on taste:\n#   single-shot product        -> pass@1 (or normalized match)\n#   generate-and-VERIFY system -> pass@k is the right question, because\n#                                 you can afford to sample and check\n#   free-form answers          -> normalized match, or a judge with the\n#                                 corrections below\n#   ⚠ exact match is almost never what you want, and it is the default\n#     in more harnesses than you would expect.\n\n# ⚠ AND YOUR HARNESS HAS BUGS TOO. While building this, a repeated\n#   8-prompt suite let the mock model's per-prompt cache QUANTIZE the\n#   realized skill to all-known - producing a clean, plausible, and\n#   completely fake 1.00. The fix was DISTINCT prompts.\n#   ★ An eval that returns a suspiciously round number is a bug\n#     signature, not a result.",
-          "caption": "Four scorers, one set of outputs, scores from 0.22 to 0.86 — which is why the scorer must be pinned and versioned before any comparison means anything."
+          "caption": "Four scorers, one set of outputs, scores from 0.22 to 0.86, which is why the scorer must be pinned and versioned before any comparison means anything."
         },
         {
           "h": "Noise, contamination, and debiasing a judge",
@@ -64,7 +64,7 @@ window.DM_LESSON_BODIES = {
             "Three failure modes: one statistical, one invisible, one that swapping partly fixes."
           ],
           "code": "# 1. NOISE - use the WILSON interval, not the normal approximation\n#    (it behaves correctly near 0 and 1, where small evals often sit):\n#      N=50  ->  95% CI ~ +-11 points\n#      a genuinely 4pt-better model is ranked CORRECTLY only 67% of\n#      the time. Not \"noisy\" - the ORDERING is wrong a third of the\n#      time, on a comparison usually presented as a finding.\n\n# 2. CONTAMINATION - linear, and INVISIBLE in the score:\n#      observed = skill + leak_frac * (1 - skill)\n#      20% leak turns a true 0.70 into 0.76\n#    ★ No signature. No bimodality, nothing odd in the distribution.\n#      Defences are all EXTERNAL: a private held-out set, freshly\n#      written items, or n-gram overlap against the corpus you can see.\n\n# 3. ★ JUDGE BIAS - and swapping does more than reduce noise:\n#      naive (correct answer shown FIRST)        0.770\n#      swap-averaged over BOTH orderings         0.415\n#    Position bias is ANTISYMMETRIC in the ordering, so averaging\n#    cancels it EXACTLY - and what it revealed is that the judge\n#    actually PREFERS THE WRONG BUT LONGER ANSWER. The 0.77 was hiding\n#    the bias, not reflecting competence.\nscore = 0.5*(judge(a, b) + judge(b, a))     # mandatory, ~free\n#    ⚠ LENGTH bias is SYMMETRIC in the ordering, so it SURVIVES\n#      swapping. It needs rubric scoring or explicit length control.\n#    ✔ SANITY CHECK: a length-free judge swap-averages to a fair 0.500,\n#      which confirms the machinery rather than the conclusion.",
-          "caption": "Swap-averaging cancels position bias exactly because it is antisymmetric — and in doing so it unmasked a judge that preferred the wrong, longer answer."
+          "caption": "Swap-averaging cancels position bias exactly because it is antisymmetric, and in doing so it unmasked a judge that preferred the wrong, longer answer."
         }
       ],
       "useCases": [
@@ -202,22 +202,22 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ Small suites invert the ORDERING",
-        "back": "Wilson 95% CI at N=50 ≈ ±11 pts, and a genuinely 4-pt-better model is ranked correctly only **67%** of the time. Not \"noisy\" — wrong a third of the time, on a comparison presented as a finding."
+        "back": "Wilson 95% CI at N=50 ≈ ±11 pts, and a genuinely 4-pt-better model is ranked correctly only **67%** of the time. Not \"noisy\", wrong a third of the time, on a comparison presented as a finding."
       },
       {
         "type": "intuition",
         "front": "Use WILSON, not the normal approximation",
-        "back": "Small evals often sit near 0 or 1, where the normal approximation misbehaves and can produce intervals outside the valid range. Wilson is well-behaved there — the right default for binomial proportions at small n."
+        "back": "Small evals often sit near 0 or 1, where the normal approximation misbehaves and can produce intervals outside the valid range. Wilson is well-behaved there, the right default for binomial proportions at small n."
       },
       {
         "type": "intuition",
         "front": "Pairing beats doubling n",
-        "back": "Run both models on the SAME items and compare per-item outcomes. Item difficulty is the dominant variance component and pairing removes it entirely — costs nothing you weren't already doing."
+        "back": "Run both models on the SAME items and compare per-item outcomes. Item difficulty is the dominant variance component and pairing removes it entirely, costs nothing you weren't already doing."
       },
       {
         "type": "formula",
         "front": "★ Contamination is LINEAR and invisible",
-        "back": "observed = skill + ρ(1−skill). A 20% leak turns a true 0.70 into 0.76. **No signature** — not bimodal, nothing odd. Defences are all EXTERNAL: private suite, fresh items, n-gram overlap against the corpus."
+        "back": "observed = skill + ρ(1−skill). A 20% leak turns a true 0.70 into 0.76. **No signature**, not bimodal, nothing odd. Defences are all EXTERNAL: private suite, fresh items, n-gram overlap against the corpus."
       },
       {
         "type": "intuition",
@@ -227,22 +227,22 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ Swap-averaging UNMASKED the judge",
-        "back": "Naive (correct shown first) **0.770** → swap-averaged **0.415**. The judge actually preferred the WRONG BUT LONGER answer. The 0.77 was position bias masquerading as competence — not a noisy estimate of it."
+        "back": "Naive (correct shown first) **0.770** → swap-averaged **0.415**. The judge actually preferred the WRONG BUT LONGER answer. The 0.77 was position bias masquerading as competence, not a noisy estimate of it."
       },
       {
         "type": "formula",
         "front": "Why swapping works EXACTLY",
-        "back": "Position bias is ANTISYMMETRIC in the ordering, so ½[P(A|AB) + P(A|BA)] cancels it precisely — a structural property, not variance reduction. One extra call. Mandatory, not advisable."
+        "back": "Position bias is ANTISYMMETRIC in the ordering, so ½[P(A|AB) + P(A|BA)] cancels it precisely, a structural property, not variance reduction. One extra call. Mandatory, not advisable."
       },
       {
         "type": "pitfall",
         "front": "LENGTH bias SURVIVES swapping",
-        "back": "It's SYMMETRIC in the ordering — the longer answer wins wherever it appears. Needs rubric scoring (several specific checks, no length preference) or explicit length control. Report answer length beside every win rate."
+        "back": "It's SYMMETRIC in the ordering: the longer answer wins wherever it appears. Needs rubric scoring (several specific checks, no length preference) or explicit length control. Report answer length beside every win rate."
       },
       {
         "type": "intuition",
         "front": "The control that validates the machinery",
-        "back": "A length-free judge swap-averages to a fair **0.500**. Running it confirms the debiasing does what you think rather than introducing its own artefact — the difference between a measurement and a hope."
+        "back": "A length-free judge swap-averages to a fair **0.500**. Running it confirms the debiasing does what you think rather than introducing its own artefact, the difference between a measurement and a hope."
       },
       {
         "type": "pitfall",

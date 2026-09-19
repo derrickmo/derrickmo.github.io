@@ -12,7 +12,7 @@
     "prereqs": "Modules 01–03.",
     "takeaways": [
       "Build honest evaluation: the right metrics, cross-validation, and leakage-free pipelines.",
-      "Bias-variance, VC dimension, and PAC learning — why models generalize, or don't.",
+      "Bias-variance, VC dimension, and PAC learning: why models generalize, or don't.",
       "Calibration, uncertainty quantification, and the convex-optimization backbone of training."
     ],
     "flagships": [
@@ -55,7 +55,7 @@
       },
       {
         "n": "04-06",
-        "t": "Learning Theory — VC Dimension & PAC",
+        "t": "Learning Theory: VC Dimension & PAC",
         "d": "make_classification",
         "m": "20 min"
       },

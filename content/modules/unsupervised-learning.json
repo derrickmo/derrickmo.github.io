@@ -12,7 +12,7 @@
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Find structure without labels: k-means, hierarchical & density clustering, PCA, t-SNE, UMAP.",
-      "The EM algorithm and Gaussian mixtures — the conceptual bridge to VAEs.",
+      "The EM algorithm and Gaussian mixtures: the conceptual bridge to VAEs.",
       "Kernel methods, matrix factorization, and Bayesian inference as recurring ML primitives."
     ],
     "flagships": [

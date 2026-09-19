@@ -193,12 +193,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The direction most agent discussions skip",
-        "back": "The goal is FEWER, more reliable steps — not more autonomy. Every step moved out of the loop into code removes a FACTOR from the product, and that's usually cheaper than raising per-step reliability."
+        "back": "The goal is FEWER, more reliable steps, not more autonomy. Every step moved out of the loop into code removes a FACTOR from the product, and that's usually cheaper than raising per-step reliability."
       },
       {
         "type": "formula",
         "front": "What retries buy",
-        "back": "s_eff = 1 − (1−s)^r. Three tries at 0.8 → 0.992. But only for INDEPENDENT failures: an identical retry fails identically, so the error must go back as an OBSERVATION. Cost rises — robustness is purchased."
+        "back": "s_eff = 1 − (1−s)^r. Three tries at 0.8 → 0.992. But only for INDEPENDENT failures: an identical retry fails identically, so the error must go back as an OBSERVATION. Cost rises; robustness is purchased."
       },
       {
         "type": "formula",
@@ -218,7 +218,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "The option above all three",
-        "back": "DON'T LOOP. If the task decomposes the same way every time, write the pipeline — n drops from 12 to 1 and sⁿ stops governing. Most \"agent\" products are this. Autonomy should require an ARGUMENT, not an assumption."
+        "back": "DON'T LOOP. If the task decomposes the same way every time, write the pipeline: n drops from 12 to 1 and sⁿ stops governing. Most \"agent\" products are this. Autonomy should require an ARGUMENT, not an assumption."
       },
       {
         "type": "intuition",
@@ -228,17 +228,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Constrained decoding ≠ correct arguments",
-        "back": "It guarantees the JSON PARSES. It says nothing about whether the arguments are sensible. Validation is a separate layer, and authorization is a third — conflating them is a common and expensive mistake."
+        "back": "It guarantees the JSON PARSES. It says nothing about whether the arguments are sensible. Validation is a separate layer, and authorization is a third: conflating them is a common and expensive mistake."
       },
       {
         "type": "intuition",
         "front": "Evaluate at three levels",
-        "back": "OUTCOME (verifiable tasks + CI) · TRAJECTORY (steps, cost, path — use a RUBRIC; holistic judges have a documented LENGTH bias) · ROBUSTNESS (flaky tools, impossible tasks — does it STOP?). Runs are high-variance: repeat them."
+        "back": "OUTCOME (verifiable tasks + CI) · TRAJECTORY (steps, cost, path (use a RUBRIC; holistic judges have a documented LENGTH bias) · ROBUSTNESS (flaky tools, impossible tasks) does it STOP?). Runs are high-variance: repeat them."
       },
       {
         "type": "intuition",
         "front": "The module's two structures, contrasted",
-        "back": "CEILINGS: the worst stage bounds you; improving a non-binding stage wastes effort but doesn't hurt. MULTIPLICATION: each added step is a FACTOR — capability actively degrades reliability. Guardrails (18-09) invert the sign."
+        "back": "CEILINGS: the worst stage bounds you; improving a non-binding stage wastes effort but doesn't hurt. MULTIPLICATION: each added step is a FACTOR, capability actively degrades reliability. Guardrails (18-09) invert the sign."
       }
     ],
     "refs": [

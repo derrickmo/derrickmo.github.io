@@ -58,7 +58,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The math",
         "paras": [
-          "Nodes come off the frontier in order of f, not g — the total estimated cost of a route through this node:"
+          "Nodes come off the frontier in order of f, not g, the total estimated cost of a route through this node:"
         ],
         "tex": "f(n) = g(n) + h(n)",
         "texNote": "g is the known cost from the start; h is the heuristic estimate to the goal. h = 0 makes this exactly Dijkstra. h admissible (never over-estimates) keeps the result optimal; h consistent (obeys the triangle inequality) additionally means no node needs reopening."
@@ -72,14 +72,14 @@ window.DM_SUBLESSON_CTX = {
         "h": "The trade the heuristic makes",
         "paras": [
           "A stronger heuristic opens fewer nodes but costs more to evaluate, and the useful comparison is total work, not nodes expanded. A perfect heuristic walks straight to the goal and is usually as expensive as solving the problem.",
-          "Overestimating breaks optimality but is sometimes the right call: weighted A*, which multiplies h by a factor above one, finds a path bounded by that factor times optimal, far faster. Say which you chose — a route that is 10% long and instant is often the product decision.",
+          "Overestimating breaks optimality but is sometimes the right call: weighted A*, which multiplies h by a factor above one, finds a path bounded by that factor times optimal, far faster. Say which you chose: a route that is 10% long and instant is often the product decision.",
           "The same f = g + h shape reappears in beam search over language models, in branch and bound, and in Monte Carlo tree search's selection rule. Once you recognise 'known cost plus optimistic estimate', you see it everywhere."
         ]
       }
     ],
     "takeaways": [
       "A* is Dijkstra plus a heuristic term in the priority; setting h = 0 recovers Dijkstra exactly.",
-      "Admissibility (never over-estimate) is what preserves optimality — it is a property of your estimate, not of the algorithm.",
+      "Admissibility (never over-estimate) is what preserves optimality. It is a property of your estimate, not of the algorithm.",
       "Deliberately over-estimating buys speed for a bounded loss of optimality, which is frequently the right engineering trade."
     ],
     "demo": "pathfinding"

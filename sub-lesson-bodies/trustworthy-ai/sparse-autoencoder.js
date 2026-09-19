@@ -37,13 +37,13 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "sparse-autoencoder",
   "lesson": {
     "title": "Sparse Autoencoders & Superposition",
-    "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart.",
+    "oneLine": "Neurons are polysemantic because models pack more features than dimensions, and a sparse dictionary can pull some of them apart.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions — superposition — and it gets away with it because features are sparse, so collisions are rare.",
-          "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary — many more directions than dimensions — with a sparsity penalty, so that each learned atom fires for one thing rather than six."
+          "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions, superposition, and it gets away with it because features are sparse, so collisions are rare.",
+          "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary, many more directions than dimensions, with a sparsity penalty, so that each learned atom fires for one thing rather than six."
         ]
       },
       {
@@ -63,15 +63,15 @@ window.DM_SUBLESSON_CTX = {
         "h": "How you know it worked, and where it stops",
         "paras": [
           "The honest evaluation is not reconstruction loss. Feed a known feature and count how many atoms fire above threshold: on a planted toy problem, raw neurons respond to around six features each while SAE atoms respond to roughly one. That activation-based test is the measurement; direction overlap is not, because in a low-dimensional space a random direction already has high cosine with the best of many features.",
-          "Dead latents are the routine failure — atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
+          "Dead latents are the routine failure: atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
           "And the deepest caveat: in a real model there is no ground truth. Superposition is a hypothesis that explains polysemanticity well, and reconstruction plus sparsity is a proxy for interpretability, not a proof of it."
         ]
       }
     ],
     "takeaways": [
-      "Superposition means more features than dimensions, tolerated because features are sparse — so the neuron basis is the wrong basis.",
+      "Superposition means more features than dimensions, tolerated because features are sparse, so the neuron basis is the wrong basis.",
       "A sparse autoencoder learns an overcomplete dictionary; the unit-norm decoder constraint is what stops the L1 penalty being gamed.",
-      "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
+      "Judge it by activation selectivity, not reconstruction, and expect dead latents and feature splitting."
     ],
     "demo": "sparse-autoencoder"
   },

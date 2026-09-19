@@ -62,7 +62,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "It amplifies whatever is more likely, right or wrong",
         "paras": [
           "Majority voting over independent samples is a variance reduction, not a knowledge addition, and the binomial makes that precise. With a 60% chance of being right per sample, the majority of 5 is right 68.3% of the time, of 11 is 75.3%, and of 21 is 82.6%. The gain is real but sub-linear in samples, and it is largest for exactly the questions where the model is already more right than wrong.",
-          "Turn the probability around and the mechanism shows its other face. If the model is systematically wrong — 40% correct per sample — the majority of 5 is right 31.7% of the time and the majority of 21 only 17.4%. Voting made it worse, confidently, because it amplifies whichever answer the distribution favours; a shared misconception is reinforced by every extra sample rather than averaged away. Self-consistency assumes errors are independent noise around a correct mode, and when the errors are a systematic bias it converges harder onto the wrong answer."
+          "Turn the probability around and the mechanism shows its other face. If the model is systematically wrong, 40% correct per sample, the majority of 5 is right 31.7% of the time and the majority of 21 only 17.4%. Voting made it worse, confidently, because it amplifies whichever answer the distribution favours; a shared misconception is reinforced by every extra sample rather than averaged away. Self-consistency assumes errors are independent noise around a correct mode, and when the errors are a systematic bias it converges harder onto the wrong answer."
         ]
       }
     ],

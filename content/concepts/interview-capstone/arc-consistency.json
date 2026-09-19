@@ -4,20 +4,20 @@
   "id": "arc-consistency",
   "module": "interview-capstone",
   "title": "Arc Consistency (AC-3)",
-  "oneLine": "Delete values that provably cannot appear in any solution — a cheap pre-filter that prunes hard, and decides nothing.",
+  "oneLine": "Delete values that provably cannot appear in any solution, a cheap pre-filter that prunes hard, and decides nothing.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
-        "A constraint satisfaction problem is variables, domains, and constraints between them. Backtracking search assigns a variable, checks consistency, and undoes the assignment on failure — correct, and prone to rediscovering the same contradiction in thousands of different subtrees.",
+        "A constraint satisfaction problem is variables, domains, and constraints between them. Backtracking search assigns a variable, checks consistency, and undoes the assignment on failure, correct, and prone to rediscovering the same contradiction in thousands of different subtrees.",
         "Arc consistency attacks that waste before and during the search. An arc from X to Y is consistent when every remaining value of X has at least one compatible partner left in Y. If some value of X has no support anywhere in Y, no solution can ever use it, so it is deleted outright. Deleting it may strip the support of a neighbour, so the affected arcs are pushed back onto a queue and the pruning propagates.",
-        "Measured over 40 random 3-colouring instances on 28-node graphs, plain forward checking explored 2,686 search nodes in total while maintaining arc consistency at every step explored 544 — 4.9 times fewer, with identical answers on all 40 instances."
+        "Measured over 40 random 3-colouring instances on 28-node graphs, plain forward checking explored 2,686 search nodes in total while maintaining arc consistency at every step explored 544, 4.9 times fewer, with identical answers on all 40 instances."
       ]
     },
     {
       "h": "The math",
       "paras": [
-        "The definition of an arc being consistent — every surviving value at the tail must have at least one partner at the head:"
+        "The definition of an arc being consistent, every surviving value at the tail must have at least one partner at the head:"
       ],
       "tex": "\\text{arc } (X_i, X_j) \\text{ is consistent} \\iff \\forall\\, a \\in D_i\\ \\ \\exists\\, b \\in D_j : (a,b) \\in C_{ij}",
       "texNote": "Enforcing this over the whole problem costs O(e d^3) for e arcs and domain size d: each arc can be re-queued once per value deleted at the other end, giving d revisions per arc, and each revision costs d squared to check every pair. Polynomial, which is exactly why it is worth running inside an exponential search."

@@ -20,7 +20,7 @@
         "The transform is the empirical CDF, shifted so the darkest occupied level maps to zero:"
       ],
       "tex": "s_k = \\operatorname{round}\\!\\left( \\frac{\\mathrm{cdf}(k) - \\mathrm{cdf}_{\\min}}{MN - \\mathrm{cdf}_{\\min}} \\times (L-1) \\right), \\qquad \\mathrm{cdf}(k) = \\sum_{i=0}^{k} h(i)",
-      "texNote": "Because the CDF is non-decreasing, the mapping is monotone: pixel A brighter than pixel B stays brighter than pixel B. That is what makes the result an enhancement rather than a distortion — no ordering is ever inverted."
+      "texNote": "Because the CDF is non-decreasing, the mapping is monotone: pixel A brighter than pixel B stays brighter than pixel B. That is what makes the result an enhancement rather than a distortion: no ordering is ever inverted."
     },
     {
       "h": "In code",
@@ -30,15 +30,15 @@
     {
       "h": "Two things it does not do",
       "paras": [
-        "It does not create information. On the same test image the entropy was 5.820 bits before equalization and 5.820 bits after — identical. A monotone lookup table can merge levels but never separate them, so the information content can only stay the same or fall. What changed is how that information is distributed across the display range, which is a statement about your eyes and your monitor, not about the image.",
-        "And it amplifies noise in exactly the regions where you least want it. A near-flat patch in the same image had a standard deviation of 0.59 — imperceptible sensor noise. After equalization it was 10.82, an eighteenfold amplification. The mechanism is direct: flat regions have a tall narrow histogram spike, the CDF is steep there, and a steep mapping multiplies small differences. Global equalization reliably turns a clean sky into visible mottling.",
+        "It does not create information. On the same test image the entropy was 5.820 bits before equalization and 5.820 bits after, identical. A monotone lookup table can merge levels but never separate them, so the information content can only stay the same or fall. What changed is how that information is distributed across the display range, which is a statement about your eyes and your monitor, not about the image.",
+        "And it amplifies noise in exactly the regions where you least want it. A near-flat patch in the same image had a standard deviation of 0.59, imperceptible sensor noise. After equalization it was 10.82, an eighteenfold amplification. The mechanism is direct: flat regions have a tall narrow histogram spike, the CDF is steep there, and a steep mapping multiplies small differences. Global equalization reliably turns a clean sky into visible mottling.",
         "CLAHE is the standard answer to both problems. It equalizes small tiles independently so the mapping adapts to local content, and it clips each histogram at a ceiling before accumulating, redistributing the excess, which directly bounds the slope of the CDF and therefore bounds the noise gain. Bilinear interpolation between neighbouring tile mappings removes the block seams. In medical and low-light imaging CLAHE is the default and global equalization is the teaching example."
       ]
     }
   ],
   "takeaways": [
     "Passing intensities through their own CDF makes the histogram approximately uniform: range 96-160 became 0-255 and the standard deviation went from 15.5 to 74.1.",
-    "It redistributes information rather than adding any — entropy measured 5.820 bits before and after, because a monotone lookup table cannot separate levels it has merged.",
+    "It redistributes information rather than adding any: entropy measured 5.820 bits before and after, because a monotone lookup table cannot separate levels it has merged.",
     "Flat regions get a steep CDF and therefore amplified noise: a near-flat patch went from 0.59 to 10.82 standard deviation, an 18x gain. CLAHE clips the histogram to bound exactly that slope."
   ],
   "demo": "histogram-equalization",

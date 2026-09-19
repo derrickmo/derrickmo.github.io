@@ -30,7 +30,7 @@
       "h": "How you know it worked, and where it stops",
       "paras": [
         "The honest evaluation is not reconstruction loss. Feed a known feature and count how many atoms fire above threshold: on a planted toy problem, raw neurons respond to around six features each while SAE atoms respond to roughly one. That activation-based test is the measurement; direction overlap is not, because in a low-dimensional space a random direction already has high cosine with the best of many features.",
-        "Dead latents are the routine failure — atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
+        "Dead latents are the routine failure: atoms that never fire for any input, wasting dictionary capacity. So is feature splitting, where one true feature fragments into several atoms as you widen the dictionary, which makes 'how many features did it find' a function of your hyperparameters rather than of the model.",
         "And the deepest caveat: in a real model there is no ground truth. Superposition is a hypothesis that explains polysemanticity well, and reconstruction plus sparsity is a proxy for interpretability, not a proof of it."
       ]
     }

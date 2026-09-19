@@ -47,7 +47,7 @@ window.DM_LESSON_BODIES = {
             "Do both before choosing a model, because the first one alone is misleading."
           ],
           "code": "# 1. WEIGHTS - the easy one\n#    GB = params(B) * bytes_per_param\n#      fp32 4 | fp16/bf16 2 | int8 1 | int4 0.5\n#    70B int4 = 35 GB  -> \"fits an 80 GB card\" ✓\n\n# 2. ★ KV CACHE - the one that decides, and the one people skip\n#    KV = 2 * layers * kv_heads * head_dim * seq * batch * bytes\n#    at 32k context, batch 8:  ~137 GB\n#    -> FOUR TIMES the quantized weights. The model fits; the WORKLOAD\n#       does not. And it fails as an OOM at some batch size, not at load.\n#\n#    ★ NOTE WHICH TERM IS ABSENT: the number of QUERY heads. That is\n#      exactly why grouped-query attention shrinks the cache without\n#      shrinking the model (08-07).\n\n# SO \"WILL THIS RUN?\" HAS NO ANSWER WITHOUT A CONTEXT LENGTH AND A\n# BATCH SIZE. The budget is:\n#      weights + KV(seq, batch) + activations  <=  device memory\n# and only the first term is a property of the model.\n\n# ★ THE FRONTIER QUESTION this arithmetic is FOR:\n#    under a fixed memory budget, which model?\n#      70B @ int4  = 35 GB\n#      13B @ fp16  = 26 GB\n#      8B  @ fp16  = 16 GB\n#    A BIGGER MODEL QUANTIZED HARDER frequently beats a smaller model at\n#    full precision - which is the practical reason quantization is a\n#    capability decision rather than only a cost one.",
-          "caption": "The weight calculation rules models in; the KV calculation rules workloads out — and only the second depends on how you intend to use the model."
+          "caption": "The weight calculation rules models in; the KV calculation rules workloads out, and only the second depends on how you intend to use the model."
         },
         {
           "h": "Where quantization actually breaks - outliers, not bit width",
@@ -182,7 +182,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "The calculation everybody does",
-        "back": "GB ≈ params(B) × bytes/param. fp32 4 · fp16/bf16 2 · int8 1 · int4 0.5. So a 70B is 280 / 140 / 70 / 35 GB by format alone — which is why \"70B@int4\" and \"13B@fp16\" are comparable objects."
+        "back": "GB ≈ params(B) × bytes/param. fp32 4 · fp16/bf16 2 · int8 1 · int4 0.5. So a 70B is 280 / 140 / 70 / 35 GB by format alone, which is why \"70B@int4\" and \"13B@fp16\" are comparable objects."
       },
       {
         "type": "formula",
@@ -192,21 +192,21 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "\"Will this run?\" has no answer alone",
-        "back": "The budget is weights + KV(seq, batch) + activations ≤ device. Only the FIRST term is a property of the model — the other two are properties of how you intend to use it. A parameter count is one of three terms."
+        "back": "The budget is weights + KV(seq, batch) + activations ≤ device. Only the FIRST term is a property of the model. The other two are properties of how you intend to use it. A parameter count is one of three terms."
       },
       {
         "type": "intuition",
         "front": "The term missing from the KV formula",
-        "back": "The number of QUERY heads. Cache depends on KV heads only — which is exactly why grouped-query attention shrinks the cache without shrinking model capacity. A design fact you can read straight off the formula."
+        "back": "The number of QUERY heads. Cache depends on KV heads only, which is exactly why grouped-query attention shrinks the cache without shrinking model capacity. A design fact you can read straight off the formula."
       },
       {
         "type": "formula",
         "front": "Quantization has a FLOOR",
-        "back": "fp32 0.908 → int8 0.906 → int4 0.906 → **int2 0.595**. The flatness at 8 and 4 bits is a REGIME with an edge, not a law — and int2 had to be added deliberately, or there'd have been no cliff to see."
+        "back": "fp32 0.908 → int8 0.906 → int4 0.906 → **int2 0.595**. The flatness at 8 and 4 bits is a REGIME with an edge, not a law, and int2 had to be added deliberately, or there'd have been no cliff to see."
       },
       {
         "type": "formula",
-        "front": "★ Outliers set the scale — per-channel wins",
+        "front": "★ Outliers set the scale: per-channel wins",
         "back": "int4: per-TENSOR 0.655 vs per-CHANNEL 0.732. A few large channels stretch the range, so one scale spends its levels on outliers and crushes the bulk into a few values. HOW you scale beats how many bits."
       },
       {
@@ -217,17 +217,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The frontier question",
-        "back": "Under a fixed memory budget, a BIGGER model quantized HARDER frequently beats a smaller one at full precision. So quantization is a CAPABILITY decision, not only a cost one — it changes which models exist for you."
+        "back": "Under a fixed memory budget, a BIGGER model quantized HARDER frequently beats a smaller one at full precision. So quantization is a CAPABILITY decision, not only a cost one. It changes which models exist for you."
       },
       {
         "type": "pitfall",
         "front": "…but the frontier can reverse at long context",
-        "back": "A smaller model wins TWICE — smaller weights AND a smaller cache per token. At 32k the second effect can dominate, so compare at equal memory INCLUDING the cache at your actual context and batch."
+        "back": "A smaller model wins TWICE: smaller weights AND a smaller cache per token. At 32k the second effect can dominate, so compare at equal memory INCLUDING the cache at your actual context and batch."
       },
       {
         "type": "pitfall",
         "front": "★ Chance accuracy is a DATA-BUG signature",
-        "back": "A classifier trained to 0.537 — not a weak model but a generator giving train and test DIFFERENT decision boundaries. Reflex: can it overfit ONE BATCH? If yes, the model is fine and the bug is data or evaluation."
+        "back": "A classifier trained to 0.537, not a weak model but a generator giving train and test DIFFERENT decision boundaries. Reflex: can it overfit ONE BATCH? If yes, the model is fine and the bug is data or evaluation."
       },
       {
         "type": "intuition",

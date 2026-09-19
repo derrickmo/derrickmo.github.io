@@ -37,12 +37,12 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "certified-robustness",
   "lesson": {
     "title": "Certified Robustness",
-    "oneLine": "A proof that no perturbation within a radius can change the prediction — narrower than it sounds, and the only claim an adaptive attacker cannot refute.",
+    "oneLine": "A proof that no perturbation within a radius can change the prediction, narrower than it sounds, and the only claim an adaptive attacker cannot refute.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "Empirical robustness is a claim that no attack you tried succeeded, and the history of the field is a graveyard of defences that met that bar and were broken within months by a stronger attack. Certification changes the claim: for this input, no perturbation inside this radius can change the answer — proved, not tested.",
+          "Empirical robustness is a claim that no attack you tried succeeded, and the history of the field is a graveyard of defences that met that bar and were broken within months by a stronger attack. Certification changes the claim: for this input, no perturbation inside this radius can change the answer, proved, not tested.",
           "Randomized smoothing is the version that scales. Do not certify the network itself; certify a NEW classifier defined as 'what does the network say most often under Gaussian noise?'. That smoothed classifier is provably stable even though the network inside it is not."
         ]
       },
@@ -52,7 +52,7 @@ window.DM_SUBLESSON_CTX = {
           "If the top class wins under noise with probability at least p, the smoothed classifier is constant within an L2 ball of radius"
         ],
         "tex": "R = \\sigma\\,\\Phi^{-1}(\\underline{p_A})",
-        "texNote": "★ p_A must be a LOWER CONFIDENCE BOUND from the Monte-Carlo samples, not the sample mean. Using the point estimate produces radii that look entirely plausible and are invalid — the certificate then claims more than the evidence supports, and nothing about the output looks wrong."
+        "texNote": "★ p_A must be a LOWER CONFIDENCE BOUND from the Monte-Carlo samples, not the sample mean. Using the point estimate produces radii that look entirely plausible and are invalid: the certificate then claims more than the evidence supports, and nothing about the output looks wrong."
       },
       {
         "h": "In code",
@@ -62,16 +62,16 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "How narrow the guarantee actually is",
         "paras": [
-          "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting — and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
-          "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve — accuracy as a function of radius — is the honest report, not a single number.",
-          "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid — and that check found the error when code review had not, because the code correctly implemented the wrong formula."
+          "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting, and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
+          "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve, accuracy as a function of radius, is the honest report, not a single number.",
+          "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid, and that check found the error when code review had not, because the code correctly implemented the wrong formula."
         ]
       }
     ],
     "takeaways": [
       "Certification proves no perturbation in a radius changes the answer; empirical robustness only reports that your attacks failed.",
       "Randomized smoothing certifies a smoothed classifier, and the radius must come from a confidence LOWER bound, not the sample mean.",
-      "The guarantee is L2-only and costs accuracy and compute — report the certified-accuracy curve, not one number."
+      "The guarantee is L2-only and costs accuracy and compute: report the certified-accuracy curve, not one number."
     ],
     "demo": "certified-robustness"
   },

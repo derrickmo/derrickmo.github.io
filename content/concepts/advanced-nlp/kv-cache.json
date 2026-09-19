@@ -29,7 +29,7 @@
       "h": "Linear in context AND in batch",
       "paras": [
         "The cache is often described as the cheap alternative to recomputation, which is true per token and misleading in aggregate, because it scales with context length and batch size together. For a 32-layer, 32-head model with d_head 128 in fp16, one sequence costs 1.07 GB at 2,048 tokens and 17.18 GB at 32,768. At batch 32 those become 34.4 GB and 549.8 GB.",
-        "Set against a 7B model whose fp16 weights are 14 GB and never grow, the ratio is the whole story of modern serving: past a few thousand tokens the cache, not the model, is what fills the accelerator, and it is what caps how many users a GPU can hold at once. Every technique in this area attacks that number rather than the weights — grouped and multi-query attention shrink the per-token cost, paged attention removes the fragmentation, and cache quantisation trades precision for headroom."
+        "Set against a 7B model whose fp16 weights are 14 GB and never grow, the ratio is the whole story of modern serving: past a few thousand tokens the cache, not the model, is what fills the accelerator, and it is what caps how many users a GPU can hold at once. Every technique in this area attacks that number rather than the weights: grouped and multi-query attention shrink the per-token cost, paged attention removes the fragmentation, and cache quantisation trades precision for headroom."
       ]
     }
   ],

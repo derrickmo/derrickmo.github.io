@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "The cascade matched the analytic product exactly, for a reason worth understanding."
           ],
           "code": "# MEASURED CASCADE (attack success):\n#   no controls                        1.000\n#   + detector        (d=0.6)          0.400\n#   + allowlist       (d=0.8)          0.080\n#   + confirmation    (d=0.9)          0.008   = prod(1 - d_i)\n#\n#   Three imperfect layers -> 99.2% blocked.\n\n# ★ WHY IT MATCHED THE FORMULA: the layers were INDEPENDENT BY\n#   CONSTRUCTION - a learned detector, a permission boundary, a human\n#   confirmation. They fail for unrelated reasons.\n#\n# ⚠ SO THE FORMULA IS A REWARD FOR ENGINEERING INDEPENDENCE, NOT A\n#   PROPERTY OF STACKING. Two detectors keyed on similar features miss\n#   the same inputs, and the product would overstate protection badly:\n#     P(both miss) = (1-d1)(1-d2)   ONLY if independent\n#     if layer 2 fires only where layer 1 does -> P = 1-d1, no gain\n#   This is the same independence requirement that made naive agent\n#   VOTING worthless (21-06), arriving with the opposite consequence.\n\n# ★ THE POSTURE, stated honestly: there is no reliable detector for\n#   prompt injection today. Instructions and data share ONE channel, so\n#   a model cannot reliably tell \"content to summarize\" from \"an\n#   instruction addressed to you\". DESIGN SO A SUCCESSFUL INJECTION IS\n#   BOUNDED AND VISIBLE rather than assuming it can be prevented:\n#     bounded  -> allowlist, spend caps, rate limits, reversibility\n#     visible  -> audit every tool call with arguments and justification\n#\n# THE DESIGN-REVIEW QUESTION THAT FOLLOWS: if the model were fully\n# compromised - following an attacker's instructions perfectly - what\n# is the worst it could do? If the answer depends on the PROMPT\n# holding, the design isn't finished.",
-          "caption": "The measured product matched the analytic one because the layers were independent by construction — which is the engineering requirement, not a free consequence of adding controls."
+          "caption": "The measured product matched the analytic one because the layers were independent by construction, which is the engineering requirement, not a free consequence of adding controls."
         }
       ],
       "useCases": [
@@ -183,7 +183,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ Least privilege: fully effective AND free",
-        "back": "Per-TASK tool allowlist: injection success on dangerous tools 1.00 → 0.00, with ZERO legitimate work blocked. The mechanism is REACHABILITY, not detection — nothing to evade, and it doesn't degrade as attacks improve."
+        "back": "Per-TASK tool allowlist: injection success on dangerous tools 1.00 → 0.00, with ZERO legitimate work blocked. The mechanism is REACHABILITY, not detection: nothing to evade, and it doesn't degrade as attacks improve."
       },
       {
         "type": "intuition",
@@ -203,22 +203,22 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "★ Why it matched the formula (the real lesson)",
-        "back": "The layers were INDEPENDENT BY CONSTRUCTION — detector, permission boundary, human confirmation — failing for unrelated reasons. The product is a REWARD FOR ENGINEERING INDEPENDENCE, not a property of stacking. Two similar detectors miss the same inputs."
+        "back": "The layers were INDEPENDENT BY CONSTRUCTION (detector, permission boundary, human confirmation) failing for unrelated reasons. The product is a REWARD FOR ENGINEERING INDEPENDENCE, not a property of stacking. Two similar detectors miss the same inputs."
       },
       {
         "type": "intuition",
         "front": "Same requirement, opposite sign",
-        "back": "Independence made naive agent VOTING worthless (21-06) and makes defensive LAYERS work (21-09). The mathematics doesn't care which direction you want the answer to go — engineer the independence either way."
+        "back": "Independence made naive agent VOTING worthless (21-06) and makes defensive LAYERS work (21-09). The mathematics doesn't care which direction you want the answer to go. Engineer the independence either way."
       },
       {
         "type": "formula",
-        "front": "The confirmation frontier — with its CONDITION",
+        "front": "The confirmation frontier, with its CONDITION",
         "back": "confirm if risk ≥ 2 → damage 0.00 at friction 0.15. **But 85% of legitimate actions in that workload were low-risk**, and 0.15 = 1 − that fraction. A consequential-heavy workload gets a completely different number. Measure your own."
       },
       {
         "type": "pitfall",
         "front": "Uniform confirmation is the failure mode",
-        "back": "It makes the product unusable, and an unusable control gets switched OFF or routed around — protecting nothing while creating the impression of protection. Worse than a permissive setting honestly chosen."
+        "back": "It makes the product unusable, and an unusable control gets switched OFF or routed around, protecting nothing while creating the impression of protection. Worse than a permissive setting honestly chosen."
       },
       {
         "type": "pitfall",
@@ -228,17 +228,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The honest posture",
-        "back": "No reliable detector for prompt injection exists today — instructions and data share ONE channel. So design for BOUNDED (allowlist, caps, reversibility) and VISIBLE (audit every call with arguments), not prevented."
+        "back": "No reliable detector for prompt injection exists today. Instructions and data share ONE channel. So design for BOUNDED (allowlist, caps, reversibility) and VISIBLE (audit every call with arguments), not prevented."
       },
       {
         "type": "intuition",
         "front": "The design-review question",
-        "back": "If the model were FULLY compromised — following an attacker perfectly — what is the worst it could do? If the answer depends on the PROMPT holding, the design isn't finished. If it's bounded by permissions and caps, the detector is improving the average case on a floor that already holds."
+        "back": "If the model were FULLY compromised, following an attacker perfectly, what is the worst it could do? If the answer depends on the PROMPT holding, the design isn't finished. If it's bounded by permissions and caps, the detector is improving the average case on a floor that already holds."
       },
       {
         "type": "intuition",
         "front": "What's genuinely new vs ordinary appsec",
-        "back": "Principles transfer unchanged. NEW: (1) the confused deputy is the DEFAULT, not a bug — no patch, because there's no flaw; (2) no reliable input sanitization, since the code/data separation that fixed injection elsewhere doesn't exist here. So weight shifts to authorization and blast radius."
+        "back": "Principles transfer unchanged. NEW: (1) the confused deputy is the DEFAULT, not a bug: no patch, because there's no flaw; (2) no reliable input sanitization, since the code/data separation that fixed injection elsewhere doesn't exist here. So weight shifts to authorization and blast radius."
       }
     ],
     "refs": [

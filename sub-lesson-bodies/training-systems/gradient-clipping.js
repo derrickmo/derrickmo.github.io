@@ -49,7 +49,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Clip the norm, not the values",
         "paras": [
-          "The two clipping strategies sound interchangeable and are not. Clipping by global norm rescales the whole vector, so the direction is untouched: measured over 2,000 gradients with occasional huge coordinates, the cosine between the raw gradient and the norm-clipped one is exactly 1.0000. Clipping each coordinate to a fixed range gives 0.5174 — the step is bounded and it is no longer the direction the loss asked for.",
+          "The two clipping strategies sound interchangeable and are not. Clipping by global norm rescales the whole vector, so the direction is untouched: measured over 2,000 gradients with occasional huge coordinates, the cosine between the raw gradient and the norm-clipped one is exactly 1.0000. Clipping each coordinate to a fixed range gives 0.5174: the step is bounded and it is no longer the direction the loss asked for.",
           "The reason value clipping does so much damage is that it flattens exactly the coordinates carrying the most signal, and the larger the outlier the more of it is discarded. Norm clipping bounds the step size while preserving what the gradient said, which is why it is the default in every serious training loop and why the threshold is usually reported alongside the learning rate: together they set the maximum distance a single step can move, which is the quantity that actually governs stability."
         ]
       }

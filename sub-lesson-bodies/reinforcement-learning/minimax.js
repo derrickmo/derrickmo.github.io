@@ -67,12 +67,12 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "minimax",
   "lesson": {
     "title": "Minimax & Alpha-Beta",
-    "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it — and prune the branches that provably cannot change the answer.",
+    "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it, and prune the branches that provably cannot change the answer.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "In a two-player zero-sum game your gain is exactly your opponent's loss, so you cannot hope they blunder. Minimax evaluates a move by assuming the reply is the best available, and the reply to that, all the way down — then chooses the move whose worst case is best.",
+          "In a two-player zero-sum game your gain is exactly your opponent's loss, so you cannot hope they blunder. Minimax evaluates a move by assuming the reply is the best available, and the reply to that, all the way down, then chooses the move whose worst case is best.",
           "The tree is enormous, so you stop at a fixed depth and score the position with an evaluation function. That is the honest weak point: everything below the horizon is invisible, and a position that looks winning at depth six can be lost at depth eight."
         ]
       },
@@ -82,7 +82,7 @@ window.DM_SUBLESSON_CTX = {
           "The value of a node alternates between maximising and minimising over children:"
         ],
         "tex": "V(s) = \\begin{cases} \\text{eval}(s) & \\text{depth } 0 \\\\ \\max_{a} V(s') & \\text{our turn} \\\\ \\min_{a} V(s') & \\text{their turn} \\end{cases}",
-        "texNote": "Alpha-beta prunes any branch that cannot affect this value. It returns the IDENTICAL answer — it is not an approximation. With perfect move ordering it examines O(b^(d/2)) nodes instead of O(b^d), which is the difference between searching depth 6 and depth 12 in the same time."
+        "texNote": "Alpha-beta prunes any branch that cannot affect this value. It returns the IDENTICAL answer: it is not an approximation. With perfect move ordering it examines O(b^(d/2)) nodes instead of O(b^d), which is the difference between searching depth 6 and depth 12 in the same time."
       },
       {
         "h": "In code",
@@ -90,18 +90,18 @@ window.DM_SUBLESSON_CTX = {
         "caption": "The two `break`s are the whole optimisation. Move ordering decides how often they fire, which is why engines spend real effort guessing the best move first."
       },
       {
-        "h": "Why modern engines left it behind — and did not",
+        "h": "Why modern engines left it behind, and did not",
         "paras": [
           "Alpha-beta needs a good evaluation function and a branching factor small enough to search deeply. Go has neither, which is why Monte Carlo tree search took over there: MCTS samples playouts instead of enumerating, and spends its budget on promising lines using an explore/exploit rule rather than exhaustive proof.",
           "But chess engines are still alpha-beta at their core, now with a learned evaluation. The search discipline did not lose; the hand-written evaluation did.",
-          "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over.",
-          "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 — 65,536 leaves in full — alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics — iterative deepening, killer moves, transposition tables — rather than into the search itself."
+          "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all: that is where equilibrium concepts and regret-based methods take over.",
+          "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 (65,536 leaves in full) alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics (iterative deepening, killer moves, transposition tables) rather than into the search itself."
         ]
       }
     ],
     "takeaways": [
       "Minimax assumes a best-playing opponent, so it optimises the worst case rather than the expected case.",
-      "Alpha-beta is EXACT — same answer, fewer nodes — and good move ordering roughly doubles the reachable depth.",
+      "Alpha-beta is EXACT (same answer, fewer nodes), and good move ordering roughly doubles the reachable depth.",
       "It needs a decent evaluation and a modest branching factor; when either fails, sampling methods like MCTS win."
     ],
     "demo": "mcts"

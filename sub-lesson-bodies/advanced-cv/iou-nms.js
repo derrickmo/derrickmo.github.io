@@ -68,7 +68,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "The threshold has to know how crowded the scene is",
         "paras": [
           "Non-max suppression assumes that heavily overlapping boxes are duplicates, which stops being true the moment two real objects overlap. With two people standing shoulder to shoulder, whose ground-truth boxes themselves overlap at IoU 0.471, running NMS at a threshold of 0.3 keeps a single box and recovers only 1 of the 2 real objects. The second detection was correct and was deleted for looking like a duplicate.",
-          "Raising the threshold to 0.5 recovers both, but a threshold above the typical duplicate overlap lets duplicates through instead, so the parameter is a straight trade between missed neighbours and repeated boxes — and the right value depends on how crowded your scenes are, which is a property of the dataset rather than of the detector. Soft-NMS decays scores instead of deleting outright for exactly this reason, and end-to-end detectors like DETR drop the step altogether by learning not to emit duplicates."
+          "Raising the threshold to 0.5 recovers both, but a threshold above the typical duplicate overlap lets duplicates through instead, so the parameter is a straight trade between missed neighbours and repeated boxes, and the right value depends on how crowded your scenes are, which is a property of the dataset rather than of the detector. Soft-NMS decays scores instead of deleting outright for exactly this reason, and end-to-end detectors like DETR drop the step altogether by learning not to emit duplicates."
         ]
       }
     ],

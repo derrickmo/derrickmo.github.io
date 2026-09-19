@@ -4,7 +4,7 @@
   "id": "pagerank",
   "module": "ml-applications",
   "title": "PageRank",
-  "oneLine": "Importance as the stationary distribution of a random walk — an eigenvector problem that you solve by repeated multiplication, never by decomposition.",
+  "oneLine": "Importance as the stationary distribution of a random walk, an eigenvector problem that you solve by repeated multiplication, never by decomposition.",
   "sections": [
     {
       "h": "The intuition",
@@ -24,19 +24,19 @@
     {
       "h": "In code",
       "code": "import numpy as np\n\ndef pagerank(M, alpha=0.85, iters=100, tol=1e-10):\n    n = M.shape[0]\n    r = np.ones(n) / n\n    for _ in range(iters):\n        r_new = alpha * (M @ r) + (1 - alpha) / n\n        if np.abs(r_new - r).sum() < tol:\n            return r_new\n        r = r_new\n    return r",
-      "caption": "Power iteration: multiply, renormalise, repeat. On a web-scale graph M is enormous and sparse, so this is the only feasible route — you never form or decompose the matrix."
+      "caption": "Power iteration: multiply, renormalise, repeat. On a web-scale graph M is enormous and sparse, so this is the only feasible route: you never form or decompose the matrix."
     },
     {
       "h": "What it generalises to",
       "paras": [
         "Personalised PageRank replaces the uniform teleport vector with a distribution concentrated on a few nodes, which turns a global importance score into 'important RELATIVE to these seeds'. That is the version that actually powers recommendations and related-item panels.",
-        "The same eigenvector-of-a-normalised-graph shape appears in spectral clustering and in graph neural network propagation — a GNN layer is a learned version of the same neighbourhood averaging, which is why over-smoothing in deep GNNs looks like every node converging to the stationary distribution.",
+        "The same eigenvector-of-a-normalised-graph shape appears in spectral clustering and in graph neural network propagation: a GNN layer is a learned version of the same neighbourhood averaging, which is why over-smoothing in deep GNNs looks like every node converging to the stationary distribution.",
         "The honest limit: PageRank scores a graph's link structure, not relevance to a query. It was one signal among many even in the search engine it is named for, and treating a structural prior as a relevance model is the classic misuse."
       ]
     }
   ],
   "takeaways": [
-    "PageRank is the stationary distribution of a random walk with teleportation — importance defined recursively.",
+    "PageRank is the stationary distribution of a random walk with teleportation, importance defined recursively.",
     "The teleport term is what guarantees a unique solution exists; it is not a hack for dangling nodes.",
     "Power iteration is the algorithm because the graph is huge and sparse, and personalised PageRank is the version most systems actually use."
   ],

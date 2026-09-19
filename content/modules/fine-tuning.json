@@ -8,11 +8,11 @@
   "blurb": "LoRA, QLoRA, instruction tuning, reward modeling, RLHF, DPO, efficient fine-tuning with Unsloth.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Master the full spectrum of model adaptation and alignment — LoRA/PEFT, supervised fine-tuning (SFT), reward modelling, PPO-based RLHF, DPO, constitutional-AI concepts, prompt tuning, and continual learning — applied to the Transformer language models built in Modules 08 and 10.",
+    "summary": "Master the full spectrum of model adaptation and alignment: LoRA/PEFT, supervised fine-tuning (SFT), reward modelling, PPO-based RLHF, DPO, constitutional-AI concepts, prompt tuning, and continual learning, applied to the Transformer language models built in Modules 08 and 10.",
     "prereqs": "Modules 05, 08, 10.",
     "takeaways": [
       "Parameter-efficient fine-tuning (LoRA/PEFT) and supervised fine-tuning (SFT).",
-      "The RLHF stack: reward modeling, PPO, and DPO — plus constitutional-AI concepts.",
+      "The RLHF stack: reward modeling, PPO, and DPO, plus constitutional-AI concepts.",
       "Catastrophic forgetting, continual learning, and alignment evaluation & safety."
     ],
     "flagships": [

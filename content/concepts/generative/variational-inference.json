@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "The posterior p(z|x) needs a normalising constant that is an integral over all latent configurations, and for anything interesting that integral has no closed form. MCMC samples from it instead, correctly but slowly. Variational inference takes the other route: pick a family of distributions you can handle, and find the member closest to the true posterior.",
-        "That converts integration into optimisation, which scales — you can run it on mini-batches with a gradient optimiser. The cost is that the answer is only as good as the family you chose, and unlike MCMC there is no asymptotic guarantee that more compute fixes it."
+        "That converts integration into optimisation, which scales: you can run it on mini-batches with a gradient optimiser. The cost is that the answer is only as good as the family you chose, and unlike MCMC there is no asymptotic guarantee that more compute fixes it."
       ]
     },
     {
@@ -24,7 +24,7 @@
     {
       "h": "In code",
       "code": "import torch\n\ndef elbo(x, encoder, decoder, prior):\n    mu, logvar = encoder(x)\n    std = torch.exp(0.5 * logvar)\n    # Reparameterisation: sample z = mu + std * eps so the gradient flows THROUGH\n    # the sampling step. Drawing z directly from N(mu, std) blocks it entirely.\n    z = mu + std * torch.randn_like(std)\n    recon = decoder(z).log_prob(x).sum(-1)\n    kl = torch.distributions.kl_divergence(\n        torch.distributions.Normal(mu, std), prior).sum(-1)\n    return (recon - kl).mean()",
-      "caption": "This is a VAE. A VAE is variational inference where the variational parameters are produced by a network instead of optimised per data point — amortised inference."
+      "caption": "This is a VAE. A VAE is variational inference where the variational parameters are produced by a network instead of optimised per data point, amortised inference."
     },
     {
       "h": "The direction of the KL is doing a lot of work",

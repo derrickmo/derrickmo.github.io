@@ -30,7 +30,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The intuition",
         "paras": [
-          "Some functions cost hours per evaluation — training a model, running a wet-lab assay, simulating a design — and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
+          "Some functions cost hours per evaluation (training a model, running a wet-lab assay, simulating a design), and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
           "The model gives a mean and an uncertainty everywhere. That second quantity is the whole idea: a point can be worth trying because the model expects it to be good, or because the model has no idea, and an acquisition function decides how to weigh those."
         ]
       },
@@ -51,7 +51,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "When it loses, which is more often than the pitch suggests",
         "paras": [
           "It wins when evaluations are genuinely expensive, the budget is small (tens, not thousands), and the space is low-dimensional and continuous. Outside that, the surrogate is the bottleneck: Gaussian processes scale cubically in observations, and their distance-based kernels lose meaning in high dimensions, so a GP over fifty hyperparameters is modelling noise.",
-          "The comparison people skip is against a bandit-style scheduler. For neural network tuning, ASHA and Hyperband simply start many random configurations and kill the bad ones early — they exploit the fact that a partially trained model already tells you something, which Bayesian optimisation ignores by treating each evaluation as atomic. On a parallel cluster they frequently win outright.",
+          "The comparison people skip is against a bandit-style scheduler. For neural network tuning, ASHA and Hyperband simply start many random configurations and kill the bad ones early: they exploit the fact that a partially trained model already tells you something, which Bayesian optimisation ignores by treating each evaluation as atomic. On a parallel cluster they frequently win outright.",
           "And it is sequential by nature, which is awkward when you have 32 workers idle. Batch variants exist and are noticeably harder than the single-point story implies."
         ]
       }
@@ -59,7 +59,7 @@ window.DM_SUBLESSON_CTX = {
     "takeaways": [
       "Fit a surrogate with uncertainty, then let an acquisition function trade predicted quality against what you do not know.",
       "Expected improvement is zero where you have already measured, so the loop never repeats itself.",
-      "It wins on expensive, low-dimensional, small-budget problems — and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
+      "It wins on expensive, low-dimensional, small-budget problems, and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
     ],
     "demo": "bayesian-optimization"
   },

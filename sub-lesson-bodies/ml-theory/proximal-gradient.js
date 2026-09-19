@@ -43,12 +43,12 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "proximal-gradient",
   "lesson": {
     "title": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
-    "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly — and add momentum only once you know the problem is ill-conditioned.",
+    "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly, and add momentum only once you know the problem is ill-conditioned.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "Many objectives split into a smooth part you can differentiate and a non-smooth part you cannot — least squares plus an L1 penalty, a likelihood plus a nuclear norm, a loss plus an indicator that keeps you inside a set. Subgradient descent handles these but converges slowly and never produces exact zeros, because a subgradient step lands on a zero only by accident.",
+          "Many objectives split into a smooth part you can differentiate and a non-smooth part you cannot: least squares plus an L1 penalty, a likelihood plus a nuclear norm, a loss plus an indicator that keeps you inside a set. Subgradient descent handles these but converges slowly and never produces exact zeros, because a subgradient step lands on a zero only by accident.",
           "Proximal gradient splits the work. Take an ordinary gradient step on the smooth part, then apply the proximal operator of the non-smooth part, which asks: what is the nearest point that trades distance against penalty? For the L1 norm that operator is soft-thresholding, so every iteration produces genuinely sparse iterates. Applied to the lasso this is ISTA, iterative shrinkage-thresholding.",
           "The projected gradient method you already know is the same algorithm: when the non-smooth part is the indicator of a convex set, its proximal operator is exactly projection onto that set."
         ]
@@ -69,16 +69,16 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "When acceleration actually pays",
         "paras": [
-          "ISTA converges at O(1/k) and FISTA at O(1/k squared), and it is tempting to always reach for FISTA. Measured on a well-conditioned random design — 200 samples, 50 features, uncorrelated — ISTA needed 25 iterations to reach the optimum and FISTA needed 26. No speedup at all. The asymptotic rate is irrelevant when the problem is easy enough that you never get to the asymptote.",
-          "Rebuild the same problem with strongly correlated columns, a condition number in the thousands, and the gap opens exactly as advertised: ISTA takes 5,020 iterations to reach the objective FISTA reaches in 642, a factor of 7.8. Watching the suboptimality directly is clearer still — after 1,000 iterations ISTA is 3.6 away from optimal and FISTA is 1.7e-5 away.",
-          "Two practical notes. FISTA is not monotone: the objective can rise on individual iterations, which looks like a bug and is not, though monotone variants exist if you need the guarantee. And on the lasso specifically, coordinate descent beat both on the same ill-conditioned problem, converging in 372 sweeps — acceleration closes the gap to coordinate descent, it does not overturn it."
+          "ISTA converges at O(1/k) and FISTA at O(1/k squared), and it is tempting to always reach for FISTA. Measured on a well-conditioned random design (200 samples, 50 features, uncorrelated) ISTA needed 25 iterations to reach the optimum and FISTA needed 26. No speedup at all. The asymptotic rate is irrelevant when the problem is easy enough that you never get to the asymptote.",
+          "Rebuild the same problem with strongly correlated columns, a condition number in the thousands, and the gap opens exactly as advertised: ISTA takes 5,020 iterations to reach the objective FISTA reaches in 642, a factor of 7.8. Watching the suboptimality directly is clearer still: after 1,000 iterations ISTA is 3.6 away from optimal and FISTA is 1.7e-5 away.",
+          "Two practical notes. FISTA is not monotone: the objective can rise on individual iterations, which looks like a bug and is not, though monotone variants exist if you need the guarantee. And on the lasso specifically, coordinate descent beat both on the same ill-conditioned problem, converging in 372 sweeps: acceleration closes the gap to coordinate descent, it does not overturn it."
         ]
       }
     ],
     "takeaways": [
       "Proximal gradient = gradient step on the smooth part, then the proximal operator of the non-smooth part; L1 gives soft-thresholding, a set indicator gives projection, zero gives plain gradient descent.",
       "The O(1/k) to O(1/k^2) improvement is real but conditional: on a well-conditioned lasso ISTA took 25 iterations and FISTA 26, while on an ill-conditioned one it was 5,020 against 642.",
-      "FISTA's objective is not monotone — a rising loss on some iterations is expected behaviour, not a broken implementation."
+      "FISTA's objective is not monotone: a rising loss on some iterations is expected behaviour, not a broken implementation."
     ],
     "demo": "ista"
   },

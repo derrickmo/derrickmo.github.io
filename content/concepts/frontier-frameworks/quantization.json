@@ -30,7 +30,7 @@
       "h": "One outlier sets the scale for everyone",
       "paras": [
         "Quantisation maps a whole tensor onto a grid whose spacing is fixed by the largest magnitude in it, so a single extreme weight coarsens the grid for every other weight. On a Gaussian weight vector the relative error of INT8 is 0.0098; introducing one value at 20 sigma raises it to 0.0432, a factor of 4.4, with every other weight untouched. At INT4 the same outlier takes the error from 0.176 to 0.729.",
-        "Grouping is the fix, and it is dramatic: quantising the same outlier-containing vector with 32 separate group scales gives 0.168 at INT4 — back to the clean level, because the outlier now only degrades its own group. This is why per-channel and group-wise scales are standard, why activation outliers in transformers spawned a whole family of outlier-aware methods, and why a quantisation result quoted without the granularity attached does not mean anything."
+        "Grouping is the fix, and it is dramatic: quantising the same outlier-containing vector with 32 separate group scales gives 0.168 at INT4, back to the clean level, because the outlier now only degrades its own group. This is why per-channel and group-wise scales are standard, why activation outliers in transformers spawned a whole family of outlier-aware methods, and why a quantisation result quoted without the granularity attached does not mean anything."
       ]
     }
   ],

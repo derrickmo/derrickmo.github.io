@@ -67,7 +67,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The derivative is a noise amplifier",
         "paras": [
-          "Differentiating is a high-pass operation, so it does exactly the wrong thing to sensor noise. On a synthetic step edge the Sobel magnitude at the edge barely moves as noise rises — 2.40, 2.41, 2.49, 2.26 — while the response in the flat regions climbs from 0 to 0.057, 0.141, 0.291. The signal-to-noise ratio falls from 42.3 at noise sd 0.02 to 7.8 at sd 0.1, entirely because the background got louder.",
+          "Differentiating is a high-pass operation, so it does exactly the wrong thing to sensor noise. On a synthetic step edge the Sobel magnitude at the edge barely moves as noise rises: 2.40, 2.41, 2.49, 2.26, while the response in the flat regions climbs from 0 to 0.057, 0.141, 0.291. The signal-to-noise ratio falls from 42.3 at noise sd 0.02 to 7.8 at sd 0.1, entirely because the background got louder.",
           "This is why every practical edge detector smooths first and why Canny is a Gaussian derivative rather than a bare difference. On the same noisy image, blurring with sigma 1 before differentiating lifts the ratio from 8.7 to 16.5, and sigma 2 lifts it to 31. The blur is not a cosmetic pre-step; it is the term that decides which scale of edge you are asking about, and choosing it is choosing what counts as an edge rather than as texture."
         ]
       }

@@ -34,14 +34,14 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "model-cascade",
   "lesson": {
     "title": "Model Cascade & Early-Exit",
-    "oneLine": "Answer the easy queries with the cheap model and escalate the rest — where the deferral rule, not the models, is what you are actually designing.",
+    "oneLine": "Answer the easy queries with the cheap model and escalate the rest, where the deferral rule, not the models, is what you are actually designing.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "Queries are not equally hard, but a single deployed model spends the same compute on all of them. A cascade puts a small model first, accepts its answer when it is confident, and escalates only the rest to a larger one. Early-exit is the same idea inside a single network: attach classifiers to intermediate layers and stop as soon as one is confident enough.",
-          "The economics are usually compelling because cost ratios between model tiers are large — often ten to twenty times — while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
-          "Everything therefore depends on the deferral rule being able to tell hard from easy. That is a strictly weaker requirement than answering correctly — the small model does not need to solve the hard queries, only to recognise that it cannot."
+          "The economics are usually compelling because cost ratios between model tiers are large, often ten to twenty times, while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
+          "Everything therefore depends on the deferral rule being able to tell hard from easy. That is a strictly weaker requirement than answering correctly: the small model does not need to solve the hard queries, only to recognise that it cannot."
         ]
       },
       {
@@ -60,16 +60,16 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Does the confidence signal actually help?",
         "paras": [
-          "It has to be checked against a control, because a cascade that defers a fixed fraction of traffic will improve accuracy whether or not its deferral rule is informative — you are sending queries to a better model, so accuracy rises regardless. The only meaningful comparison is against deferring the SAME fraction at random.",
+          "It has to be checked against a control, because a cascade that defers a fixed fraction of traffic will improve accuracy whether or not its deferral rule is informative: you are sending queries to a better model, so accuracy rises regardless. The only meaningful comparison is against deferring the SAME fraction at random.",
           "Simulated over 4,000 queries with a small model at 50.4 percent accuracy costing 1 unit and a large model at 82.5 percent costing 20. Deferring 30.4 percent by confidence gave 66.4 percent accuracy against 60.3 percent for random deferral at the same rate. Deferring 50.1 percent gave 73.7 percent against 66.4 percent random, at a blended cost of 11.03 per query. Deferring 69.9 percent gave 79.6 percent against 72.9 percent random.",
-          "So the confidence signal is worth about six to seven accuracy points over random at every operating point — that gap, not the headline accuracy, is what the deferral rule is contributing. Report it that way, because a cascade evaluated without the random control looks far better than it is.",
-          "Two practical notes. The threshold should be chosen from a target cost or a target accuracy on a validation set, and then monitored, because the deferral rate drifts as traffic changes — a cascade tuned on last quarter's queries can quietly start deferring everything. And cascades interact badly with latency guarantees: the deferred path pays both models' latency, so the tail latency is worse than the large model alone, which matters more than the mean for anything interactive."
+          "So the confidence signal is worth about six to seven accuracy points over random at every operating point: that gap, not the headline accuracy, is what the deferral rule is contributing. Report it that way, because a cascade evaluated without the random control looks far better than it is.",
+          "Two practical notes. The threshold should be chosen from a target cost or a target accuracy on a validation set, and then monitored, because the deferral rate drifts as traffic changes: a cascade tuned on last quarter's queries can quietly start deferring everything. And cascades interact badly with latency guarantees: the deferred path pays both models' latency, so the tail latency is worse than the large model alone, which matters more than the mean for anything interactive."
         ]
       }
     ],
     "takeaways": [
       "Accept the small model's answer when it is confident and escalate otherwise; this needs only that the small model can RECOGNISE hard queries, not solve them.",
-      "Always compare against deferring the same fraction at random — measured, confidence-based deferral was worth 6-7 accuracy points over that control at every operating point.",
+      "Always compare against deferring the same fraction at random: measured, confidence-based deferral was worth 6-7 accuracy points over that control at every operating point.",
       "The small model's cost is paid on every query, so cascades need a large cost ratio; and the deferred path pays both latencies, so tail latency is worse than the large model alone."
     ],
     "demo": "model-cascade"

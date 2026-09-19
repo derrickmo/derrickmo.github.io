@@ -47,7 +47,7 @@ window.DM_LESSON_BODIES = {
             "This is what the frameworks are underneath, which is why it is worth writing once by hand."
           ],
           "code": "# 1. PARAMS ARE A PYTREE. The tree structure IS the registry.\nparams = {\"layer1\": {\"w\": W1, \"b\": b1},\n          \"layer2\": {\"w\": W2, \"b\": b2}}\ngrads  = grad(loss)(params, X, Y)      # SAME tree structure\nparams = tree_map(lambda p, g: p - lr*g, params, grads)   # the WHOLE update\n#   No .parameters(), no named_parameters walk, no module registry -\n#   the correspondence is STRUCTURAL. Model code and optimizer code\n#   never need to know about each other.\n\n# 2. AN OPTIMIZER IS A PAIR OF PURE FUNCTIONS = Optax's\n#    GradientTransformation:\n#      init  : params -> state\n#      update: (grads, state, params) -> (updates, new_state)\n#    Because they're pure, they COMPOSE - chaining is a LIST, not a\n#    class hierarchy:\ntx = chain(\n  clip_by_global_norm(1.0),   # ★ ORDER IS SEMANTICS\n  scale_by_adam(),            #   clip BEFORE the optimizer bounds the\n  scale_by_schedule(sched),   #   RAW gradient; clip after bounds the\n  scale(-1.0),                #   already-SCALED update. Different\n)                             #   algorithms, no error either way.\n\nstate = tx.init(params)\nupdates, state = tx.update(grads, state, params)\nparams = tree_map(add, params, updates)\n\n# THE PAYOFF: the optimizer is a VALUE. You can log it, checkpoint it,\n# swap it, or build one that didn't exist - without subclassing.",
-          "caption": "Chaining is function composition, so the optimizer becomes a value you compose rather than an object you configure — and order in the chain is the algorithm."
+          "caption": "Chaining is function composition, so the optimizer becomes a value you compose rather than an object you configure, and order in the chain is the algorithm."
         },
         {
           "h": "What was measured, and the regime each result holds in",
@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "Three results, and the caveats are the reason to trust the first three numbers."
           ],
           "code": "# CONDITIONING: on an ill-conditioned problem\n#   plain SGD   final loss 10.0\n#   Adam        final loss 0.046\n#   Same story as 04-08: the condition number explains why per-parameter\n#   normalization helps, and it is the same reason batch norm and\n#   careful scaling help.\n\n# ★ CLIPPING: a high-LR run diverged to inf; clip_by_global_norm(1.0)\n#   chained BEFORE the optimizer brought it to 9.38 finite.\n#   ⚠ THE DEMO HAD TO USE PLAIN SGD ON A LINEAR MODEL - with Adam it\n#     WOULD NOT DIVERGE, because Adam's per-parameter normalization\n#     already bounds the effective step.\n#   ★ THAT CONSTRAINT IS THE FINDING: clipping is load-bearing exactly\n#     where the optimizer is NOT already adaptive - plain SGD, and the\n#     rare-but-large gradient spikes that adaptivity smooths over.\n\n# SCHEDULES: warmup + cosine 2.10  vs  constant-at-peak 2.97\n#   ⚠ AND THE REGIME: this held in the ILL-CONDITIONED, FULL-BATCH-SGD\n#     setting. With a TUNED CONSTANT rate and an adaptive optimizer the\n#     advantage largely disappears.\n#   ★ So the honest claim is not \"schedules beat constants\" but\n#     \"warmup+decay beats a constant AT THE PEAK RATE\" - which is a\n#     comparison against an unfairly-chosen baseline unless you say so.\n\n# ⚠ A PURITY GOTCHA worth remembering: int() on a TRACED step counter\n#   crashes inside a jitted update. The step is a traced value, so\n#   schedules must be computed with array ops, not Python arithmetic -\n#   the same class of error as a Python `if` on a tracer (22-01).",
-          "caption": "Each result comes with the regime it holds in — and the clipping demo needing plain SGD is itself the finding about when clipping matters."
+          "caption": "Each result comes with the regime it holds in, and the clipping demo needing plain SGD is itself the finding about when clipping matters."
         }
       ],
       "useCases": [
@@ -182,12 +182,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ The whole update is one tree_map",
-        "back": "θ ← tree_map(λ p,u: p+u, θ, Δ), because grad of a pytree function returns a pytree with the SAME structure. No .parameters(), no registry — the correspondence is STRUCTURAL, which is why model and optimizer code stay independent."
+        "back": "θ ← tree_map(λ p,u: p+u, θ, Δ), because grad of a pytree function returns a pytree with the SAME structure. No .parameters(), no registry. The correspondence is STRUCTURAL, which is why model and optimizer code stay independent."
       },
       {
         "type": "formula",
         "front": "★ An optimizer = (init, update), so they CHAIN",
-        "back": "init: θ→s₀ · update: (g,s,θ)→(Δ,s′). That IS Optax's GradientTransformation. Because they're pure, composition is function composition — a LIST, not a class hierarchy. The optimizer becomes a VALUE you can log, checkpoint, swap."
+        "back": "init: θ→s₀ · update: (g,s,θ)→(Δ,s′). That IS Optax's GradientTransformation. Because they're pure, composition is function composition, a LIST, not a class hierarchy. The optimizer becomes a VALUE you can log, checkpoint, swap."
       },
       {
         "type": "pitfall",
@@ -197,17 +197,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "Global-norm clipping",
-        "back": "g ← g·min(1, c/‖g‖₂) — rescaling the GLOBAL norm preserves the update DIRECTION and limits only magnitude. Per-element clipping changes where you're going, which destroys the justification for the step."
+        "back": "g ← g·min(1, c/‖g‖₂): rescaling the GLOBAL norm preserves the update DIRECTION and limits only magnitude. Per-element clipping changes where you're going, which destroys the justification for the step."
       },
       {
         "type": "intuition",
         "front": "★ Why the clip demo needed plain SGD",
-        "back": "With Adam the run WOULDN'T diverge — per-parameter normalization already bounds the effective step. That constraint IS the finding: clipping is load-bearing exactly where the optimizer is NOT already adaptive (plus rare large spikes and early training)."
+        "back": "With Adam the run WOULDN'T diverge: per-parameter normalization already bounds the effective step. That constraint IS the finding: clipping is load-bearing exactly where the optimizer is NOT already adaptive (plus rare large spikes and early training)."
       },
       {
         "type": "formula",
         "front": "Adam vs SGD, ill-conditioned",
-        "back": "0.046 vs 10.0 — the condition-number story from 04-08. Adaptive optimizers COMPENSATE for badly scaled curvature; they don't make conditioning stop mattering."
+        "back": "0.046 vs 10.0, the condition-number story from 04-08. Adaptive optimizers COMPENSATE for badly scaled curvature; they don't make conditioning stop mattering."
       },
       {
         "type": "pitfall",
@@ -217,27 +217,27 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Warmup and decay solve DIFFERENT problems",
-        "back": "WARMUP: early steps are dangerous because gradient estimates are poor and optimizer state is uninitialized — matters more at large batch. DECAY: a large step can't settle into a minimum. Use warmup ~always at scale; decay when the endpoint matters."
+        "back": "WARMUP: early steps are dangerous because gradient estimates are poor and optimizer state is uninitialized, matters more at large batch. DECAY: a large step can't settle into a minimum. Use warmup ~always at scale; decay when the endpoint matters."
       },
       {
         "type": "pitfall",
         "front": "int() on a traced step counter crashes",
-        "back": "Inside a jitted update the step is a TRACED value, so schedules must use array ops rather than Python arithmetic — the same class of error as a Python `if` on a tracer."
+        "back": "Inside a jitted update the step is a TRACED value, so schedules must use array ops rather than Python arithmetic, the same class of error as a Python `if` on a tracer."
       },
       {
         "type": "intuition",
         "front": "Set the clip threshold from the NORM DISTRIBUTION",
-        "back": "Log gradient norms for a few hundred steps; put the threshold above the bulk, below the spikes — it should fire on a small % of steps. Constant firing means the LR is too high and clipping is masking it. The norm is LEADING; loss is lagging."
+        "back": "Log gradient norms for a few hundred steps; put the threshold above the bulk, below the spikes. It should fire on a small % of steps. Constant firing means the LR is too high and clipping is masking it. The norm is LEADING; loss is lagging."
       },
       {
         "type": "intuition",
         "front": "The explicit state reveals a memory fact",
-        "back": "Adam's state is 2× the parameter count, readable straight off the init function. That's the fact ZeRO/FSDP exploit — optimizer state is 12 of 16 bytes per parameter, so sharding it is the cheapest stage. True in PyTorch too, just invisible."
+        "back": "Adam's state is 2× the parameter count, readable straight off the init function. That's the fact ZeRO/FSDP exploit: optimizer state is 12 of 16 bytes per parameter, so sharding it is the cheapest stage. True in PyTorch too, just invisible."
       },
       {
         "type": "intuition",
         "front": "Why teach it without the libraries",
-        "back": "Removing the library removes the option of teaching API surface and leaves the MECHANISM — which is what explains behaviour the docs don't mention (e.g. why chain order matters). Not a substitute for using the library; the thing that makes it make sense."
+        "back": "Removing the library removes the option of teaching API surface and leaves the MECHANISM, which is what explains behaviour the docs don't mention (e.g. why chain order matters). Not a substitute for using the library; the thing that makes it make sense."
       }
     ],
     "refs": [

@@ -182,17 +182,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "The factorization that ends the guessing",
-        "back": "P(correct) = recall@k × P(correct | evidence present). 0.55 could be 0.95×0.58 (generation) or 0.60×0.92 (retrieval) — same aggregate, OPPOSITE work. And compute the second factor only on the retrieval-succeeded SUBSET."
+        "back": "P(correct) = recall@k × P(correct | evidence present). 0.55 could be 0.95×0.58 (generation) or 0.60×0.92 (retrieval): same aggregate, OPPOSITE work. And compute the second factor only on the retrieval-succeeded SUBSET."
       },
       {
         "type": "intuition",
         "front": "★ The faithful/correct 2×2",
-        "back": "faithful+correct = healthy · faithful+incorrect = retrieval failed (reassuring) · unfaithful+incorrect = hallucination · **unfaithful+CORRECT = the dangerous cell** — parametric memory, scores as success, fails when your corpus disagrees."
+        "back": "faithful+correct = healthy · faithful+incorrect = retrieval failed (reassuring) · unfaithful+incorrect = hallucination · **unfaithful+CORRECT = the dangerous cell**: parametric memory, scores as success, fails when your corpus disagrees."
       },
       {
         "type": "formula",
         "front": "Faithfulness = a claim-level ratio",
-        "back": "supported claims / total claims. DECOMPOSE FIRST — a whole-answer verdict on a 5-sentence response is nearly a coin flip; claim-level correlates better with humans AND localizes the invented sentence."
+        "back": "supported claims / total claims. DECOMPOSE FIRST: a whole-answer verdict on a 5-sentence response is nearly a coin flip; claim-level correlates better with humans AND localizes the invented sentence."
       },
       {
         "type": "intuition",
@@ -202,7 +202,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "★ Retrieval ALWAYS returns k chunks",
-        "back": "Similarity search has no notion of \"nothing matched\" — it returns the k nearest regardless of distance. So the generator is always handed plausible passages. Without UNANSWERABLE questions you never measure whether it can decline."
+        "back": "Similarity search has no notion of \"nothing matched\": it returns the k nearest regardless of distance. So the generator is always handed plausible passages. Without UNANSWERABLE questions you never measure whether it can decline."
       },
       {
         "type": "pitfall",
@@ -212,12 +212,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Measure abstention in BOTH directions",
-        "back": "Abstention rate on unanswerable questions AND false-abstention on answerable ones. It's a threshold trade-off — moving one moves the other, so a single number hides the cost."
+        "back": "Abstention rate on unanswerable questions AND false-abstention on answerable ones. It's a threshold trade-off: moving one moves the other, so a single number hides the cost."
       },
       {
         "type": "intuition",
         "front": "Context precision matters too",
-        "back": "The fraction of retrieved chunks that are relevant. Low precision wastes context budget and adds distracting text — and faithfulness tends to FALL as chunk count grows, so evaluate context size against faithfulness, not just recall."
+        "back": "The fraction of retrieved chunks that are relevant. Low precision wastes context budget and adds distracting text, and faithfulness tends to FALL as chunk count grows, so evaluate context size against faithfulness, not just recall."
       },
       {
         "type": "pitfall",
@@ -227,7 +227,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Faithfulness needs no gold answer",
-        "back": "It compares the answer to the context it was GIVEN — so it is computable on live traffic. That property makes it one of the few real quality metrics available in production monitoring."
+        "back": "It compares the answer to the context it was GIVEN, so it is computable on live traffic. That property makes it one of the few real quality metrics available in production monitoring."
       },
       {
         "type": "intuition",
@@ -237,7 +237,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "The statistics, skipped as reliably here as anywhere",
-        "back": "SE = √(p(1−p)/n) ≈ ±3.5 pts at n=200 — a 3-point \"win\" is noise. Use a PAIRED per-question test: question difficulty is the dominant variance component and pairing removes it."
+        "back": "SE = √(p(1−p)/n) ≈ ±3.5 pts at n=200: a 3-point \"win\" is noise. Use a PAIRED per-question test: question difficulty is the dominant variance component and pairing removes it."
       }
     ],
     "refs": [

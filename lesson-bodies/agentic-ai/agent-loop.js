@@ -182,17 +182,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The module's method",
-        "back": "The agent literature is mostly CLAIMS. Every lesson here plants a known ground truth, measures the technique against it, and reports the CONDITION under which it holds. The finding is never \"it works\" — it's \"it works when X\", and X is measurable."
+        "back": "The agent literature is mostly CLAIMS. Every lesson here plants a known ground truth, measures the technique against it, and reports the CONDITION under which it holds. The finding is never \"it works\". It's \"it works when X\", and X is measurable."
       },
       {
         "type": "formula",
         "front": "★ The three-rung ladder",
-        "back": "model alone 0.000 (GROUNDING gap — it cannot know) → +one tool 0.333 (grounded, single-fact only) → +loop 1.000 (COMPOSITION). Two thirds of the gain was HAVING A TOOL. Reporting 1.000 alone credits the loop with all of it."
+        "back": "model alone 0.000 (GROUNDING gap, it cannot know) → +one tool 0.333 (grounded, single-fact only) → +loop 1.000 (COMPOSITION). Two thirds of the gain was HAVING A TOOL. Reporting 1.000 alone credits the loop with all of it."
       },
       {
         "type": "intuition",
         "front": "What the loop actually buys",
-        "back": "Composition — a lookup CONDITIONED on a previous lookup. For depth-1 tasks it adds steps, latency and failure modes for nothing. The loop isn't a general upgrade; it's the mechanism for compositional DEPTH."
+        "back": "Composition: a lookup CONDITIONED on a previous lookup. For depth-1 tasks it adds steps, latency and failure modes for nothing. The loop isn't a general upgrade; it's the mechanism for compositional DEPTH."
       },
       {
         "type": "formula",
@@ -202,12 +202,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "The cost of robustness, priced",
-        "back": "Flaky tool (~⅓ failure): 0.708 → 1.000 with observe-and-retry, at +10 tool calls. Both halves matter — retries are the highest-value pattern in the loop AND the reason budgets are mandatory. Same mechanism, both effects."
+        "back": "Flaky tool (~⅓ failure): 0.708 → 1.000 with observe-and-retry, at +10 tool calls. Both halves matter. Retries are the highest-value pattern in the loop AND the reason budgets are mandatory. Same mechanism, both effects."
       },
       {
         "type": "pitfall",
         "front": "The retry must DIFFER",
-        "back": "A blind repeat of an identical malformed call fails identically. Feeding the error back as an OBSERVATION is what makes the next attempt different — so the error message is INPUT to the next decision, not a log line."
+        "back": "A blind repeat of an identical malformed call fails identically. Feeding the error back as an OBSERVATION is what makes the next attempt different, so the error message is INPUT to the next decision, not a log line."
       },
       {
         "type": "intuition",
@@ -222,12 +222,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "The budget alone doesn't bound cost",
-        "back": "One step can be arbitrarily expensive — long context, big tool result, retry storm. Cap SPEND and WALL-CLOCK independently and treat whichever binds first as the real limit. The cost distribution is heavy-tailed; the median won't warn you."
+        "back": "One step can be arbitrarily expensive: long context, big tool result, retry storm. Cap SPEND and WALL-CLOCK independently and treat whichever binds first as the real limit. The cost distribution is heavy-tailed; the median won't warn you."
       },
       {
         "type": "intuition",
         "front": "Why the toy is deterministic and offline",
-        "back": "So the ground truth is KNOWN and every claim is graded against a planted answer. A rule-based policy replaces the model deliberately — removing model variance makes the ARCHITECTURE's contribution visible in isolation."
+        "back": "So the ground truth is KNOWN and every claim is graded against a planted answer. A rule-based policy replaces the model deliberately. Removing model variance makes the ARCHITECTURE's contribution visible in isolation."
       },
       {
         "type": "pitfall",
@@ -236,7 +236,7 @@ window.DM_LESSON_BODIES = {
       },
       {
         "type": "intuition",
-        "front": "What the loop borrows from RL — and what it doesn't",
+        "front": "What the loop borrows from RL, and what it doesn't",
         "back": "BORROWS: perceive/act structure, trajectories, horizon compounding. LACKS: any REWARD SIGNAL (so it does not improve by doing the task again), value function, convergence, Markov state. Improvement must come from OUTSIDE the loop."
       }
     ],

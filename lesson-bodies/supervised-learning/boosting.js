@@ -12,7 +12,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "What does gradient boosting actually fit at each step?",
-          "a": "A weak learner to the negative gradient of the loss with respect to the current predictions — the pseudo-residuals. For squared loss those are ordinary residuals."
+          "a": "A weak learner to the negative gradient of the loss with respect to the current predictions, the pseudo-residuals. For squared loss those are ordinary residuals."
         },
         {
           "q": "Why are the base learners deliberately weak?",
@@ -44,7 +44,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "How do you regularize a boosted ensemble?",
-          "a": "Shrinkage, tree depth or leaf count, subsampling of rows and columns, minimum child weight, and L1/L2 penalties on leaf values — plus early stopping on a validation set."
+          "a": "Shrinkage, tree depth or leaf count, subsampling of rows and columns, minimum child weight, and L1/L2 penalties on leaf values, plus early stopping on a validation set."
         },
         {
           "q": "Does boosting overfit as you add trees?",
@@ -66,7 +66,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Why is boosting still the default for tabular data?",
-          "a": "Several properties line up with what tabular data actually looks like. Features are heterogeneous — different units, scales and meanings — and trees are invariant to monotone transformations of any individual feature, so no scaling or normalization is needed and skewed distributions cause no trouble. Interactions are captured automatically by successive splits without being specified. Categorical and missing values can be handled natively, with a learned default direction for missingness. The additive form with shrinkage gives fine-grained control over capacity, and early stopping on a validation set is straightforward. Meanwhile the inductive biases that make deep networks powerful — weight sharing, locality, smoothness over a continuous input space — correspond to structure that tabular data does not have. Empirically the benchmark record is consistent: on medium-sized tabular problems, gradient-boosted trees match or beat neural approaches at a fraction of the tuning effort, and papers claiming otherwise have repeatedly failed to replicate under equal tuning budgets.",
+          "a": "Several properties line up with what tabular data actually looks like. Features are heterogeneous (different units, scales and meanings), and trees are invariant to monotone transformations of any individual feature, so no scaling or normalization is needed and skewed distributions cause no trouble. Interactions are captured automatically by successive splits without being specified. Categorical and missing values can be handled natively, with a learned default direction for missingness. The additive form with shrinkage gives fine-grained control over capacity, and early stopping on a validation set is straightforward. Meanwhile the inductive biases that make deep networks powerful (weight sharing, locality, smoothness over a continuous input space) correspond to structure that tabular data does not have. Empirically the benchmark record is consistent: on medium-sized tabular problems, gradient-boosted trees match or beat neural approaches at a fraction of the tuning effort, and papers claiming otherwise have repeatedly failed to replicate under equal tuning budgets.",
           "deepDive": {
             "q": "When SHOULD you reach for a neural network on tabular data?",
             "a": "When there is structure trees cannot exploit: very high-cardinality categoricals that benefit from learned embeddings, multi-modal inputs where a text or image column must be encoded jointly, transfer from a related pretrained model, or when the tabular model must be one differentiable component of a larger end-to-end system."
@@ -74,19 +74,19 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Boosting is sensitive to label noise. Explain the mechanism and the remedies.",
-          "a": "The algorithm concentrates on examples with large loss, and a mislabeled example is by construction an example with large loss that cannot be fixed. Each round it receives more attention, so the ensemble spends increasing capacity fitting a wrong answer, and the effect compounds because later trees see the residual that earlier trees failed to remove. AdaBoost's exponential loss makes this worst, since weights grow exponentially in the margin, which is why AdaBoost is notably fragile on noisy data. The remedies follow the mechanism. Use a loss with bounded influence — Huber for regression, or logistic rather than exponential for classification — so a single bad point cannot dominate. Reduce the learning rate so no round commits hard. Subsample rows per tree, which means a noisy point is absent from many trees. Cap depth so no single tree can isolate individual points. And early-stop on validation, since the divergence between training and validation loss is exactly where noise-fitting begins."
+          "a": "The algorithm concentrates on examples with large loss, and a mislabeled example is by construction an example with large loss that cannot be fixed. Each round it receives more attention, so the ensemble spends increasing capacity fitting a wrong answer, and the effect compounds because later trees see the residual that earlier trees failed to remove. AdaBoost's exponential loss makes this worst, since weights grow exponentially in the margin, which is why AdaBoost is notably fragile on noisy data. The remedies follow the mechanism. Use a loss with bounded influence (Huber for regression, or logistic rather than exponential for classification), so a single bad point cannot dominate. Reduce the learning rate so no round commits hard. Subsample rows per tree, which means a noisy point is absent from many trees. Cap depth so no single tree can isolate individual points. And early-stop on validation, since the divergence between training and validation loss is exactly where noise-fitting begins."
         },
         {
           "q": "How do the main implementations differ, and does it matter in practice?",
-          "a": "XGBoost grows trees level-wise (depth-first to a uniform depth) with second-order gains and strong regularization, which makes it predictable and well-behaved. LightGBM grows leaf-wise, always splitting the leaf with the highest gain, which reaches lower loss with fewer leaves and is faster on large data, but overfits more readily on small data unless the number of leaves is constrained — the different growth policy is the main behavioural difference to know. LightGBM also bins features into histograms, which is where much of its speed comes from. CatBoost targets categorical features with ordered target statistics and uses ordered boosting to avoid the target leakage that naive target encoding introduces, and it tends to need less tuning. In practice all three land in a similar accuracy band with proper tuning, so the choice is usually driven by data shape and by categorical handling rather than by a real accuracy gap."
+          "a": "XGBoost grows trees level-wise (depth-first to a uniform depth) with second-order gains and strong regularization, which makes it predictable and well-behaved. LightGBM grows leaf-wise, always splitting the leaf with the highest gain, which reaches lower loss with fewer leaves and is faster on large data, but overfits more readily on small data unless the number of leaves is constrained: the different growth policy is the main behavioural difference to know. LightGBM also bins features into histograms, which is where much of its speed comes from. CatBoost targets categorical features with ordered target statistics and uses ordered boosting to avoid the target leakage that naive target encoding introduces, and it tends to need less tuning. In practice all three land in a similar accuracy band with proper tuning, so the choice is usually driven by data shape and by categorical handling rather than by a real accuracy gap."
         },
         {
           "q": "How would you tune a gradient boosting model efficiently?",
-          "a": "Exploit the structure of the hyperparameters instead of searching blindly. Fix a low learning rate — 0.05 or 0.1 — and set the number of trees by early stopping rather than tuning it, since the two are coupled and early stopping resolves the coupling for free. Then tune capacity first, because it matters most: max depth or number of leaves, and minimum child weight. Then tune the stochastic regularizers, subsample and colsample, which typically want values around 0.7 to 0.9. Then the explicit penalties lambda and alpha, which usually matter least. Only at the end, if the budget allows, lower the learning rate further and let the tree count rise, which reliably buys a small improvement at proportional cost. Use a validation split that respects the data's structure — grouped or time-based if applicable — otherwise every number above is measured against a leak."
+          "a": "Exploit the structure of the hyperparameters instead of searching blindly. Fix a low learning rate, 0.05 or 0.1, and set the number of trees by early stopping rather than tuning it, since the two are coupled and early stopping resolves the coupling for free. Then tune capacity first, because it matters most: max depth or number of leaves, and minimum child weight. Then tune the stochastic regularizers, subsample and colsample, which typically want values around 0.7 to 0.9. Then the explicit penalties lambda and alpha, which usually matter least. Only at the end, if the budget allows, lower the learning rate further and let the tree count rise, which reliably buys a small improvement at proportional cost. Use a validation split that respects the data's structure, grouped or time-based if applicable, otherwise every number above is measured against a leak."
         },
         {
           "q": "How do you interpret a boosted model responsibly?",
-          "a": "Start by knowing what the built-in importances mean, because they are frequently misread. Gain-based importance measures total loss reduction attributed to a feature, and it is biased toward high-cardinality and continuous features, which offer more possible split points. Split-count importance is worse for the same reason. Both are global and cannot tell you the direction of an effect. SHAP values are the usual improvement: they are per-prediction, signed, and additive, and the TreeSHAP algorithm computes them exactly in polynomial time for tree ensembles, which is why they are practical here and not elsewhere. Even then, correlated features share credit arbitrarily, so an unimportant-looking feature may be a perfect substitute for an important one. For causal questions none of this suffices — an importance is a statement about the model, not about the world, and the honest move is to say so and reach for an interventional design."
+          "a": "Start by knowing what the built-in importances mean, because they are frequently misread. Gain-based importance measures total loss reduction attributed to a feature, and it is biased toward high-cardinality and continuous features, which offer more possible split points. Split-count importance is worse for the same reason. Both are global and cannot tell you the direction of an effect. SHAP values are the usual improvement: they are per-prediction, signed, and additive, and the TreeSHAP algorithm computes them exactly in polynomial time for tree ensembles, which is why they are practical here and not elsewhere. Even then, correlated features share credit arbitrarily, so an unimportant-looking feature may be a perfect substitute for an important one. For causal questions none of this suffices: an importance is a statement about the model, not about the world, and the honest move is to say so and reach for an interventional design."
         }
       ]
     },
@@ -114,7 +114,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Bagging vs boosting",
-        "back": "Bagging: parallel, independent, attacks variance. Boosting: sequential, error-correcting, attacks bias — and can overfit with more rounds."
+        "back": "Bagging: parallel, independent, attacks variance. Boosting: sequential, error-correcting, attacks bias, and can overfit with more rounds."
       },
       {
         "type": "intuition",
@@ -124,7 +124,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Why trees win on tabular data",
-        "back": "Monotone-invariant per feature, automatic interactions, native categoricals and missingness — and no spatial structure for a CNN to exploit."
+        "back": "Monotone-invariant per feature, automatic interactions, native categoricals and missingness, and no spatial structure for a CNN to exploit."
       },
       {
         "type": "intuition",
@@ -139,7 +139,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Adding trees indefinitely",
-        "back": "Unlike bagging, boosting does overfit with rounds. Training loss keeps falling while validation turns up — early stopping is mandatory."
+        "back": "Unlike bagging, boosting does overfit with rounds. Training loss keeps falling while validation turns up: early stopping is mandatory."
       },
       {
         "type": "pitfall",

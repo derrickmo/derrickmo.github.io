@@ -70,26 +70,26 @@ window.DM_SUBLESSON_CTX = {
           "Accept item i with probability k/i. The induction is short and worth carrying:"
         ],
         "tex": "P(\\text{item } i \\text{ in reservoir after } n) = \\frac{k}{i}\\prod_{j=i+1}^{n}\\left(1 - \\frac{k}{j}\\cdot\\frac{1}{k}\\right) = \\frac{k}{n}",
-        "texNote": "Each surviving step multiplies by (1 - 1/j), and the product telescopes to i/n, cancelling the k/i to leave k/n — the same for every item, which is the definition of uniform. One pass, O(k) memory, no knowledge of n."
+        "texNote": "Each surviving step multiplies by (1 - 1/j), and the product telescopes to i/n, cancelling the k/i to leave k/n, the same for every item, which is the definition of uniform. One pass, O(k) memory, no knowledge of n."
       },
       {
         "h": "In code",
         "code": "import random\n\ndef reservoir(stream, k):\n    res = []\n    for i, item in enumerate(stream, start=1):\n        if i <= k:\n            res.append(item)\n        else:\n            j = random.randrange(i)      # 0..i-1, so P(j < k) = k/i\n            if j < k:\n                res[j] = item            # evict a uniformly chosen incumbent\n    return res",
-        "caption": "Eight lines. The subtle part is that a single randrange does both jobs — deciding whether to accept AND which slot to overwrite."
+        "caption": "Eight lines. The subtle part is that a single randrange does both jobs: deciding whether to accept AND which slot to overwrite."
       },
       {
         "h": "Where it actually matters",
         "paras": [
           "Any time you need an unbiased sample of a stream too large to store: training-data subsampling from a firehose, log sampling for debugging, or holding a representative window of production traffic for drift monitoring.",
           "The weighted version (A-Res) generalises it by giving each item a key of u^(1/w) for uniform u and weight w, then keeping the k largest keys. That is how you sample proportional to importance without a second pass.",
-          "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs — one per stratum — are the fix, and choosing between them is a modelling decision rather than an implementation detail."
+          "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs, one per stratum, are the fix, and choosing between them is a modelling decision rather than an implementation detail."
         ]
       }
     ],
     "takeaways": [
       "One pass, O(k) memory, uniform over a stream whose length you never learn.",
       "The accept probability k/i is what makes the telescoping product come out to k/n for every item.",
-      "Uniform over items is not the same as representative — a skewed stream needs a stratified reservoir."
+      "Uniform over items is not the same as representative: a skewed stream needs a stratified reservoir."
     ],
     "demo": "reservoir-sampling"
   },

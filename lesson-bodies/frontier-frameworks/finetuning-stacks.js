@@ -47,7 +47,7 @@ window.DM_LESSON_BODIES = {
             "Two structural decisions carry almost all of the benefit."
           ],
           "code": "class LoRALinear(nn.Module):\n    def __init__(self, d, r):\n        self.register_buffer(\"W\", pretrained)   # ★ BUFFER, not Parameter:\n                                                #   no grad, and no\n                                                #   OPTIMIZER STATE\n        self.A = nn.Parameter(randn(r, d) * 0.01)\n        self.B = nn.Parameter(zeros(d, r))      # ★ ZERO init\n\n    def forward(self, x):\n        return x @ self.W.T + (x @ self.A.T) @ self.B.T\n\n# ★ WHY B IS ZERO: BA = 0 at step 0, so the adapter is an exact NO-OP\n#   and training starts from the PRETRAINED function. Not a detail -\n#   it is what makes attaching an adapter safe rather than a\n#   perturbation you have to recover from.\n\n# ★ WHERE THE MEMORY SAVING REALLY COMES FROM - not the adapter size:\n#   full FT:  weights + GRADIENTS + OPTIMIZER STATE (Adam = 2x params)\n#   LoRA:     weights (frozen buffer) + tiny adapter grads + tiny state\n#   Freezing removes the LARGEST allocation in a training step. The\n#   adapter being small is almost incidental next to that.\n\n# THE PARAMETER RATIO, and an honest note about the toy:\n#   2rd/d^2 = 2r/d\n#     32x32, r=4    -> 25%     <- the toy UNDERSTATES it badly\n#     4096, r=8     -> 0.4%    <- real widths\n#   Linear in r, inverse in d - so it collapses as models get wide.\n\n# AND THE SERVING PROPERTY that drove adoption as much as the memory:\n#   the adapter is an ADDITIVE side path, so it can be MERGED into W\n#   for zero-overhead inference, or kept separate so one base serves\n#   many tasks with per-request adapters.",
-          "caption": "The frozen buffer removes gradients and optimizer state — the largest allocation in a training step — which is the saving, not the adapter's size."
+          "caption": "The frozen buffer removes gradients and optimizer state, the largest allocation in a training step, which is the saving, not the adapter's size."
         },
         {
           "h": "★ The rank sweep on a task with a KNOWN answer",
@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "Constructing the task to be exactly rank two is what makes the elbow verifiable rather than folklore."
           ],
           "code": "# THE SETUP: a regression task whose true update is EXACTLY RANK 2 by\n# construction. So the right answer is known, and the sweep is graded\n# rather than interpreted.\n#\n#   r = 1   MSE 0.96      ★ CANNOT represent a rank-2 update.\n#                           rank(BA) <= r is a MATRIX fact, so this is\n#                           a REPRESENTATIONAL limit - more steps, a\n#                           better LR, more data: none of it helps.\n#   r = 2   MSE 0.0000    ★ SNAPS to full-fine-tuning quality, at 12%\n#                           of the parameters.\n#   r = 4   plateau\n#   r = 8   plateau\n#   r = 16  plateau       -> extra rank buys NOTHING\n#\n# ★ THE ELBOW RULE: pay until you reach the task's intrinsic rank,\n#   then stop.\n#\n# ⚠ AND THE HONEST LIMIT: you do NOT know a real task's intrinsic rank.\n#   So rank is a parameter to SWEEP, not to default - and the two\n#   failure directions look completely different:\n#     too LOW  -> a hard ceiling that more training cannot move\n#                 (the diagnostic: loss plateaus far from full-FT and\n#                  is insensitive to LR and steps)\n#     too HIGH -> wasted parameters, no gain, slightly more overfitting\n\n# QLoRA - the frozen base stored in int4:\n#   base size            7.9x smaller\n#   base alone, int4     MSE 2.11    <- the quantization damage\n#   QLoRA (adapters on top of it)    MSE 0.024\n#   fp32 LoRA                        MSE 0.000\n# ★ The fp adapters, trained ON TOP of the quantized base, ABSORB most\n#   of the quantization error - 2.11 down to 0.024. Not free (0.024 vs\n#   0.000), and it recovers ~99% of the damage for a 7.9x smaller base.",
-          "caption": "A task built to be exactly rank two turns LoRA's central claim into a graded measurement — and the r=1 failure is a matrix fact, not a training problem."
+          "caption": "A task built to be exactly rank two turns LoRA's central claim into a graded measurement, and the r=1 failure is a matrix fact, not a training problem."
         }
       ],
       "useCases": [
@@ -182,7 +182,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ Rank is a HARD representational limit",
-        "back": "ΔW = BA with B∈ℝ^{d×r}, A∈ℝ^{r×d} ⇒ rank(ΔW) ≤ r. So r=1 on a rank-2 task gave MSE 0.96 — a MATRIX fact, not a tuning problem. More steps, better LR, more data: none of it moves it."
+        "back": "ΔW = BA with B∈ℝ^{d×r}, A∈ℝ^{r×d} ⇒ rank(ΔW) ≤ r. So r=1 on a rank-2 task gave MSE 0.96, a MATRIX fact, not a tuning problem. More steps, better LR, more data: none of it moves it."
       },
       {
         "type": "formula",
@@ -192,12 +192,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The two rank failures look DIFFERENT",
-        "back": "Too LOW = a hard ceiling, insensitive to LR and step count (distinctive — most hyperparameters degrade gracefully). Too HIGH = wasted params, no gain, slightly more overfitting. That asymmetry is what makes a sweep interpretable."
+        "back": "Too LOW = a hard ceiling, insensitive to LR and step count (distinctive: most hyperparameters degrade gracefully). Too HIGH = wasted params, no gain, slightly more overfitting. That asymmetry is what makes a sweep interpretable."
       },
       {
         "type": "formula",
         "front": "★ Where the memory saving REALLY comes from",
-        "back": "NOT the adapter's size — the frozen base is a BUFFER: no gradient, and no OPTIMIZER STATE (Adam = 2× params; ~12 of 16 bytes/param are optimizer-related). Freezing removes the largest allocation in a training step."
+        "back": "NOT the adapter's size. The frozen base is a BUFFER: no gradient, and no OPTIMIZER STATE (Adam = 2× params; ~12 of 16 bytes/param are optimizer-related). Freezing removes the largest allocation in a training step."
       },
       {
         "type": "pitfall",
@@ -206,23 +206,23 @@ window.DM_LESSON_BODIES = {
       },
       {
         "type": "formula",
-        "front": "The ratio — and an honest note about the toy",
+        "front": "The ratio, and an honest note about the toy",
         "back": "2rd/d² = 2r/d. 32×32 with r=4 → 25% (**the toy UNDERSTATES it badly**); width 4096 with r=8 → 0.4%. Linear in r, inverse in d, so it collapses as models get wide."
       },
       {
         "type": "intuition",
         "front": "Why B is zero-initialized",
-        "back": "BA = 0 at step 0, so the adapter is an exact NO-OP and training starts from the PRETRAINED function — not a perturbation you must recover from. That's what makes attaching an adapter safe."
+        "back": "BA = 0 at step 0, so the adapter is an exact NO-OP and training starts from the PRETRAINED function, not a perturbation you must recover from. That's what makes attaching an adapter safe."
       },
       {
         "type": "formula",
         "front": "★ QLoRA: the adapters ABSORB the damage",
-        "back": "int4 base 7.9× smaller · base alone MSE **2.11** (the quantization damage) · QLoRA **0.024** · fp32 LoRA **0.000**. The adapters are trained WITH the quantized base in the forward pass, so they learn to compensate. ~99% recovered — not free."
+        "back": "int4 base 7.9× smaller · base alone MSE **2.11** (the quantization damage) · QLoRA **0.024** · fp32 LoRA **0.000**. The adapters are trained WITH the quantized base in the forward pass, so they learn to compensate. ~99% recovered, not free."
       },
       {
         "type": "intuition",
         "front": "Why a constructed task beats a benchmark table",
-        "back": "PEFT accuracy is a SATURATED axis, so near-identical scores can't distinguish \"the update is low rank\" from \"the benchmark is insensitive\". A task built to be rank-2 makes each rank a GRADED measurement — and the theory fails exactly where predicted."
+        "back": "PEFT accuracy is a SATURATED axis, so near-identical scores can't distinguish \"the update is low rank\" from \"the benchmark is insensitive\". A task built to be rank-2 makes each rank a GRADED measurement, and the theory fails exactly where predicted."
       },
       {
         "type": "intuition",
@@ -237,7 +237,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Ask WHICH memory term a method removes",
-        "back": "Parameters, gradients, optimizer state, activations — four budgets with different scaling. LoRA eliminates optimizer state by freezing; FSDP/ZeRO SHARDS it (Adam is elementwise, so shards update independently). They compose."
+        "back": "Parameters, gradients, optimizer state, activations, four budgets with different scaling. LoRA eliminates optimizer state by freezing; FSDP/ZeRO SHARDS it (Adam is elementwise, so shards update independently). They compose."
       }
     ],
     "refs": [

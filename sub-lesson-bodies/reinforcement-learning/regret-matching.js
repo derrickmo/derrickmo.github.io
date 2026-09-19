@@ -67,7 +67,7 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "regret-matching",
   "lesson": {
     "title": "Regret Matching & Nash Equilibrium",
-    "oneLine": "Play each action in proportion to how much you regret not having played it — and the time-average converges to equilibrium.",
+    "oneLine": "Play each action in proportion to how much you regret not having played it, and the time-average converges to equilibrium.",
     "sections": [
       {
         "h": "The intuition",
@@ -82,25 +82,25 @@ window.DM_SUBLESSON_CTX = {
           "Cumulative regret for action a is how much more you would have scored by always choosing it. The next policy is regret, clipped at zero, normalised:"
         ],
         "tex": "R_T(a) = \\sum_{t=1}^{T}\\big(u_t(a) - u_t(\\sigma_t)\\big), \\qquad \\sigma_{T+1}(a) = \\frac{[R_T(a)]^{+}}{\\sum_{a'}[R_T(a')]^{+}}",
-        "texNote": "Clipping at zero matters: an action you do not regret gets no weight at all. If every regret is negative the policy falls back to uniform. Regret grows sub-linearly, so the AVERAGE regret goes to zero — which is exactly the condition for the average strategy to be an equilibrium."
+        "texNote": "Clipping at zero matters: an action you do not regret gets no weight at all. If every regret is negative the policy falls back to uniform. Regret grows sub-linearly, so the AVERAGE regret goes to zero, which is exactly the condition for the average strategy to be an equilibrium."
       },
       {
         "h": "In code",
         "code": "import numpy as np\n\ndef regret_matching(payoff, rounds=10000):\n    n = payoff.shape[0]\n    regret = np.zeros(n)\n    avg = np.zeros(n)\n    for _ in range(rounds):\n        pos = np.maximum(regret, 0)\n        p = pos / pos.sum() if pos.sum() > 0 else np.ones(n) / n\n        avg += p\n        u = payoff @ p                  # value of each action against the current mix\n        regret += u - u @ p             # regret is action value minus achieved value\n    return avg / avg.sum()              # the AVERAGE strategy is the equilibrium",
-        "caption": "Run this on rock-paper-scissors and the average converges to (1/3, 1/3, 1/3). The current strategy never settles there — only the average does."
+        "caption": "Run this on rock-paper-scissors and the average converges to (1/3, 1/3, 1/3). The current strategy never settles there: only the average does."
       },
       {
         "h": "Why this is the poker algorithm",
         "paras": [
           "Counterfactual regret minimisation is this rule applied at every information set of an imperfect-information game, with regrets weighted by the probability of reaching that decision point. It is what produced superhuman poker, and the core update is the four lines above.",
           "The distinction that trips people up: the CURRENT strategy oscillates forever and is not an equilibrium. The AVERAGE over all iterations is. Reporting the last iterate rather than the average is the classic implementation bug, and it looks like the algorithm failed to converge.",
-          "The gap between the two is large enough to be unmistakable once measured. Running regret matching on a biased rock-paper-scissors where a win over scissors pays double, the AVERAGE strategy converges to the Nash 0.5 / 0.25 / 0.25 and its exploitability falls from 0.194 at 10 iterations to 0.0079 at 10,000 and 0.0025 at 100,000. The CURRENT strategy over the same run is a pure strategy that keeps changing — 0/0/1, then 1/0/0, then 0/1/0 — with an exploitability of 1 to 2 at every checkpoint, no better at 100,000 iterations than at 10. The average is not a smoothing convenience; it is the object the theorem is about."
+          "The gap between the two is large enough to be unmistakable once measured. Running regret matching on a biased rock-paper-scissors where a win over scissors pays double, the AVERAGE strategy converges to the Nash 0.5 / 0.25 / 0.25 and its exploitability falls from 0.194 at 10 iterations to 0.0079 at 10,000 and 0.0025 at 100,000. The CURRENT strategy over the same run is a pure strategy that keeps changing (0/0/1, then 1/0/0, then 0/1/0) with an exploitability of 1 to 2 at every checkpoint, no better at 100,000 iterations than at 10. The average is not a smoothing convenience; it is the object the theorem is about."
         ]
       }
     ],
     "takeaways": [
       "Regret matching plays each action in proportion to positive cumulative regret; unregretted actions get zero weight.",
-      "The AVERAGE strategy converges to equilibrium, not the current one — averaging is not a smoothing detail, it is the result.",
+      "The AVERAGE strategy converges to equilibrium, not the current one: averaging is not a smoothing detail, it is the result.",
       "CFR is this update applied per information set, which is how imperfect-information games like poker were solved."
     ],
     "demo": "regret-matching"

@@ -48,7 +48,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "Valid output, and a different model",
         "paras": [
           "Masking the logits to a grammar guarantees the output parses, and it does that by deleting probability mass and renormalising what is left. On a 5,000-token vocabulary, a constraint admitting 2,000 arbitrary tokens retains 30.3% of the model's mass; admitting 500 retains 8.0%; admitting 50 retains 0.24%. Whatever survives is then rescaled to sum to one.",
-          "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking — does it parse — is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
+          "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking, does it parse, is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
         ]
       }
     ],

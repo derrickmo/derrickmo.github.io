@@ -79,7 +79,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The condition number sets the price",
         "paras": [
-          "The convergence rate is set by the shape of the surface, not by the learning rate. On a quadratic with eigenvalues 1 and kappa, using the optimal fixed step of 2/(1+kappa), reaching a gradient norm of 1e-6 takes 70 iterations at kappa = 10, 708 at kappa = 100 and 7,081 at kappa = 1,000 — linear in the condition number. Ten times the anisotropy costs ten times the steps.",
+          "The convergence rate is set by the shape of the surface, not by the learning rate. On a quadratic with eigenvalues 1 and kappa, using the optimal fixed step of 2/(1+kappa), reaching a gradient norm of 1e-6 takes 70 iterations at kappa = 10, 708 at kappa = 100 and 7,081 at kappa = 1,000, linear in the condition number. Ten times the anisotropy costs ten times the steps.",
           "No choice of step size escapes it, because the step that stays stable along the steep direction is far too small for the shallow one; that single scalar has to serve both. This is why so much of practical optimisation is really preconditioning. Feature scaling, normalisation layers, and the per-parameter step sizes in Adam and its relatives all earn their keep by shrinking kappa rather than by making the descent itself cleverer."
         ]
       }

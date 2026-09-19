@@ -187,16 +187,16 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The same feature made the gain AND the liability",
-        "back": "Retry gave the largest capability jump in the module (+0.56) and the unbounded cost, because retries help when failures are TRANSIENT and run away when they're PERMANENT — and the agent can't tell which from inside the loop. Ship retry and cap together."
+        "back": "Retry gave the largest capability jump in the module (+0.56) and the unbounded cost, because retries help when failures are TRANSIENT and run away when they're PERMANENT, and the agent can't tell which from inside the loop. Ship retry and cap together."
       },
       {
         "type": "pitfall",
         "front": "Tools alone looked barely worth adding",
-        "back": "0.31 → 0.41 only, because tools that fail intermittently are useless without recovery. Measuring a feature whose value is CONDITIONAL on another feature understates it — an ablation that stops early draws the wrong conclusion."
+        "back": "0.31 → 0.41 only, because tools that fail intermittently are useless without recovery. Measuring a feature whose value is CONDITIONAL on another feature understates it. An ablation that stops early draws the wrong conclusion."
       },
       {
         "type": "pitfall",
-        "front": "★ Rows 4 and 5 move zero quality — BY DESIGN",
+        "front": "★ Rows 4 and 5 move zero quality, BY DESIGN",
         "back": "Guardrail → safety only. Budget → cost bound only. An accuracy-driven evaluation deletes both WITH DATA ON ITS SIDE, and ships an agent that is capable, unsafe and financially unbounded."
       },
       {
@@ -212,7 +212,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The suite is deliberately HAZARDOUS",
-        "back": "Flaky tools, injection attempts, dead dependencies. These are ordinary production conditions, not pessimism — an agent measured only on clean tasks has not been measured."
+        "back": "Flaky tools, injection attempts, dead dependencies. These are ordinary production conditions, not pessimism. An agent measured only on clean tasks has not been measured."
       },
       {
         "type": "intuition",
@@ -222,7 +222,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "What to build next: find the worst AXIS",
-        "back": "Never measured safety or cost? Measure them — the guardrail and budget are probably missing, which is exposure not degradation. Capability weak? Split compounding (remove steps) from a local step failure. Cost weak? quadratic history → cache → tail."
+        "back": "Never measured safety or cost? Measure them. The guardrail and budget are probably missing, which is exposure not degradation. Capability weak? Split compounding (remove steps) from a local step failure. Cost weak? quadratic history → cache → tail."
       },
       {
         "type": "intuition",
@@ -232,7 +232,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The module's habit",
-        "back": "When you read a claim about agents, ask what the MEASUREMENT was and what REGIME it held in. Almost none come with either — and building the small experiment that answers it is an afternoon, against building an architecture on an unstated condition."
+        "back": "When you read a claim about agents, ask what the MEASUREMENT was and what REGIME it held in. Almost none come with either, and building the small experiment that answers it is an afternoon, against building an architecture on an unstated condition."
       },
       {
         "type": "intuition",

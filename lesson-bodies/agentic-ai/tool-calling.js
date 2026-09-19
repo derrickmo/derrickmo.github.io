@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "The measured effect on correctness is zero. The measured effect on failure CLASS is large."
           ],
           "code": "def step(action, tools):\n    spec = tools.get(action.name)\n    if spec is None:\n        return Obs(error=f\"unknown tool {action.name}; available: {list(tools)}\")\n\n    ok, err = validate(action.args, spec.schema)   # types, required,\n    if not ok:                                     # enums, ranges\n        return Obs(error=err)   # ← an OBSERVATION, not an exception:\n                                #   the loop sees it and RETRIES\n    return spec.fn(**action.args)\n\n# MEASURED: 72/72 broken calls caught, 0 false rejections,\n#           end-to-end correctness 0.57 -> 0.57 (UNCHANGED),\n#           ~10% of executions: crash -> clean retryable rejection.\n#\n# ★ SO WHAT VALIDATION IS ACTUALLY FOR: it does not make the agent\n#   smarter. It changes the CLASS of failure from unrecoverable to\n#   recoverable - and keeps a malformed argument from reaching a real\n#   system. Both are invisible in an accuracy metric, which is why\n#   this gets skipped.\n\n# THE ERROR MESSAGE IS INPUT TO THE NEXT DECISION, not a log line:\n#   BAD : \"validation failed\"\n#   GOOD: \"expected YYYY-MM-DD for `due`, got '03/04/2024'\"\n#   The second makes the retry DIFFER; the first guarantees a repeat.\n\n# AND THE LAYER ABOVE, which validation is NOT: AUTHORIZATION.\n#   valid != permitted. A well-formed delete_account call that passes\n#   every schema check is exactly the call an allowlist must stop.",
-          "caption": "Validation's measured contribution is converting crashes into observations the loop can act on — not accuracy, which it left untouched at 0.57."
+          "caption": "Validation's measured contribution is converting crashes into observations the loop can act on, not accuracy, which it left untouched at 0.57."
         }
       ],
       "useCases": [
@@ -183,12 +183,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ One number hiding three",
-        "back": "P(good call) = P(right tool) × P(parses/matches schema) × P(sensible args) — CLASSIFICATION × DECODING × REASONING. A 0.6 aggregate may be 0.99 × 0.72 × 0.85, where the cheap decoding fix beats any model change."
+        "back": "P(good call) = P(right tool) × P(parses/matches schema) × P(sensible args): CLASSIFICATION × DECODING × REASONING. A 0.6 aggregate may be 0.99 × 0.72 × 0.85, where the cheap decoding fix beats any model change."
       },
       {
         "type": "formula",
-        "front": "Selection is EASY — measure it against the baseline",
-        "back": "A tiny bag-of-words router: 1.000 vs majority-class 0.194. So you don't need the big model to route — and when selection fails, suspect confusable tool DESCRIPTIONS, not the model."
+        "front": "Selection is EASY: measure it against the baseline",
+        "back": "A tiny bag-of-words router: 1.000 vs majority-class 0.194. So you don't need the big model to route, and when selection fails, suspect confusable tool DESCRIPTIONS, not the model."
       },
       {
         "type": "formula",
@@ -203,7 +203,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ What validation MEASURED",
-        "back": "72/72 broken calls caught, 0 false rejections — and correctness 0.57 → 0.57, UNCHANGED. What changed: ~10% of executions went from crash to clean retryable REJECTION. It changes the failure CLASS, not the accuracy."
+        "back": "72/72 broken calls caught, 0 false rejections, and correctness 0.57 → 0.57, UNCHANGED. What changed: ~10% of executions went from crash to clean retryable REJECTION. It changes the failure CLASS, not the accuracy."
       },
       {
         "type": "intuition",
@@ -213,7 +213,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Zero FALSE rejections matters as much as full catch",
-        "back": "A validator that rejects legitimate calls converts working behaviour into failure — and it's the more damaging error because it's SILENT: the agent just retries and gives up."
+        "back": "A validator that rejects legitimate calls converts working behaviour into failure, and it's the more damaging error because it's SILENT: the agent just retries and gives up."
       },
       {
         "type": "intuition",
@@ -223,7 +223,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "A required field with no \"unknown\" guarantees invention",
-        "back": "If the schema demands a value the model doesn't have, the constraint leaves no legal alternative — so it fabricates. That's a SCHEMA BUG misread as a hallucination. Add nullable / explicit unknown / confidence."
+        "back": "If the schema demands a value the model doesn't have, the constraint leaves no legal alternative, so it fabricates. That's a SCHEMA BUG misread as a hallucination. Add nullable / explicit unknown / confidence."
       },
       {
         "type": "intuition",

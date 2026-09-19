@@ -37,14 +37,14 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "kalman-filter",
   "lesson": {
     "title": "Kalman Filter",
-    "oneLine": "The optimal recursive estimator for a linear-Gaussian system — and a machine whose output quality is set entirely by two noise numbers you have to supply.",
+    "oneLine": "The optimal recursive estimator for a linear-Gaussian system, and a machine whose output quality is set entirely by two noise numbers you have to supply.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "You have a system whose state evolves predictably but not perfectly, and sensors that measure it but not exactly. The Kalman filter alternates two steps forever. Predict: push the state estimate forward through the dynamics and let the uncertainty grow. Update: fold in the new measurement, weighting it against the prediction in proportion to which of the two you currently trust more.",
           "That weight is the Kalman gain, and it is the entire algorithm. If the measurement noise is large relative to the current uncertainty, the gain is small and the filter mostly believes its own prediction. If the state has drifted a lot since the last update, uncertainty has grown, the gain rises, and the measurement dominates. It is a running, automatic trade between a model and its data.",
-          "Measured on a scalar random walk with process noise 0.01 and measurement noise 1.0: raw measurements have RMSE 1.016, and the filter brings that to 0.342. The comparison that matters is against a moving average, which is what people usually reach for — the best window tested, 20 samples, gave 0.376, and both shorter and longer windows were worse. The filter beat a hand-tuned smoother without any window to tune, because it derives the equivalent quantity from the noise model."
+          "Measured on a scalar random walk with process noise 0.01 and measurement noise 1.0: raw measurements have RMSE 1.016, and the filter brings that to 0.342. The comparison that matters is against a moving average, which is what people usually reach for: the best window tested, 20 samples, gave 0.376, and both shorter and longer windows were worse. The filter beat a hand-tuned smoother without any window to tune, because it derives the equivalent quantity from the noise model."
         ]
       },
       {
@@ -63,17 +63,17 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The two numbers that decide everything",
         "paras": [
-          "The gain converges. On the test system the measured steady-state gain was 0.09512, matching the closed-form solution of the algebraic Riccati equation to five decimals. For a time-invariant system you can compute the gain once offline and skip the covariance recursion entirely — which is what an alpha-beta filter is.",
+          "The gain converges. On the test system the measured steady-state gain was 0.09512, matching the closed-form solution of the algebraic Riccati equation to five decimals. For a time-invariant system you can compute the gain once offline and skip the covariance recursion entirely, which is what an alpha-beta filter is.",
           "The failure mode in practice is almost never the algebra; it is Q and R. Sweeping the process noise across four orders of magnitude while holding everything else fixed produced RMSE of 0.738, 0.449, 0.342, 0.429 and 0.687. Too small a Q makes the filter over-confident in its model, the gain collapses to 0.010, and it lags the true state. Too large and the gain rises to 0.618, the filter chases measurement noise, and you have an expensive way of copying your sensor.",
-          "R can often be measured directly — hold the sensor still and look at its variance. Q usually cannot, because it represents everything about the real dynamics your linear model omits, so it is tuned. The principled check is the normalised innovation squared: if the filter's noise model is right, those values follow a known chi-squared distribution, so a systematic deviation tells you which of Q or R is wrong and in which direction. Tuning by eyeballing the output trace is how filters end up confidently wrong.",
-          "Finally the assumptions. Optimality requires linear dynamics and Gaussian noise. For nonlinear systems the EKF linearises about the current estimate and can diverge when the curvature is real; the UKF propagates a small set of sigma points through the true nonlinearity and is usually both more accurate and easier to implement, since it needs no Jacobians. For genuinely non-Gaussian or multi-modal state — a robot uncertain between two rooms — no amount of covariance will represent it, and a particle filter is the honest answer."
+          "R can often be measured directly: hold the sensor still and look at its variance. Q usually cannot, because it represents everything about the real dynamics your linear model omits, so it is tuned. The principled check is the normalised innovation squared: if the filter's noise model is right, those values follow a known chi-squared distribution, so a systematic deviation tells you which of Q or R is wrong and in which direction. Tuning by eyeballing the output trace is how filters end up confidently wrong.",
+          "Finally the assumptions. Optimality requires linear dynamics and Gaussian noise. For nonlinear systems the EKF linearises about the current estimate and can diverge when the curvature is real; the UKF propagates a small set of sigma points through the true nonlinearity and is usually both more accurate and easier to implement, since it needs no Jacobians. For genuinely non-Gaussian or multi-modal state, a robot uncertain between two rooms, no amount of covariance will represent it, and a particle filter is the honest answer."
         ]
       }
     ],
     "takeaways": [
       "Predict then update, with the gain automatically trading model against measurement: RMSE 1.016 to 0.342, beating the best hand-tuned moving average at 0.376 with no window to choose.",
       "The gain reaches a steady state matching the Riccati solution exactly, so a time-invariant system needs no online covariance recursion at all.",
-      "Q and R are the whole game — misspecifying Q by two orders of magnitude doubled the error in both directions, and normalised innovations are the principled way to catch it."
+      "Q and R are the whole game: misspecifying Q by two orders of magnitude doubled the error in both directions, and normalised innovations are the principled way to catch it."
     ],
     "demo": "kalman-filter"
   },

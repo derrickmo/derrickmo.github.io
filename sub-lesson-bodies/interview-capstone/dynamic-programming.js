@@ -71,7 +71,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Polynomial in the wrong variable",
         "paras": [
-          "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells — about 400 GB at four bytes — at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
+          "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells, about 400 GB at four bytes, at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
           "The memory is also usually reducible in a way that costs something. Rolling the table down to a single row takes a 1000-by-10^6 problem from 4 GB to 4 MB, but the traceback goes with it: you recover the optimal value and no longer know which items produced it, and recovering them needs either a second pass or the Hirschberg divide-and-conquer trick. Optimal substructure is what makes the recurrence correct; the table's shape is what makes it affordable, and those are separate questions."
         ]
       }

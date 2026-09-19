@@ -9,7 +9,7 @@
   "status": "LIVE",
   "lecture": {
     "title": "Training Optimisation & Distributed Systems",
-    "summary": "Master advanced training techniques — learning-rate schedulers, optimiser variants (AdaGrad → Lion), batch-size scaling laws, data-pipeline optimisation, distributed training concepts (DDP, FSDP), gradient compression, profiling (torch.profiler, roofline), and hyperparameter optimisation — on MNIST, CIFAR-10, and synthetic benchmarks.",
+    "summary": "Master advanced training techniques: learning-rate schedulers, optimiser variants (AdaGrad → Lion), batch-size scaling laws, data-pipeline optimisation, distributed training concepts (DDP, FSDP), gradient compression, profiling (torch.profiler, roofline), and hyperparameter optimisation, on MNIST, CIFAR-10, and synthetic benchmarks.",
     "prereqs": "Modules 05, 06, 15.",
     "takeaways": [
       "LR schedulers, advanced optimizers, and the batch-size linear-scaling rule.",

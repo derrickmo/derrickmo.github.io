@@ -47,7 +47,7 @@ window.DM_LESSON_BODIES = {
             "None of these are LLM-specific, which is exactly why they will outlast the API."
           ],
           "code": "# 1. RETRIES - exponential backoff WITH JITTER\n#      30%-flaky endpoint:  71.3%  ->  99.7%   (ceiling 1-0.3^5 = 99.76%)\ndelay = min(base * 2**attempt, cap) * random()   # ★ jitter, not fixed\n#    ★ RETRY ONLY TRANSIENT failures - 429, 5xx, timeouts. Retrying a\n#      400 is guaranteed waste: the request was malformed and will be\n#      malformed again.\n#    ★ JITTER beats the thundering herd: without it, every client that\n#      failed at the same moment retries at the same moment.\n#    ⚠ AND THE ASSUMPTION: retries help against INDEPENDENT failures.\n#      In a provider outage every attempt fails together, so retrying\n#      adds load without adding success -> retry budgets, circuit\n#      breakers.\n\n# 2. RATE LIMITING - token bucket, client side\n#      100-call burst:  95 rejected  ->  0 rejected\n#    ★ THE SUBTLE PART, and it cost 8 rejections before it was fixed:\n#      YOUR bucket and THEIR limiter may implement different models. A\n#      bucket with capacity>1 can burst, and burst + refills landing in\n#      the SAME window momentarily exceeds a SLIDING-WINDOW cap even\n#      though the average rate is legal.\n#      FIX: capacity = 1 (no burst) and rate BELOW the cap (4 vs 5) as\n#      a margin for clock skew and in-flight requests.\n\n# 3. STREAMING - TTFT 0.25s vs full 1.43s = 5.7x sooner\n#    ★ prefill is ~CONSTANT, total grows LINEARLY with output length,\n#      so streaming wins MORE on long replies - not a fixed small gain.\n\n# 4. IDEMPOTENCY KEY - and this one is about MONEY\n#      3 retries + key  ->  1 billable generation (replayed from cache)\n#      3 retries, no key ->  3 billable generations\n#    Retrying is the standard fix for flakiness AND a way to pay three\n#    times for one answer.",
-          "caption": "Four mechanisms from ordinary distributed-systems practice — and the idempotency one is the only place where a retry policy shows up on the invoice."
+          "caption": "Four mechanisms from ordinary distributed-systems practice, and the idempotency one is the only place where a retry policy shows up on the invoice."
         },
         {
           "h": "Cost, tails, and the virtual clock that made this testable",
@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "Two production facts and one methodological trick worth stealing."
           ],
           "code": "# COST: OUTPUT tokens dominate spend. So cost control is mostly about\n# controlling how much the model SAYS - max_tokens, stop sequences,\n# asking for structure rather than prose - not about trimming prompts.\n# (Prompt length is a LATENCY lever via prefill; output is the money.)\n\n# ★ LATENCY: p50 1.14s, p95 2.00s - and the BACKOFF WAITS LIVE IN THE\n#   TAIL. So the retry policy that took success from 71.3% to 99.7%\n#   also made p95 worse. That is a real trade, and it is invisible if\n#   you only report the mean:\n#     retries      -> success UP, tail latency UP\n#     more retries -> diminishing success, worsening tail\n#   Set a retry BUDGET and a deadline, not just a max attempt count.\n\n# ★ THE METHODOLOGICAL TRICK: a VIRTUAL CLOCK. Backoff logic is\n#   normally painful to test because correct code SLEEPS - so tests are\n#   slow, or you shorten the delays and test something else.\n#   With a virtual clock, time advances on demand:\nclock.advance(delay)      # no real sleeping\n#   -> the backoff arithmetic is EXACT and the suite runs instantly.\n#   Any time-dependent policy - retries, rate limits, timeouts,\n#   circuit breakers, caches - is testable this way, and most codebases\n#   never do it.\n\n# ⚠ THE WHOLE LESSON USED A MOCK PROVIDER, NO NETWORK. That is what\n#   makes the numbers reproducible and the failure rates exactly known.\n#   It measures CLIENT POLICY, not any provider's real reliability.",
-          "caption": "The virtual clock makes backoff arithmetic exact and the tests instant — and it applies to any time-dependent policy, which is why most codebases test these badly."
+          "caption": "The virtual clock makes backoff arithmetic exact and the tests instant, and it applies to any time-dependent policy, which is why most codebases test these badly."
         }
       ],
       "useCases": [
@@ -183,22 +183,22 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ Almost none of this is ML",
-        "back": "Backoff+jitter, token buckets, idempotency keys, streaming — distributed-systems client engineering predating LLMs by decades. The provider, model and SDK will change; a client built on these keeps working. THAT is why it's here."
+        "back": "Backoff+jitter, token buckets, idempotency keys, streaming, distributed-systems client engineering predating LLMs by decades. The provider, model and SDK will change; a client built on these keeps working. THAT is why it's here."
       },
       {
         "type": "formula",
         "front": "Retries against a 30%-flaky endpoint",
-        "back": "P = 1 − p_fail^(n+1): **71.3% → 99.7%**, ceiling 1 − 0.3⁵ = 99.76% — so the policy extracted nearly everything available. Assumption doing the work: INDEPENDENT failures."
+        "back": "P = 1 − p_fail^(n+1): **71.3% → 99.7%**, ceiling 1 − 0.3⁵ = 99.76%, so the policy extracted nearly everything available. Assumption doing the work: INDEPENDENT failures."
       },
       {
         "type": "pitfall",
         "front": "Retries do nothing in an OUTAGE",
-        "back": "Every attempt fails together, so retrying adds load without adding success — hence retry BUDGETS and circuit breakers. And retry only TRANSIENT errors: a 400 was malformed and will be malformed again."
+        "back": "Every attempt fails together, so retrying adds load without adding success, hence retry BUDGETS and circuit breakers. And retry only TRANSIENT errors: a 400 was malformed and will be malformed again."
       },
       {
         "type": "intuition",
         "front": "Why jitter",
-        "back": "Without it, every client that failed at the same instant retries at the same instant — recreating the load spike that caused the failure. delay = min(base·2^n, cap) × random()."
+        "back": "Without it, every client that failed at the same instant retries at the same instant, recreating the load spike that caused the failure. delay = min(base·2^n, cap) × random()."
       },
       {
         "type": "formula",
@@ -213,12 +213,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "★ Streaming wins MORE on long replies",
-        "back": "T_total ≈ t_prefill + N·t_token (1.43 s) but TTFT ≈ t_prefill (0.25 s) = 5.7×. Prefill is ~constant, total grows with N — so the advantage GROWS with response length, not a fixed small gain."
+        "back": "T_total ≈ t_prefill + N·t_token (1.43 s) but TTFT ≈ t_prefill (0.25 s) = 5.7×. Prefill is ~constant, total grows with N, so the advantage GROWS with response length, not a fixed small gain."
       },
       {
         "type": "intuition",
         "front": "Streaming changes which metric is real",
-        "back": "Mean total latency describes an experience nobody has. Report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) separately at p95 — different causes, different fixes."
+        "back": "Mean total latency describes an experience nobody has. Report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) separately at p95: different causes, different fixes."
       },
       {
         "type": "pitfall",
@@ -228,17 +228,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "★ Retries worsen the TAIL",
-        "back": "The policy that took success 71.3% → 99.7% pushed backoff waits into p95 (2.00 s vs p50 1.14 s). Success and tail latency TRADE. Set a retry budget AND a deadline — and report both numbers, not the flattering one."
+        "back": "The policy that took success 71.3% → 99.7% pushed backoff waits into p95 (2.00 s vs p50 1.14 s). Success and tail latency TRADE. Set a retry budget AND a deadline, and report both numbers, not the flattering one."
       },
       {
         "type": "intuition",
         "front": "OUTPUT tokens dominate cost",
-        "back": "So cost control is about how much the model SAYS — max_tokens, stop sequences, structured output — not about trimming prompts. Prompt length is primarily a LATENCY lever via prefill."
+        "back": "So cost control is about how much the model SAYS (max_tokens, stop sequences, structured output) not about trimming prompts. Prompt length is primarily a LATENCY lever via prefill."
       },
       {
         "type": "intuition",
         "front": "★ The virtual clock",
-        "back": "Correct backoff code SLEEPS, so faithful tests are slow — and this logic runs ONLY during incidents, making it the least-exercised code you own. Inject the clock: arithmetic exact, suite instant. Applies to retries, rate limits, timeouts, breakers, caches."
+        "back": "Correct backoff code SLEEPS, so faithful tests are slow, and this logic runs ONLY during incidents, making it the least-exercised code you own. Inject the clock: arithmetic exact, suite instant. Applies to retries, rate limits, timeouts, breakers, caches."
       }
     ],
     "refs": [

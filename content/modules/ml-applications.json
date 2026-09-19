@@ -8,7 +8,7 @@
   "blurb": "Recommenders, time series, search ranking, explainability, GNNs, audio classification, tabular deep learning.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Apply the full ML/DL toolkit to real-world domains — time-series forecasting, anomaly detection, medical imaging, recommender systems, NLP for code, graph neural networks, semi-supervised & multi-task learning, and fairness/bias — on synthetic domain datasets throughout.",
+    "summary": "Apply the full ML/DL toolkit to real-world domains: time-series forecasting, anomaly detection, medical imaging, recommender systems, NLP for code, graph neural networks, semi-supervised & multi-task learning, and fairness/bias, on synthetic domain datasets throughout.",
     "prereqs": "Modules 05, 06, 07, 08, 14.",
     "takeaways": [
       "Time-series forecasting, anomaly detection, and recommender systems.",

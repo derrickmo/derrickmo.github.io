@@ -8,7 +8,7 @@
   "blurb": "Grad-CAM, object detection, YOLO, Vision Transformers, self-supervised learning, video understanding, OCR, and a CIFAR-100 training deep dive.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Push beyond basic CNNs — object detection (anchor boxes, IoU, NMS), semantic & instance segmentation (FCN, U-Net), vision transformers (ViT) from scratch, OCR with CRNN, and optical flow — on CIFAR-10 and synthetic detection/segmentation data.",
+    "summary": "Push beyond basic CNNs: object detection (anchor boxes, IoU, NMS), semantic & instance segmentation (FCN, U-Net), vision transformers (ViT) from scratch, OCR with CRNN, and optical flow, on CIFAR-10 and synthetic detection/segmentation data.",
     "prereqs": "Modules 05, 06, 08.",
     "takeaways": [
       "Object detection (anchors, IoU, NMS) and segmentation (FCN, U-Net) from the ground up.",
@@ -37,7 +37,7 @@
       },
       {
         "n": "09-03",
-        "t": "Semantic Segmentation — FCN & U-Net",
+        "t": "Semantic Segmentation: FCN & U-Net",
         "d": "Synthetic masks",
         "m": "25 min"
       },
@@ -86,7 +86,7 @@
     ]
   },
   "snippet": {
-    "caption": "Detection starts with IoU — how much two boxes overlap.",
+    "caption": "Detection starts with IoU: how much two boxes overlap.",
     "code": "inter = overlap_area(box_a, box_b)\niou = inter / (area(box_a) + area(box_b) - inter)\n# keep the highest-scoring box, suppress overlaps (NMS)"
   },
   "subLessons": {

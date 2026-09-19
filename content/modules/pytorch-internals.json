@@ -8,7 +8,7 @@
   "blurb": "Custom autograd, advanced data pipelines, state_dict surgery, TorchScript, torch.fx, CUDA memory, distributed primitives, profiling.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Go deep into PyTorch's machinery — custom autograd functions, dynamic computation graphs, TorchScript (JIT), hooks and callbacks, memory management and profiling, mixed-precision training, and gradient checkpointing — building tools that make models faster, smaller, and more debuggable.",
+    "summary": "Go deep into PyTorch's machinery: custom autograd functions, dynamic computation graphs, TorchScript (JIT), hooks and callbacks, memory management and profiling, mixed-precision training, and gradient checkpointing, building tools that make models faster, smaller, and more debuggable.",
     "prereqs": "Modules 05, 06.",
     "takeaways": [
       "Custom autograd functions, dynamic graphs, and TorchScript JIT compilation.",
@@ -37,7 +37,7 @@
       },
       {
         "n": "15-03",
-        "t": "TorchScript — JIT Tracing & Scripting",
+        "t": "TorchScript: JIT Tracing & Scripting",
         "d": "MNIST",
         "m": "20 min"
       },

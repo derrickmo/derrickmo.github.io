@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "One attention map forces every token to mix information in a single way. Real language needs several relationships at once — syntactic agreement, coreference, local phrasing. Multi-head attention splits the model width into h smaller subspaces, runs attention independently in each, and concatenates the results.",
+        "One attention map forces every token to mix information in a single way. Real language needs several relationships at once: syntactic agreement, coreference, local phrasing. Multi-head attention splits the model width into h smaller subspaces, runs attention independently in each, and concatenates the results.",
         "Each head is cheap (it works in d/h dimensions), and together they let the layer attend to different things in different subspaces simultaneously."
       ]
     },

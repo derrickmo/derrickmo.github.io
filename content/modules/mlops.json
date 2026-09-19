@@ -8,7 +8,7 @@
   "blurb": "ML strategy, experiment tracking, model export, serving, Docker, monitoring, CI/CD, testing, system design.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Master the full MLOps lifecycle — systematic evaluation, experiment tracking with MLflow, model serialisation and TorchScript export, FastAPI serving, Docker containerisation, Kubernetes orchestration, drift monitoring, ML testing with pytest, and A/B experimentation — in one integrated capstone.",
+    "summary": "Master the full MLOps lifecycle: systematic evaluation, experiment tracking with MLflow, model serialisation and TorchScript export, FastAPI serving, Docker containerisation, Kubernetes orchestration, drift monitoring, ML testing with pytest, and A/B experimentation, in one integrated capstone.",
     "prereqs": "Modules 04, 05, 06, 15, 16.",
     "takeaways": [
       "Experiment tracking (MLflow), model export (TorchScript), and FastAPI serving.",

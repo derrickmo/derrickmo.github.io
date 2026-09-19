@@ -46,13 +46,13 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "backtracking",
   "lesson": {
     "title": "Backtracking & Constraint Satisfaction",
-    "oneLine": "Search that undoes its own choices — and the pruning that turns an impossible enumeration into a tractable one.",
+    "oneLine": "Search that undoes its own choices, and the pruning that turns an impossible enumeration into a tractable one.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "Some problems have no incremental scoring to guide you: a partial Sudoku is not 'closer' to solved in any measurable way. Backtracking handles those by committing to a choice, exploring, and undoing the choice when the branch dies. It is depth-first search over partial assignments.",
-          "Written naively it enumerates everything, which is hopeless. The whole art is detecting a dead branch early — the moment a partial assignment cannot possibly extend to a solution, you prune an entire subtree rather than exploring it."
+          "Written naively it enumerates everything, which is hopeless. The whole art is detecting a dead branch early: the moment a partial assignment cannot possibly extend to a solution, you prune an entire subtree rather than exploring it."
         ]
       },
       {
@@ -71,14 +71,14 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The heuristics that make it work",
         "paras": [
-          "Choose the most-constrained variable next (fewest remaining legal values). It sounds backwards — you are picking the hardest one — but failing fast near the root prunes far more than failing slowly at the leaves.",
+          "Choose the most-constrained variable next (fewest remaining legal values). It sounds backwards, you are picking the hardest one, but failing fast near the root prunes far more than failing slowly at the leaves.",
           "Then choose the least-constraining value: the one that eliminates fewest options for the neighbours, keeping the rest of the search alive. The pair together is worth orders of magnitude on real CSPs.",
           "Arc consistency goes further and propagates constraints BEFORE searching, removing values that cannot participate in any solution. Run it once up front and again after each assignment, and many puzzles collapse without search at all. This is also where SAT solvers start, before adding clause learning."
         ]
       }
     ],
     "takeaways": [
-      "Backtracking is DFS over partial assignments with an explicit undo — and forgetting the undo is the classic bug.",
+      "Backtracking is DFS over partial assignments with an explicit undo, and forgetting the undo is the classic bug.",
       "Pruning is multiplicative: a cheap check that fires near the root beats an expensive one that fires near the leaves.",
       "Most-constrained variable, least-constraining value, and constraint propagation are what separate a toy solver from a usable one."
     ],

@@ -43,14 +43,14 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "template-matching",
   "lesson": {
     "title": "Template Matching (Cross-Correlation)",
-    "oneLine": "Slide a patch and score every position — but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
+    "oneLine": "Slide a patch and score every position, but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed — a UI button, a registration mark on a PCB, a card rank on a fixed-camera table — this is often the correct engineering answer rather than an embarrassing one.",
+          "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed (a UI button, a registration mark on a PCB, a card rank on a fixed-camera table) this is often the correct engineering answer rather than an embarrassing one.",
           "Everything depends on the scoring function, and the obvious choice is wrong. Raw cross-correlation is a dot product between the template and the window, and a dot product grows with the magnitude of either argument. A bright region therefore scores highly whether or not it looks anything like the template.",
-          "Measured on a synthetic scene containing the true target — a mid-grey cross — at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
+          "Measured on a synthetic scene containing the true target, a mid-grey cross, at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
         ]
       },
       {
@@ -69,7 +69,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The invariances it does not have",
         "paras": [
-          "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround — searching over a pyramid of scales and a set of rotations — multiplies the cost by the size of that grid while still missing anything in between.",
+          "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround (searching over a pyramid of scales and a set of rotations) multiplies the cost by the size of that grid while still missing anything in between.",
           "This is precisely the boundary that motivates keypoint methods. SIFT and its successors detect features at their own characteristic scale and orientation and describe them relative to that frame, which is what makes matching survive the transformations template matching cannot absorb. Template matching is the right tool when you control the camera, the geometry and the target; a keypoint or learned detector is right when you do not.",
           "Two practical notes for when it is appropriate. Cost is the template area times the image area in the direct form, but correlation is a convolution, so an FFT reduces it substantially for large templates. And correlating on gradient magnitude or edges rather than raw intensity is often far more robust, because it discards the absolute illumination that caused the problem in the first place."
         ]
@@ -77,7 +77,7 @@ window.DM_SUBLESSON_CTX = {
     ],
     "takeaways": [
       "Raw cross-correlation scores brightness, not similarity: on a test scene it picked a uniform bright block over the actual target, while normalised correlation found the target with a score of 1.0000.",
-      "The normalised score is a correlation coefficient, so an absolute threshold is meaningful — and necessary, because matchTemplate returns a best location even when the target is absent.",
+      "The normalised score is a correlation coefficient, so an absolute threshold is meaningful, and necessary, because matchTemplate returns a best location even when the target is absent.",
       "It is invariant to brightness and contrast only. Rotation, scale and deformation all break it, which is the exact gap keypoint detectors like SIFT exist to fill."
     ],
     "demo": "template-matching"

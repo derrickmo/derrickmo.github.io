@@ -497,7 +497,7 @@ window.CURRICULUM = {
       "slug": "rnn-nlp",
       "title": "Recurrent Networks & NLP Foundations",
       "category": "Deep Learning Core",
-      "blurb": "Tokenization, word vectors, RNNs, LSTMs, attention, parsing, and CRFs — the building blocks that lead to transformers.",
+      "blurb": "Tokenization, word vectors, RNNs, LSTMs, attention, parsing, and CRFs: the building blocks that lead to transformers.",
       "status": "LIVE",
       "lessons": [
         {
@@ -577,7 +577,7 @@ window.CURRICULUM = {
       "slug": "transformers",
       "title": "Transformers: Architecture to Attention",
       "category": "Deep Learning Core",
-      "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache — the backbone of modules 9–18.",
+      "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache, the backbone of modules 9–18.",
       "status": "LIVE",
       "lessons": [
         {
@@ -1697,7 +1697,7 @@ window.CURRICULUM = {
       "slug": "frontier-frameworks",
       "title": "Frontier Models & Modern Frameworks",
       "category": "Systems & Engineering",
-      "blurb": "The modern toolchain beyond PyTorch: JAX/Flax, vLLM, torch.compile & Triton, ONNX, provider APIs, fine-tuning stacks, eval harnesses — taught principle-first so it dates slowly.",
+      "blurb": "The modern toolchain beyond PyTorch: JAX/Flax, vLLM, torch.compile & Triton, ONNX, provider APIs, fine-tuning stacks, eval harnesses, taught principle-first so it dates slowly.",
       "status": "LIVE",
       "lessons": [
         {
@@ -3967,7 +3967,7 @@ window.CURRICULUM_V2 = {
             {
               "href": "learn/rag-agents/voice-agents/",
               "on": "rag-agents/voice-agents",
-              "title": "Voice Agents — STT→LLM→TTS"
+              "title": "Voice Agents: STT→LLM→TTS"
             }
           ]
         }

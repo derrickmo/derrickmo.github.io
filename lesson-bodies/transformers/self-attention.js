@@ -24,7 +24,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Time and memory cost over n tokens?",
-          "a": "O(n^2 * d) time and O(n^2) memory for the attention matrix. Note the parameter count is independent of n — only the activation is quadratic."
+          "a": "O(n^2 * d) time and O(n^2) memory for the attention matrix. Note the parameter count is independent of n: only the activation is quadratic."
         },
         {
           "q": "Is self-attention permutation equivariant?",
@@ -44,7 +44,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Self-attention vs cross-attention?",
-          "a": "Self-attention draws Q, K and V from one sequence. Cross-attention draws Q from one sequence and K, V from another — that is how a decoder reads an encoder."
+          "a": "Self-attention draws Q, K and V from one sequence. Cross-attention draws Q from one sequence and K, V from another: that is how a decoder reads an encoder."
         },
         {
           "q": "Does FlashAttention change the result?",
@@ -61,16 +61,16 @@ window.DM_LESSON_BODIES = {
           "a": "Model the query and key entries as independent, zero-mean, unit-variance. Their dot product q.k is a sum of d_k such products, so it has mean 0 and variance d_k, i.e. a typical magnitude of sqrt(d_k). Feed that straight into a softmax and the spread of the logits grows with width: at d_k = 64 the logits are already several units apart, and the softmax approaches a one-hot. The damage is in the backward pass. The softmax Jacobian is diag(p) - p p^T, which goes to zero as p approaches one-hot, so gradients to Q and K vanish and the layer stops learning to route. Dividing by sqrt(d_k) normalizes the logit variance back to 1 so the softmax stays in its responsive regime independently of head width.",
           "deepDive": {
             "q": "What if the entries are not unit variance?",
-            "a": "Then sqrt(d_k) is the wrong constant in principle — the right scale is the standard deviation of the logits. In practice LayerNorm before the projections keeps the inputs near unit scale, so sqrt(d_k) remains the correct fixed choice; that is a reason the normalization placement and the scaling are coupled design decisions rather than independent ones."
+            "a": "Then sqrt(d_k) is the wrong constant in principle: the right scale is the standard deviation of the logits. In practice LayerNorm before the projections keeps the inputs near unit scale, so sqrt(d_k) remains the correct fixed choice; that is a reason the normalization placement and the scaling are coupled design decisions rather than independent ones."
           }
         },
         {
           "q": "Walk through the tensor shapes of a multi-head forward pass.",
-          "a": "Start with X of shape (B, n, d). Project to Q, K, V of shape (B, n, d) each, then reshape to (B, h, n, d_h) with d_h = d/h. The scores QK^T give (B, h, n, n) — this is the tensor that is quadratic in sequence length and the one that dominates memory. Softmax over the last axis, multiply by V of shape (B, h, n, d_h) to get (B, h, n, d_h), transpose and merge the heads back to (B, n, d), then apply the output projection W_O of shape (d, d). The parameter count is 4 d^2 regardless of n; only the (B, h, n, n) activation grows with sequence length."
+          "a": "Start with X of shape (B, n, d). Project to Q, K, V of shape (B, n, d) each, then reshape to (B, h, n, d_h) with d_h = d/h. The scores QK^T give (B, h, n, n): this is the tensor that is quadratic in sequence length and the one that dominates memory. Softmax over the last axis, multiply by V of shape (B, h, n, d_h) to get (B, h, n, d_h), transpose and merge the heads back to (B, n, d), then apply the output projection W_O of shape (d, d). The parameter count is 4 d^2 regardless of n; only the (B, h, n, n) activation grows with sequence length."
         },
         {
           "q": "Why separate K and V at all, rather than attending directly over the inputs?",
-          "a": "Separating them decouples matching from content. K lives in the space where similarity to Q is measured, V lives in the space of what gets written to the residual stream — a token can be easy to find for one reason and contribute something quite different. It also breaks symmetry: with a single shared matrix the score between positions i and j would be forced toward symmetry, whereas language is full of asymmetric relations, where a verb should attend to its subject far more than the reverse. Separate projections make the score bilinear in the input, x_i^T W_Q^T W_K x_j, which is an arbitrary (low-rank) bilinear form rather than an inner product.",
+          "a": "Separating them decouples matching from content. K lives in the space where similarity to Q is measured, V lives in the space of what gets written to the residual stream: a token can be easy to find for one reason and contribute something quite different. It also breaks symmetry: with a single shared matrix the score between positions i and j would be forced toward symmetry, whereas language is full of asymmetric relations, where a verb should attend to its subject far more than the reverse. Separate projections make the score bilinear in the input, x_i^T W_Q^T W_K x_j, which is an arbitrary (low-rank) bilinear form rather than an inner product.",
           "deepDive": {
             "q": "What does tying K and V actually cost?",
             "a": "You force the retrieval key and the transmitted content to be the same vector, so any token that must be findable by many different queries has to compromise between being findable and being useful. Empirically it costs quality at equal parameter count, which is why the untied form persists despite tying being cheaper."
@@ -78,7 +78,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Explain the quadratic bottleneck and how it is genuinely addressed in practice.",
-          "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention — low-rank, kernelized or sparse — changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
+          "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention (low-rank, kernelized or sparse) changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
         },
         {
           "q": "What is a KV cache, and how does it change inference cost?",
@@ -86,7 +86,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "What goes wrong in very deep stacks of pure attention, and what prevents it?",
-          "a": "Attention output is a convex combination of value vectors, which is a smoothing operation. Stacked without help, it drives token representations toward each other — the rank of the representation matrix collapses, provably doubly exponentially in depth for pure attention, and every position ends up nearly identical, which destroys the model's ability to distinguish tokens. Three components counteract it, and the point is that they are not incidental: residual connections preserve a path that is not averaged, the position-wise MLPs apply a nonlinearity that is not a convex combination and can re-separate collapsed representations, and LayerNorm keeps scales controlled. This is a good example of an architecture whose famous component does not work without its unfamous ones."
+          "a": "Attention output is a convex combination of value vectors, which is a smoothing operation. Stacked without help, it drives token representations toward each other: the rank of the representation matrix collapses, provably doubly exponentially in depth for pure attention, and every position ends up nearly identical, which destroys the model's ability to distinguish tokens. Three components counteract it, and the point is that they are not incidental: residual connections preserve a path that is not averaged, the position-wise MLPs apply a nonlinearity that is not a convex combination and can re-separate collapsed representations, and LayerNorm keeps scales controlled. This is a good example of an architecture whose famous component does not work without its unfamous ones."
         }
       ]
     },
@@ -109,7 +109,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "Permutation equivariance",
-        "back": "Permuting input rows permutes output rows identically — which is exactly why positional information must be added."
+        "back": "Permuting input rows permutes output rows identically, which is exactly why positional information must be added."
       },
       {
         "type": "definition",

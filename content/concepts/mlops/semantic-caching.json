@@ -4,7 +4,7 @@
   "id": "semantic-caching",
   "module": "mlops",
   "title": "Semantic Caching",
-  "oneLine": "Serve a cached answer when a new question means the same thing — where the similarity threshold is a product decision about how often you are willing to be wrong.",
+  "oneLine": "Serve a cached answer when a new question means the same thing, where the similarity threshold is a product decision about how often you are willing to be wrong.",
   "sections": [
     {
       "h": "The intuition",
@@ -30,10 +30,10 @@
     {
       "h": "Measuring the threshold instead of guessing it",
       "paras": [
-        "Simulated on embeddings with the geometry real ones have — paraphrases of one intent at cosine 0.892, different-but-related intents at 0.831, unrelated intents at 0.000. Note where the danger is: not in random collisions, which are impossible at 0.000, but in the narrow band between neighbouring intents and true paraphrases.",
+        "Simulated on embeddings with the geometry real ones have: paraphrases of one intent at cosine 0.892, different-but-related intents at 0.831, unrelated intents at 0.000. Note where the danger is: not in random collisions, which are impossible at 0.000, but in the narrow band between neighbouring intents and true paraphrases.",
         "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent, and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
-        "That is the shape of the decision, and it is why a hit-rate target is the wrong thing to optimise. Pick the threshold from a labelled sample of your own traffic by measuring the false-hit rate directly, and set it where that rate is acceptable for the application — near-zero for anything giving medical, legal or financial answers, and higher for a documentation assistant where a slightly-off answer costs little.",
-        "Two refinements that shift the curve rather than just sliding along it. Cache the response together with the query embedding AND a cheap verification — for high-stakes paths, a small model can be asked whether the cached answer actually addresses the new question, which costs far less than generation and removes most false hits. And invalidate aggressively: a stale entry is a false hit that similarity cannot detect, so tie cache entries to the version of whatever knowledge produced them."
+        "That is the shape of the decision, and it is why a hit-rate target is the wrong thing to optimise. Pick the threshold from a labelled sample of your own traffic by measuring the false-hit rate directly, and set it where that rate is acceptable for the application: near-zero for anything giving medical, legal or financial answers, and higher for a documentation assistant where a slightly-off answer costs little.",
+        "Two refinements that shift the curve rather than just sliding along it. Cache the response together with the query embedding AND a cheap verification: for high-stakes paths, a small model can be asked whether the cached answer actually addresses the new question, which costs far less than generation and removes most false hits. And invalidate aggressively: a stale entry is a false hit that similarity cannot detect, so tie cache entries to the version of whatever knowledge produced them."
       ]
     }
   ],

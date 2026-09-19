@@ -28,13 +28,13 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "spectral-clustering",
   "lesson": {
     "title": "Spectral Clustering",
-    "oneLine": "Cut the similarity graph, not the feature space — which is why it finds the two interleaved rings that k-means cannot.",
+    "oneLine": "Cut the similarity graph, not the feature space, which is why it finds the two interleaved rings that k-means cannot.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
-          "k-means assumes clusters are blobs around a centre, so it fails on any shape where two points in the same cluster are far apart — two concentric rings, two interleaved crescents. Spectral clustering changes the question from 'which centre is this near?' to 'which points are connected to each other?'.",
-          "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line — so you run k-means there instead of in the original space."
+          "k-means assumes clusters are blobs around a centre, so it fails on any shape where two points in the same cluster are far apart: two concentric rings, two interleaved crescents. Spectral clustering changes the question from 'which centre is this near?' to 'which points are connected to each other?'.",
+          "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line, so you run k-means there instead of in the original space."
         ]
       },
       {
@@ -43,7 +43,7 @@ window.DM_SUBLESSON_CTX = {
           "The Laplacian encodes the graph; its smallest eigenvectors are the smooth functions on it, and they are what you cluster:"
         ],
         "tex": "L = D - W, \\qquad L_{\\text{sym}} = I - D^{-1/2} W D^{-1/2}",
-        "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components — so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
+        "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components, so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
       },
       {
         "h": "In code",
@@ -53,9 +53,9 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "What it costs you",
         "paras": [
-          "The affinity kernel width is the whole model. Too small and the graph fragments into isolated points; too large and everything connects and the structure disappears. There is no way to set it from the objective — it is a modelling choice you have to check.",
+          "The affinity kernel width is the whole model. Too small and the graph fragments into isolated points; too large and everything connects and the structure disappears. There is no way to set it from the objective: it is a modelling choice you have to check.",
           "It is O(n^2) to build the affinity matrix and worse to decompose it, so it does not scale the way k-means does. Nystrom approximation and k-nearest-neighbour graphs are the standard escapes.",
-          "And it gives you no way to assign a NEW point without recomputing — there is no centroid to compare against. If you need to cluster a stream, this is the wrong tool."
+          "And it gives you no way to assign a NEW point without recomputing: there is no centroid to compare against. If you need to cluster a stream, this is the wrong tool."
         ]
       }
     ],

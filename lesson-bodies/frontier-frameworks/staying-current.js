@@ -56,7 +56,7 @@ window.DM_LESSON_BODIES = {
             "The first model gave a non-answer, and the reason it did is the finding."
           ],
           "code": "# THE STOCK MODEL: dS/dt = study - decay*S  ->  S* = study/decay\n#   principles  half-life ~60 months\n#   tool trivia half-life ~8 months\n#   -> an hour on principles yields ~7.2x the RETAINED knowledge\n\n# ★ THE OBVIOUS CONCLUSION (\"study only principles\") IS WRONG, and the\n#   model only says so once you add the asymmetry that matters:\n#     TOOL value SATURATES - you need fluent-enough-to-ship, and past\n#       that more tool depth buys very little\n#     PRINCIPLE depth KEEPS SCALING\n#   -> optimum ~70% principles / 30% tools. Principle-HEAVY, not\n#      principle-ONLY. You cannot ship on principles.\n\n# ⚠ THE HONESTY FIX, and it is the real lesson here:\n#   the FIRST model used a symmetric geometric mean of two scaling\n#   terms. Steady stock is proportional to study rate, so the objective\n#   was symmetric and the optimum came out 50/50 - a meaningless\n#   non-answer dressed as a result.\n#   ★ A MODEL THAT RETURNS A NON-ANSWER IS TELLING YOU THE MODEL IS\n#     WRONG, NOT THAT THE QUESTION HAS NO ANSWER. Modelling tool\n#     SATURATION is what produced a real interior optimum - so the\n#     70/30 is a consequence of an asymmetry in RETURNS, not of the\n#     decay rates alone.\n\n# ★ THE DURABILITY SCORE, applied to THIS MODULE's own content:\n#     score = principle_content x (1 - churn_rate)\n#   DEEP (high durability):\n#     memory arithmetic (GB = params x bytes; KV = 2*L*h_kv*d*s*b)\n#     eval discipline (the scorer IS the eval; Wilson CIs; swap-averaging)\n#     roofline / arithmetic intensity; paging vs contiguous allocation\n#     the rank elbow; purity -> composable transforms\n#   SKIM (low durability):\n#     provider-API specifics, SDK surfaces, compiler FLAGS,\n#     current model names and leaderboard positions",
-          "caption": "The first model's 50/50 non-answer was the informative failure — modelling tool saturation is what turned a symmetric objective into a real optimum."
+          "caption": "The first model's 50/50 non-answer was the informative failure: modelling tool saturation is what turned a symmetric objective into a real optimum."
         },
         {
           "h": "Deciding what to believe, and when to adopt",
@@ -64,7 +64,7 @@ window.DM_LESSON_BODIES = {
             "Two filters: discount the headline, and require a replication before committing."
           ],
           "code": "# ★ HEADLINES REGRESS - measured on a method whose TRUE effect is ZERO:\n#     reported as best-of-30-configs   +4.1 pt\n#     replicated                       +0.1 pt\n#   E[max of n noisy draws] ~ sigma*sqrt(2 ln n), so the reported size\n#   is partly a measure of HOW MANY KNOBS WERE TUNED.\n#\n#   THE QUESTIONS THAT DISCOUNT A CLAIM:\n#     how many configurations were tried?   (rarely reported)\n#     is the baseline TUNED, or a default?  (the usual asymmetry)\n#     COMPUTE-matched?                      (or is it just more compute)\n#     public benchmark => possible contamination (22-09)\n#     any independent replication?\n\n# ★ ADOPT-NOW vs WAIT - requiring an independent SECOND positive:\n#     precision of the adopted set  0.48 -> 0.84\n#     recall                        -12 pt\n#   Nearly doubling precision for 12 points of recall is a good trade\n#   whenever ADOPTION IS EXPENSIVE - and an infrastructure change is:\n#   migration, retraining people, a new dependency to maintain.\n#   The mechanism is Bayesian: when good ideas are RARE, one positive\n#   is weak evidence and a second independent one is strong.\n\n# ★ SO: THE BARBELL. Track everything cheaply; commit to what\n#   replicates.\n#     CHEAP  - skim broadly, note what exists, no commitment\n#     COSTLY - adopt only after independent confirmation, or after you\n#              reproduce the result on YOUR data\n#   The middle - adopting on a single impressive headline - is the\n#   expensive mistake, and it is the default behaviour.",
-          "caption": "A true-zero method produced a +4.1 point headline by being the best of thirty tries — which is why the number of configurations tried is the first question to ask."
+          "caption": "A true-zero method produced a +4.1 point headline by being the best of thirty tries, which is why the number of configurations tried is the first question to ask."
         }
       ],
       "useCases": [
@@ -201,7 +201,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "★ A non-answer means the MODEL is wrong",
-        "back": "The first allocation model was symmetric (stock ∝ study rate both sides) and returned a meaningless 50/50 — which could have been reported as a finding about balance. Modelling tool SATURATION produced a real optimum. Same family as chance-accuracy = a data bug."
+        "back": "The first allocation model was symmetric (stock ∝ study rate both sides) and returned a meaningless 50/50, which could have been reported as a finding about balance. Modelling tool SATURATION produced a real optimum. Same family as chance-accuracy = a data bug."
       },
       {
         "type": "formula",
@@ -211,12 +211,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The questions that discount a claim",
-        "back": "How many configurations were tried (rarely reported — its absence is a signal) · was the BASELINE tuned or default · compute-matched · public benchmark ⇒ possible contamination · any independent replication?"
+        "back": "How many configurations were tried (rarely reported: its absence is a signal) · was the BASELINE tuned or default · compute-matched · public benchmark ⇒ possible contamination · any independent replication?"
       },
       {
         "type": "intuition",
         "front": "Why the bias is endemic, not dishonest",
-        "back": "Researchers try many variants (good practice), report what worked (normal), reviewers prefer positives. Nobody behaves badly and the literature still acquires the bias — which is why individual scepticism substitutes for a systemic fix."
+        "back": "Researchers try many variants (good practice), report what worked (normal), reviewers prefer positives. Nobody behaves badly and the literature still acquires the bias, which is why individual scepticism substitutes for a systemic fix."
       },
       {
         "type": "formula",
@@ -226,7 +226,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The BARBELL",
-        "back": "CHEAP end: skim broadly, know what EXISTS, retain nothing. EXPENSIVE end: go deep on the mechanism when you have the problem, and commit only after replication (or your own reproduction). **The middle — adopting on one headline — is the expensive default.**"
+        "back": "CHEAP end: skim broadly, know what EXISTS, retain nothing. EXPENSIVE end: go deep on the mechanism when you have the problem, and commit only after replication (or your own reproduction). **The middle, adopting on one headline, is the expensive default.**"
       },
       {
         "type": "formula",
@@ -236,17 +236,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The two categories need different METHODS",
-        "back": "Durable → learn in a form you can RECONSTRUCT (derive it, build it). Perishable → learn in a form you can LOOK UP. Memorizing an API is wasted; looking up a mechanism mid-problem doesn't work. And re-DERIVE occasionally — retrieval beats review."
+        "back": "Durable → learn in a form you can RECONSTRUCT (derive it, build it). Perishable → learn in a form you can LOOK UP. Memorizing an API is wasted; looking up a mechanism mid-problem doesn't work. And re-DERIVE occasionally: retrieval beats review."
       },
       {
         "type": "intuition",
         "front": "Notice when a \"new\" idea is an old one renamed",
-        "back": "Paged attention = virtual memory · continuous batching = work-conserving scheduling · adapters = low-rank updates. Recognizing the precedent both accelerates the learning AND signals durability — it already survived one turnover."
+        "back": "Paged attention = virtual memory · continuous batching = work-conserving scheduling · adapters = low-rank updates. Recognizing the precedent both accelerates the learning AND signals durability. It already survived one turnover."
       },
       {
         "type": "intuition",
         "front": "★ Apply the discount to THIS module",
-        "back": "Distrust the NUMBERS — all from toys with known ground truth (6.4×, 12×, the rank elbow, even the 7.2 from two ASSUMED half-lives). Trust the MECHANISMS and their directions, because they're derivations. Re-run each model with your own parameters."
+        "back": "Distrust the NUMBERS: all from toys with known ground truth (6.4×, 12×, the rank elbow, even the 7.2 from two ASSUMED half-lives). Trust the MECHANISMS and their directions, because they're derivations. Re-run each model with your own parameters."
       }
     ],
     "refs": [

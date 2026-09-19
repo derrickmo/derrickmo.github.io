@@ -30,7 +30,7 @@
       "h": "The adjustment is the entire job",
       "paras": [
         "Confounding is not a subtle bias that more data averages away; it is a different quantity being estimated. Simulating 200,000 units where a confounder U raises both the chance of treatment and the outcome, and where the true treatment effect is exactly 1.000, the naive difference in means comes out at 2.199. It is more than twice the truth, and every additional observation makes that wrong number more precise.",
-        "Stratifying on U and averaging within strata recovers 0.998. The whole content of causal inference is in knowing that the adjustment is needed and which variables it should include, and no amount of model capacity substitutes for it — the estimate is biased by design, not by noise. It is also why the assumption is the thing to argue about in any observational result: adjusting for the wrong set can create bias as easily as remove it, which is what a collider does."
+        "Stratifying on U and averaging within strata recovers 0.998. The whole content of causal inference is in knowing that the adjustment is needed and which variables it should include, and no amount of model capacity substitutes for it: the estimate is biased by design, not by noise. It is also why the assumption is the thing to argue about in any observational result: adjusting for the wrong set can create bias as easily as remove it, which is what a collider does."
       ]
     }
   ],

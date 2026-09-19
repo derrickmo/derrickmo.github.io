@@ -5,16 +5,16 @@
   "slug": "transformers",
   "title": "Transformers: Architecture to Attention",
   "category": "Deep Learning Core",
-  "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache — the backbone of modules 9–18.",
+  "blurb": "The most critical module. Build every transformer component from scratch: attention, RoPE, Flash Attention, KV cache, the backbone of modules 9–18.",
   "status": "LIVE",
   "lecture": {
     "title": "Transformers: Architecture to Attention",
-    "summary": "Build the complete Transformer stack from scratch — scaled dot-product attention, multi-head attention, positional encoding, encoder/decoder blocks, GPT-style language modelling, BERT-style pre-training, and attention analysis — developing parallel sequence intuition on WikiText-2 and AG_NEWS.",
+    "summary": "Build the complete Transformer stack from scratch: scaled dot-product attention, multi-head attention, positional encoding, encoder/decoder blocks, GPT-style language modelling, BERT-style pre-training, and attention analysis, developing parallel sequence intuition on WikiText-2 and AG_NEWS.",
     "prereqs": "Modules 05, 07.",
     "takeaways": [
       "Scaled dot-product and multi-head attention, built from first principles.",
       "Positional encoding, encoder/decoder blocks, and the full transformer stack.",
-      "GPT-style generation and BERT-style pretraining — the backbone of modern NLP."
+      "GPT-style generation and BERT-style pretraining: the backbone of modern NLP."
     ],
     "flagships": [
       {

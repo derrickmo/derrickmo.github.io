@@ -8,7 +8,7 @@
   "blurb": "Autoencoders, VAEs, GANs, diffusion, normalizing flows, energy-based models, autoregressive generation.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build the full spectrum of generative models from scratch — VAEs (reparameterisation, ELBO), GANs (DCGAN, WGAN-GP, conditional), diffusion (DDPM forward/reverse, noise schedules, sampling & guidance), normalizing flows, score/flow matching, and autoregressive image models — on MNIST, FashionMNIST, and CIFAR-10.",
+    "summary": "Build the full spectrum of generative models from scratch: VAEs (reparameterisation, ELBO), GANs (DCGAN, WGAN-GP, conditional), diffusion (DDPM forward/reverse, noise schedules, sampling & guidance), normalizing flows, score/flow matching, and autoregressive image models, on MNIST, FashionMNIST, and CIFAR-10.",
     "prereqs": "Modules 01, 05, 06, 08.",
     "takeaways": [
       "VAEs (reparameterization, ELBO) and GANs (DCGAN, WGAN-GP, conditional).",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-18",
+  "generatedAt": "2026-09-19",
   "generatedBy": "scripts/sync-v2-map.mjs",
   "source": {
     "repo": "machine_learning_tutorials",
@@ -1639,14 +1639,14 @@
       "site": {
         "module": "ml-theory",
         "slug": "learning-theory",
-        "title": "Learning Theory — VC Dimension, PAC Learning",
+        "title": "Learning Theory: VC Dimension, PAC Learning",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "ml-theory",
           "slug": "learning-theory",
-          "title": "Learning Theory — VC Dimension, PAC Learning",
+          "title": "Learning Theory: VC Dimension, PAC Learning",
           "status": "LIVE"
         }
       ]
@@ -2187,14 +2187,14 @@
       "site": {
         "module": "neural-nets",
         "slug": "pytorch-fundamentals",
-        "title": "PyTorch Fundamentals — Autograd & nn.Module",
+        "title": "PyTorch Fundamentals: Autograd & nn.Module",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "neural-nets",
           "slug": "pytorch-fundamentals",
-          "title": "PyTorch Fundamentals — Autograd & nn.Module",
+          "title": "PyTorch Fundamentals: Autograd & nn.Module",
           "status": "LIVE"
         }
       ]
@@ -2215,14 +2215,14 @@
       "site": {
         "module": "neural-nets",
         "slug": "sgd-momentum",
-        "title": "Optimizers — SGD, Momentum & Nesterov",
+        "title": "Optimizers: SGD, Momentum & Nesterov",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "neural-nets",
           "slug": "sgd-momentum",
-          "title": "Optimizers — SGD, Momentum & Nesterov",
+          "title": "Optimizers: SGD, Momentum & Nesterov",
           "status": "LIVE"
         }
       ]
@@ -2390,14 +2390,14 @@
       "site": {
         "module": "cnn",
         "slug": "cnn-architectures",
-        "title": "CNN Architectures — LeNet to ResNet",
+        "title": "CNN Architectures: LeNet to ResNet",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "cnn",
           "slug": "cnn-architectures",
-          "title": "CNN Architectures — LeNet to ResNet",
+          "title": "CNN Architectures: LeNet to ResNet",
           "status": "LIVE"
         },
         {
@@ -2426,14 +2426,14 @@
       "site": {
         "module": "advanced-cv",
         "slug": "cifar100",
-        "title": "CNN Training Deep Dive — CIFAR-100",
+        "title": "CNN Training Deep Dive: CIFAR-100",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "advanced-cv",
           "slug": "cifar100",
-          "title": "CNN Training Deep Dive — CIFAR-100",
+          "title": "CNN Training Deep Dive: CIFAR-100",
           "status": "LIVE"
         }
       ]
@@ -2685,14 +2685,14 @@
       "site": {
         "module": "rnn-nlp",
         "slug": "tokenization",
-        "title": "Tokenization — BPE, WordPiece & SentencePiece",
+        "title": "Tokenization: BPE, WordPiece & SentencePiece",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "rnn-nlp",
           "slug": "tokenization",
-          "title": "Tokenization — BPE, WordPiece & SentencePiece",
+          "title": "Tokenization: BPE, WordPiece & SentencePiece",
           "status": "LIVE"
         }
       ]
@@ -2713,14 +2713,14 @@
       "site": {
         "module": "rnn-nlp",
         "slug": "word-vectors",
-        "title": "Word Vectors — Word2Vec, GloVe & FastText",
+        "title": "Word Vectors: Word2Vec, GloVe & FastText",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "rnn-nlp",
           "slug": "word-vectors",
-          "title": "Word Vectors — Word2Vec, GloVe & FastText",
+          "title": "Word Vectors: Word2Vec, GloVe & FastText",
           "status": "LIVE"
         }
       ]
@@ -2937,14 +2937,14 @@
       "site": {
         "module": "rnn-nlp",
         "slug": "elmo",
-        "title": "Contextual Embeddings — ELMo",
+        "title": "Contextual Embeddings: ELMo",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "rnn-nlp",
           "slug": "elmo",
-          "title": "Contextual Embeddings — ELMo",
+          "title": "Contextual Embeddings: ELMo",
           "status": "LIVE"
         }
       ]
@@ -3021,14 +3021,14 @@
       "site": {
         "module": "transformers",
         "slug": "positional-encoding",
-        "title": "Positional Encoding — Sinusoidal & Learned",
+        "title": "Positional Encoding: Sinusoidal & Learned",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "transformers",
           "slug": "positional-encoding",
-          "title": "Positional Encoding — Sinusoidal & Learned",
+          "title": "Positional Encoding: Sinusoidal & Learned",
           "status": "LIVE"
         }
       ]
@@ -3105,14 +3105,14 @@
       "site": {
         "module": "transformers",
         "slug": "full-transformer",
-        "title": "Full Transformer — Encoder-Decoder",
+        "title": "Full Transformer: Encoder-Decoder",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "transformers",
           "slug": "full-transformer",
-          "title": "Full Transformer — Encoder-Decoder",
+          "title": "Full Transformer: Encoder-Decoder",
           "status": "LIVE"
         }
       ]
@@ -3189,14 +3189,14 @@
       "site": {
         "module": "transformers",
         "slug": "flash-attention",
-        "title": "Flash Attention — Algorithm & Concepts",
+        "title": "Flash Attention: Algorithm & Concepts",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "transformers",
           "slug": "flash-attention",
-          "title": "Flash Attention — Algorithm & Concepts",
+          "title": "Flash Attention: Algorithm & Concepts",
           "status": "LIVE"
         }
       ]
@@ -3343,14 +3343,14 @@
       "site": {
         "module": "generative",
         "slug": "gan",
-        "title": "GANs — DCGAN & WGAN",
+        "title": "GANs: DCGAN & WGAN",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "generative",
           "slug": "gan",
-          "title": "GANs — DCGAN & WGAN",
+          "title": "GANs: DCGAN & WGAN",
           "status": "LIVE"
         }
       ]
@@ -3372,14 +3372,14 @@
       "site": {
         "module": "generative",
         "slug": "gan",
-        "title": "GANs — DCGAN & WGAN",
+        "title": "GANs: DCGAN & WGAN",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "generative",
           "slug": "gan",
-          "title": "GANs — DCGAN & WGAN",
+          "title": "GANs: DCGAN & WGAN",
           "status": "LIVE"
         },
         {
@@ -3674,14 +3674,14 @@
       "site": {
         "module": "multimodal",
         "slug": "simclr-byol",
-        "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
+        "title": "Contrastive Self-Supervised Learning: SimCLR & BYOL",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "multimodal",
           "slug": "simclr-byol",
-          "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
+          "title": "Contrastive Self-Supervised Learning: SimCLR & BYOL",
           "status": "LIVE"
         }
       ]
@@ -3702,14 +3702,14 @@
       "site": {
         "module": "advanced-cv",
         "slug": "dino-mae",
-        "title": "Self-Supervised Vision — DINO & MAE",
+        "title": "Self-Supervised Vision: DINO & MAE",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "advanced-cv",
           "slug": "dino-mae",
-          "title": "Self-Supervised Vision — DINO & MAE",
+          "title": "Self-Supervised Vision: DINO & MAE",
           "status": "LIVE"
         }
       ]
@@ -3730,14 +3730,14 @@
       "site": {
         "module": "multimodal",
         "slug": "clip",
-        "title": "CLIP — Contrastive Image-Text Pretraining",
+        "title": "CLIP: Contrastive Image-Text Pretraining",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "multimodal",
           "slug": "clip",
-          "title": "CLIP — Contrastive Image-Text Pretraining",
+          "title": "CLIP: Contrastive Image-Text Pretraining",
           "status": "LIVE"
         }
       ]
@@ -4210,14 +4210,14 @@
       "site": {
         "module": "reinforcement-learning",
         "slug": "offline-rl",
-        "title": "Offline RL — CQL & IQL",
+        "title": "Offline RL: CQL & IQL",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "reinforcement-learning",
           "slug": "offline-rl",
-          "title": "Offline RL — CQL & IQL",
+          "title": "Offline RL: CQL & IQL",
           "status": "LIVE"
         }
       ]
@@ -4690,14 +4690,14 @@
       "site": {
         "module": "llm-systems",
         "slug": "long-context",
-        "title": "Long Context — RoPE Scaling & Sliding Window",
+        "title": "Long Context: RoPE Scaling & Sliding Window",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "llm-systems",
           "slug": "long-context",
-          "title": "Long Context — RoPE Scaling & Sliding Window",
+          "title": "Long Context: RoPE Scaling & Sliding Window",
           "status": "LIVE"
         }
       ]
@@ -4816,14 +4816,14 @@
       "site": {
         "module": "fine-tuning",
         "slug": "lora",
-        "title": "LoRA — Low-Rank Adaptation from Scratch",
+        "title": "LoRA: Low-Rank Adaptation from Scratch",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "fine-tuning",
           "slug": "lora",
-          "title": "LoRA — Low-Rank Adaptation from Scratch",
+          "title": "LoRA: Low-Rank Adaptation from Scratch",
           "status": "LIVE"
         }
       ]
@@ -4844,14 +4844,14 @@
       "site": {
         "module": "fine-tuning",
         "slug": "qlora",
-        "title": "QLoRA — 4-Bit Quantization + LoRA",
+        "title": "QLoRA: 4-Bit Quantization + LoRA",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "fine-tuning",
           "slug": "qlora",
-          "title": "QLoRA — 4-Bit Quantization + LoRA",
+          "title": "QLoRA: 4-Bit Quantization + LoRA",
           "status": "LIVE"
         }
       ]
@@ -5238,14 +5238,14 @@
       "site": {
         "module": "rag-agents",
         "slug": "advanced-rag",
-        "title": "Advanced RAG — HyDE & Reranking",
+        "title": "Advanced RAG: HyDE & Reranking",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "rag-agents",
           "slug": "advanced-rag",
-          "title": "Advanced RAG — HyDE & Reranking",
+          "title": "Advanced RAG: HyDE & Reranking",
           "status": "LIVE"
         }
       ]
@@ -5266,14 +5266,14 @@
       "site": {
         "module": "rag-agents",
         "slug": "advanced-rag",
-        "title": "Advanced RAG — HyDE & Reranking",
+        "title": "Advanced RAG: HyDE & Reranking",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "rag-agents",
           "slug": "advanced-rag",
-          "title": "Advanced RAG — HyDE & Reranking",
+          "title": "Advanced RAG: HyDE & Reranking",
           "status": "LIVE"
         }
       ]
@@ -5744,7 +5744,7 @@
         {
           "module": "rag-agents",
           "slug": "voice-agents",
-          "title": "Voice Agents — STT→LLM→TTS",
+          "title": "Voice Agents: STT→LLM→TTS",
           "status": "LIVE"
         }
       ]
@@ -5940,14 +5940,14 @@
       "site": {
         "module": "training-systems",
         "slug": "torch-compile",
-        "title": "torch.compile — Dynamo & Inductor",
+        "title": "torch.compile: Dynamo & Inductor",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "training-systems",
           "slug": "torch-compile",
-          "title": "torch.compile — Dynamo & Inductor",
+          "title": "torch.compile: Dynamo & Inductor",
           "status": "LIVE"
         }
       ]
@@ -6283,14 +6283,14 @@
       "site": {
         "module": "training-systems",
         "slug": "torch-compile",
-        "title": "torch.compile — Dynamo & Inductor",
+        "title": "torch.compile: Dynamo & Inductor",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "training-systems",
           "slug": "torch-compile",
-          "title": "torch.compile — Dynamo & Inductor",
+          "title": "torch.compile: Dynamo & Inductor",
           "status": "LIVE"
         }
       ]
@@ -6367,14 +6367,14 @@
       "site": {
         "module": "llm-systems",
         "slug": "quantization",
-        "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
+        "title": "Quantization: PTQ, QAT, GPTQ, AWQ",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "llm-systems",
           "slug": "quantization",
-          "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
+          "title": "Quantization: PTQ, QAT, GPTQ, AWQ",
           "status": "LIVE"
         }
       ]
@@ -6482,14 +6482,14 @@
       "site": {
         "module": "mlops",
         "slug": "torchscript-onnx",
-        "title": "Model Export — TorchScript & ONNX",
+        "title": "Model Export: TorchScript & ONNX",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "mlops",
           "slug": "torchscript-onnx",
-          "title": "Model Export — TorchScript & ONNX",
+          "title": "Model Export: TorchScript & ONNX",
           "status": "LIVE"
         },
         {
@@ -6516,14 +6516,14 @@
       "site": {
         "module": "mlops",
         "slug": "model-serving",
-        "title": "Model Serving — FastAPI & Gradio",
+        "title": "Model Serving: FastAPI & Gradio",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "mlops",
           "slug": "model-serving",
-          "title": "Model Serving — FastAPI & Gradio",
+          "title": "Model Serving: FastAPI & Gradio",
           "status": "LIVE"
         }
       ]
@@ -7253,14 +7253,14 @@
       "site": {
         "module": "ml-applications",
         "slug": "recommenders-cf",
-        "title": "Recommender Systems — Collaborative Filtering",
+        "title": "Recommender Systems: Collaborative Filtering",
         "status": "LIVE"
       },
       "sites": [
         {
           "module": "ml-applications",
           "slug": "recommenders-cf",
-          "title": "Recommender Systems — Collaborative Filtering",
+          "title": "Recommender Systems: Collaborative Filtering",
           "status": "LIVE"
         }
       ]

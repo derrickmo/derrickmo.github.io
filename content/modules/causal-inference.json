@@ -8,10 +8,10 @@
   "blurb": "From correlation to causation: potential outcomes, causal graphs, confounding, instrumental variables, A/B testing at scale, resampling, and the Bayesian workflow.",
   "status": "LIVE",
   "lecture": {
-    "summary": "From correlation to causation — potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
+    "summary": "From correlation to causation: potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
     "prereqs": "Modules 01 (probability) and 04 (evaluation).",
     "takeaways": [
-      "Prediction and causation are different questions — a great predictor can be a terrible guide to intervention.",
+      "Prediction and causation are different questions: a great predictor can be a terrible guide to intervention.",
       "Confounding is the central enemy; graphs, randomization, instruments, and matching are the weapons.",
       "Experimentation at scale is an engineering discipline: power, sequential testing, and the traps of peeking."
     ],

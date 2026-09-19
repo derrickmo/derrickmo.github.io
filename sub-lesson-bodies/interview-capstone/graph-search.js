@@ -71,8 +71,8 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The heuristic is the only real choice",
         "paras": [
-          "On a 60x60 grid with random obstacles, Dijkstra expands 2,751 nodes to find a path of cost 118. A* with the admissible Manhattan heuristic finds the same cost-118 path while expanding 1,718 — the same guarantee, a third less work, purely from knowing which direction the goal is in.",
-          "Inflating the heuristic buys much more speed and stops being safe: weighting it by 1.5 expands only 183 nodes and returns a path of cost 128, and weighting by 3 expands 162 and returns 132. Both are still complete and both are wrong about optimality. That is the entire family in one line — Dijkstra is A* with a zero heuristic, greedy best-first is A* with an unbounded one, and weighted A* is the dial between them, with the bound on suboptimality equal to the weight. Choosing an algorithm here is really choosing how much optimality you will trade for expansions."
+          "On a 60x60 grid with random obstacles, Dijkstra expands 2,751 nodes to find a path of cost 118. A* with the admissible Manhattan heuristic finds the same cost-118 path while expanding 1,718, the same guarantee, a third less work, purely from knowing which direction the goal is in.",
+          "Inflating the heuristic buys much more speed and stops being safe: weighting it by 1.5 expands only 183 nodes and returns a path of cost 128, and weighting by 3 expands 162 and returns 132. Both are still complete and both are wrong about optimality. That is the entire family in one line: Dijkstra is A* with a zero heuristic, greedy best-first is A* with an unbounded one, and weighted A* is the dial between them, with the bound on suboptimality equal to the weight. Choosing an algorithm here is really choosing how much optimality you will trade for expansions."
         ]
       }
     ],

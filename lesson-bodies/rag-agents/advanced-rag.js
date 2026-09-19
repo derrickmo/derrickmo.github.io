@@ -182,7 +182,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "Why the funnel is FORCED, not chosen",
-        "back": "bi: s(q,d)=f(q)ᵀf(d) — factorizes, so f(d) precomputes → ANN over any corpus. cross: s(q,d)=g([q;d]) — no factorization, N transformer passes per query. Fine at N=100, impossible at 10M."
+        "back": "bi: s(q,d)=f(q)ᵀf(d), factorizes, so f(d) precomputes → ANN over any corpus. cross: s(q,d)=g([q;d]), no factorization, N transformer passes per query. Fine at N=100, impossible at 10M."
       },
       {
         "type": "formula",
@@ -197,12 +197,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "HyDE's counterintuitive core",
-        "back": "Generate a hypothetical ANSWER, embed that, search with it — passage-to-passage instead of question-to-passage. The hypothetical can be factually WRONG and still work: it only needs the right SHAPE, vocabulary and register."
+        "back": "Generate a hypothetical ANSWER, embed that, search with it: passage-to-passage instead of question-to-passage. The hypothetical can be factually WRONG and still work: it only needs the right SHAPE, vocabulary and register."
       },
       {
         "type": "pitfall",
         "front": "When HyDE does NOT pay",
-        "back": "A fine-tuned in-domain retriever (the asymmetry is already trained away) · latency-sensitive paths (a full generation BEFORE retrieval) · rare entities (a hallucinated hypothetical drags search into the wrong neighbourhood — worse than no help)."
+        "back": "A fine-tuned in-domain retriever (the asymmetry is already trained away) · latency-sensitive paths (a full generation BEFORE retrieval) · rare entities (a hallucinated hypothetical drags search into the wrong neighbourhood, worse than no help)."
       },
       {
         "type": "intuition",
@@ -217,7 +217,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Validate the reranker against the retriever's own order",
-        "back": "An off-the-shelf cross-encoder was trained on a general relevance distribution. Against a fine-tuned in-domain bi-encoder its margin can be small or negative — in which case the latency buys nothing. Measure NDCG both ways."
+        "back": "An off-the-shelf cross-encoder was trained on a general relevance distribution. Against a fine-tuned in-domain bi-encoder its margin can be small or negative, in which case the latency buys nothing. Measure NDCG both ways."
       },
       {
         "type": "intuition",

@@ -62,7 +62,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Sufficiency is not the mechanism",
         "paras": [
-          "Patching answers a precise question — does restoring this component restore the behaviour — and that question has a misleading answer whenever the network is redundant. Take a model whose output is an OR over two internal paths: patching path A alone restores the clean answer, and so does patching path B alone. Both components are sufficient, so a sufficiency-based search will report either one as the location of the behaviour depending on where it happened to look.",
+          "Patching answers a precise question (does restoring this component restore the behaviour), and that question has a misleading answer whenever the network is redundant. Take a model whose output is an OR over two internal paths: patching path A alone restores the clean answer, and so does patching path B alone. Both components are sufficient, so a sufficiency-based search will report either one as the location of the behaviour depending on where it happened to look.",
           "Ablation gives the opposite reading on the same model and is equally wrong: removing A changes nothing and removing B changes nothing, so neither looks important. Redundancy makes necessity and sufficiency come apart, and real networks are redundant. The practical consequences are that a patching result depends on the corruption baseline you chose, that finding one sufficient circuit is not evidence there is only one, and that the honest claim from a patching experiment is \"this path can carry the behaviour\" rather than \"this is how the model does it\"."
         ]
       }

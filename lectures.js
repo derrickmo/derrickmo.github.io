@@ -10,8 +10,8 @@ window.LECTURES = {
   "foundations": {
     "n": "01",
     "title": "Mathematical & Programming Foundations",
-    "summary": "Build fluency with Python's numerical computing stack and establish the mathematical prerequisites for ML/DL — NumPy, PyTorch tensors, pandas, matplotlib, probability, linear algebra, calculus, and information theory.",
-    "prereqs": "None — this is the entry module.",
+    "summary": "Build fluency with Python's numerical computing stack and establish the mathematical prerequisites for ML/DL: NumPy, PyTorch tensors, pandas, matplotlib, probability, linear algebra, calculus, and information theory.",
+    "prereqs": "None: this is the entry module.",
     "takeaways": [
       "Write vectorized NumPy/PyTorch instead of Python loops, and understand why it's orders of magnitude faster.",
       "The linear algebra, calculus, probability, and information theory that every later module quietly assumes.",
@@ -170,7 +170,7 @@ window.LECTURES = {
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Find structure without labels: k-means, hierarchical & density clustering, PCA, t-SNE, UMAP.",
-      "The EM algorithm and Gaussian mixtures — the conceptual bridge to VAEs.",
+      "The EM algorithm and Gaussian mixtures: the conceptual bridge to VAEs.",
       "Kernel methods, matrix factorization, and Bayesian inference as recurring ML primitives."
     ],
     "flagship": {
@@ -248,7 +248,7 @@ window.LECTURES = {
     "prereqs": "Modules 01–03.",
     "takeaways": [
       "Build honest evaluation: the right metrics, cross-validation, and leakage-free pipelines.",
-      "Bias-variance, VC dimension, and PAC learning — why models generalize, or don't.",
+      "Bias-variance, VC dimension, and PAC learning: why models generalize, or don't.",
       "Calibration, uncertainty quantification, and the convex-optimization backbone of training."
     ],
     "flagship": {
@@ -289,7 +289,7 @@ window.LECTURES = {
       },
       {
         "n": "04-06",
-        "t": "Learning Theory — VC Dimension & PAC",
+        "t": "Learning Theory: VC Dimension & PAC",
         "d": "make_classification",
         "m": "20 min"
       },
@@ -495,8 +495,8 @@ window.LECTURES = {
     "summary": "Build the complete NLP foundation stack from scratch (BPE tokenization, Word2Vec embeddings, vanilla RNNs, LSTMs, and seq2seq models) developing sequential intuition for language on WikiText-2 and AG_NEWS.",
     "prereqs": "Modules 01, 05.",
     "takeaways": [
-      "Tokenization (BPE) and word embeddings — turning text into vectors machines can learn from.",
-      "RNNs, LSTMs/GRUs, and seq2seq with attention — sequential modeling before transformers.",
+      "Tokenization (BPE) and word embeddings: turning text into vectors machines can learn from.",
+      "RNNs, LSTMs/GRUs, and seq2seq with attention: sequential modeling before transformers.",
       "Language modeling, perplexity, and text classification, end to end."
     ],
     "flagship": {
@@ -570,12 +570,12 @@ window.LECTURES = {
   "transformers": {
     "n": "08",
     "title": "Transformers: Architecture to Attention",
-    "summary": "Build the complete Transformer stack from scratch — scaled dot-product attention, multi-head attention, positional encoding, encoder/decoder blocks, GPT-style language modelling, BERT-style pre-training, and attention analysis — developing parallel sequence intuition on WikiText-2 and AG_NEWS.",
+    "summary": "Build the complete Transformer stack from scratch: scaled dot-product attention, multi-head attention, positional encoding, encoder/decoder blocks, GPT-style language modelling, BERT-style pre-training, and attention analysis, developing parallel sequence intuition on WikiText-2 and AG_NEWS.",
     "prereqs": "Modules 05, 07.",
     "takeaways": [
       "Scaled dot-product and multi-head attention, built from first principles.",
       "Positional encoding, encoder/decoder blocks, and the full transformer stack.",
-      "GPT-style generation and BERT-style pretraining — the backbone of modern NLP."
+      "GPT-style generation and BERT-style pretraining: the backbone of modern NLP."
     ],
     "flagships": [
       {
@@ -655,7 +655,7 @@ window.LECTURES = {
   "advanced-cv": {
     "n": "09",
     "title": "Advanced Computer Vision",
-    "summary": "Push beyond basic CNNs — object detection (anchor boxes, IoU, NMS), semantic & instance segmentation (FCN, U-Net), vision transformers (ViT) from scratch, OCR with CRNN, and optical flow — on CIFAR-10 and synthetic detection/segmentation data.",
+    "summary": "Push beyond basic CNNs: object detection (anchor boxes, IoU, NMS), semantic & instance segmentation (FCN, U-Net), vision transformers (ViT) from scratch, OCR with CRNN, and optical flow, on CIFAR-10 and synthetic detection/segmentation data.",
     "prereqs": "Modules 05, 06, 08.",
     "takeaways": [
       "Object detection (anchors, IoU, NMS) and segmentation (FCN, U-Net) from the ground up.",
@@ -682,7 +682,7 @@ window.LECTURES = {
       },
       {
         "n": "09-03",
-        "t": "Semantic Segmentation — FCN & U-Net",
+        "t": "Semantic Segmentation: FCN & U-Net",
         "d": "Synthetic masks",
         "m": "25 min"
       },
@@ -733,12 +733,12 @@ window.LECTURES = {
   "advanced-nlp": {
     "n": "10",
     "title": "Advanced NLP: Pretrained Language Models",
-    "summary": "Master the pretrained language model paradigm — GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning — on WikiText-2, AG_NEWS, and synthetic tasks.",
+    "summary": "Master the pretrained language model paradigm: GPT-style generation and fine-tuning, BERT classification and token labelling, generation metrics (BLEU, ROUGE, BERTScore), RAG-lite, LoRA-style efficient tuning, and in-context learning, on WikiText-2, AG_NEWS, and synthetic tasks.",
     "prereqs": "Modules 07, 08.",
     "takeaways": [
       "Fine-tune GPT and BERT for generation, classification, and token labeling.",
       "Generation evaluation (BLEU/ROUGE/BERTScore), RAG-lite, and LoRA-style efficient tuning.",
-      "In-context learning and probing — what pretrained models actually know."
+      "In-context learning and probing: what pretrained models actually know."
     ],
     "flagship": {
       "n": "10-01",
@@ -811,7 +811,7 @@ window.LECTURES = {
   "generative": {
     "n": "11",
     "title": "Generative Deep Learning",
-    "summary": "Build the full spectrum of generative models from scratch — VAEs (reparameterisation, ELBO), GANs (DCGAN, WGAN-GP, conditional), diffusion (DDPM forward/reverse, noise schedules, sampling & guidance), normalizing flows, score/flow matching, and autoregressive image models — on MNIST, FashionMNIST, and CIFAR-10.",
+    "summary": "Build the full spectrum of generative models from scratch: VAEs (reparameterisation, ELBO), GANs (DCGAN, WGAN-GP, conditional), diffusion (DDPM forward/reverse, noise schedules, sampling & guidance), normalizing flows, score/flow matching, and autoregressive image models, on MNIST, FashionMNIST, and CIFAR-10.",
     "prereqs": "Modules 01, 05, 06, 08.",
     "takeaways": [
       "VAEs (reparameterization, ELBO) and GANs (DCGAN, WGAN-GP, conditional).",
@@ -896,7 +896,7 @@ window.LECTURES = {
   "multimodal": {
     "n": "12",
     "title": "Multimodal & Cross-Modal Learning",
-    "summary": "Build multimodal systems from scratch — contrastive image-text learning (CLIP), visual question answering, cross-modal retrieval, image captioning (CNN+Transformer), audio-visual correspondence, and generative multimodal concepts — on MNIST, CIFAR-10, and synthetic paired datasets.",
+    "summary": "Build multimodal systems from scratch: contrastive image-text learning (CLIP), visual question answering, cross-modal retrieval, image captioning (CNN+Transformer), audio-visual correspondence, and generative multimodal concepts, on MNIST, CIFAR-10, and synthetic paired datasets.",
     "prereqs": "Modules 06, 08, 09, 10, 11.",
     "takeaways": [
       "Contrastive image-text learning (CLIP) and cross-modal retrieval.",
@@ -974,11 +974,11 @@ window.LECTURES = {
   "fine-tuning": {
     "n": "13",
     "title": "Fine-Tuning & Alignment",
-    "summary": "Master the full spectrum of model adaptation and alignment — LoRA/PEFT, supervised fine-tuning (SFT), reward modelling, PPO-based RLHF, DPO, constitutional-AI concepts, prompt tuning, and continual learning — applied to the Transformer language models built in Modules 08 and 10.",
+    "summary": "Master the full spectrum of model adaptation and alignment: LoRA/PEFT, supervised fine-tuning (SFT), reward modelling, PPO-based RLHF, DPO, constitutional-AI concepts, prompt tuning, and continual learning, applied to the Transformer language models built in Modules 08 and 10.",
     "prereqs": "Modules 05, 08, 10.",
     "takeaways": [
       "Parameter-efficient fine-tuning (LoRA/PEFT) and supervised fine-tuning (SFT).",
-      "The RLHF stack: reward modeling, PPO, and DPO — plus constitutional-AI concepts.",
+      "The RLHF stack: reward modeling, PPO, and DPO, plus constitutional-AI concepts.",
       "Catastrophic forgetting, continual learning, and alignment evaluation & safety."
     ],
     "flagship": {
@@ -1052,12 +1052,12 @@ window.LECTURES = {
   "reinforcement-learning": {
     "n": "14",
     "title": "Reinforcement Learning",
-    "summary": "Build the full RL stack from scratch — Markov decision processes, dynamic programming, Monte Carlo, temporal-difference learning (Q-learning, SARSA), deep Q-networks (DQN, Double/Dueling), policy gradients (REINFORCE, Actor-Critic, A2C), and PPO — on gridworld, CartPole, and custom NumPy environments.",
+    "summary": "Build the full RL stack from scratch: Markov decision processes, dynamic programming, Monte Carlo, temporal-difference learning (Q-learning, SARSA), deep Q-networks (DQN, Double/Dueling), policy gradients (REINFORCE, Actor-Critic, A2C), and PPO, on gridworld, CartPole, and custom NumPy environments.",
     "prereqs": "Modules 01, 05.",
     "takeaways": [
       "MDPs, dynamic programming, Monte Carlo, and TD learning (Q-learning, SARSA).",
       "Deep RL: DQN and variants, REINFORCE, Actor-Critic/A2C, and PPO.",
-      "Model-based RL concepts — all on gridworld and CartPole built in NumPy."
+      "Model-based RL concepts, all on gridworld and CartPole built in NumPy."
     ],
     "flagships": [
       {
@@ -1104,7 +1104,7 @@ window.LECTURES = {
       },
       {
         "n": "14-06",
-        "t": "Policy Gradient — REINFORCE",
+        "t": "Policy Gradient: REINFORCE",
         "d": "CartPole",
         "m": "25 min"
       },
@@ -1137,7 +1137,7 @@ window.LECTURES = {
   "pytorch-internals": {
     "n": "15",
     "title": "Advanced PyTorch Internals",
-    "summary": "Go deep into PyTorch's machinery — custom autograd functions, dynamic computation graphs, TorchScript (JIT), hooks and callbacks, memory management and profiling, mixed-precision training, and gradient checkpointing — building tools that make models faster, smaller, and more debuggable.",
+    "summary": "Go deep into PyTorch's machinery: custom autograd functions, dynamic computation graphs, TorchScript (JIT), hooks and callbacks, memory management and profiling, mixed-precision training, and gradient checkpointing, building tools that make models faster, smaller, and more debuggable.",
     "prereqs": "Modules 05, 06.",
     "takeaways": [
       "Custom autograd functions, dynamic graphs, and TorchScript JIT compilation.",
@@ -1164,7 +1164,7 @@ window.LECTURES = {
       },
       {
         "n": "15-03",
-        "t": "TorchScript — JIT Tracing & Scripting",
+        "t": "TorchScript: JIT Tracing & Scripting",
         "d": "MNIST",
         "m": "20 min"
       },
@@ -1215,7 +1215,7 @@ window.LECTURES = {
   "training-systems": {
     "n": "16",
     "title": "Training Optimisation & Distributed Systems",
-    "summary": "Master advanced training techniques — learning-rate schedulers, optimiser variants (AdaGrad → Lion), batch-size scaling laws, data-pipeline optimisation, distributed training concepts (DDP, FSDP), gradient compression, profiling (torch.profiler, roofline), and hyperparameter optimisation — on MNIST, CIFAR-10, and synthetic benchmarks.",
+    "summary": "Master advanced training techniques: learning-rate schedulers, optimiser variants (AdaGrad → Lion), batch-size scaling laws, data-pipeline optimisation, distributed training concepts (DDP, FSDP), gradient compression, profiling (torch.profiler, roofline), and hyperparameter optimisation, on MNIST, CIFAR-10, and synthetic benchmarks.",
     "prereqs": "Modules 05, 06, 15.",
     "takeaways": [
       "LR schedulers, advanced optimizers, and the batch-size linear-scaling rule.",
@@ -1293,7 +1293,7 @@ window.LECTURES = {
   "llm-systems": {
     "n": "17",
     "title": "Large Language Models: Systems & Scaling",
-    "summary": "Master the systems and scaling foundations of LLMs — scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
+    "summary": "Master the systems and scaling foundations of LLMs: scaling laws and emergent abilities, attention efficiency (FlashAttention, KV-cache, grouped-query attention), quantisation (INT8/INT4/GPTQ/QLoRA), speculative decoding, long-context (RoPE, ALiBi, sliding window), mixture-of-experts, evaluation, and inference optimisation.",
     "prereqs": "Modules 08, 10, 13, 16.",
     "takeaways": [
       "Scaling laws, emergent abilities, and attention efficiency (FlashAttention, KV-cache, GQA).",
@@ -1314,7 +1314,7 @@ window.LECTURES = {
       },
       {
         "n": "17-02",
-        "t": "Transformer Efficiency — Attention Variants",
+        "t": "Transformer Efficiency: Attention Variants",
         "d": "Synthetic",
         "m": "25 min"
       },
@@ -1326,7 +1326,7 @@ window.LECTURES = {
       },
       {
         "n": "17-04",
-        "t": "Quantisation — INT8, INT4, GPTQ",
+        "t": "Quantisation: INT8, INT4, GPTQ",
         "d": "WikiText-2",
         "m": "25 min"
       },
@@ -1371,7 +1371,7 @@ window.LECTURES = {
   "rag-agents": {
     "n": "18",
     "title": "RAG & Agentic AI Systems",
-    "summary": "Build retrieval-augmented generation and agentic AI from scratch — dense retrieval (bi-encoders), vector indexing, RAG pipelines (retrieve-then-generate), query rewriting (HyDE), reranking, RAG evaluation, tool-using agents (ReAct), memory systems, and multi-agent orchestration — all without external API keys.",
+    "summary": "Build retrieval-augmented generation and agentic AI from scratch: dense retrieval (bi-encoders), vector indexing, RAG pipelines (retrieve-then-generate), query rewriting (HyDE), reranking, RAG evaluation, tool-using agents (ReAct), memory systems, and multi-agent orchestration, all without external API keys.",
     "prereqs": "Modules 08, 10, 13, 17.",
     "takeaways": [
       "Dense retrieval, vector indexing, and retrieve-then-generate RAG pipelines.",
@@ -1398,7 +1398,7 @@ window.LECTURES = {
       },
       {
         "n": "18-03",
-        "t": "RAG Pipeline — Retrieve-then-Generate",
+        "t": "RAG Pipeline: Retrieve-then-Generate",
         "d": "Synthetic docs + Q&A",
         "m": "25 min"
       },
@@ -1449,7 +1449,7 @@ window.LECTURES = {
   "ml-applications": {
     "n": "19",
     "title": "ML Applications & Domain Problems",
-    "summary": "Apply the full ML/DL toolkit to real-world domains — time-series forecasting, anomaly detection, medical imaging, recommender systems, NLP for code, graph neural networks, semi-supervised & multi-task learning, and fairness/bias — on synthetic domain datasets throughout.",
+    "summary": "Apply the full ML/DL toolkit to real-world domains: time-series forecasting, anomaly detection, medical imaging, recommender systems, NLP for code, graph neural networks, semi-supervised & multi-task learning, and fairness/bias, on synthetic domain datasets throughout.",
     "prereqs": "Modules 05, 06, 07, 08, 14.",
     "takeaways": [
       "Time-series forecasting, anomaly detection, and recommender systems.",
@@ -1527,7 +1527,7 @@ window.LECTURES = {
   "mlops": {
     "n": "20",
     "title": "MLOps & Production Deployment",
-    "summary": "Master the full MLOps lifecycle — systematic evaluation, experiment tracking with MLflow, model serialisation and TorchScript export, FastAPI serving, Docker containerisation, Kubernetes orchestration, drift monitoring, ML testing with pytest, and A/B experimentation — in one integrated capstone.",
+    "summary": "Master the full MLOps lifecycle: systematic evaluation, experiment tracking with MLflow, model serialisation and TorchScript export, FastAPI serving, Docker containerisation, Kubernetes orchestration, drift monitoring, ML testing with pytest, and A/B experimentation, in one integrated capstone.",
     "prereqs": "Modules 04, 05, 06, 15, 16.",
     "takeaways": [
       "Experiment tracking (MLflow), model export (TorchScript), and FastAPI serving.",
@@ -1605,7 +1605,7 @@ window.LECTURES = {
   "agentic-ai": {
     "n": "21",
     "title": "Agentic AI Systems & MCP",
-    "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
+    "summary": "Build production agents from first principles: the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
     "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
     "takeaways": [
       "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat, and you can build one from scratch.",
@@ -1678,12 +1678,12 @@ window.LECTURES = {
   "frontier-frameworks": {
     "n": "22",
     "title": "Frontier Models & Modern Frameworks",
-    "summary": "The modern toolchain beyond core PyTorch — JAX and Flax, the open-weight model landscape, vLLM and inference engines, torch.compile and Triton, ONNX export, provider APIs, modern fine-tuning stacks, and evaluation harnesses. Principle-first so it dates slowly.",
+    "summary": "The modern toolchain beyond core PyTorch: JAX and Flax, the open-weight model landscape, vLLM and inference engines, torch.compile and Triton, ONNX export, provider APIs, modern fine-tuning stacks, and evaluation harnesses. Principle-first so it dates slowly.",
     "prereqs": "Modules 15–17 (PyTorch internals, training systems, LLM systems).",
     "takeaways": [
       "JAX's jit/grad/vmap are the same autodiff and vectorization ideas you already know, expressed functionally.",
       "Serving is its own discipline: paged attention, continuous batching, and quantized runtimes decide real-world cost and latency.",
-      "Frameworks change; the principles underneath them don't — learn to read a release and map it onto what you already understand."
+      "Frameworks change; the principles underneath them don't. Learn to read a release and map it onto what you already understand."
     ],
     "notebooks": [
       {
@@ -1751,10 +1751,10 @@ window.LECTURES = {
   "causal-inference": {
     "n": "23",
     "title": "Causal Inference & Advanced Statistics",
-    "summary": "From correlation to causation — potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
+    "summary": "From correlation to causation: potential outcomes, causal graphs and do-calculus, confounding, instrumental variables, propensity matching, uplift modeling, A/B testing at scale, resampling methods, the Bayesian workflow, and time-series causality.",
     "prereqs": "Modules 01 (probability) and 04 (evaluation).",
     "takeaways": [
-      "Prediction and causation are different questions — a great predictor can be a terrible guide to intervention.",
+      "Prediction and causation are different questions: a great predictor can be a terrible guide to intervention.",
       "Confounding is the central enemy; graphs, randomization, instruments, and matching are the weapons.",
       "Experimentation at scale is an engineering discipline: power, sequential testing, and the traps of peeking."
     ],
@@ -1824,12 +1824,12 @@ window.LECTURES = {
   "trustworthy-ai": {
     "n": "24",
     "title": "Trustworthy, Safe & Interpretable AI",
-    "summary": "Make models you can trust — calibration and conformal prediction, fairness metrics and their trade-offs, attribution methods, mechanistic interpretability (superposition, SAEs, activation patching), adversarial robustness, drift detection, red-teaming, and alignment.",
+    "summary": "Make models you can trust: calibration and conformal prediction, fairness metrics and their trade-offs, attribution methods, mechanistic interpretability (superposition, SAEs, activation patching), adversarial robustness, drift detection, red-teaming, and alignment.",
     "prereqs": "Modules 04–05; module 08 for the interpretability lessons.",
     "takeaways": [
-      "A confident wrong answer is worse than an honest 'maybe' — calibration and conformal prediction quantify what a model knows it doesn't know.",
+      "A confident wrong answer is worse than an honest 'maybe': calibration and conformal prediction quantify what a model knows it doesn't know.",
       "Interpretability has gone mechanistic: features as directions, superposition, and causal interventions on activations.",
-      "Robustness, fairness, and drift aren't compliance checkboxes — they're failure modes you can measure and engineer against."
+      "Robustness, fairness, and drift aren't compliance checkboxes: they're failure modes you can measure and engineer against."
     ],
     "notebooks": [
       {
@@ -1897,8 +1897,8 @@ window.LECTURES = {
   "interview-capstone": {
     "n": "25",
     "title": "ML Interview & System Design Capstone",
-    "summary": "Turn the whole curriculum into interview readiness — the ML system design framework, classic design cases (recommender, search & ads, fraud, LLM products), coding patterns, classical CS algorithms, rapid-fire breadth drills, deep derivations, and a portfolio capstone.",
-    "prereqs": "The rest of the curriculum — this module is the integration test.",
+    "summary": "Turn the whole curriculum into interview readiness: the ML system design framework, classic design cases (recommender, search & ads, fraud, LLM products), coding patterns, classical CS algorithms, rapid-fire breadth drills, deep derivations, and a portfolio capstone.",
+    "prereqs": "The rest of the curriculum: this module is the integration test.",
     "takeaways": [
       "ML system design has a repeatable framework: clarify, frame, data, features, model, serving, metrics, iteration.",
       "Most interview questions trace back to a small set of derivations and trade-offs you can drill deliberately.",
@@ -2004,7 +2004,7 @@ window.LECTURE_CODE = {
     "code": "# scaled dot-product attention\nscores = Q @ K.transpose(-2, -1) / math.sqrt(d_k)\nweights = scores.softmax(dim=-1)\nout = weights @ V          # every token reads every other token"
   },
   "advanced-cv": {
-    "caption": "Detection starts with IoU — how much two boxes overlap.",
+    "caption": "Detection starts with IoU: how much two boxes overlap.",
     "code": "inter = overlap_area(box_a, box_b)\niou = inter / (area(box_a) + area(box_b) - inter)\n# keep the highest-scoring box, suppress overlaps (NMS)"
   },
   "advanced-nlp": {

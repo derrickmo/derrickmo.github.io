@@ -47,8 +47,8 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Every tool you add makes routing harder",
         "paras": [
-          "Routing is a top-1 selection among candidates, so the toolbox size enters directly: every additional tool is one more chance for a distractor to outscore the right one. With a scorer whose correct-tool margin is three standard deviations — strong by any measure — top-1 accuracy is 0.955 over 4 tools, 0.866 over 16, 0.729 over 64 and 0.564 over 256. Nothing about the scorer changed.",
-          "And a routing error is not a wrong answer, it is a wrong action, which then compounds along the trajectory: at 95% per call, a five-call task routes correctly 77.4% of the time and a ten-call task 59.9%. Both facts push the same way — toward hierarchical routing that picks a small group before picking within it, toward retrieving a handful of candidate tools rather than presenting all of them, and toward making the descriptions distinguishable, since the margin is what the scorer actually has to work with."
+          "Routing is a top-1 selection among candidates, so the toolbox size enters directly: every additional tool is one more chance for a distractor to outscore the right one. With a scorer whose correct-tool margin is three standard deviations, strong by any measure, top-1 accuracy is 0.955 over 4 tools, 0.866 over 16, 0.729 over 64 and 0.564 over 256. Nothing about the scorer changed.",
+          "And a routing error is not a wrong answer, it is a wrong action, which then compounds along the trajectory: at 95% per call, a five-call task routes correctly 77.4% of the time and a ten-call task 59.9%. Both facts push the same way: toward hierarchical routing that picks a small group before picking within it, toward retrieving a handful of candidate tools rather than presenting all of them, and toward making the descriptions distinguishable, since the margin is what the scorer actually has to work with."
         ]
       }
     ],

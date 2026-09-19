@@ -50,7 +50,7 @@ window.DM_SUBLESSON_CTX = {
         "h": "Longer context, exponentially less data",
         "paras": [
           "The Markov assumption trades context for countability, and the exchange rate is brutal. Training on 80% of this site's prose and testing on the rest, the share of test n-grams never seen in training is 4.1% for unigrams, 54.4% for bigrams, 88.9% for trigrams, 97.0% for 4-grams and 98.8% for 5-grams. By order five, essentially every context at test time is one the model has no counts for.",
-          "That is why n-gram language models stop at three to five orders and why so much classical NLP was smoothing — backoff, Kneser-Ney and the rest exist to answer the question \"what do I do when the count is zero\", which is the common case rather than the exception. It is also the precise gap that distributed representations closed: a neural model can generalise across contexts it never saw because similar words share parameters, whereas a count table can only ever look up what it has already observed."
+          "That is why n-gram language models stop at three to five orders and why so much classical NLP was smoothing: backoff, Kneser-Ney and the rest exist to answer the question \"what do I do when the count is zero\", which is the common case rather than the exception. It is also the precise gap that distributed representations closed: a neural model can generalise across contexts it never saw because similar words share parameters, whereas a count table can only ever look up what it has already observed."
         ]
       }
     ],

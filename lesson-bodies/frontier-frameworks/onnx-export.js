@@ -182,12 +182,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ Every export format is three things",
-        "back": "A GRAPH (IR of nodes and edges) · an OPSET (contract of ops the target understands) · a PARITY CHECK (does it compute the same thing). ONNX, TorchScript, TFLite, CoreML, StableHLO are five instances — learn the structure, not the API."
+        "back": "A GRAPH (IR of nodes and edges) · an OPSET (contract of ops the target understands) · a PARITY CHECK (does it compute the same thing). ONNX, TorchScript, TFLite, CoreML, StableHLO are five instances: learn the structure, not the API."
       },
       {
         "type": "pitfall",
         "front": "\"It exported\" means the TRACER completed",
-        "back": "Nothing more. It doesn't mean the graph computes what the original did — a traced control-flow path, a missing dynamic axis, an operator semantic difference, or misplaced preprocessing all produce a model that RUNS."
+        "back": "Nothing more. It doesn't mean the graph computes what the original did: a traced control-flow path, a missing dynamic axis, an operator semantic difference, or misplaced preprocessing all produce a model that RUNS."
       },
       {
         "type": "formula",
@@ -197,12 +197,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "The opset is a CONTRACT",
-        "back": "export ok ⟺ ops(graph) ⊆ opset(v). An unsupported GELU made export REFUSE at build time. Pin the opset VERSION with the artifact — the same graph against a different opset is a different contract."
+        "back": "export ok ⟺ ops(graph) ⊆ opset(v). An unsupported GELU made export REFUSE at build time. Pin the opset VERSION with the artifact: the same graph against a different opset is a different contract."
       },
       {
         "type": "intuition",
         "front": "★ Why refusal is the FEATURE",
-        "back": "A silent substitution gives a model that RUNS, returns PLAUSIBLE numbers, and is subtly wrong — surfacing as an unexplained quality regression weeks later with no error to grep for. Loud cheap failure beats quiet expensive failure."
+        "back": "A silent substitution gives a model that RUNS, returns PLAUSIBLE numbers, and is subtly wrong, surfacing as an unexplained quality regression weeks later with no error to grep for. Loud cheap failure beats quiet expensive failure."
       },
       {
         "type": "intuition",
@@ -212,11 +212,11 @@ window.DM_LESSON_BODIES = {
       {
         "type": "formula",
         "front": "Quantized export, measured",
-        "back": "3.6× smaller · accuracy 0.912 → 0.914 (WITHIN NOISE — the honest reading is \"no measurable change\", not \"it helped\") · logits DRIFT · decisions UNCHANGED."
+        "back": "3.6× smaller · accuracy 0.912 → 0.914 (WITHIN NOISE: the honest reading is \"no measurable change\", not \"it helped\") · logits DRIFT · decisions UNCHANGED."
       },
       {
         "type": "intuition",
-        "front": "★ Why decisions survived — and why that doesn't generalize",
+        "front": "★ Why decisions survived, and why that doesn't generalize",
         "back": "argmax is a STEP FUNCTION and the drift was smaller than the top-two margin. Safe for a CLASSIFIER. For a GENERATIVE model you SAMPLE, so drift changes which tokens can appear, and errors COMPOUND over hundreds of steps."
       },
       {
@@ -227,7 +227,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Drift magnitude tells you which conversation you're having",
-        "back": "~1e-6 = floating-point noise from op order, fusion or accumulation precision — expected. ~1e-2 = a real semantic difference: an operator default, a padding convention, an epsilon, or an outright substitution. Rule out substitution FIRST."
+        "back": "~1e-6 = floating-point noise from op order, fusion or accumulation precision, expected. ~1e-2 = a real semantic difference: an operator default, a padding convention, an epsilon, or an outright substitution. Rule out substitution FIRST."
       },
       {
         "type": "pitfall",
@@ -237,7 +237,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "When exporting is NOT worth it",
-        "back": "Same framework, similar hardware, adequate native serving — the export adds a conversion step, a parity obligation, an artifact to version, and a failure class that wouldn't exist. Name the specific constraint it solves; \"portability\" isn't one unless someone requires it."
+        "back": "Same framework, similar hardware, adequate native serving: the export adds a conversion step, a parity obligation, an artifact to version, and a failure class that wouldn't exist. Name the specific constraint it solves; \"portability\" isn't one unless someone requires it."
       }
     ],
     "refs": [

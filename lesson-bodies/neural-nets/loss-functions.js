@@ -24,7 +24,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "What is Huber loss for?",
-          "a": "Quadratic near zero and linear in the tails — MSE's smooth gradients near the optimum with MAE's resistance to outliers, at the cost of a threshold to tune."
+          "a": "Quadratic near zero and linear in the tails: MSE's smooth gradients near the optimum with MAE's resistance to outliers, at the cost of a threshold to tune."
         },
         {
           "q": "What does a loss's minimizer tell you?",
@@ -36,7 +36,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "BCE vs categorical cross-entropy?",
-          "a": "BCE treats each output as an independent yes/no, so labels can be multiple. Categorical CE with softmax forces the outputs to compete and sum to 1 — use it only when the classes are exclusive."
+          "a": "BCE treats each output as an independent yes/no, so labels can be multiple. Categorical CE with softmax forces the outputs to compete and sum to 1, use it only when the classes are exclusive."
         },
         {
           "q": "What does focal loss change?",
@@ -48,7 +48,7 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Does reduction='sum' vs 'mean' matter?",
-          "a": "Yes — sum makes the effective learning rate scale with batch size. Mixing them across a codebase is a classic source of unreproducible results."
+          "a": "Yes: sum makes the effective learning rate scale with batch size. Mixing them across a codebase is a classic source of unreproducible results."
         },
         {
           "q": "How do you weight classes for imbalance, and what breaks?",
@@ -58,15 +58,15 @@ window.DM_LESSON_BODIES = {
       "standard": [
         {
           "q": "Derive why MSE trains a classifier badly and cross-entropy does not.",
-          "a": "Take a softmax output p and one-hot target y. With cross-entropy, dL/dz = p - y: the gradient is proportional to the error, so a confidently wrong prediction (p near 1 on the wrong class) produces a gradient near its maximum and the model corrects fast. With MSE the loss is |p - y|^2, and the chain rule brings in the softmax Jacobian, giving a gradient with a factor of roughly p(1-p). That factor goes to zero as p approaches 0 or 1 — so a confidently WRONG prediction produces almost no gradient and the model gets stuck. The pathology is precisely that the learning signal vanishes when it is needed most. There is a second, statistical reason: cross-entropy is the negative log-likelihood of a categorical model, so minimizing it is maximum likelihood, whereas squared error implies Gaussian noise, which is the wrong model for a class label.",
+          "a": "Take a softmax output p and one-hot target y. With cross-entropy, dL/dz = p - y: the gradient is proportional to the error, so a confidently wrong prediction (p near 1 on the wrong class) produces a gradient near its maximum and the model corrects fast. With MSE the loss is |p - y|^2, and the chain rule brings in the softmax Jacobian, giving a gradient with a factor of roughly p(1-p). That factor goes to zero as p approaches 0 or 1, so a confidently WRONG prediction produces almost no gradient and the model gets stuck. The pathology is precisely that the learning signal vanishes when it is needed most. There is a second, statistical reason: cross-entropy is the negative log-likelihood of a categorical model, so minimizing it is maximum likelihood, whereas squared error implies Gaussian noise, which is the wrong model for a class label.",
           "deepDive": {
             "q": "Does this mean MSE can never be used on classification?",
-            "a": "It can be, and sometimes is — Brier score is MSE on probabilities and is a proper scoring rule with good calibration properties. The objection is optimization dynamics with saturating outputs, not the statistic itself. With a linear output or careful initialization it trains, just less robustly."
+            "a": "It can be, and sometimes is: Brier score is MSE on probabilities and is a proper scoring rule with good calibration properties. The objection is optimization dynamics with saturating outputs, not the statistic itself. With a linear output or careful initialization it trains, just less robustly."
           }
         },
         {
           "q": "How do you choose a regression loss, and what is really being decided?",
-          "a": "You are deciding which statistic to estimate and how much to care about outliers, and those are the same decision. Squared error's minimizer is the conditional mean, and because the penalty grows quadratically, a single large outlier can dominate the total — good if large errors are genuinely disproportionately costly, bad if the tail is noise or mislabeling. Absolute error's minimizer is the conditional median, giving constant gradient magnitude and robustness, but a kink at zero that slows final convergence. Huber interpolates: quadratic within delta, linear outside, so it keeps smooth gradients near the optimum and bounded influence in the tails, at the cost of a delta to tune (and delta is scale-dependent, so it interacts with target normalization). Pinball loss generalizes further to any quantile, which is how you get prediction intervals from point regression. The right question is never which loss is best but which statistic the downstream decision needs.",
+          "a": "You are deciding which statistic to estimate and how much to care about outliers, and those are the same decision. Squared error's minimizer is the conditional mean, and because the penalty grows quadratically, a single large outlier can dominate the total, good if large errors are genuinely disproportionately costly, bad if the tail is noise or mislabeling. Absolute error's minimizer is the conditional median, giving constant gradient magnitude and robustness, but a kink at zero that slows final convergence. Huber interpolates: quadratic within delta, linear outside, so it keeps smooth gradients near the optimum and bounded influence in the tails, at the cost of a delta to tune (and delta is scale-dependent, so it interacts with target normalization). Pinball loss generalizes further to any quantile, which is how you get prediction intervals from point regression. The right question is never which loss is best but which statistic the downstream decision needs.",
           "deepDive": {
             "q": "Why does MAE sometimes stall near the optimum?",
             "a": "Its gradient is constant in magnitude and flips sign at zero, so with a fixed learning rate the iterate oscillates in a band around the minimum rather than settling. Huber exists largely to remove that discontinuity while keeping tail robustness."
@@ -74,15 +74,15 @@ window.DM_LESSON_BODIES = {
         },
         {
           "q": "Class imbalance: what actually goes wrong, and what fixes it?",
-          "a": "With 99 to 1 imbalance, predicting the majority everywhere gives 99 percent accuracy and near-minimal average loss, so the gradient from the rare class is swamped. Three interventions attack different parts. Class weighting or resampling rebalances the gradient contribution — simple, but it changes the effective prior and therefore distorts the output probabilities, so a weighted model needs recalibration before its scores mean anything. Focal loss reweights by difficulty rather than by class, down-weighting the easy negatives that dominate detection, which is a better match when the problem is easy-example volume rather than class rarity per se. Threshold moving leaves training untouched and adjusts the decision point afterward, which is often the cleanest option because it separates the probability model from the decision rule. The pitfall common to all of them is evaluating with accuracy, which imbalance makes meaningless — use PR-AUC, per-class recall, or the actual decision cost."
+          "a": "With 99 to 1 imbalance, predicting the majority everywhere gives 99 percent accuracy and near-minimal average loss, so the gradient from the rare class is swamped. Three interventions attack different parts. Class weighting or resampling rebalances the gradient contribution, simple, but it changes the effective prior and therefore distorts the output probabilities, so a weighted model needs recalibration before its scores mean anything. Focal loss reweights by difficulty rather than by class, down-weighting the easy negatives that dominate detection, which is a better match when the problem is easy-example volume rather than class rarity per se. Threshold moving leaves training untouched and adjusts the decision point afterward, which is often the cleanest option because it separates the probability model from the decision rule. The pitfall common to all of them is evaluating with accuracy, which imbalance makes meaningless. Use PR-AUC, per-class recall, or the actual decision cost."
         },
         {
           "q": "What does label smoothing do to the geometry of the solution?",
-          "a": "With hard targets the loss is minimized by driving the correct logit to infinity relative to the others, so training pushes toward ever-larger logit gaps and overconfidence — the model keeps reducing loss without learning anything new. Smoothing sets the target to 1-eps for the true class and eps/(K-1) elsewhere, which makes the optimal logit gap FINITE and stops that runaway. The effects are consistent: better calibration, mildly worse perplexity, and tighter, more equally spaced class clusters in the penultimate layer. The trade-off worth knowing is that smoothing destroys some of the information in those representations, which is why it can hurt when the network is used as a feature extractor for distillation or retrieval — a case where a better-calibrated classifier is a worse encoder."
+          "a": "With hard targets the loss is minimized by driving the correct logit to infinity relative to the others, so training pushes toward ever-larger logit gaps and overconfidence: the model keeps reducing loss without learning anything new. Smoothing sets the target to 1-eps for the true class and eps/(K-1) elsewhere, which makes the optimal logit gap FINITE and stops that runaway. The effects are consistent: better calibration, mildly worse perplexity, and tighter, more equally spaced class clusters in the penultimate layer. The trade-off worth knowing is that smoothing destroys some of the information in those representations, which is why it can hurt when the network is used as a feature extractor for distillation or retrieval, a case where a better-calibrated classifier is a worse encoder."
         },
         {
           "q": "Why do frameworks want raw logits rather than probabilities?",
-          "a": "Numerical stability plus a gradient simplification. exp of a large logit overflows and log of a small probability underflows, but log-softmax computes log p = z - max(z) - log sum exp(z - max(z)), which is stable for any input range. Fusing softmax with cross-entropy also lets the framework return p - y directly instead of composing two Jacobians, which is both faster and more accurate. The practical consequence is a very common bug: passing softmax outputs into a function that expects logits applies softmax twice, which does not error — it silently flattens the distribution, so the model trains poorly for no visible reason."
+          "a": "Numerical stability plus a gradient simplification. exp of a large logit overflows and log of a small probability underflows, but log-softmax computes log p = z - max(z) - log sum exp(z - max(z)), which is stable for any input range. Fusing softmax with cross-entropy also lets the framework return p - y directly instead of composing two Jacobians, which is both faster and more accurate. The practical consequence is a very common bug: passing softmax outputs into a function that expects logits applies softmax twice, which does not error. It silently flattens the distribution, so the model trains poorly for no visible reason."
         },
         {
           "q": "You have a working loss but the model is overconfident. What do you check?",
@@ -109,7 +109,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "definition",
         "front": "Huber loss",
-        "back": "Quadratic within delta, linear outside — MSE's smooth gradients near zero with MAE's tail robustness. Delta is scale-dependent."
+        "back": "Quadratic within delta, linear outside: MSE's smooth gradients near zero with MAE's tail robustness. Delta is scale-dependent."
       },
       {
         "type": "definition",
@@ -124,7 +124,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Why MSE stalls on classification",
-        "back": "Its gradient carries a p(1-p) factor that vanishes exactly when the model is confidently wrong — no signal when it is needed most."
+        "back": "Its gradient carries a p(1-p) factor that vanishes exactly when the model is confidently wrong, no signal when it is needed most."
       },
       {
         "type": "intuition",
@@ -134,7 +134,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Double softmax",
-        "back": "Passing probabilities where logits are expected applies softmax twice. It does not error — it silently flattens the distribution."
+        "back": "Passing probabilities where logits are expected applies softmax twice. It does not error. It silently flattens the distribution."
       },
       {
         "type": "pitfall",

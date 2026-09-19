@@ -46,7 +46,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The optimiser state is bigger than the model",
         "paras": [
-          "Training memory is dominated by what the optimiser keeps, not by the weights. Per parameter in mixed precision: fp16 weights are 2 bytes, fp16 gradients 2, the fp32 master copy 4, and Adam's first and second moments 4 each — 16 bytes in total. For a 7B model that is 112 GB of state against 14 GB of fp16 weights, a factor of eight before a single activation is stored.",
+          "Training memory is dominated by what the optimiser keeps, not by the weights. Per parameter in mixed precision: fp16 weights are 2 bytes, fp16 gradients 2, the fp32 master copy 4, and Adam's first and second moments 4 each, 16 bytes in total. For a 7B model that is 112 GB of state against 14 GB of fp16 weights, a factor of eight before a single activation is stored.",
           "Plain SGD needs 4 bytes per parameter and SGD with momentum 8, which is why the choice of optimiser is a memory decision as much as a convergence one. It is also why the mitigations target this number directly: ZeRO shards optimiser state, gradients and parameters across data-parallel ranks rather than replicating them, 8-bit optimisers quantise the moments, and the memory-light optimisers drop the second moment entirely. Any calculation of what will fit on a device has to start from 16 bytes per parameter, not from the checkpoint size."
         ]
       }

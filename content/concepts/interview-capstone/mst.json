@@ -30,9 +30,9 @@
     {
       "h": "Why this belongs in an ML curriculum",
       "paras": [
-        "Single-linkage hierarchical clustering is minimum spanning tree construction. The agglomerative procedure merges the two clusters with the smallest distance between any pair of members, which is exactly the order Kruskal adds edges. So cutting the k-1 heaviest edges of the MST gives precisely the k clusters single-linkage would produce — verified directly here for k of 2, 4 and 7, with identical cluster memberships each time.",
+        "Single-linkage hierarchical clustering is minimum spanning tree construction. The agglomerative procedure merges the two clusters with the smallest distance between any pair of members, which is exactly the order Kruskal adds edges. So cutting the k-1 heaviest edges of the MST gives precisely the k clusters single-linkage would produce, verified directly here for k of 2, 4 and 7, with identical cluster memberships each time.",
         "That equivalence is useful in both directions. It explains single-linkage's signature weakness, chaining: a thin bridge of points between two dense blobs is a light edge, so the MST joins them and no threshold separates them afterwards. And it gives you an O(E log E) route to the whole hierarchy rather than the naive O(n cubed) agglomerative loop.",
-        "The pattern shows up elsewhere too. Chow-Liu learns the optimal tree-structured Bayesian network by finding a maximum spanning tree over pairwise mutual information — the same algorithm with the sign flipped and information as the weight. And in image segmentation, Felzenszwalb-Huttenlocher is an MST-based region merger.",
+        "The pattern shows up elsewhere too. Chow-Liu learns the optimal tree-structured Bayesian network by finding a maximum spanning tree over pairwise mutual information: the same algorithm with the sign flipped and information as the weight. And in image segmentation, Felzenszwalb-Huttenlocher is an MST-based region merger.",
         "One caveat that separates it from shortest paths, and which interviews probe: the MST does not contain shortest paths. The minimum spanning tree minimises TOTAL edge weight, and the path between two vertices within it can be arbitrarily worse than their true shortest path. If you need distances, run Dijkstra; the MST answers a different question."
       ]
     }
@@ -40,7 +40,7 @@
   "takeaways": [
     "Both Kruskal and Prim rest on the cut property; with distinct edge weights the MST is unique, confirmed by two algorithms returning byte-identical edge sets.",
     "Single-linkage clustering IS the MST: cutting the k-1 heaviest edges reproduced the agglomerative clusters exactly, which also explains chaining as a light-bridge edge.",
-    "The MST minimises total weight, not path length — the route between two nodes inside it can be far worse than their shortest path."
+    "The MST minimises total weight, not path length: the route between two nodes inside it can be far worse than their shortest path."
   ],
   "demo": "mst",
   "updatedAt": "2026-08-22"

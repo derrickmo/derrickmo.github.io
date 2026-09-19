@@ -33,7 +33,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The intuition",
         "paras": [
-          "One attention map forces every token to mix information in a single way. Real language needs several relationships at once — syntactic agreement, coreference, local phrasing. Multi-head attention splits the model width into h smaller subspaces, runs attention independently in each, and concatenates the results.",
+          "One attention map forces every token to mix information in a single way. Real language needs several relationships at once: syntactic agreement, coreference, local phrasing. Multi-head attention splits the model width into h smaller subspaces, runs attention independently in each, and concatenates the results.",
           "Each head is cheap (it works in d/h dimensions), and together they let the layer attend to different things in different subspaces simultaneously."
         ]
       },
@@ -53,8 +53,8 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "One softmax can only point at one place",
         "paras": [
-          "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average — which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
-          "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it — which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
+          "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average, which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
+          "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it, which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
         ]
       }
     ],

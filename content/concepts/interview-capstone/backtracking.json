@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Some problems have no incremental scoring to guide you: a partial Sudoku is not 'closer' to solved in any measurable way. Backtracking handles those by committing to a choice, exploring, and undoing the choice when the branch dies. It is depth-first search over partial assignments.",
-        "Written naively it enumerates everything, which is hopeless. The whole art is detecting a dead branch early — the moment a partial assignment cannot possibly extend to a solution, you prune an entire subtree rather than exploring it."
+        "Written naively it enumerates everything, which is hopeless. The whole art is detecting a dead branch early: the moment a partial assignment cannot possibly extend to a solution, you prune an entire subtree rather than exploring it."
       ]
     },
     {

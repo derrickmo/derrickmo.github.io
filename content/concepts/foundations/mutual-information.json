@@ -4,12 +4,12 @@
   "id": "mutual-information",
   "module": "foundations",
   "title": "Mutual Information",
-  "oneLine": "How many bits knowing one variable saves you about another — a dependence measure that sees every relationship, not just linear ones.",
+  "oneLine": "How many bits knowing one variable saves you about another, a dependence measure that sees every relationship, not just linear ones.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
-        "Correlation asks whether two variables move together in a straight line. Plenty of real dependence is not a straight line: y = x squared has a correlation near zero on symmetric data while x determines y exactly. Mutual information asks the more basic question — does knowing X reduce your uncertainty about Y?",
+        "Correlation asks whether two variables move together in a straight line. Plenty of real dependence is not a straight line: y = x squared has a correlation near zero on symmetric data while x determines y exactly. Mutual information asks the more basic question: does knowing X reduce your uncertainty about Y?",
         "It is zero if and only if the two are independent, which correlation cannot claim. That is the property worth paying for, and the cost is that it is much harder to estimate."
       ]
     },
@@ -19,7 +19,7 @@
         "The reduction in entropy, equivalently the KL divergence between the joint and the product of marginals:"
       ],
       "tex": "I(X;Y) = H(X) - H(X\\mid Y) = \\sum_{x,y} p(x,y)\\log\\frac{p(x,y)}{p(x)p(y)}",
-      "texNote": "It is symmetric, non-negative, and measured in bits with log base 2. Zero exactly when p(x,y) = p(x)p(y) everywhere — that is what independence means, so the equivalence is a definition rather than a theorem."
+      "texNote": "It is symmetric, non-negative, and measured in bits with log base 2. Zero exactly when p(x,y) = p(x)p(y) everywhere: that is what independence means, so the equivalence is a definition rather than a theorem."
     },
     {
       "h": "In code",
@@ -36,7 +36,7 @@
     }
   ],
   "takeaways": [
-    "MI is zero if and only if the variables are independent — a guarantee correlation cannot make.",
+    "MI is zero if and only if the variables are independent, a guarantee correlation cannot make.",
     "It measures the bits knowing one saves about the other, and it catches non-linear dependence.",
     "Estimating it from samples is the hard part: binning drives the answer, and on noise a fine binning reports dependence that is not there."
   ],

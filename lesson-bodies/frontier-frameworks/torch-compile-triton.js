@@ -47,7 +47,7 @@ window.DM_LESSON_BODIES = {
             "The mechanisms are the durable content; the flags are not."
           ],
           "code": "# 1. CAPTURE a graph - so the compiler can see more than one op.\ngraph = symbolic_trace(model).graph      # torch.fx -> 5 op nodes here\n#    Everything downstream operates on this IR. Dynamo, XLA's tracer\n#    and ONNX export are all doing this step with different tradeoffs\n#    between coverage and strictness (22-06).\n\n# 2. ★ FUSE memory-bound ops - the biggest win, and derivable:\n#    an elementwise op does ~1 FLOP per element loaded -> arithmetic\n#    intensity ~1, against hardware ratios ~100. ALWAYS bandwidth-bound.\n#      unfused chain: time LINEAR in N, slope ~0.83 ms/op\n#                     (each op = a separate ROUND TRIP to memory)\n#      fused:         one pass -> 32 ops = 32x less traffic\n#    ★ THE DIAGNOSTIC: if adding an op adds constant time REGARDLESS of\n#      what it computes, you are measuring MEMORY, not arithmetic.\n\n# 3. REDUCE LAUNCH OVERHEAD - a third regime, at small sizes:\n#      t = N * (t_launch + t_work),  t_launch ~ 1.4 us\n#      10,000 small ops = 53.5x one big op doing the same arithmetic\n#    Fixes: fusion (fewer launches) and graph capture + replay (amortize\n#    them). This is why SMALL-batch inference often sees the LARGEST\n#    relative gain from compilation - the opposite of the intuition\n#    that compilers help most on big work.\n\n# THE REAL API, for reference (it did not execute in this environment -\n# inductor needs a host C compiler, and Triton was not installed):\n#   model = torch.compile(model, mode=\"max-autotune\")\n#   @triton.jit\n#   def kernel(X, Y, N, BLOCK: tl.constexpr): ...",
-          "caption": "Capture, fuse, amortize launches — the three mechanisms behind inductor, XLA, TVM and TensorRT alike, which is why the mechanisms transfer and the flags do not."
+          "caption": "Capture, fuse, amortize launches, the three mechanisms behind inductor, XLA, TVM and TensorRT alike, which is why the mechanisms transfer and the flags do not."
         },
         {
           "h": "The Triton tile model, verified rather than trusted",
@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "The abstraction is per-block code with within-block parallelism handled for you."
           ],
           "code": "# THE TILE ABSTRACTION: you write code for ONE BLOCK of data; the\n# compiler handles parallelism WITHIN the block and schedules blocks\n# across the device. That is one level up from CUDA (per-thread) and\n# one level down from a framework op (whole tensor).\n\n# ★ VERIFY THE TILING IS RIGHT BY CHECKING IT AGAINST THE NAIVE FORM.\n#   Written block-wise in numpy, the result matched the naive\n#   computation EXACTLY - which is what tells you the indexing,\n#   masking and accumulation are correct before any GPU is involved:\nfor start in range(0, N, BLOCK):\n    idx  = start + arange(BLOCK)\n    mask = idx < N                    # ★ the tail block is where\n    x    = load(X + idx, mask=mask)   #   tiling bugs live\n    store(Y + idx, f(x), mask=mask)\nassert allclose(Y_blockwise, Y_naive)  # exact\n\n# ⚠ WHY THIS LESSON MEASURED MECHANISMS RATHER THAN torch.compile:\n#   inductor needs a host C compiler (absent here) and Triton was not\n#   installed, so torch.compile DOES NOT EXECUTE in this environment.\n#   Rather than report numbers from a path that did not run, the\n#   mechanisms were measured with tools that do run - fx for capture,\n#   timing for fusion and launch overhead, numpy for the tile model.\n#   ★ That is the honest move: measure what you can actually run, and\n#     say which parts are shown as API rather than executed.",
-          "caption": "Checking the block-wise form against the naive one catches indexing and masking bugs — especially in the tail block — before any GPU is involved."
+          "caption": "Checking the block-wise form against the naive one catches indexing and masking bugs, especially in the tail block, before any GPU is involved."
         }
       ],
       "useCases": [
@@ -182,12 +182,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ All tensor compilers do three things",
-        "back": "CAPTURE a graph (see more than one op) · FUSE memory-bound ops · AMORTIZE launch overhead. Inductor, XLA, TVM, TensorRT are four answers to those three problems. Learn the problems — the flags don't transfer."
+        "back": "CAPTURE a graph (see more than one op) · FUSE memory-bound ops · AMORTIZE launch overhead. Inductor, XLA, TVM, TensorRT are four answers to those three problems. Learn the problems: the flags don't transfer."
       },
       {
         "type": "formula",
         "front": "Elementwise ops are ALWAYS bandwidth-bound",
-        "back": "Arithmetic intensity ≈ 1 FLOP/byte vs hardware ratios ~100. So no amount of faster arithmetic helps — the only lever is moving fewer BYTES, which is what fusion does. Same roofline argument that makes LLM decode bandwidth-bound."
+        "back": "Arithmetic intensity ≈ 1 FLOP/byte vs hardware ratios ~100. So no amount of faster arithmetic helps. The only lever is moving fewer BYTES, which is what fusion does. Same roofline argument that makes LLM decode bandwidth-bound."
       },
       {
         "type": "formula",
@@ -197,7 +197,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The linearity DIAGNOSTIC",
-        "back": "If adding an op adds CONSTANT time regardless of what it computes, you're measuring memory traffic, not arithmetic — so fusion is the fix. Identifies the mechanism with nothing but a timer."
+        "back": "If adding an op adds CONSTANT time regardless of what it computes, you're measuring memory traffic, not arithmetic, so fusion is the fix. Identifies the mechanism with nothing but a timer."
       },
       {
         "type": "formula",
@@ -207,7 +207,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Compilers help MOST on small work",
-        "back": "The opposite of the intuition. A big matmul is already compute-bound and near peak — little to add. Many small elementwise ops are dominated by traffic and launches, which is exactly what compilation removes."
+        "back": "The opposite of the intuition. A big matmul is already compute-bound and near peak, little to add. Many small elementwise ops are dominated by traffic and launches, which is exactly what compilation removes."
       },
       {
         "type": "intuition",
@@ -222,17 +222,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Verify tiling against the NAIVE form first",
-        "back": "Write the block-wise version in numpy and assert it matches exactly — that's what proves indexing, masking and accumulation are right. Bugs concentrate in the TAIL BLOCK, and getting a wrong answer FAST is a silent failure."
+        "back": "Write the block-wise version in numpy and assert it matches exactly. That's what proves indexing, masking and accumulation are right. Bugs concentrate in the TAIL BLOCK, and getting a wrong answer FAST is a silent failure."
       },
       {
         "type": "pitfall",
         "front": "What limits fusion",
-        "back": "GRAPH BREAKS (ops either side can't fuse — often the highest-value fix and invisible unless you look) · materialization points · reductions across the boundary · register/shared-memory limits · mismatched shapes and broadcasts."
+        "back": "GRAPH BREAKS (ops either side can't fuse, often the highest-value fix and invisible unless you look) · materialization points · reductions across the boundary · register/shared-memory limits · mismatched shapes and broadcasts."
       },
       {
         "type": "intuition",
         "front": "Decide whether to compile from TWO facts",
-        "back": "The REGIME (compile helps bandwidth- and overhead-bound, little for compute-bound) and SHAPE STABILITY (fixed shapes → compile once; a long tail of unique shapes can spend more time compiling than it saves — bucket or don't)."
+        "back": "The REGIME (compile helps bandwidth- and overhead-bound, little for compute-bound) and SHAPE STABILITY (fixed shapes → compile once; a long tail of unique shapes can spend more time compiling than it saves; bucket or don't)."
       },
       {
         "type": "intuition",

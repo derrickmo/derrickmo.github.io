@@ -8,12 +8,12 @@
   "blurb": "MDPs, TD learning, Q-learning, bandits, DQN, policy gradients, actor-critic, model-based RL, offline RL, imitation learning.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build the full RL stack from scratch — Markov decision processes, dynamic programming, Monte Carlo, temporal-difference learning (Q-learning, SARSA), deep Q-networks (DQN, Double/Dueling), policy gradients (REINFORCE, Actor-Critic, A2C), and PPO — on gridworld, CartPole, and custom NumPy environments.",
+    "summary": "Build the full RL stack from scratch: Markov decision processes, dynamic programming, Monte Carlo, temporal-difference learning (Q-learning, SARSA), deep Q-networks (DQN, Double/Dueling), policy gradients (REINFORCE, Actor-Critic, A2C), and PPO, on gridworld, CartPole, and custom NumPy environments.",
     "prereqs": "Modules 01, 05.",
     "takeaways": [
       "MDPs, dynamic programming, Monte Carlo, and TD learning (Q-learning, SARSA).",
       "Deep RL: DQN and variants, REINFORCE, Actor-Critic/A2C, and PPO.",
-      "Model-based RL concepts — all on gridworld and CartPole built in NumPy."
+      "Model-based RL concepts, all on gridworld and CartPole built in NumPy."
     ],
     "flagships": [
       {
@@ -60,7 +60,7 @@
       },
       {
         "n": "14-06",
-        "t": "Policy Gradient — REINFORCE",
+        "t": "Policy Gradient: REINFORCE",
         "d": "CartPole",
         "m": "25 min"
       },

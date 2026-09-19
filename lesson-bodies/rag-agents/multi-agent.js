@@ -182,7 +182,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "The three mechanisms, each CONDITIONAL",
-        "back": "SPECIALIZATION needs accurate routing · VOTING needs INDEPENDENT errors · DECOMPOSITION needs separable subtasks. None is unreliable in principle; all fail when the condition is unmet — and it usually is."
+        "back": "SPECIALIZATION needs accurate routing · VOTING needs INDEPENDENT errors · DECOMPOSITION needs separable subtasks. None is unreliable in principle; all fail when the condition is unmet, and it usually is."
       },
       {
         "type": "formula",
@@ -192,7 +192,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Different system prompts ≠ independence",
-        "back": "Same model, same training, same weaknesses. Measure the CORRELATION of correctness masks — one line. High correlation → the vote is theatre and you're paying n× for one opinion."
+        "back": "Same model, same training, same weaknesses. Measure the CORRELATION of correctness masks, one line. High correlation → the vote is theatre and you're paying n× for one opinion."
       },
       {
         "type": "formula",
@@ -207,12 +207,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Adding specialists degrades routing",
-        "back": "Routing is a classification problem — more classes, blurrier descriptions, lower accuracy. So the architecture erodes the very precondition it depends on. A feedback loop working against you."
+        "back": "Routing is a classification problem: more classes, blurrier descriptions, lower accuracy. So the architecture erodes the very precondition it depends on. A feedback loop working against you."
       },
       {
         "type": "intuition",
         "front": "★ The most robust justification: CONTEXT ISOLATION",
-        "back": "A subagent burns its OWN window on dead ends and returns only a conclusion — the main context stays clean. Nothing to do with collective intelligence; it's that a context window is a scarce, shared, DEGRADABLE resource."
+        "back": "A subagent burns its OWN window on dead ends and returns only a conclusion: the main context stays clean. Nothing to do with collective intelligence; it's that a context window is a scarce, shared, DEGRADABLE resource."
       },
       {
         "type": "intuition",
@@ -222,12 +222,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "★ The baseline nobody runs",
-        "back": "A SINGLE agent on the same suite, with cost and p95. Multi-agent is typically several × the cost and latency — so a 2-point gain is a finding that should stop the project. Most-likely-to-reverse, least-often-collected."
+        "back": "A SINGLE agent on the same suite, with cost and p95. Multi-agent is typically several × the cost and latency, so a 2-point gain is a finding that should stop the project. Most-likely-to-reverse, least-often-collected."
       },
       {
         "type": "pitfall",
         "front": "The handoff is where information is lost",
-        "back": "Agent B gets a SUMMARY of what A found, not what A saw. Classic failure: A finds a caveat, judges it minor, omits it; B builds a confident conclusion the caveat would have blocked. No agent is wrong — the INTERFACE lost it. Log both sides and diff."
+        "back": "Agent B gets a SUMMARY of what A found, not what A saw. Classic failure: A finds a caveat, judges it minor, omits it; B builds a confident conclusion the caveat would have blocked. No agent is wrong. The INTERFACE lost it. Log both sides and diff."
       },
       {
         "type": "intuition",

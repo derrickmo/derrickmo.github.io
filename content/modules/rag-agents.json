@@ -8,7 +8,7 @@
   "blurb": "Embeddings, retrieval, RAG pipelines, agent loops, multi-agent orchestration, voice agents, guardrails.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build retrieval-augmented generation and agentic AI from scratch — dense retrieval (bi-encoders), vector indexing, RAG pipelines (retrieve-then-generate), query rewriting (HyDE), reranking, RAG evaluation, tool-using agents (ReAct), memory systems, and multi-agent orchestration — all without external API keys.",
+    "summary": "Build retrieval-augmented generation and agentic AI from scratch: dense retrieval (bi-encoders), vector indexing, RAG pipelines (retrieve-then-generate), query rewriting (HyDE), reranking, RAG evaluation, tool-using agents (ReAct), memory systems, and multi-agent orchestration, all without external API keys.",
     "prereqs": "Modules 08, 10, 13, 17.",
     "takeaways": [
       "Dense retrieval, vector indexing, and retrieve-then-generate RAG pipelines.",
@@ -37,7 +37,7 @@
       },
       {
         "n": "18-03",
-        "t": "RAG Pipeline — Retrieve-then-Generate",
+        "t": "RAG Pipeline: Retrieve-then-Generate",
         "d": "Synthetic docs + Q&A",
         "m": "25 min"
       },

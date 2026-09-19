@@ -187,7 +187,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "An accuracy-only eval deletes the safety features",
-        "back": "Budgets and guardrails move ZERO quality by design — and would be cut, with data on their side. That is the module's opening claim proved on its own system: the aggregate can't tell you what you need to know."
+        "back": "Budgets and guardrails move ZERO quality by design, and would be cut, with data on their side. That is the module's opening claim proved on its own system: the aggregate can't tell you what you need to know."
       },
       {
         "type": "formula",
@@ -217,12 +217,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Route instead of making everything agentic",
-        "back": "One-shot retrieval for the simple majority, a loop only for query classes a single pass STRUCTURALLY cannot serve (multi-hop). Keeps n=1 on most traffic — so sⁿ stays out of the common path."
+        "back": "One-shot retrieval for the simple majority, a loop only for query classes a single pass STRUCTURALLY cannot serve (multi-hop). Keeps n=1 on most traffic, so sⁿ stays out of the common path."
       },
       {
         "type": "intuition",
         "front": "The two-week version",
-        "back": "KEEP: eval set, ingestion check, chunking, hybrid+RRF, citations, abstention, a cost cap. CUT: the loop, reranker (unless precision is binding), HyDE/multi-query, semantic chunking, fine-tuning, multi-agent. Honest, bounded, lower recall — the right first shape."
+        "back": "KEEP: eval set, ingestion check, chunking, hybrid+RRF, citations, abstention, a cost cap. CUT: the loop, reranker (unless precision is binding), HyDE/multi-query, semantic chunking, fine-tuning, multi-agent. Honest, bounded, lower recall, the right first shape."
       },
       {
         "type": "intuition",
@@ -232,12 +232,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Present the ablation, not the score",
-        "back": "A skeptic isn't asking \"is this good\" but \"why is each piece here\". Start from the naive baseline, add one feature at a time, show EVERY axis. Volunteer the interactions. Bring CIs — a 5-point gap on 50 questions is noise."
+        "back": "A skeptic isn't asking \"is this good\" but \"why is each piece here\". Start from the naive baseline, add one feature at a time, show EVERY axis. Volunteer the interactions. Bring CIs: a 5-point gap on 50 questions is noise."
       },
       {
         "type": "intuition",
         "front": "High-stakes changes",
-        "back": "Conservative abstention (consider CONFORMAL for a provable rate) · mandatory user-facing citations · narrower or no loop · expert-labelled eval · severity-stratified failures · subgroup gaps · and a CONJUNCTION safety case — the weakest link governs."
+        "back": "Conservative abstention (consider CONFORMAL for a provable rate) · mandatory user-facing citations · narrower or no loop · expert-labelled eval · severity-stratified failures · subgroup gaps · and a CONJUNCTION safety case, the weakest link governs."
       }
     ],
     "refs": [

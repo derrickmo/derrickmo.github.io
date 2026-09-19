@@ -55,13 +55,13 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "huffman-coding",
   "lesson": {
     "title": "Huffman Coding",
-    "oneLine": "Give frequent symbols short codes — provably optimal among per-symbol codes, and that qualifier is where all the interesting losses hide.",
+    "oneLine": "Give frequent symbols short codes: provably optimal among per-symbol codes, and that qualifier is where all the interesting losses hide.",
     "sections": [
       {
         "h": "The intuition",
         "paras": [
           "Fixed-length codes spend the same bits on 'e' as on 'z', which is obviously wasteful when one is a hundred times more common. Huffman builds the code bottom-up: repeatedly take the two least frequent symbols, merge them into a node whose frequency is their sum, and let the tree's shape assign the codes.",
-          "The result is a prefix code — no codeword is a prefix of another — so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
+          "The result is a prefix code, no codeword is a prefix of another, so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
         ]
       },
       {
@@ -75,7 +75,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "In code",
         "code": "import heapq\nfrom collections import Counter\n\ndef huffman(text):\n    heap = [[w, i, {c: \"\"}] for i, (c, w) in enumerate(Counter(text).items())]\n    heapq.heapify(heap)\n    while len(heap) > 1:\n        w1, _, c1 = heapq.heappop(heap)\n        w2, i2, c2 = heapq.heappop(heap)\n        merged = {c: \"0\" + b for c, b in c1.items()}\n        merged.update({c: \"1\" + b for c, b in c2.items()})\n        heapq.heappush(heap, [w1 + w2, i2, merged])\n    return heap[0][2]",
-        "caption": "The tie-break index keeps the heap comparison from reaching the dict and makes the output deterministic — ties are common and otherwise the code changes run to run."
+        "caption": "The tie-break index keeps the heap comparison from reaching the dict and makes the output deterministic: ties are common and otherwise the code changes run to run."
       },
       {
         "h": "Why nothing modern uses it alone",
@@ -87,9 +87,9 @@ window.DM_SUBLESSON_CTX = {
       }
     ],
     "takeaways": [
-      "Greedy bottom-up merging gives a provably optimal prefix code — rare for a greedy algorithm.",
+      "Greedy bottom-up merging gives a provably optimal prefix code, rare for a greedy algorithm.",
       "It is within one bit of entropy, and that bit is expensive on small skewed alphabets, which is why arithmetic coding exists.",
-      "It cannot exploit context, so it is the last stage of a compressor rather than the whole of one — the modelling happens first."
+      "It cannot exploit context, so it is the last stage of a compressor rather than the whole of one: the modelling happens first."
     ],
     "demo": "huffman-coding"
   },

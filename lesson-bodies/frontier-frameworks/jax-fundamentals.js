@@ -55,7 +55,7 @@ window.DM_LESSON_BODIES = {
             "Measuring compile overhead naively measures nothing, because the cache hides it."
           ],
           "code": "# THE NAIVE BENCHMARK - and why it reports the wrong thing:\ng = jit(f)\ng(x); t0 = time(); g(x); print(time()-t0)    # fast! ...and meaningless\n#   The first call compiled. The second hit the CACHE. You measured the\n#   steady state and concluded compilation is free.\n\n# ★ TO SEE THE REAL COST you need a FRESH function AND a UNIQUE shape,\n#   or JAX's compile cache silently serves a previous compilation:\ndef make_fn():             # fresh function object\n    return jit(lambda x: heavy(x))\nx = ones((SIZE_NEVER_USED_BEFORE,))   # unique shape -> real compile\nt0 = time(); make_fn()(x); print(\"cold:\", time()-t0)   # ~10x SLOWER\n\n# WHY THIS MATTERS BEYOND JAX: the same shape applies to torch.compile,\n# to XLA generally, and to any cached-compilation system. A benchmark\n# that reuses a warm cache measures the cache, not the compiler - and\n# the number it reports is the one you want to believe.\n\n# AND THE PRACTICAL CONSEQUENCE of recompile-on-new-shape:\n#   training loop, fixed shapes   -> n is huge, jit is ~free\n#   serving, variable lengths     -> every new shape re-pays compile\n#                                    => PAD or BUCKET the shapes\n#   This is the same recompile cliff that makes torch.compile\n#   surprising in production (16-02) - one mechanism, two frameworks.",
-          "caption": "A warm cache measures the cache rather than the compiler — and it reports exactly the flattering number you were hoping for."
+          "caption": "A warm cache measures the cache rather than the compiler, and it reports exactly the flattering number you were hoping for."
         }
       ],
       "useCases": [
@@ -182,12 +182,12 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "★ The module's thesis, in one lesson",
-        "back": "The durable idea in JAX is not JAX: PURITY enables composable function-to-function transforms. That idea already propagated to PyTorch as torch.func. Learn the mechanism — it outlives the API."
+        "back": "The durable idea in JAX is not JAX: PURITY enables composable function-to-function transforms. That idea already propagated to PyTorch as torch.func. Learn the mechanism: it outlives the API."
       },
       {
         "type": "formula",
         "front": "Autodiff is EXACT; finite differences can't be",
-        "back": "(f(x+h)−f(x))/h = f′ + O(h) truncation + O(ε/h) cancellation — shrinking h trades one for the other, so the error has a FLOOR. Autodiff agreed to ~2.3e-10 and composes: grad(grad(f)) is second order for free."
+        "back": "(f(x+h)−f(x))/h = f′ + O(h) truncation + O(ε/h) cancellation: shrinking h trades one for the other, so the error has a FLOOR. Autodiff agreed to ~2.3e-10 and composes: grad(grad(f)) is second order for free."
       },
       {
         "type": "formula",
@@ -212,7 +212,7 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "Purity's tax = purity's benefit",
-        "back": "No in-place mutation · explicit PRNG keys · traceable control flow (a Python `if` on a traced value FAILS). Every awkward rule is a CONSEQUENCE of the property that makes the transforms possible — learn them that way, not as quirks."
+        "back": "No in-place mutation · explicit PRNG keys · traceable control flow (a Python `if` on a traced value FAILS). Every awkward rule is a CONSEQUENCE of the property that makes the transforms possible: learn them that way, not as quirks."
       },
       {
         "type": "intuition",
@@ -227,17 +227,17 @@ window.DM_LESSON_BODIES = {
       {
         "type": "intuition",
         "front": "When to actually choose JAX",
-        "back": "When you need the TRANSFORMS (per-example grads, higher-order, custom vectorization), TPUs, or differentiable simulation. Otherwise ecosystem and team familiarity win — and torch.func has narrowed the gap considerably."
+        "back": "When you need the TRANSFORMS (per-example grads, higher-order, custom vectorization), TPUs, or differentiable simulation. Otherwise ecosystem and team familiarity win, and torch.func has narrowed the gap considerably."
       },
       {
         "type": "pitfall",
         "front": "Per-example gradients cost MEMORY",
-        "back": "batch_size × parameter count. Prohibitive for large models, which is why DP-SGD at scale is real engineering rather than one transform call — used with smaller models, parameter subsets, or approximations."
+        "back": "batch_size × parameter count. Prohibitive for large models, which is why DP-SGD at scale is real engineering rather than one transform call, used with smaller models, parameter subsets, or approximations."
       },
       {
         "type": "intuition",
         "front": "Block before you time",
-        "back": "JAX dispatches asynchronously — a timing that doesn't block on the result measures DISPATCH, not execution. Same class of error as the warm cache: the naive measurement reports the flattering number."
+        "back": "JAX dispatches asynchronously: a timing that doesn't block on the result measures DISPATCH, not execution. Same class of error as the warm cache: the naive measurement reports the flattering number."
       }
     ],
     "refs": [

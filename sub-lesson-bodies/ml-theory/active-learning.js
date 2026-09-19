@@ -43,7 +43,7 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "active-learning",
   "lesson": {
     "title": "Active Learning",
-    "oneLine": "Let the model choose what gets labelled next — a real win when labels are the bottleneck, and a quiet way to bias your test set.",
+    "oneLine": "Let the model choose what gets labelled next: a real win when labels are the bottleneck, and a quiet way to bias your test set.",
     "sections": [
       {
         "h": "The intuition",
@@ -70,7 +70,7 @@ window.DM_SUBLESSON_CTX = {
         "paras": [
           "Batch redundancy: the top-k most uncertain points are frequently near-duplicates, so you pay for k labels and learn roughly one thing. Any usable method combines uncertainty with a diversity or coverage term.",
           "The cold start: uncertainty from a model trained on 20 examples is close to meaningless, so early rounds can be worse than random. Seed with a random batch and switch to active selection once the model is worth listening to.",
-          "★ The one that actually bites: your labelled set is now a BIASED sample of the pool, selected by the model. Measuring accuracy on it overstates difficulty, and any downstream statistic computed from it inherits the selection. Keep a separate randomly-sampled evaluation set from the start — you cannot reconstruct one afterwards."
+          "★ The one that actually bites: your labelled set is now a BIASED sample of the pool, selected by the model. Measuring accuracy on it overstates difficulty, and any downstream statistic computed from it inherits the selection. Keep a separate randomly-sampled evaluation set from the start: you cannot reconstruct one afterwards."
         ]
       }
     ],

@@ -193,52 +193,52 @@ window.DM_LESSON_BODIES = {
       {
         "type": "pitfall",
         "front": "Correlated layers ≈ one layer",
-        "back": "Two phrasing-based filters miss the same inputs, so the product overstates protection badly. Depth needs DIFFERENT KINDS: detector + permission boundary + confirmation + output check — each failing for its own reason."
+        "back": "Two phrasing-based filters miss the same inputs, so the product overstates protection badly. Depth needs DIFFERENT KINDS: detector + permission boundary + confirmation + output check, each failing for its own reason."
       },
       {
         "type": "intuition",
         "front": "★ Structure beats detection",
-        "back": "A detector is a classifier in an ARMS RACE — today's recall isn't next quarter's. A permission boundary doesn't participate: if the task's agent has no email tool, an injected \"email this\" is inert at any phrasing, blocking 0 legitimate work."
+        "back": "A detector is a classifier in an ARMS RACE: today's recall isn't next quarter's. A permission boundary doesn't participate: if the task's agent has no email tool, an injected \"email this\" is inert at any phrasing, blocking 0 legitimate work."
       },
       {
         "type": "intuition",
         "front": "Least privilege PER TASK, not per agent",
-        "back": "A summarize task gets read tools only; a refund task gets the refund tool with a limit. Injection at a dangerous tool succeeds 0% — not detected, unreachable — and nothing legitimate is blocked, because the task never needed it."
+        "back": "A summarize task gets read tools only; a refund task gets the refund tool with a limit. Injection at a dangerous tool succeeds 0% (not detected, unreachable), and nothing legitimate is blocked, because the task never needed it."
       },
       {
         "type": "formula",
         "front": "Data scoping vs output filtering",
-        "back": "An agent that never RECEIVES the secret leaks it 0% at any phrasing. A 90%-recall output filter leaks ~10%. Prefer not holding the thing over detecting its escape — and separate the component that READS untrusted text from the one that HOLDS credentials."
+        "back": "An agent that never RECEIVES the secret leaks it 0% at any phrasing. A 90%-recall output filter leaks ~10%. Prefer not holding the thing over detecting its escape, and separate the component that READS untrusted text from the one that HOLDS credentials."
       },
       {
         "type": "intuition",
         "front": "The root cause of prompt injection",
-        "back": "Instructions and data share ONE channel — a model can't reliably tell \"summarize this\" content from \"an instruction addressed to you\". Not a model bug; a property of how these systems consume input. Worse for AGENTS because they have TOOLS: wrong sentence → wrong ACTION."
+        "back": "Instructions and data share ONE channel: a model can't reliably tell \"summarize this\" content from \"an instruction addressed to you\". Not a model bug; a property of how these systems consume input. Worse for AGENTS because they have TOOLS: wrong sentence → wrong ACTION."
       },
       {
         "type": "pitfall",
         "front": "\"Ignore instructions in the documents\" is a REQUEST",
-        "back": "Not a boundary. It raises the bar slightly and fails under pressure. Same for injection classifiers — an arms race where the input distribution is chosen by someone reading your defence. Neither can be the thing standing between the agent and a real system."
+        "back": "Not a boundary. It raises the bar slightly and fails under pressure. Same for injection classifiers, an arms race where the input distribution is chosen by someone reading your defence. Neither can be the thing standing between the agent and a real system."
       },
       {
         "type": "formula",
         "front": "A guard is a classifier with a frontier",
-        "back": "t* = argmin [C_harm·FN(t) + C_friction·FP(t)]. The threshold comes from the COST RATIO — a domain fact, not a model property. A BETTER guard moves the whole curve, which beats sliding along it."
+        "back": "t* = argmin [C_harm·FN(t) + C_friction·FP(t)]. The threshold comes from the COST RATIO, a domain fact, not a model property. A BETTER guard moves the whole curve, which beats sliding along it."
       },
       {
         "type": "pitfall",
         "front": "Report the PAIR",
-        "back": "Attacks blocked AND legitimate work blocked. Either alone is gameable by moving the threshold — a guardrail described by one number isn't described at all. And confirm BY RISK: uniform confirmation makes the product unusable, which is how controls get switched off."
+        "back": "Attacks blocked AND legitimate work blocked. Either alone is gameable by moving the threshold: a guardrail described by one number isn't described at all. And confirm BY RISK: uniform confirmation makes the product unusable, which is how controls get switched off."
       },
       {
         "type": "pitfall",
         "front": "Red-teaming is an EXISTENCE proof",
-        "back": "Zero failures in n attempts bounds the rate at ~3/n — 50 clean attempts is consistent with a 6% failure rate. Report the bound, not a pass. A passing safety eval is a FLOOR: the failures you thought to look for weren't present at the sample size you ran."
+        "back": "Zero failures in n attempts bounds the rate at ~3/n: 50 clean attempts is consistent with a 6% failure rate. Report the bound, not a pass. A passing safety eval is a FLOOR: the failures you thought to look for weren't present at the sample size you ran."
       },
       {
         "type": "intuition",
         "front": "In RAG, safety controls double as quality controls",
-        "back": "Abstention threshold, faithfulness checking, citation requirements — each blocks a confident wrong answer AND a class of harm, and they fail for UNRELATED reasons, so their product is real. Also: enforce permissions AT the query, never post-filter."
+        "back": "Abstention threshold, faithfulness checking, citation requirements: each blocks a confident wrong answer AND a class of harm, and they fail for UNRELATED reasons, so their product is real. Also: enforce permissions AT the query, never post-filter."
       }
     ],
     "refs": [

@@ -53,15 +53,15 @@ window.SUB_LESSONS_NAV = {
       },
       "fourier": {
         "title": "Fourier Series",
-        "oneLine": "Any periodic signal is a sum of sines — and that basis change is why positional encodings and spectrograms look the way they do."
+        "oneLine": "Any periodic signal is a sum of sines, and that basis change is why positional encodings and spectrograms look the way they do."
       },
       "mutual-information": {
         "title": "Mutual Information",
-        "oneLine": "How many bits knowing one variable saves you about another — a dependence measure that sees every relationship, not just linear ones."
+        "oneLine": "How many bits knowing one variable saves you about another, a dependence measure that sees every relationship, not just linear ones."
       },
       "importance-sampling": {
         "title": "Importance Sampling",
-        "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting — and watch the variance explode when the two disagree."
+        "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting, and watch the variance explode when the two disagree."
       },
       "reservoir-sampling": {
         "title": "Reservoir Sampling",
@@ -69,15 +69,15 @@ window.SUB_LESSONS_NAV = {
       },
       "huffman-coding": {
         "title": "Huffman Coding",
-        "oneLine": "Give frequent symbols short codes — provably optimal among per-symbol codes, and that qualifier is where all the interesting losses hide."
+        "oneLine": "Give frequent symbols short codes: provably optimal among per-symbol codes, and that qualifier is where all the interesting losses hide."
       },
       "aliasing": {
         "title": "Aliasing & the Nyquist Limit",
-        "oneLine": "Sample too slowly and a high frequency comes back wearing a low frequency's clothes — indistinguishably, and permanently."
+        "oneLine": "Sample too slowly and a high frequency comes back wearing a low frequency's clothes, indistinguishably, and permanently."
       },
       "channel-capacity": {
         "title": "Channel Capacity",
-        "oneLine": "The exact number of bits a noisy channel can carry per use — reachable with coding, and unreachable without it."
+        "oneLine": "The exact number of bits a noisy channel can carry per use, reachable with coding, and unreachable without it."
       }
     }
   },
@@ -100,7 +100,7 @@ window.SUB_LESSONS_NAV = {
       },
       "bayesian-linear-regression": {
         "title": "Bayesian Linear Regression",
-        "oneLine": "Put a prior on the weights and get a posterior instead of a point — which is exactly ridge regression, plus an error bar that grows where you have no data."
+        "oneLine": "Put a prior on the weights and get a posterior instead of a point, which is exactly ridge regression, plus an error bar that grows where you have no data."
       }
     }
   },
@@ -129,11 +129,11 @@ window.SUB_LESSONS_NAV = {
       },
       "spectral-clustering": {
         "title": "Spectral Clustering",
-        "oneLine": "Cut the similarity graph, not the feature space — which is why it finds the two interleaved rings that k-means cannot."
+        "oneLine": "Cut the similarity graph, not the feature space, which is why it finds the two interleaved rings that k-means cannot."
       },
       "kernel-density": {
         "title": "Kernel Density Estimation",
-        "oneLine": "Estimate a density by putting a bump on every point — where the bump's WIDTH matters about ten times more than its shape."
+        "oneLine": "Estimate a density by putting a bump on every point, where the bump's WIDTH matters about ten times more than its shape."
       }
     }
   },
@@ -163,35 +163,35 @@ window.SUB_LESSONS_NAV = {
       },
       "overfitting": {
         "title": "Overfitting & Generalization",
-        "oneLine": "Fitting the noise instead of the signal — measurable only against data the model has never seen, which is why the split is the experiment."
+        "oneLine": "Fitting the noise instead of the signal, measurable only against data the model has never seen, which is why the split is the experiment."
       },
       "newtons-method": {
         "title": "Newton's Method & Second-Order Optimization",
-        "oneLine": "Use curvature, not just slope — quadratic convergence that nobody can afford at scale, and the approximations that made it usable."
+        "oneLine": "Use curvature, not just slope: quadratic convergence that nobody can afford at scale, and the approximations that made it usable."
       },
       "active-learning": {
         "title": "Active Learning",
-        "oneLine": "Let the model choose what gets labelled next — a real win when labels are the bottleneck, and a quiet way to bias your test set."
+        "oneLine": "Let the model choose what gets labelled next: a real win when labels are the bottleneck, and a quiet way to bias your test set."
       },
       "coordinate-descent": {
         "title": "Coordinate Descent",
-        "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap — and it silently stalls the moment the penalty stops being separable."
+        "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap, and it silently stalls the moment the penalty stops being separable."
       },
       "proximal-gradient": {
         "title": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
-        "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly — and add momentum only once you know the problem is ill-conditioned."
+        "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly, and add momentum only once you know the problem is ill-conditioned."
       },
       "quasi-newton": {
         "title": "Quasi-Newton Methods (BFGS / L-BFGS)",
-        "oneLine": "Build curvature from the gradients you already computed — and treat the memory length as a real hyperparameter, because it is."
+        "oneLine": "Build curvature from the gradients you already computed, and treat the memory length as a real hyperparameter, because it is."
       },
       "coreset": {
         "title": "Coresets",
-        "oneLine": "A small weighted subset that provably approximates the full dataset's objective — and the weights are what make it unbiased."
+        "oneLine": "A small weighted subset that provably approximates the full dataset's objective, and the weights are what make it unbiased."
       },
       "dataset-distillation": {
         "title": "Dataset Distillation",
-        "oneLine": "Synthesise a handful of examples that train a model as well as the whole dataset — for a linear model you can construct them in closed form and prove it."
+        "oneLine": "Synthesise a handful of examples that train a model as well as the whole dataset: for a linear model you can construct them in closed form and prove it."
       }
     }
   },
@@ -231,15 +231,15 @@ window.SUB_LESSONS_NAV = {
       },
       "perceptron": {
         "title": "The Perceptron",
-        "oneLine": "One neuron, one linear boundary — and the 1969 proof of what it cannot do is why depth exists."
+        "oneLine": "One neuron, one linear boundary, and the 1969 proof of what it cannot do is why depth exists."
       },
       "adam": {
         "title": "Adam",
-        "oneLine": "Per-parameter step sizes from running estimates of the gradient's mean and variance — the default, and worth knowing why it is not always the right default."
+        "oneLine": "Per-parameter step sizes from running estimates of the gradient's mean and variance: the default, and worth knowing why it is not always the right default."
       },
       "label-noise": {
         "title": "Label Noise & Memorization",
-        "oneLine": "Networks learn the signal first and memorise the noise afterwards — which is why early stopping is a noise-robustness method, with a measurable payoff."
+        "oneLine": "Networks learn the signal first and memorise the noise afterwards, which is why early stopping is a noise-robustness method, with a measurable payoff."
       }
     }
   },
@@ -285,7 +285,7 @@ window.SUB_LESSONS_NAV = {
       },
       "hmm-viterbi": {
         "title": "HMM & the Viterbi Algorithm",
-        "oneLine": "Recover the most likely hidden sequence — noting that the most likely sequence is not the sequence of most likely states, and the difference can be an impossible path."
+        "oneLine": "Recover the most likely hidden sequence, noting that the most likely sequence is not the sequence of most likely states, and the difference can be an impossible path."
       }
     }
   },
@@ -368,15 +368,15 @@ window.SUB_LESSONS_NAV = {
       },
       "histogram-equalization": {
         "title": "Histogram Equalization",
-        "oneLine": "Remap intensities through their own cumulative distribution to spread contrast — and amplify noise by the same factor, wherever the image was flat."
+        "oneLine": "Remap intensities through their own cumulative distribution to spread contrast, and amplify noise by the same factor, wherever the image was flat."
       },
       "morphological-operations": {
         "title": "Morphological Operations",
-        "oneLine": "Erode, dilate, and the two useful compositions — shape-aware cleanup that is decided entirely by the structuring element you pick."
+        "oneLine": "Erode, dilate, and the two useful compositions: shape-aware cleanup that is decided entirely by the structuring element you pick."
       },
       "template-matching": {
         "title": "Template Matching (Cross-Correlation)",
-        "oneLine": "Slide a patch and score every position — but score it with normalised correlation, because raw correlation just finds whatever is brightest."
+        "oneLine": "Slide a patch and score every position, but score it with normalised correlation, because raw correlation just finds whatever is brightest."
       }
     }
   },
@@ -417,7 +417,7 @@ window.SUB_LESSONS_NAV = {
       },
       "variational-inference": {
         "title": "Variational Inference & the ELBO",
-        "oneLine": "Turn an intractable integral into an optimisation problem — and accept that the bound you maximise is not the thing you wanted."
+        "oneLine": "Turn an intractable integral into an optimisation problem, and accept that the bound you maximise is not the thing you wanted."
       }
     }
   },
@@ -443,19 +443,19 @@ window.SUB_LESSONS_NAV = {
       },
       "spectrogram": {
         "title": "Spectrograms & the STFT",
-        "oneLine": "Chop audio into short windows, take a Fourier transform of each — and accept a hard trade between time and frequency resolution."
+        "oneLine": "Chop audio into short windows, take a Fourier transform of each, and accept a hard trade between time and frequency resolution."
       },
       "mfcc": {
         "title": "Mel Filterbank & MFCC",
-        "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT — and know that the last step is the one modern systems drop."
+        "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT, and know that the last step is the one modern systems drop."
       },
       "pitch-detection": {
         "title": "Pitch Detection (Autocorrelation)",
-        "oneLine": "Find the lag at which a signal best resembles itself — then deal with the octave errors, which are the entire practical problem."
+        "oneLine": "Find the lag at which a signal best resembles itself, then deal with the octave errors, which are the entire practical problem."
       },
       "dtw": {
         "title": "Dynamic Time Warping",
-        "oneLine": "Compare two sequences that are the same shape at different speeds — a distance that is genuinely useful and genuinely not a metric."
+        "oneLine": "Compare two sequences that are the same shape at different speeds: a distance that is genuinely useful and genuinely not a metric."
       }
     }
   },
@@ -531,47 +531,47 @@ window.SUB_LESSONS_NAV = {
       },
       "regret-matching": {
         "title": "Regret Matching & Nash Equilibrium",
-        "oneLine": "Play each action in proportion to how much you regret not having played it — and the time-average converges to equilibrium."
+        "oneLine": "Play each action in proportion to how much you regret not having played it, and the time-average converges to equilibrium."
       },
       "minimax": {
         "title": "Minimax & Alpha-Beta",
-        "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it — and prune the branches that provably cannot change the answer."
+        "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it, and prune the branches that provably cannot change the answer."
       },
       "mcts": {
         "title": "Monte-Carlo Tree Search",
-        "oneLine": "Spend your search budget where it looks promising — statistics instead of enumeration, which is what made Go tractable."
+        "oneLine": "Spend your search budget where it looks promising: statistics instead of enumeration, which is what made Go tractable."
       },
       "neuroevolution": {
         "title": "Neuroevolution",
-        "oneLine": "Optimise the weights by perturb-and-rank instead of by backpropagation — worth it when the reward has no usable gradient, or when you have far more machines than patience."
+        "oneLine": "Optimise the weights by perturb-and-rank instead of by backpropagation, worth it when the reward has no usable gradient, or when you have far more machines than patience."
       },
       "prioritized-replay": {
         "title": "Prioritized Experience Replay",
-        "oneLine": "Replay surprising transitions more often — which speeds learning and quietly changes what you are averaging over, unless you correct for it."
+        "oneLine": "Replay surprising transitions more often, which speeds learning and quietly changes what you are averaging over, unless you correct for it."
       },
       "distributional-rl": {
         "title": "Distributional RL (C51)",
-        "oneLine": "Learn the whole distribution of returns instead of its mean — the mean comes out the same, and the shape is what improves the agent."
+        "oneLine": "Learn the whole distribution of returns instead of its mean: the mean comes out the same, and the shape is what improves the agent."
       },
       "successor-representation": {
         "title": "Successor Representation",
-        "oneLine": "Cache where the policy tends to go, separately from what you get for going there — so a new reward is instant and a new wall is not."
+        "oneLine": "Cache where the policy tends to go, separately from what you get for going there, so a new reward is instant and a new wall is not."
       },
       "max-entropy-rl": {
         "title": "Maximum-Entropy RL (Soft Value Iteration)",
-        "oneLine": "Add the policy's entropy to the objective and the max in the Bellman backup becomes a log-sum-exp — which is where SAC comes from."
+        "oneLine": "Add the policy's entropy to the objective and the max in the Bellman backup becomes a log-sum-exp, which is where SAC comes from."
       },
       "cfr": {
         "title": "Counterfactual Regret Minimization",
-        "oneLine": "Minimise regret at every information set and the AVERAGE strategy converges to Nash — the current one never does, and confusing them is the classic bug."
+        "oneLine": "Minimise regret at every information set and the AVERAGE strategy converges to Nash: the current one never does, and confusing them is the classic bug."
       },
       "replicator-dynamics": {
         "title": "Replicator Dynamics",
-        "oneLine": "Strategies that beat the average grow — and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium."
+        "oneLine": "Strategies that beat the average grow, and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium."
       },
       "iterated-prisoners-dilemma": {
         "title": "Iterated Prisoner's Dilemma",
-        "oneLine": "Repetition makes cooperation rational — and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat."
+        "oneLine": "Repetition makes cooperation rational, and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat."
       }
     }
   },
@@ -646,11 +646,11 @@ window.SUB_LESSONS_NAV = {
       },
       "kv-cache-eviction": {
         "title": "KV-Cache Eviction",
-        "oneLine": "The cache, not the weights, is what fills your GPU at long context — and which tokens you may drop is not obvious."
+        "oneLine": "The cache, not the weights, is what fills your GPU at long context, and which tokens you may drop is not obvious."
       },
       "mixture-of-depths": {
         "title": "Mixture-of-Depths",
-        "oneLine": "Route only some tokens through each block — conditional DEPTH rather than conditional width, and the saving beats the routed fraction."
+        "oneLine": "Route only some tokens through each block: conditional DEPTH rather than conditional width, and the saving beats the routed fraction."
       }
     }
   },
@@ -698,7 +698,7 @@ window.SUB_LESSONS_NAV = {
       },
       "rag-fusion": {
         "title": "Multi-Query & RAG-Fusion",
-        "oneLine": "Ask the question several ways and fuse the rankings — where using ranks instead of scores is what makes fusing incompatible retrievers possible at all."
+        "oneLine": "Ask the question several ways and fuse the rankings, where using ranks instead of scores is what makes fusing incompatible retrievers possible at all."
       }
     }
   },
@@ -734,19 +734,19 @@ window.SUB_LESSONS_NAV = {
       },
       "pagerank": {
         "title": "PageRank",
-        "oneLine": "Importance as the stationary distribution of a random walk — an eigenvector problem that you solve by repeated multiplication, never by decomposition."
+        "oneLine": "Importance as the stationary distribution of a random walk, an eigenvector problem that you solve by repeated multiplication, never by decomposition."
       },
       "community-detection": {
         "title": "Community Detection (Louvain)",
-        "oneLine": "Find groups that are denser inside than chance predicts — and know that the objective itself is blind below a scale set by the graph's size."
+        "oneLine": "Find groups that are denser inside than chance predicts, and know that the objective itself is blind below a scale set by the graph's size."
       },
       "label-propagation": {
         "title": "Label Propagation",
-        "oneLine": "Let a few labels diffuse through a similarity graph — powerful when the manifold assumption holds, and biased by whichever class you happened to label."
+        "oneLine": "Let a few labels diffuse through a similarity graph: powerful when the manifold assumption holds, and biased by whichever class you happened to label."
       },
       "kalman-filter": {
         "title": "Kalman Filter",
-        "oneLine": "The optimal recursive estimator for a linear-Gaussian system — and a machine whose output quality is set entirely by two noise numbers you have to supply."
+        "oneLine": "The optimal recursive estimator for a linear-Gaussian system, and a machine whose output quality is set entirely by two noise numbers you have to supply."
       }
     }
   },
@@ -777,19 +777,19 @@ window.SUB_LESSONS_NAV = {
       },
       "bloom-filter": {
         "title": "Bloom Filter",
-        "oneLine": "A membership test that can say yes when it means no, never the reverse — and whose error rate you can compute before you build it."
+        "oneLine": "A membership test that can say yes when it means no, never the reverse, and whose error rate you can compute before you build it."
       },
       "count-min-sketch": {
         "title": "Count-Min Sketch",
-        "oneLine": "Approximate frequencies in fixed memory, always overestimating — excellent for heavy hitters and worthless for the tail."
+        "oneLine": "Approximate frequencies in fixed memory, always overestimating: excellent for heavy hitters and worthless for the tail."
       },
       "semantic-caching": {
         "title": "Semantic Caching",
-        "oneLine": "Serve a cached answer when a new question means the same thing — where the similarity threshold is a product decision about how often you are willing to be wrong."
+        "oneLine": "Serve a cached answer when a new question means the same thing, where the similarity threshold is a product decision about how often you are willing to be wrong."
       },
       "model-cascade": {
         "title": "Model Cascade & Early-Exit",
-        "oneLine": "Answer the easy queries with the cheap model and escalate the rest — where the deferral rule, not the models, is what you are actually designing."
+        "oneLine": "Answer the easy queries with the cheap model and escalate the rest, where the deferral rule, not the models, is what you are actually designing."
       }
     }
   },
@@ -903,15 +903,15 @@ window.SUB_LESSONS_NAV = {
       },
       "sparse-autoencoder": {
         "title": "Sparse Autoencoders & Superposition",
-        "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart."
+        "oneLine": "Neurons are polysemantic because models pack more features than dimensions, and a sparse dictionary can pull some of them apart."
       },
       "certified-robustness": {
         "title": "Certified Robustness",
-        "oneLine": "A proof that no perturbation within a radius can change the prediction — narrower than it sounds, and the only claim an adaptive attacker cannot refute."
+        "oneLine": "A proof that no perturbation within a radius can change the prediction, narrower than it sounds, and the only claim an adaptive attacker cannot refute."
       },
       "conformal-regression": {
         "title": "Conformal Regression",
-        "oneLine": "Distribution-free prediction intervals with a coverage guarantee that genuinely holds — as long as you know it is a guarantee about the average, not about your case."
+        "oneLine": "Distribution-free prediction intervals with a coverage guarantee that genuinely holds, as long as you know it is a guarantee about the average, not about your case."
       }
     }
   },
@@ -950,31 +950,31 @@ window.SUB_LESSONS_NAV = {
       },
       "dijkstra": {
         "title": "Dijkstra's Shortest Path",
-        "oneLine": "Always expand the closest unfinished node — correct precisely because edge weights are non-negative, and wrong the moment they are not."
+        "oneLine": "Always expand the closest unfinished node, correct precisely because edge weights are non-negative, and wrong the moment they are not."
       },
       "backtracking": {
         "title": "Backtracking & Constraint Satisfaction",
-        "oneLine": "Search that undoes its own choices — and the pruning that turns an impossible enumeration into a tractable one."
+        "oneLine": "Search that undoes its own choices, and the pruning that turns an impossible enumeration into a tractable one."
       },
       "simulated-annealing": {
         "title": "Simulated Annealing",
-        "oneLine": "Accept worse moves on purpose, less and less often — the simplest escape from a local minimum that still works."
+        "oneLine": "Accept worse moves on purpose, less and less often, the simplest escape from a local minimum that still works."
       },
       "branch-and-bound": {
         "title": "Branch & Bound",
-        "oneLine": "Search the whole tree in principle, and skip almost all of it in practice — the bound does the work, not the branching."
+        "oneLine": "Search the whole tree in principle, and skip almost all of it in practice: the bound does the work, not the branching."
       },
       "arc-consistency": {
         "title": "Arc Consistency (AC-3)",
-        "oneLine": "Delete values that provably cannot appear in any solution — a cheap pre-filter that prunes hard, and decides nothing."
+        "oneLine": "Delete values that provably cannot appear in any solution, a cheap pre-filter that prunes hard, and decides nothing."
       },
       "mst": {
         "title": "Minimum Spanning Tree",
-        "oneLine": "Connect everything at least cost — and notice that single-linkage clustering is this algorithm with the last few edges deleted."
+        "oneLine": "Connect everything at least cost, and notice that single-linkage clustering is this algorithm with the last few edges deleted."
       },
       "max-flow": {
         "title": "Max Flow / Min Cut",
-        "oneLine": "The most you can push equals the cheapest thing you can sever — one theorem that turns matching, segmentation and scheduling into the same problem."
+        "oneLine": "The most you can push equals the cheapest thing you can sever, one theorem that turns matching, segmentation and scheduling into the same problem."
       }
     }
   }

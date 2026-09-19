@@ -43,7 +43,7 @@ window.DM_SUBLESSON_CTX = {
   "conceptId": "newtons-method",
   "lesson": {
     "title": "Newton's Method & Second-Order Optimization",
-    "oneLine": "Use curvature, not just slope — quadratic convergence that nobody can afford at scale, and the approximations that made it usable.",
+    "oneLine": "Use curvature, not just slope: quadratic convergence that nobody can afford at scale, and the approximations that made it usable.",
     "sections": [
       {
         "h": "The intuition",
@@ -58,7 +58,7 @@ window.DM_SUBLESSON_CTX = {
           "Preconditioning the gradient by the inverse Hessian:"
         ],
         "tex": "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla\\mathcal{L}(\\theta_t), \\qquad H_{ij} = \\frac{\\partial^2 \\mathcal{L}}{\\partial\\theta_i\\,\\partial\\theta_j}",
-        "texNote": "Convergence is quadratic near the optimum — the number of correct digits roughly doubles per step. The price is the Hessian: n^2 entries and O(n^3) to invert, which for a model with a million parameters is a trillion entries. This is why second-order methods are rare in deep learning, not because they do not work."
+        "texNote": "Convergence is quadratic near the optimum: the number of correct digits roughly doubles per step. The price is the Hessian: n^2 entries and O(n^3) to invert, which for a model with a million parameters is a trillion entries. This is why second-order methods are rare in deep learning, not because they do not work."
       },
       {
         "h": "In code",
@@ -68,9 +68,9 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "Why it fails on neural networks",
         "paras": [
-          "A neural network's loss surface is not convex, so the Hessian is indefinite and Newton's step can head toward a saddle point rather than a minimum — it moves toward a stationary point, and saddles are stationary. Trust regions and damping exist to stop that.",
+          "A neural network's loss surface is not convex, so the Hessian is indefinite and Newton's step can head toward a saddle point rather than a minimum: it moves toward a stationary point, and saddles are stationary. Trust regions and damping exist to stop that.",
           "Quasi-Newton methods keep the idea and drop the cost. BFGS builds an approximation to the inverse Hessian from successive gradients; L-BFGS stores only the last few updates instead of a matrix and is genuinely usable on medium problems. Both still assume a smooth deterministic objective, which mini-batch noise violates.",
-          "The adaptive optimizers are the diagonal shortcut. Adam's division by root-v is a crude per-parameter curvature estimate — a diagonal preconditioner learned from gradient magnitudes. That is the honest connection: Adam is second-order thinking with an approximation cheap enough to run."
+          "The adaptive optimizers are the diagonal shortcut. Adam's division by root-v is a crude per-parameter curvature estimate, a diagonal preconditioner learned from gradient magnitudes. That is the honest connection: Adam is second-order thinking with an approximation cheap enough to run."
         ]
       }
     ],

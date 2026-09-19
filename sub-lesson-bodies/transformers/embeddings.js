@@ -33,7 +33,7 @@ window.DM_SUBLESSON_CTX = {
       {
         "h": "The intuition",
         "paras": [
-          "A token id is just an index — id 4017 means nothing on its own. An embedding layer is a learned lookup table that turns each id into a vector of real numbers, and training shapes that table so related tokens land near each other.",
+          "A token id is just an index: id 4017 means nothing on its own. An embedding layer is a learned lookup table that turns each id into a vector of real numbers, and training shapes that table so related tokens land near each other.",
           "Once tokens are vectors, 'meaning' becomes geometry: similarity is a dot product, analogies are directions, and every later layer gets to do linear algebra instead of string matching."
         ]
       },
@@ -43,11 +43,11 @@ window.DM_SUBLESSON_CTX = {
           "The embedding matrix is E in R^(V x d) for vocabulary size V and model width d. Looking up token i is just selecting a row:"
         ],
         "tex": "e_i = E_{i,:} \\in \\mathbb{R}^{d}",
-        "texNote": "E is a parameter — it is learned by gradient descent like any other weight."
+        "texNote": "E is a parameter: it is learned by gradient descent like any other weight."
       },
       {
         "h": "In code",
-        "code": "import numpy as np\n\nV, d = 50000, 256\nE = np.random.randn(V, d) * 0.02      # learned embedding table\n\nids = np.array([101, 4017, 2009])     # a tokenized sentence\nx = E[ids]                            # (3, d) — one vector per token\n\n# similarity between two tokens is a dot product\ncos = E[4017] @ E[2009] / (np.linalg.norm(E[4017]) * np.linalg.norm(E[2009]))",
+        "code": "import numpy as np\n\nV, d = 50000, 256\nE = np.random.randn(V, d) * 0.02      # learned embedding table\n\nids = np.array([101, 4017, 2009])     # a tokenized sentence\nx = E[ids]                            # (3, d), one vector per token\n\n# similarity between two tokens is a dot product\ncos = E[4017] @ E[2009] / (np.linalg.norm(E[4017]) * np.linalg.norm(E[2009]))",
         "caption": "The whole layer is a row-select; the magic is in what training writes into E."
       },
       {
@@ -61,7 +61,7 @@ window.DM_SUBLESSON_CTX = {
     "takeaways": [
       "Embeddings convert discrete ids into a continuous space where similarity is measurable.",
       "The table is learned, so structure (synonyms, analogies) emerges from the training objective.",
-      "Every downstream layer benefits — they all operate on vectors, never on tokens."
+      "Every downstream layer benefits: they all operate on vectors, never on tokens."
     ],
     "demo": "embeddings"
   },
