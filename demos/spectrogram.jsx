@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
 const SR = 8000;       // sample rate (Hz)
@@ -141,37 +141,57 @@ function SpectrogramDemo() {
         present but throws away <i>when</i> each one occurred. The <b>STFT</b> fixes
         that by chopping the signal into overlapping windows and Fourier-transforming
         each one, stacking the results into a time-frequency image. A rising chirp
-        becomes a diagonal streak; steady tones are horizontal lines; the brief
+        becomes a diagonal streak, steady tones are horizontal lines, and the brief
         high-frequency burst shows up as a short bright patch.
       </DemoP>
       <DemoP>
         Now drag the <b>window length</b> and watch the tradeoff that defines all of
-        signal processing. A <b>short</b> window resolves time sharply, so the burst is a crisp vertical sliver, but each frequency
-        smears into a fat horizontal
-        band. A <b>long</b> window snaps the frequency lines razor-thin but the burst
-        smears across time. You cannot have both: the time-frequency uncertainty
-        principle. The frequency- and time-resolution readouts move in opposite
-        directions as proof.
+        signal processing:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A <b>short</b> window resolves time sharply, so the burst is a crisp
+          vertical sliver, but each frequency smears into a fat horizontal band.
+        </DemoLI>
+        <DemoLI>
+          A <b>long</b> window snaps the frequency lines razor-thin, but the burst
+          smears across time.
+        </DemoLI>
+        <DemoLI>
+          You cannot have both. That is the time-frequency uncertainty principle, and
+          the two resolution readouts move in opposite directions as proof.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        The spectrogram is the workhorse representation of audio and speech: it's the
-        input to most speech recognizers and audio classifiers (usually after the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/mfcc/`} style={{ color: "#a855f7" }}>mel/MFCC</a>{" "}
-        stage), and it's literally how a neural audio model "sees" sound. It builds
-        directly on the <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier transform</a>, since the STFT is just the DFT applied to windowed slices.
+        The spectrogram is the workhorse representation of audio and speech. It is
+        the input to most speech recognizers and audio classifiers, usually after the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/mfcc/`} style={{ color: "#a855f7" }}>mel and MFCC</a>{" "}
+        stage, and it is literally how a neural audio model sees sound. It builds
+        directly on the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/fourier/`} style={{ color: "#a855f7" }}>Fourier transform</a>,
+        since the STFT is just the DFT applied to windowed slices.
       </DemoP>
-      <DemoP>
-        The same time-frequency tradeoff drives the rest of the field: wavelets vary
-        the window length with frequency to escape the fixed compromise, and the
-        Heisenberg-style limit here is the exact analog of position/momentum
-        uncertainty in physics. Treating a spectrogram as an image is also what lets
-        a <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`} style={{ color: "#a855f7" }}>CNN</a>{" "} do audio, the bridge from signals to deep learning.
-      </DemoP>
+      <DemoP>The same time-frequency tradeoff drives the rest of the field:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Wavelets vary the window length with frequency, to escape the fixed
+          compromise.
+        </DemoLI>
+        <DemoLI>
+          The Heisenberg-style limit here is the exact analogue of position and
+          momentum uncertainty in physics.
+        </DemoLI>
+        <DemoLI>
+          Treating a spectrogram as an image is what lets a{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/convolution/`} style={{ color: "#a855f7" }}>CNN</a>{" "}
+          do audio, the bridge from signals to deep learning.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

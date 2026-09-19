@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -188,45 +188,73 @@ function KDEDemo() {
     <>
       <DemoP>
         Every data point on the rug at the bottom gets a little blue kernel bump.
-        Stack and normalize them and you get the purple curve, a smooth density estimate with no formula assumed about the shape. The green dashed line is
-        the true bimodal distribution the points came from; the closer purple hugs
-        it, the better (ISE is the integrated squared error between them). No means, no variances fit, just "put mass where the data is, and smear it by h."
+        Stack and normalize them and you get the purple curve, a smooth density
+        estimate with no formula assumed about the shape. The green dashed line is
+        the true bimodal distribution the points came from, and the closer purple
+        hugs it the better, with ISE the integrated squared error between them. No
+        means, no variances fit, just "put mass where the data is, and smear it by h".
       </DemoP>
+      <DemoP>Now drag <b>BANDWIDTH</b>:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Tiny h and the estimate fractures into a separate spike per point. Pure
+          variance, memorizing the sample.
+        </DemoLI>
+        <DemoLI>
+          Large h and the two modes melt into one broad hump. Pure bias, hiding real
+          structure.
+        </DemoLI>
+        <DemoLI>
+          AUTO uses the Silverman rule (h ≈ 1.06·σ̂·N^−1/5), a decent default that
+          assumes roughly Gaussian data. Watch it land near, but not exactly at, the
+          ISE-minimizing width.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now drag BANDWIDTH. Tiny h and the estimate fractures into a separate spike per point: pure variance, memorizing the sample. Large h and the two modes
-        melt into one broad hump: pure bias, hiding real structure. The bias/variance
-        tradeoff in its cleanest visual form. AUTO uses Silverman's rule (h ≈
-        1.06·σ̂·N^−1/5), a decent default that assumes roughly Gaussian data. Watch how it lands near, but not exactly at, the ISE-minimizing width. Add more
+        That is the bias and variance tradeoff in its cleanest visual form. Add more
         samples and you can safely shrink h to recover finer detail.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Kernel density estimation is the nonparametric workhorse for "what does this
         distribution look like?", the smooth and principled upgrade to a histogram
-        (no arbitrary bin edges). It's the density-estimation cousin of nonparametric
-        prediction like{" "}
+        with no arbitrary bin edges. It is the density-estimation cousin of
+        nonparametric prediction like{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/knn/`} style={{ color: "#a855f7" }}>k-NN</a>,
-        underlies kernel regression (Nadaraya-Watson), mean-shift clustering, and
-        novelty/anomaly detection, and is the violin plot in every stats package.
-        Where a{" "}
+        it underlies kernel regression (Nadaraya-Watson), mean-shift clustering and
+        novelty detection, and it is the violin plot in every stats package. Where a{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/gmm/`} style={{ color: "#a855f7" }}>Gaussian mixture</a>{" "}
-        assumes K blobs, KDE assumes nothing about the number of modes. It reads them off the data.
+        assumes K blobs, KDE assumes nothing about the number of modes and reads them
+        off the data.
       </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Bandwidth selection is the entire game and the kernel choice barely
+          matters. Cross-validation or plug-in rules beat eyeballing.
+        </DemoLI>
+        <DemoLI>
+          KDE struggles in high dimensions, the curse of dimensionality, so you need
+          exponentially more points.
+        </DemoLI>
+        <DemoLI>
+          It leaks probability mass past hard boundaries, so a density that must be
+          ≥ 0 gets a nonzero estimate below zero. For bounded or heavy-tailed data,
+          transform first or use boundary-corrected kernels.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Caveats: bandwidth selection is the entire game and the kernel choice barely
-        matters; cross-validation or plug-in rules beat eyeballing. KDE struggles in
-        high dimensions (the curse of dimensionality, so you need exponentially more points), and it leaks probability mass past hard boundaries (e.g. a density
-        that must be ≥ 0 gets nonzero estimate below zero). For bounded or heavy-tailed
-        data you transform first or use boundary-corrected kernels. The bias/variance
-        knob here is the same one behind{" "}
+        The bias and variance knob here is the same one behind{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`} style={{ color: "#a855f7" }}>overfitting</a>{" "}
         everywhere in ML.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Kernel Density Estimation"
       subtitle="Drop a kernel on every data point and sum them into a smooth, assumption-free density estimate. Drag the bandwidth to watch the bias/variance tradeoff play out: spiky overfitting at small h, oversmoothed bias at large h."

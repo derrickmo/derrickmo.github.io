@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -134,42 +134,64 @@ function DoInterventionDemo() {
     <>
       <DemoP>
         Z is a confounder: it pushes up both X and Y. So when you simply observe
-        that high-X cases tend to have high Y and fit a line (the red, naive
-        estimate), part of that slope is the real effect X→Y and part is the
-        backdoor X←Z→Y leaking through. The red bar sits above the true β by exactly
-        the confounding bias. Pulling CONFOUNDING up makes the gap explode, pure correlation masquerading as effect.
+        that high-X cases tend to have high Y and fit a line, the red naive estimate,
+        part of that slope is the real effect X→Y and part is the backdoor X←Z→Y
+        leaking through. The red bar sits above the true β by exactly the confounding
+        bias, and pulling <b>CONFOUNDING</b> up makes the gap explode. That is pure
+        correlation masquerading as effect.
       </DemoP>
-      <DemoP>
-        The do-operator is the fix in principle: do(X) means you <i>set</i> X
-        yourself, which severs the Z→X arrow (flip the toggle to cut it) and leaves
-        only the genuine X→Y path. You can't always run that experiment, so backdoor
-        adjustment estimates it from observational data instead. Condition on Z
-        (regress Y on X <i>and</i> Z) and the green adjusted estimate snaps back to
-        the true β no matter how strong the confounding. Same data, right question.
-      </DemoP>
+      <DemoP>The do-operator is the fix, in two forms:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          In principle, do(X) means you <i>set</i> X yourself, which severs the Z→X
+          arrow. Flip the toggle to cut it, and only the genuine X→Y path is left.
+        </DemoLI>
+        <DemoLI>
+          In practice you cannot always run that experiment, so backdoor adjustment
+          estimates it from observational data instead.
+        </DemoLI>
+        <DemoLI>
+          Condition on Z, regressing Y on X <i>and</i> Z, and the green adjusted
+          estimate snaps back to the true β no matter how strong the confounding.
+          Same data, right question.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This is the heart of causal inference (Pearl): P(Y | X), what you see, is not P(Y | do(X)), what happens if you act. The do-operator formalizes
+        This is the heart of causal inference (Pearl): P(Y | X), what you see, is not
+        P(Y | do(X)), what happens if you act. The do-operator formalizes
         intervention as cutting incoming arrows to the variable you set, and the
         back-door criterion tells you which variables to condition on to recover the
-        causal effect from observation. It's the rigorous version of the reversal in{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/simpsons-paradox/`} style={{ color: "#a855f7" }}>Simpson's
-        paradox</a> and decides which{" "}
+        causal effect from observation. It is the rigorous version of the reversal in{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/simpsons-paradox/`} style={{ color: "#a855f7" }}>Simpson's paradox</a>,
+        and it decides which{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/regression/`} style={{ color: "#a855f7" }}>regression</a>{" "}
         controls actually answer your question.
       </DemoP>
-      <DemoP>
-        It underpins A/B testing and randomized trials (randomization is do(X) by construction, because it breaks confounding), quasi-experimental methods (matching,
-        instrumental variables, difference-in-differences), and uplift modeling. The
-        catch the demo hides: you can only adjust for confounders you have measured. Condition on the wrong variable (a collider or mediator) and you introduce
-        bias instead of removing it, which is why the causal graph, not the data,
-        has to come first.
-      </DemoP>
+      <DemoP>It underpins most of applied causal work:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          A/B testing and randomized trials, since randomization is do(X) by
+          construction and breaks confounding.
+        </DemoLI>
+        <DemoLI>
+          Quasi-experimental methods: matching, instrumental variables,
+          difference-in-differences, and uplift modeling.
+        </DemoLI>
+        <DemoLI>
+          The catch the demo hides: you can only adjust for confounders you have
+          measured. Condition on the wrong variable, a collider or a mediator, and
+          you introduce bias instead of removing it, which is why the causal graph,
+          not the data, has to come first.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="do() & Backdoor Adjustment"
       subtitle="Observing X is not setting X. A confounder biases the naive estimate; cut its arrow with do(X), or adjust for it, to recover the true causal effect."

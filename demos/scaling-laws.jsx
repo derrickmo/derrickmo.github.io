@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -110,41 +110,59 @@ function ScalingLawsDemo() {
     <>
       <DemoP>
         Scaling laws are why modern AI is an engineering plan, not a guess. Test loss
-        falls as a clean <b>power law</b> in model size, data, and compute, which are straight lines on a log-log plot (right panel). Given a fixed <b>compute budget</b>
-        (compute ≈ 6 · params · tokens), there's a single best way to spend it: too few
-        parameters and the model underfits; too many and you've starved it of tokens.
-        The left panel shows that U-shaped tradeoff, and the
-        <span style={{ color: "#fbbf24" }}> optimum</span> is the compute-optimal model
-        for that budget.
+        falls as a clean <b>power law</b> in model size, data and compute, which are
+        straight lines on a log-log plot in the right panel.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Given a fixed <b>compute budget</b> (compute ≈ 6 · params · tokens), there
+          is a single best way to spend it.
+        </DemoLI>
+        <DemoLI>
+          Too few parameters and the model underfits. Too many and you have starved
+          it of tokens.
+        </DemoLI>
+        <DemoLI>
+          The left panel shows that U-shaped tradeoff, and the{" "}
+          <span style={{ color: "#fbbf24" }}>optimum</span> is the compute-optimal
+          model for that budget.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Slide the budget and watch the optimum march up the frontier. The headline
-        result from the Chinchilla paper falls right out: the compute-optimal
-        <b> tokens-per-parameter</b> ratio stays around <b>20</b> across budgets, meaning many earlier models were far too large for how little data they saw.
-        Being able to read this curve is what lets you answer "how big a model, on how
-        much data, for this much GPU time?" before spending the money.
+        result from the Chinchilla paper falls right out: the compute-optimal{" "}
+        <b>tokens-per-parameter</b> ratio stays around <b>20</b> across budgets,
+        meaning many earlier models were far too large for how little data they saw.
+        Being able to read this curve is what lets you answer "how big a model, on
+        how much data, for this much GPU time?" before spending the money.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Scaling laws turned model training from guesswork into budgeting. Because loss falls
-        as a predictable power law in parameters, data, and compute, labs can forecast a
-        large model's performance from small-scale runs and decide how to spend a GPU budget
-        <i> before</i> committing it. This is the planning tool behind essentially every
-        frontier model.
+        Scaling laws turned model training from guesswork into budgeting. Because
+        loss falls as a predictable power law in parameters, data and compute, labs
+        can forecast the performance of a large model from small-scale runs and
+        decide how to spend a GPU budget <i>before</i> committing it. This is the
+        planning tool behind essentially every frontier model.
       </DemoP>
       <DemoP>
-        The Chinchilla result you can rediscover here, that roughly <b>20 tokens per parameter</b> is
-        compute-optimal, reshaped the field: it showed earlier giants like
-        GPT-3 were oversized for their data, and it's why recent models train on far more
-        tokens relative to their size. The same curves frame today's live debates: running
-        out of high-quality data, the training-vs-inference compute tradeoff, and where
-        emergent capabilities show up.
+        The Chinchilla result you can rediscover here, that roughly{" "}
+        <b>20 tokens per parameter</b> is compute-optimal, reshaped the field. It
+        showed earlier giants like GPT-3 were oversized for their data, and it is why
+        recent models train on far more tokens relative to their size. The same
+        curves frame today's live debates:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Running out of high-quality data.</DemoLI>
+        <DemoLI>The training-against-inference compute tradeoff.</DemoLI>
+        <DemoLI>Where emergent capabilities show up on the curve.</DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Neural Scaling Laws"
       subtitle="Spend compute wisely: the power-law frontier and the compute-optimal balance of parameters and data."
