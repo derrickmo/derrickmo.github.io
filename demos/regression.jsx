@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -255,39 +255,56 @@ function RegressionDemo() {
   const explainer = (
     <>
       <DemoP>
-        <b>Linear regression</b> finds the line that minimizes squared error to the data. The violet sticks show each residual, the orange line is the unique
-        least-squares solution. There's no iteration: the optimum has a closed form,
+        <b>Linear regression</b> finds the line that minimizes squared error to the
+        data. The violet sticks show each residual and the orange line is the unique
+        least-squares solution. There is no iteration: the optimum has a closed form,
         because MSE is convex in (slope, intercept). Add a point and the line moves
         immediately; crank noise up and the slope estimate gets dragged around.
       </DemoP>
       <DemoP>
-        <b>Logistic regression</b> swaps the line for a probability, the sigmoid of <i>w·x + b</i>, and the loss for binary
-        cross-entropy. No closed form, so we
-        run real gradient descent: hit TRAIN and watch the boundary rotate toward the
-        violet/blue gap as the loss falls. Shift-click to add class-0 points and see
-        the model adapt.
+        <b>Logistic regression</b> changes two things:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The line becomes a probability, the sigmoid of <i>w&middot;x + b</i>.
+        </DemoLI>
+        <DemoLI>The loss becomes binary cross-entropy.</DemoLI>
+        <DemoLI>
+          There is no closed form, so we run real gradient descent. Hit <b>TRAIN</b>{" "}
+          and watch the boundary rotate toward the gap as the loss falls.
+          Shift-click to add class-0 points and see the model adapt.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         These two models are the floor of supervised learning, and almost every model
-        you'll meet later is a generalization. Linear regression's least-squares fit is
-        the same math as PCA and the linear case of LoRA. It is projecting onto a subspace. Logistic regression is literally the last layer of a classifier
-        neural net: <i>softmax</i> over logits is multi-class logistic regression
-        stitched onto learned features.
+        you will meet later is a generalization of one of them. The least-squares fit
+        of linear regression is the same math as PCA and the linear case of LoRA: it
+        is projecting onto a subspace. Logistic regression is literally the last layer
+        of a classifier network, since <i>softmax</i> over logits is multi-class
+        logistic regression stitched onto learned features.
       </DemoP>
       <DemoP>
-        The <b>loss</b> choice, MSE against binary cross-entropy, is your first feel for
-        why we pick losses: MSE assumes Gaussian noise, BCE assumes Bernoulli outcomes;
-        match the noise model to the data or training fights you. And the <b>gradient
-        descent</b> you're watching on the logistic side is the same algorithm scaled
-        up to a billion parameters in modern training; the only thing that changed is
-        what's between the input and the loss.
+        The <b>loss</b> choice, MSE against binary cross-entropy, is your first feel
+        for why we pick losses at all:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>MSE assumes Gaussian noise.</DemoLI>
+        <DemoLI>BCE assumes Bernoulli outcomes.</DemoLI>
+        <DemoLI>Match the noise model to the data, or training fights you.</DemoLI>
+      </DemoUL>
+      <DemoP>
+        And the gradient descent you are watching on the logistic side is the same
+        algorithm scaled up to a billion parameters in modern training. The only
+        thing that changed is what sits between the input and the loss.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Linear & Logistic Regression"
       subtitle="The line of best fit, the residual sticks that define it, and the sigmoid boundary you train with gradient descent."

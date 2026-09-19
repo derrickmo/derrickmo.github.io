@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -157,47 +157,67 @@ function DistillationDemo() {
     <>
       <DemoP>
         A hard label says "this is class A", which is one bit. A trained teacher says
-        "85% A, 12% B, 3% C", and that extra structure (the teacher's <i>dark
-        knowledge</i>) tells the student which classes are similar and how
-        confident to be. Knowledge distillation trains a small student to match the
-        teacher's full softened distribution instead of just the answer. The probe
-        bars show it directly: the teacher's soft target on top, the student's
-        learned distribution below.
+        "85% A, 12% B, 3% C", and that extra structure, the <i>dark knowledge</i> of
+        the teacher, tells the student which classes are similar and how confident to
+        be. Knowledge distillation trains a small student to match the full softened
+        distribution instead of just the answer. The probe bars show it directly:
+        teacher soft target on top, student distribution below.
       </DemoP>
-      <DemoP>
-        Push SOFT WEIGHT α up and the two bar charts converge. The student inherits
-        the teacher's confidence structure, and the distribution-match metric
-        climbs, even though top-class accuracy was already near-perfect. TEMPERATURE
-        controls how much of that structure is visible: at T=1 the targets are
-        nearly one-hot and there's little to transfer; raise T and the runner-up
-        probabilities lift into view for the student to learn from. (The loss scales
-        by T² to keep the gradients balanced.)
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Push <b>SOFT WEIGHT α</b> up and the two bar charts converge. The student
+          inherits the confidence structure, and the distribution-match metric climbs
+          even though top-class accuracy was already near-perfect.
+        </DemoLI>
+        <DemoLI>
+          At <b>T=1</b> the targets are nearly one-hot and there is little to
+          transfer.
+        </DemoLI>
+        <DemoLI>
+          Raise <b>TEMPERATURE</b> and the runner-up probabilities lift into view for
+          the student to learn from. The loss scales by T&sup2; to keep the gradients
+          balanced.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Distillation (Hinton et al., 2015) compresses a big, accurate teacher into
-        a small, deployable student that punches above its size, the third pillar of model efficiency alongside{" "}
+        Distillation (Hinton et al., 2015) compresses a big, accurate teacher into a
+        small, deployable student that punches above its size. It is the third pillar
+        of model efficiency alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>{" "}
-        and <a href={`${window.__DM_BASE || "../../"}visualize/pruning/`} style={{ color: "#a855f7" }}>pruning</a>,
-        and the technique behind DistilBERT, TinyLlama-style models, and most
-        on-device LLMs. The soft-label / temperature mechanism is exactly the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>temperature
-        scaling</a> idea reused as a training signal.
+        and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/pruning/`} style={{ color: "#a855f7" }}>pruning</a>,
+        and the technique behind DistilBERT, TinyLlama-style models and most
+        on-device LLMs. The soft-label and temperature mechanism is exactly the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>temperature scaling</a>{" "}
+        idea reused as a training signal.
       </DemoP>
+      <DemoP>It goes well beyond classification logits:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Students can be distilled to match intermediate features or attention maps.
+        </DemoLI>
+        <DemoLI>
+          Sequence-level distillation copies the next-token distribution of a teacher
+          LM.
+        </DemoLI>
+        <DemoLI>
+          "Distillation" now also names training small models on the <i>generated</i>{" "}
+          data of a large one.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Beyond classification logits, students can be distilled to match
-        intermediate features or attention maps; sequence-level distillation copies
-        a teacher LM's next-token distribution; and "distillation" now also names
-        training small models on a large model's <i>generated</i> data. The
-        recurring insight is the one this demo isolates: a teacher's full
-        probability distribution is a far richer supervisory signal than the bare
-        label, so matching the distribution transfers more than matching the answer.
+        The recurring insight is the one this demo isolates: a full probability
+        distribution is a far richer supervisory signal than the bare label, so
+        matching the distribution transfers more than matching the answer.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Knowledge Distillation"
       subtitle="Train a small student to match a teacher's soft labels, not just its answers. Turn up temperature and soft-weight to transfer the teacher's dark knowledge."

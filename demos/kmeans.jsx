@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -196,15 +196,22 @@ function KMeansDemo() {
     <>
       <DemoP>
         K-Means looks for <i>k</i> cluster centers by repeating two steps until
-        nothing moves. <b>Assign:</b> color each point by its nearest centroid.
-        <b> Update:</b> move each centroid to the mean of the points assigned to it.
-        That is Lloyd's algorithm, and each round can only lower the total within-cluster
-        distance (the <i>inertia</i> shown here), so it always converges, though not
-        always to the globally best clustering.
+        nothing moves.
       </DemoP>
+      <DemoUL>
+        <DemoLI><b>Assign:</b> color each point by its nearest centroid.</DemoLI>
+        <DemoLI>
+          <b>Update:</b> move each centroid to the mean of the points assigned to it.
+        </DemoLI>
+        <DemoLI>
+          That is Lloyd's algorithm. Each round can only lower the total
+          within-cluster distance, the <i>inertia</i> shown here, so it always
+          converges, though not always to the globally best clustering.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Initialization matters. Plain <b>random</b> seeds can land two centroids in
-        one blob and get stuck; <b>k-means++</b> spreads the initial centroids out by
+        one blob and get stuck. <b>k-means++</b> spreads the initial centroids out by
         sampling far-apart points, which usually converges faster and to a better
         solution. Re-seed a few times on the same data to watch it find different
         local optima.
@@ -215,21 +222,30 @@ function KMeansDemo() {
   const concepts = (
     <>
       <DemoP>
-        K-Means is the default first pass for unsupervised grouping: customer and market
-        segmentation, image color quantization, grouping documents or embeddings into
-        topics, and as a cheap way to compress data or initialize a heavier model. It's
-        also the canonical example of the <i>alternate-and-converge</i> (EM-style) loop, guess assignments then refit parameters then repeat, that reappears
-        throughout ML.
+        K-Means is the default first pass for unsupervised grouping: customer and
+        market segmentation, image color quantization, grouping documents or
+        embeddings into topics, and a cheap way to compress data or initialize a
+        heavier model. It is also the canonical example of the
+        alternate-and-converge, EM-style loop, guess assignments then refit
+        parameters then repeat, that reappears throughout ML.
       </DemoP>
       <DemoP>
-        Its limitations teach the field's nuance. K-Means assumes round, similar-size
-        clusters and a chosen k, which is exactly what <b>Gaussian mixtures</b> (soft,
-        elliptical clusters), <b>DBSCAN</b> (density-based, arbitrary shapes), and the
-        elbow/silhouette methods for picking k were built to address. And the "result
-        depends on initialization" lesson, with <b>k-means++</b> as the standard fix, is the same trap you face in any non-convex optimization.
+        Its limitations teach the nuance of the field. K-Means assumes round,
+        similar-size clusters and a chosen k, which is exactly what three other
+        methods were built to address:
+      </DemoP>
+      <DemoUL>
+        <DemoLI><b>Gaussian mixtures</b> give soft, elliptical clusters.</DemoLI>
+        <DemoLI><b>DBSCAN</b> is density-based and handles arbitrary shapes.</DemoLI>
+        <DemoLI>Elbow and silhouette methods pick k rather than assuming it.</DemoLI>
+      </DemoUL>
+      <DemoP>
+        And the "result depends on initialization" lesson, with <b>k-means++</b> as
+        the standard fix, is the same trap you face in any non-convex optimization.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout
       title="K-Means Clustering"

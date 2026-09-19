@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Toggle, DemoButton, StatReadout, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, Toggle, DemoButton, StatReadout, ControlGroup,
 } = window;
 
 const SW = 180, SH = 140, SCALE = 2;
@@ -131,19 +131,22 @@ function ConvolutionDemo() {
     <>
       <DemoP>
         A convolution slides a small <b>kernel</b> over the image and, at every
-        pixel, computes a weighted sum of the neighborhood. That tiny 3×3 grid of
-        numbers is the entire operation. Change it and you change what the layer
-        "sees." <b>Box/Gaussian</b> kernels average neighbors (blur). <b>Sharpen</b>{" "}
-        amplifies the center against its surround. <b>Sobel</b> and <b>Edge</b>{" "}
-        kernels sum to zero, so flat regions cancel out and only intensity{" "}
-        <i>changes</i> survive, which is edge detection.
+        pixel, computes a weighted sum of the neighborhood. That tiny 3&times;3 grid
+        of numbers is the entire operation. Change it and you change what the layer
+        sees.
       </DemoP>
+      <DemoUL>
+        <DemoLI><b>Box</b> and <b>Gaussian</b> kernels average neighbors, which blurs.</DemoLI>
+        <DemoLI><b>Sharpen</b> amplifies the center against its surround.</DemoLI>
+        <DemoLI>
+          <b>Sobel</b> and <b>Edge</b> kernels sum to zero, so flat regions cancel
+          out and only intensity <i>changes</i> survive. That is edge detection.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        This is exactly what a convolutional neural network does, except a CNN
-        <i> learns</i> these kernels by gradient descent instead of you typing them.
-        Early layers end up discovering edge and texture detectors that look a lot
-        like Sobel; deeper layers compose them into parts and objects. Edit the
-        kernel cells and watch the feature map respond in real time.
+        This is exactly what a convolutional neural network does, except a CNN{" "}
+        <i>learns</i> these kernels by gradient descent instead of you typing them.
+        Edit the kernel cells and watch the feature map respond in real time.
       </DemoP>
     </>
   );
@@ -151,22 +154,32 @@ function ConvolutionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Convolution is the core operation of the CNN era: image classification, object
-        detection, segmentation, medical imaging, and the encoders inside many generative
-        and multimodal models all stack learned convolutional filters. The key idea is
-        <b> weight sharing</b>: one small kernel scans the entire image, giving
-        translation-invariance and dramatically fewer parameters than a fully-connected
-        layer.
+        Convolution is the core operation of the CNN era: image classification,
+        object detection, segmentation, medical imaging, and the encoders inside
+        many generative and multimodal models all stack learned convolutional
+        filters. The key idea is <b>weight sharing</b>. One small kernel scans the
+        entire image, which gives translation invariance and dramatically fewer
+        parameters than a fully connected layer.
       </DemoP>
       <DemoP>
-        What you type by hand here, a CNN <i>learns</i> by backprop, and early layers reliably converge to edge and texture detectors that look a lot like Sobel, while
-        deeper layers compose them into parts and whole objects (a hierarchy you can
-        literally visualize). The same sliding-window, local-receptive-field idea reappears
-        in 1-D audio convolutions, and even a Vision Transformer's patch embedding is just
-        a strided convolution.
+        What you type by hand here, a CNN <i>learns</i> by backprop, and the same
+        sliding-window idea keeps reappearing:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Early layers reliably converge to edge and texture detectors that look a
+          lot like Sobel, while deeper layers compose them into parts and whole
+          objects.
+        </DemoLI>
+        <DemoLI>1-D convolutions do the same job on audio and other signals.</DemoLI>
+        <DemoLI>
+          Even the patch embedding of a Vision Transformer is just a strided
+          convolution.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout
       title="Convolution Lab"

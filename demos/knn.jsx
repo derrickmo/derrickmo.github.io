@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -106,36 +106,56 @@ function KnnDemo() {
   const explainer = (
     <>
       <DemoP>
-        k-Nearest Neighbors is the simplest classifier there is: to label a point,
-        find its <i>k</i> closest training examples and take a majority vote. There is no training: the data <i>is</i> the model. The shaded regions show how every
-        point in the plane would be classified for the current <b>k</b>.
+        k-Nearest Neighbors is the simplest classifier there is. To label a point,
+        find its <i>k</i> closest training examples and take a majority vote. There
+        is no training: the data <i>is</i> the model. The shaded regions show how
+        every point in the plane would be classified for the current <b>k</b>.
       </DemoP>
-      <DemoP>
-        At <b>k = 1</b> the boundary is jagged and wraps tightly around every point
-        (low bias, high variance, so it overfits and noisy points create little islands). Crank <b>k</b> up and the boundary smooths out and the islands
-        dissolve (higher bias, lower variance), until very large k washes the classes together. The leave-one-out accuracy readout is a quick honest
-        score; click to add points and watch the regions redraw instantly.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          At <b>k = 1</b> the boundary is jagged and wraps tightly around every
+          point. Low bias, high variance, so it overfits and noisy points create
+          little islands.
+        </DemoLI>
+        <DemoLI>
+          Crank <b>k</b> up and the boundary smooths out and the islands dissolve.
+          Higher bias, lower variance, until very large k washes the classes together.
+        </DemoLI>
+        <DemoLI>
+          The leave-one-out accuracy readout is a quick honest score. Click to add
+          points and watch the regions redraw instantly.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        kNN is the textbook lazy, instance-based learner. There is no training, the data <i>is</i> the model, and
-        its core idea drives a surprising amount of modern AI.
-        Semantic / <b>vector search</b> and RAG are kNN at scale: embed everything, then
-        retrieve the k closest vectors. Recommenders ("users like you"), de-duplication,
-        and few-shot example selection all do the same nearest-neighbor lookup over learned
-        embeddings.
+        kNN is the textbook lazy, instance-based learner, and its core idea drives a
+        surprising amount of modern AI. Semantic <b>vector search</b> and RAG are kNN
+        at scale: embed everything, then retrieve the k closest vectors. Recommenders
+        ("users like you"), de-duplication and few-shot example selection all do the
+        same nearest-neighbor lookup over learned embeddings.
       </DemoP>
-      <DemoP>
-        It also crystallizes two ideas you reuse everywhere: the bias-variance tradeoff as
-        a single knob (k), and the <b>curse of dimensionality</b>, where distances grow meaningless as dimensions pile up. That's why production kNN runs over compact
-        learned embeddings with approximate-nearest-neighbor indexes (HNSW, IVF) instead of
-        raw features, trading a little accuracy for huge speed.
-      </DemoP>
+      <DemoP>It also crystallizes two ideas you reuse everywhere:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The bias-variance tradeoff as a single knob, k.
+        </DemoLI>
+        <DemoLI>
+          The <b>curse of dimensionality</b>, where distances grow meaningless as
+          dimensions pile up.
+        </DemoLI>
+        <DemoLI>
+          That second one is why production kNN runs over compact learned embeddings
+          with approximate nearest-neighbor indexes such as HNSW and IVF, trading a
+          little accuracy for huge speed.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="k-Nearest Neighbors"
       subtitle="The simplest classifier: vote among the k closest points. Watch k trade a jagged boundary for a smooth one."

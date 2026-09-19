@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -149,37 +149,58 @@ function OverfittingDemo() {
   const explainer = (
     <>
       <DemoP>
-        This fits a polynomial of the degree you choose to noisy samples of a true function, a real least-squares solve (normal equations, with optional
-        ridge regularization) done in the browser. The dashed grey line is the
-        truth; the violet curve is what the model learned from the blue
-        <b> training</b> points; the amber <b>test</b> points are held out.
+        This fits a polynomial of the degree you choose to noisy samples of a true
+        function, a real least-squares solve using the normal equations with
+        optional ridge regularization, done in the browser. The dashed grey line is
+        the truth, the violet curve is what the model learned from the blue{" "}
+        <b>training</b> points, and the amber <b>test</b> points are held out.
       </DemoP>
-      <DemoP>
-        Start at degree 1 (underfit, too rigid to follow the curve). Raise the
-        degree and the fit improves… until it doesn't: past a point the curve
-        contorts to pass through every training point and the <b>test RMSE</b>{" "}
-        shoots up while train RMSE keeps falling. That gap <i>is</i> overfitting, the bias-variance tradeoff made visible. Now add a little <b>ridge λ</b> and
-        watch it tame the wild high-degree wiggles, or add more <b>data points</b>{" "}
-        and watch overfitting get harder to trigger.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Start at degree 1. It is underfit, too rigid to follow the curve.
+        </DemoLI>
+        <DemoLI>
+          Raise the degree and the fit improves, until it does not. Past a point the
+          curve contorts to pass through every training point, and <b>test RMSE</b>{" "}
+          shoots up while train RMSE keeps falling. That gap <i>is</i> overfitting.
+        </DemoLI>
+        <DemoLI>
+          Add a little <b>ridge λ</b> to tame the wild high-degree wiggles, or add
+          more <b>data points</b> and watch overfitting get harder to trigger.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        The bias-variance tradeoff you're watching is the central tension of all
+        The bias-variance tradeoff you are watching is the central tension of all
         supervised learning, not a polynomial quirk. The gap between <b>train</b> and{" "}
-        <b>test</b> error, the <i>generalization gap</i>, is the number every practitioner actually monitors, and it's why real projects hold out validation
-        and test sets, use <i>early stopping</i>, and never trust training accuracy alone.
-        A model that aces training and fails on new data is the most common way ML quietly
-        ships broken.
+        <b>test</b> error, the <i>generalization gap</i>, is the number every
+        practitioner actually monitors. It is why real projects hold out validation
+        and test sets, use early stopping, and never trust training accuracy alone. A
+        model that aces training and fails on new data is the most common way ML
+        quietly ships broken.
       </DemoP>
+      <DemoP>Every lever here has a deep-learning counterpart:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Ridge λ</b> is L2 regularization, the same <i>weight decay</i> you set
+          on every neural network. Its cousins are dropout and data augmentation.
+        </DemoLI>
+        <DemoLI>
+          <b>Degree</b> is model capacity, the same reason giant models demand giant
+          datasets to avoid memorizing.
+        </DemoLI>
+        <DemoLI>
+          More <b>data points</b> is the oldest fix of all, and still the best one
+          when you can get them.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Every lever here has a deep-learning counterpart. <b>Ridge λ</b> is L2 regularization, the same <i>weight decay</i> you set on every neural network;
-        its cousins are dropout and data augmentation. <b>Degree</b> is model capacity, the same reason giant models demand giant datasets to avoid memorizing. And more
-        <b> data points</b> is the oldest fix of all. Once you can read this plot, "my
-        model overfits" becomes a problem with a menu of known answers.
+        Once you can read this plot, "my model overfits" becomes a problem with a
+        menu of known answers.
       </DemoP>
     </>
   );

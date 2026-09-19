@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 240, CH = 210, EXP_COST = 12; // expensive model costs 12x the cheap one
@@ -145,21 +145,30 @@ function ModelCascadeDemo() {
   const explainer = (
     <>
       <DemoP>
-        A cascade puts a <b>cheap, fast model in front of an expensive, accurate one</b>.
-        The cheap model (here a linear classifier) labels every input and reports how
-        <b> confident</b> it is. Inputs it's sure about exit immediately; only the uncertain ones, the violet band straddling the decision boundary of the cheap
-        model, are <b>escalated</b> to the expensive kNN model. Most inputs are easy, so you pay
-        the big cost on only a slice of traffic.
+        A cascade puts a <b>cheap, fast model in front of an expensive, accurate
+        one</b>. The cheap model, here a linear classifier, labels every input and
+        reports how <b>confident</b> it is.
       </DemoP>
+      <DemoUL>
+        <DemoLI>Inputs it is sure about exit immediately.</DemoLI>
+        <DemoLI>
+          Only the uncertain ones, the violet band straddling the decision boundary
+          of the cheap model, are <b>escalated</b> to the expensive kNN model.
+        </DemoLI>
+        <DemoLI>
+          Most inputs are easy, so you pay the big cost on only a slice of traffic.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Slide the <b>confidence threshold</b> and watch the tradeoff. At 0 nothing
-        escalates: you get the cheap model's mediocre accuracy at <b>1× cost</b>. Raise it and the band widens. Accuracy climbs toward the expensive one while the
-        <b> average cost</b> creeps up with the escalation rate. The whole point is that
-        the curve is steep early: a little escalation buys most of the accuracy, because
-        the hard cases cluster exactly where the cheap model is unsure. That only works
-        if the cheap model's confidence is trustworthy, and a poorly
-        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}> calibrated</a> model
-        escalates the wrong inputs.
+        escalates and you get mediocre accuracy at <b>1&times; cost</b>. Raise it and
+        the band widens, accuracy climbs toward the expensive model, and average cost
+        creeps up with the escalation rate. The point is that the curve is steep
+        early: a little escalation buys most of the accuracy, because the hard cases
+        cluster exactly where the cheap model is unsure. That only works if its
+        confidence is trustworthy, and a poorly{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`}>calibrated</a>{" "}
+        model escalates the wrong inputs.
       </DemoP>
     </>
   );
@@ -167,23 +176,36 @@ function ModelCascadeDemo() {
   const concepts = (
     <>
       <DemoP>
-        Cascades and early-exit are everywhere in real serving: cheap retrieval or a
-        small model fielding most queries and escalating only the hard ones to a frontier
-        model, early-exit transformers that stop at a shallow layer when confident, and
-        the classic Viola-Jones face detector's cascade of ever-costlier stages. It's the
-        same spend-compute-only-where-needed instinct as
-        <a href={`${window.__DM_BASE || "../../"}visualize/moe/`}> mixture-of-experts</a> routing
-        and <a href={`${window.__DM_BASE || "../../"}visualize/speculative-decoding/`}>speculative decoding</a>,
+        Cascades and early exit are everywhere in real serving: a small model
+        fielding most queries and escalating only the hard ones to a frontier model,
+        early-exit transformers that stop at a shallow layer when confident, and the
+        cascade of ever-costlier stages in the classic Viola-Jones face detector. It
+        is the same spend-compute-only-where-needed instinct as{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/moe/`}>mixture-of-experts</a>{" "}
+        routing and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/speculative-decoding/`}>speculative decoding</a>,
         just at the level of whole models instead of layers or tokens.
       </DemoP>
       <DemoP>
-        The catch is that a cascade is only as good as its router. Deferring on
-        confidence assumes the confidence means something, which ties it to
-        calibration and to <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`}>conformal</a>
-        uncertainty; a confidently-wrong cheap model routes hard cases straight to the
-        cheap (wrong) answer. In production you also balance this against
-        <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}> batching</a> and latency, because escalation adds a second model hop to the tail.
+        The catch is that a cascade is only as good as its router:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Deferring on confidence assumes the confidence means something, which ties
+          it to calibration and to{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/conformal/`}>conformal</a>{" "}
+          uncertainty.
+        </DemoLI>
+        <DemoLI>
+          A confidently wrong cheap model routes hard cases straight to the cheap,
+          wrong answer.
+        </DemoLI>
+        <DemoLI>
+          In production you also balance this against{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}>batching</a>{" "}
+          and latency, because escalation adds a second model hop to the tail.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

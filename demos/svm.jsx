@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -142,40 +142,66 @@ function SVMDemo() {
   const explainer = (
     <>
       <DemoP>
-        An SVM doesn't just find <i>a</i> separating line. It finds the one with the widest <b>margin</b>, the empty corridor between the classes (the faint inner
-        lines). Only the points touching that corridor, the <span style={{ color: "#fbbf24" }}> support vectors</span> (ringed), define the boundary; everything else could move freely without changing it. The
-        <b> C</b> slider trades margin width against misclassification: small C = wide,
-        forgiving margin; large C = narrow, strict fit.
+        An SVM does not just find <i>a</i> separating line. It finds the one with the
+        widest <b>margin</b>, the empty corridor between the classes, shown by the
+        faint inner lines.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Only the points touching that corridor, the{" "}
+          <span style={{ color: "#fbbf24" }}>support vectors</span> (ringed), define
+          the boundary. Everything else could move freely without changing it.
+        </DemoLI>
+        <DemoLI>
+          The <b>C</b> slider trades margin width against misclassification. Small C
+          gives a wide, forgiving margin; large C gives a narrow, strict fit.
+        </DemoLI>
+        <DemoLI>
+          Switch the dataset to <b>Circular</b> or <b>XOR</b> and a straight line
+          cannot win.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Switch the dataset to <b>Circular</b> or <b>XOR</b> and a straight line cannot win. Flip the <b>kernel</b> to <b>RBF</b> and the boundary curves to wrap each
-        class. That's the <b>kernel trick</b>: measuring similarity in a higher-
-        dimensional space without ever computing the coordinates. <b>Gamma</b> sets how local that similarity is. Crank it up and watch the model start to memorize.
-        This is real kernelized Pegasos training as you drag.
+        Flip the <b>kernel</b> to <b>RBF</b> and the boundary curves to wrap each
+        class. That is the <b>kernel trick</b>: measuring similarity in a
+        higher-dimensional space without ever computing the coordinates. <b>Gamma</b>{" "}
+        sets how local that similarity is, so crank it up and watch the model start
+        to memorize. This is real kernelized Pegasos training as you drag.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         SVMs were the dominant classifier before deep learning and remain a go-to for
-        small or medium tabular datasets, text categorization, and bioinformatics, where
-        they're fast, robust, and need little tuning. The two ideas you're touching here
-        outlast the algorithm itself: <b>max-margin</b> thinking (prefer the solution with
-        the most breathing room) underpins modern generalization theory, and the{" "}
-        <b>kernel trick</b>, computing similarity in a high-dimensional space without ever
-        visiting it, reappears all over ML.
+        small and medium tabular datasets, text categorization and bioinformatics,
+        where they are fast, robust and need little tuning. Two ideas you are
+        touching here outlast the algorithm itself:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Max-margin</b> thinking, preferring the solution with the most breathing
+          room, underpins modern generalization theory.
+        </DemoLI>
+        <DemoLI>
+          The <b>kernel trick</b>, computing similarity in a high-dimensional space
+          without ever visiting it, reappears all over ML.
+        </DemoLI>
+        <DemoLI>
+          That similarity function is a direct ancestor of dot-product{" "}
+          <i>attention</i>. Both score how related two points are and weight by it.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         The <b>C</b> knob is your first hands-on encounter with the bias-variance
-        tradeoff via regularization, the same dial (weight decay, dropout strength) you
-        turn on every neural network. And the kernel's similarity function is a direct
-        ancestor of the dot-product <i>attention</i> that powers transformers: both score
-        how related two points are and weight by it. Learn to read a margin and a kernel
+        tradeoff via regularization, the same dial as weight decay or dropout
+        strength on every neural network. Learn to read a margin and a kernel
         boundary and a lot of "modern" AI stops looking unfamiliar.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="SVM: Margins and Kernels"
       subtitle="The widest-margin boundary, the support vectors that define it, and the kernel trick that bends it."

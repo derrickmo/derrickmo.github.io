@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -157,46 +157,67 @@ function BaggingBoostingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both methods stack the same kind of tree but in opposite ways. Pick BAGGING
-        with a deep tree (depth 4-5): a single deep tree would overfit wildly, but
-        each is trained on a different bootstrap sample, so averaging {M} of them
-        cancels the per-tree noise and lands near the truth. That is variance reduction, and the trees never needed to talk to each other. Now pick BOOSTING with a shallow
-        tree (depth 1-2): one stump is hopeless, but each new tree is fit to whatever
-        the running sum still gets wrong, so the ensemble climbs toward the curve one correction at a time. That is bias reduction.
+        Both methods stack the same kind of tree, but in opposite ways.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>BAGGING</b> with a deep tree (depth 4-5): a single deep tree would
+          overfit wildly, but each is trained on a different bootstrap sample, so
+          averaging {M} of them cancels the per-tree noise and lands near the truth.
+          That is variance reduction, and the trees never needed to talk to each other.
+        </DemoLI>
+        <DemoLI>
+          <b>BOOSTING</b> with a shallow tree (depth 1-2): one stump is hopeless, but
+          each new tree is fit to whatever the running sum still gets wrong, so the
+          ensemble climbs toward the curve one correction at a time. That is bias
+          reduction.
+        </DemoLI>
+        <DemoLI>
+          Drag <b>N ESTIMATORS</b> to watch each build up, and the learning rate ν to
+          see the speed-against-overfitting trade in boosting. Small ν with many
+          trees generalizes best.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Drag N ESTIMATORS to watch each build up, and the LEARNING RATE ν to see
-        boosting's speed-vs-overfitting trade (small ν, many trees generalizes best).
-        Then crank NOISE and push boosting's depth and count up: train MSE keeps
-        falling but test MSE turns back up. Boosting will happily memorize noise,
-        while bagging's averaging makes it far more robust. That contrast is the whole
-        story: bagging is a variance machine, boosting is a bias machine.
+        Then crank <b>NOISE</b> and push the depth and count of boosting up: train
+        MSE keeps falling but test MSE turns back up. Boosting will happily memorize
+        noise, while the averaging in bagging makes it far more robust. That contrast
+        is the whole story. Bagging is a variance machine, boosting is a bias machine.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This is the engine behind the most reliable models in tabular ML.
-        <strong> Random forests</strong> are bagging with extra per-split feature
-        randomness; <strong>gradient boosting</strong> (XGBoost, LightGBM, CatBoost)
-        is the boosting shown here and still wins a large share of Kaggle tabular
-        competitions. The bias/variance framing connects directly to the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/bias-variance-decomp/`} style={{ color: "#a855f7" }}>bias-variance decomposition</a>
+        This is the engine behind the most reliable models in tabular ML.{" "}
+        <strong>Random forests</strong> are bagging with extra per-split feature
+        randomness. <strong>Gradient boosting</strong> (XGBoost, LightGBM, CatBoost)
+        is the boosting shown here, and still wins a large share of Kaggle tabular
+        competitions. The framing connects directly to the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/bias-variance-decomp/`} style={{ color: "#a855f7" }}>bias-variance decomposition</a>,
         and the base learner is the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/decision-tree/`} style={{ color: "#a855f7" }}>decision tree</a>.
       </DemoP>
-      <DemoP>
-        Caveats: bagging barely helps stable, high-bias learners (averaging a stump
-        with a stump is still a stump), because it needs high-variance base models.
-        Boosting is sequential (harder to parallelize) and sensitive to noise and
-        learning rate; without shrinkage and early stopping it overfits. Gradient
-        boosting also generalizes the residual-fitting idea to any differentiable loss
-        via functional gradient descent, which is why it handles classification,
-        ranking, and survival models, not just the squared-error regression here.
-      </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Bagging barely helps stable, high-bias learners, because averaging a stump
+          with a stump is still a stump. It needs high-variance base models.
+        </DemoLI>
+        <DemoLI>
+          Boosting is sequential, so harder to parallelize, and sensitive to noise and
+          learning rate. Without shrinkage and early stopping it overfits.
+        </DemoLI>
+        <DemoLI>
+          Gradient boosting generalizes residual fitting to any differentiable loss
+          via functional gradient descent, which is why it handles classification,
+          ranking and survival models, not just the squared-error regression here.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Bagging vs Boosting"
       subtitle="Two ways to ensemble trees: bagging averages bootstrap-trained deep trees to cut variance; boosting stacks shallow trees on the residual to cut bias. Tune depth, count, and noise to see each shine and fail."

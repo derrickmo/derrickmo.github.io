@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -164,44 +164,65 @@ function BatchNormDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each column is one layer; the purple cloud is the spread of that layer's
-        activations over a 64-example batch, with the blue band marking ±1 standard
-        deviation. With BatchNorm OFF, set WEIGHT GAIN above 1 and walk your eye left
-        to right: with tanh the cloud collapses onto ±1 (saturated, so gradients die),
-        with ReLU the band balloons (variance explodes). Below 1, everything shrinks
-        toward zero. Either way the green "std across depth" line slopes off instead of staying flat. The deep layers are sick.
+        Each column is one layer. The purple cloud is the spread of that layer
+        activations over a 64-example batch, with the blue band marking &plusmn;1
+        standard deviation. With BatchNorm <b>OFF</b>, set <b>WEIGHT GAIN</b> above 1
+        and walk your eye left to right:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With tanh the cloud collapses onto &plusmn;1, saturated, so gradients die.
+        </DemoLI>
+        <DemoLI>With ReLU the band balloons, because variance explodes.</DemoLI>
+        <DemoLI>
+          Below 1, everything shrinks toward zero. Either way the green "std across
+          depth" line slopes off instead of staying flat, and the deep layers are sick.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Flip BATCHNORM on. Every layer now re-standardizes its features across the
-        batch before the nonlinearity, so the distribution stops drifting no matter
-        what the weights above did, so the std line goes flat and saturation drops.
-        That decoupling is why BatchNorm lets you train much deeper nets at higher
-        learning rates. The γ and β knobs are the learnable scale/shift that let the
-        network choose a non-unit distribution if it helps.
+        Flip <b>BATCHNORM</b> on. Every layer now re-standardizes its features across
+        the batch before the nonlinearity, so the distribution stops drifting no
+        matter what the weights above did, the std line goes flat, and saturation
+        drops. That decoupling is why BatchNorm lets you train much deeper nets at
+        higher learning rates. The γ and β knobs are the learnable scale and shift
+        that let the network choose a non-unit distribution if it helps.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        BatchNorm (Ioffe & Szegedy 2015) was a turning point for training deep CNNs:
-        it stabilizes the distribution of layer inputs, smooths the loss landscape,
-        and acts as a mild regularizer via batch noise. Its relatives, LayerNorm (the norm of choice in{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>transformers</a>,
-        since it doesn't depend on batch statistics), RMSNorm and GroupNorm, all share the same idea of controlling activation scale. It works hand in hand with good{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/activations/`} style={{ color: "#a855f7" }}>activation</a>
+        BatchNorm (Ioffe and Szegedy, 2015) was a turning point for training deep
+        CNNs. It stabilizes the distribution of layer inputs, smooths the loss
+        landscape and acts as a mild regularizer via batch noise. Its relatives all
+        share the same idea of controlling activation scale: LayerNorm, the norm of
+        choice in{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>transformers</a>{" "}
+        because it does not depend on batch statistics, plus RMSNorm and GroupNorm.
+        It works hand in hand with good{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/activations/`} style={{ color: "#a855f7" }}>activation</a>{" "}
         choices and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/gradient-clipping/`} style={{ color: "#a855f7" }}>gradient clipping</a> for stable training.
+        <a href={`${window.__DM_BASE || "../../"}visualize/gradient-clipping/`} style={{ color: "#a855f7" }}>gradient clipping</a>.
       </DemoP>
-      <DemoP>
-        Caveats: BatchNorm couples examples within a batch, so it behaves differently
-        at train vs inference (it switches to running averages) and degrades with tiny batches, which is why sequence and large-model work leans on LayerNorm/RMSNorm
-        instead. The original "internal covariate shift" explanation is now contested;
-        the smoothing-of-the-loss-landscape account is better supported. And it adds
-        compute and a train/eval discrepancy you have to get right.
-      </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          BatchNorm couples examples within a batch, so it behaves differently at
+          train and inference time, switching to running averages.
+        </DemoLI>
+        <DemoLI>
+          It degrades with tiny batches, which is why sequence and large-model work
+          leans on LayerNorm and RMSNorm instead.
+        </DemoLI>
+        <DemoLI>
+          The original "internal covariate shift" explanation is now contested. The
+          smoothing-of-the-loss-landscape account is better supported.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Batch Normalization"
       subtitle="Watch a mini-batch activation distribution drift, explode, or saturate across a deep stack. Then turn BatchNorm on and see every layer snap back to a healthy unit-variance spread."

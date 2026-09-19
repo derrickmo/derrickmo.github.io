@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, SegmentedControl, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -346,41 +346,58 @@ function GANDemo() {
   );
   const explainer = (
     <>
+      <DemoP>Two tiny networks, learning by fighting.</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <b style={{ color: "#c084fc" }}>generator</b> reads Gaussian noise and
+          tries to spit out points that look like the{" "}
+          <b style={{ color: "#60a5fa" }}>real</b> distribution.
+        </DemoLI>
+        <DemoLI>
+          The <b>discriminator</b> looks at a point and outputs the probability that
+          it is real.
+        </DemoLI>
+        <DemoLI>
+          The background shading is the current decision field of D. Blue means "I
+          think this is real", violet means "fake".
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Two tiny networks, learning by fighting. The
-        <b style={{ color: "#c084fc" }}> generator</b> reads Gaussian noise and
-        tries to spit out points that look like the
-        <b style={{ color: "#60a5fa" }}> real</b> distribution. The
-        <b> discriminator</b> looks at a point and outputs the probability
-        that it's real. The background shading is the D's current decision field. Blue means "I think this is real," violet means "fake."
-      </DemoP>
-      <DemoP>
-        Run it. At first the fakes are scattered noise and D pins them down easily, so the violet region is huge. As G learns to game D, fakes drift
-        toward the ring; the violet patch shrinks. D fights back by sharpening
-        the boundary. The losses (G in green, D in yellow) bob: both should hover
-        around log 2 ≈ 0.69 at the equilibrium where D can't tell them apart.
+        Run it. At first the fakes are scattered noise and D pins them down easily,
+        so the violet region is huge. As G learns to game D, fakes drift toward the
+        ring and the violet patch shrinks, while D fights back by sharpening the
+        boundary. The losses, G in green and D in yellow, bob: both should hover
+        around log 2 &asymp; 0.69 at the equilibrium where D cannot tell them apart.
         Hit RESET and try the moons: same dynamics, different shape.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Every modern image / video generator descends from this two-player game.
-        StyleGAN, BigGAN, CycleGAN, pix2pix, super-resolution, image-to-image translation are all built on the GAN objective you're looking at here,
-        with bigger nets and tricks (spectral norm, gradient penalty, progressive
-        growth) to stabilize training. Even text-to-image diffusion borrowed
-        the adversarial idea via classifier-guided sampling.
+        Every modern image and video generator descends from this two-player game.
+        StyleGAN, BigGAN, CycleGAN, pix2pix, super-resolution and image-to-image
+        translation are all built on the GAN objective you are looking at here, with
+        bigger nets and stabilizing tricks such as spectral norm, gradient penalty
+        and progressive growth. Even text-to-image diffusion borrowed the adversarial
+        idea via classifier-guided sampling.
       </DemoP>
       <DemoP>
-        The deep insight is the framing: don't define a loss on individual samples. Define one model that learns to recognize the whole
-        distribution, and use its gradient as the loss. That move lets you
-        learn implicit densities you'd never write down in closed form, which
-        is also exactly what discriminator-as-critic does in score-based
-        diffusion, RLHF reward models, and self-play training.
+        The deep insight is the framing. Do not define a loss on individual samples.
+        Define one model that learns to recognize the whole distribution, and use its
+        gradient as the loss. That move lets you learn implicit densities you could
+        never write down in closed form, which is exactly what discriminator-as-critic
+        does in three other places:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Score-based diffusion.</DemoLI>
+        <DemoLI>RLHF reward models.</DemoLI>
+        <DemoLI>Self-play training.</DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="GAN 2-D"
       subtitle="Two tiny networks duel in your browser. The generator chases the real distribution, the discriminator polices the boundary."

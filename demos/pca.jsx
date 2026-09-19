@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -131,39 +131,61 @@ function PCADemo() {
     <>
       <DemoP>
         PCA finds the directions along which the data varies most. We center the
-        cloud, build its 2×2 covariance matrix, and take its eigenvectors. The <span style={{ color: "#fbbf24" }}> PC1</span> arrow points along the
-        direction of greatest variance, <span style={{ color: "#34d399" }}>PC2</span>
-        is orthogonal to it, and each arrow's length is the spread (√eigenvalue)
-        along it. The readouts show how much of the total variance each component
-        explains.
+        cloud, build its 2&times;2 covariance matrix, and take its eigenvectors.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <span style={{ color: "#fbbf24" }}>PC1</span> arrow points along the
+          direction of greatest variance.
+        </DemoLI>
+        <DemoLI>
+          <span style={{ color: "#34d399" }}>PC2</span> is orthogonal to it, and each
+          arrow length is the spread (√eigenvalue) along it.
+        </DemoLI>
+        <DemoLI>
+          The readouts show how much of the total variance each component explains.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Turn on <b>Project onto PC1</b> to collapse every point onto that first axis. That is dimensionality reduction: trading the small-variance direction for a
-        compact 1-D representation that keeps most of the information (look at how
-        little PC2 carries on the "correlated" set). The same eigen-decomposition
-        powers compression, denoising, and the embeddings you visualize elsewhere in
-        the lab.
+        Turn on <b>Project onto PC1</b> to collapse every point onto that first axis.
+        That is dimensionality reduction: trading the small-variance direction for a
+        compact 1-D representation that keeps most of the information. Look at how
+        little PC2 carries on the correlated set. The same eigen-decomposition powers
+        compression, denoising, and the embeddings you visualize elsewhere in the lab.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        PCA is the default tool for dimensionality reduction, visualization, and decorrelation: compressing high-dimensional features, denoising, speeding up
-        downstream models, and giving a quick 2-D look at data you otherwise can't plot.
-        Under the hood it's an eigen-decomposition of the covariance matrix, the same
-        linear-algebra machinery behind whitening, spectral methods, and the matrix
-        factorization in recommender systems.
+        PCA is the default tool for dimensionality reduction, visualization and
+        decorrelation: compressing high-dimensional features, denoising, speeding up
+        downstream models, and giving a quick 2-D look at data you otherwise cannot
+        plot. Under the hood it is an eigen-decomposition of the covariance matrix,
+        the same linear-algebra machinery behind whitening, spectral methods and the
+        matrix factorization in recommender systems.
       </DemoP>
       <DemoP>
         The "variance explained" idea is the intuition behind much of modern
-        representation learning: embeddings, autoencoders, and latent spaces all chase a
-        compact code that keeps the meaningful directions and discards noise. PCA's
-        <i> linearity</i> is also its limit, which is precisely why nonlinear methods like
-        t-SNE, UMAP, and autoencoders exist for data that doesn't lie near a flat subspace.
+        representation learning:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Embeddings, autoencoders and latent spaces all chase a compact code that
+          keeps the meaningful directions and discards noise.
+        </DemoLI>
+        <DemoLI>
+          The <i>linearity</i> of PCA is also its limit.
+        </DemoLI>
+        <DemoLI>
+          That limit is precisely why nonlinear methods like t-SNE, UMAP and
+          autoencoders exist, for data that does not lie near a flat subspace.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Principal Component Analysis"
       subtitle="Find the axes of greatest variance, then project onto them. Dimensionality reduction, made visible."
