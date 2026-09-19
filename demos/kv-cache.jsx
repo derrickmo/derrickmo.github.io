@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -217,39 +217,62 @@ function KVCacheDemo() {
     <>
       <DemoP>
         Autoregressive generation feeds the model one new token at a time. The
-        expensive part of each step is self-attention's keys (<i>K</i>) and values
-        (<i>V</i>) for every token in the prefix. Without a cache, you recompute
-        every K and V every step, which is quadratic work. The <b>KV cache</b> stashes them
-        so the new step only computes one new K and one new V, then runs a single
-        dot product against the cache.
+        expensive part of each step is the keys (<i>K</i>) and values (<i>V</i>) that
+        self-attention needs for every token in the prefix.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Without a cache you recompute every K and V every step, which is quadratic
+          work.
+        </DemoLI>
+        <DemoLI>
+          The <b>KV cache</b> stashes them, so a new step computes one new K and one
+          new V, then runs a single dot product against the cache.
+        </DemoLI>
+        <DemoLI>
+          Toggle the cache off and per-step FLOPs grows linearly with sequence
+          length, so total cost is <i>O(n&sup2;)</i> over n steps. Toggle it on and
+          per-step FLOPs stays nearly flat, just the new row.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Toggle the cache off and the per-step FLOPs bar grows linearly with sequence length, so total cost is <i>O(n²)</i> over n steps. Toggle it on and per-step
-        FLOPs stays nearly flat (just the new row). The K and V grids show the cache
-        filling row by row; with cache off, you're recomputing the same rows you
-        already saw, every single step.
+        The K and V grids show the cache filling row by row. With the cache off you
+        are recomputing the same rows you already saw, every single step.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        The KV cache is the single largest reason production LLM inference is feasible.
-        Without it, generating a 4k-token response would re-do attention on the entire
-        prefix at every token, quadratic in length on top of an already enormous model. Memory cost grows linearly (<i>2 · L · n_layers · n_heads · d_head</i>{" "}
+        The KV cache is the single largest reason production LLM inference is
+        feasible. Without it, generating a 4k-token response would redo attention on
+        the entire prefix at every token, quadratic in length on top of an already
+        enormous model. Memory grows linearly ({"2 · L · n_layers · n_heads · d_head"}{" "}
         per request), which is why <b>context length</b> is a hardware question:
         Llama 3 70B at 128k context needs tens of gigabytes of KV alone, per request.
       </DemoP>
       <DemoP>
-        Almost every modern inference-time optimization is a tweak on top of the KV
-        cache: <b>GQA/MQA</b> (heads share K/V to shrink the cache 4-8x);
-        <b> PagedAttention</b>, vLLM's trick of treating the cache like virtual
-        memory pages to avoid fragmentation; <b>speculative decoding</b> still uses
-        the cache, just generates K tokens in parallel. The cache is the substrate;
-        the rest is plumbing.
+        Almost every modern inference-time optimization is a tweak on top of it:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>GQA</b> and <b>MQA</b> have heads share K and V, shrinking the cache 4
+          to 8 times.
+        </DemoLI>
+        <DemoLI>
+          <b>PagedAttention</b>, the vLLM trick of treating the cache like virtual
+          memory pages, removes the fragmentation.
+        </DemoLI>
+        <DemoLI>
+          <b>Speculative decoding</b> still uses the cache. It just generates several
+          tokens per expensive pass.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>The cache is the substrate. The rest is plumbing.</DemoP>
     </>
   );
+
   return (
     <DemoLayout title="KV Cache"
       subtitle="Toggle the KV cache and watch per-step compute either stay flat or grow with prefix length. This is the trick that makes LLM inference tractable."

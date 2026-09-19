@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -143,43 +143,70 @@ function QuantizationDemo() {
     <>
       <DemoP>
         A model in 32-bit float is mostly wasted precision. Quantization snaps each
-        weight to one of a small number of evenly spaced levels (the blue grid) so
+        weight to one of a small number of evenly spaced levels, the blue grid, so
         it can be stored in b bits. The scale that sets the grid spacing is just
-        max|w| divided by the largest integer b bits can hold. White dots are the
-        original weights; each slides to its nearest level (colored by how far it
-        had to move). Fewer BITS means fewer levels, a coarser grid, and bigger rounding error, but a smaller and faster model.
+        max|w| divided by the largest integer b bits can hold.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          White dots are the original weights. Each slides to its nearest level,
+          colored by how far it had to move.
+        </DemoLI>
+        <DemoLI>
+          Fewer <b>BITS</b> means fewer levels, a coarser grid and bigger rounding
+          error, but a smaller and faster model.
+        </DemoLI>
+        <DemoLI>
+          Raise <b>OUTLIERS</b> and a handful of large weights drag max|w| out, so
+          the whole grid stretches to reach them.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now raise OUTLIERS. A handful of large weights drag max|w| way out, the
-        whole grid stretches to reach them, and suddenly every ordinary weight in
-        the dense cluster is stranded between far-apart levels. RMSE jumps even though almost all the weights are small. That single effect is why naive
-        low-bit quantization wrecks LLMs. Flip CLIP on: sizing the grid for the
-        bulk instead of the outliers restores a fine grid where the mass is, and
-        the error collapses.
+        That last one is the whole problem. Every ordinary weight in the dense
+        cluster is stranded between far-apart levels, and RMSE jumps even though
+        almost all the weights are small. It is why naive low-bit quantization
+        wrecks LLMs. Flip <b>CLIP</b> on: sizing the grid for the bulk instead of
+        the outliers restores a fine grid where the mass is, and the error collapses.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Quantization is the headline model-efficiency technique: 4-bit weights make
-        a 70B model run on a single consumer GPU. Post-training quantization (shown
-        here) just rounds a trained model; quantization-aware training simulates the
-        rounding during training for better accuracy. The outlier problem you can
-        trigger is exactly what modern LLM methods target: per-channel scales, the error-compensated rounding of GPTQ, AWQ's activation-aware scaling, and
-        QLoRA's NF4 format all exist to handle it.
+        Quantization is the headline model-efficiency technique, and 4-bit weights
+        are what make a 70B model run on a single consumer GPU. Post-training
+        quantization, shown here, just rounds a trained model. Quantization-aware
+        training simulates the rounding during training for better accuracy.
       </DemoP>
       <DemoP>
-        It sits in the efficiency toolkit beside pruning (zero out unimportant
-        weights), distillation (train a small student from a big teacher), and
-        mixed precision, and it pairs with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/lora/`} style={{ color: "#a855f7" }}>LoRA</a>{" "}
-        in QLoRA for cheap fine-tuning. The fundamental tradeoff never goes away:
-        bits bought in memory and speed are paid for in precision. The art is spending the few bits you keep where the weights actually are, which is the
-        whole story this demo tells.
+        The outlier problem you can trigger is exactly what modern LLM methods target:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Per-channel scales, so one bad channel cannot stretch the grid for
+          everything else.
+        </DemoLI>
+        <DemoLI>
+          The error-compensated rounding of GPTQ, and the activation-aware scaling
+          of AWQ.
+        </DemoLI>
+        <DemoLI>
+          The NF4 format of QLoRA, which pairs with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/lora/`} style={{ color: "#a855f7" }}>LoRA</a>{" "}
+          for cheap fine-tuning.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        It sits in the efficiency toolkit beside pruning, which zeroes unimportant
+        weights, distillation, which trains a small student from a big teacher, and
+        mixed precision. The tradeoff never goes away: bits bought in memory and
+        speed are paid for in precision. The art is spending the few you keep where
+        the weights actually are.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Quantization"
       subtitle="Round fp32 weights to b-bit integers: smaller and faster, but coarser. Watch weights snap to the grid, and how outliers wreck it until you clip them."

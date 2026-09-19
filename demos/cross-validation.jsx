@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -208,48 +208,69 @@ function CrossValDemo() {
       <DemoP>
         Top: the points, the true curve (dashed green), and your degree-{degree}
         polynomial. Each moment, one fold (yellow) is held out, the model is trained
-        on the rest, and its error on that yellow fold is what CV records. Then the held-out fold rotates so every point gets scored exactly once as unseen data.
-        Bottom: do that across all complexities. The green TRAIN error only ever falls. A degree-9 polynomial threads every point and looks perfect, which is
-        why train error can't be trusted to pick a model.
+        on the rest, and its error on that yellow fold is what CV records. Then the
+        held-out fold rotates, so every point gets scored exactly once as unseen data.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The green <b>TRAIN</b> error only ever falls. A degree-9 polynomial threads
+          every point and looks perfect, which is why train error cannot be trusted
+          to pick a model.
+        </DemoLI>
+        <DemoLI>
+          The purple <b>CV</b> error tells the truth. It drops as the model gains the
+          capacity to capture real signal, bottoms out at the ★ best degree, then
+          climbs as higher degrees start fitting noise and fail on held-out folds.
+        </DemoLI>
+        <DemoLI>
+          That U is the bias and variance tradeoff made measurable. Hit SELECT BEST
+          to jump to the CV minimum.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The purple CV error tells the truth: it drops as the model gains the capacity
-        to capture the real signal, bottoms out at the ★ best degree, then climbs as
-        higher degrees start fitting the noise and fail on held-out folds. That U is
-        the bias/variance tradeoff made measurable. Hit SELECT BEST to jump to the CV
-        minimum. Turn NOISE up and watch the sweet spot slide to a SIMPLER model, because noisier data supports less complexity, and turn it down to
-        justify more.
-        This is how degree, regularization strength, tree depth, and k in k-NN are
+        Turn <b>NOISE</b> up and the sweet spot slides to a SIMPLER model, because
+        noisier data supports less complexity. Turn it down to justify more. This is
+        how degree, regularization strength, tree depth and the k in k-NN are
         actually chosen in practice.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Cross-validation is the standard tool for honest performance estimation and
-        hyperparameter selection when data is limited. It's how you pick a
+        hyperparameter selection when data is limited. It is how you pick a
         regularization strength, a tree depth, or the k in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/knn/`} style={{ color: "#a855f7" }}>k-NN</a>{" "}
         without peeking at the test set, and it directly measures the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`} style={{ color: "#a855f7" }}>overfitting</a>{" "}
-        you'd otherwise only theorize about via the{" "}
+        you would otherwise only theorize about via the{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/bias-variance-decomp/`} style={{ color: "#a855f7" }}>bias/variance decomposition</a>.
-        k=5 or 10 are typical; leave-one-out (k=N) is nearly unbiased but high-variance
-        and expensive.
+        k=5 or 10 are typical; leave-one-out (k=N) is nearly unbiased but
+        high-variance and expensive.
       </DemoP>
-      <DemoP>
-        Caveats: folds must respect structure. Shuffle and stratify for class
-        balance, but use grouped or time-series splits when points are correlated
-        (otherwise leakage makes CV wildly optimistic). Selecting a model AND
-        reporting its CV score on the same folds is itself a form of overfitting to
-        the validation set; nested CV or a held-out test set fixes that. CV estimates
-        the error of the procedure at a given training size, and its folds are
-        correlated, so the naive standard error understates the true uncertainty. For
-        big data, a single large validation split is often enough.
-      </DemoP>
+      <DemoP>Three caveats, and the first one is the one that actually bites:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Folds must respect structure.</b> Shuffle and stratify for class
+          balance, but use grouped or time-series splits when points are correlated,
+          or leakage makes CV wildly optimistic.
+        </DemoLI>
+        <DemoLI>
+          Selecting a model AND reporting its CV score on the same folds is itself
+          overfitting, to the validation set. Nested CV or a held-out test set fixes it.
+        </DemoLI>
+        <DemoLI>
+          CV estimates the error of the <i>procedure</i> at a given training size,
+          and its folds are correlated, so the naive standard error understates the
+          true uncertainty. For big data a single large validation split is often
+          enough.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Cross-Validation"
       subtitle="Train error always falls with complexity, so it cannot pick a model. Watch honest k-fold CV rotate a held-out fold through the data and trace a U-shaped error curve whose minimum is the right amount of complexity. The bias/variance tradeoff, measured."

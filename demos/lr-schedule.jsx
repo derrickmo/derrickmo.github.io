@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, StatReadout, ControlGroup,
 } = window;
 
@@ -118,41 +118,59 @@ function LRScheduleDemo() {
     <>
       <DemoP>
         The learning rate is the single most important hyperparameter, and it almost
-        never stays constant. <b>Warmup</b> ramps it up gently so the first noisy
-        gradients don't blow up a freshly-initialized model; then a <b>decay</b>
-        (cosine, step, exponential, or linear) shrinks it so training can settle into a
-        minimum instead of bouncing around it. The top panel is the schedule; the
-        bottom panel is the loss from actually running SGD with it. Watch how the same optimizer converges fast and clean under a good schedule.
+        never stays constant.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Warmup</b> ramps it up gently, so the first noisy gradients do not blow
+          up a freshly initialized model.
+        </DemoLI>
+        <DemoLI>
+          A <b>decay</b>, cosine or step or exponential or linear, shrinks it so
+          training settles into a minimum instead of bouncing around it.
+        </DemoLI>
+        <DemoLI>
+          The top panel is the schedule. The bottom panel is the loss from actually
+          running SGD with it.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push the <b>peak LR</b> too high and the loss diverges (the quadratic is stable
-        only for LR &lt; 2), exactly the "loss went to NaN" failure everyone hits once.
-        Add <b>warmup</b> and you can safely use a higher peak. The cosine schedule
-        with warmup shown here is the default behind most modern transformer training
-        runs; getting this curve right is often the difference between a model that
-        trains and one that doesn't.
+        Push the <b>peak LR</b> too high and the loss diverges, since this quadratic
+        is stable only for LR &lt; 2. That is exactly the "loss went to NaN" failure
+        everyone hits once. Add <b>warmup</b> and you can safely use a higher peak.
+        The cosine-with-warmup schedule shown here is the default behind most modern
+        transformer training runs, and getting this curve right is often the
+        difference between a model that trains and one that does not.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Learning-rate scheduling is standard practice in every serious training run, not an
-        optional polish. The <b>cosine-with-warmup</b> curve shown here is the de-facto
-        default for training transformers and LLMs; step decay long ruled computer vision.
-        Getting the schedule right is frequently the difference between a model that
-        converges cleanly and one that diverges or stalls.
+        Learning-rate scheduling is standard practice in every serious training run,
+        not optional polish. The <b>cosine-with-warmup</b> curve shown here is the
+        de-facto default for training transformers and LLMs; step decay long ruled
+        computer vision.
       </DemoP>
       <DemoP>
-        The two failure modes you can trigger, divergence from too high a peak and the unstable start
-        that warmup fixes, explain a lot of real training lore: why warmup
-        pairs with large-batch training, why even adaptive optimizers like Adam still want a
-        schedule, and why practitioners sweep the learning rate before any other
-        hyperparameter. It's the same "the learning rate is everything" lesson as the
-        gradient-descent demo, now over a whole training run.
+        The two failure modes you can trigger, divergence from too high a peak and
+        the unstable start that warmup fixes, explain a lot of real training lore:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Why warmup pairs with large-batch training.</DemoLI>
+        <DemoLI>Why even adaptive optimizers like Adam still want a schedule.</DemoLI>
+        <DemoLI>
+          Why practitioners sweep the learning rate before any other hyperparameter.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        It is the same "the learning rate is everything" lesson as the
+        gradient-descent demo, now stretched over a whole training run.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Learning-Rate Schedules"
       subtitle="Warmup, decay, and why the same optimizer converges or diverges depending on the curve you feed it."

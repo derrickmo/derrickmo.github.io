@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, StatReadout, Legend, ControlGroup, TextField,
 } = window;
 
@@ -185,20 +185,35 @@ function AttentionDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each row is a <b>query</b> token asking "who should I pay attention to?";
-        each column is a <b>key</b> token answering. The cell is the attention weight, how much the row token pulls from the column token, and every
-        row sums to 1 (that's the softmax). Concretely, we project each token's
-        embedding into a query and a key, score every pair with a dot product,
-        divide by <i>√dₖ</i>, and softmax across the row: <i>softmax(QKᵀ/√dₖ)</i>.
+        Each row is a <b>query</b> token asking "who should I pay attention to?" and
+        each column is a <b>key</b> token answering. The cell is the attention
+        weight, how much the row token pulls from the column token, and every row
+        sums to 1, which is the softmax. Concretely: project each token embedding
+        into a query and a key, score every pair with a dot product, divide by{" "}
+        <i>√dₖ</i>, and softmax across the row, giving <i>softmax(QKᵀ/√dₖ)</i>.
       </DemoP>
+      <DemoP>Three toggles, three separate lessons:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Turn off <b>scaling</b> and the weights get spikier. Without the{" "}
+          <i>√dₖ</i> term, large dot products saturate the softmax and gradients
+          vanish, which is exactly why the scale factor exists.
+        </DemoLI>
+        <DemoLI>
+          Turn on the <b>causal mask</b> and the upper triangle goes dark. A token
+          can only attend to itself and earlier tokens, the rule that makes
+          GPT-style generation possible.
+        </DemoLI>
+        <DemoLI>
+          Repeat a word, and note the two "the"s. Identical tokens share an
+          embedding, so they light up for each other.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Turn off <b>scaling</b> and watch the weights get spikier. Without the <i>√dₖ</i> term, large dot products saturate the softmax and gradients
-        vanish, which is exactly why the scale factor exists. Turn on the
-        <b> causal mask</b> and the upper triangle goes dark: a token can only
-        attend to itself and earlier tokens, the rule that makes GPT-style
-        generation possible. Repeat a word (note the two "the"s) and identical tokens share an embedding, so they light up for each other. <em>Projections here
-        are random, not trained, so this shows the mechanism, not learned
-        meaning.</em>
+        <em>
+          Projections here are random, not trained, so this shows the mechanism
+          rather than learned meaning.
+        </em>
       </DemoP>
     </>
   );
@@ -206,22 +221,32 @@ function AttentionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Scaled dot-product attention is the single operation the entire transformer era is built on: GPT, BERT, Llama, Claude, plus vision (ViT), audio, and multimodal
-        models all stack it. Its superpower over RNNs is that every token can look at every
-        other token in one step (full context, fully parallelizable), which is what made
-        training on internet-scale data practical.
+        Scaled dot-product attention is the single operation the entire transformer
+        era is built on: GPT, BERT, Llama, Claude, plus vision (ViT), audio and
+        multimodal models all stack it. Its superpower over RNNs is that every token
+        can look at every other token in one step, full context and fully
+        parallelizable, which is what made training on internet-scale data practical.
       </DemoP>
+      <DemoP>The mechanics you are toggling are load-bearing in production:</DemoP>
+      <DemoUL>
+        <DemoLI>The √dₖ scaling is what keeps gradients healthy.</DemoLI>
+        <DemoLI>
+          The causal mask is what separates <b>decoder</b> models, which generate,
+          from <b>encoder</b> models, which understand.
+        </DemoLI>
+        <DemoLI>
+          "Every token attends to all others" is also the cost, <i>O(n&sup2;)</i> in
+          sequence length, and it is the bottleneck that FlashAttention, KV caching
+          and sparse or linear attention all attack.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The mechanics you're toggling are load-bearing in production. The √dₖ scaling keeps
-        gradients healthy; the causal mask is what separates <b>decoder</b> (generation)
-        from <b>encoder</b> (understanding) models; and "every token attends to all others"
-        is also the cost of attention, <i>O(n²)</i> in sequence length, the bottleneck that
-        FlashAttention, KV-caching, and sparse/linear-attention variants all attack.
-        Interpretability researchers read these very heatmaps to find induction and other
-        circuits.
+        Interpretability researchers read these very heatmaps to find induction and
+        other circuits.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout
       title="Attention Heatmap"

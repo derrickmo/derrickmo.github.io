@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -143,42 +143,66 @@ function ROCDemo() {
   const explainer = (
     <>
       <DemoP>
-        A classifier outputs a <i>score</i>, not a decision. You turn it into one by picking a <b>threshold</b>. Slide it: move left and you catch more true
-        positives (higher recall) but also more false positives; move right and you're
-        precise but miss cases. Every threshold is one point on the
-        <b> ROC curve</b> (true-positive rate vs false-positive rate); the
-        <b> AUC</b> summarizes the whole curve in a single number and is exactly the
-        probability the model ranks a random positive above a random negative. Push
-        <b> class separation</b> up and the curve bows toward the perfect corner.
+        A classifier outputs a <i>score</i>, not a decision. You turn it into one by
+        picking a <b>threshold</b>.
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Slide it left and you catch more true positives, so higher recall, but
+          also more false positives.
+        </DemoLI>
+        <DemoLI>Slide it right and you are precise but miss cases.</DemoLI>
+        <DemoLI>
+          Every threshold is one point on the <b>ROC curve</b>, true-positive rate
+          against false-positive rate.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        <b>AUC</b> summarizes the whole curve in a single number, and it is exactly
+        the probability the model ranks a random positive above a random negative.
+        Push <b>class separation</b> up and the curve bows toward the perfect corner.
       </DemoP>
       <DemoP>
         ROC has a famous blind spot: it ignores how rare the positive class is. Drag
-        the <b>positive prior</b> down to simulate an imbalanced problem. The ROC curve does not move, but the <b>precision-recall curve</b> collapses, because
-        now most things above threshold are false alarms. That's why fraud, disease,
-        and anomaly detection are judged on PR, not ROC. Reading these two curves, and choosing the operating point for the cost you actually
-        care about, is core to shipping any real model.
+        the <b>positive prior</b> down to simulate an imbalanced problem. The ROC
+        curve does not move, but the <b>precision-recall curve</b> collapses, because
+        now most things above the threshold are false alarms. That is why fraud,
+        disease and anomaly detection are judged on PR rather than ROC.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Choosing a threshold is a daily production decision: fraud detection, medical
-        screening, spam filters, and content moderation all ship a probability model
-        <i> plus</i> a chosen cutoff, tuned to the relative cost of a false positive versus
-        a missed case. <b>AUC</b> is the standard way to compare models precisely because
-        it is threshold-independent. It is the probability the model ranks a random positive
-        above a random negative.
+        Choosing a threshold is a daily production decision. Fraud detection, medical
+        screening, spam filters and content moderation all ship a probability model{" "}
+        <i>plus</i> a chosen cutoff, tuned to the relative cost of a false positive
+        against a missed case.
       </DemoP>
       <DemoP>
-        The ROC-vs-PR distinction is one of the most common evaluation mistakes in applied
-        ML. On the heavily imbalanced data that's normal in fraud, disease, and anomaly
-        detection, a great-looking ROC AUC can hide terrible precision, where most things above the cutoff are false alarms. Knowing to report PR, F1, or a cost-weighted metric
-        there, and to <i>calibrate</i> probabilities before thresholding, is what separates
-        a careful evaluation from a misleading one.
+        Three things follow, and the middle one is among the most common evaluation
+        mistakes in applied ML:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>AUC</b> is the standard way to compare models precisely because it is
+          threshold-independent.
+        </DemoLI>
+        <DemoLI>
+          On the heavily imbalanced data that is normal in fraud, disease and anomaly
+          detection, a great-looking ROC AUC can hide terrible precision, where most
+          things above the cutoff are false alarms. Report PR, F1 or a cost-weighted
+          metric there.
+        </DemoLI>
+        <DemoLI>
+          <i>Calibrate</i> the probabilities before thresholding, or the cutoff you
+          picked does not mean what you think it means.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="ROC, PR & Thresholds"
       subtitle="One score, many decisions: move the threshold and watch precision, recall, ROC, and PR trade off."

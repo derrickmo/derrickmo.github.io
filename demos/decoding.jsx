@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, ControlGroup,
 } = window;
 
@@ -96,42 +96,63 @@ function DecodingDemo() {
   const explainer = (
     <>
       <DemoP>
-        A language model outputs a probability over the whole vocabulary; how you
-        <i> sample</i> from it decides the output's character. <b>Temperature</b>{" "}
-        rescales the logits before softmax: below 1 it sharpens toward the top token
-        (safe, repetitive); above 1 it flattens the distribution (diverse, riskier).
-        Drag it and watch the bars concentrate or spread.
+        A language model outputs a probability over the whole vocabulary. How you{" "}
+        <i>sample</i> from it decides the character of the output.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Temperature</b> rescales the logits before softmax. Below 1 it sharpens
+          toward the top token, safe and repetitive. Above 1 it flattens the
+          distribution, diverse and riskier. Drag it and watch the bars concentrate
+          or spread.
+        </DemoLI>
+        <DemoLI>
+          <b>Top-k</b> keeps only the k most likely tokens.
+        </DemoLI>
+        <DemoLI>
+          <b>Top-p</b>, nucleus sampling, keeps the smallest set whose probabilities
+          sum to p.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Top-k</b> keeps only the k most-likely tokens; <b>top-p</b> (nucleus)
-        keeps the smallest set whose probabilities sum to p. Both then renormalize and sample only from what's left (the greyed tokens can never be chosen).
-        That's how you cut off the long tail of nonsense while still allowing
-        variety. Hit <b>Sample</b> repeatedly and watch the tally: these three knobs
-        are exactly what you tune on any real LLM API.
+        Both truncation rules then renormalize and sample only from what is left,
+        since the greyed tokens can never be chosen. That is how you cut off the long
+        tail of nonsense while still allowing variety. Hit <b>Sample</b> repeatedly
+        and watch the tally: these three knobs are exactly what you tune on any real
+        LLM API.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Decoding is the last mile of every generative language model. The network only
-        ever produces a probability distribution over the next token; temperature,
-        top-k, and top-p are the dials that turn that distribution into actual text.
-        They're exposed directly on every major LLM API (OpenAI, Anthropic, local
-        models), so tuning them is a daily part of building anything on top of an LLM:
-        low temperature + tight top-p for structured/JSON output and factual answers,
-        higher temperature for brainstorming, copywriting, and creative work.
+        Decoding is the last mile of every generative language model. The network
+        only ever produces a probability distribution over the next token, and
+        temperature, top-k and top-p are the dials that turn that distribution into
+        actual text. They are exposed directly on every major LLM API, so tuning them
+        is a daily part of building anything on top of one: low temperature and tight
+        top-p for structured output and factual answers, higher temperature for
+        brainstorming and creative work.
       </DemoP>
       <DemoP>
-        The same idea generalizes far beyond text. Any model that samples from a learned distribution, including image and audio generators, code models and RL
-        policies that sample actions, faces the identical explore-versus-exploit tradeoff between "most
-        likely" and "diverse." Understanding how truncation (top-k / top-p) cuts the
-        unreliable tail while temperature reshapes confidence is what lets you control
-        the quality, safety, and variety of a generative system instead of just hoping
-        for the best.
+        The same idea generalizes far beyond text. Any model that samples from a
+        learned distribution faces the identical explore-against-exploit tradeoff
+        between "most likely" and "diverse":
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Image and audio generators.</DemoLI>
+        <DemoLI>Code models, where an unreliable tail is a syntax error.</DemoLI>
+        <DemoLI>RL policies that sample actions.</DemoLI>
+      </DemoUL>
+      <DemoP>
+        Understanding how truncation cuts the unreliable tail while temperature
+        reshapes confidence is what lets you control the quality, safety and variety
+        of a generative system instead of hoping for the best.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Decoding Strategies"
       subtitle="Temperature, top-k, and top-p: how the same model becomes safe or wild depending on how you sample."

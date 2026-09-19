@@ -12,7 +12,7 @@
 
 const { useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, StatReadout, ControlGroup,
 } = window;
 
@@ -180,45 +180,66 @@ function GuardrailsDemo() {
     <>
       <DemoP>
         A guarded LLM is a pipeline, not a single call. The user message runs a
-        gauntlet of <b>input guards</b> that redact personal data, catch prompt-injection and enforce a
-        topic policy, before the model ever sees it,
-        and the model's reply runs <b>output guards</b> before it reaches the user.
-        Each card shows a guard firing: green passed, amber redacted, red blocked.
-        A block halts the pipeline immediately; the final banner says what was
-        delivered, if anything.
+        gauntlet of <b>input guards</b> before the model ever sees it, and the reply
+        runs <b>output guards</b> before it reaches the user.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Input guards redact personal data, catch prompt-injection and enforce a
+          topic policy.
+        </DemoLI>
+        <DemoLI>
+          Each card shows a guard firing: green passed, amber redacted, red blocked.
+          A block halts the pipeline immediately.
+        </DemoLI>
+        <DemoLI>
+          The final banner says what was delivered, if anything.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The toggles are the lesson. Select the prompt-injection message and turn
-        the injection guard off: the attack sails through and the model dutifully
-        leaks its system prompt, a BREACH. Re-enable it and the same message is
-        stopped at the door. Defense-in-depth means input <i>and</i> output checks,
-        because some failures (a model leaking PII it was given) can only be caught
-        on the way out.
+        The toggles are the lesson. Select the prompt-injection message and turn the
+        injection guard off: the attack sails through and the model dutifully leaks
+        its system prompt, a BREACH. Re-enable it and the same message is stopped at
+        the door. Defense in depth means input <i>and</i> output checks, because some
+        failures, such as a model leaking PII it was handed, can only be caught on
+        the way out.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Guardrails are the safety and reliability layer wrapped around a model in production, the LLM-ops counterpart to input validation in any system.
-        Frameworks like NeMo Guardrails, Guardrails AI, and Llama Guard implement
-        exactly this shape: layered input/output checks for PII, prompt injection,
-        jailbreaks, topical policy, toxicity, and grounding. The regex here stands
-        in for what are usually small classifiers or a moderation model, but the
-        pipeline position and fail-closed behavior are the real design.
+        Guardrails are the safety and reliability layer wrapped around a model in
+        production, the LLM-ops counterpart to input validation in any system.
+        Frameworks like NeMo Guardrails, Guardrails AI and Llama Guard implement
+        exactly this shape: layered input and output checks for PII, prompt
+        injection, jailbreaks, topical policy, toxicity and grounding. The regex here
+        stands in for what are usually small classifiers or a moderation model, but
+        the pipeline position and the fail-closed behavior are the real design.
       </DemoP>
-      <DemoP>
-        It composes with the rest of the agent stack. Output validation pairs with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/constrained-decoding/`} style={{ color: "#a855f7" }}>constrained
-        decoding</a> (guarantee structure) and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>sampling
-        + voting</a> (guarantee reliability); grounding checks lean on the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>retrieved
-        context</a>. The hard part in practice is precision and recall on the detectors. Too strict and you block real users, too loose and the breach
-        you just toggled gets through for real.
-      </DemoP>
+      <DemoP>It composes with the rest of the agent stack:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Output validation pairs with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/constrained-decoding/`} style={{ color: "#a855f7" }}>constrained decoding</a>,
+          which guarantees structure.
+        </DemoLI>
+        <DemoLI>
+          Reliability pairs with{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>sampling and voting</a>,
+          and grounding checks lean on the{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>retrieved context</a>.
+        </DemoLI>
+        <DemoLI>
+          The hard part in practice is precision and recall on the detectors. Too
+          strict and you block real users; too loose and the breach you just toggled
+          gets through for real.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Guardrails"
       subtitle="The input and output safety pipeline around an LLM. Toggle a guard off and watch the matching threat reach the model, or leak back out."

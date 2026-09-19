@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, SegmentedControl, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -250,41 +250,65 @@ function BackpropDemo() {
   const explainer = (
     <>
       <DemoP>
-        Backprop isn't witchcraft, it's the chain rule run on a computational
-        graph. The <b style={{ color: "#60a5fa" }}>forward</b> pass walks
-        left to right: each node is a small function of the ones to its left,
-        and we just plug numbers in. The <b style={{ color: "#c084fc" }}>backward</b>{" "}
-        pass walks right to left: at each node we ask "if I bump this value a
-        little, how much does L change?" That is exactly the gradient.
+        Backprop is not witchcraft. It is the chain rule run on a computational
+        graph.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <b style={{ color: "#60a5fa" }}>forward</b> pass walks left to right.
+          Each node is a small function of the ones to its left, and we just plug
+          numbers in.
+        </DemoLI>
+        <DemoLI>
+          The <b style={{ color: "#c084fc" }}>backward</b> pass walks right to left.
+          At each node we ask "if I bump this value a little, how much does L
+          change?" That is exactly the gradient.
+        </DemoLI>
+        <DemoLI>
+          Watch the seven backward steps. Each one is a single application of the
+          chain rule.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the seven backward steps. Each one is a single application of the
-        chain rule: ∂L/∂y travels up the v1 edge to give ∂L/∂h1; then
-        through the tanh's derivative (1 − h1²) to give ∂L/∂z1; then through
-        the multiplication by x1 to give ∂L/∂w11. There is no global formula, just one local derivative per edge, multiplied together. Every modern
-        framework (PyTorch, JAX, TensorFlow) is automating exactly this picture.
+        Follow one all the way: ∂L/∂y travels up the v1 edge to give ∂L/∂h1, then
+        through the derivative of tanh (1 − h1&sup2;) to give ∂L/∂z1, then through
+        the multiplication by x1 to give ∂L/∂w11. There is no global formula, just
+        one local derivative per edge, multiplied together. Every modern framework
+        is automating exactly this picture.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Backpropagation is the engine inside every neural network you have ever heard of: every CNN, transformer, diffusion model, RL policy. The
-        autograd machinery in PyTorch / JAX builds the same graph dynamically
-        at each forward pass, records the local derivative at each operation,
-        and replays them in reverse to get the gradients. That's it. Once
-        you've watched seven nodes do it by hand, GPT-scale training stops
-        looking magical and starts looking like a lot of arithmetic.
+        Backpropagation is the engine inside every neural network you have ever
+        heard of: every CNN, transformer, diffusion model and RL policy. The
+        autograd machinery in PyTorch and JAX builds the same graph dynamically at
+        each forward pass, records the local derivative at each operation, and
+        replays them in reverse to get the gradients. That is it. Once you have
+        watched seven nodes do it by hand, GPT-scale training stops looking magical
+        and starts looking like a lot of arithmetic.
       </DemoP>
       <DemoP>
-        The chain rule's reach goes well past gradients: it's why we can
-        compose differentiable simulators, fluid solvers, renderers, even
-        protein folders, into end-to-end trainable systems. Anywhere you can write a forward function with local derivatives, you get a backward
-        function for free. "Differentiable everything" is one of the defining
-        moves of modern ML, and it's all this one trick scaled up.
+        The reach of the chain rule goes well past gradients. It is why we can
+        compose differentiable pieces into end-to-end trainable systems:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Physics simulators and fluid solvers.</DemoLI>
+        <DemoLI>Renderers, and even protein folders.</DemoLI>
+        <DemoLI>
+          Anywhere you can write a forward function with local derivatives, you get
+          a backward function for free.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        "Differentiable everything" is one of the defining moves of modern ML, and
+        it is all this one trick scaled up.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Backprop Graph"
       subtitle="Step through forward then backward on a tiny network. Every value, every gradient, by the chain rule."

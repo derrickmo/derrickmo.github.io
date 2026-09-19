@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -167,42 +167,65 @@ function PruningDemo() {
   const explainer = (
     <>
       <DemoP>
-        Trained networks are wildly over-parameterized, and most weights carry almost no signal. Magnitude pruning exploits that: rank the weights by absolute
-        value and zero the smallest ones. The purple curve sweeps accuracy as you
-        prune more and more; the dashed green line is the dense model's accuracy.
-        Notice how flat the curve stays at first. You can delete half the weights,
-        sometimes far more, with essentially no accuracy loss.
+        Trained networks are wildly over-parameterized, and most weights carry
+        almost no signal. Magnitude pruning exploits that: rank the weights by
+        absolute value and zero the smallest ones.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The purple curve sweeps accuracy as you prune more and more. The dashed
+          green line is the dense model.
+        </DemoLI>
+        <DemoLI>
+          Notice how flat it stays at first. You can delete half the weights,
+          sometimes far more, with essentially no accuracy loss.
+        </DemoLI>
+        <DemoLI>
+          Keep dragging <b>SPARSITY</b> and you hit the cliff. Once pruning reaches
+          the handful of large weights that actually shape the decision boundary,
+          accuracy collapses.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Keep dragging SPARSITY and you eventually hit the cliff: once pruning
-        reaches the handful of large weights that actually shape the decision
-        boundary, accuracy collapses. The weight grid shows it directly. Kept weights stay colored, pruned ones turn to gray crosses, and the survivors
-        at high sparsity are exactly the high-magnitude ones. RETRAIN to see the
-        cliff land in a different place each time.
+        The weight grid shows it directly. Kept weights stay colored, pruned ones
+        turn to gray crosses, and the survivors at high sparsity are exactly the
+        high-magnitude ones. Hit <b>RETRAIN</b> to see the cliff land in a different
+        place each time.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Pruning is a core model-compression technique alongside{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>:
-        one removes weights, the other shrinks the bits per weight, and they stack.
-        Magnitude pruning shown here is the simplest criterion; structured pruning
-        removes whole neurons/channels/heads (so you get real speedups, not just
-        sparse matrices), and the lottery-ticket hypothesis showed these surviving
-        sub-networks can even be retrained from scratch to full accuracy.
+        <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>.
+        One removes weights, the other shrinks the bits per weight, and they stack.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Magnitude pruning, shown here, is the simplest criterion.
+        </DemoLI>
+        <DemoLI>
+          Structured pruning removes whole neurons, channels or heads, so you get
+          real speedups rather than just sparse matrices.
+        </DemoLI>
+        <DemoLI>
+          The lottery-ticket hypothesis showed these surviving sub-networks can even
+          be retrained from scratch to full accuracy.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        In practice pruning is iterative, prune a bit then fine-tune to recover and repeat, which pushes
-        the cliff much further right than one-shot pruning does. The
-        payoff is smaller, faster, cheaper-to-serve models; the catch is that
-        unstructured sparsity needs hardware/kernels that exploit it to actually run
-        faster, which is why structured pruning and 2:4 sparsity (supported on
-        modern GPUs) matter for real deployments.
+        In practice pruning is iterative, prune a bit then fine-tune to recover and
+        repeat, which pushes the cliff much further right than one-shot pruning
+        does. The payoff is smaller, faster, cheaper-to-serve models. The catch is
+        that unstructured sparsity needs hardware and kernels that exploit it to
+        actually run faster, which is why structured pruning and 2:4 sparsity,
+        supported on modern GPUs, matter for real deployments.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Pruning & Sparsity"
       subtitle="Zero the smallest weights and accuracy barely budges, until it falls off a cliff. The over-parameterization that makes networks compressible."

@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, SegmentedControl, StatReadout, Legend, ControlGroup, Toggle,
 } = window;
 
@@ -217,46 +217,75 @@ function OptimizersDemo() {
   const explainer = (
     <>
       <DemoP>
-        All four optimizers see the same gradients on the same wiggly bowl, so the differences in their paths come entirely from how they use those
-        gradients. <b style={{ color: "#60a5fa" }}>SGD</b> takes the raw
-        gradient as its step, period. It crawls and stalls in shallow dips.
-        <b style={{ color: "#c084fc" }}> Momentum</b> rolls a velocity, so
-        consistent gradients accelerate (it bursts down ridges) and noise cancels out, but it can overshoot. <b style={{ color: "#fbbf24" }}>
-        RMSProp</b> divides each step by a running RMS of past gradients, so
-        steep directions get small steps and flat ones get big steps. <b style={{ color: "#34d399" }}>Adam</b> is RMSProp's per-direction scaling
-        plus Momentum's velocity, with bias correction. That is why it dominates in practice.
+        All four optimizers see the same gradients on the same wiggly bowl, so the
+        differences in their paths come entirely from how they use those gradients.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b style={{ color: "#60a5fa" }}>SGD</b> takes the raw gradient as its step,
+          period. It crawls and stalls in shallow dips.
+        </DemoLI>
+        <DemoLI>
+          <b style={{ color: "#c084fc" }}>Momentum</b> rolls a velocity, so
+          consistent gradients accelerate and it bursts down ridges while noise
+          cancels out. It can overshoot.
+        </DemoLI>
+        <DemoLI>
+          <b style={{ color: "#fbbf24" }}>RMSProp</b> and{" "}
+          <b style={{ color: "#34d399" }}>Adam</b> divide by gradient size.
+          <DemoUL nested>
+            <DemoLI nested>
+              RMSProp divides each step by a running RMS of past gradients, so steep
+              directions get small steps and flat ones get big steps.
+            </DemoLI>
+            <DemoLI nested>
+              Adam adds the velocity of Momentum on top, with bias correction. That
+              is why it dominates in practice.
+            </DemoLI>
+          </DemoUL>
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push the learning rate up: SGD oscillates first, Momentum overshoots
-        but recovers, RMSProp and Adam keep their composure. Drop it: SGD
-        gets stuck in the first local dip while the adaptive methods keep
-        finding the lower basin. Try the <b>Saddle</b> start. The near-zero gradient at the origin pins SGD in place while Momentum's velocity
-        kicks it off. That's the picture in a real loss landscape.
+        Push the learning rate up and SGD oscillates first, Momentum overshoots but
+        recovers, RMSProp and Adam keep their composure. Drop it and SGD gets stuck
+        in the first local dip while the adaptive methods keep finding the lower
+        basin. Try the <b>Saddle</b> start: the near-zero gradient at the origin pins
+        SGD in place while the velocity of Momentum kicks it off.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Every modern neural network is trained by one of these four ideas (or
-        a small variant). <b>Adam / AdamW</b> is the default for transformers
-        and most large models. Its per-parameter step sizes handle the wildly
-        different gradient scales across attention vs. embedding vs. layernorm.
-        <b>SGD with momentum</b> still beats Adam on ConvNets and dense vision
-        models with strong regularization (the classic ResNet recipe).
-        <b>RMSProp</b> shows up in RL (where rewards make gradients noisy) and
-        in many hand-tuned RNN setups.
+        Every modern neural network is trained by one of these four ideas, or a small
+        variant of one:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Adam and AdamW</b> are the default for transformers and most large
+          models. Per-parameter step sizes handle the wildly different gradient
+          scales across attention, embedding and layernorm.
+        </DemoLI>
+        <DemoLI>
+          <b>SGD with momentum</b> still beats Adam on ConvNets and dense vision
+          models with strong regularization, the classic ResNet recipe.
+        </DemoLI>
+        <DemoLI>
+          <b>RMSProp</b> shows up in RL, where rewards make gradients noisy, and in
+          many hand-tuned RNN setups.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The lesson that outlasts the algorithms: training is a search through
-        a hostile landscape full of cliffs, ravines, plateaus, and shallow
-        local minima. Pick an optimizer whose mechanics match what your loss
-        surface throws at you. And tune the learning rate, by far the highest-leverage hyperparameter, using exactly the
-        kind of intuition this
-        demo builds.
+        The lesson that outlasts the algorithms: training is a search through a
+        hostile landscape full of cliffs, ravines, plateaus and shallow local minima.
+        Pick an optimizer whose mechanics match what your loss surface throws at you,
+        and tune the learning rate, by far the highest-leverage hyperparameter, using
+        exactly the kind of intuition this demo builds.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Optimizer Shootout"
       subtitle="SGD, Momentum, RMSProp, and Adam racing on the same non-convex loss surface."

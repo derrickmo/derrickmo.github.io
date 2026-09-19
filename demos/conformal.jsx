@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -146,44 +146,67 @@ function ConformalDemo() {
   const explainer = (
     <>
       <DemoP>
-        A single predicted label hides how unsure the model is. Conformal
-        prediction returns a <i>set</i> instead, with a promise: the true label is
-        inside at least (1−α) of the time. It earns the promise by measuring, on a
-        held-out calibration set, how surprised the model is at the correct answer,
-        then taking the (1−α) quantile of that surprise as a threshold q̂. Any test
-        class scoring above 1−q̂ joins the set. Each row up top is a test example;
-        the green ring means the truth landed in its set, red means it slipped out.
+        A single predicted label hides how unsure the model is. Conformal prediction
+        returns a <i>set</i> instead, with a promise: the true label is inside at
+        least (1−α) of the time. It earns that promise in three steps.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          On a held-out calibration set, measure how surprised the model is at the
+          correct answer.
+        </DemoLI>
+        <DemoLI>
+          Take the (1−α) quantile of that surprise as a threshold q̂.
+        </DemoLI>
+        <DemoLI>
+          Any test class scoring above 1−q̂ joins the set. Each row up top is a test
+          example: a green ring means the truth landed in its set, red means it
+          slipped out.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The surprising part: drag MODEL SKILL down to near-useless and coverage{" "}
-        <i>still</i> sits on the target line. The sets just swell to include
-        almost every class. That's the distribution-free guarantee. Model quality
-        doesn't buy coverage (the calibration step always delivers that); it buys
-        small, informative sets. Tighten α and watch sets grow as the guarantee gets stricter, the fundamental coverage-against-size tradeoff.
+        The surprising part: drag <b>MODEL SKILL</b> down to near-useless and
+        coverage <i>still</i> sits on the target line. The sets just swell to include
+        almost every class. That is the distribution-free guarantee. Model quality
+        does not buy coverage, since the calibration step always delivers that. It
+        buys small, informative sets. Tighten α and watch sets grow as the guarantee
+        gets stricter, the fundamental coverage-against-size tradeoff.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Conformal prediction (Vovk; popularized by Angelopoulos & Bates) gives
-        finite-sample, distribution-free coverage with essentially no assumptions on the model. Wrap it around any classifier or regressor and get
-        guaranteed marginal coverage. That makes it a workhorse of trustworthy ML
-        for high-stakes settings, and the complement to{" "}
+        Conformal prediction (Vovk, popularized by Angelopoulos and Bates) gives
+        finite-sample, distribution-free coverage with essentially no assumptions on
+        the model. Wrap it around any classifier or regressor and get guaranteed
+        marginal coverage. That makes it a workhorse of trustworthy ML for
+        high-stakes settings, and the complement to{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>:
         calibration makes a probability honest, conformal turns scores into a set
         with a hard coverage promise.
       </DemoP>
-      <DemoP>
-        Caveats worth knowing: the guarantee is <i>marginal</i> (averaged over the
-        population), not conditional, so coverage can still be uneven across subgroups, which motivates Mondrian/class-conditional and adaptive variants
-        like APS and RAPS. It also assumes exchangeability between calibration and
-        test data, so distribution shift breaks it. And the LAC method shown here is
-        the simplest; richer score functions trade a bit of that simplicity for
-        smaller or more balanced sets.
-      </DemoP>
+      <DemoP>Three caveats worth knowing:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The guarantee is <i>marginal</i>, averaged over the population, not
+          conditional, so coverage can still be uneven across subgroups. That
+          motivates Mondrian and class-conditional variants, and adaptive ones like
+          APS and RAPS.
+        </DemoLI>
+        <DemoLI>
+          It assumes exchangeability between calibration and test data, so
+          distribution shift breaks it.
+        </DemoLI>
+        <DemoLI>
+          The LAC method shown here is the simplest. Richer score functions trade a
+          bit of that simplicity for smaller or more balanced sets.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Conformal Prediction"
       subtitle="Output a label set guaranteed to contain the truth (1−α) of the time, for any model. Watch coverage hold even as the model gets worse; only set size suffers."

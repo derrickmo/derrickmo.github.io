@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -120,42 +120,65 @@ function VectorSearchDemo() {
   const explainer = (
     <>
       <DemoP>
-        Semantic search, recommendations, and the retrieval step in <b>RAG</b> all come
-        down to the same operation: embed everything as a vector, then find the
-        <b> k nearest</b> to your query. Click to drop the query anywhere and watch the
-        top-k light up. The <b>metric</b> defines "near": <b>Euclidean</b> distance
-        measures straight-line closeness, while <b>cosine</b> similarity measures the{" "}
-        <i>angle</i> between vectors, ignoring magnitude, which is usually what you want for text embeddings.
+        Semantic search, recommendations and the retrieval step in <b>RAG</b> all
+        come down to one operation: embed everything as a vector, then find the{" "}
+        <b>k nearest</b> to your query. Click to drop the query anywhere and watch
+        the top-k light up.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Euclidean</b> distance measures straight-line closeness, so it stays
+          local.
+        </DemoLI>
+        <DemoLI>
+          <b>Cosine</b> similarity measures the <i>angle</i> between vectors,
+          ignoring magnitude, which is usually what you want for text embeddings.
+        </DemoLI>
+        <DemoLI>
+          Put the query near the origin and switch between them. The retrieved set
+          can change completely, because cosine pulls in everything along the
+          direction of the query, the dashed ray, however far away it is.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Switch between them with the query near the origin and the retrieved set can
-        change completely: cosine pulls in everything along the query's direction (the
-        dashed ray), even if it's far away, while Euclidean stays local. Real systems
-        run this over millions of vectors using approximate-nearest-neighbor indexes
-        (HNSW, IVF) that trade a sliver of accuracy for massive speed, but the idea you feel here, ranking by a distance in embedding space, is exactly what they
-        accelerate.
+        Real systems run this over millions of vectors using approximate
+        nearest-neighbor indexes such as HNSW and IVF, which trade a sliver of
+        accuracy for massive speed. The idea you feel here, ranking by a distance in
+        embedding space, is exactly what they accelerate.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This is the literal engine of modern retrieval: semantic search, recommendation,
-        deduplication, and the retrieval step of <b>RAG</b> all embed items as vectors and
-        fetch the k nearest to a query. It's why vector databases (Pinecone, Weaviate,
-        pgvector, FAISS) exist, and why "embed then retrieve" is the default way to give an
-        LLM access to private or up-to-date knowledge.
+        This is the literal engine of modern retrieval. Semantic search,
+        recommendation, deduplication and the retrieval step of <b>RAG</b> all embed
+        items as vectors and fetch the k nearest to a query. It is why vector
+        databases exist, Pinecone and Weaviate and pgvector and FAISS, and why
+        "embed then retrieve" is the default way to give an LLM access to private or
+        up-to-date knowledge.
       </DemoP>
-      <DemoP>
-        Two practical realities live here. The <b>metric</b> matters, because cosine and Euclidean can return different neighbors, and most text embeddings are tuned for cosine. And
-        exact kNN doesn't scale to millions of vectors, so production uses
-        approximate-nearest-neighbor indexes (HNSW graphs, IVF, product quantization) that
-        trade a little recall for orders-of-magnitude speed. Retrieval quality, the right k plus good embeddings plus optional reranking, is
-        usually what makes or breaks a RAG
-        system, more than the LLM itself.
-      </DemoP>
+      <DemoP>Three practical realities live here:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The <b>metric</b> matters. Cosine and Euclidean can return different
+          neighbors, and most text embeddings are tuned for cosine.
+        </DemoLI>
+        <DemoLI>
+          Exact kNN does not scale to millions of vectors, so production uses
+          approximate indexes (HNSW graphs, IVF, product quantization) that trade a
+          little recall for orders-of-magnitude speed.
+        </DemoLI>
+        <DemoLI>
+          Retrieval quality, meaning the right k plus good embeddings plus optional
+          reranking, is usually what makes or breaks a RAG system, more than the LLM
+          itself.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Vector Search"
       subtitle="The engine under semantic search and RAG: k-nearest-neighbor retrieval, and how the metric reshapes what counts as similar."

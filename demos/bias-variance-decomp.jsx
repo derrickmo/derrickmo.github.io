@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -170,47 +170,69 @@ function BiasVarianceDecompDemo() {
   const explainer = (
     <>
       <DemoP>
-        We draw {T} independent noisy training sets and fit a degree-{degSel}
+        We draw {T} independent noisy training sets and fit a degree-{degSel}{" "}
         polynomial to each. The red spaghetti in the bottom panel is those fits, the
-        purple line is their average, the green dashed line is the truth. Two things
-        are visible at once: how far the purple average sits from the green truth
-        (that gap is <i>bias</i>), and how widely the red curves fan out (that spread
-        is <i>variance</i>). The top panel plots both against model complexity as you
-        sweep the degree.
+        purple line is their average, and the green dashed line is the truth. Two
+        things are visible at once:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          How far the purple average sits from the green truth. That gap is{" "}
+          <i>bias</i>.
+        </DemoLI>
+        <DemoLI>
+          How widely the red curves fan out. That spread is <i>variance</i>.
+        </DemoLI>
+        <DemoLI>
+          The top panel plots both against model complexity as you sweep the degree.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Drag COMPLEXITY from left to right. At low degree the spaghetti is tight but
-        the average misses the wiggle: high bias, low variance. At high degree the
-        average nails the truth but the individual fits thrash wildly: low bias, high variance. Total error (purple, top) is their sum plus the σ² noise floor, and
-        it bottoms out in the middle: the sweet spot. Now raise TRAIN POINTS N and
-        watch variance collapse, pushing that sweet spot toward higher complexity. More data buys you the right to use a bigger model.
+        Drag <b>COMPLEXITY</b> from left to right. At low degree the spaghetti is
+        tight but the average misses the wiggle: high bias, low variance. At high
+        degree the average nails the truth but the individual fits thrash wildly: low
+        bias, high variance. Total error, purple on top, is their sum plus the
+        &sigma;&sup2; noise floor, and it bottoms out in the middle. Now raise{" "}
+        <b>TRAIN POINTS N</b> and watch variance collapse, pushing that sweet spot
+        toward higher complexity. More data buys you the right to use a bigger model.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        The bias-variance decomposition is the conceptual backbone of generalization:
-        it's why <a href={`${window.__DM_BASE || "../../"}visualize/regularization`} style={{ color: "#a855f7" }}>regularization</a>,
-        early stopping, and ensembling help (they trade a little bias for a lot less
-        variance), and why model selection is a balancing act. It underlies the
+        The bias-variance decomposition is the conceptual backbone of generalization.
+        It is why{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/regularization`} style={{ color: "#a855f7" }}>regularization</a>,
+        early stopping and ensembling help, since they trade a little bias for a lot
+        less variance, and why model selection is a balancing act. It underlies the
         classic U-curve in the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`} style={{ color: "#a855f7" }}>overfitting</a> demo,
-        and bagging/random forests are essentially variance-reduction machines built
-        on this identity.
+        <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`} style={{ color: "#a855f7" }}>overfitting</a>{" "}
+        demo, and bagging and random forests are essentially variance-reduction
+        machines built on this identity.
       </DemoP>
-      <DemoP>
-        Caveats: the clean three-way split assumes squared-error loss; for other
-        losses the decomposition is messier. And the tidy U-curve is the <i>classical</i>{" "}
-        story. In heavily over-parameterized models it breaks down and you get the
-        second descent shown in{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/double-descent/`} style={{ color: "#a855f7" }}>double descent</a>,
-        where adding capacity past the interpolation threshold reduces error again.
-        Bias and variance are also properties of the model <i>class plus the training
-        distribution</i>, not the model alone.
-      </DemoP>
+      <DemoP>Three caveats worth carrying:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The clean three-way split assumes squared-error loss. For other losses the
+          decomposition is messier.
+        </DemoLI>
+        <DemoLI>
+          The tidy U-curve is the <i>classical</i> story. In heavily
+          over-parameterized models it breaks down and you get the second descent
+          shown in{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/double-descent/`} style={{ color: "#a855f7" }}>double descent</a>,
+          where adding capacity past the interpolation threshold reduces error again.
+        </DemoLI>
+        <DemoLI>
+          Bias and variance are properties of the model <i>class plus the training
+          distribution</i>, not of the model alone.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Bias-Variance Decomposition"
       subtitle="Fit many models to resampled noisy data and watch error split into bias², variance, and irreducible noise. Sweep complexity to trace the U-curve, and add data to see variance collapse."

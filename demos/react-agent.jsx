@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, ControlGroup,
 } = window;
 
@@ -143,45 +143,69 @@ function ReactAgentDemo() {
   const explainer = (
     <>
       <DemoP>
-        A bare language model has to answer in one forward pass from memorized weights. Fine for "what's the capital of France", hopeless for exact
-        arithmetic or fresh facts. <b>ReAct</b> turns answering into a loop: the
-        model writes a <i>Thought</i>, takes an <i>Action</i> (calls a tool like
-        search or a calculator), reads the <i>Observation</i>, and repeats until it
-        can answer. Each step here shows that cycle; tools supply the grounded
-        facts and math the model shouldn't guess.
+        A bare language model has to answer in one forward pass from memorized
+        weights. Fine for "what is the capital of France", hopeless for exact
+        arithmetic or fresh facts. <b>ReAct</b> turns answering into a loop:
       </DemoP>
+      <DemoUL>
+        <DemoLI>The model writes a <i>Thought</i>.</DemoLI>
+        <DemoLI>
+          It takes an <i>Action</i>, calling a tool such as search or a calculator.
+        </DemoLI>
+        <DemoLI>
+          It reads the <i>Observation</i> and repeats until it can answer. Tools
+          supply the grounded facts and math the model should not guess.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now lower AGENT RELIABILITY and re-run. Because the steps chain, errors
-        compound: a single wrong tool call returns a junk observation, and every
-        later step reasons over poison, so the trace turns red and derails. A
-        two-step task at 0.85 reliability already fails about a quarter of the
-        time, and longer chains fall off a cliff. That compounding is the central
-        problem of agent engineering, and the reason the loop gets wrapped in
-        verification and retries.
+        Now lower <b>AGENT RELIABILITY</b> and re-run. Because the steps chain,
+        errors compound: a single wrong tool call returns a junk observation, every
+        later step reasons over poison, and the trace turns red and derails. A
+        two-step task at 0.85 reliability already fails about a quarter of the time,
+        and longer chains fall off a cliff. That compounding is the central problem
+        of agent engineering, and the reason the loop gets wrapped in verification
+        and retries.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        ReAct (Yao et al., 2022) is the backbone of tool-using agents, the pattern under function calling, tool routing, and frameworks like LangChain agents
-        and the OpenAI/Anthropic tool-use loops. Interleaving reasoning with
-        external actions is what lets a model browse, run code, query a database,
-        or call an API instead of hallucinating the result. The same loop drives{" "}
+        ReAct (Yao et al., 2022) is the backbone of tool-using agents, the pattern
+        under function calling, tool routing, and frameworks like LangChain agents
+        and the OpenAI and Anthropic tool-use loops. Interleaving reasoning with
+        external actions is what lets a model browse, run code, query a database or
+        call an API instead of hallucinating the result. The same loop drives{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>retrieval-augmented</a>{" "}
         answering, where the "tool" is a vector search.
       </DemoP>
       <DemoP>
-        The reliability knob is the whole ballgame in practice. Compounding
-        per-step error is why agents pair ReAct with{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/reflection/`} style={{ color: "#a855f7" }}>self-correction</a>,{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>voting</a>,
-        and <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrails</a>,
-        keep chains short, and prefer constrained tool schemas over free-form
-        calls. An agent is only as reliable as the product of its steps, so shrinking that product, step by step, is the job.
+        The reliability knob is the whole ballgame in practice. Compounding per-step
+        error is why agents get three extra layers:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <a href={`${window.__DM_BASE || "../../"}visualize/reflection/`} style={{ color: "#a855f7" }}>Self-correction</a>{" "}
+          and{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/self-consistency/`} style={{ color: "#a855f7" }}>voting</a>{" "}
+          to catch a bad step before it propagates.
+        </DemoLI>
+        <DemoLI>
+          <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>Guardrails</a>{" "}
+          on what a tool call is allowed to do.
+        </DemoLI>
+        <DemoLI>
+          Short chains and constrained tool schemas rather than free-form calls.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        An agent is only as reliable as the product of its steps, so shrinking that
+        product, step by step, is the job.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="ReAct: Reason + Act"
       subtitle="The tool-using agent loop: Thought, Action, Observation, repeat. Watch a worked trace, then drop the reliability and see errors compound."
