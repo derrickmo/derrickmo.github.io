@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
 const W = 440, CX = W / 2, CY = W / 2;
@@ -139,22 +139,34 @@ function SelfDrivingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each car is blind except for <b>five distance sensors</b> (the leader's rays are
-        drawn) feeding a tiny neural network that outputs one number: how hard to steer.
-        The first generation is random and piles into the walls immediately. But the
-        cars that happen to steer away from walls travel further around the loop, and
-        <b> distance travelled is their fitness</b>, so they become the parents of the
-        next generation via <b>crossover</b> and <b>mutation</b>.
+        Each car is blind except for <b>five distance sensors</b>, with the leader's
+        rays drawn, feeding a tiny neural network that outputs one number: how hard to
+        steer.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The first generation is random and piles into the walls immediately.
+        </DemoLI>
+        <DemoLI>
+          Cars that happen to steer away from walls travel further around the loop, and{" "}
+          <b>distance travelled is their fitness</b>.
+        </DemoLI>
+        <DemoLI>
+          They become the parents of the next generation via <b>crossover</b> and{" "}
+          <b>mutation</b>.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        This is <b>neuroevolution</b> again, but now with continuous control and real sensor input, the same setup researchers use to evolve robot and vehicle
-        controllers when there's no labelled "correct steering" to learn from. Watch the
-        <span style={{ color: "#34d399" }}> best-laps</span> curve climb as the
+        This is <b>neuroevolution</b> again, now with continuous control and real
+        sensor input, the same setup researchers use to evolve robot and vehicle
+        controllers when there is no labelled "correct steering" to learn from. Watch
+        the <span style={{ color: "#34d399" }}>best-laps</span> curve climb as the
         population goes from crashing instantly to smoothly carving the whole circuit.
         Bump the speed to fast-forward the generations.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -173,6 +185,7 @@ function SelfDrivingDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="NEUROEVOLUTION · CONTROL" title="Evolving Drivers"
       subtitle="Cars with five sensors and a tiny neural net evolve to take the track. No rules, just survival of the furthest."

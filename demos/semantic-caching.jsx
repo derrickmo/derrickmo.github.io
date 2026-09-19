@@ -15,7 +15,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 250, CH = 220;
@@ -198,20 +198,29 @@ function SemanticCachingDemo() {
   const explainer = (
     <>
       <DemoP>
-        An <b>exact-match</b> response cache almost never hits: "how do I reset my
-        password" and "I forgot my password, help" are the same intent but
-        different strings. A <b>semantic cache</b> embeds the query and serves a
-        stored answer when the nearest cached query is within a cosine-similarity threshold, collapsing all the paraphrases of one intent into a single
-        model call. Every green dot here is a model call you didn't pay for.
+        An <b>exact-match</b> response cache almost never hits, because "how do I reset
+        my password" and "I forgot my password, help" are the same intent but different
+        strings. A <b>semantic cache</b> embeds the query and serves a stored answer
+        when the nearest cached query is within a cosine-similarity threshold,
+        collapsing all the paraphrases of one intent into a single model call. Every
+        green dot here is a model call you did not pay for.
       </DemoP>
-      <DemoP>
-        The threshold is the whole tradeoff. Drop it and the hit rate (and cost savings) climbs, but queries start matching cached entries from a{" "}
-        <i>different</i> intent, and you serve a confidently wrong cached answer:
-        a <b>false hit</b> (red). Raise it and false hits vanish, but so do the
-        savings as only near-duplicates qualify. Widen the <b>paraphrase spread</b>{" "}
-        and the same threshold gets worse on both axes, because real intents now
-        overlap in embedding space.
-      </DemoP>
+      <DemoP>The threshold is the whole tradeoff:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drop it and the hit rate and cost savings climb, but queries start matching
+          cached entries from a <i>different</i> intent and you serve a confidently
+          wrong cached answer, a <b>false hit</b> in red.
+        </DemoLI>
+        <DemoLI>
+          Raise it and false hits vanish, but so do the savings, since only
+          near-duplicates qualify.
+        </DemoLI>
+        <DemoLI>
+          Widen the <b>paraphrase spread</b> and the same threshold gets worse on both
+          axes, because real intents now overlap in embedding space.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

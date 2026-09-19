@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -162,16 +162,30 @@ function ReplicatorDynamicsDemo() {
   const explainer = (
     <>
       <DemoP>
-        The replicator equation is evolution written as math: each strategy's share grows in
-        proportion to how much its payoff beats the population <b>average</b>. Successful strategies
-        spread, unsuccessful ones die out. The triangle is the space of all population mixes of three strategies. Corners are "everyone plays the same move," the center is an even split, and the blue arrows are the flow the dynamics push you along.
+        The replicator equation is evolution written as math: each strategy's share
+        grows in proportion to how much its payoff beats the population <b>average</b>,
+        so successful strategies spread and unsuccessful ones die out. The triangle is
+        the space of all population mixes of three strategies. Corners are everyone
+        playing the same move, the center is an even split, and the blue arrows are the
+        flow the dynamics push you along.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Rock-Paper-Scissors</b> never settles. Rock beats scissors so rock grows,
+          which feeds paper, which feeds scissors, a perpetual <b>cycle</b> orbiting
+          the Nash center.
+        </DemoLI>
+        <DemoLI>
+          <b>Coordination</b> games flow to whichever corner you start nearest, since
+          they have multiple stable equilibria.
+        </DemoLI>
+        <DemoLI>
+          A <b>dominant</b> strategy sweeps the whole population to one vertex.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The behavior is strikingly different per game. <b>Rock-Paper-Scissors</b> never settles:
-        rock beats scissors so rock grows, which feeds paper, which feeds scissors, a perpetual <b>cycle</b> orbiting the Nash center. <b>Coordination</b> games flow to whichever corner you
-        start nearest (multiple stable equilibria), and a <b>dominant</b> strategy sweeps the whole
-        population to one vertex. Click anywhere to drop a new starting population and watch where the
-        flow carries it.
+        Click anywhere to drop a new starting population and watch where the flow
+        carries it.
       </DemoP>
     </>
   );

@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   DemoButton, StatReadout, ControlGroup,
 } = window;
 
@@ -104,19 +104,33 @@ function RPSDemo() {
     <>
       <DemoP>
         Rock-paper-scissors is only "random" if <i>you</i> are. This AI keeps a running
-        tally of what you tend to throw after each recent sequence, an <b>order-2 Markov model</b> (what follows each pair of moves), backing off to order-1 and
-        then plain frequency when it hasn't seen enough. It predicts your next throw and
-        plays the move that beats it. Try to win by going on streaks, or by "obviously" switching, and watch it catch on.
+        tally of what you tend to throw after each recent sequence.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It is an <b>order-2 Markov model</b>, meaning it tracks what follows each
+          pair of moves.
+        </DemoLI>
+        <DemoLI>
+          It backs off to order-1 and then plain frequency when it has not seen
+          enough.
+        </DemoLI>
+        <DemoLI>
+          It predicts your next throw and plays the move that beats it. Try to win by
+          going on streaks, or by "obviously" switching, and watch it catch on.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Pure randomness guarantees you a 1/3 win rate that no model can beat; the moment
-        you fall into a habit, the AI's win rate climbs above chance. That's the whole idea behind sequence models, the same machinery that powers next-token
-        prediction in a language model, just with three "tokens" instead of fifty
-        thousand. Humans are famously bad at being random, which is exactly the edge it
-        exploits.
+        Pure randomness guarantees you a 1/3 win rate that no model can beat. The
+        moment you fall into a habit, the AI's win rate climbs above chance. That is
+        the whole idea behind sequence models, the same machinery that powers
+        next-token prediction in a language model, just with three tokens instead of
+        fifty thousand. Humans are famously bad at being random, which is exactly the
+        edge it exploits.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -135,6 +149,7 @@ function RPSDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · SEQUENCE MODEL" title="Rock-Paper-Scissors Mind-Reader"
       subtitle="An AI that learns your habits and predicts your next move. Stay unpredictable: it is harder than it sounds."
