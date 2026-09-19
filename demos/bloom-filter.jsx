@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -149,25 +149,37 @@ function BloomDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each key you insert flips on k bits (the amber ones for the latest key). To
-        ask "is key X in the set?", you check its k bits: if even one is still 0, X was never inserted, guaranteed, because inserting always SETS bits, never clears
-        them. That's the Bloom filter's superpower: zero false negatives. The catch is
-        the other direction. If all k of X's bits happen to be 1, you answer "probably yes", but those bits could have been set by completely different keys. That's a
-        false positive, and the measured bar counts exactly how often it happens for
-        keys we never inserted.
+        Each key you insert flips on k bits, the amber ones for the latest key. To ask
+        whether key X is in the set, you check its k bits.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          If even one is still 0, X was never inserted, guaranteed, because inserting
+          always sets bits and never clears them. That is the Bloom filter's
+          superpower: zero false negatives.
+        </DemoLI>
+        <DemoLI>
+          If all k of X's bits happen to be 1 you answer "probably yes", but those bits
+          could have been set by completely different keys.
+        </DemoLI>
+        <DemoLI>
+          That is a false positive, and the measured bar counts exactly how often it
+          happens for keys we never inserted.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The measured rate (violet) tracks the formula (1 − e^(−kn/m))^k (green)
-        almost exactly, and the curve shows it climbing as the array fills. Push KEYS INSERTED up and the dot rides the curve toward 100%. The trade-offs are all
-        here: more BITS lowers the rate, and for a given load there's an OPTIMAL k =
-        (m/n)·ln 2; below or above it the rate worsens (too few bits per key leak, too
-        many saturate the array). A Bloom filter answers membership in O(k) time with a
-        handful of bits per key and no false negatives, which is why it guards caches,
-        databases, and crawlers from doing expensive lookups for things that aren't
-        there.
+        The measured rate in violet tracks the formula (1 − e^(−kn/m))^k in green
+        almost exactly, and the curve shows it climbing as the array fills. Push KEYS
+        INSERTED up and the dot rides the curve toward 100%. More BITS lowers the rate,
+        and for a given load there is an optimal k = (m/n)·ln 2, with the rate
+        worsening on either side: too few bits per key leak, too many saturate the
+        array. A Bloom filter answers membership in O(k) time with a handful of bits
+        per key and no false negatives, which is why it guards caches, databases and
+        crawlers from doing expensive lookups for things that are not there.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -192,6 +204,7 @@ function BloomDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Bloom Filter"
       subtitle="Answer set membership with a tiny bit array and k hashes: never a false negative, only tunable false positives. Watch the array fill, the false-positive rate climb as (1-e^{-kn/m})^k, and find the optimal number of hash functions."

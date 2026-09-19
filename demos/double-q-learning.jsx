@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 330, CH = 240;
@@ -197,20 +197,32 @@ function DoubleQDemo() {
   const explainer = (
     <>
       <DemoP>
-        Going RIGHT from A is optimal, because it returns 0, while every action at B averages
-        −0.1. Yet plain <b>Q-learning</b> (red) chooses the wrong LEFT action far more
-        than the {Math.round(eps / 2 * 100)}% an optimal explorer would, especially
-        early. The culprit is <b>maximization bias</b>: Q-learning bootstraps off{" "}
-        <i>maxₐ Q(B,a)</i>, and because those estimates are noisy, their max is
-        systematically too high. The bars show it directly. The Q-learning estimate of of LEFT sits well <i>above</i> zero even though the truth is −0.1.
+        Going RIGHT from A is optimal, because it returns 0, while every action at B
+        averages −0.1. Yet plain <b>Q-learning</b> in red chooses the wrong LEFT action
+        far more than the {Math.round(eps / 2 * 100)}% an optimal explorer would,
+        especially early.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The culprit is <b>maximization bias</b>. Q-learning bootstraps off{" "}
+          <i>maxₐ Q(B,a)</i>, and because those estimates are noisy, their max is
+          systematically too high.
+        </DemoLI>
+        <DemoLI>
+          The bars show it directly. The Q-learning estimate of LEFT sits well{" "}
+          <i>above</i> zero even though the truth is −0.1.
+        </DemoLI>
+        <DemoLI>
+          <b>Double Q-learning</b> in green keeps two value tables and uses one to{" "}
+          <i>pick</i> the best action and the other to <i>evaluate</i> it.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>Double Q-learning</b> (green) keeps two value tables and uses one to <i>pick</i>{" "}
-        the best action and the other to <i>evaluate</i> it. Since the noise in the two
-        tables is independent, the action that looks best in one isn't systematically
-        overvalued by the other, and the bias cancels. Its LEFT estimate hugs −0.1 and
-        it quickly settles to near the optimal floor. Add more actions at B or crank the
-        reward noise and watch the red curve balloon while green holds.
+        Since the noise in the two tables is independent, the action that looks best in
+        one is not systematically overvalued by the other, and the bias cancels. Its
+        LEFT estimate hugs −0.1 and it quickly settles to near the optimal floor. Add
+        more actions at B or crank the reward noise and watch the red curve balloon
+        while green holds.
       </DemoP>
     </>
   );
