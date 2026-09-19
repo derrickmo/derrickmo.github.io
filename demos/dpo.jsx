@@ -23,7 +23,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -265,23 +265,35 @@ function DPODemo() {
     <>
       <DemoP>
         Both panels are learning to align the same reference policy from the same
-        stream of "A beat B" preferences, but by different routes. <b>RLHF</b>{" "}
-        (left) does it in two stages: fit a reward model (the amber dots, a scalar
-        per response), then nudge the policy up the reward while a KL penalty keeps
-        it near the reference. <b>DPO</b> (right) skips the reward model entirely. A bit of algebra shows the policy itself <i>is</i> an implicit reward,
-        r(y) = β·log(π/π_ref), so the same Bradley-Terry objective updates the
-        policy directly.
+        stream of "A beat B" preferences, but by different routes.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>RLHF</b> on the left does it in two stages: fit a reward model, the
+          amber dots, a scalar per response, then nudge the policy up the reward
+          while a KL penalty keeps it near the reference.
+        </DemoLI>
+        <DemoLI>
+          <b>DPO</b> on the right skips the reward model entirely. A bit of algebra
+          shows the policy itself <i>is</i> an implicit reward,
+          r(y) = β·log(π/π_ref), so the same Bradley-Terry objective updates the
+          policy directly.
+        </DemoLI>
+        <DemoLI>
+          Watch both pile probability onto the responses with the tallest green
+          true-reward ticks, and the two curves at the bottom climb toward the greedy
+          optimum together.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch both policies pile probability onto the responses with the tallest
-        green true-reward ticks, and watch the two curves at the bottom climb
-        toward the greedy optimum together. That's the headline result: DPO reaches
-        the same aligned policy as RLHF with no separate reward network and no RL
-        loop. Turn β down and both rush to the single best response (high reward,
-        high KL); turn it up and both stay timid and close to the reference.
+        That is the headline result: DPO reaches the same aligned policy as RLHF with
+        no separate reward network and no RL loop. Turn β down and both rush to the
+        single best response, high reward and high KL. Turn it up and both stay timid
+        and close to the reference.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -305,6 +317,7 @@ function DPODemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="DPO vs RLHF"
       subtitle="Two ways to align a policy from the same human preferences: the RLHF reward model plus RL loop, or the direct DPO update. Watch them converge to the same policy."

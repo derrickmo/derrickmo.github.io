@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const SW = 180, SH = 140, SCALE = 2;
@@ -201,20 +201,31 @@ function EdgeDetectionDemo() {
     <>
       <DemoP>
         Canny edge detection is a five-stage pipeline, and you can step through each
-        one with the <b>stage</b> selector. First a <b>Gaussian blur</b> removes
-        noise (differentiation amplifies it). Then a <b>Sobel</b> operator estimates the image gradient ∇, whose magnitude is large wherever brightness changes
-        fast. Raw gradients are fat and fuzzy, so <b>non-maximum suppression</b> keeps
-        only pixels that are a local maximum <i>along the gradient direction</i>,
-        thinning every edge to a single pixel.
+        one with the <b>stage</b> selector.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A <b>Gaussian blur</b> removes noise first, because differentiation
+          amplifies it.
+        </DemoLI>
+        <DemoLI>
+          A <b>Sobel</b> operator estimates the image gradient ∇, whose magnitude is
+          large wherever brightness changes fast.
+        </DemoLI>
+        <DemoLI>
+          Raw gradients are fat and fuzzy, so <b>non-maximum suppression</b> keeps
+          only pixels that are a local maximum <i>along the gradient direction</i>,
+          thinning every edge to a single pixel.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The last two stages clean it up. A <b>double threshold</b> labels pixels
-        <i> strong</i> (definitely an edge), <i>weak</i> (maybe), or suppressed.
-        Then <b>hysteresis</b> walks outward from the strong pixels and keeps any
-        weak pixel connected to them. This is what links a broken edge into one
+        The last two stages clean it up. A <b>double threshold</b> labels pixels{" "}
+        <i>strong</i>, definitely an edge, <i>weak</i>, maybe, or suppressed. Then{" "}
+        <b>hysteresis</b> walks outward from the strong pixels and keeps any weak
+        pixel connected to them, which is what links a broken edge into one
         continuous contour while dropping isolated noise specks. Drop the high
-        threshold and watch weak detail flood in; raise the blur and watch fine
-        edges dissolve.
+        threshold and watch weak detail flood in; raise the blur and watch fine edges
+        dissolve.
       </DemoP>
     </>
   );

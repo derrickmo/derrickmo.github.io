@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
 const N = 40;
@@ -131,21 +131,29 @@ function DTWDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two recordings of the same gesture, word, or heartbeat are rarely at the same
-        speed. <b>Euclidean</b> distance compares them position-by-position, so even a
-        small time shift makes identical shapes look wildly different (watch the amber
-        readout balloon as you add warp). <b>DTW</b> instead searches for the cheapest
-        way to <i>align</i> them, letting time stretch and compress, and reports the residual
-        mismatch.
+        Two recordings of the same gesture, word or heartbeat are rarely at the same
+        speed. <b>Euclidean</b> distance compares them position by position, so even
+        a small time shift makes identical shapes look wildly different. Watch the
+        amber readout balloon as you add warp. <b>DTW</b> instead searches for the
+        cheapest way to <i>align</i> them, letting time stretch and compress, and
+        reports the residual mismatch.
       </DemoP>
-      <DemoP>
-        The heatmap is the accumulated-cost matrix; the gold <b>warping path</b> from
-        corner to corner is the optimal alignment, found by the same min-of-three
-        dynamic program as edit distance. When B runs slower than A the path bends
-        above the diagonal (one A-point matches several B-points) and back below where
-        it runs faster. The <b>band radius</b> trades speed for freedom: a wide band
-        finds any warp; tighten it past the true warp and the path is fenced off. The distance jumps and the corner goes unreachable.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The heatmap is the accumulated-cost matrix, and the gold{" "}
+          <b>warping path</b> from corner to corner is the optimal alignment, found
+          by the same min-of-three dynamic program as edit distance.
+        </DemoLI>
+        <DemoLI>
+          When B runs slower than A the path bends above the diagonal, one A-point
+          matching several B-points, and back below where it runs faster.
+        </DemoLI>
+        <DemoLI>
+          The <b>band radius</b> trades speed for freedom. A wide band finds any
+          warp; tighten it past the true warp and the path is fenced off, the
+          distance jumps and the corner goes unreachable.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

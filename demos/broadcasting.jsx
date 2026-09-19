@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, StatReadout, ControlGroup, SegmentedControl,
 } = window;
 
@@ -156,24 +156,35 @@ function BroadcastingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Broadcasting is one rule applied right-to-left: two axes are compatible if they are
-        <strong> equal</strong>, or if <strong>one of them is 1</strong>. A length-1 axis is
-        stretched to match; anything else is an error. Missing leading axes count as 1, which is
-        why a <code>(3,)</code> bias adds cleanly to a <code>(256, 256, 3)</code> image.
+        Broadcasting is one rule applied right to left: two axes are compatible if
+        they are <strong>equal</strong>, or if <strong>one of them is 1</strong>.
+      </DemoP>
+      <DemoUL>
+        <DemoLI>A length-1 axis is stretched to match. Anything else is an error.</DemoLI>
+        <DemoLI>
+          Missing leading axes count as 1, which is why a <code>(3,)</code> bias adds
+          cleanly to a <code>(256, 256, 3)</code> image.
+        </DemoLI>
+        <DemoLI>
+          The stretch is a lie the library tells you, and that is the point. NumPy
+          and PyTorch do not copy the stretched axis. They read the same memory
+          repeatedly with a stride of zero.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        Drag the sliders to <code>(1000, 1)</code> and <code>(1, 1000)</code> in your
+        head: the result has a million elements, built from two thousand. The MEMORY
+        SAVED readout is that ratio, and it is why you should not reach for{" "}
+        <code>tile</code> or <code>repeat</code> first.
       </DemoP>
       <DemoP>
-        The stretch is a lie the library tells you, and that is the point. NumPy and PyTorch do not
-        copy the stretched axis. They read the same memory repeatedly with a stride of zero. Drag
-        the sliders to <code>(1000, 1)</code> and <code>(1, 1000)</code> in your head: the result
-        has a million elements, built from two thousand. The MEMORY SAVED readout is that ratio,
-        and it is why you should not reach for <code>tile</code> or <code>repeat</code> first.
-      </DemoP>
-      <DemoP>
-        <strong>Now press THE TRAP.</strong> Shapes <code>(4,1)</code> and <code>(1,4)</code> are
-        both "four numbers" in your head. Broadcasting turns them into a 4&times;4 matrix, and nothing errors. You get 16 values, a mean over them is the mean of a matrix, and the bug
-        surfaces much later as a loss that will not go down. This is the single most common shape
-        bug in ML code, and it is not a bug in the rule. It is the rule working exactly as written
-        on inputs you did not mean. The fix is to say which axis you meant:
+        <strong>Now press THE TRAP.</strong> Shapes <code>(4,1)</code> and{" "}
+        <code>(1,4)</code> are both "four numbers" in your head. Broadcasting turns
+        them into a 4&times;4 matrix, and nothing errors. You get 16 values, a mean
+        over them is the mean of a matrix, and the bug surfaces much later as a loss
+        that will not go down. This is the single most common shape bug in ML code,
+        and it is not a bug in the rule. It is the rule working exactly as written on
+        inputs you did not mean. The fix is to say which axis you meant:{" "}
         <code>reshape(-1)</code>, or <code>keepdims=False</code> after a reduction.
       </DemoP>
     </>

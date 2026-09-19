@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -149,22 +149,33 @@ function EditDistanceDemo() {
   const explainer = (
     <>
       <DemoP>
-        Edit distance is the fewest single-character insertions, deletions, and
-        substitutions to turn one string into another. The DP table builds the
-        answer from prefixes: every cell is the cheapest way to align A's first i
-        characters with B's first j, computed from three already-solved neighbors: the diagonal (the characters match for free, or substitute for +1), the
-        cell above (delete from A, +1), and the cell to the left (insert into B,
-        +1). Green outlines mark exactly those three sources.
+        Edit distance is the fewest single-character insertions, deletions and
+        substitutions needed to turn one string into another. The DP table builds
+        the answer from prefixes: every cell is the cheapest way to align the first i
+        characters of A with the first j of B, computed from three already-solved
+        neighbors.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The diagonal: the characters match for free, or substitute for +1.
+        </DemoLI>
+        <DemoLI>The cell above: delete from A, +1.</DemoLI>
+        <DemoLI>
+          The cell to the left: insert into B, +1. Green outlines mark exactly those
+          three sources.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         The bottom-right cell is the answer, but the path to it is the actual edit
         script. Backtracking from that corner recovers the alignment shown below:
-        green columns are matches, amber are substitutions, red are gaps
-        (insert/delete). It's the same fill-then-backtrack two-step as the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a>{" "} table, dynamic programming applied to strings rather than items.
+        green columns are matches, amber are substitutions, red are gaps. It is the
+        same fill-then-backtrack two-step as the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>knapsack</a>{" "}
+        table, dynamic programming applied to strings rather than items.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -185,6 +196,7 @@ function EditDistanceDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Edit Distance"
       subtitle="The fewest insert/delete/substitute edits between two strings. Watch the DP table fill from its neighbors, then backtrack the character alignment."
