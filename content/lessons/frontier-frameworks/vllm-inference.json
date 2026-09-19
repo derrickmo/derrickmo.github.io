@@ -210,17 +210,17 @@
     {
       "type": "formula",
       "front": "Why contiguous allocation wastes so much",
-      "back": "util ≈ E[len]/len_max, because you can't know the final length and relocating a cache is expensive, so every request pays for its worst case. **Measured: 97 requests at 15% utilization** — 85% of the KV region held nothing."
+      "back": "util ≈ E[len]/len_max, because you can't know the final length and relocating a cache is expensive, so every request pays for its worst case. **Measured: 97 requests at 15% utilization**. 85% of the KV region held nothing."
     },
     {
       "type": "formula",
       "front": "★ What paging buys",
-      "back": "Waste ≤ (block−1) per sequence, and **no longer depends on max length at all**. Measured: **621 requests at 98% utilization = 6.4×** — from an allocation strategy, with no change to model, kernels or hardware."
+      "back": "Waste ≤ (block−1) per sequence, and **no longer depends on max length at all**. Measured: **621 requests at 98% utilization = 6.4×**, from an allocation strategy, with no change to model, kernels or hardware."
     },
     {
       "type": "intuition",
       "front": "The indirection's bonus: SHARING",
-      "back": "Blocks can be shared — two requests with the same prompt prefix point at the same physical blocks, copy-on-write when they diverge. Prefix sharing and beam search become memory-cheap. Contiguous allocation cannot express this at all."
+      "back": "Blocks can be shared: two requests with the same prompt prefix point at the same physical blocks, copy-on-write when they diverge. Prefix sharing and beam search become memory-cheap. Contiguous allocation cannot express this at all."
     },
     {
       "type": "formula",
@@ -245,7 +245,7 @@
     {
       "type": "intuition",
       "front": "Chunked prefill, and two separate latency metrics",
-      "back": "Split a long prompt into pieces interleaved with decode steps, so no step is long. And report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) SEPARATELY — different causes, different fixes, one number describes neither."
+      "back": "Split a long prompt into pieces interleaved with decode steps, so no step is long. And report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) SEPARATELY: different causes, different fixes, one number describes neither."
     },
     {
       "type": "pitfall",

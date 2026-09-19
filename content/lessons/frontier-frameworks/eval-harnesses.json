@@ -225,17 +225,17 @@
     {
       "type": "formula",
       "front": "★ Small suites invert the ORDERING",
-      "back": "Wilson 95% CI at N=50 ≈ ±11 pts, and a genuinely 4-pt-better model is ranked correctly only **67%** of the time. Not \"noisy\" — wrong a third of the time, on a comparison presented as a finding."
+      "back": "Wilson 95% CI at N=50 ≈ ±11 pts, and a genuinely 4-pt-better model is ranked correctly only **67%** of the time. Not \"noisy\", wrong a third of the time, on a comparison presented as a finding."
     },
     {
       "type": "intuition",
       "front": "Use WILSON, not the normal approximation",
-      "back": "Small evals often sit near 0 or 1, where the normal approximation misbehaves and can produce intervals outside the valid range. Wilson is well-behaved there — the right default for binomial proportions at small n."
+      "back": "Small evals often sit near 0 or 1, where the normal approximation misbehaves and can produce intervals outside the valid range. Wilson is well-behaved there, the right default for binomial proportions at small n."
     },
     {
       "type": "intuition",
       "front": "Pairing beats doubling n",
-      "back": "Run both models on the SAME items and compare per-item outcomes. Item difficulty is the dominant variance component and pairing removes it entirely — costs nothing you weren't already doing."
+      "back": "Run both models on the SAME items and compare per-item outcomes. Item difficulty is the dominant variance component and pairing removes it entirely, costs nothing you weren't already doing."
     },
     {
       "type": "formula",
@@ -255,17 +255,17 @@
     {
       "type": "formula",
       "front": "Why swapping works EXACTLY",
-      "back": "Position bias is ANTISYMMETRIC in the ordering, so ½[P(A|AB) + P(A|BA)] cancels it precisely — a structural property, not variance reduction. One extra call. Mandatory, not advisable."
+      "back": "Position bias is ANTISYMMETRIC in the ordering, so ½[P(A|AB) + P(A|BA)] cancels it precisely, a structural property, not variance reduction. One extra call. Mandatory, not advisable."
     },
     {
       "type": "pitfall",
       "front": "LENGTH bias SURVIVES swapping",
-      "back": "It's SYMMETRIC in the ordering — the longer answer wins wherever it appears. Needs rubric scoring (several specific checks, no length preference) or explicit length control. Report answer length beside every win rate."
+      "back": "It's SYMMETRIC in the ordering: the longer answer wins wherever it appears. Needs rubric scoring (several specific checks, no length preference) or explicit length control. Report answer length beside every win rate."
     },
     {
       "type": "intuition",
       "front": "The control that validates the machinery",
-      "back": "A length-free judge swap-averages to a fair **0.500**. Running it confirms the debiasing does what you think rather than introducing its own artefact — the difference between a measurement and a hope."
+      "back": "A length-free judge swap-averages to a fair **0.500**. Running it confirms the debiasing does what you think rather than introducing its own artefact, the difference between a measurement and a hope."
     },
     {
       "type": "pitfall",

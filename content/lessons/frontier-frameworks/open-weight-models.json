@@ -215,7 +215,7 @@
     {
       "type": "intuition",
       "front": "\"Will this run?\" has no answer alone",
-      "back": "The budget is weights + KV(seq, batch) + activations ≤ device. Only the FIRST term is a property of the model — the other two are properties of how you intend to use it. A parameter count is one of three terms."
+      "back": "The budget is weights + KV(seq, batch) + activations ≤ device. Only the FIRST term is a property of the model. The other two are properties of how you intend to use it. A parameter count is one of three terms."
     },
     {
       "type": "intuition",
@@ -229,7 +229,7 @@
     },
     {
       "type": "formula",
-      "front": "★ Outliers set the scale — per-channel wins",
+      "front": "★ Outliers set the scale: per-channel wins",
       "back": "int4: per-TENSOR 0.655 vs per-CHANNEL 0.732. A few large channels stretch the range, so one scale spends its levels on outliers and crushes the bulk into a few values. HOW you scale beats how many bits."
     },
     {
@@ -240,12 +240,12 @@
     {
       "type": "intuition",
       "front": "★ The frontier question",
-      "back": "Under a fixed memory budget, a BIGGER model quantized HARDER frequently beats a smaller one at full precision. So quantization is a CAPABILITY decision, not only a cost one — it changes which models exist for you."
+      "back": "Under a fixed memory budget, a BIGGER model quantized HARDER frequently beats a smaller one at full precision. So quantization is a CAPABILITY decision, not only a cost one. It changes which models exist for you."
     },
     {
       "type": "pitfall",
       "front": "…but the frontier can reverse at long context",
-      "back": "A smaller model wins TWICE — smaller weights AND a smaller cache per token. At 32k the second effect can dominate, so compare at equal memory INCLUDING the cache at your actual context and batch."
+      "back": "A smaller model wins TWICE: smaller weights AND a smaller cache per token. At 32k the second effect can dominate, so compare at equal memory INCLUDING the cache at your actual context and batch."
     },
     {
       "type": "pitfall",

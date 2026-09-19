@@ -205,7 +205,7 @@
     {
       "type": "formula",
       "front": "★ Rank is a HARD representational limit",
-      "back": "ΔW = BA with B∈ℝ^{d×r}, A∈ℝ^{r×d} ⇒ rank(ΔW) ≤ r. So r=1 on a rank-2 task gave MSE 0.96 — a MATRIX fact, not a tuning problem. More steps, better LR, more data: none of it moves it."
+      "back": "ΔW = BA with B∈ℝ^{d×r}, A∈ℝ^{r×d} ⇒ rank(ΔW) ≤ r. So r=1 on a rank-2 task gave MSE 0.96, a MATRIX fact, not a tuning problem. More steps, better LR, more data: none of it moves it."
     },
     {
       "type": "formula",
@@ -215,12 +215,12 @@
     {
       "type": "intuition",
       "front": "The two rank failures look DIFFERENT",
-      "back": "Too LOW = a hard ceiling, insensitive to LR and step count (distinctive — most hyperparameters degrade gracefully). Too HIGH = wasted params, no gain, slightly more overfitting. That asymmetry is what makes a sweep interpretable."
+      "back": "Too LOW = a hard ceiling, insensitive to LR and step count (distinctive: most hyperparameters degrade gracefully). Too HIGH = wasted params, no gain, slightly more overfitting. That asymmetry is what makes a sweep interpretable."
     },
     {
       "type": "formula",
       "front": "★ Where the memory saving REALLY comes from",
-      "back": "NOT the adapter's size — the frozen base is a BUFFER: no gradient, and no OPTIMIZER STATE (Adam = 2× params; ~12 of 16 bytes/param are optimizer-related). Freezing removes the largest allocation in a training step."
+      "back": "NOT the adapter's size. The frozen base is a BUFFER: no gradient, and no OPTIMIZER STATE (Adam = 2× params; ~12 of 16 bytes/param are optimizer-related). Freezing removes the largest allocation in a training step."
     },
     {
       "type": "pitfall",
@@ -260,7 +260,7 @@
     {
       "type": "intuition",
       "front": "Ask WHICH memory term a method removes",
-      "back": "Parameters, gradients, optimizer state, activations — four budgets with different scaling. LoRA eliminates optimizer state by freezing; FSDP/ZeRO SHARDS it (Adam is elementwise, so shards update independently). They compose."
+      "back": "Parameters, gradients, optimizer state, activations, four budgets with different scaling. LoRA eliminates optimizer state by freezing; FSDP/ZeRO SHARDS it (Adam is elementwise, so shards update independently). They compose."
     }
   ],
   "refs": [

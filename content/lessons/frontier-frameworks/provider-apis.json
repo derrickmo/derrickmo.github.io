@@ -206,7 +206,7 @@
     {
       "type": "intuition",
       "front": "★ Almost none of this is ML",
-      "back": "Backoff+jitter, token buckets, idempotency keys, streaming — distributed-systems client engineering predating LLMs by decades. The provider, model and SDK will change; a client built on these keeps working. THAT is why it's here."
+      "back": "Backoff+jitter, token buckets, idempotency keys, streaming, distributed-systems client engineering predating LLMs by decades. The provider, model and SDK will change; a client built on these keeps working. THAT is why it's here."
     },
     {
       "type": "formula",
@@ -216,12 +216,12 @@
     {
       "type": "pitfall",
       "front": "Retries do nothing in an OUTAGE",
-      "back": "Every attempt fails together, so retrying adds load without adding success — hence retry BUDGETS and circuit breakers. And retry only TRANSIENT errors: a 400 was malformed and will be malformed again."
+      "back": "Every attempt fails together, so retrying adds load without adding success, hence retry BUDGETS and circuit breakers. And retry only TRANSIENT errors: a 400 was malformed and will be malformed again."
     },
     {
       "type": "intuition",
       "front": "Why jitter",
-      "back": "Without it, every client that failed at the same instant retries at the same instant — recreating the load spike that caused the failure. delay = min(base·2^n, cap) × random()."
+      "back": "Without it, every client that failed at the same instant retries at the same instant, recreating the load spike that caused the failure. delay = min(base·2^n, cap) × random()."
     },
     {
       "type": "formula",
@@ -241,7 +241,7 @@
     {
       "type": "intuition",
       "front": "Streaming changes which metric is real",
-      "back": "Mean total latency describes an experience nobody has. Report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) separately at p95 — different causes, different fixes."
+      "back": "Mean total latency describes an experience nobody has. Report TTFT (prefill + queueing) and INTER-TOKEN latency (decode + interference) separately at p95: different causes, different fixes."
     },
     {
       "type": "pitfall",

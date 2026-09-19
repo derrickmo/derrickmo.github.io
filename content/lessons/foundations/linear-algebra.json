@@ -28,7 +28,7 @@
       },
       {
         "q": "What is rank, in one line?",
-        "a": "The dimension of the column space — how many independent directions the map can actually produce. It bounds how much information can survive the transformation."
+        "a": "The dimension of the column space, how many independent directions the map can actually produce. It bounds how much information can survive the transformation."
       },
       {
         "q": "Why do singular values matter more than eigenvalues in ML?",
@@ -36,11 +36,11 @@
       },
       {
         "q": "What is the condition number and why should you care?",
-        "a": "The ratio of largest to smallest singular value. It bounds how much relative input error is amplified — a large one means the solution is unstable and gradients are badly scaled."
+        "a": "The ratio of largest to smallest singular value. It bounds how much relative input error is amplified: a large one means the solution is unstable and gradients are badly scaled."
       },
       {
         "q": "What does PCA actually compute?",
-        "a": "The eigenvectors of the covariance matrix, equivalently the right singular vectors of the centred data matrix. Centring is not optional — without it you find the mean direction."
+        "a": "The eigenvectors of the covariance matrix, equivalently the right singular vectors of the centred data matrix. Centring is not optional: without it you find the mean direction."
       },
       {
         "q": "Why is A^T A important?",
@@ -59,7 +59,7 @@
         "a": "The signed volume scaling of the map. Zero means the map collapses a dimension and is not invertible; it is numerically useless as a singularity test, though."
       },
       {
-        "q": "Row-major vs column-major — why does it matter?",
+        "q": "Row-major vs column-major: why does it matter?",
         "a": "It determines which axis is contiguous in memory, so the same mathematical operation can be cache-friendly or not. It is why transposes can be surprisingly expensive."
       },
       {
@@ -74,7 +74,7 @@
     "standard": [
       {
         "q": "Explain the SVD and why it is the workhorse decomposition in ML.",
-        "a": "Every real matrix A factors as U S V^T, where U and V are orthogonal and S is diagonal with non-negative entries in decreasing order. Read geometrically, any linear map is a rotation, then an axis-aligned scaling, then another rotation — there are no other behaviours. This matters practically for several reasons. The singular values quantify how much each direction is stretched, so their ratio is the condition number and their decay tells you the effective rank. Truncating to the top k gives provably the best rank-k approximation in both Frobenius and spectral norm, which is the Eckart-Young theorem and the justification for PCA, latent factor models and low-rank compression. It exists unconditionally, unlike eigendecomposition, so it applies to the rectangular data matrices we actually have. And it gives the pseudo-inverse, hence the minimum-norm least-squares solution, which is what makes it the numerically safe way to solve underdetermined systems.",
+        "a": "Every real matrix A factors as U S V^T, where U and V are orthogonal and S is diagonal with non-negative entries in decreasing order. Read geometrically, any linear map is a rotation, then an axis-aligned scaling, then another rotation. There are no other behaviours. This matters practically for several reasons. The singular values quantify how much each direction is stretched, so their ratio is the condition number and their decay tells you the effective rank. Truncating to the top k gives provably the best rank-k approximation in both Frobenius and spectral norm, which is the Eckart-Young theorem and the justification for PCA, latent factor models and low-rank compression. It exists unconditionally, unlike eigendecomposition, so it applies to the rectangular data matrices we actually have. And it gives the pseudo-inverse, hence the minimum-norm least-squares solution, which is what makes it the numerically safe way to solve underdetermined systems.",
         "deepDive": {
           "q": "How does SVD relate to eigendecomposition exactly?",
           "a": "The right singular vectors V are eigenvectors of A^T A, the left singular vectors U are eigenvectors of A A^T, and the singular values are the square roots of the shared eigenvalues. This is also why you should not compute an SVD by forming A^T A: squaring the matrix squares the condition number and loses about half your significant digits."
@@ -82,7 +82,7 @@
       },
       {
         "q": "What is the condition number and how does it show up in training?",
-        "a": "For a matrix it is sigma_max over sigma_min, and it bounds the factor by which relative error in the input can be amplified in the output. In optimization the relevant object is the Hessian's condition number, which is the ratio of largest to smallest curvature. Gradient descent's convergence rate depends on it directly: a badly conditioned problem has a loss surface shaped like a narrow valley, so the step size is limited by the steepest direction while progress is dictated by the shallowest, and the number of iterations scales with the condition number. This is why input normalization is not cosmetic — features on wildly different scales produce a badly conditioned Hessian and therefore slow training. It is also what second-order and adaptive methods address: preconditioning is precisely the attempt to make the effective condition number closer to 1, and Adam's per-parameter scaling is a crude diagonal version of that.",
+        "a": "For a matrix it is sigma_max over sigma_min, and it bounds the factor by which relative error in the input can be amplified in the output. In optimization the relevant object is the Hessian's condition number, which is the ratio of largest to smallest curvature. Gradient descent's convergence rate depends on it directly: a badly conditioned problem has a loss surface shaped like a narrow valley, so the step size is limited by the steepest direction while progress is dictated by the shallowest, and the number of iterations scales with the condition number. This is why input normalization is not cosmetic: features on wildly different scales produce a badly conditioned Hessian and therefore slow training. It is also what second-order and adaptive methods address: preconditioning is precisely the attempt to make the effective condition number closer to 1, and Adam's per-parameter scaling is a crude diagonal version of that.",
         "deepDive": {
           "q": "Why is batch normalization sometimes described as a conditioning fix?",
           "a": "By keeping activations at a controlled scale it prevents the layer-wise curvature disparities that make the Hessian badly conditioned, which lets larger learning rates be stable. That is a better-supported explanation of its benefit than the original internal-covariate-shift story, which later work challenged directly."
@@ -90,19 +90,19 @@
       },
       {
         "q": "Why is a low-rank approximation such a recurring tool?",
-        "a": "Because real data matrices are usually close to low rank while being formally full rank: the singular values decay quickly, so most of the Frobenius norm sits in a few directions and the rest is close to noise. Eckart-Young says truncating the SVD is optimal for a given rank, so the compression is not a heuristic. Three consequences recur across ML. Storage and compute drop from mn to r(m+n), which is what makes LoRA practical — adapting a weight matrix by a rank-r update instead of a full one. Truncation acts as a regularizer, since discarding small singular directions removes exactly the components most sensitive to noise, which is the connection between PCA and denoising. And a rank constraint is a modelling assumption: matrix factorization for recommenders asserts that user-item preference is explained by r latent factors, so the rank is a statement about the world rather than a computational trick."
+        "a": "Because real data matrices are usually close to low rank while being formally full rank: the singular values decay quickly, so most of the Frobenius norm sits in a few directions and the rest is close to noise. Eckart-Young says truncating the SVD is optimal for a given rank, so the compression is not a heuristic. Three consequences recur across ML. Storage and compute drop from mn to r(m+n), which is what makes LoRA practical, adapting a weight matrix by a rank-r update instead of a full one. Truncation acts as a regularizer, since discarding small singular directions removes exactly the components most sensitive to noise, which is the connection between PCA and denoising. And a rank constraint is a modelling assumption: matrix factorization for recommenders asserts that user-item preference is explained by r latent factors, so the rank is a statement about the world rather than a computational trick."
       },
       {
         "q": "How do you actually solve least squares, and why not with the normal equations?",
-        "a": "The normal equations A^T A x = A^T b are correct mathematically and a poor algorithm. Forming A^T A squares the condition number, so if A has condition number 10^6, unremarkable for real design matrices, the normal-equations system has 10^12 and you lose roughly twice as many digits, potentially all of them in double precision. The standard approach is a QR factorization of A, solving R x = Q^T b, which works with A's own condition number. When A is rank-deficient or nearly so, use the SVD: it gives the pseudo-inverse and the minimum-norm solution, and it lets you truncate small singular values explicitly, which is regularization made visible. Ridge regression is the same idea from the other direction — adding lambda to the diagonal shifts every singular value away from zero, which is why it both stabilizes the solve and shrinks the coefficients."
+        "a": "The normal equations A^T A x = A^T b are correct mathematically and a poor algorithm. Forming A^T A squares the condition number, so if A has condition number 10^6, unremarkable for real design matrices, the normal-equations system has 10^12 and you lose roughly twice as many digits, potentially all of them in double precision. The standard approach is a QR factorization of A, solving R x = Q^T b, which works with A's own condition number. When A is rank-deficient or nearly so, use the SVD: it gives the pseudo-inverse and the minimum-norm solution, and it lets you truncate small singular values explicitly, which is regularization made visible. Ridge regression is the same idea from the other direction: adding lambda to the diagonal shifts every singular value away from zero, which is why it both stabilizes the solve and shrinks the coefficients."
       },
       {
         "q": "What breaks when a covariance matrix is not positive definite?",
-        "a": "A covariance must be positive semi-definite by construction, so a non-PSD one means an estimation or numerical problem, and everything downstream assumes PSD. A Cholesky factorization fails outright, which is usually the first symptom, since Cholesky is the standard way to sample from a Gaussian or to evaluate its density. A negative eigenvalue implies a direction with negative variance, which is meaningless, and any Mahalanobis distance using it can come out negative. The usual causes are having fewer samples than dimensions, so the sample covariance is singular by construction, or floating-point error producing tiny negative eigenvalues in a matrix that is mathematically PSD. The standard remedies are shrinkage toward a diagonal target, adding a small ridge to the diagonal, or clipping negative eigenvalues to zero — all of which trade a little bias for a matrix you can actually use."
+        "a": "A covariance must be positive semi-definite by construction, so a non-PSD one means an estimation or numerical problem, and everything downstream assumes PSD. A Cholesky factorization fails outright, which is usually the first symptom, since Cholesky is the standard way to sample from a Gaussian or to evaluate its density. A negative eigenvalue implies a direction with negative variance, which is meaningless, and any Mahalanobis distance using it can come out negative. The usual causes are having fewer samples than dimensions, so the sample covariance is singular by construction, or floating-point error producing tiny negative eigenvalues in a matrix that is mathematically PSD. The standard remedies are shrinkage toward a diagonal target, adding a small ridge to the diagonal, or clipping negative eigenvalues to zero, all of which trade a little bias for a matrix you can actually use."
       },
       {
         "q": "Why do orthogonal matrices keep appearing in numerical algorithms?",
-        "a": "Because they are perfectly conditioned. An orthogonal Q satisfies Q^T Q = I, preserves the 2-norm exactly, and therefore has condition number 1, so multiplying by it never amplifies error. That property makes them the safe building block: QR factorization solves least squares stably because Q contributes no error growth, Householder reflections and Givens rotations are the standard tools for introducing zeros without losing precision, and the U and V of an SVD are orthogonal for the same reason. The idea recurs in deep learning too — orthogonal initialization keeps the norm of a signal constant through a layer, which is exactly the r = 1 condition that prevents activations exploding or vanishing with depth, and orthogonality constraints on recurrent weights were an early answer to the vanishing-gradient problem."
+        "a": "Because they are perfectly conditioned. An orthogonal Q satisfies Q^T Q = I, preserves the 2-norm exactly, and therefore has condition number 1, so multiplying by it never amplifies error. That property makes them the safe building block: QR factorization solves least squares stably because Q contributes no error growth, Householder reflections and Givens rotations are the standard tools for introducing zeros without losing precision, and the U and V of an SVD are orthogonal for the same reason. The idea recurs in deep learning too: orthogonal initialization keeps the norm of a signal constant through a layer, which is exactly the r = 1 condition that prevents activations exploding or vanishing with depth, and orthogonality constraints on recurrent weights were an early answer to the vanishing-gradient problem."
       }
     ]
   },
@@ -110,7 +110,7 @@
     {
       "type": "definition",
       "front": "Rank",
-      "back": "Dimension of the column space — how many independent directions the map can produce. It bounds what information survives."
+      "back": "Dimension of the column space, how many independent directions the map can produce. It bounds what information survives."
     },
     {
       "type": "formula",
@@ -145,7 +145,7 @@
     {
       "type": "intuition",
       "front": "Why orthogonal matrices are everywhere",
-      "back": "Condition number exactly 1, so they never amplify error — the safe building block for stable algorithms."
+      "back": "Condition number exactly 1, so they never amplify error, the safe building block for stable algorithms."
     },
     {
       "type": "pitfall",
@@ -160,7 +160,7 @@
     {
       "type": "pitfall",
       "front": "det(A) as a singularity test",
-      "back": "Numerically useless — it scales with dimension and magnitude. Use the smallest singular value or the condition number."
+      "back": "Numerically useless. It scales with dimension and magnitude. Use the smallest singular value or the condition number."
     },
     {
       "type": "pitfall",

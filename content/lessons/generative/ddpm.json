@@ -24,7 +24,7 @@
       },
       {
         "q": "Why is the forward process fixed rather than learned?",
-        "a": "Because it has no parameters to get wrong and it gives a closed form. There is nothing to train and nothing to destabilize — all the modelling capacity goes into the reverse."
+        "a": "Because it has no parameters to get wrong and it gives a closed form. There is nothing to train and nothing to destabilize: all the modelling capacity goes into the reverse."
       },
       {
         "q": "State the closed form for x_t.",
@@ -56,7 +56,7 @@
       },
       {
         "q": "How do you get from 1000 steps to 20?",
-        "a": "DDIM makes the sampler deterministic and non-Markovian so you can skip steps, and higher-order ODE solvers do better with the same budget. No retraining is needed — it is a discretization choice."
+        "a": "DDIM makes the sampler deterministic and non-Markovian so you can skip steps, and higher-order ODE solvers do better with the same budget. No retraining is needed. It is a discretization choice."
       },
       {
         "q": "Diffusion versus GAN, briefly?",
@@ -73,7 +73,7 @@
         "a": "Start from the variational bound on the log-likelihood, as with a VAE, treating the noisy latents as the latent variables. Because the forward process is fixed Gaussian and Markovian, the bound decomposes into a sum of KL divergences between the true reverse posterior q(x_{t-1} | x_t, x_0) and the learned p(x_{t-1} | x_t) at each step, plus boundary terms. Both distributions are Gaussian, so each KL has a closed form and reduces to a weighted squared difference between the two means. Reparameterizing the mean in terms of the noise turns each term into a weighted MSE between the true eps and the predicted eps, with a coefficient depending on the noise schedule. Ho et al.'s empirical finding was that DROPPING that weighting (training the unweighted MSE at a uniformly sampled t) produced markedly better samples. The interpretation is that the principled weights down-weight the high-noise steps, which are exactly the steps that determine global structure, so the unweighted loss implicitly re-balances the objective toward the parts of the trajectory that matter perceptually. That is worth being able to say precisely, because it is a case where the theoretically-derived objective is not the one that works, and the reason is a mismatch between likelihood and perceptual quality rather than a flaw in the derivation.",
         "deepDive": {
           "q": "How does this connect to score matching?",
-          "a": "They are the same thing in different notation. The score of the noised distribution is grad log q(x_t), and for the Gaussian forward process that equals -eps / sqrt(1 - alpha_bar_t) — an identity, not an approximation. So a network trained to predict eps is a scaled score estimator, and DDPM is denoising score matching at multiple noise levels. Song and Ermon's continuous-time SDE view unifies both: the forward process is an SDE, the reverse is the corresponding reverse-time SDE driven by the score, and DDPM and score-based models are two discretizations of it."
+          "a": "They are the same thing in different notation. The score of the noised distribution is grad log q(x_t), and for the Gaussian forward process that equals -eps / sqrt(1 - alpha_bar_t), an identity, not an approximation. So a network trained to predict eps is a scaled score estimator, and DDPM is denoising score matching at multiple noise levels. Song and Ermon's continuous-time SDE view unifies both: the forward process is an SDE, the reverse is the corresponding reverse-time SDE driven by the score, and DDPM and score-based models are two discretizations of it."
         }
       },
       {
@@ -86,15 +86,15 @@
       },
       {
         "q": "Explain classifier-free guidance and the trade it makes.",
-        "a": "Train one network on both the conditional and unconditional task by randomly dropping the conditioning — replacing the text embedding with a null token maybe 10% of the time. At sampling, evaluate both and extrapolate: eps = eps_uncond + w (eps_cond - eps_uncond). At w = 1 you get the ordinary conditional model; above that you are moving further along the direction that conditioning adds, which sharpens prompt adherence. Interpreted as sampling, it is drawing from a distribution proportional to p(x) p(c|x)^w — you are over-weighting the likelihood of the condition, which is why it is not a free improvement. The trade shows up in two measurable places. Diversity falls as w rises: outputs become more prototypical and less varied, which is the same mode-seeking behaviour that makes the pictures look better and the distribution narrower. And the FID-versus-CLIP-score frontier reveals the disagreement directly — FID is typically minimized around w of 1 to 3, while human preference peaks much higher, around 7 or 8. That gap is the honest headline: guidance strength is a knob tuned to a perceptual objective that the standard distributional metric actively disagrees with, so reporting a single FID for a guided model without stating w is close to meaningless. The other practical detail is that high guidance pushes predictions out of range and produces saturation artifacts, which is what dynamic thresholding exists to fix."
+        "a": "Train one network on both the conditional and unconditional task by randomly dropping the conditioning, replacing the text embedding with a null token maybe 10% of the time. At sampling, evaluate both and extrapolate: eps = eps_uncond + w (eps_cond - eps_uncond). At w = 1 you get the ordinary conditional model; above that you are moving further along the direction that conditioning adds, which sharpens prompt adherence. Interpreted as sampling, it is drawing from a distribution proportional to p(x) p(c|x)^w. You are over-weighting the likelihood of the condition, which is why it is not a free improvement. The trade shows up in two measurable places. Diversity falls as w rises: outputs become more prototypical and less varied, which is the same mode-seeking behaviour that makes the pictures look better and the distribution narrower. And the FID-versus-CLIP-score frontier reveals the disagreement directly: FID is typically minimized around w of 1 to 3, while human preference peaks much higher, around 7 or 8. That gap is the honest headline: guidance strength is a knob tuned to a perceptual objective that the standard distributional metric actively disagrees with, so reporting a single FID for a guided model without stating w is close to meaningless. The other practical detail is that high guidance pushes predictions out of range and produces saturation artifacts, which is what dynamic thresholding exists to fix."
       },
       {
         "q": "How do you evaluate a diffusion model?",
-        "a": "Carefully, because the standard metric is weaker than its ubiquity suggests. FID compares Gaussian fits to Inception features of real and generated sets — it is sensitive to both quality and diversity, which is its main virtue over Inception Score, and it has real problems: it depends on the sample count, so numbers computed with different N are not comparable; it inherits ImageNet-classifier biases, so it is measuring similarity in a feature space that was not designed for this; and it is a distributional score that says nothing about any individual sample. For a conditional model the crucial point is that a single number cannot capture the guidance trade at all, so the right report is a FRONTIER: sweep w and plot FID against a prompt-adherence measure like CLIP score, then compare models by whose curve dominates. Beyond that, evaluate what the metric structurally cannot see — mode coverage via precision and recall for generative models, or coverage of known attributes if you have labelled structure; memorization, since diffusion models can reproduce training images and that is both a quality and a legal question, checked by nearest-neighbour retrieval against the training set; and human evaluation for anything user-facing, because the FID-preference gap means the automatic metric is measuring a different thing from the one you ship on."
+        "a": "Carefully, because the standard metric is weaker than its ubiquity suggests. FID compares Gaussian fits to Inception features of real and generated sets. It is sensitive to both quality and diversity, which is its main virtue over Inception Score, and it has real problems: it depends on the sample count, so numbers computed with different N are not comparable; it inherits ImageNet-classifier biases, so it is measuring similarity in a feature space that was not designed for this; and it is a distributional score that says nothing about any individual sample. For a conditional model the crucial point is that a single number cannot capture the guidance trade at all, so the right report is a FRONTIER: sweep w and plot FID against a prompt-adherence measure like CLIP score, then compare models by whose curve dominates. Beyond that, evaluate what the metric structurally cannot see: mode coverage via precision and recall for generative models, or coverage of known attributes if you have labelled structure; memorization, since diffusion models can reproduce training images and that is both a quality and a legal question, checked by nearest-neighbour retrieval against the training set; and human evaluation for anything user-facing, because the FID-preference gap means the automatic metric is measuring a different thing from the one you ship on."
       },
       {
         "q": "Where does the diffusion formulation fail or need modification?",
-        "a": "Three places worth knowing. First, discrete data: the whole construction rests on adding Gaussian noise, which does not exist for text or graphs. Discrete diffusion replaces it with a corruption process over categories, masking or transition matrices, and it works, but it lost the elegant closed form and has not displaced autoregressive models for text. Second, the noise schedule matters more than it appears and the standard linear schedule has a specific defect: at the final timestep the signal-to-noise ratio is not actually zero, so the model is trained expecting a faint trace of the image and at sampling time is given pure noise — a train-test mismatch that biases generated images toward the average brightness of the training set. Zero-terminal-SNR schedules fix it, and it is a good example of a subtle assumption failing quietly. Third, the perceptual-versus-likelihood tension runs through everything: the unweighted loss, guidance, and the choice of latent space are all decisions that improve samples while making the likelihood worse, so a diffusion model tuned for images is not the model you would build to estimate densities. If the application genuinely needs calibrated likelihoods (anomaly detection, compression) a normalizing flow or an autoregressive model is the better tool, and that is the honest boundary of the method."
+        "a": "Three places worth knowing. First, discrete data: the whole construction rests on adding Gaussian noise, which does not exist for text or graphs. Discrete diffusion replaces it with a corruption process over categories, masking or transition matrices, and it works, but it lost the elegant closed form and has not displaced autoregressive models for text. Second, the noise schedule matters more than it appears and the standard linear schedule has a specific defect: at the final timestep the signal-to-noise ratio is not actually zero, so the model is trained expecting a faint trace of the image and at sampling time is given pure noise, a train-test mismatch that biases generated images toward the average brightness of the training set. Zero-terminal-SNR schedules fix it, and it is a good example of a subtle assumption failing quietly. Third, the perceptual-versus-likelihood tension runs through everything: the unweighted loss, guidance, and the choice of latent space are all decisions that improve samples while making the likelihood worse, so a diffusion model tuned for images is not the model you would build to estimate densities. If the application genuinely needs calibrated likelihoods (anomaly detection, compression) a normalizing flow or an autoregressive model is the better tool, and that is the honest boundary of the method."
       },
       {
         "q": "You are asked to build image generation for a product. What do you actually build?",
@@ -126,7 +126,7 @@
     {
       "type": "formula",
       "front": "Classifier-free guidance",
-      "back": "eps = eps_uncond + w(eps_cond - eps_uncond). Samples from p(x)p(c|x)^w — over-weighting the condition, which is why diversity falls."
+      "back": "eps = eps_uncond + w(eps_cond - eps_uncond). Samples from p(x)p(c|x)^w, over-weighting the condition, which is why diversity falls."
     },
     {
       "type": "intuition",
@@ -141,12 +141,12 @@
     {
       "type": "definition",
       "front": "Timestep embedding",
-      "back": "Sinusoidal embedding plus MLP, injected into every block. One network covers all noise levels, and it must — the task at t=1 and t=T is very different."
+      "back": "Sinusoidal embedding plus MLP, injected into every block. One network covers all noise levels, and it must: the task at t=1 and t=T is very different."
     },
     {
       "type": "pitfall",
       "front": "Quoting FID for a guided model",
-      "back": "FID is minimized around w=1-3 while human preference peaks near 7-8. A single FID without stating w is close to meaningless — report the frontier."
+      "back": "FID is minimized around w=1-3 while human preference peaks near 7-8. A single FID without stating w is close to meaningless: report the frontier."
     },
     {
       "type": "pitfall",
