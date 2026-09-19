@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -160,46 +160,67 @@ function BFSDFSAStarDemo() {
   const explainer = (
     <>
       <DemoP>
-        All three searches solve the same maze, but how they explore tells the
-        story. <b>BFS</b> expands outward in even rings, so the first time it
-        reaches the goal it has used the fewest steps, a shortest path, but it explores almost everything closer than the goal first. <b>DFS</b> commits
-        to one direction and dives until it's stuck, backtracking only when forced;
-        it's cheap on memory but the path it returns is usually far from shortest.
+        All three searches solve the same maze, but how they explore tells the story.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>BFS</b> expands outward in even rings, so the first time it reaches the
+          goal it has used the fewest steps, a shortest path. But it explores almost
+          everything closer than the goal first.
+        </DemoLI>
+        <DemoLI>
+          <b>DFS</b> commits to one direction and dives until it is stuck,
+          backtracking only when forced. Cheap on memory, but the path it returns is
+          usually far from shortest.
+        </DemoLI>
+        <DemoLI>
+          <b>A*</b> is the informed one. It orders the frontier by g + h, the steps
+          taken so far plus a Manhattan-distance guess of steps remaining.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>A*</b> is the informed one: it orders the frontier by g + h, the steps
-        taken so far plus a Manhattan-distance guess of steps remaining. Because the
-        heuristic points at the goal, A* drives a narrow corridor of exploration
-        straight toward it. Watch the EXPANDED bars, where A* typically explores a
-        fraction of what BFS does while still returning an optimal path (h here
-        never overestimates, so optimality is guaranteed). Crank up wall density and
-        the gap widens.
+        Because the heuristic points at the goal, A* drives a narrow corridor of
+        exploration straight toward it. Watch the EXPANDED bars: A* typically
+        explores a fraction of what BFS does while still returning an optimal path,
+        since h here never overestimates. Crank up wall density and the gap widens.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This is the uninformed-vs-informed search dichotomy at the heart of classic
-        AI. BFS and Dijkstra guarantee shortest paths by exploring uniformly; DFS
-        trades optimality for tiny memory; A* (Hart, Nilsson & Raphael, 1968) adds
-        a heuristic to focus the search and is optimal whenever that heuristic is
-        admissible (never overestimates). The site's{" "}
+        This is the uninformed-against-informed search dichotomy at the heart of
+        classic AI. BFS and Dijkstra guarantee shortest paths by exploring uniformly,
+        DFS trades optimality for tiny memory, and A* (Hart, Nilsson and Raphael,
+        1968) adds a heuristic to focus the search and is optimal whenever that
+        heuristic is admissible, meaning it never overestimates. The{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/pathfinding/`} style={{ color: "#a855f7" }}>pathfinding</a>{" "}
         demo zooms in on A* alone; this one is the comparison.
       </DemoP>
       <DemoP>
-        These are the same primitives under route planning (GPS, games), and they
-        connect to the rest of this section: backtracking in{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/n-queens/`} style={{ color: "#a855f7" }}>N-Queens</a>{" "}
-        is DFS over assignments, and the optimal-substructure logic of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>dynamic
-        programming</a> generalizes Dijkstra/BFS. The art is the heuristic:
-        better-informed h means a narrower search, all the way down to the
-        learned heuristics that guide modern planners.
+        These are the same primitives under route planning in GPS and games, and they
+        connect to the rest of this section:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Backtracking in{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/n-queens/`} style={{ color: "#a855f7" }}>N-Queens</a>{" "}
+          is DFS over assignments.
+        </DemoLI>
+        <DemoLI>
+          The optimal-substructure logic of{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/knapsack/`} style={{ color: "#a855f7" }}>dynamic programming</a>{" "}
+          generalizes Dijkstra and BFS.
+        </DemoLI>
+        <DemoLI>
+          The art is the heuristic. A better-informed h means a narrower search, all
+          the way down to the learned heuristics that guide modern planners.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="BFS vs DFS vs A*"
       subtitle="Three searches, one maze. Watch uninformed rings and dives against the heuristic beeline of A*, then compare nodes expanded and path optimality."

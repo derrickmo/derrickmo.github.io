@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -193,17 +193,30 @@ function ConjugateUpdatingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Bayes' rule says posterior ∝ prior × likelihood. For special <b>conjugate</b> pairs the
-        posterior lands in the <i>same family</i> as the prior, so updating is just arithmetic on the hyperparameters, with no integrals. A Beta prior plus a coin flip gives a Beta posterior
-        (just add 1 to α for heads, β for tails); a Gaussian prior on a mean plus Gaussian data
-        gives a Gaussian posterior; a Gamma prior plus a Poisson count gives a Gamma posterior.
+        Bayes rule says posterior ∝ prior &times; likelihood. For special{" "}
+        <b>conjugate</b> pairs the posterior lands in the <i>same family</i> as the
+        prior, so updating is just arithmetic on the hyperparameters, with no
+        integrals.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          A Beta prior plus a coin flip gives a Beta posterior: add 1 to α for heads,
+          β for tails.
+        </DemoLI>
+        <DemoLI>
+          A Gaussian prior on a mean plus Gaussian data gives a Gaussian posterior.
+        </DemoLI>
+        <DemoLI>A Gamma prior plus a Poisson count gives a Gamma posterior.</DemoLI>
+      </DemoUL>
       <DemoP>
-        Stream observations and watch the violet posterior peel away from the gray prior, march
-        toward the <span style={{ color: "#34d399" }}>true value</span>, and <b>sharpen</b> as
-        evidence piles up (posterior SD shrinks like 1/√n). Crank <b>prior strength</b> up and the prior fights back. It takes far more data to move a confident prior, the formal version of
-        "extraordinary claims require extraordinary evidence." With little data the prior dominates;
-        with lots, the likelihood wins and the starting prior barely matters.
+        Stream observations and watch the violet posterior peel away from the gray
+        prior, march toward the{" "}
+        <span style={{ color: "#34d399" }}>true value</span>, and <b>sharpen</b> as
+        evidence piles up, with the posterior SD shrinking like 1/√n. Crank{" "}
+        <b>prior strength</b> up and the prior fights back: it takes far more data to
+        move a confident prior, the formal version of "extraordinary claims require
+        extraordinary evidence". With little data the prior dominates; with lots, the
+        likelihood wins and the starting prior barely matters.
       </DemoP>
     </>
   );
@@ -211,19 +224,31 @@ function ConjugateUpdatingDemo() {
   const concepts = (
     <>
       <DemoP>
-        Conjugacy is why Bayesian methods were tractable before modern compute, and it is still
-        everywhere: Beta-Bernoulli is the engine of <a href={`${window.__DM_BASE || "../../"}visualize/thompson-vs-ucb/`}>Thompson
-        sampling</a> and Bayesian A/B testing, Gamma-Poisson models click and arrival rates, and the
-        Normal-Normal update is exactly one step of a <a href={`${window.__DM_BASE || "../../"}visualize/kalman-filter/`}>Kalman
-        filter</a>. The same precision-weighted average you see here, where the posterior mean is a blend of prior mean and data mean
-        weighted by their precisions, is the recurring motif of Bayesian inference.
+        Conjugacy is why Bayesian methods were tractable before modern compute, and
+        it is still everywhere:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Beta-Bernoulli is the engine of{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/thompson-vs-ucb/`}>Thompson sampling</a>{" "}
+          and Bayesian A/B testing.
+        </DemoLI>
+        <DemoLI>Gamma-Poisson models click and arrival rates.</DemoLI>
+        <DemoLI>
+          The Normal-Normal update is exactly one step of a{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/kalman-filter/`}>Kalman filter</a>.
+          The same precision-weighted average you see here, where the posterior mean
+          is a blend of prior mean and data mean weighted by their precisions, is the
+          recurring motif of Bayesian inference.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The honest limit: most real models are <i>not</i> conjugate, which is the whole reason
-        <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}> MCMC</a> and
-        <a href={`${window.__DM_BASE || "../../"}visualize/variational-inference/`}> variational inference</a> exist. They approximate the posterior when you can't write it down. But the intuition transfers
-        directly: data shrinks uncertainty, priors regularize, and the two combine in proportion to
-        how much each is trusted. That mental model is worth more than any single formula.
+        The honest limit: most real models are <i>not</i> conjugate, which is the
+        whole reason{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/mcmc/`}>MCMC</a> and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/variational-inference/`}>variational inference</a>{" "}
+        exist. But the intuition transfers directly: data shrinks uncertainty, priors
+        regularize, and the two combine in proportion to how much each is trusted.
       </DemoP>
     </>
   );

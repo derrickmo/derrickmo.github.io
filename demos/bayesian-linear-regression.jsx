@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -200,18 +200,24 @@ function BayesianLinearRegressionDemo() {
   const explainer = (
     <>
       <DemoP>
-        Instead of fitting <i>one</i> best line, Bayesian regression keeps a whole
-        <b> distribution</b> over functions consistent with the data. With a Gaussian prior
-        on the weights and Gaussian noise, the posterior is exactly Gaussian and available in closed form, with no sampling needed. The blue curve is the posterior <b>mean</b>, the
-        shaded region is the <b>predictive ±2σ</b> band, and each violet curve is a function
-        drawn from the posterior.
+        Instead of fitting <i>one</i> best line, Bayesian regression keeps a whole{" "}
+        <b>distribution</b> over functions consistent with the data. With a Gaussian
+        prior on the weights and Gaussian noise the posterior is exactly Gaussian and
+        available in closed form, with no sampling needed.
       </DemoP>
+      <DemoUL>
+        <DemoLI>The blue curve is the posterior <b>mean</b>.</DemoLI>
+        <DemoLI>The shaded region is the <b>predictive &plusmn;2σ</b> band.</DemoLI>
+        <DemoLI>Each violet curve is a function drawn from the posterior.</DemoLI>
+      </DemoUL>
       <DemoP>
-        With <b>no data</b> you see the prior: samples wander freely and the band is wide
-        everywhere. Add points (click the plot) and the posterior <b>contracts</b>, tightly where you have data, while still fanning out in the gaps and beyond the edges, because
-        the model honestly reports that it doesn't know there. Raise <b>β</b> to trust the data
-        more (band hugs the points); raise <b>α</b> for a stiffer prior that resists overfitting.
-        This calibrated "I don't know" is the whole point of being Bayesian.
+        With <b>no data</b> you see the prior: samples wander freely and the band is
+        wide everywhere. Add points by clicking the plot and the posterior{" "}
+        <b>contracts</b>, tightly where you have data while still fanning out in the
+        gaps and beyond the edges, because the model honestly reports that it does
+        not know there. Raise <b>β</b> to trust the data more and the band hugs the
+        points; raise <b>α</b> for a stiffer prior that resists overfitting. This
+        calibrated "I do not know" is the whole point of being Bayesian.
       </DemoP>
     </>
   );
@@ -219,19 +225,31 @@ function BayesianLinearRegressionDemo() {
   const concepts = (
     <>
       <DemoP>
-        Quantified uncertainty is what separates a Bayesian model from a point estimate, and it
-        is exactly what high-stakes ML needs: active learning queries the points where the band
-        is widest, Bayesian optimization balances exploration against exploitation using these
-        error bars, and Thompson sampling (see the <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}>bandit</a> demo) acts
-        by drawing from the posterior. The closed-form posterior here is the linear, finite-basis
-        cousin of a <a href={`${window.__DM_BASE || "../../"}visualize/gaussian-process/`}>Gaussian process</a>: take the number of basis functions to infinity and you get a GP.
+        Quantified uncertainty is what separates a Bayesian model from a point
+        estimate, and it is exactly what high-stakes ML needs:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Active learning queries the points where the band is widest.</DemoLI>
+        <DemoLI>
+          Bayesian optimization balances exploration against exploitation using these
+          error bars.
+        </DemoLI>
+        <DemoLI>
+          Thompson sampling, in the{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/bandit/`}>bandit</a>{" "}
+          demo, acts by drawing from the posterior.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The prior precision α is L2 regularization in disguise: the posterior mean here is exactly
-        ridge regression with λ = α/β, so <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>regularization</a> falls
-        out as the MAP estimate of a Bayesian model. The catch is scale: exact inference needs a
-        matrix inverse, so for deep or huge models people fall back on approximations such as variational inference, Laplace, or MC-dropout to
-        recover these error bars cheaply.
+        The closed-form posterior here is the linear, finite-basis cousin of a{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/gaussian-process/`}>Gaussian process</a>:
+        take the number of basis functions to infinity and you get a GP. The prior
+        precision α is L2 regularization in disguise, since the posterior mean is
+        exactly ridge regression with λ = α/β, so{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/overfitting/`}>regularization</a>{" "}
+        falls out as the MAP estimate of a Bayesian model. The catch is scale: exact
+        inference needs a matrix inverse, so for deep or huge models people fall back
+        on variational inference, Laplace or MC-dropout.
       </DemoP>
     </>
   );
