@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 300, CH = 250, INF = 1e9;
@@ -122,19 +122,29 @@ function MSTDemo() {
   const explainer = (
     <>
       <DemoP>
-        A spanning tree connects every node with no cycles; the <b>minimum</b>{" "}
+        A spanning tree connects every node with no cycles, and the <b>minimum</b>{" "}
         spanning tree does it for the least total edge weight. Prim's grows one tree
-        outward: at every step it looks at all the <b>candidate edges</b> crossing
-        from the green tree to the outside (dashed amber) and adds the single
-        cheapest one, pulling that node in. Repeat until everything is connected.
+        outward:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Look at all the <b>candidate edges</b> crossing from the green tree to the
+          outside, drawn dashed amber.
+        </DemoLI>
+        <DemoLI>
+          Add the single cheapest one, pulling that node in.
+        </DemoLI>
+        <DemoLI>
+          Repeat until everything is connected. The total weight climbs as nodes join
+          and freezes once the tree spans every node.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Why is greedily grabbing the cheapest crossing edge safe? The <b>cut
-        property</b>: for any split of the nodes, the lightest edge across that cut
-        must be in some MST, so it can never be a mistake. That one fact is what
-        makes both Prim's (grow a tree) and Kruskal's (add globally-cheapest edges
-        that don't form a cycle) correct. The total weight climbs as nodes join and
-        freezes once the tree spans every node.
+        Why is greedily grabbing the cheapest crossing edge safe? The{" "}
+        <b>cut property</b>: for any split of the nodes, the lightest edge across that
+        cut must be in some MST, so it can never be a mistake. That one fact is what
+        makes both Prim's, which grows a tree, and Kruskal's, which adds
+        globally-cheapest edges that do not form a cycle, correct.
       </DemoP>
     </>
   );

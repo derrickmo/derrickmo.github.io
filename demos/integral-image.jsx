@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -202,27 +202,36 @@ function IntegralDemo() {
     <>
       <DemoP>
         An integral image stores, at every position, the sum of everything above and to
-        the left of it. Build it in one pass, and afterwards the sum of <i>any</i>{" "}
+        the left of it. Build it in one pass and afterwards the sum of <i>any</i>{" "}
         rectangle is four reads and three additions: take the bottom-right corner, add
-        back the top-left, subtract the two you double-counted. Widen the rectangle and
-        the brute-force counter climbs into the thousands while the integral cost does
-        not move.
+        back the top-left, subtract the two you double-counted.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Widen the rectangle and the brute-force counter climbs into the thousands
+          while the integral cost does not move.
+        </DemoLI>
+        <DemoLI>
+          Both sums are computed every frame and printed together, so you are not
+          asked to take the identity on trust.
+        </DemoLI>
+        <DemoLI>
+          They agree to floating point for every rectangle, including one covering the
+          whole image, where brute force needs 9,216 additions and the table needs
+          four reads.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Both sums are computed every frame and printed together, so you are not being
-        asked to take the identity on trust. They agree to floating point for every
-        rectangle, including one covering the whole image, where brute force needs 9,216
-        additions and the table needs four reads.
-      </DemoP>
-      <DemoP>
-        Switch to <b>Haar feature</b> and the rectangle splits in two: the response is
-        one box minus its neighbour, so a light-over-dark pattern gives a large value and
-        flat texture gives roughly zero. On the face-like scene, park it across the eye
-        band and watch the response jump. That is a whole feature evaluated in constant
-        time, which is why a detector can afford to try thousands of them per window.
+        Switch to <b>Haar feature</b> and the rectangle splits in two. The response is
+        one box minus its neighbour, so a light-over-dark pattern gives a large value
+        and flat texture gives roughly zero. On the face-like scene, park it across the
+        eye band and watch the response jump. That is a whole feature evaluated in
+        constant time, which is why a detector can afford to try thousands of them per
+        window.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -242,6 +251,7 @@ function IntegralDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Integral Images & Haar Features"
       subtitle="Precompute once, then sum any rectangle in four reads. This is the trick that made real-time face detection possible."

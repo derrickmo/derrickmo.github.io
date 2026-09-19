@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 310, CH = 240;
@@ -145,18 +145,31 @@ function MaxFlowDemo() {
     <>
       <DemoP>
         How much can flow from <b>S</b> to <b>T</b> if every edge has a capacity?
-        Ford–Fulkerson answers it greedily: find any path from S to T with spare
-        capacity (the gold <b>augmenting path</b>), push the most it can carry, its bottleneck, and repeat. Edmonds–Karp picks the <i>shortest</i> such path
-        each time (BFS), which guarantees it finishes quickly. Edge thickness grows
-        with the flow it carries; labels show flow/capacity.
+        Ford-Fulkerson answers it greedily:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Find any path from S to T with spare capacity, the gold{" "}
+          <b>augmenting path</b>.
+        </DemoLI>
+        <DemoLI>
+          Push the most it can carry, its bottleneck, and repeat. Edge thickness grows
+          with the flow it carries and the labels show flow over capacity.
+        </DemoLI>
+        <DemoLI>
+          Edmonds-Karp picks the <i>shortest</i> such path each time, using BFS, which
+          is what guarantees it finishes quickly.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The subtle part is the <b>residual graph</b>: every unit of flow also opens a
-        reverse edge, so a later path can <i>reroute</i> flow it sent earlier. That is what makes the greedy procedure provably optimal rather than getting stuck.
-        When no augmenting path is left, the flow is maximal, and the nodes still
-        reachable from S (green rings) versus the rest (red rings) split the graph
-        into the <b>minimum cut</b>. The red dashed edges crossing that cut are the
-        true bottleneck, and their capacities sum to exactly the max flow, the celebrated max-flow min-cut theorem.
+        The subtle part is the <b>residual graph</b>. Every unit of flow also opens a
+        reverse edge, so a later path can <i>reroute</i> flow it sent earlier, and that
+        is what makes the greedy procedure provably optimal rather than getting stuck.
+        When no augmenting path is left the flow is maximal, and the nodes still
+        reachable from S, in green rings, against the rest, in red rings, split the
+        graph into the <b>minimum cut</b>. The red dashed edges crossing that cut are
+        the true bottleneck, and their capacities sum to exactly the max flow. That is
+        the celebrated max-flow min-cut theorem.
       </DemoP>
     </>
   );

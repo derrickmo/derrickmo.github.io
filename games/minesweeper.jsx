@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
 const R = 9, C = 9, MINES = 10;
@@ -124,21 +124,35 @@ function MinesweeperDemo() {
   const explainer = (
     <>
       <DemoP>
-        Every revealed number is a <b>constraint</b>: "exactly this many of my hidden
-        neighbours are mines." The AI reads them all at once. Two rules are pure logic and need no guessing. If a number already touches enough flags, its other
-        neighbours are <span style={{ color: "#34d399" }}>provably safe</span>; if its
-        remaining unknowns exactly equal the mines it still needs, they're
-        <span style={{ color: "#f87171" }}> provably mines</span>. Turn on
-        <b> probabilities</b> and hit <b>AI: safest move</b> to watch it work.
+        Every revealed number is a <b>constraint</b>: exactly this many of my hidden
+        neighbours are mines. The AI reads them all at once, and two of its rules are
+        pure logic that need no guessing.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          If a number already touches enough flags, its other neighbours are{" "}
+          <span style={{ color: "#34d399" }}>provably safe</span>.
+        </DemoLI>
+        <DemoLI>
+          If its remaining unknowns exactly equal the mines it still needs, they are{" "}
+          <span style={{ color: "#f87171" }}>provably mines</span>.
+        </DemoLI>
+        <DemoLI>
+          Turn on <b>probabilities</b> and hit <b>AI: safest move</b> to watch both
+          rules fire.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        When logic runs out, you're forced to <i>guess</i>, and that is where the estimated <span style={{ color: "#fbbf24" }}>mine probability</span> per cell
-        comes in: the AI plays the least-likely-to-explode square. This constraint-plus-
-        probability reasoning is exactly how Minesweeper "solvers" work, and it's a tiny
-        version of the constraint satisfaction and Bayesian inference used all over AI.
+        When logic runs out you are forced to <i>guess</i>, and that is where the
+        estimated <span style={{ color: "#fbbf24" }}>mine probability</span> per cell
+        comes in, because the AI plays the least-likely-to-explode square. This
+        constraint-plus-probability reasoning is exactly how Minesweeper solvers work,
+        and it is a tiny version of the constraint satisfaction and Bayesian inference
+        used all over AI.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -155,6 +169,7 @@ function MinesweeperDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · CONSTRAINT + PROBABILITY" title="Minesweeper Oracle"
       subtitle="An AI that proves which cells are safe, flags the certain mines, and plays the odds on the rest."
