@@ -17,7 +17,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const T = 28;   // tokens
@@ -149,20 +149,31 @@ function MixtureOfDepthsDemo() {
   const explainer = (
     <>
       <DemoP>
-        A dense transformer spends the <i>same</i> compute on every token. The comma and the crux of the sentence both run every block. But tokens aren't
-        equally hard. <b>Mixture-of-Depths</b> gives each block a router and a
-        fixed <b>capacity</b>: only the top-scoring tokens get processed (violet);
-        the rest skip the block via the residual and cost nothing. The amber strip
-        on top is each token's true compute need; the bottom strip is whether it
-        ended up served.
+        A dense transformer spends the <i>same</i> compute on every token, so the comma
+        and the crux of the sentence both run every block. But tokens are not equally
+        hard. <b>Mixture-of-Depths</b> gives each block a router and a fixed{" "}
+        <b>capacity</b>: only the top-scoring tokens get processed, shown in violet,
+        while the rest skip the block via the residual and cost nothing. The amber
+        strip on top is each token's true compute need, and the bottom strip is whether
+        it ended up served.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With a good router, dropping capacity to 50% leaves quality almost untouched.
+          It simply stops processing the easy tokens it did not need to.
+        </DemoLI>
+        <DemoLI>
+          Spin <b>router quality</b> down to 0 and the same capacity wastes slots on
+          easy tokens, starving the few hard ones. The bottom strip lights up red even
+          though compute is unchanged.
+        </DemoLI>
+        <DemoLI>
+          Compare your QUALITY against the RANDOM-ROUTE reference to see exactly what
+          smart routing buys at a fixed FLOPs budget.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The magic is in <b>router quality</b>. With a good router, dropping capacity
-        to 50% leaves quality almost untouched. It simply stops processing the easy tokens it didn't need to. Spin the router quality down to 0 and the same
-        capacity now wastes slots on easy tokens, starving the few hard ones: the
-        bottom strip lights up red even though compute is unchanged. Compare your
-        QUALITY against the RANDOM-ROUTE reference to see exactly what smart routing
-        buys at a fixed FLOPs budget.
+        All the value sits in the router. The savings are free only if it picks well.
       </DemoP>
     </>
   );

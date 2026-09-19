@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -193,22 +193,35 @@ function NaiveBayesDemo() {
       <DemoP>
         Naive Bayes turns classification into a counting exercise via Bayes' rule:
         estimate each class's prior and its per-feature distribution, then pick the
-        class with the highest posterior. The "naive" part is assuming the features
-        are independent given the class, so the 2-D Gaussian becomes a product of
-        two 1-D ones, which on the plot means an AXIS-ALIGNED ellipse per class. The
-        shaded regions are exactly where each class wins the posterior; the ellipses
-        are the fitted class densities.
+        class with the highest posterior. The "naive" part is assuming the features are
+        independent given the class, so the 2-D Gaussian becomes a product of two 1-D
+        ones, which on the plot means an axis-aligned ellipse per class. The shaded
+        regions are where each class wins the posterior, and the ellipses are the
+        fitted class densities.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With FEATURE CORRELATION at 0 the blobs really are axis-aligned, so naive and
+          full QDA give the same boundary and the same accuracy. The wrong assumption
+          costs nothing.
+        </DemoLI>
+        <DemoLI>
+          Now tilt it. The true blobs lean diagonally, full covariance rotates its
+          ellipses to match, but naive is stuck drawing axis-aligned ones and bends the
+          boundary the wrong way, dropping NAIVE ACCURACY below FULL.
+        </DemoLI>
+        <DemoLI>
+          Notice how small the gap usually stays even then.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        With FEATURE CORRELATION at 0 the blobs really are axis-aligned, so naive and
-        full QDA give the same boundary and the same accuracy. The wrong assumption costs nothing. Now tilt it: the true blobs lean diagonally, full covariance
-        rotates its ellipses to match, but naive is stuck drawing axis-aligned ones
-        and bends the boundary the wrong way, dropping NAIVE ACCURACY below FULL. Yet
-        notice how small the gap usually stays. Even a clearly false independence assumption often classifies fine, because you only need the posterior argmax
-        to land in the right place, not the density to be exactly right.
+        A clearly false independence assumption often classifies fine, because you only
+        need the posterior argmax to land in the right place, not the density to be
+        exactly right.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -235,6 +248,7 @@ function NaiveBayesDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Gaussian Naive Bayes"
       subtitle="Classify by Bayes' rule with one bold shortcut: assume the features are independent within each class. Watch the decision regions, and tilt the data so the features correlate to see exactly what the naive diagonal-covariance assumption costs versus full QDA."

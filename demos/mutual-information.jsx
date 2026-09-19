@@ -8,7 +8,7 @@
 
 const { useRef: _ur, useState: _us, useEffect: _ue } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -144,17 +144,33 @@ function MutualInformationDemo() {
   const explainer = (
     <>
       <DemoP>
-        Correlation measures one thing: do X and Y move up and down <i>together, linearly</i>? Mutual
-        information asks the deeper question: does knowing X tell you <b>anything</b> about Y, by any
-        pattern at all? It's the gap between the entropy of Y and its entropy once X is known:
-        MI = H(X) + H(Y) − H(X,Y), estimated here straight from the binned joint distribution (the heatmap).
+        Correlation measures one thing: do X and Y move up and down{" "}
+        <i>together, linearly</i>? Mutual information asks the deeper question of
+        whether knowing X tells you <b>anything</b> about Y, by any pattern at all. It
+        is the gap between the entropy of Y and its entropy once X is known,
+        MI = H(X) + H(Y) − H(X,Y), estimated here straight from the binned joint
+        distribution in the heatmap.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Switch to <b>Parabola</b> or <b>Ring</b>. The points are tightly coupled, yet
+          correlation collapses to about 0 because the relationship is not a straight
+          line, while{" "}
+          <span style={{ color: "#34d399" }}>mutual information stays clearly positive</span>.
+        </DemoLI>
+        <DemoLI>
+          Add <b>noise</b> and both fall toward zero, since there really is less shared
+          information to find.
+        </DemoLI>
+        <DemoLI>
+          Pick <b>None</b> and MI drops to roughly zero. The small leftover is
+          finite-sample binning bias, because MI estimation is notoriously biased
+          upward.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Switch to the <b>Parabola</b> or the <b>Ring</b>: the points are tightly coupled, yet
-        <b> correlation collapses to ~0</b> because the relationship is not a straight line, while <span style={{ color: "#34d399" }}> mutual information stays clearly positive</span>. That's the
-        whole point: MI catches nonlinear and nonmonotonic dependence that correlation is blind to. Add
-        <b> noise</b> and both fall toward zero; pick <b>None</b> and MI drops to roughly zero (the small
-        leftover is finite-sample binning bias, since MI estimation is notoriously biased upward).
+        That is the whole point. MI catches nonlinear and nonmonotonic dependence that
+        correlation is blind to.
       </DemoP>
     </>
   );

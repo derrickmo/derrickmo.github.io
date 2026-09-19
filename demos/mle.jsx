@@ -9,7 +9,7 @@
 // (n=400), which is consistency showing up as the two readouts converging.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, Toggle, DemoButton } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, Toggle, DemoButton } = window;
 
 const W = 560, H = 400;
 
@@ -125,28 +125,41 @@ function MLEDemo() {
   const explainer = (
     <>
       <DemoP>
-        Maximum likelihood asks a single question: which parameters make the data I actually
-        observed most probable? The image is that question drawn as a surface over μ and σ, brighter
-        where the observed sample is more likely. Fitting a model by maximum likelihood is climbing that surface, and the yellow dot is you, dragging.
+        Maximum likelihood asks a single question: which parameters make the data I
+        actually observed most probable? The image is that question drawn as a surface
+        over μ and σ, brighter where the observed sample is more likely. Fitting a
+        model by maximum likelihood is climbing that surface, and the yellow dot is
+        you, dragging.
       </DemoP>
       <DemoP>
-        The green dot is the summit, and the thing worth noticing is that <strong>it is not
-        computed by searching</strong>. For a Gaussian the maximiser has a closed form, and it is
-        the sample mean and the sample standard deviation. The readouts show MLE μ equal to the
-        sample mean exactly, because that is literally the number being plotted. Searching for it
-        instead, with a 0.005 grid over this same surface, lands on 2.6950 / 1.2500 against the
-        closed form's 2.6974 / 1.2480: agreement to 2.4e-3, which is half the grid step. Statistics
-        you already use are maximum-likelihood estimates wearing familiar names.
+        The green dot is the summit, and the thing worth noticing is that{" "}
+        <strong>it is not computed by searching</strong>:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          For a Gaussian the maximiser has a closed form, and it is the sample mean and
+          the sample standard deviation.
+        </DemoLI>
+        <DemoLI>
+          The readouts show MLE μ equal to the sample mean exactly, because that is
+          literally the number being plotted.
+        </DemoLI>
+        <DemoLI>
+          Searching instead, with a 0.005 grid over this same surface, lands on 2.6950
+          / 1.2500 against the closed form's 2.6974 / 1.2480. That is agreement to
+          2.4e-3, half the grid step.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        One honest wrinkle sits in the readouts. The MLE for σ divides by <em>n</em>, while the
-        unbiased estimator divides by <em>n−1</em>, and they differ visibly at small n. Maximum
-        likelihood is <strong>not</strong> guaranteed unbiased; it is guaranteed to be
-        <em> consistent</em>, converging on the truth as n grows. Drag SAMPLE SIZE and watch two
-        things at once: the gap between the two σ readouts collapses (<strong>0.0570 at n=10,
-        0.0105 at n=60, 0.0018 at n=400</strong>), and the bright region contracts around the peak.
-        That contraction is the standard error shrinking, and the curvature at the summit is
-        literally the Fisher information.
+        One honest wrinkle sits in the readouts. The MLE for σ divides by <em>n</em>,
+        while the unbiased estimator divides by <em>n−1</em>, and they differ visibly
+        at small n. Maximum likelihood is <strong>not</strong> guaranteed unbiased. It
+        is guaranteed to be <em>consistent</em>, converging on the truth as n grows.
+        Drag SAMPLE SIZE and watch two things at once: the gap between the two σ
+        readouts collapses (<strong>0.0570 at n=10, 0.0105 at n=60, 0.0018 at n=400</strong>),
+        and the bright region contracts around the peak. That contraction is the
+        standard error shrinking, and the curvature at the summit is literally the
+        Fisher information.
       </DemoP>
     </>
   );
