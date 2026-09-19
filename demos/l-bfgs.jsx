@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -288,19 +288,30 @@ function LBFGSDemo() {
   const explainer = (
     <>
       <DemoP>
-        L-BFGS gets near-<a href={`${window.__DM_BASE || "../../"}visualize/newton-vs-gradient/`}>Newton</a> convergence
-        without ever forming a Hessian. Each step it reconstructs a curvature-aware search
-        direction from just the last <b>m</b> pairs of (how the point moved, how the gradient
-        changed) using the famous <b>two-loop recursion</b>, then takes a backtracking line
-        search along it. Steepest descent (gold) uses the exact same line search, so the only difference you see is the <i>direction</i>.
+        L-BFGS gets close to the convergence rate of{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/newton-vs-gradient/`}>Newton's method</a>{" "}
+        without ever forming a Hessian. Each step it rebuilds a
+        curvature-aware search direction from just the last <b>m</b> pairs of (how the
+        point moved, how the gradient changed) using the <b>two-loop recursion</b>,
+        then runs a backtracking line search along it. Steepest descent in gold uses
+        the exact same line search, so the only thing you are seeing is the difference
+        in <i>direction</i>.
       </DemoP>
-      <DemoP>
-        On <b>Rosenbrock</b>, steepest descent gets trapped oscillating across the banana
-        valley while L-BFGS quickly learns the valley's shape and curves down it. Drop the
-        memory to <b>m = 1</b> and L-BFGS degrades toward steepest descent; raise it and it
-        sharpens toward full Newton. On the <b>Correlated</b> surface, notice L-BFGS handles
-        the coupling that crippled <a href={`${window.__DM_BASE || "../../"}visualize/coordinate-descent/`}>coordinate descent</a>, because it works in the full space, not one axis at a time.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          On <b>Rosenbrock</b>, steepest descent gets trapped oscillating across the
+          banana valley while L-BFGS learns the valley's shape and curves down it.
+        </DemoLI>
+        <DemoLI>
+          Drop the memory to <b>m = 1</b> and L-BFGS degrades toward steepest descent.
+          Raise it and it sharpens toward full Newton.
+        </DemoLI>
+        <DemoLI>
+          On the <b>Correlated</b> surface it handles the coupling that crippled{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/coordinate-descent/`}>coordinate descent</a>,
+          because it works in the full space rather than one axis at a time.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

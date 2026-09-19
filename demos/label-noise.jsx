@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -140,22 +140,35 @@ function LabelNoiseDemo() {
   const explainer = (
     <>
       <DemoP>
-        Real datasets are mislabeled: crowdsourced tags, weak supervision, plain human error. Here a slice of the training labels (ringed red) is flipped to
-        the wrong class, while the test set stays clean. A flexible network has
-        enough capacity to fit those wrong points, so its decision boundary buckles
+        Real datasets are mislabeled, whether from crowdsourced tags, weak supervision
+        or plain human error. Here a slice of the training labels, ringed in red, is
+        flipped to the wrong class while the test set stays clean. A flexible network
+        has enough capacity to fit those wrong points, so its decision boundary buckles
         and pokes out toward each mislabeled example, carving little islands of the
         wrong color around them.
       </DemoP>
+      <DemoP>Watch the two accuracy bars:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          With moderate training the net latches onto the genuine cluster structure and
+          shrugs off the noise, so true test accuracy stays high even while it is
+          "wrong" on the flipped training labels.
+        </DemoLI>
+        <DemoLI>
+          Push EPOCHS up and it memorizes. Accuracy on the noisy labels climbs while
+          true test accuracy sags, opening a memorization gap.
+        </DemoLI>
+        <DemoLI>
+          That gap is why practitioners reach for early stopping, robust losses, label
+          smoothing and data cleaning.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the two accuracy bars. With moderate training the net latches onto the
-        genuine cluster structure and shrugs off the noise, so true test accuracy stays high even though it's "wrong" on the flipped training labels. Push
-        EPOCHS up and it memorizes: accuracy on the noisy labels climbs while TRUE
-        test accuracy sags, opening a memorization gap. That gap is exactly why
-        practitioners use early stopping, robust losses, label smoothing, and data cleaning. It is the dark side of the same capacity that lets nets
-        generalize.
+        It is the dark side of the same capacity that lets nets generalize at all.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -181,6 +194,7 @@ function LabelNoiseDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Label Noise"
       subtitle="Flip some training labels and watch the boundary warp around them. Train longer and the model memorizes the noise: true accuracy falls while train accuracy climbs."

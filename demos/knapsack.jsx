@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -165,21 +165,34 @@ function KnapsackDemo() {
     <>
       <DemoP>
         Brute-forcing 0/1 knapsack means trying all 2ᴺ subsets. Dynamic programming
-        does far better by noticing the subproblems overlap: the best you can do
-        with the first i items and capacity c only depends on smaller versions of
-        the same question. Each cell takes the max of two already-computed cells: "skip item i" (the cell directly above) and "take item i" (the cell above,
-        shifted left by the item's weight, plus its value). Watch the green
-        outlines show exactly those two sources for every cell.
+        does far better by noticing the subproblems overlap: the best you can do with
+        the first i items and capacity c only depends on smaller versions of the same
+        question.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Each cell takes the max of two already-computed cells, and the green
+          outlines show exactly which two.
+        </DemoLI>
+        <DemoLI>
+          <b>Skip item i</b> is the cell directly above.
+        </DemoLI>
+        <DemoLI>
+          <b>Take item i</b> is the cell above shifted left by the item's weight, plus
+          its value.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Once the table is full, the bottom-right cell holds the optimal value, but not which items to pack. So we backtrack (the yellow path): at each row,
-        if the value changed from the row above, that item was taken; step left by
-        its weight and continue. The chosen items light up green. Fill order and
-        backtracking are the two halves every DP shares: compute the values
-        bottom-up, then trace the decisions back down.
+        Once the table is full, the bottom-right cell holds the optimal value but not
+        which items to pack, so we backtrack along the yellow path. At each row, if
+        the value changed from the row above, that item was taken. Step left by its
+        weight and continue, and the chosen items light up green. Fill order and
+        backtracking are the two halves every DP shares: compute the values bottom-up,
+        then trace the decisions back down.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -201,6 +214,7 @@ function KnapsackDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Knapsack (DP)"
       subtitle="Pack the most value into a weight budget. Watch the DP table fill from its sub-answers, then backtrack to recover which items to take."

@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, useIsMobile,
 } = window;
 
 const CW = 300, CH = 250;
@@ -134,21 +134,32 @@ function LouvainDemo() {
   const explainer = (
     <>
       <DemoP>
-        Community detection asks: which nodes form tightly-knit groups? The score is{" "}
-        <b>modularity Q</b>, how many more edges fall inside communities than you'd
-        expect if the same nodes wired up at random. Here every node starts in its
-        own community (all different colors), and the algorithm repeatedly moves each
-        node into whichever neighboring community raises Q the most. Watch the colors
-        coalesce into the three planted clusters and Q climb toward its peak.
+        Community detection asks which nodes form tightly-knit groups. The score is{" "}
+        <b>modularity Q</b>, how many more edges fall inside communities than you would
+        expect if the same nodes wired up at random.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Every node starts in its own community, which is why the colors all differ
+          at step zero.
+        </DemoLI>
+        <DemoLI>
+          The algorithm repeatedly moves each node into whichever neighboring community
+          raises Q the most.
+        </DemoLI>
+        <DemoLI>
+          Watch the colors coalesce into the three planted clusters and Q climb toward
+          its peak.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        This is the local-moving heart of the <b>Louvain</b> method (the full version
-        then collapses each community into a super-node and repeats). The catch is in
+        This is the local-moving heart of the <b>Louvain</b> method. The full version
+        then collapses each community into a super-node and repeats. The catch lives in
         the <b>inter-community edge</b> slider: with few cross-edges the clusters pop
-        out cleanly, but as you blur them, modularity flattens and the algorithm
-        starts merging real groups or splitting them. There is no ground-truth label,
-        only the Q surface, and it has many near-equal optima (the resolution-limit
-        problem).
+        out cleanly, but as you blur them modularity flattens and the algorithm starts
+        merging real groups or splitting them. There is no ground-truth label to appeal
+        to, only the Q surface, and it has many near-equal optima. That is the
+        resolution-limit problem.
       </DemoP>
     </>
   );
