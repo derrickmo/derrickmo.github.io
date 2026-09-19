@@ -5,7 +5,7 @@
   "slug": "long-context",
   "keyBase": "llm-systems/long-context",
   "module": "llm-systems",
-  "title": "Long Context — RoPE Scaling & Sliding Window",
+  "title": "Long Context: RoPE Scaling & Sliding Window",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

@@ -11705,7 +11705,7 @@
       "slug": "learning-theory",
       "keyBase": "ml-theory/learning-theory",
       "module": "ml-theory",
-      "title": "Learning Theory — VC Dimension, PAC Learning",
+      "title": "Learning Theory: VC Dimension, PAC Learning",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -14428,7 +14428,7 @@
       "slug": "pytorch-fundamentals",
       "keyBase": "neural-nets/pytorch-fundamentals",
       "module": "neural-nets",
-      "title": "PyTorch Fundamentals — Autograd & nn.Module",
+      "title": "PyTorch Fundamentals: Autograd & nn.Module",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -14700,7 +14700,7 @@
       "slug": "sgd-momentum",
       "keyBase": "neural-nets/sgd-momentum",
       "module": "neural-nets",
-      "title": "Optimizers — SGD, Momentum & Nesterov",
+      "title": "Optimizers: SGD, Momentum & Nesterov",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -16050,7 +16050,7 @@
       "slug": "cnn-architectures",
       "keyBase": "cnn/cnn-architectures",
       "module": "cnn",
-      "title": "CNN Architectures — LeNet to ResNet",
+      "title": "CNN Architectures: LeNet to ResNet",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -18036,7 +18036,7 @@
       "slug": "tokenization",
       "keyBase": "rnn-nlp/tokenization",
       "module": "rnn-nlp",
-      "title": "Tokenization — BPE, WordPiece & SentencePiece",
+      "title": "Tokenization: BPE, WordPiece & SentencePiece",
       "status": "LIVE",
       "level": "intro",
       "surfaces": {
@@ -18296,7 +18296,7 @@
       "slug": "word-vectors",
       "keyBase": "rnn-nlp/word-vectors",
       "module": "rnn-nlp",
-      "title": "Word Vectors — Word2Vec, GloVe & FastText",
+      "title": "Word Vectors: Word2Vec, GloVe & FastText",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -20319,7 +20319,7 @@
       "slug": "elmo",
       "keyBase": "rnn-nlp/elmo",
       "module": "rnn-nlp",
-      "title": "Contextual Embeddings — ELMo",
+      "title": "Contextual Embeddings: ELMo",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -21042,7 +21042,7 @@
       "slug": "positional-encoding",
       "keyBase": "transformers/positional-encoding",
       "module": "transformers",
-      "title": "Positional Encoding — Sinusoidal & Learned",
+      "title": "Positional Encoding: Sinusoidal & Learned",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -21568,7 +21568,7 @@
       "slug": "full-transformer",
       "keyBase": "transformers/full-transformer",
       "module": "transformers",
-      "title": "Full Transformer — Encoder-Decoder",
+      "title": "Full Transformer: Encoder-Decoder",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -22552,7 +22552,7 @@
       "slug": "flash-attention",
       "keyBase": "transformers/flash-attention",
       "module": "transformers",
-      "title": "Flash Attention — Algorithm & Concepts",
+      "title": "Flash Attention: Algorithm & Concepts",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -24326,7 +24326,7 @@
       "slug": "dino-mae",
       "keyBase": "advanced-cv/dino-mae",
       "module": "advanced-cv",
-      "title": "Self-Supervised Vision — DINO & MAE",
+      "title": "Self-Supervised Vision: DINO & MAE",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -25378,7 +25378,7 @@
       "slug": "cifar100",
       "keyBase": "advanced-cv/cifar100",
       "module": "advanced-cv",
-      "title": "CNN Training Deep Dive — CIFAR-100",
+      "title": "CNN Training Deep Dive: CIFAR-100",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -29055,7 +29055,7 @@
       "slug": "gan",
       "keyBase": "generative/gan",
       "module": "generative",
-      "title": "GANs — DCGAN & WGAN",
+      "title": "GANs: DCGAN & WGAN",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -31228,7 +31228,7 @@
       "slug": "clip",
       "keyBase": "multimodal/clip",
       "module": "multimodal",
-      "title": "CLIP — Contrastive Image-Text Pretraining",
+      "title": "CLIP: Contrastive Image-Text Pretraining",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -32015,7 +32015,7 @@
       "slug": "simclr-byol",
       "keyBase": "multimodal/simclr-byol",
       "module": "multimodal",
-      "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
+      "title": "Contrastive Self-Supervised Learning: SimCLR & BYOL",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -34336,7 +34336,7 @@
       "slug": "lora",
       "keyBase": "fine-tuning/lora",
       "module": "fine-tuning",
-      "title": "LoRA — Low-Rank Adaptation from Scratch",
+      "title": "LoRA: Low-Rank Adaptation from Scratch",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -34634,7 +34634,7 @@
       "slug": "qlora",
       "keyBase": "fine-tuning/qlora",
       "module": "fine-tuning",
-      "title": "QLoRA — 4-Bit Quantization + LoRA",
+      "title": "QLoRA: 4-Bit Quantization + LoRA",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -39100,7 +39100,7 @@
       "slug": "offline-rl",
       "keyBase": "reinforcement-learning/offline-rl",
       "module": "reinforcement-learning",
-      "title": "Offline RL — CQL & IQL",
+      "title": "Offline RL: CQL & IQL",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -42876,7 +42876,7 @@
       "slug": "torch-compile",
       "keyBase": "training-systems/torch-compile",
       "module": "training-systems",
-      "title": "torch.compile — Dynamo & Inductor",
+      "title": "torch.compile: Dynamo & Inductor",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -46955,7 +46955,7 @@
       "slug": "quantization",
       "keyBase": "llm-systems/quantization",
       "module": "llm-systems",
-      "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
+      "title": "Quantization: PTQ, QAT, GPTQ, AWQ",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -47553,7 +47553,7 @@
       "slug": "long-context",
       "keyBase": "llm-systems/long-context",
       "module": "llm-systems",
-      "title": "Long Context — RoPE Scaling & Sliding Window",
+      "title": "Long Context: RoPE Scaling & Sliding Window",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -48942,7 +48942,7 @@
       "slug": "advanced-rag",
       "keyBase": "rag-agents/advanced-rag",
       "module": "rag-agents",
-      "title": "Advanced RAG — HyDE & Reranking",
+      "title": "Advanced RAG: HyDE & Reranking",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -50321,7 +50321,7 @@
       "slug": "voice-agents",
       "keyBase": "rag-agents/voice-agents",
       "module": "rag-agents",
-      "title": "Voice Agents — STT→LLM→TTS",
+      "title": "Voice Agents: STT→LLM→TTS",
       "status": "LIVE",
       "level": "advanced",
       "surfaces": {
@@ -51211,7 +51211,7 @@
       "slug": "recommenders-cf",
       "keyBase": "ml-applications/recommenders-cf",
       "module": "ml-applications",
-      "title": "Recommender Systems — Collaborative Filtering",
+      "title": "Recommender Systems: Collaborative Filtering",
       "status": "LIVE",
       "bodySource": "jsx",
       "surfaces": {
@@ -54869,7 +54869,7 @@
       "slug": "torchscript-onnx",
       "keyBase": "mlops/torchscript-onnx",
       "module": "mlops",
-      "title": "Model Export — TorchScript & ONNX",
+      "title": "Model Export: TorchScript & ONNX",
       "status": "LIVE",
       "level": "core",
       "surfaces": {
@@ -55184,7 +55184,7 @@
       "slug": "model-serving",
       "keyBase": "mlops/model-serving",
       "module": "mlops",
-      "title": "Model Serving — FastAPI & Gradio",
+      "title": "Model Serving: FastAPI & Gradio",
       "status": "LIVE",
       "level": "core",
       "surfaces": {

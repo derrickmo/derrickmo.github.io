@@ -222,7 +222,7 @@ function App() {
                         were exhaustive would wrongly conclude nothing else exists. */}
                     <div className="t-body" style={{ color: "var(--dim)", fontSize: 13, marginTop: 9, maxWidth: 620, lineHeight: 1.55 }}>
                       Only {index.symptomTagged} of {index.counts.total} entries name a general
-                      symptom like these — most are specific to one method. Search reaches all
+                      symptom like these, since most are specific to one method. Search reaches all
                       of them.
                     </div>
                   </fieldset>

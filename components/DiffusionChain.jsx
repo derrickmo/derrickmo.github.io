@@ -127,7 +127,7 @@ function DiffusionChain({
           <text x={padX + usableW / 2} y={height - padY + 16} textAnchor="middle"
             fontFamily="JetBrains Mono, monospace" fontSize="10"
             letterSpacing="0.12em" fill={violet}>
-            {"// REVERSE · p_θ(x_{t-1} | x_t) — learned denoising"}
+            {"// REVERSE · p_θ(x_{t-1} | x_t) · learned denoising"}
           </text>
         </g>
       )}

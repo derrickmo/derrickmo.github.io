@@ -219,25 +219,25 @@ function Playground() {
       {/* pipeline controls */}
       <div style={{ flex: "1 1 0", minWidth: 0, width: mobile ? "100%" : "auto" }}>
         <Stage n="1" title="Data" sub="THE PROBLEM YOU'RE LEARNING">
-          <SegmentedControl label="Dataset" value={dataset} onChange={setDataset} help="Each shape needs a different decision boundary — linear models fail on circles and spirals."
+          <SegmentedControl label="Dataset" value={dataset} onChange={setDataset} help="Each shape needs a different decision boundary, and linear models fail on circles and spirals."
             options={[{ value: "moons", label: "Moons" }, { value: "circles", label: "Circles" }, { value: "blobs", label: "Blobs (3)" }, { value: "spiral", label: "Spiral (3)" }]} />
           <Slider label="Points" min={60} max={400} step={20} value={nPoints} onChange={setNPoints} help="More data makes the boundary steadier and overfitting harder." />
-          <Slider label="Noise" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise} help="Class overlap. High noise makes perfect accuracy impossible — and tempting to overfit." />
+          <Slider label="Noise" min={0} max={0.5} step={0.02} value={noise} onChange={setNoise} help="Class overlap. High noise makes perfect accuracy impossible, and tempting to overfit." />
           <Slider label="Seed" min={1} max={40} step={1} value={seed} onChange={setSeed} help="Resample a fresh draw of the same distribution." />
         </Stage>
 
         <Stage n="2" title="Features" sub="HOW THE MODEL SEES EACH POINT">
           <SegmentedControl label="Feature map" value={features} onChange={setFeatures} help="raw = (x, y). poly2 adds x^2, y^2, xy so a linear model can bend its boundary."
             options={[{ value: "raw", label: "Raw (x, y)" }, { value: "poly2", label: "Polynomial deg 2" }]} />
-          <Toggle label="Standardize" checked={standardize} onChange={setStandardize} help="Zero-mean, unit-variance each feature — important for distance- and gradient-based models." />
+          <Toggle label="Standardize" checked={standardize} onChange={setStandardize} help="Zero-mean, unit-variance each feature, which matters for distance- and gradient-based models." />
         </Stage>
 
         <Stage n="3" title="Model" sub="THE HYPOTHESIS FAMILY">
           <SegmentedControl label="Classifier" value={model} onChange={setModel} help="Pick a model family. Each draws boundaries in a fundamentally different way."
             options={[{ value: "knn", label: "kNN" }, { value: "logistic", label: "Logistic" }, { value: "tree", label: "Tree" }, { value: "mlp", label: "MLP" }]} />
           {model === "knn" && <Slider label="Neighbors k" min={1} max={41} step={2} value={k} onChange={setK} help="Small k = jagged, high-variance boundary; large k = smooth, high-bias." />}
-          {model === "tree" && <Slider label="Max depth" min={1} max={9} step={1} value={depth} onChange={setDepth} help="Deeper trees carve finer axis-aligned regions — and overfit sooner." />}
-          {model === "mlp" && <Slider label="Hidden units" min={2} max={24} step={1} value={hidden} onChange={setHidden} help="Width of the one hidden layer — capacity to bend the boundary." />}
+          {model === "tree" && <Slider label="Max depth" min={1} max={9} step={1} value={depth} onChange={setDepth} help="Deeper trees carve finer axis-aligned regions, and overfit sooner." />}
+          {model === "mlp" && <Slider label="Hidden units" min={2} max={24} step={1} value={hidden} onChange={setHidden} help="Width of the one hidden layer, the capacity it has to bend the boundary." />}
           {model === "mlp" && <Slider label="Epochs" min={50} max={600} step={50} value={epochs} onChange={setEpochs} help="Full passes of gradient descent over the training set." />}
           <div className="t-mono-s" style={{ marginTop: 10, fontSize: 10 }}>
             <a href={BASE() + "visualize/" + MODEL_DEMO[model] + "/"} style={{ color: "var(--blue-lt)", textDecoration: "none" }}>→ open the {MODEL_LABEL[model]} demo</a>
@@ -247,7 +247,7 @@ function Playground() {
         <Stage n="4" title="Train and evaluate" sub="FIT, THEN MEASURE ON HELD-OUT DATA">
           <DemoButton onClick={run} tone="violet" primary>TRAIN AND EVALUATE</DemoButton>
           <p className="t-body" style={{ color: "var(--muted)", fontSize: 12.5, lineHeight: 1.6, marginTop: 12, marginBottom: 0 }}>
-            70% of the points train the model; the hollow 30% are held out. A big gap between training and test accuracy is overfitting — try more noise, a deeper tree, or tiny k to provoke it.
+            70% of the points train the model; the hollow 30% are held out. A big gap between training and test accuracy is overfitting. Try more noise, a deeper tree, or a tiny k to provoke it.
           </p>
         </Stage>
       </div>
@@ -296,7 +296,7 @@ function Hero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Build a classifier.</h1>
           <p className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 17, lineHeight: 1.6, marginTop: 16 }}>
-            The whole pipeline in one place: choose data, shape the features, pick a model, train it, and watch the decision boundary and the train/test gap respond. Everything runs in your browser — real algorithms, no server.
+            The whole pipeline in one place: choose data, shape the features, pick a model, train it, and watch the decision boundary and the train/test gap respond. Everything runs in your browser: real algorithms, no server.
           </p>
         </div>
       </Container>

@@ -14,11 +14,11 @@ window.HF = {
   sections: [
     {
       slug: "fundamentals", dir: "00_fundamentals", title: "Transformer Fundamentals",
-      blurb: "How transformers and the HuggingFace ecosystem actually work — before you touch a specific model.",
-      summary: "Understand what transformers are and how the HuggingFace ecosystem is organized before using specific models — tokenization and embeddings, attention internals, AutoClasses and pipelines, unified preprocessors, and model configuration.",
+      blurb: "How transformers and the HuggingFace ecosystem actually work, before you touch a specific model.",
+      summary: "Understand what transformers are and how the HuggingFace ecosystem is organized before using specific models: tokenization and embeddings, attention internals, AutoClasses and pipelines, unified preprocessors, and model configuration.",
       takeaways: [
         "How tokenizers and embeddings turn text into the inputs a model actually sees.",
-        "What's inside a transformer — self-attention, heads, encoder vs decoder — by inspecting real models.",
+        "What is inside a transformer, meaning self-attention, heads and encoder vs decoder, by inspecting real models.",
         "How the ecosystem fits together: AutoClasses, pipelines, processors, configs, and the Hub.",
       ],
       code: `from transformers import pipeline
@@ -36,7 +36,7 @@ clf("HuggingFace makes this delightfully easy")  # -> [{'label': 'POSITIVE', ...
     {
       slug: "nlp", dir: "01_nlp", title: "Natural Language Processing",
       blurb: "The core NLP task suite end to end, then parameter-efficient fine-tuning.",
-      summary: "The core NLP task suite end to end — text generation, classification, summarization, named-entity recognition, question answering, and translation — then parameter-efficient fine-tuning with LoRA and Unsloth.",
+      summary: "The core NLP task suite end to end: text generation, classification, summarization, named-entity recognition, question answering and translation, then parameter-efficient fine-tuning with LoRA and Unsloth.",
       takeaways: [
         "Run every core NLP task in a few lines via pipelines and AutoModels.",
         "When to reach for causal vs masked vs seq2seq models.",
@@ -45,13 +45,13 @@ clf("HuggingFace makes this delightfully easy")  # -> [{'label': 'POSITIVE', ...
       code: `from transformers import pipeline
 gen = pipeline("text-generation", model="distilgpt2")
 gen("In the future, AI will", max_new_tokens=20, do_sample=True)`,
-      codeCaption: "Generation in three lines — then swap in any model.",
+      codeCaption: "Generation in three lines, then swap in any model.",
       notebooks: [
         { n: "01_01", t: "Text Generation", models: "GPT-2, DistilGPT2", d: "Causal LM, greedy/beam/sampling decoding.", diff: "Beginner", cur: ["rnn-nlp/text-generation", "advanced-nlp/gpt"] },
         { n: "01_02", t: "Text Classification", models: "DistilBERT, BERT", d: "Sentiment analysis and topic classification.", diff: "Beginner", cur: ["advanced-nlp/bert"] },
         { n: "01_03", t: "Text Summarization", models: "DistilBART, BART", d: "Abstractive summarization, seq2seq.", diff: "Intermediate", cur: ["rnn-nlp/seq2seq-attention", "advanced-nlp/architectures"] },
         { n: "01_04", t: "Named Entity Recognition", models: "DistilBERT-NER", d: "Token classification, BIO tags, span extraction.", diff: "Intermediate", cur: ["advanced-nlp/ner"] },
-        { n: "01_05", t: "Question Answering", models: "DistilBERT-QA", d: "Extractive QA — context + question to answer span.", diff: "Intermediate", cur: ["advanced-nlp/qa"] },
+        { n: "01_05", t: "Question Answering", models: "DistilBERT-QA", d: "Extractive QA: context plus question to answer span.", diff: "Intermediate", cur: ["advanced-nlp/qa"] },
         { n: "01_06", t: "Translation", models: "MarianMT", d: "Machine translation, multilingual, beam search.", diff: "Intermediate", cur: ["rnn-nlp/seq2seq-attention"] },
         { n: "01_07", t: "Fine-tuning (Unsloth)", models: "Llama 3.2 / 3.1", d: "2-5x faster LLM fine-tuning (GPU).", diff: "Advanced", cur: ["fine-tuning/unsloth"] },
         { n: "01_08", t: "Fine-tuning (LoRA)", models: "GPT-2", d: "Adapter training with LoRA (CPU-compatible).", diff: "Advanced", cur: ["fine-tuning/lora"] },
@@ -59,11 +59,11 @@ gen("In the future, AI will", max_new_tokens=20, do_sample=True)`,
     },
     {
       slug: "computer-vision", dir: "02_computer_vision", title: "Computer Vision",
-      blurb: "Vision with transformers — classification, detection, OCR, and segmentation.",
-      summary: "Vision with transformers — image classification (ViT), object detection (DETR, YOLOv8), OCR (TrOCR), and image segmentation (SegFormer).",
+      blurb: "Vision with transformers: classification, detection, OCR and segmentation.",
+      summary: "Vision with transformers: image classification (ViT), object detection (DETR, YOLOv8), OCR (TrOCR) and image segmentation (SegFormer).",
       takeaways: [
         "Vision Transformers classify images with the same attention machinery as NLP.",
-        "Detection, OCR, and segmentation — each a few lines via pipelines.",
+        "Detection, OCR and segmentation, each a few lines via pipelines.",
         "How image preprocessing (image processors) differs from text.",
       ],
       code: `from transformers import pipeline
@@ -80,10 +80,10 @@ clf("photo.jpg")[:3]      # top-3 labels with scores`,
     {
       slug: "audio", dir: "03_audio", title: "Audio",
       blurb: "Speech-to-text, text-to-speech, and audio classification.",
-      summary: "Speech and sound — transcription with Whisper, speech synthesis with SpeechT5, and audio classification with the Audio Spectrogram Transformer.",
+      summary: "Speech and sound: transcription with Whisper, speech synthesis with SpeechT5, and audio classification with the Audio Spectrogram Transformer.",
       takeaways: [
         "Transcribe and synthesize speech with pretrained models.",
-        "How audio becomes model input — waveforms and mel spectrograms.",
+        "How audio becomes model input: waveforms and mel spectrograms.",
         "Classify sound with the same transformer backbone.",
       ],
       code: `from transformers import pipeline
@@ -98,12 +98,12 @@ asr("audio.wav")["text"]`,
     },
     {
       slug: "multimodal", dir: "04_multimodal", title: "Multimodal",
-      blurb: "Where vision and language meet — captioning, VQA, image generation, and documents.",
-      summary: "Where vision and language meet — image captioning (BLIP), visual question answering (ViLT), text-to-image generation (Stable Diffusion), image editing and inpainting, and document understanding.",
+      blurb: "Where vision and language meet: captioning, VQA, image generation and documents.",
+      summary: "Where vision and language meet: image captioning (BLIP), visual question answering (ViLT), text-to-image generation (Stable Diffusion), image editing and inpainting, and document understanding.",
       takeaways: [
         "Connect images and text: captioning, visual QA, and retrieval.",
         "Generate and edit images with diffusion models.",
-        "Parse real documents — forms and receipts — with layout-aware models.",
+        "Parse real documents, forms and receipts included, with layout-aware models.",
       ],
       code: `from transformers import pipeline
 cap = pipeline("image-to-text", model="Salesforce/blip-image-captioning-base")
@@ -119,8 +119,8 @@ cap("photo.jpg")[0]["generated_text"]`,
     },
     {
       slug: "best-practices", dir: "05_best_practices", title: "Best Practices & Production",
-      blurb: "Take models to production — performance, quantization, datasets, demos, and training.",
-      summary: "Take models to production — local LLMs with Ollama, performance and caching, responsible AI, datasets, Gradio demos, quantization (intro plus GPTQ/AWQ), and the Trainer API.",
+      blurb: "Take models to production: performance, quantization, datasets, demos and training.",
+      summary: "Take models to production: local LLMs with Ollama, performance and caching, responsible AI, datasets, Gradio demos, quantization (intro plus GPTQ/AWQ), and the Trainer API.",
       takeaways: [
         "Measure and optimize latency, memory, and cost.",
         "Shrink models with quantization (INT8 to GPTQ / AWQ / 4-bit).",
@@ -143,11 +143,11 @@ model = AutoModelForCausalLM.from_pretrained("gpt2", quantization_config=cfg)`,
     },
     {
       slug: "agentic", dir: "06_agentic_workflows", title: "Agentic Workflows",
-      blurb: "Build agents that use tools — MCP, multi-tool patterns, RAG, structured output.",
-      summary: "Build agents that use tools — Model Context Protocol basics and servers, multi-tool patterns (ReAct, Plan-and-Execute, Reflection), RAG with local LLMs, and structured output with function calling.",
+      blurb: "Build agents that use tools: MCP, multi-tool patterns, RAG and structured output.",
+      summary: "Build agents that use tools: Model Context Protocol basics and servers, multi-tool patterns (ReAct, Plan-and-Execute, Reflection), RAG with local LLMs, and structured output with function calling.",
       takeaways: [
         "Give LLMs tools via the Model Context Protocol (MCP).",
-        "Orchestrate multi-step agents — ReAct, Plan-and-Execute, Reflection.",
+        "Orchestrate multi-step agents: ReAct, Plan-and-Execute, Reflection.",
         "Ground answers with RAG and enforce reliable, validated structured output.",
       ],
       code: `from pydantic import BaseModel

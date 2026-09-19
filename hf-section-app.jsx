@@ -174,7 +174,7 @@ function Notebooks() {
                         <span key={ref}>
                           {j > 0 && <span> · </span>}
                           <a href={`${BASE}learn/${ms}/`} style={{ color: "var(--blue-lt)", textDecoration: "none" }}
-                             title={`Module page — lesson ${l.n}`}>{l.n} {l.title}</a>
+                             title={`Module page, lesson ${l.n}`}>{l.n} {l.title}</a>
                         </span>
                       );
                     })}
@@ -186,7 +186,7 @@ function Notebooks() {
           ))}
         </div>
         <div className="t-small" style={{ color: "var(--muted)", fontSize: 13, marginTop: 16, lineHeight: 1.6, maxWidth: 720 }}>
-          Each notebook is a complete, runnable walkthrough — no placeholders — and uses small CPU-friendly models with options to scale up.
+          Each notebook is a complete, runnable walkthrough with no placeholders, and uses small CPU-friendly models with options to scale up.
           <a href={folder()} target="_blank" rel="noopener" style={{ color: "var(--blue-lt)" }}> Open the section on GitHub</a> to run them.
         </div>
       </Container>
@@ -197,7 +197,7 @@ function Notebooks() {
 function Formats() {
   const mobile = useIsMobile();
   const items = [
-    { label: "Self-guided notebooks", status: "AVAILABLE", note: "Run them now — self-contained, and updated over time.", href: folder() },
+    { label: "Self-guided notebooks", status: "AVAILABLE", note: "Run them now. Self-contained, and updated over time.", href: folder() },
     { label: "Video walkthrough", status: "PLANNED", note: "A recorded video lecture for this section is planned." },
     { label: "Case study", status: "PLANNED", note: "An applied case study is planned." },
   ];

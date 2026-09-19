@@ -5,7 +5,7 @@
   "slug": "offline-rl",
   "keyBase": "reinforcement-learning/offline-rl",
   "module": "reinforcement-learning",
-  "title": "Offline RL — CQL & IQL",
+  "title": "Offline RL: CQL & IQL",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

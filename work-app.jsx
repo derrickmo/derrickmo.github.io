@@ -46,25 +46,25 @@ function ProjectCard({ id, title, role, status, tech, description, diagram, href
 const PROJECTS = [
   {
     id: "RESEARCH", title: "Small Language Models Survey", role: "// RESEARCH · ACM TIST · CO-AUTHOR", status: "RESEARCH",
-    description: "Co-author on a comprehensive survey of small language models in the era of LLMs — architectures, training, compression, and deployment. Accepted by ACM TIST.",
+    description: "Co-author on a comprehensive survey of small language models in the era of LLMs: architectures, training, compression and deployment. Accepted by ACM TIST.",
     tech: ["NLP", "LLM", "SURVEY"], href: "research/",
     diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="SLM" blockLabel="SURVEY" headLabel="TIST" />,
   },
   {
     id: "LEARN", title: "ML from Scratch", role: "// LEARN · PYTHON, NUMPY, PYTORCH", status: "LEARN",
-    description: "250 notebooks across 25 modules — every algorithm built in NumPy first, from linear regression through transformers, RL, agents, and LLM systems. Condensed on-site; notebooks on GitHub.",
+    description: "250 notebooks across 25 modules, every algorithm built in NumPy first, from linear regression through transformers, RL, agents and LLM systems. Condensed on-site; notebooks on GitHub.",
     tech: ["PYTHON", "PYTORCH", "NUMPY"], href: "https://github.com/derrickmo/machine_learning_tutorials",
     diagram: <LessonStack count={7} width={380} height={210} mode="dark" />,
   },
   {
     id: "RESEARCH", title: "MentalNet", role: "// RESEARCH · AMIA · FIRST AUTHOR", status: "RESEARCH",
-    description: "First-author AMIA podium paper — BERT-based detection of mental disease from clinical text, with downstream work on Beck's cognitive patterns.",
+    description: "First-author AMIA podium paper on BERT-based detection of mental disease from clinical text, with downstream work on Beck's cognitive patterns.",
     tech: ["BERT", "NLP", "CLINICAL"], href: "research/",
     diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="TEXT" blockLabel="BERT" headLabel="DX" />,
   },
   {
     id: "LEARN", title: "Hugging Face Tutorials", role: "// LEARN · TRANSFORMERS, AGENTS, RAG", status: "LEARN",
-    description: "38 hands-on notebooks across 7 sections — NLP, vision, audio, multimodal, production, and agentic workflows (MCP, RAG, structured output). Each a complete, runnable walkthrough.",
+    description: "38 hands-on notebooks across 7 sections: NLP, vision, audio, multimodal, production and agentic workflows (MCP, RAG, structured output). Each a complete, runnable walkthrough.",
     tech: ["HUGGINGFACE", "TRANSFORMERS", "AGENTS"], href: "learn/huggingface/",
     diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="HF" blockLabel="MODEL" headLabel="HUB" />,
   },

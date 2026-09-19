@@ -5,7 +5,7 @@
   "slug": "positional-encoding",
   "keyBase": "transformers/positional-encoding",
   "module": "transformers",
-  "title": "Positional Encoding — Sinusoidal & Learned",
+  "title": "Positional Encoding: Sinusoidal & Learned",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

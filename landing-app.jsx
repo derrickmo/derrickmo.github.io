@@ -54,7 +54,7 @@ function Hero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Derrick<br/>Mo</h1>
           <div className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: 18, lineHeight: 1.55, maxWidth: 460, marginTop: 2 }}>
-            I build production deep-learning systems — computer vision, signal processing, and agentic LLMs — and teach the fundamentals from scratch.
+            I build production deep-learning systems across computer vision, signal processing and agentic LLMs, and I teach the fundamentals from scratch.
           </div>
           <div style={{ display: "flex", gap: 12, marginTop: 22 }}>
             <a href="#services" style={{
@@ -137,7 +137,7 @@ function About() {
             Production ML, taught from first principles.
           </h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 580, fontSize: 17, lineHeight: 1.6 }}>
-            Senior ML engineer based in San Jose, CA. I ship production systems in computer vision, signal processing, and agentic LLMs — and teach the fundamentals from scratch. Research-grade rigor, deployment-grade execution.
+            Senior ML engineer based in San Jose, CA. I ship production systems in computer vision, signal processing and agentic LLMs, and teach the fundamentals from scratch. Research-grade rigor, deployment-grade execution.
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 18, alignItems: "center", flexWrap: "wrap" }}>
             <a href="about/" style={{
@@ -170,7 +170,7 @@ function Services() {
     {
       tag: "02 · LEARN",
       title: "Learn",
-      blurb: "ML and DL from first principles — for people who refuse to treat the framework as a black box. Two full courses, animated concepts, and lessons you can actually follow.",
+      blurb: "ML and DL from first principles, for people who refuse to treat the framework as a black box. Two full courses, animated concepts, and lessons you can actually follow.",
       list: ["Courses, free & self-guided", "Animated key concepts", "250-lesson program", "Workshops & mentoring"],
       tone: "violet",
       href: "learn/",
@@ -200,7 +200,7 @@ function Services() {
           </h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
             Whether you want to collaborate on research, learn the fundamentals, or
-            build something together — here's where to start.
+            build something together, here is where to start.
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 18 }}>
@@ -293,25 +293,25 @@ function SelectedWork() {
   const projects = [
     {
       id: "RESEARCH", title: "Small Language Models Survey", role: "// RESEARCH · ACM TIST · CO-AUTHOR", status: "RESEARCH",
-      description: "Co-author on a comprehensive survey of small language models in the era of LLMs — architectures, training, compression, and deployment. Accepted by ACM TIST.",
+      description: "Co-author on a comprehensive survey of small language models in the era of LLMs: architectures, training, compression and deployment. Accepted by ACM TIST.",
       tech: ["NLP", "LLM", "SURVEY"], href: "research/",
       diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="SLM" blockLabel="SURVEY" headLabel="TIST" />,
     },
     {
       id: "LEARN", title: "ML from Scratch", role: "// LEARN · PYTHON, NUMPY, PYTORCH", status: "LEARN",
-      description: "250 notebooks across 25 modules — every algorithm built in NumPy first, from linear regression through transformers, RL, agents, and LLM systems. Condensed on-site; notebooks on GitHub.",
+      description: "250 notebooks across 25 modules, every algorithm built in NumPy first, from linear regression through transformers, RL, agents and LLM systems. Condensed on-site; notebooks on GitHub.",
       tech: ["PYTHON", "PYTORCH", "NUMPY"], href: "https://github.com/derrickmo/machine_learning_tutorials",
       diagram: <LessonStack count={7} width={340} height={200} mode="dark" />,
     },
     {
       id: "RESEARCH", title: "MentalNet", role: "// RESEARCH · AMIA · FIRST AUTHOR", status: "RESEARCH",
-      description: "First-author AMIA podium paper — BERT-based detection of mental disease from clinical text, with downstream work on Beck's cognitive patterns.",
+      description: "First-author AMIA podium paper on BERT-based detection of mental disease from clinical text, with downstream work on Beck's cognitive patterns.",
       tech: ["BERT", "NLP", "CLINICAL"], href: "research/",
       diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="TEXT" blockLabel="BERT" headLabel="DX" />,
     },
     {
       id: "LEARN", title: "Hugging Face Tutorials", role: "// LEARN · TRANSFORMERS, AGENTS, RAG", status: "LEARN",
-      description: "38 hands-on notebooks across 7 sections — NLP, vision, audio, multimodal, production, and agentic workflows (MCP, RAG, structured output). Each a complete, runnable walkthrough.",
+      description: "38 hands-on notebooks across 7 sections: NLP, vision, audio, multimodal, production and agentic workflows (MCP, RAG, structured output). Each a complete, runnable walkthrough.",
       tech: ["HUGGINGFACE", "TRANSFORMERS", "AGENTS"], href: "learn/huggingface/",
       diagram: <TransformerBlock width={460} height={166} layout="row" mode="dark" inputLabel="HF" blockLabel="MODEL" headLabel="HUB" />,
     },
@@ -351,9 +351,9 @@ function LabPreview() {
     {
       href: "learn/", tag: "// LEARN", title: "Complete ML/DL Course",
       features: [
-        "ML from Scratch — first principles in NumPy",
-        "HuggingFace — vision, NLP, audio, agents",
-        "Key Concepts — animated visual explainers",
+        "ML from Scratch: first principles in NumPy",
+        "HuggingFace: vision, NLP, audio, agents",
+        "Key Concepts: animated visual explainers",
         "Condensed lectures on-site, notebooks on GitHub",
         "Organized into clear tracks",
       ],
@@ -379,7 +379,7 @@ function LabPreview() {
         "Watch neural nets learn to play",
         "Beat (or lose to) a minimax engine",
         "An AI that reads your patterns",
-        "No backend — all in your tab",
+        "No backend, all in your tab",
       ],
       tone: "blue",
       diagram: <AgentConstellation width={260} height={160} mode="dark" />,
@@ -398,7 +398,7 @@ function LabPreview() {
             color: "var(--white)", margin: 0, lineHeight: 1.05,
           }}>Learn it. Visualize it. Play with it.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
-            Not a portfolio page — working surfaces you can actually use: two full courses
+            Not a portfolio page. Working surfaces you can actually use: two full courses
             and a lab of interactive demos that run the real algorithms in your browser.
           </div>
         </div>
@@ -472,7 +472,7 @@ function LabPreview() {
           <div>
             <MonoLabel color="var(--violet-lt)">// GUIDED PATHS · NOT SURE WHERE TO START?</MonoLabel>
             <div style={{ fontFamily: "var(--f-display)", fontWeight: 600, fontSize: 22, color: "var(--white)", marginTop: 8 }}>
-              Follow a curated track — from "Zero to Transformer" to "RL from Scratch" — in the order that builds understanding.
+              Follow a curated track, from "Zero to Transformer" to "RL from Scratch", in the order that builds understanding.
             </div>
             <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, marginTop: 6 }}>
               11 paths through the demos, concepts, and lessons. Progress saves as you go.
@@ -518,7 +518,7 @@ function ConceptsInMotion() {
             The ideas, animated.
           </h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 16, marginTop: 4 }}>
-            A growing gallery of looping visual explainers for the concepts behind modern AI — from attention to diffusion. Built to make the math click at a glance. Browse them all in <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a>.
+            A growing gallery of looping visual explainers for the concepts behind modern AI, from attention to diffusion. Built to make the math click at a glance. Browse them all in <a href={`${BASE}learn/key-concepts/`} style={{ color: "var(--violet-lt)", textDecoration: "none" }}>Key Concepts</a>.
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 16 }}>

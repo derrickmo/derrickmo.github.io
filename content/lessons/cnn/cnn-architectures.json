@@ -5,7 +5,7 @@
   "slug": "cnn-architectures",
   "keyBase": "cnn/cnn-architectures",
   "module": "cnn",
-  "title": "CNN Architectures — LeNet to ResNet",
+  "title": "CNN Architectures: LeNet to ResNet",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

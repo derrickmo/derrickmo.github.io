@@ -5,7 +5,7 @@
   "slug": "tokenization",
   "keyBase": "rnn-nlp/tokenization",
   "module": "rnn-nlp",
-  "title": "Tokenization — BPE, WordPiece & SentencePiece",
+  "title": "Tokenization: BPE, WordPiece & SentencePiece",
   "status": "LIVE",
   "level": "intro",
   "surfaces": {

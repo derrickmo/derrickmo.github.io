@@ -31,7 +31,7 @@ function WeeklyInsightsHero() {
           WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
         }}>What changed this week.</h1>
         <div className="t-body" style={{ color: "var(--muted)", maxWidth: 680, fontSize: 18, lineHeight: 1.6, marginTop: 16 }}>
-          A weekly digest of practitioner-grade ML developments — post-training and RL, data efficiency, agentic systems, quantization and local inference, fine-tuning, and the broader field. Concrete numbers, the practitioner angle, and a source on every item. Newest week on top.
+          A weekly digest of practitioner-grade ML developments: post-training and RL, data efficiency, agentic systems, quantization and local inference, fine-tuning, and the broader field. Concrete numbers, the practitioner angle, and a source on every item. Newest week on top.
         </div>
       </Container>
     </Section>
@@ -239,7 +239,7 @@ function WeeklyList() {
       <Section style={{ paddingTop: 8, paddingBottom: 64 }}>
         <Container style={{ maxWidth: 900 }}>
           <div className="t-body" style={{ color: "var(--muted)", fontSize: 15 }}>
-            No entries yet — the first weekly digest will appear here.
+            No entries yet. The first weekly digest will appear here.
           </div>
         </Container>
       </Section>

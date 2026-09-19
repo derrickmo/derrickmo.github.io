@@ -298,7 +298,7 @@ window.CURRICULUM = {
         {
           "n": "04-06",
           "slug": "learning-theory",
-          "title": "Learning Theory — VC Dimension, PAC Learning",
+          "title": "Learning Theory: VC Dimension, PAC Learning",
           "status": "LIVE",
           "nb": "04-06_learning_theory_vc_dimension_pac.ipynb"
         },
@@ -385,14 +385,14 @@ window.CURRICULUM = {
         {
           "n": "05-07",
           "slug": "pytorch-fundamentals",
-          "title": "PyTorch Fundamentals — Autograd & nn.Module",
+          "title": "PyTorch Fundamentals: Autograd & nn.Module",
           "status": "LIVE",
           "nb": "05-07_pytorch_fundamentals_autograd_nn_module.ipynb"
         },
         {
           "n": "05-08",
           "slug": "sgd-momentum",
-          "title": "Optimizers — SGD, Momentum & Nesterov",
+          "title": "Optimizers: SGD, Momentum & Nesterov",
           "status": "LIVE",
           "nb": "05-08_optimizers_sgd_momentum_nesterov.ipynb"
         },
@@ -437,7 +437,7 @@ window.CURRICULUM = {
         {
           "n": "06-03",
           "slug": "cnn-architectures",
-          "title": "CNN Architectures — LeNet to ResNet",
+          "title": "CNN Architectures: LeNet to ResNet",
           "status": "LIVE",
           "nb": "06-03_cnn_architectures_lenet_to_resnet.ipynb"
         },
@@ -503,14 +503,14 @@ window.CURRICULUM = {
         {
           "n": "07-01",
           "slug": "tokenization",
-          "title": "Tokenization — BPE, WordPiece & SentencePiece",
+          "title": "Tokenization: BPE, WordPiece & SentencePiece",
           "status": "LIVE",
           "nb": "07-01_tokenization_bpe_wordpiece_sentencepiece.ipynb"
         },
         {
           "n": "07-02",
           "slug": "word-vectors",
-          "title": "Word Vectors — Word2Vec, GloVe & FastText",
+          "title": "Word Vectors: Word2Vec, GloVe & FastText",
           "status": "LIVE",
           "nb": "07-02_word_vectors_word2vec_glove_fasttext.ipynb"
         },
@@ -566,7 +566,7 @@ window.CURRICULUM = {
         {
           "n": "07-10",
           "slug": "elmo",
-          "title": "Contextual Embeddings — ELMo",
+          "title": "Contextual Embeddings: ELMo",
           "status": "LIVE",
           "nb": "07-10_contextual_embeddings_elmo.ipynb"
         }
@@ -597,7 +597,7 @@ window.CURRICULUM = {
         {
           "n": "08-03",
           "slug": "positional-encoding",
-          "title": "Positional Encoding — Sinusoidal & Learned",
+          "title": "Positional Encoding: Sinusoidal & Learned",
           "status": "LIVE",
           "nb": "08-03_positional_encoding_sinusoidal_learned.ipynb"
         },
@@ -611,7 +611,7 @@ window.CURRICULUM = {
         {
           "n": "08-05",
           "slug": "full-transformer",
-          "title": "Full Transformer — Encoder-Decoder",
+          "title": "Full Transformer: Encoder-Decoder",
           "status": "LIVE",
           "nb": "08-05_full_transformer_encoder_decoder.ipynb"
         },
@@ -639,7 +639,7 @@ window.CURRICULUM = {
         {
           "n": "08-09",
           "slug": "flash-attention",
-          "title": "Flash Attention — Algorithm & Concepts",
+          "title": "Flash Attention: Algorithm & Concepts",
           "status": "LIVE",
           "nb": "08-09_flash_attention_concepts.ipynb"
         },
@@ -698,7 +698,7 @@ window.CURRICULUM = {
         {
           "n": "09-06",
           "slug": "dino-mae",
-          "title": "Self-Supervised Vision — DINO & MAE",
+          "title": "Self-Supervised Vision: DINO & MAE",
           "status": "LIVE",
           "nb": "09-06_self_supervised_dino_mae.ipynb"
         },
@@ -726,7 +726,7 @@ window.CURRICULUM = {
         {
           "n": "09-10",
           "slug": "cifar100",
-          "title": "CNN Training Deep Dive — CIFAR-100",
+          "title": "CNN Training Deep Dive: CIFAR-100",
           "status": "LIVE",
           "nb": "09-10_cnn_training_deep_dive_cifar100.ipynb"
         }
@@ -837,7 +837,7 @@ window.CURRICULUM = {
         {
           "n": "11-03",
           "slug": "gan",
-          "title": "GANs — DCGAN & WGAN",
+          "title": "GANs: DCGAN & WGAN",
           "status": "LIVE",
           "nb": "11-03_gans_dcgan_wgan.ipynb"
         },
@@ -903,7 +903,7 @@ window.CURRICULUM = {
         {
           "n": "12-01",
           "slug": "clip",
-          "title": "CLIP — Contrastive Image-Text Pretraining",
+          "title": "CLIP: Contrastive Image-Text Pretraining",
           "status": "LIVE",
           "nb": "12-01_clip_contrastive_image_text_pretraining.ipynb"
         },
@@ -924,7 +924,7 @@ window.CURRICULUM = {
         {
           "n": "12-04",
           "slug": "simclr-byol",
-          "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
+          "title": "Contrastive Self-Supervised Learning: SimCLR & BYOL",
           "status": "LIVE",
           "nb": "12-04_contrastive_ssl_simclr_byol.ipynb"
         },
@@ -990,14 +990,14 @@ window.CURRICULUM = {
         {
           "n": "13-02",
           "slug": "lora",
-          "title": "LoRA — Low-Rank Adaptation from Scratch",
+          "title": "LoRA: Low-Rank Adaptation from Scratch",
           "status": "LIVE",
           "nb": "13-02_lora_low_rank_adaptation.ipynb"
         },
         {
           "n": "13-03",
           "slug": "qlora",
-          "title": "QLoRA — 4-Bit Quantization + LoRA",
+          "title": "QLoRA: 4-Bit Quantization + LoRA",
           "status": "LIVE",
           "nb": "13-03_qlora_4bit_quantization.ipynb"
         },
@@ -1119,7 +1119,7 @@ window.CURRICULUM = {
         {
           "n": "14-09",
           "slug": "offline-rl",
-          "title": "Offline RL — CQL & IQL",
+          "title": "Offline RL: CQL & IQL",
           "status": "LIVE",
           "nb": "14-09_offline_rl_cql_iql.ipynb"
         },
@@ -1230,7 +1230,7 @@ window.CURRICULUM = {
         {
           "n": "16-02",
           "slug": "torch-compile",
-          "title": "torch.compile — Dynamo & Inductor",
+          "title": "torch.compile: Dynamo & Inductor",
           "status": "LIVE",
           "nb": "16-02_torch_compile_dynamo_inductor.ipynb"
         },
@@ -1338,7 +1338,7 @@ window.CURRICULUM = {
         {
           "n": "17-06",
           "slug": "quantization",
-          "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
+          "title": "Quantization: PTQ, QAT, GPTQ, AWQ",
           "status": "LIVE",
           "nb": "17-06_quantization_ptq_qat_gptq_awq.ipynb"
         },
@@ -1352,7 +1352,7 @@ window.CURRICULUM = {
         {
           "n": "17-08",
           "slug": "long-context",
-          "title": "Long Context — RoPE Scaling & Sliding Window",
+          "title": "Long Context: RoPE Scaling & Sliding Window",
           "status": "LIVE",
           "nb": "17-08_long_context_rope_scaling_sliding_window.ipynb"
         },
@@ -1397,7 +1397,7 @@ window.CURRICULUM = {
         {
           "n": "18-03",
           "slug": "advanced-rag",
-          "title": "Advanced RAG — HyDE & Reranking",
+          "title": "Advanced RAG: HyDE & Reranking",
           "status": "LIVE",
           "nb": "18-03_advanced_rag_hyde_reranking.ipynb"
         },
@@ -1432,7 +1432,7 @@ window.CURRICULUM = {
         {
           "n": "18-08",
           "slug": "voice-agents",
-          "title": "Voice Agents — STT→LLM→TTS",
+          "title": "Voice Agents: STT→LLM→TTS",
           "status": "LIVE",
           "nb": "18-08_voice_agents_stt_llm_tts.ipynb"
         },
@@ -1463,7 +1463,7 @@ window.CURRICULUM = {
         {
           "n": "19-01",
           "slug": "recommenders-cf",
-          "title": "Recommender Systems — Collaborative Filtering",
+          "title": "Recommender Systems: Collaborative Filtering",
           "status": "LIVE",
           "nb": "19-01_recommender_systems_collaborative_filtering.ipynb"
         },
@@ -1557,14 +1557,14 @@ window.CURRICULUM = {
         {
           "n": "20-03",
           "slug": "torchscript-onnx",
-          "title": "Model Export — TorchScript & ONNX",
+          "title": "Model Export: TorchScript & ONNX",
           "status": "LIVE",
           "nb": "20-03_model_export_torchscript_onnx.ipynb"
         },
         {
           "n": "20-04",
           "slug": "model-serving",
-          "title": "Model Serving — FastAPI & Gradio",
+          "title": "Model Serving: FastAPI & Gradio",
           "status": "LIVE",
           "nb": "20-04_model_serving_fastapi_gradio.ipynb"
         },

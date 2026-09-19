@@ -5,7 +5,7 @@
   "slug": "elmo",
   "keyBase": "rnn-nlp/elmo",
   "module": "rnn-nlp",
-  "title": "Contextual Embeddings — ELMo",
+  "title": "Contextual Embeddings: ELMo",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

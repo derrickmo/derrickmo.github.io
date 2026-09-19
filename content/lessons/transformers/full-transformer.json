@@ -5,7 +5,7 @@
   "slug": "full-transformer",
   "keyBase": "transformers/full-transformer",
   "module": "transformers",
-  "title": "Full Transformer — Encoder-Decoder",
+  "title": "Full Transformer: Encoder-Decoder",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

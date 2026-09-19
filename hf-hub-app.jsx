@@ -47,7 +47,7 @@ function HubHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>HuggingFace,<br/>end to end.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            38 hands-on notebooks across 7 sections — transformer fundamentals,
+            38 hands-on notebooks across 7 sections: transformer fundamentals,
             NLP, computer vision, audio, multimodal, production best practices, and
             agentic workflows. Each notebook is a complete, runnable walkthrough,
             not a fill-in-the-blank exercise.
@@ -134,7 +134,7 @@ function SectionsGrid() {
 function Formats() {
   const mobile = useIsMobile();
   const items = [
-    { label: "Self-guided notebooks", status: "AVAILABLE", note: "All 38 on GitHub — self-contained, and updated over time.", href: hf().repo },
+    { label: "Self-guided notebooks", status: "AVAILABLE", note: "All 38 on GitHub. Self-contained, and updated over time.", href: hf().repo },
     { label: "Video walkthrough", status: "PLANNED", note: "Recorded video lectures are planned." },
     { label: "Case study", status: "PLANNED", note: "Applied case studies are planned." },
   ];

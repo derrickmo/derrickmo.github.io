@@ -5,7 +5,7 @@
   "slug": "cifar100",
   "keyBase": "advanced-cv/cifar100",
   "module": "advanced-cv",
-  "title": "CNN Training Deep Dive — CIFAR-100",
+  "title": "CNN Training Deep Dive: CIFAR-100",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

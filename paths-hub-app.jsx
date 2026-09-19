@@ -182,7 +182,7 @@ function Hero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Guided learning paths.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 17, lineHeight: 1.6 }}>
-            Curated routes through the demos, concepts, and lessons — in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.
+            Curated routes through the demos, concepts and lessons, in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.
           </div>
           {/* These eleven are hand-written and stay that way. The builder covers the
               other 177 destinations nobody had time to plan a route to. */}

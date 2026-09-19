@@ -5,7 +5,7 @@
   "slug": "quantization",
   "keyBase": "llm-systems/quantization",
   "module": "llm-systems",
-  "title": "Quantization — PTQ, QAT, GPTQ, AWQ",
+  "title": "Quantization: PTQ, QAT, GPTQ, AWQ",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

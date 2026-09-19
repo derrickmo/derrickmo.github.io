@@ -176,7 +176,7 @@ function CodeIllustration() {
 function Formats() {
   const mobile = useIsMobile();
   const items = [
-    { label: "Self-guided notebooks", status: "AVAILABLE", note: "Run them now — self-contained, and updated over time.", href: FOLDER },
+    { label: "Self-guided notebooks", status: "AVAILABLE", note: "Run them now. Self-contained, and updated over time.", href: FOLDER },
     { label: "Video walkthrough", status: "PLANNED", note: "A recorded video lecture for this module is planned." },
     { label: "Case study", status: "PLANNED", note: "An applied case study tied to real work is planned." },
   ];
@@ -240,7 +240,7 @@ function Flagship() {
                   {f.n} · {f.label}
                 </div>
                 <div className="t-body" style={{ color: "var(--muted)", fontSize: 14, marginTop: 4 }}>
-                  Read this one in full here — derivation, NumPy, PyTorch, and a trained example.
+                  Read this one in full here: derivation, NumPy, PyTorch, and a trained example.
                 </div>
               </div>
               <span className="t-mono-s" style={{ color: "var(--violet-lt)", whiteSpace: "nowrap" }}>READ LESSON →</span>
@@ -295,7 +295,7 @@ function Notebooks() {
           })}
         </div>
         <div className="t-small" style={{ color: "var(--muted)", fontSize: 13, marginTop: 16, lineHeight: 1.6, maxWidth: 720 }}>
-          This page is the condensed tour. Every notebook is self-contained, runs end-to-end with "Restart &amp; Run All," and downloads its own data —
+          This page is the condensed tour. Every notebook is self-contained, runs end-to-end with "Restart &amp; Run All," and downloads its own data:
           <a href={FOLDER} target="_blank" rel="noopener" style={{ color: "var(--blue-lt)" }}> open the module on GitHub</a> to run the full thing.
         </div>
       </Container>

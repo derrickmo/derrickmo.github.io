@@ -5,7 +5,7 @@
   "slug": "simclr-byol",
   "keyBase": "multimodal/simclr-byol",
   "module": "multimodal",
-  "title": "Contrastive Self-Supervised Learning — SimCLR & BYOL",
+  "title": "Contrastive Self-Supervised Learning: SimCLR & BYOL",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

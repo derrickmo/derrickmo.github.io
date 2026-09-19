@@ -383,7 +383,7 @@ function Hero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>The whole graph, at once.</h1>
           <p className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 17, lineHeight: 1.6, marginTop: 16 }}>
-            An interactive map of every concept on the site and how they connect — prerequisites flowing into the ideas they unlock. Explore it freely, or trace a learning path through it.
+            An interactive map of every concept on the site and how they connect, with prerequisites flowing into the ideas they unlock. Explore it freely, or trace a learning path through it.
           </p>
         </div>
       </Container>

@@ -5,7 +5,7 @@
   "slug": "torchscript-onnx",
   "keyBase": "mlops/torchscript-onnx",
   "module": "mlops",
-  "title": "Model Export — TorchScript & ONNX",
+  "title": "Model Export: TorchScript & ONNX",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

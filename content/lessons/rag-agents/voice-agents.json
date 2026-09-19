@@ -5,7 +5,7 @@
   "slug": "voice-agents",
   "keyBase": "rag-agents/voice-agents",
   "module": "rag-agents",
-  "title": "Voice Agents — STT→LLM→TTS",
+  "title": "Voice Agents: STT→LLM→TTS",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

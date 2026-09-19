@@ -5,7 +5,7 @@
   "slug": "lora",
   "keyBase": "fine-tuning/lora",
   "module": "fine-tuning",
-  "title": "LoRA — Low-Rank Adaptation from Scratch",
+  "title": "LoRA: Low-Rank Adaptation from Scratch",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

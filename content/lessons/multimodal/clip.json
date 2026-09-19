@@ -5,7 +5,7 @@
   "slug": "clip",
   "keyBase": "multimodal/clip",
   "module": "multimodal",
-  "title": "CLIP — Contrastive Image-Text Pretraining",
+  "title": "CLIP: Contrastive Image-Text Pretraining",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

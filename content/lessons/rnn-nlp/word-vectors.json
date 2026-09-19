@@ -5,7 +5,7 @@
   "slug": "word-vectors",
   "keyBase": "rnn-nlp/word-vectors",
   "module": "rnn-nlp",
-  "title": "Word Vectors — Word2Vec, GloVe & FastText",
+  "title": "Word Vectors: Word2Vec, GloVe & FastText",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

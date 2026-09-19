@@ -5,7 +5,7 @@
   "slug": "flash-attention",
   "keyBase": "transformers/flash-attention",
   "module": "transformers",
-  "title": "Flash Attention — Algorithm & Concepts",
+  "title": "Flash Attention: Algorithm & Concepts",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

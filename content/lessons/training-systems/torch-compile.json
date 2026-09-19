@@ -5,7 +5,7 @@
   "slug": "torch-compile",
   "keyBase": "training-systems/torch-compile",
   "module": "training-systems",
-  "title": "torch.compile — Dynamo & Inductor",
+  "title": "torch.compile: Dynamo & Inductor",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

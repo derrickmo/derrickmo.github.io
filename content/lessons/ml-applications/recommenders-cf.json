@@ -5,7 +5,7 @@
   "slug": "recommenders-cf",
   "keyBase": "ml-applications/recommenders-cf",
   "module": "ml-applications",
-  "title": "Recommender Systems — Collaborative Filtering",
+  "title": "Recommender Systems: Collaborative Filtering",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

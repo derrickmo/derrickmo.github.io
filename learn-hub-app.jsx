@@ -10,7 +10,7 @@ const {
 const SECTIONS = [
   {
     href: "../interview/", tag: "// DRILL · INTERVIEW PREP", title: "Interview Prep", tone: "violet",
-    blurb: "Every interview question and flashcard written into the 250 lessons, in one place — filter by module, tier and level, drill on a spaced-repetition schedule, or run a timed mock interview.",
+    blurb: "Every interview question and flashcard written into the 250 lessons, in one place. Filter by module, tier and level, drill on a spaced-repetition schedule, or run a timed mock interview.",
     stat: "5,210 questions · 2,765 flashcards · scheduled review",
     diagram: <AgentConstellation width={280} height={170} mode="dark" />,
   },
@@ -22,31 +22,31 @@ const SECTIONS = [
   },
   {
     href: "../paths/", tag: "// GUIDED · TRACKS", title: "Guided Paths", tone: "violet",
-    blurb: "Curated routes through the demos, concepts, and lessons — taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
+    blurb: "Curated routes through the demos, concepts and lessons, taken in the order that builds understanding. Pick a track, follow it step by step, and your progress is saved as you go.",
     stat: "11 paths · saved progress · start anywhere",
     diagram: <AgentConstellation width={280} height={170} mode="dark" />,
   },
   {
     href: "ml-from-scratch/", tag: "// COURSE · FROM SCRATCH", title: "ML from Scratch", tone: "blue",
-    blurb: "A 26-module program covering machine learning and deep learning from first principles. Every algorithm built in NumPy first — derive the math, implement it, then graduate to PyTorch.",
+    blurb: "A 26-module program covering machine learning and deep learning from first principles. Every algorithm built in NumPy first: derive the math, implement it, then graduate to PyTorch.",
     stat: "26 modules · 282 notebooks · NumPy → PyTorch",
     diagram: <LessonStack count={7} width={300} height={170} mode="dark" />,
   },
   {
     href: "huggingface/", tag: "// COURSE · APPLIED", title: "HuggingFace Tutorial", tone: "violet",
-    blurb: "The applied companion: pretrained models put to work across NLP, vision, audio, multimodal, and agentic workflows — the modern practitioner's toolkit.",
+    blurb: "The applied companion: pretrained models put to work across NLP, vision, audio, multimodal and agentic workflows. The modern practitioner's toolkit.",
     stat: "7 sections · 38 hands-on notebooks",
     diagram: <TransformerBlock width={440} height={159} layout="row" mode="dark" />,
   },
   {
     href: "key-concepts/", tag: "// REFERENCE · ANIMATED", title: "Key Concepts", tone: "violet",
-    blurb: "A growing gallery of looping visual explainers for the ideas behind modern AI — core deep learning, agentic & LLM patterns, and real-world applications. Built to make the math click at a glance.",
+    blurb: "A growing gallery of looping visual explainers for the ideas behind modern AI: core deep learning, agentic and LLM patterns, and real-world applications. Built to make the math click at a glance.",
     stat: "~25 animations · core DL · agentic · applications",
     diagram: <NeuralNet layers={[3, 5, 4, 2]} width={300} height={170} mode="dark" glow={0.7} />,
   },
   {
     href: "building-with-genai/", tag: "// SHORT COURSE", title: "Building with GenAI", tone: "blue",
-    blurb: "A behind-the-scenes walkthrough of how this very site was designed and built in collaboration with AI — the workflow, the tools (Claude Code, Cowork, Design), and what the human still has to do.",
+    blurb: "A behind-the-scenes walkthrough of how this very site was designed and built in collaboration with AI: the workflow, the tools (Claude Code, Cowork, Design), and what the human still has to do.",
     stat: "1 essay · the making-of this site",
     diagram: <AgentConstellation width={280} height={170} mode="dark" />,
   },
@@ -72,7 +72,7 @@ function LearnHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Sharing what I build.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 640, fontSize: 17, lineHeight: 1.6 }}>
-            Two full courses, an animated concept reference, and a making-of essay — built to take you from first principles to applied practice. Free, self-guided, and always growing.
+            Two full courses, an animated concept reference, and a making-of essay, built to take you from first principles to applied practice. Free, self-guided, and always growing.
           </div>
         </div>
       </Container>

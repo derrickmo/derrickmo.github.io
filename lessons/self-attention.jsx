@@ -47,7 +47,7 @@ function LessonContent() {
       <LessonSection n="0" title="Setup" tag="// IMPORTS + DATA">
         <P>
           We import NumPy and PyTorch, fix seeds so every run is reproducible,
-          and pick a device. Then we set up a tiny synthetic dataset — a copy
+          and pick a device. Then we set up a tiny synthetic dataset, a copy
           task: given a sequence, produce the same sequence as output. This
           is the simplest task that requires the model to "look at" specific
           input positions, which is exactly what attention is for.
@@ -71,7 +71,7 @@ D_MODEL = 16
 BATCH = 32`}</CodeBlock>
         <Aside title="Why this dataset?">
           A copy task is the smallest interesting attention problem. The model
-          can't solve it by memorizing a mapping — it has to learn to look at
+          cannot solve it by memorizing a mapping. It has to learn to look at
           the right input position. If attention doesn't do this, nothing else
           will save it.
         </Aside>
@@ -98,7 +98,7 @@ BATCH = 32`}</CodeBlock>
           (otherwise softmax pushes one weight to 1 and starves the gradients).
         </P>
 
-        <H3>Implementation — pure NumPy</H3>
+        <H3>Implementation: pure NumPy</H3>
         <P>
           Before writing any PyTorch, we implement attention with raw arrays so
           there's no doubt about what the operation actually does.
@@ -115,7 +115,7 @@ def attention_numpy(Q, K, V):
     Q: (..., n_q, d_k)
     K: (..., n_k, d_k)
     V: (..., n_k, d_v)
-    Returns: (..., n_q, d_v), (..., n_q, n_k) — output, weights
+    Returns: (..., n_q, d_v), (..., n_q, n_k) = output, weights
     """
     d_k = Q.shape[-1]
     scores = Q @ np.swapaxes(K, -1, -2) / np.sqrt(d_k)
@@ -129,7 +129,7 @@ K = np.random.randn(5, 4)   # 5 keys
 V = np.random.randn(5, 8)   # 5 values, dim 8
 out, w = attention_numpy(Q, K, V)
 print(out.shape)   # (3, 8)
-print(w.sum(-1))   # [1., 1., 1.] — each row sums to 1`}</CodeBlock>
+print(w.sum(-1))   # [1., 1., 1.] : each row sums to 1`}</CodeBlock>
 
         <KeyInsight title="Attention is a soft lookup">
           Imagine a Python dict where <code>keys</code> and <code>values</code> are
@@ -171,8 +171,8 @@ print(w.sum(-1))   # [1., 1., 1.] — each row sums to 1`}</CodeBlock>
         weights = F.softmax(scores, dim=-1)
         return weights @ V, weights`}</CodeBlock>
         <Aside title="Why no bias on the projections?">
-          The original Transformer paper drops biases on Q/K/V projections —
-          they don't help and they add parameters. Modern variants (Llama, GPT)
+          The original Transformer paper drops biases on Q/K/V projections,
+          because they do not help and they add parameters. Modern variants (Llama, GPT)
           follow the same convention.
         </Aside>
       </LessonSection>
@@ -183,7 +183,7 @@ print(w.sum(-1))   # [1., 1., 1.] — each row sums to 1`}</CodeBlock>
           We wrap the attention layer with an embedding for the input tokens
           and a linear head for the output logits, then train on the copy task
           with cross-entropy loss. Expect the model to reach near-perfect
-          accuracy within a few hundred steps — proof that attention can
+          accuracy within a few hundred steps, which is proof that attention can
           identify and copy from the relevant input position.
         </P>
         <CodeBlock lang="python">{`class TinyAttentionModel(nn.Module):
@@ -214,7 +214,7 @@ for step in range(500):
         <TryThis title="Break it, then explain it.">
           Set the scale factor to 1 (remove the <MathInline>{`\\sqrt{d_k}`}</MathInline>)
           and increase <code>D_MODEL</code> to 128. Watch the loss plateau higher.
-          Inspect <code>scores.std()</code> before softmax — without the scale,
+          Inspect <code>scores.std()</code> before softmax. Without the scale,
           the logits saturate and gradients vanish. This is why the scale exists.
         </TryThis>
       </LessonSection>
@@ -242,7 +242,7 @@ print(w[0].cpu().numpy().round(2))`}</CodeBlock>
           Unlike many ML models, attention's intermediate state is human-readable.
           You can point at a row and say "the model used these inputs to produce
           this output." That's why "attention as interpretation" is such a
-          common technique in NLP — though it's not the whole story (see
+          common technique in NLP, though it is not the whole story (see
           Module 10-10, Mechanistic Interpretability).
         </KeyInsight>
         <Warn title="Don't over-trust attention as 'attribution'.">
@@ -266,7 +266,7 @@ print(w[0].cpu().numpy().round(2))`}</CodeBlock>
         <ul style={{ color: "var(--white)", fontSize: 16, lineHeight: 1.7, maxWidth: 720, paddingLeft: 22 }}>
           <li>Attention computes a weighted average of values. Weights come from query–key similarity.</li>
           <li>The <MathInline>{`\\sqrt{d_k}`}</MathInline> scale exists to keep softmax gradients alive at large widths.</li>
-          <li>One attention head can only express one kind of relationship per layer — next lesson, we'll see why we need multiple heads.</li>
+          <li>One attention head can only express one kind of relationship per layer. Next lesson, we will see why we need multiple heads.</li>
           <li>Attention's intermediate state is interpretable but not necessarily a faithful explanation.</li>
         </ul>
         <H3>Next up</H3>

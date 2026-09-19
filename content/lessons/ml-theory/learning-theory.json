@@ -5,7 +5,7 @@
   "slug": "learning-theory",
   "keyBase": "ml-theory/learning-theory",
   "module": "ml-theory",
-  "title": "Learning Theory — VC Dimension, PAC Learning",
+  "title": "Learning Theory: VC Dimension, PAC Learning",
   "status": "LIVE",
   "bodySource": "jsx",
   "surfaces": {

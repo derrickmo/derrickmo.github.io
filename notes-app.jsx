@@ -21,22 +21,22 @@ const NOTES = [
   },
   {
     tag: "// GENERALIZATION", title: "Overfitting, in a paragraph",
-    body: "A model that memorizes the training data looks brilliant on it and useless on anything new. That's overfitting — low bias, high variance. Underfitting is the opposite: too simple to capture the pattern. The goal is the sweet spot between them, which you find by watching performance on data the model never trained on.",
+    body: "A model that memorizes the training data looks brilliant on it and useless on anything new. That is overfitting: low bias, high variance. Underfitting is the opposite: too simple to capture the pattern. The goal is the sweet spot between them, which you find by watching performance on data the model never trained on.",
     href: "visualize/overfitting/", hrefLabel: "SEE THE DEMO →",
   },
   {
     tag: "// REPRESENTATION", title: "Embeddings = meaning as geometry",
-    body: "An embedding turns a word, image, or user into a vector — a point in space — arranged so that similar things land near each other. Once meaning is geometry, \"find related items\" becomes \"find nearby points,\" and analogies become arithmetic (king − man + woman ≈ queen). It's the substrate under search, recommendations, and RAG.",
+    body: "An embedding turns a word, image or user into a vector, a point in space, arranged so that similar things land near each other. Once meaning is geometry, \"find related items\" becomes \"find nearby points,\" and analogies become arithmetic (king − man + woman ≈ queen). It's the substrate under search, recommendations, and RAG.",
     href: "visualize/embeddings/", hrefLabel: "SEE THE DEMO →",
   },
   {
     tag: "// LANGUAGE MODELS", title: "What a language model really does",
-    body: "A language model only ever predicts the next token, given everything before it. That's it. Everything impressive — answering, translating, coding — emerges from doing that one thing extremely well over a huge vocabulary. How you sample from its predicted distribution (temperature, top-k, top-p) is what makes it feel safe or wild.",
+    body: "A language model only ever predicts the next token, given everything before it. That's it. Everything impressive, whether answering, translating or coding, emerges from doing that one thing extremely well over a huge vocabulary. How you sample from its predicted distribution (temperature, top-k, top-p) is what makes it feel safe or wild.",
     href: "visualize/decoding/", hrefLabel: "SEE THE DEMO →",
   },
   {
     tag: "// REINFORCEMENT LEARNING", title: "Reinforcement learning in one idea",
-    body: "Supervised learning has an answer key; reinforcement learning has only a reward, often delayed. The agent acts, gets a score, and must figure out which earlier actions deserve the credit. That single shift — learning from consequences instead of labels — is what powers game-players, robots, and the alignment step in modern LLMs.",
+    body: "Supervised learning has an answer key; reinforcement learning has only a reward, often delayed. The agent acts, gets a score, and must figure out which earlier actions deserve the credit. That single shift, learning from consequences instead of labels, is what powers game-players, robots, and the alignment step in modern LLMs.",
     href: "visualize/value-iteration/", hrefLabel: "SEE THE DEMO →",
   },
 ];
@@ -61,7 +61,7 @@ function NotesHero() {
           WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
         }}>One idea at a time.</h1>
         <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 18, lineHeight: 1.6, marginTop: 16 }}>
-          Short, plain-language intros to the concepts that everything else builds on — each one a paragraph, no math degree required, with a link to play with it.
+          Short, plain-language intros to the concepts that everything else builds on. Each one is a paragraph, no math degree required, with a link to play with it.
         </div>
       </Container>
     </Section>
@@ -83,7 +83,7 @@ function NotesList() {
             <a href={`${BASE}${n.href}`} className="t-mono-s" style={{ color: "var(--violet-lt)", textDecoration: "none", fontSize: 11, marginTop: 2 }}>{n.hrefLabel}</a>
           </div>
         ))}
-        <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 11, marginTop: 8 }}>More notes planned — this list grows over time.</div>
+        <div className="t-mono-s" style={{ color: "var(--dim)", fontSize: 11, marginTop: 8 }}>More notes planned; this list grows over time.</div>
       </Container>
     </Section>
   );

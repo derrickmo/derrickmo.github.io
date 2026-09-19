@@ -557,7 +557,7 @@ function StoreLessonBody({ data }) {
                 return (
                   <li key={i} style={{ margin: "6px 0" }}>
                     {href ? <a href={href} style={{ color: "var(--blue-lt)" }}>{c.ref}</a> : null}
-                    {href ? " — " : ""}{c.text}
+                    {href ? " · " : ""}{c.text}
                   </li>
                 );
               })}
@@ -595,7 +595,7 @@ function DrillSections({ iv, cards, refs, nInterview, nFlashcards }) {
   return (
     <>
       <LessonSection n={nInterview} id="interview" title="Interview" tag="// 3-TIER Q&A">
-        <H3>Quick grind — one-liners you should own</H3>
+        <H3>Quick grind: one-liners you should own</H3>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(iv.quickGrind || []).map((qa, i) => (
             <details key={i} style={{ border: "1px solid var(--border)", borderRadius: 6, padding: "10px 16px", background: "rgba(13,24,52,0.4)" }}>
@@ -604,7 +604,7 @@ function DrillSections({ iv, cards, refs, nInterview, nFlashcards }) {
             </details>
           ))}
         </div>
-        <H3>Standard — complete answers with deep-dives</H3>
+        <H3>Standard: complete answers with deep-dives</H3>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {(iv.standard || []).map((qa, i) => {
             // Some modules ship deepDive as a bare string instead of {q,a}. Read it as an
@@ -616,7 +616,7 @@ function DrillSections({ iv, cards, refs, nInterview, nFlashcards }) {
                 <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "12px 0", lineHeight: 1.65 }}>{qa.a}</p>
                 {dd && dd.a && (
                   <div style={{ borderLeft: "2px solid var(--violet-lt)", paddingLeft: 14, margin: "10px 0 4px" }}>
-                    <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>{dd.q ? `// DEEP DIVE — ${dd.q}` : "// DEEP DIVE"}</span>
+                    <span className="t-mono-s" style={{ color: "var(--violet-lt)", fontSize: 10 }}>{dd.q ? `// DEEP DIVE · ${dd.q}` : "// DEEP DIVE"}</span>
                     <p style={{ color: "var(--muted)", fontSize: 14, margin: "8px 0 0", lineHeight: 1.6 }}>{dd.a}</p>
                   </div>
                 )}

@@ -37,7 +37,7 @@ function CasesHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Let's build it<br/>for real.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            I help teams take ML from "interesting notebook" to "running in production" —
+            I help teams take ML from "interesting notebook" to "running in production":
             model design, training pipelines, agentic LLM systems, and the MLOps to keep
             them alive. Research-grade rigor, AWS-first delivery, built alongside you.
           </div>
@@ -78,11 +78,11 @@ function CasesHero() {
 function Engagements() {
   const mobile = useIsMobile();
   const items = [
-    { tag: "01", title: "Architecture & audits", tone: "blue", desc: "A second set of eyes on an ML system or a plan — design review, risk, and a prioritized path to fix what's actually blocking you." },
-    { tag: "02", title: "Model & pipeline design", tone: "violet", desc: "Data pipeline, model choice, and training loop across computer vision, NLP, and multimodal — built to train reproducibly and serve fast." },
-    { tag: "03", title: "Agentic LLM systems", tone: "blue", desc: "RAG, tool use, multi-agent orchestration, and structured output — with evaluation that catches regressions before users do." },
+    { tag: "01", title: "Architecture & audits", tone: "blue", desc: "A second set of eyes on an ML system or a plan: design review, risk, and a prioritized path to fix what is actually blocking you." },
+    { tag: "02", title: "Model & pipeline design", tone: "violet", desc: "Data pipeline, model choice, and training loop across computer vision, NLP and multimodal, built to train reproducibly and serve fast." },
+    { tag: "03", title: "Agentic LLM systems", tone: "blue", desc: "RAG, tool use, multi-agent orchestration and structured output, with evaluation that catches regressions before users do." },
     { tag: "04", title: "Training & fine-tuning", tone: "violet", desc: "LoRA / QLoRA, instruction tuning, and alignment (RLHF / DPO), plus the efficiency tricks to do it on a sane budget." },
-    { tag: "05", title: "MLOps & deployment", tone: "blue", desc: "Inference platforms, containerization, CI/CD, monitoring, and cost optimization — production-grade, AWS-first." },
+    { tag: "05", title: "MLOps & deployment", tone: "blue", desc: "Inference platforms, containerization, CI/CD, monitoring and cost optimization. Production-grade, AWS-first." },
     { tag: "06", title: "Evaluation & benchmarking", tone: "violet", desc: "Honest eval harnesses and model selection across GPT, Claude, open-source, and domain-specific models." },
   ];
   return (
@@ -126,8 +126,8 @@ function Engagements() {
 // ─── Process flow ─────────────────────────────────────────────
 function Process() {
   const steps = [
-    { n: "01", title: "Scope", desc: "Pin down the real problem, the constraints, and what “done” looks like. If it's fuzzy, a short paid discovery first — no big commitment to find out if we're a fit." },
-    { n: "02", title: "Diagnose", desc: "Audit the data, models, and infrastructure. Find the actual bottleneck — data quality, modeling, serving, or evaluation — and write it up plainly." },
+    { n: "01", title: "Scope", desc: "Pin down the real problem, the constraints, and what “done” looks like. If it is fuzzy, a short paid discovery comes first, so there is no big commitment to find out whether we are a fit." },
+    { n: "02", title: "Diagnose", desc: "Audit the data, models, and infrastructure. Find the actual bottleneck, whether that is data quality, modeling, serving or evaluation, and write it up plainly." },
     { n: "03", title: "Prototype", desc: "Build the smallest thing that proves the approach, measured against a baseline on your real data. Kill bad ideas cheaply." },
     { n: "04", title: "Productionize", desc: "Harden it: training pipeline, inference, monitoring, and cost. It ships to your stack, not a notebook on my laptop." },
     { n: "05", title: "Hand off", desc: "Documentation, runbooks, and a walkthrough so your team owns it. Optional ongoing advisory if you want me on call." },
@@ -183,7 +183,7 @@ function Models() {
   const models = [
     { tag: "ADVISORY", title: "Advisory", tone: "blue", desc: "Hourly or a light monthly retainer. Architecture reviews, unblocking your team, sanity-checking a roadmap before you commit budget.", best: "Best for: a team that needs senior ML judgment on tap." },
     { tag: "PROJECT", title: "Project", tone: "violet", desc: "Fixed scope, fixed outcome. A defined deliverable with a baseline and acceptance criteria agreed up front.", best: "Best for: a concrete build with a clear finish line." },
-    { tag: "EMBEDDED", title: "Embedded", tone: "blue", desc: "Part-time, hands-on delivery alongside your team for a defined stretch — I write code and ship, not just slides.", best: "Best for: extra senior capacity to get something out the door." },
+    { tag: "EMBEDDED", title: "Embedded", tone: "blue", desc: "Part-time, hands-on delivery alongside your team for a defined stretch. I write code and ship, not just slides.", best: "Best for: extra senior capacity to get something out the door." },
   ];
   return (
     <Section id="models">

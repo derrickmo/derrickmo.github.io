@@ -5,7 +5,7 @@
   "slug": "model-serving",
   "keyBase": "mlops/model-serving",
   "module": "mlops",
-  "title": "Model Serving — FastAPI & Gradio",
+  "title": "Model Serving: FastAPI & Gradio",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

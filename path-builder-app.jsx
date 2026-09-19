@@ -119,7 +119,7 @@ function App() {
                 <MonoLabel color="var(--violet-lt)">// ROUTE TO {C.name.toUpperCase()}</MonoLabel>
                 <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 18px" }}>
                   {path.length <= 1
-                    ? `${C.name} has no prerequisites in the graph — it is a starting point. Begin here.`
+                    ? `${C.name} has no prerequisites in the graph, so it is a starting point. Begin here.`
                     : `${path.length - 1} concept${path.length === 2 ? "" : "s"} come first.`}
                   {hidden > 0 && <span style={{ color: "var(--dim)" }}> {hidden} hidden as known.</span>}
                   {K().count() > 0 && (
@@ -164,7 +164,7 @@ function App() {
                 </ol>
 
                 <div className="t-body" style={{ color: "var(--dim)", fontSize: 13.5, lineHeight: 1.6, marginTop: 18, maxWidth: 640 }}>
-                  Marking a step known also drops anything that was only needed for it — which is
+                  Marking a step known also drops anything that was only needed for it, which is
                   why the list can shrink by more than one row, or by fewer than you expect when
                   a step is still required further along.
                 </div>

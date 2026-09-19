@@ -38,7 +38,7 @@ function ResearchHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Research<br/>that ships.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            Published, peer-reviewed work in NLP and language models — and an active
+            Published, peer-reviewed work in NLP and language models, plus an active
             interest in reinforcement learning for LLM post-training and agentic
             systems. I'm open to research collaborations.
           </div>
@@ -64,7 +64,7 @@ function Flagship() {
   const covers = [
     "Architectures & efficient design",
     "Training & inference techniques",
-    "Compression — quantization, pruning, distillation",
+    "Compression: quantization, pruning, distillation",
     "On-device & resource-constrained deployment",
     "Applications and the SLM–LLM relationship",
   ];
@@ -104,7 +104,7 @@ function Flagship() {
             color: "var(--white)", margin: "16px 0 0", lineHeight: 1.1, maxWidth: 900,
           }}>A Comprehensive Survey of Small Language Models in the Era of Large Language Models.</h2>
           <div className="t-body" style={{ color: "var(--muted)", fontSize: 16, lineHeight: 1.6, marginTop: 14, maxWidth: 640 }}>
-            A broad survey of small language models — how they're built, trained,
+            A broad survey of small language models: how they are built, trained,
             compressed, and deployed, and how they relate to the large models they
             run alongside. Accepted by ACM Transactions on Intelligent Systems and
             Technology.
@@ -137,7 +137,7 @@ function Publications() {
       venue: "Applied NLP", role: "Co-author", href: null, tone: "blue",
     },
     {
-      cite: "Mo T, Zhou J, Selek S, Liu H, Huang M. MentalNet — BERT-based mental disease detection.",
+      cite: "Mo T, Zhou J, Selek S, Liu H, Huang M. MentalNet: BERT-based mental disease detection.",
       venue: "AMIA Symposium · podium", role: "First author", href: null, tone: "blue",
     },
   ];
@@ -236,7 +236,7 @@ function Interests() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 660 }}>
           <p className="t-body" style={{ color: "var(--white)", opacity: 0.9, fontSize: 17, lineHeight: 1.7, margin: 0 }}>
             I'm most interested in reinforcement learning methods that improve data
-            efficiency in LLM post-training — treating the training data and the
+            efficiency in LLM post-training, treating the training data and the
             policy interface as first-class research objects rather than fixed
             inputs. Recent directions like conditional pre-training data selection
             (CoLoR-Filter) and lightweight RL on top of frozen LLM embeddings
@@ -248,7 +248,7 @@ function Interests() {
             multi-step agentic behavior rather than single-token generation?
             Building production agentic systems showed me how
             brittle agent behavior becomes when the underlying capability
-            distribution is mismatched — and convinced me the right level to
+            distribution is mismatched, and convinced me the right level to
             address it is the training data and reward modeling, not downstream
             patches.
           </p>

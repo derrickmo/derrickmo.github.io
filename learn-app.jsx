@@ -50,7 +50,7 @@ function LearnHero() {
             WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
           }}>Learning ML from<br/>scratch, by doing.</h1>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 620, fontSize: 17, lineHeight: 1.6 }}>
-            The most comprehensive machine-learning curriculum I could build — every major
+            The most comprehensive machine-learning curriculum I could build, covering every major
             concept from first principles. Each lesson is a complete, easy-to-follow Jupyter
             notebook you can run end-to-end. NumPy first: derive the math, implement it,
             then graduate to PyTorch. No black boxes.
@@ -324,7 +324,7 @@ function V2Grid() {
           <div>
             <MonoLabel color="var(--violet-lt)">// START ANYWHERE</MonoLabel>
             <div className="t-body" style={{ color: "var(--white)", opacity: 0.9, fontSize: 15, lineHeight: 1.55, marginTop: 8, maxWidth: 680 }}>
-              You don't have to begin at Module 1. Every notebook runs independently — "Restart &amp; Run All", no hidden dependencies — so pick the module that fits you. New to ML? Start with the mathematical foundations. Already comfortable? Jump straight to deep learning, LLMs, or systems. The repo README maps out suggested paths.
+              You don't have to begin at Module 1. Every notebook runs independently ("Restart &amp; Run All", no hidden dependencies), so pick the module that fits you. New to ML? Start with the mathematical foundations. Already comfortable? Jump straight to deep learning, LLMs, or systems. The repo README maps out suggested paths.
             </div>
           </div>
           <a href={repo()} target="_blank" rel="noopener" className="t-mono-s" style={{ whiteSpace: "nowrap", padding: "11px 18px", border: "1px solid var(--violet-lt)", borderRadius: 4, color: "var(--white)", textDecoration: "none", background: "rgba(168,85,247,0.12)" }}>READ THE GUIDE →</a>
@@ -357,7 +357,7 @@ function V2Grid() {
               </div>
               <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: "16px 18px", background: "rgba(13,24,52,0.35)" }}>
                 <div className="t-body" style={{ color: "var(--muted)", fontSize: 13.5, lineHeight: 1.55, marginBottom: 10, maxWidth: 680 }}>
-                  These lessons are written and live here, but sit outside the notebook curriculum — each was dropped
+                  These lessons are written and live here, but sit outside the notebook curriculum. Each was dropped
                   from the notebooks for a reason that applies to a runnable notebook and not to a written lesson.
                 </div>
                 {V.kept.map(k => <V2Lesson key={k.n} l={k} />)}
@@ -412,7 +412,7 @@ function ModulesGrid() {
           <div>
             <MonoLabel color="var(--violet-lt)">// START ANYWHERE</MonoLabel>
             <div className="t-body" style={{ color: "var(--white)", opacity: 0.9, fontSize: 15, lineHeight: 1.55, marginTop: 8, maxWidth: 680 }}>
-              You don't have to begin at Module 1. Every notebook runs independently — "Restart &amp; Run All", no hidden dependencies — so pick the module that fits you. New to ML? Start with Foundations. Already comfortable? Jump straight to deep learning, LLMs, or RL. The repo README maps out suggested paths.
+              You don't have to begin at Module 1. Every notebook runs independently ("Restart &amp; Run All", no hidden dependencies), so pick the module that fits you. New to ML? Start with Foundations. Already comfortable? Jump straight to deep learning, LLMs, or RL. The repo README maps out suggested paths.
             </div>
           </div>
           <a href={repo()} target="_blank" rel="noopener" className="t-mono-s" style={{ whiteSpace: "nowrap", padding: "11px 18px", border: "1px solid var(--violet-lt)", borderRadius: 4, color: "var(--white)", textDecoration: "none", background: "rgba(168,85,247,0.12)" }}>READ THE GUIDE →</a>
@@ -529,7 +529,7 @@ function LearnCta() {
               letterSpacing: "-0.02em", color: "var(--white)", margin: "10px 0 12px",
             }}>Self-guided notebooks, free and updated.</h3>
             <div className="t-body" style={{ color: "var(--muted)", maxWidth: 600, fontSize: 15, lineHeight: 1.55 }}>
-              The notebooks live on GitHub — each self-contained and runnable end-to-end, with new modules landing over time. Video walkthroughs and applied case studies are planned.
+              The notebooks live on GitHub, each self-contained and runnable end-to-end, with new modules landing over time. Video walkthroughs and applied case studies are planned.
             </div>
           </div>
           <a href={repo()} target="_blank" rel="noopener" style={{
@@ -571,7 +571,7 @@ function OtherCourse() {
               HuggingFace Tutorial
             </div>
             <div className="t-body" style={{ color: "var(--muted)", fontSize: 15, marginTop: 6, maxWidth: 640, lineHeight: 1.5 }}>
-              The applied companion to this from-scratch curriculum — pretrained models put to work end to end. Topics covered:
+              The applied companion to this from-scratch curriculum: pretrained models put to work end to end. Topics covered:
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
               {topics.map(t => (

@@ -5,7 +5,7 @@
   "slug": "qlora",
   "keyBase": "fine-tuning/qlora",
   "module": "fine-tuning",
-  "title": "QLoRA — 4-Bit Quantization + LoRA",
+  "title": "QLoRA: 4-Bit Quantization + LoRA",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

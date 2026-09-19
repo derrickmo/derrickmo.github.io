@@ -5,7 +5,7 @@
   "slug": "sgd-momentum",
   "keyBase": "neural-nets/sgd-momentum",
   "module": "neural-nets",
-  "title": "Optimizers — SGD, Momentum & Nesterov",
+  "title": "Optimizers: SGD, Momentum & Nesterov",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

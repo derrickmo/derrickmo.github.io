@@ -5,7 +5,7 @@
   "slug": "pytorch-fundamentals",
   "keyBase": "neural-nets/pytorch-fundamentals",
   "module": "neural-nets",
-  "title": "PyTorch Fundamentals — Autograd & nn.Module",
+  "title": "PyTorch Fundamentals: Autograd & nn.Module",
   "status": "LIVE",
   "level": "core",
   "surfaces": {

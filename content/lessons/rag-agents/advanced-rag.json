@@ -5,7 +5,7 @@
   "slug": "advanced-rag",
   "keyBase": "rag-agents/advanced-rag",
   "module": "rag-agents",
-  "title": "Advanced RAG — HyDE & Reranking",
+  "title": "Advanced RAG: HyDE & Reranking",
   "status": "LIVE",
   "level": "advanced",
   "surfaces": {

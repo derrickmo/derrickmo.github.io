@@ -5,7 +5,7 @@
   "slug": "gan",
   "keyBase": "generative/gan",
   "module": "generative",
-  "title": "GANs — DCGAN & WGAN",
+  "title": "GANs: DCGAN & WGAN",
   "status": "LIVE",
   "level": "core",
   "surfaces": {
