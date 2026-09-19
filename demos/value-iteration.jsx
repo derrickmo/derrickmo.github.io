@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -147,41 +147,69 @@ function ValueIterationDemo() {
     <>
       <DemoP>
         A Markov Decision Process is the math behind every planning agent: states,
-        actions, a reward, and <i>stochastic</i> transitions. Here the robot only moves where it intends with probability <b>1 − noise</b>, and slips sideways
-        otherwise. <b>Value iteration</b> repeatedly applies the Bellman optimality backup. The value of each cell becomes the living reward plus the discounted value
-        of the <i>best</i> action's expected next state. Hit <b>Sweep</b> and watch
-        value flow outward from the goal one ring per iteration; the
-        <span style={{ color: "#fbbf24" }}> arrows</span> show the greedy policy it
-        implies.
+        actions, a reward and <i>stochastic</i> transitions. Here the robot only
+        moves where it intends with probability <b>1 − noise</b>, and slips sideways
+        otherwise. <b>Value iteration</b> repeatedly applies the Bellman optimality
+        backup, so the value of each cell becomes the living reward plus the
+        discounted value of the expected next state of the <i>best</i> action. Hit{" "}
+        <b>Sweep</b> and watch value flow outward from the goal one ring per
+        iteration, with the <span style={{ color: "#fbbf24" }}>arrows</span> showing
+        the greedy policy it implies.
       </DemoP>
+      <DemoP>The knobs change the personality of the agent:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drop the <b>discount γ</b> and it turns short-sighted, caring only about
+          nearby reward.
+        </DemoLI>
+        <DemoLI>
+          Make the <b>living reward</b> very negative and it sprints for the exit,
+          even risking the pit. Near zero and it plays it safe, taking the long way
+          around.
+        </DemoLI>
+        <DemoLI>
+          Crank <b>noise</b> and the policy steers wide of the pit, because slips are
+          likely.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The knobs change the agent's personality. Drop the <b>discount γ</b> and it
-        turns short-sighted, caring only about nearby reward. Make the <b>living
-        reward</b> very negative and it sprints for the exit, even risking the pit;
-        near zero and it plays it safe, taking the long way around. Crank
-        <b> noise</b> and the policy steers wide of the pit because slips are likely.
-        This is the model-<i>based</i> cousin of the Q-learning demo: same gridworld, but here the dynamics are known and solved exactly, not learned from
+        This is the model-<i>based</i> cousin of the Q-learning demo: same gridworld,
+        but here the dynamics are known and solved exactly rather than learned from
         experience.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Markov Decision Processes are the formal backbone of sequential decision-making,
-        and the <b>Bellman optimality</b> backup you're iterating is the equation underneath
-        nearly all of reinforcement learning. Value iteration itself solves real planning problems such as robot navigation, inventory and resource control
-        and game AI, whenever the dynamics are known.
+        Markov Decision Processes are the formal backbone of sequential
+        decision-making, and the <b>Bellman optimality</b> backup you are iterating
+        is the equation underneath nearly all of reinforcement learning. Value
+        iteration itself solves real planning problems such as robot navigation,
+        inventory and resource control and game AI, whenever the dynamics are known.
       </DemoP>
       <DemoP>
-        When the dynamics aren't known, the same backup becomes <i>learning</i>: Q-learning
-        and SARSA sample the Bellman update from experience, and Deep Q-Networks swap the
-        value table for a neural net to scale to huge state spaces (Atari, robotics). The knobs here, discount and stochastic transitions and reward shaping, are exactly
-        the design choices that make or break a real RL system, including the reward-hacking
-        risk of getting the living reward wrong.
+        When the dynamics are not known, the same backup becomes <i>learning</i>:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Q-learning and SARSA sample the Bellman update from experience instead of
+          computing it.
+        </DemoLI>
+        <DemoLI>
+          Deep Q-Networks swap the value table for a neural net, to scale to huge
+          state spaces like Atari and robotics.
+        </DemoLI>
+        <DemoLI>
+          The knobs here, discount and stochastic transitions and reward shaping, are
+          exactly the design choices that make or break a real RL system, including
+          the reward-hacking risk of getting the living reward wrong.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="MDP Value Iteration"
       subtitle="Solve a gridworld exactly: Bellman backups propagate value out from the goal, inducing the optimal policy."

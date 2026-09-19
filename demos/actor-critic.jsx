@@ -18,7 +18,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -267,43 +267,58 @@ function ActorCriticDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two tables, one error signal. The <b>critic</b> (left) learns a value V(s), how good each cell is, and the <b>actor</b> (right) learns a
+        Two tables, one error signal. The <b>critic</b> on the left learns a value
+        V(s), how good each cell is, and the <b>actor</b> on the right learns a
         policy π(a|s), drawn as arrows sized by probability. After every move the
-        agent computes one number, the <i>TD error</i>{" "}
-        <i>δ = r + γ·V(s′) − V(s)</i>: was this step better or worse than the
-        critic expected? That single δ updates <i>both</i> heads. The critic nudges V(s) toward the truth, and the actor pushes probability toward the
-        action it just took, scaled by δ.
+        agent computes one number, the <i>TD error</i> <i>δ = r + γ·V(s′) − V(s)</i>:
+        was this step better or worse than the critic expected?
       </DemoP>
+      <DemoUL>
+        <DemoLI>That single δ updates <i>both</i> heads.</DemoLI>
+        <DemoLI>The critic nudges V(s) toward the truth.</DemoLI>
+        <DemoLI>
+          The actor pushes probability toward the action it just took, scaled by δ.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Watch the value heatmap fill in from the green goal outward as γ carries
-        credit backward, and the arrows snap toward the gap in the wall and away
-        from the red trap. When δ is positive (green) the last move beat
-        expectations and that action gets reinforced; negative δ (red) suppresses
-        it. Crank the actor LR up with a slow critic and you'll see the policy
-        commit to a bad route before the critic has learned the terrain, which is the classic actor-critic failure mode.
+        credit backward, and the arrows snap toward the gap in the wall and away from
+        the red trap. Positive δ in green means the last move beat expectations and
+        that action gets reinforced; negative δ in red suppresses it. Crank the actor
+        LR up with a slow critic and the policy commits to a bad route before the
+        critic has learned the terrain, which is the classic actor-critic failure mode.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         This is the bridge between the two halves of RL. The{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>Policy
-        Gradient</a> demo had a running-mean baseline you could toggle to cut
-        variance. Actor-critic <i>replaces that baseline with a learned value function</i>, a critic that is specific to each state and updates online,
-        step by step, instead of waiting for the episode to finish. The TD error
-        is the advantage; the critic is the baseline that makes it low-variance.
+        <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>Policy Gradient</a>{" "}
+        demo had a running-mean baseline you could toggle to cut variance.
+        Actor-critic <i>replaces that baseline with a learned value function</i>, a
+        critic specific to each state that updates online, step by step, instead of
+        waiting for the episode to finish. The TD error is the advantage, and the
+        critic is the baseline that makes it low-variance.
       </DemoP>
       <DemoP>
-        Almost every modern policy method is an actor-critic. A2C/A3C run this
-        exact update in parallel across workers; PPO adds a clipped trust region
-        and a GAE-smoothed advantage on top of the same actor and critic; in RLHF
-        the actor is the language model and the critic is a value head predicting
-        reward-model score. The "subtract a learned baseline, bootstrap with the
-        critic" pattern you're watching is the workhorse of applied deep RL.
+        Almost every modern policy method is an actor-critic:
       </DemoP>
+      <DemoUL>
+        <DemoLI>A2C and A3C run this exact update in parallel across workers.</DemoLI>
+        <DemoLI>
+          PPO adds a clipped trust region and a GAE-smoothed advantage on top of the
+          same actor and critic.
+        </DemoLI>
+        <DemoLI>
+          In RLHF the actor is the language model and the critic is a value head
+          predicting the reward-model score.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Actor-Critic"
       subtitle="A critic learns the value of each state; an actor learns the policy. One shared TD error trains both. This is the learned baseline behind A2C, PPO, and RLHF."

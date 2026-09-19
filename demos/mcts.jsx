@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -214,41 +214,61 @@ function MCTSDemo() {
   const explainer = (
     <>
       <DemoP>
-        Monte-Carlo Tree Search asks four questions on every iteration. <b style={{ color: "#fbbf24" }}>Select</b>: from
-        the root, follow the child with the highest UCB1 score (a mix of "my
-        average value here" and "but I haven't visited this branch much") until
-        I find a node I haven't fully expanded. <b style={{ color: "#c084fc" }}>Expand</b>: add one new child of that
-        node. <b style={{ color: "#34d399" }}>Rollout</b>: simulate the rest of the game from there, here a random walk to a leaf. <b style={{ color: "#60a5fa" }}>Backup</b>: the value at
-        the leaf is pushed back up the path you traversed; every node along the
-        way bumps its visit count N and its win total W.
+        Monte-Carlo Tree Search asks four questions on every iteration.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b style={{ color: "#fbbf24" }}>Select</b>: from the root, follow the child
+          with the highest UCB1 score, a mix of "my average value here" and "but I
+          have not visited this branch much", until you find a node that is not fully
+          expanded.
+        </DemoLI>
+        <DemoLI>
+          <b style={{ color: "#c084fc" }}>Expand</b> adds one new child of that node,
+          then <b style={{ color: "#34d399" }}>Rollout</b> simulates the rest of the
+          game from there, here a random walk to a leaf.
+        </DemoLI>
+        <DemoLI>
+          <b style={{ color: "#60a5fa" }}>Backup</b> pushes the leaf value back up the
+          path you traversed, and every node along the way bumps its visit count N
+          and its win total W.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Watch what happens as you step. Early on the tree is shallow and the
-        algorithm explores broadly. As N grows, UCB sharpens and the search starts spending all its time refining the apparently-best line. The
-        per-node readouts show <b>N</b> on top and the average value <b>W/N</b>{" "}
-        below. Hit STEP 100 a few times and the visit counts down the
-        principal variation should be much larger than everywhere else.
+        algorithm explores broadly. As N grows, UCB sharpens and the search starts
+        spending all its time refining the apparently best line. The per-node
+        readouts show <b>N</b> on top and the average value <b>W/N</b> below. Hit
+        STEP 100 a few times and the visit counts down the principal variation should
+        be much larger than everywhere else.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This is the search that powered <b>AlphaGo</b> (and, scaled with a
-        learned policy/value net, <b>AlphaZero</b> and <b>MuZero</b>). It's
-        also the engine behind every strong Go program of the modern era,
-        a key building block in robotics planning, and the basis for the
-        "tree of thoughts" prompting pattern in LLMs (treat a partial
-        reasoning trace as a tree node, expand and backup as you go).
+        This is the search that powered <b>AlphaGo</b>, and, scaled with a learned
+        policy and value net, <b>AlphaZero</b> and <b>MuZero</b>. It also shows up in
+        three other places:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Every strong Go program of the modern era.</DemoLI>
+        <DemoLI>Robotics planning, as a key building block.</DemoLI>
+        <DemoLI>
+          The "tree of thoughts" prompting pattern in LLMs, treating a partial
+          reasoning trace as a tree node and expanding and backing up as you go.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The deep idea is the exploration-vs-exploitation balance baked into UCB1, the same idea you saw in the multi-armed bandit demo, now
-        applied recursively to a tree. Anytime you can simulate forward
-        cheaply, and you want anytime search that improves with more time,
-        MCTS is a strong starting point.
+        The deep idea is the exploration-against-exploitation balance baked into
+        UCB1, the same idea you saw in the multi-armed bandit demo, now applied
+        recursively to a tree. Any time you can simulate forward cheaply and you want
+        anytime search that improves with more time, MCTS is a strong starting point.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="MCTS Tree Search"
       subtitle="Monte-Carlo Tree Search, iteration by iteration: select, expand, rollout, backup."
